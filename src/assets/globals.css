@@ -1,0 +1,31 @@
+@import 'tailwindcss' source(none);
+@source "../"; /* used for launching nextjs from another directory */
+
+@import './fonts.css';
+
+:root {
+  --primary: #232323;
+  --background: #373838;
+  --foreground: #ededed;
+  --header-height: 64px;
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: 'Source Sans Pro';
+  --font-mono: 'Ubuntu Mono';
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #373838;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
