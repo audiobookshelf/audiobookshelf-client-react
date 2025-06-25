@@ -7,21 +7,12 @@ interface ApiResponse<T = any> {
 }
 
 async function getServerBaseUrl() {
-  // Not sure how to handle server address
-  const headersList = await headers()
-  const host = headersList.get('host')
-  const protocol = headersList.get('x-forwarded-proto') || 'http'
-
-  if (!host) {
-    throw new Error('No host found in request headers')
+  let host = process.env.HOST || 'localhost'
+  if (host === '0.0.0.0') {
+    // Convert "all interfaces" address to localhost for internal API calls
+    host = 'localhost'
   }
-
-  let baseUrl = `${protocol}://${host}`
-  if (process.env.SOURCE === 'docker') {
-    baseUrl = `http://${process.env.HOST || 'localhost'}:${process.env.PORT || '80'}`
-  }
-
-  return baseUrl
+  return `http://${host}:${process.env.PORT || '3333'}`
 }
 
 /**
@@ -88,4 +79,8 @@ export async function getLibraries() {
 
 export async function getLibrary(libraryId: string) {
   return apiRequest(`/api/libraries/${libraryId}`)
+}
+
+export async function getLibraryPersonalized(libraryId: string) {
+  return apiRequest(`/api/libraries/${libraryId}/personalized`)
 }

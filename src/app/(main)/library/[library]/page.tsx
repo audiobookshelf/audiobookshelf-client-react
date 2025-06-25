@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import LibraryClient from './LibraryClient'
-import { getLibrary } from '../../../../lib/api'
+import { getLibrary, getLibraryPersonalized } from '../../../../lib/api'
 
 export default async function LibraryPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params
-  const libraryResponse = await getLibrary(libraryId)
-  const library = libraryResponse.data
+  const libraryResponse = await Promise.all([getLibrary(libraryId), getLibraryPersonalized(libraryId)])
+  const library = libraryResponse[0].data
+  const personalized = libraryResponse[1].data
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
@@ -17,7 +18,7 @@ export default async function LibraryPage({ params }: { params: Promise<{ librar
       </div>
 
       <Suspense fallback={<div>Loading...</div>}>
-        <LibraryClient library={library} />
+        <LibraryClient library={library} personalized={personalized} />
       </Suspense>
     </div>
   )
