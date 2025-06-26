@@ -1,36 +1,53 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 
-export default function LoginForm() {
+export default function ServerInitForm() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (!username.trim()) {
+      setError('Username is required')
+      return
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+    if (!password) {
+      if (!confirm('Are you sure you want to create the root user with no password?')) {
+        return
+      }
+    }
+
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/login', {
+      const payload = {
+        newRoot: {
+          username,
+          password
+        }
+      }
+      const res = await fetch('/init', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify(payload),
         credentials: 'include'
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
-        setError(data?.error || 'Invalid username or password.')
+        setError(data?.error || 'Unknown error')
         setLoading(false)
         return
       }
-      // Get redirect parameter from URL search params
-      const urlParams = new URLSearchParams(window.location.search)
-      const redirect = urlParams.get('redirect') || '/'
-      router.replace(redirect)
+      window.location.href = '/'
     } catch (err) {
       setError('Network error. Please try again.')
       setLoading(false)
@@ -39,7 +56,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-bg border border-gray-600 rounded-lg shadow-lg p-10 w-full max-w-md">
-      <h2 className="text-2xl font-bold text-center mb-6 text-postcss">Login</h2>
+      <h2 className="text-2xl font-bold text-center mb-6 text-postcss">Initial server setup</h2>
 
       <div className="flex flex-col gap-2 mb-4">
         <label htmlFor="username" className="text-gray-300 text-sm font-semibold">
@@ -52,6 +69,12 @@ export default function LoginForm() {
           PASSWORD
         </label>
         <input id="password" type="password" autoComplete="current-password" className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
+      <div className="flex flex-col gap-2 mb-4">
+        <label htmlFor="password" className="text-gray-300 text-sm font-semibold">
+          CONFIRM PASSWORD
+        </label>
+        <input id="password" type="password" autoComplete="current-password" className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
       </div>
       {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
       <div className="flex justify-end">

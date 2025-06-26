@@ -6,6 +6,19 @@ interface ApiResponse<T = any> {
   error?: string
 }
 
+interface ServerStatus {
+  serverVersion: string
+  language: string
+  isInit: boolean
+  authMethods: string[]
+  authFormData: Record<string, any>
+  ConfigPath: string
+  MetadataPath: string
+  app: string
+}
+
+const publicEndpoints = ['/status', '/init', '/login']
+
 async function getServerBaseUrl() {
   let host = process.env.HOST || 'localhost'
   if (host === '0.0.0.0') {
@@ -20,26 +33,36 @@ async function getServerBaseUrl() {
  */
 export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   try {
-    const cookieStore = await cookies()
-    if (!cookieStore.get('connect.sid')) {
-      return { error: 'Unauthorized' }
-    }
+    let authToken: string | undefined
 
-    const authToken = cookieStore.get('auth_token')?.value
-    if (!authToken) {
-      return { error: 'No authentication token found' }
+    if (!publicEndpoints.includes(endpoint)) {
+      const cookieStore = await cookies()
+      if (!cookieStore.get('connect.sid')) {
+        return { error: 'Unauthorized' }
+      }
+
+      authToken = cookieStore.get('auth_token')?.value
+      if (!authToken) {
+        return { error: 'No authentication token found' }
+      }
     }
 
     const baseUrl = await getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
     console.log('Making API request to:', url)
+
+    const fetchHeaders: Record<string, any> = {
+      'Content-Type': 'application/json',
+      ...options.headers
+    }
+
+    if (authToken) {
+      fetchHeaders.Authorization = `Bearer ${authToken}`
+    }
+
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${authToken}`,
-        ...options.headers
-      }
+      headers: fetchHeaders
     })
 
     if (!response.ok) {
@@ -69,7 +92,7 @@ export const getCurrentUser = cache(async () => {
 /**
  * Get server status
  */
-export async function getServerStatus() {
+export async function getServerStatus(): Promise<ApiResponse<ServerStatus>> {
   return apiRequest('/status')
 }
 
