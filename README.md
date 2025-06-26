@@ -2,7 +2,7 @@
 
 ### How to
 
-This assumes that you have [audiobookshelf](https://github.com/advplyr/audiobookshelf) locally with an initialized server (root user created).
+This assumes that you have [audiobookshelf](https://github.com/advplyr/audiobookshelf) locally.
 
 1. git clone https://github.com/audiobookshelf/audiobookshelf-client-react.git
 2. install dependencies: `cd audiobookshelf-client-react && npm ci`
