@@ -19,3 +19,8 @@ module.exports.config = {
   ReactClientPath: Path.resolve('../audiobookshelf-client-react')
 }
 ```
+
+#### Running in prod
+
+1. `npm run build` this NextJS app
+2. Start the audiobookshelf server with `npm run start-dev` (uses the dev.js file w/ production)
