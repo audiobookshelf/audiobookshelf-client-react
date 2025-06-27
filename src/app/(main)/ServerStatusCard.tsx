@@ -28,7 +28,6 @@ export default function HomeClient({ statusData }: HomeClientProps) {
     socket.on('disconnect', onDisconnect)
 
     return () => {
-      console.log('unmounting')
       socket.off('connect', onConnect)
       socket.off('disconnect', onDisconnect)
     }

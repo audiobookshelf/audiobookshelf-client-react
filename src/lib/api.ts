@@ -92,18 +92,18 @@ export const getCurrentUser = cache(async () => {
 /**
  * Get server status
  */
-export async function getServerStatus(): Promise<ApiResponse<ServerStatus>> {
+export const getServerStatus = cache(async (): Promise<ApiResponse<ServerStatus>> => {
   return apiRequest('/status')
-}
+})
 
-export async function getLibraries() {
+export const getLibraries = cache(async () => {
   return apiRequest('/api/libraries')
-}
+})
 
-export async function getLibrary(libraryId: string) {
+export const getLibrary = cache(async (libraryId: string) => {
   return apiRequest(`/api/libraries/${libraryId}`)
-}
+})
 
-export async function getLibraryPersonalized(libraryId: string) {
+export const getLibraryPersonalized = cache(async (libraryId: string) => {
   return apiRequest(`/api/libraries/${libraryId}/personalized`)
-}
+})

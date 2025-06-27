@@ -27,10 +27,19 @@ export default function LoginForm() {
         setLoading(false)
         return
       }
+      const user = await res.json()
+      const userDefaultLibraryId = user?.userDefaultLibraryId
+
       // Get redirect parameter from URL search params
       const urlParams = new URLSearchParams(window.location.search)
-      const redirect = urlParams.get('redirect') || '/'
-      router.replace(redirect)
+      const redirect = urlParams.get('redirect')
+      if (redirect) {
+        router.replace(redirect)
+      } else if (userDefaultLibraryId) {
+        router.replace(`/library/${userDefaultLibraryId}`)
+      } else {
+        router.replace('/config')
+      }
     } catch (err) {
       setError('Network error. Please try again.')
       setLoading(false)
