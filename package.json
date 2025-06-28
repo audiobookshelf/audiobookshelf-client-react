@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "cy:open": "cypress open",
+    "cy:comp": "cypress open --component --browser chrome",
+    "test": "cypress run --component --browser chrome"
   },
   "dependencies": {
     "next": "15.3.3",
@@ -19,6 +22,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "cypress": "^14.5.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
