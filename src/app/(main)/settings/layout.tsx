@@ -1,9 +1,8 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getCurrentUser, getLibraries } from '../../../../lib/api'
-import '../../../../assets/globals.css'
-import LogoutButton from '../../LogoutButton'
-import LibrariesDropdown from './LibrariesDropdown'
+import { getCurrentUser } from '../../../lib/api'
+import '../../../assets/globals.css'
+import LogoutButton from '../LogoutButton'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
@@ -11,24 +10,15 @@ export const metadata: Metadata = {
   description: 'audiobookshelf'
 }
 
-export default async function LibraryLayout({
-  children,
-  params
-}: Readonly<{
-  children: React.ReactNode
-  params: Promise<{ library: string }>
-}>) {
-  const { library: currentLibraryId } = await params
-
-  const [userResponse, librariesResponse] = await Promise.all([getCurrentUser(), getLibraries()])
+export default async function SettingsLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const userResponse = await getCurrentUser()
 
   if (userResponse.error || !userResponse.data?.user) {
-    console.error('Error getting user data:', userResponse, librariesResponse)
+    console.error('Error getting user data:', userResponse)
     redirect(`/login`)
   }
 
   const user = userResponse.data?.user
-  const libraries = librariesResponse.data?.libraries || []
 
   return (
     <html lang="en">
@@ -37,7 +27,6 @@ export default async function LibraryLayout({
           <Link href={'/'} title="Home" className="text-sm text-foreground hover:text-foreground/80">
             <h1 className="text-2xl font-bold">audiobookshelf</h1>
           </Link>
-          <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />
           <div className="flex-grow" />
           <div className="flex items-center gap-4">
             <p className="text-sm text-foreground">Logged in as {user.username}</p>
