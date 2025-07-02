@@ -1,7 +1,7 @@
 @import 'tailwindcss' source(none);
 @source "../"; /* used for launching nextjs from another directory */
 
-@import './fonts.css';
+@import './app.css';
 
 :root {
   --primary: #232323;
