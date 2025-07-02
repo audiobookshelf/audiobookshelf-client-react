@@ -1,5 +1,6 @@
 @import 'tailwindcss' source(none);
 @source "../"; /* used for launching nextjs from another directory */
+@source "../../cypress/tests/**/*.cy.tsx";
 
 @import './app.css';
 
