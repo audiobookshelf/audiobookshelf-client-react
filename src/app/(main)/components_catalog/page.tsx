@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import LoadingIndicator from '@/components/LoadingIndicator'
+import IconBtn from '@/components/ui/IconBtn'
 
 export default function ComponentsCatalogPage() {
   const [checkboxValue, setCheckboxValue] = useState(false)
@@ -56,6 +57,52 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Link Button</h3>
             <Btn to="/settings">Go to Settings</Btn>
+          </div>
+        </div>
+      </section>
+
+      {/* Icon Button Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Icon Button Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default Icon Button</h3>
+            <IconBtn icon="&#xe3c9;" ariaLabel="Edit" />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Outlined Icon Button</h3>
+            <IconBtn icon="&#xe5ca;" outlined ariaLabel="Close" />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Borderless Icon Button</h3>
+            <IconBtn icon="&#xe3c9;" borderless ariaLabel="Edit" />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Loading Icon Button</h3>
+            <IconBtn icon="&#xe3c9;" loading ariaLabel="Loading" />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled Icon Button</h3>
+            <IconBtn icon="&#xe3c9;" disabled ariaLabel="Edit" />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Size Icon Button</h3>
+            <IconBtn icon="&#xe3c9;" size={12} ariaLabel="Large Edit" />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Color Icon Button</h3>
+            <IconBtn icon="&#xe5ca;" bgColor="bg-red-500" ariaLabel="Delete" />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Font Size Icon Button</h3>
+            <IconBtn icon="&#xe3c9;" iconFontSize="2rem" ariaLabel="Large Edit" />
           </div>
         </div>
       </section>
@@ -138,7 +185,7 @@ export default function ComponentsCatalogPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Button Interactions</h3>
-            <div className="space-y-4">
+            <div className="flex items-center gap-4">
               <Btn onClick={() => alert('Button clicked!')}>
                 Click me!
               </Btn>
@@ -148,6 +195,34 @@ export default function ComponentsCatalogPage() {
               <Btn to="/settings" color="bg-blue-600">
                 Navigate to Settings
               </Btn>
+            </div>
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Icon Button Interactions</h3>
+            <div className="flex items-center gap-4">
+              <IconBtn 
+                icon="&#xe3c9;" 
+                onClick={() => alert('Edit clicked!')}
+                ariaLabel="Edit"
+              />
+              <IconBtn 
+                icon="&#xe5ca;" 
+                onClick={() => alert('Close clicked!')}
+                ariaLabel="Close"
+                bgColor="bg-red-500"
+              />
+              <IconBtn 
+                icon="&#xe3c9;" 
+                onClick={() => alert('Close clicked!')}
+                ariaLabel="Close"
+              />
+              <IconBtn 
+                icon="&#xe3c9;" 
+                onClick={() => alert('Loading clicked!')}
+                loading
+                ariaLabel="Loading"
+              />
             </div>
           </div>
           
@@ -182,6 +257,7 @@ export default function ComponentsCatalogPage() {
           <h3 className="text-lg font-medium mb-4">React Components</h3>
           <ul className="list-disc list-inside space-y-2 text-gray-300">
             <li><code className="bg-gray-700 px-2 py-1 rounded">Btn.tsx</code> - Button component with various states (loading, disabled, small, link)</li>
+            <li><code className="bg-gray-700 px-2 py-1 rounded">IconBtn.tsx</code> - Icon button component with material symbols, loading states, and customization options</li>
             <li><code className="bg-gray-700 px-2 py-1 rounded">Checkbox.tsx</code> - Checkbox component with different sizes and states</li>
             <li><code className="bg-gray-700 px-2 py-1 rounded">LoadingIndicator.tsx</code> - Loading spinner component with animated dots</li>
           </ul>
@@ -198,6 +274,11 @@ export default function ComponentsCatalogPage() {
               <h4 className="font-medium text-white mb-2">Btn Component</h4>
               <p className="mb-2">Import: <code className="bg-gray-700 px-2 py-1 rounded">import Btn from '@/components/ui/Btn'</code></p>
               <p className="mb-2">Props: <code className="bg-gray-700 px-2 py-1 rounded">color</code>, <code className="bg-gray-700 px-2 py-1 rounded">small</code>, <code className="bg-gray-700 px-2 py-1 rounded">loading</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">to</code> (for navigation)</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">IconBtn Component</h4>
+              <p className="mb-2">Import: <code className="bg-gray-700 px-2 py-1 rounded">import IconBtn from '@/components/ui/IconBtn'</code></p>
+              <p className="mb-2">Props: <code className="bg-gray-700 px-2 py-1 rounded">icon</code>, <code className="bg-gray-700 px-2 py-1 rounded">bgColor</code>, <code className="bg-gray-700 px-2 py-1 rounded">outlined</code>, <code className="bg-gray-700 px-2 py-1 rounded">borderless</code>, <code className="bg-gray-700 px-2 py-1 rounded">loading</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">size</code>, <code className="bg-gray-700 px-2 py-1 rounded">iconFontSize</code>, <code className="bg-gray-700 px-2 py-1 rounded">ariaLabel</code></p>
             </div>
             <div>
               <h4 className="font-medium text-white mb-2">Checkbox Component</h4>
