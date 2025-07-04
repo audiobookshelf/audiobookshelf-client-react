@@ -6,11 +6,11 @@ import LogoutButton from '../LogoutButton'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'audiobookshelf',
-  description: 'audiobookshelf'
+  title: 'audiobookshelf - Components Catalog',
+  description: 'Components catalog for audiobookshelf client'
 }
 
-export default async function SettingsLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function ComponentsCatalogLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const userResponse = await getCurrentUser()
 
   if (userResponse.error || !userResponse.data?.user) {
@@ -43,4 +43,4 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
       </body>
     </html>
   )
-}
+} 

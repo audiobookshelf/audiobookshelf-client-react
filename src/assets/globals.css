@@ -1,7 +1,8 @@
 @import 'tailwindcss' source(none);
 @source "../"; /* used for launching nextjs from another directory */
+@source "../../cypress/tests/**/*.cy.tsx";
 
-@import './fonts.css';
+@import './app.css';
 
 :root {
   --primary: #232323;
@@ -85,4 +86,17 @@
 body {
   background: var(--background);
   color: var(--foreground);
+}
+
+/* Screen reader only utility class */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }

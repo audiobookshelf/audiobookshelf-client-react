@@ -40,6 +40,9 @@ export default async function LibraryLayout({
           <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />
           <div className="flex-grow" />
           <div className="flex items-center gap-4">
+            <Link href="/components_catalog" title="Components Catalog" className="text-sm text-foreground hover:text-foreground/80">
+              <span className="material-symbols text-xl">widgets</span>
+            </Link>
             <p className="text-sm text-foreground">Logged in as {user.username}</p>
             <Link href="/settings" title="Settings" className="text-sm text-foreground hover:text-foreground/80">
               <span className="material-symbols text-xl">settings</span>
