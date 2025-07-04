@@ -1,34 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser } from '@/lib/api'
-
-const publicRoutes = ['/login']
+import { getCurrentUser, getUserDefaultUrlPath } from '@/lib/api'
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const accessToken = request.cookies.get('access_token')?.value
+  const refreshToken = request.cookies.get('refresh_token')?.value
 
-  const isPublicRoute = publicRoutes.includes(pathname)
-  if (isPublicRoute) {
+  const isLoginRoute = pathname === '/login'
+  if (isLoginRoute) {
+    if (accessToken) {
+      // Has accessToken redirect to home
+      return NextResponse.redirect(new URL('/', request.nextUrl))
+    } else if (refreshToken) {
+      // Has refreshToken redirect to refresh
+      const refreshUrl = new URL('/internal-api/refresh', request.nextUrl)
+      return NextResponse.redirect(refreshUrl)
+    }
+
     return NextResponse.next()
   }
 
-  const user = await getCurrentUser()
-  if (user.error || !user.data?.user) {
+  if (!accessToken && !refreshToken) {
+    // No tokens found, redirect to login
+    return NextResponse.redirect(new URL('/login', request.nextUrl))
+  }
+
+  const userResponse = await getCurrentUser().catch((error) => {
+    return {
+      error: error.message,
+      data: null
+    }
+  })
+  if (userResponse.error || !userResponse.data?.user) {
+    if (refreshToken && userResponse.error === 'Unauthorized') {
+      // Redirect to refresh token route with current path
+      const refreshUrl = new URL('/internal-api/refresh', request.nextUrl)
+      if (pathname !== '/') {
+        refreshUrl.searchParams.set('redirect', pathname)
+      }
+      return NextResponse.redirect(refreshUrl)
+    }
+
     return NextResponse.redirect(new URL('/login', request.nextUrl))
   }
 
   if (pathname === '/') {
-    const userDefaultLibraryId = user.data?.userDefaultLibraryId
-    if (!userDefaultLibraryId) {
-      // Redirect to config when there are no libraries
-      return NextResponse.redirect(new URL('/config', request.nextUrl))
-    }
-    // Redirect to default library
-    return NextResponse.redirect(new URL(`/library/${userDefaultLibraryId}`, request.nextUrl))
+    // Redirect to default library path otherwise redirect to settings
+    const userDefaultPath = getUserDefaultUrlPath(userResponse.data?.userDefaultLibraryId)
+    return NextResponse.redirect(new URL(userDefaultPath, request.nextUrl))
   }
 
-  return NextResponse.next()
+  const response = NextResponse.next()
+  // Set current path to use for redirects on token refresh
+  response.headers.set('x-current-path', pathname)
+
+  return response
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)']
+  matcher: ['/((?!api|internal-api|_next/static|_next/image|.*\\.png|.*\\.ico$).*)']
 }

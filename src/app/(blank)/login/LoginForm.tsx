@@ -15,11 +15,10 @@ export default function LoginForm() {
     setError('')
     setLoading(true)
     try {
-      const res = await fetch('/login', {
+      const res = await fetch('/internal-api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include'
+        body: JSON.stringify({ username, password })
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -27,8 +26,8 @@ export default function LoginForm() {
         setLoading(false)
         return
       }
-      const user = await res.json()
-      const userDefaultLibraryId = user?.userDefaultLibraryId
+      const userResponse = await res.json()
+      const userDefaultLibraryId = userResponse?.userDefaultLibraryId
 
       // Get redirect parameter from URL search params
       const urlParams = new URLSearchParams(window.location.search)
@@ -38,7 +37,7 @@ export default function LoginForm() {
       } else if (userDefaultLibraryId) {
         router.replace(`/library/${userDefaultLibraryId}`)
       } else {
-        router.replace('/config')
+        router.replace('/settings')
       }
     } catch (err) {
       setError('Network error. Please try again.')

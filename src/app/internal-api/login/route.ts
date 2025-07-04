@@ -1,0 +1,41 @@
+import { NextResponse } from 'next/server'
+import { setTokenCookies, getServerBaseUrl } from '../../../lib/api'
+
+export async function POST(request: Request) {
+  try {
+    const { username, password } = await request.json()
+
+    const audiobookshelfServerUrl = getServerBaseUrl()
+
+    // Make login request to the Audiobookshelf server
+    const loginResponse = await fetch(`${audiobookshelfServerUrl}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // Tells the Abs server to return the refresh token
+        'x-return-tokens': 'true'
+      },
+      body: JSON.stringify({ username, password })
+    })
+
+    if (!loginResponse.ok) {
+      return NextResponse.json({ error: 'Login failed' }, { status: 401 })
+    }
+
+    const data = await loginResponse.json()
+    const newAccessToken = data.user.accessToken
+    const newRefreshToken = data.user.refreshToken
+
+    if (!newAccessToken) {
+      return NextResponse.json({ error: 'No access token found' }, { status: 401 })
+    }
+
+    const response = NextResponse.json(data)
+    setTokenCookies(response, newAccessToken, newRefreshToken)
+
+    return response
+  } catch (error) {
+    console.error('Login error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
