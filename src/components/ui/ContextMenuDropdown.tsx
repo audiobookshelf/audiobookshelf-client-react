@@ -7,13 +7,13 @@ import { CSSTransition } from 'react-transition-group'
 import '@/assets/transitions.css'
 import { mergeClasses } from '@/lib/merge-classes'
 
-interface ContextMenuDropdownSubitem {
+export interface ContextMenuDropdownSubitem {
   text: string
   action: string
   data?: Record<string, any>
 }
 
-interface ContextMenuDropdownItem {
+export interface ContextMenuDropdownItem {
   text: string
   action: string
   subitems?: ContextMenuDropdownSubitem[]
@@ -128,9 +128,9 @@ export default function ContextMenuDropdown({
     handleShowMenu()
   }, [handleShowMenu])
 
-  const handleItemClick = useCallback((e: React.MouseEvent, action: string, data?: Record<string, any>) => {
+  const handleItemClick = useCallback((e: React.MouseEvent, action: string) => {
     e.stopPropagation()
-    handleAction(action, data)
+    handleAction(action)
   }, [handleAction])
 
   const handleSubItemClick = useCallback((e: React.MouseEvent, action: string, data?: Record<string, any>) => {

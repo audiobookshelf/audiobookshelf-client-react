@@ -4,12 +4,43 @@ import { useState } from 'react'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import LoadingIndicator from '@/components/LoadingIndicator'
+import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import IconBtn from '@/components/ui/IconBtn'
+import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
+import type { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 
 export default function ComponentsCatalogPage() {
   const [checkboxValue, setCheckboxValue] = useState(false)
   const [checkboxValue2, setCheckboxValue2] = useState(true)
   const [checkboxValue3, setCheckboxValue3] = useState(false)
+
+  // ContextMenuDropdown sample data
+  const contextMenuItems: ContextMenuDropdownItem[] = [
+    { text: 'Edit', action: 'edit' },
+    { text: 'Delete', action: 'delete' },
+    {
+      text: 'More Options',
+      action: 'more',
+      subitems: [
+        { text: 'Copy', action: 'copy' },
+        { text: 'Move', action: 'move' },
+        { text: 'Share', action: 'share' }
+      ]
+    }
+  ]
+
+  const contextMenuItemsWithData: ContextMenuDropdownItem[] = [
+    { text: 'Edit Item', action: 'edit' },
+    { text: 'Delete Item', action: 'delete' },
+    {
+      text: 'Advanced',
+      action: 'advanced',
+      subitems: [
+        { text: 'Duplicate', action: 'duplicate', data: { id: 1 } },
+        { text: 'Archive', action: 'archive', data: { id: 1 } }
+      ]
+    }
+  ]
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
@@ -109,6 +140,71 @@ export default function ComponentsCatalogPage() {
         </div>
       </section>
 
+      {/* Context Menu Dropdown Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Context Menu Dropdown Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default Context Menu</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown items={contextMenuItems} onAction={(action) => alert(`Action: ${action.action}`)} />
+              <span className="text-sm text-gray-400">Click to see menu</span>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Left Aligned Context Menu</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown items={contextMenuItems} menuAlign="left" onAction={(action) => alert(`Action: ${action.action}`)} />
+              <span className="text-sm text-gray-400">Click to see menu</span>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Context Menu with Data</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown
+                items={contextMenuItemsWithData}
+                onAction={(action) => alert(`Action: ${action.action} ${action.data ? `, Data: ${JSON.stringify(action.data)}` : ''}`)}
+              />
+              <span className="text-sm text-gray-400">Click to see menu with data</span>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled Context Menu</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown items={contextMenuItems} disabled={true} onAction={(action) => alert(`Action: ${action.action}`)} />
+              <span className="text-sm text-gray-400">Disabled state</span>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Processing Context Menu</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown items={contextMenuItems} processing={true} onAction={(action) => alert(`Action: ${action.action}`)} />
+              <span className="text-sm text-gray-400">Loading state</span>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Icon Context Menu</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown items={contextMenuItems} iconClass="text-blue-400" onAction={(action) => alert(`Action: ${action.action}`)} />
+              <span className="text-sm text-gray-400">Custom icon color</span>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Wide Context Menu</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown items={contextMenuItems} menuWidth={250} menuAlign="left" onAction={(action) => alert(`Action: ${action.action}`)} />
+              <span className="text-sm text-gray-400">Wider menu</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Checkbox Components */}
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 text-gray-400">Checkbox Components</h2>
@@ -152,6 +248,36 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Loading Indicator</h3>
             <LoadingIndicator />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Loading Spinner (Default - Small)</h3>
+            <LoadingSpinner />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Loading Spinner (Large)</h3>
+            <LoadingSpinner size="la-lg" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Loading Spinner (2x)</h3>
+            <LoadingSpinner size="la-2x" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Loading Spinner (3x)</h3>
+            <LoadingSpinner size="la-3x" />
+          </div>
+
+          <div className="bg-gray-500 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Loading Spinner (Dark - Large)</h3>
+            <LoadingSpinner size="la-lg" dark />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Loading Spinner (Custom Color - Large)</h3>
+            <LoadingSpinner size="la-lg" color="#ff6b6b" />
           </div>
         </div>
       </section>
@@ -265,6 +391,30 @@ export default function ComponentsCatalogPage() {
                 Import: <code className="bg-gray-700 px-2 py-1 rounded">import LoadingIndicator from '@/components/LoadingIndicator'</code>
               </p>
               <p className="mb-2">No props required - displays animated loading dots</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">LoadingSpinner Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import LoadingSpinner from '@/components/ui/LoadingSpinner'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">size</code> (la-sm, la-lg, la-2x, la-3x),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">dark</code>, <code className="bg-gray-700 px-2 py-1 rounded">color</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">ContextMenuDropdown Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">items</code> (ContextMenuItem[]),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">processing</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">iconClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">menuWidth</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">onAction</code>, <code className="bg-gray-700 px-2 py-1 rounded">children</code> (ReactNode or
+                function)
+              </p>
             </div>
           </div>
         </div>
