@@ -8,11 +8,45 @@ import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import IconBtn from '@/components/ui/IconBtn'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import type { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import Dropdown from '@/components/ui/Dropdown'
+import type { DropdownItem } from '@/components/ui/Dropdown'
 
 export default function ComponentsCatalogPage() {
   const [checkboxValue, setCheckboxValue] = useState(false)
   const [checkboxValue2, setCheckboxValue2] = useState(true)
   const [checkboxValue3, setCheckboxValue3] = useState(false)
+
+  // Dropdown sample data
+  const dropdownItems: DropdownItem[] = [
+    { text: 'Option 1', value: 'option1' },
+    { text: 'Option 2', value: 'option2' },
+    { text: 'Option 3', value: 'option3' },
+    { text: 'Option 4', value: 'option4' }
+  ]
+
+  const dropdownItemsWithSubtext: DropdownItem[] = [
+    { text: 'English', value: 'en', subtext: 'US' },
+    { text: 'Spanish', value: 'es', subtext: 'ES' },
+    { text: 'French', value: 'fr', subtext: 'FR' },
+    { text: 'German', value: 'de', subtext: 'DE' }
+  ]
+
+  const [dropdownValue, setDropdownValue] = useState('option1')
+  const [dropdownValue2, setDropdownValue2] = useState('en')
+  const [dropdownValue3, setDropdownValue3] = useState('option1')
+
+  // Dropdown change handlers
+  const handleDropdownChange = (value: string | number) => {
+    setDropdownValue(String(value))
+  }
+
+  const handleDropdownChange2 = (value: string | number) => {
+    setDropdownValue2(String(value))
+  }
+
+  const handleDropdownChange3 = (value: string | number) => {
+    setDropdownValue3(String(value))
+  }
 
   // ContextMenuDropdown sample data
   const contextMenuItems: ContextMenuDropdownItem[] = [
@@ -25,6 +59,15 @@ export default function ComponentsCatalogPage() {
         { text: 'Copy', action: 'copy' },
         { text: 'Move', action: 'move' },
         { text: 'Share', action: 'share' }
+      ]
+    },
+    {
+      text: 'More Options 2',
+      action: 'more2',
+      subitems: [
+        { text: 'Copy 2', action: 'copy2' },
+        { text: 'Move 2', action: 'move2' },
+        { text: 'Share 2', action: 'share2' }
       ]
     }
   ]
