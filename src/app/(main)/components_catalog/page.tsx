@@ -8,11 +8,45 @@ import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import IconBtn from '@/components/ui/IconBtn'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import type { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import Dropdown from '@/components/ui/Dropdown'
+import type { DropdownItem } from '@/components/ui/Dropdown'
 
 export default function ComponentsCatalogPage() {
   const [checkboxValue, setCheckboxValue] = useState(false)
   const [checkboxValue2, setCheckboxValue2] = useState(true)
   const [checkboxValue3, setCheckboxValue3] = useState(false)
+
+  // Dropdown sample data
+  const dropdownItems: DropdownItem[] = [
+    { text: 'Option 1', value: 'option1' },
+    { text: 'Option 2', value: 'option2' },
+    { text: 'Option 3', value: 'option3' },
+    { text: 'Option 4', value: 'option4' }
+  ]
+
+  const dropdownItemsWithSubtext: DropdownItem[] = [
+    { text: 'English', value: 'en', subtext: 'US' },
+    { text: 'Spanish', value: 'es', subtext: 'ES' },
+    { text: 'French', value: 'fr', subtext: 'FR' },
+    { text: 'German', value: 'de', subtext: 'DE' }
+  ]
+
+  const [dropdownValue, setDropdownValue] = useState('option1')
+  const [dropdownValue2, setDropdownValue2] = useState('en')
+  const [dropdownValue3, setDropdownValue3] = useState('option1')
+
+  // Dropdown change handlers
+  const handleDropdownChange = (value: string | number) => {
+    setDropdownValue(String(value))
+  }
+
+  const handleDropdownChange2 = (value: string | number) => {
+    setDropdownValue2(String(value))
+  }
+
+  const handleDropdownChange3 = (value: string | number) => {
+    setDropdownValue3(String(value))
+  }
 
   // ContextMenuDropdown sample data
   const contextMenuItems: ContextMenuDropdownItem[] = [
@@ -25,6 +59,15 @@ export default function ComponentsCatalogPage() {
         { text: 'Copy', action: 'copy' },
         { text: 'Move', action: 'move' },
         { text: 'Share', action: 'share' }
+      ]
+    },
+    { 
+      text: 'More Options 2', 
+      action: 'more2',
+      subitems: [
+        { text: 'Copy 2', action: 'copy2' },
+        { text: 'Move 2', action: 'move2' },
+        { text: 'Share 2', action: 'share2' }
       ]
     }
   ]
@@ -228,6 +271,73 @@ export default function ComponentsCatalogPage() {
         </div>
       </section>
 
+      {/* Dropdown Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Dropdown Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default Dropdown</h3>
+            <Dropdown 
+              value={dropdownValue}
+              onChange={handleDropdownChange}
+              items={dropdownItems}
+              label="Select Option"
+            />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Dropdown with Subtext</h3>
+            <Dropdown 
+              value={dropdownValue2}
+              onChange={handleDropdownChange2}
+              items={dropdownItemsWithSubtext}
+              label="Language"
+            />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Small Dropdown</h3>
+            <Dropdown 
+              value={dropdownValue3}
+              onChange={handleDropdownChange3}
+              items={dropdownItems}
+              label="Small Option"
+              small
+            />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled Dropdown</h3>
+            <Dropdown 
+              value="option1"
+              items={dropdownItems}
+              label="Disabled Option"
+              disabled
+            />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Dropdown without Label</h3>
+            <Dropdown 
+              value={dropdownValue}
+              onChange={handleDropdownChange}
+              items={dropdownItems}
+            />
+          </div>
+          
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Height Dropdown</h3>
+            <Dropdown 
+              value={dropdownValue}
+              onChange={handleDropdownChange}
+              items={dropdownItems}
+              label="Custom Height"
+              menuMaxHeight="100px"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Checkbox Components */}
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 text-gray-400">Checkbox Components</h2>
@@ -413,6 +523,7 @@ export default function ComponentsCatalogPage() {
                       <li><code className="bg-gray-700 px-2 py-1 rounded">LoadingIndicator.tsx</code> - Loading spinner component with animated dots</li>
           <li><code className="bg-gray-700 px-2 py-1 rounded">LoadingSpinner.tsx</code> - Ball spin loading spinner with multiple sizes and themes</li>
           <li><code className="bg-gray-700 px-2 py-1 rounded">ContextMenuDropdown.tsx</code> - Context menu dropdown with submenus, loading states, and custom triggers</li>
+          <li><code className="bg-gray-700 px-2 py-1 rounded">Dropdown.tsx</code> - Select dropdown component with labels, subtext, and various states</li>
           </ul>
         </div>
       </section>
@@ -452,6 +563,11 @@ export default function ComponentsCatalogPage() {
               <h4 className="font-medium text-white mb-2">ContextMenuDropdown Component</h4>
               <p className="mb-2">Import: <code className="bg-gray-700 px-2 py-1 rounded">import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'</code></p>
               <p className="mb-2">Props: <code className="bg-gray-700 px-2 py-1 rounded">items</code> (ContextMenuItem[]), <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">processing</code>, <code className="bg-gray-700 px-2 py-1 rounded">iconClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">menuWidth</code>, <code className="bg-gray-700 px-2 py-1 rounded">onAction</code>, <code className="bg-gray-700 px-2 py-1 rounded">children</code> (ReactNode or function)</p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Dropdown Component</h4>
+              <p className="mb-2">Import: <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from '@/components/ui/Dropdown'</code></p>
+              <p className="mb-2">Props: <code className="bg-gray-700 px-2 py-1 rounded">value</code>, <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">items</code> (DropdownItem[]), <code className="bg-gray-700 px-2 py-1 rounded">label</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">small</code>, <code className="bg-gray-700 px-2 py-1 rounded">menuMaxHeight</code>, <code className="bg-gray-700 px-2 py-1 rounded">className</code></p>
             </div>
           </div>
         </div>
