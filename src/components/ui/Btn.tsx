@@ -17,6 +17,7 @@ interface BtnProps {
   children: React.ReactNode
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   className?: string
+  ariaLabel?: string
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
@@ -46,7 +47,8 @@ export default function Btn({
   progress,
   children,
   onClick,
-  className = ''
+  className = '',
+  ariaLabel
 }: BtnProps) {
   const classList = useMemo(() => {
     const list: string[] = []
@@ -99,6 +101,7 @@ export default function Btn({
         style={{ pointerEvents: isDisabled ? 'none' : 'auto' }}
         tabIndex={isDisabled ? -1 : 0}
         aria-disabled={isDisabled}
+        aria-label={ariaLabel}
       >
         {children}
         {loading && <LoadingSpinner progress={progress} />}
@@ -108,7 +111,7 @@ export default function Btn({
   }
 
   return (
-    <button className={classList} disabled={isDisabled} type={type} onClick={handleClick} onMouseDown={(e) => e.preventDefault()}>
+    <button className={classList} disabled={isDisabled} type={type} onClick={handleClick} onMouseDown={(e) => e.preventDefault()} aria-label={ariaLabel}>
       {children}
       {loading && <LoadingSpinner progress={progress} />}
       {loading && <span className="sr-only">{progress ? `Loading: ${progress}` : 'Loading...'}</span>}
