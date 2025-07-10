@@ -10,6 +10,7 @@ import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import type { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import Dropdown from '@/components/ui/Dropdown'
 import type { DropdownItem } from '@/components/ui/Dropdown'
+import FileInput from '@/components/ui/FileInput'
 
 export default function ComponentsCatalogPage() {
   const [checkboxValue, setCheckboxValue] = useState(false)
@@ -284,6 +285,43 @@ export default function ComponentsCatalogPage() {
         </div>
       </section>
 
+      {/* File Input Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">File Input Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default File Input</h3>
+            <FileInput onChange={(file) => alert(`Selected file: ${file.name}`)}>Choose File</FileInput>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Document File Input</h3>
+            <FileInput accept=".pdf, .doc, .docx, .txt" onChange={(file) => alert(`Selected document: ${file.name}`)} ariaLabel="Upload Document">
+              Upload Document
+            </FileInput>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">All Files Input</h3>
+            <FileInput accept="*" onChange={(file) => alert(`Selected file: ${file.name}`)} ariaLabel="Upload Any File">
+              Choose Any File
+            </FileInput>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Styled File Input</h3>
+            <FileInput
+              accept=".png, .jpg, .jpeg"
+              onChange={(file) => alert(`Selected image: ${file.name}`)}
+              className="border-2 border-dashed border-blue-400 rounded-lg bg-blue-50"
+              ariaLabel="Upload Image"
+            >
+              Drop Image Here
+            </FileInput>
+          </div>
+        </div>
+      </section>
+
       {/* Loading Components */}
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 text-gray-400">Loading Components</h2>
@@ -382,6 +420,19 @@ export default function ComponentsCatalogPage() {
             <li>
               <code className="bg-gray-700 px-2 py-1 rounded">LoadingIndicator.tsx</code> - Loading spinner component with animated dots
             </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">LoadingSpinner.tsx</code> - Ball spin loading spinner with multiple sizes and themes
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">ContextMenuDropdown.tsx</code> - Context menu dropdown with submenus, loading states, and custom
+              triggers
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">Dropdown.tsx</code> - Select dropdown component with labels, subtext, and various states
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">FileInput.tsx</code> - File input component with customizable accept types and responsive design
+            </li>
           </ul>
         </div>
       </section>
@@ -457,6 +508,30 @@ export default function ComponentsCatalogPage() {
                 <code className="bg-gray-700 px-2 py-1 rounded">iconClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">menuWidth</code>,{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">onAction</code>, <code className="bg-gray-700 px-2 py-1 rounded">children</code> (ReactNode or
                 function)
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Dropdown Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from '@/components/ui/Dropdown'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">value</code>, <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">items</code> (DropdownItem[]), <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">small</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">menuMaxHeight</code>, <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">FileInput Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import FileInput from '@/components/ui/FileInput'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">accept</code> (file types to accept),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">onChange</code> (callback with selected file),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">children</code> (ReactNode for button content),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">className</code> (custom CSS classes)
               </p>
             </div>
           </div>
