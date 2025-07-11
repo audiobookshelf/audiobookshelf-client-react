@@ -11,6 +11,7 @@ import type { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdow
 import Dropdown from '@/components/ui/Dropdown'
 import type { DropdownItem } from '@/components/ui/Dropdown'
 import FileInput from '@/components/ui/FileInput'
+import LibraryIcon from '@/components/ui/LibraryIcon'
 
 export default function ComponentsCatalogPage() {
   const [checkboxValue, setCheckboxValue] = useState(false)
@@ -322,6 +323,46 @@ export default function ComponentsCatalogPage() {
         </div>
       </section>
 
+      {/* Library Icon Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Library Icon Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default Library Icon</h3>
+            <div className="bg-gray-700 p-2 rounded-lg">
+              <LibraryIcon />
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Large Size</h3>
+            <div className="bg-gray-700 p-2 rounded-lg">
+              <LibraryIcon size={6} />
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Icon</h3>
+            <LibraryIcon icon="books-1" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Font Size</h3>
+            <LibraryIcon fontSize="text-3xl" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Icon with Large Size</h3>
+            <LibraryIcon icon="headphones" size={6} fontSize="text-3xl" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Invalid Icon (Falls Back to Default)</h3>
+            <LibraryIcon icon="invalid-icon" />
+          </div>
+        </div>
+      </section>
+
       {/* Loading Components */}
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 text-gray-400">Loading Components</h2>
@@ -433,6 +474,9 @@ export default function ComponentsCatalogPage() {
             <li>
               <code className="bg-gray-700 px-2 py-1 rounded">FileInput.tsx</code> - File input component with customizable accept types and responsive design
             </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">LibraryIcon.tsx</code> - Library icon component using absicons font with validation and fallback
+            </li>
           </ul>
         </div>
       </section>
@@ -532,6 +576,18 @@ export default function ComponentsCatalogPage() {
                 <code className="bg-gray-700 px-2 py-1 rounded">onChange</code> (callback with selected file),{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">children</code> (ReactNode for button content),{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">className</code> (custom CSS classes)
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">LibraryIcon Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import LibraryIcon from '@/components/ui/LibraryIcon'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">icon</code> (icon name from absicons, defaults to 'audiobookshelf'),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">fontSize</code> (CSS font size class, defaults to 'text-lg'),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">size</code> (5 or 6 for container size, defaults to 5),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">className</code> (additional CSS classes)
               </p>
             </div>
           </div>
