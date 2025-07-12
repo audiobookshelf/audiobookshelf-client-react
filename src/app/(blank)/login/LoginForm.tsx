@@ -53,17 +53,36 @@ export default function LoginForm() {
         <label htmlFor="username" className="text-gray-300 text-sm font-semibold">
           USERNAME
         </label>
-        <input id="username" type="text" autoComplete="username" className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={username} onChange={(e) => setUsername(e.target.value)} required />
+        <input
+          id="username"
+          type="text"
+          autoComplete="username"
+          className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
       </div>
       <div className="flex flex-col gap-2 mb-4">
         <label htmlFor="password" className="text-gray-300 text-sm font-semibold">
           PASSWORD
         </label>
-        <input id="password" type="password" autoComplete="current-password" className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <input
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </div>
       {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
       <div className="flex justify-end">
-        <button type="submit" disabled={loading} className="bg-primary border border-gray-600 rounded px-8 py-2 text-white font-semibold hover:bg-gray-700 transition disabled:opacity-50">
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-primary border border-gray-600 rounded px-8 py-2 text-white font-semibold hover:bg-gray-700 transition disabled:opacity-50"
+        >
           {loading ? 'Logging in...' : 'Submit'}
         </button>
       </div>

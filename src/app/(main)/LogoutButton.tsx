@@ -27,7 +27,12 @@ export default function LogoutButton() {
   }
 
   return (
-    <button type="button" className="bg-primary border-gray-600 border text-white px-4 py-2 rounded-md cursor-pointer" onClick={handleLogout} disabled={loading}>
+    <button
+      type="button"
+      className="bg-primary border-gray-600 border text-white px-4 py-2 rounded-md cursor-pointer"
+      onClick={handleLogout}
+      disabled={loading}
+    >
       {loading ? 'Logging out...' : 'Logout'}
     </button>
   )
