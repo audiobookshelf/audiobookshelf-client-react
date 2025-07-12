@@ -1,5 +1,5 @@
 import React from 'react'
-import LoadingIndicator from '@/components/LoadingIndicator'
+import LoadingIndicator from '@/components/ui/LoadingIndicator'
 
 describe('<LoadingIndicator />', () => {
   it('renders', () => {
