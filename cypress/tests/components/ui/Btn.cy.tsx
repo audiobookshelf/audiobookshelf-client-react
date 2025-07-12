@@ -27,7 +27,11 @@ describe('<Btn />', () => {
   })
 
   it('applies custom padding', () => {
-    cy.mount(<Btn paddingX={6} paddingY={3}>Custom Padding</Btn>)
+    cy.mount(
+      <Btn paddingX={6} paddingY={3}>
+        Custom Padding
+      </Btn>
+    )
     cy.get('button').should('have.class', 'px-6')
     cy.get('button').should('have.class', 'py-3')
   })
@@ -40,7 +44,11 @@ describe('<Btn />', () => {
   })
 
   it('shows progress text when progress is provided', () => {
-    cy.mount(<Btn loading progress="50%">Progress Button</Btn>)
+    cy.mount(
+      <Btn loading progress="50%">
+        Progress Button
+      </Btn>
+    )
     cy.get('button').should('contain.text', '50%')
     cy.get('svg.animate-spin').should('not.exist')
   })
@@ -77,7 +85,11 @@ describe('<Btn />', () => {
   })
 
   it('disables link when loading or disabled', () => {
-    cy.mount(<Btn to="/test" loading>Loading Link</Btn>)
+    cy.mount(
+      <Btn to="/test" loading>
+        Loading Link
+      </Btn>
+    )
     cy.get('a').should('have.css', 'pointer-events', 'none')
   })
 
@@ -97,14 +109,22 @@ describe('<Btn />', () => {
   // Additional comprehensive tests
   it('does not call onClick when disabled', () => {
     const onClickSpy = cy.spy().as('onClickSpy')
-    cy.mount(<Btn disabled onClick={onClickSpy}>Disabled Button</Btn>)
+    cy.mount(
+      <Btn disabled onClick={onClickSpy}>
+        Disabled Button
+      </Btn>
+    )
     cy.get('button').click({ force: true })
     cy.get('@onClickSpy').should('not.have.been.called')
   })
 
   it('does not call onClick when loading', () => {
     const onClickSpy = cy.spy().as('onClickSpy')
-    cy.mount(<Btn loading onClick={onClickSpy}>Loading Button</Btn>)
+    cy.mount(
+      <Btn loading onClick={onClickSpy}>
+        Loading Button
+      </Btn>
+    )
     cy.get('button').click({ force: true })
     cy.get('@onClickSpy').should('not.have.been.called')
   })
@@ -115,12 +135,20 @@ describe('<Btn />', () => {
   })
 
   it('shows progress in screen reader text', () => {
-    cy.mount(<Btn loading progress="75%">Progress Button</Btn>)
+    cy.mount(
+      <Btn loading progress="75%">
+        Progress Button
+      </Btn>
+    )
     cy.get('.sr-only').should('contain.text', 'Loading: 75%')
   })
 
   it('hides loading spinner when progress is provided', () => {
-    cy.mount(<Btn loading progress="25%">Progress Button</Btn>)
+    cy.mount(
+      <Btn loading progress="25%">
+        Progress Button
+      </Btn>
+    )
     cy.get('svg.animate-spin').should('not.exist')
     cy.get('button').should('contain.text', '25%')
   })
@@ -136,22 +164,38 @@ describe('<Btn />', () => {
   })
 
   it('sets tabIndex to -1 when link is disabled', () => {
-    cy.mount(<Btn to="/test" disabled>Disabled Link</Btn>)
+    cy.mount(
+      <Btn to="/test" disabled>
+        Disabled Link
+      </Btn>
+    )
     cy.get('a').should('have.attr', 'tabIndex', '-1')
   })
 
   it('sets tabIndex to -1 when link is loading', () => {
-    cy.mount(<Btn to="/test" loading>Loading Link</Btn>)
+    cy.mount(
+      <Btn to="/test" loading>
+        Loading Link
+      </Btn>
+    )
     cy.get('a').should('have.attr', 'tabIndex', '-1')
   })
 
   it('applies aria-disabled to link when disabled', () => {
-    cy.mount(<Btn to="/test" disabled>Disabled Link</Btn>)
+    cy.mount(
+      <Btn to="/test" disabled>
+        Disabled Link
+      </Btn>
+    )
     cy.get('a').should('have.attr', 'aria-disabled', 'true')
   })
 
   it('applies aria-disabled to link when loading', () => {
-    cy.mount(<Btn to="/test" loading>Loading Link</Btn>)
+    cy.mount(
+      <Btn to="/test" loading>
+        Loading Link
+      </Btn>
+    )
     cy.get('a').should('have.attr', 'aria-disabled', 'true')
   })
 
@@ -161,14 +205,22 @@ describe('<Btn />', () => {
   })
 
   it('handles small variant with custom padding override', () => {
-    cy.mount(<Btn small paddingX={10} paddingY={5}>Small Custom Padding</Btn>)
+    cy.mount(
+      <Btn small paddingX={10} paddingY={5}>
+        Small Custom Padding
+      </Btn>
+    )
     cy.get('button').should('have.class', 'text-sm')
     cy.get('button').should('have.class', 'px-10')
     cy.get('button').should('have.class', 'py-5')
   })
 
   it('handles large variant with custom padding override', () => {
-    cy.mount(<Btn paddingX={12} paddingY={6}>Large Custom Padding</Btn>)
+    cy.mount(
+      <Btn paddingX={12} paddingY={6}>
+        Large Custom Padding
+      </Btn>
+    )
     cy.get('button').should('not.have.class', 'text-sm')
     cy.get('button').should('have.class', 'px-12')
     cy.get('button').should('have.class', 'py-6')
@@ -255,4 +307,4 @@ describe('<Btn />', () => {
     cy.get('button').should('exist')
     cy.get('button').should('have.class', 'abs-btn')
   })
-}) 
+})

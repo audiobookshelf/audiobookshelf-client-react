@@ -274,4 +274,4 @@ describe('<Checkbox />', () => {
     cy.mount(<Checkbox label="Input Tab Checkbox" />)
     cy.get('input[type="checkbox"]').should('have.attr', 'tabindex', '-1')
   })
-}) 
+})

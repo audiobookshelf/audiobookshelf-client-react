@@ -210,8 +210,8 @@ describe('<IconBtn />', () => {
   it('handles all props together', () => {
     const onClickSpy = cy.spy().as('onClickSpy')
     cy.mount(
-      <IconBtn 
-        icon="&#xe3c9;" 
+      <IconBtn
+        icon="&#xe3c9;"
         disabled={false}
         bgColor="bg-purple-500"
         outlined={true}
@@ -236,4 +236,4 @@ describe('<IconBtn />', () => {
     cy.get('button').click()
     cy.get('@onClickSpy').should('have.been.calledOnce')
   })
-}) 
+})

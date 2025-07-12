@@ -43,4 +43,4 @@ export default async function ComponentsCatalogLayout({ children }: Readonly<{ c
       </body>
     </html>
   )
-} 
+}

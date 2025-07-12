@@ -21,10 +21,7 @@ interface BtnProps {
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
 const LoadingSpinner = memo<{ progress?: string }>(({ progress }) => (
-  <div 
-    className="text-white/100 absolute top-0 left-0 w-full h-full flex items-center justify-center"
-    aria-hidden="true"
-  >
+  <div className="text-white/100 absolute top-0 left-0 w-full h-full flex items-center justify-center" aria-hidden="true">
     {progress ? (
       <span>{progress}</span>
     ) : (
@@ -53,11 +50,11 @@ export default function Btn({
 }: BtnProps) {
   const classList = useMemo(() => {
     const list: string[] = []
-    
+
     // Optimize conditional class logic
     list.push(loading ? 'text-white/0' : 'text-white')
     list.push(color)
-    
+
     if (small) {
       list.push('text-sm')
       if (paddingX === undefined) list.push('px-4')
@@ -66,35 +63,37 @@ export default function Btn({
       if (paddingX === undefined) list.push('px-8')
       if (paddingY === undefined) list.push('py-2')
     }
-    
+
     if (paddingX !== undefined) {
       list.push(`px-${paddingX}`)
     }
     if (paddingY !== undefined) {
       list.push(`py-${paddingY}`)
     }
-    
+
     if (disabled) {
       list.push('cursor-not-allowed')
     }
-    
+
     const baseClassList = 'abs-btn rounded-md shadow-md relative border border-gray-600 text-center inline-flex'
     return mergeClasses(baseClassList, list, className)
   }, [loading, color, small, paddingX, paddingY, disabled, className])
 
   const isDisabled = disabled || loading
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-    if (onClick && !isDisabled) {
-      onClick(e)
-    }
-  }, [onClick, isDisabled])
-
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+      if (onClick && !isDisabled) {
+        onClick(e)
+      }
+    },
+    [onClick, isDisabled]
+  )
 
   if (to) {
     return (
-      <Link 
-        href={to} 
+      <Link
+        href={to}
         className={classList}
         onClick={handleClick}
         style={{ pointerEvents: isDisabled ? 'none' : 'auto' }}
@@ -103,30 +102,16 @@ export default function Btn({
       >
         {children}
         {loading && <LoadingSpinner progress={progress} />}
-        {loading && (
-          <span className="sr-only">
-            {progress ? `Loading: ${progress}` : 'Loading...'}
-          </span>
-        )}
+        {loading && <span className="sr-only">{progress ? `Loading: ${progress}` : 'Loading...'}</span>}
       </Link>
     )
   }
 
   return (
-    <button
-      className={classList}
-      disabled={isDisabled}
-      type={type}
-      onClick={handleClick}
-      onMouseDown={(e) => e.preventDefault()}
-    >
+    <button className={classList} disabled={isDisabled} type={type} onClick={handleClick} onMouseDown={(e) => e.preventDefault()}>
       {children}
       {loading && <LoadingSpinner progress={progress} />}
-      {loading && (
-        <span className="sr-only">
-          {progress ? `Loading: ${progress}` : 'Loading...'}
-        </span>
-      )}
+      {loading && <span className="sr-only">{progress ? `Loading: ${progress}` : 'Loading...'}</span>}
     </button>
   )
-} 
+}

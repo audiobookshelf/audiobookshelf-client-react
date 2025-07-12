@@ -20,10 +20,7 @@ interface IconBtnProps {
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
 const LoadingSpinner = memo(() => (
-  <div 
-    className="text-white/100 absolute top-0 left-0 w-full h-full flex items-center justify-center"
-    aria-hidden="true"
-  >
+  <div className="text-white/100 absolute top-0 left-0 w-full h-full flex items-center justify-center" aria-hidden="true">
     <svg className="animate-spin" style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24">
       <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
     </svg>
@@ -47,13 +44,13 @@ export default function IconBtn({
 }: IconBtnProps) {
   const classList = useMemo(() => {
     const list: string[] = []
-    
+
     list.push(`h-${size} w-${size}`)
-    
+
     if (!borderless) {
       list.push(`${bgColor} border border-gray-600`)
     }
-    
+
     const baseClassList = `${styles.iconBtn} rounded-md flex items-center justify-center relative`
     return mergeClasses(baseClassList, list, className)
   }, [size, borderless, bgColor, className])
@@ -66,35 +63,36 @@ export default function IconBtn({
 
   const isDisabled = disabled || loading
 
-  const handleClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    if (isDisabled) {
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (isDisabled) {
+        e.preventDefault()
+        return
+      }
       e.preventDefault()
-      return
-    }
-    e.preventDefault()
-    if (onClick) {
-      onClick(e)
-    }
-    e.stopPropagation()
-  }, [onClick, isDisabled])
+      if (onClick) {
+        onClick(e)
+      }
+      e.stopPropagation()
+    },
+    [onClick, isDisabled]
+  )
 
   const handleMouseDown = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
   }, [])
 
   return (
-    <button
-      aria-label={ariaLabel}
-      className={classList}
-      disabled={isDisabled}
-      onClick={handleClick}
-      onMouseDown={handleMouseDown}
-    >
+    <button aria-label={ariaLabel} className={classList} disabled={isDisabled} onClick={handleClick} onMouseDown={handleMouseDown}>
       {loading && <LoadingSpinner />}
-      {loading && <span cy-id="icon-btn-loading" className="sr-only">Loading...</span>}
+      {loading && (
+        <span cy-id="icon-btn-loading" className="sr-only">
+          Loading...
+        </span>
+      )}
       {!loading && (
         <span
-          cy-id="icon-btn-icon" 
+          cy-id="icon-btn-icon"
           className={outlined ? 'material-symbols' : 'material-symbols fill'}
           style={{ fontSize }}
           dangerouslySetInnerHTML={{ __html: icon }}
@@ -102,4 +100,4 @@ export default function IconBtn({
       )}
     </button>
   )
-} 
+}
