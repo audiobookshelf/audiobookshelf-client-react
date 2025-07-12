@@ -18,6 +18,7 @@ interface BtnProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   className?: string
   ariaLabel?: string
+  ariaLabel?: string
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
@@ -47,6 +48,8 @@ export default function Btn({
   progress,
   children,
   onClick,
+  className = '',
+  ariaLabel
   className = '',
   ariaLabel
 }: BtnProps) {
@@ -101,6 +104,7 @@ export default function Btn({
         style={{ pointerEvents: isDisabled ? 'none' : 'auto' }}
         tabIndex={isDisabled ? -1 : 0}
         aria-disabled={isDisabled}
+        aria-label={ariaLabel}
         aria-label={ariaLabel}
       >
         {children}
