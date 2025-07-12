@@ -12,6 +12,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import type { DropdownItem } from '@/components/ui/Dropdown'
 import FileInput from '@/components/ui/FileInput'
 import LibraryIcon from '@/components/ui/LibraryIcon'
+import MediaIconPicker from '@/components/ui/MediaIconPicker'
 
 export default function ComponentsCatalogPage() {
   const [checkboxValue, setCheckboxValue] = useState(false)
@@ -36,6 +37,7 @@ export default function ComponentsCatalogPage() {
   const [dropdownValue, setDropdownValue] = useState('option1')
   const [dropdownValue2, setDropdownValue2] = useState('en')
   const [dropdownValue3, setDropdownValue3] = useState('option1')
+  const [mediaIconValue, setMediaIconValue] = useState('audiobookshelf')
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -363,6 +365,37 @@ export default function ComponentsCatalogPage() {
         </div>
       </section>
 
+      {/* Media Icon Picker Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Media Icon Picker Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default Media Icon Picker</h3>
+            <MediaIconPicker value={mediaIconValue} onChange={setMediaIconValue} />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Label & Value</h3>
+            <MediaIconPicker value="books-1" onChange={setMediaIconValue} label="Choose Books Icon" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled State</h3>
+            <MediaIconPicker value={mediaIconValue} onChange={setMediaIconValue} label="Disabled Picker" disabled />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Menu Alignment (Right)</h3>
+            <MediaIconPicker value={mediaIconValue} onChange={setMediaIconValue} align="right" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Menu Alignment (Center)</h3>
+            <MediaIconPicker value={mediaIconValue} onChange={setMediaIconValue} align="center" />
+          </div>
+        </div>
+      </section>
+
       {/* Loading Components */}
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 text-gray-400">Loading Components</h2>
@@ -477,6 +510,9 @@ export default function ComponentsCatalogPage() {
             <li>
               <code className="bg-gray-700 px-2 py-1 rounded">LibraryIcon.tsx</code> - Library icon component using absicons font with validation and fallback
             </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">MediaIconPicker.tsx</code> - Icon picker component for selecting library icons with dropdown menu
+            </li>
           </ul>
         </div>
       </section>
@@ -588,6 +624,20 @@ export default function ComponentsCatalogPage() {
                 <code className="bg-gray-700 px-2 py-1 rounded">fontSize</code> (CSS font size class, defaults to 'text-lg'),{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">size</code> (5 or 6 for container size, defaults to 5),{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">className</code> (additional CSS classes)
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">MediaIconPicker Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import MediaIconPicker from '@/components/ui/MediaIconPicker'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">value</code> (selected icon name, defaults to 'database'),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">onChange</code> (callback when icon is selected),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">label</code> (label text, defaults to 'Icon'),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">disabled</code> (disables the picker),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">className</code> (additional CSS classes),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">align</code> (menu alignment, defaults to 'left', options: 'left', 'right', 'center')
               </p>
             </div>
           </div>
