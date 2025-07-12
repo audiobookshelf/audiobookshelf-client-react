@@ -15,5 +15,7 @@ export default async function LoginPage() {
     )
   }
 
-  return <div className="min-h-[calc(100vh-var(--header-height))] flex items-center justify-center">{status.data?.isInit ? <LoginForm /> : <ServerInitForm />}</div>
+  return (
+    <div className="min-h-[calc(100vh-var(--header-height))] flex items-center justify-center">{status.data?.isInit ? <LoginForm /> : <ServerInitForm />}</div>
+  )
 }
