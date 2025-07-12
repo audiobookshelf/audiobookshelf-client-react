@@ -22,7 +22,21 @@
 
 #bookshelf {
   height: calc(100% - 40px);
-  background-image: linear-gradient(to right bottom, #2e2e2e, #303030, #313131, #333333, #353535, #343434, #323232, #313131, #2c2c2c, #282828, #232323, #1f1f1f);
+  background-image: linear-gradient(
+    to right bottom,
+    #2e2e2e,
+    #303030,
+    #313131,
+    #333333,
+    #353535,
+    #343434,
+    #323232,
+    #313131,
+    #2c2c2c,
+    #282828,
+    #232323,
+    #1f1f1f
+  );
 
   /* For Firefox */
   scrollbar-width: thin;
@@ -44,7 +58,21 @@
 }
 
 #page-wrapper {
-  background-image: linear-gradient(to right bottom, #2e2e2e, #303030, #313131, #333333, #353535, #343434, #323232, #313131, #2c2c2c, #282828, #232323, #1f1f1f);
+  background-image: linear-gradient(
+    to right bottom,
+    #2e2e2e,
+    #303030,
+    #313131,
+    #333333,
+    #353535,
+    #343434,
+    #323232,
+    #313131,
+    #2c2c2c,
+    #282828,
+    #232323,
+    #1f1f1f
+  );
 }
 
 /* width */
@@ -240,7 +268,7 @@ Bookshelf Label
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, 0);
-  transition: all 0.1s ease-in-out;  
+  transition: all 0.1s ease-in-out;
 }
 
 .abs-btn:hover:not(:disabled)::before {

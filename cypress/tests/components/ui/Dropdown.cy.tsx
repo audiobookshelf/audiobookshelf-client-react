@@ -131,7 +131,7 @@ describe('<Dropdown />', () => {
   describe('Transition Tests', () => {
     it('applies menu-enter class during menu opening transition', () => {
       cy.mount(<Dropdown items={mockItems} />)
-      
+
       // Click to open menu and immediately check for transition classes
       cy.get('button').click()
       cy.get('[role="listbox"]').should('exist').and('have.class', 'menu-enter')
@@ -142,12 +142,12 @@ describe('<Dropdown />', () => {
 
     it('applies menu-exit-active class during menu closing transition', () => {
       cy.mount(<Dropdown items={mockItems} />)
-      
+
       // Open menu first
       cy.get('button').click()
       cy.get('[role="listbox"]').then(($el: any) => {
-        cy.get('html').click({force: true})
-        cy.wrap($el, {timeout: 50}).should('have.class', 'menu-exit-active')
+        cy.get('html').click({ force: true })
+        cy.wrap($el, { timeout: 50 }).should('have.class', 'menu-exit-active')
       })
       cy.get('[role="listbox"]').should('not.exist')
     })
@@ -193,18 +193,18 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={mockItems} />)
       cy.get('button').click()
       cy.get('[role="listbox"]').should('be.visible')
-      
+
       // First item should be focused
       cy.get('[role="listbox"] > li').first().should('have.class', 'bg-black-300')
-      
+
       // Navigate to second item
       cy.realType('{downarrow}')
       cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-black-300')
-      
+
       // Navigate to third item
       cy.realType('{downarrow}')
       cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-black-300')
-      
+
       // Should stay on last item when pressing down again
       cy.realType('{downarrow}')
       cy.get('[role="listbox"] > li').last().should('have.class', 'bg-black-300')
@@ -215,14 +215,14 @@ describe('<Dropdown />', () => {
       cy.get('button').focus()
       cy.get('button').type('{uparrow}')
       cy.get('[role="listbox"]').should('be.visible')
-      
+
       // Last item should be focused when opening with up arrow
       cy.get('[role="listbox"] > li').last().should('have.class', 'bg-black-300')
-      
+
       // Navigate to third item
       cy.realType('{uparrow}')
       cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-black-300')
-      
+
       // Navigate to second item
       cy.realType('{uparrow}')
       cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-black-300')
@@ -230,7 +230,7 @@ describe('<Dropdown />', () => {
       // Navigate to first item
       cy.realType('{uparrow}')
       cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-black-300')
-      
+
       // Should stay on first item when pressing up again
       cy.realType('{uparrow}')
       cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-black-300')
@@ -239,11 +239,11 @@ describe('<Dropdown />', () => {
     it('activates menu item with Enter', () => {
       const onChangeSpy = cy.spy().as('onChangeSpy')
       cy.mount(<Dropdown items={mockItems} onChange={onChangeSpy} />)
-      
+
       cy.get('button').focus()
       cy.get('button').type('{downarrow}') // Open menu and focus first item
       cy.get('button').type('{enter}') // Activate first item
-      
+
       cy.get('@onChangeSpy').should('have.been.calledWith', 'option1')
       cy.get('[role="listbox"]').should('not.exist')
     })
@@ -251,11 +251,11 @@ describe('<Dropdown />', () => {
     it('activates menu item with Space', () => {
       const onChangeSpy = cy.spy().as('onChangeSpy')
       cy.mount(<Dropdown items={mockItems} onChange={onChangeSpy} />)
-      
+
       cy.get('button').focus()
       cy.get('button').type('{downarrow}') // Open menu and focus first item
       cy.get('button').type(' ') // Activate first item
-      
+
       cy.get('@onChangeSpy').should('have.been.calledWith', 'option1')
       cy.get('[role="listbox"]').should('not.exist')
     })
@@ -266,7 +266,7 @@ describe('<Dropdown />', () => {
       cy.get('button').type('{downarrow}') // Open menu
       cy.get('button').type('{downarrow}') // Navigate to second item
       cy.get('button').type('{home}') // Go to first item
-      
+
       cy.get('[role="listbox"] > li').first().should('have.class', 'bg-black-300')
     })
 
@@ -275,7 +275,7 @@ describe('<Dropdown />', () => {
       cy.get('button').focus()
       cy.get('button').type('{downarrow}') // Open menu
       cy.get('button').type('{end}') // Go to last item
-      
+
       cy.get('[role="listbox"] > li').last().should('have.class', 'bg-black-300')
     })
 
@@ -284,7 +284,7 @@ describe('<Dropdown />', () => {
       cy.get('button').focus()
       cy.get('button').type('{downarrow}') // Open menu
       cy.get('[role="listbox"]').should('be.visible')
-      
+
       cy.get('button').type('{esc}') // Close menu
       cy.get('[role="listbox"]').should('not.exist')
     })
@@ -299,7 +299,7 @@ describe('<Dropdown />', () => {
       cy.get('button').first().focus()
       cy.get('button').first().type('{downarrow}') // Open menu
       cy.get('[role="listbox"]').should('be.visible')
-      
+
       cy.get('button').first().tab() // Close menu with tab
       cy.get('[role="listbox"]').should('not.exist')
 
@@ -308,7 +308,7 @@ describe('<Dropdown />', () => {
 
     it('does not respond to keyboard events when disabled', () => {
       cy.mount(<Dropdown items={mockItems} disabled={true} />)
-      
+
       // For disabled buttons, we can't focus them, so we'll test that the menu doesn't open
       cy.get('button').should('be.disabled')
       cy.get('[role="listbox"]').should('not.exist')
@@ -318,7 +318,7 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={mockItems} />)
       cy.get('button').focus()
       cy.get('button').type('{downarrow}')
-      
+
       // The menu should open and the page should not scroll
       cy.get('[role="listbox"]').should('be.visible')
       cy.get('html').should('not.have.class', 'overflow-hidden')
@@ -329,7 +329,7 @@ describe('<Dropdown />', () => {
       cy.get('button').focus()
       cy.get('button').type('{downarrow}') // Open menu
       cy.get('button').type('{esc}') // Close menu
-      
+
       cy.get('button').should('be.focused')
     })
 
@@ -339,11 +339,11 @@ describe('<Dropdown />', () => {
         text: `Option ${i + 1}`,
         value: `option${i + 1}`
       }))
-      
+
       cy.mount(<Dropdown items={manyItems} menuMaxHeight="100px" />)
       cy.get('button').click()
       cy.get('button').type('{end}') // Go to last item
-      
+
       // The last item should be visible in the scrollable area
       cy.get('[role="listbox"] > li').last().should('be.visible')
     })
@@ -443,4 +443,4 @@ describe('<Dropdown />', () => {
       cy.get('[role="listbox"] > li').should('have.length', 2)
     })
   })
-}) 
+})

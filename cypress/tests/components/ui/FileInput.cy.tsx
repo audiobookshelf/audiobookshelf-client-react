@@ -2,7 +2,6 @@ import React from 'react'
 import FileInput from '@/components/ui/FileInput'
 
 describe('<FileInput />', () => {
-
   const file1 = {
     contents: Cypress.Buffer.from('jpg test'),
     fileName: 'test.jpg',
@@ -23,7 +22,7 @@ describe('<FileInput />', () => {
     mimeType: 'application/json',
     lastModified: 1715404800000
   }
-  
+
   const file2Output = {
     name: 'test.json',
     type: 'application/json',
@@ -65,7 +64,7 @@ describe('<FileInput />', () => {
     const onChangeSpy = cy.spy().as('onChangeSpy')
     cy.mount(<FileInput onChange={onChangeSpy}>Choose File</FileInput>)
 
-    cy.get('input[type="file"]').selectFile(file1, {force: true})
+    cy.get('input[type="file"]').selectFile(file1, { force: true })
     cy.get('@onChangeSpy').should('have.been.calledWithMatch', file1Output)
   })
 
@@ -79,7 +78,11 @@ describe('<FileInput />', () => {
   })
 
   it('handles empty className prop', () => {
-    cy.mount(<FileInput onChange={() => {}} className="">Choose File</FileInput>)
+    cy.mount(
+      <FileInput onChange={() => {}} className="">
+        Choose File
+      </FileInput>
+    )
     cy.get('div').should('have.class', '')
   })
 
@@ -106,7 +109,7 @@ describe('<FileInput />', () => {
         Upload Image
       </FileInput>
     )
-    
+
     cy.get('input[type="file"]').should('have.attr', 'accept', '.png,.jpg,.jpeg,.gif')
   })
 
@@ -116,13 +119,13 @@ describe('<FileInput />', () => {
         Choose Any File
       </FileInput>
     )
-    
+
     cy.get('input[type="file"]').should('have.attr', 'accept', '*')
   })
 
   it('handles optional onChange prop', () => {
     cy.mount(<FileInput onChange={undefined}>Choose File</FileInput>)
-    
+
     // Should render without errors even without onChange
     cy.get('input[type="file"]').should('exist')
     cy.get('button').should('exist')
@@ -142,11 +145,11 @@ describe('<FileInput />', () => {
 
   it('maintains responsive design', () => {
     cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-    
+
     // Desktop button should be hidden on mobile
     cy.get('button').first().should('have.class', 'hidden')
     cy.get('button').first().should('have.class', 'md:block')
-    
+
     // Mobile icon should be visible on mobile
     cy.get('button').last().should('have.class', 'block')
     cy.get('button').last().should('have.class', 'md:hidden')
@@ -156,14 +159,14 @@ describe('<FileInput />', () => {
   describe('Accessibility', () => {
     it('has proper ARIA attributes on file input', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       cy.get('input[type="file"]').should('have.attr', 'aria-label', 'Choose file')
       cy.get('input[type="file"]').should('have.attr', 'tabindex', '-1')
     })
 
     it('has proper ARIA attributes on desktop button', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       // Check that the button exists (may be hidden on mobile viewport)
       cy.get('button').first().should('exist')
       cy.get('button').first().should('have.attr', 'aria-label', 'Choose file')
@@ -171,7 +174,7 @@ describe('<FileInput />', () => {
 
     it('has proper ARIA attributes on mobile icon button', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       // Check that the icon button exists and has proper aria-label
       cy.get('button').last().should('exist')
       cy.get('button').last().should('have.attr', 'aria-label', 'Choose file')
@@ -183,27 +186,29 @@ describe('<FileInput />', () => {
           Choose File
         </FileInput>
       )
-      
+
       cy.get('input[type="file"]').should('have.attr', 'aria-label', 'Upload profile picture')
       cy.get('button').last().should('have.attr', 'aria-label', 'Upload profile picture')
     })
 
     it('generates unique ID for file input', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       cy.get('input[type="file"]').should('have.attr', 'id')
-      cy.get('input[type="file"]').invoke('attr', 'id').should('match', /^file-input-/)
+      cy.get('input[type="file"]')
+        .invoke('attr', 'id')
+        .should('match', /^file-input-/)
     })
 
     it('announces file selection to screen readers', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       // Initially no live region should exist
       cy.get('[aria-live="polite"]').should('not.exist')
-      
+
       // Select a file
-      cy.get('input[type="file"]').selectFile(file1, {force: true})
-      
+      cy.get('input[type="file"]').selectFile(file1, { force: true })
+
       // Live region should appear with announcement
       cy.get('[aria-live="polite"]').should('exist')
       cy.get('[aria-live="polite"]').should('contain.text', 'Selected file: test.jpg')
@@ -212,33 +217,33 @@ describe('<FileInput />', () => {
 
     it('announces different file selections', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       // Select first file
-      cy.get('input[type="file"]').selectFile(file1, {force: true})
+      cy.get('input[type="file"]').selectFile(file1, { force: true })
       cy.get('[aria-live="polite"]').should('contain.text', 'Selected file: test.jpg')
-      
+
       // Select second file
-      cy.get('input[type="file"]').selectFile(file2, {force: true})
+      cy.get('input[type="file"]').selectFile(file2, { force: true })
       cy.get('[aria-live="polite"]').should('contain.text', 'Selected file: test.json')
     })
 
     it('supports keyboard navigation', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       // Mobile button should be focusable (visible on mobile viewport)
       cy.get('button').last().should('exist')
       cy.get('button').last().should('be.visible')
-      
+
       // File input should not be focusable (hidden)
       cy.get('input[type="file"]').should('have.attr', 'tabindex', '-1')
     })
 
     it('maintains focus management', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       // Focus should not move to hidden file input
       cy.get('input[type="file"]').should('not.be.focused')
-      
+
       // Mobile button should be naturally focusable
       cy.get('button').last().focus()
       cy.get('button').last().should('be.focused')
@@ -246,10 +251,10 @@ describe('<FileInput />', () => {
 
     it('has proper button semantics', () => {
       cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
-      
+
       // Desktop button should have proper type
       cy.get('button').first().should('have.attr', 'type', 'button')
-      
+
       // Mobile button should exist and be accessible
       cy.get('button').last().should('exist')
     })
@@ -261,13 +266,13 @@ describe('<FileInput />', () => {
           <FileInput onChange={() => {}}>Second Input</FileInput>
         </div>
       )
-      
+
       const firstId = cy.get('input[type="file"]').first().invoke('attr', 'id')
       const secondId = cy.get('input[type="file"]').last().invoke('attr', 'id')
-      
+
       // IDs should be different
-      firstId.then(id1 => {
-        secondId.then(id2 => {
+      firstId.then((id1) => {
+        secondId.then((id2) => {
           expect(id1).to.not.equal(id2)
         })
       })
@@ -279,11 +284,10 @@ describe('<FileInput />', () => {
           Upload Document
         </FileInput>
       )
-      
+
       // The aria-label should be descriptive
       cy.get('input[type="file"]').should('have.attr', 'aria-label')
       cy.get('button').last().should('have.attr', 'aria-label')
     })
   })
-
-}) 
+})

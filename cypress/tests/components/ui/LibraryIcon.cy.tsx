@@ -70,7 +70,7 @@ describe('LibraryIcon', () => {
     })
 
     it('works with all available icons', () => {
-      AVAILABLE_ICONS.forEach(icon => {
+      AVAILABLE_ICONS.forEach((icon) => {
         cy.mount(<LibraryIcon icon={icon} decorative={false} />)
         cy.get('&library-icon-span').should('have.class', `icon-${icon}`)
         cy.get('&library-icon').should('have.attr', 'aria-label')
@@ -95,4 +95,4 @@ describe('LibraryIcon', () => {
       cy.get('&library-icon').should('have.class', 'text-lg')
     })
   })
-}) 
+})

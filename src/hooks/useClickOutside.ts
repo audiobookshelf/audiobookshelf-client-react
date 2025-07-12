@@ -6,12 +6,14 @@ export function useClickOutside(
   handler: () => void
 ): void {
   const handleClickOutside = useCallback((event: MouseEvent) => {
-    if (!menuRef.current || !triggerRef.current) return
+      if (!menuRef.current || !triggerRef.current) return
 
-    if (!menuRef.current.contains(event.target as Node) && !triggerRef.current.contains(event.target as Node)) {
-      handler()
-    }
-  }, [menuRef, triggerRef, handler])
+      if (!menuRef.current.contains(event.target as Node) && !triggerRef.current.contains(event.target as Node)) {
+        handler()
+      }
+    },
+    [menuRef, triggerRef, handler]
+  )
 
   useEffect(() => {
     document.addEventListener('mousedown', handleClickOutside)
@@ -19,4 +21,4 @@ export function useClickOutside(
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [handleClickOutside])
-} 
+}

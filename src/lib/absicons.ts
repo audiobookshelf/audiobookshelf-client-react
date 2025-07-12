@@ -25,11 +25,11 @@ export const AVAILABLE_ICONS = [
   'rss'
 ] as const
 
-export type AvailableIcon = typeof AVAILABLE_ICONS[number]
+export type AvailableIcon = (typeof AVAILABLE_ICONS)[number]
 
 /**
  * Validates if an icon name is available in the absicons font
  */
 export function isValidIcon(icon: string): icon is AvailableIcon {
   return AVAILABLE_ICONS.includes(icon as AvailableIcon)
-} 
+}

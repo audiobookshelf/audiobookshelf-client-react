@@ -42,4 +42,4 @@ const LoadingSpinner = memo(({
 
 LoadingSpinner.displayName = 'LoadingSpinner'
 
-export default LoadingSpinner 
+export default LoadingSpinner

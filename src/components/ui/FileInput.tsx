@@ -35,16 +35,19 @@ export default function FileInput({
     }
   }, [])
 
-  const inputChanged = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target || !e.target.files) return
+  const inputChanged = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!e.target || !e.target.files) return
 
-    const files = Array.from(e.target.files)
-    if (files && files.length) {
-      const file = files[0]
-      setSelectedFileName(file.name)
-      onChange?.(file)
-    }
-  }, [onChange])
+      const files = Array.from(e.target.files)
+      if (files && files.length) {
+        const file = files[0]
+        setSelectedFileName(file.name)
+        onChange?.(file)
+      }
+    },
+    [onChange]
+  )
 
   const inputId = `file-input-${useId()}`
   const label = ariaLabel || 'Choose file'
@@ -87,4 +90,4 @@ export default function FileInput({
       )}
     </div>
   )
-} 
+}

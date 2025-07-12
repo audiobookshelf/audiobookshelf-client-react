@@ -53,7 +53,7 @@ export default function ContextMenuDropdown({
   const menuWrapperRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [openSubMenuIndex, setOpenSubMenuIndex] = useState<number | null>(null)
-  const submenuWidth = useMemo(() => autoWidth ? undefined : menuWidth, [autoWidth, menuWidth])
+  const submenuWidth = useMemo(() => (autoWidth ? undefined : menuWidth), [autoWidth, menuWidth])
   const [menuActualWidth, setMenuActualWidth] = useState(menuWidth)
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const [focusedSubIndex, setFocusedSubIndex] = useState(-1)
@@ -126,105 +126,128 @@ export default function ContextMenuDropdown({
     setOpenSubMenuIndex(index)
   }, [])
 
-  const handleMouseleaveItem = useCallback((index: number) => {
-    // Wait a bit until openSubMenuIndex and isOverSubItemMenu are updated by other events
-    setTimeout(() => {
-      setIsOverSubItemMenu((currentIsOverSubItemMenu) => {
-        // Using currentIsOverSubItemMenu due to stale closure issue
-        if (openSubMenuIndex === index && !currentIsOverSubItemMenu) {
-          setOpenSubMenuIndex(null)
-        }
-        return currentIsOverSubItemMenu
-      })
-    }, 10)
-  }, [openSubMenuIndex])
+  const handleMouseleaveItem = useCallback(
+    (index: number) => {
+      // Wait a bit until openSubMenuIndex and isOverSubItemMenu are updated by other events
+      setTimeout(() => {
+        setIsOverSubItemMenu((currentIsOverSubItemMenu) => {
+          // Using currentIsOverSubItemMenu due to stale closure issue
+          if (openSubMenuIndex === index && !currentIsOverSubItemMenu) {
+            setOpenSubMenuIndex(null)
+          }
+          return currentIsOverSubItemMenu
+        })
+      }, 10)
+    },
+    [openSubMenuIndex]
+  )
 
-  const handleAction = useCallback((action: string, data?: Record<string, any>) => {
-    if (disabled) return
-    closeMenu()
-    onAction?.({ action, data })
-  }, [disabled, onAction, closeMenu])
+  const handleAction = useCallback(
+    (action: string, data?: Record<string, any>) => {
+      if (disabled) return
+      closeMenu()
+      onAction?.({ action, data })
+    },
+    [disabled, onAction, closeMenu]
+  )
 
-  const toggleSubmenu = useCallback((index: number) => {
-    if (openSubMenuIndex === index) {
-      closeSubMenu()
-    } else {
-      openSubMenu(index)
-    }
-  }, [openSubMenuIndex, closeSubMenu, openSubMenu])
+  const toggleSubmenu = useCallback(
+    (index: number) => {
+      if (openSubMenuIndex === index) {
+        closeSubMenu()
+      } else {
+        openSubMenu(index)
+      }
+    },
+    [openSubMenuIndex, closeSubMenu, openSubMenu]
+  )
 
-  const handleToggleSubmenu = useCallback((e: React.MouseEvent, index: number) => {
-    e.preventDefault()
-    e.stopPropagation()
-    toggleSubmenu(index)
-  }, [toggleSubmenu])
+  const handleToggleSubmenu = useCallback(
+    (e: React.MouseEvent, index: number) => {
+      e.preventDefault()
+      e.stopPropagation()
+      toggleSubmenu(index)
+    },
+    [toggleSubmenu]
+  )
 
-  const submenuLeftPos = useMemo(() => 
-    openSubMenuLeft ? -(submenuWidth || menuWidth) + 1 : menuActualWidth - 0.5, 
+  const submenuLeftPos = useMemo(
+    () => (openSubMenuLeft ? -(submenuWidth || menuWidth) + 1 : menuActualWidth - 0.5),
     [openSubMenuLeft, submenuWidth, menuWidth, menuActualWidth]
   )
 
-  const handleButtonClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    toggleMenu()
-  }, [toggleMenu])
+  const handleButtonClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      toggleMenu()
+    },
+    [toggleMenu]
+  )
 
-  const handleItemClick = useCallback((e: React.MouseEvent, action: string) => {
-    e.stopPropagation()
-    handleAction(action)
-  }, [handleAction])
+  const handleItemClick = useCallback(
+    (e: React.MouseEvent, action: string) => {
+      e.stopPropagation()
+      handleAction(action)
+    },
+    [handleAction]
+  )
 
-  const handleSubItemClick = useCallback((e: React.MouseEvent, action: string, data?: Record<string, any>) => {
-    e.stopPropagation()
-    handleAction(action, data)
-  }, [handleAction])
+  const handleSubItemClick = useCallback(
+    (e: React.MouseEvent, action: string, data?: Record<string, any>) => {
+      e.stopPropagation()
+      handleAction(action, data)
+    },
+    [handleAction]
+  )
 
   // Keyboard navigation handlers
-  const handleVerticalNavigation = useCallback((direction: 'up' | 'down') => {
-    if (direction === 'down') {
-      if (!showMenu) {
-        openMenu()
-      } else if (focusedSubIndex !== -1 && openSubMenuIndex !== null) {
-        const currentItem = items[openSubMenuIndex]
-        if (currentItem?.subitems) {
-          setFocusedSubIndex(prev => 
-            prev < currentItem.subitems!.length - 1 ? prev + 1 : prev
-          )
+  const handleVerticalNavigation = useCallback(
+    (direction: 'up' | 'down') => {
+      if (direction === 'down') {
+        if (!showMenu) {
+          openMenu()
+        } else if (focusedSubIndex !== -1 && openSubMenuIndex !== null) {
+          const currentItem = items[openSubMenuIndex]
+          if (currentItem?.subitems) {
+            setFocusedSubIndex((prev) => (prev < currentItem.subitems!.length - 1 ? prev + 1 : prev))
+          }
+        } else {
+          setFocusedIndex((prev) => (prev < items.length - 1 ? prev + 1 : prev))
         }
       } else {
-        setFocusedIndex(prev => 
-          prev < items.length - 1 ? prev + 1 : prev
-        )
+        console.log('openMenu up', showMenu)
+        console.log('focusedIndex', focusedIndex)
+        if (!showMenu) {
+          console.log('openMenu', items.length - 1)
+          openMenu(items.length - 1)
+        } else if (focusedSubIndex !== -1 && openSubMenuIndex !== null) {
+          setFocusedSubIndex((prev) => (prev > 0 ? prev - 1 : prev))
+        } else {
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+        }
       }
-    } else {
-      console.log('openMenu up', showMenu)
-      console.log('focusedIndex', focusedIndex)
-      if (!showMenu) {
-        console.log('openMenu', items.length - 1)
-        openMenu(items.length - 1)
-      } else if (focusedSubIndex !== -1 && openSubMenuIndex !== null) {
-        setFocusedSubIndex(prev => prev > 0 ? prev - 1 : prev)
-      } else {
-        setFocusedIndex(prev => prev > 0 ? prev - 1 : prev)
-      }
-    }
-  }, [showMenu, focusedSubIndex, openSubMenuIndex, items, openMenu])
+    },
+    [showMenu, focusedSubIndex, openSubMenuIndex, items, openMenu]
+  )
 
-  const handleHorizontalNavigation = useCallback((direction: 'left' | 'right') => {
-    if (direction === 'right') {
-      if (showMenu && focusedSubIndex === -1 && focusedIndex >= 0) {
-        const currentItem = items[focusedIndex]
-        if (currentItem?.subitems) {
-          openSubMenu(focusedIndex)
+  const handleHorizontalNavigation = useCallback(
+    (direction: 'left' | 'right') => {
+      if (direction === 'right') {
+        if (showMenu && focusedSubIndex === -1 && focusedIndex >= 0) {
+          const currentItem = items[focusedIndex]
+          if (currentItem?.subitems) {
+            openSubMenu(focusedIndex)
+          }
+        }
+      } else {
+        if (showMenu && focusedSubIndex !== -1) {
+          closeSubMenu()
         }
       }
-    } else {
-      if (showMenu && focusedSubIndex !== -1) {
-        closeSubMenu()
-      }
-    }
-  }, [showMenu, focusedSubIndex, focusedIndex, items, openSubMenu, closeSubMenu])
+    },
+    [showMenu, focusedSubIndex, focusedIndex, items, openSubMenu, closeSubMenu]
+  )
 
   const handleEnterSpace = useCallback(() => {
     if (!showMenu) {
@@ -245,26 +268,29 @@ export default function ContextMenuDropdown({
     }
   }, [showMenu, focusedSubIndex, openSubMenuIndex, items, handleAction, toggleSubmenu, openMenu, focusedIndex])
 
-  const handleHomeEnd = useCallback((key: 'home' | 'end') => {
-    if (showMenu) {
-      if (key === 'home') {
-        if (focusedSubIndex !== -1) {
-          setFocusedSubIndex(0)
-        } else {
-          setFocusedIndex(0)
-        }
-      } else {
-        if (focusedSubIndex !== -1 && openSubMenuIndex !== null) {
-          const currentItem = items[openSubMenuIndex]
-          if (currentItem?.subitems) {
-            setFocusedSubIndex(currentItem.subitems.length - 1)
+  const handleHomeEnd = useCallback(
+    (key: 'home' | 'end') => {
+      if (showMenu) {
+        if (key === 'home') {
+          if (focusedSubIndex !== -1) {
+            setFocusedSubIndex(0)
+          } else {
+            setFocusedIndex(0)
           }
         } else {
-          setFocusedIndex(items.length - 1)
+          if (focusedSubIndex !== -1 && openSubMenuIndex !== null) {
+            const currentItem = items[openSubMenuIndex]
+            if (currentItem?.subitems) {
+              setFocusedSubIndex(currentItem.subitems.length - 1)
+            }
+          } else {
+            setFocusedIndex(items.length - 1)
+          }
         }
       }
-    }
-  }, [showMenu, focusedSubIndex, openSubMenuIndex, items])
+    },
+    [showMenu, focusedSubIndex, openSubMenuIndex, items]
+  )
 
   const handleTab = useCallback(() => {
     if (showMenu) {
@@ -281,162 +307,170 @@ export default function ContextMenuDropdown({
     }
   }, [focusedSubIndex, closeSubMenu, closeMenu])
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (disabled) return
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (disabled) return
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        handleVerticalNavigation('down')
-        break
-      
-      case 'ArrowUp':
-        e.preventDefault()
-        handleVerticalNavigation('up')
-        break
-      
-      case 'ArrowRight':
-        e.preventDefault()
-        handleHorizontalNavigation('right')
-        break
-      
-      case 'ArrowLeft':
-        e.preventDefault()
-        handleHorizontalNavigation('left')
-        break
-      
-      case 'Enter':
-      case ' ':
-        e.preventDefault()
-        handleEnterSpace()
-        break
-      
-      case 'Escape':
-        e.preventDefault()
-        handleEscape()
-        break
-      
-      case 'Home':
-        e.preventDefault()
-        handleHomeEnd('home')
-        break
-      
-      case 'End':
-        e.preventDefault()
-        handleHomeEnd('end')
-        break
-      
-      case 'Tab':
-        handleTab()
-        break
-    }
-  }, [disabled, handleVerticalNavigation, handleHorizontalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab])
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          handleVerticalNavigation('down')
+          break
+
+        case 'ArrowUp':
+          e.preventDefault()
+          handleVerticalNavigation('up')
+          break
+
+        case 'ArrowRight':
+          e.preventDefault()
+          handleHorizontalNavigation('right')
+          break
+
+        case 'ArrowLeft':
+          e.preventDefault()
+          handleHorizontalNavigation('left')
+          break
+
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          handleEnterSpace()
+          break
+
+        case 'Escape':
+          e.preventDefault()
+          handleEscape()
+          break
+
+        case 'Home':
+          e.preventDefault()
+          handleHomeEnd('home')
+          break
+
+        case 'End':
+          e.preventDefault()
+          handleHomeEnd('end')
+          break
+
+        case 'Tab':
+          handleTab()
+          break
+      }
+    },
+    [disabled, handleVerticalNavigation, handleHorizontalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab]
+  )
 
   // Handle menu item keyboard events
-  const handleItemKeyDown = useCallback((e: React.KeyboardEvent, action: string) => {
-    switch (e.key) {
-      case 'Enter':
-      case ' ':
-        e.preventDefault()
-        handleAction(action)
-        break
-    }
-  }, [handleAction])
+  const handleItemKeyDown = useCallback(
+    (e: React.KeyboardEvent, action: string) => {
+      switch (e.key) {
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          handleAction(action)
+          break
+      }
+    },
+    [handleAction]
+  )
 
   // Handle submenu item keyboard events
-  const handleSubItemKeyDown = useCallback((e: React.KeyboardEvent, action: string, data?: Record<string, any>) => {
-    switch (e.key) {
-      case 'Enter':
-      case ' ':
-        e.preventDefault()
-        handleAction(action, data)
-        break
-    }
-  }, [handleAction])
+  const handleSubItemKeyDown = useCallback(
+    (e: React.KeyboardEvent, action: string, data?: Record<string, any>) => {
+      switch (e.key) {
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          handleAction(action, data)
+          break
+      }
+    },
+    [handleAction]
+  )
 
-  const menuItems = 
-    items.map((item, index) =>
-      item.subitems ? (
-        <div key={index}>
-          <button
-            role="menuitem"
-            aria-haspopup="true"
-            aria-expanded={openSubMenuIndex === index}
-            aria-label={`${item.text}, submenu`}
-            id={`${dropdownId}-item-${index}`}
-            className={mergeClasses(
-              'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-default w-full',
-              openSubMenuIndex === index ? 'bg-white/5' : '',
-              focusedIndex === index && focusedSubIndex === -1 ? 'bg-white/10' : ''
-            )}
-            onMouseOver={() => handleMouseoverItem(index)}
-            onMouseLeave={() => handleMouseleaveItem(index)}
-            onClick={(e) => handleToggleSubmenu(e, index)}
-            onKeyDown={(e) => handleItemKeyDown(e, item.action)}
-            onMouseDown={(e) => e.preventDefault()}
-            tabIndex={-1}
-          >
-            <p>{item.text}</p>
-          </button>
-          {openSubMenuIndex === index && (
-            <div
-              cy-id="submenu"
-              role="menu"
-              aria-label={`${item.text} submenu`}
-              onMouseOver={() => handleMouseoverSubItemMenu(index)}
-              onMouseLeave={() => handleMouseleaveSubItemMenu(index)}
-              className={mergeClasses(
-                'absolute bg-bg border border-black-200 shadow-lg z-50 -ml-px py-1',
-                openSubMenuLeft ? 'rounded-l-md' : 'rounded-r-md',
-                'rounded-b-md',
-                autoWidth ? 'inline-flex flex-col whitespace-nowrap' : ''
-              )}
-              style={{
-                left: `${submenuLeftPos}px`,
-                top: `${index * 28}px`, // index * (text-xs line-height + py-1.5)
-                ...(autoWidth ? { minWidth: `${menuWidth}px` } : { width: `${submenuWidth}px` })
-              }}
-            >
-              {item.subitems.map((subitem, subitemIndex) => (
-                <button
-                  key={`subitem-${subitemIndex}`}
-                  role="menuitem"
-                  aria-label={subitem.text}
-                  id={`${dropdownId}-subitem-${index}-${subitemIndex}`}
-                  className={mergeClasses(
-                    'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-pointer w-full',
-                    focusedSubIndex === subitemIndex && focusedSubIndex !== -1 ? 'bg-white/10' : ''
-                  )}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={(e) => handleSubItemClick(e, subitem.action, subitem.data)}
-                  onKeyDown={(e) => handleSubItemKeyDown(e, subitem.action, subitem.data)}
-                  tabIndex={-1}
-                >
-                  <p>{subitem.text}</p>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      ) : (
+  const menuItems = items.map((item, index) =>
+    item.subitems ? (
+      <div key={index}>
         <button
-          key={index}
           role="menuitem"
-          aria-label={item.text}
+          aria-haspopup="true"
+          aria-expanded={openSubMenuIndex === index}
+          aria-label={`${item.text}, submenu`}
           id={`${dropdownId}-item-${index}`}
           className={mergeClasses(
-            'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-pointer w-full',
+            'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-default w-full',
+            openSubMenuIndex === index ? 'bg-white/5' : '',
             focusedIndex === index && focusedSubIndex === -1 ? 'bg-white/10' : ''
           )}
-          onClick={(e) => handleItemClick(e, item.action)}
+          onMouseOver={() => handleMouseoverItem(index)}
+          onMouseLeave={() => handleMouseleaveItem(index)}
+          onClick={(e) => handleToggleSubmenu(e, index)}
           onKeyDown={(e) => handleItemKeyDown(e, item.action)}
           onMouseDown={(e) => e.preventDefault()}
           tabIndex={-1}
         >
-          <p className="text-left">{item.text}</p>
+          <p>{item.text}</p>
         </button>
-      )
+        {openSubMenuIndex === index && (
+          <div
+            cy-id="submenu"
+            role="menu"
+            aria-label={`${item.text} submenu`}
+            onMouseOver={() => handleMouseoverSubItemMenu(index)}
+            onMouseLeave={() => handleMouseleaveSubItemMenu(index)}
+            className={mergeClasses(
+              'absolute bg-bg border border-black-200 shadow-lg z-50 -ml-px py-1',
+              openSubMenuLeft ? 'rounded-l-md' : 'rounded-r-md',
+              'rounded-b-md',
+              autoWidth ? 'inline-flex flex-col whitespace-nowrap' : ''
+            )}
+            style={{
+              left: `${submenuLeftPos}px`,
+              top: `${index * 28}px`, // index * (text-xs line-height + py-1.5)
+              ...(autoWidth ? { minWidth: `${menuWidth}px` } : { width: `${submenuWidth}px` })
+            }}
+          >
+            {item.subitems.map((subitem, subitemIndex) => (
+              <button
+                key={`subitem-${subitemIndex}`}
+                role="menuitem"
+                aria-label={subitem.text}
+                id={`${dropdownId}-subitem-${index}-${subitemIndex}`}
+                className={mergeClasses(
+                  'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-pointer w-full',
+                  focusedSubIndex === subitemIndex && focusedSubIndex !== -1 ? 'bg-white/10' : ''
+                )}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={(e) => handleSubItemClick(e, subitem.action, subitem.data)}
+                onKeyDown={(e) => handleSubItemKeyDown(e, subitem.action, subitem.data)}
+                tabIndex={-1}
+              >
+                <p>{subitem.text}</p>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    ) : (
+      <button
+        key={index}
+        role="menuitem"
+        aria-label={item.text}
+        id={`${dropdownId}-item-${index}`}
+        className={mergeClasses(
+          'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-pointer w-full',
+          focusedIndex === index && focusedSubIndex === -1 ? 'bg-white/10' : ''
+        )}
+        onClick={(e) => handleItemClick(e, item.action)}
+        onKeyDown={(e) => handleItemKeyDown(e, item.action)}
+        onMouseDown={(e) => e.preventDefault()}
+        tabIndex={-1}
+      >
+        <p className="text-left">{item.text}</p>
+      </button>
     )
+  )
 
   return (
     <div cy-id="wrapper" className={mergeClasses('relative h-9 w-9', className)}>
@@ -451,11 +485,11 @@ export default function ContextMenuDropdown({
           aria-expanded={showMenu}
           aria-controls={dropdownId}
           aria-activedescendant={
-            focusedSubIndex !== -1 && focusedSubIndex >= 0 && openSubMenuIndex !== null 
+            focusedSubIndex !== -1 && focusedSubIndex >= 0 && openSubMenuIndex !== null
               ? `${dropdownId}-subitem-${openSubMenuIndex}-${focusedSubIndex}`
-              : focusedIndex >= 0 
-                ? `${dropdownId}-item-${focusedIndex}` 
-                : undefined
+              : focusedIndex >= 0
+              ? `${dropdownId}-item-${focusedIndex}`
+              : undefined
           }
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
@@ -495,4 +529,4 @@ export default function ContextMenuDropdown({
       </CSSTransition>
     </div>
   )
-} 
+}
