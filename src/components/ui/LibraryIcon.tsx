@@ -25,7 +25,7 @@ export default function LibraryIcon({
   size = 5,
   className = '',
   ariaLabel,
-  decorative = true,
+  decorative = true
 }: LibraryIconProps) {
   const classList = useMemo(() => {
     let sizeClasses: string
@@ -37,7 +37,7 @@ export default function LibraryIcon({
         sizeClasses = 'h-5 w-5 min-w-5'
         break
     }
-    
+
     return mergeClasses('flex items-center justify-center', sizeClasses, fontSize, className)
   }, [size, fontSize, className])
 
@@ -49,18 +49,16 @@ export default function LibraryIcon({
   const defaultAriaLabel = useMemo(() => {
     if (ariaLabel) return ariaLabel
     if (decorative) return ''
-    
+
     // Convert icon name to readable text
-    const readableName = iconToUse
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase())
-    
+    const readableName = iconToUse.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+
     return `${readableName} icon`
   }, [ariaLabel, decorative, iconToUse])
 
   return (
-    <div 
-      cy-id="library-icon" 
+    <div
+      cy-id="library-icon"
       className={classList}
       role={decorative ? undefined : 'img'}
       aria-label={decorative ? undefined : defaultAriaLabel}
@@ -69,4 +67,4 @@ export default function LibraryIcon({
       <span cy-id="library-icon-span" className={`abs-icons icon-${iconToUse}`} />
     </div>
   )
-} 
+}

@@ -41,7 +41,7 @@ export default function Dropdown({
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLUListElement>(null)
-  
+
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
 
@@ -70,28 +70,29 @@ export default function Dropdown({
     }
   }, [disabled, showMenu, openMenu, closeMenu])
 
-  const handleOptionClick = useCallback((itemValue: string | number) => {
-    onChange?.(itemValue)
-    closeMenu()
-  }, [onChange, closeMenu])
+  const handleOptionClick = useCallback(
+    (itemValue: string | number) => {
+      onChange?.(itemValue)
+      closeMenu()
+    },
+    [onChange, closeMenu]
+  )
 
-  const itemsToShow = useMemo(() => 
-    items.map((item) => {
-      if (typeof item === 'string' || typeof item === 'number') {
-        return {
-          text: String(item),
-          value: item
+  const itemsToShow = useMemo(
+    () =>
+      items.map((item) => {
+        if (typeof item === 'string' || typeof item === 'number') {
+          return {
+            text: String(item),
+            value: item
+          }
         }
-      }
-      return item
-    }), 
+        return item
+      }),
     [items]
   )
 
-  const selectedItem = useMemo(() => 
-    itemsToShow.find((item) => item.value === value), 
-    [itemsToShow, value]
-  )
+  const selectedItem = useMemo(() => itemsToShow.find((item) => item.value === value), [itemsToShow, value])
 
   const selectedText = selectedItem?.text || ''
   const selectedSubtext = selectedItem?.subtext || ''
@@ -118,35 +119,42 @@ export default function Dropdown({
     return result
   }, [label, selectedText, selectedSubtext])
 
-  const handleButtonClick = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    toggleMenu()
-  }, [toggleMenu])
+  const handleButtonClick = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      toggleMenu()
+    },
+    [toggleMenu]
+  )
 
-  const handleItemClick = useCallback((e: React.MouseEvent, itemValue: string | number) => {
-    e.stopPropagation()
-    handleOptionClick(itemValue)
-  }, [handleOptionClick])
+  const handleItemClick = useCallback(
+    (e: React.MouseEvent, itemValue: string | number) => {
+      e.stopPropagation()
+      handleOptionClick(itemValue)
+    },
+    [handleOptionClick]
+  )
 
   // Keyboard navigation handlers
-  const handleVerticalNavigation = useCallback((direction: 'up' | 'down') => {
-    if (direction === 'down') {
-      if (!showMenu) {
-        openMenu()
+  const handleVerticalNavigation = useCallback(
+    (direction: 'up' | 'down') => {
+      if (direction === 'down') {
+        if (!showMenu) {
+          openMenu()
+        } else {
+          setFocusedIndex((prev) => (prev < itemsToShow.length - 1 ? prev + 1 : prev))
+        }
       } else {
-        setFocusedIndex(prev => 
-          prev < itemsToShow.length - 1 ? prev + 1 : prev
-        )
+        if (!showMenu) {
+          openMenu(itemsToShow.length - 1)
+        } else {
+          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+        }
       }
-    } else {
-      if (!showMenu) {
-        openMenu(itemsToShow.length - 1)
-      } else {
-        setFocusedIndex(prev => prev > 0 ? prev - 1 : prev)
-      }
-    }
-  }, [showMenu, itemsToShow, openMenu])
+    },
+    [showMenu, itemsToShow, openMenu]
+  )
 
   const handleEnterSpace = useCallback(() => {
     if (!showMenu) {
@@ -161,15 +169,18 @@ export default function Dropdown({
     buttonRef.current?.focus()
   }, [closeMenu])
 
-  const handleHomeEnd = useCallback((key: 'home' | 'end') => {
-    if (showMenu) {
-      if (key === 'home') {
-        setFocusedIndex(0)
-      } else {
-        setFocusedIndex(itemsToShow.length - 1)
+  const handleHomeEnd = useCallback(
+    (key: 'home' | 'end') => {
+      if (showMenu) {
+        if (key === 'home') {
+          setFocusedIndex(0)
+        } else {
+          setFocusedIndex(itemsToShow.length - 1)
+        }
       }
-    }
-  }, [showMenu, itemsToShow])
+    },
+    [showMenu, itemsToShow]
+  )
 
   const handleTab = useCallback(() => {
     if (showMenu) {
@@ -177,57 +188,63 @@ export default function Dropdown({
     }
   }, [showMenu, closeMenu])
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (disabled) return
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (disabled) return
 
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault()
-        handleVerticalNavigation('down')
-        break
-      
-      case 'ArrowUp':
-        e.preventDefault()
-        handleVerticalNavigation('up')
-        break
-      
-      case 'Enter':
-      case ' ':
-        e.preventDefault()
-        handleEnterSpace()
-        break
-      
-      case 'Escape':
-        e.preventDefault()
-        handleEscape()
-        break
-      
-      case 'Home':
-        e.preventDefault()
-        handleHomeEnd('home')
-        break
-      
-      case 'End':
-        e.preventDefault()
-        handleHomeEnd('end')
-        break
-      
-      case 'Tab':
-        handleTab()
-        break
-    }
-  }, [disabled, handleVerticalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab])
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault()
+          handleVerticalNavigation('down')
+          break
+
+        case 'ArrowUp':
+          e.preventDefault()
+          handleVerticalNavigation('up')
+          break
+
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          handleEnterSpace()
+          break
+
+        case 'Escape':
+          e.preventDefault()
+          handleEscape()
+          break
+
+        case 'Home':
+          e.preventDefault()
+          handleHomeEnd('home')
+          break
+
+        case 'End':
+          e.preventDefault()
+          handleHomeEnd('end')
+          break
+
+        case 'Tab':
+          handleTab()
+          break
+      }
+    },
+    [disabled, handleVerticalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab]
+  )
 
   // Handle menu item keyboard events
-  const handleItemKeyDown = useCallback((e: React.KeyboardEvent, itemValue: string | number) => {
-    switch (e.key) {
-      case 'Enter':
-      case ' ':
-        e.preventDefault()
-        handleOptionClick(itemValue)
-        break
-    }
-  }, [handleOptionClick])
+  const handleItemKeyDown = useCallback(
+    (e: React.KeyboardEvent, itemValue: string | number) => {
+      switch (e.key) {
+        case 'Enter':
+        case ' ':
+          e.preventDefault()
+          handleOptionClick(itemValue)
+          break
+      }
+    },
+    [handleOptionClick]
+  )
 
   // Scroll focused item into view
   useEffect(() => {
@@ -242,65 +259,40 @@ export default function Dropdown({
     }
   }, [focusedIndex, showMenu, dropdownId])
 
-  const menuItems = useMemo(() => 
-    itemsToShow.map((item, index) => (
-      <li 
-        key={item.value} 
-        id={`${dropdownId}-item-${index}`}
-        className={mergeClasses(
-          'text-gray-100 relative py-2 cursor-pointer hover:bg-black-400',
-          focusedIndex === index ? 'bg-black-300' : ''
-        )}
-        role="option" 
-        tabIndex={-1}
-        aria-selected={focusedIndex === index}
-        onKeyDown={(e) => handleItemKeyDown(e, item.value)}
-        onClick={(e) => handleItemClick(e, item.value)}
-        onMouseDown={(e) => e.preventDefault()}
-      >
-        <div className="flex items-center">
-          <span 
-            className={mergeClasses(
-              'ml-3 block truncate font-sans text-sm',
-              item.subtext ? 'font-semibold' : ''
-            )}
-          >
-            {item.text}
-          </span>
-          {item.subtext && <span>:&nbsp;</span>}
-          {item.subtext && (
-            <span className="font-normal block truncate font-sans text-sm text-gray-400">
-              {item.subtext}
-            </span>
-          )}
-        </div>
-      </li>
-    )), 
+  const menuItems = useMemo(
+    () =>
+      itemsToShow.map((item, index) => (
+        <li
+          key={item.value}
+          id={`${dropdownId}-item-${index}`}
+          className={mergeClasses('text-gray-100 relative py-2 cursor-pointer hover:bg-black-400', focusedIndex === index ? 'bg-black-300' : '')}
+          role="option"
+          tabIndex={-1}
+          aria-selected={focusedIndex === index}
+          onKeyDown={(e) => handleItemKeyDown(e, item.value)}
+          onClick={(e) => handleItemClick(e, item.value)}
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          <div className="flex items-center">
+            <span className={mergeClasses('ml-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
+            {item.subtext && <span>:&nbsp;</span>}
+            {item.subtext && <span className="font-normal block truncate font-sans text-sm text-gray-400">{item.subtext}</span>}
+          </div>
+        </li>
+      )),
     [itemsToShow, handleItemClick, focusedIndex, handleItemKeyDown, dropdownId]
   )
 
   return (
     <div className={mergeClasses('relative w-full', className)}>
-      {label && (
-        <p 
-          className={mergeClasses(
-            'text-sm font-semibold px-1',
-            disabled ? 'text-gray-300' : ''
-          )}
-        >
-          {label}
-        </p>
-      )}
-      
+      {label && <p className={mergeClasses('text-sm font-semibold px-1', disabled ? 'text-gray-300' : '')}>{label}</p>}
+
       <button
         ref={buttonRef}
         type="button"
         aria-label={longLabel}
         disabled={disabled}
-        className={mergeClasses(
-          'relative w-full border rounded-sm shadow-xs pl-3 pr-8 py-2 text-left sm:text-sm',
-          buttonClass
-        )}
+        className={mergeClasses('relative w-full border rounded-sm shadow-xs pl-3 pr-8 py-2 text-left sm:text-sm', buttonClass)}
         aria-haspopup="listbox"
         aria-expanded={showMenu}
         aria-activedescendant={focusedIndex >= 0 ? `${dropdownId}-item-${focusedIndex}` : undefined}
@@ -309,21 +301,9 @@ export default function Dropdown({
         onKeyDown={handleKeyDown}
       >
         <span className="flex items-center">
-          <span 
-            className={mergeClasses(
-              'block truncate font-sans',
-              selectedSubtext ? 'font-semibold' : '',
-              small ? 'text-sm' : ''
-            )}
-          >
-            {selectedText}
-          </span>
+          <span className={mergeClasses('block truncate font-sans', selectedSubtext ? 'font-semibold' : '', small ? 'text-sm' : '')}>{selectedText}</span>
           {selectedSubtext && <span>:&nbsp;</span>}
-          {selectedSubtext && (
-            <span className="font-normal block truncate font-sans text-sm text-gray-400">
-              {selectedSubtext}
-            </span>
-          )}
+          {selectedSubtext && <span className="font-normal block truncate font-sans text-sm text-gray-400">{selectedSubtext}</span>}
         </span>
         <span className="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
           <span className="material-symbols text-2xl">expand_more</span>
@@ -354,4 +334,4 @@ export default function Dropdown({
       </CSSTransition>
     </div>
   )
-} 
+}

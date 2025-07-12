@@ -2,7 +2,6 @@ import React from 'react'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import styles from '@/components/widgets/LoadingSpinner.module.css'
 
-
 describe('<LoadingSpinner />', () => {
   it('renders a basic loading spinner', () => {
     cy.mount(<LoadingSpinner />)
@@ -136,14 +135,7 @@ describe('<LoadingSpinner />', () => {
   })
 
   it('handles all props together', () => {
-    cy.mount(
-      <LoadingSpinner 
-        size="la-3x"
-        dark={true}
-        color="#0000ff"
-        className="test-spinner"
-      />
-    )
+    cy.mount(<LoadingSpinner size="la-3x" dark={true} color="#0000ff" className="test-spinner" />)
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-3x'])
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-dark'])
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', 'test-spinner')
@@ -172,4 +164,4 @@ describe('<LoadingSpinner />', () => {
     // Should fall back to default color
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(255, 255, 255)')
   })
-}) 
+})
