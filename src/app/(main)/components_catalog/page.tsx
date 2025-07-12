@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
-import LoadingIndicator from '@/components/LoadingIndicator'
+import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import IconBtn from '@/components/ui/IconBtn'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
