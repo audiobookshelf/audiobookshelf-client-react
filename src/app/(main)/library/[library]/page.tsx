@@ -5,6 +5,7 @@ import StatusDataFetcher from '../../StatusDataFetcher'
 
 export default async function LibraryPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params
+
   const libraryResponse = await Promise.all([getLibrary(libraryId), getLibraryPersonalized(libraryId)])
   const library = libraryResponse[0].data
   const personalized = libraryResponse[1].data

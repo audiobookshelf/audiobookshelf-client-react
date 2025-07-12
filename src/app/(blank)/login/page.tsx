@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function LoginPage() {
   const status = await getServerStatus()
+  const isServerInitialized = !!status.data?.isInit
 
   if (status.error) {
     return (
@@ -14,8 +15,8 @@ export default async function LoginPage() {
       </div>
     )
   }
-
+  
   return (
-    <div className="min-h-[calc(100vh-var(--header-height))] flex items-center justify-center">{status.data?.isInit ? <LoginForm /> : <ServerInitForm />}</div>
+    <div className="min-h-[calc(100vh-var(--header-height))] flex items-center justify-center">{isServerInitialized ? <LoginForm /> : <ServerInitForm />}</div>
   )
 }

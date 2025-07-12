@@ -10,12 +10,18 @@ export default function LogoutButton() {
   const handleLogout = async () => {
     setLoading(true)
     try {
-      const res = await fetch('/logout', {
-        method: 'POST',
-        credentials: 'include'
+      // Calls the Abs server logout endpoint and clears the NextJS server cookies
+      const res = await fetch('/internal-api/logout', {
+        method: 'POST'
       })
+      if (!res.ok) {
+        console.error('Logout error:', res.status, res.statusText)
+        return
+      }
       router.replace('/login')
     } catch (err) {
+      console.error('Logout error:', err)
+    } finally {
       setLoading(false)
     }
   }

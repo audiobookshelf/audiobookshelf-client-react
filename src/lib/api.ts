@@ -1,9 +1,12 @@
-import { cookies, headers } from 'next/headers'
 import { cache } from 'react'
+import { cookies, headers } from 'next/headers'
+import { redirect } from 'next/navigation'
+import { NextResponse } from 'next/server'
 
 interface ApiResponse<T = any> {
   data?: T
   error?: string
+  needsRefresh?: boolean
 }
 
 interface ServerStatus {
@@ -17,9 +20,11 @@ interface ServerStatus {
   app: string
 }
 
-const publicEndpoints = ['/status', '/init', '/login']
+const publicEndpoints = ['/status']
+const RefreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
+const AccessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
 
-async function getServerBaseUrl() {
+export function getServerBaseUrl() {
   let host = process.env.HOST || 'localhost'
   if (host === '0.0.0.0') {
     // Convert "all interfaces" address to localhost for internal API calls
@@ -29,35 +34,60 @@ async function getServerBaseUrl() {
 }
 
 /**
+ * User "Home" page is the default library page, or settings page if no libraries are set yet
+ */
+export function getUserDefaultUrlPath(userDefaultLibraryId: string | null) {
+  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : '/settings'
+}
+
+/**
+ * The NextJS server sets its own cookies separate from the Audiobookshelf server.
+ * Because the Abs Server cookies are not available to NextJS for server-side rendering.
+ */
+export function setTokenCookies(response: NextResponse, accessToken: string, refreshToken: string | null) {
+  response.cookies.set('access_token', accessToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: AccessTokenExpiry
+  })
+
+  if (refreshToken) {
+    response.cookies.set('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: RefreshTokenExpiry
+    })
+  }
+}
+
+/**
  * Make an authenticated API request to the server
  */
 export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   try {
-    let authToken: string | undefined
+    let accessToken: string | null = null
 
     if (!publicEndpoints.includes(endpoint)) {
-      const cookieStore = await cookies()
-      if (!cookieStore.get('connect.sid')) {
-        return { error: 'Unauthorized' }
-      }
-
-      authToken = cookieStore.get('auth_token')?.value
-      if (!authToken) {
-        return { error: 'No authentication token found' }
+      accessToken = (await cookies()).get('access_token')?.value || null
+      if (!accessToken) {
+        return { error: 'No authentication token found', needsRefresh: true }
       }
     }
 
-    const baseUrl = await getServerBaseUrl()
+    const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
-    console.log('Making API request to:', url)
 
     const fetchHeaders: Record<string, any> = {
       'Content-Type': 'application/json',
       ...options.headers
     }
 
-    if (authToken) {
-      fetchHeaders.Authorization = `Bearer ${authToken}`
+    if (accessToken) {
+      fetchHeaders.Authorization = `Bearer ${accessToken}`
     }
 
     const response = await fetch(url, {
@@ -67,7 +97,8 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
 
     if (!response.ok) {
       if (response.status === 401) {
-        return { error: 'Unauthorized' }
+        // Return special response indicating refresh is needed
+        return { error: 'Unauthorized', needsRefresh: true }
       }
       return { error: `HTTP ${response.status}: ${response.statusText}` }
     }
@@ -81,29 +112,46 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
 }
 
 /**
- * Get user data from the authorize endpoint
+ * Wrapper function that handles refresh redirects for server-side API calls
+ */
+export async function apiRequestWithRefresh<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+  const response = await apiRequest<T>(endpoint, options)
+
+  if (response.needsRefresh) {
+    const currentPath = (await headers()).get('x-current-path')
+
+    if (!currentPath) {
+      // Necessary for middleware that cannot use next/navigation
+      throw new Error('Unauthorized')
+    } else {
+      redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath)}`)
+    }
+  }
+
+  return response
+}
+
+/**
+ * Current user response data
  */
 export const getCurrentUser = cache(async () => {
-  return apiRequest('/api/authorize', {
+  return apiRequestWithRefresh('/api/authorize', {
     method: 'POST'
   })
 })
 
-/**
- * Get server status
- */
 export const getServerStatus = cache(async (): Promise<ApiResponse<ServerStatus>> => {
   return apiRequest('/status')
 })
 
 export const getLibraries = cache(async () => {
-  return apiRequest('/api/libraries')
+  return apiRequestWithRefresh('/api/libraries', {})
 })
 
 export const getLibrary = cache(async (libraryId: string) => {
-  return apiRequest(`/api/libraries/${libraryId}`)
+  return apiRequestWithRefresh(`/api/libraries/${libraryId}`, {})
 })
 
 export const getLibraryPersonalized = cache(async (libraryId: string) => {
-  return apiRequest(`/api/libraries/${libraryId}/personalized`)
+  return apiRequestWithRefresh(`/api/libraries/${libraryId}/personalized`, {})
 })

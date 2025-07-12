@@ -38,8 +38,7 @@ export default function ServerInitForm() {
       const res = await fetch('/init', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        credentials: 'include'
+        body: JSON.stringify(payload)
       })
       if (!res.ok) {
         const data = await res.json().catch(() => ({}))
