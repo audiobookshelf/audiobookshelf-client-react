@@ -72,17 +72,17 @@ describe('<Checkbox />', () => {
   })
 
   it('applies custom checkbox background color', () => {
-    cy.mount(<Checkbox checkboxBg="blue-500" />)
+    cy.mount(<Checkbox checkboxBgClass="bg-blue-500" />)
     cy.get('&checkbox-wrapper').should('have.class', 'bg-blue-500')
   })
 
   it('applies custom border color', () => {
-    cy.mount(<Checkbox borderColor="red-500" />)
+    cy.mount(<Checkbox borderColorClass="border-red-500" />)
     cy.get('&checkbox-wrapper').should('have.class', 'border-red-500')
   })
 
   it('applies custom check color', () => {
-    cy.mount(<Checkbox value={true} checkColor="blue-500" />)
+    cy.mount(<Checkbox value={true} checkColorClass="text-blue-500" />)
     cy.get('svg').should('have.class', 'text-blue-500')
   })
 
@@ -239,21 +239,21 @@ describe('<Checkbox />', () => {
   })
 
   it('handles disabled state with custom colors', () => {
-    cy.mount(<Checkbox disabled checkboxBg="blue-500" borderColor="red-500" checkColor="yellow-500" />)
+    cy.mount(<Checkbox disabled checkboxBgClass="bg-blue-500" borderColorClass="border-red-500" checkColorClass="text-yellow-500" />)
     cy.get('&checkbox-wrapper').should('have.class', 'bg-blue-500')
     cy.get('&checkbox-wrapper').should('have.class', 'border-red-500')
     cy.get('input[type="checkbox"]').should('be.disabled')
   })
 
   it('handles partial state with custom colors', () => {
-    cy.mount(<Checkbox partial checkboxBg="purple-500" borderColor="orange-500" />)
+    cy.mount(<Checkbox partial checkboxBgClass="bg-purple-500" borderColorClass="border-orange-500" />)
     cy.get('&checkbox-wrapper').first().should('have.class', 'bg-purple-500')
     cy.get('&checkbox-wrapper').first().should('have.class', 'border-orange-500')
     cy.get('.material-symbols').should('exist')
   })
 
   it('handles checked state with custom colors', () => {
-    cy.mount(<Checkbox value={true} checkboxBg="pink-500" borderColor="cyan-500" checkColor="lime-500" />)
+    cy.mount(<Checkbox value={true} checkboxBgClass="bg-pink-500" borderColorClass="border-cyan-500" checkColorClass="text-lime-500" />)
     cy.get('&checkbox-wrapper').should('have.class', 'bg-pink-500')
     cy.get('&checkbox-wrapper').should('have.class', 'border-cyan-500')
     cy.get('svg').should('have.class', 'text-lime-500')
