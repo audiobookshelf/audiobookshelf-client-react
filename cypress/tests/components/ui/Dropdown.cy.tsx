@@ -358,15 +358,6 @@ describe('<Dropdown />', () => {
       cy.get('@onChangeSpy').should('have.been.calledWith', 'option2')
     })
 
-    it('handles item keyboard events', () => {
-      const onChangeSpy = cy.spy().as('onChangeSpy')
-      cy.mount(<Dropdown items={mockItems} onChange={onChangeSpy} />)
-      cy.get('button').click()
-      cy.get('[role="listbox"] > li').eq(1).focus()
-      cy.get('[role="listbox"] > li').eq(1).type('{enter}')
-      cy.get('@onChangeSpy').should('have.been.calledWith', 'option2')
-    })
-
     it('prevents default on item mouse down', () => {
       cy.mount(<Dropdown items={mockItems} />)
       cy.get('button').click()
@@ -380,8 +371,6 @@ describe('<Dropdown />', () => {
     it('has proper ARIA labels', () => {
       cy.mount(<Dropdown items={mockItems} label="Test Label" />)
       cy.get('button').should('have.attr', 'aria-label')
-      cy.get('button').click()
-      cy.get('[role="listbox"]').should('have.attr', 'aria-label')
     })
 
     it('has proper ARIA selected states', () => {

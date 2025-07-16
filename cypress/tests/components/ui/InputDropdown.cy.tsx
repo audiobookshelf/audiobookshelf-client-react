@@ -23,6 +23,9 @@ describe('<InputDropdown />', () => {
     cy.mount(<InputDropdown items={mockItems} disabled={true} />)
     cy.get('input').should('be.disabled')
     cy.get('input').should('have.attr', 'tabindex', '-1')
+    cy.get('input').should('have.class', 'cursor-not-allowed')
+    cy.get('[cy-id="input-wrapper"]').should('have.class', 'bg-black-300')
+    cy.get('[cy-id="input-wrapper"]').should('have.class', 'text-gray-400')
   })
 
   it('is read-only when editable is false', () => {
@@ -95,7 +98,7 @@ describe('<InputDropdown />', () => {
     cy.mount(<InputDropdown items={mockItems} />)
     cy.get('input').focus()
     cy.get('input').type('xyz')
-    cy.get('[cy-id="input-dropdown-no-items"]').should('contain.text', 'No items')
+    cy.get('[cy-id="dropdown-menu-no-items"]').should('contain.text', 'No items')
   })
 
   describe('Keyboard Navigation', () => {
@@ -116,7 +119,7 @@ describe('<InputDropdown />', () => {
       cy.get('[role="listbox"] > li').last().should('have.class', 'bg-black-300')
     })
 
-    it.only('forces open menu on empty input with ArrowDown even when showAllWhenEmpty is false', () => {
+    it('forces open menu on empty input with ArrowDown even when showAllWhenEmpty is false', () => {
       cy.mount(<InputDropdown items={mockItems} showAllWhenEmpty={false} />)
       cy.get('input').focus()
       cy.get('[role="listbox"]').should('not.exist')
@@ -126,7 +129,7 @@ describe('<InputDropdown />', () => {
       cy.get('[role="listbox"] > li').first().should('have.class', 'bg-black-300')
     })
 
-    it.only('forces open menu on empty input with ArrowUp even when showAllWhenEmpty is false', () => {
+    it('forces open menu on empty input with ArrowUp even when showAllWhenEmpty is false', () => {
       cy.mount(<InputDropdown items={mockItems} showAllWhenEmpty={false} />)
       cy.get('input').focus()
       cy.get('[role="listbox"]').should('not.exist')
@@ -266,7 +269,7 @@ describe('<InputDropdown />', () => {
       cy.mount(<InputDropdown items={[]} />)
       cy.get('input').focus()
       cy.get('input').type('test')
-      cy.get('[cy-id="input-dropdown-no-items"]').should('contain.text', 'No items')
+      cy.get('[cy-id="dropdown-menu-no-items"]').should('contain.text', 'No items')
     })
 
     it('handles undefined value', () => {

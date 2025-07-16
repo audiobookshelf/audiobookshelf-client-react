@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo, useEffect, useId } from 'react'
+import { useState, useRef, useCallback, useMemo, useId } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
-import { CSSTransition } from 'react-transition-group'
-import '@/assets/transitions.css'
 import { mergeClasses } from '@/lib/merge-classes'
+import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
 
 export interface DropdownItem {
   text: string
@@ -128,14 +127,6 @@ export default function Dropdown({
     [toggleMenu]
   )
 
-  const handleItemClick = useCallback(
-    (e: React.MouseEvent, itemValue: string | number) => {
-      e.stopPropagation()
-      handleOptionClick(itemValue)
-    },
-    [handleOptionClick]
-  )
-
   // Keyboard navigation handlers
   const handleVerticalNavigation = useCallback(
     (direction: 'up' | 'down') => {
@@ -232,55 +223,14 @@ export default function Dropdown({
     [disabled, handleVerticalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab]
   )
 
-  // Handle menu item keyboard events
-  const handleItemKeyDown = useCallback(
-    (e: React.KeyboardEvent, itemValue: string | number) => {
-      switch (e.key) {
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          handleOptionClick(itemValue)
-          break
-      }
-    },
-    [handleOptionClick]
-  )
-
-  // Scroll focused item into view
-  useEffect(() => {
-    if (showMenu && focusedIndex >= 0 && menuRef.current) {
-      const focusedElement = menuRef.current.querySelector(`#${dropdownId}-item-${focusedIndex}`) as HTMLElement
-      if (focusedElement) {
-        focusedElement.scrollIntoView({
-          block: 'nearest',
-          behavior: 'smooth'
-        })
-      }
-    }
-  }, [focusedIndex, showMenu, dropdownId])
-
-  const menuItems = useMemo(
+  const dropdownMenuItems: DropdownMenuItem[] = useMemo(
     () =>
-      itemsToShow.map((item, index) => (
-        <li
-          key={item.value}
-          id={`${dropdownId}-item-${index}`}
-          className={mergeClasses('text-gray-100 relative py-2 cursor-pointer hover:bg-black-400', focusedIndex === index ? 'bg-black-300' : '')}
-          role="option"
-          tabIndex={-1}
-          aria-selected={focusedIndex === index}
-          onKeyDown={(e) => handleItemKeyDown(e, item.value)}
-          onClick={(e) => handleItemClick(e, item.value)}
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          <div className="flex items-center">
-            <span className={mergeClasses('ml-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
-            {item.subtext && <span>:&nbsp;</span>}
-            {item.subtext && <span className="font-normal block truncate font-sans text-sm text-gray-400">{item.subtext}</span>}
-          </div>
-        </li>
-      )),
-    [itemsToShow, handleItemClick, focusedIndex, handleItemKeyDown, dropdownId]
+      itemsToShow.map((item) => ({
+        text: item.text,
+        value: item.value,
+        subtext: item.subtext
+      })),
+    [itemsToShow]
   )
 
   return (
@@ -310,28 +260,17 @@ export default function Dropdown({
         </span>
       </button>
 
-      <CSSTransition
-        in={showMenu}
-        timeout={{
-          enter: 200,
-          exit: 100
-        }}
-        nodeRef={menuRef}
-        classNames="menu"
-        unmountOnExit
-      >
-        <ul
-          ref={menuRef}
-          className="absolute z-10 -mt-px w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm"
-          tabIndex={-1}
-          role="listbox"
-          aria-label={label || 'Dropdown options'}
-          id={`${dropdownId}-listbox`}
-          style={{ maxHeight: menuMaxHeight }}
-        >
-          {menuItems}
-        </ul>
-      </CSSTransition>
+      <DropdownMenu
+        showMenu={showMenu}
+        items={dropdownMenuItems}
+        focusedIndex={focusedIndex}
+        dropdownId={dropdownId}
+        onItemClick={(item) => handleOptionClick(item.value)}
+        menuMaxHeight={menuMaxHeight}
+        className="-mt-px"
+        showNoItemsMessage={false}
+        ref={menuRef}
+      />
     </div>
   )
 }
