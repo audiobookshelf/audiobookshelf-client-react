@@ -10,11 +10,14 @@ import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import type { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import Dropdown from '@/components/ui/Dropdown'
 import type { DropdownItem } from '@/components/ui/Dropdown'
+import InputDropdown from '@/components/ui/InputDropdown'
 import FileInput from '@/components/ui/FileInput'
 import LibraryIcon from '@/components/ui/LibraryIcon'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
+import { useGlobalToast } from '@/contexts/ToastContext'
 
 export default function ComponentsCatalogPage() {
+  const { showToast } = useGlobalToast()
   const [checkboxValue, setCheckboxValue] = useState(false)
   const [checkboxValue2, setCheckboxValue2] = useState(true)
   const [checkboxValue3, setCheckboxValue3] = useState(false)
@@ -39,6 +42,12 @@ export default function ComponentsCatalogPage() {
   const [dropdownValue3, setDropdownValue3] = useState('option1')
   const [mediaIconValue, setMediaIconValue] = useState('audiobookshelf')
 
+  // InputDropdown sample data
+  const inputDropdownItems = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew']
+  const [inputDropdownValue, setInputDropdownValue] = useState('')
+  const [inputDropdownValue2, setInputDropdownValue2] = useState('')
+  const [inputDropdownValue3, setInputDropdownValue3] = useState('')
+
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
     setDropdownValue(String(value))
@@ -50,6 +59,23 @@ export default function ComponentsCatalogPage() {
 
   const handleDropdownChange3 = (value: string | number) => {
     setDropdownValue3(String(value))
+  }
+
+  // InputDropdown change handlers
+  const handleInputDropdownChange = (value: string | number) => {
+    setInputDropdownValue(String(value))
+  }
+
+  const handleInputDropdownChange2 = (value: string | number) => {
+    setInputDropdownValue2(String(value))
+  }
+
+  const handleInputDropdownChange3 = (value: string | number) => {
+    setInputDropdownValue3(String(value))
+  }
+
+  const handleInputDropdownNewItem = (value: string) => {
+    showToast(`New item created: ${value}`, { type: 'success', title: 'Item Created' })
   }
 
   // ContextMenuDropdown sample data
@@ -194,7 +220,10 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Default Context Menu</h3>
             <div className="flex items-center gap-4">
-              <ContextMenuDropdown items={contextMenuItems} onAction={(action) => alert(`Action: ${action.action}`)} />
+              <ContextMenuDropdown
+                items={contextMenuItems}
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
               <span className="text-sm text-gray-400">Click to see menu</span>
             </div>
           </div>
@@ -202,7 +231,11 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Left Aligned Context Menu</h3>
             <div className="flex items-center gap-4">
-              <ContextMenuDropdown items={contextMenuItems} menuAlign="left" onAction={(action) => alert(`Action: ${action.action}`)} />
+              <ContextMenuDropdown
+                items={contextMenuItems}
+                menuAlign="left"
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
               <span className="text-sm text-gray-400">Click to see menu</span>
             </div>
           </div>
@@ -212,7 +245,12 @@ export default function ComponentsCatalogPage() {
             <div className="flex items-center gap-4">
               <ContextMenuDropdown
                 items={contextMenuItemsWithData}
-                onAction={(action) => alert(`Action: ${action.action} ${action.data ? `, Data: ${JSON.stringify(action.data)}` : ''}`)}
+                onAction={(action) =>
+                  showToast(`Action: ${action.action} ${action.data ? `, Data: ${JSON.stringify(action.data)}` : ''}`, {
+                    type: 'info',
+                    title: 'Context Menu Action'
+                  })
+                }
               />
               <span className="text-sm text-gray-400">Click to see menu with data</span>
             </div>
@@ -221,7 +259,11 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Disabled Context Menu</h3>
             <div className="flex items-center gap-4">
-              <ContextMenuDropdown items={contextMenuItems} disabled={true} onAction={(action) => alert(`Action: ${action.action}`)} />
+              <ContextMenuDropdown
+                items={contextMenuItems}
+                disabled={true}
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
               <span className="text-sm text-gray-400">Disabled state</span>
             </div>
           </div>
@@ -229,7 +271,11 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Processing Context Menu</h3>
             <div className="flex items-center gap-4">
-              <ContextMenuDropdown items={contextMenuItems} processing={true} onAction={(action) => alert(`Action: ${action.action}`)} />
+              <ContextMenuDropdown
+                items={contextMenuItems}
+                processing={true}
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
               <span className="text-sm text-gray-400">Loading state</span>
             </div>
           </div>
@@ -237,7 +283,11 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Custom Icon Context Menu</h3>
             <div className="flex items-center gap-4">
-              <ContextMenuDropdown items={contextMenuItems} iconClass="text-blue-400" onAction={(action) => alert(`Action: ${action.action}`)} />
+              <ContextMenuDropdown
+                items={contextMenuItems}
+                iconClass="text-blue-400"
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
               <span className="text-sm text-gray-400">Custom icon color</span>
             </div>
           </div>
@@ -245,9 +295,98 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Wide Context Menu</h3>
             <div className="flex items-center gap-4">
-              <ContextMenuDropdown items={contextMenuItems} menuWidth={250} menuAlign="left" onAction={(action) => alert(`Action: ${action.action}`)} />
+              <ContextMenuDropdown
+                items={contextMenuItems}
+                menuWidth={250}
+                menuAlign="left"
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
               <span className="text-sm text-gray-400">Wider menu</span>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Dropdown Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Dropdown Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default Dropdown</h3>
+            <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} label="Select Option" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Dropdown with Subtext</h3>
+            <Dropdown value={dropdownValue2} onChange={handleDropdownChange2} items={dropdownItemsWithSubtext} label="Language" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Small Dropdown</h3>
+            <Dropdown value={dropdownValue3} onChange={handleDropdownChange3} items={dropdownItems} label="Small Option" small />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled Dropdown</h3>
+            <Dropdown value="option1" items={dropdownItems} label="Disabled Option" disabled />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Dropdown without Label</h3>
+            <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Height Dropdown</h3>
+            <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} label="Custom Height" menuMaxHeight="100px" />
+          </div>
+        </div>
+      </section>
+
+      {/* Input Dropdown Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Input Dropdown Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default Input Dropdown</h3>
+            <InputDropdown value={inputDropdownValue} onChange={handleInputDropdownChange} items={inputDropdownItems} label="Select Fruit" />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Input Dropdown with New Item Creation</h3>
+            <InputDropdown
+              value={inputDropdownValue2}
+              onChange={handleInputDropdownChange2}
+              items={inputDropdownItems}
+              label="Add or Select Fruit"
+              onNewItem={handleInputDropdownNewItem}
+            />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Show All When Empty</h3>
+            <InputDropdown
+              value={inputDropdownValue3}
+              onChange={handleInputDropdownChange3}
+              items={inputDropdownItems}
+              label="Fruit with Show All"
+              showAllWhenEmpty
+            />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled Input Dropdown</h3>
+            <InputDropdown value="Apple" items={inputDropdownItems} label="Disabled Fruit" disabled />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Read-only Input Dropdown</h3>
+            <InputDropdown value="Banana" items={inputDropdownItems} label="Read-only Fruit" editable={false} />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Input Dropdown without Label</h3>
+            <InputDropdown value={inputDropdownValue} onChange={handleInputDropdownChange} items={inputDropdownItems} />
           </div>
         </div>
       </section>
@@ -294,19 +433,27 @@ export default function ComponentsCatalogPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Default File Input</h3>
-            <FileInput onChange={(file) => alert(`Selected file: ${file.name}`)}>Choose File</FileInput>
+            <FileInput onChange={(file) => showToast(`Selected file: ${file.name}`, { type: 'success', title: 'File Selected' })}>Choose File</FileInput>
           </div>
 
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Document File Input</h3>
-            <FileInput accept=".pdf, .doc, .docx, .txt" onChange={(file) => alert(`Selected document: ${file.name}`)} ariaLabel="Upload Document">
+            <FileInput
+              accept=".pdf, .doc, .docx, .txt"
+              onChange={(file) => showToast(`Selected document: ${file.name}`, { type: 'success', title: 'Document Selected' })}
+              ariaLabel="Upload Document"
+            >
               Upload Document
             </FileInput>
           </div>
 
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">All Files Input</h3>
-            <FileInput accept="*" onChange={(file) => alert(`Selected file: ${file.name}`)} ariaLabel="Upload Any File">
+            <FileInput
+              accept="*"
+              onChange={(file) => showToast(`Selected file: ${file.name}`, { type: 'success', title: 'File Selected' })}
+              ariaLabel="Upload Any File"
+            >
               Choose Any File
             </FileInput>
           </div>
@@ -315,7 +462,7 @@ export default function ComponentsCatalogPage() {
             <h3 className="text-lg font-medium mb-4">Custom Styled File Input</h3>
             <FileInput
               accept=".png, .jpg, .jpeg"
-              onChange={(file) => alert(`Selected image: ${file.name}`)}
+              onChange={(file) => showToast(`Selected image: ${file.name}`, { type: 'success', title: 'Image Selected' })}
               className="border-2 border-dashed border-blue-400 rounded-lg bg-blue-50"
               ariaLabel="Upload Image"
             >
@@ -437,6 +584,60 @@ export default function ComponentsCatalogPage() {
         </div>
       </section>
 
+      {/* Toast Notification Examples */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Toast Notification Examples</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Success Toast</h3>
+            <Btn onClick={() => showToast('Operation completed successfully!', { type: 'success', title: 'Success' })}>Show Success</Btn>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Error Toast</h3>
+            <Btn onClick={() => showToast('Something went wrong!', { type: 'error', title: 'Error' })}>Show Error</Btn>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Warning Toast</h3>
+            <Btn onClick={() => showToast('Please be careful!', { type: 'warning', title: 'Warning' })}>Show Warning</Btn>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Info Toast</h3>
+            <Btn onClick={() => showToast('Here is some information.', { type: 'info', title: 'Information' })}>Show Info</Btn>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Long Duration Toast</h3>
+            <Btn onClick={() => showToast('This toast will stay for 10 seconds.', { type: 'info', title: 'Long Toast', duration: 10000 })}>Show Long Toast</Btn>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">No Auto-Dismiss Toast</h3>
+            <Btn onClick={() => showToast('This toast will not auto-dismiss.', { type: 'warning', title: 'Persistent', duration: 0 })}>Show Persistent</Btn>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Toast with Title Only</h3>
+            <Btn onClick={() => showToast('Just a simple message.', { type: 'info' })}>Show Simple</Btn>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Multiple Toasts</h3>
+            <Btn
+              onClick={() => {
+                showToast('First notification', { type: 'info', title: 'First' })
+                setTimeout(() => showToast('Second notification', { type: 'success', title: 'Second' }), 500)
+                setTimeout(() => showToast('Third notification', { type: 'warning', title: 'Third' }), 1000)
+              }}
+            >
+              Show Multiple
+            </Btn>
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Examples */}
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 text-gray-400">Interactive Examples</h2>
@@ -444,8 +645,8 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Button Interactions</h3>
             <div className="flex items-center gap-4">
-              <Btn onClick={() => alert('Button clicked!')}>Click me!</Btn>
-              <Btn onClick={() => alert('Form submitted!')} type="submit">
+              <Btn onClick={() => showToast('Button clicked!', { type: 'info', title: 'Button Action' })}>Click me!</Btn>
+              <Btn onClick={() => showToast('Form submitted!', { type: 'success', title: 'Form Submitted' })} type="submit">
                 Submit Form
               </Btn>
               <Btn to="/settings" color="bg-blue-600">
@@ -457,10 +658,20 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Icon Button Interactions</h3>
             <div className="flex items-center gap-4">
-              <IconBtn icon="&#xe3c9;" onClick={() => alert('Edit clicked!')} ariaLabel="Edit" />
-              <IconBtn icon="&#xe5ca;" onClick={() => alert('Close clicked!')} ariaLabel="Close" bgColor="bg-red-500" />
-              <IconBtn icon="&#xe3c9;" onClick={() => alert('Close clicked!')} ariaLabel="Close" />
-              <IconBtn icon="&#xe3c9;" onClick={() => alert('Loading clicked!')} loading ariaLabel="Loading" />
+              <IconBtn icon="&#xe3c9;" onClick={() => showToast('Edit clicked!', { type: 'info', title: 'Icon Button Action' })} ariaLabel="Edit" />
+              <IconBtn
+                icon="&#xe5ca;"
+                onClick={() => showToast('Close clicked!', { type: 'warning', title: 'Icon Button Action' })}
+                ariaLabel="Close"
+                bgColor="bg-red-500"
+              />
+              <IconBtn icon="&#xe3c9;" onClick={() => showToast('Close clicked!', { type: 'info', title: 'Icon Button Action' })} ariaLabel="Close" />
+              <IconBtn
+                icon="&#xe3c9;"
+                onClick={() => showToast('Loading clicked!', { type: 'info', title: 'Icon Button Action' })}
+                loading
+                ariaLabel="Loading"
+              />
             </div>
           </div>
 
@@ -512,6 +723,16 @@ export default function ComponentsCatalogPage() {
             </li>
             <li>
               <code className="bg-gray-700 px-2 py-1 rounded">MediaIconPicker.tsx</code> - Icon picker component for selecting library icons with dropdown menu
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">InputDropdown.tsx</code> - Input dropdown component that allows typing and filtering with optional
+              new item creation
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">Toast.tsx</code> - Toast notification component with auto-dismiss, animations, and multiple types
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">ToastContainer.tsx</code> - Container component for managing multiple toast notifications
             </li>
           </ul>
         </div>
@@ -638,6 +859,62 @@ export default function ComponentsCatalogPage() {
                 <code className="bg-gray-700 px-2 py-1 rounded">disabled</code> (disables the picker),{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">className</code> (additional CSS classes),{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">align</code> (menu alignment, defaults to 'left', options: 'left', 'right', 'center')
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">InputDropdown Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import InputDropdown from '@/components/ui/InputDropdown'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">value</code>, <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">items</code> (string[] or number[]),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">label</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">editable</code>, <code className="bg-gray-700 px-2 py-1 rounded">showAllWhenEmpty</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">onNewItem</code>, <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Toast Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import Toast from '@/components/widgets/Toast'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">id</code>, <code className="bg-gray-700 px-2 py-1 rounded">type</code> (success, error,
+                warning, info), <code className="bg-gray-700 px-2 py-1 rounded">title</code>, <code className="bg-gray-700 px-2 py-1 rounded">message</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">duration</code>, <code className="bg-gray-700 px-2 py-1 rounded">onClose</code>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">ToastContainer Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import ToastContainer from '@/components/widgets/ToastContainer'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">toasts</code> (ToastMessage[]),{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">onRemove</code>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Global Toast Hook</h4>
+              <p className="mb-2">
+                Import:{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">
+                  import {'{'} useGlobalToast {'}'} from '@/contexts/ToastContext'
+                </code>
+              </p>
+              <p className="mb-2">
+                Returns: <code className="bg-gray-700 px-2 py-1 rounded">toasts</code>, <code className="bg-gray-700 px-2 py-1 rounded">showToast</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">removeToast</code>
+              </p>
+              <p className="mb-2">
+                Usage:{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">
+                  showToast(message, {'{'} type, title, duration {'}'})
+                </code>
+              </p>
+              <p className="mb-2 text-sm text-gray-400">
+                Note: Global toast is automatically available in all pages. No need to include ToastContainer manually.
               </p>
             </div>
           </div>
