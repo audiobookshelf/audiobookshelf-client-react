@@ -226,7 +226,7 @@ export default function InputDropdown({
 
   const inputWrapperClass = useMemo(() => {
     return mergeClasses(
-      'input-wrapper flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-2',
+      'input-wrapper flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-2 focus-within:outline',
       disabled ? 'bg-black-300 text-gray-400' : 'bg-primary'
     )
   }, [disabled])
@@ -244,7 +244,7 @@ export default function InputDropdown({
             tabIndex={disabled ? -1 : 0}
             readOnly={!editable}
             className={mergeClasses(
-              'h-full w-full bg-transparent px-1',
+              'h-full w-full bg-transparent px-1 outline-none',
               !editable && 'text-gray-400',
               disabled ? 'cursor-not-allowed' : !editable ? 'cursor-default' : ''
             )}
