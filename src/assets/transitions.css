@@ -32,22 +32,26 @@
   max-height: 0;
 }
 
-.menu-enter,
-.menu-exit-active {
+.menu-enter {
+  opacity: 0;
   transform: translateY(-15px);
 }
 
 .menu-enter-active {
-  transition: all 0.2s;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
 }
 
-.menu-exit-active {
-  transition: all 0.1s;
+.menu-exit {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.menu-enter,
 .menu-exit-active {
   opacity: 0;
+  transform: translateY(-15px);
+  transition: opacity 100ms ease-in, transform 100ms ease-in;
 }
 
 .menux-enter,
