@@ -10,7 +10,6 @@ interface InputDropdownProps {
   label?: string
   items?: (string | number)[]
   disabled?: boolean
-  editable?: boolean
   showAllWhenEmpty?: boolean
   onChange?: (value: string | number) => void
   onNewItem?: (value: string) => void
@@ -26,7 +25,6 @@ export default function InputDropdown({
   label = '',
   items = [],
   disabled = false,
-  editable = true,
   showAllWhenEmpty = false,
   onChange,
   onNewItem,
@@ -66,13 +64,12 @@ export default function InputDropdown({
   useClickOutside(menuRef, wrapperRef, handleClickOutside)
 
   const itemsToShow = useMemo(() => {
-    if (!editable) return items
     if (!textInput) return items
     return items.filter((item) => {
       const itemValue = String(item).toLowerCase()
       return itemValue.includes(textInput.toLowerCase())
     })
-  }, [editable, textInput, items, showAllWhenEmpty])
+  }, [textInput, items, showAllWhenEmpty])
 
   const onInputFocus = useCallback(() => {
     if (textInput || showAllWhenEmpty) {
@@ -246,12 +243,7 @@ export default function InputDropdown({
             value={textInput}
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}
-            readOnly={!editable}
-            className={mergeClasses(
-              'h-full w-full bg-transparent px-1 outline-none',
-              !editable && 'text-gray-400',
-              disabled ? 'cursor-not-allowed' : !editable ? 'cursor-default' : ''
-            )}
+            className={mergeClasses('h-full w-full bg-transparent px-1 outline-none', disabled ? 'cursor-not-allowed' : '')}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             onFocus={onInputFocus}

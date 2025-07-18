@@ -380,11 +380,6 @@ export default function ComponentsCatalogPage() {
           </div>
 
           <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">Read-only Input Dropdown</h3>
-            <InputDropdown value="Banana" items={inputDropdownItems} label="Read-only Fruit" editable={false} />
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Input Dropdown without Label</h3>
             <InputDropdown value={inputDropdownValue} onChange={handleInputDropdownChange} items={inputDropdownItems} />
           </div>

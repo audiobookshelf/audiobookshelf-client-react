@@ -28,12 +28,6 @@ describe('<InputDropdown />', () => {
     cy.get('[cy-id="input-wrapper"]').should('have.class', 'text-gray-400')
   })
 
-  it('is read-only when editable is false', () => {
-    cy.mount(<InputDropdown items={mockItems} editable={false} />)
-    cy.get('input').should('have.attr', 'readonly')
-    cy.get('input').should('have.class', 'cursor-default')
-  })
-
   it('applies custom class', () => {
     cy.mount(<InputDropdown items={mockItems} className="custom-class" />)
     cy.get('.custom-class').should('exist')
