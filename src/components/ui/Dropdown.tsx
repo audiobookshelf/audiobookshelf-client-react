@@ -102,7 +102,7 @@ export default function Dropdown({
     else classes.push('h-10')
 
     if (disabled) {
-      classes.push('cursor-not-allowed border-gray-600 bg-primary/70 border-opacity-70 text-gray-400')
+      classes.push('cursor-not-allowed border-none bg-black-300 text-gray-400')
     } else {
       classes.push('cursor-pointer border-gray-600 bg-primary text-gray-100')
     }
@@ -235,7 +235,7 @@ export default function Dropdown({
 
   return (
     <div className={mergeClasses('relative w-full', className)}>
-      {label && <p className={mergeClasses('text-sm font-semibold px-1', disabled ? 'text-gray-300' : '')}>{label}</p>}
+      {label && <p className={mergeClasses('text-sm font-semibold px-1', disabled ? 'text-gray-400' : '')}>{label}</p>}
 
       <button
         ref={buttonRef}
