@@ -132,31 +132,6 @@ describe('<Dropdown />', () => {
     cy.get('[role="listbox"] > li').first().should('have.attr', 'id')
   })
 
-  describe('Transition Tests', () => {
-    it('applies menu-enter class during menu opening transition', () => {
-      cy.mount(<Dropdown items={mockItems} />)
-
-      // Click to open menu and immediately check for transition classes
-      cy.get('button').click()
-      cy.get('[role="listbox"]').should('exist').and('have.class', 'menu-enter')
-      cy.get('[role="listbox"]').should('have.class', 'menu-enter-active')
-      cy.get('[role="listbox"]').should('have.class', 'menu-enter-done')
-      cy.get('[role="listbox"]').should('be.visible')
-    })
-
-    it('applies menu-exit-active class during menu closing transition', () => {
-      cy.mount(<Dropdown items={mockItems} />)
-
-      // Open menu first
-      cy.get('button').click()
-      cy.get('[role="listbox"]').then(($el: any) => {
-        cy.get('html').click({ force: true })
-        cy.wrap($el, { timeout: 50 }).should('have.class', 'menu-exit-active')
-      })
-      cy.get('[role="listbox"]').should('not.exist')
-    })
-  })
-
   describe('Keyboard Navigation', () => {
     it('opens menu with Enter key', () => {
       cy.mount(<Dropdown items={mockItems} />)

@@ -56,7 +56,7 @@ describe('<DropdownMenu />', () => {
       cy.get('[role="listbox"] > li').should('have.length', 0)
     })
 
-    it('applies transition classes during animation', () => {
+    it('shows and hides menu based on showMenu prop', () => {
       const TestComponent = () => {
         const [showMenu, setShowMenu] = React.useState(false)
 
@@ -72,9 +72,9 @@ describe('<DropdownMenu />', () => {
       }
 
       cy.mount(<TestComponent />)
-      cy.get('[role="listbox"]').should('exist').and('have.class', 'menu-enter')
-      cy.get('[role="listbox"]').should('have.class', 'menu-enter-active')
-      cy.get('[role="listbox"]').should('have.class', 'menu-enter-done')
+      // Initially menu should not exist
+      cy.get('[role="listbox"]').should('not.exist')
+      // After timeout, menu should be visible
       cy.get('[role="listbox"]').should('be.visible')
     })
   })

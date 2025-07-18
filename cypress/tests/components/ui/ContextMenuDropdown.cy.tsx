@@ -209,40 +209,6 @@ describe('<ContextMenuDropdown />', () => {
     })
   })
 
-  describe('Transition Tests', () => {
-    it('applies menu-enter class during menu opening transition', () => {
-      cy.mount(
-        <div className="absolute right-0">
-          <ContextMenuDropdown items={mockItems} />
-        </div>
-      )
-
-      // Click to open menu and immediately check for transition classes
-      cy.get('button').click()
-      cy.get('[role="menu"]').should('exist').and('have.css', 'opacity', '0').and('have.css', 'transform', 'matrix(1, 0, 0, 1, 0, -15)')
-      cy.get('[role="menu"]').should('have.class', 'menu-enter')
-      cy.get('[role="menu"]').should('have.class', 'menu-enter-active')
-      cy.get('[role="menu"]').should('have.class', 'menu-enter-done')
-      cy.get('[role="menu"]').should('be.visible')
-    })
-
-    it('applies menu-exit-active class during menu closing transition', () => {
-      cy.mount(
-        <div className="absolute right-0">
-          <ContextMenuDropdown items={mockItems} />
-        </div>
-      )
-
-      // Open menu first
-      cy.get('button').click()
-      cy.get('[role="menu"]').then(($el: any) => {
-        cy.get('html').click({ force: true })
-        cy.wrap($el, { timeout: 50 }).should('have.class', 'menu-exit-active')
-      })
-      cy.get('[role="menu"]').should('not.exist')
-    })
-  })
-
   describe('Keyboard Navigation', () => {
     it('opens menu with Enter key', () => {
       cy.mount(

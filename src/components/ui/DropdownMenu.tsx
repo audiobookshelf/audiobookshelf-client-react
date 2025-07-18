@@ -1,8 +1,6 @@
 'use client'
 
 import { useRef, useMemo, useEffect } from 'react'
-import { CSSTransition } from 'react-transition-group'
-import '@/assets/transitions.css'
 import { mergeClasses } from '@/lib/merge-classes'
 
 export interface DropdownMenuItem {
@@ -98,36 +96,29 @@ export default function DropdownMenu({
   )
 
   return (
-    <CSSTransition
-      in={showMenu}
-      timeout={{
-        enter: 200,
-        exit: 100
-      }}
-      nodeRef={menuRef}
-      classNames="menu"
-      unmountOnExit
-    >
-      <ul
-        ref={menuRef}
-        className={mergeClasses(
-          'absolute z-10 w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm',
-          className
-        )}
-        role="listbox"
-        id={`${dropdownId}-listbox`}
-        tabIndex={-1}
-        style={{ maxHeight: menuMaxHeight }}
-      >
-        {menuItems}
-        {showNoItemsMessage && !items.length && (
-          <li className="text-gray-100 select-none relative py-2 pr-9" role="option" cy-id="dropdown-menu-no-items">
-            <div className="flex items-center justify-center">
-              <span className="font-normal">{noItemsText}</span>
-            </div>
-          </li>
-        )}
-      </ul>
-    </CSSTransition>
+    <>
+      {showMenu && (
+        <ul
+          ref={menuRef}
+          className={mergeClasses(
+            'absolute z-10 w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm',
+            className
+          )}
+          role="listbox"
+          id={`${dropdownId}-listbox`}
+          tabIndex={-1}
+          style={{ maxHeight: menuMaxHeight }}
+        >
+          {menuItems}
+          {showNoItemsMessage && !items.length && (
+            <li className="text-gray-100 select-none relative py-2 pr-9" role="option" cy-id="dropdown-menu-no-items">
+              <div className="flex items-center justify-center">
+                <span className="font-normal">{noItemsText}</span>
+              </div>
+            </li>
+          )}
+        </ul>
+      )}
+    </>
   )
 }

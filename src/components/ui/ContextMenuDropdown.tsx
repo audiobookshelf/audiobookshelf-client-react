@@ -3,8 +3,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo, useId } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
-import { CSSTransition } from 'react-transition-group'
-import '@/assets/transitions.css'
 import { mergeClasses } from '@/lib/merge-classes'
 
 export interface ContextMenuDropdownSubitem {
@@ -68,7 +66,6 @@ export default function ContextMenuDropdown({
     setFocusedIndex(index)
     setFocusedSubIndex(-1)
     setOpenSubMenuIndex(null)
-    console.log('openMenu', index)
   }, [])
 
   const closeMenu = useCallback(() => {
@@ -216,10 +213,7 @@ export default function ContextMenuDropdown({
           setFocusedIndex((prev) => (prev < items.length - 1 ? prev + 1 : prev))
         }
       } else {
-        console.log('openMenu up', showMenu)
-        console.log('focusedIndex', focusedIndex)
         if (!showMenu) {
-          console.log('openMenu', items.length - 1)
           openMenu(items.length - 1)
         } else if (focusedSubIndex !== -1 && openSubMenuIndex !== null) {
           setFocusedSubIndex((prev) => (prev > 0 ? prev - 1 : prev))
@@ -502,16 +496,7 @@ export default function ContextMenuDropdown({
         </div>
       )}
 
-      <CSSTransition
-        in={showMenu}
-        timeout={{
-          enter: 200,
-          exit: 100
-        }}
-        nodeRef={menuWrapperRef}
-        classNames="menu"
-        unmountOnExit
-      >
+      {showMenu && (
         <div
           ref={menuWrapperRef}
           id={dropdownId}
@@ -526,7 +511,7 @@ export default function ContextMenuDropdown({
         >
           {menuItems}
         </div>
-      </CSSTransition>
+      )}
     </div>
   )
 }
