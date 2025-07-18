@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo, useId } from 'react'
+import { useState, useRef, useCallback, useMemo, useId, useEffect } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
@@ -38,9 +38,16 @@ export default function InputDropdown({
   const inputRef = useRef<HTMLInputElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLUListElement>(null)
+  const lastSubmittedValueRef = useRef<string | null>(null)
 
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
+
+  // Reset last submitted value when value prop changes
+  useEffect(() => {
+    const newValue = value?.toString() || ''
+    lastSubmittedValueRef.current = newValue
+  }, [value])
 
   const openMenu = useCallback((index: number = -1) => {
     setShowMenu(true)
@@ -73,9 +80,10 @@ export default function InputDropdown({
     }
   }, [textInput, showAllWhenEmpty, openMenu])
 
-  const onInputBlur = useCallback(() => {
+  const submitTextInput = useCallback(() => {
     const val = textInput ? textInput.trim() : null
-    if (val) {
+    if (val && val !== lastSubmittedValueRef.current) {
+      lastSubmittedValueRef.current = val
       onChange?.(val)
       if (!items.includes(val)) {
         onNewItem?.(val)
@@ -83,15 +91,9 @@ export default function InputDropdown({
     }
   }, [textInput, onChange, onNewItem, items])
 
-  const submitTextInput = useCallback(() => {
-    const val = textInput ? textInput.trim() : null
-    if (val) {
-      onChange?.(val)
-      if (!items.includes(val)) {
-        onNewItem?.(val)
-      }
-    }
-  }, [textInput, onChange, onNewItem, items])
+  const onInputBlur = useCallback(() => {
+    submitTextInput()
+  }, [submitTextInput])
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,7 +108,9 @@ export default function InputDropdown({
 
   const handleOptionClick = useCallback(
     (item: string | number) => {
-      setTextInput(item.toString())
+      const itemValue = item.toString()
+      setTextInput(itemValue)
+      lastSubmittedValueRef.current = itemValue
       onChange?.(item)
       closeMenu()
     },

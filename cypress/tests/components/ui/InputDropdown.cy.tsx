@@ -309,6 +309,62 @@ describe('<InputDropdown />', () => {
       cy.get('input').blur()
       cy.get('@onNewItemSpy').should('not.have.been.called')
     })
+
+    it('prevents duplicate events when pressing Enter multiple times quickly', () => {
+      const onChangeSpy = cy.spy().as('onChangeSpy')
+      const onNewItemSpy = cy.spy().as('onNewItemSpy')
+      cy.mount(<InputDropdown items={mockItems} onChange={onChangeSpy} onNewItem={onNewItemSpy} />)
+      cy.get('input').focus()
+      cy.get('input').type('New Item')
+      // Press Enter multiple times quickly
+      cy.get('input').type('{enter}')
+      cy.get('input').type('{enter}')
+      cy.get('input').type('{enter}')
+      // Should only be called once
+      cy.get('@onNewItemSpy').should('have.been.calledOnce')
+      cy.get('@onNewItemSpy').should('have.been.calledWith', 'New Item')
+      cy.get('@onChangeSpy').should('have.been.calledOnce')
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'New Item')
+    })
+
+    it('prevents duplicate events when blurring multiple times quickly', () => {
+      const onChangeSpy = cy.spy().as('onChangeSpy')
+      const onNewItemSpy = cy.spy().as('onNewItemSpy')
+      cy.mount(<InputDropdown items={mockItems} onChange={onChangeSpy} onNewItem={onNewItemSpy} />)
+      cy.get('input').focus()
+      cy.get('input').type('New Item')
+      // Blur multiple times quickly
+      cy.get('input').blur()
+      cy.get('input').focus()
+      cy.get('input').blur()
+      cy.get('input').focus()
+      cy.get('input').blur()
+      // Should only be called once
+      cy.get('@onNewItemSpy').should('have.been.calledOnce')
+      cy.get('@onNewItemSpy').should('have.been.calledWith', 'New Item')
+      cy.get('@onChangeSpy').should('have.been.calledOnce')
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'New Item')
+    })
+
+    it('allows new events when value changes', () => {
+      const onChangeSpy = cy.spy().as('onChangeSpy')
+      const onNewItemSpy = cy.spy().as('onNewItemSpy')
+      cy.mount(<InputDropdown items={mockItems} onChange={onChangeSpy} onNewItem={onNewItemSpy} />)
+      cy.get('input').focus()
+      cy.get('input').type('First Item')
+      cy.get('input').type('{enter}')
+      // Change the input and submit again
+      cy.get('input').clear()
+      cy.get('input').type('Second Item')
+      cy.get('input').type('{enter}')
+      // Both should be called
+      cy.get('@onNewItemSpy').should('have.been.calledTwice')
+      cy.get('@onNewItemSpy').should('have.been.calledWith', 'First Item')
+      cy.get('@onNewItemSpy').should('have.been.calledWith', 'Second Item')
+      cy.get('@onChangeSpy').should('have.been.calledTwice')
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'First Item')
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'Second Item')
+    })
   })
 
   describe('Performance', () => {
