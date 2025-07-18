@@ -8,9 +8,9 @@ interface CheckboxProps {
   label?: string
   small?: boolean
   medium?: boolean
-  checkboxBg?: string
-  borderColor?: string
-  checkColor?: string
+  checkboxBgClass?: string
+  borderColorClass?: string
+  checkColorClass?: string
   labelClass?: string
   disabled?: boolean
   partial?: boolean
@@ -24,9 +24,9 @@ export default function Checkbox({
   label,
   small = false,
   medium = false,
-  checkboxBg = 'bg',
-  borderColor = 'gray-400',
-  checkColor = 'green-500',
+  checkboxBgClass = 'bg-bg',
+  borderColorClass = 'border-gray-400',
+  checkColorClass = 'text-green-500',
   labelClass = '',
   disabled = false,
   partial = false,
@@ -37,7 +37,7 @@ export default function Checkbox({
   const labelRef = useRef<HTMLLabelElement>(null)
 
   const checkboxWrapperClassName = useMemo(() => {
-    const classes = [`bg-${checkboxBg}`, `border-${borderColor}`]
+    const classes = [checkboxBgClass, borderColorClass]
 
     if (small) {
       classes.push('w-4 h-4')
@@ -48,7 +48,7 @@ export default function Checkbox({
     }
 
     return mergeClasses('border-2 rounded-sm flex shrink-0 justify-center items-center', classes)
-  }, [checkboxBg, borderColor, small, medium])
+  }, [checkboxBgClass, borderColorClass, small, medium])
 
   const checkboxLabelClassName = useMemo(() => {
     if (labelClass) return labelClass
@@ -66,7 +66,7 @@ export default function Checkbox({
   }, [labelClass, small, medium, disabled])
 
   const svgClass = useMemo(() => {
-    const classes = [`text-${checkColor}`]
+    const classes = [checkColorClass]
 
     if (small) {
       classes.push('w-3 h-3')
@@ -77,7 +77,7 @@ export default function Checkbox({
     }
 
     return mergeClasses('fill-current pointer-events-none', classes)
-  }, [checkColor, small, medium])
+  }, [checkColorClass, small, medium])
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
