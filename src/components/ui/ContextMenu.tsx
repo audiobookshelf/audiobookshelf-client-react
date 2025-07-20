@@ -15,7 +15,7 @@ export interface ContextMenuItem {
   subitems?: ContextMenuSubitem[]
 }
 
-export interface ContextMenuProps {
+interface ContextMenuProps {
   items: ContextMenuItem[]
   isOpen: boolean
   menuWidth?: number
