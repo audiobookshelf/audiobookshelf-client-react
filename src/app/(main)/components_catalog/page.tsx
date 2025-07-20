@@ -115,6 +115,12 @@ export default function ComponentsCatalogPage() {
     }
   ]
 
+  const contextMenuItemsWithEmptySubitems: ContextMenuDropdownItem[] = [
+    { text: 'Edit Item', action: 'edit' },
+    { text: 'Delete Item', action: 'delete' },
+    { text: 'Empty', action: 'empty', subitems: [] }
+  ]
+
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
       <div className="mb-8">
@@ -302,6 +308,16 @@ export default function ComponentsCatalogPage() {
                 onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
               />
               <span className="text-sm text-gray-400">Wider menu</span>
+            </div>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Context Menu with Empty Submenu</h3>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown
+                items={contextMenuItemsWithEmptySubitems}
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
             </div>
           </div>
         </div>

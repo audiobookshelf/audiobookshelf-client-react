@@ -119,8 +119,8 @@ describe('<ContextMenuDropdown />', () => {
     )
     cy.get('button').click()
     cy.get('[role="menu"] > div > button').realHover()
-    cy.get('[cy-id="submenu"]').should('be.visible')
-    cy.get('[cy-id="submenu"] > button').eq(1).realClick()
+    cy.get('[cy-id="submenu-1"]').should('be.visible')
+    cy.get('[cy-id="submenu-1"] > button').eq(1).realClick()
     cy.get('@onActionSpy').should('have.been.calledWith', {
       action: 'subaction2',
       data: { value: 'data2' }
@@ -189,7 +189,7 @@ describe('<ContextMenuDropdown />', () => {
     // Hover over the item with subitems (second item)
     cy.get('[role="menu"] > div > button').realHover()
     // check submenu min-width
-    cy.get('[cy-id="submenu"]').should('have.css', 'min-width', '144px')
+    cy.get('[cy-id="submenu-1"]').should('have.css', 'min-width', '144px')
   })
 
   it('displays submenu so that first item is top aligned with the parent item', () => {
@@ -200,7 +200,7 @@ describe('<ContextMenuDropdown />', () => {
     // get the parent item, then get the first subitem
     cy.get('[role="menu"] > div > button').then(([parent]) => {
       const parentTop = parent.getBoundingClientRect().top
-      cy.get('[cy-id="submenu"] > button')
+      cy.get('[cy-id="submenu-1"] > button')
         .eq(0)
         .then(([subitem]) => {
           const subitemTop = subitem.getBoundingClientRect().top
@@ -334,9 +334,9 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{rightarrow}')
 
       // Submenu should be visible
-      cy.get('[cy-id="submenu"]').should('be.visible')
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
       // First subitem should be focused
-      cy.get('[cy-id="submenu"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
     })
 
     it('navigates through submenu items with ArrowDown', () => {
@@ -351,15 +351,15 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{rightarrow}') // Open submenu
 
       // First subitem should be focused
-      cy.get('[cy-id="submenu"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
 
       // Navigate to second subitem
       cy.realType('{downarrow}')
-      cy.get('[cy-id="submenu"] > button').eq(1).should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').eq(1).should('have.class', 'bg-white/10')
 
       // Should stay on last subitem when pressing down again
       cy.realType('{downarrow}')
-      cy.get('[cy-id="submenu"] > button').eq(1).should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').eq(1).should('have.class', 'bg-white/10')
     })
 
     it('navigates through submenu items with ArrowUp', () => {
@@ -374,16 +374,16 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{rightarrow}') // Open submenu
 
       // First subitem should be focused
-      cy.get('[cy-id="submenu"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
 
       // Navigate to second subitem first
       cy.realType('{downarrow}')
       cy.realType('{uparrow}') // Go back to first subitem
-      cy.get('[cy-id="submenu"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
 
       // Should stay on first subitem when pressing up again
       cy.realType('{uparrow}')
-      cy.get('[cy-id="submenu"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
     })
 
     it('closes submenu with ArrowLeft', () => {
@@ -396,10 +396,10 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').click()
       cy.realType('{downarrow}') // Navigate to second item
       cy.realType('{rightarrow}') // Open submenu
-      cy.get('[cy-id="submenu"]').should('be.visible')
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
 
       cy.realType('{leftarrow}') // Close submenu
-      cy.get('[cy-id="submenu"]').should('not.exist')
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
     })
 
     it('activates menu item with Enter', () => {
@@ -482,10 +482,10 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{downarrow}') // Navigate to second item (has subitems)
       cy.get('[type="button"]').type('{enter}') // Toggle submenu
 
-      cy.get('[cy-id="submenu"]').should('be.visible')
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
 
       cy.get('[type="button"]').type('{enter}') // Toggle submenu again
-      cy.get('[cy-id="submenu"]').should('not.exist')
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
     })
 
     it('navigates to first item with Home key', () => {
@@ -531,7 +531,7 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{downarrow}') // Navigate to second subitem
       cy.get('[type="button"]').type('{home}') // Go to first subitem
 
-      cy.get('[cy-id="submenu"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
     })
 
     it('navigates to last submenu item with End key', () => {
@@ -547,7 +547,7 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{rightarrow}') // Open submenu
       cy.get('[type="button"]').type('{end}') // Go to last subitem
 
-      cy.get('[cy-id="submenu"] > button').last().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').last().should('have.class', 'bg-white/10')
     })
 
     it('closes menu with Escape key', () => {
@@ -576,10 +576,10 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{downarrow}')
       cy.get('[type="button"]').type('{downarrow}') // Navigate to second item
       cy.get('[type="button"]').type('{rightarrow}') // Open submenu
-      cy.get('[cy-id="submenu"]').should('be.visible')
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
 
       cy.get('[type="button"]').type('{esc}') // Close submenu
-      cy.get('[cy-id="submenu"]').should('not.exist')
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
       cy.get('[role="menu"]').should('be.visible') // Main menu should still be open
     })
 
@@ -638,6 +638,253 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{esc}') // Close menu
 
       cy.get('[type="button"]').should('be.focused')
+    })
+  })
+
+  describe('Empty submenus', () => {
+    const mockItemsWithEmptySubmenu: ContextMenuDropdownItem[] = [
+      { text: 'Item 1', action: 'action1' },
+      {
+        text: 'Item 2',
+        action: 'action2',
+        subitems: [] // Empty submenu
+      },
+      {
+        text: 'Item 3',
+        action: 'action3',
+        subitems: undefined // No submenu
+      },
+      {
+        text: 'Item 4',
+        action: 'action4',
+        subitems: [
+          { text: 'Subitem 1', action: 'subaction1', data: { value: 'data1' } },
+          { text: 'Subitem 2', action: 'subaction2', data: { value: 'data2' } }
+        ]
+      }
+    ]
+
+    it('shows the parent item', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+      cy.get('[type="button"]').click()
+      cy.get('[role="menu"]').should('be.visible')
+      cy.get('[cy-id="parent-item"]').should('have.length', 2)
+    })
+
+    it('opens empty submenu when pressing right arrow', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.get('[role="menu"]').should('be.visible')
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Try to open submenu
+
+      // Submenu should be visible
+      cy.get('[cy-id="no-items-subitem"]').should('be.visible')
+      // Check if the no-items subitem is disabled
+      cy.get('[cy-id="no-items-subitem"]').should('be.disabled')
+      // Check if the no-items subitem is not visually focused
+      cy.get('[cy-id="no-items-subitem"]').should('not.have.class', 'bg-white/10')
+      // Focus should remain on the parent item
+      cy.get('[cy-id="parent-item"]').first().should('have.class', 'bg-white/10')
+    })
+
+    it('toggles empty submenu with Enter', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{enter}') // Try to toggle submenu
+
+      // Submenu should be visible
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType('{enter}') // Try to toggle submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+    })
+
+    it('toggles empty submenu with Space', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType(' ') // Try to toggle submenu
+
+      // Submenu should be visible
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType(' ') // Try to toggle submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+    })
+
+    it('closes empty submenu with Escape key', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Open submenu
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType('{esc}') // Close submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+      cy.get('[cy-id="menu"]').should('be.visible')
+    })
+
+    it('closes empty submenu with Tab key', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+          <button>test</button>
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Open submenu
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.get('[type="button"]').tab()
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+      cy.get('[cy-id="menu"]').should('not.exist')
+    })
+
+    it('closes empty submenu with left arrow', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Open submenu
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType('{leftarrow}') // Close submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+      cy.get('[cy-id="menu"]').should('be.visible')
+    })
+
+    it('closes empty submenu and moves up with up arrow', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Open submenu
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType('{uparrow}') // Close submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+      cy.get('[cy-id="menu"]').should('be.visible')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
+      cy.get('[cy-id="action-item"]').first().should('have.class', 'bg-white/10')
+    })
+
+    it('closes empty submenu and moves down with down arrow', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Open submenu
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType('{downarrow}') // Close submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+      cy.get('[cy-id="menu"]').should('be.visible')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
+      cy.get('[cy-id="action-item"]').eq(1).should('have.class', 'bg-white/10')
+    })
+
+    it('closes empty submenu and moves to first item with Home', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Open submenu
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType('{home}') // Close submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+      cy.get('[cy-id="menu"]').should('be.visible')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
+      cy.get('[cy-id="action-item"]').first().should('have.class', 'bg-white/10')
+    })
+
+    it('closes empty submenu and moves to last item with End', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+      cy.get('[type="button"]').click()
+      cy.realType('{downarrow}') // Navigate to second item (has empty subitems)
+      cy.realType('{rightarrow}') // Open submenu
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+
+      cy.realType('{end}') // Close submenu
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
+      cy.get('[cy-id="menu"]').should('be.visible')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
+      cy.get('[cy-id="parent-item"]').last().should('have.class', 'bg-white/10')
+    })
+
+    it('shows empty submenu when hovering over parent item', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      // Hover over the item with empty subitems (second item)
+      cy.get('[cy-id="parent-item"]').first().realHover()
+
+      // Submenu should be visible
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+    })
+
+    it('closes submenu when hovering away from parent item', () => {
+      cy.mount(
+        <div className="absolute right-0">
+          <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
+        </div>
+      )
+
+      cy.get('[type="button"]').click()
+      cy.get('[cy-id="parent-item"]').first().realHover()
+      cy.get('[cy-id="submenu-1"]').should('be.visible')
+      cy.get('body').realHover()
+      cy.get('[cy-id="submenu-1"]').should('not.exist')
     })
   })
 })
