@@ -15,7 +15,7 @@ export interface ContextMenuItem {
   subitems?: ContextMenuSubitem[]
 }
 
-interface ContextMenuProps {
+export interface ContextMenuProps {
   items: ContextMenuItem[]
   isOpen: boolean
   menuWidth?: number
@@ -83,7 +83,6 @@ const ContextMenu = ({
 
   const handleMouseoverParent = useCallback(
     (index: number) => {
-      console.log('handleMouseoverParent', index)
       setIsOverParentIndex(index)
       onOpenSubmenu?.(index)
     },
@@ -91,7 +90,6 @@ const ContextMenu = ({
   )
 
   useLayoutEffect(() => {
-    console.log('useLayoutEffect', pendingCloseRef.current, isOverSubmenu, isOverParentIndex, openSubmenuIndex)
     if (pendingCloseRef.current !== null) {
       // Only close the submenu if:
       // 1. The pending index matches the currently open submenu
@@ -106,7 +104,6 @@ const ContextMenu = ({
 
   const handleMouseleaveParent = useCallback(
     (index: number) => {
-      console.log('handleMouseleaveParent', index)
       setIsOverParentIndex(-1)
       // When leaving a submenu parent, mark the submenu for potential closure
       pendingCloseRef.current = index
