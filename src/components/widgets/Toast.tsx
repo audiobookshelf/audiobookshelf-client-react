@@ -69,6 +69,7 @@ const Toast: React.FC<ToastProps> = ({ id, type = 'info', title, message, durati
     <div
       cy-id="toast"
       className={`transform transition-all duration-300 ease-in-out ${isVisible && !isExiting ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}
+      onClick={handleClose}
     >
       <div className={`${getTypeClasses()} border rounded-lg shadow-lg p-4 max-w-sm w-full`}>
         <div className="flex items-start gap-3">

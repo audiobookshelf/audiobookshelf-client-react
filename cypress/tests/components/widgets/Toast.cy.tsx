@@ -166,6 +166,18 @@ describe('<Toast />', () => {
     cy.get('@onCloseSpy').should('have.been.calledWith', 'test-toast')
   })
 
+  it('handles click to close', () => {
+    const onCloseSpy = cy.spy().as('onCloseSpy')
+    cy.mount(<Toast {...defaultProps} onClose={onCloseSpy} />)
+
+    // Wait for initial animation
+    cy.wait(400)
+
+    // Click toast
+    cy.get('[cy-id="toast"]').click()
+    cy.get('@onCloseSpy').should('have.been.calledWith', 'test-toast')
+  })
+
   it('handles undefined onClose prop', () => {
     cy.mount(<Toast {...defaultProps} />)
 
