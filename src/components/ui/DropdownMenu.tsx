@@ -12,6 +12,7 @@ export interface DropdownMenuItem {
 interface DropdownMenuProps {
   showMenu: boolean
   items: DropdownMenuItem[]
+  multiSelect?: boolean
   focusedIndex: number
   dropdownId: string
   onItemClick?: (item: DropdownMenuItem) => void
@@ -31,6 +32,7 @@ interface DropdownMenuProps {
 export default function DropdownMenu({
   showMenu,
   items,
+  multiSelect = false,
   focusedIndex,
   dropdownId,
   onItemClick,
@@ -108,6 +110,7 @@ export default function DropdownMenu({
           id={`${dropdownId}-listbox`}
           tabIndex={-1}
           style={{ maxHeight: menuMaxHeight }}
+          aria-multiselectable={multiSelect}
         >
           {menuItems}
           {showNoItemsMessage && !items.length && (
