@@ -14,6 +14,7 @@ import InputDropdown from '@/components/ui/InputDropdown'
 import FileInput from '@/components/ui/FileInput'
 import LibraryIcon from '@/components/ui/LibraryIcon'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
+import MultiSelect from '@/components/ui/MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 
 export default function ComponentsCatalogPage() {
@@ -47,6 +48,10 @@ export default function ComponentsCatalogPage() {
   const [inputDropdownValue, setInputDropdownValue] = useState('')
   const [inputDropdownValue2, setInputDropdownValue2] = useState('')
   const [inputDropdownValue3, setInputDropdownValue3] = useState('')
+
+  // MultiSelect sample data
+  const multiSelectItems = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew']
+  const [multiSelectValue, setMultiSelectValue] = useState<string[]>(['Apple', 'Banana'])
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -398,6 +403,49 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Input Dropdown without Label</h3>
             <InputDropdown value={inputDropdownValue} onChange={handleInputDropdownChange} items={inputDropdownItems} />
+          </div>
+        </div>
+      </section>
+
+      {/* MultiSelect Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">MultiSelect Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default MultiSelect</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onSelectedItemsChanged={setMultiSelectValue}
+              items={multiSelectItems}
+              label="Select Fruits"
+              onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
+              onRemovedItem={(item) => showToast(`Removed: ${item}`, { type: 'info', title: 'Item Removed' })}
+            />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">MultiSelect with Edit</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onSelectedItemsChanged={setMultiSelectValue}
+              items={multiSelectItems}
+              label="Select Fruits"
+              onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
+              onRemovedItem={(item) => showToast(`Removed: ${item}`, { type: 'info', title: 'Item Removed' })}
+              showEdit
+              onEdit={(item) => showToast(`Edited: ${item}`, { type: 'info', title: 'Item Edited' })}
+            />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled MultiSelect</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onSelectedItemsChanged={setMultiSelectValue}
+              items={multiSelectItems}
+              label="Select Fruits"
+              disabled
+            />
           </div>
         </div>
       </section>
