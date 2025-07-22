@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useId, useMemo } from 
 import DropdownMenu from './DropdownMenu'
 import type { DropdownMenuItem } from './DropdownMenu'
 import { mergeClasses } from '@/lib/merge-classes'
+import Pill from './Pill'
 
 interface MultiSelectProps {
   selectedItems: string[]
@@ -81,7 +82,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
     // Set new timeout to wait for user to stop typing
     const newTimeout = setTimeout(() => {
-      openMenu(null)
       if (!textInput) {
         setFilteredItems(null)
       } else {
@@ -100,134 +100,144 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     }
   }, [textInput, items, openMenu])
 
-  // Keyboard navigation for dropdown menu
-  const menuNavigationHandler = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (disabled) return
+  const handleArrowDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
     const itemCount = dropdownItems.length
+    if (!isMenuOpen) {
+      openMenu(0)
+    } else {
+      setFocusIndex((prev) => {
+        if (prev === null || prev < 0) return 0
+        return prev < itemCount - 1 ? prev + 1 : prev
+      })
+    }
+  }
+
+  const handleArrowUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const itemCount = dropdownItems.length
+    if (!isMenuOpen) {
+      openMenu(itemCount - 1)
+    } else {
+      setFocusIndex((prev) => {
+        if (prev === null || prev < 0) return itemCount - 1
+        return prev > 0 ? prev - 1 : prev
+      })
+    }
+  }
+
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const itemCount = dropdownItems.length
+    if (focusIndex !== null && focusIndex >= 0 && focusIndex < itemCount) {
+      handleDropdownItemClick(dropdownItems[focusIndex])
+    } else if (focusIndex !== null && focusIndex < 0) {
+      const pillIdx = selectedItems.length + focusIndex
+      if (pillIdx >= 0 && selectedItems[pillIdx]) {
+        if (showEdit) {
+          onEdit?.(selectedItems[pillIdx])
+        }
+      }
+    } else if (textInput) {
+      submitForm()
+    }
+  }
+
+  const handleEscape = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    closeMenu()
+  }
+
+  const handleHome = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    openMenu(0)
+  }
+
+  const handleEnd = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const itemCount = dropdownItems.length
+    openMenu(itemCount - 1)
+  }
+
+  const handleTab = () => {
+    closeMenu()
+    inputRef.current?.blur()
+  }
+
+  const handleArrowLeft = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const pillCount = selectedItems.length
-    switch (e.key) {
-      case 'ArrowDown': {
-        e.preventDefault()
-        if (!isMenuOpen) {
-          openMenu(0)
-        } else {
-          setFocusIndex((prev) => {
-            if (prev == null || prev < 0) return 0
-            return prev < itemCount - 1 ? prev + 1 : prev
-          })
-        }
-        break
+    if (!textInput && pillCount > 0) {
+      e.preventDefault()
+      setFocusIndex((prev) => {
+        if (prev === null || prev >= 0) return -1
+        if (Math.abs(prev) < pillCount) return prev - 1
+        return prev
+      })
+    }
+  }
+
+  const handleArrowRight = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!textInput && focusIndex !== null && focusIndex < 0) {
+      e.preventDefault()
+      setFocusIndex((prev) => {
+        if (prev === null) return null
+        if (prev < -1) return prev + 1
+        return null
+      })
+    }
+  }
+
+  const handlePillDeletion = (key: 'Backspace' | 'Delete') => {
+    if (focusIndex === null || focusIndex >= 0) {
+      if (key === 'Backspace' && !textInput && selectedItems.length > 0) {
+        removeItem(selectedItems[selectedItems.length - 1])
       }
-      case 'ArrowUp': {
-        e.preventDefault()
-        if (!isMenuOpen) {
-          openMenu(itemCount - 1)
-        } else {
-          setFocusIndex((prev) => {
-            if (prev == null || prev < 0) return itemCount - 1
-            return prev > 0 ? prev - 1 : prev
-          })
-        }
-        break
+      return
+    }
+
+    if (focusIndex !== null && focusIndex < 0) {
+      const pillIdx = selectedItems.length + focusIndex
+      if (pillIdx < 0) return
+
+      const pillToRemove = selectedItems[pillIdx]
+      if (key === 'Backspace') {
+        // Focus moves to the pill to the left, or to input if first pill is deleted
+        setFocusIndex((prev) => {
+          if (prev === null || prev === -selectedItems.length) return null
+          if (prev <= -1) return prev
+          return prev
+        })
+      } else {
+        // Focus remains on the current index, which is now the next pill
+        setFocusIndex((prev) => {
+          if (prev === null || prev === -1) return null
+          if (prev < -1) return prev + 1
+          return prev
+        })
       }
-      case 'Enter': {
-        e.preventDefault()
-        if (focusIndex !== null && focusIndex >= 0 && focusIndex < itemCount) {
-          handleDropdownItemClick(dropdownItems[focusIndex])
-        } else if (focusIndex !== null && focusIndex < 0) {
-          const pillIdx = selectedItems.length + focusIndex
-          if (pillIdx >= 0 && selectedItems[pillIdx]) {
-            if (showEdit) {
-              onEdit?.(selectedItems[pillIdx])
-            }
-          }
-        } else if (textInput) {
-          submitForm()
-        }
-        break
-      }
-      case 'Escape': {
-        e.preventDefault()
-        closeMenu()
-        // Do NOT blur the input here
-        break
-      }
-      case 'Home': {
-        e.preventDefault()
-        openMenu(0)
-        break
-      }
-      case 'End': {
-        e.preventDefault()
-        openMenu(itemCount - 1)
-        break
-      }
-      case 'Tab': {
-        closeMenu()
-        inputRef.current?.blur()
-        break
-      }
-      case 'ArrowLeft': {
-        if (!textInput && pillCount > 0) {
-          e.preventDefault()
-          setFocusIndex((prev) => {
-            // If not on a pill, go to last pill
-            if (prev == null || prev >= 0) return -1
-            // If on a pill, go to previous pill (more negative)
-            if (Math.abs(prev) < pillCount) return prev - 1
-            return prev
-          })
-        }
-        break
-      }
-      case 'ArrowRight': {
-        if (!textInput && pillCount > 0) {
-          e.preventDefault()
-          setFocusIndex((prev) => {
-            // If not on a pill, stay on input
-            if (prev == null || prev >= 0) return null
-            // If on a pill, move right (less negative)
-            if (prev < -1) return prev + 1
-            // If at -1 (last pill), move to input
-            return null
-          })
-        }
-        break
-      }
-      case 'Backspace': {
-        if (focusIndex !== null && focusIndex < 0) {
-          const pillIdx = selectedItems.length + focusIndex
-          if (pillIdx >= 0 && selectedItems[pillIdx]) {
-            removeItem(selectedItems[pillIdx])
-            setFocusIndex((prev) => {
-              if (prev === null) return null
-              // If there are still pills to the left, stay on the previous pill
-              if (Math.abs(prev) < selectedItems.length) return prev - 1
-              // Otherwise, unfocus
-              return null
-            })
-          }
-        } else if (!textInput && selectedItems.length > 0) {
-          removeItem(selectedItems[selectedItems.length - 1])
-        }
-        break
-      }
-      case 'Delete': {
-        if (focusIndex !== null && focusIndex < 0) {
-          const pillIdx = selectedItems.length + focusIndex
-          if (pillIdx >= 0 && selectedItems[pillIdx]) {
-            removeItem(selectedItems[pillIdx])
-            setFocusIndex((prev) => {
-              if (prev === null) return null
-              if (Math.abs(prev) < selectedItems.length) return prev - 1
-              return null
-            })
-          }
-        }
-        break
-      }
-      default:
-        break
+      removeItem(pillToRemove)
+    }
+  }
+
+  const keydownHandlers: Record<string, (e: React.KeyboardEvent<HTMLInputElement>) => void> = {
+    ArrowDown: handleArrowDown,
+    ArrowUp: handleArrowUp,
+    Enter: handleEnter,
+    Escape: handleEscape,
+    Home: handleHome,
+    End: handleEnd,
+    Tab: handleTab,
+    ArrowLeft: handleArrowLeft,
+    ArrowRight: handleArrowRight,
+    Backspace: () => handlePillDeletion('Backspace'),
+    Delete: () => handlePillDeletion('Delete')
+  }
+
+  // Keyboard navigation for dropdown menu
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled) return
+    if (keydownHandlers[e.key]) {
+      keydownHandlers[e.key](e)
     }
   }
 
@@ -367,14 +377,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   // Handle input changes
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setFocusIndex(null)
+    openMenu(null)
     setTextInput(e.target.value)
   }, [])
-
-  // Reset pill focus on input change or click
-  useEffect(() => {
-    if (focusIndex !== null && focusIndex < 0) setFocusIndex(null)
-  }, [textInput])
 
   // Compute the id of the currently focused descendant for aria-activedescendant
   let activeDescendantId: string | undefined = undefined
@@ -439,59 +444,17 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           onMouseDown={(e) => e.preventDefault()}
         >
           {selectedItems.map((item, idx) => (
-            <div
+            <Pill
               key={item}
               id={`${identifier}-pill-${idx}`}
-              role="listitem"
-              className={mergeClasses(
-                'rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
-                !disabled && focusIndex === idx - selectedItems.length ? 'ring z-10' : ''
-              )}
-              style={{ minWidth: showEdit ? 44 : 22 }}
-              tabIndex={-1}
-              onMouseDown={(e) => e.preventDefault()}
+              item={item}
+              isFocused={focusIndex === idx - selectedItems.length}
+              disabled={disabled}
+              showEdit={showEdit}
               onClick={(e) => handlePillClick(e, idx)}
-            >
-              {!disabled && (
-                <div
-                  className={mergeClasses(
-                    'w-full h-full rounded-full absolute top-0 left-0 px-1 bg-bg/75 flex items-center justify-end opacity-0 hover:opacity-100'
-                  )}
-                >
-                  {showEdit && (
-                    <button
-                      type="button"
-                      aria-label="Edit"
-                      className="material-symbols text-white hover:text-warning cursor-pointer"
-                      style={{ fontSize: '1.1rem' }}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        onEdit?.(item)
-                      }}
-                      tabIndex={-1}
-                    >
-                      edit
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    aria-label="Remove"
-                    className="material-symbols text-white hover:text-error focus:text-error cursor-pointer"
-                    style={{ fontSize: '1.1rem' }}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      removeItem(item)
-                    }}
-                    tabIndex={-1}
-                  >
-                    close
-                  </button>
-                </div>
-              )}
-              {item}
-            </div>
+              onEdit={onEdit}
+              onRemove={removeItem}
+            />
           ))}
           {!disabled && (
             <input
@@ -501,7 +464,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               disabled={disabled}
               className="bg-transparent border-none outline-none px-1 flex-1 min-w-6 text-sm"
               autoComplete="off"
-              onKeyDown={menuNavigationHandler}
+              onKeyDown={handleKeyDown}
               onFocus={inputFocus}
               onBlur={inputBlur}
               onPaste={inputPaste}
