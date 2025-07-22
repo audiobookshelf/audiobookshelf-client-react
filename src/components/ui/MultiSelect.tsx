@@ -70,217 +70,15 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     setFocusIndex(null)
   }, [])
 
-  // Search logic with debouncing
-  useEffect(() => {
-    // Only search if the input is focused
-    if (document.activeElement !== inputRef.current) return
-
-    // Clear existing timeout
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current)
-    }
-
-    // Set new timeout to wait for user to stop typing
-    const newTimeout = setTimeout(() => {
-      if (!textInput) {
-        setFilteredItems(null)
-      } else {
-        const results = items.filter((i) => String(i).toLowerCase().includes(textInput.toLowerCase()))
-        setFilteredItems(results || [])
-      }
-    }, 200)
-
-    typingTimeoutRef.current = newTimeout
-
-    // Cleanup function to clear timeout on unmount or dependency change
-    return () => {
-      if (newTimeout) {
-        clearTimeout(newTimeout)
-      }
-    }
-  }, [textInput, items, openMenu])
-
-  const handleArrowDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    const itemCount = dropdownItems.length
-    if (!isMenuOpen) {
-      openMenu(0)
-    } else {
-      setFocusIndex((prev) => {
-        if (prev === null || prev < 0) return 0
-        return prev < itemCount - 1 ? prev + 1 : prev
-      })
-    }
-  }
-
-  const handleArrowUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    const itemCount = dropdownItems.length
-    if (!isMenuOpen) {
-      openMenu(itemCount - 1)
-    } else {
-      setFocusIndex((prev) => {
-        if (prev === null || prev < 0) return itemCount - 1
-        return prev > 0 ? prev - 1 : prev
-      })
-    }
-  }
-
-  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    const itemCount = dropdownItems.length
-    if (focusIndex !== null && focusIndex >= 0 && focusIndex < itemCount) {
-      handleDropdownItemClick(dropdownItems[focusIndex])
-    } else if (focusIndex !== null && focusIndex < 0) {
-      const pillIdx = selectedItems.length + focusIndex
-      if (pillIdx >= 0 && selectedItems[pillIdx]) {
-        if (showEdit) {
-          onEdit?.(selectedItems[pillIdx])
-        }
-      }
-    } else if (textInput) {
-      submitForm()
-    }
-  }
-
-  const handleEscape = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    closeMenu()
-  }
-
-  const handleHome = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    openMenu(0)
-  }
-
-  const handleEnd = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    const itemCount = dropdownItems.length
-    openMenu(itemCount - 1)
-  }
-
-  const handleTab = () => {
-    closeMenu()
-    inputRef.current?.blur()
-  }
-
-  const handleArrowLeft = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    const pillCount = selectedItems.length
-    if (!textInput && pillCount > 0) {
-      e.preventDefault()
-      setFocusIndex((prev) => {
-        if (prev === null || prev >= 0) return -1
-        if (Math.abs(prev) < pillCount) return prev - 1
-        return prev
-      })
-    }
-  }
-
-  const handleArrowRight = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!textInput && focusIndex !== null && focusIndex < 0) {
-      e.preventDefault()
-      setFocusIndex((prev) => {
-        if (prev === null) return null
-        if (prev < -1) return prev + 1
-        return null
-      })
-    }
-  }
-
-  const handlePillDeletion = (key: 'Backspace' | 'Delete') => {
-    if (focusIndex === null || focusIndex >= 0) {
-      if (key === 'Backspace' && !textInput && selectedItems.length > 0) {
-        removeItem(selectedItems[selectedItems.length - 1])
-      }
-      return
-    }
-
-    if (focusIndex !== null && focusIndex < 0) {
-      const pillIdx = selectedItems.length + focusIndex
-      if (pillIdx < 0) return
-
-      const pillToRemove = selectedItems[pillIdx]
-      if (key === 'Backspace') {
-        // Focus moves to the pill to the left, or to input if first pill is deleted
-        setFocusIndex((prev) => {
-          if (prev === null || prev === -selectedItems.length) return null
-          if (prev <= -1) return prev
-          return prev
-        })
-      } else {
-        // Focus remains on the current index, which is now the next pill
-        setFocusIndex((prev) => {
-          if (prev === null || prev === -1) return null
-          if (prev < -1) return prev + 1
-          return prev
-        })
-      }
-      removeItem(pillToRemove)
-    }
-  }
-
-  const keydownHandlers: Record<string, (e: React.KeyboardEvent<HTMLInputElement>) => void> = {
-    ArrowDown: handleArrowDown,
-    ArrowUp: handleArrowUp,
-    Enter: handleEnter,
-    Escape: handleEscape,
-    Home: handleHome,
-    End: handleEnd,
-    Tab: handleTab,
-    ArrowLeft: handleArrowLeft,
-    ArrowRight: handleArrowRight,
-    Backspace: () => handlePillDeletion('Backspace'),
-    Delete: () => handlePillDeletion('Delete')
-  }
-
-  // Keyboard navigation for dropdown menu
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (disabled) return
-    if (keydownHandlers[e.key]) {
-      keydownHandlers[e.key](e)
-    }
-  }
-
-  const addPastedItems = useCallback(
-    (pastedItems: string[]) => {
-      const itemsToAdd = pastedItems
-        .filter((item) => !selectedItems.some((i) => i.toLowerCase() === item.toLowerCase()))
-        .map((item) => {
-          const itemExists = items.find((i) => i.toLowerCase() === item.toLowerCase())
-          return itemExists || item
-        })
-      if (itemsToAdd.length) {
-        onSelectedItemsChanged([...selectedItems, ...itemsToAdd])
-        itemsToAdd.forEach((item) => {
-          const itemExists = items.find((i) => i.toLowerCase() === item.toLowerCase())
-          if (!itemExists) {
-            onNewItem?.(item)
-          }
-        })
-        resetInput()
-      }
+  // Handle input changes
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      openMenu(null)
+      setTextInput(e.target.value)
     },
-    [selectedItems, onSelectedItemsChanged, onNewItem, items, resetInput]
+    [openMenu]
   )
 
-  const inputPaste = useCallback(
-    (e: React.ClipboardEvent<HTMLInputElement>) => {
-      const pastedText = e.clipboardData?.getData('text') || ''
-      const pastedItems = [
-        ...new Set(
-          pastedText
-            .split(';')
-            .map((i) => i.trim())
-            .filter((i) => i)
-        )
-      ]
-      addPastedItems(pastedItems)
-      e.preventDefault()
-    },
-    [selectedItems, addPastedItems]
-  )
-
-  // Option click
   const addSelectedItem = useCallback(
     (itemValue: string) => {
       let newSelected: string[]
@@ -365,6 +163,249 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     }, 50)
   }, [isMenuOpen, textInput, submitForm, closeMenu])
 
+  const addPastedItems = useCallback(
+    (pastedItems: string[]) => {
+      const itemsToAdd = pastedItems
+        .filter((item) => !selectedItems.some((i) => i.toLowerCase() === item.toLowerCase()))
+        .map((item) => {
+          const itemExists = items.find((i) => i.toLowerCase() === item.toLowerCase())
+          return itemExists || item
+        })
+      if (itemsToAdd.length) {
+        onSelectedItemsChanged([...selectedItems, ...itemsToAdd])
+        itemsToAdd.forEach((item) => {
+          const itemExists = items.find((i) => i.toLowerCase() === item.toLowerCase())
+          if (!itemExists) {
+            onNewItem?.(item)
+          }
+        })
+        resetInput()
+      }
+    },
+    [selectedItems, onSelectedItemsChanged, onNewItem, items, resetInput]
+  )
+
+  const inputPaste = useCallback(
+    (e: React.ClipboardEvent<HTMLInputElement>) => {
+      const pastedText = e.clipboardData?.getData('text') || ''
+      const pastedItems = [
+        ...new Set(
+          pastedText
+            .split(';')
+            .map((i) => i.trim())
+            .filter((i) => i)
+        )
+      ]
+      addPastedItems(pastedItems)
+      e.preventDefault()
+    },
+    [selectedItems, addPastedItems]
+  )
+
+  const handleArrowDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      e.preventDefault()
+      const itemCount = dropdownItems.length
+      if (!isMenuOpen) {
+        openMenu(0)
+      } else {
+        setFocusIndex((prev) => {
+          if (prev === null || prev < 0) return 0
+          return prev < itemCount - 1 ? prev + 1 : prev
+        })
+      }
+    },
+    [dropdownItems, isMenuOpen, openMenu]
+  )
+
+  const handleArrowUp = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      e.preventDefault()
+      const itemCount = dropdownItems.length
+      if (!isMenuOpen) {
+        openMenu(itemCount - 1)
+      } else {
+        setFocusIndex((prev) => {
+          if (prev === null || prev < 0) return itemCount - 1
+          return prev > 0 ? prev - 1 : prev
+        })
+      }
+    },
+    [dropdownItems, isMenuOpen, openMenu]
+  )
+
+  const handleEnter = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      e.preventDefault()
+      const itemCount = dropdownItems.length
+      if (focusIndex !== null && focusIndex >= 0 && focusIndex < itemCount) {
+        handleDropdownItemClick(dropdownItems[focusIndex])
+      } else if (focusIndex !== null && focusIndex < 0) {
+        const pillIdx = selectedItems.length + focusIndex
+        if (pillIdx >= 0 && selectedItems[pillIdx]) {
+          if (showEdit) {
+            onEdit?.(selectedItems[pillIdx])
+          }
+        }
+      } else if (textInput) {
+        submitForm()
+      }
+    },
+    [dropdownItems, focusIndex, handleDropdownItemClick, onEdit, selectedItems, showEdit, submitForm, textInput]
+  )
+
+  const handleEscape = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      e.preventDefault()
+      closeMenu()
+    },
+    [closeMenu]
+  )
+
+  const handleHome = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      e.preventDefault()
+      openMenu(0)
+    },
+    [openMenu]
+  )
+
+  const handleEnd = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      e.preventDefault()
+      const itemCount = dropdownItems.length
+      openMenu(itemCount - 1)
+    },
+    [dropdownItems, openMenu]
+  )
+
+  const handleTab = useCallback(() => {
+    closeMenu()
+    inputRef.current?.blur()
+  }, [closeMenu])
+
+  const handleArrowLeft = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const pillCount = selectedItems.length
+      if (!textInput && pillCount > 0) {
+        e.preventDefault()
+        setFocusIndex((prev) => {
+          if (prev === null || prev >= 0) return -1
+          if (Math.abs(prev) < pillCount) return prev - 1
+          return prev
+        })
+      }
+    },
+    [selectedItems, textInput]
+  )
+
+  const handleArrowRight = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (!textInput && focusIndex !== null && focusIndex < 0) {
+        e.preventDefault()
+        setFocusIndex((prev) => {
+          if (prev === null) return null
+          if (prev < -1) return prev + 1
+          return null
+        })
+      }
+    },
+    [focusIndex, textInput]
+  )
+
+  const handlePillDeletion = useCallback(
+    (key: 'Backspace' | 'Delete') => {
+      if (focusIndex === null || focusIndex >= 0) {
+        if (key === 'Backspace' && !textInput && selectedItems.length > 0) {
+          removeItem(selectedItems[selectedItems.length - 1])
+        }
+        return
+      }
+
+      if (focusIndex !== null && focusIndex < 0) {
+        const pillIdx = selectedItems.length + focusIndex
+        if (pillIdx < 0) return
+
+        const pillToRemove = selectedItems[pillIdx]
+        if (key === 'Backspace') {
+          // Focus moves to the pill to the left, or to input if first pill is deleted
+          setFocusIndex((prev) => {
+            if (prev === null || prev === -selectedItems.length) return null
+            if (prev <= -1) return prev
+            return prev
+          })
+        } else {
+          // Focus remains on the current index, which is now the next pill
+          setFocusIndex((prev) => {
+            if (prev === null || prev === -1) return null
+            if (prev < -1) return prev + 1
+            return prev
+          })
+        }
+        removeItem(pillToRemove)
+      }
+    },
+    [focusIndex, removeItem, selectedItems, textInput]
+  )
+
+  const keydownHandlers: Record<string, (e: React.KeyboardEvent<HTMLInputElement>) => void> = useMemo(
+    () => ({
+      ArrowDown: handleArrowDown,
+      ArrowUp: handleArrowUp,
+      Enter: handleEnter,
+      Escape: handleEscape,
+      Home: handleHome,
+      End: handleEnd,
+      Tab: handleTab,
+      ArrowLeft: handleArrowLeft,
+      ArrowRight: handleArrowRight,
+      Backspace: () => handlePillDeletion('Backspace'),
+      Delete: () => handlePillDeletion('Delete')
+    }),
+    [handleArrowDown, handleArrowUp, handleEnter, handleEscape, handleHome, handleEnd, handleTab, handleArrowLeft, handleArrowRight, handlePillDeletion]
+  )
+
+  // Keyboard navigation for dropdown menu
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (disabled) return
+      if (keydownHandlers[e.key]) {
+        keydownHandlers[e.key](e)
+      }
+    },
+    [disabled, keydownHandlers]
+  )
+
+  // Search logic with debouncing
+  useEffect(() => {
+    // Only search if the input is focused
+    if (document.activeElement !== inputRef.current) return
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current)
+    }
+
+    // Set new timeout to wait for user to stop typing
+    const newTimeout = setTimeout(() => {
+      if (!textInput) {
+        setFilteredItems(null)
+      } else {
+        const results = items.filter((i) => String(i).toLowerCase().includes(textInput.toLowerCase()))
+        setFilteredItems(results || [])
+      }
+    }, 200)
+
+    typingTimeoutRef.current = newTimeout
+
+    // Cleanup function to clear timeout on unmount or dependency change
+    return () => {
+      if (newTimeout) {
+        clearTimeout(newTimeout)
+      }
+    }
+  }, [textInput, items, openMenu])
+
   // Clean up on unmount
   useEffect(() => {
     return () => {
@@ -373,12 +414,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         clearTimeout(typingTimeoutRef.current)
       }
     }
-  }, [])
-
-  // Handle input changes
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    openMenu(null)
-    setTextInput(e.target.value)
   }, [])
 
   // Compute the id of the currently focused descendant for aria-activedescendant
