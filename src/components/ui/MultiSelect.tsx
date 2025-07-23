@@ -472,7 +472,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           role="list"
           style={{ minHeight: 36 }}
           className={mergeClasses(
-            'flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-1',
+            'flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-1 focus-within:outline',
             disabled ? 'bg-black-300 text-gray-400 cursor-not-allowed' : 'bg-primary cursor-text'
           )}
           onClick={handleInputWrapperClick}
