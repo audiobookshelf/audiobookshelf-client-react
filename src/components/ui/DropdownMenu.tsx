@@ -1,7 +1,9 @@
 'use client'
 
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useMenuPosition } from '@/hooks/useMenuPosition'
 
 export interface DropdownMenuItem {
   text: string
@@ -23,6 +25,9 @@ interface DropdownMenuProps {
   menuMaxHeight?: string
   className?: string
   ref?: React.RefObject<HTMLUListElement | null>
+  usePortal?: boolean
+  triggerRef?: React.RefObject<HTMLElement>
+  onClose?: () => void
 }
 
 /**
@@ -42,10 +47,27 @@ export default function DropdownMenu({
   noItemsText = 'No items',
   menuMaxHeight = '224px',
   className,
-  ref: externalRef
+  ref: externalRef,
+  usePortal = false,
+  triggerRef,
+  onClose
 }: DropdownMenuProps) {
   const internalRef = useRef<HTMLUListElement>(null)
   const menuRef = externalRef || internalRef
+  const [menuPosition, setMenuPosition] = useState<{ top: string; left: string; width: string }>({
+    top: '0px',
+    left: '0px',
+    width: 'auto'
+  })
+  // Use the menu position hook when portal is enabled
+  useMenuPosition({
+    triggerRef: triggerRef as React.RefObject<HTMLElement>,
+    menuRef: menuRef as React.RefObject<HTMLElement>,
+    isOpen: showMenu && usePortal,
+    onPositionChange: setMenuPosition,
+    onClose,
+    disable: !usePortal || !triggerRef
+  })
 
   // Scroll focused item into view
   useEffect(() => {
@@ -97,31 +119,48 @@ export default function DropdownMenu({
     [items, focusedIndex, dropdownId, onItemClick, isItemSelected, showSelectedIndicator]
   )
 
-  return (
-    <>
-      {showMenu && (
-        <ul
-          ref={menuRef}
-          className={mergeClasses(
-            'absolute z-10 w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm',
-            className
-          )}
-          role="listbox"
-          id={`${dropdownId}-listbox`}
-          tabIndex={-1}
-          style={{ maxHeight: menuMaxHeight }}
-          aria-multiselectable={multiSelect}
-        >
-          {menuItems}
-          {showNoItemsMessage && !items.length && (
-            <li className="text-gray-100 select-none relative py-2 pr-9" role="option" cy-id="dropdown-menu-no-items">
-              <div className="flex items-center justify-center">
-                <span className="font-normal">{noItemsText}</span>
-              </div>
-            </li>
-          )}
-        </ul>
+  const menuContent = (
+    <ul
+      ref={menuRef}
+      className={mergeClasses(
+        'absolute z-10 w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm mt-0.5',
+        className
       )}
-    </>
+      role="listbox"
+      id={`${dropdownId}-listbox`}
+      tabIndex={-1}
+      style={{
+        maxHeight: menuMaxHeight,
+        ...(usePortal
+          ? {
+              position: 'absolute',
+              top: menuPosition.top,
+              left: menuPosition.left,
+              width: menuPosition.width,
+              zIndex: 9999
+            }
+          : {})
+      }}
+      aria-multiselectable={multiSelect}
+    >
+      {menuItems}
+      {showNoItemsMessage && !items.length && (
+        <li className="text-gray-100 select-none relative py-2 pr-9" role="option" cy-id="dropdown-menu-no-items">
+          <div className="flex items-center justify-center">
+            <span className="font-normal">{noItemsText}</span>
+          </div>
+        </li>
+      )}
+    </ul>
   )
+
+  if (!showMenu) {
+    return null
+  }
+
+  if (usePortal && typeof document !== 'undefined') {
+    return createPortal(menuContent, document.body)
+  }
+
+  return menuContent
 }
