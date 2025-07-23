@@ -59,6 +59,8 @@ export default function DropdownMenu({
     left: '0px',
     width: 'auto'
   })
+  const [isMouseOver, setIsMouseOver] = useState(false)
+
   // Use the menu position hook when portal is enabled
   useMenuPosition({
     triggerRef: triggerRef as React.RefObject<HTMLElement>,
@@ -82,12 +84,49 @@ export default function DropdownMenu({
     }
   }, [focusedIndex, showMenu, dropdownId, menuRef])
 
+  // Add global wheel event listener for quicker catching of mouse wheel events
+  useEffect(() => {
+    if (!showMenu || !isMouseOver) return
+
+    const handleGlobalWheel = (e: WheelEvent) => {
+      // Check if the mouse is over the dropdown menu
+      if (menuRef?.current && menuRef.current.contains(e.target as Node)) {
+        e.stopPropagation()
+        e.preventDefault()
+
+        // Manually scroll the dropdown
+        menuRef.current.scrollTop += e.deltaY
+      }
+    }
+
+    // Add the listener with capture: true to catch it early
+    document.addEventListener('wheel', handleGlobalWheel, { passive: false, capture: true })
+
+    return () => {
+      document.removeEventListener('wheel', handleGlobalWheel, { capture: true })
+    }
+  }, [showMenu, isMouseOver, menuRef])
+
   const handleItemClick = (e: React.MouseEvent, item: DropdownMenuItem) => {
     e.stopPropagation()
     onItemClick?.(item)
   }
 
   const handleItemMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+  }
+
+  const handleMouseEnter = () => {
+    setIsMouseOver(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsMouseOver(false)
+  }
+
+  const handleMenuMouseDown = (e: React.MouseEvent<HTMLUListElement>) => {
+    // Prevent input from losing focus when interacting with the menu
+    // This prevents blur-based menu closing when using scrollbars
     e.preventDefault()
   }
 
@@ -142,6 +181,9 @@ export default function DropdownMenu({
           : {})
       }}
       aria-multiselectable={multiSelect}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMenuMouseDown}
     >
       {menuItems}
       {showNoItemsMessage && !items.length && (
