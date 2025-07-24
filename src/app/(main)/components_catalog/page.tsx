@@ -15,6 +15,7 @@ import FileInput from '@/components/ui/FileInput'
 import LibraryIcon from '@/components/ui/LibraryIcon'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
 import MultiSelect from '@/components/ui/MultiSelect'
+import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import Modal from '@/components/modals/Modal'
 
@@ -53,6 +54,15 @@ export default function ComponentsCatalogPage() {
   // MultiSelect sample data
   const multiSelectItems = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew']
   const [multiSelectValue, setMultiSelectValue] = useState<string[]>(['Apple', 'Banana'])
+
+  const multiSelectDropdownItems = [
+    { text: 'Red', value: '#ff0000' },
+    { text: 'Green', value: '#00ff00' },
+    { text: 'Blue', value: '#0000ff' },
+    { text: 'Yellow', value: '#ffff00' },
+    { text: 'Purple', value: '#800080' }
+  ]
+  const [multiSelectDropdownSelectedItems, setMultiSelectDropdownSelectedItems] = useState<string[]>(['#ff0000', '#0000ff'])
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -466,6 +476,33 @@ export default function ComponentsCatalogPage() {
               onSelectedItemsChanged={setMultiSelectValue}
               items={multiSelectItems}
               label="Select Fruits"
+              disabled
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* MultiSelectDropdown Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">MultiSelectDropdown Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default MultiSelectDropdown</h3>
+            <MultiSelectDropdown
+              selectedItems={multiSelectDropdownSelectedItems}
+              onSelectedItemsChanged={setMultiSelectDropdownSelectedItems}
+              items={multiSelectDropdownItems}
+              label="Select Colors"
+              onRemovedItem={(item) => showToast(`Removed: ${item}`, { type: 'info', title: 'Item Removed' })}
+            />
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled MultiSelectDropdown</h3>
+            <MultiSelectDropdown
+              selectedItems={multiSelectDropdownSelectedItems}
+              onSelectedItemsChanged={setMultiSelectDropdownSelectedItems}
+              items={multiSelectDropdownItems}
+              label="Select Colors"
               disabled
             />
           </div>
@@ -1033,6 +1070,10 @@ export default function ComponentsCatalogPage() {
               new item creation
             </li>
             <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">MultiSelectDropdown.tsx</code> - A multi-select component that uses a dropdown menu instead of a
+              text input.
+            </li>
+            <li>
               <code className="bg-gray-700 px-2 py-1 rounded">Toast.tsx</code> - Toast notification component with auto-dismiss, animations, and multiple types
             </li>
             <li>
@@ -1180,6 +1221,17 @@ export default function ComponentsCatalogPage() {
                 <code className="bg-gray-700 px-2 py-1 rounded">label</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">editable</code>, <code className="bg-gray-700 px-2 py-1 rounded">showAllWhenEmpty</code>,{' '}
                 <code className="bg-gray-700 px-2 py-1 rounded">onNewItem</code>, <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">MultiSelectDropdown Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">value</code>, <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">items</code> (MultiSelectItem[]), <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>
               </p>
             </div>
             <div>
