@@ -1,15 +1,16 @@
 import React from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { MultiSelectItem } from './MultiSelect'
 
 interface PillProps {
-  item: string
+  item: MultiSelectItem
   id: string
   isFocused: boolean
   disabled: boolean
   showEdit: boolean
   onClick: (e: React.MouseEvent<HTMLDivElement>) => void
   onEdit?: (item: string) => void
-  onRemove: (item: string) => void
+  onRemove: (item: MultiSelectItem) => void
 }
 
 export const Pill: React.FC<PillProps> = ({ item, id, isFocused, disabled, showEdit, onClick, onEdit, onRemove }) => {
@@ -39,7 +40,7 @@ export const Pill: React.FC<PillProps> = ({ item, id, isFocused, disabled, showE
               onMouseDown={(e) => e.preventDefault()}
               onClick={(e) => {
                 e.preventDefault()
-                onEdit?.(item)
+                onEdit?.(item.value)
               }}
               tabIndex={-1}
             >
@@ -62,7 +63,7 @@ export const Pill: React.FC<PillProps> = ({ item, id, isFocused, disabled, showE
           </button>
         </div>
       )}
-      {item}
+      {item.text}
     </div>
   )
 }

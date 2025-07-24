@@ -4,9 +4,14 @@ import type { DropdownMenuItem } from './DropdownMenu'
 import { mergeClasses } from '@/lib/merge-classes'
 import Pill from './Pill'
 
-interface MultiSelectProps {
+export interface MultiSelectItem {
+  value: string
+  text: string
+}
+
+export interface MultiSelectProps {
   selectedItems: string[]
-  items: string[]
+  items: (string | MultiSelectItem)[]
   label?: string
   disabled?: boolean
   showEdit?: boolean
@@ -15,6 +20,8 @@ interface MultiSelectProps {
   onEdit?: (item: string) => void
   onRemovedItem?: (item: string) => void
   onNewItem?: (item: string) => void
+  showInput?: boolean
+  allowNew?: boolean
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -27,14 +34,18 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   onSelectedItemsChanged,
   onEdit,
   onRemovedItem,
-  onNewItem
+  onNewItem,
+  showInput = true,
+  allowNew = true
 }) => {
   const [textInput, setTextInput] = useState<string | null>(null)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [filteredItems, setFilteredItems] = useState<string[] | null>(null)
+  const [filteredItems, setFilteredItems] = useState<MultiSelectItem[] | null>(null)
   // focusIndex: null = none, >=0 = dropdown item, <0 = pill (e.g. -1 = last pill)
   const [focusIndex, setFocusIndex] = useState<number | null>(null)
   const identifier = useId()
+
+  const allItems = useMemo(() => items.map((i) => (typeof i === 'string' ? { value: i, text: i } : i)), [items])
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputWrapperRef = useRef<HTMLDivElement>(null)
@@ -45,13 +56,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   const showMenu = isMenuOpen && !menuDisabled
 
   const itemsToShow = useMemo(() => {
-    return !textInput || !filteredItems ? items : filteredItems
-  }, [textInput, filteredItems, items])
+    return !textInput || !filteredItems ? allItems : filteredItems
+  }, [textInput, filteredItems, allItems])
 
   const dropdownItems: DropdownMenuItem[] = useMemo(() => {
-    return itemsToShow.map((item, idx) => ({
-      text: String(item),
-      value: item
+    return itemsToShow.map((item) => ({
+      text: item.text,
+      value: item.value
     }))
   }, [itemsToShow])
 
@@ -113,10 +124,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   // Remove item
   const removeItem = useCallback(
-    (item: string) => {
-      const remaining = selectedItems.filter((i) => i !== item)
+    (itemValue: string) => {
+      const remaining = selectedItems.filter((i) => i !== itemValue)
       onSelectedItemsChanged(remaining)
-      onRemovedItem?.(item)
+      onRemovedItem?.(itemValue)
     },
     [selectedItems, onSelectedItemsChanged, onRemovedItem]
   )
@@ -124,12 +135,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   // Insert new item
   const insertNewItem = useCallback(
     (item: string) => {
+      if (!allowNew) return
       const newSelected = [...selectedItems, item]
       onSelectedItemsChanged(newSelected)
       onNewItem?.(item)
       resetInput()
     },
-    [selectedItems, onSelectedItemsChanged, onNewItem, resetInput]
+    [selectedItems, onSelectedItemsChanged, onNewItem, resetInput, allowNew]
   )
 
   // Submit form
@@ -139,15 +151,15 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     if (!cleaned) {
       resetInput()
     } else {
-      const matchedItem = items.find((i) => i === cleaned)
+      const matchedItem = allItems.find((i) => i.text === cleaned)
       if (matchedItem) {
-        addSelectedItem(matchedItem)
+        addSelectedItem(matchedItem.value)
       } else {
         insertNewItem(cleaned)
       }
     }
     if (inputRef.current) inputRef.current.style.width = '24px'
-  }, [textInput, items, addSelectedItem, insertNewItem, resetInput])
+  }, [textInput, allItems, addSelectedItem, insertNewItem, resetInput])
 
   // Focus/blur logic
   const inputFocus = useCallback(() => {
@@ -168,13 +180,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       const itemsToAdd = pastedItems
         .filter((item) => !selectedItems.some((i) => i.toLowerCase() === item.toLowerCase()))
         .map((item) => {
-          const itemExists = items.find((i) => i.toLowerCase() === item.toLowerCase())
-          return itemExists || item
+          const itemExists = allItems.find((i) => i.text.toLowerCase() === item.toLowerCase())
+          return itemExists ? itemExists.value : item
         })
       if (itemsToAdd.length) {
         onSelectedItemsChanged([...selectedItems, ...itemsToAdd])
         itemsToAdd.forEach((item) => {
-          const itemExists = items.find((i) => i.toLowerCase() === item.toLowerCase())
+          const itemExists = allItems.find((i) => i.text.toLowerCase() === item.toLowerCase())
           if (!itemExists) {
             onNewItem?.(item)
           }
@@ -182,7 +194,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         resetInput()
       }
     },
-    [selectedItems, onSelectedItemsChanged, onNewItem, items, resetInput]
+    [selectedItems, onSelectedItemsChanged, onNewItem, allItems, resetInput]
   )
 
   const inputPaste = useCallback(
@@ -391,7 +403,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       if (!textInput) {
         setFilteredItems(null)
       } else {
-        const results = items.filter((i) => String(i).toLowerCase().includes(textInput.toLowerCase()))
+        const results = allItems.filter((i) => i.text.toLowerCase().includes(textInput.toLowerCase()))
         setFilteredItems(results || [])
       }
     }, 200)
@@ -404,7 +416,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         clearTimeout(newTimeout)
       }
     }
-  }, [textInput, items, openMenu])
+  }, [textInput, allItems])
 
   // Clean up on unmount
   useEffect(() => {
@@ -449,10 +461,23 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     [focusPill]
   )
 
+  const selectedItemsWithText = useMemo(() => {
+    return selectedItems.map((itemValue) => {
+      const foundItem = allItems.find((i) => i.value === itemValue)
+      if (foundItem) {
+        return { value: itemValue, text: foundItem.text }
+      }
+      return { value: itemValue, text: itemValue }
+    })
+  }, [selectedItems, allItems])
+
   // Handler for input wrapper click
   const handleInputWrapperClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!disabled) {
+      if (disabled) return
+      if (document.activeElement === inputRef.current) {
+        setIsMenuOpen((prev) => !prev)
+      } else {
         inputRef.current?.focus()
       }
     },
@@ -478,9 +503,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           onClick={handleInputWrapperClick}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {selectedItems.map((item, idx) => (
+          {selectedItemsWithText.map((item, idx) => (
             <Pill
-              key={item}
+              key={item.value}
               id={`${identifier}-pill-${idx}`}
               item={item}
               isFocused={focusIndex === idx - selectedItems.length}
@@ -488,31 +513,30 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               showEdit={showEdit}
               onClick={(e) => handlePillClick(e, idx)}
               onEdit={onEdit}
-              onRemove={removeItem}
+              onRemove={() => removeItem(item.value)}
             />
           ))}
-          {!disabled && (
-            <input
-              value={textInput ?? ''}
-              ref={inputRef}
-              id={identifier}
-              disabled={disabled}
-              className="bg-transparent border-none outline-none px-1 flex-1 min-w-6 text-sm"
-              autoComplete="off"
-              onKeyDown={handleKeyDown}
-              onFocus={inputFocus}
-              onBlur={inputBlur}
-              onPaste={inputPaste}
-              onChange={handleInputChange}
-              role="combobox"
-              aria-autocomplete="list"
-              aria-expanded={showMenu}
-              aria-controls={`${identifier}-listbox`}
-              aria-haspopup="listbox"
-              aria-disabled={disabled}
-              aria-activedescendant={activeDescendantId}
-            />
-          )}
+          <input
+            value={textInput ?? ''}
+            ref={inputRef}
+            id={identifier}
+            disabled={disabled}
+            className={mergeClasses('bg-transparent border-none outline-none px-1 flex-1 min-w-6 text-sm', !showInput && 'sr-only')}
+            autoComplete="off"
+            onKeyDown={handleKeyDown}
+            onFocus={inputFocus}
+            onBlur={inputBlur}
+            onPaste={inputPaste}
+            onChange={handleInputChange}
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={showMenu}
+            aria-controls={`${identifier}-listbox`}
+            aria-haspopup="listbox"
+            aria-disabled={disabled}
+            aria-activedescendant={activeDescendantId}
+            readOnly={!showInput}
+          />
         </div>
         <DropdownMenu
           showMenu={showMenu}
