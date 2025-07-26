@@ -266,7 +266,7 @@ export default function InputDropdown({
           showSelectedIndicator={true}
           noItemsText="No items"
           menuMaxHeight="224px"
-          className="mt-0 z-50"
+          className="z-50"
           showNoItemsMessage={true}
           ref={menuRef}
         />

@@ -267,7 +267,6 @@ export default function Dropdown({
         dropdownId={dropdownId}
         onItemClick={(item) => handleOptionClick(item.value)}
         menuMaxHeight={menuMaxHeight}
-        className="-mt-px"
         showNoItemsMessage={false}
         ref={menuRef}
       />
