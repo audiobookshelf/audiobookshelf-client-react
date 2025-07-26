@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
@@ -14,10 +14,11 @@ import InputDropdown from '@/components/ui/InputDropdown'
 import FileInput from '@/components/ui/FileInput'
 import LibraryIcon from '@/components/ui/LibraryIcon'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
-import MultiSelect from '@/components/ui/MultiSelect'
+import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import Modal from '@/components/modals/Modal'
+import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
 
 export default function ComponentsCatalogPage() {
   const { showToast } = useGlobalToast()
@@ -53,7 +54,7 @@ export default function ComponentsCatalogPage() {
 
   // MultiSelect sample data
   const multiSelectItems = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew']
-  const [multiSelectValue, setMultiSelectValue] = useState<string[]>(['Apple', 'Banana'])
+  const [multiSelectValue, setMultiSelectValue] = useState<(string | MultiSelectItem)[]>(['Apple', 'Banana'])
 
   const multiSelectDropdownItems = [
     { text: 'Red', value: '#ff0000' },
@@ -62,7 +63,7 @@ export default function ComponentsCatalogPage() {
     { text: 'Yellow', value: '#ffff00' },
     { text: 'Purple', value: '#800080' }
   ]
-  const [multiSelectDropdownSelectedItems, setMultiSelectDropdownSelectedItems] = useState<string[]>(['#ff0000', '#0000ff'])
+  const [multiSelectDropdownSelectedItems, setMultiSelectDropdownSelectedItems] = useState<(string | MultiSelectItem)[]>(['#ff0000', '#0000ff'])
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -73,7 +74,7 @@ export default function ComponentsCatalogPage() {
   const [isPersistentModalOpen, setIsPersistentModalOpen] = useState(false)
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [modalMultiSelectValue, setModalMultiSelectValue] = useState<string[]>(['Cherry', 'Date'])
+  const [modalMultiSelectValue, setModalMultiSelectValue] = useState<(string | MultiSelectItem)[]>(['Cherry', 'Date'])
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -451,7 +452,7 @@ export default function ComponentsCatalogPage() {
               items={multiSelectItems}
               label="Select Fruits"
               onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
-              onRemovedItem={(item) => showToast(`Removed: ${item}`, { type: 'info', title: 'Item Removed' })}
+              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
             />
           </div>
 
@@ -463,9 +464,9 @@ export default function ComponentsCatalogPage() {
               items={multiSelectItems}
               label="Select Fruits"
               onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
-              onRemovedItem={(item) => showToast(`Removed: ${item}`, { type: 'info', title: 'Item Removed' })}
+              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
               showEdit
-              onEdit={(item) => showToast(`Edited: ${item}`, { type: 'info', title: 'Item Edited' })}
+              onEdit={(item) => showToast(`Edited: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Edited' })}
             />
           </div>
 
@@ -493,7 +494,7 @@ export default function ComponentsCatalogPage() {
               onSelectedItemsChanged={setMultiSelectDropdownSelectedItems}
               items={multiSelectDropdownItems}
               label="Select Colors"
-              onRemovedItem={(item) => showToast(`Removed: ${item}`, { type: 'info', title: 'Item Removed' })}
+              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
             />
           </div>
           <div className="bg-gray-800 p-6 rounded-lg">
@@ -707,13 +708,14 @@ export default function ComponentsCatalogPage() {
                     items={multiSelectItems}
                     label="Item Tags"
                     onNewItem={(item) => showToast(`New tag created: ${item}`, { type: 'success', title: 'Tag Created' })}
-                    onRemovedItem={(item) => showToast(`Removed tag: ${item}`, { type: 'info', title: 'Tag Removed' })}
+                    onRemovedItem={(item) => showToast(`Removed tag: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Tag Removed' })}
                     showEdit
-                    onEdit={(item) => showToast(`Edited tag: ${item}`, { type: 'info', title: 'Tag Edited' })}
+                    onEdit={(item) => showToast(`Edited tag: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Tag Edited' })}
                   />
 
                   <div className="text-xs text-gray-400 mt-2">
-                    Current selection: {modalMultiSelectValue.length > 0 ? modalMultiSelectValue.join(', ') : 'None'}
+                    Current selection:{' '}
+                    {modalMultiSelectValue.length > 0 ? modalMultiSelectValue.map((i) => (typeof i === 'string' ? i : i.text)).join(', ') : 'None'}
                   </div>
                 </div>
 
