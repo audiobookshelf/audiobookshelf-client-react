@@ -18,7 +18,6 @@ import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import Modal from '@/components/modals/Modal'
-import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
 
 export default function ComponentsCatalogPage() {
   const { showToast } = useGlobalToast()
