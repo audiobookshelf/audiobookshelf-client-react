@@ -140,9 +140,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   const isDuplicate = useCallback(
     (itemValue: string) => {
       const isDupe = selectedItemValues.some((v) => v.toLowerCase() === itemValue.toLowerCase())
-      if (isDupe) {
-        showToast(`Item ${itemValue} has already been selected.`, { type: 'warning', title: 'Item already selected' })
-      }
       return isDupe
     },
     [selectedItemValues, showToast]
@@ -151,6 +148,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   const addSelectedItem = useCallback(
     (itemValue: string) => {
       if (isDuplicate(itemValue)) {
+        removeItem(itemValue)
         resetInput()
         return
       }
