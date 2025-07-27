@@ -2,8 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
 export default function LoginForm() {
+  const t = useTranslations()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -47,11 +49,11 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-bg border border-gray-600 rounded-lg shadow-lg p-10 w-full max-w-md">
-      <h2 className="text-2xl font-bold text-center mb-6 text-postcss">Login</h2>
+      <h2 className="text-2xl font-bold text-center mb-6 text-postcss">{t('LabelLogin')}</h2>
 
       <div className="flex flex-col gap-2 mb-4">
         <label htmlFor="username" className="text-gray-300 text-sm font-semibold">
-          USERNAME
+          {t('LabelUsername')}
         </label>
         <input
           id="username"
@@ -65,7 +67,7 @@ export default function LoginForm() {
       </div>
       <div className="flex flex-col gap-2 mb-4">
         <label htmlFor="password" className="text-gray-300 text-sm font-semibold">
-          PASSWORD
+          {t('LabelPassword')}
         </label>
         <input
           id="password"
@@ -83,7 +85,7 @@ export default function LoginForm() {
           disabled={loading}
           className="bg-primary border border-gray-600 rounded px-8 py-2 text-white font-semibold hover:bg-gray-700 transition disabled:opacity-50"
         >
-          {loading ? 'Logging in...' : 'Submit'}
+          {loading ? 'Logging in...' : t('LabelSubmit')}
         </button>
       </div>
     </form>

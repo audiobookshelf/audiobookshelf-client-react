@@ -11,13 +11,11 @@ export default function BlankLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body>
-        <div className="w-full h-16 bg-primary flex items-center justify-start px-4">
-          <p className="text-white text-2xl font-bold">audiobookshelf</p>
-        </div>
-        <div>{children}</div>
-      </body>
-    </html>
+    <>
+      <div className="w-full h-16 bg-primary flex items-center justify-start px-4">
+        <p className="text-white text-2xl font-bold">audiobookshelf</p>
+      </div>
+      <div>{children}</div>
+    </>
   )
 }
