@@ -622,6 +622,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           noItemsText="No items"
           menuMaxHeight="224px"
           className="z-60"
+          triggerRef={inputWrapperRef as React.RefObject<HTMLElement>}
         />
       </div>
     </div>
