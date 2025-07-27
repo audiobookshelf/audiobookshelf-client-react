@@ -1,11 +1,23 @@
 'use client'
 
-import React, { createContext, useContext } from 'react'
+import React, { createContext, useContext, RefObject } from 'react'
 
-const ModalContext = createContext(false)
+interface ModalContextType {
+  modalRef: RefObject<HTMLDivElement> | null
+}
 
-export const useIsInsideModal = () => useContext(ModalContext)
+const ModalContext = createContext<ModalContextType>({
+  modalRef: null
+})
 
-export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <ModalContext.Provider value={true}>{children}</ModalContext.Provider>
+export const useModalRef = () => {
+  const context = useContext(ModalContext)
+  return context.modalRef
+}
+
+export const ModalProvider: React.FC<{
+  children: React.ReactNode
+  modalRef: RefObject<HTMLDivElement>
+}> = ({ children, modalRef }) => {
+  return <ModalContext.Provider value={{ modalRef }}>{children}</ModalContext.Provider>
 }

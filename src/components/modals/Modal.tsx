@@ -137,7 +137,7 @@ export default function Modal({
         onMouseUp={mouseupModal}
         cy-id="modal-content"
       >
-        <ModalProvider>{children}</ModalProvider>
+        <ModalProvider modalRef={wrapperRef as React.RefObject<HTMLDivElement>}>{children}</ModalProvider>
 
         {/* Processing overlay */}
         {processing && (
