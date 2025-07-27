@@ -33,30 +33,28 @@ export default async function LibraryLayout({
   const libraries = librariesResponse.data?.libraries || []
 
   return (
-    <html lang="en">
-      <body>
-        <ToastProvider>
-          <div className="w-full h-16 bg-primary flex items-center justify-start px-4 gap-4">
-            <Link href={'/'} title="Home" className="text-sm text-foreground hover:text-foreground/80">
-              <h1 className="text-2xl font-bold">audiobookshelf</h1>
+    <>
+      <ToastProvider>
+        <div className="w-full h-16 bg-primary flex items-center justify-start px-4 gap-4">
+          <Link href={'/'} title="Home" className="text-sm text-foreground hover:text-foreground/80">
+            <h1 className="text-2xl font-bold">audiobookshelf</h1>
+          </Link>
+          <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />
+          <div className="flex-grow" />
+          <div className="flex items-center gap-4">
+            <Link href="/components_catalog" title="Components Catalog" className="text-sm text-foreground hover:text-foreground/80">
+              <span className="material-symbols text-xl">widgets</span>
             </Link>
-            <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />
-            <div className="flex-grow" />
-            <div className="flex items-center gap-4">
-              <Link href="/components_catalog" title="Components Catalog" className="text-sm text-foreground hover:text-foreground/80">
-                <span className="material-symbols text-xl">widgets</span>
-              </Link>
-              <p className="text-sm text-foreground">Logged in as {user.username}</p>
-              <Link href="/settings" title="Settings" className="text-sm text-foreground hover:text-foreground/80">
-                <span className="material-symbols text-xl">settings</span>
-              </Link>
-              <LogoutButton />
-            </div>
+            <p className="text-sm text-foreground">Logged in as {user.username}</p>
+            <Link href="/settings" title="Settings" className="text-sm text-foreground hover:text-foreground/80">
+              <span className="material-symbols text-xl">settings</span>
+            </Link>
+            <LogoutButton />
           </div>
-          <div>{children}</div>
-          <GlobalToastContainer />
-        </ToastProvider>
-      </body>
-    </html>
+        </div>
+        <div>{children}</div>
+        <GlobalToastContainer />
+      </ToastProvider>
+    </>
   )
 }

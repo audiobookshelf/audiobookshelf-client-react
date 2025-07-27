@@ -2,8 +2,10 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 export default function LogoutButton() {
+  const t = useTranslations()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
 
@@ -33,7 +35,7 @@ export default function LogoutButton() {
       onClick={handleLogout}
       disabled={loading}
     >
-      {loading ? 'Logging out...' : 'Logout'}
+      {loading ? 'Logging out...' : t('LabelLogout')}
     </button>
   )
 }
