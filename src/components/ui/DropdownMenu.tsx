@@ -1,7 +1,10 @@
 'use client'
 
-import { useRef, useMemo, useEffect } from 'react'
+import { useRef, useMemo, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useMenuPosition } from '@/hooks/useMenuPosition'
+import { useModalRef } from '@/contexts/ModalContext'
 
 export interface DropdownMenuItem {
   text: string
@@ -12,6 +15,7 @@ export interface DropdownMenuItem {
 interface DropdownMenuProps {
   showMenu: boolean
   items: DropdownMenuItem[]
+  multiSelect?: boolean
   focusedIndex: number
   dropdownId: string
   onItemClick?: (item: DropdownMenuItem) => void
@@ -22,6 +26,9 @@ interface DropdownMenuProps {
   menuMaxHeight?: string
   className?: string
   ref?: React.RefObject<HTMLUListElement | null>
+  usePortal?: boolean
+  triggerRef?: React.RefObject<HTMLElement>
+  onClose?: () => void
 }
 
 /**
@@ -31,6 +38,7 @@ interface DropdownMenuProps {
 export default function DropdownMenu({
   showMenu,
   items,
+  multiSelect = false,
   focusedIndex,
   dropdownId,
   onItemClick,
@@ -40,10 +48,36 @@ export default function DropdownMenu({
   noItemsText = 'No items',
   menuMaxHeight = '224px',
   className,
-  ref: externalRef
+  ref: externalRef,
+  usePortal: usePortalProp = false,
+  triggerRef,
+  onClose
 }: DropdownMenuProps) {
+  const modalRef = useModalRef()
+  const portalContainerRef = modalRef || undefined
   const internalRef = useRef<HTMLUListElement>(null)
   const menuRef = externalRef || internalRef
+  const [menuPosition, setMenuPosition] = useState<{ top: string; left: string; width: string }>({
+    top: '0px',
+    left: '0px',
+    width: 'auto'
+  })
+  const [isMouseOver, setIsMouseOver] = useState(false)
+
+  // Use portal if it is explicitly enabled or if the modalRef is not null
+  // For the portal to work, triggerRef must be provided
+  const usePortal: boolean = (usePortalProp || modalRef !== null) && triggerRef !== undefined
+
+  // Use the menu position hook when portal is enabled
+  useMenuPosition({
+    triggerRef: triggerRef as React.RefObject<HTMLElement>,
+    menuRef: menuRef as React.RefObject<HTMLElement>,
+    isOpen: showMenu,
+    onPositionChange: setMenuPosition,
+    onClose,
+    disable: !usePortal,
+    portalContainerRef
+  })
 
   // Scroll focused item into view
   useEffect(() => {
@@ -58,12 +92,49 @@ export default function DropdownMenu({
     }
   }, [focusedIndex, showMenu, dropdownId, menuRef])
 
+  // Add global wheel event listener for quicker catching of mouse wheel events
+  useEffect(() => {
+    if (!showMenu || !isMouseOver) return
+
+    const handleGlobalWheel = (e: WheelEvent) => {
+      // Check if the mouse is over the dropdown menu
+      if (menuRef?.current && menuRef.current.contains(e.target as Node)) {
+        e.stopPropagation()
+        e.preventDefault()
+
+        // Manually scroll the dropdown
+        menuRef.current.scrollTop += e.deltaY
+      }
+    }
+
+    // Add the listener with capture: true to catch it early
+    document.addEventListener('wheel', handleGlobalWheel, { passive: false, capture: true })
+
+    return () => {
+      document.removeEventListener('wheel', handleGlobalWheel, { capture: true })
+    }
+  }, [showMenu, isMouseOver, menuRef])
+
   const handleItemClick = (e: React.MouseEvent, item: DropdownMenuItem) => {
     e.stopPropagation()
     onItemClick?.(item)
   }
 
   const handleItemMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+  }
+
+  const handleMouseEnter = () => {
+    setIsMouseOver(true)
+  }
+
+  const handleMouseLeave = () => {
+    setIsMouseOver(false)
+  }
+
+  const handleMenuMouseDown = (e: React.MouseEvent<HTMLUListElement>) => {
+    // Prevent input from losing focus when interacting with the menu
+    // This prevents blur-based menu closing when using scrollbars
     e.preventDefault()
   }
 
@@ -95,30 +166,52 @@ export default function DropdownMenu({
     [items, focusedIndex, dropdownId, onItemClick, isItemSelected, showSelectedIndicator]
   )
 
-  return (
-    <>
-      {showMenu && (
-        <ul
-          ref={menuRef}
-          className={mergeClasses(
-            'absolute z-10 w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm',
-            className
-          )}
-          role="listbox"
-          id={`${dropdownId}-listbox`}
-          tabIndex={-1}
-          style={{ maxHeight: menuMaxHeight }}
-        >
-          {menuItems}
-          {showNoItemsMessage && !items.length && (
-            <li className="text-gray-100 select-none relative py-2 pr-9" role="option" cy-id="dropdown-menu-no-items">
-              <div className="flex items-center justify-center">
-                <span className="font-normal">{noItemsText}</span>
-              </div>
-            </li>
-          )}
-        </ul>
+  const menuContent = (
+    <ul
+      ref={menuRef}
+      className={mergeClasses(
+        'absolute z-10 w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm mt-0.5',
+        className
       )}
-    </>
+      role="listbox"
+      id={`${dropdownId}-listbox`}
+      tabIndex={-1}
+      style={{
+        maxHeight: menuMaxHeight,
+        ...(usePortal
+          ? {
+              position: 'absolute',
+              top: menuPosition.top,
+              left: menuPosition.left,
+              width: menuPosition.width,
+              zIndex: 9999
+            }
+          : {})
+      }}
+      aria-multiselectable={multiSelect}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      onMouseDown={handleMenuMouseDown}
+    >
+      {menuItems}
+      {showNoItemsMessage && !items.length && (
+        <li className="text-gray-100 select-none relative py-2 pr-9" role="option" cy-id="dropdown-menu-no-items">
+          <div className="flex items-center justify-center">
+            <span className="font-normal">{noItemsText}</span>
+          </div>
+        </li>
+      )}
+    </ul>
   )
+
+  if (!showMenu) {
+    return null
+  }
+
+  if (usePortal && typeof document !== 'undefined') {
+    const portalTarget = portalContainerRef?.current || document.body
+    return createPortal(menuContent, portalTarget)
+  }
+
+  return menuContent
 }

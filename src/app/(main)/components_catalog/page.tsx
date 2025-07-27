@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
@@ -14,7 +14,10 @@ import InputDropdown from '@/components/ui/InputDropdown'
 import FileInput from '@/components/ui/FileInput'
 import LibraryIcon from '@/components/ui/LibraryIcon'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
+import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
+import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import Modal from '@/components/modals/Modal'
 
 export default function ComponentsCatalogPage() {
   const { showToast } = useGlobalToast()
@@ -48,6 +51,30 @@ export default function ComponentsCatalogPage() {
   const [inputDropdownValue2, setInputDropdownValue2] = useState('')
   const [inputDropdownValue3, setInputDropdownValue3] = useState('')
 
+  // MultiSelect sample data
+  const multiSelectItems = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew']
+  const [multiSelectValue, setMultiSelectValue] = useState<(string | MultiSelectItem)[]>(['Apple', 'Banana'])
+
+  const multiSelectDropdownItems = [
+    { text: 'Red', value: '#ff0000' },
+    { text: 'Green', value: '#00ff00' },
+    { text: 'Blue', value: '#0000ff' },
+    { text: 'Yellow', value: '#ffff00' },
+    { text: 'Purple', value: '#800080' }
+  ]
+  const [multiSelectDropdownSelectedItems, setMultiSelectDropdownSelectedItems] = useState<(string | MultiSelectItem)[]>(['#ff0000', '#0000ff'])
+
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isBasicModalOpen, setIsBasicModalOpen] = useState(false)
+  const [isOuterContentModalOpen, setIsOuterContentModalOpen] = useState(false)
+  const [isResponsiveModalOpen, setIsResponsiveModalOpen] = useState(false)
+  const [isProcessingModalOpen, setIsProcessingModalOpen] = useState(false)
+  const [isPersistentModalOpen, setIsPersistentModalOpen] = useState(false)
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [modalMultiSelectValue, setModalMultiSelectValue] = useState<(string | MultiSelectItem)[]>(['Cherry', 'Date'])
+
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
     setDropdownValue(String(value))
@@ -76,6 +103,16 @@ export default function ComponentsCatalogPage() {
 
   const handleInputDropdownNewItem = (value: string) => {
     showToast(`New item created: ${value}`, { type: 'success', title: 'Item Created' })
+  }
+
+  // Helper function to simulate processing
+  const handleProcessingDemo = () => {
+    setIsProcessing(true)
+    setTimeout(() => {
+      setIsProcessing(false)
+      setIsProcessingModalOpen(false)
+      showToast('Processing completed!', { type: 'success', title: 'Success' })
+    }, 3000)
   }
 
   // ContextMenuDropdown sample data
@@ -398,6 +435,300 @@ export default function ComponentsCatalogPage() {
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Input Dropdown without Label</h3>
             <InputDropdown value={inputDropdownValue} onChange={handleInputDropdownChange} items={inputDropdownItems} />
+          </div>
+        </div>
+      </section>
+
+      {/* MultiSelect Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">MultiSelect Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default MultiSelect</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onSelectedItemsChanged={setMultiSelectValue}
+              items={multiSelectItems}
+              label="Select Fruits"
+              onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
+              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
+            />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">MultiSelect with Edit</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onSelectedItemsChanged={setMultiSelectValue}
+              items={multiSelectItems}
+              label="Select Fruits"
+              onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
+              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
+              showEdit
+              onEdit={(item) => showToast(`Edited: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Edited' })}
+            />
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled MultiSelect</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onSelectedItemsChanged={setMultiSelectValue}
+              items={multiSelectItems}
+              label="Select Fruits"
+              disabled
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* MultiSelectDropdown Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">MultiSelectDropdown Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default MultiSelectDropdown</h3>
+            <MultiSelectDropdown
+              selectedItems={multiSelectDropdownSelectedItems}
+              onSelectedItemsChanged={setMultiSelectDropdownSelectedItems}
+              items={multiSelectDropdownItems}
+              label="Select Colors"
+              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
+            />
+          </div>
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Disabled MultiSelectDropdown</h3>
+            <MultiSelectDropdown
+              selectedItems={multiSelectDropdownSelectedItems}
+              onSelectedItemsChanged={setMultiSelectDropdownSelectedItems}
+              items={multiSelectDropdownItems}
+              label="Select Colors"
+              disabled
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Modal Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Modal Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Basic Modal</h3>
+            <p className="text-gray-400 text-sm mb-4">A simple modal with default settings and close functionality.</p>
+            <Btn onClick={() => setIsBasicModalOpen(true)}>Open Basic Modal</Btn>
+
+            <Modal isOpen={isBasicModalOpen} onClose={() => setIsBasicModalOpen(false)}>
+              <div className="bg-gray-800 rounded-lg p-6 max-w-md">
+                <h3 className="text-xl font-semibold text-white mb-4">Basic Modal Example</h3>
+                <p className="text-gray-300 mb-6">
+                  This is a basic modal dialog. You can close it by clicking the close button, pressing Escape, or clicking outside the modal content.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <Btn onClick={() => setIsBasicModalOpen(false)} color="bg-gray-600">
+                    Close
+                  </Btn>
+                </div>
+              </div>
+            </Modal>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Processing Modal</h3>
+            <p className="text-gray-400 text-sm mb-4">A modal with a processing overlay that prevents interaction during operations.</p>
+            <Btn onClick={() => setIsProcessingModalOpen(true)}>Open Processing Modal</Btn>
+
+            <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} width={500} height={300}>
+              <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+                <h3 className="text-xl font-semibold text-white mb-4">Processing Example</h3>
+                <p className="text-gray-300 mb-6 flex-1">
+                  Click the "Start Processing" button to see the processing overlay in action. The modal will be disabled during processing.
+                </p>
+                <div className="flex justify-end gap-3">
+                  <Btn onClick={() => setIsProcessingModalOpen(false)} color="bg-gray-600">
+                    Cancel
+                  </Btn>
+                  <Btn onClick={handleProcessingDemo} color="bg-blue-600" disabled={isProcessing}>
+                    {isProcessing ? 'Processing...' : 'Start Processing'}
+                  </Btn>
+                </div>
+              </div>
+            </Modal>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Persistent Modal</h3>
+            <p className="text-gray-400 text-sm mb-4">A modal that cannot be closed by clicking outside or pressing Escape.</p>
+            <Btn onClick={() => setIsPersistentModalOpen(true)}>Open Persistent Modal</Btn>
+
+            <Modal
+              isOpen={isPersistentModalOpen}
+              onClose={() => setIsPersistentModalOpen(false)}
+              persistent={true}
+              width={450}
+              height={250}
+              bgOpacityClass="bg-primary/90"
+            >
+              <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+                <h3 className="text-xl font-semibold text-white mb-4">Persistent Modal</h3>
+                <p className="text-gray-300 mb-6 flex-1">
+                  This modal is persistent - you can only close it by clicking the "Close" button. Background clicks and Escape key are disabled.
+                </p>
+                <div className="flex justify-center">
+                  <Btn onClick={() => setIsPersistentModalOpen(false)} color="bg-red-600">
+                    Close Modal
+                  </Btn>
+                </div>
+              </div>
+            </Modal>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Custom Styled Modal</h3>
+            <p className="text-gray-400 text-sm mb-4">A modal with custom dimensions and Tailwind z-index/opacity classes.</p>
+            <Btn onClick={() => setIsCustomModalOpen(true)}>Open Custom Modal</Btn>
+
+            <Modal
+              isOpen={isCustomModalOpen}
+              onClose={() => setIsCustomModalOpen(false)}
+              width={800}
+              height={600}
+              zIndexClass="z-[100]"
+              bgOpacityClass="bg-primary/50"
+              contentMarginTop={20}
+            >
+              <div className="bg-gradient-to-br from-blue-900 to-purple-900 rounded-lg p-8 h-full flex flex-col">
+                <h3 className="text-2xl font-bold text-white mb-6">Custom Styled Modal</h3>
+                <div className="flex-1 space-y-4">
+                  <p className="text-blue-100">This modal demonstrates custom styling options:</p>
+                  <ul className="list-disc list-inside text-blue-100 space-y-2">
+                    <li>Custom width (800px) and height (600px)</li>
+                    <li>Higher z-index (z-[100]) using Tailwind classes</li>
+                    <li>Lower background opacity (bg-primary/50) using Tailwind classes</li>
+                    <li>Custom margin top (20px)</li>
+                    <li>Gradient background styling</li>
+                  </ul>
+                  <div className="bg-blue-800/30 rounded p-4 mt-4">
+                    <h4 className="text-lg font-semibold text-white mb-2">Modal Features</h4>
+                    <p className="text-blue-100 text-sm">
+                      The Modal component supports focus management, keyboard navigation, smooth animations, and portal rendering for proper z-index handling.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-6 border-t border-blue-700">
+                  <Btn onClick={() => setIsCustomModalOpen(false)} color="bg-blue-600">
+                    Close Custom Modal
+                  </Btn>
+                </div>
+              </div>
+            </Modal>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Modal with Outer Content</h3>
+            <p className="text-gray-400 text-sm mb-4">A modal that can display content outside the main modal area.</p>
+            <Btn onClick={() => setIsOuterContentModalOpen(true)}>Open with Outer Content</Btn>
+
+            <Modal
+              isOpen={isOuterContentModalOpen}
+              onClose={() => setIsOuterContentModalOpen(false)}
+              width={400}
+              height={300}
+              outerContent={<div className="absolute top-10 left-10 bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold">Outer Content!</div>}
+            >
+              <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+                <h3 className="text-xl font-semibold text-white mb-4">Modal with Outer Content</h3>
+                <p className="text-gray-300 mb-6 flex-1">
+                  This modal has additional content rendered outside the main modal container. Check the yellow badge in the top-left corner.
+                </p>
+                <div className="flex justify-end">
+                  <Btn onClick={() => setIsOuterContentModalOpen(false)} color="bg-gray-600">
+                    Close
+                  </Btn>
+                </div>
+              </div>
+            </Modal>
+          </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Responsive Modal</h3>
+            <p className="text-gray-400 text-sm mb-4">A modal that adapts to different screen sizes using string dimensions.</p>
+            <Btn onClick={() => setIsResponsiveModalOpen(true)}>Open Responsive Modal</Btn>
+
+            <Modal isOpen={isResponsiveModalOpen} onClose={() => setIsResponsiveModalOpen(false)} width="90vw" height="80vh">
+              <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+                <h3 className="text-xl font-semibold text-white mb-4">Responsive Modal</h3>
+                <div className="flex-1 space-y-4">
+                  <p className="text-gray-300">This modal uses viewport units for its dimensions:</p>
+                  <ul className="list-disc list-inside text-gray-300 space-y-2">
+                    <li>Width: 90vw (90% of viewport width)</li>
+                    <li>Height: 80vh (80% of viewport height)</li>
+                    <li>Automatically adapts to screen size</li>
+                    <li>Perfect for mobile devices</li>
+                  </ul>
+                  <div className="bg-gray-700 rounded p-4">
+                    <p className="text-sm text-gray-300">Try resizing your browser window to see how the modal adapts to different screen sizes.</p>
+                  </div>
+                </div>
+                <div className="flex justify-end pt-4 border-t border-gray-600">
+                  <Btn onClick={() => setIsResponsiveModalOpen(false)} color="bg-gray-600">
+                    Close
+                  </Btn>
+                </div>
+              </div>
+            </Modal>
+          </div>
+        </div>
+      </section>
+
+      {/* MultiSelect in Modal */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Advanced Modal Examples</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">MultiSelect within Modal Dialog</h3>
+            <p className="text-gray-400 text-sm mb-4">This example shows how MultiSelect works inside a modal dialog.</p>
+            <Btn onClick={() => setIsModalOpen(true)}>Open Modal with MultiSelect</Btn>
+
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} width={600}>
+              <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between mb-6 border-b border-gray-600 pb-4">
+                  <h3 className="text-xl font-semibold text-white">Edit Tags</h3>
+                </div>
+
+                {/* Content */}
+                <div className="space-y-4 flex-1">
+                  <p className="text-gray-300 text-sm">Select or add tags for this item.</p>
+
+                  <MultiSelect
+                    selectedItems={modalMultiSelectValue}
+                    onSelectedItemsChanged={setModalMultiSelectValue}
+                    items={multiSelectItems}
+                    label="Item Tags"
+                    onNewItem={(item) => showToast(`New tag created: ${item}`, { type: 'success', title: 'Tag Created' })}
+                    onRemovedItem={(item) => showToast(`Removed tag: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Tag Removed' })}
+                    showEdit
+                    onEdit={(item) => showToast(`Edited tag: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Tag Edited' })}
+                  />
+
+                  <div className="text-xs text-gray-400 mt-2">
+                    Current selection:{' '}
+                    {modalMultiSelectValue.length > 0 ? modalMultiSelectValue.map((i) => (typeof i === 'string' ? i : i.text)).join(', ') : 'None'}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-600">
+                  <Btn onClick={() => setIsModalOpen(false)} color="bg-gray-600">
+                    Cancel
+                  </Btn>
+                  <Btn onClick={() => setIsModalOpen(false)} color="bg-blue-600">
+                    Save Changes
+                  </Btn>
+                </div>
+              </div>
+            </Modal>
           </div>
         </div>
       </section>
@@ -740,10 +1071,18 @@ export default function ComponentsCatalogPage() {
               new item creation
             </li>
             <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">MultiSelectDropdown.tsx</code> - A multi-select component that uses a dropdown menu instead of a
+              text input.
+            </li>
+            <li>
               <code className="bg-gray-700 px-2 py-1 rounded">Toast.tsx</code> - Toast notification component with auto-dismiss, animations, and multiple types
             </li>
             <li>
               <code className="bg-gray-700 px-2 py-1 rounded">ToastContainer.tsx</code> - Container component for managing multiple toast notifications
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">Modal.tsx</code> - Full-featured modal dialog component with portal rendering, animations, focus
+              management, and customizable styling
             </li>
           </ul>
         </div>
@@ -886,6 +1225,17 @@ export default function ComponentsCatalogPage() {
               </p>
             </div>
             <div>
+              <h4 className="font-medium text-white mb-2">MultiSelectDropdown Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">value</code>, <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">items</code> (MultiSelectItem[]), <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>
+              </p>
+            </div>
+            <div>
               <h4 className="font-medium text-white mb-2">Toast Component</h4>
               <p className="mb-2">
                 Import: <code className="bg-gray-700 px-2 py-1 rounded">import Toast from '@/components/widgets/Toast'</code>
@@ -926,6 +1276,24 @@ export default function ComponentsCatalogPage() {
               </p>
               <p className="mb-2 text-sm text-gray-400">
                 Note: Global toast is automatically available in all pages. No need to include ToastContainer manually.
+              </p>
+            </div>
+            <div>
+              <h4 className="font-medium text-white mb-2">Modal Component</h4>
+              <p className="mb-2">
+                Import: <code className="bg-gray-700 px-2 py-1 rounded">import Modal from '@/components/modals/Modal'</code>
+              </p>
+              <p className="mb-2">
+                Props: <code className="bg-gray-700 px-2 py-1 rounded">isOpen</code>, <code className="bg-gray-700 px-2 py-1 rounded">onClose</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">children</code>, <code className="bg-gray-700 px-2 py-1 rounded">processing</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">persistent</code>, <code className="bg-gray-700 px-2 py-1 rounded">width</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">height</code>, <code className="bg-gray-700 px-2 py-1 rounded">zIndexClass</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">bgOpacityClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">contentMarginTop</code>,{' '}
+                <code className="bg-gray-700 px-2 py-1 rounded">outerContent</code>
+              </p>
+              <p className="mb-2 text-sm text-gray-400">
+                Features: portal rendering, smooth animations, focus management, keyboard navigation (Escape), backdrop click to close, processing overlay,
+                persistent mode, customizable dimensions and styling
               </p>
             </div>
           </div>

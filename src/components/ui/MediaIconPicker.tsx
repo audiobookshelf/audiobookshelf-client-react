@@ -214,7 +214,7 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
           id={listboxId}
           role="listbox"
           aria-label={`${label} options`}
-          className={`absolute z-10 -mt-px bg-primary border border-black-200 shadow-lg max-h-56 w-48 rounded-md py-1 overflow-auto focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
+          className={`absolute z-10 mt-0.5 bg-primary border border-black-200 shadow-lg max-h-56 w-48 rounded-md py-1 overflow-auto focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
           onKeyDown={handleKeyDown}
         >
           <div className="flex justify-center items-center flex-wrap">
