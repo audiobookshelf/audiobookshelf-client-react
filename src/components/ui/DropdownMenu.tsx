@@ -4,6 +4,7 @@ import { useRef, useMemo, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useMenuPosition } from '@/hooks/useMenuPosition'
+import { useModalRef } from '@/contexts/ModalContext'
 
 export interface DropdownMenuItem {
   text: string
@@ -48,10 +49,12 @@ export default function DropdownMenu({
   menuMaxHeight = '224px',
   className,
   ref: externalRef,
-  usePortal = false,
+  usePortal: usePortalProp = false,
   triggerRef,
   onClose
 }: DropdownMenuProps) {
+  const modalRef = useModalRef()
+  const portalContainerRef = modalRef || undefined
   const internalRef = useRef<HTMLUListElement>(null)
   const menuRef = externalRef || internalRef
   const [menuPosition, setMenuPosition] = useState<{ top: string; left: string; width: string }>({
@@ -61,14 +64,19 @@ export default function DropdownMenu({
   })
   const [isMouseOver, setIsMouseOver] = useState(false)
 
+  // Use portal if it is explicitly enabled or if the modalRef is not null
+  // For the portal to work, triggerRef must be provided
+  const usePortal: boolean = (usePortalProp || modalRef !== null) && triggerRef !== undefined
+
   // Use the menu position hook when portal is enabled
   useMenuPosition({
     triggerRef: triggerRef as React.RefObject<HTMLElement>,
     menuRef: menuRef as React.RefObject<HTMLElement>,
-    isOpen: showMenu && usePortal,
+    isOpen: showMenu,
     onPositionChange: setMenuPosition,
     onClose,
-    disable: !usePortal || !triggerRef
+    disable: !usePortal,
+    portalContainerRef
   })
 
   // Scroll focused item into view
@@ -201,7 +209,8 @@ export default function DropdownMenu({
   }
 
   if (usePortal && typeof document !== 'undefined') {
-    return createPortal(menuContent, document.body)
+    const portalTarget = portalContainerRef?.current || document.body
+    return createPortal(menuContent, portalTarget)
   }
 
   return menuContent
