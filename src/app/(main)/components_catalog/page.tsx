@@ -18,7 +18,6 @@ import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import Modal from '@/components/modals/Modal'
-import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
 
 export default function ComponentsCatalogPage() {
   const { showToast } = useGlobalToast()
@@ -596,16 +595,6 @@ export default function ComponentsCatalogPage() {
               items={multiSelectItems}
               label="Select Fruits"
               disabled
-            />
-          </div>
-
-          <div className="bg-gray-800 p-6 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">Two-Stage MultiSelect</h3>
-            <TwoStageMultiSelect
-              selectedItems={seriesSelectedItems}
-              onSelectedItemsChanged={setSeriesSelectedItems}
-              items={seriesItems}
-              label="Select Series"
             />
           </div>
         </div>
