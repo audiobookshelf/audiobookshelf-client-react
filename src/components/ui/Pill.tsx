@@ -273,11 +273,7 @@ export const Pill: React.FC<PillProps> = ({
       }}
     >
       {!disabled && (
-        <div
-          className={mergeClasses(
-            'absolute top-0 -right-1 -translate-y-1/2 flex flex-row-reverse items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20'
-          )}
-        >
+        <div className="absolute top-0 -right-1 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
           {showEditButton && (
             <button
               type="button"
