@@ -260,7 +260,7 @@ export const Pill: React.FC<PillProps> = ({
       cy-id={id}
       role="listitem"
       className={mergeClasses(
-        'rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
+        'group rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
         !disabled && isFocused ? 'ring z-10' : ''
       )}
       style={{ minWidth: showEditButton ? 44 : 22 }}
@@ -274,14 +274,15 @@ export const Pill: React.FC<PillProps> = ({
     >
       {!disabled && (
         <div
-          className={mergeClasses('w-full h-full rounded-full absolute top-0 left-0 px-1 bg-bg/75 flex items-center justify-end opacity-0 hover:opacity-100')}
+          className={mergeClasses(
+            'absolute top-0 -right-1 -translate-y-1/2 flex flex-row-reverse items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20'
+          )}
         >
           {showEditButton && (
             <button
               type="button"
               aria-label="Edit"
-              className="material-symbols text-white hover:text-warning cursor-pointer"
-              style={{ fontSize: '1.1rem' }}
+              className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-white hover:text-warning cursor-pointer"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleEditButtonClick}
               tabIndex={-1}
@@ -292,8 +293,7 @@ export const Pill: React.FC<PillProps> = ({
           <button
             type="button"
             aria-label="Remove"
-            className="material-symbols text-white hover:text-error focus:text-error cursor-pointer"
-            style={{ fontSize: '1.1rem' }}
+            className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-white hover:text-error focus:text-error cursor-pointer"
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => {
               e.stopPropagation()
@@ -305,7 +305,7 @@ export const Pill: React.FC<PillProps> = ({
           </button>
         </div>
       )}
-      {item}
+      <span className="relative group-hover:opacity-75 transition-opacity duration-300">{item}</span>
     </div>
   )
 }
