@@ -12,16 +12,15 @@ export interface MultiSelectItem {
 
 export interface MultiSelectProps {
   value?: string
-  selectedItems: (string | MultiSelectItem)[]
-  items: (string | MultiSelectItem)[]
+  selectedItems: MultiSelectItem[]
+  items: MultiSelectItem[]
   label?: string
   disabled?: boolean
   showEdit?: boolean
   menuDisabled?: boolean
-  onSelectedItemsChanged: (val: (string | MultiSelectItem)[]) => void
-  onEdit?: (item: string | MultiSelectItem) => void
-  onRemovedItem?: (item: string | MultiSelectItem) => void
-  onNewItem?: (item: string) => void
+  onItemEdited?: (item: MultiSelectItem, index: number) => void
+  onItemAdded?: (item: MultiSelectItem) => void
+  onItemRemoved?: (item: MultiSelectItem) => void
   showInput?: boolean
   allowNew?: boolean
   onInputChange?: (value: string) => void
@@ -35,10 +34,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   disabled = false,
   showEdit = false,
   menuDisabled = false,
-  onSelectedItemsChanged,
-  onEdit,
-  onRemovedItem,
-  onNewItem,
+  onItemEdited,
+  onItemAdded,
+  onItemRemoved,
   showInput = true,
   allowNew = true,
   onInputChange
@@ -49,12 +47,11 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   const [filteredItems, setFilteredItems] = useState<MultiSelectItem[] | null>(null)
   // focusIndex: null = none, >=0 = dropdown item, <0 = pill (e.g. -1 = last pill)
   const [focusIndex, setFocusIndex] = useState<number | null>(null)
+  const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
   const identifier = useId()
   const { showToast } = useGlobalToast()
 
-  const allItems = useMemo(() => items.map((i) => (typeof i === 'string' ? { value: i, text: i } : i)), [items])
-
-  const selectedItemValues = useMemo(() => selectedItems.map((i) => (typeof i === 'string' ? i : i.value)), [selectedItems])
+  const selectedItemValues = useMemo(() => selectedItems.map((i) => i.value), [selectedItems])
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputWrapperRef = useRef<HTMLDivElement>(null)
@@ -93,8 +90,8 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   }, [textInput])
 
   const itemsToShow = useMemo(() => {
-    return !textInput || !filteredItems ? allItems : filteredItems
-  }, [textInput, filteredItems, allItems])
+    return !textInput || !filteredItems ? items : filteredItems
+  }, [textInput, filteredItems, items])
 
   const dropdownItems: DropdownMenuItem[] = useMemo(() => {
     return itemsToShow.map((item) => ({
@@ -138,11 +135,11 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   )
 
   const isDuplicate = useCallback(
-    (itemValue: string) => {
-      const isDupe = selectedItemValues.some((v) => v.toLowerCase() === itemValue.toLowerCase())
+    (itemValue: string, excludeIndex?: number) => {
+      const isDupe = selectedItemValues.some((v, idx) => idx !== excludeIndex && v.toLowerCase() === itemValue.toLowerCase())
       return isDupe
     },
-    [selectedItemValues, showToast]
+    [selectedItemValues]
   )
 
   const addSelectedItem = useCallback(
@@ -153,14 +150,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         return
       }
 
-      const itemToAdd = allItems.find((i) => i.value === itemValue)
+      const itemToAdd = items.find((i) => i.value === itemValue)
       if (!itemToAdd) return
 
-      const newSelected = selectedItems.concat([itemToAdd])
+      onItemAdded?.(itemToAdd)
       resetInput()
-      onSelectedItemsChanged(newSelected)
     },
-    [isDuplicate, allItems, selectedItems, onSelectedItemsChanged, resetInput]
+    [isDuplicate, items, onItemAdded, resetInput]
   )
 
   // Handle dropdown menu item click
@@ -182,12 +178,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   // Remove item
   const removeItem = useCallback(
     (itemValue: string) => {
-      const itemToRemove = selectedItems.find((i) => (typeof i === 'string' ? i : i.value) === itemValue)
-      const remaining = selectedItems.filter((i) => (typeof i === 'string' ? i : i.value) !== itemValue)
-      onSelectedItemsChanged(remaining)
-      if (itemToRemove) onRemovedItem?.(itemToRemove)
+      const itemToRemove = selectedItems.find((i) => i.value === itemValue)
+      if (itemToRemove) {
+        onItemRemoved?.(itemToRemove)
+      }
     },
-    [selectedItems, onSelectedItemsChanged, onRemovedItem]
+    [selectedItems, onItemRemoved]
   )
 
   // Insert new item
@@ -198,12 +194,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         resetInput()
         return
       }
-      const newSelected = [...selectedItems, item]
-      onSelectedItemsChanged(newSelected)
-      onNewItem?.(item)
+      // Mark new items with empty value
+      const newItem = { value: '', text: item }
+      onItemAdded?.(newItem)
       resetInput()
     },
-    [selectedItems, onSelectedItemsChanged, onNewItem, resetInput, allowNew, isDuplicate]
+    [onItemAdded, resetInput, allowNew, isDuplicate]
   )
 
   // Submit form
@@ -213,53 +209,52 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     if (!cleaned) {
       resetInput()
     } else {
-      const matchedItem = allItems.find((i) => i.text.toLowerCase() === cleaned.toLowerCase())
+      const matchedItem = items.find((i) => i.text.toLowerCase() === cleaned.toLowerCase())
       if (matchedItem) {
         addSelectedItem(matchedItem.value)
       } else {
         insertNewItem(cleaned)
       }
     }
-  }, [textInput, allItems, addSelectedItem, insertNewItem, resetInput])
+  }, [textInput, items, addSelectedItem, insertNewItem, resetInput])
 
   // Focus/blur logic
   const inputFocus = useCallback(() => {
     openMenu(null)
   }, [openMenu])
 
-  const inputBlur = useCallback(() => {
-    if (!isMenuOpen) return
-    setTimeout(() => {
-      if (document.activeElement === inputRef.current) return
-      closeMenu()
-      if (textInput) submitForm()
-    }, 50)
-  }, [isMenuOpen, textInput, submitForm, closeMenu])
+  const inputBlur = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      if (!isMenuOpen) return
+      setTimeout(() => {
+        if (document.activeElement === inputRef.current) return
+        closeMenu()
+        if (textInput) submitForm()
+      }, 50)
+    },
+    [isMenuOpen, textInput, submitForm, closeMenu]
+  )
 
   const addPastedItems = useCallback(
     (pastedItems: string[]) => {
       const itemsToAddValues = pastedItems
         .filter((item) => !isDuplicate(item))
         .map((item) => {
-          const itemExists = allItems.find((i) => i.text.toLowerCase() === item.toLowerCase())
+          const itemExists = items.find((i) => i.text.toLowerCase() === item.toLowerCase())
           return itemExists ? itemExists.value : item
         })
       if (itemsToAddValues.length) {
         const newItems = itemsToAddValues.map((value) => {
-          const foundItem = allItems.find((i) => i.value === value)
-          return foundItem || value
+          const foundItem = items.find((i) => i.value === value)
+          return foundItem || { value: '', text: value }
         })
-        onSelectedItemsChanged([...selectedItems, ...newItems])
-        itemsToAddValues.forEach((item) => {
-          const itemExists = allItems.find((i) => i.text.toLowerCase() === item.toLowerCase())
-          if (!itemExists) {
-            onNewItem?.(item)
-          }
+        newItems.forEach((item) => {
+          onItemAdded?.(item)
         })
         resetInput()
       }
     },
-    [selectedItemValues, onSelectedItemsChanged, onNewItem, allItems, resetInput, selectedItems, isDuplicate]
+    [selectedItemValues, onItemAdded, items, resetInput, isDuplicate]
   )
 
   const inputPaste = useCallback(
@@ -321,15 +316,14 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         const pillIdx = selectedItemValues.length + focusIndex
         if (pillIdx >= 0 && selectedItemValues[pillIdx]) {
           if (showEdit) {
-            const itemToEdit = selectedItems[pillIdx]
-            onEdit?.(itemToEdit)
+            setEditingPillIndex(pillIdx)
           }
         }
       } else if (textInput) {
         submitForm()
       }
     },
-    [dropdownItems, focusIndex, handleDropdownItemClick, onEdit, selectedItems, selectedItemValues, showEdit, submitForm, textInput]
+    [dropdownItems, focusIndex, handleDropdownItemClick, selectedItemValues, showEdit, submitForm, textInput]
   )
 
   const handleEscape = useCallback(
@@ -469,7 +463,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       if (!textInput) {
         setFilteredItems(null)
       } else {
-        const results = allItems.filter((i) => i.text.toLowerCase().includes(textInput.toLowerCase()))
+        const results = items.filter((i) => i.text.toLowerCase().includes(textInput.toLowerCase()))
         setFilteredItems(results || [])
       }
     }, 200)
@@ -482,7 +476,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         clearTimeout(newTimeout)
       }
     }
-  }, [textInput, allItems])
+  }, [textInput, items])
 
   // Clean up on unmount
   useEffect(() => {
@@ -518,25 +512,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     [disabled, selectedItemValues]
   )
 
-  const handlePillClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>, idx: number) => {
-      e.stopPropagation()
-      e.preventDefault()
-      focusPill(idx)
-    },
-    [focusPill]
-  )
-
-  const selectedItemsWithText = useMemo(() => {
-    return selectedItems.map((item) => {
-      if (typeof item === 'string') {
-        const foundItem = allItems.find((i) => i.value === item)
-        return { value: item, text: foundItem ? foundItem.text : item }
-      }
-      return { value: item.value, text: item.text }
-    })
-  }, [selectedItems, allItems])
-
   // Handler for input wrapper click
   const handleInputWrapperClick = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
@@ -569,17 +544,37 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
           onClick={handleInputWrapperClick}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {selectedItemsWithText.map((item, idx) => (
+          {selectedItems.map((item, idx) => (
             <Pill
               key={item.value}
               id={`${identifier}-pill-${idx}`}
-              item={item}
+              item={item.text}
               isFocused={focusIndex === idx - selectedItemValues.length}
+              isEditing={editingPillIndex === idx}
               disabled={disabled}
-              showEdit={showEdit}
-              onClick={(e) => handlePillClick(e, idx)}
-              onEdit={onEdit}
+              showEditButton={showEdit}
+              onClick={() => focusPill(idx)}
+              onEditButtonClick={() => setEditingPillIndex(idx)}
+              onEdit={(newText) => {
+                // Find the item being edited and update it
+                const itemToUpdate = selectedItems[idx]
+                if (itemToUpdate && newText !== itemToUpdate.text) {
+                  const isDupe = isDuplicate(newText, idx)
+                  if (isDupe) {
+                    showToast(`"${newText}" is already selected`, { type: 'warning', title: 'Duplicate item' })
+                    return
+                  }
+                  const updatedItem = { ...itemToUpdate, text: newText }
+                  onItemEdited?.(updatedItem, idx)
+                }
+              }}
               onRemove={() => removeItem(item.value)}
+              onEditDone={(shouldRefocus = false) => {
+                setEditingPillIndex(null)
+                if (shouldRefocus) {
+                  inputRef.current?.focus()
+                }
+              }}
             />
           ))}
           <span ref={sizerRef} className="absolute invisible whitespace-pre px-1 text-sm">

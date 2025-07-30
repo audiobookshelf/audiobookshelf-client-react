@@ -52,8 +52,20 @@ export default function ComponentsCatalogPage() {
   const [inputDropdownValue3, setInputDropdownValue3] = useState('')
 
   // MultiSelect sample data
-  const multiSelectItems = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew']
-  const [multiSelectValue, setMultiSelectValue] = useState<(string | MultiSelectItem)[]>(['Apple', 'Banana'])
+  const multiSelectItems: MultiSelectItem[] = [
+    { text: 'Apple', value: 'apple' },
+    { text: 'Banana', value: 'banana' },
+    { text: 'Cherry', value: 'cherry' },
+    { text: 'Date', value: 'date' },
+    { text: 'Elderberry', value: 'elderberry' },
+    { text: 'Fig', value: 'fig' },
+    { text: 'Grape', value: 'grape' },
+    { text: 'Honeydew', value: 'honeydew' }
+  ]
+  const [multiSelectValue, setMultiSelectValue] = useState<MultiSelectItem[]>([
+    { text: 'Apple', value: 'apple' },
+    { text: 'Banana', value: 'banana' }
+  ])
 
   const multiSelectDropdownItems = [
     { text: 'Red', value: '#ff0000' },
@@ -62,7 +74,10 @@ export default function ComponentsCatalogPage() {
     { text: 'Yellow', value: '#ffff00' },
     { text: 'Purple', value: '#800080' }
   ]
-  const [multiSelectDropdownSelectedItems, setMultiSelectDropdownSelectedItems] = useState<(string | MultiSelectItem)[]>(['#ff0000', '#0000ff'])
+  const [multiSelectDropdownSelectedItems, setMultiSelectDropdownSelectedItems] = useState<MultiSelectItem[]>([
+    { text: 'Red', value: '#ff0000' },
+    { text: 'Blue', value: '#0000ff' }
+  ])
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -73,7 +88,97 @@ export default function ComponentsCatalogPage() {
   const [isPersistentModalOpen, setIsPersistentModalOpen] = useState(false)
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
-  const [modalMultiSelectValue, setModalMultiSelectValue] = useState<(string | MultiSelectItem)[]>(['Cherry', 'Date'])
+  const [modalMultiSelectValue, setModalMultiSelectValue] = useState<MultiSelectItem[]>([
+    { text: 'Cherry', value: 'cherry' },
+    { text: 'Date', value: 'date' }
+  ])
+
+  // MultiSelect handlers
+  const handleMultiSelectItemAdded = (item: MultiSelectItem) => {
+    if (!item.value) {
+      // New item
+      if (multiSelectValue.find((i) => i.text === item.text)) {
+        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
+        return
+      }
+      item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
+      showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
+    }
+    const newItems = [...multiSelectValue, item]
+    setMultiSelectValue(newItems)
+  }
+
+  const handleMultiSelectItemRemoved = (item: MultiSelectItem) => {
+    const newItems = multiSelectValue.filter((i) => i.value !== item.value)
+    setMultiSelectValue(newItems)
+    showToast(`Removed: ${item.text}`, { type: 'info', title: 'Item Removed' })
+  }
+
+  const handleMultiSelectItemEdited = (item: MultiSelectItem, index: number) => {
+    if (multiSelectValue.find((i) => i.text.toLowerCase() === item.text.toLowerCase())) {
+      showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
+      return
+    }
+    item.value = multiSelectItems.find((i) => i.text.toLowerCase() === item.text.toLowerCase())?.value || 'new-' + item.text.toLowerCase().replace(/ /g, '-')
+    const newItems = [...multiSelectValue]
+    newItems[index] = item
+    setMultiSelectValue(newItems)
+    showToast(`Edited: ${item.value}, ${item.text}`, { type: 'info', title: 'Item Edited' })
+  }
+
+  const handleModalMultiSelectItemAdded = (item: MultiSelectItem) => {
+    if (!item.value) {
+      // New item
+      if (!modalMultiSelectValue.find((i) => i.text === item.text)) {
+        item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
+        showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
+      } else {
+        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
+        return
+      }
+    }
+    const newItems = [...modalMultiSelectValue, item]
+    setModalMultiSelectValue(newItems)
+  }
+
+  const handleModalMultiSelectItemRemoved = (item: MultiSelectItem) => {
+    const newItems = modalMultiSelectValue.filter((i) => i.value !== item.value)
+    setModalMultiSelectValue(newItems)
+    showToast(`Removed tag: ${item.text}`, { type: 'info', title: 'Tag Removed' })
+  }
+
+  const handleModalMultiSelectItemEdited = (item: MultiSelectItem, index: number) => {
+    if (modalMultiSelectValue.find((i) => i.text.toLowerCase() === item.text.toLowerCase())) {
+      showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
+      return
+    }
+    item.value = multiSelectItems.find((i) => i.text.toLowerCase() === item.text.toLowerCase())?.value || 'new-' + item.text.toLowerCase().replace(/ /g, '-')
+    const newItems = [...modalMultiSelectValue]
+    newItems[index] = item
+    setModalMultiSelectValue(newItems)
+    showToast(`Edited tag: ${item.value}, ${item.text}`, { type: 'info', title: 'Tag Edited' })
+  }
+
+  const handleMultiSelectDropdownItemAdded = (item: MultiSelectItem) => {
+    if (!item.value) {
+      // New item
+      if (!multiSelectDropdownSelectedItems.find((i) => i.text === item.text)) {
+        item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
+        showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
+      } else {
+        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
+        return
+      }
+    }
+    const newItems = [...multiSelectDropdownSelectedItems, item]
+    setMultiSelectDropdownSelectedItems(newItems)
+  }
+
+  const handleMultiSelectDropdownItemRemoved = (item: MultiSelectItem) => {
+    const newItems = multiSelectDropdownSelectedItems.filter((i) => i.value !== item.value)
+    setMultiSelectDropdownSelectedItems(newItems)
+    showToast(`Removed: ${item.text}`, { type: 'info', title: 'Item Removed' })
+  }
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -157,6 +262,20 @@ export default function ComponentsCatalogPage() {
     { text: 'Delete Item', action: 'delete' },
     { text: 'Empty', action: 'empty', subitems: [] }
   ]
+
+  const seriesItems: MultiSelectItem[] = [
+    { text: 'Lord of the Rings', value: '1' },
+    { text: 'Foundation', value: '2' },
+    { text: 'The Hitchhikers Guide to the Galaxy', value: '3' },
+    { text: 'The Chronicles of Narnia', value: '4' },
+    { text: 'Harry Potter', value: '5' },
+    { text: 'The Hunger Games', value: '6' },
+    { text: 'A very very very very very very very very very very very very long series name', value: '7' }
+  ]
+  const [seriesSelectedItems, setSeriesSelectedItems] = useState<MultiSelectItem[]>([
+    { value: '1', text: 'Lord of the Rings#1' },
+    { value: '3', text: 'The Hitchhikers Guide to the Galaxy#2' }
+  ])
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
@@ -447,11 +566,10 @@ export default function ComponentsCatalogPage() {
             <h3 className="text-lg font-medium mb-4">Default MultiSelect</h3>
             <MultiSelect
               selectedItems={multiSelectValue}
-              onSelectedItemsChanged={setMultiSelectValue}
+              onItemAdded={handleMultiSelectItemAdded}
+              onItemRemoved={handleMultiSelectItemRemoved}
               items={multiSelectItems}
               label="Select Fruits"
-              onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
-              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
             />
           </div>
 
@@ -459,13 +577,12 @@ export default function ComponentsCatalogPage() {
             <h3 className="text-lg font-medium mb-4">MultiSelect with Edit</h3>
             <MultiSelect
               selectedItems={multiSelectValue}
-              onSelectedItemsChanged={setMultiSelectValue}
+              onItemAdded={handleMultiSelectItemAdded}
+              onItemRemoved={handleMultiSelectItemRemoved}
+              onItemEdited={handleMultiSelectItemEdited}
               items={multiSelectItems}
               label="Select Fruits"
-              onNewItem={(item) => showToast(`New item created: ${item}`, { type: 'success', title: 'Item Created' })}
-              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
               showEdit
-              onEdit={(item) => showToast(`Edited: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Edited' })}
             />
           </div>
 
@@ -473,7 +590,8 @@ export default function ComponentsCatalogPage() {
             <h3 className="text-lg font-medium mb-4">Disabled MultiSelect</h3>
             <MultiSelect
               selectedItems={multiSelectValue}
-              onSelectedItemsChanged={setMultiSelectValue}
+              onItemAdded={handleMultiSelectItemAdded}
+              onItemRemoved={handleMultiSelectItemRemoved}
               items={multiSelectItems}
               label="Select Fruits"
               disabled
@@ -490,17 +608,18 @@ export default function ComponentsCatalogPage() {
             <h3 className="text-lg font-medium mb-4">Default MultiSelectDropdown</h3>
             <MultiSelectDropdown
               selectedItems={multiSelectDropdownSelectedItems}
-              onSelectedItemsChanged={setMultiSelectDropdownSelectedItems}
+              onItemAdded={handleMultiSelectDropdownItemAdded}
+              onItemRemoved={handleMultiSelectDropdownItemRemoved}
               items={multiSelectDropdownItems}
               label="Select Colors"
-              onRemovedItem={(item) => showToast(`Removed: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Item Removed' })}
             />
           </div>
           <div className="bg-gray-800 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">Disabled MultiSelectDropdown</h3>
             <MultiSelectDropdown
               selectedItems={multiSelectDropdownSelectedItems}
-              onSelectedItemsChanged={setMultiSelectDropdownSelectedItems}
+              onItemAdded={handleMultiSelectDropdownItemAdded}
+              onItemRemoved={handleMultiSelectDropdownItemRemoved}
               items={multiSelectDropdownItems}
               label="Select Colors"
               disabled
@@ -703,18 +822,16 @@ export default function ComponentsCatalogPage() {
 
                   <MultiSelect
                     selectedItems={modalMultiSelectValue}
-                    onSelectedItemsChanged={setModalMultiSelectValue}
+                    onItemAdded={handleModalMultiSelectItemAdded}
+                    onItemRemoved={handleModalMultiSelectItemRemoved}
+                    onItemEdited={handleModalMultiSelectItemEdited}
                     items={multiSelectItems}
                     label="Item Tags"
-                    onNewItem={(item) => showToast(`New tag created: ${item}`, { type: 'success', title: 'Tag Created' })}
-                    onRemovedItem={(item) => showToast(`Removed tag: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Tag Removed' })}
                     showEdit
-                    onEdit={(item) => showToast(`Edited tag: ${typeof item === 'string' ? item : item.text}`, { type: 'info', title: 'Tag Edited' })}
                   />
 
                   <div className="text-xs text-gray-400 mt-2">
-                    Current selection:{' '}
-                    {modalMultiSelectValue.length > 0 ? modalMultiSelectValue.map((i) => (typeof i === 'string' ? i : i.text)).join(', ') : 'None'}
+                    Current selection: {modalMultiSelectValue.length > 0 ? modalMultiSelectValue.map((i) => i.text).join(', ') : 'None'}
                   </div>
                 </div>
 
