@@ -142,6 +142,13 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     [selectedItemValues]
   )
 
+  const isTextDuplicate = useCallback(
+    (text: string, excludeIndex?: number) => {
+      return selectedItems.some((item, idx) => idx !== excludeIndex && item.text.toLowerCase() === text.toLowerCase())
+    },
+    [selectedItems]
+  )
+
   const addSelectedItem = useCallback(
     (itemValue: string) => {
       if (isDuplicate(itemValue)) {
@@ -190,16 +197,16 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   const insertNewItem = useCallback(
     (item: string) => {
       if (!allowNew) return
-      if (isDuplicate(item)) {
+      if (isTextDuplicate(item)) {
         resetInput()
         return
       }
-      // Mark new items with empty value
-      const newItem = { value: '', text: item }
+      // Generate value for new items with 'new-' prefix
+      const newItem = { value: 'new-' + item, text: item }
       onItemAdded?.(newItem)
       resetInput()
     },
-    [onItemAdded, resetInput, allowNew, isDuplicate]
+    [onItemAdded, resetInput, allowNew, isTextDuplicate]
   )
 
   // Submit form
@@ -237,24 +244,25 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   const addPastedItems = useCallback(
     (pastedItems: string[]) => {
-      const itemsToAddValues = pastedItems
-        .filter((item) => !isDuplicate(item))
+      const itemsToAdd = pastedItems
+        .filter((item) => !isTextDuplicate(item))
         .map((item) => {
           const itemExists = items.find((i) => i.text.toLowerCase() === item.toLowerCase())
-          return itemExists ? itemExists.value : item
+          if (itemExists) {
+            return itemExists
+          } else {
+            // Generate value for new items with 'new-' prefix
+            return { value: 'new-' + item, text: item }
+          }
         })
-      if (itemsToAddValues.length) {
-        const newItems = itemsToAddValues.map((value) => {
-          const foundItem = items.find((i) => i.value === value)
-          return foundItem || { value: '', text: value }
-        })
-        newItems.forEach((item) => {
+      if (itemsToAdd.length) {
+        itemsToAdd.forEach((item) => {
           onItemAdded?.(item)
         })
         resetInput()
       }
     },
-    [selectedItemValues, onItemAdded, items, resetInput, isDuplicate]
+    [onItemAdded, items, resetInput, isTextDuplicate]
   )
 
   const inputPaste = useCallback(
@@ -323,7 +331,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         submitForm()
       }
     },
-    [dropdownItems, focusIndex, handleDropdownItemClick, selectedItemValues, showEdit, submitForm, textInput]
+    [dropdownItems, focusIndex, handleDropdownItemClick, selectedItemValues, showEdit, submitForm, textInput, setEditingPillIndex]
   )
 
   const handleEscape = useCallback(
@@ -559,7 +567,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                 // Find the item being edited and update it
                 const itemToUpdate = selectedItems[idx]
                 if (itemToUpdate) {
-                  const isDupe = isDuplicate(newText, idx)
+                  const isDupe = isTextDuplicate(newText, idx)
                   if (isDupe) {
                     showToast(`"${newText}" is already selected`, { type: 'warning', title: 'Duplicate item' })
                     return
