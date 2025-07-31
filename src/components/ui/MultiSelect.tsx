@@ -558,7 +558,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
               onEdit={(newText) => {
                 // Find the item being edited and update it
                 const itemToUpdate = selectedItems[idx]
-                if (itemToUpdate && newText !== itemToUpdate.text) {
+                if (itemToUpdate) {
                   const isDupe = isDuplicate(newText, idx)
                   if (isDupe) {
                     showToast(`"${newText}" is already selected`, { type: 'warning', title: 'Duplicate item' })
