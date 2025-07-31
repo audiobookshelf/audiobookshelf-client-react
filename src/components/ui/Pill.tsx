@@ -12,7 +12,7 @@ interface PillProps {
   onClick: () => void
   onEdit?: (item: string) => void
   onRemove: (item: string) => void
-  onEditDone?: (shouldRefocus?: boolean) => void
+  onEditDone?: (shouldRefocus?: boolean, cancelled?: boolean) => void
 }
 
 export const Pill: React.FC<PillProps> = ({
@@ -138,12 +138,12 @@ export const Pill: React.FC<PillProps> = ({
     if (editValue.trim()) {
       onEdit?.(editValue.trim())
     }
-    onEditDone?.(true) // Refocus input when explicitly saving
+    onEditDone?.(true, false) // Refocus input when explicitly saving
   }, [editValue, item, onEdit, onEditDone])
 
   const handleCancelEdit = useCallback(() => {
     setEditValue(item)
-    onEditDone?.(true)
+    onEditDone?.(true, true)
   }, [item, onEditDone])
 
   // Handle input blur - only exit edit mode, don't save
@@ -153,7 +153,7 @@ export const Pill: React.FC<PillProps> = ({
 
       // Only exit edit mode if focus is moving outside the pill container
       if (!pillContainerRef.current?.contains(newFocusTarget)) {
-        onEditDone?.(false)
+        onEditDone?.(false, true)
       }
     },
     [onEditDone]
