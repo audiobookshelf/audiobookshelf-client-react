@@ -26,6 +26,7 @@ export interface MultiSelectProps {
   onInputChange?: (value: string) => void
   editingPillIndex?: number | null
   onEditingPillIndexChange?: (index: number | null) => void
+  onEditDone?: (cancelled?: boolean) => void
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -43,7 +44,8 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   allowNew = true,
   onInputChange,
   editingPillIndex: controlledEditingPillIndex,
-  onEditingPillIndexChange
+  onEditingPillIndexChange,
+  onEditDone
 }) => {
   const isControlled = value !== undefined
   const [textInput, setTextInput] = useState<string>(isControlled ? value : '')
@@ -594,11 +596,12 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                 }
               }}
               onRemove={() => removeItem(item.value)}
-              onEditDone={(shouldRefocus = false) => {
+              onEditDone={(shouldRefocus = false, cancelled = false) => {
                 setEditingPillIndex(null)
                 if (shouldRefocus) {
                   inputRef.current?.focus()
                 }
+                onEditDone?.(cancelled)
               }}
             />
           ))}
