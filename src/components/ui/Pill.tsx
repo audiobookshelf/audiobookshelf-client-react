@@ -135,7 +135,7 @@ export const Pill: React.FC<PillProps> = ({
 
   // Save the edit
   const handleSaveEdit = useCallback(() => {
-    if (editValue.trim() && editValue !== item) {
+    if (editValue.trim()) {
       onEdit?.(editValue.trim())
     }
     onEditDone?.(true) // Refocus input when explicitly saving
