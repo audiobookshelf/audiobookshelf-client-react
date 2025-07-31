@@ -91,10 +91,55 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
     [onItemEdited, onItemAdded, inStage2, matchItem, delimiter]
   )
 
-  const handleEditingPillIndexChange = useCallback((index: number | null) => {
-    setEditingPillIndex(index)
-    setInStage2(false)
-  }, [])
+  const addEndingDelimiterIfNotExists = useCallback(
+    (index: number) => {
+      const editedItem = selectedItemsInternal[index]
+      if (editedItem && !editedItem.text.includes(delimiter)) {
+        const updatedItems = [...selectedItemsInternal]
+        updatedItems[index] = {
+          ...editedItem,
+          text: `${editedItem.text}${delimiter}`
+        }
+        setSelectedItemsInternal(updatedItems)
+      }
+    },
+    [selectedItemsInternal, delimiter]
+  )
+
+  const handleEditingPillIndexChange = useCallback(
+    (index: number | null) => {
+      setEditingPillIndex(index)
+      setInStage2(false)
+
+      if (index !== null) addEndingDelimiterIfNotExists(index)
+    },
+    [addEndingDelimiterIfNotExists]
+  )
+
+  const removeEndingDelimiterIfExists = useCallback(
+    (index: number) => {
+      const editedItem = selectedItemsInternal[index]
+      if (editedItem && editedItem.text.endsWith(delimiter)) {
+        const updatedItems = [...selectedItemsInternal]
+        updatedItems[index] = {
+          ...updatedItems[index],
+          text: editedItem.text.replace(delimiter, '')
+        }
+        setSelectedItemsInternal(updatedItems)
+      }
+    },
+    [selectedItemsInternal, delimiter]
+  )
+
+  const handleEditDone = useCallback(
+    (cancelled?: boolean) => {
+      // If edit was cancelled, restore the original text
+      if (cancelled && editingPillIndex !== null) {
+        removeEndingDelimiterIfExists(editingPillIndex)
+      }
+    },
+    [editingPillIndex, removeEndingDelimiterIfExists]
+  )
 
   return (
     <MultiSelect
@@ -107,6 +152,7 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
       showEdit={true}
       editingPillIndex={editingPillIndex}
       onEditingPillIndexChange={handleEditingPillIndexChange}
+      onEditDone={handleEditDone}
       allowNew={true}
       showInput={true}
       {...rest}
