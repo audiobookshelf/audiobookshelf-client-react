@@ -18,6 +18,7 @@ import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import Modal from '@/components/modals/Modal'
+import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
 
 export default function ComponentsCatalogPage() {
   const { showToast } = useGlobalToast()
@@ -66,7 +67,6 @@ export default function ComponentsCatalogPage() {
     { text: 'Apple', value: 'apple' },
     { text: 'Banana', value: 'banana' }
   ])
-
   const multiSelectDropdownItems = [
     { text: 'Red', value: '#ff0000' },
     { text: 'Green', value: '#00ff00' },
@@ -93,19 +93,49 @@ export default function ComponentsCatalogPage() {
     { text: 'Date', value: 'date' }
   ])
 
-  // MultiSelect handlers
-  const handleMultiSelectItemAdded = (item: MultiSelectItem) => {
-    if (!item.value) {
-      // New item
-      if (multiSelectValue.find((i) => i.text === item.text)) {
-        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-        return
-      }
-      item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
+  const [twoStageMultiSelectValue, setTwoStageMultiSelectValue] = useState<MultiSelectItem[]>([
+    { text: 'Harry Potter #1', value: '1' },
+    { text: 'Lord of the Rings #3', value: '2' }
+  ])
+
+  const twoStageMultiSelectItems = [
+    { text: 'Harry Potter', value: '1' },
+    { text: 'Lord of the Rings', value: '2' },
+    { text: 'The Hitchhikers Guide to the Galaxy', value: '3' },
+    { text: 'The Chronicles of Narnia', value: '4' },
+    { text: 'The Hunger Games', value: '5' },
+    { text: 'Foundation', value: '6' },
+    { text: 'A song of ice and fire', value: '7' },
+    { text: 'Robots', value: '8' }
+  ]
+
+  const handleTwoStageMultiSelectItemAdded = (item: MultiSelectItem) => {
+    const newItems = [...twoStageMultiSelectValue, item]
+    setTwoStageMultiSelectValue(newItems)
+    if (item.value.startsWith('new-')) {
       showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
     }
+  }
+
+  const handleTwoStageMultiSelectItemRemoved = (item: MultiSelectItem) => {
+    const newItems = twoStageMultiSelectValue.filter((i) => i.value !== item.value)
+    setTwoStageMultiSelectValue(newItems)
+    showToast(`Removed: ${item.text}`, { type: 'info', title: 'Item Removed' })
+  }
+
+  const handleTwoStageMultiSelectItemEdited = (item: MultiSelectItem, index: number) => {
+    const newItems = [...twoStageMultiSelectValue]
+    newItems[index] = item
+    setTwoStageMultiSelectValue(newItems)
+  }
+
+  // MultiSelect handlers
+  const handleMultiSelectItemAdded = (item: MultiSelectItem) => {
     const newItems = [...multiSelectValue, item]
     setMultiSelectValue(newItems)
+    if (item.value.startsWith('new-')) {
+      showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
+    }
   }
 
   const handleMultiSelectItemRemoved = (item: MultiSelectItem) => {
@@ -115,30 +145,18 @@ export default function ComponentsCatalogPage() {
   }
 
   const handleMultiSelectItemEdited = (item: MultiSelectItem, index: number) => {
-    if (multiSelectValue.find((i) => i.text.toLowerCase() === item.text.toLowerCase())) {
-      showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-      return
-    }
-    item.value = multiSelectItems.find((i) => i.text.toLowerCase() === item.text.toLowerCase())?.value || 'new-' + item.text.toLowerCase().replace(/ /g, '-')
     const newItems = [...multiSelectValue]
     newItems[index] = item
     setMultiSelectValue(newItems)
-    showToast(`Edited: ${item.value}, ${item.text}`, { type: 'info', title: 'Item Edited' })
+    showToast(`Edited: ${item.text}`, { type: 'info', title: 'Item Edited' })
   }
 
   const handleModalMultiSelectItemAdded = (item: MultiSelectItem) => {
-    if (!item.value) {
-      // New item
-      if (!modalMultiSelectValue.find((i) => i.text === item.text)) {
-        item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
-        showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
-      } else {
-        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-        return
-      }
-    }
     const newItems = [...modalMultiSelectValue, item]
     setModalMultiSelectValue(newItems)
+    if (item.value.startsWith('new-')) {
+      showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
+    }
   }
 
   const handleModalMultiSelectItemRemoved = (item: MultiSelectItem) => {
@@ -148,30 +166,18 @@ export default function ComponentsCatalogPage() {
   }
 
   const handleModalMultiSelectItemEdited = (item: MultiSelectItem, index: number) => {
-    if (modalMultiSelectValue.find((i) => i.text.toLowerCase() === item.text.toLowerCase())) {
-      showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-      return
-    }
-    item.value = multiSelectItems.find((i) => i.text.toLowerCase() === item.text.toLowerCase())?.value || 'new-' + item.text.toLowerCase().replace(/ /g, '-')
     const newItems = [...modalMultiSelectValue]
     newItems[index] = item
     setModalMultiSelectValue(newItems)
-    showToast(`Edited tag: ${item.value}, ${item.text}`, { type: 'info', title: 'Tag Edited' })
+    showToast(`Edited tag: ${item.text}`, { type: 'info', title: 'Tag Edited' })
   }
 
   const handleMultiSelectDropdownItemAdded = (item: MultiSelectItem) => {
-    if (!item.value) {
-      // New item
-      if (!multiSelectDropdownSelectedItems.find((i) => i.text === item.text)) {
-        item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
-        showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
-      } else {
-        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-        return
-      }
-    }
     const newItems = [...multiSelectDropdownSelectedItems, item]
     setMultiSelectDropdownSelectedItems(newItems)
+    if (item.value.startsWith('new-')) {
+      showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
+    }
   }
 
   const handleMultiSelectDropdownItemRemoved = (item: MultiSelectItem) => {
@@ -595,6 +601,24 @@ export default function ComponentsCatalogPage() {
               items={multiSelectItems}
               label="Select Fruits"
               disabled
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* TwoStageMultiSelect Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">TwoStageMultiSelect Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default TwoStageMultiSelect</h3>
+            <TwoStageMultiSelect
+              selectedItems={twoStageMultiSelectValue}
+              onItemAdded={handleTwoStageMultiSelectItemAdded}
+              onItemRemoved={handleTwoStageMultiSelectItemRemoved}
+              onItemEdited={handleTwoStageMultiSelectItemEdited}
+              items={twoStageMultiSelectItems}
+              label="Select Series and Sequence"
             />
           </div>
         </div>
