@@ -24,6 +24,8 @@ export interface MultiSelectProps {
   showInput?: boolean
   allowNew?: boolean
   onInputChange?: (value: string) => void
+  editingPillIndex?: number | null
+  onEditingPillIndexChange?: (index: number | null) => void
 }
 
 export const MultiSelect: React.FC<MultiSelectProps> = ({
@@ -39,7 +41,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   onItemRemoved,
   showInput = true,
   allowNew = true,
-  onInputChange
+  onInputChange,
+  editingPillIndex: controlledEditingPillIndex,
+  onEditingPillIndexChange
 }) => {
   const isControlled = value !== undefined
   const [textInput, setTextInput] = useState<string>(isControlled ? value : '')
@@ -47,7 +51,20 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   const [filteredItems, setFilteredItems] = useState<MultiSelectItem[] | null>(null)
   // focusIndex: null = none, >=0 = dropdown item, <0 = pill (e.g. -1 = last pill)
   const [focusIndex, setFocusIndex] = useState<number | null>(null)
-  const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
+  const [uncontrolledEditingPillIndex, setUncontrolledEditingPillIndex] = useState<number | null>(null)
+  const isEditingPillIndexControlled = controlledEditingPillIndex !== undefined
+
+  const editingPillIndex = isEditingPillIndexControlled ? controlledEditingPillIndex : uncontrolledEditingPillIndex
+
+  const setEditingPillIndex = useCallback(
+    (index: number | null) => {
+      if (!isEditingPillIndexControlled) {
+        setUncontrolledEditingPillIndex(index)
+      }
+      onEditingPillIndexChange?.(index)
+    },
+    [isEditingPillIndexControlled, onEditingPillIndexChange]
+  )
   const identifier = useId()
   const { showToast } = useGlobalToast()
 
