@@ -1,5 +1,6 @@
 'use client'
 
+import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 
 interface LibrariesDropdownProps {
@@ -9,14 +10,18 @@ interface LibrariesDropdownProps {
 
 export default function LibrariesDropdown({ libraries, currentLibraryId }: LibrariesDropdownProps) {
   const router = useRouter()
+  const [isPending, startTransition] = useTransition()
 
   return (
     <div className="relative w-max">
       <select
-        className="appearance-none bg-primary border border-gray-600 rounded px-4 py-2 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="appearance-none bg-primary border border-gray-600 rounded px-4 py-2 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
         value={currentLibraryId}
+        disabled={isPending}
         onChange={(e) => {
-          router.push(`/library/${e.target.value}`)
+          startTransition(() => {
+            router.push(`/library/${e.target.value}`)
+          })
         }}
       >
         {libraries.map((library) => (
