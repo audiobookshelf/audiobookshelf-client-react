@@ -58,5 +58,5 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|internal-api|_next/static|_next/image|.*\\.png|.*\\.ico$).*)']
+  matcher: ['/((?!api|internal-api|_next/static|_next/image|.*\\.png|.*\\.ico|.*\\.svg).*)']
 }
