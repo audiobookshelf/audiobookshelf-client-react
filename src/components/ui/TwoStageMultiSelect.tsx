@@ -1,149 +1,120 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import MultiSelect, { MultiSelectProps, type MultiSelectItem } from './MultiSelect'
+import React, { useCallback, useEffect, useState, useMemo } from 'react'
+import { MultiSelect } from './MultiSelect'
+import { type MultiSelectItem } from './MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 
-type TwoStageMultiSelectProps = Omit<MultiSelectProps, 'showEdit' | 'showInput' | 'allowNew' | 'editingPillIndex' | 'onEditingPillIndexChange'> & {
+export interface TwoStageMultiSelectContent {
+  value: string
+  modifier: string
+}
+
+interface TwoStageMultiSelectProps {
+  // Core props
+  selectedItems: MultiSelectItem<TwoStageMultiSelectContent>[]
+  items: MultiSelectItem<string>[]
+  label: string
   delimiter?: string
+
+  // Event handlers
+  onItemAdded?: (item: MultiSelectItem<TwoStageMultiSelectContent>) => void
+  onItemRemoved?: (item: MultiSelectItem<TwoStageMultiSelectContent>) => void
+  onItemEdited?: (item: MultiSelectItem<TwoStageMultiSelectContent>, index: number) => void
+
+  // Optional props
+  disabled?: boolean
 }
 
 export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
-  selectedItems,
+  selectedItems: selectedItemsProp,
   items,
   label,
   delimiter = ' #',
   onItemAdded,
   onItemRemoved,
   onItemEdited,
-  ...rest
+  disabled
 }) => {
   const { showToast } = useGlobalToast()
   const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
-  const [inStage2, setInStage2] = useState(false)
-  const [selectedItemsInternal, setSelectedItemsInternal] = useState<MultiSelectItem[]>(selectedItems)
+  const [isEditingNewItem, setIsEditingNewItem] = useState(false)
+  const [selectedItems, setSelectedItems] = useState<MultiSelectItem<TwoStageMultiSelectContent>[]>(selectedItemsProp)
 
-  useEffect(() => {
-    if (!inStage2) {
-      setSelectedItemsInternal(selectedItems)
+  const onMutate = useCallback((prev: TwoStageMultiSelectContent | null, text: string): TwoStageMultiSelectContent => {
+    if (prev) {
+      // this is an existing item, so we need to update the text2
+      return { value: prev.value, modifier: text }
+    } else {
+      // this is a new item, so we need to create a new item
+      return { value: text, modifier: '' }
     }
-  }, [selectedItems, inStage2])
+  }, [])
 
-  const matchItem = useCallback(
-    (text: string, skipIndex: number = -1) => {
-      const [input1, input2] = text.split(delimiter)
-      const fromItems = items.find((i) => i.text.toLowerCase() === input1.toLowerCase())
+  const getItemTextId = useCallback((item: TwoStageMultiSelectContent) => {
+    return item.value
+  }, [])
 
-      const matchedValue = fromItems ? fromItems.value : 'new-' + input1
-      const isAlreadySelected = selectedItems.some((i, index) => i.value === matchedValue && index !== skipIndex)
+  const getEditableText = useCallback((item: TwoStageMultiSelectContent) => {
+    return item.modifier
+  }, [])
 
-      if (isAlreadySelected) {
-        showToast(`Item ${input1} already selected`, { type: 'warning', title: 'Item already selected' })
-        return null
-      }
-
-      const matchedText = fromItems ? fromItems.text : input1
-      return { value: matchedValue, text: `${matchedText}${input2 ? `${delimiter}${input2}` : ''}` }
+  const getReadOnlyPrefix = useCallback(
+    (item: TwoStageMultiSelectContent) => {
+      return `${item.value}${delimiter}`
     },
-    [items, delimiter, selectedItems, showToast]
+    [delimiter]
   )
 
-  const handleItemAdded = useCallback(
-    (item: MultiSelectItem) => {
-      const newItem = matchItem(item.text)
-      if (!newItem) return
-
-      if (item.text.includes(delimiter)) {
-        onItemAdded?.(newItem)
-        setInStage2(false)
-      } else {
-        const itemForStage2 = { value: newItem.value, text: `${newItem.text}${delimiter}` }
-        setSelectedItemsInternal([...selectedItemsInternal, itemForStage2])
-        setEditingPillIndex(selectedItemsInternal.length)
-        setInStage2(true)
-      }
+  const getFullText = useCallback(
+    (item: TwoStageMultiSelectContent) => {
+      return `${item.value}${item.modifier ? delimiter + item.modifier : ''}`
     },
-    [delimiter, onItemAdded, matchItem, selectedItemsInternal]
+    [delimiter]
+  )
+
+  useEffect(() => {
+    if (!isEditingNewItem) {
+      setSelectedItems(selectedItemsProp)
+    }
+  }, [isEditingNewItem, selectedItemsProp])
+
+  const handleItemAdded = useCallback(
+    (item: MultiSelectItem<TwoStageMultiSelectContent>) => {
+      item.content = { value: item.content.value, modifier: '' }
+      setSelectedItems([...selectedItems, item])
+      setEditingPillIndex(selectedItems.length)
+      setIsEditingNewItem(true)
+    },
+    [selectedItems]
   )
 
   const handleItemRemoved = useCallback(
-    (item: MultiSelectItem) => {
+    (item: MultiSelectItem<TwoStageMultiSelectContent>) => {
       onItemRemoved?.(item)
-      setInStage2(false)
+      setIsEditingNewItem(false)
     },
     [onItemRemoved]
   )
 
   const handleItemEdited = useCallback(
-    (item: MultiSelectItem, index: number) => {
-      if (item.text.includes(delimiter)) {
-        const newItem = matchItem(item.text, inStage2 ? -1 : index)
-        if (newItem) {
-          if (inStage2) {
-            onItemAdded?.(newItem)
-          } else {
-            onItemEdited?.(newItem, index)
-          }
-        }
+    (item: MultiSelectItem<TwoStageMultiSelectContent>, index: number) => {
+      if (isEditingNewItem) {
+        onItemAdded?.(item)
       } else {
         onItemEdited?.(item, index)
       }
-      setInStage2(false)
+      setIsEditingNewItem(false)
     },
-    [onItemEdited, onItemAdded, inStage2, matchItem, delimiter]
+    [onItemEdited, onItemAdded, isEditingNewItem]
   )
 
-  const addEndingDelimiterIfNotExists = useCallback(
-    (index: number) => {
-      const editedItem = selectedItemsInternal[index]
-      if (editedItem && !editedItem.text.includes(delimiter)) {
-        const updatedItems = [...selectedItemsInternal]
-        updatedItems[index] = {
-          ...editedItem,
-          text: `${editedItem.text}${delimiter}`
-        }
-        setSelectedItemsInternal(updatedItems)
-      }
-    },
-    [selectedItemsInternal, delimiter]
-  )
-
-  const handleEditingPillIndexChange = useCallback(
-    (index: number | null) => {
-      setEditingPillIndex(index)
-      setInStage2(false)
-
-      if (index !== null) addEndingDelimiterIfNotExists(index)
-    },
-    [addEndingDelimiterIfNotExists]
-  )
-
-  const removeEndingDelimiterIfExists = useCallback(
-    (index: number) => {
-      const editedItem = selectedItemsInternal[index]
-      if (editedItem && editedItem.text.endsWith(delimiter)) {
-        const updatedItems = [...selectedItemsInternal]
-        updatedItems[index] = {
-          ...updatedItems[index],
-          text: editedItem.text.replace(delimiter, '')
-        }
-        setSelectedItemsInternal(updatedItems)
-      }
-    },
-    [selectedItemsInternal, delimiter]
-  )
-
-  const handleEditDone = useCallback(
-    (cancelled?: boolean) => {
-      // If edit was cancelled, restore the original text
-      if (cancelled && editingPillIndex !== null) {
-        removeEndingDelimiterIfExists(editingPillIndex)
-      }
-    },
-    [editingPillIndex, removeEndingDelimiterIfExists]
-  )
+  const handleEditingPillIndexChange = useCallback((index: number | null) => {
+    setEditingPillIndex(index)
+    setIsEditingNewItem(false)
+  }, [])
 
   return (
     <MultiSelect
-      selectedItems={selectedItemsInternal}
+      selectedItems={selectedItems}
       items={items}
       onItemAdded={handleItemAdded}
       onItemRemoved={handleItemRemoved}
@@ -152,10 +123,14 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
       showEdit={true}
       editingPillIndex={editingPillIndex}
       onEditingPillIndexChange={handleEditingPillIndexChange}
-      onEditDone={handleEditDone}
       allowNew={true}
       showInput={true}
-      {...rest}
+      disabled={disabled}
+      onMutate={onMutate}
+      getItemTextId={getItemTextId}
+      getEditableText={getEditableText}
+      getReadOnlyPrefix={getReadOnlyPrefix}
+      getFullText={getFullText}
     />
   )
 }
