@@ -20,6 +20,9 @@ interface TwoStageMultiSelectProps {
   onItemRemoved?: (item: MultiSelectItem<TwoStageMultiSelectContent>) => void
   onItemEdited?: (item: MultiSelectItem<TwoStageMultiSelectContent>, index: number) => void
 
+  // Validation
+  onValidate?: (content: TwoStageMultiSelectContent) => string | null
+
   // Optional props
   disabled?: boolean
 }
@@ -32,6 +35,7 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
   onItemAdded,
   onItemRemoved,
   onItemEdited,
+  onValidate,
   disabled
 }) => {
   const { showToast } = useGlobalToast()
@@ -127,6 +131,7 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
       showInput={true}
       disabled={disabled}
       onMutate={onMutate}
+      onValidate={onValidate}
       getItemTextId={getItemTextId}
       getEditableText={getEditableText}
       getReadOnlyPrefix={getReadOnlyPrefix}

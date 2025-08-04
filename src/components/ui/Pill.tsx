@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useGlobalToast } from '@/contexts/ToastContext'
 
 interface PillProps<T> {
   item: T
@@ -12,6 +13,7 @@ interface PillProps<T> {
   getReadOnlyPrefix?: (item: T) => string
   getFullText?: (item: T) => string
   onMutate?: (prev: T | null, value: string) => T
+  onValidate?: (content: T) => string | null
   onEditButtonClick?: () => void
   onClick: () => void
   onEdit?: (item: T) => void
@@ -30,13 +32,16 @@ export const Pill = <T,>({
   getReadOnlyPrefix,
   getFullText,
   onMutate,
+  onValidate,
   onEditButtonClick,
   onClick,
   onEdit,
   onRemove,
   onEditDone
 }: PillProps<T>) => {
+  const { showToast } = useGlobalToast()
   const [isInputReady, setIsInputReady] = useState(false)
+  const [hasValidationError, setHasValidationError] = useState(false)
 
   const itemText = useMemo(() => (getEditableText ? getEditableText(item) : String(item)), [getEditableText, item])
   const readOnlyPrefix = useMemo(() => (getReadOnlyPrefix ? getReadOnlyPrefix(item) : undefined), [getReadOnlyPrefix, item])
@@ -152,6 +157,19 @@ export const Pill = <T,>({
   const handleSaveEdit = useCallback(() => {
     const trimmedInput = inputValue.trim()
     const newContent = onMutate ? onMutate(item, trimmedInput) : (trimmedInput as T)
+
+    // Validate the new content
+    if (onValidate) {
+      const error = onValidate(newContent)
+      if (error) {
+        setHasValidationError(true)
+        showToast(error, { type: 'error', title: 'Validation Error' })
+        return
+      } else {
+        setHasValidationError(false)
+      }
+    }
+
     const isEmpty = getFullText ? getFullText(newContent) === '' : trimmedInput === ''
 
     if (!isEmpty) {
@@ -159,11 +177,12 @@ export const Pill = <T,>({
     }
 
     onEditDone?.(true, false) // Refocus input when explicitly saving
-  }, [inputValue, onEdit, onEditDone, onMutate, item])
+  }, [inputValue, onEdit, onEditDone, onMutate, onValidate, item, getFullText])
 
   const handleCancelEdit = useCallback(() => {
     // Reset to the original itemText
     setInputValue(itemText)
+    setHasValidationError(false)
     onEditDone?.(true, true)
   }, [itemText, onEditDone])
 
@@ -220,7 +239,8 @@ export const Pill = <T,>({
         aria-label={`Editing ${readOnlyPrefix ? readOnlyPrefix + itemText : itemText}`}
         className={mergeClasses(
           'rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
-          'ring z-10'
+          'ring z-10',
+          hasValidationError && 'ring-red-500 ring-2'
         )}
         tabIndex={-1}
         onMouseDown={(e) => e.preventDefault()}
@@ -291,7 +311,8 @@ export const Pill = <T,>({
       role="listitem"
       className={mergeClasses(
         'group rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
-        !disabled && isFocused ? 'ring z-10' : ''
+        !disabled && isFocused ? 'ring z-10' : '',
+        hasValidationError && 'ring-error ring-2'
       )}
       style={{ minWidth: showEditButton ? 44 : 22 }}
       tabIndex={-1}

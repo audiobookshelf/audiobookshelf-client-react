@@ -603,6 +603,25 @@ export default function ComponentsCatalogPage() {
               disabled
             />
           </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">MultiSelect with Validation</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onItemAdded={handleMultiSelectItemAdded}
+              onItemRemoved={handleMultiSelectItemRemoved}
+              onItemEdited={handleMultiSelectItemEdited}
+              items={multiSelectItems}
+              label="Select Fruits"
+              showEdit
+              onValidate={(content) => {
+                if (content.includes(' ')) {
+                  return 'A fruit name cannot contain any spaces'
+                }
+                return null
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -619,6 +638,12 @@ export default function ComponentsCatalogPage() {
               onItemEdited={handleTwoStageMultiSelectItemEdited}
               items={twoStageMultiSelectItems}
               label="Select Series and Sequence"
+              onValidate={(content) => {
+                if (content.modifier && content.modifier.includes(' ')) {
+                  return 'A sequence cannot contain any spaces'
+                }
+                return null
+              }}
             />
           </div>
         </div>

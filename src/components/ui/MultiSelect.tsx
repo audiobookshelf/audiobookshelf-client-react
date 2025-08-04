@@ -33,6 +33,9 @@ export interface MultiSelectProps<T = string> {
   // Content mutation callback
   onMutate?: (prev: T | null, text: string) => T
 
+  // Validation callback
+  onValidate?: (content: T) => string | null // Returns error message or null if valid
+
   // Event handlers
   onItemEdited?: (item: MultiSelectItem<T>, index: number) => void
   onItemAdded?: (item: MultiSelectItem<T>) => void
@@ -58,6 +61,7 @@ export const MultiSelect = <T = string,>({
   getFullText,
   getItemTextId: getItemTextIdProp,
   onMutate: onMutateProp,
+  onValidate,
   onItemEdited,
   onItemAdded,
   onItemRemoved,
@@ -221,6 +225,21 @@ export const MultiSelect = <T = string,>({
     [selectedItems, onItemRemoved]
   )
 
+  const validate = useCallback(
+    (content: T): boolean => {
+      if (onValidate) {
+        const validationError = onValidate(content)
+        if (validationError) {
+          showToast(validationError, { type: 'error', title: 'Validation Error' })
+          resetInput()
+          return false
+        }
+      }
+      return true
+    },
+    [onValidate, showToast]
+  )
+
   const addSelectedItem = useCallback(
     (itemValue: string, removeIfDuplicate = false) => {
       if (isDuplicateByValue(itemValue)) {
@@ -234,10 +253,15 @@ export const MultiSelect = <T = string,>({
       const itemToAdd = items.find((i) => i.value === itemValue)
       if (!itemToAdd) return
 
-      onItemAdded?.({ value: itemToAdd.value, content: onMutate(null, itemToAdd.content) })
+      const newContent = onMutate(null, itemToAdd.content)
+
+      // Validate the new item
+      if (!validate(newContent)) return
+
+      onItemAdded?.({ value: itemToAdd.value, content: newContent })
       resetInput()
     },
-    [isDuplicateByValue, items, onItemAdded, resetInput, removeItem]
+    [isDuplicateByValue, items, onItemAdded, resetInput, removeItem, onMutate, validate, showToast]
   )
 
   // Handle dropdown menu item click
@@ -265,11 +289,16 @@ export const MultiSelect = <T = string,>({
         return
       }
       // Generate value for new items with 'new-' prefix
-      const newItem = { value: 'new-' + item, content: onMutate(null, item) }
+      const newContent = onMutate(null, item)
+
+      // Validate the new item
+      if (!validate(newContent)) return
+
+      const newItem = { value: 'new-' + item, content: newContent }
       onItemAdded?.(newItem)
       resetInput()
     },
-    [onItemAdded, resetInput, allowNew, isDuplicateByText, onMutate]
+    [onItemAdded, resetInput, allowNew, isDuplicateByText, onMutate, validate, showToast]
   )
 
   // Submit form
@@ -649,6 +678,7 @@ export const MultiSelect = <T = string,>({
               id={`${identifier}-pill-${idx}`}
               item={item.content}
               onMutate={onMutate}
+              onValidate={onValidate}
               getEditableText={getEditableText}
               getReadOnlyPrefix={getReadOnlyPrefix}
               getFullText={getFullText}
