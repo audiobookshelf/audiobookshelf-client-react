@@ -18,6 +18,7 @@ import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import Modal from '@/components/modals/Modal'
+import TwoStageMultiSelect, { TwoStageMultiSelectContent } from '@/components/ui/TwoStageMultiSelect'
 
 export default function ComponentsCatalogPage() {
   const { showToast } = useGlobalToast()
@@ -53,30 +54,29 @@ export default function ComponentsCatalogPage() {
 
   // MultiSelect sample data
   const multiSelectItems: MultiSelectItem[] = [
-    { text: 'Apple', value: 'apple' },
-    { text: 'Banana', value: 'banana' },
-    { text: 'Cherry', value: 'cherry' },
-    { text: 'Date', value: 'date' },
-    { text: 'Elderberry', value: 'elderberry' },
-    { text: 'Fig', value: 'fig' },
-    { text: 'Grape', value: 'grape' },
-    { text: 'Honeydew', value: 'honeydew' }
+    { content: 'Apple', value: 'apple' },
+    { content: 'Banana', value: 'banana' },
+    { content: 'Cherry', value: 'cherry' },
+    { content: 'Date', value: 'date' },
+    { content: 'Elderberry', value: 'elderberry' },
+    { content: 'Fig', value: 'fig' },
+    { content: 'Grape', value: 'grape' },
+    { content: 'Honeydew', value: 'honeydew' }
   ]
   const [multiSelectValue, setMultiSelectValue] = useState<MultiSelectItem[]>([
-    { text: 'Apple', value: 'apple' },
-    { text: 'Banana', value: 'banana' }
+    { content: 'Apple', value: 'apple' },
+    { content: 'Banana', value: 'banana' }
   ])
-
   const multiSelectDropdownItems = [
-    { text: 'Red', value: '#ff0000' },
-    { text: 'Green', value: '#00ff00' },
-    { text: 'Blue', value: '#0000ff' },
-    { text: 'Yellow', value: '#ffff00' },
-    { text: 'Purple', value: '#800080' }
+    { content: 'Red', value: '#ff0000' },
+    { content: 'Green', value: '#00ff00' },
+    { content: 'Blue', value: '#0000ff' },
+    { content: 'Yellow', value: '#ffff00' },
+    { content: 'Purple', value: '#800080' }
   ]
   const [multiSelectDropdownSelectedItems, setMultiSelectDropdownSelectedItems] = useState<MultiSelectItem[]>([
-    { text: 'Red', value: '#ff0000' },
-    { text: 'Blue', value: '#0000ff' }
+    { content: 'Red', value: '#ff0000' },
+    { content: 'Blue', value: '#0000ff' }
   ])
 
   // Modal state
@@ -89,95 +89,105 @@ export default function ComponentsCatalogPage() {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [modalMultiSelectValue, setModalMultiSelectValue] = useState<MultiSelectItem[]>([
-    { text: 'Cherry', value: 'cherry' },
-    { text: 'Date', value: 'date' }
+    { content: 'Cherry', value: 'cherry' },
+    { content: 'Date', value: 'date' }
   ])
+
+  const [twoStageMultiSelectValue, setTwoStageMultiSelectValue] = useState<MultiSelectItem<TwoStageMultiSelectContent>[]>([
+    { value: '1', content: { value: 'Harry Potter', modifier: '1' } },
+    { value: '2', content: { value: 'Lord of the Rings', modifier: '3' } }
+  ])
+
+  const twoStageMultiSelectItems = [
+    { value: '1', content: 'Harry Potter' },
+    { value: '2', content: 'Lord of the Rings' },
+    { value: '3', content: 'The Hitchhikers Guide to the Galaxy' },
+    { value: '4', content: 'The Chronicles of Narnia' },
+    { value: '5', content: 'The Hunger Games' },
+    { value: '6', content: 'Foundation' },
+    { value: '7', content: 'A song of ice and fire' },
+    { value: '8', content: 'Robots' }
+  ]
+
+  const handleTwoStageMultiSelectItemAdded = (item: any) => {
+    const newItems = [...twoStageMultiSelectValue, item]
+    setTwoStageMultiSelectValue(newItems)
+    if (item.value.startsWith('new-')) {
+      console.log('new item', item)
+      showToast(`New item created: ${item.content.value}${item.content.modifier ? ` #${item.content.modifier}` : ''}`, {
+        type: 'success',
+        title: 'Item Created'
+      })
+    }
+  }
+
+  const handleTwoStageMultiSelectItemRemoved = (item: any) => {
+    const newItems = twoStageMultiSelectValue.filter((i) => i.value !== item.value)
+    setTwoStageMultiSelectValue(newItems)
+    showToast(`Removed: ${item.content.value}${item.content.modifier ? ` #${item.content.modifier}` : ''}`, { type: 'info', title: 'Item Removed' })
+  }
+
+  const handleTwoStageMultiSelectItemEdited = (item: any, index: number) => {
+    const newItems = [...twoStageMultiSelectValue]
+    newItems[index] = item
+    setTwoStageMultiSelectValue(newItems)
+  }
 
   // MultiSelect handlers
   const handleMultiSelectItemAdded = (item: MultiSelectItem) => {
-    if (!item.value) {
-      // New item
-      if (multiSelectValue.find((i) => i.text === item.text)) {
-        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-        return
-      }
-      item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
-      showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
-    }
     const newItems = [...multiSelectValue, item]
     setMultiSelectValue(newItems)
+    if (item.value.startsWith('new-')) {
+      showToast(`New item created: ${item.content}`, { type: 'success', title: 'Item Created' })
+    }
   }
 
   const handleMultiSelectItemRemoved = (item: MultiSelectItem) => {
     const newItems = multiSelectValue.filter((i) => i.value !== item.value)
     setMultiSelectValue(newItems)
-    showToast(`Removed: ${item.text}`, { type: 'info', title: 'Item Removed' })
+    showToast(`Removed: ${item.content}`, { type: 'info', title: 'Item Removed' })
   }
 
   const handleMultiSelectItemEdited = (item: MultiSelectItem, index: number) => {
-    if (multiSelectValue.find((i) => i.text.toLowerCase() === item.text.toLowerCase())) {
-      showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-      return
-    }
-    item.value = multiSelectItems.find((i) => i.text.toLowerCase() === item.text.toLowerCase())?.value || 'new-' + item.text.toLowerCase().replace(/ /g, '-')
     const newItems = [...multiSelectValue]
     newItems[index] = item
     setMultiSelectValue(newItems)
-    showToast(`Edited: ${item.value}, ${item.text}`, { type: 'info', title: 'Item Edited' })
+    showToast(`Edited: ${item.content}`, { type: 'info', title: 'Item Edited' })
   }
 
   const handleModalMultiSelectItemAdded = (item: MultiSelectItem) => {
-    if (!item.value) {
-      // New item
-      if (!modalMultiSelectValue.find((i) => i.text === item.text)) {
-        item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
-        showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
-      } else {
-        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-        return
-      }
-    }
     const newItems = [...modalMultiSelectValue, item]
     setModalMultiSelectValue(newItems)
+    if (item.value.startsWith('new-')) {
+      showToast(`New item created: ${item.content}`, { type: 'success', title: 'Item Created' })
+    }
   }
 
   const handleModalMultiSelectItemRemoved = (item: MultiSelectItem) => {
     const newItems = modalMultiSelectValue.filter((i) => i.value !== item.value)
     setModalMultiSelectValue(newItems)
-    showToast(`Removed tag: ${item.text}`, { type: 'info', title: 'Tag Removed' })
+    showToast(`Removed tag: ${item.content}`, { type: 'info', title: 'Tag Removed' })
   }
 
   const handleModalMultiSelectItemEdited = (item: MultiSelectItem, index: number) => {
-    if (modalMultiSelectValue.find((i) => i.text.toLowerCase() === item.text.toLowerCase())) {
-      showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-      return
-    }
-    item.value = multiSelectItems.find((i) => i.text.toLowerCase() === item.text.toLowerCase())?.value || 'new-' + item.text.toLowerCase().replace(/ /g, '-')
     const newItems = [...modalMultiSelectValue]
     newItems[index] = item
     setModalMultiSelectValue(newItems)
-    showToast(`Edited tag: ${item.value}, ${item.text}`, { type: 'info', title: 'Tag Edited' })
+    showToast(`Edited tag: ${item.content}`, { type: 'info', title: 'Tag Edited' })
   }
 
   const handleMultiSelectDropdownItemAdded = (item: MultiSelectItem) => {
-    if (!item.value) {
-      // New item
-      if (!multiSelectDropdownSelectedItems.find((i) => i.text === item.text)) {
-        item.value = 'new-' + item.text.toLowerCase().replace(/ /g, '-')
-        showToast(`New item created: ${item.text}`, { type: 'success', title: 'Item Created' })
-      } else {
-        showToast(`Item already exists: ${item.text}`, { type: 'info', title: 'Item Already Exists' })
-        return
-      }
-    }
     const newItems = [...multiSelectDropdownSelectedItems, item]
     setMultiSelectDropdownSelectedItems(newItems)
+    if (item.value.startsWith('new-')) {
+      showToast(`New item created: ${item.content}`, { type: 'success', title: 'Item Created' })
+    }
   }
 
   const handleMultiSelectDropdownItemRemoved = (item: MultiSelectItem) => {
     const newItems = multiSelectDropdownSelectedItems.filter((i) => i.value !== item.value)
     setMultiSelectDropdownSelectedItems(newItems)
-    showToast(`Removed: ${item.text}`, { type: 'info', title: 'Item Removed' })
+    showToast(`Removed: ${item.content}`, { type: 'info', title: 'Item Removed' })
   }
 
   // Dropdown change handlers
@@ -264,17 +274,17 @@ export default function ComponentsCatalogPage() {
   ]
 
   const seriesItems: MultiSelectItem[] = [
-    { text: 'Lord of the Rings', value: '1' },
-    { text: 'Foundation', value: '2' },
-    { text: 'The Hitchhikers Guide to the Galaxy', value: '3' },
-    { text: 'The Chronicles of Narnia', value: '4' },
-    { text: 'Harry Potter', value: '5' },
-    { text: 'The Hunger Games', value: '6' },
-    { text: 'A very very very very very very very very very very very very long series name', value: '7' }
+    { content: 'Lord of the Rings', value: '1' },
+    { content: 'Foundation', value: '2' },
+    { content: 'The Hitchhikers Guide to the Galaxy', value: '3' },
+    { content: 'The Chronicles of Narnia', value: '4' },
+    { content: 'Harry Potter', value: '5' },
+    { content: 'The Hunger Games', value: '6' },
+    { content: 'A very very very very very very very very very very very very long series name', value: '7' }
   ]
   const [seriesSelectedItems, setSeriesSelectedItems] = useState<MultiSelectItem[]>([
-    { value: '1', text: 'Lord of the Rings#1' },
-    { value: '3', text: 'The Hitchhikers Guide to the Galaxy#2' }
+    { value: '1', content: 'Lord of the Rings#1' },
+    { value: '3', content: 'The Hitchhikers Guide to the Galaxy#2' }
   ])
 
   return (
@@ -597,6 +607,49 @@ export default function ComponentsCatalogPage() {
               disabled
             />
           </div>
+
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">MultiSelect with Validation</h3>
+            <MultiSelect
+              selectedItems={multiSelectValue}
+              onItemAdded={handleMultiSelectItemAdded}
+              onItemRemoved={handleMultiSelectItemRemoved}
+              onItemEdited={handleMultiSelectItemEdited}
+              items={multiSelectItems}
+              label="Select Fruits"
+              showEdit
+              onValidate={(content) => {
+                if (content.includes(' ')) {
+                  return 'A fruit name cannot contain any spaces'
+                }
+                return null
+              }}
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* TwoStageMultiSelect Components */}
+      <section className="mb-12">
+        <h2 className="text-2xl font-semibold mb-6 text-gray-400">TwoStageMultiSelect Components</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="bg-gray-800 p-6 rounded-lg">
+            <h3 className="text-lg font-medium mb-4">Default TwoStageMultiSelect</h3>
+            <TwoStageMultiSelect
+              selectedItems={twoStageMultiSelectValue}
+              onItemAdded={handleTwoStageMultiSelectItemAdded}
+              onItemRemoved={handleTwoStageMultiSelectItemRemoved}
+              onItemEdited={handleTwoStageMultiSelectItemEdited}
+              items={twoStageMultiSelectItems}
+              label="Select Series and Sequence"
+              onValidate={(content) => {
+                if (content.modifier && content.modifier.includes(' ')) {
+                  return 'A sequence cannot contain any spaces'
+                }
+                return null
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -831,7 +884,7 @@ export default function ComponentsCatalogPage() {
                   />
 
                   <div className="text-xs text-gray-400 mt-2">
-                    Current selection: {modalMultiSelectValue.length > 0 ? modalMultiSelectValue.map((i) => i.text).join(', ') : 'None'}
+                    Current selection: {modalMultiSelectValue.length > 0 ? modalMultiSelectValue.map((i) => i.content).join(', ') : 'None'}
                   </div>
                 </div>
 

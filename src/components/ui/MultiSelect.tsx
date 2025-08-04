@@ -5,49 +5,114 @@ import { mergeClasses } from '@/lib/merge-classes'
 import Pill from './Pill'
 import { useGlobalToast } from '@/contexts/ToastContext'
 
-export interface MultiSelectItem {
+export interface MultiSelectItem<T = string> {
   value: string
-  text: string
+  content: T
 }
 
-export interface MultiSelectProps {
+export interface MultiSelectProps<T = string> {
   value?: string
-  selectedItems: MultiSelectItem[]
-  items: MultiSelectItem[]
+  selectedItems: MultiSelectItem<T>[]
+  items: MultiSelectItem<string>[]
   label?: string
   disabled?: boolean
   showEdit?: boolean
-  menuDisabled?: boolean
-  onItemEdited?: (item: MultiSelectItem, index: number) => void
-  onItemAdded?: (item: MultiSelectItem) => void
-  onItemRemoved?: (item: MultiSelectItem) => void
   showInput?: boolean
   allowNew?: boolean
+  menuDisabled?: boolean
+  editingPillIndex?: number | null
+
+  // Pill content introspection callbacks
+  getEditableText?: (content: T) => string
+  getReadOnlyPrefix?: (content: T) => string
+  getFullText?: (content: T) => string
+
+  // MultiSelect content introspection callbacks
+  getItemTextId?: (content: T) => string
+
+  // Content mutation callback
+  onMutate?: (prev: T | null, text: string) => T
+
+  // Validation callback
+  onValidate?: (content: T) => string | null // Returns error message or null if valid
+
+  // Event handlers
+  onItemEdited?: (item: MultiSelectItem<T>, index: number) => void
+  onItemAdded?: (item: MultiSelectItem<T>) => void
+  onItemRemoved?: (item: MultiSelectItem<T>) => void
   onInputChange?: (value: string) => void
+  onEditingPillIndexChange?: (index: number | null) => void
+  onEditDone?: (cancelled?: boolean) => void
 }
 
-export const MultiSelect: React.FC<MultiSelectProps> = ({
+export const MultiSelect = <T extends any = string>({
   value,
   selectedItems = [],
   items,
   label,
   disabled = false,
   showEdit = false,
+  showInput = true,
+  allowNew = true,
   menuDisabled = false,
+  editingPillIndex: controlledEditingPillIndex,
+  getEditableText,
+  getReadOnlyPrefix,
+  getFullText,
+  getItemTextId: getItemTextIdProp,
+  onMutate: onMutateProp,
+  onValidate,
   onItemEdited,
   onItemAdded,
   onItemRemoved,
-  showInput = true,
-  allowNew = true,
-  onInputChange
-}) => {
+  onInputChange,
+  onEditingPillIndexChange,
+  onEditDone
+}: MultiSelectProps<T>) => {
+  const onMutate = useCallback(
+    (prev: T | null, text: string): T => {
+      if (onMutateProp) {
+        return onMutateProp(prev, text)
+      }
+      // For string types, just return the string
+      return text as unknown as T
+    },
+    [onMutateProp]
+  )
+
+  const getItemTextId = useCallback(
+    (content: T) => {
+      if (getItemTextIdProp) {
+        return getItemTextIdProp(content)
+      } else if (typeof content === 'string') {
+        return content
+      } else {
+        return String(content)
+      }
+    },
+    [getItemTextIdProp]
+  )
+
   const isControlled = value !== undefined
   const [textInput, setTextInput] = useState<string>(isControlled ? value : '')
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [filteredItems, setFilteredItems] = useState<MultiSelectItem[] | null>(null)
+  const [filteredItems, setFilteredItems] = useState<MultiSelectItem<string>[] | null>(null)
   // focusIndex: null = none, >=0 = dropdown item, <0 = pill (e.g. -1 = last pill)
   const [focusIndex, setFocusIndex] = useState<number | null>(null)
-  const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
+  const [uncontrolledEditingPillIndex, setUncontrolledEditingPillIndex] = useState<number | null>(null)
+
+  const isEditingPillIndexControlled = controlledEditingPillIndex !== undefined
+  const editingPillIndex = isEditingPillIndexControlled ? controlledEditingPillIndex : uncontrolledEditingPillIndex
+
+  const setEditingPillIndex = useCallback(
+    (index: number | null) => {
+      if (!isEditingPillIndexControlled) {
+        setUncontrolledEditingPillIndex(index)
+      }
+      onEditingPillIndexChange?.(index)
+    },
+    [isEditingPillIndexControlled, onEditingPillIndexChange]
+  )
   const identifier = useId()
   const { showToast } = useGlobalToast()
 
@@ -95,10 +160,10 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   const dropdownItems: DropdownMenuItem[] = useMemo(() => {
     return itemsToShow.map((item) => ({
-      text: item.text,
+      text: item.content,
       value: item.value
     }))
-  }, [itemsToShow])
+  }, [itemsToShow, getItemTextId])
 
   const openMenu = useCallback((index: number | null) => {
     setIsMenuOpen(true)
@@ -134,45 +199,19 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     [openMenu, onInputChange]
   )
 
-  const isDuplicate = useCallback(
+  const isDuplicateByValue = useCallback(
     (itemValue: string, excludeIndex?: number) => {
-      const isDupe = selectedItemValues.some((v, idx) => idx !== excludeIndex && v.toLowerCase() === itemValue.toLowerCase())
+      const isDupe = selectedItemValues.some((v, idx) => idx !== excludeIndex && v === itemValue)
       return isDupe
     },
     [selectedItemValues]
   )
 
-  const addSelectedItem = useCallback(
-    (itemValue: string) => {
-      if (isDuplicate(itemValue)) {
-        removeItem(itemValue)
-        resetInput()
-        return
-      }
-
-      const itemToAdd = items.find((i) => i.value === itemValue)
-      if (!itemToAdd) return
-
-      onItemAdded?.(itemToAdd)
-      resetInput()
+  const isDuplicateByText = useCallback(
+    (text: string, excludeIndex?: number) => {
+      return selectedItems.some((item, idx) => idx !== excludeIndex && getItemTextId(item.content).toLowerCase() === text.toLowerCase())
     },
-    [isDuplicate, items, onItemAdded, resetInput]
-  )
-
-  // Handle dropdown menu item click
-  const handleDropdownItemClick = useCallback(
-    (item: DropdownMenuItem) => {
-      addSelectedItem(String(item.value))
-    },
-    [addSelectedItem]
-  )
-
-  // Check if item is selected
-  const isItemSelected = useCallback(
-    (item: DropdownMenuItem) => {
-      return selectedItemValues.includes(String(item.value))
-    },
-    [selectedItemValues]
+    [selectedItems, getItemTextId]
   )
 
   // Remove item
@@ -186,20 +225,80 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     [selectedItems, onItemRemoved]
   )
 
+  const validate = useCallback(
+    (content: T): boolean => {
+      if (onValidate) {
+        const validationError = onValidate(content)
+        if (validationError) {
+          showToast(validationError, { type: 'error', title: 'Validation Error' })
+          resetInput()
+          return false
+        }
+      }
+      return true
+    },
+    [onValidate, showToast]
+  )
+
+  const addSelectedItem = useCallback(
+    (itemValue: string, removeIfDuplicate = false) => {
+      if (isDuplicateByValue(itemValue)) {
+        if (removeIfDuplicate) {
+          removeItem(itemValue)
+        }
+        resetInput()
+        return
+      }
+
+      const itemToAdd = items.find((i) => i.value === itemValue)
+      if (!itemToAdd) return
+
+      const newContent = onMutate(null, itemToAdd.content)
+
+      // Validate the new item
+      if (!validate(newContent)) return
+
+      onItemAdded?.({ value: itemToAdd.value, content: newContent })
+      resetInput()
+    },
+    [isDuplicateByValue, items, onItemAdded, resetInput, removeItem, onMutate, validate, showToast]
+  )
+
+  // Handle dropdown menu item click
+  const handleDropdownItemClick = useCallback(
+    (item: DropdownMenuItem) => {
+      addSelectedItem(String(item.value), true)
+    },
+    [addSelectedItem]
+  )
+
+  // Check if item is selected
+  const isItemSelected = useCallback(
+    (item: DropdownMenuItem) => {
+      return selectedItemValues.includes(String(item.value))
+    },
+    [selectedItemValues]
+  )
+
   // Insert new item
   const insertNewItem = useCallback(
     (item: string) => {
       if (!allowNew) return
-      if (isDuplicate(item)) {
+      if (isDuplicateByText(item)) {
         resetInput()
         return
       }
-      // Mark new items with empty value
-      const newItem = { value: '', text: item }
+      // Generate value for new items with 'new-' prefix
+      const newContent = onMutate(null, item)
+
+      // Validate the new item
+      if (!validate(newContent)) return
+
+      const newItem = { value: 'new-' + item, content: newContent }
       onItemAdded?.(newItem)
       resetInput()
     },
-    [onItemAdded, resetInput, allowNew, isDuplicate]
+    [onItemAdded, resetInput, allowNew, isDuplicateByText, onMutate, validate, showToast]
   )
 
   // Submit form
@@ -209,9 +308,9 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
     if (!cleaned) {
       resetInput()
     } else {
-      const matchedItem = items.find((i) => i.text.toLowerCase() === cleaned.toLowerCase())
+      const matchedItem = items.find((i) => i.content.toLowerCase() === cleaned.toLowerCase())
       if (matchedItem) {
-        addSelectedItem(matchedItem.value)
+        addSelectedItem(matchedItem.value, false)
       } else {
         insertNewItem(cleaned)
       }
@@ -237,24 +336,25 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   const addPastedItems = useCallback(
     (pastedItems: string[]) => {
-      const itemsToAddValues = pastedItems
-        .filter((item) => !isDuplicate(item))
+      const itemsToAdd = pastedItems
+        .filter((item) => !isDuplicateByText(item))
         .map((item) => {
-          const itemExists = items.find((i) => i.text.toLowerCase() === item.toLowerCase())
-          return itemExists ? itemExists.value : item
+          const itemExists = items.find((i) => i.content.toLowerCase() === item.toLowerCase())
+          if (itemExists) {
+            return { value: itemExists.value, content: onMutate(null, itemExists.content) }
+          } else {
+            // Generate value for new items with 'new-' prefix
+            return { value: 'new-' + item, content: onMutate(null, item) }
+          }
         })
-      if (itemsToAddValues.length) {
-        const newItems = itemsToAddValues.map((value) => {
-          const foundItem = items.find((i) => i.value === value)
-          return foundItem || { value: '', text: value }
-        })
-        newItems.forEach((item) => {
+      if (itemsToAdd.length) {
+        itemsToAdd.forEach((item) => {
           onItemAdded?.(item)
         })
         resetInput()
       }
     },
-    [selectedItemValues, onItemAdded, items, resetInput, isDuplicate]
+    [onItemAdded, items, resetInput, isDuplicateByText, onMutate]
   )
 
   const inputPaste = useCallback(
@@ -323,7 +423,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
         submitForm()
       }
     },
-    [dropdownItems, focusIndex, handleDropdownItemClick, selectedItemValues, showEdit, submitForm, textInput]
+    [dropdownItems, focusIndex, handleDropdownItemClick, selectedItemValues, showEdit, submitForm, textInput, setEditingPillIndex]
   )
 
   const handleEscape = useCallback(
@@ -383,6 +483,34 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       }
     },
     [focusIndex, textInput]
+  )
+
+  const handlePillEdit = useCallback(
+    (editedPillItem: T, idx: number) => {
+      const itemToUpdate = selectedItems[idx]
+      if (itemToUpdate) {
+        const newText = getItemTextId(editedPillItem)
+        const isDupe = isDuplicateByText(newText, idx)
+        if (isDupe) {
+          showToast(`"${newText}" is already selected`, { type: 'warning', title: 'Duplicate item' })
+          return
+        }
+        const updatedItem = { ...itemToUpdate, content: editedPillItem }
+        onItemEdited?.(updatedItem, idx)
+      }
+    },
+    [selectedItems, getItemTextId, isDuplicateByText, showToast, onItemEdited]
+  )
+
+  const handlePillEditDone = useCallback(
+    (shouldRefocus = false, cancelled = false) => {
+      setEditingPillIndex(null)
+      if (shouldRefocus) {
+        inputRef.current?.focus()
+      }
+      onEditDone?.(cancelled)
+    },
+    [setEditingPillIndex, onEditDone]
   )
 
   const handlePillDeletion = useCallback(
@@ -463,7 +591,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
       if (!textInput) {
         setFilteredItems(null)
       } else {
-        const results = items.filter((i) => i.text.toLowerCase().includes(textInput.toLowerCase()))
+        const results = items.filter((i) => i.content.toLowerCase().includes(textInput.toLowerCase()))
         setFilteredItems(results || [])
       }
     }, 200)
@@ -548,33 +676,21 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
             <Pill
               key={item.value}
               id={`${identifier}-pill-${idx}`}
-              item={item.text}
+              item={item.content}
+              onMutate={onMutate}
+              onValidate={onValidate}
+              getEditableText={getEditableText}
+              getReadOnlyPrefix={getReadOnlyPrefix}
+              getFullText={getFullText}
               isFocused={focusIndex === idx - selectedItemValues.length}
               isEditing={editingPillIndex === idx}
               disabled={disabled}
               showEditButton={showEdit}
               onClick={() => focusPill(idx)}
               onEditButtonClick={() => setEditingPillIndex(idx)}
-              onEdit={(newText) => {
-                // Find the item being edited and update it
-                const itemToUpdate = selectedItems[idx]
-                if (itemToUpdate && newText !== itemToUpdate.text) {
-                  const isDupe = isDuplicate(newText, idx)
-                  if (isDupe) {
-                    showToast(`"${newText}" is already selected`, { type: 'warning', title: 'Duplicate item' })
-                    return
-                  }
-                  const updatedItem = { ...itemToUpdate, text: newText }
-                  onItemEdited?.(updatedItem, idx)
-                }
-              }}
+              onEdit={(editedPillItem) => handlePillEdit(editedPillItem, idx)}
               onRemove={() => removeItem(item.value)}
-              onEditDone={(shouldRefocus = false) => {
-                setEditingPillIndex(null)
-                if (shouldRefocus) {
-                  inputRef.current?.focus()
-                }
-              }}
+              onEditDone={handlePillEditDone}
             />
           ))}
           <span ref={sizerRef} className="absolute invisible whitespace-pre px-1 text-sm">
@@ -622,4 +738,6 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   )
 }
 
-export default MultiSelect
+// Backward compatible default export for string-based usage
+const MultiSelectString = MultiSelect<string>
+export default MultiSelectString

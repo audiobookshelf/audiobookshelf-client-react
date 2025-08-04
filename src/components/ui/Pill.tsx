@@ -1,49 +1,69 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useGlobalToast } from '@/contexts/ToastContext'
 
-interface PillProps {
-  item: string
+interface PillProps<T> {
+  item: T
   id: string
   isFocused: boolean
   disabled: boolean
   showEditButton: boolean
   isEditing?: boolean
+  getEditableText?: (item: T) => string
+  getReadOnlyPrefix?: (item: T) => string
+  getFullText?: (item: T) => string
+  onMutate?: (prev: T | null, value: string) => T
+  onValidate?: (content: T) => string | null
   onEditButtonClick?: () => void
   onClick: () => void
-  onEdit?: (item: string) => void
-  onRemove: (item: string) => void
-  onEditDone?: (shouldRefocus?: boolean) => void
+  onEdit?: (item: T) => void
+  onRemove: (item: T) => void
+  onEditDone?: (shouldRefocus?: boolean, cancelled?: boolean) => void
 }
 
-export const Pill: React.FC<PillProps> = ({
+export const Pill = <T,>({
   item,
   id,
   isFocused,
   disabled,
   showEditButton,
   isEditing = false,
+  getEditableText,
+  getReadOnlyPrefix,
+  getFullText,
+  onMutate,
+  onValidate,
   onEditButtonClick,
   onClick,
   onEdit,
   onRemove,
   onEditDone
-}) => {
-  const [editValue, setEditValue] = useState(item)
+}: PillProps<T>) => {
+  const { showToast } = useGlobalToast()
   const [isInputReady, setIsInputReady] = useState(false)
+  const [hasValidationError, setHasValidationError] = useState(false)
+
+  const itemText = useMemo(() => (getEditableText ? getEditableText(item) : String(item)), [getEditableText, item])
+  const readOnlyPrefix = useMemo(() => (getReadOnlyPrefix ? getReadOnlyPrefix(item) : undefined), [getReadOnlyPrefix, item])
+  const fullText = useMemo(() => (getFullText ? getFullText(item) : itemText), [getFullText, itemText, item])
+
+  const [inputValue, setInputValue] = useState(itemText)
 
   const editInputRef = useRef<HTMLInputElement>(null)
   const cancelButtonRef = useRef<HTMLButtonElement>(null)
   const saveButtonRef = useRef<HTMLButtonElement>(null)
   const sizerRef = useRef<HTMLSpanElement>(null)
-  const inputWidthRef = useRef<number>(20)
+  const prefixRef = useRef<HTMLSpanElement>(null)
+  const inputWidthRef = useRef<number>(0)
   const pillContainerRef = useRef<HTMLDivElement>(null)
 
-  // Update edit value when entering edit mode
+  // Update input value when entering edit mode
   useEffect(() => {
     if (isEditing) {
-      setEditValue(item)
+      // itemText is now the editable portion
+      setInputValue(itemText)
     }
-  }, [isEditing, item])
+  }, [isEditing, itemText])
 
   const updatePillMaxWidth = useCallback(() => {
     if (pillContainerRef.current) {
@@ -92,29 +112,29 @@ export const Pill: React.FC<PillProps> = ({
   useEffect(() => {
     if (isEditing && sizerRef.current && !isInputReady) {
       if (sizerRef.current) {
-        if (editValue) {
+        if (inputValue) {
           const sizerWidth = sizerRef.current.getBoundingClientRect().width
-          const newWidth = Math.max(20, sizerWidth)
+          const newWidth = sizerWidth
           inputWidthRef.current = newWidth
         } else {
-          inputWidthRef.current = 20
+          inputWidthRef.current = 0
         }
         setIsInputReady(true)
       }
     }
-  }, [isEditing, editValue, isInputReady])
+  }, [isEditing, inputValue, isInputReady])
 
   // Update width while typing
   useEffect(() => {
     if (isEditing && sizerRef.current && isInputReady) {
       if (sizerRef.current) {
         const sizerWidth = sizerRef.current.getBoundingClientRect().width
-        const newWidth = Math.max(20, sizerWidth)
+        const newWidth = sizerWidth
         inputWidthRef.current = newWidth
         editInputRef.current?.style.setProperty('width', `${newWidth}px`)
       }
     }
-  }, [editValue, isEditing, isInputReady])
+  }, [inputValue, isEditing, isInputReady])
 
   // Start editing when edit button is clicked
   const handleEditButtonClick = useCallback(
@@ -130,21 +150,41 @@ export const Pill: React.FC<PillProps> = ({
 
   // Handle edit input changes
   const handleEditInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setEditValue(e.target.value)
+    setInputValue(e.target.value)
   }, [])
 
   // Save the edit
   const handleSaveEdit = useCallback(() => {
-    if (editValue.trim() && editValue !== item) {
-      onEdit?.(editValue.trim())
+    const trimmedInput = inputValue.trim()
+    const newContent = onMutate ? onMutate(item, trimmedInput) : (trimmedInput as T)
+
+    // Validate the new content
+    if (onValidate) {
+      const error = onValidate(newContent)
+      if (error) {
+        setHasValidationError(true)
+        showToast(error, { type: 'error', title: 'Validation Error' })
+        return
+      } else {
+        setHasValidationError(false)
+      }
     }
-    onEditDone?.(true) // Refocus input when explicitly saving
-  }, [editValue, item, onEdit, onEditDone])
+
+    const isEmpty = getFullText ? getFullText(newContent) === '' : trimmedInput === ''
+
+    if (!isEmpty) {
+      onEdit?.(newContent)
+    }
+
+    onEditDone?.(true, false) // Refocus input when explicitly saving
+  }, [inputValue, onEdit, onEditDone, onMutate, onValidate, item, getFullText])
 
   const handleCancelEdit = useCallback(() => {
-    setEditValue(item)
-    onEditDone?.(true)
-  }, [item, onEditDone])
+    // Reset to the original itemText
+    setInputValue(itemText)
+    setHasValidationError(false)
+    onEditDone?.(true, true)
+  }, [itemText, onEditDone])
 
   // Handle input blur - only exit edit mode, don't save
   const handleInputBlur = useCallback(
@@ -153,7 +193,7 @@ export const Pill: React.FC<PillProps> = ({
 
       // Only exit edit mode if focus is moving outside the pill container
       if (!pillContainerRef.current?.contains(newFocusTarget)) {
-        onEditDone?.(false)
+        onEditDone?.(false, true)
       }
     },
     [onEditDone]
@@ -196,33 +236,41 @@ export const Pill: React.FC<PillProps> = ({
         id={id}
         cy-id={id}
         role="listitem"
-        aria-label={`Editing ${item}`}
+        aria-label={`Editing ${readOnlyPrefix ? readOnlyPrefix + itemText : itemText}`}
         className={mergeClasses(
           'rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
-          'ring z-10'
+          'ring z-10',
+          hasValidationError && 'ring-red-500 ring-2'
         )}
         tabIndex={-1}
         onMouseDown={(e) => e.preventDefault()}
         onKeyDown={handlePillKeyDown}
       >
         <span ref={sizerRef} className="absolute invisible whitespace-pre px-1 text-xs">
-          {editValue}
+          {inputValue}
         </span>
-        {isInputReady && (
-          <input
-            ref={editInputRef}
-            type="text"
-            value={editValue}
-            onChange={handleEditInputChange}
-            onKeyDown={handleEditInputKeyDown}
-            onBlur={handleInputBlur}
-            className="bg-transparent border-none outline-none text-xs text-center flex-1"
-            style={{ minWidth: '20px', width: `${inputWidthRef.current}px` }}
-            autoComplete="off"
-            aria-label={`Edit ${item}`}
-            aria-describedby={`${id}-edit-instructions`}
-          />
-        )}
+        <div className="inline" style={{ maxWidth: '85%' }}>
+          {readOnlyPrefix && (
+            <span ref={prefixRef} className="text-gray-400 text-xs">
+              {readOnlyPrefix}
+            </span>
+          )}
+          {isInputReady && (
+            <input
+              ref={editInputRef}
+              type="text"
+              value={inputValue}
+              onChange={handleEditInputChange}
+              onKeyDown={handleEditInputKeyDown}
+              onBlur={handleInputBlur}
+              className="bg-transparent border-none outline-none text-xs text-center"
+              style={{ minWidth: '0px', width: `${inputWidthRef.current}px`, maxWidth: '100%', marginLeft: '-3px' }}
+              autoComplete="off"
+              aria-label={`Edit ${readOnlyPrefix ? 'editable portion of ' : ''}${readOnlyPrefix ? readOnlyPrefix + itemText : itemText}`}
+              aria-describedby={`${id}-edit-instructions`}
+            />
+          )}
+        </div>
         <div className="flex items-center gap-1 ml-1" role="group" aria-label="Edit actions">
           <button
             type="button"
@@ -248,7 +296,9 @@ export const Pill: React.FC<PillProps> = ({
           </button>
         </div>
         <div id={`${id}-edit-instructions`} className="sr-only">
-          Press Enter to save or Escape to cancel
+          {readOnlyPrefix
+            ? `Editing text after prefix "${readOnlyPrefix}". Press Enter to save or Escape to cancel`
+            : 'Press Enter to save or Escape to cancel'}
         </div>
       </div>
     )
@@ -261,7 +311,8 @@ export const Pill: React.FC<PillProps> = ({
       role="listitem"
       className={mergeClasses(
         'group rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
-        !disabled && isFocused ? 'ring z-10' : ''
+        !disabled && isFocused ? 'ring z-10' : '',
+        hasValidationError && 'ring-error ring-2'
       )}
       style={{ minWidth: showEditButton ? 44 : 22 }}
       tabIndex={-1}
@@ -301,7 +352,7 @@ export const Pill: React.FC<PillProps> = ({
           </button>
         </div>
       )}
-      <span className="relative group-hover:opacity-75 transition-opacity duration-300">{item}</span>
+      <span className="relative group-hover:opacity-75 transition-opacity duration-300">{fullText}</span>
     </div>
   )
 }
