@@ -45,7 +45,7 @@ export interface MultiSelectProps<T = string> {
   onEditDone?: (cancelled?: boolean) => void
 }
 
-export const MultiSelect = <T = string,>({
+export const MultiSelect = <T extends any = string>({
   value,
   selectedItems = [],
   items,

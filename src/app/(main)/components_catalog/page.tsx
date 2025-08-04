@@ -113,14 +113,18 @@ export default function ComponentsCatalogPage() {
     const newItems = [...twoStageMultiSelectValue, item]
     setTwoStageMultiSelectValue(newItems)
     if (item.value.startsWith('new-')) {
-      showToast(`New item created: ${item.content.text1}${item.content.text2 ? ` #${item.content.text2}` : ''}`, { type: 'success', title: 'Item Created' })
+      console.log('new item', item)
+      showToast(`New item created: ${item.content.value}${item.content.modifier ? ` #${item.content.modifier}` : ''}`, {
+        type: 'success',
+        title: 'Item Created'
+      })
     }
   }
 
   const handleTwoStageMultiSelectItemRemoved = (item: any) => {
     const newItems = twoStageMultiSelectValue.filter((i) => i.value !== item.value)
     setTwoStageMultiSelectValue(newItems)
-    showToast(`Removed: ${item.content.text1}${item.content.text2 ? ` #${item.content.text2}` : ''}`, { type: 'info', title: 'Item Removed' })
+    showToast(`Removed: ${item.content.value}${item.content.modifier ? ` #${item.content.modifier}` : ''}`, { type: 'info', title: 'Item Removed' })
   }
 
   const handleTwoStageMultiSelectItemEdited = (item: any, index: number) => {
