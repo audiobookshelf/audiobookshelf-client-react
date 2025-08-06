@@ -3,6 +3,7 @@ import { getLibraries } from '../../../../lib/api'
 import '../../../../assets/globals.css'
 import AppBar from '../../AppBar'
 import SideRail from './SideRail'
+import Toolbar from './Toolbar'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
@@ -30,7 +31,10 @@ export default async function LibraryLayout({
       <AppBar libraries={libraries} currentLibraryId={currentLibraryId} />
       <div className="flex h-[calc(100vh-4rem)]">
         <SideRail currentLibraryId={currentLibraryId} currentLibraryMediaType={currentLibraryMediaType} />
-        <div className="flex-1">{children}</div>
+        <div className="flex-1">
+          <Toolbar currentLibrary={currentLibrary} />
+          <div className="w-full h-[calc(100%-2.5rem)] overflow-y-auto">{children}</div>
+        </div>
       </div>
     </>
   )

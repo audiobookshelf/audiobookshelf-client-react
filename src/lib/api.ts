@@ -155,3 +155,7 @@ export const getLibrary = cache(async (libraryId: string) => {
 export const getLibraryPersonalized = cache(async (libraryId: string) => {
   return apiRequestWithRefresh(`/api/libraries/${libraryId}/personalized`, {})
 })
+
+export const getLibraryItems = cache(async (libraryId: string) => {
+  return apiRequestWithRefresh(`/api/libraries/${libraryId}/items`, {})
+})

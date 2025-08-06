@@ -116,7 +116,7 @@ export default function SideRail({ currentLibraryId, currentLibraryMediaType }: 
   const filteredButtons = buttons.filter((button) => (!button.mediaType || button.mediaType === currentLibraryMediaType) && !button.hidden)
 
   return (
-    <div className="w-20 min-w-20 h-full max-h-[calc(100vh-4rem)] bg-bg box-shadow-side">
+    <div className="w-20 min-w-20 h-full max-h-[calc(100vh-4rem)] bg-bg box-shadow-side z-10">
       <div className="w-full h-full max-h-[calc(100%-3rem)] overflow-y-auto">
         {filteredButtons.map((button) => (
           <Link
