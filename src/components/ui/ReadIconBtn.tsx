@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import IconBtn from './IconBtn'
 import { mergeClasses } from '@/lib/merge-classes'
 
@@ -11,16 +11,21 @@ interface ReadIconBtnProps {
 }
 
 export default function ReadIconBtn({ isRead, disabled = false, borderless = false, onClick, className }: ReadIconBtnProps) {
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    if (disabled) {
-      e.preventDefault()
-      return
-    }
-    onClick?.()
-  }
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+      if (disabled) {
+        e.preventDefault()
+        return
+      }
+      onClick?.()
+    },
+    [disabled, onClick]
+  )
 
-  const ariaLabel = isRead ? 'Mark as not finished' : 'Mark as finished'
+  const ariaLabel = useMemo(() => (isRead ? 'Mark as not finished' : 'Mark as finished'), [isRead])
+
+  const classes = useMemo(() => mergeClasses(isRead ? 'text-green-400' : 'text-gray-400', className), [isRead, className])
 
   return (
     <IconBtn
@@ -29,7 +34,8 @@ export default function ReadIconBtn({ isRead, disabled = false, borderless = fal
       borderless={borderless}
       ariaLabel={ariaLabel}
       onClick={handleClick}
-      className={mergeClasses(isRead ? 'text-green-400' : 'text-gray-400', className)}
+      aria-pressed={isRead}
+      className={classes}
     />
   )
 }

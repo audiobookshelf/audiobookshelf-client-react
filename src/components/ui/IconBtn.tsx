@@ -15,6 +15,7 @@ interface IconBtnProps {
   size?: number
   ariaLabel?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
+  'aria-pressed'?: boolean
   className?: string
 }
 
@@ -40,6 +41,7 @@ export default function IconBtn({
   size = 9,
   ariaLabel,
   onClick,
+  'aria-pressed': ariaPressed,
   className = ''
 }: IconBtnProps) {
   const classList = useMemo(() => {
@@ -83,7 +85,15 @@ export default function IconBtn({
   }, [])
 
   return (
-    <button aria-label={ariaLabel} className={classList} disabled={isDisabled} onClick={handleClick} onMouseDown={handleMouseDown}>
+    <button
+      aria-label={ariaLabel}
+      className={classList}
+      disabled={isDisabled}
+      onClick={handleClick}
+      onMouseDown={handleMouseDown}
+      tabIndex={isDisabled ? -1 : 0}
+      aria-pressed={ariaPressed}
+    >
       {loading && <LoadingSpinner />}
       {loading && (
         <span cy-id="icon-btn-loading" className="sr-only">
