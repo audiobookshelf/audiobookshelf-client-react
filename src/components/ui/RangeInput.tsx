@@ -13,7 +13,7 @@ interface RangeInputProps {
   ref?: React.Ref<HTMLInputElement>
 }
 
-const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, className = '', disabled = false, ref, ...props }: RangeInputProps) => {
+const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, className = '', disabled = false, ref }: RangeInputProps) => {
   const uniqueId = useId()
   const inputId = `range-input-${uniqueId}`
   const labelId = label ? `range-label-${uniqueId}` : undefined
@@ -94,7 +94,6 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
           aria-valuenow={value}
           aria-valuetext={`${value}%`}
           className={rangeInputClasses}
-          {...props}
         />
         <span className="text-sm ml-2" aria-hidden="true">
           {value}%
