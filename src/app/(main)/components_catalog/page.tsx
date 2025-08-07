@@ -11,6 +11,7 @@ import {
   MultiSelectDropdownExamples,
   ModalExamples,
   RangeInputExamples,
+  ReadIconBtnExamples,
   CheckboxExamples,
   FileInputExamples,
   LibraryIconExamples,
@@ -44,6 +45,11 @@ export default function ComponentsCatalogPage() {
                 <li>
                   <a href="#icon-button-components" className="hover:text-blue-400 transition-colors">
                     Icon Buttons
+                  </a>
+                </li>
+                <li>
+                  <a href="#read-icon-button-components" className="hover:text-blue-400 transition-colors">
+                    Read Icon Buttons
                   </a>
                 </li>
                 <li>
@@ -132,6 +138,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="icon-button-components">
         <IconBtnExamples />
+      </div>
+      <div id="read-icon-button-components">
+        <ReadIconBtnExamples />
       </div>
       <div id="context-menu-dropdown-components">
         <ContextMenuDropdownExamples />
