@@ -32,6 +32,7 @@ export default function ReadIconBtn({ isRead, disabled = false, borderless = fal
       icon="&#xe52d;" // BeenHere icon
       disabled={disabled}
       borderless={borderless}
+      outlined={!isRead}
       ariaLabel={ariaLabel}
       onClick={handleClick}
       aria-pressed={isRead}
