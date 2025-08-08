@@ -566,42 +566,42 @@ export function ReadIconBtnExamples() {
       </ComponentInfo>
 
       <ExamplesBlock>
-        <Example title="Default Read Button (Unread)">
+        <Example title="Default Button (Unread)">
           <div className="flex items-center gap-4">
             <ReadIconBtn isRead={isRead1} onClick={() => handleReadToggle(isRead1, setIsRead1)} />
             <span className="text-sm text-gray-400">Click to toggle read status</span>
           </div>
         </Example>
 
-        <Example title="Default Read Button (Read)">
+        <Example title="Default Button (Read)">
           <div className="flex items-center gap-4">
             <ReadIconBtn isRead={isRead2} onClick={() => handleReadToggle(isRead2, setIsRead2)} />
             <span className="text-sm text-gray-400">Click to toggle read status</span>
           </div>
         </Example>
 
-        <Example title="Borderless Read Button">
+        <Example title="Borderless Button (Unread)">
           <div className="flex items-center gap-4">
             <ReadIconBtn isRead={isRead3} borderless onClick={() => handleReadToggle(isRead3, setIsRead3)} />
             <span className="text-sm text-gray-400">Borderless style</span>
           </div>
         </Example>
 
-        <Example title="Disabled Read Button">
+        <Example title="Disabled Button (Read)">
           <div className="flex items-center gap-4">
             <ReadIconBtn isRead={true} disabled />
             <span className="text-sm text-gray-400">Disabled state</span>
           </div>
         </Example>
 
-        <Example title="Borderless Disabled Unread Button">
+        <Example title="Borderless Disabled Button (Unread)">
           <div className="flex items-center gap-4">
             <ReadIconBtn isRead={false} borderless disabled />
             <span className="text-sm text-gray-400">Borderless disabled</span>
           </div>
         </Example>
 
-        <Example title="Custom Styled Read Button">
+        <Example title="Custom Styled Button (Read)">
           <div className="flex items-center gap-4">
             <ReadIconBtn isRead={isRead4} onClick={() => handleReadToggle(isRead4, setIsRead4)} className="bg-blue-600 hover:bg-blue-700" />
             <span className="text-sm text-gray-400">Custom background color</span>
