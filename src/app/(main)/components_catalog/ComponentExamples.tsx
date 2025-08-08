@@ -539,8 +539,6 @@ export function ReadIconBtnExamples() {
   const [isRead2, setIsRead2] = useState(true)
   const [isRead3, setIsRead3] = useState(false)
   const [isRead4, setIsRead4] = useState(true)
-  const [isRead5, setIsRead5] = useState(false)
-  const [isRead6, setIsRead6] = useState(true)
 
   const { showToast } = useGlobalToast()
 
@@ -591,21 +589,21 @@ export function ReadIconBtnExamples() {
 
         <Example title="Disabled Read Button">
           <div className="flex items-center gap-4">
-            <ReadIconBtn isRead={isRead4} disabled />
+            <ReadIconBtn isRead={true} disabled />
             <span className="text-sm text-gray-400">Disabled state</span>
           </div>
         </Example>
 
-        <Example title="Borderless Disabled Read Button">
+        <Example title="Borderless Disabled Unread Button">
           <div className="flex items-center gap-4">
-            <ReadIconBtn isRead={isRead5} borderless disabled />
+            <ReadIconBtn isRead={false} borderless disabled />
             <span className="text-sm text-gray-400">Borderless disabled</span>
           </div>
         </Example>
 
         <Example title="Custom Styled Read Button">
           <div className="flex items-center gap-4">
-            <ReadIconBtn isRead={isRead6} onClick={() => handleReadToggle(isRead6, setIsRead6)} className="bg-blue-600 hover:bg-blue-700" />
+            <ReadIconBtn isRead={isRead4} onClick={() => handleReadToggle(isRead4, setIsRead4)} className="bg-blue-600 hover:bg-blue-700" />
             <span className="text-sm text-gray-400">Custom background color</span>
           </div>
         </Example>
