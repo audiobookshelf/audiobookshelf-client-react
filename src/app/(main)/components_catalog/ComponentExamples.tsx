@@ -1082,14 +1082,6 @@ export function RangeInputExamples() {
           <RangeInput value={rangeValue3} onChange={setRangeValue3} min={0} max={200} step={10} label="Custom Range With Step" />
         </Example>
 
-        <Example title="Minimum Value">
-          <RangeInput value={rangeValue4} onChange={setRangeValue4} label="Minimum Value" />
-        </Example>
-
-        <Example title="Maximum Value">
-          <RangeInput value={rangeValue5} onChange={setRangeValue5} label="Maximum Value" />
-        </Example>
-
         <Example title="Disabled RangeInput">
           <RangeInput value={50} onChange={() => {}} disabled label="Disabled Range" />
         </Example>
