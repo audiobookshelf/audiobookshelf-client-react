@@ -37,7 +37,7 @@ export default function TextareaInput({
     return mergeClasses(
       'relative w-full shadow-xs flex items-stretch rounded-sm px-2 py-2 focus-within:outline',
       'border border-gray-600',
-      disabled ? 'bg-black-300 text-gray-400' : readOnly ? 'bg-black-400 text-gray-400' : 'bg-primary',
+      disabled ? 'bg-black-300' : readOnly ? 'bg-[#444]' : 'bg-primary',
       className
     )
   }, [disabled, readOnly, className])
@@ -69,8 +69,7 @@ export default function TextareaInput({
           dir="auto"
           className={mergeClasses(
             'w-full resize-y bg-transparent px-1 outline-none border-none',
-            disabled ? 'cursor-not-allowed' : '',
-            disabled || readOnly ? 'text-gray-400' : 'text-gray-200'
+            disabled ? 'cursor-not-allowed text-gray-400' : readOnly ? '[&]:text-[#aaa]' : ''
           )}
           aria-disabled={disabled || undefined}
           aria-readonly={readOnly || undefined}
