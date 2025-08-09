@@ -1,16 +1,32 @@
 'use client'
 
 import { useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 interface LibrariesDropdownProps {
   libraries: any[]
   currentLibraryId: string
 }
 
+const bookLibraryPages = ['bookshelf', 'series', 'collections', 'playlists', 'authors', 'narrators', 'stats']
+const podcastLibraryPages = ['bookshelf', 'latest', 'playlists', 'search', 'download-queue']
+
 export default function LibrariesDropdown({ libraries, currentLibraryId }: LibrariesDropdownProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [isPending, startTransition] = useTransition()
+
+  function getLibraryPath(libraryId: string) {
+    const library = libraries.find((l) => l.id === libraryId)
+    let page = pathname.split('/').pop() || ''
+    if (page && library.mediaType === 'book' && !bookLibraryPages.includes(page)) {
+      page = ''
+    } else if (page && library.mediaType === 'podcast' && !podcastLibraryPages.includes(page)) {
+      page = ''
+    }
+
+    return `/library/${libraryId}/${page}`
+  }
 
   return (
     <div className="relative w-max">
@@ -20,7 +36,7 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
         disabled={isPending}
         onChange={(e) => {
           startTransition(() => {
-            router.push(`/library/${e.target.value}`)
+            router.push(getLibraryPath(e.target.value))
           })
         }}
       >
