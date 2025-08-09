@@ -6,6 +6,7 @@ import {
   ContextMenuDropdownExamples,
   DropdownExamples,
   InputDropdownExamples,
+  TextareaInputExamples,
   MultiSelectExamples,
   TwoStageMultiSelectExamples,
   MultiSelectDropdownExamples,
@@ -65,6 +66,11 @@ export default function ComponentsCatalogPage() {
                 <li>
                   <a href="#input-dropdown-components" className="hover:text-blue-400 transition-colors">
                     Input Dropdowns
+                  </a>
+                </li>
+                <li>
+                  <a href="#textarea-input-components" className="hover:text-blue-400 transition-colors">
+                    Textarea Inputs
                   </a>
                 </li>
                 <li>
@@ -150,6 +156,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="input-dropdown-components">
         <InputDropdownExamples />
+      </div>
+      <div id="textarea-input-components">
+        <TextareaInputExamples />
       </div>
       <div id="multi-select-components">
         <MultiSelectExamples />
