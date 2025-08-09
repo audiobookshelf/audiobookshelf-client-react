@@ -69,7 +69,7 @@ export default function TextareaInput({
           dir="auto"
           className={mergeClasses(
             'w-full resize-y bg-transparent px-1 outline-none border-none',
-            disabled ? 'cursor-not-allowed text-gray-400' : readOnly ? '[&]:text-[#ccc]' : ''
+            disabled ? 'cursor-not-allowed text-gray-400' : readOnly ? '[&]:text-gray-300' : ''
           )}
           aria-disabled={disabled || undefined}
           aria-readonly={readOnly || undefined}
