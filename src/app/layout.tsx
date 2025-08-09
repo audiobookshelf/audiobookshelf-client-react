@@ -16,7 +16,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale}>
-      <body>
+      <body className="overflow-x-hidden">
         <NextIntlClientProvider>
           <ToastProvider>
             {children}

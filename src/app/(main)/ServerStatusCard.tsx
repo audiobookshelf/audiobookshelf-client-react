@@ -36,7 +36,7 @@ export default function HomeClient({ statusData }: HomeClientProps) {
   return (
     <div className="mb-6 p-4 bg-primary rounded-lg">
       <h2 className="text-2xl font-semibold mb-2">Server Status</h2>
-      <pre className="text-sm bg-black p-2 rounded border">{JSON.stringify(statusData, null, 2)}</pre>
+      <pre className="text-sm bg-black p-2 rounded border whitespace-pre-wrap">{JSON.stringify(statusData, null, 2)}</pre>
 
       <div className="mt-4">
         <p>Socket Connected: {isConnected ? 'Yes' : 'No'}</p>
