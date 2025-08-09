@@ -37,12 +37,12 @@ export default function TextareaInput({
     return mergeClasses(
       'relative w-full shadow-xs flex items-stretch rounded-sm px-2 py-2 focus-within:outline',
       'border border-gray-600',
-      disabled ? 'bg-black-300' : readOnly ? 'bg-[#444]' : 'bg-primary',
+      disabled ? 'bg-bg-disabled' : readOnly ? 'bg-bg-read-only' : 'bg-primary',
       className
     )
   }, [disabled, readOnly, className])
 
-  const labelClass = useMemo(() => mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-gray-400' : ''), [disabled])
+  const labelClass = useMemo(() => mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : ''), [disabled])
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -69,7 +69,7 @@ export default function TextareaInput({
           dir="auto"
           className={mergeClasses(
             'w-full resize-y bg-transparent px-1 outline-none border-none',
-            disabled ? 'cursor-not-allowed text-gray-400' : readOnly ? '[&]:text-gray-300' : ''
+            disabled ? 'cursor-not-allowed text-disabled' : readOnly ? '[&]:text-read-only' : ''
           )}
           aria-disabled={disabled || undefined}
           aria-readonly={readOnly || undefined}

@@ -42,9 +42,9 @@ describe('<Dropdown />', () => {
     cy.get('button').should('be.disabled')
     cy.get('button').should('have.class', 'cursor-not-allowed')
     cy.get('button').should('have.class', 'border-none')
-    cy.get('button').should('have.class', 'bg-black-300')
-    cy.get('button').should('have.class', 'text-gray-400')
-    cy.get('p').should('have.class', 'text-gray-400')
+    cy.get('button').should('have.class', 'bg-bg-disabled')
+    cy.get('button').should('have.class', 'text-disabled')
+    cy.get('p').should('have.class', 'text-disabled')
   })
 
   it('applies small size class', () => {

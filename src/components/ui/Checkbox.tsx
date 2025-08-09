@@ -62,7 +62,7 @@ export default function Checkbox({
       classes.push('pl-2')
     }
 
-    return mergeClasses('select-none', classes, disabled ? 'text-gray-400' : 'text-gray-100')
+    return mergeClasses('select-none', classes, disabled ? 'text-disabled' : 'text-gray-100')
   }, [labelClass, small, medium, disabled])
 
   const svgClass = useMemo(() => {
@@ -101,7 +101,7 @@ export default function Checkbox({
   )
 
   const labelElementClassName = useMemo(() => {
-    return mergeClasses('flex justify-start items-center', !disabled ? 'cursor-pointer' : '', className)
+    return mergeClasses('flex justify-start items-center', !disabled ? 'cursor-pointer' : 'cursor-not-allowed', className)
   }, [disabled, className])
 
   return (
@@ -114,7 +114,7 @@ export default function Checkbox({
           disabled={disabled}
           aria-label={ariaLabel}
           onChange={handleChange}
-          className={mergeClasses('opacity-0 absolute', !disabled ? 'cursor-pointer' : '')}
+          className={mergeClasses('opacity-0 absolute', !disabled ? 'cursor-pointer' : 'cursor-not-allowed')}
         />
         {partial ? (
           <span className="material-symbols text-base leading-none text-gray-400">remove</span>
