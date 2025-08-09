@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import LogoutButton from './LogoutButton'
 import { getCurrentUser } from '../../lib/api'
 import LibrariesDropdown from './LibrariesDropdown'
+import Btn from '@/components/ui/Btn'
 
 export default async function AppBar(props: { libraries?: any; currentLibraryId?: string }) {
   const userResponse = await getCurrentUser()
@@ -28,11 +28,13 @@ export default async function AppBar(props: { libraries?: any; currentLibraryId?
         <Link href="/components_catalog" title="Components Catalog" className="text-sm text-foreground hover:text-foreground/80">
           <span className="material-symbols text-xl">widgets</span>
         </Link>
-        <p className="text-sm text-foreground">Logged in as {user.username}</p>
         <Link href="/settings" title="Settings" className="text-sm text-foreground hover:text-foreground/80">
           <span className="material-symbols text-xl">settings</span>
         </Link>
-        <LogoutButton />
+        <Btn to="/account" className="pl-3 pr-2 w-32 justify-between">
+          <span className="text-sm">{user.username}</span>
+          <span className="material-symbols text-xl">person</span>
+        </Btn>
       </div>
     </div>
   )

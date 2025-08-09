@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 
 export default function LoginForm() {
@@ -10,7 +9,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,11 +33,11 @@ export default function LoginForm() {
       const urlParams = new URLSearchParams(window.location.search)
       const redirect = urlParams.get('redirect')
       if (redirect) {
-        router.replace(redirect)
+        window.location.href = redirect
       } else if (userDefaultLibraryId) {
-        router.replace(`/library/${userDefaultLibraryId}`)
+        window.location.href = `/library/${userDefaultLibraryId}`
       } else {
-        router.replace('/settings')
+        window.location.href = '/settings'
       }
     } catch (err) {
       setError('Network error. Please try again.')

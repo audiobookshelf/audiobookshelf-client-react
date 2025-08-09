@@ -3,8 +3,9 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import Btn from '@/components/ui/Btn'
 
-export default function LogoutButton() {
+export default function LogoutBtn() {
   const t = useTranslations()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -29,13 +30,9 @@ export default function LogoutButton() {
   }
 
   return (
-    <button
-      type="button"
-      className="bg-primary border-gray-600 border text-white px-4 py-2 rounded-md cursor-pointer"
-      onClick={handleLogout}
-      disabled={loading}
-    >
-      {loading ? 'Logging out...' : t('LabelLogout')}
-    </button>
+    <Btn onClick={handleLogout} loading={loading} className="items-center justify-between gap-2 pl-6">
+      <span className="material-symbols text-lg">logout</span>
+      {t('LabelLogout')}
+    </Btn>
   )
 }
