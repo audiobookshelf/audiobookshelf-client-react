@@ -11,18 +11,8 @@ interface LoadingSpinnerProps {
   dark?: boolean
 }
 
-const LoadingSpinner = memo(({
-  size = 'la-sm',
-  className = '',
-  color,
-  dark = false
-}: LoadingSpinnerProps) => {
-  const classList = mergeClasses(
-    styles['la-ball-spin-clockwise'],
-    styles[size],
-    dark ? styles['la-dark'] : '',
-    className
-  )
+const LoadingSpinner = memo(({ size = 'la-sm', className = '', color, dark = false }: LoadingSpinnerProps) => {
+  const classList = mergeClasses(styles['la-ball-spin-clockwise'], styles[size], dark ? styles['la-dark'] : '', 'cursor-not-allowed', className)
 
   const style = color ? { color } : undefined
 

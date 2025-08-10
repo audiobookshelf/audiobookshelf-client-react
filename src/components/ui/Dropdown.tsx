@@ -101,14 +101,8 @@ export default function Dropdown({
     if (small) classes.push('h-9')
     else classes.push('h-10')
 
-    if (disabled) {
-      classes.push('cursor-not-allowed border-none bg-black-300 text-gray-400')
-    } else {
-      classes.push('cursor-pointer border-gray-600 bg-primary text-gray-100')
-    }
-
     return classes.join(' ')
-  }, [small, disabled])
+  }, [small])
 
   const longLabel = useMemo(() => {
     let result = ''
@@ -235,14 +229,19 @@ export default function Dropdown({
 
   return (
     <div className={mergeClasses('relative w-full', className)}>
-      {label && <p className={mergeClasses('text-sm font-semibold px-1', disabled ? 'text-gray-400' : '')}>{label}</p>}
+      {label && <p className={mergeClasses('text-sm font-semibold px-1', disabled ? 'text-disabled' : '')}>{label}</p>}
 
       <button
         ref={buttonRef}
         type="button"
         aria-label={longLabel}
         disabled={disabled}
-        className={mergeClasses('relative w-full border rounded-sm shadow-xs pl-3 pr-8 py-2 text-left sm:text-sm', buttonClass)}
+        className={mergeClasses(
+          'relative w-full border rounded-sm shadow-xs pl-3 pr-8 py-2 text-left sm:text-sm',
+          'cursor-pointer border-gray-600 bg-primary text-gray-100',
+          'disabled:cursor-not-allowed disabled:border-none disabled:bg-bg-disabled disabled:text-disabled',
+          buttonClass
+        )}
         aria-haspopup="listbox"
         aria-expanded={showMenu}
         aria-activedescendant={focusedIndex >= 0 ? `${dropdownId}-item-${focusedIndex}` : undefined}

@@ -10,6 +10,7 @@ describe('<LoadingSpinner />', () => {
     cy.get(`.${styles['la-ball-spin-clockwise']} > div`).first().should('have.css', 'position', 'absolute')
     cy.get(`.${styles['la-ball-spin-clockwise']} > div`).first().should('have.css', 'border-radius', '100%')
     cy.get(`.${styles['la-ball-spin-clockwise']} > div`).first().should('have.css', 'animation-name', styles['ball-spin-clockwise'])
+    cy.get('&loading-spinner').should('have.class', 'cursor-not-allowed')
   })
 
   it('renders with default props correctly', () => {

@@ -656,7 +656,7 @@ export const MultiSelect = <T extends any = string>({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={identifier} className={`px-1 text-sm font-semibold ${disabled ? 'text-gray-400' : ''}`}>
+        <label htmlFor={identifier} className={`px-1 text-sm font-semibold ${disabled ? 'text-disabled' : ''}`}>
           {label}
         </label>
       )}
@@ -667,7 +667,7 @@ export const MultiSelect = <T extends any = string>({
           style={{ minHeight: 36 }}
           className={mergeClasses(
             'flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-1 focus-within:outline',
-            disabled ? 'bg-black-300 text-gray-400 cursor-not-allowed' : 'bg-primary cursor-text'
+            disabled ? 'bg-bg-disabled text-disabled cursor-not-allowed' : 'bg-primary cursor-text'
           )}
           onClick={handleInputWrapperClick}
           onMouseDown={(e) => e.preventDefault()}

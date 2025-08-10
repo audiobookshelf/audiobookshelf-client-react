@@ -67,14 +67,14 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
   return (
     <div className={containerClasses}>
       {label && (
-        <label id={labelId} htmlFor={inputId} className={`px-1 text-sm font-semibold ${disabled ? 'text-gray-400' : ''}`}>
+        <label id={labelId} htmlFor={inputId} className={`px-1 text-sm font-semibold ${disabled ? 'text-disabled' : ''}`}>
           {label}
         </label>
       )}
       <div
         className={mergeClasses(
           'inline-flex items-center w-full rounded-sm px-2 py-1 focus-within:outline',
-          disabled ? 'bg-black-300 text-gray-400 cursor-not-allowed' : 'bg-primary cursor-text'
+          disabled ? 'bg-bg-disabled text-disabled cursor-not-allowed' : 'bg-primary cursor-text'
         )}
       >
         <input

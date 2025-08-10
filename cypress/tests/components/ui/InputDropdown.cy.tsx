@@ -20,12 +20,14 @@ describe('<InputDropdown />', () => {
   })
 
   it('is disabled when disabled prop is true', () => {
-    cy.mount(<InputDropdown items={mockItems} disabled={true} />)
+    cy.mount(<InputDropdown items={mockItems} disabled={true} label="Test Label" />)
     cy.get('input').should('be.disabled')
     cy.get('input').should('have.attr', 'tabindex', '-1')
-    cy.get('input').should('have.class', 'cursor-not-allowed')
-    cy.get('[cy-id="input-wrapper"]').should('have.class', 'bg-black-300')
-    cy.get('[cy-id="input-wrapper"]').should('have.class', 'text-gray-400')
+    cy.get('input').should('have.class', 'disabled:cursor-not-allowed')
+    cy.get('input').should('have.class', 'disabled:text-disabled')
+    cy.get('input').should('have.class', 'bg-transparent')
+    cy.get('[cy-id="input-wrapper"]').should('have.class', 'bg-bg-disabled')
+    cy.get('[cy-id="input-dropdown-label"]').should('have.class', 'text-disabled')
   })
 
   it('applies custom class', () => {

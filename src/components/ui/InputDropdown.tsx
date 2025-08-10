@@ -228,13 +228,17 @@ export default function InputDropdown({
   const inputWrapperClass = useMemo(() => {
     return mergeClasses(
       'input-wrapper flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-2 focus-within:outline',
-      disabled ? 'bg-black-300 text-gray-400' : 'bg-primary'
+      disabled ? 'bg-bg-disabled' : 'bg-primary'
     )
   }, [disabled])
 
   return (
     <div className={mergeClasses('w-full', className)}>
-      {label && <label className={mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-gray-400' : '')}>{label}</label>}
+      {label && (
+        <label cy-id="input-dropdown-label" className={mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : '')}>
+          {label}
+        </label>
+      )}
 
       <div ref={wrapperRef} className="relative">
         <div cy-id="input-wrapper" className={inputWrapperClass}>
@@ -243,7 +247,7 @@ export default function InputDropdown({
             value={textInput}
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}
-            className={mergeClasses('h-full w-full bg-transparent px-1 outline-none', disabled ? 'cursor-not-allowed' : '')}
+            className="h-full w-full bg-transparent px-1 outline-none disabled:cursor-not-allowed disabled:text-disabled"
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             onFocus={onInputFocus}

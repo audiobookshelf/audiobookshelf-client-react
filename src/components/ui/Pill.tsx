@@ -251,7 +251,7 @@ export const Pill = <T,>({
         </span>
         <div className="inline" style={{ maxWidth: '85%' }}>
           {readOnlyPrefix && (
-            <span ref={prefixRef} className="text-gray-400 text-xs">
+            <span ref={prefixRef} className="text-disabled text-xs">
               {readOnlyPrefix}
             </span>
           )}

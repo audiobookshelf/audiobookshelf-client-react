@@ -61,7 +61,8 @@ describe('<Checkbox />', () => {
   it('is disabled when disabled prop is true', () => {
     cy.mount(<Checkbox disabled label="Disabled Checkbox" />)
     cy.get('input[type="checkbox"]').should('be.disabled')
-    cy.get('&checkbox-label').should('have.class', 'text-gray-400')
+    cy.get('&checkbox-label').should('have.class', 'text-disabled')
+    cy.get('input[type="checkbox"]').should('have.class', 'disabled:cursor-not-allowed')
   })
 
   it('does not call onChange when disabled', () => {

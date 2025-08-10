@@ -185,7 +185,7 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
 
   return (
     <div ref={containerRef} className={mergeClasses('relative w-fit h-9', className)}>
-      <label htmlFor={uniqueId} className={mergeClasses('text-sm font-semibold block', disabled ? 'text-gray-300' : '')}>
+      <label htmlFor={uniqueId} className={mergeClasses('text-sm font-semibold block', disabled ? 'text-disabled' : '')}>
         {label}
       </label>
 
