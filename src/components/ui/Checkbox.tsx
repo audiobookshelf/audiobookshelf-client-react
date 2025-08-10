@@ -114,7 +114,7 @@ export default function Checkbox({
           disabled={disabled}
           aria-label={ariaLabel}
           onChange={handleChange}
-          className={mergeClasses('opacity-0 absolute', !disabled ? 'cursor-pointer' : 'cursor-not-allowed')}
+          className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed"
         />
         {partial ? (
           <span className="material-symbols text-base leading-none text-gray-400">remove</span>

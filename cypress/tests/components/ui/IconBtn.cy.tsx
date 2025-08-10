@@ -51,7 +51,7 @@ describe('<IconBtn />', () => {
     cy.mount(<IconBtn icon="&#xe3c9;" loading />)
     cy.get('button').should('be.disabled')
     cy.get('&icon-btn-loading-spinner').should('exist')
-    cy.get('&icon-btn-loading-spinner').should('have.class', 'text-disabled')
+    cy.get('&icon-btn-loading-spinner').should('have.class', 'text-white/100')
     cy.get('&icon-btn-icon').should('not.exist')
     cy.get('&icon-btn-loading').should('exist')
   })
@@ -59,7 +59,15 @@ describe('<IconBtn />', () => {
   it('is disabled when disabled prop is true', () => {
     cy.mount(<IconBtn icon="&#xe3c9;" disabled />)
     cy.get('button').should('be.disabled')
-    cy.get('button').should('have.class', 'text-disabled')
+    cy.get('button').should('have.class', 'disabled:text-disabled')
+    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
+  })
+
+  it('is disabled when loading is true', () => {
+    cy.mount(<IconBtn icon="&#xe3c9;" loading />)
+    cy.get('button').should('be.disabled')
+    cy.get('button').should('have.class', 'disabled:text-disabled')
+    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
   })
 
   it('is disabled when loading is true', () => {

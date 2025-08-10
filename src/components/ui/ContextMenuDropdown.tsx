@@ -336,7 +336,7 @@ export default function ContextMenuDropdown({
           ref={buttonRef}
           type="button"
           disabled={disabled}
-          className="relative h-full w-full flex items-center justify-center shadow-xs pl-3 pr-3 text-left cursor-pointer text-gray-100 hover:text-gray-200 rounded-full hover:bg-white/5"
+          className="relative h-full w-full flex items-center justify-center shadow-xs pl-3 pr-3 text-left cursor-pointer disabled:cursor-not-allowed disabled:text-disabled text-gray-100 hover:text-gray-200 rounded-full hover:bg-white/5"
           aria-label="More options"
           aria-haspopup="true"
           aria-expanded={showMenu}

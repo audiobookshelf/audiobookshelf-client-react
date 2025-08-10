@@ -56,7 +56,15 @@ describe('<Btn />', () => {
   it('is disabled when disabled prop is true', () => {
     cy.mount(<Btn disabled>Disabled Button</Btn>)
     cy.get('button').should('be.disabled')
-    cy.get('button').should('have.class', 'cursor-not-allowed')
+    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
+    cy.get('button').should('have.class', 'disabled:text-disabled')
+  })
+
+  it('is disabled when loading is true', () => {
+    cy.mount(<Btn loading>Loading Button</Btn>)
+    cy.get('button').should('be.disabled')
+    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
+    cy.get('button').should('have.class', 'disabled:text-disabled/0')
   })
 
   it('calls onClick handler when clicked', () => {
@@ -279,7 +287,8 @@ describe('<Btn />', () => {
       </Btn>
     )
     cy.get('button').should('be.disabled')
-    cy.get('button').should('have.class', 'cursor-not-allowed')
+    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
+    cy.get('button').should('have.class', 'disabled:text-disabled')
   })
 
   it('handles click event with event object', () => {

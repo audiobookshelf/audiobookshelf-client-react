@@ -63,6 +63,7 @@ describe('<ContextMenuDropdown />', () => {
       </div>
     )
     cy.get('button').should('be.disabled')
+    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
   })
 
   it('opens menu when clicked', () => {

@@ -21,7 +21,7 @@ interface IconBtnProps {
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
 const LoadingSpinner = memo(() => (
-  <div cy-id="icon-btn-loading-spinner" className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-disabled" aria-hidden="true">
+  <div cy-id="icon-btn-loading-spinner" className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-white/100" aria-hidden="true">
     <svg className="animate-spin" style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24">
       <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
     </svg>
@@ -55,8 +55,8 @@ export default function IconBtn({
       list.push(`${bgColor} border border-gray-600`)
     }
 
-    const baseClassList = `${styles.iconBtn} rounded-md flex items-center justify-center relative`
-    return mergeClasses(baseClassList, list, isDisabled ? 'cursor-not-allowed text-disabled' : '', className)
+    const baseClassList = `${styles.iconBtn} rounded-md flex items-center justify-center relative disabled:cursor-not-allowed disabled:text-disabled`
+    return mergeClasses(baseClassList, list, className)
   }, [size, borderless, bgColor, className])
 
   const fontSize = useMemo(() => {

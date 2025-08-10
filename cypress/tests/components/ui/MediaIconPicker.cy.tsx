@@ -24,7 +24,7 @@ describe('<MediaIconPicker />', () => {
     cy.mount(<MediaIconPicker disabled={true} />)
     cy.get('button').should('be.disabled')
     cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
-    cy.get('label').should('have.class', 'text-gray-300')
+    cy.get('label').should('have.class', 'text-disabled')
   })
 
   it('applies custom class', () => {

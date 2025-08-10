@@ -247,7 +247,7 @@ export default function InputDropdown({
             value={textInput}
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}
-            className={mergeClasses('h-full w-full bg-transparent px-1 outline-none', disabled ? 'cursor-not-allowed text-disabled' : '')}
+            className="h-full w-full bg-transparent px-1 outline-none disabled:cursor-not-allowed disabled:text-disabled"
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             onFocus={onInputFocus}

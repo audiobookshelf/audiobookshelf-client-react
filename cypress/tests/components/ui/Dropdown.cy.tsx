@@ -40,10 +40,10 @@ describe('<Dropdown />', () => {
   it('is disabled when disabled prop is true', () => {
     cy.mount(<Dropdown items={mockItems} label="Test Label" disabled={true} />)
     cy.get('button').should('be.disabled')
-    cy.get('button').should('have.class', 'cursor-not-allowed')
-    cy.get('button').should('have.class', 'border-none')
-    cy.get('button').should('have.class', 'bg-bg-disabled')
-    cy.get('button').should('have.class', 'text-disabled')
+    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
+    cy.get('button').should('have.class', 'disabled:border-none')
+    cy.get('button').should('have.class', 'disabled:bg-bg-disabled')
+    cy.get('button').should('have.class', 'disabled:text-disabled')
     cy.get('p').should('have.class', 'text-disabled')
   })
 

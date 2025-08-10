@@ -54,7 +54,7 @@ export default function Btn({
     const list: string[] = []
 
     // Optimize conditional class logic
-    list.push(loading ? 'text-white/0' : 'text-white')
+    list.push(loading ? 'text-white/0 disabled:text-disabled/0' : 'text-white disabled:text-disabled')
     list.push(color)
 
     if (small) {
@@ -73,13 +73,9 @@ export default function Btn({
       list.push(`py-${paddingY}`)
     }
 
-    if (disabled) {
-      list.push('cursor-not-allowed')
-    }
-
-    const baseClassList = 'abs-btn rounded-md shadow-md relative border border-gray-600 text-center inline-flex'
+    const baseClassList = 'abs-btn rounded-md shadow-md relative border border-gray-600 text-center inline-flex disabled:cursor-not-allowed'
     return mergeClasses(baseClassList, list, className)
-  }, [loading, color, small, paddingX, paddingY, disabled, className])
+  }, [loading, color, small, paddingX, paddingY, className])
 
   const isDisabled = disabled || loading
 
