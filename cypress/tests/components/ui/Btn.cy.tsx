@@ -26,16 +26,6 @@ describe('<Btn />', () => {
     cy.get('button').should('have.class', 'py-1')
   })
 
-  it('applies custom padding', () => {
-    cy.mount(
-      <Btn paddingX={6} paddingY={3}>
-        Custom Padding
-      </Btn>
-    )
-    cy.get('button').should('have.class', 'px-6')
-    cy.get('button').should('have.class', 'py-3')
-  })
-
   it('shows loading spinner when loading is true', () => {
     cy.mount(<Btn loading>Loading Button</Btn>)
     cy.get('button').should('be.disabled')
@@ -210,28 +200,6 @@ describe('<Btn />', () => {
   it('handles different button types', () => {
     cy.mount(<Btn type="reset">Reset Button</Btn>)
     cy.get('button').should('have.attr', 'type', 'reset')
-  })
-
-  it('handles small variant with custom padding override', () => {
-    cy.mount(
-      <Btn small paddingX={10} paddingY={5}>
-        Small Custom Padding
-      </Btn>
-    )
-    cy.get('button').should('have.class', 'text-sm')
-    cy.get('button').should('have.class', 'px-10')
-    cy.get('button').should('have.class', 'py-5')
-  })
-
-  it('handles large variant with custom padding override', () => {
-    cy.mount(
-      <Btn paddingX={12} paddingY={6}>
-        Large Custom Padding
-      </Btn>
-    )
-    cy.get('button').should('not.have.class', 'text-sm')
-    cy.get('button').should('have.class', 'px-12')
-    cy.get('button').should('have.class', 'py-6')
   })
 
   it('handles complex children content', () => {

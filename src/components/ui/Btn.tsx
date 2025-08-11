@@ -8,8 +8,6 @@ interface BtnProps {
   to?: string
   color?: string
   type?: 'button' | 'submit' | 'reset'
-  paddingX?: number
-  paddingY?: number
   small?: boolean
   loading?: boolean
   disabled?: boolean
@@ -39,8 +37,6 @@ export default function Btn({
   to,
   color = 'bg-primary',
   type = 'button',
-  paddingX,
-  paddingY,
   small = false,
   loading = false,
   disabled = false,
@@ -59,23 +55,15 @@ export default function Btn({
 
     if (small) {
       list.push('text-sm')
-      if (paddingX === undefined) list.push('px-4')
-      if (paddingY === undefined) list.push('py-1')
+      list.push('px-4')
+      list.push('py-1')
     } else {
-      if (paddingX === undefined) list.push('px-8')
-      if (paddingY === undefined) list.push('py-2')
+      list.push('px-8')
+      list.push('py-2')
     }
-
-    if (paddingX !== undefined) {
-      list.push(`px-${paddingX}`)
-    }
-    if (paddingY !== undefined) {
-      list.push(`py-${paddingY}`)
-    }
-
     const baseClassList = 'abs-btn rounded-md shadow-md relative border border-gray-600 text-center inline-flex disabled:cursor-not-allowed'
     return mergeClasses(baseClassList, list, className)
-  }, [loading, color, small, paddingX, paddingY, className])
+  }, [loading, color, small, className])
 
   const isDisabled = disabled || loading
 
