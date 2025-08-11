@@ -8,6 +8,7 @@
   --primary: #232323;
   --background: #373838;
   --foreground: #ededed;
+  --border: #444444;
   --header-height: 64px;
 }
 
@@ -65,6 +66,7 @@
   --color-bg-disabled: var(--color-black-300);
   --color-read-only: var(--color-gray-300);
   --color-bg-read-only: var(--color-black-300);
+  --color-border: var(--border);
 
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';
