@@ -774,7 +774,11 @@ export function TextInputExamples() {
           <code className="bg-gray-700 px-2 py-1 rounded">placeholder</code>, <code className="bg-gray-700 px-2 py-1 rounded">type</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">readOnly</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">clearable</code>, <code className="bg-gray-700 px-2 py-1 rounded">showCopy</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">textCenter</code>, <code className="bg-gray-700 px-2 py-1 rounded">trimWhitespace</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">customInputClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">step</code>,{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">min</code>, <code className="bg-gray-700 px-2 py-1 rounded">onClear</code>,{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">onFocus</code>, <code className="bg-gray-700 px-2 py-1 rounded">onBlur</code>,{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">id</code>, <code className="bg-gray-700 px-2 py-1 rounded">name</code>,{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">className</code>, <code className="bg-gray-700 px-2 py-1 rounded">ref</code>
         </p>
       </ComponentInfo>
 
