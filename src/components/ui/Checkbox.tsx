@@ -1,13 +1,12 @@
 'use client'
 
-import React, { useMemo, useCallback, useRef } from 'react'
+import React, { useMemo, useCallback, useRef, useId } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 
 interface CheckboxProps {
   value?: boolean
   label?: string
-  small?: boolean
-  medium?: boolean
+  size?: 'small' | 'medium' | 'large'
   checkboxBgClass?: string
   borderColorClass?: string
   checkColorClass?: string
@@ -22,8 +21,7 @@ interface CheckboxProps {
 export default function Checkbox({
   value = false,
   label,
-  small = false,
-  medium = false,
+  size = 'medium',
   checkboxBgClass = 'bg-bg',
   borderColorClass = 'border-gray-400',
   checkColorClass = 'text-green-500',
@@ -34,87 +32,128 @@ export default function Checkbox({
   onChange,
   className = ''
 }: CheckboxProps) {
-  const labelRef = useRef<HTMLLabelElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const checkboxId = useId()
 
   const checkboxWrapperClassName = useMemo(() => {
     const classes = [checkboxBgClass, borderColorClass]
 
-    if (small) {
+    if (size === 'small') {
       classes.push('w-4 h-4')
-    } else if (medium) {
+    } else if (size === 'medium') {
       classes.push('w-5 h-5')
     } else {
+      // large
       classes.push('w-6 h-6')
     }
 
-    return mergeClasses('border-2 rounded-sm flex shrink-0 justify-center items-center', classes)
-  }, [checkboxBgClass, borderColorClass, small, medium])
+    return mergeClasses('border rounded-sm flex shrink-0 justify-center items-center', classes)
+  }, [checkboxBgClass, borderColorClass, size])
 
   const checkboxLabelClassName = useMemo(() => {
     if (labelClass) return labelClass
 
     const classes = []
-    if (small) {
+    if (size === 'small') {
       classes.push('text-xs md:text-sm pl-1')
-    } else if (medium) {
-      classes.push('text-base md:text-lg pl-2')
+    } else if (size === 'medium') {
+      classes.push('text-sm md:text-base pl-2')
     } else {
-      classes.push('pl-2')
+      classes.push('text-base md:text-lg pl-2')
     }
 
-    return mergeClasses('select-none', classes, disabled ? 'text-disabled' : 'text-gray-100')
-  }, [labelClass, small, medium, disabled])
+    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-gray-100')
+  }, [labelClass, size, disabled])
 
   const svgClass = useMemo(() => {
     const classes = [checkColorClass]
 
-    if (small) {
+    if (size === 'small') {
       classes.push('w-3 h-3')
-    } else if (medium) {
+    } else if (size === 'medium') {
       classes.push('w-3.5 h-3.5')
     } else {
+      // large
       classes.push('w-4 h-4')
     }
 
     return mergeClasses('fill-current pointer-events-none', classes)
-  }, [checkColorClass, small, medium])
+  }, [checkColorClass, size])
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (onChange && !disabled) {
-        onChange(e.target.checked)
+      if (!disabled) {
+        onChange?.(e.target.checked)
       }
     },
     [onChange, disabled]
   )
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLLabelElement>) => {
-      if (e.key === 'Enter' && document.activeElement === labelRef.current) {
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
         e.preventDefault()
-        if (onChange && !disabled) {
-          onChange(!value)
+        if (!disabled) {
+          inputRef.current?.click()
         }
       }
     },
-    [onChange, disabled, value]
+    [disabled]
   )
 
-  const labelElementClassName = useMemo(() => {
-    return mergeClasses('flex justify-start items-center', !disabled ? 'cursor-pointer' : 'cursor-not-allowed', className)
+  const handleLabelClick = useCallback(
+    (e: React.MouseEvent<HTMLLabelElement>) => {
+      e.preventDefault()
+      if (!disabled) {
+        inputRef.current?.click()
+      }
+    },
+    [disabled]
+  )
+
+  const handleWrapperClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (inputRef.current && !disabled) {
+        inputRef.current.focus()
+      }
+    },
+    [disabled]
+  )
+
+  const wrapperClassName = useMemo(() => {
+    const classes = []
+    if (size === 'small') {
+      classes.push('h-8.5')
+    } else if (size === 'medium') {
+      classes.push('h-9.5')
+    } else {
+      classes.push('h-10.5')
+    }
+
+    return mergeClasses(
+      'flex justify-start items-center px-2 py-1.5 border border-gray-600 rounded-sm focus-within:outline',
+      classes,
+      !disabled ? '' : 'bg-bg-disabled cursor-not-allowed',
+      className
+    )
   }, [disabled, className])
 
   return (
-    <label ref={labelRef} tabIndex={0} className={labelElementClassName} onKeyDown={handleKeyDown}>
+    <div cy-id="checkbox-and-label-wrapper" ref={wrapperRef} className={wrapperClassName} onMouseDown={(e) => e.preventDefault()} onClick={handleWrapperClick}>
       <div cy-id="checkbox-wrapper" className={checkboxWrapperClassName}>
         <input
+          ref={inputRef}
+          id={checkboxId}
           type="checkbox"
-          tabIndex={-1}
           checked={value}
           disabled={disabled}
           aria-label={ariaLabel}
+          onMouseDown={(e) => e.preventDefault()}
           onChange={handleChange}
-          className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed"
+          onKeyDown={handleInputKeyDown}
+          className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
         />
         {partial ? (
           <span className="material-symbols text-base leading-none text-gray-400">remove</span>
@@ -125,10 +164,16 @@ export default function Checkbox({
         ) : null}
       </div>
       {label && (
-        <div cy-id="checkbox-label" className={checkboxLabelClassName}>
+        <label
+          cy-id="checkbox-label"
+          className={checkboxLabelClassName}
+          htmlFor={checkboxId}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={handleLabelClick}
+        >
           {label}
-        </div>
+        </label>
       )}
-    </label>
+    </div>
   )
 }

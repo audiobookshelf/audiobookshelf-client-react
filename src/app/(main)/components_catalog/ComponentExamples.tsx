@@ -140,6 +140,11 @@ export function BtnExamples() {
 
 // Checkbox Examples
 export function CheckboxExamples() {
+  const [checkboxValue1, setCheckboxValue1] = useState(false)
+  const [checkboxValue2, setCheckboxValue2] = useState(true)
+  const [checkboxValue3, setCheckboxValue3] = useState(false)
+  const [checkboxValue4, setCheckboxValue4] = useState(false)
+
   return (
     <ComponentExamples title="Checkboxes">
       <ComponentInfo component="Checkbox" description="Checkbox component with different sizes and states">
@@ -156,27 +161,27 @@ export function CheckboxExamples() {
 
       <ExamplesBlock>
         <Example title="Default Checkbox">
-          <Checkbox value={false} onChange={() => {}} label="Accept terms and conditions" />
+          <Checkbox value={checkboxValue1} onChange={setCheckboxValue1} label="Accept terms and conditions" />
         </Example>
 
         <Example title="Checked Checkbox">
-          <Checkbox value={true} onChange={() => {}} label="Subscribe to newsletter" />
+          <Checkbox value={checkboxValue2} onChange={setCheckboxValue2} label="Subscribe to newsletter" />
         </Example>
 
         <Example title="Small Checkbox">
-          <Checkbox value={false} onChange={() => {}} label="Enable notifications" small />
+          <Checkbox value={checkboxValue3} onChange={setCheckboxValue3} label="Enable notifications" size="small" />
         </Example>
 
-        <Example title="Medium Checkbox">
-          <Checkbox value={false} onChange={() => {}} label="Medium size checkbox" medium />
+        <Example title="Large Checkbox">
+          <Checkbox value={checkboxValue4} onChange={setCheckboxValue4} label="Large size checkbox" size="large" />
         </Example>
 
         <Example title="Disabled Checkbox">
-          <Checkbox value={false} onChange={() => {}} label="Disabled checkbox" disabled />
+          <Checkbox value={false} label="Disabled checkbox" disabled />
         </Example>
 
         <Example title="Partial Checkbox">
-          <Checkbox value={false} onChange={() => {}} label="Partial state checkbox" partial />
+          <Checkbox value={false} label="Partial state checkbox" partial />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
