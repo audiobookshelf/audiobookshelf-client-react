@@ -27,7 +27,7 @@ describe('<InputDropdown />', () => {
     cy.get('input').should('have.class', 'disabled:text-disabled')
     cy.get('input').should('have.class', 'bg-transparent')
     cy.get('[cy-id="input-wrapper"]').should('have.class', 'bg-bg-disabled')
-    cy.get('[cy-id="input-dropdown-label"]').should('have.class', 'text-disabled')
+    cy.get('[cy-id="label"]').should('have.class', 'text-disabled')
   })
 
   it('applies custom class', () => {

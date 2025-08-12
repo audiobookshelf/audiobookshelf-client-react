@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useMemo, useId, useEffect } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
+import Label from './Label'
 
 interface InputDropdownProps {
   value?: string | number
@@ -232,18 +233,21 @@ export default function InputDropdown({
     )
   }, [disabled])
 
+  const inputId = useMemo(() => `${dropdownId}-input`, [dropdownId])
+
   return (
     <div className={mergeClasses('w-full', className)}>
       {label && (
-        <label cy-id="input-dropdown-label" className={mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : '')}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
 
       <div ref={wrapperRef} className="relative">
         <div cy-id="input-wrapper" className={inputWrapperClass}>
           <input
             ref={inputRef}
+            id={inputId}
             value={textInput}
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}

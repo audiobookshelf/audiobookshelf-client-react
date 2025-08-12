@@ -347,7 +347,7 @@ describe('<MediaIconPicker />', () => {
   describe('Accessibility', () => {
     it('has proper ARIA labels', () => {
       cy.mount(<MediaIconPicker label="Test Label" />)
-      cy.get('button').should('have.attr', 'aria-labelledby')
+      cy.get('button').should('have.attr', 'aria-label')
       cy.get('button').click()
       cy.get('[role="listbox"]').should('have.attr', 'aria-label')
     })
@@ -363,12 +363,6 @@ describe('<MediaIconPicker />', () => {
       cy.mount(<MediaIconPicker />)
       cy.get('button').click()
       cy.get('[role="listbox"]').should('have.attr', 'id')
-    })
-
-    it('has screen reader only label', () => {
-      cy.mount(<MediaIconPicker label="Test Label" value="audiobookshelf" />)
-      cy.get('.sr-only').should('contain.text', 'Test Label')
-      cy.get('.sr-only').should('contain.text', 'Audiobookshelf')
     })
 
     it('has proper icon accessibility', () => {

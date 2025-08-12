@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef, useEffect, useId, useCallback } from 'react'
+import { useState, useRef, useId, useCallback, useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { AVAILABLE_ICONS, type AvailableIcon } from '@/lib/absicons'
 import LibraryIcon from './LibraryIcon'
 import { useClickOutside } from '@/hooks/useClickOutside'
+import Label from './Label'
 
 interface MediaIconPickerProps {
   value?: string
@@ -27,44 +28,56 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const openMenu = (index: number = 0) => {
+  const openMenu = useCallback((index: number = 0) => {
     setShowMenu(true)
     setFocusedIndex(index)
-  }
+  }, [])
 
-  const closeMenu = () => {
+  const closeMenu = useCallback(() => {
     setShowMenu(false)
     setFocusedIndex(-1)
-  }
+  }, [])
 
   // Use the existing useClickOutside hook
   useClickOutside(containerRef, buttonRef, closeMenu)
 
-  const selectedIcon = value || 'database'
-  const validSelectedIcon = AVAILABLE_ICONS.includes(selectedIcon as AvailableIcon) ? (selectedIcon as AvailableIcon) : 'audiobookshelf'
+  const selectedIcon = useMemo(() => (value ? value : 'database'), [value])
+  const validSelectedIcon = useMemo(() => {
+    if (AVAILABLE_ICONS.includes(selectedIcon as AvailableIcon)) {
+      return selectedIcon as AvailableIcon
+    }
+    return 'audiobookshelf'
+  }, [selectedIcon])
 
   // Generate unique ID using React's useId hook
-  const uniqueId = useId()
-  const listboxId = `${uniqueId}-listbox`
+  const mediaIconPickerId = useId()
+  const listboxId = useMemo(() => `${mediaIconPickerId}-listbox`, [mediaIconPickerId])
+  const buttonId = useMemo(() => `${mediaIconPickerId}-button`, [mediaIconPickerId])
 
-  const handleToggleMenu = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (disabled) return
-    if (showMenu) {
+  const handleToggleMenu = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (disabled) return
+      if (showMenu) {
+        closeMenu()
+      } else {
+        openMenu()
+      }
+    },
+    [disabled, showMenu, openMenu, closeMenu]
+  )
+
+  const handleSelectIcon = useCallback(
+    (icon: AvailableIcon) => {
+      if (disabled) return
+      onChange?.(icon)
       closeMenu()
-    } else {
-      openMenu()
-    }
-  }
-
-  const handleSelectIcon = (icon: AvailableIcon) => {
-    if (disabled) return
-    onChange?.(icon)
-    closeMenu()
-    // Return focus to the trigger button
-    buttonRef.current?.focus()
-  }
+      // Return focus to the trigger button
+      buttonRef.current?.focus()
+    },
+    [disabled, onChange, closeMenu]
+  )
 
   // Keyboard navigation handlers
   const handleVerticalNavigation = useCallback(
@@ -158,20 +171,18 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
     [disabled, handleVerticalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab]
   )
 
-  const handleIconKeyDown = (event: React.KeyboardEvent, icon: AvailableIcon) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault()
-      handleSelectIcon(icon)
-    }
-  }
-
-  // Convert icon name to readable text for screen readers
-  const getIconReadableName = (icon: AvailableIcon) => {
-    return icon.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
-  }
+  const handleIconKeyDown = useCallback(
+    (event: React.KeyboardEvent, icon: AvailableIcon) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        handleSelectIcon(icon)
+      }
+    },
+    [handleSelectIcon]
+  )
 
   // Get menu alignment classes based on align prop
-  const getMenuAlignmentClasses = () => {
+  const getMenuAlignmentClasses = useCallback(() => {
     switch (align) {
       case 'right':
         return 'right-0'
@@ -181,30 +192,39 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
       default:
         return 'left-0'
     }
-  }
+  }, [align])
+
+  // Convert icon name to readable text for screen readers
+  const getIconReadableName = useCallback((icon: AvailableIcon) => {
+    return icon.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())
+  }, [])
+
+  const validSelectedIconReadableName = useMemo(() => getIconReadableName(validSelectedIcon), [validSelectedIcon, getIconReadableName])
+
+  const ariaLabel = useMemo(
+    () => (label ? `${label}: ${validSelectedIconReadableName}` : validSelectedIconReadableName),
+    [label, validSelectedIconReadableName]
+  )
 
   return (
     <div ref={containerRef} className={mergeClasses('relative w-fit h-9', className)}>
-      <label htmlFor={uniqueId} className={mergeClasses('text-sm font-semibold block', disabled ? 'text-disabled' : '')}>
+      <Label htmlFor={buttonId} disabled={disabled}>
         {label}
-      </label>
+      </Label>
 
       <button
         ref={buttonRef}
-        id={uniqueId}
+        id={buttonId}
         type="button"
         disabled={disabled}
         className="relative h-full w-fit border border-gray-600 rounded-sm shadow-xs pl-3 pr-3 text-left cursor-pointer bg-primary text-gray-100 hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
         aria-haspopup="listbox"
         aria-expanded={showMenu}
-        aria-labelledby={`${uniqueId}-label`}
-        aria-activedescendant={focusedIndex >= 0 ? `${uniqueId}-option-${focusedIndex}` : undefined}
+        aria-label={ariaLabel}
+        aria-activedescendant={focusedIndex >= 0 ? `${mediaIconPickerId}-option-${focusedIndex}` : undefined}
         onClick={handleToggleMenu}
         onKeyDown={handleKeyDown}
       >
-        <span id={`${uniqueId}-label`} className="sr-only">
-          {label}: {getIconReadableName(validSelectedIcon)}
-        </span>
         <LibraryIcon icon={validSelectedIcon} decorative={false} />
       </button>
 
@@ -221,7 +241,7 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
             {AVAILABLE_ICONS.map((icon, index) => (
               <div
                 key={icon}
-                id={`${uniqueId}-option-${index}`}
+                id={`${mediaIconPickerId}-option-${index}`}
                 className={`p-2 cursor-pointer rounded ${focusedIndex === index ? 'text-white/100 hover:text-white/75' : 'text-white/50 hover:text-white/75'}`}
                 role="option"
                 aria-selected={icon === validSelectedIcon}

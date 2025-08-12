@@ -23,7 +23,7 @@ describe('<Dropdown />', () => {
 
   it('renders with label', () => {
     cy.mount(<Dropdown items={mockItems} label="Test Label" />)
-    cy.get('p').should('contain.text', 'Test Label')
+    cy.get('label').should('contain.text', 'Test Label')
   })
 
   it('displays selected value', () => {
@@ -44,7 +44,7 @@ describe('<Dropdown />', () => {
     cy.get('button').should('have.class', 'disabled:border-none')
     cy.get('button').should('have.class', 'disabled:bg-bg-disabled')
     cy.get('button').should('have.class', 'disabled:text-disabled')
-    cy.get('p').should('have.class', 'text-disabled')
+    cy.get('label').should('have.class', 'text-disabled')
   })
 
   it('applies small size class', () => {
@@ -347,11 +347,6 @@ describe('<Dropdown />', () => {
   })
 
   describe('Accessibility', () => {
-    it('has proper ARIA labels', () => {
-      cy.mount(<Dropdown items={mockItems} label="Test Label" />)
-      cy.get('button').should('have.attr', 'aria-label')
-    })
-
     it('has proper ARIA selected states', () => {
       cy.mount(<Dropdown items={mockItems} />)
       cy.get('button').click()

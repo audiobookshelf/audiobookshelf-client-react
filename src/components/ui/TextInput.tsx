@@ -3,6 +3,7 @@
 import { useCallback, useId, useMemo, useState } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { copyToClipboard } from '@/lib/clipboard'
+import Label from './Label'
 
 export interface TextInputProps {
   id?: string
@@ -48,7 +49,8 @@ export default function TextInput({
   ref
 }: TextInputProps) {
   const generatedId = useId()
-  const inputId = id || generatedId
+  const textInputId = id || generatedId
+  const inputId = `${textInputId}-input`
 
   const [showPassword, setShowPassword] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -78,8 +80,6 @@ export default function TextInput({
 
   // Derive aria-invalid from isInvalidDate state
   const ariaInvalid = useMemo(() => isInvalidDate, [isInvalidDate])
-
-  const labelClass = useMemo(() => mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : ''), [disabled])
 
   const inputClass = useMemo(() => {
     const classes: string[] = []
@@ -163,10 +163,11 @@ export default function TextInput({
   return (
     <div className="w-full" cy-id="text-input">
       {label && (
-        <label htmlFor={inputId} className={labelClass}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
+
       <div className={wrapperClass} cy-id="text-input-wrapper">
         <input
           ref={ref}

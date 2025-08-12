@@ -1,5 +1,6 @@
 import React, { useId, useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import Label from './Label'
 
 interface RangeInputProps {
   value: number
@@ -14,9 +15,8 @@ interface RangeInputProps {
 }
 
 const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, className = '', disabled = false, ref }: RangeInputProps) => {
-  const uniqueId = useId()
-  const inputId = `range-input-${uniqueId}`
-  const labelId = label ? `range-label-${uniqueId}` : undefined
+  const rangeInputId = useId()
+  const inputId = `${rangeInputId}-input`
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,9 +67,9 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
   return (
     <div className={containerClasses}>
       {label && (
-        <label id={labelId} htmlFor={inputId} className={`px-1 text-sm font-semibold ${disabled ? 'text-disabled' : ''}`}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
       <div
         className={mergeClasses(
@@ -88,7 +88,6 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
           onChange={handleChange}
           disabled={disabled}
           aria-disabled={disabled}
-          aria-labelledby={labelId}
           aria-valuemin={min}
           aria-valuemax={max}
           aria-valuenow={value}

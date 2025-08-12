@@ -2,6 +2,7 @@
 
 import { useCallback, useId, useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import Label from './Label'
 
 export interface TextareaInputProps {
   id?: string
@@ -31,7 +32,8 @@ export default function TextareaInput({
   className
 }: TextareaInputProps) {
   const generatedId = useId()
-  const textareaId = id || generatedId
+  const textareaInputId = id || generatedId
+  const textareaId = `${textareaInputId}-textarea`
 
   const wrapperClass = useMemo(() => {
     return mergeClasses(
@@ -42,8 +44,6 @@ export default function TextareaInput({
     )
   }, [disabled, readOnly, className])
 
-  const labelClass = useMemo(() => mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : ''), [disabled])
-
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       onChange?.(e.target.value)
@@ -53,11 +53,11 @@ export default function TextareaInput({
 
   return (
     <div className="w-full" cy-id="textarea-input">
-      {label ? (
-        <label htmlFor={textareaId} className={labelClass}>
+      {label && (
+        <Label htmlFor={textareaId} disabled={disabled}>
           {label}
-        </label>
-      ) : null}
+        </Label>
+      )}
       <div className={wrapperClass} cy-id="textarea-input-wrapper">
         <textarea
           id={textareaId}

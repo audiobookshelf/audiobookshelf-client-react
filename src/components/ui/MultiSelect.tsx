@@ -4,6 +4,7 @@ import type { DropdownMenuItem } from './DropdownMenu'
 import { mergeClasses } from '@/lib/merge-classes'
 import Pill from './Pill'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import Label from './Label'
 
 export interface MultiSelectItem<T = string> {
   value: string
@@ -113,7 +114,7 @@ export const MultiSelect = <T extends any = string>({
     },
     [isEditingPillIndexControlled, onEditingPillIndexChange]
   )
-  const identifier = useId()
+  const multiSelectId = useId()
   const { showToast } = useGlobalToast()
 
   const selectedItemValues = useMemo(() => selectedItems.map((i) => i.value), [selectedItems])
@@ -622,10 +623,10 @@ export const MultiSelect = <T extends any = string>({
     if (focusIndex < 0) {
       // pill
       const pillIdx = selectedItemValues.length + focusIndex
-      if (pillIdx >= 0) activeDescendantId = `${identifier}-pill-${pillIdx}`
+      if (pillIdx >= 0) activeDescendantId = `${multiSelectId}-pill-${pillIdx}`
     } else {
       // menu item
-      activeDescendantId = `${identifier}-menuitem-${focusIndex}`
+      activeDescendantId = `${multiSelectId}-menuitem-${focusIndex}`
     }
   }
 
@@ -653,12 +654,14 @@ export const MultiSelect = <T extends any = string>({
     [disabled]
   )
 
+  const inputId = useMemo(() => `${multiSelectId}-input`, [multiSelectId])
+
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={identifier} className={`px-1 text-sm font-semibold ${disabled ? 'text-disabled' : ''}`}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
       <div ref={wrapperRef} className="relative">
         <div
@@ -675,7 +678,7 @@ export const MultiSelect = <T extends any = string>({
           {selectedItems.map((item, idx) => (
             <Pill
               key={item.value}
-              id={`${identifier}-pill-${idx}`}
+              id={`${multiSelectId}-pill-${idx}`}
               item={item.content}
               onMutate={onMutate}
               onValidate={onValidate}
@@ -699,7 +702,7 @@ export const MultiSelect = <T extends any = string>({
           <input
             value={isControlled ? value : textInput}
             ref={inputRef}
-            id={identifier}
+            id={inputId}
             disabled={disabled}
             className={mergeClasses('bg-transparent border-none outline-none px-1 text-sm', !showInput && 'sr-only')}
             autoComplete="off"
@@ -711,7 +714,7 @@ export const MultiSelect = <T extends any = string>({
             role="combobox"
             aria-autocomplete="list"
             aria-expanded={showMenu}
-            aria-controls={`${identifier}-listbox`}
+            aria-controls={`${multiSelectId}-listbox`}
             aria-haspopup="listbox"
             aria-disabled={disabled}
             aria-activedescendant={activeDescendantId}
@@ -723,7 +726,7 @@ export const MultiSelect = <T extends any = string>({
           items={dropdownItems}
           multiSelect={true}
           focusedIndex={focusIndex !== null && focusIndex >= 0 ? focusIndex : -1}
-          dropdownId={identifier}
+          dropdownId={multiSelectId}
           onItemClick={handleDropdownItemClick}
           isItemSelected={isItemSelected}
           showSelectedIndicator={true}

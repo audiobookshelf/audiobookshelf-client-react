@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useMemo, useId } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
+import Label from './Label'
 
 export interface DropdownItem {
   text: string
@@ -227,12 +228,19 @@ export default function Dropdown({
     [itemsToShow]
   )
 
+  const dropdownButtonId = useMemo(() => `${dropdownId}-button`, [dropdownId])
+
   return (
     <div className={mergeClasses('relative w-full', className)}>
-      {label && <p className={mergeClasses('text-sm font-semibold px-1', disabled ? 'text-disabled' : '')}>{label}</p>}
+      {label && (
+        <Label htmlFor={dropdownButtonId} disabled={disabled}>
+          {label}
+        </Label>
+      )}
 
       <button
         ref={buttonRef}
+        id={dropdownButtonId}
         type="button"
         aria-label={longLabel}
         disabled={disabled}
