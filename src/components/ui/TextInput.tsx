@@ -3,6 +3,7 @@
 import { useCallback, useId, useMemo, useState } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { copyToClipboard } from '@/lib/clipboard'
+import { useMergedRef } from '@/hooks/useMergedRef'
 import Label from './Label'
 import InputWrapper from './InputlWrapper'
 
@@ -52,6 +53,8 @@ export default function TextInput({
   const generatedId = useId()
   const textInputId = id || generatedId
   const inputId = `${textInputId}-input`
+
+  const [readInputRef, writeInputRef] = useMergedRef<HTMLInputElement>(ref)
 
   const [showPassword, setShowPassword] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -160,9 +163,9 @@ export default function TextInput({
         </Label>
       )}
 
-      <InputWrapper disabled={disabled} readOnly={readOnly} error={isInvalidDate}>
+      <InputWrapper disabled={disabled} readOnly={readOnly} error={isInvalidDate} inputRef={readInputRef}>
         <input
-          ref={ref}
+          ref={writeInputRef}
           id={inputId}
           name={name}
           value={value?.toString() ?? ''}

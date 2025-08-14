@@ -2,12 +2,12 @@ import React from 'react'
 
 // Custom hook to merge internal and external refs
 export const useMergedRef = <T>(externalRef?: React.Ref<T>) => {
-  const internalRef = React.useRef<T>(null)
+  const readRef = React.useRef<T>(null)
 
-  const composedRef = React.useCallback(
+  const writeRef = React.useCallback(
     (node: T | null) => {
       // Always update internal
-      internalRef.current = node
+      readRef.current = node
 
       // Optionally update external
       if (!externalRef) return
@@ -20,5 +20,5 @@ export const useMergedRef = <T>(externalRef?: React.Ref<T>) => {
     [externalRef]
   )
 
-  return [internalRef, composedRef] as const
+  return [readRef, writeRef] as const
 }

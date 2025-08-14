@@ -1,5 +1,6 @@
 import React, { useId, useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useMergedRef } from '@/hooks/useMergedRef'
 import Label from './Label'
 import InputWrapper from './InputlWrapper'
 
@@ -18,6 +19,7 @@ interface RangeInputProps {
 const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, className = '', disabled = false, ref }: RangeInputProps) => {
   const rangeInputId = useId()
   const inputId = `${rangeInputId}-input`
+  const [readInputRef, writeInputRef] = useMergedRef<HTMLInputElement>(ref)
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,10 +74,10 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
           {label}
         </Label>
       )}
-      <InputWrapper disabled={disabled}>
+      <InputWrapper disabled={disabled} inputRef={readInputRef}>
         <div className="inline-flex items-center w-full">
           <input
-            ref={ref}
+            ref={writeInputRef}
             id={inputId}
             type="range"
             min={min}
