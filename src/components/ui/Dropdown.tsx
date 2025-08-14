@@ -5,6 +5,7 @@ import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
 import Label from './Label'
+import InputWrapper from './InputlWrapper'
 
 export interface DropdownItem {
   text: string
@@ -17,7 +18,7 @@ interface DropdownProps {
   label?: string
   items?: DropdownItem[]
   disabled?: boolean
-  small?: boolean
+  size?: 'small' | 'medium' | 'large'
   menuMaxHeight?: string
   onChange?: (value: string | number) => void
   className?: string
@@ -32,7 +33,7 @@ export default function Dropdown({
   label = '',
   items = [],
   disabled = false,
-  small = false,
+  size = 'medium',
   menuMaxHeight = '224px',
   onChange,
   className
@@ -96,14 +97,6 @@ export default function Dropdown({
 
   const selectedText = selectedItem?.text || ''
   const selectedSubtext = selectedItem?.subtext || ''
-
-  const buttonClass = useMemo(() => {
-    const classes = []
-    if (small) classes.push('h-9')
-    else classes.push('h-10')
-
-    return classes.join(' ')
-  }, [small])
 
   const longLabel = useMemo(() => {
     let result = ''
@@ -238,34 +231,36 @@ export default function Dropdown({
         </Label>
       )}
 
-      <button
-        ref={buttonRef}
-        id={dropdownButtonId}
-        type="button"
-        aria-label={longLabel}
-        disabled={disabled}
-        className={mergeClasses(
-          'relative w-full border rounded-sm shadow-xs pl-3 pr-8 py-2 text-left sm:text-sm',
-          'cursor-pointer border-gray-600 bg-primary text-gray-100',
-          'disabled:cursor-not-allowed disabled:border-none disabled:bg-bg-disabled disabled:text-disabled',
-          buttonClass
-        )}
-        aria-haspopup="listbox"
-        aria-expanded={showMenu}
-        aria-activedescendant={focusedIndex >= 0 ? `${dropdownId}-item-${focusedIndex}` : undefined}
-        aria-controls={`${dropdownId}-listbox`}
-        onClick={handleButtonClick}
-        onKeyDown={handleKeyDown}
-      >
-        <span className="flex items-center">
-          <span className={mergeClasses('block truncate font-sans', selectedSubtext ? 'font-semibold' : '', small ? 'text-sm' : '')}>{selectedText}</span>
-          {selectedSubtext && <span>:&nbsp;</span>}
-          {selectedSubtext && <span className="font-normal block truncate font-sans text-sm text-gray-400">{selectedSubtext}</span>}
-        </span>
-        <span className="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
-          <span className="material-symbols text-2xl">expand_more</span>
-        </span>
-      </button>
+      <InputWrapper disabled={disabled} size={size} inputRef={buttonRef}>
+        <button
+          ref={buttonRef}
+          id={dropdownButtonId}
+          type="button"
+          aria-label={longLabel}
+          disabled={disabled}
+          className={mergeClasses(
+            'relative w-full text-left cursor-pointer text-gray-100',
+            'pl-1 pr-8 h-full bg-transparent border-none outline-none flex items-center',
+            'disabled:cursor-not-allowed disabled:text-disabled',
+            size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'
+          )}
+          aria-haspopup="listbox"
+          aria-expanded={showMenu}
+          aria-activedescendant={focusedIndex >= 0 ? `${dropdownId}-item-${focusedIndex}` : undefined}
+          aria-controls={`${dropdownId}-listbox`}
+          onClick={handleButtonClick}
+          onKeyDown={handleKeyDown}
+        >
+          <span className="flex items-center">
+            <span className={mergeClasses('block truncate font-sans', selectedSubtext ? 'font-semibold' : '')}>{selectedText}</span>
+            {selectedSubtext && <span>:&nbsp;</span>}
+            {selectedSubtext && <span className="font-normal block truncate font-sans text-gray-400">{selectedSubtext}</span>}
+          </span>
+          <span className="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+            <span className="material-symbols text-2xl">expand_more</span>
+          </span>
+        </button>
+      </InputWrapper>
 
       <DropdownMenu
         showMenu={showMenu}

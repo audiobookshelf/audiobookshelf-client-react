@@ -2,6 +2,7 @@
 
 import React, { useMemo, useCallback, useRef, useId } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import InputWrapper from './InputlWrapper'
 
 interface CheckboxProps {
   value?: boolean
@@ -122,58 +123,48 @@ export default function Checkbox({
     [disabled]
   )
 
-  const wrapperClassName = useMemo(() => {
-    const classes = []
-    if (size === 'small') {
-      classes.push('h-8.5')
-    } else if (size === 'medium') {
-      classes.push('h-9.5')
-    } else {
-      classes.push('h-10.5')
-    }
-
-    return mergeClasses(
-      'flex justify-start items-center px-2 py-1.5 border border-gray-600 rounded-sm focus-within:outline',
-      classes,
-      !disabled ? '' : 'bg-bg-disabled cursor-not-allowed',
-      className
-    )
-  }, [disabled, className])
-
   return (
-    <div cy-id="checkbox-and-label-wrapper" ref={wrapperRef} className={wrapperClassName} onMouseDown={(e) => e.preventDefault()} onClick={handleWrapperClick}>
-      <div cy-id="checkbox-wrapper" className={checkboxWrapperClassName}>
-        <input
-          ref={inputRef}
-          id={checkboxId}
-          type="checkbox"
-          checked={value}
-          disabled={disabled}
-          aria-label={ariaLabel}
-          onMouseDown={(e) => e.preventDefault()}
-          onChange={handleChange}
-          onKeyDown={handleInputKeyDown}
-          className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
-        />
-        {partial ? (
-          <span className="material-symbols text-base leading-none text-gray-400">remove</span>
-        ) : value ? (
-          <svg className={svgClass} viewBox="0 0 20 20">
-            <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-          </svg>
-        ) : null}
+    <InputWrapper disabled={disabled} size={size} className={className} inputRef={inputRef}>
+      <div
+        cy-id="checkbox-and-label-wrapper"
+        ref={wrapperRef}
+        className="flex justify-start items-center px-2 py-1.5"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={handleWrapperClick}
+      >
+        <div cy-id="checkbox-wrapper" className={checkboxWrapperClassName}>
+          <input
+            ref={inputRef}
+            id={checkboxId}
+            type="checkbox"
+            checked={value}
+            disabled={disabled}
+            aria-label={ariaLabel}
+            onMouseDown={(e) => e.preventDefault()}
+            onChange={handleChange}
+            onKeyDown={handleInputKeyDown}
+            className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
+          />
+          {partial ? (
+            <span className="material-symbols text-base leading-none text-gray-400">remove</span>
+          ) : value ? (
+            <svg className={svgClass} viewBox="0 0 20 20">
+              <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
+            </svg>
+          ) : null}
+        </div>
+        {label && (
+          <label
+            cy-id="checkbox-label"
+            className={checkboxLabelClassName}
+            htmlFor={checkboxId}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={handleLabelClick}
+          >
+            {label}
+          </label>
+        )}
       </div>
-      {label && (
-        <label
-          cy-id="checkbox-label"
-          className={checkboxLabelClassName}
-          htmlFor={checkboxId}
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={handleLabelClick}
-        >
-          {label}
-        </label>
-      )}
-    </div>
+    </InputWrapper>
   )
 }

@@ -4,6 +4,7 @@ import { useCallback, useId, useMemo, useState } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { copyToClipboard } from '@/lib/clipboard'
 import Label from './Label'
+import InputWrapper from './InputlWrapper'
 
 export interface TextInputProps {
   id?: string
@@ -61,15 +62,6 @@ export default function TextInput({
     if (type === 'password' && showPassword) return 'text'
     return type
   }, [type, showPassword])
-
-  const wrapperClass = useMemo(() => {
-    return mergeClasses(
-      'relative w-full shadow-xs flex items-stretch rounded-sm px-2 py-2 focus-within:outline',
-      isInvalidDate ? 'border border-error focus-within:outline-error' : 'border border-gray-600 focus-within:outline',
-      disabled ? 'bg-bg-disabled' : readOnly ? 'bg-bg-read-only' : 'bg-primary',
-      className
-    )
-  }, [disabled, readOnly, isInvalidDate, className])
 
   // Derive aria-label from label or placeholder
   const ariaLabel = useMemo(() => {
@@ -161,14 +153,14 @@ export default function TextInput({
   }, [type, isFocused, value])
 
   return (
-    <div className="w-full" cy-id="text-input">
+    <div className={mergeClasses('w-full', className)} cy-id="text-input">
       {label && (
         <Label htmlFor={inputId} disabled={disabled}>
           {label}
         </Label>
       )}
 
-      <div className={wrapperClass} cy-id="text-input-wrapper">
+      <InputWrapper disabled={disabled} readOnly={readOnly} error={isInvalidDate}>
         <input
           ref={ref}
           id={inputId}
@@ -237,7 +229,7 @@ export default function TextInput({
             </button>
           </div>
         )}
-      </div>
+      </InputWrapper>
     </div>
   )
 }

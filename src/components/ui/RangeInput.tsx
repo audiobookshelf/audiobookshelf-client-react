@@ -1,6 +1,7 @@
 import React, { useId, useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import Label from './Label'
+import InputWrapper from './InputlWrapper'
 
 interface RangeInputProps {
   value: number
@@ -71,33 +72,30 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
           {label}
         </Label>
       )}
-      <div
-        className={mergeClasses(
-          'inline-flex items-center w-full rounded-sm px-2 py-1 focus-within:outline',
-          disabled ? 'bg-bg-disabled text-disabled cursor-not-allowed' : 'bg-primary cursor-text'
-        )}
-      >
-        <input
-          ref={ref}
-          id={inputId}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={handleChange}
-          disabled={disabled}
-          aria-disabled={disabled}
-          aria-valuemin={min}
-          aria-valuemax={max}
-          aria-valuenow={value}
-          aria-valuetext={`${value}%`}
-          className={rangeInputClasses}
-        />
-        <span className="text-sm ml-2" aria-hidden="true">
-          {value}%
-        </span>
-      </div>
+      <InputWrapper disabled={disabled}>
+        <div className="inline-flex items-center w-full">
+          <input
+            ref={ref}
+            id={inputId}
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={handleChange}
+            disabled={disabled}
+            aria-disabled={disabled}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={value}
+            aria-valuetext={`${value}%`}
+            className={rangeInputClasses}
+          />
+          <span className="text-sm ml-2" aria-hidden="true">
+            {value}%
+          </span>
+        </div>
+      </InputWrapper>
     </div>
   )
 }

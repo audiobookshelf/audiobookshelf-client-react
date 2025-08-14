@@ -5,6 +5,7 @@ import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
 import Label from './Label'
+import InputWrapper from './InputlWrapper'
 
 interface InputDropdownProps {
   value?: string | number
@@ -226,13 +227,6 @@ export default function InputDropdown({
     [itemsToShow]
   )
 
-  const inputWrapperClass = useMemo(() => {
-    return mergeClasses(
-      'input-wrapper flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-2 focus-within:outline',
-      disabled ? 'bg-bg-disabled' : 'bg-primary'
-    )
-  }, [disabled])
-
   const inputId = useMemo(() => `${dropdownId}-input`, [dropdownId])
 
   return (
@@ -244,7 +238,7 @@ export default function InputDropdown({
       )}
 
       <div ref={wrapperRef} className="relative">
-        <div cy-id="input-wrapper" className={inputWrapperClass}>
+        <InputWrapper disabled={disabled} inputRef={inputRef}>
           <input
             ref={inputRef}
             id={inputId}
@@ -262,7 +256,7 @@ export default function InputDropdown({
             aria-activedescendant={focusedIndex >= 0 ? `${dropdownId}-item-${focusedIndex}` : undefined}
             cy-id="input-dropdown-input"
           />
-        </div>
+        </InputWrapper>
 
         <DropdownMenu
           showMenu={showMenu}
