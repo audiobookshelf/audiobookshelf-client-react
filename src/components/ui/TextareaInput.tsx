@@ -1,8 +1,9 @@
 'use client'
 
-import { useCallback, useId, useMemo } from 'react'
+import { useCallback, useId, useRef } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import Label from './Label'
+import InputWrapper from './InputlWrapper'
 
 export interface TextareaInputProps {
   id?: string
@@ -34,15 +35,7 @@ export default function TextareaInput({
   const generatedId = useId()
   const textareaInputId = id || generatedId
   const textareaId = `${textareaInputId}-textarea`
-
-  const wrapperClass = useMemo(() => {
-    return mergeClasses(
-      'relative w-full shadow-xs flex items-stretch rounded-sm px-2 py-2 focus-within:outline',
-      'border border-gray-600',
-      disabled ? 'bg-bg-disabled' : readOnly ? 'bg-bg-read-only' : 'bg-primary',
-      className
-    )
-  }, [disabled, readOnly, className])
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -58,9 +51,10 @@ export default function TextareaInput({
           {label}
         </Label>
       )}
-      <div className={wrapperClass} cy-id="textarea-input-wrapper">
+      <InputWrapper disabled={disabled} readOnly={readOnly} inputRef={textareaRef} size="auto" className="px-1 py-1">
         <textarea
           id={textareaId}
+          ref={textareaRef}
           value={value?.toString() ?? ''}
           placeholder={placeholder}
           readOnly={readOnly}
@@ -68,7 +62,7 @@ export default function TextareaInput({
           rows={rows}
           dir="auto"
           className={mergeClasses(
-            'w-full resize-y bg-transparent px-1 outline-none border-none',
+            'w-full resize-y bg-transparent py-1 px-1 outline-none border-none',
             'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only'
           )}
           aria-disabled={disabled || undefined}
@@ -77,7 +71,7 @@ export default function TextareaInput({
           onChange={handleChange}
           cy-id="textarea-input-textarea"
         />
-      </div>
+      </InputWrapper>
     </div>
   )
 }
