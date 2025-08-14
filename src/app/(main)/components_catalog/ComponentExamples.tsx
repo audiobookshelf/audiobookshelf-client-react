@@ -404,20 +404,24 @@ export function DropdownExamples() {
           <Dropdown value={dropdownValue2} onChange={handleDropdownChange2} items={dropdownItemsWithSubtext} label="Language" />
         </Example>
 
-        <Example title="Small Dropdown">
-          <Dropdown value={dropdownValue3} onChange={handleDropdownChange3} items={dropdownItems} label="Small Option" small />
-        </Example>
-
         <Example title="Disabled Dropdown">
           <Dropdown value="option1" items={dropdownItems} label="Disabled Option" disabled />
         </Example>
 
-        <Example title="Dropdown without Label">
-          <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} />
+        <Example title="Large Dropdown">
+          <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} label="Large Option" size="large" />
         </Example>
 
-        <Example title="Custom Height Dropdown">
+        <Example title="Small Dropdown">
+          <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} label="Small Option" size="small" />
+        </Example>
+
+        <Example title="Custom Menu Height Dropdown">
           <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} label="Custom Height" menuMaxHeight="100px" />
+        </Example>
+
+        <Example title="Unlabeled Dropdown">
+          <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
