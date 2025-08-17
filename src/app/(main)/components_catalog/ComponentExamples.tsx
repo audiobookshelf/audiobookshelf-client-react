@@ -24,6 +24,7 @@ import RangeInput from '@/components/ui/RangeInput'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import TwoStageMultiSelect, { TwoStageMultiSelectContent } from '@/components/ui/TwoStageMultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { mergeClasses } from '@/lib/merge-classes'
 
 interface ComponentExamplesProps {
   title: string
@@ -71,11 +72,12 @@ function ComponentInfo({ component, description, children }: ComponentInfoProps)
 interface ExampleProps {
   title: string
   children: ReactNode
+  className?: string
 }
 
-function Example({ title, children }: ExampleProps) {
+function Example({ title, children, className }: ExampleProps) {
   return (
-    <div className="bg-gray-800 p-6 rounded-lg">
+    <div className={mergeClasses('bg-gray-800 p-6 rounded-lg', className)}>
       <h3 className="text-lg font-medium mb-4">{title}</h3>
       {children}
     </div>
@@ -88,6 +90,8 @@ function ExamplesBlock({ children }: { children: React.ReactNode }) {
 
 // Button Examples
 export function BtnExamples() {
+  const { showToast } = useGlobalToast()
+
   return (
     <ComponentExamples title="Buttons">
       <ComponentInfo component="Btn" description="Button component with various states (loading, disabled, small, link)">
@@ -102,21 +106,22 @@ export function BtnExamples() {
       </ComponentInfo>
 
       <ExamplesBlock>
-        <Example title="Primary Button">
-          <Btn>Primary Button</Btn>
+        <Example title="Default Button">
+          <Btn onClick={() => showToast('Default Button clicked', { type: 'info', title: 'Default Button' })}>Default Button</Btn>
+        </Example>
+
+        <Example title="Button with Span Content">
+          <Btn onClick={() => showToast('Button with span content clicked', { type: 'info', title: 'Button with span content' })}>
+            <span>Inside Span</span>
+          </Btn>
+        </Example>
+        <Example title="Link Button">
+          <Btn to="/settings">Go to Settings</Btn>
         </Example>
 
         <Example title="Small Button">
-          <Btn small>Small Button</Btn>
-        </Example>
-
-        <Example title="Loading Button">
-          <Btn loading>Loading...</Btn>
-        </Example>
-
-        <Example title="Small Loading Button">
-          <Btn small loading>
-            Loading...
+          <Btn size="small" onClick={() => showToast('Small Button clicked', { type: 'info', title: 'Small Button' })}>
+            Small Button
           </Btn>
         </Example>
 
@@ -130,8 +135,8 @@ export function BtnExamples() {
           </Btn>
         </Example>
 
-        <Example title="Link Button">
-          <Btn to="/settings">Go to Settings</Btn>
+        <Example title="Loading Button">
+          <Btn loading>Loading...</Btn>
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
@@ -256,6 +261,28 @@ export function ContextMenuDropdownExamples() {
           <div className="flex items-center gap-4">
             <ContextMenuDropdown
               items={contextMenuItems}
+              onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+            />
+            <span className="text-sm text-gray-400">Click to see menu</span>
+          </div>
+        </Example>
+
+        <Example title="Large Button">
+          <div className="flex items-center gap-4">
+            <ContextMenuDropdown
+              items={contextMenuItems}
+              size="large"
+              onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+            />
+            <span className="text-sm text-gray-400">Click to see menu</span>
+          </div>
+        </Example>
+
+        <Example title="Small Button">
+          <div className="flex items-center gap-4">
+            <ContextMenuDropdown
+              items={contextMenuItems}
+              size="small"
               onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
             />
             <span className="text-sm text-gray-400">Click to see menu</span>
@@ -495,7 +522,7 @@ export function IconBtnExamples() {
           <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import IconBtn from '@/components/ui/IconBtn'</code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">icon</code>,{' '}
+          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">children</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">bgColor</code>, <code className="bg-gray-700 px-2 py-1 rounded">outlined</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">borderless</code>, <code className="bg-gray-700 px-2 py-1 rounded">loading</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">size</code>,{' '}
@@ -504,40 +531,40 @@ export function IconBtnExamples() {
       </ComponentInfo>
 
       <ExamplesBlock>
-        <Example title="Basic Icon Button">
-          <IconBtn icon="&#xe3c9;" ariaLabel="Edit" />
+        <Example title="Default">
+          <IconBtn>edit</IconBtn>
         </Example>
 
-        <Example title="Icon Button with Background Color">
-          <IconBtn icon="&#xe5ca;" bgColor="bg-red-500" ariaLabel="Close" />
+        <Example title="Large">
+          <IconBtn size="large">edit</IconBtn>
         </Example>
 
-        <Example title="Outlined Icon Button">
-          <IconBtn icon="&#xe3c9;" outlined ariaLabel="Edit" />
+        <Example title="Small">
+          <IconBtn size="small">edit</IconBtn>
         </Example>
 
-        <Example title="Borderless Icon Button">
-          <IconBtn icon="&#xe3c9;" borderless ariaLabel="Edit" />
+        <Example title="Filled (not outlined)">
+          <IconBtn outlined={false}>edit</IconBtn>
         </Example>
 
-        <Example title="Loading Icon Button">
-          <IconBtn icon="&#xe3c9;" loading ariaLabel="Loading" />
+        <Example title="Borderless">
+          <IconBtn borderless>settings</IconBtn>
         </Example>
 
-        <Example title="Disabled Icon Button">
-          <IconBtn icon="&#xe3c9;" disabled ariaLabel="Edit" />
+        <Example title="Loading">
+          <IconBtn loading>edit</IconBtn>
         </Example>
 
-        <Example title="Small Icon Button">
-          <IconBtn icon="&#xe3c9;" size={8} ariaLabel="Edit" />
-        </Example>
-
-        <Example title="Large Icon Button">
-          <IconBtn icon="&#xe3c9;" size={12} ariaLabel="Edit" />
+        <Example title="Disabled">
+          <IconBtn disabled>favorite</IconBtn>
         </Example>
 
         <Example title="Custom Icon Font Size">
-          <IconBtn icon="&#xe3c9;" iconFontSize="text-2xl" ariaLabel="Edit" />
+          <IconBtn className="text-3xl">edit</IconBtn>
+        </Example>
+
+        <Example title="Custom Background Color">
+          <IconBtn bgColor="bg-blue-500">close</IconBtn>
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
@@ -993,6 +1020,75 @@ export function MediaIconPickerExamples() {
 
         <Example title="Menu Alignment (Center)">
           <MediaIconPicker value={mediaIconValue} onChange={setMediaIconValue} align="center" />
+        </Example>
+      </ExamplesBlock>
+    </ComponentExamples>
+  )
+}
+
+// Several different controls side by side
+export function SideBySideControlsExamples() {
+  const { showToast } = useGlobalToast()
+  const [textInputValue, setTextInputValue] = useState('Initial Value')
+  const [checkboxValue, setCheckboxValue] = useState(false)
+  const [dropdownValue, setDropdownValue] = useState<string | number>('item1')
+  const [rangeValue, setRangeValue] = useState(50)
+  const [readIconBtnValue, setReadIconBtnValue] = useState(false)
+  const [multiSelectValue, setMultiSelectValue] = useState<MultiSelectItem[]>([
+    { content: 'Item 1', value: 'item1' },
+    { content: 'Item 2', value: 'item2' }
+  ])
+
+  return (
+    <ComponentExamples title="Side By Side Controls">
+      <ComponentInfo component="SideBySideControls" description="Several different controls side by side" />
+
+      <ExamplesBlock>
+        <Example title="Side By Side Controls" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <div className="flex gap-2 items-start ">
+            <Btn className="mt-6" onClick={() => showToast('Button clicked', { type: 'info', title: 'Button' })}>
+              Button
+            </Btn>
+            <IconBtn className="mt-6 shrink-0" onClick={() => showToast('IconBtn clicked', { type: 'info', title: 'IconBtn' })}>
+              Edit
+            </IconBtn>
+            <TextInput label="Text Input" value={textInputValue} onChange={setTextInputValue} />
+            <Checkbox className="mt-6 grow-0 shrink" labelClass="w-fit" label="Checkbox" value={checkboxValue} onChange={setCheckboxValue} />
+            <Dropdown
+              label="Dropdown"
+              items={[
+                { text: 'Item 1', value: 'item1' },
+                { text: 'Item 2', value: 'item2' }
+              ]}
+              value={dropdownValue}
+              onChange={setDropdownValue}
+            />
+            <FileInput className="mt-6 shrink-0">Select File</FileInput>
+            <RangeInput label="Range Input" value={rangeValue} min={0} max={100} step={1} onChange={setRangeValue} />
+            <ReadIconBtn className="mt-6 shrink-0" isRead={readIconBtnValue} onClick={() => setReadIconBtnValue(!readIconBtnValue)} />
+            <MultiSelect
+              label="Multi Select"
+              items={[
+                { content: 'Item 1', value: 'item1' },
+                { content: 'Item 2', value: 'item2' },
+                { content: 'Item 3', value: 'item3' },
+                { content: 'Item 4', value: 'item4' },
+                { content: 'Item 5', value: 'item5' },
+                { content: 'Item 6', value: 'item6' },
+                { content: 'Item 7', value: 'item7' },
+                { content: 'Item 8', value: 'item8' },
+                { content: 'Item 9', value: 'item9' }
+              ]}
+              selectedItems={multiSelectValue}
+              onItemAdded={(item) => setMultiSelectValue([...multiSelectValue, item])}
+              onItemRemoved={(item) => setMultiSelectValue(multiSelectValue.filter((i) => i.value !== item.value))}
+              onItemEdited={(item, index) => {
+                const newItems = [...multiSelectValue]
+                newItems[index] = item
+                setMultiSelectValue(newItems)
+              }}
+            />
+          </div>
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
