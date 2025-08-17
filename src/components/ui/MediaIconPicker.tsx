@@ -6,6 +6,7 @@ import { AVAILABLE_ICONS, type AvailableIcon } from '@/lib/absicons'
 import LibraryIcon from './LibraryIcon'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import Label from './Label'
+import ButtonBase from './ButtonBase'
 
 interface MediaIconPickerProps {
   value?: string
@@ -55,7 +56,7 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
   const buttonId = useMemo(() => `${mediaIconPickerId}-button`, [mediaIconPickerId])
 
   const handleToggleMenu = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
+    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
       e.preventDefault()
       e.stopPropagation()
       if (disabled) return
@@ -206,60 +207,68 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
     [label, validSelectedIconReadableName]
   )
 
+  const buttonClass = useMemo(() => {
+    return 'w-10'
+  }, [])
+
   return (
-    <div ref={containerRef} className={mergeClasses('relative w-fit h-9', className)}>
+    <div className={mergeClasses('relative', className)}>
       <Label htmlFor={buttonId} disabled={disabled}>
         {label}
       </Label>
 
-      <button
-        ref={buttonRef}
-        id={buttonId}
-        type="button"
-        disabled={disabled}
-        className="relative h-full w-fit border border-gray-600 rounded-sm shadow-xs pl-3 pr-3 text-left cursor-pointer bg-primary text-gray-100 hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-        aria-haspopup="listbox"
-        aria-expanded={showMenu}
-        aria-label={ariaLabel}
-        aria-activedescendant={focusedIndex >= 0 ? `${mediaIconPickerId}-option-${focusedIndex}` : undefined}
-        onClick={handleToggleMenu}
-        onKeyDown={handleKeyDown}
-      >
-        <LibraryIcon icon={validSelectedIcon} decorative={false} />
-      </button>
-
-      {showMenu && (
-        <div
-          ref={menuRef}
-          id={listboxId}
-          role="listbox"
-          aria-label={`${label} options`}
-          className={`absolute z-10 mt-0.5 bg-primary border border-black-200 shadow-lg max-h-56 w-48 rounded-md py-1 overflow-auto focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
+      <div className="relative w-fit" ref={containerRef}>
+        <ButtonBase
+          ref={buttonRef}
+          id={buttonId}
+          size="medium"
+          disabled={disabled}
+          className={buttonClass}
+          aria-haspopup="listbox"
+          aria-expanded={showMenu}
+          aria-label={ariaLabel}
+          aria-activedescendant={focusedIndex >= 0 ? `${mediaIconPickerId}-option-${focusedIndex}` : undefined}
+          onClick={handleToggleMenu}
           onKeyDown={handleKeyDown}
         >
-          <div className="flex justify-center items-center flex-wrap">
-            {AVAILABLE_ICONS.map((icon, index) => (
-              <div
-                key={icon}
-                id={`${mediaIconPickerId}-option-${index}`}
-                className={`p-2 cursor-pointer rounded ${focusedIndex === index ? 'text-white/100 hover:text-white/75' : 'text-white/50 hover:text-white/75'}`}
-                role="option"
-                aria-selected={icon === validSelectedIcon}
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => handleSelectIcon(icon)}
-                onKeyDown={(e) => handleIconKeyDown(e, icon)}
-                tabIndex={-1}
-              >
-                <LibraryIcon
-                  icon={icon}
-                  decorative={false}
-                  className={focusedIndex === index ? 'text-white/100 hover:text-white/75' : 'text-white/50 hover:text-white/75'}
-                />
-              </div>
-            ))}
+          <LibraryIcon icon={validSelectedIcon} decorative={false} />
+        </ButtonBase>
+
+        {showMenu && (
+          <div
+            ref={menuRef}
+            id={listboxId}
+            role="listbox"
+            aria-label={`${label} options`}
+            className={`absolute z-10 mt-0.5 bg-primary border border-black-200 shadow-lg max-h-56 w-48 rounded-md py-1 overflow-auto focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
+            onKeyDown={handleKeyDown}
+          >
+            <div className="flex justify-center items-center flex-wrap">
+              {AVAILABLE_ICONS.map((icon, index) => (
+                <div
+                  key={icon}
+                  id={`${mediaIconPickerId}-option-${index}`}
+                  className={`p-2 cursor-pointer rounded ${
+                    focusedIndex === index ? 'text-white/100 hover:text-white/75' : 'text-white/50 hover:text-white/75'
+                  }`}
+                  role="option"
+                  aria-selected={icon === validSelectedIcon}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => handleSelectIcon(icon)}
+                  onKeyDown={(e) => handleIconKeyDown(e, icon)}
+                  tabIndex={-1}
+                >
+                  <LibraryIcon
+                    icon={icon}
+                    decorative={false}
+                    className={focusedIndex === index ? 'text-white/100 hover:text-white/75' : 'text-white/50 hover:text-white/75'}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }
