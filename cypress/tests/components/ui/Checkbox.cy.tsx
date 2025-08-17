@@ -55,17 +55,17 @@ describe('<Checkbox />', () => {
 
     it('handles wrapper height classes correctly', () => {
       cy.mount(<Checkbox size="small" label="Small Checkbox" />)
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'h-8.5')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'h-9')
     })
 
     it('handles medium wrapper height classes correctly', () => {
       cy.mount(<Checkbox size="medium" label="Medium Checkbox" />)
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'h-9.5')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'h-10')
     })
 
     it('handles large wrapper height classes correctly', () => {
       cy.mount(<Checkbox size="large" label="Large Checkbox" />)
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'h-10.5')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'h-11')
     })
   })
 
@@ -98,15 +98,15 @@ describe('<Checkbox />', () => {
 
     it('applies correct styles when disabled', () => {
       cy.mount(<Checkbox disabled label="Disabled Checkbox" />)
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'cursor-not-allowed')
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'bg-bg-disabled')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'cursor-not-allowed')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'bg-bg-disabled')
       cy.get('[cy-id="checkbox-label"]').should('have.class', 'text-disabled')
       cy.get('[cy-id="checkbox-label"]').should('have.class', 'cursor-not-allowed')
     })
 
     it('handles focus-within outline styling', () => {
       cy.mount(<Checkbox label="Focusable Checkbox" />)
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'focus-within:outline')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'focus-within:outline')
     })
   })
 
@@ -175,14 +175,14 @@ describe('<Checkbox />', () => {
 
     it('applies custom className', () => {
       cy.mount(<Checkbox className="custom-checkbox-class" />)
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'custom-checkbox-class')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'custom-checkbox-class')
     })
 
     it('handles multiple class names in className prop', () => {
       cy.mount(<Checkbox className="class1 class2 class3" />)
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'class1')
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'class2')
-      cy.get('[cy-id="checkbox-and-label-wrapper"]').should('have.class', 'class3')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'class1')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'class2')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'class3')
     })
 
     it('handles empty string className', () => {
@@ -197,10 +197,9 @@ describe('<Checkbox />', () => {
       cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border')
     })
 
-    it('handles label class override', () => {
-      cy.mount(<Checkbox label="Override Label" labelClass="override-class" />)
-      cy.get('[cy-id="checkbox-label"]').should('have.class', 'override-class')
-      cy.get('[cy-id="checkbox-label"]').should('not.have.class', 'pl-2')
+    it('handles label class addition', () => {
+      cy.mount(<Checkbox label="Added Label Class" labelClass="added-class" />)
+      cy.get('[cy-id="checkbox-label"]').should('have.class', 'added-class')
     })
 
     it('handles disabled state with custom colors', () => {

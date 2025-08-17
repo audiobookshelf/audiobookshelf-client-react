@@ -43,7 +43,7 @@ describe('<ContextMenuDropdown />', () => {
       </div>
     )
     cy.get('button').should('exist')
-    cy.get('span.material-symbols').should('have.text', '\uE5D4')
+    cy.get('span.material-symbols').should('have.text', 'more_vert')
   })
 
   it('shows loading spinner when processing', () => {

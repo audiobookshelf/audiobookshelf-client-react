@@ -461,8 +461,10 @@ describe('<MediaIconPicker />', () => {
 
     it('shows disabled state styling', () => {
       cy.mount(<MediaIconPicker disabled={true} />)
-      cy.get('button').should('have.class', 'disabled:opacity-50')
       cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
+      cy.get('button').should('have.class', 'disabled:border-none')
+      cy.get('button').should('have.class', 'disabled:text-disabled')
+      cy.get('button').should('have.class', 'disabled:bg-bg-disabled')
     })
   })
 

@@ -5,7 +5,7 @@ describe('<Btn />', () => {
   it('renders a basic button', () => {
     cy.mount(<Btn>Click me</Btn>)
     cy.get('button').should('contain.text', 'Click me')
-    cy.get('button').should('have.class', 'abs-btn')
+    cy.get('button').should('have.class', 'bg-primary')
   })
 
   it('renders a link when to prop is provided', () => {
@@ -20,7 +20,7 @@ describe('<Btn />', () => {
   })
 
   it('applies small variant styles', () => {
-    cy.mount(<Btn small>Small Button</Btn>)
+    cy.mount(<Btn size="small">Small Button</Btn>)
     cy.get('button').should('have.class', 'text-sm')
     cy.get('button').should('have.class', 'px-4')
     cy.get('button').should('have.class', 'py-1')
@@ -276,12 +276,12 @@ describe('<Btn />', () => {
   it('handles empty string className', () => {
     cy.mount(<Btn className="">Empty Class Button</Btn>)
     cy.get('button').should('exist')
-    cy.get('button').should('have.class', 'abs-btn')
+    cy.get('button').should('have.class', 'bg-primary')
   })
 
   it('handles undefined className', () => {
     cy.mount(<Btn>Undefined Class Button</Btn>)
     cy.get('button').should('exist')
-    cy.get('button').should('have.class', 'abs-btn')
+    cy.get('button').should('have.class', 'bg-primary')
   })
 })
