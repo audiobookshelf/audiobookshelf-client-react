@@ -243,6 +243,7 @@ export default function InputDropdown({
             ref={inputRef}
             id={inputId}
             value={textInput}
+            autoComplete="off"
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}
             className="h-full w-full bg-transparent px-1 outline-none disabled:cursor-not-allowed disabled:text-disabled"
