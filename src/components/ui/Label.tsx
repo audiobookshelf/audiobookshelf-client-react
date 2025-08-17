@@ -16,7 +16,7 @@ export interface LabelProps {
  */
 export default function Label({ children, htmlFor, disabled = false, className }: LabelProps) {
   const labelClass = useMemo(() => {
-    return mergeClasses('text-sm font-semibold px-1 block mb-1', disabled ? 'text-disabled' : '', className)
+    return mergeClasses('w-fit text-sm font-semibold px-1 block mb-1', disabled ? 'text-disabled' : '', className)
   }, [disabled, className])
 
   return (
