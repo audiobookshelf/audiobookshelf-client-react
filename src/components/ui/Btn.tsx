@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useMemo, useCallback, memo } from 'react'
-import Link from 'next/link'
 import { mergeClasses } from '@/lib/merge-classes'
+import ButtonBase from './ButtonBase'
 
 interface BtnProps {
   to?: string
   color?: string
   type?: 'button' | 'submit' | 'reset'
-  small?: boolean
+  size?: 'small' | 'medium'
   loading?: boolean
   disabled?: boolean
   progress?: string
@@ -37,7 +37,7 @@ export default function Btn({
   to,
   color = 'bg-primary',
   type = 'button',
-  small = false,
+  size = 'medium',
   loading = false,
   disabled = false,
   progress,
@@ -53,7 +53,7 @@ export default function Btn({
     list.push(loading ? 'text-white/0 disabled:text-disabled/0' : 'text-white disabled:text-disabled')
     list.push(color)
 
-    if (small) {
+    if (size === 'small') {
       list.push('text-sm')
       list.push('px-4')
       list.push('py-1')
@@ -61,9 +61,9 @@ export default function Btn({
       list.push('px-8')
       list.push('py-2')
     }
-    const baseClassList = 'abs-btn rounded-md shadow-md relative border border-gray-600 text-center inline-flex disabled:cursor-not-allowed'
+    const baseClassList = 'inline-flex'
     return mergeClasses(baseClassList, list, className)
-  }, [loading, color, small, className])
+  }, [loading, color, size, className])
 
   const isDisabled = disabled || loading
 
@@ -76,29 +76,20 @@ export default function Btn({
     [onClick, isDisabled]
   )
 
-  if (to) {
-    return (
-      <Link
-        href={to}
-        className={classList}
-        onClick={handleClick}
-        style={{ pointerEvents: isDisabled ? 'none' : 'auto' }}
-        tabIndex={isDisabled ? -1 : 0}
-        aria-disabled={isDisabled}
-        aria-label={ariaLabel}
-      >
-        {children}
-        {loading && <LoadingSpinner progress={progress} />}
-        {loading && <span className="sr-only">{progress ? `Loading: ${progress}` : 'Loading...'}</span>}
-      </Link>
-    )
-  }
-
   return (
-    <button className={classList} disabled={isDisabled} type={type} onClick={handleClick} onMouseDown={(e) => e.preventDefault()} aria-label={ariaLabel}>
+    <ButtonBase
+      to={to}
+      size={size}
+      className={classList}
+      disabled={isDisabled}
+      type={type}
+      onClick={handleClick}
+      onMouseDown={(e) => e.preventDefault()}
+      ariaLabel={ariaLabel}
+    >
       {children}
       {loading && <LoadingSpinner progress={progress} />}
       {loading && <span className="sr-only">{progress ? `Loading: ${progress}` : 'Loading...'}</span>}
-    </button>
+    </ButtonBase>
   )
 }
