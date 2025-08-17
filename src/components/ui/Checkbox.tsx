@@ -54,8 +54,6 @@ export default function Checkbox({
   }, [checkboxBgClass, borderColorClass, size])
 
   const checkboxLabelClassName = useMemo(() => {
-    if (labelClass) return labelClass
-
     const classes = []
     if (size === 'small') {
       classes.push('text-xs md:text-sm pl-1')
@@ -65,7 +63,7 @@ export default function Checkbox({
       classes.push('text-base md:text-lg pl-2')
     }
 
-    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-gray-100')
+    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-gray-100', labelClass)
   }, [labelClass, size, disabled])
 
   const svgClass = useMemo(() => {
