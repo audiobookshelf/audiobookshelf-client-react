@@ -169,6 +169,7 @@ export default function TextInput({
           id={inputId}
           name={name}
           value={value?.toString() ?? ''}
+          autoComplete="off"
           type={actualType}
           step={step?.toString()}
           min={min?.toString()}
