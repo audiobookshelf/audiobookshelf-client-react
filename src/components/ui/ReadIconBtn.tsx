@@ -12,7 +12,7 @@ interface ReadIconBtnProps {
 
 export default function ReadIconBtn({ isRead, disabled = false, borderless = false, onClick, className }: ReadIconBtnProps) {
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
+    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
       e.stopPropagation()
       if (disabled) {
         e.preventDefault()
@@ -29,7 +29,6 @@ export default function ReadIconBtn({ isRead, disabled = false, borderless = fal
 
   return (
     <IconBtn
-      icon="&#xe52d;" // BeenHere icon
       disabled={disabled}
       borderless={borderless}
       outlined={!isRead}
@@ -37,6 +36,8 @@ export default function ReadIconBtn({ isRead, disabled = false, borderless = fal
       onClick={handleClick}
       aria-pressed={isRead}
       className={classes}
-    />
+    >
+      BeenHere
+    </IconBtn>
   )
 }
