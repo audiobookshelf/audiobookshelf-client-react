@@ -29,7 +29,7 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
     [onChange]
   )
 
-  const containerClasses = useMemo(() => mergeClasses('flex flex-col items-start gap-2 w-full', className), [className])
+  const containerClasses = useMemo(() => mergeClasses('flex flex-col items-start w-full', className), [className])
 
   const rangeInputClasses = useMemo(
     () =>
