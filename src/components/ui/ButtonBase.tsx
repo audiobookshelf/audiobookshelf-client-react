@@ -9,6 +9,7 @@ interface ButtonBaseProps {
   to?: string
   children: React.ReactNode
   disabled?: boolean
+  borderless?: boolean
   size?: 'small' | 'medium' | 'large' | 'auto'
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   onMouseDown?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
@@ -24,6 +25,7 @@ const ButtonBase = ({
   to,
   children,
   disabled = false,
+  borderless = false,
   size = 'medium',
   className = '',
   onClick,
@@ -48,8 +50,14 @@ const ButtonBase = ({
       // Disabled styles
       'disabled:bg-bg-disabled disabled:cursor-not-allowed disabled:border-none disabled:text-disabled',
 
+      // Borderless styles
+      borderless ? 'border-0 bg-transparent' : 'border',
+
       // Before pseudo-element (replacing abs-btn::before)
-      'before:content-[""] before:absolute before:inset-0 before:rounded-md before:bg-transparent hover:not-disabled:before:bg-bg-hover before:pointer-events-none',
+      'before:content-[""] before:absolute before:inset-0 before:rounded-md before:bg-transparent before:pointer-events-none',
+
+      // Hover styles
+      borderless ? 'hover:not-disabled:text-yellow-300 hover:not-disabled:scale-125' : 'hover:not-disabled:before:bg-bg-hover',
 
       // Custom className
       className
