@@ -51,7 +51,7 @@ const ButtonBase = ({
       'disabled:bg-bg-disabled disabled:cursor-not-allowed disabled:border-none disabled:text-disabled',
 
       // Borderless styles
-      borderless ? 'border-0 bg-transparent' : 'border',
+      borderless ? 'border-0 bg-transparent shadow-none' : 'border',
 
       // Before pseudo-element (replacing abs-btn::before)
       'before:content-[""] before:absolute before:inset-0 before:rounded-md before:bg-transparent before:pointer-events-none',
