@@ -8,16 +8,26 @@ export interface InputWrapperProps {
   disabled?: boolean
   readOnly?: boolean
   error?: boolean
+  borderless?: boolean
   size?: 'small' | 'medium' | 'large' | 'auto'
   className?: string
   inputRef?: React.RefObject<HTMLElement | null>
 }
 
-const InputWrapper = ({ children, disabled = false, readOnly = false, error = false, size = 'medium', className, inputRef }: InputWrapperProps) => {
+const InputWrapper = ({
+  children,
+  disabled = false,
+  readOnly = false,
+  error = false,
+  borderless = false,
+  size = 'medium',
+  className,
+  inputRef
+}: InputWrapperProps) => {
   const wrapperClass = useMemo(() => {
     return mergeClasses(
       // Base styles
-      'relative shadow-md flex items-stretch rounded-md px-2 focus-within:outline border',
+      'relative flex items-stretch rounded-md px-2 focus-within:outline',
 
       // Size-based padding
       size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'min-h-10 h-auto' : 'h-10',
@@ -26,7 +36,10 @@ const InputWrapper = ({ children, disabled = false, readOnly = false, error = fa
       error ? 'border-error focus-within:outline-error' : 'border-gray-600',
 
       // Background styles based on state
-      disabled ? 'bg-bg-disabled cursor-not-allowed border-0' : readOnly ? 'bg-bg-read-only' : 'bg-primary',
+      disabled ? 'bg-bg-disabled cursor-not-allowed' : readOnly ? 'bg-bg-read-only' : borderless ? 'bg-transparent' : 'bg-primary',
+
+      // Borderless styles
+      borderless ? 'border-0' : 'border',
 
       // Custom className
       className
