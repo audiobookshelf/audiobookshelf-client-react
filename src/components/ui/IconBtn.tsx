@@ -3,12 +3,10 @@
 import React, { useMemo, useCallback, memo } from 'react'
 import ButtonBase from './ButtonBase'
 import { mergeClasses } from '@/lib/merge-classes'
-import styles from './IconBtn.module.css'
 
 interface IconBtnProps {
   children: React.ReactNode
   disabled?: boolean
-  bgColor?: string
   outlined?: boolean
   borderless?: boolean
   loading?: boolean
@@ -36,7 +34,6 @@ LoadingSpinner.displayName = 'LoadingSpinner'
 export default function IconBtn({
   children,
   disabled = false,
-  bgColor = 'bg-primary',
   outlined = true,
   borderless = false,
   loading = false,
@@ -64,17 +61,8 @@ export default function IconBtn({
       list.push('w-10 text-xl')
     }
 
-    // Override background and border
-    if (borderless) {
-      list.push('border-none')
-    }
-
-    if (bgColor) {
-      list.push(bgColor)
-    }
-
     return list
-  }, [size, borderless, bgColor])
+  }, [size])
 
   const classList = useMemo(() => {
     return mergeClasses(additionalClasses, className)
@@ -96,6 +84,7 @@ export default function IconBtn({
       ref={ref}
       size={size}
       disabled={isDisabled}
+      borderless={borderless}
       onClick={handleClick}
       onKeyDown={onKeyDown}
       className={classList}
