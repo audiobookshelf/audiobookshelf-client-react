@@ -77,7 +77,7 @@ interface ExampleProps {
 
 function Example({ title, children, className }: ExampleProps) {
   return (
-    <div className={mergeClasses('bg-gray-800 p-6 rounded-lg', className)}>
+    <div className={mergeClasses('bg-bg p-6 rounded-lg border border-gray-600', className)}>
       <h3 className="text-lg font-medium mb-4">{title}</h3>
       {children}
     </div>
@@ -896,13 +896,13 @@ export function LibraryIconExamples() {
 
       <ExamplesBlock>
         <Example title="Default Library Icon">
-          <div className="bg-gray-700 p-2 rounded-lg">
+          <div className="p-2 rounded-lg">
             <LibraryIcon />
           </div>
         </Example>
 
         <Example title="Large Size">
-          <div className="bg-gray-700 p-2 rounded-lg">
+          <div className="p-2 rounded-lg">
             <LibraryIcon size={6} />
           </div>
         </Example>
