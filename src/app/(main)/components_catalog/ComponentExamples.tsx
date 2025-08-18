@@ -534,7 +534,6 @@ export function IconBtnExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">children</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">bgColor</code>, <code className="bg-gray-700 px-2 py-1 rounded">outlined</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">borderless</code>, <code className="bg-gray-700 px-2 py-1 rounded">loading</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">size</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">iconFontSize</code>, <code className="bg-gray-700 px-2 py-1 rounded">ariaLabel</code>
@@ -575,7 +574,7 @@ export function IconBtnExamples() {
         </Example>
 
         <Example title="Custom Background Color">
-          <IconBtn bgColor="bg-blue-500">close</IconBtn>
+          <IconBtn className="bg-blue-500">close</IconBtn>
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
