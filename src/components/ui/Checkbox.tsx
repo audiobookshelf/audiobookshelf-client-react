@@ -122,7 +122,7 @@ export default function Checkbox({
   )
 
   return (
-    <InputWrapper disabled={disabled} size={size} className={className} inputRef={inputRef}>
+    <InputWrapper disabled={disabled} borderless size={size} className={className} inputRef={inputRef}>
       <div
         cy-id="checkbox-and-label-wrapper"
         ref={wrapperRef}
