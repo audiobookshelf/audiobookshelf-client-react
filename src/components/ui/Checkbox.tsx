@@ -50,7 +50,7 @@ export default function Checkbox({
       classes.push('w-6 h-6')
     }
 
-    return mergeClasses('border rounded-sm flex shrink-0 justify-center items-center', classes)
+    return mergeClasses('rounded-sm flex shrink-0 justify-center items-center', disabled ? 'border-0' : 'border', classes)
   }, [checkboxBgClass, borderColorClass, size])
 
   const checkboxLabelClassName = useMemo(() => {
