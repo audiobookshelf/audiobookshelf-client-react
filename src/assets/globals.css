@@ -68,6 +68,8 @@
   --color-read-only: var(--color-gray-300);
   --color-bg-read-only: var(--color-black-300);
   --color-border: var(--border);
+  --color-checkbox-disabled: var(--color-gray-400);
+  --color-checkbox-bg-disabled: var(--color-black-200);
 
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';

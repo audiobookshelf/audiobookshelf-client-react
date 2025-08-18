@@ -78,7 +78,7 @@ export default function Checkbox({
       classes.push('w-4 h-4')
     }
 
-    return mergeClasses('fill-current pointer-events-none', classes)
+    return mergeClasses('pointer-events-none', disabled ? 'fill-checkbox-disabled' : 'fill-current', classes)
   }, [checkColorClass, size])
 
   const handleChange = useCallback(
@@ -122,11 +122,11 @@ export default function Checkbox({
   )
 
   return (
-    <InputWrapper disabled={disabled} borderless size={size} className={className} inputRef={inputRef}>
+    <InputWrapper disabled={disabled} borderless size={size} className={mergeClasses('bg-transparent', className)} inputRef={inputRef}>
       <div
         cy-id="checkbox-and-label-wrapper"
         ref={wrapperRef}
-        className="flex justify-start items-center px-2 py-1.5"
+        className="flex justify-start items-center px-1 py-1"
         onMouseDown={(e) => e.preventDefault()}
         onClick={handleWrapperClick}
       >
@@ -143,13 +143,18 @@ export default function Checkbox({
             onKeyDown={handleInputKeyDown}
             className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
           />
-          {partial ? (
-            <span className="material-symbols text-base leading-none text-gray-400">remove</span>
-          ) : value ? (
-            <svg className={svgClass} viewBox="0 0 20 20">
-              <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
-            </svg>
-          ) : null}
+          <div
+            cy-id="checkbox-div"
+            className={mergeClasses('rounded-sm w-full h-full flex justify-center items-center', disabled ? 'bg-checkbox-bg-disabled' : '')}
+          >
+            {partial ? (
+              <span className="material-symbols text-base leading-none text-gray-400">remove</span>
+            ) : value ? (
+              <svg className={svgClass} viewBox="0 0 20 20">
+                <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />
+              </svg>
+            ) : null}
+          </div>
         </div>
         {label && (
           <label

@@ -97,11 +97,12 @@ describe('<Checkbox />', () => {
     })
 
     it('applies correct styles when disabled', () => {
-      cy.mount(<Checkbox disabled label="Disabled Checkbox" />)
+      cy.mount(<Checkbox disabled value={true} label="Disabled Checkbox" />)
       cy.get('[cy-id="control-wrapper"]').should('have.class', 'cursor-not-allowed')
-      cy.get('[cy-id="control-wrapper"]').should('have.class', 'bg-bg-disabled')
       cy.get('[cy-id="checkbox-label"]').should('have.class', 'text-disabled')
       cy.get('[cy-id="checkbox-label"]').should('have.class', 'cursor-not-allowed')
+      cy.get('svg').should('have.class', 'fill-checkbox-disabled')
+      cy.get('[cy-id="checkbox-div"]').should('have.class', 'bg-checkbox-bg-disabled')
     })
 
     it('handles focus-within outline styling', () => {

@@ -149,6 +149,7 @@ export function CheckboxExamples() {
   const [checkboxValue2, setCheckboxValue2] = useState(true)
   const [checkboxValue3, setCheckboxValue3] = useState(false)
   const [checkboxValue4, setCheckboxValue4] = useState(false)
+  const [checkboxValue5, setCheckboxValue5] = useState(false)
 
   return (
     <ComponentExamples title="Checkboxes">
@@ -166,27 +167,39 @@ export function CheckboxExamples() {
 
       <ExamplesBlock>
         <Example title="Default Checkbox">
-          <Checkbox value={checkboxValue1} onChange={setCheckboxValue1} label="Accept terms and conditions" />
+          <Checkbox value={checkboxValue1} onChange={setCheckboxValue1} label="Accept terms and conditions" className="w-fit" />
         </Example>
 
         <Example title="Checked Checkbox">
-          <Checkbox value={checkboxValue2} onChange={setCheckboxValue2} label="Subscribe to newsletter" />
+          <Checkbox value={checkboxValue2} onChange={setCheckboxValue2} label="Subscribe to newsletter" className="w-fit" />
         </Example>
 
         <Example title="Small Checkbox">
-          <Checkbox value={checkboxValue3} onChange={setCheckboxValue3} label="Enable notifications" size="small" />
+          <Checkbox value={checkboxValue3} onChange={setCheckboxValue3} label="Enable notifications" size="small" className="w-fit" />
         </Example>
 
         <Example title="Large Checkbox">
-          <Checkbox value={checkboxValue4} onChange={setCheckboxValue4} label="Large size checkbox" size="large" />
+          <Checkbox value={checkboxValue4} onChange={setCheckboxValue4} label="Large size checkbox" size="large" className="w-fit" />
         </Example>
 
         <Example title="Disabled Checkbox">
-          <Checkbox value={false} label="Disabled checkbox" disabled />
+          <Checkbox value={false} label="Disabled checkbox" disabled className="w-fit" />
+        </Example>
+
+        <Example title="Disabled Checked Checkbox">
+          <Checkbox value={true} label="Disabled checked checkbox" disabled className="w-fit" />
         </Example>
 
         <Example title="Partial Checkbox">
-          <Checkbox value={false} label="Partial state checkbox" partial />
+          <Checkbox value={false} label="Partial state checkbox" partial className="w-fit" />
+        </Example>
+
+        <Example title="Unlabeled Checkbox">
+          <Checkbox value={checkboxValue5} onChange={setCheckboxValue5} className="w-fit" />
+        </Example>
+
+        <Example title="Unlabeled Disabled Checkbox">
+          <Checkbox value={false} disabled className="w-fit" />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
