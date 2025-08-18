@@ -29,6 +29,7 @@ interface ContextMenuDropdownProps {
   autoWidth?: boolean
   disabled?: boolean
   size?: 'small' | 'medium' | 'large'
+  borderless?: boolean
   className?: string
 }
 
@@ -47,6 +48,7 @@ export default function ContextMenuDropdown({
   autoWidth = false,
   disabled = false,
   size = 'medium',
+  borderless = false,
   className
 }: ContextMenuDropdownProps) {
   const [showMenu, setShowMenu] = useState(false)
@@ -333,11 +335,7 @@ export default function ContextMenuDropdown({
   }))
 
   const buttonClass = useMemo(() => {
-    return mergeClasses('rounded-full before:rounded-full', size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
-  }, [size])
-
-  const fontClass = useMemo(() => {
-    return mergeClasses(size === 'small' ? 'text-lg' : size === 'large' ? 'text-2xl' : 'text-xl')
+    return mergeClasses(size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
   }, [size])
 
   return (
@@ -346,6 +344,7 @@ export default function ContextMenuDropdown({
         <IconBtn
           ref={buttonRef}
           size={size}
+          borderless={borderless}
           iconClass={iconClass}
           disabled={disabled}
           className={buttonClass}
