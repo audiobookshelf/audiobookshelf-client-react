@@ -16,11 +16,6 @@ describe('<IconBtn />', () => {
     cy.get('button').should('not.be.disabled')
   })
 
-  it('applies custom background color', () => {
-    cy.mount(<IconBtn bgColor="bg-red-500">edit</IconBtn>)
-    cy.get('button').should('have.class', 'bg-red-500')
-  })
-
   it('applies non-outlined style', () => {
     cy.mount(<IconBtn outlined={false}>edit</IconBtn>)
     cy.get('span').should('have.class', 'material-symbols')
@@ -35,7 +30,10 @@ describe('<IconBtn />', () => {
 
   it('applies borderless style', () => {
     cy.mount(<IconBtn borderless>edit</IconBtn>)
-    cy.get('button').should('have.class', 'border-none')
+    cy.get('button').should('have.class', 'border-0')
+    cy.get('button').should('have.class', 'bg-transparent')
+    cy.get('button').should('have.class', 'hover:not-disabled:text-yellow-300')
+    cy.get('button').should('have.class', 'hover:not-disabled:scale-125')
   })
 
   it('applies border by default', () => {
@@ -156,17 +154,6 @@ describe('<IconBtn />', () => {
     cy.get('button').should('exist')
   })
 
-  it('handles outlined with custom background color', () => {
-    cy.mount(
-      <IconBtn outlined bgColor="bg-green-500">
-        edit
-      </IconBtn>
-    )
-    cy.get('button').should('have.class', 'bg-green-500')
-    cy.get('span').should('have.class', 'material-symbols')
-    cy.get('span').should('not.have.class', 'fill')
-  })
-
   it('handles loading state with custom size', () => {
     cy.mount(
       <IconBtn loading size="large">
@@ -196,7 +183,7 @@ describe('<IconBtn />', () => {
         edit
       </IconBtn>
     )
-    cy.get('button').should('have.class', 'border-none')
+    cy.get('button').should('have.class', 'border-0')
     cy.get('span').should('have.class', 'material-symbols')
     cy.get('span').should('not.have.class', 'fill')
   })
@@ -206,14 +193,13 @@ describe('<IconBtn />', () => {
     cy.mount(
       <IconBtn
         disabled={false}
-        bgColor="bg-purple-500"
         outlined={true}
         borderless={false}
         loading={false}
         size="medium"
         ariaLabel="Test button"
         onClick={onClickSpy}
-        className="test-class"
+        className="bg-purple-500"
       >
         edit
       </IconBtn>
@@ -222,7 +208,6 @@ describe('<IconBtn />', () => {
     cy.get('button').should('have.class', 'h-10')
     cy.get('button').should('have.class', 'w-10')
     cy.get('button').should('have.class', 'border')
-    cy.get('button').should('have.class', 'test-class')
     cy.get('button').should('have.attr', 'aria-label', 'Test button')
     cy.get('span').should('have.class', 'material-symbols')
     cy.get('span').should('not.have.class', 'fill')
