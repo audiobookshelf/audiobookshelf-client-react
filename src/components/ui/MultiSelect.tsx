@@ -5,7 +5,7 @@ import { mergeClasses } from '@/lib/merge-classes'
 import Pill from './Pill'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import Label from './Label'
-import InputWrapper from './InputlWrapper'
+import InputWrapper from './InputWrapper'
 
 export interface MultiSelectItem<T = string> {
   value: string

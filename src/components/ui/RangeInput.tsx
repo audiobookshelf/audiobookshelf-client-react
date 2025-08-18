@@ -2,7 +2,7 @@ import React, { useId, useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useMergedRef } from '@/hooks/useMergedRef'
 import Label from './Label'
-import InputWrapper from './InputlWrapper'
+import InputWrapper from './InputWrapper'
 
 interface RangeInputProps {
   value: number

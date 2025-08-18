@@ -5,7 +5,7 @@ import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
 import Label from './Label'
-import InputWrapper from './InputlWrapper'
+import InputWrapper from './InputWrapper'
 
 interface InputDropdownProps {
   value?: string | number

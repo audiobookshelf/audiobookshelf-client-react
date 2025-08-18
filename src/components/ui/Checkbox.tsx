@@ -2,7 +2,7 @@
 
 import React, { useMemo, useCallback, useRef, useId } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
-import InputWrapper from './InputlWrapper'
+import InputWrapper from './InputWrapper'
 
 interface CheckboxProps {
   value?: boolean

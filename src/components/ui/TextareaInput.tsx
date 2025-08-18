@@ -3,7 +3,7 @@
 import { useCallback, useId, useRef } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import Label from './Label'
-import InputWrapper from './InputlWrapper'
+import InputWrapper from './InputWrapper'
 
 export interface TextareaInputProps {
   id?: string
