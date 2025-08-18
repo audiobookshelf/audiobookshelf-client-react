@@ -368,6 +368,17 @@ export function ContextMenuDropdownExamples() {
             />
           </div>
         </Example>
+
+        <Example title="Borderless Context Menu">
+          <div className="flex items-center gap-4">
+            <ContextMenuDropdown
+              items={contextMenuItems}
+              borderless={true}
+              onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+            />
+            <span className="text-sm text-gray-400">Borderless state</span>
+          </div>
+        </Example>
       </ExamplesBlock>
     </ComponentExamples>
   )
@@ -1038,6 +1049,7 @@ export function SideBySideControlsExamples() {
     { content: 'Item 1', value: 'item1' },
     { content: 'Item 2', value: 'item2' }
   ])
+  const [checkboxValue2, setCheckboxValue2] = useState(false)
 
   return (
     <ComponentExamples title="Side By Side Controls">
@@ -1088,6 +1100,7 @@ export function SideBySideControlsExamples() {
                 setMultiSelectValue(newItems)
               }}
             />
+            <Checkbox className="mt-6 grow-0 shrink" labelClass="w-fit" value={checkboxValue2} onChange={setCheckboxValue2} />
           </div>
         </Example>
       </ExamplesBlock>
