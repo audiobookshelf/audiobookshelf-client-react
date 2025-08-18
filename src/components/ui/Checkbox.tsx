@@ -39,7 +39,7 @@ export default function Checkbox({
   const checkboxId = useId()
 
   const checkboxWrapperClassName = useMemo(() => {
-    const classes = [checkboxBgClass, borderColorClass]
+    const classes = [checkboxBgClass, disabled ? 'border-checkbox-bg-disabled' : borderColorClass]
 
     if (size === 'small') {
       classes.push('w-4 h-4')
@@ -50,8 +50,8 @@ export default function Checkbox({
       classes.push('w-6 h-6')
     }
 
-    return mergeClasses('rounded-sm flex shrink-0 justify-center items-center', disabled ? 'border-0' : 'border', classes)
-  }, [checkboxBgClass, borderColorClass, size])
+    return mergeClasses('rounded-sm flex shrink-0 justify-center items-center border', classes)
+  }, [checkboxBgClass, borderColorClass, size, disabled])
 
   const checkboxLabelClassName = useMemo(() => {
     const classes = []
@@ -79,7 +79,7 @@ export default function Checkbox({
     }
 
     return mergeClasses('pointer-events-none', disabled ? 'fill-checkbox-disabled' : 'fill-current', classes)
-  }, [checkColorClass, size])
+  }, [checkColorClass, size, disabled])
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
