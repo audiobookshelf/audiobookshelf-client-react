@@ -23,7 +23,7 @@ describe('<Dropdown />', () => {
 
   it('renders with label', () => {
     cy.mount(<Dropdown items={mockItems} label="Test Label" />)
-    cy.get('p').should('contain.text', 'Test Label')
+    cy.get('label').should('contain.text', 'Test Label')
   })
 
   it('displays selected value', () => {
@@ -38,23 +38,24 @@ describe('<Dropdown />', () => {
   })
 
   it('is disabled when disabled prop is true', () => {
-    cy.mount(<Dropdown items={mockItems} label="Test Label" disabled={true} />)
+    cy.mount(<Dropdown items={mockItems} label="Test Label" value="option2" disabled={true} />)
     cy.get('button').should('be.disabled')
     cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
-    cy.get('button').should('have.class', 'disabled:border-none')
-    cy.get('button').should('have.class', 'disabled:bg-bg-disabled')
     cy.get('button').should('have.class', 'disabled:text-disabled')
-    cy.get('p').should('have.class', 'text-disabled')
+    cy.get('&control-wrapper').should('have.class', 'bg-bg-disabled')
+    cy.get('&control-wrapper').should('have.class', 'cursor-not-allowed')
+    cy.get('&control-wrapper').should('have.class', 'border-0')
+    cy.get('label').should('have.class', 'text-disabled')
   })
 
   it('applies small size class', () => {
-    cy.mount(<Dropdown items={mockItems} small={true} />)
-    cy.get('button').should('have.class', 'h-9')
+    cy.mount(<Dropdown items={mockItems} size="small" />)
+    cy.get('&control-wrapper').should('have.class', 'h-9')
   })
 
   it('applies default size class', () => {
-    cy.mount(<Dropdown items={mockItems} small={false} />)
-    cy.get('button').should('have.class', 'h-10')
+    cy.mount(<Dropdown items={mockItems} size="medium" />)
+    cy.get('&control-wrapper').should('have.class', 'h-10')
   })
 
   it('opens menu when clicked', () => {
@@ -347,11 +348,6 @@ describe('<Dropdown />', () => {
   })
 
   describe('Accessibility', () => {
-    it('has proper ARIA labels', () => {
-      cy.mount(<Dropdown items={mockItems} label="Test Label" />)
-      cy.get('button').should('have.attr', 'aria-label')
-    })
-
     it('has proper ARIA selected states', () => {
       cy.mount(<Dropdown items={mockItems} />)
       cy.get('button').click()

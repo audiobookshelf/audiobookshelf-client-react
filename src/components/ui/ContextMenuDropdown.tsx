@@ -5,6 +5,7 @@ import { useClickOutside } from '@/hooks/useClickOutside'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { mergeClasses } from '@/lib/merge-classes'
 import ContextMenu, { ContextMenuItem } from './ContextMenu'
+import IconBtn from './IconBtn'
 
 export interface ContextMenuDropdownSubitem {
   text: string
@@ -27,6 +28,8 @@ interface ContextMenuDropdownProps {
   menuAlign?: 'right' | 'left'
   autoWidth?: boolean
   disabled?: boolean
+  size?: 'small' | 'medium' | 'large'
+  borderless?: boolean
   className?: string
 }
 
@@ -44,6 +47,8 @@ export default function ContextMenuDropdown({
   menuAlign = 'right',
   autoWidth = false,
   disabled = false,
+  size = 'medium',
+  borderless = false,
   className
 }: ContextMenuDropdownProps) {
   const [showMenu, setShowMenu] = useState(false)
@@ -256,7 +261,7 @@ export default function ContextMenuDropdown({
   }, [openSubmenuIndex, closeSubMenu, closeMenu])
 
   const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
+    (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => {
       if (disabled) return
 
       switch (e.key) {
@@ -329,15 +334,21 @@ export default function ContextMenuDropdown({
     }))
   }))
 
+  const buttonClass = useMemo(() => {
+    return mergeClasses(size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
+  }, [size])
+
   return (
-    <div cy-id="wrapper" className={mergeClasses('relative h-9 w-9', className)}>
+    <div cy-id="wrapper" className={mergeClasses('relative', className)}>
       {!processing ? (
-        <button
+        <IconBtn
           ref={buttonRef}
-          type="button"
+          size={size}
+          borderless={borderless}
+          iconClass={iconClass}
           disabled={disabled}
-          className="relative h-full w-full flex items-center justify-center shadow-xs pl-3 pr-3 text-left cursor-pointer disabled:cursor-not-allowed disabled:text-disabled text-gray-100 hover:text-gray-200 rounded-full hover:bg-white/5"
-          aria-label="More options"
+          className={buttonClass}
+          ariaLabel="More options"
           aria-haspopup="true"
           aria-expanded={showMenu}
           aria-controls={dropdownId}
@@ -351,8 +362,8 @@ export default function ContextMenuDropdown({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          <span className={`material-symbols text-2xl ${iconClass}`}>&#xe5d4;</span>
-        </button>
+          more_vert
+        </IconBtn>
       ) : (
         <div className="h-full w-full flex items-center justify-center">
           <LoadingSpinner />

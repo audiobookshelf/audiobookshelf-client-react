@@ -1,7 +1,9 @@
 'use client'
 
-import { useCallback, useId, useMemo } from 'react'
+import { useCallback, useId, useRef } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import Label from './Label'
+import InputWrapper from './InputWrapper'
 
 export interface TextareaInputProps {
   id?: string
@@ -31,18 +33,9 @@ export default function TextareaInput({
   className
 }: TextareaInputProps) {
   const generatedId = useId()
-  const textareaId = id || generatedId
-
-  const wrapperClass = useMemo(() => {
-    return mergeClasses(
-      'relative w-full shadow-xs flex items-stretch rounded-sm px-2 py-2 focus-within:outline',
-      'border border-gray-600',
-      disabled ? 'bg-bg-disabled' : readOnly ? 'bg-bg-read-only' : 'bg-primary',
-      className
-    )
-  }, [disabled, readOnly, className])
-
-  const labelClass = useMemo(() => mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : ''), [disabled])
+  const textareaInputId = id || generatedId
+  const textareaId = `${textareaInputId}-textarea`
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -53,14 +46,15 @@ export default function TextareaInput({
 
   return (
     <div className="w-full" cy-id="textarea-input">
-      {label ? (
-        <label htmlFor={textareaId} className={labelClass}>
+      {label && (
+        <Label htmlFor={textareaId} disabled={disabled}>
           {label}
-        </label>
-      ) : null}
-      <div className={wrapperClass} cy-id="textarea-input-wrapper">
+        </Label>
+      )}
+      <InputWrapper disabled={disabled} readOnly={readOnly} inputRef={textareaRef} size="auto" className="px-1 py-1">
         <textarea
           id={textareaId}
+          ref={textareaRef}
           value={value?.toString() ?? ''}
           placeholder={placeholder}
           readOnly={readOnly}
@@ -68,7 +62,7 @@ export default function TextareaInput({
           rows={rows}
           dir="auto"
           className={mergeClasses(
-            'w-full resize-y bg-transparent px-1 outline-none border-none',
+            'w-full resize-y bg-transparent py-1 px-1 outline-none border-none',
             'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only'
           )}
           aria-disabled={disabled || undefined}
@@ -77,7 +71,7 @@ export default function TextareaInput({
           onChange={handleChange}
           cy-id="textarea-input-textarea"
         />
-      </div>
+      </InputWrapper>
     </div>
   )
 }

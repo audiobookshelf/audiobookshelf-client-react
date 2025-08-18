@@ -5,7 +5,7 @@ describe('<Btn />', () => {
   it('renders a basic button', () => {
     cy.mount(<Btn>Click me</Btn>)
     cy.get('button').should('contain.text', 'Click me')
-    cy.get('button').should('have.class', 'abs-btn')
+    cy.get('button').should('have.class', 'bg-primary')
   })
 
   it('renders a link when to prop is provided', () => {
@@ -20,20 +20,10 @@ describe('<Btn />', () => {
   })
 
   it('applies small variant styles', () => {
-    cy.mount(<Btn small>Small Button</Btn>)
+    cy.mount(<Btn size="small">Small Button</Btn>)
     cy.get('button').should('have.class', 'text-sm')
     cy.get('button').should('have.class', 'px-4')
     cy.get('button').should('have.class', 'py-1')
-  })
-
-  it('applies custom padding', () => {
-    cy.mount(
-      <Btn paddingX={6} paddingY={3}>
-        Custom Padding
-      </Btn>
-    )
-    cy.get('button').should('have.class', 'px-6')
-    cy.get('button').should('have.class', 'py-3')
   })
 
   it('shows loading spinner when loading is true', () => {
@@ -212,28 +202,6 @@ describe('<Btn />', () => {
     cy.get('button').should('have.attr', 'type', 'reset')
   })
 
-  it('handles small variant with custom padding override', () => {
-    cy.mount(
-      <Btn small paddingX={10} paddingY={5}>
-        Small Custom Padding
-      </Btn>
-    )
-    cy.get('button').should('have.class', 'text-sm')
-    cy.get('button').should('have.class', 'px-10')
-    cy.get('button').should('have.class', 'py-5')
-  })
-
-  it('handles large variant with custom padding override', () => {
-    cy.mount(
-      <Btn paddingX={12} paddingY={6}>
-        Large Custom Padding
-      </Btn>
-    )
-    cy.get('button').should('not.have.class', 'text-sm')
-    cy.get('button').should('have.class', 'px-12')
-    cy.get('button').should('have.class', 'py-6')
-  })
-
   it('handles complex children content', () => {
     cy.mount(
       <Btn>
@@ -308,12 +276,12 @@ describe('<Btn />', () => {
   it('handles empty string className', () => {
     cy.mount(<Btn className="">Empty Class Button</Btn>)
     cy.get('button').should('exist')
-    cy.get('button').should('have.class', 'abs-btn')
+    cy.get('button').should('have.class', 'bg-primary')
   })
 
   it('handles undefined className', () => {
     cy.mount(<Btn>Undefined Class Button</Btn>)
     cy.get('button').should('exist')
-    cy.get('button').should('have.class', 'abs-btn')
+    cy.get('button').should('have.class', 'bg-primary')
   })
 })

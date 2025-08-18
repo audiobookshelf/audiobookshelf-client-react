@@ -1,22 +1,23 @@
 'use client'
 
 import React, { useMemo, useCallback, memo } from 'react'
+import ButtonBase from './ButtonBase'
 import { mergeClasses } from '@/lib/merge-classes'
-import styles from './IconBtn.module.css'
 
 interface IconBtnProps {
-  icon: string
+  children: React.ReactNode
   disabled?: boolean
-  bgColor?: string
   outlined?: boolean
   borderless?: boolean
   loading?: boolean
-  iconFontSize?: string
-  size?: number
+  size?: 'small' | 'medium' | 'large'
+  iconClass?: string
   ariaLabel?: string
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
+  onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   'aria-pressed'?: boolean
   className?: string
+  ref?: React.Ref<HTMLButtonElement>
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
@@ -31,68 +32,65 @@ const LoadingSpinner = memo(() => (
 LoadingSpinner.displayName = 'LoadingSpinner'
 
 export default function IconBtn({
-  icon,
+  children,
   disabled = false,
-  bgColor = 'bg-primary',
-  outlined = false,
+  outlined = true,
   borderless = false,
   loading = false,
-  iconFontSize = '',
-  size = 9,
+  size = 'medium',
+  iconClass,
   ariaLabel,
   onClick,
+  onKeyDown,
   'aria-pressed': ariaPressed,
-  className = ''
+  className = '',
+  ref,
+  ...props
 }: IconBtnProps) {
   const isDisabled = disabled || loading
 
-  const classList = useMemo(() => {
+  const additionalClasses = useMemo(() => {
     const list: string[] = []
 
-    list.push(`h-${size} w-${size}`)
-
-    if (!borderless) {
-      list.push(`${bgColor} border border-gray-600`)
+    // Icon button specific styling
+    if (size === 'small') {
+      list.push('w-9 text-lg')
+    } else if (size === 'large') {
+      list.push('w-11 text-2xl')
+    } else {
+      list.push('w-10 text-xl')
     }
 
-    const baseClassList = `${styles.iconBtn} rounded-md flex items-center justify-center relative disabled:cursor-not-allowed disabled:text-disabled`
-    return mergeClasses(baseClassList, list, className)
-  }, [size, borderless, bgColor, className])
+    return list
+  }, [size])
 
-  const fontSize = useMemo(() => {
-    if (iconFontSize) return iconFontSize
-    if (icon === 'edit') return '1.25rem'
-    return '1.4rem'
-  }, [iconFontSize, icon])
+  const classList = useMemo(() => {
+    return mergeClasses(additionalClasses, className)
+  }, [additionalClasses, className])
 
   const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
+    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
       if (isDisabled) {
         e.preventDefault()
         return
       }
-      e.preventDefault()
-      if (onClick) {
-        onClick(e)
-      }
-      e.stopPropagation()
+      onClick?.(e)
     },
     [onClick, isDisabled]
   )
 
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-  }, [])
-
   return (
-    <button
-      aria-label={ariaLabel}
-      className={classList}
+    <ButtonBase
+      ref={ref}
+      size={size}
       disabled={isDisabled}
+      borderless={borderless}
       onClick={handleClick}
-      onMouseDown={handleMouseDown}
-      tabIndex={isDisabled ? -1 : 0}
+      onKeyDown={onKeyDown}
+      className={classList}
+      aria-label={ariaLabel}
       aria-pressed={ariaPressed}
+      {...props}
     >
       {loading && <LoadingSpinner />}
       {loading && (
@@ -101,13 +99,10 @@ export default function IconBtn({
         </span>
       )}
       {!loading && (
-        <span
-          cy-id="icon-btn-icon"
-          className={outlined ? 'material-symbols' : 'material-symbols fill'}
-          style={{ fontSize }}
-          dangerouslySetInnerHTML={{ __html: icon }}
-        />
+        <span cy-id="icon-btn-icon" className={mergeClasses(outlined ? 'material-symbols' : 'material-symbols fill', iconClass)}>
+          {children}
+        </span>
       )}
-    </button>
+    </ButtonBase>
   )
 }

@@ -1,5 +1,8 @@
 import React, { useId, useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useMergedRef } from '@/hooks/useMergedRef'
+import Label from './Label'
+import InputWrapper from './InputWrapper'
 
 interface RangeInputProps {
   value: number
@@ -14,9 +17,9 @@ interface RangeInputProps {
 }
 
 const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, className = '', disabled = false, ref }: RangeInputProps) => {
-  const uniqueId = useId()
-  const inputId = `range-input-${uniqueId}`
-  const labelId = label ? `range-label-${uniqueId}` : undefined
+  const rangeInputId = useId()
+  const inputId = `${rangeInputId}-input`
+  const [readInputRef, writeInputRef] = useMergedRef<HTMLInputElement>(ref)
 
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +29,7 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
     [onChange]
   )
 
-  const containerClasses = useMemo(() => mergeClasses('flex flex-col items-start gap-2 w-full', className), [className])
+  const containerClasses = useMemo(() => mergeClasses('flex flex-col items-start w-full', className), [className])
 
   const rangeInputClasses = useMemo(
     () =>
@@ -67,38 +70,34 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
   return (
     <div className={containerClasses}>
       {label && (
-        <label id={labelId} htmlFor={inputId} className={`px-1 text-sm font-semibold ${disabled ? 'text-disabled' : ''}`}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
-      <div
-        className={mergeClasses(
-          'inline-flex items-center w-full rounded-sm px-2 py-1 focus-within:outline',
-          disabled ? 'bg-bg-disabled text-disabled cursor-not-allowed' : 'bg-primary cursor-text'
-        )}
-      >
-        <input
-          ref={ref}
-          id={inputId}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={handleChange}
-          disabled={disabled}
-          aria-disabled={disabled}
-          aria-labelledby={labelId}
-          aria-valuemin={min}
-          aria-valuemax={max}
-          aria-valuenow={value}
-          aria-valuetext={`${value}%`}
-          className={rangeInputClasses}
-        />
-        <span className="text-sm ml-2" aria-hidden="true">
-          {value}%
-        </span>
-      </div>
+      <InputWrapper disabled={disabled} inputRef={readInputRef}>
+        <div className="inline-flex items-center w-full">
+          <input
+            ref={writeInputRef}
+            id={inputId}
+            type="range"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={handleChange}
+            disabled={disabled}
+            aria-disabled={disabled}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={value}
+            aria-valuetext={`${value}%`}
+            className={rangeInputClasses}
+          />
+          <span className="text-sm ml-2" aria-hidden="true">
+            {value}%
+          </span>
+        </div>
+      </InputWrapper>
     </div>
   )
 }

@@ -3,6 +3,9 @@
 import { useCallback, useId, useMemo, useState } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { copyToClipboard } from '@/lib/clipboard'
+import { useMergedRef } from '@/hooks/useMergedRef'
+import Label from './Label'
+import InputWrapper from './InputWrapper'
 
 export interface TextInputProps {
   id?: string
@@ -48,7 +51,10 @@ export default function TextInput({
   ref
 }: TextInputProps) {
   const generatedId = useId()
-  const inputId = id || generatedId
+  const textInputId = id || generatedId
+  const inputId = `${textInputId}-input`
+
+  const [readInputRef, writeInputRef] = useMergedRef<HTMLInputElement>(ref)
 
   const [showPassword, setShowPassword] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
@@ -60,15 +66,6 @@ export default function TextInput({
     return type
   }, [type, showPassword])
 
-  const wrapperClass = useMemo(() => {
-    return mergeClasses(
-      'relative w-full shadow-xs flex items-stretch rounded-sm px-2 py-2 focus-within:outline',
-      isInvalidDate ? 'border border-error focus-within:outline-error' : 'border border-gray-600 focus-within:outline',
-      disabled ? 'bg-bg-disabled' : readOnly ? 'bg-bg-read-only' : 'bg-primary',
-      className
-    )
-  }, [disabled, readOnly, isInvalidDate, className])
-
   // Derive aria-label from label or placeholder
   const ariaLabel = useMemo(() => {
     if (label) return label
@@ -78,8 +75,6 @@ export default function TextInput({
 
   // Derive aria-invalid from isInvalidDate state
   const ariaInvalid = useMemo(() => isInvalidDate, [isInvalidDate])
-
-  const labelClass = useMemo(() => mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : ''), [disabled])
 
   const inputClass = useMemo(() => {
     const classes: string[] = []
@@ -161,18 +156,20 @@ export default function TextInput({
   }, [type, isFocused, value])
 
   return (
-    <div className="w-full" cy-id="text-input">
+    <div className={mergeClasses('w-full', className)} cy-id="text-input">
       {label && (
-        <label htmlFor={inputId} className={labelClass}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
-      <div className={wrapperClass} cy-id="text-input-wrapper">
+
+      <InputWrapper disabled={disabled} readOnly={readOnly} error={isInvalidDate} inputRef={readInputRef}>
         <input
-          ref={ref}
+          ref={writeInputRef}
           id={inputId}
           name={name}
           value={value?.toString() ?? ''}
+          autoComplete="off"
           type={actualType}
           step={step?.toString()}
           min={min?.toString()}
@@ -236,7 +233,7 @@ export default function TextInput({
             </button>
           </div>
         )}
-      </div>
+      </InputWrapper>
     </div>
   )
 }

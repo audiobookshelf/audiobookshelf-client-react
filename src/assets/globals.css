@@ -62,11 +62,14 @@
   --color-black-500: #222222;
   --color-black-600: #111111;
   --color-black-700: #101010;
+  --color-bg-hover: rgba(255, 255, 255, 0.1);
   --color-disabled: var(--color-gray-400);
   --color-bg-disabled: var(--color-black-300);
   --color-read-only: var(--color-gray-300);
   --color-bg-read-only: var(--color-black-300);
   --color-border: var(--border);
+  --color-checkbox-disabled: var(--color-gray-400);
+  --color-checkbox-bg-disabled: var(--color-black-200);
 
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';

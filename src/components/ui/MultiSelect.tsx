@@ -4,6 +4,8 @@ import type { DropdownMenuItem } from './DropdownMenu'
 import { mergeClasses } from '@/lib/merge-classes'
 import Pill from './Pill'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import Label from './Label'
+import InputWrapper from './InputWrapper'
 
 export interface MultiSelectItem<T = string> {
   value: string
@@ -113,7 +115,7 @@ export const MultiSelect = <T extends any = string>({
     },
     [isEditingPillIndexControlled, onEditingPillIndexChange]
   )
-  const identifier = useId()
+  const multiSelectId = useId()
   const { showToast } = useGlobalToast()
 
   const selectedItemValues = useMemo(() => selectedItems.map((i) => i.value), [selectedItems])
@@ -622,10 +624,10 @@ export const MultiSelect = <T extends any = string>({
     if (focusIndex < 0) {
       // pill
       const pillIdx = selectedItemValues.length + focusIndex
-      if (pillIdx >= 0) activeDescendantId = `${identifier}-pill-${pillIdx}`
+      if (pillIdx >= 0) activeDescendantId = `${multiSelectId}-pill-${pillIdx}`
     } else {
       // menu item
-      activeDescendantId = `${identifier}-menuitem-${focusIndex}`
+      activeDescendantId = `${multiSelectId}-menuitem-${focusIndex}`
     }
   }
 
@@ -646,84 +648,82 @@ export const MultiSelect = <T extends any = string>({
       if (disabled) return
       if (document.activeElement === inputRef.current) {
         setIsMenuOpen((prev) => !prev)
-      } else {
-        inputRef.current?.focus()
       }
     },
     [disabled]
   )
 
+  const inputId = useMemo(() => `${multiSelectId}-input`, [multiSelectId])
+
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={identifier} className={`px-1 text-sm font-semibold ${disabled ? 'text-disabled' : ''}`}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
       <div ref={wrapperRef} className="relative">
-        <div
-          ref={inputWrapperRef}
-          role="list"
-          style={{ minHeight: 36 }}
-          className={mergeClasses(
-            'flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-1 focus-within:outline',
-            disabled ? 'bg-bg-disabled text-disabled cursor-not-allowed' : 'bg-primary cursor-text'
-          )}
-          onClick={handleInputWrapperClick}
-          onMouseDown={(e) => e.preventDefault()}
-        >
-          {selectedItems.map((item, idx) => (
-            <Pill
-              key={item.value}
-              id={`${identifier}-pill-${idx}`}
-              item={item.content}
-              onMutate={onMutate}
-              onValidate={onValidate}
-              getEditableText={getEditableText}
-              getReadOnlyPrefix={getReadOnlyPrefix}
-              getFullText={getFullText}
-              isFocused={focusIndex === idx - selectedItemValues.length}
-              isEditing={editingPillIndex === idx}
+        <InputWrapper disabled={disabled} inputRef={inputRef} size="auto">
+          <div
+            ref={inputWrapperRef}
+            role="list"
+            className={mergeClasses('flex-wrap relative w-full flex items-center py-1', disabled ? 'text-disabled cursor-not-allowed' : 'cursor-text')}
+            onClick={handleInputWrapperClick}
+            onMouseDown={(e) => e.preventDefault()}
+          >
+            {selectedItems.map((item, idx) => (
+              <Pill
+                key={item.value}
+                id={`${multiSelectId}-pill-${idx}`}
+                item={item.content}
+                onMutate={onMutate}
+                onValidate={onValidate}
+                getEditableText={getEditableText}
+                getReadOnlyPrefix={getReadOnlyPrefix}
+                getFullText={getFullText}
+                isFocused={focusIndex === idx - selectedItemValues.length}
+                isEditing={editingPillIndex === idx}
+                disabled={disabled}
+                showEditButton={showEdit}
+                onClick={() => focusPill(idx)}
+                onEditButtonClick={() => setEditingPillIndex(idx)}
+                onEdit={(editedPillItem) => handlePillEdit(editedPillItem, idx)}
+                onRemove={() => removeItem(item.value)}
+                onEditDone={handlePillEditDone}
+              />
+            ))}
+            <span ref={sizerRef} className="absolute invisible whitespace-pre px-1 text-sm">
+              {textInput}
+            </span>
+            <input
+              value={isControlled ? value : textInput}
+              ref={inputRef}
+              id={inputId}
               disabled={disabled}
-              showEditButton={showEdit}
-              onClick={() => focusPill(idx)}
-              onEditButtonClick={() => setEditingPillIndex(idx)}
-              onEdit={(editedPillItem) => handlePillEdit(editedPillItem, idx)}
-              onRemove={() => removeItem(item.value)}
-              onEditDone={handlePillEditDone}
+              className={mergeClasses('bg-transparent border-none outline-none px-1 text-sm', !showInput && 'sr-only')}
+              autoComplete="off"
+              onKeyDown={handleKeyDown}
+              onFocus={inputFocus}
+              onBlur={inputBlur}
+              onPaste={inputPaste}
+              onChange={handleInputChange}
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={showMenu}
+              aria-controls={`${multiSelectId}-listbox`}
+              aria-haspopup="listbox"
+              aria-disabled={disabled}
+              aria-activedescendant={activeDescendantId}
+              readOnly={!showInput}
             />
-          ))}
-          <span ref={sizerRef} className="absolute invisible whitespace-pre px-1 text-sm">
-            {textInput}
-          </span>
-          <input
-            value={isControlled ? value : textInput}
-            ref={inputRef}
-            id={identifier}
-            disabled={disabled}
-            className={mergeClasses('bg-transparent border-none outline-none px-1 text-sm', !showInput && 'sr-only')}
-            autoComplete="off"
-            onKeyDown={handleKeyDown}
-            onFocus={inputFocus}
-            onBlur={inputBlur}
-            onPaste={inputPaste}
-            onChange={handleInputChange}
-            role="combobox"
-            aria-autocomplete="list"
-            aria-expanded={showMenu}
-            aria-controls={`${identifier}-listbox`}
-            aria-haspopup="listbox"
-            aria-disabled={disabled}
-            aria-activedescendant={activeDescendantId}
-            readOnly={!showInput}
-          />
-        </div>
+          </div>
+        </InputWrapper>
         <DropdownMenu
           showMenu={showMenu}
           items={dropdownItems}
           multiSelect={true}
           focusedIndex={focusIndex !== null && focusIndex >= 0 ? focusIndex : -1}
-          dropdownId={identifier}
+          dropdownId={multiSelectId}
           onItemClick={handleDropdownItemClick}
           isItemSelected={isItemSelected}
           showSelectedIndicator={true}

@@ -4,6 +4,8 @@ import { useState, useRef, useCallback, useMemo, useId, useEffect } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
+import Label from './Label'
+import InputWrapper from './InputWrapper'
 
 interface InputDropdownProps {
   value?: string | number
@@ -225,26 +227,23 @@ export default function InputDropdown({
     [itemsToShow]
   )
 
-  const inputWrapperClass = useMemo(() => {
-    return mergeClasses(
-      'input-wrapper flex-wrap relative w-full shadow-xs flex items-center border border-gray-600 rounded-sm px-2 py-2 focus-within:outline',
-      disabled ? 'bg-bg-disabled' : 'bg-primary'
-    )
-  }, [disabled])
+  const inputId = useMemo(() => `${dropdownId}-input`, [dropdownId])
 
   return (
     <div className={mergeClasses('w-full', className)}>
       {label && (
-        <label cy-id="input-dropdown-label" className={mergeClasses('px-1 text-sm font-semibold', disabled ? 'text-disabled' : '')}>
+        <Label htmlFor={inputId} disabled={disabled}>
           {label}
-        </label>
+        </Label>
       )}
 
       <div ref={wrapperRef} className="relative">
-        <div cy-id="input-wrapper" className={inputWrapperClass}>
+        <InputWrapper disabled={disabled} inputRef={inputRef}>
           <input
             ref={inputRef}
+            id={inputId}
             value={textInput}
+            autoComplete="off"
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}
             className="h-full w-full bg-transparent px-1 outline-none disabled:cursor-not-allowed disabled:text-disabled"
@@ -258,7 +257,7 @@ export default function InputDropdown({
             aria-activedescendant={focusedIndex >= 0 ? `${dropdownId}-item-${focusedIndex}` : undefined}
             cy-id="input-dropdown-input"
           />
-        </div>
+        </InputWrapper>
 
         <DropdownMenu
           showMenu={showMenu}

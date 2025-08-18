@@ -18,6 +18,7 @@ import {
   FileInputExamples,
   LibraryIconExamples,
   MediaIconPickerExamples,
+  SideBySideControlsExamples,
   LoadingExamples,
   AdvancedModalExamples,
   ToastNotificationExamples
@@ -130,6 +131,11 @@ export default function ComponentsCatalogPage() {
                   </a>
                 </li>
                 <li>
+                  <a href="#side-by-side-controls-components" className="hover:text-blue-400 transition-colors">
+                    Side By Side Controls
+                  </a>
+                </li>
+                <li>
                   <a href="#loading-components" className="hover:text-blue-400 transition-colors">
                     Loading Indicators
                   </a>
@@ -198,6 +204,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="media-icon-picker-components">
         <MediaIconPickerExamples />
+      </div>
+      <div id="side-by-side-controls-components">
+        <SideBySideControlsExamples />
       </div>
       <div id="loading-components">
         <LoadingExamples />
