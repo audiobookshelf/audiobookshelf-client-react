@@ -21,7 +21,8 @@ import {
   SideBySideControlsExamples,
   LoadingExamples,
   AdvancedModalExamples,
-  ToastNotificationExamples
+  ToastNotificationExamples,
+  DurationPickerExamples
 } from './ComponentExamples'
 
 export default function ComponentsCatalogPage() {
@@ -111,6 +112,11 @@ export default function ComponentsCatalogPage() {
                   </a>
                 </li>
                 <li>
+                  <a href="#duration-picker-components" className="hover:text-blue-400 transition-colors">
+                    Duration Picker
+                  </a>
+                </li>
+                <li>
                   <a href="#checkbox-components" className="hover:text-blue-400 transition-colors">
                     Checkboxes
                   </a>
@@ -192,6 +198,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="range-input-components">
         <RangeInputExamples />
+      </div>
+      <div id="duration-picker-components">
+        <DurationPickerExamples />
       </div>
       <div id="checkbox-components">
         <CheckboxExamples />
