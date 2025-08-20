@@ -1391,7 +1391,7 @@ export function DurationPickerExamples() {
       <ExamplesBlock>
         <Example title="Default DurationPicker">
           <div className="space-y-2">
-            <DurationPicker value={timeValue1} onChange={setTimeValue1} />
+            <DurationPicker value={timeValue1} onChange={setTimeValue1} className="w-fit" />
             <p className="text-sm text-gray-400">
               Value: {timeValue1} seconds ({Math.floor(timeValue1 / 3600)}:{(Math.floor(timeValue1 / 60) % 60).toString().padStart(2, '0')}:
               {(timeValue1 % 60).toString().padStart(2, '0')})
@@ -1401,7 +1401,7 @@ export function DurationPickerExamples() {
 
         <Example title="DurationPicker with 3-Digit Hours">
           <div className="space-y-2">
-            <DurationPicker value={timeValue3} onChange={setTimeValue3} showThreeDigitHour />
+            <DurationPicker value={timeValue3} onChange={setTimeValue3} showThreeDigitHour className="w-fit" />
             <p className="text-sm text-gray-400">
               Value: {timeValue3} seconds ({Math.floor(timeValue3 / 3600)}:{(Math.floor(timeValue3 / 60) % 60).toString().padStart(2, '0')}:
               {(timeValue3 % 60).toString().padStart(2, '0')})
@@ -1410,23 +1410,23 @@ export function DurationPickerExamples() {
         </Example>
 
         <Example title="Disabled DurationPicker">
-          <DurationPicker value={timeValue2} onChange={() => {}} disabled />
+          <DurationPicker value={timeValue2} onChange={() => {}} disabled className="w-fit" />
         </Example>
 
         <Example title="ReadOnly DurationPicker">
-          <DurationPicker value={timeValue2} onChange={() => {}} readOnly />
+          <DurationPicker value={timeValue2} onChange={() => {}} readOnly className="w-fit" />
         </Example>
 
         <Example title="Borderless DurationPicker">
-          <DurationPicker value={timeValue1} onChange={setTimeValue1} borderless />
+          <DurationPicker value={timeValue1} onChange={setTimeValue1} borderless className="w-fit" />
         </Example>
 
         <Example title="Small Size DurationPicker">
-          <DurationPicker value={timeValue2} onChange={setTimeValue2} size="small" />
+          <DurationPicker value={timeValue2} onChange={setTimeValue2} size="small" className="w-fit" />
         </Example>
 
         <Example title="Large Size DurationPicker">
-          <DurationPicker value={timeValue2} onChange={setTimeValue2} size="large" />
+          <DurationPicker value={timeValue2} onChange={setTimeValue2} size="large" className="w-fit" />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
