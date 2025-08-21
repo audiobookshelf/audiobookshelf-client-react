@@ -47,7 +47,7 @@ export default function ToggleSwitch({
   }, [value, onColor, offColor])
 
   const buttonClassName = useMemo(() => {
-    const baseClasses = 'border rounded-full border-black-100 flex items-center cursor-pointer justify-start outline-none'
+    const baseClasses = 'border rounded-full border-border flex items-center cursor-pointer justify-start outline-none'
     const disabledClasses = disabled ? 'cursor-not-allowed bg-checkbox-bg-disabled border-checkbox-bg-disabled' : ''
     const widthClasses = size === 'small' ? 'w-6' : size === 'medium' ? 'w-8' : 'w-10'
 
