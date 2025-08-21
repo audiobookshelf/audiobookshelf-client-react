@@ -80,7 +80,7 @@ interface ExampleProps {
 
 function Example({ title, children, className }: ExampleProps) {
   return (
-    <div className={mergeClasses('bg-bg p-6 rounded-lg border border-gray-600', className)}>
+    <div className={mergeClasses('bg-bg p-6 rounded-lg border border-border', className)}>
       <h3 className="text-lg font-medium mb-4">{title}</h3>
       {children}
     </div>
@@ -1646,7 +1646,7 @@ export function AdvancedModalExamples() {
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} width={600}>
               <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6 border-b border-gray-600 pb-4">
+                <div className="flex items-center justify-between mb-6 border-b border-border pb-4">
                   <h3 className="text-xl font-semibold text-white">Edit Tags</h3>
                 </div>
 
@@ -1670,7 +1670,7 @@ export function AdvancedModalExamples() {
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-600">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
                   <Btn onClick={() => setIsModalOpen(false)} color="bg-gray-600">
                     Cancel
                   </Btn>
@@ -1889,7 +1889,7 @@ export function ModalExamples() {
                     <p className="text-sm text-gray-300">Try resizing your browser window to see how the modal adapts to different screen sizes.</p>
                   </div>
                 </div>
-                <div className="flex justify-end pt-4 border-t border-gray-600">
+                <div className="flex justify-end pt-4 border-t border-border">
                   <Btn onClick={() => setIsResponsiveModalOpen(false)} color="bg-gray-600">
                     Close
                   </Btn>
