@@ -39,7 +39,7 @@ describe('<IconBtn />', () => {
   it('applies border by default', () => {
     cy.mount(<IconBtn>edit</IconBtn>)
     cy.get('button').should('have.class', 'border')
-    cy.get('button').should('have.class', 'border-gray-600')
+    cy.get('button').should('have.class', 'border-border')
   })
 
   it('shows loading spinner when loading is true', () => {

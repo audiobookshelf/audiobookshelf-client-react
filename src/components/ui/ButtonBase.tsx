@@ -18,6 +18,8 @@ interface ButtonBaseProps {
   ariaLabel?: string
   className?: string
   ref?: React.Ref<any>
+  // Allow any additional HTML attributes
+  [key: string]: any
 }
 
 const ButtonBase = ({
@@ -39,7 +41,7 @@ const ButtonBase = ({
   const buttonClass = useMemo(() => {
     return mergeClasses(
       // Base styles
-      'relative shadow-md border border-gray-600 rounded-md bg-primary flex items-center justify-center',
+      'relative shadow-md border border-border rounded-md bg-primary flex items-center justify-center',
 
       // Focus styles
       'focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0',

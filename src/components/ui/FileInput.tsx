@@ -12,13 +12,7 @@ interface FileInputProps {
   ariaLabel?: string
 }
 
-export default function FileInput({ 
-  accept = '.png, .jpg, .jpeg, .webp',
-  children,
-  onChange,
-  className = '',
-  ariaLabel
-}: FileInputProps) {
+export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', children, onChange, className = '', ariaLabel }: FileInputProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFileName, setSelectedFileName] = useState<string>('')
 
@@ -55,36 +49,15 @@ export default function FileInput({
 
   return (
     <div className={className}>
-      <input 
-        ref={fileInputRef}
-        type="file" 
-        accept={accept} 
-        className="hidden" 
-        onChange={inputChanged}
-        id={inputId}
-        aria-label={label}
-        tabIndex={-1}
-      />
-      <Btn 
-        onClick={clickUpload}
-        color="bg-primary" 
-        className="hidden md:block w-full"
-        ariaLabel={label}
-      >
+      <input ref={fileInputRef} type="file" accept={accept} className="hidden" onChange={inputChanged} id={inputId} aria-label={label} tabIndex={-1} />
+      <Btn onClick={clickUpload} color="bg-primary" className="hidden md:block w-full" ariaLabel={label}>
         {children}
       </Btn>
-      <IconBtn 
-        onClick={clickUpload}
-        icon="upload" 
-        className="block md:hidden"
-        ariaLabel={label}
-      />
+      <IconBtn onClick={clickUpload} className="block md:hidden" ariaLabel={label}>
+        Upload
+      </IconBtn>
       {selectedFileName && (
-        <div 
-          className="sr-only" 
-          aria-live="polite"
-          aria-atomic="true"
-        >
+        <div className="sr-only" aria-live="polite" aria-atomic="true">
           {selectedFileText}
         </div>
       )}

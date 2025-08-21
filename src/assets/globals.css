@@ -70,6 +70,7 @@
   --color-border: var(--border);
   --color-checkbox-disabled: var(--color-gray-400);
   --color-checkbox-bg-disabled: var(--color-black-200);
+  --color-button-selected-bg: var(--color-black-200);
 
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';

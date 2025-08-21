@@ -44,7 +44,7 @@ describe('<Dropdown />', () => {
     cy.get('button').should('have.class', 'disabled:text-disabled')
     cy.get('&control-wrapper').should('have.class', 'bg-bg-disabled')
     cy.get('&control-wrapper').should('have.class', 'cursor-not-allowed')
-    cy.get('&control-wrapper').should('have.class', 'border-0')
+    cy.get('&control-wrapper').should('have.class', 'border-bg-disabled')
     cy.get('label').should('have.class', 'text-disabled')
   })
 
