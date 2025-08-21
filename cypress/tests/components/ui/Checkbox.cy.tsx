@@ -205,8 +205,8 @@ describe('<Checkbox />', () => {
 
     it('handles disabled state with custom colors', () => {
       cy.mount(<Checkbox disabled checkboxBgClass="bg-blue-500" borderColorClass="border-red-500" checkColorClass="text-yellow-500" />)
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-blue-500')
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-red-500')
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-checkbox-bg-disabled')
+      cy.get('[cy-id="checkbox-div"]').should('have.class', 'bg-checkbox-bg-disabled')
       cy.get('input[type="checkbox"]').should('be.disabled')
     })
 
