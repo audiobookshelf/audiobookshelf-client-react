@@ -36,7 +36,7 @@ const InputWrapper = ({
       error ? 'border-error focus-within:outline-error' : 'border-gray-600',
 
       // Background styles based on state
-      disabled ? 'bg-bg-disabled cursor-not-allowed' : readOnly ? 'bg-bg-read-only' : borderless ? 'bg-transparent' : 'bg-primary',
+      disabled ? 'bg-bg-disabled cursor-not-allowed border-bg-disabled' : readOnly ? 'bg-bg-read-only' : borderless ? 'bg-transparent' : 'bg-primary',
 
       // Borderless styles
       borderless ? 'border-0' : 'border',
