@@ -22,7 +22,8 @@ import {
   LoadingExamples,
   AdvancedModalExamples,
   ToastNotificationExamples,
-  DurationPickerExamples
+  DurationPickerExamples,
+  ToggleBtnsExamples
 } from './ComponentExamples'
 
 export default function ComponentsCatalogPage() {
@@ -117,6 +118,11 @@ export default function ComponentsCatalogPage() {
                   </a>
                 </li>
                 <li>
+                  <a href="#toggle-buttons-components" className="hover:text-blue-400 transition-colors">
+                    Toggle Buttons
+                  </a>
+                </li>
+                <li>
                   <a href="#checkbox-components" className="hover:text-blue-400 transition-colors">
                     Checkboxes
                   </a>
@@ -201,6 +207,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="duration-picker-components">
         <DurationPickerExamples />
+      </div>
+      <div id="toggle-buttons-components">
+        <ToggleBtnsExamples />
       </div>
       <div id="checkbox-components">
         <CheckboxExamples />
