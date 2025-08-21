@@ -121,7 +121,7 @@ export default function ToggleButtonGroup({
     (isSelected: boolean) => {
       return mergeClasses(
         size === 'small' ? 'text-sm px-4' : size === 'large' ? 'text-lg px-6' : 'text-base px-4',
-        isSelected ? 'text-white bg-gray-600 disabled:bg-gray-600/80' : '',
+        isSelected ? 'text-white bg-button-selected-bg disabled:bg-button-selected-bg/80' : '',
         'rounded-none first:rounded-l-md last:rounded-r-md', // squared inside; wrapper provides outer rounding
         'focus-visible:outline-0' // focus ring is on the container
       )
