@@ -18,6 +18,8 @@ interface ButtonBaseProps {
   ariaLabel?: string
   className?: string
   ref?: React.Ref<any>
+  // Allow any additional HTML attributes
+  [key: string]: any
 }
 
 const ButtonBase = ({
