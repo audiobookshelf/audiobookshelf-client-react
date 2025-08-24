@@ -2164,6 +2164,14 @@ export function TooltipExamples() {
             </Tooltip>
           </div>
         </Example>
+
+        <Example title="Tooltip on the right edge of the screen">
+          <div className="space-y-4 flex justify-end">
+            <Tooltip text="This is a tooltip on the right edge of the screen" position="top">
+              <IconBtn size="medium">settings_slow_motion</IconBtn>
+            </Tooltip>
+          </div>
+        </Example>
       </ExamplesBlock>
     </ComponentExamples>
   )
