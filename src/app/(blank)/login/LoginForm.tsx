@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import TextInput from '@/components/ui/TextInput'
+import Btn from '@/components/ui/Btn'
 
 export default function LoginForm() {
   const t = useTranslations()
@@ -49,42 +51,15 @@ export default function LoginForm() {
     <form onSubmit={handleSubmit} className="bg-bg border border-gray-600 rounded-lg shadow-lg p-10 w-full max-w-md">
       <h2 className="text-2xl font-bold text-center mb-6 text-postcss">{t('LabelLogin')}</h2>
 
-      <div className="flex flex-col gap-2 mb-4">
-        <label htmlFor="username" className="text-gray-300 text-sm font-semibold">
-          {t('LabelUsername')}
-        </label>
-        <input
-          id="username"
-          type="text"
-          autoComplete="username"
-          className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required
-        />
-      </div>
-      <div className="flex flex-col gap-2 mb-4">
-        <label htmlFor="password" className="text-gray-300 text-sm font-semibold">
-          {t('LabelPassword')}
-        </label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          className="bg-primary border border-gray-600 rounded px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+      <div className="flex flex-col gap-4 mb-4">
+        <TextInput label={t('LabelUsername')} value={username} onChange={(e) => setUsername(e)} />
+        <TextInput label={t('LabelPassword')} value={password} onChange={(e) => setPassword(e)} />
       </div>
       {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
       <div className="flex justify-end">
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-primary border border-gray-600 rounded px-8 py-2 text-white font-semibold hover:bg-gray-700 transition disabled:opacity-50"
-        >
+        <Btn type="submit" disabled={loading}>
           {loading ? 'Logging in...' : t('LabelSubmit')}
-        </button>
+        </Btn>
       </div>
     </form>
   )
