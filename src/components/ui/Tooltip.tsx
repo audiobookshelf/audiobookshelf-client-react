@@ -1,198 +1,229 @@
-import React, { useState, useId, useEffect, useRef, useCallback, useMemo } from 'react'
+import React, { useId, useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { useFloating, offset, flip, shift, size, arrow as arrowMw, autoUpdate, limitShift } from '@floating-ui/react-dom'
+import type { Placement } from '@floating-ui/dom'
 import { useModalRef } from '@/contexts/ModalContext'
 import { mergeClasses } from '@/lib/merge-classes'
 
-// Define the component's props
 interface TooltipProps {
   text: string
   children: React.ReactNode
   position?: 'top' | 'bottom' | 'left' | 'right'
   usePortal?: boolean
+  className?: string
+  offsetPx?: number
+  edgePadding?: number
+  maxWidth?: number
+  withArrow?: boolean
 }
 
-const Tooltip = ({ text, children, position = 'right', usePortal: usePortalProp = false }: TooltipProps) => {
-  const [isVisible, setIsVisible] = useState(false)
-  const [tooltipPosition, setTooltipPosition] = useState<{ top: string; left: string }>({
-    top: '0px',
-    left: '0px'
-  })
-  const modalRef = useModalRef()
-  const portalContainerRef = modalRef || undefined
-  const containerRef = useRef<HTMLDivElement>(null)
-  const tooltipRef = useRef<HTMLDivElement>(null)
-  // Generate a unique, stable ID for ARIA attributes
+const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
+  top: 'top',
+  bottom: 'bottom',
+  left: 'left',
+  right: 'right'
+}
+
+const Tooltip = ({
+  text,
+  children,
+  position = 'right',
+  usePortal: usePortalProp = false,
+  className,
+  offsetPx = 8,
+  edgePadding = 8,
+  maxWidth,
+  withArrow = true
+}: TooltipProps) => {
   const tooltipId = useId()
+  const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  const arrowRef = useRef<HTMLDivElement | null>(null)
 
-  const usePortal: boolean = usePortalProp || modalRef !== null
+  const modalRef = useModalRef()
+  const portalRoot = modalRef?.current ?? undefined
+  const usePortal = usePortalProp || Boolean(portalRoot)
 
-  // Add event listener for the Escape key to hide the tooltip
+  const placement = placementMap[position]
+
+  // Ensure component is mounted before rendering tooltip
   useEffect(() => {
-    if (!isVisible) return
+    setMounted(true)
+  }, [])
 
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsVisible(false)
-      }
+  // Positioning middleware (see https://floating-ui.com/docs/useFloating#middleware)
+  const middleware = useMemo(() => {
+    const mw = [
+      offset(offsetPx),
+      flip({ fallbackAxisSideDirection: 'start' }),
+      shift({ padding: edgePadding }),
+      size({
+        padding: edgePadding,
+        apply: ({ availableWidth, elements }) => {
+          if (maxWidth !== undefined) {
+            const effectiveMaxWidth = Math.min(maxWidth, availableWidth)
+            Object.assign(elements.floating.style, { maxWidth: `${Math.round(effectiveMaxWidth)}px` })
+          }
+        }
+      })
+    ]
+    if (withArrow) mw.push(arrowMw({ element: arrowRef }))
+    return mw
+  }, [offsetPx, edgePadding, maxWidth, withArrow])
+
+  const {
+    update,
+    refs, // { setReference, setFloating, reference, floating }
+    elements,
+    floatingStyles,
+    placement: resolvedPlacement,
+    middlewareData
+  } = useFloating({
+    open,
+    placement,
+    strategy: 'absolute',
+    middleware
+  })
+
+  useEffect(() => {
+    if (open && elements.floating && elements.reference) {
+      const cleanup = autoUpdate(elements.reference, elements.floating, update)
+      return () => cleanup()
     }
+  }, [open, elements.floating, elements.reference, update])
 
-    document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
+  // Tiny hide delay so moving between ref/tooltip doesn't flicker
+  const hideTimeoutRef = useRef<number | null>(null)
+  const clearHideTimeout = useCallback(() => {
+    if (hideTimeoutRef.current != null) {
+      clearTimeout(hideTimeoutRef.current)
+      hideTimeoutRef.current = null
     }
-  }, [isVisible])
+  }, [])
+  useEffect(() => () => clearHideTimeout(), [clearHideTimeout])
 
-  // Calculate tooltip position when portal is used
-  const calculatePosition = useCallback(() => {
-    if (!containerRef.current || !tooltipRef.current) return
+  const openNow = useCallback(() => {
+    clearHideTimeout()
+    setOpen(true)
+  }, [clearHideTimeout])
 
-    const triggerRect = containerRef.current.getBoundingClientRect()
-    const tooltipRect = tooltipRef.current.getBoundingClientRect()
-    // portalRect is the bounding box of the portal container or the document body
-    const portalRect = portalContainerRef ? portalContainerRef.current?.getBoundingClientRect() : { top: 0, left: 0 }
-    const scrollY = portalContainerRef ? portalContainerRef.current?.scrollTop : window.scrollY
-    const scrollX = portalContainerRef ? portalContainerRef.current?.scrollLeft : window.scrollX
-    const margin = 4
+  const closeSoon = useCallback(() => {
+    clearHideTimeout()
+    hideTimeoutRef.current = window.setTimeout(() => setOpen(false), 100)
+  }, [clearHideTimeout])
 
-    const baseTop = triggerRect.top - portalRect.top + scrollY
-    const baseLeft = triggerRect.left - portalRect.left + scrollX
+  const onMouseEnter = useCallback(() => {
+    openNow()
+  }, [openNow])
 
-    let top: string, left: string
+  const onMouseLeave = useCallback(() => {
+    closeSoon()
+  }, [closeSoon])
 
-    switch (position) {
-      case 'top':
-        top = `${baseTop - tooltipRect.height - margin}px`
-        left = `${baseLeft + triggerRect.width / 2 - tooltipRect.width / 2}px`
-        break
-      case 'bottom':
-        top = `${baseTop + triggerRect.height + margin}px`
-        left = `${baseLeft + triggerRect.width / 2 - tooltipRect.width / 2}px`
-        break
-      case 'left':
-        top = `${baseTop + triggerRect.height / 2 - tooltipRect.height / 2}px`
-        left = `${baseLeft - tooltipRect.width - margin}px`
-        break
-      case 'right':
-      default:
-        top = `${baseTop + triggerRect.height / 2 - tooltipRect.height / 2}px`
-        left = `${baseLeft + triggerRect.width + margin}px`
-        break
-    }
+  // Focus/blur (keyboard a11y)
+  const onFocus = useCallback(() => {
+    openNow()
+  }, [openNow])
 
-    setTooltipPosition({ top, left })
-  }, [position])
+  const onBlur = useCallback(() => {
+    setOpen(false)
+  }, [])
 
   // Add aria-describedby to the first element child of the container
   useEffect(() => {
-    if (containerRef.current) {
-      const firstChild = containerRef.current.firstElementChild as HTMLElement
+    if (refs.reference.current instanceof Element) {
+      const firstChild = refs.reference.current.firstElementChild as HTMLElement
       if (firstChild) {
         firstChild.setAttribute('aria-describedby', tooltipId)
       }
     }
   }, [tooltipId])
 
-  // Update position when tooltip becomes visible and portal is used
+  // Escape to dismiss
   useEffect(() => {
-    if (isVisible && usePortal) {
-      // Use requestAnimationFrame to ensure DOM is updated
-      requestAnimationFrame(() => {
-        calculatePosition()
-      })
-    }
-  }, [isVisible, usePortal, calculatePosition])
-
-  const handleResize = useCallback(() => calculatePosition(), [calculatePosition])
-  const handleScroll = useCallback(() => calculatePosition(), [calculatePosition])
-
-  // Handle window resize and scroll when portal is used
-  useEffect(() => {
-    if (!isVisible || !usePortal) return
-
-    const scrollTarget = portalContainerRef?.current || window
-
-    window.addEventListener('resize', handleResize)
-    scrollTarget.addEventListener('scroll', handleScroll, true)
-
+    if (!open) return
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
+    window.addEventListener('keydown', onKey)
     return () => {
-      window.removeEventListener('resize', handleResize)
-      scrollTarget.removeEventListener('scroll', handleScroll, true)
+      window.removeEventListener('keydown', onKey)
     }
-  }, [isVisible, usePortal, calculatePosition])
+  }, [open, refs.reference, refs.floating])
 
-  // Determine the position classes for the tooltip
-  const positionClasses = useMemo(() => {
-    switch (position) {
-      case 'top':
-        return 'bottom-full left-1/2 -translate-x-1/2 mb-1'
-      case 'bottom':
-        return 'top-full left-1/2 -translate-x-1/2 mt-1'
-      case 'left':
-        return 'right-full top-1/2 -translate-y-1/2 mr-1'
-      case 'right':
-        return 'left-full top-1/2 -translate-y-1/2 ml-1'
-      default:
-        return 'bottom-full left-1/2 -translate-x-1/2 mb-1'
+  // If reference goes offscreen entirely, hide tooltip
+  useEffect(() => {
+    if (!open) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0] && entries[0].intersectionRatio === 0) setOpen(false)
+      },
+      { root: null, threshold: 0 }
+    )
+    const refEl = refs.reference.current
+    if (refEl instanceof Element) io.observe(refEl)
+    return () => io.disconnect()
+  }, [open, refs.reference])
+
+  // Position the arrow
+  const arrowStyles = useMemo<React.CSSProperties>(() => {
+    if (!withArrow) return {}
+    const { x, y } = middlewareData.arrow ?? {}
+    const staticSide: Record<string, keyof React.CSSProperties> = {
+      top: 'bottom',
+      bottom: 'top',
+      left: 'right',
+      right: 'left'
     }
-  }, [position])
+    return {
+      left: x != null ? `${x}px` : '',
+      top: y != null ? `${y}px` : '',
+      [staticSide[resolvedPlacement.split('-')[0]]]: '-4px'
+    } as React.CSSProperties
+  }, [middlewareData.arrow, resolvedPlacement, withArrow])
 
-  const tooltipClasses = useMemo(
+  const tooltipClass = useMemo(
     () =>
       mergeClasses(
-        'absolute',
-        usePortal ? '' : positionClasses,
-        'bg-primary text-white text-xs',
-        'px-2 py-1 rounded-sm shadow-lg z-50',
-        'whitespace-nowrap',
+        'inline-block whitespace-normal break-words text-center',
+        'rounded-sm bg-primary text-white text-xs px-2 py-1 shadow-lg z-[1000]',
         'transition-opacity duration-300',
-        isVisible ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       ),
-    [usePortal, isVisible, positionClasses]
+    [open]
   )
 
-  const tooltipElement = useMemo(
-    () => (
-      <div
-        ref={tooltipRef}
-        id={tooltipId}
-        role="tooltip"
-        aria-hidden={!isVisible}
-        className={tooltipClasses}
-        style={
-          usePortal
-            ? {
-                position: 'absolute',
-                top: tooltipPosition.top,
-                left: tooltipPosition.left,
-                zIndex: 9999
-              }
-            : undefined
-        }
-      >
-        {text}
-      </div>
-    ),
-    [tooltipRef, tooltipId, isVisible, tooltipClasses, usePortal, tooltipPosition.top, tooltipPosition.left, text]
-  )
+  const referenceClass = useMemo(() => {
+    return mergeClasses('inline-block', className)
+  }, [className])
 
-  const handleMouseEnter = useCallback(() => setIsVisible(true), [])
-  const handleMouseLeave = useCallback(() => setIsVisible(false), [])
-  const handleFocus = useCallback(() => setIsVisible(true), [])
-  const handleBlur = useCallback(() => setIsVisible(false), [])
+  const tooltipElement = (
+    <div
+      ref={refs.setFloating}
+      id={tooltipId}
+      role="tooltip"
+      aria-hidden={!open}
+      style={floatingStyles}
+      className={tooltipClass}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {text}
+      {withArrow && <div ref={arrowRef} style={arrowStyles} className="absolute w-2 h-2 rotate-45 bg-primary" />}
+    </div>
+  )
 
   return (
-    <div
-      ref={containerRef}
-      className="relative inline-block w-fit"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-    >
+    <div ref={refs.setReference} className={referenceClass} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onFocus={onFocus} onBlur={onBlur}>
       {children}
-      {!usePortal && tooltipElement}
-      {usePortal && typeof document !== 'undefined' && createPortal(tooltipElement, portalContainerRef?.current || document.body)}
+      {mounted &&
+        (usePortal
+          ? portalRoot
+            ? createPortal(tooltipElement, portalRoot)
+            : typeof document !== 'undefined'
+            ? createPortal(tooltipElement, document.body)
+            : null
+          : tooltipElement)}
     </div>
   )
 }
+
 export default Tooltip

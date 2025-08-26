@@ -2075,7 +2075,7 @@ export function TooltipExamples() {
       </ComponentInfo>
 
       <ExamplesBlock>
-        <Example title="Basic Tooltip">
+        <Example title="Basic">
           <div className="space-y-4">
             <Tooltip text="This is a basic tooltip">
               <Btn>Hover me</Btn>
@@ -2110,14 +2110,14 @@ export function TooltipExamples() {
         <Example title="With Text Input">
           <div className="space-y-4">
             <Tooltip text="Enter your username">
-              <TextInput placeholder="Username" />
+              <TextInput value="John Doe" />
             </Tooltip>
           </div>
         </Example>
 
-        <Example title="Long Tooltip Text">
+        <Example title="Long Text with maxWidth">
           <div className="space-y-4">
-            <Tooltip text="This is a very long tooltip text that demonstrates how the tooltip handles longer content" position="bottom">
+            <Tooltip text="This is a very long tooltip text that demonstrates how the tooltip handles longer content" position="bottom" maxWidth={200}>
               <Btn>Long tooltip</Btn>
             </Tooltip>
           </div>
@@ -2127,7 +2127,7 @@ export function TooltipExamples() {
           <div className="space-y-4">
             <div className="p-4 border border-gray-600 rounded-md overflow-hidden">
               <p className="text-sm text-gray-400 mb-2">This container has overflow: hidden</p>
-              <Tooltip text="This tooltip uses a portal and won't be clipped by the container" usePortal>
+              <Tooltip text="This tooltip uses a portal and won't be clipped by the container" position="bottom" usePortal>
                 <Btn>Portal tooltip</Btn>
               </Tooltip>
             </div>
@@ -2140,7 +2140,7 @@ export function TooltipExamples() {
             <Modal isOpen={isTooltipModalOpen} onClose={() => setIsTooltipModalOpen(false)} width={200}>
               <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
                 <h3 className="text-xl font-semibold text-white mb-4">Tooltip inside a modal</h3>
-                <Tooltip text="This is a tooltip inside a modal" position="bottom" usePortal>
+                <Tooltip text="This is a tooltip inside a modal" position="bottom" className="w-fit">
                   <Btn>Tooltip</Btn>
                 </Tooltip>
               </div>
@@ -2165,10 +2165,20 @@ export function TooltipExamples() {
           </div>
         </Example>
 
-        <Example title="Tooltip on the right edge of the screen">
-          <div className="space-y-4 flex justify-end">
-            <Tooltip text="This is a tooltip on the right edge of the screen" position="top">
-              <IconBtn size="medium">settings_slow_motion</IconBtn>
+        <Example title="Bottom Edge">
+          <div className="space-y-4">
+            <p className="text-sm text-gray-400 mb-2">Slowly scroll to make this button appear on the bottom edge of the screen</p>
+            <Tooltip text="bottom tooltip" position="bottom">
+              <Btn>Bottom</Btn>
+            </Tooltip>
+          </div>
+        </Example>
+
+        <Example title="Right Edge" className="col-span-1 md:col-span-2 lg:col-span-2">
+          <div className="space-y-4 flex flex-col items-end">
+            <p className="text-sm text-gray-400 mb-2">Resize to make this button appear close to the right edge of the screen</p>
+            <Tooltip text="right tooltip" position="right">
+              <Btn>Right</Btn>
             </Tooltip>
           </div>
         </Example>
