@@ -55,8 +55,8 @@ const Tooltip = ({
   const middleware = useMemo(() => {
     const mw = [
       offset(offsetPx),
-      flip({ fallbackAxisSideDirection: 'start' }),
       shift({ padding: edgePadding }),
+      flip({ fallbackAxisSideDirection: 'start' }),
       size({
         padding: edgePadding,
         apply: ({ availableWidth, elements }) => {

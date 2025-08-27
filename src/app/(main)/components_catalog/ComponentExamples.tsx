@@ -2177,7 +2177,7 @@ export function TooltipExamples() {
         <Example title="Right Edge" className="col-span-1 md:col-span-2 lg:col-span-2">
           <div className="space-y-4 flex flex-col items-end">
             <p className="text-sm text-gray-400 mb-2">Resize to make this button appear close to the right edge of the screen</p>
-            <Tooltip text="right tooltip" position="right">
+            <Tooltip text="Very long tooltip text that should be shifted to the left" position="bottom">
               <Btn>Right</Btn>
             </Tooltip>
           </div>
