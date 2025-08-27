@@ -24,7 +24,8 @@ import {
   ToastNotificationExamples,
   DurationPickerExamples,
   ToggleBtnsExamples,
-  ToggleSwitchExamples
+  ToggleSwitchExamples,
+  TooltipExamples
 } from './ComponentExamples'
 
 export default function ComponentsCatalogPage() {
@@ -129,6 +130,11 @@ export default function ComponentsCatalogPage() {
                   </a>
                 </li>
                 <li>
+                  <a href="#tooltip-components" className="hover:text-blue-400 transition-colors">
+                    Tooltips
+                  </a>
+                </li>
+                <li>
                   <a href="#checkbox-components" className="hover:text-blue-400 transition-colors">
                     Checkboxes
                   </a>
@@ -219,6 +225,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="toggle-switch-components">
         <ToggleSwitchExamples />
+      </div>
+      <div id="tooltip-components">
+        <TooltipExamples />
       </div>
       <div id="checkbox-components">
         <CheckboxExamples />
