@@ -1,7 +1,9 @@
+import SettingsContent from '../SettingsContent'
+
 export default function ListeningSessionsPage() {
   return (
-    <div className="p-8 w-full max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold">Listening Sessions</h1>
-    </div>
+    <SettingsContent title="Listening Sessions">
+      <div></div>
+    </SettingsContent>
   )
 }

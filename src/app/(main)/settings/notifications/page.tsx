@@ -1,7 +1,9 @@
+import SettingsContent from '../SettingsContent'
+
 export default function NotificationsPage() {
   return (
-    <div className="p-8 w-full max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold">Notifications</h1>
-    </div>
+    <SettingsContent title="Notifications">
+      <div></div>
+    </SettingsContent>
   )
 }
