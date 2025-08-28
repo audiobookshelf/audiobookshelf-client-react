@@ -57,7 +57,7 @@
   }
 }
 
-#page-wrapper {
+.page-bg-gradient {
   background-image: linear-gradient(
     to right bottom,
     #2e2e2e,

@@ -11,7 +11,9 @@ export default async function AccountLayout({ children }: Readonly<{ children: R
   return (
     <>
       <AppBar />
-      <div>{children}</div>
+      <div className="page-bg-gradient h-[calc(100vh-4rem)]">
+        <div className="w-full overflow-x-hidden overflow-y-auto">{children}</div>
+      </div>
     </>
   )
 }

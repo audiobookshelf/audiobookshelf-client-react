@@ -31,7 +31,7 @@ export default async function LibraryLayout({
       <AppBar libraries={libraries} currentLibraryId={currentLibraryId} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideRail currentLibraryId={currentLibraryId} currentLibraryMediaType={currentLibraryMediaType} />
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 page-bg-gradient">
           <Toolbar currentLibrary={currentLibrary} />
           <div className="w-full h-[calc(100%-2.5rem)] overflow-x-hidden overflow-y-auto">{children}</div>
         </div>

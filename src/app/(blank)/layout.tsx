@@ -16,7 +16,9 @@ export default function BlankLayout({
         <img src="/icon.svg" alt="audiobookshelf" className="w-8 min-w-8 h-8 mr-2 sm:w-10 sm:min-w-10 sm:h-10 sm:mr-4" />
         <p className="text-white text-2xl font-bold">audiobookshelf</p>
       </div>
-      <div>{children}</div>
+      <div className="page-bg-gradient h-[calc(100vh-4rem)]">
+        <div className="w-full overflow-x-hidden overflow-y-auto">{children}</div>
+      </div>
     </>
   )
 }
