@@ -34,10 +34,11 @@ export function getServerBaseUrl() {
 }
 
 /**
- * User "Home" page is the default library page, or settings page if no libraries are set yet
+ * User "Home" page is the default library page, or settings/account page if no libraries are set yet
  */
-export function getUserDefaultUrlPath(userDefaultLibraryId: string | null) {
-  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : '/settings'
+export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userType: string) {
+  const isAdmin = ['admin', 'root'].includes(userType)
+  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : isAdmin ? '/settings' : '/account'
 }
 
 /**

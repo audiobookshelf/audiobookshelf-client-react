@@ -28,9 +28,11 @@ export default async function AppBar(props: { libraries?: any; currentLibraryId?
         <Link href="/components_catalog" title="Components Catalog" className="text-sm text-foreground hover:text-foreground/80">
           <span className="material-symbols text-xl">widgets</span>
         </Link>
-        <Link href="/settings" title="Settings" className="text-sm text-foreground hover:text-foreground/80">
-          <span className="material-symbols text-xl">settings</span>
-        </Link>
+        {['admin', 'root'].includes(user.type) && (
+          <Link href="/settings" title="Settings" className="text-sm text-foreground hover:text-foreground/80">
+            <span className="material-symbols text-xl">settings</span>
+          </Link>
+        )}
         <Btn to="/account" className="pl-3 pr-2 w-32 justify-between">
           <span className="text-sm">{user.username}</span>
           <span className="material-symbols text-xl">person</span>

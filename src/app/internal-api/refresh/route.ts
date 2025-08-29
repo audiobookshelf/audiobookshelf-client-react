@@ -50,7 +50,7 @@ async function handleRefresh(request: Request) {
 
     // Get redirect URL from query parameters or default to user default path
     const url = new URL(request.url)
-    const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(data.userDefaultLibraryId)
+    const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(data.userDefaultLibraryId, data.user.type)
     const redirectUrl = new URL(redirectUrlPath, audiobookshelfServerUrl)
     const response = NextResponse.redirect(redirectUrl)
 

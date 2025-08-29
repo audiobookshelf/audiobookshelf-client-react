@@ -44,9 +44,10 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.nextUrl))
   }
 
-  if (pathname === '/') {
+  // Prevent access to settings page if user is not admin or root
+  if (pathname === '/' || (pathname.startsWith('/settings') && !['admin', 'root'].includes(userResponse.data.user.type))) {
     // Redirect to default library path otherwise redirect to settings
-    const userDefaultPath = getUserDefaultUrlPath(userResponse.data?.userDefaultLibraryId)
+    const userDefaultPath = getUserDefaultUrlPath(userResponse.data.userDefaultLibraryId, userResponse.data.user.type)
     return NextResponse.redirect(new URL(userDefaultPath, request.nextUrl))
   }
 
