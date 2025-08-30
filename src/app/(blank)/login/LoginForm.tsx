@@ -48,12 +48,12 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-bg border border-gray-600 rounded-lg shadow-lg p-10 w-full max-w-md">
+    <form onSubmit={handleSubmit} className="bg-bg border border-border rounded-lg shadow-lg p-10 w-full max-w-md">
       <h2 className="text-2xl font-bold text-center mb-6 text-postcss">{t('LabelLogin')}</h2>
 
       <div className="flex flex-col gap-4 mb-4">
         <TextInput label={t('LabelUsername')} value={username} onChange={(e) => setUsername(e)} />
-        <TextInput label={t('LabelPassword')} value={password} onChange={(e) => setPassword(e)} />
+        <TextInput label={t('LabelPassword')} value={password} type="password" onChange={(e) => setPassword(e)} />
       </div>
       {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
       <div className="flex justify-end">
