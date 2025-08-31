@@ -1,0 +1,96 @@
+/* SlateEditor.module.css */
+
+.editorWrapper {
+  border: 1px solid rgb(75, 85, 99);
+  border-radius: 4px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.editorWrapper.disabled {
+  background-color: #2d2d2d;
+  color: #888;
+}
+
+.toolbar {
+  padding: 10px 12px;
+  border-bottom: 1px solid rgb(75, 85, 99);
+  background-color: transparent;
+  display: flex;
+  gap: 1.5vw;
+}
+
+.buttonGroup {
+  display: flex;
+  border: 1px solid rgb(75, 85, 99);
+  border-radius: 3px;
+  overflow: hidden; /* Ensures children corners are clipped */
+}
+
+.buttonGroupSpacer {
+  flex-grow: 1;
+}
+
+.toolbarButton,
+.activeButton {
+  cursor: pointer;
+  border: none;
+  border-left: 1px solid rgb(75, 85, 99);
+  padding: 4px 12px;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Remove left border from the first button in each group */
+.buttonGroup > button:first-child {
+  border-left: none;
+}
+
+.activeButton {
+  background-color: #bbb;
+  color: black;
+}
+
+.editable {
+  padding: 0.25rem;
+  width: 100%;
+  min-height: 150px;
+  resize: vertical;
+  overflow-y: auto;
+  overflow-x: hidden;
+  color: #eee;
+  font-size: 1rem;
+}
+
+.editable:focus {
+  outline: none;
+}
+
+.editable p {
+  margin-top: 0;
+  margin-bottom: 0.4rem;
+}
+
+.editable :global([data-slate-placeholder='true']) {
+  position: absolute;
+  top: 4x;
+  left: 4px;
+  pointer-events: none;
+  opacity: 0.333;
+}
+
+.editable ul,
+.editable ol {
+  padding-left: 1rem;
+  margin-bottom: 0.4rem;
+}
+
+.editable ul {
+  list-style-type: disc;
+  list-style-position: outside;
+}
+
+.editable ol {
+  list-style-type: decimal;
+  list-style-position: outside;
+}
