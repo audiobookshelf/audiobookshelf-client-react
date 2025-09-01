@@ -10,6 +10,7 @@ import InputWrapper from './InputWrapper'
 interface InputDropdownProps {
   value?: string | number
   label?: string
+  placeholder?: string
   items?: (string | number)[]
   disabled?: boolean
   showAllWhenEmpty?: boolean
@@ -25,6 +26,7 @@ interface InputDropdownProps {
 export default function InputDropdown({
   value,
   label = '',
+  placeholder = '',
   items = [],
   disabled = false,
   showAllWhenEmpty = false,
@@ -246,6 +248,7 @@ export default function InputDropdown({
             autoComplete="off"
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}
+            placeholder={placeholder}
             className="h-full w-full bg-transparent px-1 outline-none disabled:cursor-not-allowed disabled:text-disabled"
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}

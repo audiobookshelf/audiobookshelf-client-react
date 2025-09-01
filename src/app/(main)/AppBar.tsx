@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentUser } from '../../lib/api'
 import LibrariesDropdown from './LibrariesDropdown'
 import Btn from '@/components/ui/Btn'
+import GlobalSearchInput from './GlobalSearchInput'
 
 export default async function AppBar(props: { libraries?: any; currentLibraryId?: string }) {
   const userResponse = await getCurrentUser()
@@ -23,6 +24,7 @@ export default async function AppBar(props: { libraries?: any; currentLibraryId?
         <h1 className="text-xl hidden lg:block hover:underline">audiobookshelf</h1>
       </Link>
       {props.libraries && props.currentLibraryId && <LibrariesDropdown currentLibraryId={props.currentLibraryId} libraries={props.libraries} />}
+      <GlobalSearchInput />
       <div className="flex-grow" />
       <div className="flex items-center gap-4">
         <Link href="/components_catalog" title="Components Catalog" className="text-sm text-foreground hover:text-foreground/80">
