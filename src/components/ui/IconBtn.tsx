@@ -18,6 +18,7 @@ interface IconBtnProps {
   'aria-pressed'?: boolean
   className?: string
   ref?: React.Ref<HTMLButtonElement>
+  tabIndex?: number
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
@@ -45,6 +46,7 @@ export default function IconBtn({
   'aria-pressed': ariaPressed,
   className = '',
   ref,
+  tabIndex,
   ...props
 }: IconBtnProps) {
   const isDisabled = disabled || loading
@@ -90,6 +92,7 @@ export default function IconBtn({
       className={classList}
       aria-label={ariaLabel}
       aria-pressed={ariaPressed}
+      tabIndex={tabIndex}
       {...props}
     >
       {loading && <LoadingSpinner />}
