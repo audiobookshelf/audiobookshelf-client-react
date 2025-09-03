@@ -4,7 +4,17 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { mergeClasses } from '@/lib/merge-classes'
 
-export default function SideRail({ currentLibraryId, currentLibraryMediaType }: { currentLibraryId: string; currentLibraryMediaType: string }) {
+export default function SideRail({
+  currentLibraryId,
+  currentLibraryMediaType,
+  serverVersion,
+  installSource
+}: {
+  currentLibraryId: string
+  currentLibraryMediaType: string
+  serverVersion: string
+  installSource: string
+}) {
   const pathname = usePathname()
 
   const buttons = [
@@ -135,8 +145,8 @@ export default function SideRail({ currentLibraryId, currentLibraryMediaType }: 
         ))}
       </div>
       <div className="w-full h-12 px-1 py-2 border-t border-primary/70">
-        <p className="text-xs text-center text-gray-300 font-mono">v0.0.1</p>
-        <p className="text-xxs text-center text-gray-400 italic">Docker</p>
+        <p className="text-xs text-center text-gray-300 font-mono">v{serverVersion}</p>
+        <p className="text-xxs text-center text-gray-400 italic">{installSource}</p>
       </div>
     </div>
   )

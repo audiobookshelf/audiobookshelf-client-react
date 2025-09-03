@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { getLibraries } from '../../../../lib/api'
+import { redirect } from 'next/navigation'
+import { getLibraries, getCurrentUser } from '../../../../lib/api'
 import '../../../../assets/globals.css'
 import AppBar from '../../AppBar'
 import SideRail from './SideRail'
@@ -19,8 +20,15 @@ export default async function LibraryLayout({
 }>) {
   const { library: currentLibraryId } = await params
 
-  const librariesResponse = await getLibraries()
+  const [librariesResponse, userResponse] = await Promise.all([getLibraries(), getCurrentUser()])
 
+  if (userResponse.error || !userResponse.data?.user) {
+    console.error('Error getting user data:', userResponse)
+    redirect(`/login`)
+  }
+
+  const installSource = userResponse.data?.Source || 'Unknown'
+  const serverVersion = userResponse.data?.serverSettings?.version || 'Error'
   const libraries = librariesResponse.data?.libraries || []
 
   const currentLibrary = libraries.find((library: any) => library.id === currentLibraryId)
@@ -28,9 +36,14 @@ export default async function LibraryLayout({
 
   return (
     <>
-      <AppBar libraries={libraries} currentLibraryId={currentLibraryId} />
+      <AppBar user={userResponse.data.user} libraries={libraries} currentLibraryId={currentLibraryId} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
-        <SideRail currentLibraryId={currentLibraryId} currentLibraryMediaType={currentLibraryMediaType} />
+        <SideRail
+          currentLibraryId={currentLibraryId}
+          currentLibraryMediaType={currentLibraryMediaType}
+          serverVersion={serverVersion}
+          installSource={installSource}
+        />
         <div className="flex-1 min-w-0 page-bg-gradient">
           <Toolbar currentLibrary={currentLibrary} />
           <div className="w-full h-[calc(100%-2.5rem)] overflow-x-hidden overflow-y-auto">{children}</div>
