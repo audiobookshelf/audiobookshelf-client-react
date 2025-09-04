@@ -14,6 +14,7 @@ interface IconBtnProps {
   iconClass?: string
   ariaLabel?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
+  onMouseDown?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   'aria-pressed'?: boolean
   className?: string
@@ -42,6 +43,7 @@ export default function IconBtn({
   iconClass,
   ariaLabel,
   onClick,
+  onMouseDown,
   onKeyDown,
   'aria-pressed': ariaPressed,
   className = '',
@@ -88,6 +90,7 @@ export default function IconBtn({
       disabled={isDisabled}
       borderless={borderless}
       onClick={handleClick}
+      onMouseDown={onMouseDown}
       onKeyDown={onKeyDown}
       className={classList}
       aria-label={ariaLabel}
