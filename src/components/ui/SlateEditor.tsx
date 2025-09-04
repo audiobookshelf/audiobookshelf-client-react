@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useCallback, useEffect, useState } from 'react'
+import React, { useMemo, useCallback, useEffect, useState, useRef } from 'react'
 import { createEditor, Descendant, Editor, Transforms, Text, Element as SlateElement, Range, Node as SlateNode, Point, Path, NodeEntry } from 'slate'
 import { Slate, Editable, withReact, useSlate, ReactEditor, RenderElementProps, RenderLeafProps } from 'slate-react'
 import { withHistory, HistoryEditor } from 'slate-history'
@@ -32,9 +32,23 @@ declare module 'slate' {
 function replaceContentSilently(editor: Editor, next: Descendant[]) {
   HistoryEditor.withoutSaving(editor, () => {
     Editor.withoutNormalizing(editor, () => {
-      Transforms.delete(editor, { at: [0] })
+      // 1) Clear any stale selection so reads during render won't crash
+      Transforms.deselect(editor)
+
+      // 2) Remove all existing top-level nodes robustly
+      // (Don't assume there's a valid Editor.range when empty.)
+      while (editor.children.length > 0) {
+        Transforms.removeNodes(editor, { at: [0] })
+      }
+
+      // 3) Insert the new document
       Transforms.insertNodes(editor, next, { at: [0] })
-      Transforms.select(editor, Editor.start(editor, []))
+
+      // 4) Safely select the start of the doc (only if there is one)
+      if (editor.children.length > 0) {
+        const start = Editor.start(editor, [])
+        Transforms.select(editor, start)
+      }
     })
   })
 }
@@ -42,8 +56,14 @@ function replaceContentSilently(editor: Editor, next: Descendant[]) {
 // --- Toolbar & Buttons ---
 
 const isMarkActive = (editor: Editor, format: keyof Omit<CustomText, 'text'>) => {
+  const { selection } = editor
+  if (!selection) return false
+  // Guard against transient invalid paths
+  if (!Editor.hasPath(editor, selection.anchor.path) || !Editor.hasPath(editor, selection.focus.path)) {
+    return false
+  }
   const marks = Editor.marks(editor)
-  return marks ? marks[format] === true : false
+  return marks ? (marks as any)[format] === true : false
 }
 
 const isBlockActive = (editor: Editor, format: CustomElement['type']) => {
@@ -84,67 +104,174 @@ const toggleBlock = (editor: Editor, format: CustomElement['type']) => {
   }
 }
 
-const MarkButton = ({ format, children }: { format: keyof Omit<CustomText, 'text'>; children: React.ReactNode }) => {
+const MarkButton = ({
+  format,
+  children,
+  buttonId,
+  tabIndex,
+  onFocus
+}: {
+  format: keyof Omit<CustomText, 'text'>
+  children: React.ReactNode
+  buttonId: string
+  tabIndex: number
+  onFocus: () => void
+}) => {
   const editor = useSlate()
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        toggleMark(editor, format)
+      }
+    },
+    [editor, format]
+  )
+
   return (
     <IconBtn
       size="small"
       className={mergeClasses(isMarkActive(editor, format) ? styles.activeButton : styles.toolbarButton, 'h-7')}
+      tabIndex={tabIndex}
+      data-button-id={buttonId}
       onMouseDown={(event) => {
         event.preventDefault()
         toggleMark(editor, format)
       }}
+      onKeyDown={handleKeyDown}
+      {...{ onFocus }}
     >
       {children}
     </IconBtn>
   )
 }
 
-const BlockButton = ({ format, children }: { format: CustomElement['type']; children: React.ReactNode }) => {
+const BlockButton = ({
+  format,
+  children,
+  buttonId,
+  tabIndex,
+  onFocus
+}: {
+  format: CustomElement['type']
+  children: React.ReactNode
+  buttonId: string
+  tabIndex: number
+  onFocus: () => void
+}) => {
   const editor = useSlate()
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        toggleBlock(editor, format)
+      }
+    },
+    [editor, format]
+  )
+
   return (
     <IconBtn
+      size="small"
       className={mergeClasses(isBlockActive(editor, format) ? styles.activeButton : styles.toolbarButton, 'h-7')}
+      tabIndex={tabIndex}
+      data-button-id={buttonId}
       onMouseDown={(event) => {
         event.preventDefault()
         toggleBlock(editor, format)
       }}
+      onKeyDown={handleKeyDown}
+      {...{ onFocus }}
     >
       {children}
     </IconBtn>
   )
 }
 
-const UndoButton = () => {
+const UndoButton = ({
+  buttonId,
+  tabIndex,
+  onFocus,
+  isUndoAvailable
+}: {
+  buttonId: string
+  tabIndex: number
+  onFocus: () => void
+  isUndoAvailable: boolean
+}) => {
   const editor = useSlate() as Editor & HistoryEditor
-  const isUndoAvailable = editor.history.undos.length > 0
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        if (isUndoAvailable) {
+          editor.undo()
+        }
+      }
+    },
+    [editor, isUndoAvailable]
+  )
 
   return (
     <IconBtn
+      size="small"
       className={mergeClasses(styles.toolbarButton, 'h-7')}
       disabled={!isUndoAvailable}
+      tabIndex={tabIndex}
+      data-button-id={buttonId}
       onMouseDown={(event) => {
         event.preventDefault()
         editor.undo()
       }}
+      onKeyDown={handleKeyDown}
+      {...{ onFocus }}
     >
       undo
     </IconBtn>
   )
 }
 
-const RedoButton = () => {
+const RedoButton = ({
+  buttonId,
+  tabIndex,
+  onFocus,
+  isRedoAvailable
+}: {
+  buttonId: string
+  tabIndex: number
+  onFocus: () => void
+  isRedoAvailable: boolean
+}) => {
   const editor = useSlate() as Editor & HistoryEditor
-  const isRedoAvailable = editor.history.redos.length > 0
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        if (isRedoAvailable) {
+          editor.redo()
+        }
+      }
+    },
+    [editor, isRedoAvailable]
+  )
 
   return (
     <IconBtn
+      size="small"
       className={mergeClasses(styles.toolbarButton, 'h-7')}
       disabled={!isRedoAvailable}
+      tabIndex={tabIndex}
+      data-button-id={buttonId}
       onMouseDown={(event) => {
         event.preventDefault()
         editor.redo()
       }}
+      onKeyDown={handleKeyDown}
+      {...{ onFocus }}
     >
       redo
     </IconBtn>
@@ -263,8 +390,6 @@ const getSelectedText = (editor: Editor): string => {
       return text
     }
 
-    console.log('no match')
-
     return ''
   }
 
@@ -346,36 +471,6 @@ const upsertLink = (editor: Editor, text: string, url: string) => {
     const [, p] = wrapped
     const after = Editor.after(editor, p)
     if (after) Transforms.select(editor, after)
-  }
-}
-
-const wrapLink = (editor: Editor, text: string, url: string) => {
-  if (isLinkActive(editor)) {
-    unwrapLink(editor)
-  }
-
-  const { selection } = editor
-  const isCollapsed = selection && Range.isCollapsed(selection)
-  const linkText = text || url
-
-  if (isCollapsed) {
-    // For collapsed selection, insert text first, then wrap it
-    Transforms.insertText(editor, linkText)
-
-    // Get the range of the inserted text and wrap it with link
-    const newSelection = editor.selection
-    if (newSelection) {
-      const start = { path: newSelection.anchor.path, offset: newSelection.anchor.offset - linkText.length }
-      const end = { path: newSelection.anchor.path, offset: newSelection.anchor.offset }
-      const range = { anchor: start, focus: end }
-
-      Transforms.select(editor, range)
-      Transforms.wrapNodes(editor, { type: 'link', url, children: [] }, { split: true })
-    }
-  } else {
-    console.log('selection', selection)
-    Transforms.wrapNodes(editor, { type: 'link', url, children: [] }, { split: true })
-    Transforms.collapse(editor, { edge: 'end' })
   }
 }
 
@@ -467,7 +562,16 @@ interface LinkButtonProps {
   onOpenModal: () => void
 }
 
-const LinkButton = ({ onOpenModal }: LinkButtonProps) => {
+const LinkButton = ({
+  onOpenModal,
+  buttonId,
+  tabIndex,
+  onFocus
+}: LinkButtonProps & {
+  buttonId: string
+  tabIndex: number
+  onFocus: () => void
+}) => {
   const editor = useSlate()
   const isActive = isLinkActive(editor)
 
@@ -479,8 +583,26 @@ const LinkButton = ({ onOpenModal }: LinkButtonProps) => {
     [onOpenModal]
   )
 
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        onOpenModal()
+      }
+    },
+    [onOpenModal]
+  )
+
   return (
-    <IconBtn size="small" className={mergeClasses(isActive ? styles.activeButton : styles.toolbarButton, 'h-7')} onMouseDown={handleOpenModal}>
+    <IconBtn
+      size="small"
+      className={mergeClasses(isActive ? styles.activeButton : styles.toolbarButton, 'h-7')}
+      tabIndex={tabIndex}
+      data-button-id={buttonId}
+      onMouseDown={handleOpenModal}
+      onKeyDown={handleKeyDown}
+      {...{ onFocus }}
+    >
       link
     </IconBtn>
   )
@@ -567,6 +689,69 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
   const [selectedText, setSelectedText] = useState('')
   const [selectedUrl, setSelectedUrl] = useState('')
+  const [focusedButtonId, setFocusedButtonId] = useState<string>('bold') // Track which button should have tabIndex={0}
+  const [historyState, setHistoryState] = useState({ undos: 0, redos: 0 })
+  const toolbarRef = useRef<HTMLDivElement>(null)
+
+  // Get undo/redo availability - using state that gets updated on changes
+  const isUndoAvailable = historyState.undos > 0
+  const isRedoAvailable = historyState.redos > 0
+
+  // Get button availability status
+  const getButtonAvailability = useCallback(() => {
+    return {
+      bold: true,
+      italic: true,
+      strike: true,
+      'bulleted-list': true,
+      'numbered-list': true,
+      link: true,
+      undo: isUndoAvailable,
+      redo: isRedoAvailable
+    }
+  }, [isUndoAvailable, isRedoAvailable])
+
+  // Get list of available (non-disabled) button IDs in order
+  const getAvailableButtons = useCallback(() => {
+    const availability = getButtonAvailability()
+    const allButtons = ['bold', 'italic', 'strike', 'bulleted-list', 'numbered-list', 'link', 'undo', 'redo']
+    return allButtons.filter((buttonId) => availability[buttonId as keyof typeof availability])
+  }, [getButtonAvailability])
+
+  // Auto-focus fallback when current focused button becomes unavailable
+  useEffect(() => {
+    const availability = getButtonAvailability()
+    const isFocusedButtonAvailable = availability[focusedButtonId as keyof typeof availability]
+
+    if (!isFocusedButtonAvailable) {
+      const availableButtons = getAvailableButtons()
+      if (availableButtons.length > 0) {
+        let newFocusedButton = availableButtons[0]
+
+        // Special handling for undo/redo buttons - prefer switching to the other one
+        if (focusedButtonId === 'undo' && availability.redo) {
+          newFocusedButton = 'redo'
+        } else if (focusedButtonId === 'redo' && availability.undo) {
+          newFocusedButton = 'undo'
+        }
+
+        setFocusedButtonId(newFocusedButton)
+
+        // If we have a toolbar ref, try to move focus
+        if (toolbarRef.current) {
+          const newButtonElement = toolbarRef.current.querySelector(`[data-button-id="${newFocusedButton}"]`) as HTMLButtonElement
+          if (newButtonElement && !newButtonElement.disabled) {
+            // Use a small delay to ensure React has updated the disabled state
+            setTimeout(() => {
+              if (!newButtonElement.disabled) {
+                newButtonElement.focus()
+              }
+            }, 0)
+          }
+        }
+      }
+    }
+  }, [isUndoAvailable, isRedoAvailable, focusedButtonId, getButtonAvailability, getAvailableButtons])
 
   // Always start with initialValue to avoid hydration mismatches
   const parsedContent = useMemo(() => {
@@ -577,6 +762,64 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // Initialize and update history state
+  useEffect(() => {
+    const updateHistoryState = () => {
+      setHistoryState({
+        undos: editor.history.undos.length,
+        redos: editor.history.redos.length
+      })
+    }
+
+    // Set initial state
+    updateHistoryState()
+  }, [editor])
+
+  // Handle focus loss from disabled buttons
+  useEffect(() => {
+    const toolbar = toolbarRef.current
+    if (!toolbar) return
+
+    const handleFocusOut = (event: FocusEvent) => {
+      // Check if focus is leaving the toolbar entirely
+      const relatedTarget = event.relatedTarget as Element | null
+      const isStayingInToolbar = relatedTarget && toolbar.contains(relatedTarget)
+
+      if (!isStayingInToolbar) {
+        // Focus left the toolbar, check if we need to restore it
+        const availability = getButtonAvailability()
+        const isFocusedButtonAvailable = availability[focusedButtonId as keyof typeof availability]
+
+        if (!isFocusedButtonAvailable) {
+          // The focused button became unavailable, move to best available
+          const availableButtons = getAvailableButtons()
+          if (availableButtons.length > 0) {
+            let newFocusedButton = availableButtons[0]
+
+            // Special handling for undo/redo buttons - prefer switching to the other one
+            if (focusedButtonId === 'undo' && availability.redo) {
+              newFocusedButton = 'redo'
+            } else if (focusedButtonId === 'redo' && availability.undo) {
+              newFocusedButton = 'undo'
+            }
+
+            setFocusedButtonId(newFocusedButton)
+
+            setTimeout(() => {
+              const newButtonElement = toolbar.querySelector(`[data-button-id="${newFocusedButton}"]`) as HTMLButtonElement
+              if (newButtonElement && !newButtonElement.disabled) {
+                newButtonElement.focus()
+              }
+            }, 0)
+          }
+        }
+      }
+    }
+
+    toolbar.addEventListener('focusout', handleFocusOut)
+    return () => toolbar.removeEventListener('focusout', handleFocusOut)
+  }, [focusedButtonId, getButtonAvailability, getAvailableButtons])
 
   // Update editor content after hydration if we have content to parse
   useEffect(() => {
@@ -613,8 +856,14 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
         const html = newValue.map(serialize).join('')
         onUpdate(html)
       }
+
+      // Update history state for button availability
+      setHistoryState({
+        undos: editor.history.undos.length,
+        redos: editor.history.redos.length
+      })
     },
-    [onUpdate]
+    [onUpdate, editor]
   )
 
   const handleLink = useCallback(
@@ -694,27 +943,129 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
     []
   )
 
+  // Handle toolbar keyboard navigation with roving tabindex
+  const handleToolbarKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const toolbar = e.currentTarget as HTMLElement
+      const buttons = Array.from(toolbar.querySelectorAll('button:not([disabled])'))
+      const currentIndex = buttons.findIndex((button) => button === document.activeElement)
+
+      if (currentIndex === -1) return
+
+      let nextIndex = currentIndex
+
+      switch (e.key) {
+        case 'ArrowRight':
+        case 'ArrowDown':
+          e.preventDefault()
+          nextIndex = (currentIndex + 1) % buttons.length
+          break
+        case 'ArrowLeft':
+        case 'ArrowUp':
+          e.preventDefault()
+          nextIndex = currentIndex <= 0 ? buttons.length - 1 : currentIndex - 1
+          break
+        case 'Home':
+          e.preventDefault()
+          nextIndex = 0
+          break
+        case 'End':
+          e.preventDefault()
+          nextIndex = buttons.length - 1
+          break
+        default:
+          return
+      }
+
+      const nextButton = buttons[nextIndex] as HTMLButtonElement
+      if (nextButton) {
+        // Update the focused button ID based on the button's data attribute
+        const buttonId = nextButton.getAttribute('data-button-id')
+        if (buttonId) {
+          // Only update focus if the button is available
+          const availability = getButtonAvailability()
+          const isButtonAvailable = availability[buttonId as keyof typeof availability]
+          if (isButtonAvailable) {
+            setFocusedButtonId(buttonId)
+            nextButton.focus()
+          }
+        }
+      }
+    },
+    [setFocusedButtonId, getButtonAvailability]
+  )
+
+  // Helper to determine if a button should have tabIndex={0}
+  const getTabIndex = useCallback(
+    (buttonId: string) => {
+      const availability = getButtonAvailability()
+      const isButtonAvailable = availability[buttonId as keyof typeof availability]
+
+      // Disabled buttons should never have tabIndex=0
+      if (!isButtonAvailable) {
+        return -1
+      }
+
+      return focusedButtonId === buttonId ? 0 : -1
+    },
+    [focusedButtonId, getButtonAvailability]
+  )
+
+  // Handle when a button receives focus (for click or programmatic focus)
+  const handleButtonFocus = useCallback(
+    (buttonId: string) => {
+      const availability = getButtonAvailability()
+      const isButtonAvailable = availability[buttonId as keyof typeof availability]
+
+      // Only allow focusing on available buttons
+      if (isButtonAvailable) {
+        setFocusedButtonId(buttonId)
+      }
+    },
+    [setFocusedButtonId, getButtonAvailability]
+  )
+
   return (
     <>
       <Slate editor={editor} initialValue={parsedContent} onChange={handleChange}>
         {!disabledEditor && (
-          <div className={styles.toolbar}>
+          <div ref={toolbarRef} className={styles.toolbar} role="toolbar" aria-label="Text formatting toolbar" onKeyDown={handleToolbarKeyDown}>
             <div className={styles.buttonGroup}>
-              <MarkButton format="bold">format_bold</MarkButton>
-              <MarkButton format="italic">format_italic</MarkButton>
-              <MarkButton format="strike">format_strikethrough</MarkButton>
+              <MarkButton format="bold" buttonId="bold" tabIndex={getTabIndex('bold')} onFocus={() => handleButtonFocus('bold')}>
+                format_bold
+              </MarkButton>
+              <MarkButton format="italic" buttonId="italic" tabIndex={getTabIndex('italic')} onFocus={() => handleButtonFocus('italic')}>
+                format_italic
+              </MarkButton>
+              <MarkButton format="strike" buttonId="strike" tabIndex={getTabIndex('strike')} onFocus={() => handleButtonFocus('strike')}>
+                format_strikethrough
+              </MarkButton>
             </div>
             <div className={styles.buttonGroup}>
-              <BlockButton format="bulleted-list">format_list_bulleted</BlockButton>
-              <BlockButton format="numbered-list">format_list_numbered</BlockButton>
+              <BlockButton
+                format="bulleted-list"
+                buttonId="bulleted-list"
+                tabIndex={getTabIndex('bulleted-list')}
+                onFocus={() => handleButtonFocus('bulleted-list')}
+              >
+                format_list_bulleted
+              </BlockButton>
+              <BlockButton
+                format="numbered-list"
+                buttonId="numbered-list"
+                tabIndex={getTabIndex('numbered-list')}
+                onFocus={() => handleButtonFocus('numbered-list')}
+              >
+                format_list_numbered
+              </BlockButton>
             </div>
             <div className={styles.buttonGroup}>
-              <LinkButton onOpenModal={handleOpenLinkModal} />
+              <LinkButton onOpenModal={handleOpenLinkModal} buttonId="link" tabIndex={getTabIndex('link')} onFocus={() => handleButtonFocus('link')} />
             </div>
             <div className={styles.buttonGroupSpacer} />
             <div className={styles.buttonGroup}>
-              <UndoButton />
-              <RedoButton />
+              <UndoButton buttonId="undo" tabIndex={getTabIndex('undo')} onFocus={() => handleButtonFocus('undo')} isUndoAvailable={isUndoAvailable} />
+              <RedoButton buttonId="redo" tabIndex={getTabIndex('redo')} onFocus={() => handleButtonFocus('redo')} isRedoAvailable={isRedoAvailable} />
             </div>
           </div>
         )}

@@ -27,6 +27,23 @@
   overflow: hidden; /* Ensures children corners are clipped */
 }
 
+/* Remove border radius from middle buttons */
+.buttonGroup > button:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
+
+/* Only first button has left rounded corners */
+.buttonGroup > button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+/* Only last button has right rounded corners */
+.buttonGroup > button:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
 .buttonGroupSpacer {
   flex-grow: 1;
 }
@@ -39,6 +56,7 @@
   padding: 4px 12px;
   min-width: 30px;
   text-align: center;
+  transition: all 0.15s ease-in-out;
 }
 
 /* Remove left border from the first button in each group */
@@ -49,6 +67,25 @@
 .activeButton {
   background-color: #bbb;
   color: black;
+}
+
+/* Focus styles for roving tabindex - clear visible outline with high specificity */
+.toolbarButton:focus-visible,
+.activeButton:focus-visible {
+  outline: 1px solid #ffffff !important;
+  outline-offset: -1px !important;
+}
+
+/* Hover effects */
+.toolbarButton:hover:not(:focus-visible),
+.activeButton:hover:not(:focus-visible) {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Disabled button styles */
+.disabledButton {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .editable {
