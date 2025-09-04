@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useMemo, useCallback, useEffect, useState, useRef } from 'react'
+import React, { useMemo, useCallback, useEffect, useState, useRef, useId } from 'react'
 import { createEditor, Descendant, Editor, Transforms, Text, Element as SlateElement, Range, Node as SlateNode, Point, Path, NodeEntry } from 'slate'
 import { Slate, Editable, withReact, useSlate, ReactEditor, RenderElementProps, RenderLeafProps } from 'slate-react'
 import { withHistory, HistoryEditor } from 'slate-history'
 
 import InputWrapper from './InputWrapper'
-import styles from './SlateEditor.module.css'
 import IconBtn from '@/components/ui/IconBtn'
 import Modal from '@/components/modals/Modal'
 import TextInput from '@/components/ui/TextInput'
 import Btn from '@/components/ui/Btn'
+import Label from './Label'
 import { mergeClasses } from '@/lib/merge-classes'
 import { escapeHtml } from '@/lib/html-utils'
 
@@ -30,79 +30,137 @@ declare module 'slate' {
 // --- Helper Functions ---
 
 function replaceContentSilently(editor: Editor, next: Descendant[]) {
-  HistoryEditor.withoutSaving(editor, () => {
-    Editor.withoutNormalizing(editor, () => {
-      // 1) Clear any stale selection so reads during render won't crash
-      Transforms.deselect(editor)
+  try {
+    HistoryEditor.withoutSaving(editor, () => {
+      Editor.withoutNormalizing(editor, () => {
+        // 1) Clear any stale selection so reads during render won't crash
+        Transforms.deselect(editor)
 
-      // 2) Remove all existing top-level nodes robustly
-      // (Don't assume there's a valid Editor.range when empty.)
-      while (editor.children.length > 0) {
-        Transforms.removeNodes(editor, { at: [0] })
-      }
+        // 2) Remove all existing top-level nodes robustly
+        // (Don't assume there's a valid Editor.range when empty.)
+        while (editor.children.length > 0) {
+          Transforms.removeNodes(editor, { at: [0] })
+        }
 
-      // 3) Insert the new document
-      Transforms.insertNodes(editor, next, { at: [0] })
+        // 3) Insert the new document
+        Transforms.insertNodes(editor, next, { at: [0] })
 
-      // 4) Safely select the start of the doc (only if there is one)
-      if (editor.children.length > 0) {
-        const start = Editor.start(editor, [])
-        Transforms.select(editor, start)
-      }
+        // 4) Safely select the start of the doc (only if there is one)
+        if (editor.children.length > 0) {
+          try {
+            const start = Editor.start(editor, [])
+            Transforms.select(editor, start)
+          } catch (error) {
+            // If we can't get the start point, just leave it unselected
+            console.warn('SlateEditor: Could not select start of document:', error)
+          }
+        }
+      })
     })
-  })
+  } catch (error) {
+    console.warn('SlateEditor: Error during content replacement:', error)
+    // Fallback: ensure we have at least the initial value
+    if (editor.children.length === 0) {
+      Transforms.insertNodes(editor, initialValue, { at: [0] })
+    }
+  }
 }
 
 // --- Toolbar & Buttons ---
 
 const isMarkActive = (editor: Editor, format: keyof Omit<CustomText, 'text'>) => {
-  const { selection } = editor
-  if (!selection) return false
-  // Guard against transient invalid paths
-  if (!Editor.hasPath(editor, selection.anchor.path) || !Editor.hasPath(editor, selection.focus.path)) {
+  try {
+    const { selection } = editor
+    if (!selection) return false
+    // Guard against transient invalid paths
+    if (!Editor.hasPath(editor, selection.anchor.path) || !Editor.hasPath(editor, selection.focus.path)) {
+      return false
+    }
+    // Ensure editor has valid content structure
+    if (!editor.children || editor.children.length === 0) {
+      return false
+    }
+    const marks = Editor.marks(editor)
+    return marks ? (marks as any)[format] === true : false
+  } catch (error) {
+    console.warn('SlateEditor: Error checking mark active state:', error)
     return false
   }
-  const marks = Editor.marks(editor)
-  return marks ? (marks as any)[format] === true : false
 }
 
 const isBlockActive = (editor: Editor, format: CustomElement['type']) => {
-  const { selection } = editor
-  if (!selection) return false
-  const [match] = Editor.nodes(editor, {
-    at: Editor.unhangRange(editor, selection),
-    match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format
-  })
-  return !!match
+  try {
+    const { selection } = editor
+    if (!selection) return false
+    // Ensure editor has valid content structure
+    if (!editor.children || editor.children.length === 0) {
+      return false
+    }
+    // Guard against transient invalid paths
+    if (!Editor.hasPath(editor, selection.anchor.path) || !Editor.hasPath(editor, selection.focus.path)) {
+      return false
+    }
+    const [match] = Editor.nodes(editor, {
+      at: Editor.unhangRange(editor, selection),
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format
+    })
+    return !!match
+  } catch (error) {
+    console.warn('SlateEditor: Error checking block active state:', error)
+    return false
+  }
 }
 
 const toggleMark = (editor: Editor, format: keyof Omit<CustomText, 'text'>) => {
-  const isActive = isMarkActive(editor, format)
-  if (isActive) {
-    Editor.removeMark(editor, format)
-  } else {
-    Editor.addMark(editor, format, true)
+  try {
+    // Ensure editor has valid content structure
+    if (!editor.children || editor.children.length === 0) {
+      return
+    }
+    const isActive = isMarkActive(editor, format)
+    if (isActive) {
+      Editor.removeMark(editor, format)
+    } else {
+      Editor.addMark(editor, format, true)
+    }
+  } catch (error) {
+    console.warn('SlateEditor: Error toggling mark:', error)
   }
 }
 
 const toggleBlock = (editor: Editor, format: CustomElement['type']) => {
-  const isActive = isBlockActive(editor, format)
-  const isList = ['bulleted-list', 'numbered-list'].includes(format)
+  try {
+    // Ensure editor has valid content structure
+    if (!editor.children || editor.children.length === 0) {
+      return
+    }
+    const isActive = isBlockActive(editor, format)
+    const isList = ['bulleted-list', 'numbered-list'].includes(format)
 
-  Transforms.unwrapNodes(editor, {
-    match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['bulleted-list', 'numbered-list'].includes(n.type),
-    split: true
-  })
+    Transforms.unwrapNodes(editor, {
+      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['bulleted-list', 'numbered-list'].includes(n.type),
+      split: true
+    })
 
-  Transforms.setNodes<SlateElement>(editor, {
-    type: isActive ? 'paragraph' : isList ? 'list-item' : format
-  })
+    Transforms.setNodes<SlateElement>(editor, {
+      type: isActive ? 'paragraph' : isList ? 'list-item' : format
+    })
 
-  if (!isActive && isList) {
-    const block = { type: format, children: [] } as CustomElement
-    Transforms.wrapNodes(editor, block)
+    if (!isActive && isList) {
+      const block = { type: format, children: [] } as CustomElement
+      Transforms.wrapNodes(editor, block)
+    }
+  } catch (error) {
+    console.warn('SlateEditor: Error toggling block:', error)
   }
 }
+
+const buttonClassBase = mergeClasses(
+  'cursor-pointer border-l border-gray-600 px-3 py-1 min-w-9 text-center transition-all duration-150 ease-in-out',
+  'first:border-l-0 first:rounded-l-sm first:rounded-r-none last:rounded-r-sm last:rounded-l-none [&:not(:first-child):not(:last-child)]:rounded-none',
+  'hover:bg-blue-500/10 focus-visible:outline focus-visible:outline-1 focus-visible:outline-white focus-visible:-outline-offset-1',
+  'h-7'
+)
 
 const MarkButton = ({
   format,
@@ -129,10 +187,12 @@ const MarkButton = ({
     [editor, format]
   )
 
+  const buttonClass = mergeClasses(buttonClassBase, isMarkActive(editor, format) ? 'bg-gray-300 text-black' : '')
+
   return (
     <IconBtn
       size="small"
-      className={mergeClasses(isMarkActive(editor, format) ? styles.activeButton : styles.toolbarButton, 'h-7')}
+      className={buttonClass}
       tabIndex={tabIndex}
       data-button-id={buttonId}
       onMouseDown={(event) => {
@@ -172,10 +232,12 @@ const BlockButton = ({
     [editor, format]
   )
 
+  const buttonClass = mergeClasses(buttonClassBase, isBlockActive(editor, format) ? 'bg-gray-300 text-black' : '')
+
   return (
     <IconBtn
       size="small"
-      className={mergeClasses(isBlockActive(editor, format) ? styles.activeButton : styles.toolbarButton, 'h-7')}
+      className={buttonClass}
       tabIndex={tabIndex}
       data-button-id={buttonId}
       onMouseDown={(event) => {
@@ -218,7 +280,7 @@ const UndoButton = ({
   return (
     <IconBtn
       size="small"
-      className={mergeClasses(styles.toolbarButton, 'h-7')}
+      className={buttonClassBase}
       disabled={!isUndoAvailable}
       tabIndex={tabIndex}
       data-button-id={buttonId}
@@ -262,7 +324,7 @@ const RedoButton = ({
   return (
     <IconBtn
       size="small"
-      className={mergeClasses(styles.toolbarButton, 'h-7')}
+      className={buttonClassBase}
       disabled={!isRedoAvailable}
       tabIndex={tabIndex}
       data-button-id={buttonId}
@@ -281,31 +343,48 @@ const RedoButton = ({
 // --- HTML Serialization / Deserialization ---
 
 const serialize = (node: Descendant): string => {
-  if (Text.isText(node)) {
-    let string = escapeHtml(node.text)
-    if (node.bold) string = `<strong>${string}</strong>`
-    if (node.italic) string = `<em>${string}</em>`
-    if (node.strike) string = `<s>${string}</s>`
-    // Convert newlines to <br/> tags
-    string = string.replace(/\n/g, '<br/>')
-    return string
-  }
+  try {
+    // Handle null/undefined nodes gracefully
+    if (!node || typeof node !== 'object') {
+      return ''
+    }
 
-  const children = node.children.map((n) => serialize(n)).join('')
+    if (Text.isText(node)) {
+      let string = escapeHtml(node.text || '')
+      if (node.bold) string = `<strong>${string}</strong>`
+      if (node.italic) string = `<em>${string}</em>`
+      if (node.strike) string = `<s>${string}</s>`
+      // Convert newlines to <br/> tags
+      string = string.replace(/\n/g, '<br/>')
+      return string
+    }
 
-  switch (node.type) {
-    case 'paragraph':
-      return `<p>${children}</p>`
-    case 'bulleted-list':
-      return `<ul>${children}</ul>`
-    case 'numbered-list':
-      return `<ol>${children}</ol>`
-    case 'list-item':
-      return `<li>${children}</li>`
-    case 'link':
-      return `<a href="${escapeHtml(node.url || '')}">${children}</a>`
-    default:
-      return children
+    // Safety check: ensure children exists and is an array with valid nodes
+    const children =
+      node.children && Array.isArray(node.children)
+        ? node.children
+            .filter((child) => child && typeof child === 'object')
+            .map((n) => serialize(n))
+            .join('')
+        : ''
+
+    switch (node.type) {
+      case 'paragraph':
+        return `<p>${children}</p>`
+      case 'bulleted-list':
+        return `<ul>${children}</ul>`
+      case 'numbered-list':
+        return `<ol>${children}</ol>`
+      case 'list-item':
+        return `<li>${children}</li>`
+      case 'link':
+        return `<a href="${escapeHtml(node.url || '')}">${children}</a>`
+      default:
+        return children
+    }
+  } catch (error) {
+    console.warn('SlateEditor: Error serializing node:', error, node)
+    return ''
   }
 }
 
@@ -593,10 +672,12 @@ const LinkButton = ({
     [onOpenModal]
   )
 
+  const buttonClass = mergeClasses(buttonClassBase, isActive ? 'bg-gray-300 text-black' : '')
+
   return (
     <IconBtn
       size="small"
-      className={mergeClasses(isActive ? styles.activeButton : styles.toolbarButton, 'h-7')}
+      className={buttonClass}
       tabIndex={tabIndex}
       data-button-id={buttonId}
       onMouseDown={handleOpenModal}
@@ -611,14 +692,6 @@ const LinkButton = ({
 // --- The Main Slate Component ---
 
 const initialValue: Descendant[] = [{ type: 'paragraph', children: [{ text: '' }] }]
-
-interface SlateEditorProps {
-  srcContent?: string
-  onUpdate?: (html: string) => void
-  placeholder?: string
-  disabledEditor?: boolean
-  autofocus?: boolean
-}
 
 const withLinks = <T extends Editor>(editor: T) => {
   const { isInline, insertText, insertBreak, normalizeNode } = editor
@@ -683,7 +756,19 @@ const withLinks = <T extends Editor>(editor: T) => {
   return editor
 }
 
-const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = false, autofocus = false }: SlateEditorProps) => {
+interface SlateEditorProps {
+  id?: string
+  label?: string
+  srcContent?: string
+  onUpdate?: (html: string) => void
+  placeholder?: string
+  readOnly?: boolean
+}
+
+const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOnly = false }: SlateEditorProps) => {
+  const generatedId = useId()
+  const slateEditorId = id || generatedId
+  const editableId = `${slateEditorId}-editable`
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
   const [isClient, setIsClient] = useState(false)
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
@@ -692,6 +777,21 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
   const [focusedButtonId, setFocusedButtonId] = useState<string>('bold') // Track which button should have tabIndex={0}
   const [historyState, setHistoryState] = useState({ undos: 0, redos: 0 })
   const toolbarRef = useRef<HTMLDivElement>(null)
+
+  // Helper to check if editor is in a valid state
+  const isEditorValid = useCallback(() => {
+    try {
+      return (
+        editor &&
+        editor.children &&
+        Array.isArray(editor.children) &&
+        editor.children.length > 0 &&
+        editor.children.every((child) => child && typeof child === 'object')
+      )
+    } catch {
+      return false
+    }
+  }, [editor])
 
   // Get undo/redo availability - using state that gets updated on changes
   const isUndoAvailable = historyState.undos > 0
@@ -761,7 +861,16 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
   // Mark as client-side after first render
   useEffect(() => {
     setIsClient(true)
-  }, [])
+
+    // Hot reload recovery: ensure editor has valid content
+    if (editor && (!editor.children || editor.children.length === 0)) {
+      try {
+        replaceContentSilently(editor, initialValue)
+      } catch (error) {
+        console.warn('SlateEditor: Error during hot reload recovery:', error)
+      }
+    }
+  }, [editor])
 
   // Initialize and update history state
   useEffect(() => {
@@ -838,7 +947,7 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
 
   // Refocus editor whenever the modal closes
   useEffect(() => {
-    if (!isLinkModalOpen && !disabledEditor) {
+    if (!isLinkModalOpen && !readOnly) {
       // If the modal was cancelled, selection likely didn't change; if it did,
       // and you want to *force* restoring, uncomment the block below:
       // if (!editor.selection && savedSelectionRef.current) {
@@ -846,24 +955,69 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
       // }
 
       // Focus on the next frame so it's after the DOM updates/unmount
-      requestAnimationFrame(() => ReactEditor.focus(editor))
+      requestAnimationFrame(() => {
+        try {
+          // Safety check: ensure editor has valid content before focusing
+          if (editor.children.length > 0) {
+            // Check if there's at least one text node in the editor
+            const hasTextNode = Editor.nodes(editor, {
+              at: [],
+              match: (n) => Text.isText(n)
+            }).next().value
+
+            if (hasTextNode) {
+              ReactEditor.focus(editor)
+            }
+          }
+        } catch (error) {
+          // Silently handle focus errors during hot reload or invalid states
+          console.warn('SlateEditor: Could not focus editor:', error)
+        }
+      })
     }
-  }, [isLinkModalOpen, disabledEditor, editor])
+  }, [isLinkModalOpen, readOnly, editor])
 
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
-      if (onUpdate) {
-        const html = newValue.map(serialize).join('')
-        onUpdate(html)
+      // Skip processing during hot reload or invalid states
+      if (!isClient || !isEditorValid()) {
+        return
       }
 
-      // Update history state for button availability
-      setHistoryState({
-        undos: editor.history.undos.length,
-        redos: editor.history.redos.length
-      })
+      if (onUpdate) {
+        try {
+          // Safety check: ensure newValue is a valid array with valid nodes
+          const validValue = Array.isArray(newValue)
+            ? newValue.filter((node) => node && typeof node === 'object' && (Text.isText(node) || (node.children && Array.isArray(node.children))))
+            : []
+
+          if (validValue.length > 0) {
+            const html = validValue.map(serialize).join('')
+            onUpdate(html)
+          } else {
+            // Fallback to empty content if no valid nodes
+            onUpdate('<p></p>')
+          }
+        } catch (error) {
+          console.warn('SlateEditor: Error serializing content during change:', error)
+          // Don't update on error to prevent cascading issues
+          return
+        }
+      }
+
+      // Update history state for button availability (with safety check)
+      try {
+        if (editor.history) {
+          setHistoryState({
+            undos: editor.history.undos?.length || 0,
+            redos: editor.history.redos?.length || 0
+          })
+        }
+      } catch (error) {
+        console.warn('SlateEditor: Error updating history state:', error)
+      }
     },
-    [onUpdate, editor]
+    [onUpdate, editor, isClient, isEditorValid]
   )
 
   const handleLink = useCallback(
@@ -936,7 +1090,7 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
 
   const renderPlaceholder = useCallback(
     ({ children, attributes }: { children: React.ReactNode; attributes: any }) => (
-      <span {...attributes} style={{ top: '4px', left: '4px' }}>
+      <span {...attributes} className="absolute top-1 left-1 pointer-events-none opacity-33">
         {children}
       </span>
     ),
@@ -1026,11 +1180,18 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
   )
 
   return (
-    <>
+    <div className="min-w-75" cy-id="slate-editor">
+      {label && <Label htmlFor={editableId}>{label}</Label>}
       <Slate editor={editor} initialValue={parsedContent} onChange={handleChange}>
-        {!disabledEditor && (
-          <div ref={toolbarRef} className={styles.toolbar} role="toolbar" aria-label="Text formatting toolbar" onKeyDown={handleToolbarKeyDown}>
-            <div className={styles.buttonGroup}>
+        {!readOnly && (
+          <div
+            ref={toolbarRef}
+            className="pb-2 border-b border-gray-600 bg-transparent flex gap-[1.5vw]"
+            role="toolbar"
+            aria-label="Text formatting toolbar"
+            onKeyDown={handleToolbarKeyDown}
+          >
+            <div className="flex border border-gray-600 rounded-sm overflow-hidden">
               <MarkButton format="bold" buttonId="bold" tabIndex={getTabIndex('bold')} onFocus={() => handleButtonFocus('bold')}>
                 format_bold
               </MarkButton>
@@ -1040,8 +1201,9 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
               <MarkButton format="strike" buttonId="strike" tabIndex={getTabIndex('strike')} onFocus={() => handleButtonFocus('strike')}>
                 format_strikethrough
               </MarkButton>
+              <LinkButton onOpenModal={handleOpenLinkModal} buttonId="link" tabIndex={getTabIndex('link')} onFocus={() => handleButtonFocus('link')} />
             </div>
-            <div className={styles.buttonGroup}>
+            <div className="flex border border-gray-600 rounded-sm overflow-hidden">
               <BlockButton
                 format="bulleted-list"
                 buttonId="bulleted-list"
@@ -1059,27 +1221,29 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
                 format_list_numbered
               </BlockButton>
             </div>
-            <div className={styles.buttonGroup}>
-              <LinkButton onOpenModal={handleOpenLinkModal} buttonId="link" tabIndex={getTabIndex('link')} onFocus={() => handleButtonFocus('link')} />
-            </div>
-            <div className={styles.buttonGroupSpacer} />
-            <div className={styles.buttonGroup}>
+            <div className="flex-grow" />
+            <div className="flex border border-gray-600 rounded-sm overflow-hidden">
               <UndoButton buttonId="undo" tabIndex={getTabIndex('undo')} onFocus={() => handleButtonFocus('undo')} isUndoAvailable={isUndoAvailable} />
               <RedoButton buttonId="redo" tabIndex={getTabIndex('redo')} onFocus={() => handleButtonFocus('redo')} isRedoAvailable={isRedoAvailable} />
             </div>
           </div>
         )}
-        <InputWrapper disabled={disabledEditor} readOnly={disabledEditor} size="auto" className="px-1 py-1">
+        <InputWrapper readOnly={readOnly} size="auto" className={mergeClasses('px-1 py-1')}>
           <Editable
-            className={mergeClasses('relative whitespace-pre-wrap break-words', styles.editable)}
-            readOnly={disabledEditor}
+            id={editableId}
+            className={mergeClasses(
+              'relative whitespace-pre-wrap break-words',
+              'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-gray-200 text-base focus:outline-none',
+              'disabled:text-disabled read-only:text-read-only'
+            )}
+            readOnly={readOnly}
             placeholder={placeholder}
-            autoFocus={autofocus}
             onKeyDown={handleKeyDown}
             renderElement={renderElement}
             renderLeaf={renderLeaf}
             renderPlaceholder={renderPlaceholder}
             disableDefaultStyles={true}
+            cy-id="slate-editor-editable"
           />
         </InputWrapper>
       </Slate>
@@ -1093,7 +1257,7 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
         selectedText={selectedText}
         selectedUrl={selectedUrl}
       />
-    </>
+    </div>
   )
 }
 
@@ -1101,19 +1265,31 @@ const SlateEditor = ({ srcContent = '', onUpdate, placeholder, disabledEditor = 
 const Element = ({ attributes, children, element }: RenderElementProps) => {
   switch (element.type) {
     case 'bulleted-list':
-      return <ul {...attributes}>{children}</ul>
+      return (
+        <ul {...attributes} className="pl-4 mb-1.5 list-disc list-outside">
+          {children}
+        </ul>
+      )
     case 'numbered-list':
-      return <ol {...attributes}>{children}</ol>
+      return (
+        <ol {...attributes} className="pl-4 mb-1.5 list-decimal list-outside">
+          {children}
+        </ol>
+      )
     case 'list-item':
       return <li {...attributes}>{children}</li>
     case 'link':
       return (
-        <a {...attributes} href={element.url}>
+        <a tabIndex={-1} {...attributes} href={element.url} className="text-blue-500 hover:underline hover:text-blue-400">
           {children}
         </a>
       )
     default:
-      return <p {...attributes}>{children}</p>
+      return (
+        <p {...attributes} className="mt-0 mb-1.5">
+          {children}
+        </p>
+      )
   }
 }
 

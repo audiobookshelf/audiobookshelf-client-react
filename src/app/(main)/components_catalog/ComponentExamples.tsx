@@ -2199,7 +2199,14 @@ export function TooltipExamples() {
 
 // SlateEditor Examples
 export function SlateEditorExamples() {
-  const initialContent = '<p>This is some initial<br/>content from <strong>HTML</strong>.</p><ul><li>First item</li><li>Second item</li></ul>'
+  const initialContent =
+    '<p>Thia is a<br/>4 line<br/>text<br/>paragraph</p>' +
+    '<p><s>Strikethrough</s>, <em>italic</em>, and <strong>bold</strong></p>' +
+    '<p>Unordered list:</p><ul><li>First item</li><li>Second item</li></ul>' +
+    '<p>Ordered list:</p><ol><li>First item</li><li>Second item</li></ol>' +
+    '<p>This is a <a href="https://www.google.com">link</a></p>'
+
+  const notEditableContent = '<p>This content is not editable.</p>'
 
   const handleUpdate = (html: string) => {
     console.log('Editor content updated:', html)
@@ -2221,13 +2228,13 @@ export function SlateEditorExamples() {
 
       <ExamplesBlock>
         <Example title="Default Editor" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <SlateEditor onUpdate={handleUpdate} placeholder="Enter some rich text..." />
+          <SlateEditor onUpdate={handleUpdate} placeholder="Enter some rich text..." label="Default Editor" />
         </Example>
         <Example title="Editor with Initial Content" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <SlateEditor srcContent={initialContent} onUpdate={handleUpdate} />
+          <SlateEditor srcContent={initialContent} onUpdate={handleUpdate} label="Editor with Initial Content" />
         </Example>
-        <Example title="Disabled Editor" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <SlateEditor srcContent="<p>This content is not editable.</p>" disabledEditor />
+        <Example title="Read-only Editor" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <SlateEditor srcContent={notEditableContent + initialContent} readOnly label="Read-only Editor" />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
