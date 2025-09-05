@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useGlobalToast } from '@/contexts/ToastContext'

@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useId, useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useMergedRef } from '@/hooks/useMergedRef'

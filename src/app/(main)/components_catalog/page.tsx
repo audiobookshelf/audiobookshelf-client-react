@@ -25,7 +25,8 @@ import {
   DurationPickerExamples,
   ToggleBtnsExamples,
   ToggleSwitchExamples,
-  TooltipExamples
+  TooltipExamples,
+  SlateEditorExamples
 } from './ComponentExamples'
 
 export default function ComponentsCatalogPage() {
@@ -169,6 +170,11 @@ export default function ComponentsCatalogPage() {
                     Toasts
                   </a>
                 </li>
+                <li>
+                  <a href="#slate-editor-examples" className="hover:text-blue-400 transition-colors">
+                    Rich Text Editor
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -249,6 +255,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="toast-notification-examples">
         <ToastNotificationExamples />
+      </div>
+      <div id="slate-editor-examples">
+        <SlateEditorExamples />
       </div>
     </div>
   )

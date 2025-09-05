@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { MultiSelect } from './MultiSelect'
 import { type MultiSelectItem } from './MultiSelect'

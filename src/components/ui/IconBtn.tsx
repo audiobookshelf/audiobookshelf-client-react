@@ -14,10 +14,12 @@ interface IconBtnProps {
   iconClass?: string
   ariaLabel?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
+  onMouseDown?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   'aria-pressed'?: boolean
   className?: string
   ref?: React.Ref<HTMLButtonElement>
+  tabIndex?: number
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
@@ -41,10 +43,12 @@ export default function IconBtn({
   iconClass,
   ariaLabel,
   onClick,
+  onMouseDown,
   onKeyDown,
   'aria-pressed': ariaPressed,
   className = '',
   ref,
+  tabIndex,
   ...props
 }: IconBtnProps) {
   const isDisabled = disabled || loading
@@ -86,10 +90,12 @@ export default function IconBtn({
       disabled={isDisabled}
       borderless={borderless}
       onClick={handleClick}
+      onMouseDown={onMouseDown}
       onKeyDown={onKeyDown}
       className={classList}
       aria-label={ariaLabel}
       aria-pressed={ariaPressed}
+      tabIndex={tabIndex}
       {...props}
     >
       {loading && <LoadingSpinner />}

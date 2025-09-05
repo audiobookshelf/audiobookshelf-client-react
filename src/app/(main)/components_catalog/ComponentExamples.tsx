@@ -1,7 +1,7 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
@@ -29,6 +29,7 @@ import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import Tooltip from '@/components/ui/Tooltip'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { mergeClasses } from '@/lib/merge-classes'
+import SlateEditor from '@/components/ui/SlateEditor'
 
 interface ComponentExamplesProps {
   title: string
@@ -91,10 +92,19 @@ function Example({ title, children, className }: ExampleProps) {
 function ExamplesBlock({ children }: { children: React.ReactNode }) {
   return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">{children}</div>
 }
-
 // Button Examples
 export function BtnExamples() {
   const { showToast } = useGlobalToast()
+  const [progress, setProgress] = useState(0)
+
+  // Progress cycling effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setProgress((prev) => (prev >= 100 ? 0 : prev + 10))
+    }, 2000)
+
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <ComponentExamples title="Buttons">
@@ -134,7 +144,7 @@ export function BtnExamples() {
         </Example>
 
         <Example title="Button with Progress">
-          <Btn loading progress="75%">
+          <Btn loading progress={`${progress}%`}>
             Uploading...
           </Btn>
         </Example>
@@ -2181,6 +2191,50 @@ export function TooltipExamples() {
               <Btn>Right</Btn>
             </Tooltip>
           </div>
+        </Example>
+      </ExamplesBlock>
+    </ComponentExamples>
+  )
+}
+
+// SlateEditor Examples
+export function SlateEditorExamples() {
+  const initialContent =
+    '<p>Thia is a<br/>4 line<br/>text<br/>paragraph</p>' +
+    '<p><s>Strikethrough</s>, <em>italic</em>, and <strong>bold</strong></p>' +
+    '<p>Unordered list:</p><ul><li>First item</li><li>Second item</li></ul>' +
+    '<p>Ordered list:</p><ol><li>First item</li><li>Second item</li></ol>' +
+    '<p>This is a <a href="https://www.google.com">link</a></p>'
+
+  const notEditableContent = '<p>This content is not editable.</p>'
+
+  const handleUpdate = (html: string) => {
+    console.log('Editor content updated:', html)
+  }
+
+  return (
+    <ComponentExamples title="Rich Text Editor">
+      <ComponentInfo component="SlateEditor" description="A rich text editor built with Slate.js">
+        <p className="mb-2">
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import SlateEditor from '@/components/ui/SlateEditor'</code>
+        </p>
+        <p className="mb-2">
+          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">srcContent</code>,{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">onUpdate</code>, <code className="bg-gray-700 px-2 py-1 rounded">placeholder</code>,{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">disabledEditor</code>, <code className="bg-gray-700 px-2 py-1 rounded">autofocus</code>
+        </p>
+      </ComponentInfo>
+
+      <ExamplesBlock>
+        <Example title="Default Editor" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <SlateEditor onUpdate={handleUpdate} placeholder="Enter some rich text..." label="Default Editor" />
+        </Example>
+        <Example title="Editor with Initial Content" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <SlateEditor srcContent={initialContent} onUpdate={handleUpdate} label="Editor with Initial Content" />
+        </Example>
+        <Example title="Read-only Editor" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <SlateEditor srcContent={notEditableContent + initialContent} readOnly label="Read-only Editor" />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
