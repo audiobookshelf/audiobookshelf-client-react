@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useMemo, useCallback, useEffect, useState, useRef, useId } from 'react'
-import { createEditor, Descendant, Editor, Transforms, Text, Element as SlateElement, Range, Node as SlateNode, Point, Path, NodeEntry } from 'slate'
+import React, { useMemo, useCallback, useEffect, useState, useRef, useId, memo } from 'react'
+import { createEditor, Descendant, Editor, Transforms, Text, Element, Range, Node, Point, Path, NodeEntry } from 'slate'
 import { Slate, Editable, withReact, useSlate, ReactEditor, RenderElementProps, RenderLeafProps } from 'slate-react'
 import { withHistory, HistoryEditor } from 'slate-history'
 
@@ -13,6 +13,12 @@ import Btn from '@/components/ui/Btn'
 import Label from './Label'
 import { mergeClasses } from '@/lib/merge-classes'
 import { escapeHtml } from '@/lib/html-utils'
+
+// --- Type Definitions ---
+
+// DOM type aliases to avoid conflicts with Slate types
+type DOMNode = globalThis.Node
+type DOMElement = globalThis.Element
 
 // --- Type Definitions for Slate ---
 
@@ -29,7 +35,7 @@ declare module 'slate' {
 
 // --- Helper Functions ---
 
-function replaceContentSilently(editor: Editor, next: Descendant[]) {
+const replaceContentSilently = (editor: Editor, next: Descendant[]) => {
   try {
     HistoryEditor.withoutSaving(editor, () => {
       Editor.withoutNormalizing(editor, () => {
@@ -102,7 +108,7 @@ const isBlockActive = (editor: Editor, format: CustomElement['type']) => {
     }
     const [match] = Editor.nodes(editor, {
       at: Editor.unhangRange(editor, selection),
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === format
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === format
     })
     return !!match
   } catch (error) {
@@ -138,11 +144,11 @@ const toggleBlock = (editor: Editor, format: CustomElement['type']) => {
     const isList = ['bulleted-list', 'numbered-list'].includes(format)
 
     Transforms.unwrapNodes(editor, {
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && ['bulleted-list', 'numbered-list'].includes(n.type),
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && ['bulleted-list', 'numbered-list'].includes(n.type),
       split: true
     })
 
-    Transforms.setNodes<SlateElement>(editor, {
+    Transforms.setNodes<Element>(editor, {
       type: isActive ? 'paragraph' : isList ? 'list-item' : format
     })
 
@@ -156,189 +162,198 @@ const toggleBlock = (editor: Editor, format: CustomElement['type']) => {
 }
 
 const buttonClassBase = mergeClasses(
-  'cursor-pointer border-l border-gray-600 px-3 py-1 min-w-9 text-center transition-all duration-150 ease-in-out',
   'first:border-l-0 first:rounded-l-sm first:rounded-r-none last:rounded-r-sm last:rounded-l-none [&:not(:first-child):not(:last-child)]:rounded-none',
-  'hover:bg-blue-500/10 focus-visible:outline focus-visible:outline-1 focus-visible:outline-white focus-visible:-outline-offset-1',
+  'focus-visible:-outline-offset-1',
   'h-7'
 )
 
-const MarkButton = ({
-  format,
-  children,
-  buttonId,
-  tabIndex,
-  onFocus
-}: {
-  format: keyof Omit<CustomText, 'text'>
-  children: React.ReactNode
-  buttonId: string
-  tabIndex: number
-  onFocus: () => void
-}) => {
-  const editor = useSlate()
+const MarkButton = memo(
+  ({
+    format,
+    children,
+    buttonId,
+    tabIndex,
+    onFocus
+  }: {
+    format: keyof Omit<CustomText, 'text'>
+    children: React.ReactNode
+    buttonId: string
+    tabIndex: number
+    onFocus: () => void
+  }) => {
+    const editor = useSlate()
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        toggleMark(editor, format)
-      }
-    },
-    [editor, format]
-  )
-
-  const buttonClass = mergeClasses(buttonClassBase, isMarkActive(editor, format) ? 'bg-gray-300 text-black' : '')
-
-  return (
-    <IconBtn
-      size="small"
-      className={buttonClass}
-      tabIndex={tabIndex}
-      data-button-id={buttonId}
-      onMouseDown={(event) => {
-        event.preventDefault()
-        toggleMark(editor, format)
-      }}
-      onKeyDown={handleKeyDown}
-      {...{ onFocus }}
-    >
-      {children}
-    </IconBtn>
-  )
-}
-
-const BlockButton = ({
-  format,
-  children,
-  buttonId,
-  tabIndex,
-  onFocus
-}: {
-  format: CustomElement['type']
-  children: React.ReactNode
-  buttonId: string
-  tabIndex: number
-  onFocus: () => void
-}) => {
-  const editor = useSlate()
-
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        toggleBlock(editor, format)
-      }
-    },
-    [editor, format]
-  )
-
-  const buttonClass = mergeClasses(buttonClassBase, isBlockActive(editor, format) ? 'bg-gray-300 text-black' : '')
-
-  return (
-    <IconBtn
-      size="small"
-      className={buttonClass}
-      tabIndex={tabIndex}
-      data-button-id={buttonId}
-      onMouseDown={(event) => {
-        event.preventDefault()
-        toggleBlock(editor, format)
-      }}
-      onKeyDown={handleKeyDown}
-      {...{ onFocus }}
-    >
-      {children}
-    </IconBtn>
-  )
-}
-
-const UndoButton = ({
-  buttonId,
-  tabIndex,
-  onFocus,
-  isUndoAvailable
-}: {
-  buttonId: string
-  tabIndex: number
-  onFocus: () => void
-  isUndoAvailable: boolean
-}) => {
-  const editor = useSlate() as Editor & HistoryEditor
-
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        if (isUndoAvailable) {
-          editor.undo()
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          toggleMark(editor, format)
         }
-      }
-    },
-    [editor, isUndoAvailable]
-  )
+      },
+      [editor, format]
+    )
 
-  return (
-    <IconBtn
-      size="small"
-      className={buttonClassBase}
-      disabled={!isUndoAvailable}
-      tabIndex={tabIndex}
-      data-button-id={buttonId}
-      onMouseDown={(event) => {
+    const handleMouseDown = useCallback(
+      (event: React.MouseEvent) => {
+        event.preventDefault()
+        toggleMark(editor, format)
+      },
+      [editor, format]
+    )
+
+    const isActive = isMarkActive(editor, format)
+    const buttonClass = useMemo(() => mergeClasses(buttonClassBase, isActive ? 'bg-gray-300 text-black' : ''), [isActive])
+
+    return (
+      <IconBtn
+        size="small"
+        className={buttonClass}
+        tabIndex={tabIndex}
+        data-button-id={buttonId}
+        onMouseDown={handleMouseDown}
+        onKeyDown={handleKeyDown}
+        {...{ onFocus }}
+      >
+        {children}
+      </IconBtn>
+    )
+  }
+)
+
+const BlockButton = memo(
+  ({
+    format,
+    children,
+    buttonId,
+    tabIndex,
+    onFocus
+  }: {
+    format: CustomElement['type']
+    children: React.ReactNode
+    buttonId: string
+    tabIndex: number
+    onFocus: () => void
+  }) => {
+    const editor = useSlate()
+
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          toggleBlock(editor, format)
+        }
+      },
+      [editor, format]
+    )
+
+    const handleMouseDown = useCallback(
+      (event: React.MouseEvent) => {
+        event.preventDefault()
+        toggleBlock(editor, format)
+      },
+      [editor, format]
+    )
+
+    const isActive = isBlockActive(editor, format)
+    const buttonClass = useMemo(() => mergeClasses(buttonClassBase, isActive ? 'bg-gray-300 text-black' : ''), [isActive])
+
+    return (
+      <IconBtn
+        size="small"
+        className={buttonClass}
+        tabIndex={tabIndex}
+        data-button-id={buttonId}
+        onMouseDown={handleMouseDown}
+        onKeyDown={handleKeyDown}
+        {...{ onFocus }}
+      >
+        {children}
+      </IconBtn>
+    )
+  }
+)
+
+const UndoButton = memo(
+  ({ buttonId, tabIndex, onFocus, isUndoAvailable }: { buttonId: string; tabIndex: number; onFocus: () => void; isUndoAvailable: boolean }) => {
+    const editor = useSlate() as Editor & HistoryEditor
+
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          if (isUndoAvailable) {
+            editor.undo()
+          }
+        }
+      },
+      [editor, isUndoAvailable]
+    )
+
+    const handleMouseDown = useCallback(
+      (event: React.MouseEvent) => {
         event.preventDefault()
         editor.undo()
-      }}
-      onKeyDown={handleKeyDown}
-      {...{ onFocus }}
-    >
-      undo
-    </IconBtn>
-  )
-}
+      },
+      [editor]
+    )
 
-const RedoButton = ({
-  buttonId,
-  tabIndex,
-  onFocus,
-  isRedoAvailable
-}: {
-  buttonId: string
-  tabIndex: number
-  onFocus: () => void
-  isRedoAvailable: boolean
-}) => {
-  const editor = useSlate() as Editor & HistoryEditor
+    return (
+      <IconBtn
+        size="small"
+        className={buttonClassBase}
+        disabled={!isUndoAvailable}
+        tabIndex={tabIndex}
+        data-button-id={buttonId}
+        onMouseDown={handleMouseDown}
+        onKeyDown={handleKeyDown}
+        {...{ onFocus }}
+      >
+        undo
+      </IconBtn>
+    )
+  }
+)
 
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault()
-        if (isRedoAvailable) {
-          editor.redo()
+const RedoButton = memo(
+  ({ buttonId, tabIndex, onFocus, isRedoAvailable }: { buttonId: string; tabIndex: number; onFocus: () => void; isRedoAvailable: boolean }) => {
+    const editor = useSlate() as Editor & HistoryEditor
+
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          if (isRedoAvailable) {
+            editor.redo()
+          }
         }
-      }
-    },
-    [editor, isRedoAvailable]
-  )
+      },
+      [editor, isRedoAvailable]
+    )
 
-  return (
-    <IconBtn
-      size="small"
-      className={buttonClassBase}
-      disabled={!isRedoAvailable}
-      tabIndex={tabIndex}
-      data-button-id={buttonId}
-      onMouseDown={(event) => {
+    const handleMouseDown = useCallback(
+      (event: React.MouseEvent) => {
         event.preventDefault()
         editor.redo()
-      }}
-      onKeyDown={handleKeyDown}
-      {...{ onFocus }}
-    >
-      redo
-    </IconBtn>
-  )
-}
+      },
+      [editor]
+    )
+
+    return (
+      <IconBtn
+        size="small"
+        className={buttonClassBase}
+        disabled={!isRedoAvailable}
+        tabIndex={tabIndex}
+        data-button-id={buttonId}
+        onMouseDown={handleMouseDown}
+        onKeyDown={handleKeyDown}
+        {...{ onFocus }}
+      >
+        redo
+      </IconBtn>
+    )
+  }
+)
 
 // --- HTML Serialization / Deserialization ---
 
@@ -388,7 +403,7 @@ const serialize = (node: Descendant): string => {
   }
 }
 
-const deserialize = (el: Node): Descendant[] | CustomText | null => {
+const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
   if (el.nodeType === 3) {
     // TEXT_NODE
     return el.textContent ? { text: el.textContent } : null
@@ -439,14 +454,14 @@ const isLinkActive = (editor: Editor) => {
   if (!selection) return false
   const [match] = Editor.nodes(editor, {
     at: Editor.unhangRange(editor, selection),
-    match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link'
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link'
   })
   return !!match
 }
 
 const unwrapLink = (editor: Editor) => {
   Transforms.unwrapNodes(editor, {
-    match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link'
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link'
   })
 }
 
@@ -458,7 +473,7 @@ const getSelectedText = (editor: Editor): string => {
     // If cursor is collapsed, check if we're inside a link
     const [match] = Editor.nodes(editor, {
       at: selection,
-      match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link'
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link'
     })
 
     if (match) {
@@ -481,7 +496,7 @@ const getLinkUrl = (editor: Editor): string => {
 
   const [match] = Editor.nodes(editor, {
     at: selection,
-    match: (n) => !Editor.isEditor(n) && SlateElement.isElement(n) && n.type === 'link'
+    match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link'
   })
 
   if (match) {
@@ -492,63 +507,79 @@ const getLinkUrl = (editor: Editor): string => {
   return ''
 }
 
-const getActiveLinkEntry = (editor: Editor): NodeEntry<SlateElement> | undefined => {
+const getActiveLinkEntry = (editor: Editor): NodeEntry<Element> | undefined => {
   const { selection } = editor
   if (!selection || !Range.isCollapsed(selection)) return
   const entry = Editor.above(editor, {
     at: selection,
-    match: (n) => SlateElement.isElement(n) && n.type === 'link'
-  }) as NodeEntry<SlateElement> | undefined
+    match: (n) => Element.isElement(n) && n.type === 'link'
+  }) as NodeEntry<Element> | undefined
   return entry
 }
 
 const upsertLink = (editor: Editor, text: string, url: string) => {
   const trimmedText = text.trim()
   const { selection } = editor
-  const linkEntry = getActiveLinkEntry(editor)
 
-  // CASE 1: caret is inside an existing link → replace its text & url
-  if (linkEntry) {
-    const [, linkPath] = linkEntry
-    const newText = trimmedText || Editor.string(editor, linkPath) || url
+  if (!selection) return
 
-    Editor.withoutNormalizing(editor, () => {
-      // Replace the whole link node with a new one that has the desired text/url
-      Transforms.removeNodes(editor, { at: linkPath })
-      Transforms.insertNodes(editor, { type: 'link', url, children: [{ text: newText }] } as SlateElement, { at: linkPath })
-      // land the caret AFTER the link so typing continues outside
-      const after = Editor.after(editor, linkPath)
-      if (after) Transforms.select(editor, after)
+  // Determine the content: use trimmed user text, or selected text, or URL as fallback
+  const selectedText = Editor.string(editor, selection).trim()
+  const content = trimmedText || selectedText || url
+
+  // Ensure we don't create empty links
+  if (!content.trim()) return
+
+  // Check if selection overlaps any links
+  const overlappingLinks = Array.from(
+    Editor.nodes(editor, {
+      at: selection,
+      match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link'
     })
-    return
-  }
+  )
 
-  // CASE 2: collapsed selection but not in a link → insert a new inline link
-  if (!selection || Range.isCollapsed(selection)) {
-    const content = trimmedText || url
-    Transforms.insertNodes(editor, { type: 'link', url, children: [{ text: content }] } as SlateElement)
-    const inserted = Editor.above(editor, {
-      at: editor.selection!,
-      match: (n) => SlateElement.isElement(n) && n.type === 'link'
-    }) as NodeEntry<SlateElement> | undefined
-    if (inserted) {
-      const [, p] = inserted
-      const after = Editor.after(editor, p)
-      if (after) Transforms.select(editor, after)
+  const hasLinkOverlap = overlappingLinks.length > 0
+
+  if (Range.isExpanded(selection)) {
+    // EXPANDED SELECTION
+    Editor.withoutNormalizing(editor, () => {
+      if (hasLinkOverlap) {
+        // Selection overlaps a link - unwrap overlapping links and delete selection
+        Transforms.unwrapNodes(editor, {
+          at: selection,
+          match: (n) => !Editor.isEditor(n) && Element.isElement(n) && n.type === 'link',
+          split: true
+        })
+      }
+
+      // Delete the selection and insert new link
+      Transforms.delete(editor)
+      Transforms.insertNodes(editor, { type: 'link', url, children: [{ text: content }] } as Element)
+    })
+  } else {
+    // COLLAPSED SELECTION (cursor)
+    if (hasLinkOverlap) {
+      // Cursor is inside a link - replace the entire link
+      const [, linkPath] = overlappingLinks[0]
+      Editor.withoutNormalizing(editor, () => {
+        Transforms.removeNodes(editor, { at: linkPath })
+        Transforms.insertNodes(editor, { type: 'link', url, children: [{ text: content }] } as Element, { at: linkPath })
+      })
+    } else {
+      // Cursor not in a link - insert new link at cursor position
+      Transforms.insertNodes(editor, { type: 'link', url, children: [{ text: content }] } as Element)
     }
-    return
   }
 
-  // CASE 3: expanded selection → wrap the selection with a link
-  Transforms.wrapNodes(editor, { type: 'link', url, children: [] } as SlateElement, { split: true })
-  Transforms.collapse(editor, { edge: 'end' })
-  const wrapped = Editor.above(editor, {
+  // Position cursor after the new link
+  const inserted = Editor.above(editor, {
     at: editor.selection!,
-    match: (n) => SlateElement.isElement(n) && n.type === 'link'
-  }) as NodeEntry<SlateElement> | undefined
-  if (wrapped) {
-    const [, p] = wrapped
-    const after = Editor.after(editor, p)
+    match: (n) => Element.isElement(n) && n.type === 'link'
+  }) as NodeEntry<Element> | undefined
+
+  if (inserted) {
+    const [, linkPath] = inserted
+    const after = Editor.after(editor, linkPath)
     if (after) Transforms.select(editor, after)
   }
 }
@@ -565,9 +596,24 @@ interface LinkModalProps {
   selectedUrl?: string
 }
 
-const LinkModal = ({ isOpen, onClose, onLink, onUnlink, isLinkActive, selectedText, selectedUrl }: LinkModalProps) => {
+const LinkModal = memo(({ isOpen, onClose, onLink, onUnlink, isLinkActive, selectedText, selectedUrl }: LinkModalProps) => {
   const [text, setText] = useState('')
   const [url, setUrl] = useState('')
+  const [urlError, setUrlError] = useState('')
+  const textInputRef = useRef<HTMLInputElement>(null)
+  const urlInputRef = useRef<HTMLInputElement>(null)
+
+  // URL validation function
+  const validateUrl = useCallback((urlString: string): boolean => {
+    if (!urlString.trim()) return false
+
+    try {
+      const url = new URL(urlString.trim())
+      return url.protocol === 'http:' || url.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }, [])
 
   // Update text and URL when modal opens with selected text/URL
   useEffect(() => {
@@ -583,15 +629,34 @@ const LinkModal = ({ isOpen, onClose, onLink, onUnlink, isLinkActive, selectedTe
       } else {
         setUrl('')
       }
+
+      setUrlError('')
+
+      // Focus the text field when modal opens
+      setTimeout(() => {
+        textInputRef.current?.focus()
+      }, 100)
     }
   }, [isOpen, selectedText, selectedUrl])
 
+  // Validate URL on change
+  useEffect(() => {
+    if (url.trim() && !validateUrl(url)) {
+      setUrlError('Please enter a valid http:// or https:// URL')
+    } else {
+      setUrlError('')
+    }
+  }, [url, validateUrl])
+
+  const isValidUrl = useMemo(() => validateUrl(url), [url, validateUrl])
+
   const handleLink = useCallback(() => {
-    if (url.trim()) {
-      onLink(text.trim() || url.trim(), url.trim())
+    const trimmedUrl = url.trim()
+    if (trimmedUrl && isValidUrl) {
+      onLink(text.trim() || trimmedUrl, trimmedUrl)
       onClose()
     }
-  }, [text, url, onLink, onClose])
+  }, [text, url, isValidUrl, onLink, onClose])
 
   const handleUnlink = useCallback(() => {
     onUnlink()
@@ -601,8 +666,37 @@ const LinkModal = ({ isOpen, onClose, onLink, onUnlink, isLinkActive, selectedTe
   const handleClose = useCallback(() => {
     setText('')
     setUrl('')
+    setUrlError('')
     onClose()
   }, [onClose])
+
+  const handleTextKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        urlInputRef.current?.focus()
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        handleClose()
+      }
+    },
+    [handleClose]
+  )
+
+  const handleUrlKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        if (isValidUrl) {
+          handleLink()
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        handleClose()
+      }
+    },
+    [isValidUrl, handleLink, handleClose]
+  )
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} width={400}>
@@ -610,22 +704,43 @@ const LinkModal = ({ isOpen, onClose, onLink, onUnlink, isLinkActive, selectedTe
         <h3 className="text-lg font-semibold mb-4">Insert Link</h3>
 
         <div className="space-y-4">
-          <TextInput label="Text" placeholder="Link text (optional)" value={text} onChange={setText} />
+          <div>
+            <TextInput
+              ref={textInputRef}
+              label="Text"
+              placeholder="Link text (optional)"
+              value={text}
+              onChange={setText}
+              onKeyDown={handleTextKeyDown}
+              enterKeyHint="next"
+            />
+          </div>
 
-          <TextInput label="URL" placeholder="https://example.com" value={url} onChange={setUrl} />
+          <div>
+            <TextInput
+              ref={urlInputRef}
+              label="URL"
+              placeholder="https://example.com"
+              value={url}
+              onChange={setUrl}
+              onKeyDown={handleUrlKeyDown}
+              enterKeyHint="done"
+              error={urlError}
+            />
+          </div>
 
-          <div className="flex gap-2 pt-2">
-            <Btn color="bg-primary" onClick={handleLink} disabled={!url.trim()}>
+          <div className="flex gap-2 pt-2 justify-end">
+            <Btn color="bg-button-selected-bg disabled:bg-button-selected-bg/80" onClick={handleLink} disabled={!isValidUrl}>
               Link
             </Btn>
 
             {isLinkActive && (
-              <Btn color="bg-gray-600" onClick={handleUnlink}>
+              <Btn color="bg-primary" onClick={handleUnlink}>
                 Unlink
               </Btn>
             )}
 
-            <Btn color="bg-gray-600" onClick={handleClose}>
+            <Btn color="bg-primary" onClick={handleClose}>
               Cancel
             </Btn>
           </div>
@@ -633,7 +748,7 @@ const LinkModal = ({ isOpen, onClose, onLink, onUnlink, isLinkActive, selectedTe
       </div>
     </Modal>
   )
-}
+})
 
 // --- Link Button Component ---
 
@@ -641,53 +756,55 @@ interface LinkButtonProps {
   onOpenModal: () => void
 }
 
-const LinkButton = ({
-  onOpenModal,
-  buttonId,
-  tabIndex,
-  onFocus
-}: LinkButtonProps & {
-  buttonId: string
-  tabIndex: number
-  onFocus: () => void
-}) => {
-  const editor = useSlate()
-  const isActive = isLinkActive(editor)
+const LinkButton = memo(
+  ({
+    onOpenModal,
+    buttonId,
+    tabIndex,
+    onFocus
+  }: LinkButtonProps & {
+    buttonId: string
+    tabIndex: number
+    onFocus: () => void
+  }) => {
+    const editor = useSlate()
+    const isActive = isLinkActive(editor)
 
-  const handleOpenModal = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault()
-      onOpenModal()
-    },
-    [onOpenModal]
-  )
-
-  const handleKeyDown = useCallback(
-    (event: React.KeyboardEvent) => {
-      if (event.key === 'Enter' || event.key === ' ') {
+    const handleOpenModal = useCallback(
+      (event: React.MouseEvent) => {
         event.preventDefault()
         onOpenModal()
-      }
-    },
-    [onOpenModal]
-  )
+      },
+      [onOpenModal]
+    )
 
-  const buttonClass = mergeClasses(buttonClassBase, isActive ? 'bg-gray-300 text-black' : '')
+    const handleKeyDown = useCallback(
+      (event: React.KeyboardEvent) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onOpenModal()
+        }
+      },
+      [onOpenModal]
+    )
 
-  return (
-    <IconBtn
-      size="small"
-      className={buttonClass}
-      tabIndex={tabIndex}
-      data-button-id={buttonId}
-      onMouseDown={handleOpenModal}
-      onKeyDown={handleKeyDown}
-      {...{ onFocus }}
-    >
-      link
-    </IconBtn>
-  )
-}
+    const buttonClass = useMemo(() => mergeClasses(buttonClassBase, isActive ? 'bg-gray-300 text-black' : ''), [isActive])
+
+    return (
+      <IconBtn
+        size="small"
+        className={buttonClass}
+        tabIndex={tabIndex}
+        data-button-id={buttonId}
+        onMouseDown={handleOpenModal}
+        onKeyDown={handleKeyDown}
+        {...{ onFocus }}
+      >
+        link
+      </IconBtn>
+    )
+  }
+)
 
 // --- The Main Slate Component ---
 
@@ -697,7 +814,7 @@ const withLinks = <T extends Editor>(editor: T) => {
   const { isInline, insertText, insertBreak, normalizeNode } = editor
 
   // Treat links as inline
-  editor.isInline = (el) => (SlateElement.isElement(el) && el.type === 'link') || isInline(el)
+  editor.isInline = (el) => (Element.isElement(el) && el.type === 'link') || isInline(el)
 
   // Helper: if caret is collapsed at the end of a link, move it right AFTER the link node
   const escapeIfAtEndOfLink = (): void => {
@@ -706,7 +823,7 @@ const withLinks = <T extends Editor>(editor: T) => {
 
     const linkEntry = Editor.above(editor, {
       at: selection,
-      match: (n) => SlateElement.isElement(n) && n.type === 'link'
+      match: (n) => Element.isElement(n) && n.type === 'link'
     })
     if (!linkEntry) return
 
@@ -742,9 +859,19 @@ const withLinks = <T extends Editor>(editor: T) => {
   // Optional: enforce "pure text inside link"
   editor.normalizeNode = (entry) => {
     const [node, path] = entry
-    if (SlateElement.isElement(node) && node.type === 'link') {
-      for (const [child, childPath] of SlateNode.children(editor, path)) {
-        if (SlateElement.isElement(child)) {
+
+    const isLink = (node: Node) => Element.isElement(node) && node.type === 'link'
+
+    if (isLink(node)) {
+      // If the link is empty, remove it
+      if (Node.string(node) === '') {
+        Transforms.removeNodes(editor, { at: path })
+        return
+      }
+
+      // If the link has children, unwrap them
+      for (const [child, childPath] of Node.children(editor, path)) {
+        if (Element.isElement(child)) {
           Transforms.unwrapNodes(editor, { at: childPath })
           return
         }
@@ -763,12 +890,13 @@ interface SlateEditorProps {
   onUpdate?: (html: string) => void
   placeholder?: string
   readOnly?: boolean
+  className?: string
 }
 
-const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOnly = false }: SlateEditorProps) => {
+const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, readOnly = false, className }: SlateEditorProps) => {
   const generatedId = useId()
-  const slateEditorId = id || generatedId
-  const editableId = `${slateEditorId}-editable`
+  const slateEditorId = useMemo(() => id || generatedId, [id, generatedId])
+  const editableId = useMemo(() => `${slateEditorId}-editable`, [slateEditorId])
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
   const [isClient, setIsClient] = useState(false)
   const [isLinkModalOpen, setIsLinkModalOpen] = useState(false)
@@ -794,12 +922,12 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
   }, [editor])
 
   // Get undo/redo availability - using state that gets updated on changes
-  const isUndoAvailable = historyState.undos > 0
-  const isRedoAvailable = historyState.redos > 0
+  const isUndoAvailable = useMemo(() => historyState.undos > 0, [historyState.undos])
+  const isRedoAvailable = useMemo(() => historyState.redos > 0, [historyState.redos])
 
   // Get button availability status
-  const getButtonAvailability = useCallback(() => {
-    return {
+  const buttonAvailability = useMemo(
+    () => ({
       bold: true,
       italic: true,
       strike: true,
@@ -808,30 +936,28 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
       link: true,
       undo: isUndoAvailable,
       redo: isRedoAvailable
-    }
-  }, [isUndoAvailable, isRedoAvailable])
+    }),
+    [isUndoAvailable, isRedoAvailable]
+  )
 
   // Get list of available (non-disabled) button IDs in order
-  const getAvailableButtons = useCallback(() => {
-    const availability = getButtonAvailability()
+  const availableButtons = useMemo(() => {
     const allButtons = ['bold', 'italic', 'strike', 'bulleted-list', 'numbered-list', 'link', 'undo', 'redo']
-    return allButtons.filter((buttonId) => availability[buttonId as keyof typeof availability])
-  }, [getButtonAvailability])
+    return allButtons.filter((buttonId) => buttonAvailability[buttonId as keyof typeof buttonAvailability])
+  }, [buttonAvailability])
 
   // Auto-focus fallback when current focused button becomes unavailable
   useEffect(() => {
-    const availability = getButtonAvailability()
-    const isFocusedButtonAvailable = availability[focusedButtonId as keyof typeof availability]
+    const isFocusedButtonAvailable = buttonAvailability[focusedButtonId as keyof typeof buttonAvailability]
 
     if (!isFocusedButtonAvailable) {
-      const availableButtons = getAvailableButtons()
       if (availableButtons.length > 0) {
         let newFocusedButton = availableButtons[0]
 
         // Special handling for undo/redo buttons - prefer switching to the other one
-        if (focusedButtonId === 'undo' && availability.redo) {
+        if (focusedButtonId === 'undo' && buttonAvailability.redo) {
           newFocusedButton = 'redo'
-        } else if (focusedButtonId === 'redo' && availability.undo) {
+        } else if (focusedButtonId === 'redo' && buttonAvailability.undo) {
           newFocusedButton = 'undo'
         }
 
@@ -851,12 +977,10 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
         }
       }
     }
-  }, [isUndoAvailable, isRedoAvailable, focusedButtonId, getButtonAvailability, getAvailableButtons])
+  }, [isUndoAvailable, isRedoAvailable, focusedButtonId, buttonAvailability, availableButtons])
 
   // Always start with initialValue to avoid hydration mismatches
-  const parsedContent = useMemo(() => {
-    return initialValue
-  }, [])
+  const parsedContent = useMemo(() => initialValue, [])
 
   // Mark as client-side after first render
   useEffect(() => {
@@ -892,24 +1016,22 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
 
     const handleFocusOut = (event: FocusEvent) => {
       // Check if focus is leaving the toolbar entirely
-      const relatedTarget = event.relatedTarget as Element | null
+      const relatedTarget = event.relatedTarget as DOMElement | null
       const isStayingInToolbar = relatedTarget && toolbar.contains(relatedTarget)
 
       if (!isStayingInToolbar) {
         // Focus left the toolbar, check if we need to restore it
-        const availability = getButtonAvailability()
-        const isFocusedButtonAvailable = availability[focusedButtonId as keyof typeof availability]
+        const isFocusedButtonAvailable = buttonAvailability[focusedButtonId as keyof typeof buttonAvailability]
 
         if (!isFocusedButtonAvailable) {
           // The focused button became unavailable, move to best available
-          const availableButtons = getAvailableButtons()
           if (availableButtons.length > 0) {
             let newFocusedButton = availableButtons[0]
 
             // Special handling for undo/redo buttons - prefer switching to the other one
-            if (focusedButtonId === 'undo' && availability.redo) {
+            if (focusedButtonId === 'undo' && buttonAvailability.redo) {
               newFocusedButton = 'redo'
-            } else if (focusedButtonId === 'redo' && availability.undo) {
+            } else if (focusedButtonId === 'redo' && buttonAvailability.undo) {
               newFocusedButton = 'undo'
             }
 
@@ -928,7 +1050,7 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
 
     toolbar.addEventListener('focusout', handleFocusOut)
     return () => toolbar.removeEventListener('focusout', handleFocusOut)
-  }, [focusedButtonId, getButtonAvailability, getAvailableButtons])
+  }, [focusedButtonId, buttonAvailability, availableButtons])
 
   // Update editor content after hydration if we have content to parse
   useEffect(() => {
@@ -1081,12 +1203,12 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
         Transforms.insertText(editor, '\n')
       }
     },
-    [editor]
+    [editor, handleOpenLinkModal]
   )
 
-  const renderElement = useCallback((props: RenderElementProps) => <Element {...props} />, [])
+  const renderElement = useCallback((props: RenderElementProps) => <RenderElement {...props} />, [])
 
-  const renderLeaf = useCallback((props: RenderLeafProps) => <Leaf {...props} />, [])
+  const renderLeaf = useCallback((props: RenderLeafProps) => <RenderLeaf {...props} />, [])
 
   const renderPlaceholder = useCallback(
     ({ children, attributes }: { children: React.ReactNode; attributes: any }) => (
@@ -1137,8 +1259,7 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
         const buttonId = nextButton.getAttribute('data-button-id')
         if (buttonId) {
           // Only update focus if the button is available
-          const availability = getButtonAvailability()
-          const isButtonAvailable = availability[buttonId as keyof typeof availability]
+          const isButtonAvailable = buttonAvailability[buttonId as keyof typeof buttonAvailability]
           if (isButtonAvailable) {
             setFocusedButtonId(buttonId)
             nextButton.focus()
@@ -1146,14 +1267,13 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
         }
       }
     },
-    [setFocusedButtonId, getButtonAvailability]
+    [buttonAvailability]
   )
 
   // Helper to determine if a button should have tabIndex={0}
   const getTabIndex = useCallback(
     (buttonId: string) => {
-      const availability = getButtonAvailability()
-      const isButtonAvailable = availability[buttonId as keyof typeof availability]
+      const isButtonAvailable = buttonAvailability[buttonId as keyof typeof buttonAvailability]
 
       // Disabled buttons should never have tabIndex=0
       if (!isButtonAvailable) {
@@ -1162,36 +1282,37 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
 
       return focusedButtonId === buttonId ? 0 : -1
     },
-    [focusedButtonId, getButtonAvailability]
+    [focusedButtonId, buttonAvailability]
   )
 
   // Handle when a button receives focus (for click or programmatic focus)
   const handleButtonFocus = useCallback(
     (buttonId: string) => {
-      const availability = getButtonAvailability()
-      const isButtonAvailable = availability[buttonId as keyof typeof availability]
+      const isButtonAvailable = buttonAvailability[buttonId as keyof typeof buttonAvailability]
 
       // Only allow focusing on available buttons
       if (isButtonAvailable) {
         setFocusedButtonId(buttonId)
       }
     },
-    [setFocusedButtonId, getButtonAvailability]
+    [buttonAvailability]
   )
 
+  const containerClass = useMemo(() => mergeClasses('min-w-75', className), [className])
+
   return (
-    <div className="min-w-75" cy-id="slate-editor">
+    <div className={containerClass} cy-id="slate-editor">
       {label && <Label htmlFor={editableId}>{label}</Label>}
       <Slate editor={editor} initialValue={parsedContent} onChange={handleChange}>
         {!readOnly && (
           <div
             ref={toolbarRef}
-            className="pb-2 border-b border-gray-600 bg-transparent flex gap-[1.5vw]"
+            className="pb-2 border-b border-border bg-transparent flex gap-[1.5vw]"
             role="toolbar"
             aria-label="Text formatting toolbar"
             onKeyDown={handleToolbarKeyDown}
           >
-            <div className="flex border border-gray-600 rounded-sm overflow-hidden">
+            <div className="flex border border-border rounded-sm overflow-hidden">
               <MarkButton format="bold" buttonId="bold" tabIndex={getTabIndex('bold')} onFocus={() => handleButtonFocus('bold')}>
                 format_bold
               </MarkButton>
@@ -1203,7 +1324,7 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
               </MarkButton>
               <LinkButton onOpenModal={handleOpenLinkModal} buttonId="link" tabIndex={getTabIndex('link')} onFocus={() => handleButtonFocus('link')} />
             </div>
-            <div className="flex border border-gray-600 rounded-sm overflow-hidden">
+            <div className="flex border border-border rounded-sm overflow-hidden">
               <BlockButton
                 format="bulleted-list"
                 buttonId="bulleted-list"
@@ -1222,7 +1343,7 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
               </BlockButton>
             </div>
             <div className="flex-grow" />
-            <div className="flex border border-gray-600 rounded-sm overflow-hidden">
+            <div className="flex border border-border rounded-sm overflow-hidden">
               <UndoButton buttonId="undo" tabIndex={getTabIndex('undo')} onFocus={() => handleButtonFocus('undo')} isUndoAvailable={isUndoAvailable} />
               <RedoButton buttonId="redo" tabIndex={getTabIndex('redo')} onFocus={() => handleButtonFocus('redo')} isRedoAvailable={isRedoAvailable} />
             </div>
@@ -1231,10 +1352,14 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
         <InputWrapper readOnly={readOnly} size="auto" className={mergeClasses('px-1 py-1')}>
           <Editable
             id={editableId}
-            className={mergeClasses(
-              'relative whitespace-pre-wrap break-words',
-              'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-gray-200 text-base focus:outline-none',
-              'disabled:text-disabled read-only:text-read-only'
+            className={useMemo(
+              () =>
+                mergeClasses(
+                  'relative whitespace-pre-wrap break-words',
+                  'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-gray-200 text-base focus:outline-none',
+                  'disabled:text-disabled read-only:text-read-only'
+                ),
+              []
             )}
             readOnly={readOnly}
             placeholder={placeholder}
@@ -1259,10 +1384,10 @@ const SlateEditor = ({ id, label, srcContent = '', onUpdate, placeholder, readOn
       />
     </div>
   )
-}
+})
 
 // --- Renderers ---
-const Element = ({ attributes, children, element }: RenderElementProps) => {
+const RenderElement = memo(({ attributes, children, element }: RenderElementProps) => {
   switch (element.type) {
     case 'bulleted-list':
       return (
@@ -1291,13 +1416,13 @@ const Element = ({ attributes, children, element }: RenderElementProps) => {
         </p>
       )
   }
-}
+})
 
-const Leaf = ({ attributes, children, leaf }: RenderLeafProps) => {
+const RenderLeaf = memo(({ attributes, children, leaf }: RenderLeafProps) => {
   if (leaf.bold) children = <strong>{children}</strong>
   if (leaf.italic) children = <em>{children}</em>
   if (leaf.strike) children = <s>{children}</s>
   return <span {...attributes}>{children}</span>
-}
+})
 
 export default SlateEditor
