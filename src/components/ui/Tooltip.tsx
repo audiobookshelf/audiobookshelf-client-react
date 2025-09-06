@@ -1,6 +1,6 @@
 import React, { useId, useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { useFloating, offset, flip, shift, size, arrow as arrowMw, autoUpdate, limitShift } from '@floating-ui/react-dom'
+import { useFloating, offset, flip, shift, size, arrow as arrowMw, autoUpdate } from '@floating-ui/react-dom'
 import type { Placement } from '@floating-ui/dom'
 import { useModalRef } from '@/contexts/ModalContext'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -15,6 +15,7 @@ interface TooltipProps {
   edgePadding?: number
   maxWidth?: number
   withArrow?: boolean
+  closeOnClick?: boolean
 }
 
 const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
@@ -33,7 +34,8 @@ const Tooltip = ({
   offsetPx = 8,
   edgePadding = 8,
   maxWidth,
-  withArrow = true
+  withArrow = true,
+  closeOnClick = false
 }: TooltipProps) => {
   const tooltipId = useId()
   const [open, setOpen] = useState(false)
@@ -129,6 +131,22 @@ const Tooltip = ({
     setOpen(false)
   }, [])
 
+  // Handle click to close (used when child opens an external link)
+  const onClick = useCallback(() => {
+    if (closeOnClick) {
+      closeSoon()
+
+      // Blur any focused child elements to prevent tooltip from re-opening
+      const activeElement = document.activeElement as HTMLElement
+      if (activeElement && activeElement !== document.body) {
+        // Check if the active element is a child of our reference element
+        if (refs.reference.current instanceof HTMLElement && refs.reference.current.contains(activeElement)) {
+          activeElement.blur()
+        }
+      }
+    }
+  }, [closeSoon, closeOnClick])
+
   // Add aria-describedby to the first element child of the container
   useEffect(() => {
     if (refs.reference.current instanceof Element) {
@@ -212,7 +230,15 @@ const Tooltip = ({
   )
 
   return (
-    <div ref={refs.setReference} className={referenceClass} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} onFocus={onFocus} onBlur={onBlur}>
+    <div
+      ref={refs.setReference}
+      className={referenceClass}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onClick={onClick}
+    >
       {children}
       {mounted &&
         (usePortal
