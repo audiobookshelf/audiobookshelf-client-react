@@ -405,15 +405,112 @@ const serialize = (node: Descendant): string => {
 
 const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
   if (el.nodeType === 3) {
-    // TEXT_NODE
-    return el.textContent ? { text: el.textContent } : null
+    // TEXT_NODE - preserve all text content including spaces
+    const textContent = el.textContent || ''
+    // Don't filter out single spaces or meaningful whitespace
+    // Only filter out completely empty strings or purely newline/tab sequences
+    if (!textContent || /^[\n\r\t]*$/.test(textContent)) {
+      return null
+    }
+    return { text: textContent }
   } else if (el.nodeType !== 1) {
-    // ELEMENT_NODE
+    // Skip comment nodes and other non-element nodes
     return null
   }
 
   const element = el as HTMLElement
-  let children = Array.from(element.childNodes).flatMap((child) => deserialize(child) || [])
+
+  // Helper function to check if an element or its styles indicate bold/italic
+  const isBoldElement = (elem: HTMLElement): boolean => {
+    const nodeName = elem.nodeName
+    if (nodeName === 'STRONG' || nodeName === 'B') return true
+
+    // Check computed styles for font-weight
+    try {
+      const style = elem.style
+      const fontWeight = style.fontWeight || getComputedStyle(elem).fontWeight
+      return fontWeight === 'bold' || fontWeight === '700' || parseInt(fontWeight) >= 700
+    } catch {
+      return false
+    }
+  }
+
+  const isItalicElement = (elem: HTMLElement): boolean => {
+    const nodeName = elem.nodeName
+    if (nodeName === 'EM' || nodeName === 'I') return true
+
+    // Check computed styles for font-style
+    try {
+      const style = elem.style
+      const fontStyle = style.fontStyle || getComputedStyle(elem).fontStyle
+      return fontStyle === 'italic'
+    } catch {
+      return false
+    }
+  }
+
+  const isStrikeElement = (elem: HTMLElement): boolean => {
+    const nodeName = elem.nodeName
+    if (nodeName === 'S' || nodeName === 'STRIKE' || nodeName === 'DEL') return true
+
+    // Check computed styles for text-decoration
+    try {
+      const style = elem.style
+      const textDecoration = style.textDecoration || getComputedStyle(elem).textDecoration
+      return textDecoration.includes('line-through')
+    } catch {
+      return false
+    }
+  }
+
+  // Process children and flatten spans that are just for styling
+  let children = Array.from(element.childNodes)
+    .flatMap((child) => {
+      const result = deserialize(child)
+      if (!result) return []
+      return Array.isArray(result) ? result : [result]
+    })
+    .filter((child) => {
+      // Only filter out completely empty text nodes or pure newline/tab sequences
+      // BUT preserve intentional line breaks from <br/> elements
+      if ('text' in child) {
+        if (!child.text) return false
+        // Preserve intentional breaks even if they're just newlines
+        if ((child as any).isIntentionalBreak) return true
+        // Filter out pure structural whitespace (newlines/tabs) but keep spaces
+        return !/^[\n\r\t]+$/.test(child.text)
+      }
+      return true
+    })
+
+  // Apply formatting based on current element
+  const isBold = isBoldElement(element)
+  const isItalic = isItalicElement(element)
+  const isStrike = isStrikeElement(element)
+
+  if (isBold || isItalic || isStrike) {
+    children = children.map((child) => {
+      if ('text' in child) {
+        const { isIntentionalBreak, ...cleanChild } = child as any
+        return {
+          ...cleanChild,
+          ...(isBold && { bold: true }),
+          ...(isItalic && { italic: true }),
+          ...(isStrike && { strike: true })
+        }
+      }
+      return child
+    })
+  } else {
+    // Clean up the intentional break marker even if no formatting is applied
+    children = children.map((child) => {
+      if ('text' in child && (child as any).isIntentionalBreak) {
+        const { isIntentionalBreak, ...cleanChild } = child as any
+        return cleanChild
+      }
+      return child
+    })
+  }
 
   if (children.length === 0) {
     children = [{ text: '' }]
@@ -421,8 +518,12 @@ const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
 
   switch (element.nodeName) {
     case 'BODY':
+    case 'DIV':
       return children
     case 'P':
+      // Filter out empty paragraphs
+      const hasContent = children.some((child) => ('text' in child && child.text.trim()) || 'type' in child)
+      if (!hasContent) return []
       return [{ type: 'paragraph', children }]
     case 'UL':
       return [{ type: 'bulleted-list', children }]
@@ -433,16 +534,23 @@ const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
     case 'A':
       return [{ type: 'link', url: element.getAttribute('href') || '', children }]
     case 'BR':
-      return [{ text: '\n' }]
-    case 'STRONG':
-    case 'B':
-      return children.map((child) => ({ ...child, bold: true }))
-    case 'EM':
-    case 'I':
-      return children.map((child) => ({ ...child, italic: true }))
-    case 'S':
-      return children.map((child) => ({ ...child, strike: true }))
+      // Use a special marker for intentional line breaks to distinguish from structural whitespace
+      return [{ text: '\n', isIntentionalBreak: true } as any]
+    case 'H1':
+    case 'H2':
+    case 'H3':
+    case 'H4':
+    case 'H5':
+    case 'H6':
+      // Treat headings as bold paragraphs
+      const headingChildren = children.map((child) => ('text' in child ? { ...child, bold: true as true } : child))
+      return [{ type: 'paragraph', children: headingChildren }]
+    case 'SPAN':
+      // For spans, just return the children with any applied formatting
+      // The formatting was already applied above based on classes
+      return children
     default:
+      // For unknown elements, just return their children
       return children
   }
 }
@@ -609,7 +717,10 @@ const LinkModal = memo(({ isOpen, onClose, onLink, onUnlink, isLinkActive, selec
 
     try {
       const url = new URL(urlString.trim())
-      return url.protocol === 'http:' || url.protocol === 'https:'
+      // Only allow safe protocols - this blocks all dangerous protocols by default
+      const allowedProtocols = ['http:', 'https:']
+
+      return allowedProtocols.includes(url.protocol)
     } catch {
       return false
     }
@@ -1298,6 +1409,76 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
     [buttonAvailability]
   )
 
+  const handlePaste = useCallback(
+    (e: React.ClipboardEvent) => {
+      const html = e.clipboardData.getData('text/html')
+      const text = e.clipboardData.getData('text/plain')
+
+      // Prefer HTML → sanitize via your deserialize
+      if (html) {
+        e.preventDefault()
+        try {
+          const doc = new DOMParser().parseFromString(html, 'text/html')
+          let parsed = (deserialize(doc.body) as Descendant[]) || initialValue
+
+          // Clean up and normalize the parsed content
+          parsed = parsed.filter((node) => {
+            // Remove empty paragraphs
+            if ('type' in node && node.type === 'paragraph') {
+              const hasContent = node.children.some((child: any) => child.text && child.text.trim())
+              return hasContent
+            }
+            return true
+          })
+
+          // Normalize multiple consecutive breaks into paragraph breaks
+          const normalizedParsed: Descendant[] = []
+          for (let i = 0; i < parsed.length; i++) {
+            const node = parsed[i]
+            if ('type' in node && node.type === 'paragraph') {
+              // Check if this paragraph only contains newlines/breaks
+              const isBreakOnly = node.children.every((child: any) => child.text && child.text.trim() === '')
+
+              if (!isBreakOnly) {
+                normalizedParsed.push(node)
+              }
+              // Skip break-only paragraphs - they'll become natural paragraph spacing
+            } else {
+              normalizedParsed.push(node)
+            }
+          }
+
+          if (normalizedParsed.length > 0) {
+            // Insert fragments rather than replacing
+            Transforms.insertFragment(editor, normalizedParsed as any)
+          }
+        } catch (error) {
+          console.warn('Failed to parse HTML paste content:', error)
+          // Fall back to plain text handling
+          if (text) {
+            const parts = text.split(/\r?\n/)
+            parts.forEach((p, i) => {
+              if (i) editor.insertText('\n')
+              editor.insertText(p)
+            })
+          }
+        }
+        return
+      }
+
+      // Plain text: preserve newlines as soft breaks
+      if (text) {
+        e.preventDefault()
+        const parts = text.split(/\r?\n/)
+        parts.forEach((p, i) => {
+          if (i) editor.insertText('\n')
+          editor.insertText(p)
+        })
+      }
+    },
+    [editor]
+  )
+
   const containerClass = useMemo(() => mergeClasses('min-w-75', className), [className])
 
   return (
@@ -1364,6 +1545,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
             readOnly={readOnly}
             placeholder={placeholder}
             onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
             renderElement={renderElement}
             renderLeaf={renderLeaf}
             renderPlaceholder={renderPlaceholder}
@@ -1405,7 +1587,14 @@ const RenderElement = memo(({ attributes, children, element }: RenderElementProp
       return <li {...attributes}>{children}</li>
     case 'link':
       return (
-        <a tabIndex={-1} {...attributes} href={element.url} className="text-blue-500 hover:underline hover:text-blue-400">
+        <a
+          tabIndex={-1}
+          {...attributes}
+          href={element.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 hover:underline hover:text-blue-400"
+        >
           {children}
         </a>
       )
