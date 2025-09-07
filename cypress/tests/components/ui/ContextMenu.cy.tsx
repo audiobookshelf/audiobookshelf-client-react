@@ -131,13 +131,13 @@ describe('<ContextMenu />', () => {
   it('applies right alignment by default', () => {
     cy.mount(<TestWrapper items={mockItems} />)
     cy.get('[cy-id="trigger-button"]').click()
-    cy.get('[cy-id="menu"]').should('have.class', 'right-0')
+    cy.get('[cy-id="menu"]').should('have.class', 'end-0')
   })
 
   it('applies left alignment when specified', () => {
     cy.mount(<TestWrapper items={mockItems} menuAlign="left" />)
     cy.get('[cy-id="trigger-button"]').click()
-    cy.get('[cy-id="menu"]').should('have.class', 'left-0')
+    cy.get('[cy-id="menu"]').should('have.class', 'start-0')
   })
 
   it('applies custom className', () => {
@@ -279,7 +279,7 @@ describe('<ContextMenu />', () => {
       cy.get('[cy-id="trigger-button"]').click()
       cy.get('[cy-id="parent-item"]').first().realHover()
       cy.get('[cy-id="submenu-1"]').should('be.visible')
-      cy.get('[cy-id="submenu-1"]').should('have.class', 'rounded-r-md')
+      cy.get('[cy-id="submenu-1"]').should('have.class', 'rounded-e-md')
     })
 
     it('positions submenu to the left when near right edge', () => {
@@ -292,7 +292,7 @@ describe('<ContextMenu />', () => {
       cy.get('[cy-id="trigger-button"]').click()
       cy.get('[cy-id="parent-item"]').first().realHover()
       cy.get('[cy-id="submenu-1"]').should('be.visible')
-      cy.get('[cy-id="submenu-1"]').should('have.class', 'rounded-l-md')
+      cy.get('[cy-id="submenu-1"]').should('have.class', 'rounded-s-md')
     })
 
     it('aligns submenu items with parent item', () => {

@@ -130,7 +130,7 @@ export default function SideRail({ currentLibraryId, currentLibraryMediaType }: 
             {button.icon}
             <p className="text-sm">{button.label}</p>
 
-            {pathname === button.href && <div className="h-full w-0.5 bg-yellow-400 absolute top-0 left-0"></div>}
+            {pathname === button.href && <div className="h-full w-0.5 bg-yellow-400 absolute top-0 start-0"></div>}
           </Link>
         ))}
       </div>

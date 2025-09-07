@@ -152,12 +152,12 @@ export default function DropdownMenu({
           onMouseDown={handleItemMouseDown}
         >
           <div className="flex items-center">
-            <span className={mergeClasses('ml-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
+            <span className={mergeClasses('ms-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
             {item.subtext && <span>:&nbsp;</span>}
             {item.subtext && <span className="font-normal block truncate font-sans text-sm text-gray-400">{item.subtext}</span>}
           </div>
           {showSelectedIndicator && isItemSelected && isItemSelected(item) && (
-            <span className="absolute inset-y-0 right-0 flex items-center pr-4">
+            <span className="absolute inset-y-0 end-0 flex items-center pe-4">
               <span className="material-symbols text-xl text-yellow-400">check</span>
             </span>
           )}
@@ -195,7 +195,7 @@ export default function DropdownMenu({
     >
       {menuItems}
       {showNoItemsMessage && !items.length && (
-        <li className="text-gray-100 select-none relative py-2 pr-9" role="option" cy-id="dropdown-menu-no-items">
+        <li className="text-gray-100 select-none relative py-2 pe-9" role="option" cy-id="dropdown-menu-no-items">
           <div className="flex items-center justify-center">
             <span className="font-normal">{noItemsText}</span>
           </div>

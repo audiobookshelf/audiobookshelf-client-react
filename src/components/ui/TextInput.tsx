@@ -86,7 +86,7 @@ export default function TextInput({
     const classes: string[] = []
 
     if (showCopy) {
-      classes.push('pl-1', 'pr-8')
+      classes.push('ps-1', 'pe-8')
     } else {
       classes.push('px-1')
     }
@@ -197,7 +197,7 @@ export default function TextInput({
         />
 
         {clearable && value && (
-          <div className="absolute top-0 right-0 h-full px-2 flex items-center justify-center">
+          <div className="absolute top-0 end-0 h-full px-2 flex items-center justify-center">
             <button
               type="button"
               className="material-symbols text-gray-300 cursor-pointer hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
@@ -212,7 +212,7 @@ export default function TextInput({
         )}
 
         {shouldShowPasswordToggle && (
-          <div className="absolute top-0 right-0 h-full px-4 flex items-center justify-center">
+          <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center">
             <button
               type="button"
               className="material-symbols text-gray-400 cursor-pointer text-lg hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
@@ -226,7 +226,7 @@ export default function TextInput({
         )}
 
         {showCopy && type !== 'password' && (
-          <div className="absolute top-0 right-0 h-full px-2 flex items-center justify-center">
+          <div className="absolute top-0 end-0 h-full px-2 flex items-center justify-center">
             <button
               type="button"
               className={mergeClasses(

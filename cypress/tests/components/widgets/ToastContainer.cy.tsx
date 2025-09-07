@@ -106,7 +106,7 @@ describe('<ToastContainer />', () => {
 
     cy.get('.fixed').should('exist')
     cy.get('.top-4').should('exist')
-    cy.get('.right-4').should('exist')
+    cy.get('.end-4').should('exist')
     cy.get('.z-60').should('exist')
     cy.get('.space-y-2').should('exist')
   })

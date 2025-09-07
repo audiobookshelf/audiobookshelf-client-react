@@ -30,7 +30,7 @@ export default function LogoutBtn() {
   }
 
   return (
-    <Btn onClick={handleLogout} loading={loading} className="items-center justify-between gap-2 pl-6">
+    <Btn onClick={handleLogout} loading={loading} className="items-center justify-between gap-2 ps-6">
       <span className="material-symbols text-lg">logout</span>
       {t('LabelLogout')}
     </Btn>

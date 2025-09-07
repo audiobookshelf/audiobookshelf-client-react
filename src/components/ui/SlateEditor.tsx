@@ -162,7 +162,7 @@ const toggleBlock = (editor: Editor, format: CustomElement['type']) => {
 }
 
 const buttonClassBase = mergeClasses(
-  'first:border-l-0 first:rounded-l-sm first:rounded-r-none last:rounded-r-sm last:rounded-l-none [&:not(:first-child):not(:last-child)]:rounded-none',
+  'first:border-s-0 first:rounded-s-sm first:rounded-e-none last:rounded-e-sm last:rounded-s-none [&:not(:first-child):not(:last-child)]:rounded-none',
   'focus-visible:-outline-offset-1',
   'h-7'
 )
@@ -1322,7 +1322,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
 
   const renderPlaceholder = useCallback(
     ({ children, attributes }: { children: React.ReactNode; attributes: any }) => (
-      <span {...attributes} className="absolute top-1 left-1 pointer-events-none opacity-33">
+      <span {...attributes} className="absolute top-1 start-1 pointer-events-none opacity-33">
         {children}
       </span>
     ),

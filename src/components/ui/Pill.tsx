@@ -273,7 +273,7 @@ export const Pill = <T,>({
             />
           )}
         </div>
-        <div className="flex items-center gap-1 ml-1" role="group" aria-label="Edit actions">
+        <div className="flex items-center gap-1 ms-1" role="group" aria-label="Edit actions">
           <button
             type="button"
             aria-label="Cancel edit"
@@ -326,7 +326,7 @@ export const Pill = <T,>({
       }}
     >
       {!disabled && (
-        <div className="absolute top-0 -right-1 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+        <div className="absolute top-0 -end-1 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
           {showEditButton && (
             <button
               type="button"

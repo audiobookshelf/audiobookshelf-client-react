@@ -1863,7 +1863,7 @@ export function ModalExamples() {
               onClose={() => setIsOuterContentModalOpen(false)}
               width={400}
               height={300}
-              outerContent={<div className="absolute top-10 left-10 bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold">Outer Content!</div>}
+              outerContent={<div className="absolute top-10 start-10 bg-yellow-500 text-black px-3 py-1 rounded text-sm font-semibold">Outer Content!</div>}
             >
               <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
                 <h3 className="text-xl font-semibold text-white mb-4">Modal with Outer Content</h3>

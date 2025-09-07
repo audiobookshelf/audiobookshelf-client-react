@@ -171,8 +171,8 @@ const ContextMenu = ({
             onMouseOver={() => handleMouseoverSubmenu(index)}
             onMouseLeave={() => handleMouseleaveSubmenu(index)}
             className={mergeClasses(
-              'absolute bg-bg border border-black-200 shadow-lg z-50 -ml-px py-1',
-              openSubmenuLeft ? 'rounded-l-md' : 'rounded-r-md',
+              'absolute bg-bg border border-black-200 shadow-lg z-50 -ms-px py-1',
+              openSubmenuLeft ? 'rounded-s-md' : 'rounded-e-md',
               'rounded-b-md',
               autoWidth ? 'inline-flex flex-col whitespace-nowrap' : ''
             )}
@@ -254,7 +254,7 @@ const ContextMenu = ({
           aria-label="Context menu"
           className={mergeClasses(
             'absolute mt-1 z-10 bg-bg border border-black-200 shadow-lg rounded-md py-1 focus:outline-hidden sm:text-sm',
-            menuAlign === 'right' ? 'right-0' : 'left-0',
+            menuAlign === 'right' ? 'end-0' : 'start-0',
             autoWidth ? 'inline-flex flex-col whitespace-nowrap' : '',
             className
           )}
