@@ -588,7 +588,6 @@ const getSelectedText = (editor: Editor): string => {
       // Return the text content of the link
       const [, path] = match
       const text = Editor.string(editor, path)
-      console.log('text', text)
       return text
     }
 
@@ -1110,9 +1109,9 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
   // Initialize and update history state
   useEffect(() => {
     const updateHistoryState = () => {
-      setHistoryState({
-        undos: editor.history.undos.length,
-        redos: editor.history.redos.length
+      setHistoryState((prev) => {
+        const next = { undos: editor.history.undos?.length || 0, redos: editor.history.redos?.length || 0 }
+        return prev.undos === next.undos && prev.redos === next.redos ? prev : next
       })
     }
 
@@ -1241,9 +1240,9 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
       // Update history state for button availability (with safety check)
       try {
         if (editor.history) {
-          setHistoryState({
-            undos: editor.history.undos?.length || 0,
-            redos: editor.history.redos?.length || 0
+          setHistoryState((prev) => {
+            const next = { undos: editor.history.undos?.length || 0, redos: editor.history.redos?.length || 0 }
+            return prev.undos === next.undos && prev.redos === next.redos ? prev : next
           })
         }
       } catch (error) {
@@ -1491,9 +1490,10 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
             className="pb-2 border-b border-border bg-transparent flex gap-[1.5vw]"
             role="toolbar"
             aria-label="Text formatting toolbar"
+            aria-orientation="horizontal"
             onKeyDown={handleToolbarKeyDown}
           >
-            <div className="flex border border-border rounded-sm overflow-hidden">
+            <div role="group" aria-label="Text" className="flex border border-border rounded-sm overflow-hidden">
               <MarkButton format="bold" buttonId="bold" tabIndex={getTabIndex('bold')} onFocus={() => handleButtonFocus('bold')}>
                 format_bold
               </MarkButton>
@@ -1505,7 +1505,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
               </MarkButton>
               <LinkButton onOpenModal={handleOpenLinkModal} buttonId="link" tabIndex={getTabIndex('link')} onFocus={() => handleButtonFocus('link')} />
             </div>
-            <div className="flex border border-border rounded-sm overflow-hidden">
+            <div role="group" aria-label="Lists" className="flex border border-border rounded-sm overflow-hidden">
               <BlockButton
                 format="bulleted-list"
                 buttonId="bulleted-list"
@@ -1524,7 +1524,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
               </BlockButton>
             </div>
             <div className="flex-grow" />
-            <div className="flex border border-border rounded-sm overflow-hidden">
+            <div role="group" aria-label="History" className="flex border border-border rounded-sm overflow-hidden">
               <UndoButton buttonId="undo" tabIndex={getTabIndex('undo')} onFocus={() => handleButtonFocus('undo')} isUndoAvailable={isUndoAvailable} />
               <RedoButton buttonId="redo" tabIndex={getTabIndex('redo')} onFocus={() => handleButtonFocus('redo')} isRedoAvailable={isRedoAvailable} />
             </div>
@@ -1542,6 +1542,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
                 ),
               []
             )}
+            dir="auto"
             readOnly={readOnly}
             placeholder={placeholder}
             onKeyDown={handleKeyDown}
@@ -1550,6 +1551,8 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
             renderLeaf={renderLeaf}
             renderPlaceholder={renderPlaceholder}
             disableDefaultStyles={true}
+            role="textbox"
+            aria-multiline="true"
             cy-id="slate-editor-editable"
           />
         </InputWrapper>
@@ -1573,18 +1576,22 @@ const RenderElement = memo(({ attributes, children, element }: RenderElementProp
   switch (element.type) {
     case 'bulleted-list':
       return (
-        <ul {...attributes} className="pl-4 mb-1.5 list-disc list-outside">
+        <ul {...attributes} className="mb-1.5 list-disc list-outside">
           {children}
         </ul>
       )
     case 'numbered-list':
       return (
-        <ol {...attributes} className="pl-4 mb-1.5 list-decimal list-outside">
+        <ol {...attributes} className="mb-1.5 list-decimal list-outside">
           {children}
         </ol>
       )
     case 'list-item':
-      return <li {...attributes}>{children}</li>
+      return (
+        <li {...attributes} className="text-start ms-4">
+          {children}
+        </li>
+      )
     case 'link':
       return (
         <a

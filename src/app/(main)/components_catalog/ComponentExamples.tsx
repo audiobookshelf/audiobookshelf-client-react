@@ -2206,6 +2206,12 @@ export function SlateEditorExamples() {
     '<p>Ordered list:</p><ol><li>First item</li><li>Second item</li></ol>' +
     '<p>This is a <a href="https://www.google.com">link</a></p>'
 
+  const rtlContent =
+    '<p>זוהי פסקה<br/>בת 4<br/>שורות<br/>של טקסט</p>' +
+    '<p><s>מחוק</s>, <strong>בולד</strong>, <em>איטליק</em></p>' +
+    '<p>רשימה לא מסודרת:</p><ul><li>פריט 1</li><li>פריט 2</li></ul>' +
+    '<p>רשימה מסודרת:</p><ol><li>פריט 1</li><li>פריט 2</li></ol>' +
+    '<p>זהו <a href="https://www.google.com">קישור</a></p>'
   const notEditableContent = '<p>This content is not editable.</p>'
 
   const handleUpdate = (html: string) => {
@@ -2235,6 +2241,9 @@ export function SlateEditorExamples() {
         </Example>
         <Example title="Read-only Editor" className="col-span-1 md:col-span-2 lg:col-span-3">
           <SlateEditor srcContent={notEditableContent + initialContent} readOnly label="Read-only Editor" />
+        </Example>
+        <Example title="Editor with RTL content" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <SlateEditor srcContent={rtlContent} onUpdate={handleUpdate} label="Editor with RTL content" />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
