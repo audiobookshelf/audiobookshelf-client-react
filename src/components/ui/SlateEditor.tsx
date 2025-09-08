@@ -135,11 +135,12 @@ interface SlateEditorProps {
   srcContent?: string
   onUpdate?: (html: string) => void
   placeholder?: string
+  disabled?: boolean
   readOnly?: boolean
   className?: string
 }
 
-const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, readOnly = false, className }: SlateEditorProps) => {
+const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
   const generatedId = useId()
   const slateEditorId = useMemo(() => id || generatedId, [id, generatedId])
   const editableId = useMemo(() => `${slateEditorId}-editable`, [slateEditorId])
@@ -195,7 +196,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
 
   // Refocus editor whenever the modal closes (this will be handled by the context now)
   useEffect(() => {
-    if (!readOnly) {
+    if (!readOnly && !disabled) {
       // If the modal was cancelled, selection likely didn't change; if it did,
       // and you want to *force* restoring, uncomment the block below:
       // if (!editor.selection && savedSelectionRef.current) {
@@ -223,12 +224,12 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
         }
       })
     }
-  }, [readOnly, editor])
+  }, [readOnly, disabled, editor])
 
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
-      // Skip processing during hot reload or invalid states
-      if (!isClient || !isEditorValid()) {
+      // Skip processing during hot reload, invalid states, or when disabled
+      if (!isClient || !isEditorValid() || disabled) {
         return
       }
 
@@ -253,18 +254,22 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, r
         }
       }
     },
-    [onUpdate, editor, isClient, isEditorValid]
+    [onUpdate, editor, isClient, isEditorValid, disabled]
   )
 
   const containerClass = useMemo(() => mergeClasses('min-w-75', className), [className])
 
   return (
     <div className={containerClass} cy-id="slate-editor">
-      {label && <Label htmlFor={editableId}>{label}</Label>}
+      {label && (
+        <Label htmlFor={editableId} disabled={disabled}>
+          {label}
+        </Label>
+      )}
       <LinkModalProvider editor={editor}>
         <Slate editor={editor} initialValue={parsedContent} onChange={handleChange}>
-          {!readOnly && <Toolbar />}
-          <Editable editor={editor} editableId={editableId} readOnly={readOnly} placeholder={placeholder} />
+          {!readOnly && !disabled && <Toolbar />}
+          <Editable editor={editor} editableId={editableId} readOnly={readOnly} placeholder={placeholder} disabled={disabled} />
         </Slate>
 
         <LinkModalContainer />

@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useCallback, useMemo, memo } from 'react'
-import { Descendant, Editor, Transforms } from 'slate'
-import { Editable as SlateEditable, RenderElementProps, RenderLeafProps } from 'slate-react'
+import { Descendant, Editor, Transforms, Node, Path } from 'slate'
+import { Editable as SlateEditable, RenderElementProps, RenderLeafProps, useSlateStatic, ReactEditor } from 'slate-react'
 
 import InputWrapper from '../InputWrapper'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -13,16 +13,47 @@ import { useLinkModalContext } from '@/contexts/LinkModalContext'
 
 // --- Renderers ---
 const RenderElement = memo(({ attributes, children, element }: RenderElementProps) => {
+  const editor = useSlateStatic()
+
+  // Find the path to this element
+  const path = useMemo(() => {
+    try {
+      return ReactEditor.findPath(editor, element)
+    } catch {
+      return null
+    }
+  }, [editor, element])
+
+  // Check if this is the last block element in its parent
+  const isLastBlockElement = useMemo(() => {
+    if (!path) return false
+
+    try {
+      const parentPath = Path.parent(path)
+      const parent = Node.get(editor, parentPath)
+
+      if (!Node.isNode(parent) || !('children' in parent)) return false
+
+      const siblings = parent.children
+      const currentIndex = path[path.length - 1]
+
+      // Check if this is the last child
+      return currentIndex === siblings.length - 1
+    } catch {
+      return false
+    }
+  }, [editor, path])
+
   switch (element.type) {
     case 'bulleted-list':
       return (
-        <ul {...attributes} className="mb-1.5 list-disc list-outside">
+        <ul {...attributes} className={mergeClasses('list-disc list-outside', !isLastBlockElement && 'mb-1.5')}>
           {children}
         </ul>
       )
     case 'numbered-list':
       return (
-        <ol {...attributes} className="mb-1.5 list-decimal list-outside">
+        <ol {...attributes} className={mergeClasses('list-decimal list-outside', !isLastBlockElement && 'mb-1.5')}>
           {children}
         </ol>
       )
@@ -47,7 +78,7 @@ const RenderElement = memo(({ attributes, children, element }: RenderElementProp
       )
     default:
       return (
-        <p {...attributes} className="mt-0 mb-1.5">
+        <p {...attributes} className={!isLastBlockElement ? 'mb-1.5' : undefined}>
           {children}
         </p>
       )
@@ -65,14 +96,20 @@ const RenderLeaf = memo(({ attributes, children, leaf }: RenderLeafProps) => {
 interface EditableProps {
   editor: Editor
   editableId: string
+  disabled: boolean
   readOnly: boolean
   placeholder?: string
 }
 
-export const Editable = memo(({ editor, editableId, readOnly, placeholder }: EditableProps) => {
+export const Editable = memo(({ editor, editableId, disabled, readOnly, placeholder }: EditableProps) => {
   const { openModal } = useLinkModalContext()
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
+      // Early return if disabled - prevent all keyboard interactions
+      if (disabled) {
+        return
+      }
+
       if (event.ctrlKey || event.metaKey) {
         switch (event.key.toLowerCase()) {
           case 'b':
@@ -113,7 +150,7 @@ export const Editable = memo(({ editor, editableId, readOnly, placeholder }: Edi
         Transforms.insertText(editor, '\n')
       }
     },
-    [editor, openModal]
+    [editor, openModal, disabled]
   )
 
   const renderElement = useCallback((props: RenderElementProps) => <RenderElement {...props} />, [])
@@ -131,6 +168,12 @@ export const Editable = memo(({ editor, editableId, readOnly, placeholder }: Edi
 
   const handlePaste = useCallback(
     (e: React.ClipboardEvent) => {
+      // Early return if disabled - prevent paste operations
+      if (disabled) {
+        e.preventDefault()
+        return
+      }
+
       const html = e.clipboardData.getData('text/html')
       const text = e.clipboardData.getData('text/plain')
 
@@ -196,26 +239,28 @@ export const Editable = memo(({ editor, editableId, readOnly, placeholder }: Edi
         })
       }
     },
-    [editor]
+    [editor, disabled]
   )
 
   const editableClass = useMemo(
     () =>
       mergeClasses(
         'relative whitespace-pre-wrap break-words',
-        'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-gray-200 text-base focus:outline-none',
-        'disabled:text-disabled read-only:text-read-only'
+        'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-base focus:outline-none',
+        // Apply disabled/readonly styling based on state
+        disabled ? 'text-disabled cursor-not-allowed' : readOnly ? 'text-read-only' : 'text-gray-200'
       ),
-    []
+    [disabled, readOnly]
   )
 
   return (
-    <InputWrapper readOnly={readOnly} size="auto" className={mergeClasses('px-1 py-1')}>
+    <InputWrapper size="auto" className={mergeClasses('px-1 py-1')} readOnly={readOnly} disabled={disabled}>
       <SlateEditable
         id={editableId}
         className={editableClass}
         dir="auto"
-        readOnly={readOnly}
+        readOnly={readOnly || disabled}
+        tabIndex={disabled ? -1 : 0}
         placeholder={placeholder}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
@@ -225,6 +270,7 @@ export const Editable = memo(({ editor, editableId, readOnly, placeholder }: Edi
         disableDefaultStyles={true}
         role="textbox"
         aria-multiline="true"
+        aria-disabled={disabled}
         cy-id="slate-editor-editable"
       />
     </InputWrapper>
