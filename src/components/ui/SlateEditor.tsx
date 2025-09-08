@@ -141,9 +141,6 @@ interface SlateEditorProps {
 }
 
 const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
-  const generatedId = useId()
-  const slateEditorId = useMemo(() => id || generatedId, [id, generatedId])
-  const editableId = useMemo(() => `${slateEditorId}-editable`, [slateEditorId])
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
   const [isClient, setIsClient] = useState(false)
 
@@ -259,17 +256,28 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, d
 
   const containerClass = useMemo(() => mergeClasses('min-w-75', className), [className])
 
+  const handleLabelClick = useCallback(() => {
+    if (!disabled) {
+      try {
+        // Focus the Slate editor when label is clicked
+        ReactEditor.focus(editor)
+      } catch (error) {
+        console.warn('SlateEditor: Could not focus editor from label click:', error)
+      }
+    }
+  }, [editor, disabled, readOnly])
+
   return (
     <div className={containerClass} cy-id="slate-editor">
       {label && (
-        <Label htmlFor={editableId} disabled={disabled}>
+        <Label disabled={disabled} onClick={handleLabelClick}>
           {label}
         </Label>
       )}
       <LinkModalProvider editor={editor}>
         <Slate editor={editor} initialValue={parsedContent} onChange={handleChange}>
           {!readOnly && !disabled && <Toolbar />}
-          <Editable editor={editor} editableId={editableId} readOnly={readOnly} placeholder={placeholder} disabled={disabled} />
+          <Editable editor={editor} readOnly={readOnly} placeholder={placeholder} disabled={disabled} />
         </Slate>
 
         <LinkModalContainer />

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useMemo, memo } from 'react'
+import React, { useCallback, useMemo, memo, useRef } from 'react'
 import { Descendant, Editor, Transforms, Node, Path } from 'slate'
 import { Editable as SlateEditable, RenderElementProps, RenderLeafProps, useSlateStatic, ReactEditor } from 'slate-react'
 
@@ -95,14 +95,14 @@ const RenderLeaf = memo(({ attributes, children, leaf }: RenderLeafProps) => {
 // --- Editable Interface ---
 interface EditableProps {
   editor: Editor
-  editableId: string
   disabled: boolean
   readOnly: boolean
   placeholder?: string
 }
 
-export const Editable = memo(({ editor, editableId, disabled, readOnly, placeholder }: EditableProps) => {
+export const Editable = memo(({ editor, disabled, readOnly, placeholder }: EditableProps) => {
   const { openModal } = useLinkModalContext()
+  const editableRef = useRef<HTMLDivElement>(null)
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       // Early return if disabled - prevent all keyboard interactions
@@ -248,15 +248,15 @@ export const Editable = memo(({ editor, editableId, disabled, readOnly, placehol
         'relative whitespace-pre-wrap break-words',
         'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-base focus:outline-none',
         // Apply disabled/readonly styling based on state
-        disabled ? 'text-disabled cursor-not-allowed' : readOnly ? 'text-read-only' : 'text-gray-200'
+        disabled ? 'text-disabled cursor-not-allowed pointer-events-none' : readOnly ? 'text-read-only' : 'text-gray-200'
       ),
     [disabled, readOnly]
   )
 
   return (
-    <InputWrapper size="auto" className={mergeClasses('px-1 py-1')} readOnly={readOnly} disabled={disabled}>
+    <InputWrapper size="auto" className={mergeClasses('px-1 py-1')} readOnly={readOnly} disabled={disabled} inputRef={editableRef}>
       <SlateEditable
-        id={editableId}
+        ref={editableRef}
         className={editableClass}
         dir="auto"
         readOnly={readOnly || disabled}
@@ -271,6 +271,7 @@ export const Editable = memo(({ editor, editableId, disabled, readOnly, placehol
         role="textbox"
         aria-multiline="true"
         aria-disabled={disabled}
+        inert={disabled ? true : undefined}
         cy-id="slate-editor-editable"
       />
     </InputWrapper>
