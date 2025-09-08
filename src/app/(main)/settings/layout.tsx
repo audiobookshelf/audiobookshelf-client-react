@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
+import { getCurrentUser } from '../../../lib/api'
 import AppBar from '../AppBar'
 import SideNav from './SideNav'
-import { getCurrentUser } from '../../../lib/api'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
@@ -23,7 +23,7 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideNav />
         <div className="flex-1 min-w-0 page-bg-gradient">
-          <div className="w-full h-[calc(100%-4rem)] overflow-x-hidden overflow-y-auto">{children}</div>
+          <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
         </div>
       </div>
     </>
