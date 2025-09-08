@@ -2200,7 +2200,7 @@ export function TooltipExamples() {
 // SlateEditor Examples
 export function SlateEditorExamples() {
   const initialContent =
-    '<p>Thia is a<br/>4 line<br/>text<br/>paragraph</p>' +
+    '<p>This is a<br/>4 line<br/>text<br/>paragraph</p>' +
     '<p><s>Strikethrough</s>, <em>italic</em>, and <strong>bold</strong></p>' +
     '<p>Unordered list:</p><ul><li>First item</li><li>Second item</li></ul>' +
     '<p>Ordered list:</p><ol><li>First item</li><li>Second item</li></ol>' +
@@ -2214,8 +2214,15 @@ export function SlateEditorExamples() {
     '<p>זהו <a href="https://www.google.com">קישור</a></p>'
   const notEditableContent = '<p>This content is not editable.</p>'
 
+  const textAreaValue = 'This is a\n4 line\ntext\nparagraph'
+  const editorValue = '<p>This is a\n4 line\ntext\nparagraph</p>'
+
   const handleUpdate = (html: string) => {
     console.log('Editor content updated:', html)
+  }
+
+  const handleUpdateTextarea = (value: string) => {
+    console.log('Textarea content updated:', value)
   }
 
   return (
@@ -2244,6 +2251,32 @@ export function SlateEditorExamples() {
         </Example>
         <Example title="Editor with RTL content" className="col-span-1 md:col-span-2 lg:col-span-3">
           <SlateEditor srcContent={rtlContent} onUpdate={handleUpdate} label="Editor with RTL content" />
+        </Example>
+        <Example title="Editor vs. Textarea" className="col-span-1 md:col-span-2 lg:col-span-3 space-y-4">
+          <div className="flex gap-4 ">
+            <div className="flex-1">
+              <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Editor" />
+            </div>
+            <div className="mt-9.5 flex-1">
+              <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Textarea" />
+            </div>
+          </div>
+          <div className="flex gap-4 ">
+            <div className="flex-1">
+              <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Read-only Editor" readOnly />
+            </div>
+            <div className="flex-1">
+              <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Read-only Textarea" readOnly />
+            </div>
+          </div>
+          <div className="flex gap-4 ">
+            <div className="flex-1">
+              <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Disabled Editor" disabled />
+            </div>
+            <div className="flex-1">
+              <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Disabled Textarea" disabled />
+            </div>
+          </div>
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
