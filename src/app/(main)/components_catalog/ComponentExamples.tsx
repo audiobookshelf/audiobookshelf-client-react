@@ -30,6 +30,8 @@ import Tooltip from '@/components/ui/Tooltip'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { mergeClasses } from '@/lib/merge-classes'
 import SlateEditor from '@/components/ui/SlateEditor'
+import { slateElementStyles } from '@/components/ui/slate/constants'
+import Label from '@/components/ui/Label'
 
 interface ComponentExamplesProps {
   title: string
@@ -2216,6 +2218,7 @@ export function SlateEditorExamples() {
 
   const textAreaValue = 'This is a\n4 line\ntext\nparagraph'
   const editorValue = '<p>This is a\n4 line\ntext\nparagraph</p>'
+  const [editorOutput, setEditorOutput] = useState(initialContent)
 
   const handleUpdate = (html: string) => {
     console.log('Editor content updated:', html)
@@ -2275,6 +2278,17 @@ export function SlateEditorExamples() {
             </div>
             <div className="flex-1">
               <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Disabled Textarea" disabled />
+            </div>
+          </div>
+        </Example>
+        <Example title="Editor vs. Output" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <div className="flex gap-4 ">
+            <div className="flex-1">
+              <SlateEditor srcContent={initialContent} onUpdate={setEditorOutput} label="Editor" className="[&_[data-slate-editor]]:h-83" />
+            </div>
+            <div className="flex-1">
+              <Label className="mt-9.5">Output:</Label>
+              <div className={mergeClasses(slateElementStyles, 'p-2 border border-gray-500 rounded-md')} dangerouslySetInnerHTML={{ __html: editorOutput }} />
             </div>
           </div>
         </Example>

@@ -10,78 +10,25 @@ import { toggleMark } from './Mark'
 import { toggleBlock } from './Block'
 import { deserialize, initialValue } from './serialization'
 import { useLinkModalContext } from '@/contexts/LinkModalContext'
+import { slateElementStyles } from './constants'
 
 // --- Renderers ---
 const RenderElement = memo(({ attributes, children, element }: RenderElementProps) => {
-  const editor = useSlateStatic()
-
-  // Find the path to this element
-  const path = useMemo(() => {
-    try {
-      return ReactEditor.findPath(editor, element)
-    } catch {
-      return null
-    }
-  }, [editor, element])
-
-  // Check if this is the last block element in its parent
-  const isLastBlockElement = useMemo(() => {
-    if (!path) return false
-
-    try {
-      const parentPath = Path.parent(path)
-      const parent = Node.get(editor, parentPath)
-
-      if (!Node.isNode(parent) || !('children' in parent)) return false
-
-      const siblings = parent.children
-      const currentIndex = path[path.length - 1]
-
-      // Check if this is the last child
-      return currentIndex === siblings.length - 1
-    } catch {
-      return false
-    }
-  }, [editor, path])
-
   switch (element.type) {
     case 'bulleted-list':
-      return (
-        <ul {...attributes} className={mergeClasses('list-disc list-outside', !isLastBlockElement && 'mb-1.5')}>
-          {children}
-        </ul>
-      )
+      return <ul {...attributes}>{children}</ul>
     case 'numbered-list':
-      return (
-        <ol {...attributes} className={mergeClasses('list-decimal list-outside', !isLastBlockElement && 'mb-1.5')}>
-          {children}
-        </ol>
-      )
+      return <ol {...attributes}>{children}</ol>
     case 'list-item':
-      return (
-        <li {...attributes} className="text-start ms-4">
-          {children}
-        </li>
-      )
+      return <li {...attributes}>{children}</li>
     case 'link':
       return (
-        <a
-          tabIndex={-1}
-          {...attributes}
-          href={element.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-500 hover:underline hover:text-blue-400"
-        >
+        <a tabIndex={-1} {...attributes} href={element.url} target="_blank" rel="noopener noreferrer">
           {children}
         </a>
       )
     default:
-      return (
-        <p {...attributes} className={!isLastBlockElement ? 'mb-1.5' : undefined}>
-          {children}
-        </p>
-      )
+      return <p {...attributes}>{children}</p>
   }
 })
 
@@ -248,7 +195,9 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
         'relative whitespace-pre-wrap break-words',
         'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-base focus:outline-none',
         // Apply disabled/readonly styling based on state
-        disabled ? 'text-disabled cursor-not-allowed pointer-events-none' : readOnly ? 'text-read-only' : 'text-gray-200'
+        disabled ? 'text-disabled cursor-not-allowed pointer-events-none' : readOnly ? 'text-read-only' : 'text-gray-200',
+        // Element-specific styles using child selectors
+        slateElementStyles
       ),
     [disabled, readOnly]
   )

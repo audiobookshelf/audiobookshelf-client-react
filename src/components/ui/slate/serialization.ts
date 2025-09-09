@@ -40,7 +40,7 @@ export const serialize = (node: Descendant): string => {
       case 'list-item':
         return `<li>${children}</li>`
       case 'link':
-        return `<a href="${escapeHtml(node.url || '')}">${children}</a>`
+        return `<a href="${escapeHtml(node.url || '')}" target="_blank" rel="noopener noreferrer">${children}</a>`
       default:
         return children
     }
