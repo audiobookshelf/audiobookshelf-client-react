@@ -100,7 +100,7 @@ export default function Modal({
       ref={wrapperRef}
       role="dialog"
       aria-modal="true"
-      className={mergeClasses('modal modal-bg w-full h-full fixed top-0 left-0 items-center justify-center flex', zIndexClass, bgOpacityClass)}
+      className={mergeClasses('modal modal-bg w-full h-full fixed top-0 start-0 items-center justify-center flex', zIndexClass, bgOpacityClass)}
       onClick={clickBg}
       cy-id="modal-wrapper"
     >
@@ -109,7 +109,7 @@ export default function Modal({
 
       {/* Close button */}
       <button
-        className="absolute top-4 right-4 landscape:top-4 landscape:right-4 md:portrait:top-5 md:portrait:right-5 lg:top-5 lg:right-5 inline-flex text-gray-200 hover:text-white z-10 transition-colors"
+        className="absolute top-4 end-4 landscape:top-4 landscape:end-4 md:portrait:top-5 md:portrait:end-5 lg:top-5 lg:end-5 inline-flex text-gray-200 hover:text-white z-10 transition-colors"
         aria-label="Close modal"
         onClick={clickClose}
         cy-id="modal-close-button"

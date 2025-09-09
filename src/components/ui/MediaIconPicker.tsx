@@ -186,12 +186,12 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
   const getMenuAlignmentClasses = useCallback(() => {
     switch (align) {
       case 'right':
-        return 'right-0'
+        return 'end-0'
       case 'center':
-        return 'left-1/2 -translate-x-1/2'
+        return 'start-1/2 -translate-x-1/2'
       case 'left':
       default:
-        return 'left-0'
+        return 'start-0'
     }
   }, [align])
 

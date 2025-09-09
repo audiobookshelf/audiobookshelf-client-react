@@ -30,7 +30,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('renders', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} />
       </div>
     )
@@ -38,7 +38,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('renders a button with more icon by default', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} />
       </div>
     )
@@ -48,7 +48,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('shows loading spinner when processing', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} processing={true} />
       </div>
     )
@@ -58,7 +58,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('is disabled when disabled prop is true', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} disabled={true} />
       </div>
     )
@@ -68,7 +68,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('opens menu when clicked', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} />
       </div>
     )
@@ -78,7 +78,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('renders correct number of menu items', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} />
       </div>
     )
@@ -88,7 +88,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('shows submenu on hover', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} />
       </div>
     )
@@ -102,7 +102,7 @@ describe('<ContextMenuDropdown />', () => {
   it('emits action when menu item is clicked', () => {
     const onActionSpy = cy.spy().as('onActionSpy')
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} onAction={onActionSpy} />
       </div>
     )
@@ -114,7 +114,7 @@ describe('<ContextMenuDropdown />', () => {
   it('emits action with data when submenu item is clicked', () => {
     const onActionSpy = cy.spy().as('onActionSpy')
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} onAction={onActionSpy} />
       </div>
     )
@@ -130,7 +130,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('closes when clicking outside', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} />
       </div>
     )
@@ -142,7 +142,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('applies custom icon class', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} iconClass="custom-icon" />
       </div>
     )
@@ -152,7 +152,7 @@ describe('<ContextMenuDropdown />', () => {
   it('applies custom menu width', () => {
     const customWidth = 300
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} menuWidth={customWidth} />
       </div>
     )
@@ -162,7 +162,7 @@ describe('<ContextMenuDropdown />', () => {
 
   it('applies custom class', () => {
     cy.mount(
-      <div className="absolute right-0">
+      <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} className="custom-class" />
       </div>
     )
@@ -172,7 +172,7 @@ describe('<ContextMenuDropdown />', () => {
   it('applies custom menu align', () => {
     cy.mount(<ContextMenuDropdown items={mockItems} menuAlign="left" />)
     cy.get('button').click()
-    cy.get('[role="menu"]').should('have.class', 'left-0')
+    cy.get('[role="menu"]').should('have.class', 'start-0')
   })
 
   it('applies auto width and uses menu width as minimal width', () => {
@@ -213,7 +213,7 @@ describe('<ContextMenuDropdown />', () => {
   describe('Keyboard Navigation', () => {
     it('opens menu with Enter key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -224,7 +224,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('opens menu with Space key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -236,7 +236,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('opens menu with ArrowDown key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -248,7 +248,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('opens menu with ArrowUp key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -260,7 +260,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('has visual focus on the first item when menu is open', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -271,7 +271,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates through menu items with ArrowDown', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -296,7 +296,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates through menu items with ArrowUp', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -324,7 +324,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('opens submenu with ArrowRight', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -342,7 +342,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates through submenu items with ArrowDown', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -365,7 +365,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates through submenu items with ArrowUp', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -389,7 +389,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes submenu with ArrowLeft', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -406,7 +406,7 @@ describe('<ContextMenuDropdown />', () => {
     it('activates menu item with Enter', () => {
       const onActionSpy = cy.spy().as('onActionSpy')
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} onAction={onActionSpy} />
         </div>
       )
@@ -422,7 +422,7 @@ describe('<ContextMenuDropdown />', () => {
     it('activates menu item with Space', () => {
       const onActionSpy = cy.spy().as('onActionSpy')
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} onAction={onActionSpy} />
         </div>
       )
@@ -438,7 +438,7 @@ describe('<ContextMenuDropdown />', () => {
     it('activates submenu item with Enter', () => {
       const onActionSpy = cy.spy().as('onActionSpy')
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} onAction={onActionSpy} />
         </div>
       )
@@ -456,7 +456,7 @@ describe('<ContextMenuDropdown />', () => {
     it('activates submenu item with Space', () => {
       const onActionSpy = cy.spy().as('onActionSpy')
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} onAction={onActionSpy} />
         </div>
       )
@@ -473,7 +473,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('toggles submenu with Enter when focused on item with subitems', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -491,7 +491,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates to first item with Home key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -506,7 +506,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates to last item with End key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -520,7 +520,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates to first submenu item with Home key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -537,7 +537,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('navigates to last submenu item with End key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -553,7 +553,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes menu with Escape key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -568,7 +568,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes submenu with Escape key and keeps main menu open', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -586,7 +586,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes menu with Tab key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
           <button>test</button>
         </div>
@@ -602,7 +602,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('does not respond to keyboard events when disabled', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} disabled={true} />
         </div>
       )
@@ -614,7 +614,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('prevents default behavior for navigation keys', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -629,7 +629,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('maintains focus on button after menu closes', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItems} />
         </div>
       )
@@ -667,7 +667,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('shows the parent item', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -678,7 +678,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('opens empty submenu when pressing right arrow', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -700,7 +700,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('toggles empty submenu with Enter', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -718,7 +718,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('toggles empty submenu with Space', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -736,7 +736,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes empty submenu with Escape key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -753,7 +753,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes empty submenu with Tab key', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
           <button>test</button>
         </div>
@@ -771,7 +771,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes empty submenu with left arrow', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -788,7 +788,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes empty submenu and moves up with up arrow', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -807,7 +807,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes empty submenu and moves down with down arrow', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -825,7 +825,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes empty submenu and moves to first item with Home', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -843,7 +843,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes empty submenu and moves to last item with End', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -861,7 +861,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('shows empty submenu when hovering over parent item', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )
@@ -876,7 +876,7 @@ describe('<ContextMenuDropdown />', () => {
 
     it('closes submenu when hovering away from parent item', () => {
       cy.mount(
-        <div className="absolute right-0">
+        <div className="absolute end-0">
           <ContextMenuDropdown items={mockItemsWithEmptySubmenu} />
         </div>
       )

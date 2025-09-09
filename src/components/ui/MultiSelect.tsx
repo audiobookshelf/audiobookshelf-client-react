@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState, useRef, useEffect, useCallback, useId, useMemo } from 'react'
 import DropdownMenu from './DropdownMenu'
 import type { DropdownMenuItem } from './DropdownMenu'

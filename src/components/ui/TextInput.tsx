@@ -21,12 +21,15 @@ export interface TextInputProps {
   step?: string | number
   min?: string | number
   customInputClass?: string
+  enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
   onChange?: (value: string) => void
   onClear?: () => void
   onFocus?: () => void
   onBlur?: () => void
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   className?: string
   ref?: React.Ref<HTMLInputElement>
+  error?: string
 }
 
 export default function TextInput({
@@ -43,12 +46,15 @@ export default function TextInput({
   step,
   min,
   customInputClass,
+  enterKeyHint,
   onChange,
   onClear,
   onFocus,
   onBlur,
+  onKeyDown,
   className,
-  ref
+  ref,
+  error
 }: TextInputProps) {
   const generatedId = useId()
   const textInputId = id || generatedId
@@ -80,7 +86,7 @@ export default function TextInput({
     const classes: string[] = []
 
     if (showCopy) {
-      classes.push('pl-1', 'pr-8')
+      classes.push('ps-1', 'pe-8')
     } else {
       classes.push('px-1')
     }
@@ -163,7 +169,7 @@ export default function TextInput({
         </Label>
       )}
 
-      <InputWrapper disabled={disabled} readOnly={readOnly} error={isInvalidDate} inputRef={readInputRef}>
+      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef}>
         <input
           ref={writeInputRef}
           id={inputId}
@@ -178,8 +184,10 @@ export default function TextInput({
           placeholder={placeholder}
           dir="auto"
           className={inputClass}
+          enterKeyHint={enterKeyHint}
           onChange={handleChange}
           onKeyUp={handleKeyUp}
+          onKeyDown={onKeyDown}
           onFocus={handleFocus}
           onBlur={handleBlur}
           // Accessibility attributes
@@ -189,7 +197,7 @@ export default function TextInput({
         />
 
         {clearable && value && (
-          <div className="absolute top-0 right-0 h-full px-2 flex items-center justify-center">
+          <div className="absolute top-0 end-0 h-full px-2 flex items-center justify-center">
             <button
               type="button"
               className="material-symbols text-gray-300 cursor-pointer hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
@@ -204,7 +212,7 @@ export default function TextInput({
         )}
 
         {shouldShowPasswordToggle && (
-          <div className="absolute top-0 right-0 h-full px-4 flex items-center justify-center">
+          <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center">
             <button
               type="button"
               className="material-symbols text-gray-400 cursor-pointer text-lg hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
@@ -218,7 +226,7 @@ export default function TextInput({
         )}
 
         {showCopy && type !== 'password' && (
-          <div className="absolute top-0 right-0 h-full px-2 flex items-center justify-center">
+          <div className="absolute top-0 end-0 h-full px-2 flex items-center justify-center">
             <button
               type="button"
               className={mergeClasses(

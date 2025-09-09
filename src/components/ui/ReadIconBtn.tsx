@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useCallback, useMemo } from 'react'
 import IconBtn from './IconBtn'
 import { mergeClasses } from '@/lib/merge-classes'

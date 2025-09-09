@@ -19,6 +19,9 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-transition-group": "^4.4.5",
+    "slate": "^0.118.1",
+    "slate-history": "^0.113.1",
+    "slate-react": "^0.117.4",
     "socket.io-client": "^4.8.1",
     "tailwind-merge": "^3.3.1"
   },

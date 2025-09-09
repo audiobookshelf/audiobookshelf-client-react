@@ -56,11 +56,11 @@ export default function Checkbox({
   const checkboxLabelClassName = useMemo(() => {
     const classes = []
     if (size === 'small') {
-      classes.push('text-xs md:text-sm pl-1')
+      classes.push('text-xs md:text-sm ps-1')
     } else if (size === 'medium') {
-      classes.push('text-sm md:text-base pl-2')
+      classes.push('text-sm md:text-base ps-2')
     } else {
-      classes.push('text-base md:text-lg pl-2')
+      classes.push('text-base md:text-lg ps-2')
     }
 
     return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-gray-100', labelClass)

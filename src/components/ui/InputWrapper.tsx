@@ -7,7 +7,7 @@ export interface InputWrapperProps {
   children: React.ReactNode
   disabled?: boolean
   readOnly?: boolean
-  error?: boolean
+  error?: boolean | string
   borderless?: boolean
   size?: 'small' | 'medium' | 'large' | 'auto'
   className?: string
@@ -58,9 +58,12 @@ const InputWrapper = ({
   )
 
   return (
-    <div className={wrapperClass} cy-id="control-wrapper" onClick={handleClick}>
-      {children}
-    </div>
+    <>
+      <div className={wrapperClass} cy-id="control-wrapper" onClick={handleClick}>
+        {children}
+      </div>
+      {error && <div className="text-error text-sm mt-1">{typeof error === 'string' ? error : 'Invalid value'}</div>}
+    </>
   )
 }
 

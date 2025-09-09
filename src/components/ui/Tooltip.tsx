@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useId, useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useFloating, offset, flip, shift, size, arrow as arrowMw, autoUpdate } from '@floating-ui/react-dom'

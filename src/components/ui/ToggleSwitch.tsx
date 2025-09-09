@@ -66,7 +66,7 @@ export default function ToggleSwitch({
 
   const labelClassName = useMemo(() => {
     const classes = []
-    classes.push('pl-2')
+    classes.push('ps-2')
     if (size === 'small') {
       classes.push('text-xs md:text-sm')
     } else if (size === 'medium') {

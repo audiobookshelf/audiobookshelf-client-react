@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useId, useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useMergedRef } from '@/hooks/useMergedRef'
@@ -93,7 +95,7 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
             aria-valuetext={`${value}%`}
             className={rangeInputClasses}
           />
-          <span className="text-sm ml-2" aria-hidden="true">
+          <span className="text-sm ms-2" aria-hidden="true">
             {value}%
           </span>
         </div>

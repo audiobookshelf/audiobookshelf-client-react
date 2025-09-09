@@ -13,7 +13,7 @@ export default function BlankLayout({
   return (
     <div className="h-full page-bg-gradient">
       <div className="w-full h-16 flex items-center justify-start px-2 md:px-6">
-        <img src="/icon.svg" alt="audiobookshelf" className="w-8 min-w-8 h-8 mr-2 sm:w-10 sm:min-w-10 sm:h-10 sm:mr-4" />
+        <img src="/icon.svg" alt="audiobookshelf" className="w-8 min-w-8 h-8 me-2 sm:w-10 sm:min-w-10 sm:h-10 sm:me-4" />
         <p className="text-xl hidden lg:block">audiobookshelf</p>
       </div>
       <div className="h-[calc(100vh-var(--header-height))]">

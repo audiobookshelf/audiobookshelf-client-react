@@ -41,7 +41,7 @@ const ButtonBase = ({
   const buttonClass = useMemo(() => {
     return mergeClasses(
       // Base styles
-      'relative shadow-md border border-border rounded-md bg-primary flex items-center justify-center',
+      'relative shadow-md border border-border rounded-md bg-primary flex items-center justify-center overflow-hidden',
 
       // Focus styles
       'focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0',
@@ -56,7 +56,7 @@ const ButtonBase = ({
       borderless ? 'border-0 bg-transparent shadow-none' : 'border',
 
       // Before pseudo-element (replacing abs-btn::before)
-      'before:content-[""] before:absolute before:inset-0 before:rounded-md before:bg-transparent before:pointer-events-none',
+      'before:content-[""] before:absolute before:inset-0 before:bg-transparent before:pointer-events-none',
 
       // Hover styles
       borderless ? 'hover:not-disabled:text-yellow-300 hover:not-disabled:scale-125' : 'hover:not-disabled:before:bg-bg-hover',

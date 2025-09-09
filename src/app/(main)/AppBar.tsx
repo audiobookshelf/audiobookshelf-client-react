@@ -24,7 +24,7 @@ export default async function AppBar(props: { libraries?: any; currentLibraryId?
             <span className="material-symbols text-xl">settings</span>
           </Link>
         )}
-        <Btn to="/account" className="pl-3 pr-2 w-32 justify-between">
+        <Btn to="/account" className="ps-3 pe-2 w-32 justify-between">
           <span className="text-sm">{props.user.username}</span>
           <span className="material-symbols text-xl">person</span>
         </Btn>

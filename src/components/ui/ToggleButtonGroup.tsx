@@ -113,7 +113,7 @@ export default function ToggleButtonGroup({
   }, [])
 
   const containerClass = useMemo(
-    () => mergeClasses('inline-flex w-fit h-full overflow-hidden rounded-md shadow-md focus-within:outline [&>button:not(:first-child)]:border-l-0', className),
+    () => mergeClasses('inline-flex w-fit h-full overflow-hidden rounded-md shadow-md focus-within:outline [&>button:not(:first-child)]:border-s-0', className),
     [className]
   )
 
@@ -122,7 +122,7 @@ export default function ToggleButtonGroup({
       return mergeClasses(
         size === 'small' ? 'text-sm px-4' : size === 'large' ? 'text-lg px-6' : 'text-base px-4',
         isSelected ? 'text-white bg-button-selected-bg disabled:bg-button-selected-bg/80' : '',
-        'rounded-none first:rounded-l-md last:rounded-r-md', // squared inside; wrapper provides outer rounding
+        'rounded-none first:rounded-s-md last:rounded-e-md', // squared inside; wrapper provides outer rounding
         'focus-visible:outline-0' // focus ring is on the container
       )
     },
