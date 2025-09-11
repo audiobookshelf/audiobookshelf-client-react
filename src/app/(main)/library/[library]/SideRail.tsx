@@ -133,7 +133,7 @@ export default function SideRail({
             key={button.label}
             href={button.href}
             className={mergeClasses(
-              'w-full h-20 flex flex-col items-center justify-center text-white border-b border-primary/70 hover:bg-primary cursor-pointer relative',
+              'w-full h-20 flex flex-col items-center justify-center text-white border-b border-primary/30 hover:bg-primary/50 cursor-pointer relative',
               pathname === button.href && 'bg-primary/80'
             )}
           >
@@ -144,7 +144,7 @@ export default function SideRail({
           </Link>
         ))}
       </div>
-      <div className="w-full h-12 px-1 py-2 border-t border-primary/70">
+      <div className="w-full h-12 px-1 py-2 border-t border-primary/30">
         <p className="text-xs text-center text-gray-300 font-mono">v{serverVersion}</p>
         <p className="text-xxs text-center text-gray-400 italic">{installSource}</p>
       </div>

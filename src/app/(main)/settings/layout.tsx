@@ -17,11 +17,14 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
     redirect(`/login`)
   }
 
+  const installSource = userResponse.data?.Source || 'Unknown'
+  const serverVersion = userResponse.data?.serverSettings?.version || 'Error'
+
   return (
     <>
       <AppBar user={userResponse.data.user} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
-        <SideNav />
+        <SideNav serverVersion={serverVersion} installSource={installSource} />
         <div className="flex-1 min-w-0 page-bg-gradient">
           <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
         </div>
