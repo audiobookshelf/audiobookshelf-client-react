@@ -19,17 +19,22 @@ interface BtnProps {
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
-const LoadingSpinner = memo<{ progress?: string }>(({ progress }) => (
-  <div className="text-white/100 absolute top-0 left-0 w-full h-full flex items-center justify-center" aria-hidden="true">
-    {progress ? (
-      <span>{progress}</span>
-    ) : (
-      <svg className="animate-spin" style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24">
-        <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
-      </svg>
-    )}
-  </div>
-))
+const LoadingSpinner = memo<{ progress?: string }>(({ progress }) => {
+  return (
+    <div
+      className="text-white/100 absolute top-0 start-0 w-full h-full flex items-center justify-center bg-bg-disabled rounded-md cursor-not-allowed"
+      aria-hidden="true"
+    >
+      {progress ? (
+        <span>{progress}</span>
+      ) : (
+        <svg className="animate-spin" style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12,4V2A10,10 0 0,0 2,12H4A8,8 0 0,1 12,4Z" />
+        </svg>
+      )}
+    </div>
+  )
+})
 
 LoadingSpinner.displayName = 'LoadingSpinner'
 
@@ -65,15 +70,14 @@ export default function Btn({
     return mergeClasses(baseClassList, list, className)
   }, [loading, color, size, className])
 
-  const isDisabled = disabled || loading
-
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-      if (onClick && !isDisabled) {
+      // Prevent clicks during loading or when disabled
+      if (onClick && !disabled && !loading) {
         onClick(e)
       }
     },
-    [onClick, isDisabled]
+    [onClick, disabled, loading]
   )
 
   return (
@@ -81,15 +85,20 @@ export default function Btn({
       to={to}
       size={size}
       className={classList}
-      disabled={isDisabled}
+      disabled={disabled}
       type={type}
       onClick={handleClick}
       onMouseDown={(e) => e.preventDefault()}
       ariaLabel={ariaLabel}
+      aria-busy={loading || undefined}
     >
       {children}
       {loading && <LoadingSpinner progress={progress} />}
-      {loading && <span className="sr-only">{progress ? `Loading: ${progress}` : 'Loading...'}</span>}
+      {loading && (
+        <span className="sr-only" role="status" aria-live="polite">
+          {progress ? progress : 'Loading...'}{' '}
+        </span>
+      )}
     </ButtonBase>
   )
 }
