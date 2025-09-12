@@ -189,6 +189,7 @@ export default function DropdownMenu({
           : {})
       }}
       aria-multiselectable={multiSelect}
+      aria-activedescendant={`${dropdownId}-item-${focusedIndex}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMenuMouseDown}

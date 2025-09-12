@@ -1178,6 +1178,15 @@ export function MultiSelectExamples() {
     showToast(`Edited: ${item.content}`, { type: 'info', title: 'Item Edited' })
   }
 
+  // Error handlers
+  const handleValidationError = (error: string) => {
+    showToast(error, { type: 'error', title: 'Validation Error' })
+  }
+
+  const handleDuplicateError = (message: string) => {
+    showToast(message, { type: 'warning', title: 'Duplicate Item' })
+  }
+
   return (
     <ComponentExamples title="Multi Selects">
       <div className="col-span-1 md:col-span-2 lg:col-span-3">
@@ -1206,6 +1215,8 @@ export function MultiSelectExamples() {
             onItemRemoved={handleMultiSelectItemRemoved}
             items={multiSelectItems}
             label="Select Fruits"
+            onValidationError={handleValidationError}
+            onDuplicateError={handleDuplicateError}
           />
         </Example>
 
@@ -1218,6 +1229,8 @@ export function MultiSelectExamples() {
             items={multiSelectItems}
             label="Select Fruits"
             showEdit
+            onValidationError={handleValidationError}
+            onDuplicateError={handleDuplicateError}
           />
         </Example>
 
@@ -1229,6 +1242,8 @@ export function MultiSelectExamples() {
             items={multiSelectItems}
             label="Select Fruits"
             disabled
+            onValidationError={handleValidationError}
+            onDuplicateError={handleDuplicateError}
           />
         </Example>
 
@@ -1247,6 +1262,8 @@ export function MultiSelectExamples() {
               }
               return null
             }}
+            onValidationError={handleValidationError}
+            onDuplicateError={handleDuplicateError}
           />
         </Example>
       </ExamplesBlock>
@@ -1565,6 +1582,15 @@ export function TwoStageMultiSelectExamples() {
     setTwoStageMultiSelectValue(newItems)
   }
 
+  // Error handlers
+  const handleTwoStageValidationError = (error: string) => {
+    showToast(error, { type: 'error', title: 'Validation Error' })
+  }
+
+  const handleTwoStageDuplicateError = (message: string) => {
+    showToast(message, { type: 'warning', title: 'Duplicate Item' })
+  }
+
   return (
     <ComponentExamples title="Two Stage Multi Selects">
       <ComponentInfo component="TwoStageMultiSelect" description="Two-stage multi-select component with primary and modifier values">
@@ -1598,6 +1624,8 @@ export function TwoStageMultiSelectExamples() {
               }
               return null
             }}
+            onValidationError={handleTwoStageValidationError}
+            onDuplicateError={handleTwoStageDuplicateError}
           />
         </Example>
       </ExamplesBlock>

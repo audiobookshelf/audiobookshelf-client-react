@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
 import { MultiSelect } from './MultiSelect'
 import { type MultiSelectItem } from './MultiSelect'
-import { useGlobalToast } from '@/contexts/ToastContext'
 
 export interface TwoStageMultiSelectContent {
   value: string
@@ -24,6 +23,8 @@ interface TwoStageMultiSelectProps {
 
   // Validation
   onValidate?: (content: TwoStageMultiSelectContent) => string | null
+  onValidationError?: (error: string) => void
+  onDuplicateError?: (message: string) => void
 
   // Optional props
   disabled?: boolean
@@ -38,9 +39,10 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
   onItemRemoved,
   onItemEdited,
   onValidate,
+  onValidationError,
+  onDuplicateError,
   disabled
 }) => {
-  const { showToast } = useGlobalToast()
   const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
   const [isEditingNewItem, setIsEditingNewItem] = useState(false)
   const [selectedItems, setSelectedItems] = useState<MultiSelectItem<TwoStageMultiSelectContent>[]>(selectedItemsProp)
@@ -134,6 +136,8 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
       disabled={disabled}
       onMutate={onMutate}
       onValidate={onValidate}
+      onValidationError={onValidationError}
+      onDuplicateError={onDuplicateError}
       getItemTextId={getItemTextId}
       getEditableText={getEditableText}
       getReadOnlyPrefix={getReadOnlyPrefix}
