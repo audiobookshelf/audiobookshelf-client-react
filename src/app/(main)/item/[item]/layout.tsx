@@ -1,29 +1,33 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getLibraries, getCurrentUser } from '../../../../lib/api'
+import { getLibraries, getCurrentUser, getLibraryItem } from '../../../../lib/api'
 import '../../../../assets/globals.css'
 import AppBar from '../../AppBar'
 import SideRail from '../../SideRail'
-import Toolbar from './Toolbar'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
   description: 'audiobookshelf'
 }
 
-export default async function LibraryLayout({
+export default async function ItemLayout({
   children,
   params
 }: Readonly<{
   children: React.ReactNode
-  params: Promise<{ library: string }>
+  params: Promise<{ item: string }>
 }>) {
-  const { library: currentLibraryId } = await params
+  const { item: libraryItemId } = await params
 
-  const [librariesResponse, userResponse] = await Promise.all([getLibraries(), getCurrentUser()])
+  const [librariesResponse, userResponse, itemResponse] = await Promise.all([getLibraries(), getCurrentUser(), getLibraryItem(libraryItemId)])
 
   if (userResponse.error || !userResponse.data?.user) {
     console.error('Error getting user data:', userResponse)
+    redirect(`/login`)
+  }
+
+  if (itemResponse.error || !itemResponse.data) {
+    console.error('Error getting item data:', itemResponse)
     redirect(`/login`)
   }
 
@@ -31,22 +35,23 @@ export default async function LibraryLayout({
   const serverVersion = userResponse.data?.serverSettings?.version || 'Error'
   const libraries = librariesResponse.data?.libraries || []
 
-  const currentLibrary = libraries.find((library: any) => library.id === currentLibraryId)
+  const libraryItem = itemResponse.data
+
+  const currentLibrary = libraries.find((library: any) => library.id === libraryItem.libraryId)
   const currentLibraryMediaType = currentLibrary?.mediaType || 'book'
 
   return (
     <>
-      <AppBar user={userResponse.data.user} libraries={libraries} currentLibraryId={currentLibraryId} />
+      <AppBar user={userResponse.data.user} libraries={libraries} currentLibraryId={libraryItem.libraryId} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideRail
-          currentLibraryId={currentLibraryId}
+          currentLibraryId={libraryItem.libraryId}
           currentLibraryMediaType={currentLibraryMediaType}
           serverVersion={serverVersion}
           installSource={installSource}
         />
         <div className="flex-1 min-w-0 page-bg-gradient">
-          <Toolbar currentLibrary={currentLibrary} />
-          <div className="w-full h-[calc(100%-2.5rem)] overflow-x-hidden overflow-y-auto">{children}</div>
+          <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
         </div>
       </div>
     </>

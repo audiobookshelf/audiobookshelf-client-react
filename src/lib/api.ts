@@ -161,6 +161,10 @@ export const getLibraryItems = cache(async (libraryId: string) => {
   return apiRequestWithRefresh(`/api/libraries/${libraryId}/items`, {})
 })
 
+export const getLibraryItem = cache(async (itemId: string) => {
+  return apiRequestWithRefresh(`/api/items/${itemId}`, {})
+})
+
 export const getUsers = cache(async () => {
   return apiRequestWithRefresh('/api/users', {})
 })
