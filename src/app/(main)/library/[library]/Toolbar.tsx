@@ -1,9 +1,9 @@
 'use client'
 
-import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
-import eventBus from '@/lib/eventBus'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import eventBus from '@/lib/eventBus'
 
 export default function Toolbar({ currentLibrary }: { currentLibrary: any }) {
   const pathname = usePathname()
