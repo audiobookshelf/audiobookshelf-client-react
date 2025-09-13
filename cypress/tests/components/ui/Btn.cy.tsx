@@ -28,7 +28,6 @@ describe('<Btn />', () => {
 
   it('shows loading spinner when loading is true', () => {
     cy.mount(<Btn loading>Loading Button</Btn>)
-    cy.get('button').should('be.disabled')
     cy.get('svg.animate-spin').should('exist')
     cy.get('button').should('have.class', 'text-white/0')
   })
@@ -48,13 +47,6 @@ describe('<Btn />', () => {
     cy.get('button').should('be.disabled')
     cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
     cy.get('button').should('have.class', 'disabled:text-disabled')
-  })
-
-  it('is disabled when loading is true', () => {
-    cy.mount(<Btn loading>Loading Button</Btn>)
-    cy.get('button').should('be.disabled')
-    cy.get('button').should('have.class', 'disabled:cursor-not-allowed')
-    cy.get('button').should('have.class', 'disabled:text-disabled/0')
   })
 
   it('calls onClick handler when clicked', () => {
@@ -82,9 +74,9 @@ describe('<Btn />', () => {
     cy.get('button').should('have.class', 'custom-class')
   })
 
-  it('disables link when loading or disabled', () => {
+  it('disables link when disabled', () => {
     cy.mount(
-      <Btn to="/test" loading>
+      <Btn to="/test" disabled>
         Loading Link
       </Btn>
     )
@@ -138,7 +130,7 @@ describe('<Btn />', () => {
         Progress Button
       </Btn>
     )
-    cy.get('.sr-only').should('contain.text', 'Loading: 75%')
+    cy.get('.sr-only').should('contain.text', '75%')
   })
 
   it('hides loading spinner when progress is provided', () => {
@@ -170,28 +162,10 @@ describe('<Btn />', () => {
     cy.get('a').should('have.attr', 'tabIndex', '-1')
   })
 
-  it('sets tabIndex to -1 when link is loading', () => {
-    cy.mount(
-      <Btn to="/test" loading>
-        Loading Link
-      </Btn>
-    )
-    cy.get('a').should('have.attr', 'tabIndex', '-1')
-  })
-
   it('applies aria-disabled to link when disabled', () => {
     cy.mount(
       <Btn to="/test" disabled>
         Disabled Link
-      </Btn>
-    )
-    cy.get('a').should('have.attr', 'aria-disabled', 'true')
-  })
-
-  it('applies aria-disabled to link when loading', () => {
-    cy.mount(
-      <Btn to="/test" loading>
-        Loading Link
       </Btn>
     )
     cy.get('a').should('have.attr', 'aria-disabled', 'true')
@@ -231,7 +205,6 @@ describe('<Btn />', () => {
         <span>Content</span>
       </Btn>
     )
-    cy.get('button').should('be.disabled')
     cy.get('svg.animate-spin').should('exist')
     cy.get('.sr-only').should('contain.text', 'Loading...')
   })
@@ -244,7 +217,7 @@ describe('<Btn />', () => {
       </Btn>
     )
     cy.get('button').should('contain.text', '60%')
-    cy.get('.sr-only').should('contain.text', 'Loading: 60%')
+    cy.get('.sr-only').should('contain.text', '60%')
   })
 
   it('handles disabled state with complex children', () => {

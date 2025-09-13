@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useGlobalToast } from '@/contexts/ToastContext'
 
 interface PillProps<T> {
   item: T
@@ -16,6 +15,7 @@ interface PillProps<T> {
   getFullText?: (item: T) => string
   onMutate?: (prev: T | null, value: string) => T
   onValidate?: (content: T) => string | null
+  onValidationError?: (error: string) => void
   onEditButtonClick?: () => void
   onClick: () => void
   onEdit?: (item: T) => void
@@ -35,13 +35,13 @@ export const Pill = <T,>({
   getFullText,
   onMutate,
   onValidate,
+  onValidationError,
   onEditButtonClick,
   onClick,
   onEdit,
   onRemove,
   onEditDone
 }: PillProps<T>) => {
-  const { showToast } = useGlobalToast()
   const [isInputReady, setIsInputReady] = useState(false)
   const [hasValidationError, setHasValidationError] = useState(false)
 
@@ -161,15 +161,11 @@ export const Pill = <T,>({
     const newContent = onMutate ? onMutate(item, trimmedInput) : (trimmedInput as T)
 
     // Validate the new content
-    if (onValidate) {
-      const error = onValidate(newContent)
-      if (error) {
-        setHasValidationError(true)
-        showToast(error, { type: 'error', title: 'Validation Error' })
-        return
-      } else {
-        setHasValidationError(false)
-      }
+    const error = onValidate?.(newContent)
+    setHasValidationError(!!error)
+    if (error) {
+      onValidationError?.(error)
+      return
     }
 
     const isEmpty = getFullText ? getFullText(newContent) === '' : trimmedInput === ''
@@ -179,7 +175,7 @@ export const Pill = <T,>({
     }
 
     onEditDone?.(true, false) // Refocus input when explicitly saving
-  }, [inputValue, onEdit, onEditDone, onMutate, onValidate, item, getFullText])
+  }, [inputValue, onEdit, onEditDone, onMutate, onValidate, onValidationError, item, getFullText])
 
   const handleCancelEdit = useCallback(() => {
     // Reset to the original itemText

@@ -5,7 +5,6 @@ import DropdownMenu from './DropdownMenu'
 import type { DropdownMenuItem } from './DropdownMenu'
 import { mergeClasses } from '@/lib/merge-classes'
 import Pill from './Pill'
-import { useGlobalToast } from '@/contexts/ToastContext'
 import Label from './Label'
 import InputWrapper from './InputWrapper'
 
@@ -39,6 +38,8 @@ export interface MultiSelectProps<T = string> {
 
   // Validation callback
   onValidate?: (content: T) => string | null // Returns error message or null if valid
+  onValidationError?: (error: string) => void
+  onDuplicateError?: (message: string) => void
 
   // Event handlers
   onItemEdited?: (item: MultiSelectItem<T>, index: number) => void
@@ -66,6 +67,8 @@ export const MultiSelect = <T extends any = string>({
   getItemTextId: getItemTextIdProp,
   onMutate: onMutateProp,
   onValidate,
+  onValidationError,
+  onDuplicateError,
   onItemEdited,
   onItemAdded,
   onItemRemoved,
@@ -118,7 +121,6 @@ export const MultiSelect = <T extends any = string>({
     [isEditingPillIndexControlled, onEditingPillIndexChange]
   )
   const multiSelectId = useId()
-  const { showToast } = useGlobalToast()
 
   const selectedItemValues = useMemo(() => selectedItems.map((i) => i.value), [selectedItems])
 
@@ -231,17 +233,15 @@ export const MultiSelect = <T extends any = string>({
 
   const validate = useCallback(
     (content: T): boolean => {
-      if (onValidate) {
-        const validationError = onValidate(content)
-        if (validationError) {
-          showToast(validationError, { type: 'error', title: 'Validation Error' })
-          resetInput()
-          return false
-        }
+      const validationError = onValidate?.(content)
+      if (validationError) {
+        onValidationError?.(validationError)
+        resetInput()
+        return false
       }
       return true
     },
-    [onValidate, showToast]
+    [onValidate, onValidationError, resetInput]
   )
 
   const addSelectedItem = useCallback(
@@ -265,7 +265,7 @@ export const MultiSelect = <T extends any = string>({
       onItemAdded?.({ value: itemToAdd.value, content: newContent })
       resetInput()
     },
-    [isDuplicateByValue, items, onItemAdded, resetInput, removeItem, onMutate, validate, showToast]
+    [isDuplicateByValue, items, onItemAdded, resetInput, removeItem, onMutate, validate]
   )
 
   // Handle dropdown menu item click
@@ -302,7 +302,7 @@ export const MultiSelect = <T extends any = string>({
       onItemAdded?.(newItem)
       resetInput()
     },
-    [onItemAdded, resetInput, allowNew, isDuplicateByText, onMutate, validate, showToast]
+    [onItemAdded, resetInput, allowNew, isDuplicateByText, onMutate, validate]
   )
 
   // Submit form
@@ -496,14 +496,14 @@ export const MultiSelect = <T extends any = string>({
         const newText = getItemTextId(editedPillItem)
         const isDupe = isDuplicateByText(newText, idx)
         if (isDupe) {
-          showToast(`"${newText}" is already selected`, { type: 'warning', title: 'Duplicate item' })
+          onDuplicateError?.(`"${newText}" is already selected`)
           return
         }
         const updatedItem = { ...itemToUpdate, content: editedPillItem }
         onItemEdited?.(updatedItem, idx)
       }
     },
-    [selectedItems, getItemTextId, isDuplicateByText, showToast, onItemEdited]
+    [selectedItems, getItemTextId, isDuplicateByText, onDuplicateError, onItemEdited]
   )
 
   const handlePillEditDone = useCallback(
@@ -680,6 +680,7 @@ export const MultiSelect = <T extends any = string>({
                 item={item.content}
                 onMutate={onMutate}
                 onValidate={onValidate}
+                onValidationError={onValidationError}
                 getEditableText={getEditableText}
                 getReadOnlyPrefix={getReadOnlyPrefix}
                 getFullText={getFullText}

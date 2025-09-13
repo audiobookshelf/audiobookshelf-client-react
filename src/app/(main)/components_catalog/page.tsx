@@ -1,33 +1,31 @@
 'use client'
 
-import {
-  BtnExamples,
-  IconBtnExamples,
-  ContextMenuDropdownExamples,
-  DropdownExamples,
-  InputDropdownExamples,
-  TextareaInputExamples,
-  TextInputExamples,
-  MultiSelectExamples,
-  TwoStageMultiSelectExamples,
-  MultiSelectDropdownExamples,
-  ModalExamples,
-  RangeInputExamples,
-  ReadIconBtnExamples,
-  CheckboxExamples,
-  FileInputExamples,
-  LibraryIconExamples,
-  MediaIconPickerExamples,
-  SideBySideControlsExamples,
-  LoadingExamples,
-  AdvancedModalExamples,
-  ToastNotificationExamples,
-  DurationPickerExamples,
-  ToggleBtnsExamples,
-  ToggleSwitchExamples,
-  TooltipExamples,
-  SlateEditorExamples
-} from './ComponentExamples'
+import { ToggleSwitchExamples } from './examples/ToggleSwitchExamples'
+import { ToggleBtnsExamples } from './examples/ToggleBtnsExamples'
+import { ModalExamples } from './examples/ModalExamples'
+import { TwoStageMultiSelectExamples } from './examples/TwoStageMultiSelectExamples'
+import { ToastNotificationExamples } from './examples/ToastNotificationExamples'
+import { DurationPickerExamples } from './examples/DurationPickerExamples'
+import { MediaIconPickerExamples } from './examples/MediaIconPickerExamples'
+import { LibraryIconExamples } from './examples/LibraryIconExamples'
+import { TextInputExamples } from './examples/TextInputExamples'
+import { TextareaInputExamples } from './examples/TextareaInputExamples'
+import { InputDropdownExamples } from './examples/InputDropdownExamples'
+import { ReadIconBtnExamples } from './examples/ReadIconBtnExamples'
+import { IconBtnExamples } from './examples/IconBtnExamples'
+import { FileInputExamples } from './examples/FileInputExamples'
+import { DropdownExamples } from './examples/DropdownExamples'
+import { ContextMenuDropdownExamples } from './examples/ContextMenuDropdownExamples'
+import { CheckboxExamples } from './examples/CheckboxExamples'
+import { BtnExamples } from './examples/BtnExamples'
+import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
+import { LoadingExamples } from './examples/LoadingExamples'
+import { MultiSelectExamples } from './examples/MultiSelectExamples'
+import { MultiSelectDropdownExamples } from './examples/MultiSelectDropdownExamples'
+import { RangeInputExamples } from './examples/RangeInputExamples'
+import { AdvancedModalExamples } from './examples/AdvancedModalExamples'
+import { TooltipExamples } from './examples/TooltipExamples'
+import { SlateEditorExamples } from './examples/SlateEditorExamples'
 
 export default function ComponentsCatalogPage() {
   return (
