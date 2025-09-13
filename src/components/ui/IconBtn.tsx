@@ -13,6 +13,7 @@ interface IconBtnProps {
   size?: 'small' | 'medium' | 'large'
   iconClass?: string
   ariaLabel?: string
+  to?: string
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   onMouseDown?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => void
@@ -42,6 +43,7 @@ export default function IconBtn({
   size = 'medium',
   iconClass,
   ariaLabel,
+  to,
   onClick,
   onMouseDown,
   onKeyDown,
@@ -89,6 +91,7 @@ export default function IconBtn({
       size={size}
       disabled={isDisabled}
       borderless={borderless}
+      to={to}
       onClick={handleClick}
       onMouseDown={onMouseDown}
       onKeyDown={onKeyDown}
