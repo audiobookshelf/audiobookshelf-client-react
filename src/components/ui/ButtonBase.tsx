@@ -53,13 +53,13 @@ const ButtonBase = ({
       'disabled:bg-bg-disabled disabled:cursor-not-allowed disabled:border-none disabled:text-disabled',
 
       // Borderless styles
-      borderless ? 'border-0 bg-transparent shadow-none' : 'border',
+      borderless ? 'border-0 bg-transparent shadow-none text-white/80' : 'border',
 
       // Before pseudo-element (replacing abs-btn::before)
       'before:content-[""] before:absolute before:inset-0 before:bg-transparent before:pointer-events-none',
 
       // Hover styles
-      borderless ? 'hover:not-disabled:text-yellow-300 hover:not-disabled:scale-125' : 'hover:not-disabled:before:bg-bg-hover',
+      borderless ? 'hover:not-disabled:text-white' : 'hover:not-disabled:before:bg-bg-hover',
 
       // Custom className
       className

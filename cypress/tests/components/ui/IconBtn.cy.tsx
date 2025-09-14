@@ -32,8 +32,7 @@ describe('<IconBtn />', () => {
     cy.mount(<IconBtn borderless>edit</IconBtn>)
     cy.get('button').should('have.class', 'border-0')
     cy.get('button').should('have.class', 'bg-transparent')
-    cy.get('button').should('have.class', 'hover:not-disabled:text-yellow-300')
-    cy.get('button').should('have.class', 'hover:not-disabled:scale-125')
+    cy.get('button').should('have.class', 'hover:not-disabled:text-white')
   })
 
   it('applies border by default', () => {
