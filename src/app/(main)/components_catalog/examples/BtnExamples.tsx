@@ -7,16 +7,7 @@ import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../Com
 // Button Examples
 export function BtnExamples() {
   const { showToast } = useGlobalToast()
-  const [progress, setProgress] = useState(0)
-
-  // Progress cycling effect
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prev) => (prev >= 100 ? 0 : prev + 10))
-    }, 2000)
-
-    return () => clearInterval(interval)
-  }, [])
+  const [progress, setProgress] = useState(75)
 
   return (
     <ComponentExamples title="Buttons">
