@@ -10,7 +10,7 @@ interface IndicatorProps {
   role?: string
 }
 
-const Indicator = ({ tooltipText, children, className, ariaLabel, role = 'img' }: IndicatorProps) => {
+const Indicator = ({ tooltipText, children, className, ariaLabel, role = 'note' }: IndicatorProps) => {
   const effectiveAriaLabel = ariaLabel || tooltipText
 
   return (
