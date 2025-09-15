@@ -137,7 +137,8 @@ export async function apiRequestWithRefresh<T = any>(endpoint: string, options: 
  */
 export const getCurrentUser = cache(async () => {
   return apiRequestWithRefresh('/api/authorize', {
-    method: 'POST'
+    method: 'POST',
+    cache: 'force-cache'
   })
 })
 
