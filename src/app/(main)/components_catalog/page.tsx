@@ -26,6 +26,9 @@ import { RangeInputExamples } from './examples/RangeInputExamples'
 import { AdvancedModalExamples } from './examples/AdvancedModalExamples'
 import { TooltipExamples } from './examples/TooltipExamples'
 import { SlateEditorExamples } from './examples/SlateEditorExamples'
+import { InlineIndicatorExamples } from './examples/InlineIndicatorExamples'
+import { AlertExamples } from './examples/AlertExamples'
+import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
 
 export default function ComponentsCatalogPage() {
   return (
@@ -173,6 +176,21 @@ export default function ComponentsCatalogPage() {
                     Rich Text Editor
                   </a>
                 </li>
+                <li>
+                  <a href="#abridged-indicator-examples" className="hover:text-blue-400 transition-colors">
+                    Abridged Indicator
+                  </a>
+                </li>
+                <li>
+                  <a href="#alert-examples" className="hover:text-blue-400 transition-colors">
+                    Alerts
+                  </a>
+                </li>
+                <li>
+                  <a href="#cover-size-widget-examples" className="hover:text-blue-400 transition-colors">
+                    Cover Size Widget
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -256,6 +274,15 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="slate-editor-examples">
         <SlateEditorExamples />
+      </div>
+      <div id="abridged-indicator-examples">
+        <InlineIndicatorExamples />
+      </div>
+      <div id="alert-examples">
+        <AlertExamples />
+      </div>
+      <div id="cover-size-widget-examples">
+        <CoverSizeWidgetExamples />
       </div>
     </div>
   )

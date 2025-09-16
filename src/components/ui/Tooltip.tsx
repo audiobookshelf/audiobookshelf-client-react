@@ -212,7 +212,7 @@ const Tooltip = ({
   )
 
   const referenceClass = useMemo(() => {
-    return mergeClasses('inline-block', className)
+    return mergeClasses('inline-flex', className)
   }, [className])
 
   const tooltipElement = (
