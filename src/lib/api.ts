@@ -120,13 +120,7 @@ export async function apiRequestWithRefresh<T = any>(endpoint: string, options: 
 
   if (response.needsRefresh) {
     const currentPath = (await headers()).get('x-current-path')
-
-    if (!currentPath) {
-      // Necessary for middleware that cannot use next/navigation
-      throw new Error('Unauthorized')
-    } else {
-      redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath)}`)
-    }
+    redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath || '')}`)
   }
 
   return response

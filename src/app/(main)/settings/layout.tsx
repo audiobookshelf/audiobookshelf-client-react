@@ -17,6 +17,11 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
     redirect(`/login`)
   }
 
+  // Redirect to library page if user is not admin or root
+  if (!['admin', 'root'].includes(userResponse.data.user.type)) {
+    return redirect('/library')
+  }
+
   const installSource = userResponse.data?.Source || 'Unknown'
   const serverVersion = userResponse.data?.serverSettings?.version || 'Error'
 

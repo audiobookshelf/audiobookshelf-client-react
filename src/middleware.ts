@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentUser, getUserDefaultUrlPath } from '@/lib/api'
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -25,30 +24,8 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.nextUrl))
   }
 
-  const userResponse = await getCurrentUser().catch((error) => {
-    return {
-      error: error.message,
-      data: null
-    }
-  })
-  if (userResponse.error || !userResponse.data?.user) {
-    if (refreshToken && userResponse.error === 'Unauthorized') {
-      // Redirect to refresh token route with current path
-      const refreshUrl = new URL('/internal-api/refresh', request.nextUrl)
-      if (pathname !== '/') {
-        refreshUrl.searchParams.set('redirect', pathname)
-      }
-      return NextResponse.redirect(refreshUrl)
-    }
-
-    return NextResponse.redirect(new URL('/login', request.nextUrl))
-  }
-
-  // Prevent access to settings page if user is not admin or root
-  if (pathname === '/' || (pathname.startsWith('/settings') && !['admin', 'root'].includes(userResponse.data.user.type))) {
-    // Redirect to default library path otherwise redirect to settings
-    const userDefaultPath = getUserDefaultUrlPath(userResponse.data.userDefaultLibraryId, userResponse.data.user.type)
-    return NextResponse.redirect(new URL(userDefaultPath, request.nextUrl))
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/library', request.nextUrl))
   }
 
   const response = NextResponse.next()
