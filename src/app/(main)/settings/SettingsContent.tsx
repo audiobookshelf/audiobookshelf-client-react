@@ -1,7 +1,20 @@
 import Link from 'next/link'
 import SettingsMoreInfoIcon from './SettingsMoreInfoIcon'
+import Btn from '@/components/ui/Btn'
 
-export default function SettingsContent(props: { children: React.ReactNode; title: string; description?: string; moreInfoUrl?: string; backLink?: string }) {
+interface AddButtonProps {
+  label: string
+  onClick: () => void
+}
+
+export default function SettingsContent(props: {
+  children: React.ReactNode
+  title: string
+  description?: string
+  moreInfoUrl?: string
+  backLink?: string
+  addButton?: AddButtonProps
+}) {
   return (
     <div className="w-full max-w-4xl mx-auto p-2 md:p-6">
       <div className="bg-bg rounded-md shadow-lg border border-white/5 p-2 sm:p-4 mb-8">
@@ -13,6 +26,12 @@ export default function SettingsContent(props: { children: React.ReactNode; titl
           )}
           <h1 className="text-xl">{props.title}</h1>
           {props.moreInfoUrl && <SettingsMoreInfoIcon moreInfoUrl={props.moreInfoUrl} />}
+          <div className="grow" />
+          {props.addButton && (
+            <Btn size="small" onClick={props.addButton.onClick}>
+              {props.addButton.label}
+            </Btn>
+          )}
         </div>
         {props.description && <p className="text-sm text-gray-400 mb-6">{props.description}</p>}
         {props.children}
