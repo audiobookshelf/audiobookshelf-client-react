@@ -31,6 +31,12 @@ export default async function AppBar(props: { libraries?: any; currentLibraryId?
             </IconBtn>
           </Tooltip>
         )}
+
+        <Tooltip text="Stats" position="bottom">
+          <IconBtn borderless ariaLabel="Stats" to="/account/stats">
+            equalizer
+          </IconBtn>
+        </Tooltip>
       </div>
       <Btn to="/account" className="ps-3 pe-2 w-32 justify-between">
         <span className="text-sm">{props.user.username}</span>
