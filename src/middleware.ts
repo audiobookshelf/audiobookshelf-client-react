@@ -24,6 +24,15 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.nextUrl))
   }
 
+  if (!accessToken && refreshToken) {
+    // Redirect to refresh token route with current path
+    const refreshUrl = new URL('/internal-api/refresh', request.nextUrl)
+    if (pathname !== '/') {
+      refreshUrl.searchParams.set('redirect', pathname)
+    }
+    return NextResponse.redirect(refreshUrl)
+  }
+
   if (pathname === '/') {
     return NextResponse.redirect(new URL('/library', request.nextUrl))
   }
