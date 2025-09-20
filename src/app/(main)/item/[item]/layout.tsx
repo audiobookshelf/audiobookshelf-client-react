@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getLibraries, getCurrentUser, getLibraryItem } from '../../../../lib/api'
+import { getLibraries, getCurrentUser, getLibraryItem, getData } from '../../../../lib/api'
 import '../../../../assets/globals.css'
 import AppBar from '../../AppBar'
 import SideRail from '../../SideRail'
@@ -19,7 +19,7 @@ export default async function ItemLayout({
 }>) {
   const { item: libraryItemId } = await params
 
-  const [librariesResponse, userResponse, itemResponse] = await Promise.all([getLibraries(), getCurrentUser(), getLibraryItem(libraryItemId)])
+  const [librariesResponse, userResponse, itemResponse] = await getData(getLibraries(), getCurrentUser(), getLibraryItem(libraryItemId))
 
   if (userResponse.error || !userResponse.data?.user) {
     console.error('Error getting user data:', userResponse)
@@ -28,7 +28,7 @@ export default async function ItemLayout({
 
   if (itemResponse.error || !itemResponse.data) {
     console.error('Error getting item data:', itemResponse)
-    redirect(`/login`)
+    return null
   }
 
   const installSource = userResponse.data?.Source || 'Unknown'

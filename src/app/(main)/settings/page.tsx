@@ -1,11 +1,11 @@
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
-import { getCurrentUser } from '../../../lib/api'
+import { getCurrentUser, getData } from '../../../lib/api'
 import SettingsContent from './SettingsContent'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ConfigPage() {
-  const userResponse = await getCurrentUser()
+  const [userResponse] = await getData(getCurrentUser())
   const user = userResponse.data?.user
 
   return (

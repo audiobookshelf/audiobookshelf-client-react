@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import SettingsContent from '../SettingsContent'
 
+export const dynamic = 'force-dynamic'
+
 export default function ItemMetadataUtilsPage() {
   const items = [
     {

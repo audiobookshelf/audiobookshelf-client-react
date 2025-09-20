@@ -7,8 +7,11 @@ import { redirect } from 'next/navigation'
  */
 export const GET = async () => {
   const userResponse = await getCurrentUser()
+  if (userResponse.needsRefresh) {
+    return redirect('/refresh?redirect=/library')
+  }
   if (userResponse.error || !userResponse.data?.user) {
-    return new Response('Unauthorized', { status: 401 })
+    return redirect('/login')
   }
 
   // Redirect to user default library or settings/account page

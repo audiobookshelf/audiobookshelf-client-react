@@ -1,10 +1,12 @@
 import Link from 'next/link'
-import { getUser } from '../../../../../lib/api'
+import { getUser, getData } from '../../../../../lib/api'
+
+export const dynamic = 'force-dynamic'
 
 export default async function UserPage({ params }: { params: Promise<{ user: string }> }) {
   const { user: userId } = await params
 
-  const usersResponse = await getUser(userId)
+  const [usersResponse] = await getData(getUser(userId))
   const user = usersResponse.data || {}
 
   return (

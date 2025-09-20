@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getLibraries, getCurrentUser } from '../../../../lib/api'
+import { getLibraries, getCurrentUser, getData } from '../../../../lib/api'
 import '../../../../assets/globals.css'
 import AppBar from '../../AppBar'
 import SideRail from '../../SideRail'
@@ -20,7 +20,7 @@ export default async function LibraryLayout({
 }>) {
   const { library: currentLibraryId } = await params
 
-  const [librariesResponse, userResponse] = await Promise.all([getLibraries(), getCurrentUser()])
+  const [librariesResponse, userResponse] = await getData(getLibraries(), getCurrentUser())
 
   if (userResponse.error || !userResponse.data?.user) {
     console.error('Error getting user data:', userResponse)

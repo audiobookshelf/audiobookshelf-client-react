@@ -1,9 +1,9 @@
-import { getLibrary, getLibraryItems } from '../../../../../lib/api'
+import { getLibrary, getLibraryItems, getData } from '../../../../../lib/api'
 import BookshelfClient from './BookshelfClient'
 
 export default async function BookshelfPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params
-  const libraryResponse = await Promise.all([getLibrary(libraryId), getLibraryItems(libraryId)])
+  const libraryResponse = await getData(getLibrary(libraryId), getLibraryItems(libraryId))
   const library = libraryResponse[0].data
   const libraryItemsData = libraryResponse[1].data
 

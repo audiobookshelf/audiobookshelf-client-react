@@ -126,11 +126,29 @@ export async function apiRequestWithRefresh<T = any>(endpoint: string, options: 
   return response
 }
 
+export const getData = cache(async <T extends readonly Promise<ApiResponse<any>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
+  let responses = await Promise.all(promises)
+
+  let requiresRefresh = false
+  for (const response of responses) {
+    if (response.needsRefresh) {
+      requiresRefresh = true
+    }
+  }
+
+  if (requiresRefresh) {
+    const currentPath = (await headers()).get('x-current-path')
+    return redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath || '')}`)
+  }
+
+  return responses as { [K in keyof T]: Awaited<T[K]> }
+})
+
 /**
  * Current user response data
  */
 export const getCurrentUser = cache(async () => {
-  return apiRequestWithRefresh('/api/authorize', {
+  return apiRequest('/api/authorize', {
     method: 'POST',
     cache: 'force-cache'
   })
@@ -141,29 +159,29 @@ export const getServerStatus = cache(async (): Promise<ApiResponse<ServerStatus>
 })
 
 export const getLibraries = cache(async () => {
-  return apiRequestWithRefresh('/api/libraries', {})
+  return apiRequest('/api/libraries', {})
 })
 
 export const getLibrary = cache(async (libraryId: string) => {
-  return apiRequestWithRefresh(`/api/libraries/${libraryId}`, {})
+  return apiRequest(`/api/libraries/${libraryId}`, {})
 })
 
 export const getLibraryPersonalized = cache(async (libraryId: string) => {
-  return apiRequestWithRefresh(`/api/libraries/${libraryId}/personalized`, {})
+  return apiRequest(`/api/libraries/${libraryId}/personalized`, {})
 })
 
 export const getLibraryItems = cache(async (libraryId: string) => {
-  return apiRequestWithRefresh(`/api/libraries/${libraryId}/items`, {})
+  return apiRequest(`/api/libraries/${libraryId}/items`, {})
 })
 
 export const getLibraryItem = cache(async (itemId: string) => {
-  return apiRequestWithRefresh(`/api/items/${itemId}`, {})
+  return apiRequest(`/api/items/${itemId}`, {})
 })
 
 export const getUsers = cache(async () => {
-  return apiRequestWithRefresh('/api/users', {})
+  return apiRequest('/api/users', {})
 })
 
 export const getUser = cache(async (userId: string) => {
-  return apiRequestWithRefresh(`/api/users/${userId}`, {})
+  return apiRequest(`/api/users/${userId}`, {})
 })

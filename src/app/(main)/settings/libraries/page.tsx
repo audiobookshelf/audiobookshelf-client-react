@@ -1,8 +1,10 @@
 import SettingsContent from '../SettingsContent'
-import { getLibraries } from '../../../../lib/api'
+import { getLibraries, getData } from '../../../../lib/api'
+
+export const dynamic = 'force-dynamic'
 
 export default async function LibrariesPage() {
-  const librariesResponse = await getLibraries()
+  const [librariesResponse] = await getData(getLibraries())
 
   const libraries = librariesResponse.data?.libraries || []
 

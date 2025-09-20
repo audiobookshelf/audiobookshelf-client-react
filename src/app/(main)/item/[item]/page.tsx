@@ -1,8 +1,8 @@
-import { getLibraryItem } from '../../../../lib/api'
+import { getLibraryItem, getData } from '../../../../lib/api'
 
 export default async function ItemPage({ params }: { params: Promise<{ item: string }> }) {
   const { item: itemId } = await params
-  const [itemResponse] = await Promise.all([getLibraryItem(itemId)])
+  const [itemResponse] = await getData(getLibraryItem(itemId))
 
   return (
     <div className="p-8 w-full">

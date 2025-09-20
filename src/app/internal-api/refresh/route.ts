@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { getServerBaseUrl, getUserDefaultUrlPath, setTokenCookies } from '@/lib/api'
 
+const rscMap = new Map<string, boolean>()
+
 export async function GET(request: Request) {
   return handleRefresh(request)
 }
@@ -18,7 +20,22 @@ async function handleRefresh(request: Request) {
     const refreshToken = cookieStore.get('refresh_token')?.value
 
     if (!refreshToken) {
+      console.log('No refresh token found')
       return NextResponse.json({ error: 'No refresh token found' }, { status: 401 })
+    }
+
+    // Handle React Server Components (RSC) retry scenario:
+    // When Next.js RSC encounters a redirect during server-side rendering,
+    // it automatically retries the original request. This retry includes
+    // the _rsc parameter in the URL. Only allow one refresh attempt per rsc id.
+    const url = new URL(request.url)
+    const rscId = url.searchParams.get('_rsc')
+    if (rscId) {
+      if (rscMap.has(rscId)) {
+        return NextResponse.json({ error: 'Already called refresh' }, { status: 400 })
+      } else {
+        rscMap.set(rscId, true)
+      }
     }
 
     // Make refresh request to the Audiobookshelf server
@@ -32,7 +49,7 @@ async function handleRefresh(request: Request) {
     })
 
     if (!refreshResponse.ok) {
-      // Redirect to login page and delete refresh token cookie
+      // Refresh failed, redirect to login page and delete refresh token cookie
       const redirectUrl = new URL('/login', audiobookshelfServerUrl)
       redirectUrl.searchParams.set('error', 'Token refresh failed')
       const response = NextResponse.redirect(redirectUrl)
@@ -49,11 +66,9 @@ async function handleRefresh(request: Request) {
     }
 
     // Get redirect URL from query parameters or default to user default path
-    const url = new URL(request.url)
     const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(data.userDefaultLibraryId, data.user.type)
     const redirectUrl = new URL(redirectUrlPath, audiobookshelfServerUrl)
     const response = NextResponse.redirect(redirectUrl)
-
     setTokenCookies(response, newAccessToken, newRefreshToken)
 
     return response
