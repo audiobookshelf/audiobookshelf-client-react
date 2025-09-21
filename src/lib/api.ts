@@ -65,6 +65,10 @@ export function setTokenCookies(response: NextResponse, accessToken: string, ref
   }
 }
 
+export async function getAccessToken() {
+  return (await cookies()).get('access_token')?.value || null
+}
+
 /**
  * Make an authenticated API request to the server
  */

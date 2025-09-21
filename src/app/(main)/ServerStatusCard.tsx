@@ -1,36 +1,21 @@
 'use client'
 
-import Link from 'next/link'
-import { socket } from '@/lib/socket'
-import { useEffect, useState } from 'react'
+import { useSocket, useSocketEmit, useSocketEvent } from '@/contexts/SocketContext'
+import { useEffect } from 'react'
 
 interface HomeClientProps {
   statusData: any
 }
 
 export default function HomeClient({ statusData }: HomeClientProps) {
-  const [isConnected, setIsConnected] = useState(false)
-
+  const { isConnected } = useSocket()
+  const { emit } = useSocketEmit()
+  useSocketEvent('admin_message', (data) => {
+    console.log('received socket event admin_message', data)
+  })
   useEffect(() => {
-    if (socket.connected) {
-      onConnect()
-    }
-
-    function onConnect() {
-      console.log('connected to socket')
-      setIsConnected(true)
-    }
-    function onDisconnect() {
-      console.log('disconnected from socket')
-      setIsConnected(false)
-    }
-    socket.on('connect', onConnect)
-    socket.on('disconnect', onDisconnect)
-
-    return () => {
-      socket.off('connect', onConnect)
-      socket.off('disconnect', onDisconnect)
-    }
+    console.log('emitting socket event message_all_users')
+    emit('message_all_users', { message: 'Hello from server status card' })
   }, [])
 
   return (

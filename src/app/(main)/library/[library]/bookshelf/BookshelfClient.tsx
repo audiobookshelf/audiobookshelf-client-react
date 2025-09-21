@@ -16,7 +16,7 @@ export default function BookshelfClient({ library, libraryItemsData }: Bookshelf
   }, [libraryItemsData])
 
   const results = libraryItemsData.results
-  console.log('results', results)
+
   return (
     <div>
       <div className="flex flex-wrap gap-2">
