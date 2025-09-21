@@ -14,6 +14,7 @@
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.6",
     "clsx": "^2.1.1",
+    "cronstrue": "^3.3.0",
     "next": "15.3.3",
     "next-intl": "^4.3.4",
     "react": "^19.0.0",
