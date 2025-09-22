@@ -6,6 +6,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 
 export default async function AppBar(props: { libraries?: any; currentLibraryId?: string; user: any }) {
+  const userCanUpload = props.user.permissions.upload
   return (
     <div className="w-full h-16 bg-primary flex items-center justify-start px-2 md:px-6 gap-4 shadow-xl">
       <Link href={'/'} title="Home" className="text-sm text-foreground hover:text-foreground/80">
@@ -23,6 +24,14 @@ export default async function AppBar(props: { libraries?: any; currentLibraryId?
             widgets
           </IconBtn>
         </Tooltip>
+
+        {userCanUpload && (
+          <Tooltip text="Upload" position="bottom">
+            <IconBtn borderless ariaLabel="Upload" to="/upload">
+              upload
+            </IconBtn>
+          </Tooltip>
+        )}
 
         {['admin', 'root'].includes(props.user.type) && (
           <Tooltip text="Settings" position="bottom">
