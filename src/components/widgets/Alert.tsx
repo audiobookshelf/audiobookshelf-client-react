@@ -5,11 +5,12 @@ import { mergeClasses } from '@/lib/merge-classes'
 
 export interface AlertProps {
   type?: 'error' | 'warning' | 'success' | 'info'
+  autoFocus?: boolean
   children: React.ReactNode
   className?: string
 }
 
-export default function Alert({ type = 'error', children, className }: AlertProps) {
+export default function Alert({ type = 'error', autoFocus = true, children, className }: AlertProps) {
   const alertRef = useRef<HTMLDivElement>(null)
 
   const isAlert = useMemo(() => {
@@ -61,10 +62,10 @@ export default function Alert({ type = 'error', children, className }: AlertProp
   }, [type, className])
 
   useEffect(() => {
-    if (isAlert && alertRef.current) {
+    if (isAlert && alertRef.current && autoFocus) {
       alertRef.current.focus()
     }
-  }, [isAlert])
+  }, [isAlert, autoFocus])
 
   return (
     <div cy-id="alert" className={wrapperClass} role={alertRole} tabIndex={isAlert ? -1 : undefined} ref={alertRef}>

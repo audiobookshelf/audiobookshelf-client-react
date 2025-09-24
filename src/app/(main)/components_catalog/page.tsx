@@ -29,6 +29,7 @@ import { SlateEditorExamples } from './examples/SlateEditorExamples'
 import { InlineIndicatorExamples } from './examples/InlineIndicatorExamples'
 import { AlertExamples } from './examples/AlertExamples'
 import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
+import { CronExpressionBuilderExamples } from './examples/CronExpressionBuilderExamples'
 
 export default function ComponentsCatalogPage() {
   return (
@@ -191,6 +192,11 @@ export default function ComponentsCatalogPage() {
                     Cover Size Widget
                   </a>
                 </li>
+                <li>
+                  <a href="#cron-expression-builder-examples" className="hover:text-blue-400 transition-colors">
+                    Cron Expression Builder
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -283,6 +289,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="cover-size-widget-examples">
         <CoverSizeWidgetExamples />
+      </div>
+      <div id="cron-expression-builder-examples">
+        <CronExpressionBuilderExamples />
       </div>
     </div>
   )
