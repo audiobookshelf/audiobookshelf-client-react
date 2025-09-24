@@ -65,7 +65,7 @@ export default function Alert({ type = 'error', autoFocus = true, children, clas
     if (isAlert && alertRef.current && autoFocus) {
       alertRef.current.focus()
     }
-  }, [isAlert])
+  }, [isAlert, autoFocus])
 
   return (
     <div cy-id="alert" className={wrapperClass} role={alertRole} tabIndex={isAlert ? -1 : undefined} ref={alertRef}>
