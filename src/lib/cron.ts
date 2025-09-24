@@ -1,8 +1,15 @@
-import cronstrue from 'cronstrue'
+import cronstrue from 'cronstrue/i18n'
 
-interface ValidationResult {
+export interface ValidationResult {
   isValid: boolean
   error?: string
+}
+
+export interface FormatDateOptions {
+  language?: string
+  dateFormat?: string
+  timeFormat?: string
+  timeZone?: string
 }
 
 // Helper function to validate individual cron fields
@@ -94,18 +101,36 @@ export const validateCron = (expression: string): ValidationResult => {
   }
 }
 
+function toCronstrueLocale(locale: string): string {
+  if (locale.includes('-')) {
+    locale = locale.replace('-', '_')
+    switch (locale.toLowerCase()) {
+      case 'zh_cn':
+      case 'zh_tw':
+      case 'pt_br':
+      case 'pt_pt':
+        return locale
+      default:
+        const parts = locale.split('_')
+        return parts[0]
+    }
+  }
+  return locale
+}
+
 // Convert cron expression to human-readable description
-export const getHumanReadableCronExpression = (cronExpr: string): string => {
+export const getHumanReadableCronExpression = (cronExpr: string, locale: string): string => {
   if (!cronExpr) return 'No schedule set'
 
   try {
     return cronstrue.toString(cronExpr, {
       verbose: false,
       throwExceptionOnParseError: true,
-      use24HourTimeFormat: false
+      use24HourTimeFormat: false,
+      locale: toCronstrueLocale(locale)
     })
   } catch {
-    return 'Invalid cron expression'
+    return 'Could not generate human-readable cron expression'
   }
 }
 
@@ -163,7 +188,7 @@ const matchesCronExpression = (date: Date, minute: string, hour: string, day: st
 }
 
 // Calculate next run date based on cron expression
-export const calculateNextRunDate = (cronExpr: string): string => {
+export const calculateNextRunDate = (cronExpr: string, options: FormatDateOptions = {}, clientTimeZone?: string | null): string => {
   if (!cronExpr) return ''
 
   try {
@@ -179,20 +204,82 @@ export const calculateNextRunDate = (cronExpr: string): string => {
     nextMinute.setMinutes(nextMinute.getMinutes() + 1)
 
     // Find the next valid date/time (check up to 4 years in the future to handle edge cases)
-    const maxIterations = 366 * 4 // 4 years worth of days
+    const maxIterations = 366 * 4 * 24 * 60 // 4 years worth of minutes
     let candidate = new Date(nextMinute)
 
     for (let i = 0; i < maxIterations; i++) {
       if (matchesCronExpression(candidate, minute, hour, day, month, weekday)) {
-        return candidate.toLocaleString()
+        // Use server's explicit date/time format settings for consistent rendering
+        return formatDate(candidate, options, clientTimeZone)
       }
       candidate.setMinutes(candidate.getMinutes() + 1)
     }
-
-    return 'Unable to calculate next run'
-  } catch {
-    return ''
+  } catch (error) {
+    console.error('Error calculating next run date:', error)
   }
+  return 'Unable to calculate next run'
 }
 
-export type { ValidationResult }
+export function getLocalizedServerTimeZone(clientTimeZone: string | null | undefined, serverTimeZone: string, language: string) {
+  let timeZoneString = ''
+  if (clientTimeZone && clientTimeZone !== serverTimeZone) {
+    const parts = new Intl.DateTimeFormat(language, { timeZone: serverTimeZone, timeZoneName: 'short' }).formatToParts(new Date())
+    const timeZoneStringIndex = parts.findIndex((part) => part.type === 'timeZoneName')
+    if (timeZoneStringIndex !== -1) {
+      timeZoneString = parts[timeZoneStringIndex].value
+    }
+  }
+  return timeZoneString
+}
+
+function formatDate(date: Date, options: FormatDateOptions = {}, clientTimeZone?: string | null): string {
+  const { language = 'en-US', dateFormat = 'MM/dd/yyyy', timeFormat = 'HH:mm:ss', timeZone = 'UTC' } = options
+
+  // Combine format strings to parse all tokens at once
+  const fullFormat = `${dateFormat} ${timeFormat}`
+
+  // This is the options object we will build for the Intl API
+  const intlOptions: Intl.DateTimeFormatOptions = {}
+
+  // --- Map Date Tokens ---
+  if (fullFormat.includes('yyyy')) intlOptions.year = 'numeric'
+  if (fullFormat.includes('MMMM')) intlOptions.month = 'long'
+  else if (fullFormat.includes('MMM')) intlOptions.month = 'short'
+  else if (fullFormat.includes('MM')) intlOptions.month = '2-digit'
+  else if (fullFormat.includes('M')) intlOptions.month = 'numeric'
+
+  if (fullFormat.includes('dd')) intlOptions.day = '2-digit'
+  else if (fullFormat.includes('d')) intlOptions.day = 'numeric'
+
+  // --- Map Weekday Tokens ---
+  if (fullFormat.includes('EEEE') || fullFormat.includes('dddd')) {
+    intlOptions.weekday = 'long'
+  } else if (fullFormat.includes('EEE') || fullFormat.includes('ddd')) {
+    intlOptions.weekday = 'short'
+  }
+
+  // --- Map Time Tokens and Detect 12/24 Hour Format ---
+  const has12HourToken = /h|tt|a/i.test(fullFormat) // Use 'a' as a common am/pm marker
+  intlOptions.hour12 = has12HourToken
+
+  if (fullFormat.includes('HH') || fullFormat.includes('hh')) {
+    intlOptions.hour = '2-digit'
+  } else if (fullFormat.includes('H') || fullFormat.includes('h')) {
+    intlOptions.hour = 'numeric'
+  }
+
+  if (fullFormat.includes('mm')) intlOptions.minute = '2-digit'
+  else if (fullFormat.includes('m')) intlOptions.minute = 'numeric'
+
+  if (fullFormat.includes('ss')) intlOptions.second = '2-digit'
+  else if (fullFormat.includes('s')) intlOptions.second = 'numeric'
+
+  const timeZoneString = getLocalizedServerTimeZone(clientTimeZone, timeZone, language)
+
+  // --- Format the Date ---
+  try {
+    return `${new Intl.DateTimeFormat(language, intlOptions).format(date)} ${timeZoneString}`.trim()
+  } catch (error) {
+    return 'Could not format date'
+  }
+}

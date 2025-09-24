@@ -3,34 +3,74 @@ import CronExpressionBuilder from '@/components/widgets/CronExpressionBuilder'
 import { useState, useCallback } from 'react'
 import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 
 // CronExpressionBuilder Examples
 export function CronExpressionBuilderExamples() {
   const { showToast } = useGlobalToast()
 
+  // Example server settings for demonstration
+  const exampleServerSettings = {
+    language: 'en-us',
+    dateFormat: 'EEEE, MM/dd/yyyy',
+    timeFormat: 'HH:mm',
+    timeZone: 'America/New_York'
+  }
+
+  // Example with different languages for testing
+  const spanishSettings = {
+    language: 'es',
+    dateFormat: 'EEEE, dd/MM/yyyy',
+    timeFormat: 'HH:mm',
+    timeZone: 'America/New_York'
+  }
+
+  const frenchSettings = {
+    language: 'fr',
+    dateFormat: 'EEEE dd/MM/yyyy',
+    timeFormat: 'HH:mm',
+    timeZone: 'America/New_York'
+  }
+
   const [cronValue1, setCronValue1] = useState<string>('0 0 * * *')
+  const [cronValue1IsValid, setCronValue1IsValid] = useState<boolean>(true)
   const [cronValue2, setCronValue2] = useState<string>('0 9 * * 1,3,5')
+  const [cronValue2IsValid, setCronValue2IsValid] = useState<boolean>(true)
   const [cronValue3, setCronValue3] = useState<string>('*/15 * * * *')
-  const [cronValue4, setCronValue4] = useState<string>('')
+  const [cronValue3IsValid, setCronValue3IsValid] = useState<boolean>(true)
+  const [cronValue4, setCronValue4] = useState<string>('15 */3 * * *')
+  const [cronValue4IsValid, setCronValue4IsValid] = useState<boolean>(true)
+  const [cronValue5, setCronValue5] = useState<string>('0 10 * * 0,2,4,6')
+  const [cronValue5IsValid, setCronValue5IsValid] = useState<boolean>(true)
 
-  const handleCronChange1 = useCallback((value: string, isInvalid?: boolean) => {
+  const handleCronChange1 = useCallback((value: string, isValid: boolean) => {
     setCronValue1(value)
-    console.log('Cron expression 1 updated: ', value, ' isInvalid: ', isInvalid)
+    setCronValue1IsValid(isValid)
+    console.log('Cron expression 1 updated: ', value, ' isValid: ', isValid)
   }, [])
 
-  const handleCronChange2 = useCallback((value: string, isInvalid?: boolean) => {
+  const handleCronChange2 = useCallback((value: string, isValid: boolean = false) => {
     setCronValue2(value)
-    console.log('Cron expression 2 updated: ', value, ' isInvalid: ', isInvalid)
+    setCronValue2IsValid(isValid)
+    console.log('Cron expression 2 updated: ', value, ' isValid: ', isValid)
   }, [])
 
-  const handleCronChange3 = useCallback((value: string, isInvalid?: boolean) => {
+  const handleCronChange3 = useCallback((value: string, isValid: boolean) => {
     setCronValue3(value)
-    console.log('Cron expression 3 updated: ', value, ' isInvalid: ', isInvalid)
+    setCronValue3IsValid(isValid)
+    console.log('Cron expression 3 updated: ', value, ' isValid: ', isValid)
   }, [])
 
-  const handleCronChange4 = useCallback((value: string, isInvalid?: boolean) => {
+  const handleCronChange4 = useCallback((value: string, isValid: boolean) => {
     setCronValue4(value)
-    console.log('Cron expression 4 updated: ', value, ' isInvalid: ', isInvalid)
+    setCronValue4IsValid(isValid)
+    console.log('Cron expression 4 updated: ', value, ' isValid: ', isValid)
+  }, [])
+
+  const handleCronChange5 = useCallback((value: string, isValid: boolean) => {
+    setCronValue5(value)
+    setCronValue5IsValid(isValid)
+    console.log('Cron expression 5 updated: ', value, ' isValid: ', isValid)
   }, [])
 
   return (
@@ -43,38 +83,76 @@ export function CronExpressionBuilderExamples() {
           <span className="font-bold">Import:</span>{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionBuilder from '@/components/widgets/CronExpressionBuilder'</code>
         </p>
+        <div className="mb-2">
+          <span className="font-bold">Props:</span>
+          <div className="grid grid-cols-[auto_1fr] gap-2">
+            <code className="bg-gray-700 px-1 rounded">value</code>
+            <span>a cron expression</span>
+            <code className="bg-gray-700 px-1 rounded">options? </code>
+            <span>
+              <code>
+                {'{'} language?, timeZone? {'}'}
+              </code>{' '}
+              - server language and time zone settings
+            </span>
+            <code className="bg-gray-700 px-1 rounded">onChange?</code>
+            <code>function (value: string, isValid?: boolean): void</code>
+          </div>
+        </div>
+      </ComponentInfo>
+
+      <ComponentInfo component="CronExpressionPreview" description="A preview of the cron expression with a verbal description of the schedule, next run date">
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code> (string | null),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code> (function)
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'</code>
         </p>
-        <p className="mb-2">
-          <span className="font-bold">Features:</span>
-        </p>
-        <ul className="list-disc list-inside mb-2 text-sm text-gray-300 ml-4">
-          <li>Visual schedule builder with predefined intervals</li>
-          <li>Custom daily/weekly scheduling with time picker</li>
-          <li>Advanced option for direct cron expression editing</li>
-          <li>Real-time validation with server-side verification</li>
-          <li>Next run date calculation and display</li>
-          <li>Simplified single-interface design</li>
-        </ul>
+        <div className="mb-2">
+          <span className="font-bold">Props:</span>
+          <div className="grid grid-cols-[auto_1fr] gap-2">
+            <code className="bg-gray-700 px-1 rounded">cronExpression</code>
+            <span>a cron expression</span>
+            <code className="bg-gray-700 px-1 rounded">isValid?</code>
+            <span>the validity of the cron expression. Will validate the cron expression internally if not provided</span>
+            <code className="bg-gray-700 px-1 rounded">options?</code>
+            <span>
+              <code>
+                {'{'} language?, dateFormat?, timeFormat?, timeZone? {'}'}
+              </code>{' '}
+              - the server language, date, and time settings
+            </span>
+            <code className="bg-gray-700 px-1 rounded">className?</code>
+            <span>classes to merge with the default classes</span>
+          </div>
+        </div>
       </ComponentInfo>
 
       <ExamplesBlock className="lg:grid-cols-2">
-        <Example title="Daily Schedule (Default)">
-          <CronExpressionBuilder currentCronValue={cronValue1} onChange={handleCronChange1} />
+        <Example title="Daily">
+          <CronExpressionBuilder value={cronValue1} onChange={handleCronChange1} options={exampleServerSettings} />
+          <CronExpressionPreview cronExpression={cronValue1} isValid={cronValue1IsValid} options={exampleServerSettings} />
         </Example>
 
-        <Example title="Weekly Schedule (Monday, Wednesday, Friday at 9:00 AM)">
-          <CronExpressionBuilder currentCronValue={cronValue2} onChange={handleCronChange2} />
+        <Example title="Weekly">
+          <CronExpressionBuilder value={cronValue2} onChange={handleCronChange2} options={exampleServerSettings} />
+          <CronExpressionPreview cronExpression={cronValue2} isValid={cronValue2IsValid} options={exampleServerSettings} />
         </Example>
 
-        <Example title="Advanced Schedule (Every 15 minutes)">
-          <CronExpressionBuilder currentCronValue={cronValue3} onChange={handleCronChange3} />
+        <Example title="Every 15 Minutes">
+          <CronExpressionBuilder value={cronValue3} onChange={handleCronChange3} options={exampleServerSettings} />
+          <CronExpressionPreview cronExpression={cronValue3} isValid={cronValue3IsValid} options={exampleServerSettings} />
         </Example>
 
-        <Example title="Empty Schedule Builder">
-          <CronExpressionBuilder currentCronValue={cronValue4} onChange={handleCronChange4} />
+        <Example title="Custom Cron Expression">
+          <CronExpressionBuilder value={cronValue4} onChange={handleCronChange4} options={exampleServerSettings} />
+          <CronExpressionPreview cronExpression={cronValue4} isValid={cronValue4IsValid} options={exampleServerSettings} />
+        </Example>
+
+        <Example title="i18n">
+          <CronExpressionBuilder value={cronValue5} onChange={handleCronChange5} options={exampleServerSettings} />
+          <p>Spanish</p>
+          <CronExpressionPreview cronExpression={cronValue5} isValid={cronValue5IsValid} options={spanishSettings} />
+          <p>French</p>
+          <CronExpressionPreview cronExpression={cronValue5} isValid={cronValue5IsValid} options={frenchSettings} />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
