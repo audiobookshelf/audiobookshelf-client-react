@@ -15,10 +15,6 @@
   min-height: 30px;
 }
 
-.drag-handle {
-  cursor: n-resize;
-}
-
 .list-group-item:not(.exclude) {
   cursor: n-resize;
 }

@@ -21,7 +21,7 @@ export default function SettingsContent(props: {
         <div className="flex items-center gap-2 mb-2">
           {props.backLink && (
             <Link aria-label="Back" href={props.backLink} className="text-gray-300 hover:text-white">
-              <span className="material-symbols text-xl !align-middle">arrow_back</span>
+              <span className="material-symbols text-xl">arrow_back</span>
             </Link>
           )}
           <h1 className="text-xl">{props.title}</h1>

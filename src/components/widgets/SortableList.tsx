@@ -3,7 +3,7 @@
 import React, { useMemo, useCallback } from 'react'
 import { useDragAndDrop } from '@formkit/drag-and-drop/react'
 import { mergeClasses } from '@/lib/merge-classes'
-import { DragendEvent, DragendEventData } from '@formkit/drag-and-drop'
+import { DragendEvent, DragendEventData, DragstartEvent, DragstartEventData } from '@formkit/drag-and-drop'
 
 interface SortableListProps<T> {
   items: T[]
@@ -13,20 +13,9 @@ interface SortableListProps<T> {
   className?: string
   itemClassName?: string
   disabled?: boolean
-  draggingClass?: string
-  dropZoneClass?: string
 }
 
-export default function SortableList<T>({
-  items,
-  onSortEnd,
-  renderItem,
-  className = '',
-  itemClassName = '',
-  disabled = false,
-  draggingClass = 'opacity-50 transform scale-105 shadow-lg',
-  dropZoneClass = 'bg-primary/10'
-}: SortableListProps<T>) {
+export default function SortableList<T>({ items, onSortEnd, renderItem, className = '', itemClassName = '', disabled = false }: SortableListProps<T>) {
   // Ensure each item has a unique identifier
   const itemsWithIds = items.map((item, index) => ({
     ...item,
@@ -35,17 +24,25 @@ export default function SortableList<T>({
 
   const onDragend = useCallback<DragendEvent>(
     (data: DragendEventData<any>) => {
+      if (data.draggedNode.el) {
+        data.draggedNode.el.classList.remove('opacity-50', 'bg-white/20')
+      }
       onSortEnd(sortedItems)
     },
     [onSortEnd]
   )
 
+  const onDragstart = useCallback<DragstartEvent>((data: DragstartEventData<any>) => {
+    if (data.draggedNode.el) {
+      data.draggedNode.el.classList.add('opacity-50', 'bg-white/20')
+    }
+  }, [])
+
   const [parent, sortedItems] = useDragAndDrop<HTMLDivElement, T>(itemsWithIds, {
     dragHandle: '.drag-handle',
     disabled,
-    draggingClass,
-    dropZoneClass,
-    onDragend
+    onDragend,
+    onDragstart
   })
 
   const itemWrapperClassName = useMemo(() => {

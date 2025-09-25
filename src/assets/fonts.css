@@ -17,7 +17,7 @@
   word-wrap: normal;
   direction: ltr;
   -webkit-font-smoothing: antialiased;
-  vertical-align: top;
+  vertical-align: middle;
 }
 
 .material-symbols.fill {
