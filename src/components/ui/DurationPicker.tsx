@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useCallback, useMemo, useId } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import InputWrapper from './InputWrapper'
 import { useUpdateEffect } from '@/hooks/useUpdateEffect'
 
@@ -37,6 +38,7 @@ export default function DurationPicker({
   className,
   onChange
 }: DurationPickerProps) {
+  const t = useTypeSafeTranslations()
   const id = useId()
   const hoursW = showThreeDigitHour ? 3 : 2
   const hoursMax = showThreeDigitHour ? 999 : 99
@@ -267,11 +269,11 @@ export default function DurationPicker({
     const m = clamp(parseInt(mText || '0', 10) || 0, 0, 59)
     const s = clamp(parseInt(sText || '0', 10) || 0, 0, 59)
     const parts: string[] = []
-    if (h > 0) parts.push(`${h} ${h === 1 ? 'hour' : 'hours'}`)
-    if (m > 0) parts.push(`${m} ${m === 1 ? 'minute' : 'minutes'}`)
-    if (s > 0 || parts.length === 0) parts.push(`${s} ${s === 1 ? 'second' : 'seconds'}`)
+    if (h > 0) parts.push(t('LabelHoursPlural', { count: h }))
+    if (m > 0) parts.push(t('LabelMinutesPlural', { count: m }))
+    if (s > 0 || parts.length === 0) parts.push(t('LabelSecondsPlural', { count: s }))
     return parts.join(' ')
-  }, [hText, mText, sText, hoursMax])
+  }, [hText, mText, sText, hoursMax, t])
 
   const wrapperClass = useMemo(() => {
     return mergeClasses('flex items-center gap-0 h-full px-1', disabled ? 'cursor-not-allowed' : 'cursor-text')
@@ -291,11 +293,11 @@ export default function DurationPicker({
   return (
     <InputWrapper disabled={disabled} readOnly={readOnly} borderless={borderless} size={size} className={className}>
       <fieldset cy-id="duration-picker-wrapper" className={wrapperClass} onClick={handleWrapperClick}>
-        <legend className="sr-only">Duration</legend>
+        <legend className="sr-only">{t('LabelDuration')}</legend>
         {/* HOURS */}
         <div className="flex-shrink min-w-0">
           <label htmlFor={hoursId} className="sr-only">
-            Hours
+            {t('LabelHours')}
           </label>
           <input
             id={hoursId}
@@ -327,7 +329,7 @@ export default function DurationPicker({
         {/* MINUTES */}
         <div className="flex-shrink min-w-0">
           <label htmlFor={minutesId} className="sr-only">
-            Minutes
+            {t('LabelMinutes')}
           </label>
           <input
             id={minutesId}
@@ -359,7 +361,7 @@ export default function DurationPicker({
         {/* SECONDS */}
         <div className="flex-shrink min-w-0">
           <label htmlFor={secondsId} className="sr-only">
-            Seconds
+            {t('LabelSeconds')}
           </label>
           <input
             id={secondsId}

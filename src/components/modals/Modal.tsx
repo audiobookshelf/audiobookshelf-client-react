@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback, useMemo, ReactNode } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { createPortal } from 'react-dom'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
@@ -34,6 +35,7 @@ export default function Modal({
   outerContent,
   onClose
 }: ModalProps) {
+  const t = useTypeSafeTranslations()
   const [preventClickoutside, setPreventClickoutside] = useState(false)
 
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -110,7 +112,7 @@ export default function Modal({
       {/* Close button */}
       <button
         className="absolute top-4 end-4 landscape:top-4 landscape:end-4 md:portrait:top-5 md:portrait:end-5 lg:top-5 lg:end-5 inline-flex text-gray-200 hover:text-white z-10 transition-colors"
-        aria-label="Close modal"
+        aria-label={t('ButtonCloseModal')}
         onClick={clickClose}
         cy-id="modal-close-button"
       >

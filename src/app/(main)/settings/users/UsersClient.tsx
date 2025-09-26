@@ -1,15 +1,17 @@
 'use client'
 
 import Link from 'next/link'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import SettingsContent from '../SettingsContent'
 
 export default function UsersClient(props: { users: any[] }) {
+  const t = useTypeSafeTranslations()
   return (
     <SettingsContent
-      title="Users"
+      title={t('HeaderUsers')}
       moreInfoUrl="https://www.audiobookshelf.org/guides/users"
       addButton={{
-        label: 'Add User',
+        label: t('ButtonAddUser'),
         onClick: () => {
           console.log('Add User')
         }

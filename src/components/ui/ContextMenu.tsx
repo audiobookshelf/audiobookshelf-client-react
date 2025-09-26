@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo, useCallback, useLayoutEffect } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
 export interface ContextMenuSubitem {
   text: string
@@ -55,6 +56,7 @@ const ContextMenu = ({
   onItemClick,
   onSubItemClick
 }: ContextMenuProps) => {
+  const t = useTypeSafeTranslations()
   // Track whether we're hovering over an open submenu
   const [isOverSubmenu, setIsOverSubmenu] = useState(false)
   // Track which parent index we're hovering over
@@ -208,13 +210,13 @@ const ContextMenu = ({
               <button
                 cy-id="no-items-subitem"
                 role="menuitem"
-                aria-label="No items"
+                aria-label={t('LabelNoItems')}
                 id={`${menuId}-subitem-${index}-no-items`}
                 className="flex items-center px-2 py-1.5 text-white/50 text-xs cursor-default w-full"
                 disabled
                 tabIndex={-1}
               >
-                <p>No items</p>
+                <p>{t('LabelNoItems')}</p>
               </button>
             )}
           </div>
@@ -251,7 +253,7 @@ const ContextMenu = ({
           ref={ref}
           id={menuId}
           role="menu"
-          aria-label="Context menu"
+          aria-label={t('LabelContextMenu')}
           className={mergeClasses(
             'absolute mt-1 z-10 bg-bg border border-black-200 shadow-lg rounded-md py-1 focus:outline-hidden sm:text-sm',
             menuAlign === 'right' ? 'end-0' : 'start-0',

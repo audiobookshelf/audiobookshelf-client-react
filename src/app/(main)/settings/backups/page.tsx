@@ -1,10 +1,12 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import SettingsContent from '../SettingsContent'
 
 export const dynamic = 'force-dynamic'
 
-export default function BackupsPage() {
+export default async function BackupsPage() {
+  const t = await getTypeSafeTranslations()
   return (
-    <SettingsContent title="Backups">
+    <SettingsContent title={t('HeaderBackups')}>
       <div></div>
     </SettingsContent>
   )

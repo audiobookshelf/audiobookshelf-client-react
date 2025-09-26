@@ -3,6 +3,7 @@
 import { useState, useRef, useId, useCallback, useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { AVAILABLE_ICONS, type AvailableIcon } from '@/lib/absicons'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import LibraryIcon from './LibraryIcon'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import Label from './Label'
@@ -22,12 +23,14 @@ interface MediaIconPickerProps {
  * A component that allows users to pick from available library icons.
  * Migrated from Vue component to React TypeScript.
  */
-export default function MediaIconPicker({ value, disabled = false, label = 'Icon', onChange, className = '', align = 'left' }: MediaIconPickerProps) {
+export default function MediaIconPicker({ value, disabled = false, label, onChange, className = '', align = 'left' }: MediaIconPickerProps) {
+  const t = useTypeSafeTranslations()
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const containerRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const defaultLabel = label || t('LabelIcon')
 
   const openMenu = useCallback((index: number = 0) => {
     setShowMenu(true)
@@ -203,8 +206,8 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
   const validSelectedIconReadableName = useMemo(() => getIconReadableName(validSelectedIcon), [validSelectedIcon, getIconReadableName])
 
   const ariaLabel = useMemo(
-    () => (label ? `${label}: ${validSelectedIconReadableName}` : validSelectedIconReadableName),
-    [label, validSelectedIconReadableName]
+    () => (defaultLabel ? `${defaultLabel}: ${validSelectedIconReadableName}` : validSelectedIconReadableName),
+    [defaultLabel, validSelectedIconReadableName]
   )
 
   const buttonClass = useMemo(() => {
@@ -214,7 +217,7 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
   return (
     <div className={mergeClasses('relative', className)}>
       <Label htmlFor={buttonId} disabled={disabled}>
-        {label}
+        {defaultLabel}
       </Label>
 
       <div className="relative w-fit" ref={containerRef}>
@@ -239,7 +242,7 @@ export default function MediaIconPicker({ value, disabled = false, label = 'Icon
             ref={menuRef}
             id={listboxId}
             role="listbox"
-            aria-label={`${label} options`}
+            aria-label={t('LabelIconOptions', { label: defaultLabel })}
             className={`absolute z-10 mt-0.5 bg-primary border border-black-200 shadow-lg max-h-56 w-48 rounded-md py-1 overflow-auto focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
             onKeyDown={handleKeyDown}
           >

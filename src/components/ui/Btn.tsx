@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo, useCallback, memo } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import ButtonBase from './ButtonBase'
 
@@ -51,6 +52,7 @@ export default function Btn({
   className = '',
   ariaLabel
 }: BtnProps) {
+  const t = useTypeSafeTranslations()
   const classList = useMemo(() => {
     const list: string[] = []
 
@@ -96,7 +98,7 @@ export default function Btn({
       {loading && <LoadingSpinner progress={progress} />}
       {loading && (
         <span className="sr-only" role="status" aria-live="polite">
-          {progress ? progress : 'Loading...'}{' '}
+          {progress ? progress : t('MessageLoading')}{' '}
         </span>
       )}
     </ButtonBase>
