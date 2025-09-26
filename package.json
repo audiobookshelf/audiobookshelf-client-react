@@ -9,7 +9,8 @@
     "lint": "next lint",
     "cy:open": "cypress open",
     "cy:comp": "cypress open --component --browser chrome",
-    "test": "cypress run --component --browser chrome"
+    "test": "cypress run --component --browser chrome",
+    "prepare": "husky"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.6",
@@ -28,6 +29,7 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -36,6 +38,11 @@
     "cypress": "^14.5.3",
     "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.14.0",
+    "eslint": "9.36.0",
+    "eslint-config-next": "15.5.4",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

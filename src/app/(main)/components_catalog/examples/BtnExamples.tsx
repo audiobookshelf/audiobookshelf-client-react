@@ -13,7 +13,7 @@ export function BtnExamples() {
     <ComponentExamples title="Buttons">
       <ComponentInfo component="Btn" description="Button component with various states (loading, disabled, small, link)">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Btn from '@/components/ui/Btn'</code>
+          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Btn from &apos;@/components/ui/Btn&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">color</code>,{' '}
