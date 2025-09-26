@@ -15,7 +15,6 @@ export default function LibrariesList(props: { libraries: any[] }) {
         items={libraries}
         itemClassName="first:rounded-t-md last:rounded-b-md border border-border"
         onSortEnd={(sortedItems: any[]) => {
-          // TODO: Handle saving updated order
           setLibraries(sortedItems as any[])
           console.log('Libraries sorted', sortedItems)
         }}

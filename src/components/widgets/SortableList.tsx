@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, ReactNode } from 'react'
 import { useDragAndDrop } from '@formkit/drag-and-drop/react'
 import { mergeClasses } from '@/lib/merge-classes'
 import { DragendEvent, DragendEventData, DragstartEvent, DragstartEventData } from '@formkit/drag-and-drop'
@@ -8,7 +8,7 @@ import { DragendEvent, DragendEventData, DragstartEvent, DragstartEventData } fr
 interface SortableListProps<T> {
   items: T[]
   onSortEnd: (sortedItems: T[]) => void
-  renderItem: (item: T, index: number) => React.ReactNode
+  renderItem: (item: T, index: number) => ReactNode
   dragHandle?: string
   className?: string
   itemClassName?: string
@@ -22,15 +22,11 @@ export default function SortableList<T>({ items, onSortEnd, renderItem, classNam
     id: (item as any).id || `item-${index}`
   }))
 
-  const onDragend = useCallback<DragendEvent>(
-    (data: DragendEventData<any>) => {
-      if (data.draggedNode.el) {
-        data.draggedNode.el.classList.remove('opacity-50', 'bg-white/20')
-      }
-      onSortEnd(sortedItems)
-    },
-    [onSortEnd]
-  )
+  const onDragend = useCallback<DragendEvent>((data: DragendEventData<any>) => {
+    if (data.draggedNode.el) {
+      data.draggedNode.el.classList.remove('opacity-50', 'bg-white/20')
+    }
+  }, [])
 
   const onDragstart = useCallback<DragstartEvent>((data: DragstartEventData<any>) => {
     if (data.draggedNode.el) {
@@ -42,7 +38,10 @@ export default function SortableList<T>({ items, onSortEnd, renderItem, classNam
     dragHandle: '.drag-handle',
     disabled,
     onDragend,
-    onDragstart
+    onDragstart,
+    handleDragend: () => {
+      onSortEnd(sortedItems)
+    }
   })
 
   const itemWrapperClassName = useMemo(() => {
