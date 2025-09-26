@@ -12,6 +12,12 @@
         "wrapAttributes": false,
         "sortAttributes": false
       }
+    },
+    {
+      "files": ["./src/locales/*.json"],
+      "options": {
+        "plugins": ["prettier-plugin-sort-json"]
+      }
     }
   ]
 }
