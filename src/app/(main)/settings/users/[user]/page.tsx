@@ -1,9 +1,11 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import Link from 'next/link'
 import { getUser, getData } from '../../../../../lib/api'
 
 export const dynamic = 'force-dynamic'
 
 export default async function UserPage({ params }: { params: Promise<{ user: string }> }) {
+  const t = await getTypeSafeTranslations()
   const { user: userId } = await params
 
   const [usersResponse] = await getData(getUser(userId))
@@ -14,7 +16,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
       <div className="bg-bg rounded-md shadow-lg border border-white/5 p-2 sm:p-4 mb-8">
         <Link href="/settings/users" className="flex items-center gap-2 text-gray-300 hover:text-white mb-4">
           <span className="material-symbols text-xl">arrow_back</span>
-          <span>Back to Users</span>
+          <span>{t('LabelBackToUsers')}</span>
         </Link>
         <div className="flex flex-col gap-2 py-4">
           <div className="flex items-center gap-2 mb-2">

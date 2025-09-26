@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Indicator from './Indicator'
 
 interface BonusIndicatorProps {
@@ -6,8 +7,9 @@ interface BonusIndicatorProps {
 }
 
 const BonusIndicator = ({ className }: BonusIndicatorProps) => {
+  const t = useTypeSafeTranslations()
   return (
-    <Indicator tooltipText="Bonus" className={className}>
+    <Indicator tooltipText={t('LabelBonus')} className={className}>
       local_play
     </Indicator>
   )

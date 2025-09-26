@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useRef, useCallback, useState, useId } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Btn from './Btn'
 import IconBtn from './IconBtn'
 
@@ -13,6 +14,7 @@ interface FileInputProps {
 }
 
 export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', children, onChange, className = '', ariaLabel }: FileInputProps) {
+  const t = useTypeSafeTranslations()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFileName, setSelectedFileName] = useState<string>('')
 
@@ -44,8 +46,8 @@ export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', childre
   )
 
   const inputId = `file-input-${useId()}`
-  const label = ariaLabel || 'Choose file'
-  const selectedFileText = selectedFileName ? `Selected file: ${selectedFileName}` : ''
+  const label = ariaLabel || t('LabelChooseFile')
+  const selectedFileText = selectedFileName ? t('LabelSelectedFile', { fileName: selectedFileName }) : ''
 
   return (
     <div className={className}>

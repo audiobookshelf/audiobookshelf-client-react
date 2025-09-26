@@ -270,7 +270,6 @@ export default function InputDropdown({
           onItemClick={(item) => handleOptionClick(item.value)}
           isItemSelected={isMenuItemSelected}
           showSelectedIndicator={true}
-          noItemsText="No items"
           menuMaxHeight="224px"
           className="z-50"
           showNoItemsMessage={true}

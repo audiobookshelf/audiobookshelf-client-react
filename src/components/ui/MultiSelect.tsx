@@ -7,6 +7,7 @@ import { mergeClasses } from '@/lib/merge-classes'
 import Pill from './Pill'
 import Label from './Label'
 import InputWrapper from './InputWrapper'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
 export interface MultiSelectItem<T = string> {
   value: string
@@ -76,6 +77,7 @@ export const MultiSelect = <T extends any = string>({
   onEditingPillIndexChange,
   onEditDone
 }: MultiSelectProps<T>) => {
+  const t = useTypeSafeTranslations()
   const onMutate = useCallback(
     (prev: T | null, text: string): T => {
       if (onMutateProp) {
@@ -731,7 +733,7 @@ export const MultiSelect = <T extends any = string>({
           isItemSelected={isItemSelected}
           showSelectedIndicator={true}
           showNoItemsMessage={true}
-          noItemsText="No items"
+          noItemsText={t('LabelNoItems')}
           menuMaxHeight="224px"
           className="z-60"
           triggerRef={inputWrapperRef as React.RefObject<HTMLElement>}

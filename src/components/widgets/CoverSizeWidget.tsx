@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import IconBtn from '@/components/ui/IconBtn'
 
@@ -13,6 +14,7 @@ interface CoverSizeWidgetProps {
 export const availableCoverSizes = [60, 80, 100, 120, 140, 160, 180, 200, 220]
 
 export default function CoverSizeWidget({ sizeIndex: sizeIndexProp = 3, onSizeIndexChange, className }: CoverSizeWidgetProps) {
+  const t = useTypeSafeTranslations()
   const sizeIndex = useMemo(() => {
     if (sizeIndexProp === undefined) return 3
     if (sizeIndexProp >= 0 && sizeIndexProp < availableCoverSizes.length) return sizeIndexProp
@@ -59,14 +61,14 @@ export default function CoverSizeWidget({ sizeIndex: sizeIndexProp = 3, onSizeIn
 
   return (
     <div>
-      <div aria-label="Cover Size" role="group" className={containerClass}>
-        <IconBtn className={buttonClass} disabled={isAtMinSize} onClick={decreaseSize} ariaLabel="Decrease Cover Size" borderless>
+      <div aria-label={t('LabelCoverSize')} role="group" className={containerClass}>
+        <IconBtn className={buttonClass} disabled={isAtMinSize} onClick={decreaseSize} ariaLabel={t('LabelDecreaseCoverSize')} borderless>
           remove
         </IconBtn>
         <p className={textClass} aria-live="polite">
           {bookCoverWidth}
         </p>
-        <IconBtn className={buttonClass} disabled={isAtMaxSize} onClick={increaseSize} ariaLabel="Increase Cover Size" borderless>
+        <IconBtn className={buttonClass} disabled={isAtMaxSize} onClick={increaseSize} ariaLabel={t('LabelIncreaseCoverSize')} borderless>
           add
         </IconBtn>
       </div>

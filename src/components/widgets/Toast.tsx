@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { createPortal } from 'react-dom'
 
 export interface ToastProps {
@@ -13,6 +14,7 @@ export interface ToastProps {
 }
 
 const Toast: React.FC<ToastProps> = ({ id, type = 'info', title, message, duration = 5000, onClose }) => {
+  const t = useTypeSafeTranslations()
   const [isVisible, setIsVisible] = useState(false)
   const [isExiting, setIsExiting] = useState(false)
 
@@ -84,7 +86,7 @@ const Toast: React.FC<ToastProps> = ({ id, type = 'info', title, message, durati
             cy-id="close-button"
             onClick={handleClose}
             className="flex-shrink-0 text-white/70 hover:text-white transition-colors duration-200"
-            aria-label="Close notification"
+            aria-label={t('ButtonCloseNotification')}
           >
             <span className="text-lg">×</span>
           </button>

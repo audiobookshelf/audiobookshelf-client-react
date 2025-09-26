@@ -1,8 +1,10 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { getCurrentUser } from '@/lib/api'
 
 export const dynamic = 'force-dynamic'
 
 export default async function UploadPage() {
+  const t = await getTypeSafeTranslations()
   const userResponse = await getCurrentUser()
   const user = userResponse.data?.user
 
@@ -12,7 +14,7 @@ export default async function UploadPage() {
 
   return (
     <div className="p-8 w-full max-w-xl mx-auto">
-      <h1 className="text-2xl">Upload</h1>
+      <h1 className="text-2xl">{t('HeaderUpload')}</h1>
     </div>
   )
 }

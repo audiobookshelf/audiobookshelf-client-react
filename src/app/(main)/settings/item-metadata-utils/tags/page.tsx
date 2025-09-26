@@ -1,10 +1,12 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import SettingsContent from '../../SettingsContent'
 
 export const dynamic = 'force-dynamic'
 
-export default function ItemMetadataUtilsTagsPage() {
+export default async function ItemMetadataUtilsTagsPage() {
+  const t = await getTypeSafeTranslations()
   return (
-    <SettingsContent title="Manage Tags" backLink="/settings/item-metadata-utils">
+    <SettingsContent title={t('HeaderManageTags')} backLink="/settings/item-metadata-utils">
       <div></div>
     </SettingsContent>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 
 export interface AlertProps {
@@ -11,6 +12,7 @@ export interface AlertProps {
 }
 
 export default function Alert({ type = 'error', autoFocus = true, children, className }: AlertProps) {
+  const t = useTypeSafeTranslations()
   const alertRef = useRef<HTMLDivElement>(null)
 
   const isAlert = useMemo(() => {
@@ -24,17 +26,17 @@ export default function Alert({ type = 'error', autoFocus = true, children, clas
   const prefix = useMemo(() => {
     switch (type) {
       case 'error':
-        return 'Error'
+        return t('LabelError')
       case 'warning':
-        return 'Warning'
+        return t('LabelWarning')
       case 'success':
-        return 'Success'
+        return t('LabelSuccess')
       case 'info':
-        return 'Information'
+        return t('LabelInformation')
       default:
-        return 'Alert'
+        return t('LabelAlert')
     }
-  }, [type])
+  }, [type, t])
 
   const alertRole = useMemo(() => {
     return isAlert ? 'alert' : 'status'

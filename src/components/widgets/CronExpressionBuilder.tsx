@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLocalizedServerTimeZone, validateCron, type FormatDateOptions, type ValidationResult } from '@/lib/cron'
 import Dropdown from '@/components/ui/Dropdown'
 import { MultiSelect } from '@/components/ui/MultiSelect'
@@ -14,23 +15,24 @@ interface CronExpressionBuilderProps {
 }
 
 export default function CronExpressionBuilder({ value, onChange, options: { language, timeZone } = {} }: CronExpressionBuilderProps) {
+  const t = useTypeSafeTranslations()
   const [selectedInterval, setSelectedInterval] = useState<string>('daily')
   const [customCronError, setCustomCronError] = useState<string>('')
 
   // Memoize interval options to prevent re-creation on every render.
   const intervalOptions = useMemo(
     () => [
-      { text: 'Daily', value: 'daily', canExpress: (expr: string) => /^\d+ \d+ \* \* \*$/.test(expr) },
-      { text: 'Weekly', value: 'weekly', canExpress: (expr: string) => /^\d+ \d+ \* \* (\*|(\d+(,\d+)*))$/.test(expr) },
-      { text: 'Every 12 Hours', value: '0 */12 * * *', canExpress: (expr: string) => expr === '0 */12 * * *' },
-      { text: 'Every 6 Hours', value: '0 */6 * * *', canExpress: (expr: string) => expr === '0 */6 * * *' },
-      { text: 'Every 2 Hours', value: '0 */2 * * *', canExpress: (expr: string) => expr === '0 */2 * * *' },
-      { text: 'Every Hour', value: '0 * * * *', canExpress: (expr: string) => expr === '0 * * * *' },
-      { text: 'Every 30 Minutes', value: '*/30 * * * *', canExpress: (expr: string) => expr === '*/30 * * * *' },
-      { text: 'Every 15 Minutes', value: '*/15 * * * *', canExpress: (expr: string) => expr === '*/15 * * * *' },
-      { text: 'Custom Cron Expression (advanced)', value: 'advanced', canExpress: () => true }
+      { text: t('LabelIntervalDaily'), value: 'daily', canExpress: (expr: string) => /^\d+ \d+ \* \* \*$/.test(expr) },
+      { text: t('LabelIntervalWeekly'), value: 'weekly', canExpress: (expr: string) => /^\d+ \d+ \* \* (\*|(\d+(,\d+)*))$/.test(expr) },
+      { text: t('LabelIntervalEvery12Hours'), value: '0 */12 * * *', canExpress: (expr: string) => expr === '0 */12 * * *' },
+      { text: t('LabelIntervalEvery6Hours'), value: '0 */6 * * *', canExpress: (expr: string) => expr === '0 */6 * * *' },
+      { text: t('LabelIntervalEvery2Hours'), value: '0 */2 * * *', canExpress: (expr: string) => expr === '0 */2 * * *' },
+      { text: t('LabelIntervalEveryHour'), value: '0 * * * *', canExpress: (expr: string) => expr === '0 * * * *' },
+      { text: t('LabelIntervalEvery30Minutes'), value: '*/30 * * * *', canExpress: (expr: string) => expr === '*/30 * * * *' },
+      { text: t('LabelIntervalEvery15Minutes'), value: '*/15 * * * *', canExpress: (expr: string) => expr === '*/15 * * * *' },
+      { text: t('LabelIntervalCustomCronExpression'), value: 'advanced', canExpress: () => true }
     ],
-    []
+    [t]
   )
 
   const weekdays = useMemo<MultiSelectItem<string>[]>(() => {
@@ -166,7 +168,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
         <Dropdown
           value={selectedInterval}
           onChange={(value) => handleIntervalChange(String(value))}
-          label="Interval"
+          label={t('LabelInterval')}
           items={intervalOptions}
           className="mb-2"
           cy-id="interval-dropdown"
@@ -178,7 +180,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
               value={formatTimeValue}
               onChange={handleTimeChange}
               type="time"
-              label="Time"
+              label={t('LabelTime')}
               customInputClass="[&::-webkit-calendar-picker-indicator]:hidden"
               className="w-fit"
               cy-id="time-input"
@@ -189,7 +191,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
             <MultiSelect
               selectedItems={parsedValues.selectedWeekdays}
               items={weekdays}
-              label="Weekdays to Run"
+              label={t('LabelWeekdaysToRun')}
               onItemAdded={(item) => handleWeekdayChange([...parsedValues.selectedWeekdays, item])}
               onItemRemoved={(item) => handleWeekdayChange(parsedValues.selectedWeekdays.filter((w) => w.value !== item.value))}
               allowNew={false}
@@ -200,7 +202,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
           {selectedInterval === 'advanced' && (
             <div className="w-full">
               <TextInput
-                label="Cron Expression"
+                label={t('LabelCronExpression')}
                 value={value}
                 onChange={handleCustomCronChange}
                 customInputClass={'text-2xl md:text-3xl font-mono text-center'}
@@ -212,7 +214,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
           )}
         </div>
         {serverTimeZone && (selectedInterval === 'daily' || selectedInterval === 'weekly' || selectedInterval === 'advanced') && (
-          <p className="text-sm text-yellow-500">Note: Time should be specified in the server's time zone ({serverTimeZone})</p>
+          <p className="text-sm text-yellow-500">{t('MessageCronServerTimeZoneNote', { timeZone: serverTimeZone })}</p>
         )}
       </div>
     </div>

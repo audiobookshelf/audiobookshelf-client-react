@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Indicator from './Indicator'
 
 interface OnlineIndicatorProps {
@@ -7,7 +8,8 @@ interface OnlineIndicatorProps {
 }
 
 const OnlineIndicator = ({ value, className }: OnlineIndicatorProps) => {
-  const statusText = value ? 'Online' : 'Offline'
+  const t = useTypeSafeTranslations()
+  const statusText = value ? t('LabelOnline') : t('LabelOffline')
 
   return (
     <Indicator role="status" tooltipText={statusText} className={className}>

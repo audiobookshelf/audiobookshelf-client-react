@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Indicator from './Indicator'
 
 interface ExplicitIndicatorProps {
@@ -6,8 +7,9 @@ interface ExplicitIndicatorProps {
 }
 
 const ExplicitIndicator = ({ className }: ExplicitIndicatorProps) => {
+  const t = useTypeSafeTranslations()
   return (
-    <Indicator tooltipText="Explicit" className={className}>
+    <Indicator tooltipText={t('LabelExplicit')} className={className}>
       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 512 512" aria-hidden="true">
         <path
           fill="currentColor"

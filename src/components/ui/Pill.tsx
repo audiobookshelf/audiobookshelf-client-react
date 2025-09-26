@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 
 interface PillProps<T> {
@@ -42,6 +43,7 @@ export const Pill = <T,>({
   onRemove,
   onEditDone
 }: PillProps<T>) => {
+  const t = useTypeSafeTranslations()
   const [isInputReady, setIsInputReady] = useState(false)
   const [hasValidationError, setHasValidationError] = useState(false)
 
@@ -234,7 +236,7 @@ export const Pill = <T,>({
         id={id}
         cy-id={id}
         role="listitem"
-        aria-label={`Editing ${readOnlyPrefix ? readOnlyPrefix + itemText : itemText}`}
+        aria-label={t('LabelEditingItem', { item: readOnlyPrefix ? readOnlyPrefix + itemText : itemText })}
         className={mergeClasses(
           'rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
           'ring z-10',
@@ -264,15 +266,15 @@ export const Pill = <T,>({
               className="bg-transparent border-none outline-none text-xs text-center"
               style={{ minWidth: '0px', width: `${inputWidthRef.current}px`, maxWidth: '100%', marginLeft: '-3px' }}
               autoComplete="off"
-              aria-label={`Edit ${readOnlyPrefix ? 'editable portion of ' : ''}${readOnlyPrefix ? readOnlyPrefix + itemText : itemText}`}
+              aria-label={t('LabelEditItem', { item: readOnlyPrefix ? readOnlyPrefix + itemText : itemText })}
               aria-describedby={`${id}-edit-instructions`}
             />
           )}
         </div>
-        <div className="flex items-center gap-1 ms-1" role="group" aria-label="Edit actions">
+        <div className="flex items-center gap-1 ms-1" role="group" aria-label={t('LabelEditActions')}>
           <button
             type="button"
-            aria-label="Cancel edit"
+            aria-label={t('ButtonCancelEdit')}
             className="material-symbols text-white focus:text-error hover:text-error cursor-pointer"
             style={{ fontSize: '1rem' }}
             onMouseDown={(e) => e.preventDefault()}
@@ -283,7 +285,7 @@ export const Pill = <T,>({
           </button>
           <button
             type="button"
-            aria-label="Save edit"
+            aria-label={t('ButtonSaveEdit')}
             className="material-symbols text-white focus:text-success hover:text-success cursor-pointer"
             style={{ fontSize: '1rem' }}
             onMouseDown={(e) => e.preventDefault()}
@@ -294,9 +296,7 @@ export const Pill = <T,>({
           </button>
         </div>
         <div id={`${id}-edit-instructions`} className="sr-only">
-          {readOnlyPrefix
-            ? `Editing text after prefix "${readOnlyPrefix}". Press Enter to save or Escape to cancel`
-            : 'Press Enter to save or Escape to cancel'}
+          {readOnlyPrefix ? t('LabelEditInstructionsWithPrefix', { prefix: readOnlyPrefix }) : t('LabelEditInstructions')}
         </div>
       </div>
     )
@@ -326,7 +326,7 @@ export const Pill = <T,>({
           {showEditButton && (
             <button
               type="button"
-              aria-label="Edit"
+              aria-label={t('ButtonEdit')}
               className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-white hover:text-warning cursor-pointer"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleEditButtonClick}
@@ -337,7 +337,7 @@ export const Pill = <T,>({
           )}
           <button
             type="button"
-            aria-label="Remove"
+            aria-label={t('ButtonRemove')}
             className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-white hover:text-error focus:text-error cursor-pointer"
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => {

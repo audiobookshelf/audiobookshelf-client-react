@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useMenuPosition } from '@/hooks/useMenuPosition'
 import { useModalRef } from '@/contexts/ModalContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
 export interface DropdownMenuItem {
   text: string
@@ -45,7 +46,7 @@ export default function DropdownMenu({
   isItemSelected,
   showSelectedIndicator = false,
   showNoItemsMessage = false,
-  noItemsText = 'No items',
+  noItemsText,
   menuMaxHeight = '224px',
   className,
   ref: externalRef,
@@ -53,6 +54,8 @@ export default function DropdownMenu({
   triggerRef,
   onClose
 }: DropdownMenuProps) {
+  const t = useTypeSafeTranslations()
+  const defaultNoItemsText = noItemsText || t('LabelNoItems')
   const modalRef = useModalRef()
   const portalContainerRef = modalRef || undefined
   const internalRef = useRef<HTMLUListElement>(null)
@@ -198,7 +201,7 @@ export default function DropdownMenu({
       {showNoItemsMessage && !items.length && (
         <li className="text-gray-100 select-none relative py-2 pe-9" role="option" cy-id="dropdown-menu-no-items">
           <div className="flex items-center justify-center">
-            <span className="font-normal">{noItemsText}</span>
+            <span className="font-normal">{defaultNoItemsText}</span>
           </div>
         </li>
       )}

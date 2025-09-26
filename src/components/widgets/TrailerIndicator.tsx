@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Indicator from './Indicator'
 
 interface TrailerIndicatorProps {
@@ -6,8 +7,9 @@ interface TrailerIndicatorProps {
 }
 
 const TrailerIndicator = ({ className }: TrailerIndicatorProps) => {
+  const t = useTypeSafeTranslations()
   return (
-    <Indicator tooltipText="Trailer" className={className}>
+    <Indicator tooltipText={t('LabelTrailer')} className={className}>
       local_movies
     </Indicator>
   )

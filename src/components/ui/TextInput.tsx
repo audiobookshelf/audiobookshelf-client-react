@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useId, useMemo, useState } from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { copyToClipboard } from '@/lib/clipboard'
 import { useMergedRef } from '@/hooks/useMergedRef'
@@ -56,6 +57,7 @@ export default function TextInput({
   ref,
   error
 }: TextInputProps) {
+  const t = useTypeSafeTranslations()
   const generatedId = useId()
   const textInputId = id || generatedId
   const inputId = `${textInputId}-input`
@@ -203,7 +205,7 @@ export default function TextInput({
               className="material-symbols text-gray-300 cursor-pointer hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
               style={{ fontSize: '1.1rem' }}
               onClick={handleClear}
-              aria-label="Clear input"
+              aria-label={t('ButtonClearInput')}
               cy-id="text-input-clear"
             >
               close
@@ -217,7 +219,7 @@ export default function TextInput({
               type="button"
               className="material-symbols text-gray-400 cursor-pointer text-lg hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
               onClick={togglePasswordVisibility}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? t('ButtonHidePassword') : t('ButtonShowPassword')}
               cy-id="text-input-password-toggle"
             >
               {!showPassword ? 'visibility' : 'visibility_off'}
@@ -234,7 +236,7 @@ export default function TextInput({
                 hasCopied ? 'text-success' : 'text-gray-400 hover:text-white'
               )}
               onClick={handleCopyToClipboard}
-              aria-label={hasCopied ? 'Copied to clipboard' : 'Copy to clipboard'}
+              aria-label={hasCopied ? t('ButtonCopiedToClipboard') : t('ButtonCopyToClipboard')}
               cy-id="text-input-copy"
             >
               {!hasCopied ? 'content_copy' : 'done'}

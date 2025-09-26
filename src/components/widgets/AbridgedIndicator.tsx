@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Indicator from './Indicator'
 
 interface AbridgedIndicatorProps {
@@ -6,8 +7,9 @@ interface AbridgedIndicatorProps {
 }
 
 const AbridgedIndicator = ({ className }: AbridgedIndicatorProps) => {
+  const t = useTypeSafeTranslations()
   return (
-    <Indicator tooltipText="Abridged" className={className}>
+    <Indicator tooltipText={t('LabelAbridged')} className={className}>
       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 512 512" aria-hidden="true">
         <path
           fill="currentColor"

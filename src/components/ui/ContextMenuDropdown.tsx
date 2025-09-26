@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback, useMemo, useId } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { mergeClasses } from '@/lib/merge-classes'
 import ContextMenu, { ContextMenuItem } from './ContextMenu'
@@ -51,6 +52,7 @@ export default function ContextMenuDropdown({
   borderless = false,
   className
 }: ContextMenuDropdownProps) {
+  const t = useTypeSafeTranslations()
   const [showMenu, setShowMenu] = useState(false)
   const menuWrapperRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -348,7 +350,7 @@ export default function ContextMenuDropdown({
           iconClass={iconClass}
           disabled={disabled}
           className={buttonClass}
-          ariaLabel="More options"
+          ariaLabel={t('LabelMoreOptions')}
           aria-haspopup="true"
           aria-expanded={showMenu}
           aria-controls={dropdownId}
