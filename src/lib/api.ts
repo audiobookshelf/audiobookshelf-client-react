@@ -116,20 +116,6 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
   }
 }
 
-/**
- * Wrapper function that handles refresh redirects for server-side API calls
- */
-export async function apiRequestWithRefresh<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-  const response = await apiRequest<T>(endpoint, options)
-
-  if (response.needsRefresh) {
-    const currentPath = (await headers()).get('x-current-path')
-    redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath || '')}`)
-  }
-
-  return response
-}
-
 export const getData = cache(async <T extends readonly Promise<ApiResponse<any>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
   let responses = await Promise.all(promises)
 

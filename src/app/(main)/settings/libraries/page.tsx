@@ -1,9 +1,20 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import SettingsContent from '../SettingsContent'
-import { getLibraries, getData } from '../../../../lib/api'
+import { getLibraries, getData, apiRequest } from '../../../../lib/api'
 import LibrariesList from './LibrariesList'
 
 export const dynamic = 'force-dynamic'
+
+// Server Action
+async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]) {
+  'use server'
+
+  const response = await apiRequest('/api/libraries/order', {
+    method: 'POST',
+    body: JSON.stringify(reorderObjects)
+  })
+  return response
+}
 
 export default async function LibrariesPage() {
   const t = await getTypeSafeTranslations()
@@ -13,7 +24,7 @@ export default async function LibrariesPage() {
 
   return (
     <SettingsContent title={t('HeaderLibraries')} moreInfoUrl="https://www.audiobookshelf.org/guides/library_creation">
-      <LibrariesList libraries={librariesData} />
+      <LibrariesList libraries={librariesData} saveLibraryOrder={saveLibraryOrder} />
     </SettingsContent>
   )
 }
