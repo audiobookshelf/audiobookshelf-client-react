@@ -6,11 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "cy:open": "cypress open",
     "cy:comp": "cypress open --component --browser chrome",
     "test": "cypress run --component --browser chrome",
-    "lint:fix": "next lint --fix",
+    "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
   },
   "dependencies": {

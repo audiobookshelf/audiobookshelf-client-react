@@ -1,13 +1,12 @@
 'use client'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { useState } from 'react'
 import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Button Examples
 export function BtnExamples() {
   const { showToast } = useGlobalToast()
-  const [progress, setProgress] = useState(75)
+  const progress = 75
 
   return (
     <ComponentExamples title="Buttons">

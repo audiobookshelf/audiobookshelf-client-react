@@ -70,18 +70,15 @@ const ContextMenu = ({
   // Track which submenu index is pending closure after mouse leave
   const pendingCloseRef = useRef<number | null>(null)
 
-  const handleMouseoverSubmenu = useCallback((index: number) => {
+  const handleMouseoverSubmenu = useCallback(() => {
     setIsOverSubmenu(true)
   }, [])
 
-  const handleMouseleaveSubmenu = useCallback(
-    (index: number) => {
-      setIsOverSubmenu(false)
-      // Mark for potential closure when leaving submenu
-      pendingCloseRef.current = openSubmenuIndex
-    },
-    [openSubmenuIndex]
-  )
+  const handleMouseleaveSubmenu = useCallback(() => {
+    setIsOverSubmenu(false)
+    // Mark for potential closure when leaving submenu
+    pendingCloseRef.current = openSubmenuIndex
+  }, [openSubmenuIndex])
 
   const handleMouseoverParent = useCallback(
     (index: number) => {
@@ -167,8 +164,8 @@ const ContextMenu = ({
             cy-id={`submenu-${index}`}
             role="menu"
             aria-label={`${item.text} submenu`}
-            onMouseOver={() => handleMouseoverSubmenu(index)}
-            onMouseLeave={() => handleMouseleaveSubmenu(index)}
+            onMouseOver={handleMouseoverSubmenu}
+            onMouseLeave={handleMouseleaveSubmenu}
             className={mergeClasses(
               'absolute bg-bg border border-black-200 shadow-lg z-50 -ms-px py-1',
               openSubmenuLeft ? 'rounded-s-md' : 'rounded-e-md',

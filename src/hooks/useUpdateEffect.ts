@@ -16,5 +16,5 @@ export function useUpdateEffect(effect: () => void, deps: React.DependencyList) 
       didMount.current = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [...deps, effect])
+  }, deps)
 }

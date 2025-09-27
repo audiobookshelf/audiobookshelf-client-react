@@ -29,7 +29,6 @@ interface DropdownMenuProps {
   ref?: React.RefObject<HTMLUListElement | null>
   usePortal?: boolean
   triggerRef?: React.RefObject<HTMLElement>
-  onClose?: () => void
 }
 
 /**
@@ -51,8 +50,7 @@ export default function DropdownMenu({
   className,
   ref: externalRef,
   usePortal: usePortalProp = false,
-  triggerRef,
-  onClose
+  triggerRef
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -77,7 +75,6 @@ export default function DropdownMenu({
     menuRef: menuRef as React.RefObject<HTMLElement>,
     isOpen: showMenu,
     onPositionChange: setMenuPosition,
-    onClose,
     disable: !usePortal,
     portalContainerRef
   })

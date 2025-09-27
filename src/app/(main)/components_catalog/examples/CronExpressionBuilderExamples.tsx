@@ -1,14 +1,11 @@
 'use client'
 import CronExpressionBuilder from '@/components/widgets/CronExpressionBuilder'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
-import { useGlobalToast } from '@/contexts/ToastContext'
 import { useCallback, useState } from 'react'
 import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // CronExpressionBuilder Examples
 export function CronExpressionBuilderExamples() {
-  const { showToast } = useGlobalToast()
-
   // Example server settings for demonstration
   const exampleServerSettings = {
     language: 'en-us',

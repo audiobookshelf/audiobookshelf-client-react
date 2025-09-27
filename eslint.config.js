@@ -5,12 +5,32 @@ const compat = new FlatCompat({
 })
 
 module.exports = [
-  ...compat.extends('next/core-web-vitals', 'prettier'),
   {
+    ignores: [
+      'node_modules/',
+      '.next/',
+      'dist/',
+      'build/',
+      'out/',
+      'coverage/',
+      'cypress/screenshots/',
+      'cypress/videos/',
+      '.eslintcache',
+      'next-env.d.ts',
+      'eslint.config.js'
+    ]
+  },
+  ...compat.extends('next/core-web-vitals', 'next/typescript', 'prettier'),
+  {
+    files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.json'
+        project: './tsconfig.json',
+        tsconfigRootDir: __dirname
       }
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off'
     }
   }
 ]

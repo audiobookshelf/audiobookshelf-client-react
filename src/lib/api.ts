@@ -131,7 +131,7 @@ export async function apiRequestWithRefresh<T = any>(endpoint: string, options: 
 }
 
 export const getData = cache(async <T extends readonly Promise<ApiResponse<any>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
-  let responses = await Promise.all(promises)
+  const responses = await Promise.all(promises)
 
   let requiresRefresh = false
   for (const response of responses) {

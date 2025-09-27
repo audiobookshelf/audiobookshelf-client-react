@@ -1,7 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useId, useRef } from 'react'
+import { useCallback, useId, useMemo, useRef } from 'react'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
 
@@ -44,8 +44,12 @@ export default function TextareaInput({
     [onChange]
   )
 
+  const textareaClass = useMemo(() => {
+    return mergeClasses('w-full', className)
+  }, [className])
+
   return (
-    <div className="w-full" cy-id="textarea-input">
+    <div className={textareaClass} cy-id="textarea-input">
       {label && (
         <Label htmlFor={textareaId} disabled={disabled}>
           {label}

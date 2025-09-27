@@ -18,13 +18,6 @@ export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', childre
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFileName, setSelectedFileName] = useState<string>('')
 
-  const reset = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-      setSelectedFileName('')
-    }
-  }, [])
-
   const clickUpload = useCallback(() => {
     if (fileInputRef.current) {
       fileInputRef.current.click()

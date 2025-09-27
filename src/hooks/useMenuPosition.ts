@@ -11,7 +11,6 @@ interface UseMenuPositionOptions {
   menuRef: RefObject<HTMLElement>
   isOpen: boolean
   onPositionChange: (position: MenuPosition) => void
-  onClose?: () => void
   disable?: boolean
   portalContainerRef?: RefObject<HTMLElement>
 }
@@ -24,7 +23,6 @@ export const useMenuPosition = ({
   menuRef,
   isOpen,
   onPositionChange,
-  onClose,
   disable = false,
   portalContainerRef
 }: UseMenuPositionOptions): (() => void) => {
@@ -36,41 +34,38 @@ export const useMenuPosition = ({
   const triggerObserverRef = useRef<ResizeObserver | null>(null)
   const portalObserverRef = useRef<ResizeObserver | null>(null)
 
-  const recalcMenuPos = useCallback(
-    (event?: Event) => {
-      if (disable) {
-        return
-      }
-      if (!menuRef.current || !triggerRef.current) {
-        return
-      }
+  const recalcMenuPos = useCallback(() => {
+    if (disable) {
+      return
+    }
+    if (!menuRef.current || !triggerRef.current) {
+      return
+    }
 
-      const triggerBoundingBox = triggerRef.current.getBoundingClientRect()
-      let left: string, top: string
-      const width = `${triggerBoundingBox.width}px`
+    const triggerBoundingBox = triggerRef.current.getBoundingClientRect()
+    let left: string, top: string
+    const width = `${triggerBoundingBox.width}px`
 
-      if (portalContainerRef?.current) {
-        const portalRect = portalContainerRef.current.getBoundingClientRect()
-        // Position relative to the portal container
-        left = `${triggerBoundingBox.left - portalRect.left + portalContainerRef.current.scrollLeft}px`
-        top = `${triggerBoundingBox.bottom - portalRect.top + portalContainerRef.current.scrollTop}px`
-      } else {
-        // Position relative to the window/document
-        left = `${triggerBoundingBox.x}px`
-        top = `${triggerBoundingBox.bottom + window.scrollY}px`
-      }
+    if (portalContainerRef?.current) {
+      const portalRect = portalContainerRef.current.getBoundingClientRect()
+      // Position relative to the portal container
+      left = `${triggerBoundingBox.left - portalRect.left + portalContainerRef.current.scrollLeft}px`
+      top = `${triggerBoundingBox.bottom - portalRect.top + portalContainerRef.current.scrollTop}px`
+    } else {
+      // Position relative to the window/document
+      left = `${triggerBoundingBox.x}px`
+      top = `${triggerBoundingBox.bottom + window.scrollY}px`
+    }
 
-      // Always position below trigger for now
-      const position: MenuPosition = { top, left, width }
+    // Always position below trigger for now
+    const position: MenuPosition = { top, left, width }
 
-      // Only update if position has changed
-      if (position.top !== positionRef.current.top || position.left !== positionRef.current.left || position.width !== positionRef.current.width) {
-        positionRef.current = position
-        onPositionChange(position)
-      }
-    },
-    [onPositionChange, menuRef, triggerRef, portalContainerRef, disable]
-  )
+    // Only update if position has changed
+    if (position.top !== positionRef.current.top || position.left !== positionRef.current.left || position.width !== positionRef.current.width) {
+      positionRef.current = position
+      onPositionChange(position)
+    }
+  }, [onPositionChange, menuRef, triggerRef, portalContainerRef, disable])
 
   // Set up event listeners and ResizeObserver when menu is open
   useEffect(() => {
@@ -79,7 +74,7 @@ export const useMenuPosition = ({
       const handleScroll = (event: Event): void => {
         // Check if the scroll event originated from within the menu
         if (menuRef.current && event.target && !menuRef.current.contains(event.target as Node)) {
-          recalcMenuPos(event)
+          recalcMenuPos()
         }
       }
 

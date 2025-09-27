@@ -9,7 +9,7 @@ export function DurationPickerExamples() {
   const [timeValue1, setTimeValue1] = useState(3661) // 1:01:01
   const [timeValue2, setTimeValue2] = useState(7200) // 2:00:00
   const [timeValue3, setTimeValue3] = useState(360000) // 100:00:00 (3-digit hours)
-  const [timeValue4, setTimeValue4] = useState(0) // 0:00:00
+  const [] = useState(0) // 0:00:00
 
   return (
     <ComponentExamples title="Duration Picker">

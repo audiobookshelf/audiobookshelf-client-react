@@ -51,6 +51,7 @@ export interface MultiSelectProps<T = string> {
   onEditDone?: (cancelled?: boolean) => void
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
 export const MultiSelect = <T extends any = string>({
   value,
   selectedItems = [],
@@ -328,17 +329,14 @@ export const MultiSelect = <T extends any = string>({
     openMenu(null)
   }, [openMenu])
 
-  const inputBlur = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      if (!isMenuOpen) return
-      setTimeout(() => {
-        if (document.activeElement === inputRef.current) return
-        closeMenu()
-        if (textInput) submitForm()
-      }, 50)
-    },
-    [isMenuOpen, textInput, submitForm, closeMenu]
-  )
+  const inputBlur = useCallback(() => {
+    if (!isMenuOpen) return
+    setTimeout(() => {
+      if (document.activeElement === inputRef.current) return
+      closeMenu()
+      if (textInput) submitForm()
+    }, 50)
+  }, [isMenuOpen, textInput, submitForm, closeMenu])
 
   const addPastedItems = useCallback(
     (pastedItems: string[]) => {
@@ -647,15 +645,12 @@ export const MultiSelect = <T extends any = string>({
   )
 
   // Handler for input wrapper click
-  const handleInputWrapperClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (disabled) return
-      if (document.activeElement === inputRef.current) {
-        setIsMenuOpen((prev) => !prev)
-      }
-    },
-    [disabled]
-  )
+  const handleInputWrapperClick = useCallback(() => {
+    if (disabled) return
+    if (document.activeElement === inputRef.current) {
+      setIsMenuOpen((prev) => !prev)
+    }
+  }, [disabled])
 
   const inputId = useMemo(() => `${multiSelectId}-input`, [multiSelectId])
 

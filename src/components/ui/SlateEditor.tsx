@@ -130,7 +130,6 @@ const withLinks = <T extends Editor>(editor: T) => {
 }
 
 interface SlateEditorProps {
-  id?: string
   label?: string
   srcContent?: string
   onUpdate?: (html: string) => void
@@ -140,7 +139,7 @@ interface SlateEditorProps {
   className?: string
 }
 
-const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
+const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
   const [isClient, setIsClient] = useState(false)
 

@@ -96,7 +96,7 @@ export const validateCron = (expression: string): ValidationResult => {
     }
 
     return { isValid: true }
-  } catch (error) {
+  } catch {
     return { isValid: false, error: 'Invalid cron expression format' }
   }
 }
@@ -205,7 +205,7 @@ export const calculateNextRunDate = (cronExpr: string, options: FormatDateOption
 
     // Find the next valid date/time (check up to 4 years in the future to handle edge cases)
     const maxIterations = 366 * 4 * 24 * 60 // 4 years worth of minutes
-    let candidate = new Date(nextMinute)
+    const candidate = new Date(nextMinute)
 
     for (let i = 0; i < maxIterations; i++) {
       if (matchesCronExpression(candidate, minute, hour, day, month, weekday)) {
@@ -279,7 +279,7 @@ function formatDate(date: Date, options: FormatDateOptions = {}, clientTimeZone?
   // --- Format the Date ---
   try {
     return `${new Intl.DateTimeFormat(language, intlOptions).format(date)} ${timeZoneString}`.trim()
-  } catch (error) {
+  } catch {
     return 'Could not format date'
   }
 }

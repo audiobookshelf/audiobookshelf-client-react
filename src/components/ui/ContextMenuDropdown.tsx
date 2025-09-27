@@ -143,13 +143,6 @@ export default function ContextMenuDropdown({
     [handleAction]
   )
 
-  const handleContextMenuAction = useCallback(
-    (params: { action: string; data?: Record<string, any> }) => {
-      handleAction(params.action, params.data)
-    },
-    [handleAction]
-  )
-
   // Keyboard navigation handlers
   const handleVerticalNavigation = useCallback(
     (direction: 'up' | 'down') => {

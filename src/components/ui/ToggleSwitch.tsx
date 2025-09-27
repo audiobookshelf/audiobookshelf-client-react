@@ -102,14 +102,11 @@ export default function ToggleSwitch({
     [triggerChange]
   )
 
-  const handleWrapperClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (buttonRef.current && !disabled) {
-        buttonRef.current.focus()
-      }
-    },
-    [disabled]
-  )
+  const handleWrapperClick = useCallback(() => {
+    if (buttonRef.current && !disabled) {
+      buttonRef.current.focus()
+    }
+  }, [disabled])
 
   const derivedAriaLabel = useMemo(() => {
     if (label) return undefined // aria-labelledby will be used instead

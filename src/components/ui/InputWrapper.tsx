@@ -46,16 +46,13 @@ const InputWrapper = ({
     )
   }, [disabled, readOnly, error, size, className, borderless])
 
-  const handleClick = useCallback(
-    (event: React.MouseEvent) => {
-      if (!disabled) {
-        if (document.activeElement !== inputRef?.current) {
-          inputRef?.current?.focus()
-        }
+  const handleClick = useCallback(() => {
+    if (!disabled) {
+      if (document.activeElement !== inputRef?.current) {
+        inputRef?.current?.focus()
       }
-    },
-    [disabled, inputRef]
-  )
+    }
+  }, [disabled, inputRef])
 
   return (
     <>

@@ -41,7 +41,7 @@ export default function LoginForm() {
       } else {
         window.location.href = '/settings'
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.')
       setLoading(false)
     }

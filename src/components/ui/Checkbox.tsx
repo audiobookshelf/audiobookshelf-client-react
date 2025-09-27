@@ -112,14 +112,11 @@ export default function Checkbox({
     [disabled]
   )
 
-  const handleWrapperClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (inputRef.current && !disabled) {
-        inputRef.current.focus()
-      }
-    },
-    [disabled]
-  )
+  const handleWrapperClick = useCallback(() => {
+    if (inputRef.current && !disabled) {
+      inputRef.current.focus()
+    }
+  }, [disabled])
 
   return (
     <InputWrapper disabled={disabled} borderless size={size} className={mergeClasses('bg-transparent', className)} inputRef={inputRef}>
