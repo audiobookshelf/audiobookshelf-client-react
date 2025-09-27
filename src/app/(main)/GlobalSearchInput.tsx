@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import InputDropdown from '@/components/ui/InputDropdown'
+import { useState } from 'react'
 
 export default function GlobalSearchInput() {
   const [searchValue, setSearchValue] = useState('')

@@ -1,15 +1,15 @@
 'use client'
 
-import React, { useRef, useCallback, useMemo, useEffect, useState } from 'react'
-import { useSlate } from 'slate-react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { HistoryEditor } from 'slate-history'
+import { useSlate } from 'slate-react'
 
-import { MarkButton } from './Mark'
-import { BlockButton } from './Block'
-import { UndoButton, RedoButton } from './History'
-import { LinkButton } from './Link'
 import { useLinkModalContext } from '@/contexts/LinkModalContext'
 import { DOMElement } from '@/types/slate'
+import { BlockButton } from './Block'
+import { RedoButton, UndoButton } from './History'
+import { LinkButton } from './Link'
+import { MarkButton } from './Mark'
 
 export const Toolbar = () => {
   const toolbarRef = useRef<HTMLDivElement>(null)

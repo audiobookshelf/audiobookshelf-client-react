@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
+import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function MultiSelectDropdownExamples() {
   const { showToast } = useGlobalToast()
@@ -38,7 +38,7 @@ export function MultiSelectDropdownExamples() {
       <ComponentInfo component="MultiSelectDropdown" description="Multi-select dropdown component with item management">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import MultiSelectDropdown from &apos;@/components/ui/MultiSelectDropdown&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">selectedItems</code> (MultiSelectItem[]),{' '}

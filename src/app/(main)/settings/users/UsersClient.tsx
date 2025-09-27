@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import Link from 'next/link'
 import SettingsContent from '../SettingsContent'
 
 export default function UsersClient(props: { users: any[] }) {

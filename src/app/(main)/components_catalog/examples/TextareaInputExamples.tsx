@@ -1,7 +1,7 @@
 'use client'
 import TextareaInput from '@/components/ui/TextareaInput'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // TextareaInput Examples
 export function TextareaInputExamples() {
@@ -15,7 +15,7 @@ export function TextareaInputExamples() {
       <ComponentInfo component="TextareaInput" description="Accessible textarea input with disabled and focus styles consistent with InputDropdown">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import TextareaInput from '@/components/ui/TextareaInput'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import TextareaInput from &apos;@/components/ui/TextareaInput&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

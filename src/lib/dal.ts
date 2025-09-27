@@ -1,8 +1,8 @@
 import 'server-only'
 
-import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 
 export const verifySession = cache(async () => {
   const cookieStore = await cookies()

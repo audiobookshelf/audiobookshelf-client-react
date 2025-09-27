@@ -1,6 +1,5 @@
-import React, { useRef, useState } from 'react'
-import ContextMenu from '@/components/ui/ContextMenu'
-import { ContextMenuSubitem, ContextMenuItem } from '@/components/ui/ContextMenu'
+import ContextMenu, { ContextMenuItem } from '@/components/ui/ContextMenu'
+import { useRef, useState } from 'react'
 
 // Test wrapper component to manage ContextMenu state
 const TestWrapper = ({
@@ -23,8 +22,8 @@ const TestWrapper = ({
   onCloseSubmenu?: () => void
 }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [focusedIndex, setFocusedIndex] = useState(-1)
-  const [focusedSubIndex, setFocusedSubIndex] = useState(-1)
+  const [focusedIndex] = useState(-1)
+  const [focusedSubIndex] = useState(-1)
   const [openSubmenuIndex, setOpenSubmenuIndex] = useState<number | null>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 

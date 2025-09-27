@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useCallback, memo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { Editor } from 'slate'
 import { useSlate } from 'slate-react'
 
@@ -93,3 +93,5 @@ export const MarkButton = memo(
     )
   }
 )
+
+MarkButton.displayName = 'MarkButton'

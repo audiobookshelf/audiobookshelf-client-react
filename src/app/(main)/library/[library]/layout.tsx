@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getLibraries, getCurrentUser, getData } from '../../../../lib/api'
 import '../../../../assets/globals.css'
+import { getCurrentUser, getData, getLibraries } from '../../../../lib/api'
 import AppBar from '../../AppBar'
 import SideRail from '../../SideRail'
 import Toolbar from './Toolbar'

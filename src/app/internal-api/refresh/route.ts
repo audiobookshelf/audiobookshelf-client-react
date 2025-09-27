@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
 import { getServerBaseUrl, getUserDefaultUrlPath, setTokenCookies } from '@/lib/api'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 
 const rscMap = new Map<string, boolean>()
 

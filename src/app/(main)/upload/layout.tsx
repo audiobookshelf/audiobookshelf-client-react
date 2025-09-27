@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
-import AppBar from '../AppBar'
 import { getCurrentUser, getData } from '../../../lib/api'
+import AppBar from '../AppBar'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',

@@ -1,5 +1,5 @@
-import { getTranslations } from 'next-intl/server'
 import type { TypeSafeTranslations } from '@/types/translations'
+import { getTranslations } from 'next-intl/server'
 
 /**
  * Type-safe wrapper for getTranslations (server components) that provides

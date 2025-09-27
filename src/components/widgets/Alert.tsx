@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef } from 'react'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import React, { useEffect, useMemo, useRef } from 'react'
 
 export interface AlertProps {
   type?: 'error' | 'warning' | 'success' | 'info'
@@ -40,7 +40,7 @@ export default function Alert({ type = 'error', autoFocus = true, children, clas
 
   const alertRole = useMemo(() => {
     return isAlert ? 'alert' : 'status'
-  }, [type])
+  }, [isAlert])
 
   const wrapperClass = useMemo(() => {
     const baseClasses = 'w-full border rounded-lg flex items-center relative py-4 ps-16'

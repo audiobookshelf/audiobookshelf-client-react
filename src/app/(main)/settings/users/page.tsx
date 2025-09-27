@@ -1,4 +1,4 @@
-import { getUsers, getData } from '../../../../lib/api'
+import { getData, getUsers } from '../../../../lib/api'
 import UsersClient from './UsersClient'
 
 export const dynamic = 'force-dynamic'

@@ -1,4 +1,3 @@
-import React from 'react'
 import FileInput from '@/components/ui/FileInput'
 
 describe('<FileInput />', () => {
@@ -21,13 +20,6 @@ describe('<FileInput />', () => {
     fileName: 'test.json',
     mimeType: 'application/json',
     lastModified: 1715404800000
-  }
-
-  const file2Output = {
-    name: 'test.json',
-    type: 'application/json',
-    lastModified: 1715404800000,
-    size: 9
   }
 
   it('renders a basic file input', () => {

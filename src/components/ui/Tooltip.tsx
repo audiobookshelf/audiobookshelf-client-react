@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useId, useMemo, useRef, useState, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
-import { useFloating, offset, flip, shift, size, arrow as arrowMw, autoUpdate } from '@floating-ui/react-dom'
-import type { Placement } from '@floating-ui/dom'
 import { useModalRef } from '@/contexts/ModalContext'
 import { mergeClasses } from '@/lib/merge-classes'
+import type { Placement } from '@floating-ui/dom'
+import { arrow as arrowMw, autoUpdate, flip, offset, shift, size, useFloating } from '@floating-ui/react-dom'
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 interface TooltipProps {
   text: string
@@ -147,7 +147,7 @@ const Tooltip = ({
         }
       }
     }
-  }, [closeSoon, closeOnClick])
+  }, [closeSoon, closeOnClick, refs.reference])
 
   // Add aria-describedby to the first element child of the container
   useEffect(() => {
@@ -157,7 +157,7 @@ const Tooltip = ({
         firstChild.setAttribute('aria-describedby', tooltipId)
       }
     }
-  }, [tooltipId])
+  }, [tooltipId, refs.reference])
 
   // Escape to dismiss
   useEffect(() => {
@@ -247,8 +247,8 @@ const Tooltip = ({
           ? portalRoot
             ? createPortal(tooltipElement, portalRoot)
             : typeof document !== 'undefined'
-            ? createPortal(tooltipElement, document.body)
-            : null
+              ? createPortal(tooltipElement, document.body)
+              : null
           : tooltipElement)}
     </div>
   )

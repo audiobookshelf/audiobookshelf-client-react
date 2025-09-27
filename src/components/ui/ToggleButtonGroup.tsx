@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState, useCallback, useId } from 'react'
 import ButtonBase from '@/components/ui/ButtonBase'
 import Label from '@/components/ui/Label'
 import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 type ToggleItem = {
   text: string

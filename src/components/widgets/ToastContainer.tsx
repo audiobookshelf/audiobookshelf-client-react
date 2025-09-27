@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import Toast, { ToastProps } from './Toast'
+import Toast from './Toast'
 
 export interface ToastMessage {
   id: string

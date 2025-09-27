@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useMemo, useCallback, memo } from 'react'
-import ButtonBase from './ButtonBase'
 import { mergeClasses } from '@/lib/merge-classes'
+import React, { memo, useCallback, useMemo } from 'react'
+import ButtonBase from './ButtonBase'
 
 interface IconBtnProps {
   children: React.ReactNode

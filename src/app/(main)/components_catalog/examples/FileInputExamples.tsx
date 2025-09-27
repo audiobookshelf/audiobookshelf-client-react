@@ -1,7 +1,7 @@
 'use client'
 import FileInput from '@/components/ui/FileInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // FileInput Examples
 export function FileInputExamples() {
@@ -11,7 +11,8 @@ export function FileInputExamples() {
     <ComponentExamples title="File Inputs">
       <ComponentInfo component="FileInput" description="File input component with customizable accept types and responsive design">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import FileInput from '@/components/ui/FileInput'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import FileInput from &apos;@/components/ui/FileInput&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">accept</code> (file types to accept),{' '}

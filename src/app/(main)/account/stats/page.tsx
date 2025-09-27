@@ -1,5 +1,5 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { getCurrentUser } from '@/lib/api'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import SettingsContent from '../../settings/SettingsContent'
 
 export const dynamic = 'force-dynamic'

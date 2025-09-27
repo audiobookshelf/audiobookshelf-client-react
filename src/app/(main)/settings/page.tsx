@@ -1,5 +1,5 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { getCurrentUser, getData } from '../../../lib/api'
 import SettingsContent from './SettingsContent'
 

@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import TextInput from '@/components/ui/TextInput'
 import Btn from '@/components/ui/Btn'
+import TextInput from '@/components/ui/TextInput'
+import { useTranslations } from 'next-intl'
+import { useState } from 'react'
 
 export default function LoginForm() {
   const t = useTranslations()
@@ -41,7 +41,7 @@ export default function LoginForm() {
       } else {
         window.location.href = '/settings'
       }
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.')
       setLoading(false)
     }

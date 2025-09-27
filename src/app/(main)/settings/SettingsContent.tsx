@@ -1,6 +1,6 @@
+import Btn from '@/components/ui/Btn'
 import Link from 'next/link'
 import SettingsMoreInfoIcon from './SettingsMoreInfoIcon'
-import Btn from '@/components/ui/Btn'
 
 interface AddButtonProps {
   label: string

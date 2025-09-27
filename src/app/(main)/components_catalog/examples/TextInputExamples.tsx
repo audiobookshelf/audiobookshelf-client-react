@@ -2,7 +2,7 @@
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // TextInput Examples
 export function TextInputExamples() {
@@ -28,7 +28,8 @@ export function TextInputExamples() {
         description="Accessible text input with password visibility toggle, copy to clipboard, clear button, and various styling options"
       >
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import TextInput from '@/components/ui/TextInput'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import TextInput from &apos;@/components/ui/TextInput&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

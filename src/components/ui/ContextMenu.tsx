@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo, useCallback, useLayoutEffect } from 'react'
-import { mergeClasses } from '@/lib/merge-classes'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 export interface ContextMenuSubitem {
   text: string
@@ -70,25 +70,22 @@ const ContextMenu = ({
   // Track which submenu index is pending closure after mouse leave
   const pendingCloseRef = useRef<number | null>(null)
 
-  const handleMouseoverSubmenu = useCallback((index: number) => {
+  const handleMouseoverSubmenu = useCallback(() => {
     setIsOverSubmenu(true)
   }, [])
 
-  const handleMouseleaveSubmenu = useCallback(
-    (index: number) => {
-      setIsOverSubmenu(false)
-      // Mark for potential closure when leaving submenu
-      pendingCloseRef.current = openSubmenuIndex
-    },
-    [openSubmenuIndex]
-  )
+  const handleMouseleaveSubmenu = useCallback(() => {
+    setIsOverSubmenu(false)
+    // Mark for potential closure when leaving submenu
+    pendingCloseRef.current = openSubmenuIndex
+  }, [openSubmenuIndex])
 
   const handleMouseoverParent = useCallback(
     (index: number) => {
       setIsOverParentIndex(index)
       onOpenSubmenu?.(index)
     },
-    [onOpenSubmenu, openSubmenuIndex]
+    [onOpenSubmenu]
   )
 
   useLayoutEffect(() => {
@@ -104,14 +101,11 @@ const ContextMenu = ({
     }
   }, [openSubmenuIndex, onCloseSubmenu, isOverSubmenu, isOverParentIndex])
 
-  const handleMouseleaveParent = useCallback(
-    (index: number) => {
-      setIsOverParentIndex(-1)
-      // When leaving a submenu parent, mark the submenu for potential closure
-      pendingCloseRef.current = index
-    },
-    [openSubmenuIndex]
-  )
+  const handleMouseleaveParent = useCallback((index: number) => {
+    setIsOverParentIndex(-1)
+    // When leaving a submenu parent, mark the submenu for potential closure
+    pendingCloseRef.current = index
+  }, [])
 
   const handleToggleSubmenu = useCallback(
     (e: React.MouseEvent, index: number) => {
@@ -140,7 +134,7 @@ const ContextMenu = ({
         setOpenSubmenuLeft(window.innerWidth - boundingRect.x < actualWidth + (submenuWidth || menuWidth) + 5)
       }
     }
-  }, [isOpen, menuWidth, autoWidth, submenuWidth])
+  }, [isOpen, menuWidth, autoWidth, submenuWidth, ref])
 
   const menuItems = items.map((item, index) =>
     item.subitems ? (
@@ -170,8 +164,8 @@ const ContextMenu = ({
             cy-id={`submenu-${index}`}
             role="menu"
             aria-label={`${item.text} submenu`}
-            onMouseOver={() => handleMouseoverSubmenu(index)}
-            onMouseLeave={() => handleMouseleaveSubmenu(index)}
+            onMouseOver={handleMouseoverSubmenu}
+            onMouseLeave={handleMouseleaveSubmenu}
             className={mergeClasses(
               'absolute bg-bg border border-black-200 shadow-lg z-50 -ms-px py-1',
               openSubmenuLeft ? 'rounded-s-md' : 'rounded-e-md',

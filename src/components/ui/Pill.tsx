@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface PillProps<T> {
   item: T
@@ -92,13 +92,14 @@ export const Pill = <T,>({
   // Dynamically calculate and set the max width for the pill container, and update on resize.
   useEffect(() => {
     if (isEditing) {
+      const pillContainer = pillContainerRef.current
       updatePillMaxWidth()
       window.addEventListener('resize', updatePillMaxWidth)
 
       return () => {
         window.removeEventListener('resize', updatePillMaxWidth)
-        if (pillContainerRef.current) {
-          pillContainerRef.current.style.maxWidth = ''
+        if (pillContainer) {
+          pillContainer.style.maxWidth = ''
         }
       }
     }

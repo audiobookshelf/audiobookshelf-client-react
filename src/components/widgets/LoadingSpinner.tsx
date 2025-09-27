@@ -1,7 +1,7 @@
 'use client'
 
-import React, { memo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { memo } from 'react'
 import styles from './LoadingSpinner.module.css'
 
 interface LoadingSpinnerProps {

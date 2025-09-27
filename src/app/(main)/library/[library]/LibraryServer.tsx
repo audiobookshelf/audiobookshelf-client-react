@@ -1,4 +1,4 @@
-import { getLibrary, getLibraryPersonalized, getData } from '../../../../lib/api'
+import { getData, getLibrary, getLibraryPersonalized } from '../../../../lib/api'
 import LibraryClient from './LibraryClient'
 
 export default async function LibraryDataFetcher({ libraryId }: { libraryId: string }) {

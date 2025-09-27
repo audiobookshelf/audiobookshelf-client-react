@@ -1,8 +1,8 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
-import Link from 'next/link'
 import { mergeClasses } from '@/lib/merge-classes'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 export default function SideNav({ serverVersion, installSource }: { serverVersion: string; installSource: string }) {
   const pathname = usePathname()

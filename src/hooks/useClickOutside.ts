@@ -1,11 +1,8 @@
-import { useEffect, RefObject, useCallback } from 'react'
+import { RefObject, useCallback, useEffect } from 'react'
 
-export function useClickOutside(
-  menuRef: RefObject<HTMLElement | null>,
-  triggerRef: RefObject<HTMLElement | null>,
-  handler: () => void
-): void {
-  const handleClickOutside = useCallback((event: MouseEvent) => {
+export function useClickOutside(menuRef: RefObject<HTMLElement | null>, triggerRef: RefObject<HTMLElement | null>, handler: () => void): void {
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
       if (!menuRef.current || !triggerRef.current) return
 
       if (!menuRef.current.contains(event.target as Node) && !triggerRef.current.contains(event.target as Node)) {

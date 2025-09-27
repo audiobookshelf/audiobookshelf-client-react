@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useRef, useId, useCallback, useMemo } from 'react'
-import { mergeClasses } from '@/lib/merge-classes'
-import { AVAILABLE_ICONS, type AvailableIcon } from '@/lib/absicons'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import LibraryIcon from './LibraryIcon'
 import { useClickOutside } from '@/hooks/useClickOutside'
-import Label from './Label'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { AVAILABLE_ICONS, type AvailableIcon } from '@/lib/absicons'
+import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import ButtonBase from './ButtonBase'
+import Label from './Label'
+import LibraryIcon from './LibraryIcon'
 
 interface MediaIconPickerProps {
   value?: string
@@ -109,7 +109,7 @@ export default function MediaIconPicker({ value, disabled = false, label, onChan
     } else if (focusedIndex >= 0) {
       handleSelectIcon(AVAILABLE_ICONS[focusedIndex])
     }
-  }, [showMenu, focusedIndex, openMenu])
+  }, [showMenu, focusedIndex, openMenu, handleSelectIcon])
 
   const handleEscape = useCallback(() => {
     closeMenu()

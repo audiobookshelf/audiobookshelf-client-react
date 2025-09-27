@@ -1,8 +1,8 @@
 'use client'
 
-import { useMemo } from 'react'
-import { mergeClasses } from '@/lib/merge-classes'
 import { isValidIcon } from '@/lib/absicons'
+import { mergeClasses } from '@/lib/merge-classes'
+import { useMemo } from 'react'
 
 interface LibraryIconProps {
   icon?: string

@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useMemo, useCallback, memo } from 'react'
-import { Editor, Element, Range, Transforms, NodeEntry } from 'slate'
+import React, { memo, useCallback, useMemo } from 'react'
+import { Editor, Element, NodeEntry, Range, Transforms } from 'slate'
 import { useSlate } from 'slate-react'
 
 import IconBtn from '@/components/ui/IconBtn'
@@ -200,3 +200,5 @@ export const LinkButton = memo(
     )
   }
 )
+
+LinkButton.displayName = 'LinkButton'

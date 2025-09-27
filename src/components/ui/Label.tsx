@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useMemo } from 'react'
 
 export interface LabelProps {
   children: React.ReactNode

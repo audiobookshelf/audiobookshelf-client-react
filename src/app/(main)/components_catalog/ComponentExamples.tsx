@@ -1,7 +1,7 @@
 'use client'
 
-import { ReactNode } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { ReactNode } from 'react'
 
 interface ComponentExamplesProps {
   title: string

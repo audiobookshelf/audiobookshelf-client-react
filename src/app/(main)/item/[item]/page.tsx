@@ -1,4 +1,4 @@
-import { getLibraryItem, getData } from '../../../../lib/api'
+import { getData, getLibraryItem } from '../../../../lib/api'
 
 export default async function ItemPage({ params }: { params: Promise<{ item: string }> }) {
   const { item: itemId } = await params

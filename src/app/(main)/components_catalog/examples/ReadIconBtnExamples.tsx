@@ -2,7 +2,7 @@
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // ReadIconBtn Examples
 export function ReadIconBtnExamples() {
@@ -23,7 +23,7 @@ export function ReadIconBtnExamples() {
       <ComponentInfo component="ReadIconBtn" description="Read status toggle button using IconBtn with BeenHere icon and visual state indication">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ReadIconBtn from '@/components/ui/ReadIconBtn'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import ReadIconBtn from &apos;@/components/ui/ReadIconBtn&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">isRead</code>,{' '}

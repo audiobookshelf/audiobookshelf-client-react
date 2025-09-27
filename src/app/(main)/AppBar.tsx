@@ -1,10 +1,11 @@
-import Link from 'next/link'
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import LibrariesDropdown from './LibrariesDropdown'
 import Btn from '@/components/ui/Btn'
-import GlobalSearchInput from './GlobalSearchInput'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import Image from 'next/image'
+import Link from 'next/link'
+import GlobalSearchInput from './GlobalSearchInput'
+import LibrariesDropdown from './LibrariesDropdown'
 
 export default async function AppBar(props: { libraries?: any; currentLibraryId?: string; user: any }) {
   const t = await getTypeSafeTranslations()
@@ -12,7 +13,7 @@ export default async function AppBar(props: { libraries?: any; currentLibraryId?
   return (
     <div className="w-full h-16 bg-primary flex items-center justify-start px-2 md:px-6 gap-4 shadow-xl">
       <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80">
-        <img src="/icon.svg" alt="audiobookshelf" className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10" />
+        <Image src="/icon.svg" alt="audiobookshelf" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10" />
       </Link>
       <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80">
         <h1 className="text-xl hidden lg:block hover:underline">audiobookshelf</h1>

@@ -1,4 +1,3 @@
-import React from 'react'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import styles from '@/components/widgets/LoadingSpinner.module.css'
 
@@ -100,7 +99,7 @@ describe('<LoadingSpinner />', () => {
   it('has correct positioning for all 8 balls', () => {
     cy.mount(<LoadingSpinner />)
     cy.get(`.${styles['la-ball-spin-clockwise']} > div`).should('have.length', 8)
-    cy.get(`.${styles['la-ball-spin-clockwise']} > div`).each(($el, index) => {
+    cy.get(`.${styles['la-ball-spin-clockwise']} > div`).each(($el) => {
       cy.wrap($el).should('have.css', 'position', 'absolute')
       cy.wrap($el).should('have.css', 'border-radius', '100%')
     })

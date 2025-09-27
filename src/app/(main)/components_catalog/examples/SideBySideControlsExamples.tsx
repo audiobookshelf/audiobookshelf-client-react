@@ -1,15 +1,15 @@
-import { useState } from 'react'
-import TextInput from '@/components/ui/TextInput'
+import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown from '@/components/ui/Dropdown'
 import FileInput from '@/components/ui/FileInput'
 import IconBtn from '@/components/ui/IconBtn'
-import Btn from '@/components/ui/Btn'
+import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import RangeInput from '@/components/ui/RangeInput'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
-import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
+import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function SideBySideControlsExamples() {
   const { showToast } = useGlobalToast()

@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useMemo, useCallback } from 'react'
-import Link from 'next/link'
 import { mergeClasses } from '@/lib/merge-classes'
+import Link from 'next/link'
+import React, { useCallback, useMemo } from 'react'
 
 interface ButtonBaseProps {
   id?: string
@@ -64,7 +64,7 @@ const ButtonBase = ({
       // Custom className
       className
     )
-  }, [disabled, size, className])
+  }, [size, className, borderless])
 
   const handleClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {

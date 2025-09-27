@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, RefObject } from 'react'
+import React, { createContext, RefObject, useContext } from 'react'
 
 interface ModalContextType {
   modalRef: RefObject<HTMLDivElement> | null

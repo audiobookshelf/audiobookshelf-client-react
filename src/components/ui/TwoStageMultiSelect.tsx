@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useCallback, useEffect, useState, useMemo } from 'react'
-import { MultiSelect } from './MultiSelect'
-import { type MultiSelectItem } from './MultiSelect'
+import React, { useCallback, useEffect, useState } from 'react'
+import { MultiSelect, type MultiSelectItem } from './MultiSelect'
 
 export interface TwoStageMultiSelectContent {
   value: string

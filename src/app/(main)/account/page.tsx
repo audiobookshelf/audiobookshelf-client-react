@@ -1,5 +1,5 @@
-import TextInput from '@/components/ui/TextInput'
 import Dropdown from '@/components/ui/Dropdown'
+import TextInput from '@/components/ui/TextInput'
 
 import { getCurrentUser } from '@/lib/api'
 import { getLanguageCodeOptions } from '@/lib/i18n'

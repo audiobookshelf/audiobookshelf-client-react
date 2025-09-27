@@ -1,9 +1,9 @@
 'use client'
 
+import Btn from '@/components/ui/Btn'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
-import Btn from '@/components/ui/Btn'
 
 export default function LogoutBtn() {
   const t = useTranslations()

@@ -1,19 +1,19 @@
 'use client'
 
-import React, { useMemo, useCallback, useEffect, useState, useId, memo } from 'react'
-import { createEditor, Descendant, Editor, Transforms, Text, Element, Range, Node, Point, Path } from 'slate'
-import { Slate, withReact, ReactEditor } from 'slate-react'
-import { withHistory, HistoryEditor } from 'slate-history'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { createEditor, Descendant, Editor, Element, Node, Path, Point, Range, Text, Transforms } from 'slate'
+import { HistoryEditor, withHistory } from 'slate-history'
+import { ReactEditor, Slate, withReact } from 'slate-react'
 
-import Label from './Label'
-import { mergeClasses } from '@/lib/merge-classes'
 import { LinkModalProvider } from '@/contexts/LinkModalContext'
+import { mergeClasses } from '@/lib/merge-classes'
+import Label from './Label'
 
 // Import from refactored files
-import { LinkModalContainer } from './slate/LinkModalContainer'
-import { Toolbar } from './slate/Toolbar'
 import { Editable } from './slate/Editable'
-import { serialize, deserialize, initialValue } from './slate/serialization'
+import { LinkModalContainer } from './slate/LinkModalContainer'
+import { deserialize, initialValue, serialize } from './slate/serialization'
+import { Toolbar } from './slate/Toolbar'
 
 // --- Helper Functions ---
 
@@ -130,7 +130,6 @@ const withLinks = <T extends Editor>(editor: T) => {
 }
 
 interface SlateEditorProps {
-  id?: string
   label?: string
   srcContent?: string
   onUpdate?: (html: string) => void
@@ -140,7 +139,7 @@ interface SlateEditorProps {
   className?: string
 }
 
-const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
+const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
   const [isClient, setIsClient] = useState(false)
 
@@ -251,7 +250,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, d
         }
       }
     },
-    [onUpdate, editor, isClient, isEditorValid, disabled]
+    [onUpdate, isClient, isEditorValid, disabled]
   )
 
   const containerClass = useMemo(() => mergeClasses('min-w-75', className), [className])
@@ -265,7 +264,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, d
         console.warn('SlateEditor: Could not focus editor from label click:', error)
       }
     }
-  }, [editor, disabled, readOnly])
+  }, [editor, disabled])
 
   return (
     <div className={containerClass} cy-id="slate-editor">
@@ -285,5 +284,7 @@ const SlateEditor = memo(({ id, label, srcContent = '', onUpdate, placeholder, d
     </div>
   )
 })
+
+SlateEditor.displayName = 'SlateEditor'
 
 export default SlateEditor

@@ -1,8 +1,8 @@
 'use client'
 
 import CoverSizeWidget, { availableCoverSizes } from '@/components/widgets/CoverSizeWidget'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 import { useCallback, useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function CoverSizeWidgetExamples() {
   const [index, setIndex] = useState(3)

@@ -2,7 +2,7 @@
 import InputDropdown from '@/components/ui/InputDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // InputDropdown Examples
 export function InputDropdownExamples() {
@@ -36,7 +36,7 @@ export function InputDropdownExamples() {
       <ComponentInfo component="InputDropdown" description="Input dropdown component that allows typing and filtering with optional new item creation">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import InputDropdown from '@/components/ui/InputDropdown'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import InputDropdown from &apos;@/components/ui/InputDropdown&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

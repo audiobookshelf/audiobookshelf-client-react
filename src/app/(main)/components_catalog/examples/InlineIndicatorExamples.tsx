@@ -1,12 +1,12 @@
 'use client'
 
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
 import AbridgedIndicator from '@/components/widgets/AbridgedIndicator'
 import AlreadyInLibraryIndicator from '@/components/widgets/AlreadyInLibraryIndicator'
 import BonusIndicator from '@/components/widgets/BonusIndicator'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
-import TrailerIndicator from '@/components/widgets/TrailerIndicator'
 import OnlineIndicator from '@/components/widgets/OnlineIndicator'
+import TrailerIndicator from '@/components/widgets/TrailerIndicator'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function InlineIndicatorExamples() {
   return (
@@ -14,39 +14,41 @@ export function InlineIndicatorExamples() {
       <ComponentInfo component="AbridgedIndicator" description="A small indicator showing that content is abridged, with a tooltip">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import AbridgedIndicator from '@/components/widgets/AbridgedIndicator'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import AbridgedIndicator from &apos;@/components/widgets/AbridgedIndicator&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">className</code> (optional)
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> Uses a custom svg icon with a tooltip that says "Abridged"
+          <span className="font-bold">Note:</span> Uses a custom svg icon with a tooltip that says &quot;Abridged&quot;
         </p>
       </ComponentInfo>
 
       <ComponentInfo component="AlreadyInLibraryIndicator" description="A small indicator showing that content is already in your library, with a tooltip">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import AlreadyInLibraryIndicator from '@/components/widgets/AlreadyInLibraryIndicator'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">
+            import AlreadyInLibraryIndicator from &apos;@/components/widgets/AlreadyInLibraryIndicator&apos;
+          </code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">className</code> (optional)
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> Uses a material symbols check_circle icon with a tooltip that says "Already in your library"
+          <span className="font-bold">Note:</span> Uses a material symbols check_circle icon with a tooltip that says &quot;Already in your library&quot;
         </p>
       </ComponentInfo>
 
       <ComponentInfo component="ExplicitIndicator" description="A small indicator showing that content is explicit, with a tooltip">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import ExplicitIndicator from &apos;@/components/widgets/ExplicitIndicator&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">className</code> (optional)
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> Uses a material symbols explicit icon with a tooltip that says "Explicit"
+          <span className="font-bold">Note:</span> Uses a material symbols explicit icon with a tooltip that says &quot;Explicit&quot;
         </p>
       </ComponentInfo>
 
