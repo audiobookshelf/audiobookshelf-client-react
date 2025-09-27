@@ -51,7 +51,8 @@ export function setTokenCookies(response: NextResponse, accessToken: string, ref
     secure: false,
     sameSite: 'lax',
     path: '/',
-    maxAge: AccessTokenExpiry
+    // Ensure the cookie is not expired before the access token expires (5 second buffer)
+    maxAge: Math.max(AccessTokenExpiry - 5, 5)
   })
 
   if (refreshToken) {
@@ -60,7 +61,8 @@ export function setTokenCookies(response: NextResponse, accessToken: string, ref
       secure: false,
       sameSite: 'lax',
       path: '/',
-      maxAge: RefreshTokenExpiry
+      // Ensure the cookie is not expired before the refresh token expires (5 second buffer)
+      maxAge: Math.max(RefreshTokenExpiry - 5, 5)
     })
   }
 }
