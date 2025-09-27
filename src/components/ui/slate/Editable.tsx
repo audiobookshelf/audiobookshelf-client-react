@@ -104,8 +104,6 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
     [editor, openModal, disabled]
   )
 
-  Editable.displayName = 'Editable'
-
   const renderElement = useCallback((props: RenderElementProps) => <RenderElement {...props} />, [])
 
   const renderLeaf = useCallback((props: RenderLeafProps) => <RenderLeaf {...props} />, [])
@@ -232,3 +230,5 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
     </InputWrapper>
   )
 })
+
+Editable.displayName = 'Editable'

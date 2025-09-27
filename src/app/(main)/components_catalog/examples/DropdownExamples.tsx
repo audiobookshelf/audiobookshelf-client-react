@@ -22,7 +22,6 @@ export function DropdownExamples() {
 
   const [dropdownValue, setDropdownValue] = useState('option1')
   const [dropdownValue2, setDropdownValue2] = useState('en')
-  const [] = useState('option1')
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {

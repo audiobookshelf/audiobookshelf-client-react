@@ -7,8 +7,6 @@ export function RangeInputExamples() {
   const [rangeValue1, setRangeValue1] = useState(50)
   const [rangeValue2, setRangeValue2] = useState(25)
   const [rangeValue3, setRangeValue3] = useState(75)
-  const [] = useState(0)
-  const [] = useState(100)
 
   return (
     <ComponentExamples title="Range Inputs">
