@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import StatusDataFetcher from '../../StatusDataFetcher'
-import LibraryDataFetcher from './LibraryServer'
 import SuspenseFallback from '../../SuspenseFallback'
+import LibraryDataFetcher from './LibraryServer'
 
 export default async function LibraryPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 import { getServerBaseUrl } from '../../../lib/api'
 
 export async function POST(request: Request) {

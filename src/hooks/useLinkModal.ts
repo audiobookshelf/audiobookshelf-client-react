@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Editor, Text } from 'slate'
 import { ReactEditor } from 'slate-react'
 
-import { isLinkActive, getSelectedText, getLinkUrl, upsertLink, unwrapLink } from '@/components/ui/slate/Link'
+import { getLinkUrl, getSelectedText, isLinkActive, unwrapLink, upsertLink } from '@/components/ui/slate/Link'
 
 export const useLinkModal = (editor: Editor) => {
   const [isOpen, setIsOpen] = useState(false)

@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useRef, useState, useCallback, useMemo, useId } from 'react'
-import { mergeClasses } from '@/lib/merge-classes'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import InputWrapper from './InputWrapper'
 import { useUpdateEffect } from '@/hooks/useUpdateEffect'
+import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useId, useMemo, useRef, useState } from 'react'
+import InputWrapper from './InputWrapper'
 
 export interface DurationPickerProps {
   value?: number
@@ -87,9 +87,9 @@ export default function DurationPicker({
   const sanitize = useCallback((text: string, maxLength: number) => text.replace(/\D/g, '').slice(0, maxLength), [])
 
   // change handlers (just keep digits; pad on blur)
-  const handleHoursChange = useCallback((input: string) => setText((p) => ({ ...p, hText: sanitize(input, hoursW) })), [sanitize, hoursW, hText])
-  const handleMinutesChange = useCallback((input: string) => setText((p) => ({ ...p, mText: sanitize(input, 2) })), [sanitize, mText])
-  const handleSecondsChange = useCallback((input: string) => setText((p) => ({ ...p, sText: sanitize(input, 2) })), [sanitize, sText])
+  const handleHoursChange = useCallback((input: string) => setText((p) => ({ ...p, hText: sanitize(input, hoursW) })), [sanitize, hoursW])
+  const handleMinutesChange = useCallback((input: string) => setText((p) => ({ ...p, mText: sanitize(input, 2) })), [sanitize])
+  const handleSecondsChange = useCallback((input: string) => setText((p) => ({ ...p, sText: sanitize(input, 2) })), [sanitize])
 
   const normalize = useCallback(
     (input: string, maxValue: number, maxLength: number) => padZeros(clamp(parseInt(input || '0') || 0, 0, maxValue), maxLength),
@@ -97,9 +97,9 @@ export default function DurationPicker({
   )
 
   // normalize on blur (clamp + pad)
-  const normalizeHours = useCallback(() => setText((p) => ({ ...p, hText: normalize(p.hText, hoursMax, hoursW) })), [normalize, hoursMax, hoursW, hText])
-  const normalizeMinutes = useCallback(() => setText((p) => ({ ...p, mText: normalize(p.mText, 59, 2) })), [normalize, mText])
-  const normalizeSeconds = useCallback(() => setText((p) => ({ ...p, sText: normalize(p.sText, 59, 2) })), [normalize, sText])
+  const normalizeHours = useCallback(() => setText((p) => ({ ...p, hText: normalize(p.hText, hoursMax, hoursW) })), [normalize, hoursMax, hoursW])
+  const normalizeMinutes = useCallback(() => setText((p) => ({ ...p, mText: normalize(p.mText, 59, 2) })), [normalize])
+  const normalizeSeconds = useCallback(() => setText((p) => ({ ...p, sText: normalize(p.sText, 59, 2) })), [normalize])
 
   // select on focus (works for click + programmatic)
   const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
@@ -146,7 +146,7 @@ export default function DurationPicker({
         return { ...prev, sText: padZeros((s + (dir + 60)) % 60, 2) }
       })
     },
-    [hoursMax, hText, mText, sText, hoursW]
+    [hoursMax, hoursW]
   )
 
   // Navigate between fields cyclically
@@ -284,7 +284,7 @@ export default function DurationPicker({
     const specialClass = 'disabled:cursor-not-allowed disabled:text-disabled read-only:cursor-default read-only:text-read-only'
     const inputBox = 'px-0 py-1 rounded-sm'
     return mergeClasses(sizeText, inputBase, specialClass, inputBox)
-  }, [sizeText, showThreeDigitHour])
+  }, [sizeText])
 
   const hoursClass = useMemo(() => mergeClasses(inputClass, showThreeDigitHour ? 'w-[3ch]' : 'w-[2ch]'), [inputClass, showThreeDigitHour])
   const minutesClass = useMemo(() => mergeClasses(inputClass, 'w-[2ch]'), [inputClass])

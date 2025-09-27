@@ -1,7 +1,7 @@
 'use client'
 import DurationPicker from '@/components/ui/DurationPicker'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // DurationPicker Examples
 
@@ -19,7 +19,7 @@ export function DurationPickerExamples() {
       >
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import DurationPicker from '@/components/ui/DurationPicker'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import DurationPicker from &apos;@/components/ui/DurationPicker&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

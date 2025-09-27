@@ -1,6 +1,6 @@
 'use client'
 import IconBtn from '@/components/ui/IconBtn'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // IconBtn Examples
 export function IconBtnExamples() {
@@ -8,7 +8,8 @@ export function IconBtnExamples() {
     <ComponentExamples title="Icon Buttons">
       <ComponentInfo component="IconBtn" description="Icon button component with material symbols, loading states, and customization options">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import IconBtn from '@/components/ui/IconBtn'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import IconBtn from &apos;@/components/ui/IconBtn&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">children</code>,{' '}

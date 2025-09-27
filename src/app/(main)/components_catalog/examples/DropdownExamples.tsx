@@ -1,7 +1,7 @@
 'use client'
 import Dropdown, { type DropdownItem } from '@/components/ui/Dropdown'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Dropdown Examples
 export function DropdownExamples() {
@@ -41,7 +41,8 @@ export function DropdownExamples() {
     <ComponentExamples title="Dropdowns">
       <ComponentInfo component="Dropdown" description="Select dropdown component with labels, subtext, and various states">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from '@/components/ui/Dropdown'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from &apos;@/components/ui/Dropdown&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

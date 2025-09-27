@@ -1,6 +1,6 @@
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
-import { useState } from 'react'
 import RangeInput from '@/components/ui/RangeInput'
+import { useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function RangeInputExamples() {
   // RangeInput sample data
@@ -14,7 +14,8 @@ export function RangeInputExamples() {
     <ComponentExamples title="Range Inputs">
       <ComponentInfo component="RangeInput" description="Accessible range input component with customizable min/max/step values, labels, and disabled state">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import RangeInput from '@/components/ui/RangeInput'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import RangeInput from &apos;@/components/ui/RangeInput&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

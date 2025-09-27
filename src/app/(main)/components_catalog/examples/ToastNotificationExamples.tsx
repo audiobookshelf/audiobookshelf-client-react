@@ -1,7 +1,7 @@
 'use client'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // ToastNotification Examples
 
@@ -14,7 +14,7 @@ export function ToastNotificationExamples() {
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">
-            import {'{'} useGlobalToast {'}'} from '@/contexts/ToastContext'
+            import {'{'} useGlobalToast {'}'} from &apos;@/contexts/ToastContext&apos;
           </code>
         </p>
         <p className="mb-2">

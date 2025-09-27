@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useCallback } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useMemo } from 'react'
 
 export interface InputWrapperProps {
   children: React.ReactNode
@@ -44,7 +44,7 @@ const InputWrapper = ({
       // Custom className
       className
     )
-  }, [disabled, readOnly, error, size, className])
+  }, [disabled, readOnly, error, size, className, borderless])
 
   const handleClick = useCallback(
     (event: React.MouseEvent) => {

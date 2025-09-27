@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Indicator from './Indicator'
 

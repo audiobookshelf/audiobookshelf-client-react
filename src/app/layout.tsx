@@ -1,10 +1,10 @@
-import type { Metadata } from 'next'
 import '@/assets/globals.css'
-import { getLocale } from 'next-intl/server'
+import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
+import { getLocale } from 'next-intl/server'
 
-import { ToastProvider } from '../contexts/ToastContext'
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
+import { ToastProvider } from '../contexts/ToastContext'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',

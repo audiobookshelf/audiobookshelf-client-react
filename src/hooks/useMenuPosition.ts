@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect, RefObject } from 'react'
+import { RefObject, useCallback, useEffect, useRef } from 'react'
 
 interface MenuPosition {
   top: string
@@ -28,8 +28,6 @@ export const useMenuPosition = ({
   disable = false,
   portalContainerRef
 }: UseMenuPositionOptions): (() => void) => {
-  if (disable) return () => {}
-
   const positionRef = useRef<MenuPosition>({} as MenuPosition)
   const menuHeightRef = useRef<number>(0)
   const triggerWidthRef = useRef<number>(0)
@@ -40,6 +38,9 @@ export const useMenuPosition = ({
 
   const recalcMenuPos = useCallback(
     (event?: Event) => {
+      if (disable) {
+        return
+      }
       if (!menuRef.current || !triggerRef.current) {
         return
       }
@@ -68,12 +69,12 @@ export const useMenuPosition = ({
         onPositionChange(position)
       }
     },
-    [onPositionChange, onClose, menuRef, triggerRef, portalContainerRef]
+    [onPositionChange, menuRef, triggerRef, portalContainerRef, disable]
   )
 
   // Set up event listeners and ResizeObserver when menu is open
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !disable) {
       const scrollTarget = portalContainerRef?.current || window
       const handleScroll = (event: Event): void => {
         // Check if the scroll event originated from within the menu
@@ -140,7 +141,9 @@ export const useMenuPosition = ({
         }
       }
     }
-  }, [isOpen, recalcMenuPos, menuRef, triggerRef, portalContainerRef])
+  }, [isOpen, recalcMenuPos, menuRef, triggerRef, portalContainerRef, disable])
+
+  if (disable) return () => {}
 
   return recalcMenuPos
 }

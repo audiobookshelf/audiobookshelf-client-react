@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { setTokenCookies, getServerBaseUrl } from '../../../lib/api'
+import { getServerBaseUrl, setTokenCookies } from '../../../lib/api'
 
 export async function POST(request: Request) {
   try {

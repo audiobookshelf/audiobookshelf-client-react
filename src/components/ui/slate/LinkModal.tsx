@@ -3,8 +3,8 @@
 import React, { memo } from 'react'
 
 import Modal from '@/components/modals/Modal'
-import TextInput from '@/components/ui/TextInput'
 import Btn from '@/components/ui/Btn'
+import TextInput from '@/components/ui/TextInput'
 
 // --- LinkModal Component ---
 
@@ -96,3 +96,5 @@ export const LinkModal = memo(
     )
   }
 )
+
+LinkModal.displayName = 'LinkModal'

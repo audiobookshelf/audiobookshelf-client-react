@@ -1,7 +1,7 @@
 'use client'
 
-import React, { memo } from 'react'
 import { useLinkModalContext } from '@/contexts/LinkModalContext'
+import { memo } from 'react'
 import { LinkModal } from './LinkModal'
 
 export const LinkModalContainer = memo(() => {
@@ -27,3 +27,5 @@ export const LinkModalContainer = memo(() => {
     />
   )
 })
+
+LinkModalContainer.displayName = 'LinkModalContainer'

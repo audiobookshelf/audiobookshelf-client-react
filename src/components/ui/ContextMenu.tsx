@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect, useMemo, useCallback, useLayoutEffect } from 'react'
-import { mergeClasses } from '@/lib/merge-classes'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 export interface ContextMenuSubitem {
   text: string
@@ -88,7 +88,7 @@ const ContextMenu = ({
       setIsOverParentIndex(index)
       onOpenSubmenu?.(index)
     },
-    [onOpenSubmenu, openSubmenuIndex]
+    [onOpenSubmenu]
   )
 
   useLayoutEffect(() => {
@@ -104,14 +104,11 @@ const ContextMenu = ({
     }
   }, [openSubmenuIndex, onCloseSubmenu, isOverSubmenu, isOverParentIndex])
 
-  const handleMouseleaveParent = useCallback(
-    (index: number) => {
-      setIsOverParentIndex(-1)
-      // When leaving a submenu parent, mark the submenu for potential closure
-      pendingCloseRef.current = index
-    },
-    [openSubmenuIndex]
-  )
+  const handleMouseleaveParent = useCallback((index: number) => {
+    setIsOverParentIndex(-1)
+    // When leaving a submenu parent, mark the submenu for potential closure
+    pendingCloseRef.current = index
+  }, [])
 
   const handleToggleSubmenu = useCallback(
     (e: React.MouseEvent, index: number) => {
@@ -140,7 +137,7 @@ const ContextMenu = ({
         setOpenSubmenuLeft(window.innerWidth - boundingRect.x < actualWidth + (submenuWidth || menuWidth) + 5)
       }
     }
-  }, [isOpen, menuWidth, autoWidth, submenuWidth])
+  }, [isOpen, menuWidth, autoWidth, submenuWidth, ref])
 
   const menuItems = items.map((item, index) =>
     item.subitems ? (

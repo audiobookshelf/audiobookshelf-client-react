@@ -1,7 +1,7 @@
 'use client'
 import ContextMenuDropdown, { type ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // ContextMenuDropdown Examples
 export function ContextMenuDropdownExamples() {
@@ -55,7 +55,7 @@ export function ContextMenuDropdownExamples() {
       <ComponentInfo component="ContextMenuDropdown" description="Context menu dropdown with submenus, loading states, and custom triggers">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import ContextMenuDropdown from &apos;@/components/ui/ContextMenuDropdown&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">items</code> (ContextMenuItem[]),{' '}

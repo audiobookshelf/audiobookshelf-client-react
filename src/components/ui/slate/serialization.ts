@@ -1,6 +1,6 @@
-import { Descendant, Text } from 'slate'
 import { escapeHtml } from '@/lib/html-utils'
-import { DOMNode, CustomText } from '@/types/slate'
+import { CustomText, DOMNode } from '@/types/slate'
+import { Descendant, Text } from 'slate'
 
 // --- Serialize Function ---
 

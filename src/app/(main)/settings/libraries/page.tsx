@@ -1,6 +1,6 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { getData, getLibraries } from '../../../../lib/api'
 import SettingsContent from '../SettingsContent'
-import { getLibraries, getData } from '../../../../lib/api'
 import LibrariesList from './LibrariesList'
 
 export const dynamic = 'force-dynamic'

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, memo } from 'react'
+import React, { memo, useCallback } from 'react'
 import { Editor } from 'slate'
 import { HistoryEditor } from 'slate-history'
 import { useSlate } from 'slate-react'
@@ -51,6 +51,8 @@ export const UndoButton = memo(
   }
 )
 
+UndoButton.displayName = 'UndoButton'
+
 // --- RedoButton Component ---
 
 export const RedoButton = memo(
@@ -93,3 +95,5 @@ export const RedoButton = memo(
     )
   }
 )
+
+RedoButton.displayName = 'RedoButton'

@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useMemo, useCallback, useRef, useId } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useId, useMemo, useRef } from 'react'
 import InputWrapper from './InputWrapper'
 
 interface ToggleSwitchProps {

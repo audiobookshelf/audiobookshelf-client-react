@@ -1,11 +1,11 @@
 'use client'
 
-import { useRef, useMemo, useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { mergeClasses } from '@/lib/merge-classes'
-import { useMenuPosition } from '@/hooks/useMenuPosition'
 import { useModalRef } from '@/contexts/ModalContext'
+import { useMenuPosition } from '@/hooks/useMenuPosition'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export interface DropdownMenuItem {
   text: string
@@ -118,10 +118,13 @@ export default function DropdownMenu({
     }
   }, [showMenu, isMouseOver, menuRef])
 
-  const handleItemClick = (e: React.MouseEvent, item: DropdownMenuItem) => {
-    e.stopPropagation()
-    onItemClick?.(item)
-  }
+  const handleItemClick = useCallback(
+    (e: React.MouseEvent, item: DropdownMenuItem) => {
+      e.stopPropagation()
+      onItemClick?.(item)
+    },
+    [onItemClick]
+  )
 
   const handleItemMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -166,7 +169,7 @@ export default function DropdownMenu({
           )}
         </li>
       )),
-    [items, focusedIndex, dropdownId, onItemClick, isItemSelected, showSelectedIndicator]
+    [items, focusedIndex, dropdownId, isItemSelected, showSelectedIndicator, handleItemClick]
   )
 
   const menuContent = (
@@ -199,7 +202,7 @@ export default function DropdownMenu({
     >
       {menuItems}
       {showNoItemsMessage && !items.length && (
-        <li className="text-gray-100 select-none relative py-2 pe-9" role="option" cy-id="dropdown-menu-no-items">
+        <li className="text-gray-100 select-none relative py-2 pe-9" role="option" aria-selected={false} cy-id="dropdown-menu-no-items">
           <div className="flex items-center justify-center">
             <span className="font-normal">{defaultNoItemsText}</span>
           </div>

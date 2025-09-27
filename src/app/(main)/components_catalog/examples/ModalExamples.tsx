@@ -3,7 +3,7 @@ import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Modal Examples
 
@@ -29,7 +29,8 @@ export function ModalExamples() {
     <ComponentExamples title="Modals">
       <ComponentInfo component="Modal" description="Modal dialog component with backdrop, animations, and various customization options">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Modal from '@/components/modals/Modal'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import Modal from &apos;@/components/modals/Modal&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">isOpen</code>,{' '}
@@ -76,7 +77,7 @@ export function ModalExamples() {
               <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
                 <h3 className="text-xl font-semibold text-white mb-4">Processing Example</h3>
                 <p className="text-gray-300 mb-6 flex-1">
-                  Click the "Start Processing" button to see the processing overlay in action. The modal will be disabled during processing.
+                  Click the &quot;Start Processing&quot; button to see the processing overlay in action. The modal will be disabled during processing.
                 </p>
                 <div className="flex justify-end gap-3">
                   <Btn onClick={() => setIsProcessingModalOpen(false)} color="bg-gray-600">
@@ -107,7 +108,7 @@ export function ModalExamples() {
               <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
                 <h3 className="text-xl font-semibold text-white mb-4">Persistent Modal</h3>
                 <p className="text-gray-300 mb-6 flex-1">
-                  This modal is persistent - you can only close it by clicking the "Close" button. Background clicks and Escape key are disabled.
+                  This modal is persistent - you can only close it by clicking the &quot;Close&quot; button. Background clicks and Escape key are disabled.
                 </p>
                 <div className="flex justify-center">
                   <Btn onClick={() => setIsPersistentModalOpen(false)} color="bg-red-600">

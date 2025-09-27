@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { createPortal } from 'react-dom'
+import { useCallback, useEffect, useState } from 'react'
 
 export interface ToastProps {
   id: string

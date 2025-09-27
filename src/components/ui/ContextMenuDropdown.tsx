@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback, useMemo, useId } from 'react'
+import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import ContextMenu, { ContextMenuItem } from './ContextMenu'
 import IconBtn from './IconBtn'
 
@@ -179,7 +179,7 @@ export default function ContextMenuDropdown({
         }
       }
     },
-    [showMenu, focusedSubIndex, openSubmenuIndex, items, openMenu]
+    [showMenu, focusedSubIndex, openSubmenuIndex, items, openMenu, closeSubMenu]
   )
 
   const handleHorizontalNavigation = useCallback(
@@ -244,7 +244,7 @@ export default function ContextMenuDropdown({
         }
       }
     },
-    [showMenu, focusedSubIndex, openSubmenuIndex, items]
+    [showMenu, focusedSubIndex, openSubmenuIndex, items, closeSubMenu]
   )
 
   const handleTab = useCallback(() => {
@@ -338,7 +338,7 @@ export default function ContextMenuDropdown({
 
   const buttonClass = useMemo(() => {
     return mergeClasses(size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
-  }, [size])
+  }, [size, className])
 
   return (
     <div cy-id="wrapper" className={mergeClasses('relative', className)}>
@@ -358,8 +358,8 @@ export default function ContextMenuDropdown({
             focusedSubIndex !== -1 && focusedSubIndex >= 0 && openSubmenuIndex !== null
               ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
               : focusedIndex >= 0
-              ? `${dropdownId}-item-${focusedIndex}`
-              : undefined
+                ? `${dropdownId}-item-${focusedIndex}`
+                : undefined
           }
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}

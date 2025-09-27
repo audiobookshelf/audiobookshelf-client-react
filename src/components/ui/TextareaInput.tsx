@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useId, useRef } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
-import Label from './Label'
+import { useCallback, useId, useRef } from 'react'
 import InputWrapper from './InputWrapper'
+import Label from './Label'
 
 export interface TextareaInputProps {
   id?: string

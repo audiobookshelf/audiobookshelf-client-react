@@ -1,13 +1,13 @@
 'use client'
 
-import React, { useState, useRef, useEffect, useCallback, useId, useMemo } from 'react'
-import DropdownMenu from './DropdownMenu'
-import type { DropdownMenuItem } from './DropdownMenu'
-import { mergeClasses } from '@/lib/merge-classes'
-import Pill from './Pill'
-import Label from './Label'
-import InputWrapper from './InputWrapper'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import type { DropdownMenuItem } from './DropdownMenu'
+import DropdownMenu from './DropdownMenu'
+import InputWrapper from './InputWrapper'
+import Label from './Label'
+import Pill from './Pill'
 
 export interface MultiSelectItem<T = string> {
   value: string
@@ -171,7 +171,7 @@ export const MultiSelect = <T extends any = string>({
       text: item.content,
       value: item.value
     }))
-  }, [itemsToShow, getItemTextId])
+  }, [itemsToShow])
 
   const openMenu = useCallback((index: number | null) => {
     setIsMenuOpen(true)
@@ -190,13 +190,13 @@ export const MultiSelect = <T extends any = string>({
       }
       onInputChange?.(inputValue)
     },
-    [isControlled]
+    [isControlled, onInputChange]
   )
 
   const resetInput = useCallback(() => {
     setInputValue('')
     setFocusIndex(null)
-  }, [])
+  }, [setInputValue])
 
   // Handle input changes
   const handleInputChange = useCallback(
@@ -204,7 +204,7 @@ export const MultiSelect = <T extends any = string>({
       openMenu(null)
       setInputValue(e.target.value)
     },
-    [openMenu, onInputChange]
+    [openMenu, setInputValue]
   )
 
   const isDuplicateByValue = useCallback(

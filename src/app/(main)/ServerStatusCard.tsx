@@ -16,7 +16,7 @@ export default function HomeClient({ statusData }: HomeClientProps) {
   useEffect(() => {
     console.log('emitting socket event message_all_users')
     emit('message_all_users', { message: 'Hello from server status card' })
-  }, [])
+  }, [emit])
 
   return (
     <div className="mb-6 p-4 bg-primary rounded-lg">

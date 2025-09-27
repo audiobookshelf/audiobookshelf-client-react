@@ -3,7 +3,7 @@ import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import TwoStageMultiSelect, { TwoStageMultiSelectContent } from '@/components/ui/TwoStageMultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // TwoStageMultiSelect Examples
 
@@ -65,7 +65,7 @@ export function TwoStageMultiSelectExamples() {
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">
-            import TwoStageMultiSelect, {'{'} TwoStageMultiSelectContent {'}'} from '@/components/ui/TwoStageMultiSelect'
+            import TwoStageMultiSelect, {'{'} TwoStageMultiSelectContent {'}'} from &apos;@/components/ui/TwoStageMultiSelect&apos;
           </code>
         </p>
         <p className="mb-2">

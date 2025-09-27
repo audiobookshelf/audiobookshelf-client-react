@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo, useId } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
-import Label from './Label'
 import InputWrapper from './InputWrapper'
+import Label from './Label'
 
 export interface DropdownItem {
   text: string
