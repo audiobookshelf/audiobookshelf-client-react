@@ -51,7 +51,8 @@ export function setTokenCookies(response: NextResponse, accessToken: string, ref
     secure: false,
     sameSite: 'lax',
     path: '/',
-    maxAge: AccessTokenExpiry
+    // Ensure the cookie is not expired before the access token expires (5 second buffer)
+    maxAge: Math.max(AccessTokenExpiry - 5, 5)
   })
 
   if (refreshToken) {
@@ -60,7 +61,8 @@ export function setTokenCookies(response: NextResponse, accessToken: string, ref
       secure: false,
       sameSite: 'lax',
       path: '/',
-      maxAge: RefreshTokenExpiry
+      // Ensure the cookie is not expired before the refresh token expires (5 second buffer)
+      maxAge: Math.max(RefreshTokenExpiry - 5, 5)
     })
   }
 }
@@ -114,20 +116,6 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
     console.error('API request failed:', error)
     return { error: 'Network error' }
   }
-}
-
-/**
- * Wrapper function that handles refresh redirects for server-side API calls
- */
-export async function apiRequestWithRefresh<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-  const response = await apiRequest<T>(endpoint, options)
-
-  if (response.needsRefresh) {
-    const currentPath = (await headers()).get('x-current-path')
-    redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath || '')}`)
-  }
-
-  return response
 }
 
 export const getData = cache(async <T extends readonly Promise<ApiResponse<any>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
