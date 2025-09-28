@@ -1,7 +1,7 @@
 'use client'
 import DurationPicker from '@/components/ui/DurationPicker'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // DurationPicker Examples
 
@@ -9,7 +9,6 @@ export function DurationPickerExamples() {
   const [timeValue1, setTimeValue1] = useState(3661) // 1:01:01
   const [timeValue2, setTimeValue2] = useState(7200) // 2:00:00
   const [timeValue3, setTimeValue3] = useState(360000) // 100:00:00 (3-digit hours)
-  const [timeValue4, setTimeValue4] = useState(0) // 0:00:00
 
   return (
     <ComponentExamples title="Duration Picker">
@@ -19,7 +18,7 @@ export function DurationPickerExamples() {
       >
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import DurationPicker from '@/components/ui/DurationPicker'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import DurationPicker from &apos;@/components/ui/DurationPicker&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

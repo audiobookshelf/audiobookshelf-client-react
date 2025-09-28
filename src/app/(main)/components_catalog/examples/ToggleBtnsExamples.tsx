@@ -1,7 +1,7 @@
 'use client'
 import ToggleButtonGroup from '@/components/ui/ToggleButtonGroup'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Toggle Button Examples
 
@@ -40,7 +40,7 @@ export function ToggleBtnsExamples() {
       <ComponentInfo component="ToggleButtonGroup" description="Toggle button group component with radio button behavior and keyboard navigation">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ToggleButtonGroup from '@/components/ui/ToggleButtonGroup'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import ToggleButtonGroup from &apos;@/components/ui/ToggleButtonGroup&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">items</code>,{' '}

@@ -1,7 +1,7 @@
 'use client'
 import Dropdown, { type DropdownItem } from '@/components/ui/Dropdown'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Dropdown Examples
 export function DropdownExamples() {
@@ -22,7 +22,6 @@ export function DropdownExamples() {
 
   const [dropdownValue, setDropdownValue] = useState('option1')
   const [dropdownValue2, setDropdownValue2] = useState('en')
-  const [dropdownValue3, setDropdownValue3] = useState('option1')
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -33,15 +32,12 @@ export function DropdownExamples() {
     setDropdownValue2(String(value))
   }
 
-  const handleDropdownChange3 = (value: string | number) => {
-    setDropdownValue3(String(value))
-  }
-
   return (
     <ComponentExamples title="Dropdowns">
       <ComponentInfo component="Dropdown" description="Select dropdown component with labels, subtext, and various states">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from '@/components/ui/Dropdown'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from &apos;@/components/ui/Dropdown&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

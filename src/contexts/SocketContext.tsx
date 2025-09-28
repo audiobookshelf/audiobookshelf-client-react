@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { Socket, io } from 'socket.io-client'
 
 interface SocketContextType {
@@ -65,7 +65,7 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
       socketInstance.off('auth_failed', handleAuthFailed)
       socketInstance.disconnect()
     }
-  }, [])
+  }, [accessToken])
 
   const value: SocketContextType = {
     socket,
@@ -96,7 +96,8 @@ export function useSocketEvent<T = any>(event: string, callback: (data: T) => vo
     return () => {
       socket.off(event, callback)
     }
-  }, [socket, event, ...dependencies])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket, event, callback, ...dependencies])
 }
 
 // Hook for emitting socket events

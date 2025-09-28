@@ -1,6 +1,6 @@
-import { Descendant, Text } from 'slate'
 import { escapeHtml } from '@/lib/html-utils'
-import { DOMNode, CustomText } from '@/types/slate'
+import { CustomText, DOMNode } from '@/types/slate'
+import { Descendant, Text } from 'slate'
 
 // --- Serialize Function ---
 
@@ -140,6 +140,7 @@ export const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
   if (isBold || isItalic || isStrike) {
     children = children.map((child) => {
       if ('text' in child) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { isIntentionalBreak, ...cleanChild } = child as any
         return {
           ...cleanChild,
@@ -154,6 +155,7 @@ export const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
     // Clean up the intentional break marker even if no formatting is applied
     children = children.map((child) => {
       if ('text' in child && (child as any).isIntentionalBreak) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { isIntentionalBreak, ...cleanChild } = child as any
         return cleanChild
       }
@@ -192,7 +194,7 @@ export const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
     case 'H5':
     case 'H6':
       // Treat headings as bold paragraphs
-      const headingChildren = children.map((child) => ('text' in child ? { ...child, bold: true as true } : child))
+      const headingChildren = children.map((child) => ('text' in child ? { ...child, bold: true as const } : child))
       return [{ type: 'paragraph', children: headingChildren }]
     case 'SPAN':
       // For spans, just return the children with any applied formatting

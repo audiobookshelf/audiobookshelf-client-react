@@ -1,10 +1,10 @@
 'use client'
 
-import { useState, useTransition } from 'react'
 import SortableList from '@/components/widgets/SortableList'
+import { useState, useTransition } from 'react'
 import LibrariesListRow from './LibrariesListRow'
 
-export default function LibrariesList(props: { libraries: any[]; saveLibraryOrder: (reorderObjects: { id: string; newOrder: number }[]) => void }) {
+export default function LibrariesList(props: { libraries: any[]; saveLibraryOrderAction: (reorderObjects: { id: string; newOrder: number }[]) => void }) {
   const { libraries: librariesData } = props
 
   const [isPending, startTransition] = useTransition()
@@ -13,7 +13,7 @@ export default function LibrariesList(props: { libraries: any[]; saveLibraryOrde
   const handleSortChange = (sortedItems: any[]) => {
     setLibraries(sortedItems as any[])
     startTransition(async () => {
-      props.saveLibraryOrder(sortedItems.map((item, index) => ({ id: item.id, newOrder: index })))
+      props.saveLibraryOrderAction(sortedItems.map((item, index) => ({ id: item.id, newOrder: index })))
     })
   }
 

@@ -1,14 +1,11 @@
 'use client'
 import CronExpressionBuilder from '@/components/widgets/CronExpressionBuilder'
-import { useState, useCallback } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
-import { useGlobalToast } from '@/contexts/ToastContext'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
+import { useCallback, useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // CronExpressionBuilder Examples
 export function CronExpressionBuilderExamples() {
-  const { showToast } = useGlobalToast()
-
   // Example server settings for demonstration
   const exampleServerSettings = {
     language: 'en-us',
@@ -81,7 +78,7 @@ export function CronExpressionBuilderExamples() {
       >
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionBuilder from '@/components/widgets/CronExpressionBuilder'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionBuilder from &apos;@/components/widgets/CronExpressionBuilder&apos;</code>
         </p>
         <div className="mb-2">
           <span className="font-bold">Props:</span>
@@ -104,7 +101,7 @@ export function CronExpressionBuilderExamples() {
       <ComponentInfo component="CronExpressionPreview" description="A preview of the cron expression with a verbal description of the schedule, next run date">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionPreview from &apos;@/components/widgets/CronExpressionPreview&apos;</code>
         </p>
         <div className="mb-2">
           <span className="font-bold">Props:</span>

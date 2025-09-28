@@ -1,6 +1,6 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import Link from 'next/link'
-import { getUser, getData } from '../../../../../lib/api'
+import { getData, getUser } from '../../../../../lib/api'
 
 export const dynamic = 'force-dynamic'
 

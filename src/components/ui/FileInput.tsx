@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useRef, useCallback, useState, useId } from 'react'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import React, { useCallback, useId, useRef, useState } from 'react'
 import Btn from './Btn'
 import IconBtn from './IconBtn'
 
@@ -17,13 +17,6 @@ export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', childre
   const t = useTypeSafeTranslations()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFileName, setSelectedFileName] = useState<string>('')
-
-  const reset = useCallback(() => {
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-      setSelectedFileName('')
-    }
-  }, [])
 
   const clickUpload = useCallback(() => {
     if (fileInputRef.current) {

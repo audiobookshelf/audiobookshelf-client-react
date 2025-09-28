@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useCallback, useMemo, memo, useRef } from 'react'
-import { Descendant, Editor, Transforms, Node, Path } from 'slate'
-import { Editable as SlateEditable, RenderElementProps, RenderLeafProps, useSlateStatic, ReactEditor } from 'slate-react'
+import React, { memo, useCallback, useMemo, useRef } from 'react'
+import { Descendant, Editor, Transforms } from 'slate'
+import { RenderElementProps, RenderLeafProps, Editable as SlateEditable } from 'slate-react'
 
-import InputWrapper from '../InputWrapper'
-import { mergeClasses } from '@/lib/merge-classes'
-import { toggleMark } from './Mark'
-import { toggleBlock } from './Block'
-import { deserialize, initialValue } from './serialization'
 import { useLinkModalContext } from '@/contexts/LinkModalContext'
+import { mergeClasses } from '@/lib/merge-classes'
+import InputWrapper from '../InputWrapper'
+import { toggleBlock } from './Block'
 import { slateElementStyles } from './constants'
+import { toggleMark } from './Mark'
+import { deserialize, initialValue } from './serialization'
 
 // --- Renderers ---
 const RenderElement = memo(({ attributes, children, element }: RenderElementProps) => {
@@ -32,12 +32,16 @@ const RenderElement = memo(({ attributes, children, element }: RenderElementProp
   }
 })
 
+RenderElement.displayName = 'RenderElement'
+
 const RenderLeaf = memo(({ attributes, children, leaf }: RenderLeafProps) => {
   if (leaf.bold) children = <strong>{children}</strong>
   if (leaf.italic) children = <em>{children}</em>
   if (leaf.strike) children = <s>{children}</s>
   return <span {...attributes}>{children}</span>
 })
+
+RenderLeaf.displayName = 'RenderLeaf'
 
 // --- Editable Interface ---
 interface EditableProps {
@@ -226,3 +230,5 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
     </InputWrapper>
   )
 })
+
+Editable.displayName = 'Editable'

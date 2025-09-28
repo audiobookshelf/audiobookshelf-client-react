@@ -9,7 +9,7 @@ interface BookshelfClientProps {
   libraryItemsData: any
 }
 
-export default function BookshelfClient({ library, libraryItemsData }: BookshelfClientProps) {
+export default function BookshelfClient({ libraryItemsData }: BookshelfClientProps) {
   useEffect(() => {
     // For sending the item count to the toolbar
     eventBus.emit('itemCount', libraryItemsData.total)

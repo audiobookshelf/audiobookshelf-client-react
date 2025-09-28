@@ -1,10 +1,9 @@
+import Modal from '@/components/modals/Modal'
+import Btn from '@/components/ui/Btn'
+import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { MultiSelectItem } from '@/components/ui/MultiSelect'
-import { ComponentExamples, ExamplesBlock, Example } from '../ComponentExamples'
-import Btn from '@/components/ui/Btn'
-import Modal from '@/components/modals/Modal'
-import MultiSelect from '@/components/ui/MultiSelect'
+import { ComponentExamples, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function AdvancedModalExamples() {
   const [isModalOpen, setIsModalOpen] = useState(false)

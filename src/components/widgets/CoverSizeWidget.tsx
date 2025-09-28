@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import IconBtn from '@/components/ui/IconBtn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import IconBtn from '@/components/ui/IconBtn'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface CoverSizeWidgetProps {
   sizeIndex?: number
@@ -23,7 +23,7 @@ export default function CoverSizeWidget({ sizeIndex: sizeIndexProp = 3, onSizeIn
 
   const [selectedSizeIndex, setSelectedSizeIndex] = useState(sizeIndex)
 
-  const bookCoverWidth = useMemo(() => availableCoverSizes[selectedSizeIndex], [availableCoverSizes, selectedSizeIndex])
+  const bookCoverWidth = useMemo(() => availableCoverSizes[selectedSizeIndex], [selectedSizeIndex])
 
   // Update index when initialSize prop changes
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function CoverSizeWidget({ sizeIndex: sizeIndexProp = 3, onSizeIn
       const newIndex = Math.min(availableCoverSizes.length - 1, prevIndex + 1)
       return newIndex
     })
-  }, [availableCoverSizes.length])
+  }, [])
 
   const decreaseSize = useCallback(() => {
     setSelectedSizeIndex((prevIndex) => {

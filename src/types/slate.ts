@@ -1,6 +1,6 @@
 import { Descendant } from 'slate'
-import { ReactEditor } from 'slate-react'
 import { HistoryEditor } from 'slate-history'
+import { ReactEditor } from 'slate-react'
 
 // --- Slate Editor Type Definitions ---
 

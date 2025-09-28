@@ -1,4 +1,3 @@
-import React from 'react'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import Indicator from './Indicator'

@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useMemo, useCallback, useRef, useId } from 'react'
 import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useId, useMemo, useRef } from 'react'
 import InputWrapper from './InputWrapper'
 
 interface ToggleSwitchProps {
@@ -102,14 +102,11 @@ export default function ToggleSwitch({
     [triggerChange]
   )
 
-  const handleWrapperClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (buttonRef.current && !disabled) {
-        buttonRef.current.focus()
-      }
-    },
-    [disabled]
-  )
+  const handleWrapperClick = useCallback(() => {
+    if (buttonRef.current && !disabled) {
+      buttonRef.current.focus()
+    }
+  }, [disabled])
 
   const derivedAriaLabel = useMemo(() => {
     if (label) return undefined // aria-labelledby will be used instead

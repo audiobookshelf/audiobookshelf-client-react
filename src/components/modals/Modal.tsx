@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useState, useRef, useEffect, useCallback, useMemo, ReactNode } from 'react'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { createPortal } from 'react-dom'
-import { useClickOutside } from '@/hooks/useClickOutside'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
-import { mergeClasses } from '@/lib/merge-classes'
 import { ModalProvider } from '@/contexts/ModalContext'
+import { useClickOutside } from '@/hooks/useClickOutside'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
+import React, { ReactNode, useCallback, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export interface ModalProps {
   isOpen: boolean

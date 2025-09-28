@@ -1,6 +1,6 @@
-import React from 'react'
 import Tooltip from '@/components/ui/Tooltip'
 import { mergeClasses } from '@/lib/merge-classes'
+import React from 'react'
 
 interface IndicatorProps {
   tooltipText: string

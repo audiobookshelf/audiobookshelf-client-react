@@ -1,7 +1,7 @@
-import { useState } from 'react'
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function MultiSelectExamples() {
   const { showToast } = useGlobalToast()
@@ -60,7 +60,7 @@ export function MultiSelectExamples() {
           <p className="mb-2">
             <span className="font-bold">Import:</span>{' '}
             <code className="bg-gray-700 px-2 py-1 rounded">
-              import MultiSelect, {'{'} MultiSelectItem {'}'} from '@/components/ui/MultiSelect'
+              import MultiSelect, {'{'} MultiSelectItem {'}'} from &apos;@/components/ui/MultiSelect&apos;
             </code>
           </p>
           <p className="mb-2">

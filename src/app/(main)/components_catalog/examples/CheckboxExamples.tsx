@@ -1,7 +1,7 @@
 'use client'
 import Checkbox from '@/components/ui/Checkbox'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Checkbox Examples
 export function CheckboxExamples() {
@@ -15,7 +15,8 @@ export function CheckboxExamples() {
     <ComponentExamples title="Checkboxes">
       <ComponentInfo component="Checkbox" description="Checkbox component with different sizes and states">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Checkbox from '@/components/ui/Checkbox'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import Checkbox from &apos;@/components/ui/Checkbox&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

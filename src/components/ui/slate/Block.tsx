@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useCallback, memo } from 'react'
+import React, { memo, useCallback, useMemo } from 'react'
 import { Editor, Element, Transforms } from 'slate'
 import { useSlate } from 'slate-react'
 
@@ -106,3 +106,5 @@ export const BlockButton = memo(
     )
   }
 )
+
+BlockButton.displayName = 'BlockButton'

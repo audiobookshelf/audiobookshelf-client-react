@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
-import Tooltip from '@/components/ui/Tooltip'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
-import Modal from '@/components/modals/Modal'
+import Tooltip from '@/components/ui/Tooltip'
+import { useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function TooltipExamples() {
   const [isTooltipModalOpen, setIsTooltipModalOpen] = useState(false)
@@ -13,7 +13,8 @@ export function TooltipExamples() {
     <ComponentExamples title="Tooltips">
       <ComponentInfo component="Tooltip" description="Tooltip component with various positions and hover/focus interactions">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Tooltip from '@/components/ui/Tooltip'</code>
+          <span className="font-bold">Import:</span>{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">import Tooltip from &apos;@/components/ui/Tooltip&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">text</code>,{' '}

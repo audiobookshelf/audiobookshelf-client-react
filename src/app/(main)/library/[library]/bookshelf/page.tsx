@@ -1,4 +1,4 @@
-import { getLibrary, getLibraryItems, getData } from '../../../../../lib/api'
+import { getData, getLibrary, getLibraryItems } from '../../../../../lib/api'
 import BookshelfClient from './BookshelfClient'
 
 export default async function BookshelfPage({ params }: { params: Promise<{ library: string }> }) {

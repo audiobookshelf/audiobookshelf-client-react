@@ -1,11 +1,11 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo, useId, useEffect } from 'react'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
-import Label from './Label'
 import InputWrapper from './InputWrapper'
+import Label from './Label'
 
 interface InputDropdownProps {
   value?: string | number
@@ -73,7 +73,7 @@ export default function InputDropdown({
       const itemValue = String(item).toLowerCase()
       return itemValue.includes(textInput.toLowerCase())
     })
-  }, [textInput, items, showAllWhenEmpty])
+  }, [textInput, items])
 
   const onInputFocus = useCallback(() => {
     if (textInput || showAllWhenEmpty) {
@@ -242,6 +242,7 @@ export default function InputDropdown({
       <div ref={wrapperRef} className="relative">
         <InputWrapper disabled={disabled} inputRef={inputRef}>
           <input
+            role="combobox"
             ref={inputRef}
             id={inputId}
             value={textInput}

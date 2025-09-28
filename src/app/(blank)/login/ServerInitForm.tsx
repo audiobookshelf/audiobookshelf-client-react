@@ -47,7 +47,7 @@ export default function ServerInitForm() {
         return
       }
       window.location.href = '/'
-    } catch (err) {
+    } catch {
       setError('Network error. Please try again.')
       setLoading(false)
     }

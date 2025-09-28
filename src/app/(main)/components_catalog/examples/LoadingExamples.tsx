@@ -1,7 +1,7 @@
 'use client'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function LoadingExamples() {
   return (
@@ -9,7 +9,7 @@ export function LoadingExamples() {
       <ComponentInfo component="LoadingIndicator" description="Loading indicator component with animated dots">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import LoadingIndicator from '@/components/ui/LoadingIndicator'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import LoadingIndicator from &apos;@/components/ui/LoadingIndicator&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> No props required - displays animated loading dots
@@ -21,7 +21,7 @@ export function LoadingExamples() {
           <ComponentInfo component="LoadingSpinner" description="Loading spinner component with various sizes and customization options">
             <p className="mb-2">
               <span className="font-bold">Import:</span>{' '}
-              <code className="bg-gray-700 px-2 py-1 rounded">import LoadingSpinner from '@/components/widgets/LoadingSpinner'</code>
+              <code className="bg-gray-700 px-2 py-1 rounded">import LoadingSpinner from &apos;@/components/widgets/LoadingSpinner&apos;</code>
             </p>
             <p className="mb-2">
               <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">size</code> (la-sm, la-lg, la-2x, la-3x),{' '}

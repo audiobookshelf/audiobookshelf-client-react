@@ -1,7 +1,7 @@
 'use client'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Toggle Switch Examples
 
@@ -20,7 +20,7 @@ export function ToggleSwitchExamples() {
       <ComponentInfo component="ToggleSwitch" description="Toggle switch component with various sizes, colors, and states">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ToggleSwitch from '@/components/ui/ToggleSwitch'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import ToggleSwitch from &apos;@/components/ui/ToggleSwitch&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}

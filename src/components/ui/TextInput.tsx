@@ -1,12 +1,12 @@
 'use client'
 
-import { useCallback, useId, useMemo, useState } from 'react'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { mergeClasses } from '@/lib/merge-classes'
-import { copyToClipboard } from '@/lib/clipboard'
 import { useMergedRef } from '@/hooks/useMergedRef'
-import Label from './Label'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { copyToClipboard } from '@/lib/clipboard'
+import { mergeClasses } from '@/lib/merge-classes'
+import { useCallback, useId, useMemo, useState } from 'react'
 import InputWrapper from './InputWrapper'
+import Label from './Label'
 
 export interface TextInputProps {
   id?: string

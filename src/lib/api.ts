@@ -1,7 +1,7 @@
-import { cache } from 'react'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
+import { cache } from 'react'
 
 interface ApiResponse<T = any> {
   data?: T
@@ -119,7 +119,7 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
 }
 
 export const getData = cache(async <T extends readonly Promise<ApiResponse<any>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
-  let responses = await Promise.all(promises)
+  const responses = await Promise.all(promises)
 
   let requiresRefresh = false
   for (const response of responses) {

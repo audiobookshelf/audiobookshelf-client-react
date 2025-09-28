@@ -1,10 +1,10 @@
-import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, ExamplesBlock, Example } from '../ComponentExamples'
+import Label from '@/components/ui/Label'
+import { slateElementStyles } from '@/components/ui/slate/constants'
 import SlateEditor from '@/components/ui/SlateEditor'
 import TextareaInput from '@/components/ui/TextareaInput'
-import Label from '@/components/ui/Label'
 import { mergeClasses } from '@/lib/merge-classes'
-import { slateElementStyles } from '@/components/ui/slate/constants'
+import { useState } from 'react'
+import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function SlateEditorExamples() {
   const initialContent =
@@ -39,7 +39,7 @@ export function SlateEditorExamples() {
       <ComponentInfo component="SlateEditor" description="A rich text editor built with Slate.js">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import SlateEditor from '@/components/ui/SlateEditor'</code>
+          <code className="bg-gray-700 px-2 py-1 rounded">import SlateEditor from &apos;@/components/ui/SlateEditor&apos;</code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">srcContent</code>,{' '}

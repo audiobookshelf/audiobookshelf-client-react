@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useId, useMemo, useCallback } from 'react'
-import { mergeClasses } from '@/lib/merge-classes'
 import { useMergedRef } from '@/hooks/useMergedRef'
-import Label from './Label'
+import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useId, useMemo } from 'react'
 import InputWrapper from './InputWrapper'
+import Label from './Label'
 
 interface RangeInputProps {
   value: number
