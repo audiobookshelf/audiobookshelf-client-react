@@ -1,5 +1,6 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import { apiRequest, getLibraries, getData } from '../../../../lib/api'
+import { apiRequest, getData, getLibraries } from '../../../../lib/api'
+import SettingsContent from '../SettingsContent'
 import LibrariesList from './LibrariesList'
 
 export const dynamic = 'force-dynamic'
@@ -23,7 +24,7 @@ export default async function LibrariesPage() {
 
   return (
     <SettingsContent title={t('HeaderLibraries')} moreInfoUrl="https://www.audiobookshelf.org/guides/library_creation">
-      <LibrariesList libraries={librariesData} saveLibraryOrder={saveLibraryOrder} />
+      <LibrariesList libraries={librariesData} saveLibraryOrderAction={saveLibraryOrder} />
     </SettingsContent>
   )
 }
