@@ -2,6 +2,7 @@
 
 import { AdvancedModalExamples } from './examples/AdvancedModalExamples'
 import { AlertExamples } from './examples/AlertExamples'
+import { BookDetailsEditExamples } from './examples/BookDetailsEditExamples'
 import { BtnExamples } from './examples/BtnExamples'
 import { CheckboxExamples } from './examples/CheckboxExamples'
 import { ContextMenuDropdownExamples } from './examples/ContextMenuDropdownExamples'
@@ -188,6 +189,11 @@ export default function ComponentsCatalogPage() {
                   </a>
                 </li>
                 <li>
+                  <a href="#book-details-edit-examples" className="hover:text-blue-400 transition-colors">
+                    Book Details Edit
+                  </a>
+                </li>
+                <li>
                   <a href="#cover-size-widget-examples" className="hover:text-blue-400 transition-colors">
                     Cover Size Widget
                   </a>
@@ -286,6 +292,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="alert-examples">
         <AlertExamples />
+      </div>
+      <div id="book-details-edit-examples">
+        <BookDetailsEditExamples />
       </div>
       <div id="cover-size-widget-examples">
         <CoverSizeWidgetExamples />
