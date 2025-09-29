@@ -105,7 +105,10 @@ export function BookDetailsEditExamples() {
           availableGenres={mockGenres}
           availableTags={mockTags}
           availableSeries={mockSeries}
-          onChange={(details) => setHasChanges(details.hasChanges)}
+          onChange={(details) => {
+            console.log('onChange', details)
+            setHasChanges(details.hasChanges)
+          }}
           onSubmit={(details) => {
             console.log('onSubmit', details)
             if (details.hasChanges) {
