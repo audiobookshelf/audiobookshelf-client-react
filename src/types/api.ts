@@ -20,6 +20,48 @@ export interface LibraryFile {
   fileType?: 'image' | 'audio' | 'ebook' | 'text' | 'metadata' | 'unknown'
 }
 
+// Library settings structure
+export interface LibrarySettings {
+  coverAspectRatio: number
+  disableWatcher: boolean
+  skipMatchingMediaWithAsin?: boolean
+  skipMatchingMediaWithIsbn?: boolean
+  autoScanCronExpression?: string | null
+  audiobooksOnly?: boolean
+  hideSingleBookSeries?: boolean
+  onlyShowLaterBooksInContinueSeries?: boolean
+  metadataPrecedence?: string[]
+  markAsFinishedTimeRemaining?: number
+  markAsFinishedPercentComplete?: number | null
+  podcastSearchRegion?: string
+  epubsAllowScriptedContent?: boolean
+}
+
+// Library structure
+export interface Library {
+  id: string
+  name: string
+  displayOrder: number
+  icon: string
+  mediaType: 'book' | 'podcast'
+  provider?: string
+  lastScan?: number | null
+  lastScanVersion?: string
+  settings?: LibrarySettings
+  extraData?: Record<string, any>
+  createdAt: number
+  updatedAt: number
+  folders?: LibraryFolder[]
+}
+
+export interface LibraryFolder {
+  id: string
+  path: string
+  libraryId: string
+  createdAt: number
+  updatedAt: number
+}
+
 // Audio file structure for books
 export interface AudioFile {
   index: number

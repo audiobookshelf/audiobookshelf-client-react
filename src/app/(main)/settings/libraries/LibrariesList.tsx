@@ -1,19 +1,25 @@
 'use client'
 
 import SortableList from '@/components/widgets/SortableList'
+import { Library } from '@/types/api'
 import { useState, useTransition } from 'react'
 import LibrariesListRow from './LibrariesListRow'
 
-export default function LibrariesList(props: { libraries: any[]; saveLibraryOrderAction: (reorderObjects: { id: string; newOrder: number }[]) => void }) {
-  const { libraries: librariesData } = props
+interface LibrariesListProps {
+  libraries: Library[]
+  saveLibraryOrderAction: (reorderObjects: { id: string; newOrder: number }[]) => void
+}
+
+export default function LibrariesList(props: LibrariesListProps) {
+  const { libraries: librariesData, saveLibraryOrderAction } = props
 
   const [isPending, startTransition] = useTransition()
-  const [libraries, setLibraries] = useState(librariesData || ([] as any[]))
+  const [libraries, setLibraries] = useState(librariesData || ([] as Library[]))
 
-  const handleSortChange = (sortedItems: any[]) => {
-    setLibraries(sortedItems as any[])
+  const handleSortChange = (sortedItems: Library[]) => {
+    setLibraries(sortedItems as Library[])
     startTransition(async () => {
-      props.saveLibraryOrderAction(sortedItems.map((item, index) => ({ id: item.id, newOrder: index })))
+      saveLibraryOrderAction(sortedItems.map((item, index) => ({ id: item.id, newOrder: index })))
     })
   }
 
@@ -24,7 +30,7 @@ export default function LibrariesList(props: { libraries: any[]; saveLibraryOrde
         itemClassName="first:rounded-t-md last:rounded-b-md border border-border"
         disabled={isPending}
         onSortEnd={handleSortChange}
-        renderItem={(item: any) => {
+        renderItem={(item: Library) => {
           return <LibrariesListRow item={item} key={item.id} />
         }}
         dragHandle=".drag-handle"

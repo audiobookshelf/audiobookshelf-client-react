@@ -1,15 +1,39 @@
+import Btn from '@/components/ui/Btn'
+import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import LibraryIcon from '@/components/ui/LibraryIcon'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { Library } from '@/types/api'
 import Link from 'next/link'
 
-export default function LibrariesListRow({ item }: { item: any }) {
+interface LibrariesListRowProps {
+  item: Library
+}
+
+export default function LibrariesListRow({ item }: LibrariesListRowProps) {
+  const t = useTypeSafeTranslations()
+
+  const contextMenuItems: ContextMenuDropdownItem[] = [
+    { text: t('ButtonEdit'), action: 'edit' },
+    { text: t('ButtonScan'), action: 'scan' },
+    { text: t('ButtonDelete'), action: 'delete' }
+  ]
+
+  if (item.mediaType === 'book') {
+    contextMenuItems.splice(2, 0, { text: t('ButtonMatchBooks'), action: 'matchBooks' })
+  }
+
   return (
-    <div className="flex items-center gap-4 py-2 px-4 hover:bg-primary/20 text-white/50 hover:text-white">
+    <div className="flex items-center gap-4 py-1 px-4 hover:bg-primary/20 text-white/50 hover:text-white">
       <LibraryIcon icon={item.icon} />
       <Link className="text-white hover:underline" href={`/library/${item.id}`}>
-        {item.name as string}
+        {item.name}
       </Link>
       <div className="grow" />
-      <div className="drag-handle cursor-n-resize">
+      <Btn color="bg-bg" className="h-auto px-3 text-xs" size="small" onClick={() => {}}>
+        {t('ButtonScan')}
+      </Btn>
+      <ContextMenuDropdown borderless size="small" items={contextMenuItems} />
+      <div className=" cursor-n-resize">
         <span className="material-symbols text-xl text-white/50 hover:text-white">reorder</span>
       </div>
     </div>
