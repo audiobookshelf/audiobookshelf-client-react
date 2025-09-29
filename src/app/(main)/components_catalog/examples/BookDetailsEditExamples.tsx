@@ -1,9 +1,9 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import BookDetailsEdit, { BookDetailsEditRef } from '@/components/widgets/BookDetailsEdit'
+import BookDetailsEdit, { BookDetailsEditRef, UpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import { BookLibraryItem } from '@/types/api'
-import { useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
 const mockLibraryItem: BookLibraryItem = {
@@ -77,6 +77,29 @@ export function BookDetailsEditExamples() {
   const [libraryItem, setLibraryItem] = useState(mockLibraryItem)
   const [hasChanges, setHasChanges] = useState(false)
 
+  const handleChange = useCallback((details: { libraryItemId: string; hasChanges: boolean }) => {
+    console.log('onChange', details)
+    setHasChanges(details.hasChanges)
+  }, [])
+
+  const handleSubmit = useCallback((details: { updatePayload: UpdatePayload; hasChanges: boolean }) => {
+    console.log('onSubmit', details)
+    if (details.hasChanges) {
+      setLibraryItem((prev) => ({
+        ...prev,
+        media: {
+          ...prev.media,
+          metadata: {
+            ...prev.media.metadata,
+            ...details.updatePayload.metadata
+          },
+          tags: details.updatePayload.tags ?? prev.media.tags
+        }
+      }))
+      setHasChanges(false)
+    }
+  }, [])
+
   return (
     <ComponentExamples title="Book Details Edit">
       <ComponentInfo
@@ -87,13 +110,35 @@ export function BookDetailsEditExamples() {
           <span className="font-bold">Import:</span>{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">import BookDetailsEdit from &apos;@/components/widgets/BookDetailsEdit&apos;</code>
         </p>
-        <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">libraryItem</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">authors</code>, <code className="bg-gray-700 px-2 py-1 rounded">narrators</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">genres</code>, <code className="bg-gray-700 px-2 py-1 rounded">tags</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">series</code>, <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onSubmit</code>
-        </p>
+        <div>
+          <span className="font-bold">Props:</span>
+          <ul className="list-disc list-inside">
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">libraryItem</code>: The book library item to edit.
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">availableAuthors</code>: A list of available authors.
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">availableNarrators</code>: A list of available narrators.
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">availableGenres</code>: A list of available genres.
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">availableTags</code>: A list of available tags.
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">availableSeries</code>: A list of available series.
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>: Callback fired when form data changes.
+            </li>
+            <li>
+              <code className="bg-gray-700 px-2 py-1 rounded">onSubmit</code>: Callback fired when form is submitted.
+            </li>
+          </ul>
+        </div>
       </ComponentInfo>
 
       <Example title="Default">
@@ -105,27 +150,8 @@ export function BookDetailsEditExamples() {
           availableGenres={mockGenres}
           availableTags={mockTags}
           availableSeries={mockSeries}
-          onChange={(details) => {
-            console.log('onChange', details)
-            setHasChanges(details.hasChanges)
-          }}
-          onSubmit={(details) => {
-            console.log('onSubmit', details)
-            if (details.hasChanges) {
-              setLibraryItem((prev) => ({
-                ...prev,
-                media: {
-                  ...prev.media,
-                  metadata: {
-                    ...prev.media.metadata,
-                    ...details.updatePayload.metadata
-                  },
-                  tags: details.updatePayload.tags ?? prev.media.tags
-                }
-              }))
-              setHasChanges(false)
-            }
-          }}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
         />
         <div className="flex justify-end px-2 md:px-4">
           <Btn onClick={() => bookDetailsEditRef.current?.submit()} disabled={!hasChanges}>

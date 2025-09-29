@@ -22,12 +22,8 @@ interface EditState {
 type Action =
   | { type: 'RESET_STATE'; payload: { details: Details; tags: string[] } }
   | { type: 'UPDATE_FIELD'; payload: { field: keyof Details; value: Details[keyof Details] } }
+  | { type: 'UPDATE_TAGS'; payload: { tags: string[] } }
   | { type: 'BATCH_UPDATE'; payload: { batchDetails: Partial<Details & { tags: string[] }>; mapType: 'overwrite' | 'append' } }
-  | { type: 'ADD_ITEM'; payload: { field: 'authors' | 'series'; value: AuthorShort | SeriesShort } }
-  | { type: 'REMOVE_ITEM'; payload: { field: 'authors' | 'series'; value: string } } // value is id
-  | { type: 'EDIT_SERIES'; payload: { index: number; value: SeriesShort } }
-  | { type: 'ADD_STRING_ITEM'; payload: { field: 'narrators' | 'genres' | 'tags'; value: string } }
-  | { type: 'REMOVE_STRING_ITEM'; payload: { field: 'narrators' | 'genres' | 'tags'; value: string } }
 
 const bookDetailsReducer = (state: EditState, action: Action): EditState => {
   switch (action.type) {
@@ -47,102 +43,41 @@ const bookDetailsReducer = (state: EditState, action: Action): EditState => {
           [action.payload.field]: action.payload.value
         }
       }
-    case 'ADD_ITEM': {
-      const currentArray = state.details[action.payload.field] as (AuthorShort | SeriesShort)[]
+    case 'UPDATE_TAGS':
       return {
         ...state,
-        details: {
-          ...state.details,
-          [action.payload.field]: [...currentArray, action.payload.value]
-        }
+        tags: action.payload.tags
       }
-    }
-    case 'REMOVE_ITEM': {
-      const currentArray = state.details[action.payload.field] as (AuthorShort | SeriesShort)[]
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          [action.payload.field]: currentArray.filter((item) => item.id !== action.payload.value)
-        }
-      }
-    }
-    case 'EDIT_SERIES': {
-      const newSeriesList = [...state.details.series]
-      newSeriesList[action.payload.index] = action.payload.value
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          series: newSeriesList
-        }
-      }
-    }
-    case 'ADD_STRING_ITEM': {
-      if (action.payload.field === 'tags') {
-        return { ...state, tags: [...state.tags, action.payload.value] }
-      }
-      const currentArray = state.details[action.payload.field]
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          [action.payload.field]: [...(currentArray || []), action.payload.value]
-        }
-      }
-    }
-    case 'REMOVE_STRING_ITEM': {
-      if (action.payload.field === 'tags') {
-        return { ...state, tags: state.tags.filter((tag) => tag !== action.payload.value) }
-      }
-      const currentArray = state.details[action.payload.field]
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          [action.payload.field]: (currentArray || []).filter((item) => item !== action.payload.value)
-        }
-      }
-    }
     case 'BATCH_UPDATE': {
       const { batchDetails, mapType } = action.payload
-      const { tags: newTags, ...details } = batchDetails
-      let updatedTags = state.tags
-      const updatedDetails: Details = { ...state.details }
+      const { tags: newTags, ...detailsToUpdate } = batchDetails
 
-      if (newTags) {
-        updatedTags = mapType === 'append' ? [...new Set([...state.tags, ...newTags])] : [...newTags]
-      }
+      const finalTags = newTags ? (mapType === 'append' ? [...new Set([...state.tags, ...newTags])] : [...newTags]) : state.tags
 
       if (mapType === 'overwrite') {
-        // Overwrite all fields present in details
-        Object.keys(details).forEach((keyStr) => {
-          const key = keyStr as keyof Details
-          const value = details[key]
-          if (value !== undefined) {
-            // @ts-expect-error - key is a string and value is any, so TS complains
-            updatedDetails[key] = value
-          }
-        })
+        return {
+          ...state,
+          details: { ...state.details, ...detailsToUpdate },
+          tags: finalTags
+        }
       } else {
-        // Append logic for arrays
-        if (details.genres) {
-          updatedDetails.genres = [...new Set([...(state.details.genres || []), ...details.genres])]
-        }
-        if (details.narrators) {
-          updatedDetails.narrators = [...new Set([...(state.details.narrators || []), ...details.narrators])]
-        }
-        if (details.authors) {
-          const unique = details.authors.filter((newItem) => !state.details.authors.find((p) => p.id === newItem.id))
-          updatedDetails.authors = [...state.details.authors, ...unique]
-        }
-        if (details.series) {
-          const unique = details.series.filter((newItem) => !state.details.series.find((p) => p.id === newItem.id))
-          updatedDetails.series = [...state.details.series, ...unique]
+        // Append logic
+        return {
+          ...state,
+          details: {
+            ...state.details,
+            genres: detailsToUpdate.genres ? [...new Set([...(state.details.genres || []), ...detailsToUpdate.genres])] : state.details.genres,
+            narrators: detailsToUpdate.narrators ? [...new Set([...(state.details.narrators || []), ...detailsToUpdate.narrators])] : state.details.narrators,
+            authors: detailsToUpdate.authors
+              ? [...state.details.authors, ...detailsToUpdate.authors.filter((newItem) => !state.details.authors.find((p) => p.id === newItem.id))]
+              : state.details.authors,
+            series: detailsToUpdate.series
+              ? [...state.details.series, ...detailsToUpdate.series.filter((newItem) => !state.details.series.find((p) => p.id === newItem.id))]
+              : state.details.series
+          },
+          tags: finalTags
         }
       }
-
-      return { ...state, details: updatedDetails, tags: updatedTags }
     }
     default:
       return state
@@ -207,12 +142,19 @@ const BookDetailsEdit = ({
   }, [media])
 
   const authorItems = useMemo(() => details.authors.map((a) => ({ value: a.id, content: a.name })), [details.authors])
-  const handleAddAuthor = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'ADD_ITEM', payload: { field: 'authors', value: { id: item.value, name: item.content } } })
-  }, [])
-  const handleRemoveAuthor = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: { field: 'authors', value: item.value } })
-  }, [])
+  const handleAddAuthor = useCallback(
+    (item: MultiSelectItem<string>) => {
+      const newAuthor: AuthorShort = { id: item.value, name: item.content }
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'authors', value: [...details.authors, newAuthor] } })
+    },
+    [details.authors]
+  )
+  const handleRemoveAuthor = useCallback(
+    (item: MultiSelectItem<string>) => {
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'authors', value: details.authors.filter((a) => a.id !== item.value) } })
+    },
+    [details.authors]
+  )
 
   type SeriesSelectItem = {
     value: string
@@ -230,49 +172,78 @@ const BookDetailsEdit = ({
       })),
     [details.series]
   )
-  const handleAddSeries = useCallback((item: SeriesSelectItem) => {
-    const newSeries: SeriesShort = {
-      id: item.value,
-      name: item.content.value,
-      sequence: item.content.modifier
-    }
-    dispatch({ type: 'ADD_ITEM', payload: { field: 'series', value: newSeries } })
-  }, [])
-  const handleRemoveSeries = useCallback((item: SeriesSelectItem) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: { field: 'series', value: item.value } })
-  }, [])
-  const handleEditSeries = useCallback((item: SeriesSelectItem, index: number) => {
-    const editedSeries: SeriesShort = {
-      id: item.value,
-      name: item.content.value,
-      sequence: item.content.modifier
-    }
-    dispatch({ type: 'EDIT_SERIES', payload: { index, value: editedSeries } })
-  }, [])
+  const handleAddSeries = useCallback(
+    (item: SeriesSelectItem) => {
+      const newSeries: SeriesShort = {
+        id: item.value,
+        name: item.content.value,
+        sequence: item.content.modifier
+      }
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'series', value: [...details.series, newSeries] } })
+    },
+    [details.series]
+  )
+  const handleRemoveSeries = useCallback(
+    (item: SeriesSelectItem) => {
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'series', value: details.series.filter((s) => s.id !== item.value) } })
+    },
+    [details.series]
+  )
+  const handleEditSeries = useCallback(
+    (item: SeriesSelectItem, index: number) => {
+      const editedSeries: SeriesShort = {
+        id: item.value,
+        name: item.content.value,
+        sequence: item.content.modifier
+      }
+      const newSeriesList = [...details.series]
+      newSeriesList[index] = editedSeries
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'series', value: newSeriesList } })
+    },
+    [details.series]
+  )
 
   const genreItems = useMemo(() => (details.genres || []).map((g) => ({ value: g, content: g })), [details.genres])
-  const handleAddGenre = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'ADD_STRING_ITEM', payload: { field: 'genres', value: item.content } })
-  }, [])
-  const handleRemoveGenre = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'REMOVE_STRING_ITEM', payload: { field: 'genres', value: item.value } })
-  }, [])
+  const handleAddGenre = useCallback(
+    (item: MultiSelectItem<string>) => {
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'genres', value: [...(details.genres || []), item.content] } })
+    },
+    [details.genres]
+  )
+  const handleRemoveGenre = useCallback(
+    (item: MultiSelectItem<string>) => {
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'genres', value: (details.genres || []).filter((g) => g !== item.value) } })
+    },
+    [details.genres]
+  )
 
   const tagItems = useMemo(() => tags.map((t) => ({ value: t, content: t })), [tags])
-  const handleAddTag = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'ADD_STRING_ITEM', payload: { field: 'tags', value: item.content } })
-  }, [])
-  const handleRemoveTag = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'REMOVE_STRING_ITEM', payload: { field: 'tags', value: item.value } })
-  }, [])
+  const handleAddTag = useCallback(
+    (item: MultiSelectItem<string>) => {
+      dispatch({ type: 'UPDATE_TAGS', payload: { tags: [...tags, item.content] } })
+    },
+    [tags]
+  )
+  const handleRemoveTag = useCallback(
+    (item: MultiSelectItem<string>) => {
+      dispatch({ type: 'UPDATE_TAGS', payload: { tags: tags.filter((t) => t !== item.value) } })
+    },
+    [tags]
+  )
 
   const narratorItems = useMemo(() => (details.narrators || []).map((n) => ({ value: n, content: n })), [details.narrators])
-  const handleAddNarrator = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'ADD_STRING_ITEM', payload: { field: 'narrators', value: item.content } })
-  }, [])
-  const handleRemoveNarrator = useCallback((item: MultiSelectItem<string>) => {
-    dispatch({ type: 'REMOVE_STRING_ITEM', payload: { field: 'narrators', value: item.value } })
-  }, [])
+  const handleAddNarrator = useCallback(
+    (item: MultiSelectItem<string>) => {
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'narrators', value: [...(details.narrators || []), item.content] } })
+    },
+    [details.narrators]
+  )
+  const handleRemoveNarrator = useCallback(
+    (item: MultiSelectItem<string>) => {
+      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'narrators', value: (details.narrators || []).filter((n) => n !== item.value) } })
+    },
+    [details.narrators]
+  )
 
   const handleFieldUpdate = useCallback(
     <K extends keyof Details>(field: K) =>
@@ -282,7 +253,7 @@ const BookDetailsEdit = ({
     []
   )
 
-  const checkForChanges = useCallback(() => {
+  const changes = useMemo(() => {
     const changedEntries = (Object.keys(details) as Array<keyof Details>)
       .filter((key) => {
         const initialValue = initialDetails[key]
@@ -316,20 +287,20 @@ const BookDetailsEdit = ({
   const handleInputChange = useCallback(() => {
     onChange?.({
       libraryItemId: libraryItem.id,
-      hasChanges: checkForChanges().hasChanges
+      hasChanges: changes.hasChanges
     })
-  }, [libraryItem.id, onChange, checkForChanges])
+  }, [libraryItem.id, onChange, changes.hasChanges])
 
   useEffect(() => {
     handleInputChange()
-  }, [details, tags, handleInputChange])
+  }, [handleInputChange])
 
   const submitForm = useCallback(
     (e?: React.FormEvent) => {
       e?.preventDefault()
-      onSubmit?.(checkForChanges())
+      onSubmit?.(changes)
     },
-    [checkForChanges, onSubmit]
+    [changes, onSubmit]
   )
 
   useImperativeHandle(
