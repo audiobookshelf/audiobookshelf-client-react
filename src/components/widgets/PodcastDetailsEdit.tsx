@@ -111,7 +111,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
           submitForm()
         }}
       >
-        <div className="flex -mx-1">
+        <div className="flex flex-wrap -mx-1">
           <div className="w-full md:w-1/2 px-1">
             <TextInput value={details.title || ''} onChange={handleFieldUpdate('title') as (value: string) => void} label={t('LabelTitle')} />
           </div>
@@ -129,7 +129,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
         <SlateEditor srcContent={initialDetails.description || ''} onUpdate={handleFieldUpdate('description')} label={t('LabelDescription')} className="mt-2" />
 
-        <div className="flex mt-2 -mx-1">
+        <div className="flex flex-wrap mt-2 -mx-1">
           <div className="w-full md:w-1/2 px-1">
             <MultiSelect
               selectedItems={genreItems}
@@ -152,7 +152,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
           </div>
         </div>
 
-        <div className="flex mt-2 -mx-1">
+        <div className="flex flex-wrap mt-2 -mx-1">
           <div className="w-full md:w-1/4 px-1">
             <TextInput value={details.releaseDate || ''} onChange={handleFieldUpdate('releaseDate') as (value: string) => void} label={t('LabelReleaseDate')} />
           </div>
@@ -182,7 +182,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               value={details.podcastType || 'episodic'}
               items={podcastTypeItems}
               onChange={handlePodcastTypeChange}
-              className="max-w-52"
+              className="md:max-w-52"
             />
           </div>
         </div>
