@@ -181,7 +181,6 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               label={t('LabelPodcastType')}
               value={details.podcastType || 'episodic'}
               items={podcastTypeItems}
-              size="small"
               onChange={handlePodcastTypeChange}
               className="max-w-52"
             />
