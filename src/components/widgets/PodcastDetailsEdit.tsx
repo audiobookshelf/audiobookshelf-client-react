@@ -1,8 +1,9 @@
 'use client'
 
+import { DetailsEditRef, UpdatePayload, useDetailsEdit } from '@/hooks/useDetailsEdit'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { PodcastLibraryItem, PodcastMetadata } from '@/types/api'
-import React, { useCallback, useEffect, useImperativeHandle, useMemo, useReducer } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import Checkbox from '../ui/Checkbox'
 import Dropdown, { DropdownItem } from '../ui/Dropdown'
 import MultiSelect, { MultiSelectItem } from '../ui/MultiSelect'
@@ -11,89 +12,14 @@ import TextInput from '../ui/TextInput'
 
 type Details = Omit<PodcastMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'imageURL' | 'itunesPageURL' | 'itunesArtistId'>
 
-// Reducer state and actions
-interface EditState {
-  details: Details
-  tags: string[]
-  initialDetails: Details
-  initialTags: string[]
-}
-
-type Action =
-  | { type: 'RESET_STATE'; payload: { details: Details; tags: string[] } }
-  | { type: 'UPDATE_FIELD'; payload: { field: keyof Details; value: Details[keyof Details] } }
-  | { type: 'UPDATE_TAGS'; payload: { tags: string[] } }
-  | { type: 'BATCH_UPDATE'; payload: { batchDetails: Partial<Details & { tags: string[] }>; mapType: 'overwrite' | 'append' } }
-
-const podcastDetailsReducer = (state: EditState, action: Action): EditState => {
-  switch (action.type) {
-    case 'RESET_STATE':
-      return {
-        ...state,
-        details: action.payload.details,
-        tags: action.payload.tags,
-        initialDetails: action.payload.details,
-        initialTags: action.payload.tags
-      }
-    case 'UPDATE_FIELD':
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          [action.payload.field]: action.payload.value
-        }
-      }
-    case 'UPDATE_TAGS':
-      return {
-        ...state,
-        tags: action.payload.tags
-      }
-    case 'BATCH_UPDATE': {
-      const { batchDetails, mapType } = action.payload
-      const { tags: newTags, ...detailsToUpdate } = batchDetails
-
-      const finalTags = newTags ? (mapType === 'append' ? [...new Set([...state.tags, ...newTags])] : [...newTags]) : state.tags
-
-      if (mapType === 'overwrite') {
-        return {
-          ...state,
-          details: { ...state.details, ...detailsToUpdate },
-          tags: finalTags
-        }
-      } else {
-        // Append logic
-        return {
-          ...state,
-          details: {
-            ...state.details,
-            genres: detailsToUpdate.genres ? [...new Set([...(state.details.genres || []), ...detailsToUpdate.genres])] : state.details.genres
-          },
-          tags: finalTags
-        }
-      }
-    }
-    default:
-      return state
-  }
-}
-
-export interface UpdatePayload {
-  metadata?: Partial<Details>
-  tags?: string[]
-}
-
-export interface PodcastDetailsEditRef {
-  submit: () => void
-  getTitleAndAuthorName: () => { title: string | null; author: string }
-  mapBatchDetails: (batchDetails: Partial<Details & { tags: string[] }>, mapType?: 'overwrite' | 'append') => void
-}
+export type PodcastDetailsEditRef = DetailsEditRef<Details>
 
 interface PodcastDetailsEditProps {
   libraryItem: PodcastLibraryItem
   availableGenres: MultiSelectItem<string>[]
   availableTags: MultiSelectItem<string>[]
   onChange?: (details: { libraryItemId: string; hasChanges: boolean }) => void
-  onSubmit?: (details: { updatePayload: UpdatePayload; hasChanges: boolean }) => void
+  onSubmit?: (details: { updatePayload: UpdatePayload<Details>; hasChanges: boolean }) => void
   ref?: React.Ref<PodcastDetailsEditRef>
 }
 
@@ -102,24 +28,36 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
 
-  const [state, dispatch] = useReducer(podcastDetailsReducer, {
-    details: (media.metadata as Details) || {},
-    tags: [...(media.tags || [])],
-    initialDetails: (media.metadata as Details) || {},
-    initialTags: [...(media.tags || [])]
+  const batchAppendLogic = useCallback(
+    (state: { details: Details }, detailsToUpdate: Partial<Details>) => ({
+      ...state.details,
+      genres: detailsToUpdate.genres ? [...new Set([...(state.details.genres || []), ...detailsToUpdate.genres])] : state.details.genres
+    }),
+    []
+  )
+
+  const extractAuthor = useCallback((details: Details) => {
+    return details.author || ''
+  }, [])
+
+  const {
+    details,
+    tags,
+    updateField: handleFieldUpdate,
+    updateTags,
+    submitForm,
+    initialDetails
+  } = useDetailsEdit<Details>({
+    metadata: (media.metadata as Details) || {},
+    tags: media.tags || [],
+    libraryItemId: libraryItem.id,
+    ref,
+    extractAuthor,
+    onChange,
+    onSubmit,
+    batchAppendLogic,
+    useLooseEquality: true
   })
-
-  const { details, tags, initialDetails, initialTags } = state
-
-  useEffect(() => {
-    dispatch({
-      type: 'RESET_STATE',
-      payload: {
-        details: (media.metadata as Details) || {},
-        tags: [...(media.tags || [])]
-      }
-    })
-  }, [media])
 
   const podcastTypeItems = useMemo<DropdownItem[]>(
     () => [
@@ -129,108 +67,39 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
     [t]
   )
 
+  const handlePodcastTypeChange = useCallback(
+    (value: string | number) => {
+      handleFieldUpdate('podcastType')(String(value) as Details['podcastType'])
+    },
+    [handleFieldUpdate]
+  )
+
   const genreItems = useMemo(() => (details.genres || []).map((g) => ({ value: g, content: g })), [details.genres])
   const handleAddGenre = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'genres', value: [...(details.genres || []), item.content] } })
+      handleFieldUpdate('genres')([...(details.genres || []), item.content])
     },
-    [details.genres]
+    [details.genres, handleFieldUpdate]
   )
   const handleRemoveGenre = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'genres', value: (details.genres || []).filter((g) => g !== item.value) } })
+      handleFieldUpdate('genres')((details.genres || []).filter((g) => g !== item.value))
     },
-    [details.genres]
+    [details.genres, handleFieldUpdate]
   )
 
   const tagItems = useMemo(() => tags.map((t) => ({ value: t, content: t })), [tags])
   const handleAddTag = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_TAGS', payload: { tags: [...tags, item.content] } })
+      updateTags([...tags, item.content])
     },
-    [tags]
+    [tags, updateTags]
   )
   const handleRemoveTag = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_TAGS', payload: { tags: tags.filter((t) => t !== item.value) } })
+      updateTags(tags.filter((t) => t !== item.value))
     },
-    [tags]
-  )
-
-  const handleFieldUpdate = useCallback(
-    <K extends keyof Details>(field: K) =>
-      (value: Details[K] | string | number) => {
-        dispatch({ type: 'UPDATE_FIELD', payload: { field, value: value as Details[K] } })
-      },
-    []
-  )
-
-  const changes = useMemo(() => {
-    const changedEntries = (Object.keys(details) as Array<keyof Details>)
-      .filter((key) => {
-        const initialValue = initialDetails[key]
-        const currentValue = details[key]
-
-        if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-          return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
-        }
-
-        // Intentional != to match Vue component behavior
-        return currentValue != initialValue
-      })
-      .map((key) => [key, details[key]])
-
-    const metadataUpdate = Object.fromEntries(changedEntries) as Partial<Details>
-
-    const updatePayload: UpdatePayload = {}
-    if (changedEntries.length > 0) {
-      updatePayload.metadata = metadataUpdate
-    }
-
-    if (JSON.stringify(tags) !== JSON.stringify(initialTags)) {
-      updatePayload.tags = tags
-    }
-
-    return {
-      updatePayload,
-      hasChanges: Object.keys(updatePayload).length > 0
-    }
-  }, [details, initialDetails, tags, initialTags])
-
-  const handleInputChange = useCallback(() => {
-    onChange?.({
-      libraryItemId: libraryItem.id,
-      hasChanges: changes.hasChanges
-    })
-  }, [libraryItem.id, onChange, changes.hasChanges])
-
-  useEffect(() => {
-    handleInputChange()
-  }, [handleInputChange])
-
-  const submitForm = useCallback(
-    (e?: React.FormEvent) => {
-      e?.preventDefault()
-      onSubmit?.(changes)
-    },
-    [changes, onSubmit]
-  )
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      submit: () => submitForm(),
-      getTitleAndAuthorName: () => {
-        return {
-          title: details.title,
-          author: details.author || ''
-        }
-      },
-      mapBatchDetails: (batchDetails: Partial<Details & { tags: string[] }>, mapType = 'overwrite') => {
-        dispatch({ type: 'BATCH_UPDATE', payload: { batchDetails, mapType } })
-      }
-    }),
-    [submitForm, details.title, details.author]
+    [tags, updateTags]
   )
 
   return (
@@ -244,14 +113,19 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
       >
         <div className="flex -mx-1">
           <div className="w-full md:w-1/2 px-1">
-            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title')} label={t('LabelTitle')} />
+            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title') as (value: string) => void} label={t('LabelTitle')} />
           </div>
           <div className="grow px-1 mt-2 md:mt-0">
-            <TextInput value={details.author || ''} onChange={handleFieldUpdate('author')} label={t('LabelAuthor')} />
+            <TextInput value={details.author || ''} onChange={handleFieldUpdate('author') as (value: string) => void} label={t('LabelAuthor')} />
           </div>
         </div>
 
-        <TextInput value={details.feedURL || ''} onChange={handleFieldUpdate('feedURL')} label={t('LabelRSSFeedURL')} className="mt-2" />
+        <TextInput
+          value={details.feedURL || ''}
+          onChange={handleFieldUpdate('feedURL') as (value: string) => void}
+          label={t('LabelRSSFeedURL')}
+          className="mt-2"
+        />
 
         <SlateEditor srcContent={initialDetails.description || ''} onUpdate={handleFieldUpdate('description')} label={t('LabelDescription')} className="mt-2" />
 
@@ -280,13 +154,13 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
         <div className="flex mt-2 -mx-1">
           <div className="w-full md:w-1/4 px-1">
-            <TextInput value={details.releaseDate || ''} onChange={handleFieldUpdate('releaseDate')} label={t('LabelReleaseDate')} />
+            <TextInput value={details.releaseDate || ''} onChange={handleFieldUpdate('releaseDate') as (value: string) => void} label={t('LabelReleaseDate')} />
           </div>
           <div className="w-full md:w-1/4 px-1 mt-2 md:mt-0">
-            <TextInput value={details.itunesId || ''} onChange={handleFieldUpdate('itunesId')} label="iTunes ID" />
+            <TextInput value={details.itunesId || ''} onChange={handleFieldUpdate('itunesId') as (value: string | number) => void} label="iTunes ID" />
           </div>
           <div className="w-full md:w-1/4 px-1 mt-2 md:mt-0">
-            <TextInput value={details.language || ''} onChange={handleFieldUpdate('language')} label={t('LabelLanguage')} />
+            <TextInput value={details.language || ''} onChange={handleFieldUpdate('language') as (value: string) => void} label={t('LabelLanguage')} />
           </div>
           <div className="grow px-1 pt-6 mt-2 md:mt-0">
             <div className="flex justify-center">
@@ -308,7 +182,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               value={details.podcastType || 'episodic'}
               items={podcastTypeItems}
               size="small"
-              onChange={handleFieldUpdate('podcastType')}
+              onChange={handlePodcastTypeChange}
               className="max-w-52"
             />
           </div>
