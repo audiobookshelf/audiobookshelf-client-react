@@ -1,8 +1,9 @@
 'use client'
 
+import { DetailsEditRef, UpdatePayload, useDetailsEdit } from '@/hooks/useDetailsEdit'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { AuthorShort, BookLibraryItem, BookMetadata, SeriesShort } from '@/types/api'
-import React, { useCallback, useEffect, useImperativeHandle, useMemo, useReducer } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import Checkbox from '../ui/Checkbox'
 import MultiSelect, { MultiSelectItem } from '../ui/MultiSelect'
 import SlateEditor from '../ui/SlateEditor'
@@ -11,89 +12,7 @@ import TwoStageMultiSelect from '../ui/TwoStageMultiSelect'
 
 type Details = Omit<BookMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'publishedDate'>
 
-// Reducer state and actions
-interface EditState {
-  details: Details
-  tags: string[]
-  initialDetails: Details
-  initialTags: string[]
-}
-
-type Action =
-  | { type: 'RESET_STATE'; payload: { details: Details; tags: string[] } }
-  | { type: 'UPDATE_FIELD'; payload: { field: keyof Details; value: Details[keyof Details] } }
-  | { type: 'UPDATE_TAGS'; payload: { tags: string[] } }
-  | { type: 'BATCH_UPDATE'; payload: { batchDetails: Partial<Details & { tags: string[] }>; mapType: 'overwrite' | 'append' } }
-
-const bookDetailsReducer = (state: EditState, action: Action): EditState => {
-  switch (action.type) {
-    case 'RESET_STATE':
-      return {
-        ...state,
-        details: action.payload.details,
-        tags: action.payload.tags,
-        initialDetails: action.payload.details,
-        initialTags: action.payload.tags
-      }
-    case 'UPDATE_FIELD':
-      return {
-        ...state,
-        details: {
-          ...state.details,
-          [action.payload.field]: action.payload.value
-        }
-      }
-    case 'UPDATE_TAGS':
-      return {
-        ...state,
-        tags: action.payload.tags
-      }
-    case 'BATCH_UPDATE': {
-      const { batchDetails, mapType } = action.payload
-      const { tags: newTags, ...detailsToUpdate } = batchDetails
-
-      const finalTags = newTags ? (mapType === 'append' ? [...new Set([...state.tags, ...newTags])] : [...newTags]) : state.tags
-
-      if (mapType === 'overwrite') {
-        return {
-          ...state,
-          details: { ...state.details, ...detailsToUpdate },
-          tags: finalTags
-        }
-      } else {
-        // Append logic
-        return {
-          ...state,
-          details: {
-            ...state.details,
-            genres: detailsToUpdate.genres ? [...new Set([...(state.details.genres || []), ...detailsToUpdate.genres])] : state.details.genres,
-            narrators: detailsToUpdate.narrators ? [...new Set([...(state.details.narrators || []), ...detailsToUpdate.narrators])] : state.details.narrators,
-            authors: detailsToUpdate.authors
-              ? [...state.details.authors, ...detailsToUpdate.authors.filter((newItem) => !state.details.authors.find((p) => p.id === newItem.id))]
-              : state.details.authors,
-            series: detailsToUpdate.series
-              ? [...state.details.series, ...detailsToUpdate.series.filter((newItem) => !state.details.series.find((p) => p.id === newItem.id))]
-              : state.details.series
-          },
-          tags: finalTags
-        }
-      }
-    }
-    default:
-      return state
-  }
-}
-
-export interface UpdatePayload {
-  metadata?: Partial<Details>
-  tags?: string[]
-}
-
-export interface BookDetailsEditRef {
-  submit: () => void
-  getTitleAndAuthorName: () => { title: string | null; author: string }
-  mapBatchDetails: (batchDetails: Partial<Details & { tags: string[] }>, mapType?: 'overwrite' | 'append') => void
-}
+export type BookDetailsEditRef = DetailsEditRef<Details>
 
 interface BookDetailsEditProps {
   libraryItem: BookLibraryItem
@@ -103,7 +22,7 @@ interface BookDetailsEditProps {
   availableTags: MultiSelectItem<string>[]
   availableSeries: MultiSelectItem<string>[]
   onChange?: (details: { libraryItemId: string; hasChanges: boolean }) => void
-  onSubmit?: (details: { updatePayload: UpdatePayload; hasChanges: boolean }) => void
+  onSubmit?: (details: { updatePayload: UpdatePayload<Details>; hasChanges: boolean }) => void
   ref?: React.Ref<BookDetailsEditRef>
 }
 
@@ -122,38 +41,56 @@ const BookDetailsEdit = ({
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
 
-  const [state, dispatch] = useReducer(bookDetailsReducer, {
-    details: (media.metadata as Details) || {},
-    tags: [...(media.tags || [])],
-    initialDetails: (media.metadata as Details) || {},
-    initialTags: [...(media.tags || [])]
+  const batchAppendLogic = useCallback(
+    (state: { details: Details }, detailsToUpdate: Partial<Details>) => ({
+      ...state.details,
+      genres: detailsToUpdate.genres ? [...new Set([...(state.details.genres || []), ...detailsToUpdate.genres])] : state.details.genres,
+      narrators: detailsToUpdate.narrators ? [...new Set([...(state.details.narrators || []), ...detailsToUpdate.narrators])] : state.details.narrators,
+      authors: detailsToUpdate.authors
+        ? [...state.details.authors, ...detailsToUpdate.authors.filter((newItem) => !state.details.authors.find((p) => p.id === newItem.id))]
+        : state.details.authors,
+      series: detailsToUpdate.series
+        ? [...state.details.series, ...detailsToUpdate.series.filter((newItem) => !state.details.series.find((p) => p.id === newItem.id))]
+        : state.details.series
+    }),
+    []
+  )
+
+  const extractAuthor = useCallback((details: Details) => {
+    return (details.authors || []).map((au) => au.name).join(', ')
+  }, [])
+
+  const {
+    details,
+    tags,
+    updateField: handleFieldUpdate,
+    updateTags,
+    submitForm,
+    initialDetails
+  } = useDetailsEdit<Details>({
+    metadata: (media.metadata as Details) || {},
+    tags: media.tags || [],
+    libraryItemId: libraryItem.id,
+    ref,
+    extractAuthor,
+    onChange,
+    onSubmit,
+    batchAppendLogic
   })
-
-  const { details, tags, initialDetails, initialTags } = state
-
-  useEffect(() => {
-    dispatch({
-      type: 'RESET_STATE',
-      payload: {
-        details: (media.metadata as Details) || {},
-        tags: [...(media.tags || [])]
-      }
-    })
-  }, [media])
 
   const authorItems = useMemo(() => details.authors.map((a) => ({ value: a.id, content: a.name })), [details.authors])
   const handleAddAuthor = useCallback(
     (item: MultiSelectItem<string>) => {
       const newAuthor: AuthorShort = { id: item.value, name: item.content }
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'authors', value: [...details.authors, newAuthor] } })
+      handleFieldUpdate('authors')([...details.authors, newAuthor])
     },
-    [details.authors]
+    [details.authors, handleFieldUpdate]
   )
   const handleRemoveAuthor = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'authors', value: details.authors.filter((a) => a.id !== item.value) } })
+      handleFieldUpdate('authors')(details.authors.filter((a) => a.id !== item.value))
     },
-    [details.authors]
+    [details.authors, handleFieldUpdate]
   )
 
   type SeriesSelectItem = {
@@ -179,15 +116,15 @@ const BookDetailsEdit = ({
         name: item.content.value,
         sequence: item.content.modifier
       }
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'series', value: [...details.series, newSeries] } })
+      handleFieldUpdate('series')([...details.series, newSeries])
     },
-    [details.series]
+    [details.series, handleFieldUpdate]
   )
   const handleRemoveSeries = useCallback(
     (item: SeriesSelectItem) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'series', value: details.series.filter((s) => s.id !== item.value) } })
+      handleFieldUpdate('series')(details.series.filter((s) => s.id !== item.value))
     },
-    [details.series]
+    [details.series, handleFieldUpdate]
   )
   const handleEditSeries = useCallback(
     (item: SeriesSelectItem, index: number) => {
@@ -198,126 +135,51 @@ const BookDetailsEdit = ({
       }
       const newSeriesList = [...details.series]
       newSeriesList[index] = editedSeries
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'series', value: newSeriesList } })
+      handleFieldUpdate('series')(newSeriesList)
     },
-    [details.series]
+    [details.series, handleFieldUpdate]
   )
 
   const genreItems = useMemo(() => (details.genres || []).map((g) => ({ value: g, content: g })), [details.genres])
   const handleAddGenre = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'genres', value: [...(details.genres || []), item.content] } })
+      handleFieldUpdate('genres')([...(details.genres || []), item.content])
     },
-    [details.genres]
+    [details.genres, handleFieldUpdate]
   )
   const handleRemoveGenre = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'genres', value: (details.genres || []).filter((g) => g !== item.value) } })
+      handleFieldUpdate('genres')((details.genres || []).filter((g) => g !== item.value))
     },
-    [details.genres]
+    [details.genres, handleFieldUpdate]
   )
 
   const tagItems = useMemo(() => tags.map((t) => ({ value: t, content: t })), [tags])
   const handleAddTag = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_TAGS', payload: { tags: [...tags, item.content] } })
+      updateTags([...tags, item.content])
     },
-    [tags]
+    [tags, updateTags]
   )
   const handleRemoveTag = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_TAGS', payload: { tags: tags.filter((t) => t !== item.value) } })
+      updateTags(tags.filter((t) => t !== item.value))
     },
-    [tags]
+    [tags, updateTags]
   )
 
   const narratorItems = useMemo(() => (details.narrators || []).map((n) => ({ value: n, content: n })), [details.narrators])
   const handleAddNarrator = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'narrators', value: [...(details.narrators || []), item.content] } })
+      handleFieldUpdate('narrators')([...(details.narrators || []), item.content])
     },
-    [details.narrators]
+    [details.narrators, handleFieldUpdate]
   )
   const handleRemoveNarrator = useCallback(
     (item: MultiSelectItem<string>) => {
-      dispatch({ type: 'UPDATE_FIELD', payload: { field: 'narrators', value: (details.narrators || []).filter((n) => n !== item.value) } })
+      handleFieldUpdate('narrators')((details.narrators || []).filter((n) => n !== item.value))
     },
-    [details.narrators]
-  )
-
-  const handleFieldUpdate = useCallback(
-    <K extends keyof Details>(field: K) =>
-      (value: Details[K]) => {
-        dispatch({ type: 'UPDATE_FIELD', payload: { field, value } })
-      },
-    []
-  )
-
-  const changes = useMemo(() => {
-    const changedEntries = (Object.keys(details) as Array<keyof Details>)
-      .filter((key) => {
-        const initialValue = initialDetails[key]
-        const currentValue = details[key]
-
-        if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-          return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
-        }
-
-        return currentValue !== initialValue
-      })
-      .map((key) => [key, details[key]])
-
-    const metadataUpdate = Object.fromEntries(changedEntries) as Partial<Details>
-
-    const updatePayload: UpdatePayload = {}
-    if (changedEntries.length > 0) {
-      updatePayload.metadata = metadataUpdate
-    }
-
-    if (JSON.stringify(tags) !== JSON.stringify(initialTags)) {
-      updatePayload.tags = tags
-    }
-
-    return {
-      updatePayload,
-      hasChanges: Object.keys(updatePayload).length > 0
-    }
-  }, [details, initialDetails, tags, initialTags])
-
-  const handleInputChange = useCallback(() => {
-    onChange?.({
-      libraryItemId: libraryItem.id,
-      hasChanges: changes.hasChanges
-    })
-  }, [libraryItem.id, onChange, changes.hasChanges])
-
-  useEffect(() => {
-    handleInputChange()
-  }, [handleInputChange])
-
-  const submitForm = useCallback(
-    (e?: React.FormEvent) => {
-      e?.preventDefault()
-      onSubmit?.(changes)
-    },
-    [changes, onSubmit]
-  )
-
-  useImperativeHandle(
-    ref,
-    () => ({
-      submit: () => submitForm(),
-      getTitleAndAuthorName: () => {
-        return {
-          title: details.title,
-          author: (details.authors || []).map((au) => au.name).join(', ')
-        }
-      },
-      mapBatchDetails: (batchDetails: Partial<Details & { tags: string[] }>, mapType = 'overwrite') => {
-        dispatch({ type: 'BATCH_UPDATE', payload: { batchDetails, mapType } })
-      }
-    }),
-    [submitForm, details.title, details.authors]
+    [details.narrators, handleFieldUpdate]
   )
 
   return (
