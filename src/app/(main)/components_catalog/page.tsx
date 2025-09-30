@@ -20,6 +20,7 @@ import { MediaIconPickerExamples } from './examples/MediaIconPickerExamples'
 import { ModalExamples } from './examples/ModalExamples'
 import { MultiSelectDropdownExamples } from './examples/MultiSelectDropdownExamples'
 import { MultiSelectExamples } from './examples/MultiSelectExamples'
+import { PodcastDetailsEditExamples } from './examples/PodcastDetailsEditExamples'
 import { RangeInputExamples } from './examples/RangeInputExamples'
 import { ReadIconBtnExamples } from './examples/ReadIconBtnExamples'
 import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
@@ -194,6 +195,11 @@ export default function ComponentsCatalogPage() {
                   </a>
                 </li>
                 <li>
+                  <a href="#podcast-details-edit-examples" className="hover:text-blue-400 transition-colors">
+                    Podcast Details Edit
+                  </a>
+                </li>
+                <li>
                   <a href="#cover-size-widget-examples" className="hover:text-blue-400 transition-colors">
                     Cover Size Widget
                   </a>
@@ -295,6 +301,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="book-details-edit-examples">
         <BookDetailsEditExamples />
+      </div>
+      <div id="podcast-details-edit-examples">
+        <PodcastDetailsEditExamples />
       </div>
       <div id="cover-size-widget-examples">
         <CoverSizeWidgetExamples />
