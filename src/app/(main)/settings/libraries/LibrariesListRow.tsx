@@ -33,7 +33,7 @@ export default function LibrariesListRow({ item }: LibrariesListRowProps) {
         {t('ButtonScan')}
       </Btn>
       <ContextMenuDropdown borderless size="small" items={contextMenuItems} />
-      <div className=" cursor-n-resize">
+      <div className="drag-handle cursor-n-resize">
         <span className="material-symbols text-xl text-white/50 hover:text-white">reorder</span>
       </div>
     </div>
