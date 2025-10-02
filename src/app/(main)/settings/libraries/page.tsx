@@ -1,20 +1,10 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import { apiRequest, getData, getLibraries } from '../../../../lib/api'
+import { getData, getLibraries } from '../../../../lib/api'
 import SettingsContent from '../SettingsContent'
 import LibrariesList from './LibrariesList'
+import { saveLibraryOrder } from './actions'
 
 export const dynamic = 'force-dynamic'
-
-// Server Action
-async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]) {
-  'use server'
-
-  const response = await apiRequest('/api/libraries/order', {
-    method: 'POST',
-    body: JSON.stringify(reorderObjects)
-  })
-  return response
-}
 
 export default async function LibrariesPage() {
   const t = await getTypeSafeTranslations()
