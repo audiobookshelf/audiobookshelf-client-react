@@ -10,6 +10,7 @@ import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
 import { CronExpressionBuilderExamples } from './examples/CronExpressionBuilderExamples'
 import { DropdownExamples } from './examples/DropdownExamples'
 import { DurationPickerExamples } from './examples/DurationPickerExamples'
+import { EditListExamples } from './examples/EditListExamples'
 import { FileInputExamples } from './examples/FileInputExamples'
 import { IconBtnExamples } from './examples/IconBtnExamples'
 import { InlineIndicatorExamples } from './examples/InlineIndicatorExamples'
@@ -209,6 +210,11 @@ export default function ComponentsCatalogPage() {
                     Cron Expression Builder
                   </a>
                 </li>
+                <li>
+                  <a href="#edit-list-examples" className="hover:text-blue-400 transition-colors">
+                    Edit List
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -310,6 +316,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="cron-expression-builder-examples">
         <CronExpressionBuilderExamples />
+      </div>
+      <div id="edit-list-examples">
+        <EditListExamples />
       </div>
     </div>
   )
