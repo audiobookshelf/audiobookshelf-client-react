@@ -1,3 +1,85 @@
+export enum LogLevel {
+  ERROR = 'error',
+  WARN = 'warn',
+  INFO = 'info',
+  DEBUG = 'debug',
+  TRACE = 'trace'
+}
+
+export enum AuthMethod {
+  LOCAL = 'local',
+  OPENID = 'openid'
+}
+
+// Server settings interface
+export interface ServerSettings {
+  // Scanner settings
+  scannerParseSubtitle: boolean
+  scannerFindCovers: boolean
+  scannerCoverProvider: string
+  scannerPreferMatchedMetadata: boolean
+  scannerDisableWatcher: boolean
+
+  // Metadata settings
+  storeCoverWithItem: boolean
+  storeMetadataWithItem: boolean
+  metadataFileFormat: string
+
+  // Security/Rate limits
+  rateLimitLoginRequests: number
+  rateLimitLoginWindow: number // in milliseconds
+  allowIframe: boolean
+
+  // Backups
+  backupPath: string
+  backupSchedule: string | false // Cron expression or false if disabled
+  backupsToKeep: number
+  maxBackupSize: number // in GB
+
+  // Logger
+  loggerDailyLogsToKeep: number
+  loggerScannerLogsToKeep: number
+
+  // Bookshelf Display
+  homeBookshelfView: string
+  bookshelfView: string
+
+  // Podcasts
+  podcastEpisodeSchedule: string // Cron expression
+
+  // Sorting
+  sortingIgnorePrefix: boolean
+  sortingPrefixes: string[]
+
+  // Misc Flags
+  chromecastEnabled: boolean
+  dateFormat: string
+  timeFormat: string
+  language: string
+  allowedOrigins: string[]
+
+  // System info
+  logLevel: LogLevel
+  version: string
+  buildNumber: string
+
+  // Auth settings
+  authLoginCustomMessage: string | null
+  authActiveAuthMethods: AuthMethod[]
+  authOpenIDIssuerURL: string | null
+  authOpenIDAuthorizationURL: string | null
+  authOpenIDTokenURL: string | null
+  authOpenIDUserInfoURL: string | null
+  authOpenIDJwksURL: string | null
+  authOpenIDLogoutURL: string | null
+  authOpenIDTokenSigningAlgorithm: string
+  authOpenIDButtonText: string
+  authOpenIDAutoLaunch: boolean
+  authOpenIDAutoRegister: boolean
+  authOpenIDMatchExistingBy: string | null
+  authOpenIDSubfolderForRedirectURLs: string | undefined
+}
+
 // Base types for file metadata
 export interface FileMetadata {
   filename: string
