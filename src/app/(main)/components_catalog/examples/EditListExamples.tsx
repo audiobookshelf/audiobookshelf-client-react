@@ -37,6 +37,7 @@ export function EditListExamples() {
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">items</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">onItemEditSaveClick</code>,<code className="bg-gray-700 px-2 py-1 rounded">onItemDeleteClick</code>,{' '}
+          <code className="bg-gray-700 px-2 py-1 rounded">saveConfirmI18nKey</code>,<code className="bg-gray-700 px-2 py-1 rounded">deleteConfirmI18nKey</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">libraryId (optional)</code>,
         </p>
         <p className="mb-2 text-sm text-gray-400">Features: Automatically shows extra column for number of books for pages that support that info</p>
@@ -64,6 +65,8 @@ export function EditListExamples() {
                 }, 1000)
               )
             }}
+            saveConfirmI18nKey="MessageConfirmRenameGenre"
+            deleteConfirmI18nKey="MessageConfirmRemoveGenre"
           ></EditList>
         </Example>
       </ExamplesBlock>

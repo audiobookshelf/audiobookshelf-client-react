@@ -2,6 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { TranslationKey } from '@/types/translations'
 import { useRef, useState } from 'react'
 import Modal from '../modals/Modal'
 import Btn from './Btn'
@@ -18,11 +19,13 @@ interface EditListProps {
   items: EditListItem[]
   onItemEditSaveClick: (item: EditListItem, newValue: string) => Promise<any>
   onItemDeleteClick: (item: EditListItem) => Promise<any>
+  saveConfirmI18nKey: TranslationKey
+  deleteConfirmI18nKey: TranslationKey
   libraryId?: string
 }
 
-export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick, libraryId }: EditListProps) {
-  const t = useTypeSafeTranslations() //TODO
+export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick, saveConfirmI18nKey, deleteConfirmI18nKey, libraryId }: EditListProps) {
+  const i18n = useTypeSafeTranslations()
   const [itemList, setItemList] = useState(items)
   const [editedItem, setEditedItem] = useState<EditListItem>({ id: '', value: '' })
   const [newValue, setNewValue] = useState('')
@@ -96,9 +99,9 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
         <thead>
           <tr>
             <th className="text-left py-2 px-3" title="Name">
-              Name
+              {i18n('LabelName')}
             </th>
-            {showNumBooks && <th>Books</th>}
+            {showNumBooks && <th>{i18n('LabelBooks')}</th>}
           </tr>
         </thead>
         <tbody>
@@ -141,18 +144,18 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         borderless={true}
                         onClick={() => handleEditItemClick(item)}
                         className={mergeClasses('text-gray-400 group-hover:text-white')}
-                        ariaLabel="Edit"
+                        ariaLabel={i18n('ButtonEdit')}
                       >
-                        Edit
+                        {i18n('ButtonEdit')}
                       </IconBtn>
                       <IconBtn
                         size="small"
                         borderless={true}
                         onClick={() => handleDeleteClick(item)}
                         className={mergeClasses('text-gray-400 group-hover:text-white')}
-                        ariaLabel="Delete"
+                        ariaLabel={i18n('ButtonDelete')}
                       >
-                        Delete
+                        {i18n('ButtonDelete')}
                       </IconBtn>
                     </div>
                   </td>
@@ -180,10 +183,10 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         onClick={() => handleSaveEditClick(item)}
                         ariaLabel="Save"
                       >
-                        Save
+                        {i18n('ButtonSave')}
                       </Btn>
                       <Btn size="small" className="mx-1" onClick={() => handleCancelEditClick()} ariaLabel="Cancel">
-                        Cancel
+                        {i18n('ButtonCancel')}
                       </Btn>
                     </div>
                   </td>
@@ -196,18 +199,16 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} width={500}>
         <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
           {isDeleting ? (
-            <p className="text-gray-300 mb-6 flex-1">Are you sure you want to remove &quot;{delRef.current?.value}&quot; from all items?</p>
+            <p className="text-gray-300 mb-6 flex-1">{i18n(deleteConfirmI18nKey, [delRef.current?.value])}</p>
           ) : (
-            <p className="text-gray-300 mb-6 flex-1">
-              Are you sure you want to rename &quot;{editedItem.value}&quot; to &quot;{newValue}&quot; for all items?
-            </p>
+            <p className="text-gray-300 mb-6 flex-1">{i18n(saveConfirmI18nKey, [editedItem.value, newValue])}</p>
           )}
           <div className="flex justify-end gap-3">
             <Btn onClick={isDeleting ? handleDeleteModalClick : handleSaveModalClick} color="bg-success" disabled={isProcessing}>
-              Yes
+              {i18n('ButtonYes')}
             </Btn>
             <Btn onClick={handleCancelEditClick} disabled={isProcessing}>
-              Cancel
+              {i18n('ButtonCancel')}
             </Btn>
           </div>
         </div>
