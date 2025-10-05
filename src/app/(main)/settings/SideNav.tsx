@@ -59,7 +59,7 @@ export default function SideNav({ serverVersion, installSource }: { serverVersio
   ]
 
   return (
-    <div className="w-44 min-w-44 h-full max-h-[calc(100vh-4rem)] bg-bg border-e border-border shadow-2xl z-10">
+    <div className="w-44 min-w-44 h-full max-h-[calc(100vh-4rem)] bg-bg border-e border-border shadow-2xl z-10 hidden md:block">
       <div className="w-full h-full max-h-[calc(100%-2rem)] overflow-y-auto">
         {items.map((item) => (
           <Link
