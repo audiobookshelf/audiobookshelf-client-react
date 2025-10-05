@@ -14,4 +14,7 @@ export type TranslationKey = NestedKeyOf<Messages>
 export interface TypeSafeTranslations {
   (key: TranslationKey): string
   (key: TranslationKey, values: Record<string, any>): string
+  rich: {
+    (key: TranslationKey, values: Record<string, any>): string
+  }
 }

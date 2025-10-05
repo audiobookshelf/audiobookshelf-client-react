@@ -226,7 +226,7 @@ const Tooltip = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <span dangerouslySetInnerHTML={{ __html: text }} />
+      {text}
       {withArrow && <div ref={arrowRef} style={arrowStyles} className="absolute w-2 h-2 rotate-45 bg-primary" />}
     </div>
   )

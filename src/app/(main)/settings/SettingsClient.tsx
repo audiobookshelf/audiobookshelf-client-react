@@ -64,14 +64,18 @@ export default function SettingsClient(props: SettingsClientProps) {
           value={serverSettings?.scannerParseSubtitle}
           onChange={(value) => handleToggleChange('scannerParseSubtitle', value)}
           disabled={isPending}
-          tooltip={t('LabelSettingsParseSubtitlesHelp')}
+          tooltip={t.rich('LabelSettingsParseSubtitlesHelp', {
+            br: () => <br />
+          })}
         />
         <SettingsToggleSwitch
           label={t('LabelSettingsFindCovers')}
           value={serverSettings?.scannerFindCovers}
           onChange={(value) => handleToggleChange('scannerFindCovers', value)}
           disabled={isPending}
-          tooltip={t('LabelSettingsFindCoversHelp')}
+          tooltip={t.rich('LabelSettingsFindCoversHelp', {
+            br: () => <br />
+          })}
         />
         <SettingsToggleSwitch
           label={t('LabelSettingsPreferMatchedMetadata')}
