@@ -1,4 +1,8 @@
+'use client'
+
 import Btn from '@/components/ui/Btn'
+import IconBtn from '@/components/ui/IconBtn'
+import eventBus from '@/lib/eventBus'
 import Link from 'next/link'
 import SettingsMoreInfoIcon from './SettingsMoreInfoIcon'
 
@@ -17,6 +21,9 @@ export default function SettingsContent(props: {
 }) {
   return (
     <div className="w-full max-w-4xl mx-auto p-2 md:p-6">
+      <IconBtn className="md:hidden mb-2" ariaLabel="Menu" size="large" borderless onClick={() => eventBus.emit('toggleSettingsSideNav')}>
+        menu
+      </IconBtn>
       <div className="bg-bg rounded-md shadow-lg border border-white/5 p-2 sm:p-4 mb-8">
         <div className="flex items-center gap-2 mb-2">
           {props.backLink && (
