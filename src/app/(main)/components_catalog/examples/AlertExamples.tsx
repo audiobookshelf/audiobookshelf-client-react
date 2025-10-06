@@ -1,29 +1,25 @@
 'use client'
 
 import Alert from '@/components/widgets/Alert'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function AlertExamples() {
   return (
     <ComponentExamples title="Alert Components">
       <ComponentInfo component="Alert" description="Display contextual feedback messages with different severity levels (error, warning, success, info).">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import Alert from &apos;@/components/widgets/Alert&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import Alert from &apos;@/components/widgets/Alert&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">type</code> (optional: &apos;error&apos; |
-          &apos;warning&apos; | &apos;success&apos; | &apos;info&apos;, defaults to &apos;error&apos;),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">children</code> (required), <code className="bg-gray-700 px-2 py-1 rounded">autoFocus</code>{' '}
-          (optional: boolean, defaults to true. If true and type is &apos;error&apos; or &apos;warning&apos;, the alert will be focused when rendered),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code> (optional)
+          <span className="font-bold">Props:</span> <Code>type</Code> (optional: &apos;error&apos; | &apos;warning&apos; | &apos;success&apos; |
+          &apos;info&apos;, defaults to &apos;error&apos;), <Code>children</Code> (required), <Code>autoFocus</Code> (optional: boolean, defaults to true. If
+          true and type is &apos;error&apos; or &apos;warning&apos;, the alert will be focused when rendered), <Code>className</Code> (optional)
         </p>
         <p className="mb-2">
           <span className="font-bold">Note:</span> Uses Material Symbols icons.
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> <code className="bg-gray-700 px-2 py-1 rounded">autoFocus</code> is always set to false in the examples, so
-          as not to steal focus.
+          <span className="font-bold">Note:</span> <Code>autoFocus</Code> is always set to false in the examples, so as not to steal focus.
         </p>
       </ComponentInfo>
 

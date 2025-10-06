@@ -1,7 +1,7 @@
 'use client'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Button Examples
 export function BtnExamples() {
@@ -12,12 +12,11 @@ export function BtnExamples() {
     <ComponentExamples title="Buttons">
       <ComponentInfo component="Btn" description="Button component with various states (loading, disabled, small, link)">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <code className="bg-gray-700 px-2 py-1 rounded">import Btn from &apos;@/components/ui/Btn&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import Btn from &apos;@/components/ui/Btn&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">color</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">small</code>, <code className="bg-gray-700 px-2 py-1 rounded">loading</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">to</code> (for navigation)
+          <span className="font-bold">Props:</span> <Code>color</Code>, <Code>small</Code>, <Code>loading</Code>, <Code>disabled</Code>, <Code>to</Code> (for
+          navigation)
         </p>
       </ComponentInfo>
 

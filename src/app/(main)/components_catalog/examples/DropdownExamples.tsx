@@ -1,7 +1,7 @@
 'use client'
 import Dropdown, { type DropdownItem } from '@/components/ui/Dropdown'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Dropdown Examples
 export function DropdownExamples() {
@@ -36,15 +36,11 @@ export function DropdownExamples() {
     <ComponentExamples title="Dropdowns">
       <ComponentInfo component="Dropdown" description="Select dropdown component with labels, subtext, and various states">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from &apos;@/components/ui/Dropdown&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import Dropdown from &apos;@/components/ui/Dropdown&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">items</code> (DropdownItem[]),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">label</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">small</code>, <code className="bg-gray-700 px-2 py-1 rounded">menuMaxHeight</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>items</Code> (DropdownItem[]), <Code>label</Code>,{' '}
+          <Code>disabled</Code>, <Code>small</Code>, <Code>menuMaxHeight</Code>, <Code>className</Code>
         </p>
       </ComponentInfo>
 

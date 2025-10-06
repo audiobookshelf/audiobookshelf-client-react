@@ -1,7 +1,7 @@
 'use client'
 import DurationPicker from '@/components/ui/DurationPicker'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // DurationPicker Examples
 
@@ -17,15 +17,11 @@ export function DurationPickerExamples() {
         description="Interactive duration input component with hours, minutes, and seconds. Supports keyboard navigation and 3-digit hours for long durations"
       >
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import DurationPicker from &apos;@/components/ui/DurationPicker&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import DurationPicker from &apos;@/components/ui/DurationPicker&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">onInput</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">showThreeDigitHour</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">readOnly</code>, <code className="bg-gray-700 px-2 py-1 rounded">borderless</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">size</code>, <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>onInput</Code>, <Code>showThreeDigitHour</Code>,{' '}
+          <Code>disabled</Code>, <Code>readOnly</Code>, <Code>borderless</Code>, <Code>size</Code>, <Code>className</Code>
         </p>
         <p className="mb-2 text-sm text-gray-400">
           Features: click-to-focus individual digits, keyboard navigation (arrow keys, number input), visual focus indicators, support for 3-digit hours (over

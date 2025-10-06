@@ -1,7 +1,7 @@
 'use client'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // ToastNotification Examples
 
@@ -13,21 +13,21 @@ export function ToastNotificationExamples() {
       <ComponentInfo component="Global Toast Hook" description="Global toast hook for easy toast management throughout the app">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">
+          <Code overflow>
             import {'{'} useGlobalToast {'}'} from &apos;@/contexts/ToastContext&apos;
-          </code>
+          </Code>
         </p>
         <p className="mb-2">
           Usage: <br />
-          <code className="bg-gray-700 px-2 py-1 rounded">
+          <Code>
             const {'{'} showToast {'}'} = useGlobalToast()
-          </code>
+          </Code>
           <br />
-          <code className="bg-gray-700 px-2 py-1 rounded">...</code>
+          <Code>...</Code>
           <br />
-          <code className="bg-gray-700 px-2 py-1 rounded">
+          <Code>
             showToast(message, {'{'} type, title, duration {'}'})
-          </code>
+          </Code>
         </p>
         <p className="mb-2 text-sm text-gray-400">Note: Global toast is automatically available in all pages. No need to include ToastContainer manually.</p>
       </ComponentInfo>

@@ -1,7 +1,7 @@
 'use client'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Toggle Switch Examples
 
@@ -19,15 +19,11 @@ export function ToggleSwitchExamples() {
     <ComponentExamples title="Toggle Switches">
       <ComponentInfo component="ToggleSwitch" description="Toggle switch component with various sizes, colors, and states">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ToggleSwitch from &apos;@/components/ui/ToggleSwitch&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import ToggleSwitch from &apos;@/components/ui/ToggleSwitch&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">size</code>, <code className="bg-gray-700 px-2 py-1 rounded">onColor</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">offColor</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">ariaLabel</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>size</Code>, <Code>onColor</Code>,{' '}
+          <Code>offColor</Code>, <Code>disabled</Code>, <Code>ariaLabel</Code>
         </p>
       </ComponentInfo>
 

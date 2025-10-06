@@ -4,7 +4,7 @@ import Btn from '@/components/ui/Btn'
 import BookDetailsEdit, { BookDetailsEditRef, UpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import { BookLibraryItem } from '@/types/api'
 import { useCallback, useRef, useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
 const mockLibraryItem: BookLibraryItem = {
   id: 'cltjyl123000108l437q67p8o',
@@ -107,35 +107,34 @@ export function BookDetailsEditExamples() {
         description="A form for editing the metadata of a book library item. It includes fields for title, author, series, and more."
       >
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import BookDetailsEdit from &apos;@/components/widgets/BookDetailsEdit&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import BookDetailsEdit from &apos;@/components/widgets/BookDetailsEdit&apos;</Code>
         </p>
         <div>
           <span className="font-bold">Props:</span>
           <ul className="list-disc list-inside">
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">libraryItem</code>: The book library item to edit.
+              <Code>libraryItem</Code>: The book library item to edit.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">availableAuthors</code>: A list of available authors.
+              <Code>availableAuthors</Code>: A list of available authors.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">availableNarrators</code>: A list of available narrators.
+              <Code>availableNarrators</Code>: A list of available narrators.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">availableGenres</code>: A list of available genres.
+              <Code>availableGenres</Code>: A list of available genres.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">availableTags</code>: A list of available tags.
+              <Code>availableTags</Code>: A list of available tags.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">availableSeries</code>: A list of available series.
+              <Code>availableSeries</Code>: A list of available series.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>: Callback fired when form data changes.
+              <Code>onChange</Code>: Callback fired when form data changes.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">onSubmit</code>: Callback fired when form is submitted.
+              <Code>onSubmit</Code>: Callback fired when form is submitted.
             </li>
           </ul>
         </div>
