@@ -1,6 +1,7 @@
 // Auto-generated types for translation keys
 // Run `npm run generate-translation-types` to update
 
+import { RichTagsFunction } from 'next-intl'
 import type enUsMessages from '../locales/en-us.json'
 
 type Messages = typeof enUsMessages
@@ -13,8 +14,8 @@ export type TranslationKey = NestedKeyOf<Messages>
 // Type-safe translation function
 export interface TypeSafeTranslations {
   (key: TranslationKey): string
-  (key: TranslationKey, values: Record<string, any>): string
+  (key: TranslationKey, values: Record<string, string>): string
   rich: {
-    (key: TranslationKey, values: Record<string, any>): string
+    (key: TranslationKey, values: Record<string, string | RichTagsFunction>): string
   }
 }
