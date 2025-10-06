@@ -21,6 +21,7 @@ import { ModalExamples } from './examples/ModalExamples'
 import { MultiSelectDropdownExamples } from './examples/MultiSelectDropdownExamples'
 import { MultiSelectExamples } from './examples/MultiSelectExamples'
 import { PodcastDetailsEditExamples } from './examples/PodcastDetailsEditExamples'
+import { PreviewCoverExamples } from './examples/PreviewCoverExamples'
 import { RangeInputExamples } from './examples/RangeInputExamples'
 import { ReadIconBtnExamples } from './examples/ReadIconBtnExamples'
 import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
@@ -205,6 +206,11 @@ export default function ComponentsCatalogPage() {
                   </a>
                 </li>
                 <li>
+                  <a href="#preview-cover-examples" className="hover:text-blue-400 transition-colors">
+                    Preview Cover
+                  </a>
+                </li>
+                <li>
                   <a href="#cron-expression-builder-examples" className="hover:text-blue-400 transition-colors">
                     Cron Expression Builder
                   </a>
@@ -307,6 +313,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="cover-size-widget-examples">
         <CoverSizeWidgetExamples />
+      </div>
+      <div id="preview-cover-examples">
+        <PreviewCoverExamples />
       </div>
       <div id="cron-expression-builder-examples">
         <CronExpressionBuilderExamples />
