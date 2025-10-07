@@ -1,59 +1,45 @@
-import Btn from '@/components/ui/Btn'
-import IconBtn from '@/components/ui/IconBtn'
-import Tooltip from '@/components/ui/Tooltip'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { Library, User } from '@/types/api'
 import Image from 'next/image'
 import Link from 'next/link'
+import AppBarNav from './AppBarNav'
 import GlobalSearchInput from './GlobalSearchInput'
 import LibrariesDropdown from './LibrariesDropdown'
 
-export default async function AppBar(props: { libraries?: any; currentLibraryId?: string; user: any }) {
+interface AppBarProps {
+  libraries?: Library[]
+  currentLibraryId?: string
+  user: User
+}
+
+export default async function AppBar({ libraries, currentLibraryId, user }: AppBarProps) {
   const t = await getTypeSafeTranslations()
-  const userCanUpload = props.user.permissions.upload
+  const userCanUpload = user.permissions.upload
   return (
     <div className="w-full h-16 bg-primary flex items-center justify-start px-2 md:px-6 gap-2 md:gap-4 shadow-xl">
       <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80">
-        <Image src="/icon.svg" alt="audiobookshelf" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10" />
+        <Image src="/icon.svg" alt="audiobookshelf" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10 mx-2" />
       </Link>
-      <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80 hidden md:block">
+      <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80 hidden lg:block">
         <h1 className="text-xl hover:underline">audiobookshelf</h1>
       </Link>
-      {props.libraries && props.currentLibraryId && <LibrariesDropdown currentLibraryId={props.currentLibraryId} libraries={props.libraries} />}
-      <GlobalSearchInput />
-      <div className="flex-grow" />
-      <div className="flex items-center">
-        <Tooltip text={t('ButtonComponentsCatalog')} position="bottom">
-          <IconBtn borderless ariaLabel={t('ButtonComponentsCatalog')} to="/components_catalog">
-            widgets
-          </IconBtn>
-        </Tooltip>
-
-        {userCanUpload && (
-          <Tooltip text={t('ButtonUpload')} position="bottom" className="hidden md:block">
-            <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
-              upload
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        {['admin', 'root'].includes(props.user.type) && (
-          <Tooltip text={t('HeaderSettings')} position="bottom">
-            <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
-              settings
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        <Tooltip text={t('ButtonStats')} position="bottom" className="hidden md:block">
-          <IconBtn borderless ariaLabel={t('ButtonStats')} to="/account/stats">
-            equalizer
-          </IconBtn>
-        </Tooltip>
+      {libraries && currentLibraryId && (
+        <div className="hidden md:block">
+          <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />
+        </div>
+      )}
+      <div className="flex-1 min-w-0 max-w-40">
+        <GlobalSearchInput />
       </div>
-      <Btn to="/account" className="px-2 md:ps-3 md:pe-2 min-w-10 w-10 md:min-w-24 md:w-32 md:justify-between">
-        <span className="text-sm hidden md:block truncate">{props.user.username}</span>
-        <span className="material-symbols text-xl">person</span>
-      </Btn>
+      <div className="ms-auto">
+        <AppBarNav
+          userCanUpload={userCanUpload}
+          isAdmin={['admin', 'root'].includes(user.type)}
+          username={user.username}
+          libraries={libraries}
+          currentLibraryId={currentLibraryId}
+        />
+      </div>
     </div>
   )
 }
