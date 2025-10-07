@@ -240,7 +240,7 @@ export default function Dropdown({
           disabled={disabled}
           className={mergeClasses(
             'relative w-full text-left cursor-pointer text-gray-100',
-            'ps-1 pe-8 h-full bg-transparent border-none outline-none flex items-center',
+            'ps-1 h-full bg-transparent border-none outline-none flex items-center justify-between',
             'disabled:cursor-not-allowed disabled:text-disabled',
             size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'
           )}
@@ -256,7 +256,7 @@ export default function Dropdown({
             {selectedSubtext && <span>:&nbsp;</span>}
             {selectedSubtext && <span className="font-normal block truncate font-sans text-gray-400">{selectedSubtext}</span>}
           </span>
-          <span className="ms-3 absolute inset-y-0 end-0 flex items-center pe-2 pointer-events-none">
+          <span className="ms-3 flex items-center pointer-events-none">
             <span className="material-symbols text-2xl">expand_more</span>
           </span>
         </button>
