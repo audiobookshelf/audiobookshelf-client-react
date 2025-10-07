@@ -251,12 +251,12 @@ export default function Dropdown({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          <span className="flex items-center">
-            <span className={mergeClasses('block truncate font-sans', selectedSubtext ? 'font-semibold' : '')}>{selectedText}</span>
-            {selectedSubtext && <span>:&nbsp;</span>}
-            {selectedSubtext && <span className="font-normal block truncate font-sans text-gray-400">{selectedSubtext}</span>}
+          <span className="flex items-center min-w-0 flex-1 gap-0">
+            <span className={mergeClasses('block truncate font-sans shrink', selectedSubtext ? 'font-semibold max-w-[75%]' : '')}>{selectedText}</span>
+            {selectedSubtext && <span className="flex-shrink-0">:&nbsp;</span>}
+            {selectedSubtext && <span className="font-normal block truncate font-sans text-gray-400 shrink max-w-[25%]">{selectedSubtext}</span>}
           </span>
-          <span className="ms-3 flex items-center pointer-events-none">
+          <span className="ms-3 flex items-center pointer-events-none flex-shrink-0">
             <span className="material-symbols text-2xl">expand_more</span>
           </span>
         </button>
