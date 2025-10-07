@@ -1,7 +1,7 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import PodcastDetailsEdit, { PodcastDetailsEditRef, UpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
+import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
 import { PodcastLibraryItem } from '@/types/api'
 import { useCallback, useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
@@ -66,7 +66,7 @@ export function PodcastDetailsEditExamples() {
     setHasChanges(details.hasChanges)
   }, [])
 
-  const handleSubmit = useCallback((details: { updatePayload: UpdatePayload; hasChanges: boolean }) => {
+  const handleSubmit = useCallback((details: { updatePayload: PodcastUpdatePayload; hasChanges: boolean }) => {
     console.log('onSubmit', details)
     if (details.hasChanges) {
       setLibraryItem((prev) => ({

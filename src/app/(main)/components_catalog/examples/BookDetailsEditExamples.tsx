@@ -1,7 +1,7 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import BookDetailsEdit, { BookDetailsEditRef, UpdatePayload } from '@/components/widgets/BookDetailsEdit'
+import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import { BookLibraryItem } from '@/types/api'
 import { useCallback, useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
@@ -82,7 +82,7 @@ export function BookDetailsEditExamples() {
     setHasChanges(details.hasChanges)
   }, [])
 
-  const handleSubmit = useCallback((details: { updatePayload: UpdatePayload; hasChanges: boolean }) => {
+  const handleSubmit = useCallback((details: { updatePayload: BookUpdatePayload; hasChanges: boolean }) => {
     console.log('onSubmit', details)
     if (details.hasChanges) {
       setLibraryItem((prev) => ({
