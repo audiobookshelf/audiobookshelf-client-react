@@ -15,10 +15,16 @@ export enum AuthMethod {
   OPENID = 'openid'
 }
 
+export enum BookshelfView {
+  STANDARD = 0, // Skeumorphic (original) design
+  DETAIL = 1 // Modern default design
+}
+
 // ============================================================================
 // SERVER & SYSTEM
 // ============================================================================
 
+// Server settings interface
 export interface ServerSettings {
   // Scanner settings
   scannerParseSubtitle: boolean
@@ -48,8 +54,8 @@ export interface ServerSettings {
   loggerScannerLogsToKeep: number
 
   // Bookshelf Display
-  homeBookshelfView: string
-  bookshelfView: string
+  homeBookshelfView: BookshelfView
+  bookshelfView: BookshelfView
 
   // Podcasts
   podcastEpisodeSchedule: string // Cron expression
