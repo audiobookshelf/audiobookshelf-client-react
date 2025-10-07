@@ -26,7 +26,7 @@ export default function Modal({
   isOpen,
   processing = false,
   persistent = false,
-  width = 500,
+  width,
   height = 'unset',
   contentMarginTop = 50,
   zIndexClass = 'z-50',
@@ -50,6 +50,9 @@ export default function Modal({
   }, [height])
 
   const modalWidth = useMemo(() => {
+    if (width === undefined) {
+      return undefined // Will use responsive classes
+    }
     if (typeof width === 'string') {
       return width
     }
@@ -127,14 +130,15 @@ export default function Modal({
         ref={contentRef}
         tabIndex={0}
         style={{
-          minWidth: '380px',
-          minHeight: '200px',
-          maxWidth: '100vw',
+          ...(modalWidth ? { width: modalWidth } : {}),
           height: modalHeight,
-          width: modalWidth,
           marginTop: `${contentMarginTop}px`
         }}
-        className="relative text-white outline-none focus:outline-none"
+        className={mergeClasses(
+          'relative text-white outline-none focus:outline-none',
+          // Responsive width: full width with margin on mobile, fixed width on larger screens
+          modalWidth ? '' : 'w-[calc(100vw-2rem)] max-w-[90vw] sm:w-auto sm:min-w-[380px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]'
+        )}
         onMouseDown={mousedownModal}
         onMouseUp={mouseupModal}
         cy-id="modal-content"
