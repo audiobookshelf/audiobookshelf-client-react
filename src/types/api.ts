@@ -1,3 +1,7 @@
+// ============================================================================
+// ENUMS
+// ============================================================================
+
 export enum LogLevel {
   ERROR = 'error',
   WARN = 'warn',
@@ -11,7 +15,10 @@ export enum AuthMethod {
   OPENID = 'openid'
 }
 
-// Server settings interface
+// ============================================================================
+// SERVER & SYSTEM
+// ============================================================================
+
 export interface ServerSettings {
   // Scanner settings
   scannerParseSubtitle: boolean
@@ -64,23 +71,26 @@ export interface ServerSettings {
   buildNumber: string
 
   // Auth settings
-  authLoginCustomMessage: string | null
+  authLoginCustomMessage?: string
   authActiveAuthMethods: AuthMethod[]
-  authOpenIDIssuerURL: string | null
-  authOpenIDAuthorizationURL: string | null
-  authOpenIDTokenURL: string | null
-  authOpenIDUserInfoURL: string | null
-  authOpenIDJwksURL: string | null
-  authOpenIDLogoutURL: string | null
+  authOpenIDIssuerURL?: string
+  authOpenIDAuthorizationURL?: string
+  authOpenIDTokenURL?: string
+  authOpenIDUserInfoURL?: string
+  authOpenIDJwksURL?: string
+  authOpenIDLogoutURL?: string
   authOpenIDTokenSigningAlgorithm: string
   authOpenIDButtonText: string
   authOpenIDAutoLaunch: boolean
   authOpenIDAutoRegister: boolean
-  authOpenIDMatchExistingBy: string | null
-  authOpenIDSubfolderForRedirectURLs: string | undefined
+  authOpenIDMatchExistingBy?: string
+  authOpenIDSubfolderForRedirectURLs?: string
 }
 
-// Base types for file metadata
+// ============================================================================
+// FILE SYSTEM
+// ============================================================================
+
 export interface FileMetadata {
   filename: string
   ext: string
@@ -92,34 +102,35 @@ export interface FileMetadata {
   birthtimeMs: number
 }
 
-// Library file structure
 export interface LibraryFile {
   ino: string
   metadata: FileMetadata
-  isSupplementary: boolean | null
+  isSupplementary?: boolean
   addedAt: number
   updatedAt: number
   fileType?: 'image' | 'audio' | 'ebook' | 'text' | 'metadata' | 'unknown'
 }
 
-// Library settings structure
+// ============================================================================
+// LIBRARIES
+// ============================================================================
+
 export interface LibrarySettings {
   coverAspectRatio: number
   disableWatcher: boolean
   skipMatchingMediaWithAsin?: boolean
   skipMatchingMediaWithIsbn?: boolean
-  autoScanCronExpression?: string | null
+  autoScanCronExpression?: string
   audiobooksOnly?: boolean
   hideSingleBookSeries?: boolean
   onlyShowLaterBooksInContinueSeries?: boolean
   metadataPrecedence?: string[]
   markAsFinishedTimeRemaining?: number
-  markAsFinishedPercentComplete?: number | null
+  markAsFinishedPercentComplete?: number
   podcastSearchRegion?: string
   epubsAllowScriptedContent?: boolean
 }
 
-// Library structure
 export interface Library {
   id: string
   name: string
@@ -127,10 +138,9 @@ export interface Library {
   icon: string
   mediaType: 'book' | 'podcast'
   provider?: string
-  lastScan?: number | null
+  lastScan?: number
   lastScanVersion?: string
   settings?: LibrarySettings
-  extraData?: Record<string, any>
   createdAt: number
   updatedAt: number
   folders?: LibraryFolder[]
@@ -144,57 +154,10 @@ export interface LibraryFolder {
   updatedAt: number
 }
 
-// Audio file structure for books
-export interface AudioFile {
-  index: number
-  ino: string
-  metadata: FileMetadata
-  addedAt: number
-  updatedAt: number
-  trackNumFromMeta: number
-  discNumFromMeta: number
-  trackNumFromFilename: number
-  discNumFromFilename: number
-  manuallyVerified: boolean
-  format: string
-  duration: number
-  bitRate: number
-  language: string
-  codec: string
-  timeBase: string
-  channels: number
-  channelLayout: string
-  chapters: Chapter[]
-  metaTags: AudioMetaTags
-  mimeType: string
-  exclude?: boolean
-}
+// ============================================================================
+// AUTHORS
+// ============================================================================
 
-// Audio track structure for playback
-export interface AudioTrack extends AudioFile {
-  title: string
-  contentUrl: string
-  startOffset: number
-}
-
-// Chapter structure
-export interface Chapter {
-  id: number
-  start: number
-  end: number
-  title: string
-}
-
-// E-book file structure
-export interface EBookFile {
-  ino: string
-  ebookFormat: string
-  addedAt: number
-  updatedAt: number
-  metadata: FileMetadata
-}
-
-// Author structure
 export interface Author {
   id: string
   name: string
@@ -206,12 +169,26 @@ export interface Author {
   updatedAt?: number
 }
 
-export interface AuthorShort {
+export interface AuthorMinified {
   id: string
   name: string
 }
 
-// Series structure
+export interface AuthorExpanded extends AuthorMinified {
+  asin?: string
+  description?: string
+  /** author image path */
+  imagePath?: string
+  libraryId: string
+  addedAt: number
+  updatedAt: number
+  numBooks?: number
+}
+
+// ============================================================================
+// SERIES
+// ============================================================================
+
 export interface Series {
   id: string
   name: string
@@ -225,184 +202,70 @@ export interface Series {
   }
 }
 
-export interface SeriesShort {
+export interface SeriesMinified {
   id: string
   name: string
-  sequence: string
+  /** in series */
+  sequence?: string
 }
 
-// Podcast episode structure
-export interface PodcastEpisode {
+export interface SeriesExpanded {
   id: string
-  libraryItemId: string
-  podcastId: string
-  title: string
+  name: string
+  /** name with prefix moved to end (for sorting) */
+  nameIgnorePrefix: string
   description?: string
-  descriptionPlain?: string
-  pubDate?: string
-  publishedAt?: number
   addedAt: number
   updatedAt: number
-  duration: number
-  size: number
-  audioFile?: AudioFile
-  season?: number
-  episode?: number
-  episodeType?: string
-  guid?: string
-  explicit?: boolean
-  order?: number
+  libraryId: string
+  /** books in the series */
+  books?: LibraryItemMinified[]
+  /** if available */
+  rssFeed?: RSSFeedMinified
 }
 
-// Book metadata structure
+// ============================================================================
+// METADATA
+// ============================================================================
+
 export interface BookMetadata {
-  title: string
-  titleIgnorePrefix?: string
+  title?: string
   subtitle?: string
-  authors: AuthorShort[]
-  narrators?: string[]
-  series: SeriesShort[]
-  genres?: string[]
+  /** minified */
+  authors: AuthorMinified[]
+  narrators: string[]
+  /** minified */
+  series: SeriesMinified[]
+  /** comma-separated */
+  genres: string[]
   publishedYear?: string
   publishedDate?: string
   publisher?: string
   description?: string
-  descriptionPlain?: string
   isbn?: string
   asin?: string
   language?: string
-  explicit?: boolean
+  explicit: boolean
   abridged?: boolean
 }
 
-// Podcast metadata structure
 export interface PodcastMetadata {
-  title: string
-  titleIgnorePrefix?: string
+  title?: string
   author?: string
   description?: string
-  descriptionPlain?: string
   releaseDate?: string
-  genres?: string[]
+  /** comma-separated */
+  genres: string[]
   feedURL?: string
   imageURL?: string
   itunesPageURL?: string
   itunesId?: string
   itunesArtistId?: string
+  explicit: boolean
   language?: string
-  explicit?: boolean
   podcastType?: string
 }
 
-// Media progress structure
-export interface MediaProgress {
-  id: string
-  libraryItemId: string
-  episodeId?: string
-  duration: number
-  progress: number
-  currentTime: number
-  isFinished: boolean
-  hideFromContinueListening?: boolean
-  ebookLocation?: string
-  ebookProgress: number
-  finishedAt?: number
-  lastUpdate: number
-  startedAt?: number
-  lastPlayedAt?: number
-  libraryId?: string
-  mediaItemId?: string
-  mediaItemType?: string
-  userId?: string
-}
-
-// RSS Feed structure
-export interface RssFeed {
-  id: string
-  slug: string
-  entityType: 'book' | 'podcast'
-  entityId: string
-  feedUrl: string
-  metaTitle?: string
-  metaDescription?: string
-  isPublic: boolean
-  createdAt: number
-  updatedAt: number
-}
-
-// Share structure
-export interface MediaItemShare {
-  id: string
-  name: string
-  slug: string
-  userId: string
-  libraryItemId: string
-  mediaItemId: string
-  isPublic: boolean
-  expiresAt?: number
-  createdAt: number
-  updatedAt: number
-}
-
-// Podcast episode download structure
-export interface PodcastEpisodeDownload {
-  id: string
-  episodeDisplayTitle?: string
-  url: string
-  libraryItemId: string
-  libraryId?: string
-  isFinished: boolean
-  failed: boolean
-  appendRandomId: boolean
-  startedAt?: number
-  createdAt: number
-  finishedAt?: number
-  podcastTitle?: string
-  podcastExplicit?: boolean
-  season?: number
-  episode?: number
-  episodeType?: string
-  publishedAt?: number
-  guid?: string
-}
-
-// Book media structure
-export interface BookMedia {
-  id: string
-  libraryItemId: string
-  metadata: BookMetadata
-  coverPath?: string
-  tags: string[]
-  audioFiles: AudioFile[]
-  chapters: Chapter[]
-  ebookFile?: EBookFile
-  duration?: number
-  size?: number
-  tracks?: AudioTrack[]
-  numTracks?: number
-  numAudioFiles?: number
-  numChapters?: number
-  ebookFormat?: string
-}
-
-// Podcast media structure
-export interface PodcastMedia {
-  id: string
-  libraryItemId: string
-  metadata: PodcastMetadata
-  coverPath?: string
-  tags: string[]
-  episodes: PodcastEpisode[]
-  autoDownloadEpisodes?: boolean
-  autoDownloadSchedule?: string
-  lastEpisodeCheck?: number
-  maxEpisodesToKeep?: number
-  maxNewEpisodesToDownload?: number
-  size?: number
-  numEpisodes?: number
-}
-
-// Audio metadata tags based on AudioMetaTags.js
 export interface AudioMetaTags {
   tagAlbum?: string
   tagAlbumSort?: string
@@ -443,8 +306,215 @@ export interface AudioMetaTags {
   tagMusicBrainzArtistId?: string
 }
 
-// LibraryItem structure - includes all possible properties
-// Additional properties are conditionally included based on query parameters
+// ============================================================================
+// MEDIA FILES
+// ============================================================================
+
+export interface AudioFile {
+  index: number
+  ino: string
+  metadata: {
+    filename: string
+    ext: string
+    path: string
+    relPath: string
+    /** in bytes */
+    size: number
+    mtimeMs: number
+    ctimeMs: number
+    birthtimeMs: number
+  }
+  addedAt: number
+  updatedAt: number
+  trackNumFromMeta?: number
+  /** from filename */
+  trackNumFromFilename?: number
+  discNumFromMeta?: number
+  /** from filename */
+  discNumFromFilename?: number
+  /** in seconds */
+  duration: number
+  bitRate: number
+  language?: string
+  codec: string
+  timeBase: string
+  channels: number
+  channelLayout: string
+  chapters: Chapter[]
+  embeddedCoverArt?: string
+  metaTags: Record<string, string>
+  mimeType: string
+}
+
+export interface AudioTrack extends AudioFile {
+  title: string
+  contentUrl: string
+  startOffset: number
+}
+
+export interface Chapter {
+  id: number
+  /** in seconds */
+  start: number
+  /** in seconds */
+  end: number
+  title: string
+}
+
+export interface EBookFile {
+  ino: string
+  metadata: {
+    filename: string
+    ext: string
+    path: string
+    relPath: string
+    /** in bytes */
+    size: number
+    mtimeMs: number
+    ctimeMs: number
+    birthtimeMs: number
+  }
+  ebookFormat: string
+  addedAt: number
+  updatedAt: number
+}
+
+// ============================================================================
+// MEDIA
+// ============================================================================
+
+export interface BookMedia {
+  id: string
+  libraryItemId: string
+  metadata: BookMetadata
+  coverPath?: string
+  tags: string[]
+  audioFiles: AudioFile[]
+  chapters: Chapter[]
+  ebookFile?: EBookFile
+  duration?: number
+  size?: number
+  tracks?: AudioTrack[]
+  numTracks?: number
+  numAudioFiles?: number
+  numChapters?: number
+  ebookFormat?: string
+}
+
+export interface BookMediaMinified {
+  metadata: BookMetadata
+  /** cover image */
+  coverPath?: string
+  tags: string[]
+  numTracks?: number
+  numAudioFiles?: number
+  numChapters?: number
+  /** in seconds */
+  duration?: number
+  /** in bytes */
+  size?: number
+  /** if ebook */
+  ebookFormat?: string
+}
+
+export interface PodcastMedia {
+  id: string
+  libraryItemId: string
+  metadata: PodcastMetadata
+  coverPath?: string
+  tags: string[]
+  episodes: PodcastEpisode[]
+  autoDownloadEpisodes?: boolean
+  autoDownloadSchedule?: string
+  lastEpisodeCheck?: number
+  maxEpisodesToKeep?: number
+  maxNewEpisodesToDownload?: number
+  size?: number
+  numEpisodes?: number
+}
+
+export interface PodcastMediaMinified {
+  metadata: PodcastMetadata
+  /** cover image */
+  coverPath?: string
+  tags: string[]
+  numEpisodes: number
+  autoDownloadEpisodes: boolean
+  autoDownloadSchedule?: string
+  lastEpisodeCheck?: number
+  maxEpisodesToKeep: number
+  maxNewEpisodesToDownload: number
+  /** in bytes */
+  size: number
+}
+
+// ============================================================================
+// PODCAST EPISODES
+// ============================================================================
+
+export interface PodcastEpisode {
+  libraryItemId: string
+  podcastId: string
+  id: string
+  /** legacy */
+  oldEpisodeId?: string
+  index?: number
+  season?: string
+  episode?: string
+  episodeType?: string
+  title: string
+  subtitle?: string
+  description?: string
+  enclosure?: {
+    url: string
+    type: string
+    /** in bytes (as string) */
+    length?: string
+  }
+  guid?: string
+  pubDate?: string
+  chapters: Chapter[]
+  audioFile?: AudioFile
+  publishedAt?: number
+  addedAt: number
+  updatedAt: number
+  audioTrack?: {
+    index: number
+    startOffset: number
+    duration: number
+    title: string
+    contentUrl: string
+    mimeType: string
+    codec?: string
+    metadata: AudioFile['metadata']
+  }
+}
+
+export interface PodcastEpisodeDownload {
+  id: string
+  episodeDisplayTitle?: string
+  url: string
+  libraryItemId: string
+  libraryId?: string
+  isFinished: boolean
+  failed: boolean
+  appendRandomId: boolean
+  startedAt?: number
+  createdAt: number
+  finishedAt?: number
+  podcastTitle?: string
+  podcastExplicit?: boolean
+  season?: number
+  episode?: number
+  episodeType?: string
+  publishedAt?: number
+  guid?: string
+}
+
+// ============================================================================
+// LIBRARY ITEMS
+// ============================================================================
+
 export interface LibraryItem {
   id: string
   ino: string
@@ -488,20 +558,206 @@ export interface PodcastLibraryItem extends LibraryItem {
   media: PodcastMedia
 }
 
-// Request query parameters for LibraryItem endpoint
+export interface LibraryItemMinified {
+  id: string
+  ino: string
+  /** legacy */
+  oldLibraryItemId?: string
+  libraryId: string
+  folderId: string
+  path: string
+  relPath: string
+  isFile: boolean
+  mtimeMs: number
+  ctimeMs: number
+  birthtimeMs: number
+  addedAt: number
+  updatedAt: number
+  isMissing: boolean
+  isInvalid: boolean
+  mediaType: 'book' | 'podcast'
+  media: BookMediaMinified | PodcastMediaMinified
+  numFiles: number
+  /** in bytes */
+  size: number
+  /** included when requested */
+  rssFeed?: RSSFeedMinified
+  /** included when requested */
+  mediaItemShare?: MediaItemShare
+  /** podcasts only */
+  numEpisodesIncomplete?: number
+  recentEpisode?: PodcastEpisode
+}
+
 export interface LibraryItemQueryParams {
   include?: string // Comma-separated list: progress, rssfeed, share, downloads
   expanded?: number // 1 for expanded view
   episode?: string // Episode ID for progress
 }
 
-// Utility type to extract media type from LibraryItem
+// ============================================================================
+// PROGRESS & BOOKMARKS
+// ============================================================================
+
+export interface MediaProgress {
+  id: string
+  libraryItemId: string
+  episodeId?: string
+  duration: number
+  progress: number
+  currentTime: number
+  isFinished: boolean
+  hideFromContinueListening?: boolean
+  ebookLocation?: string
+  ebookProgress: number
+  finishedAt?: number
+  lastUpdate: number
+  startedAt?: number
+  lastPlayedAt?: number
+  libraryId?: string
+  mediaItemId?: string
+  mediaItemType?: string
+  userId?: string
+}
+
+export interface AudioBookmark {
+  libraryItemId: string
+  title: string
+  /** in seconds */
+  time: number
+  createdAt: number
+}
+
+// ============================================================================
+// RSS FEEDS & SHARES
+// ============================================================================
+
+export interface RssFeed {
+  id: string
+  slug: string
+  entityType: 'book' | 'podcast'
+  entityId: string
+  feedUrl: string
+  metaTitle?: string
+  metaDescription?: string
+  isPublic: boolean
+  createdAt: number
+  updatedAt: number
+}
+
+export interface RSSFeedMinified {
+  id: string
+  slug: string
+  /** series/collection/item */
+  entityId: string
+  entityType: string
+  feedURL: string
+}
+
+export interface MediaItemShare {
+  id: string
+  mediaItemId: string
+  mediaItemType: 'book' | 'podcastEpisode'
+  userId: string
+  slug: string
+  playbackSessionId?: string
+  /** null for no expiration */
+  expiresAt?: number
+  createdAt: number
+  updatedAt: number
+}
+
+// ============================================================================
+// USERS & AUTHENTICATION
+// ============================================================================
+
+export interface UserPermissions {
+  download: boolean
+  update: boolean
+  delete: boolean
+  upload: boolean
+  createEreader: boolean
+  accessAllLibraries: boolean
+  accessAllTags: boolean
+  accessExplicitContent: boolean
+  /** Whether tags are deny list (true) or allow list (false) */
+  selectedTagsNotAccessible: boolean
+}
+
+export interface User {
+  id: string
+  username: string
+  email?: string
+  type: 'root' | 'admin' | 'user' | 'guest'
+  /** Legacy non-expiring token (empty string for root users when hidden) */
+  token: string
+  isOldToken?: boolean
+  mediaProgress: MediaProgress[]
+  /** Series IDs to hide from continue listening */
+  seriesHideFromContinueListening: string[]
+  bookmarks: AudioBookmark[]
+  isActive: boolean
+  isLocked: boolean
+  /** null if never seen */
+  lastSeen?: number
+  createdAt: number
+  permissions: UserPermissions
+  /** Library IDs accessible to user (empty if accessAllLibraries is true) */
+  librariesAccessible: string[]
+  /** Tags selected/filtered for user (empty if accessAllTags is true) */
+  itemTagsSelected: string[]
+  hasOpenIDLink: boolean
+}
+
+export interface EReaderDevice {
+  name: string
+  email: string
+  availabilityOption: 'adminOrUp' | 'userOrUp' | 'guestOrUp' | 'specificUsers'
+  /** User IDs with access (only when availabilityOption is 'specificUsers') */
+  users?: string[]
+}
+
+export interface UserLoginResponse {
+  user: User
+  userDefaultLibraryId?: string
+  serverSettings: ServerSettings
+  ereaderDevices: EReaderDevice[]
+  /** e.g., 'local', 'docker' */
+  Source: string
+}
+
+// ============================================================================
+// SHELVES
+// ============================================================================
+
+export interface PersonalizedShelf {
+  id:
+    | 'continue-listening'
+    | 'continue-reading'
+    | 'continue-series'
+    | 'newest-episodes'
+    | 'recently-added'
+    | 'recent-series'
+    | 'discover'
+    | 'listen-again'
+    | 'read-again'
+    | 'newest-authors'
+  label: string
+  labelStringKey: string
+  type: 'book' | 'podcast' | 'episode' | 'series' | 'authors'
+  /** type depends on shelf type */
+  entities: LibraryItemMinified[] | SeriesExpanded[] | AuthorExpanded[]
+  total: number
+}
+
+// ============================================================================
+// TYPE UTILITIES
+// ============================================================================
+
 export type MediaType<T extends LibraryItem> = T['mediaType']
 
-// Utility type to extract media based on type
 export type MediaByType<T extends LibraryItem['mediaType']> = T extends 'book' ? BookMedia : T extends 'podcast' ? PodcastMedia : never
 
-// Type guards
 export function isBookMedia(media: BookMedia | PodcastMedia): media is BookMedia {
   return 'audioFiles' in media
 }
