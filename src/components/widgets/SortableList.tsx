@@ -3,7 +3,7 @@
 import { mergeClasses } from '@/lib/merge-classes'
 import { DragendEvent, DragendEventData, DragstartEvent, DragstartEventData } from '@formkit/drag-and-drop'
 import { useDragAndDrop } from '@formkit/drag-and-drop/react'
-import { ReactNode, useCallback, useEffect, useMemo } from 'react'
+import { ReactNode, useCallback, useMemo } from 'react'
 
 interface SortableListProps<T> {
   items: T[]
@@ -34,25 +34,17 @@ export default function SortableList<T>({ items, onSortEnd, renderItem, classNam
     }
   }, [])
 
-  const [parent, sortedItems, , updateConfig] = useDragAndDrop<HTMLDivElement, T>(itemsWithIds, {
+  const [parent, sortedItems] = useDragAndDrop<HTMLDivElement, T>(itemsWithIds, {
     dragHandle: '.drag-handle',
     disabled,
     onDragend,
     onDragstart,
-    handleDragend: () => {
-      onSortEnd(sortedItems)
-    }
+    handleDragend: () => onSortEnd(sortedItems)
   })
 
   const itemWrapperClassName = useMemo(() => {
     return mergeClasses('transition-all duration-200', itemClassName)
   }, [itemClassName])
-
-  useEffect(() => {
-    updateConfig({
-      disabled
-    })
-  }, [disabled, updateConfig])
 
   return (
     <div ref={parent} className={className}>

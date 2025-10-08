@@ -4,6 +4,7 @@ import '../../../assets/globals.css'
 import { getCurrentUser, getData } from '../../../lib/api'
 import AppBar from '../AppBar'
 import SideNav from './SideNav'
+import SideNavMobileDrawer from './SideNavMobileDrawer'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
@@ -34,6 +35,7 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
           <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
         </div>
       </div>
+      <SideNavMobileDrawer serverVersion={serverVersion} installSource={installSource} />
     </>
   )
 }
