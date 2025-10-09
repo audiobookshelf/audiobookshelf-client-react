@@ -1,6 +1,7 @@
 'use client'
 
 import Dropdown from '@/components/ui/Dropdown'
+import LanguageDropdown from '@/components/widgets/LanguageDropdown'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
@@ -173,6 +174,9 @@ export default function SettingsClient(props: SettingsClientProps) {
             <p className="text-xs text-gray-300 px-1 mb-2">
               {t('LabelExample')}: {exampleTimeFormat}
             </p>
+          </div>
+          <div className="w-full max-w-72">
+            <LanguageDropdown value={serverSettings?.language} onChange={(value) => handleSettingChanged('language', value as string)} />
           </div>
         </div>
       </div>
