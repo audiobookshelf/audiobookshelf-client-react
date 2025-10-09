@@ -21,11 +21,19 @@ export function EditListExamples() {
   ]
 
   // genres and tags don't have id's like narrators do
-  let itemsWithIds = genreList
+  const itemsWithIds = genreList
     .map((genre) => {
       return { id: genre, value: genre }
     })
     .sort((a, b) => a.value.localeCompare(b.value, undefined, { sensitivity: 'base' }))
+
+  const narrators = [
+    { id: 'a', numBooks: 1, value: 'Bob Ross' },
+    { id: 'b', numBooks: 4, value: 'Alejandro Ruiz' },
+    { id: 'c', numBooks: 2, value: 'William Dufris' },
+    { id: 'd', numBooks: 1, value: 'Noah Michael Levine' },
+    { id: 'e', numBooks: 17, value: 'Elizabeth Evans' }
+  ].sort((a, b) => a.value.localeCompare(b.value, undefined, { sensitivity: 'base' }))
 
   return (
     <ComponentExamples title="Edit List">
@@ -42,7 +50,7 @@ export function EditListExamples() {
         </p>
         <p className="mb-2 text-sm text-gray-400">Features: Automatically shows extra column for number of books for pages that support that info</p>
       </ComponentInfo>
-      <ExamplesBlock>
+      <ExamplesBlock className="mb-4">
         <Example title="List Without Books Column" className="col-span-1 md:col-span-2 lg:col-span-3">
           <EditList
             items={itemsWithIds}
@@ -52,8 +60,41 @@ export function EditListExamples() {
                 setTimeout(() => {
                   showToast('2 items updated', { type: 'success', title: 'Success' })
                   // just an example, will not work correctly for multiple edits
-                  itemsWithIds = itemsWithIds.filter((item) => item.id !== itemToUpdate.id)
-                  res([...itemsWithIds, { id: newValue, value: newValue }].sort((a, b) => a.value.localeCompare(b.value, undefined, { sensitivity: 'base' })))
+                  const itemsUpdated = itemsWithIds.filter((item) => item.id !== itemToUpdate.id)
+                  res([...itemsUpdated, { id: newValue, value: newValue }].sort((a, b) => a.value.localeCompare(b.value, undefined, { sensitivity: 'base' })))
+                }, 1000)
+              )
+            }}
+            onItemDeleteClick={() => {
+              return new Promise<void>((res) =>
+                setTimeout(() => {
+                  showToast('2 items updated', { type: 'success', title: 'Success' })
+                  res()
+                }, 1000)
+              )
+            }}
+            saveConfirmI18nKey="MessageConfirmRenameGenre"
+            deleteConfirmI18nKey="MessageConfirmRemoveGenre"
+          ></EditList>
+        </Example>
+      </ExamplesBlock>
+      <ExamplesBlock>
+        <Example title="List Books Column" className="col-span-1 md:col-span-2 lg:col-span-3">
+          <EditList
+            items={narrators}
+            libraryId="Some_Library"
+            // Emulate api call delay and return updated item
+            onItemEditSaveClick={(itemToUpdate, newValue) => {
+              return new Promise((res) =>
+                setTimeout(() => {
+                  showToast('2 items updated', { type: 'success', title: 'Success' })
+                  // just an example, will not work correctly for multiple edits
+                  const narrsUpdated = narrators.filter((item) => item.id !== itemToUpdate.id)
+                  res(
+                    [...narrsUpdated, { id: newValue, numBooks: 3, value: newValue }].sort((a, b) =>
+                      a.value.localeCompare(b.value, undefined, { sensitivity: 'base' })
+                    )
+                  )
                 }, 1000)
               )
             }}

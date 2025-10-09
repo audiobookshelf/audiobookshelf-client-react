@@ -25,7 +25,7 @@ interface EditListProps {
 }
 
 export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick, saveConfirmI18nKey, deleteConfirmI18nKey, libraryId }: EditListProps) {
-  const i18n = useTypeSafeTranslations()
+  const t = useTypeSafeTranslations()
   const [itemList, setItemList] = useState(items)
   const [editedItem, setEditedItem] = useState<EditListItem>({ id: '', value: '' })
   const [newValue, setNewValue] = useState('')
@@ -53,18 +53,20 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   const handleDeleteModalClick = async () => {
     if (!delRef.current) return
     setIsProcessing(true)
-    await onItemDeleteClick(delRef.current)
-      .then(() => {
-        setItemList(
-          itemList.filter((item) => {
-            return item.id !== delRef.current?.id
-          })
-        )
-      })
-      .finally(() => {
-        setIsProcessing(false)
-        setIsProcessingModalOpen(false)
-      })
+    try {
+      await onItemDeleteClick(delRef.current)
+      setItemList(
+        itemList.filter((item) => {
+          return item.id !== delRef.current?.id
+        })
+      )
+    } catch (error) {
+      console.error('EditList: Error deleting item:', error)
+    } finally {
+      delRef.current = null
+      setIsProcessing(false)
+      setIsProcessingModalOpen(false)
+    }
   }
 
   // Cancel editing a row and return to initial state/value
@@ -83,54 +85,52 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
 
   const handleSaveModalClick = async () => {
     setIsProcessing(true)
-    await onItemEditSaveClick(editedItem, newValue)
-      .then((updatedItemList) => {
-        setItemList(updatedItemList)
-      })
-      .finally(() => {
-        setIsProcessing(false)
-        setIsProcessingModalOpen(false)
-      })
+    try {
+      const updatedItemList = await onItemEditSaveClick(editedItem, newValue)
+      setItemList(updatedItemList)
+    } catch (error) {
+      console.error('EditList: Error saving edited item:', error)
+    } finally {
+      setIsProcessing(false)
+      setIsProcessingModalOpen(false)
+    }
   }
 
   return (
-    <div role="list" className={mergeClasses('border border-white/10 max-w-2xl mx-auto')}>
+    <div role="list" className={mergeClasses('border border-white/10 max-w-2xl mx-auto overflow-x-scroll')}>
       <table className="table-auto w-full">
-        <thead>
+        <thead className={mergeClasses('w-full bg-primary/50')}>
           <tr>
             <th className="text-left py-2 px-3" title="Name">
-              {i18n('LabelName')}
+              {t('LabelName')}
             </th>
-            {showNumBooks && <th>{i18n('LabelBooks')}</th>}
+            {showNumBooks && <th className={mergeClasses('hidden md:table-cell')}>{t('LabelBooks')}</th>}
+            {/* Empty header for action col to allow background to match with of rows correctly */}
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          {itemList.map((item, idx) => (
-            <tr
-              key={item.id}
-              className={mergeClasses('w-full p-2 group', {
-                'bg-primary/20': idx % 2 === 0
-              })}
-            >
+          {itemList.map((item) => (
+            <>
               {item !== editedItem && (
-                <>
-                  <td className={mergeClasses('p-3')}>
+                <tr key={item.id} className={mergeClasses('p-2 group even:bg-primary/20')}>
+                  <td className="p-3.5">
                     <a
-                      className={mergeClasses('text-sm md:text-base text-gray-100 truncate')}
+                      className={mergeClasses('text-sm md:text-base text-gray-100')}
                       title={item.value}
                       // Only narrators can be clicked on, tags/genres don't have library info attached.
                       // href could be made an EditListItem prop that is passed in if other pages start using this
-                      href={libraryId ? `/library/${libraryId}/bookshelf??filter=narrators.${item.id}` : undefined}
+                      href={libraryId ? `/library/${libraryId}/bookshelf?filter=narrators.${item.id}` : undefined}
                     >
                       {item.value}
                     </a>
                   </td>
                   {showNumBooks && (
-                    <td className="w-1/6">
+                    <td className={mergeClasses('hidden md:table-cell w-1/6')}>
                       <div className="flex justify-center">
                         <a
                           className={mergeClasses('text-sm md:text-base hover:underline')}
-                          href={libraryId ? `/library/${libraryId}/bookshelf??filter=narrators.${item.id}` : undefined}
+                          href={libraryId ? `/library/${libraryId}/bookshelf?filter=narrators.${item.id}` : undefined}
                         >
                           {item.numBooks}
                         </a>
@@ -144,30 +144,30 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         borderless={true}
                         onClick={() => handleEditItemClick(item)}
                         className={mergeClasses('text-gray-400 group-hover:text-white')}
-                        ariaLabel={i18n('ButtonEdit')}
+                        ariaLabel={t('ButtonEdit')}
                       >
-                        {i18n('ButtonEdit')}
+                        {t('ButtonEdit')}
                       </IconBtn>
                       <IconBtn
                         size="small"
                         borderless={true}
                         onClick={() => handleDeleteClick(item)}
                         className={mergeClasses('text-gray-400 group-hover:text-white')}
-                        ariaLabel={i18n('ButtonDelete')}
+                        ariaLabel={t('ButtonDelete')}
                       >
-                        {i18n('ButtonDelete')}
+                        {t('ButtonDelete')}
                       </IconBtn>
                     </div>
                   </td>
-                </>
+                </tr>
               )}
               {item === editedItem && (
-                <>
-                  <td className="p3">
+                <tr key={item.id} className={mergeClasses('p-2 group even:bg-primary/20')}>
+                  <td className="p-0.5">
                     <TextInput value={newValue} onChange={setNewValue} className="m-1 pe-5"></TextInput>
                   </td>
                   {showNumBooks && (
-                    <td className="w-1/6">
+                    <td className={mergeClasses('hidden md:table-cell w-1/6')}>
                       <div className="flex justify-center">
                         <a className={mergeClasses('text-sm md:text-base hover:underline')}>{item.numBooks}</a>
                       </div>
@@ -183,32 +183,32 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         onClick={() => handleSaveEditClick(item)}
                         ariaLabel="Save"
                       >
-                        {i18n('ButtonSave')}
+                        {t('ButtonSave')}
                       </Btn>
                       <Btn size="small" className="mx-1" onClick={() => handleCancelEditClick()} ariaLabel="Cancel">
-                        {i18n('ButtonCancel')}
+                        {t('ButtonCancel')}
                       </Btn>
                     </div>
                   </td>
-                </>
+                </tr>
               )}
-            </tr>
+            </>
           ))}
         </tbody>
       </table>
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} width={500}>
         <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
           {isDeleting ? (
-            <p className="text-gray-300 mb-6 flex-1">{i18n(deleteConfirmI18nKey, [delRef.current?.value])}</p>
+            <p className="text-gray-300 mb-6 flex-1">{t(deleteConfirmI18nKey, [delRef.current?.value])}</p>
           ) : (
-            <p className="text-gray-300 mb-6 flex-1">{i18n(saveConfirmI18nKey, [editedItem.value, newValue])}</p>
+            <p className="text-gray-300 mb-6 flex-1">{t(saveConfirmI18nKey, [editedItem.value, newValue])}</p>
           )}
           <div className="flex justify-end gap-3">
             <Btn onClick={isDeleting ? handleDeleteModalClick : handleSaveModalClick} color="bg-success" disabled={isProcessing}>
-              {i18n('ButtonYes')}
+              {t('ButtonYes')}
             </Btn>
             <Btn onClick={handleCancelEditClick} disabled={isProcessing}>
-              {i18n('ButtonCancel')}
+              {t('ButtonCancel')}
             </Btn>
           </div>
         </div>
