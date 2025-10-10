@@ -13,6 +13,7 @@ interface InputDropdownProps {
   placeholder?: string
   items?: (string | number)[]
   disabled?: boolean
+  size?: 'small' | 'medium' | 'large'
   showAllWhenEmpty?: boolean
   onChange?: (value: string | number) => void
   onNewItem?: (value: string) => void
@@ -29,6 +30,7 @@ export default function InputDropdown({
   placeholder = '',
   items = [],
   disabled = false,
+  size = 'medium',
   showAllWhenEmpty = false,
   onChange,
   onNewItem,
@@ -240,7 +242,7 @@ export default function InputDropdown({
       )}
 
       <div ref={wrapperRef} className="relative">
-        <InputWrapper disabled={disabled} inputRef={inputRef}>
+        <InputWrapper disabled={disabled} size={size} inputRef={inputRef}>
           <input
             role="combobox"
             ref={inputRef}
@@ -250,7 +252,10 @@ export default function InputDropdown({
             disabled={disabled}
             tabIndex={disabled ? -1 : 0}
             placeholder={placeholder}
-            className="h-full w-full bg-transparent px-1 outline-none disabled:cursor-not-allowed disabled:text-disabled"
+            className={mergeClasses(
+              'h-full w-full bg-transparent px-1 outline-none disabled:cursor-not-allowed disabled:text-disabled',
+              size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'
+            )}
             onChange={handleInputChange}
             onKeyDown={handleKeyDown}
             onFocus={onInputFocus}

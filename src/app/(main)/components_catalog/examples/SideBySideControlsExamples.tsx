@@ -30,7 +30,7 @@ export function SideBySideControlsExamples() {
 
       <ExamplesBlock>
         <Example title="Side By Side Controls" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <div className="flex gap-2 items-start ">
+          <div className="flex flex-wrap gap-2 items-start">
             <Btn className="mt-6" onClick={() => showToast('Button clicked', { type: 'info', title: 'Button' })}>
               Button
             </Btn>

@@ -1,7 +1,7 @@
 'use client'
 import Dropdown, { type DropdownItem } from '@/components/ui/Dropdown'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Dropdown Examples
 export function DropdownExamples() {
@@ -20,8 +20,22 @@ export function DropdownExamples() {
     { text: 'German', value: 'de', subtext: 'DE' }
   ]
 
+  const dropdownItemsWithDifferentLengths: DropdownItem[] = [
+    { text: 'Option 1', value: 'option1' },
+    { text: 'Option 2 with a longer text', value: 'option2' },
+    { text: 'Option 3 with a longer text that is even longer', value: 'option3' }
+  ]
+
+  const dropdownItemsWithDifferentLengthsAndSubtext: DropdownItem[] = [
+    { text: 'Option 1', value: 'option1', subtext: 'Subtext 1' },
+    { text: 'Option 2 with a longer text', value: 'option2', subtext: 'Subtext 2' },
+    { text: 'Option 3 with a longer text that is even longer', value: 'option3', subtext: 'Subtext 3' }
+  ]
+
   const [dropdownValue, setDropdownValue] = useState('option1')
   const [dropdownValue2, setDropdownValue2] = useState('en')
+  const [dropdownValue3, setDropdownValue3] = useState('option1')
+  const [dropdownValue4, setDropdownValue4] = useState('option1')
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -32,19 +46,23 @@ export function DropdownExamples() {
     setDropdownValue2(String(value))
   }
 
+  const handleDropdownChange3 = (value: string | number) => {
+    setDropdownValue3(String(value))
+  }
+
+  const handleDropdownChange4 = (value: string | number) => {
+    setDropdownValue4(String(value))
+  }
+
   return (
     <ComponentExamples title="Dropdowns">
       <ComponentInfo component="Dropdown" description="Select dropdown component with labels, subtext, and various states">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import Dropdown from &apos;@/components/ui/Dropdown&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import Dropdown from &apos;@/components/ui/Dropdown&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">items</code> (DropdownItem[]),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">label</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">small</code>, <code className="bg-gray-700 px-2 py-1 rounded">menuMaxHeight</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>items</Code> (DropdownItem[]), <Code>label</Code>,{' '}
+          <Code>disabled</Code>, <Code>small</Code>, <Code>menuMaxHeight</Code>, <Code>className</Code>
         </p>
       </ComponentInfo>
 
@@ -75,6 +93,24 @@ export function DropdownExamples() {
 
         <Example title="Unlabeled Dropdown">
           <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} />
+        </Example>
+
+        <Example title="Different item lengths">
+          <Dropdown
+            value={dropdownValue3}
+            onChange={handleDropdownChange3}
+            items={dropdownItemsWithDifferentLengths}
+            label="Dropdown with different item lengths"
+          />
+        </Example>
+
+        <Example title="Different item lengths and subtext">
+          <Dropdown
+            value={dropdownValue4}
+            onChange={handleDropdownChange4}
+            items={dropdownItemsWithDifferentLengthsAndSubtext}
+            label="Dropdown with different item lengths and subtext"
+          />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>

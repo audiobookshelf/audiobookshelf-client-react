@@ -1,15 +1,14 @@
 'use client'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function LoadingExamples() {
   return (
     <ComponentExamples title="Loading Indicators">
       <ComponentInfo component="LoadingIndicator" description="Loading indicator component with animated dots">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import LoadingIndicator from &apos;@/components/ui/LoadingIndicator&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import LoadingIndicator from &apos;@/components/ui/LoadingIndicator&apos;</Code>
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> No props required - displays animated loading dots
@@ -20,13 +19,11 @@ export function LoadingExamples() {
         <div className="col-span-1 md:col-span-2 lg:col-span-3">
           <ComponentInfo component="LoadingSpinner" description="Loading spinner component with various sizes and customization options">
             <p className="mb-2">
-              <span className="font-bold">Import:</span>{' '}
-              <code className="bg-gray-700 px-2 py-1 rounded">import LoadingSpinner from &apos;@/components/widgets/LoadingSpinner&apos;</code>
+              <span className="font-bold">Import:</span> <Code overflow>import LoadingSpinner from &apos;@/components/widgets/LoadingSpinner&apos;</Code>
             </p>
             <p className="mb-2">
-              <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">size</code> (la-sm, la-lg, la-2x, la-3x),{' '}
-              <code className="bg-gray-700 px-2 py-1 rounded">dark</code>, <code className="bg-gray-700 px-2 py-1 rounded">color</code>,{' '}
-              <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+              <span className="font-bold">Props:</span> <Code>size</Code> (la-sm, la-lg, la-2x, la-3x), <Code>dark</Code>, <Code>color</Code>,{' '}
+              <Code>className</Code>
             </p>
           </ComponentInfo>
         </div>

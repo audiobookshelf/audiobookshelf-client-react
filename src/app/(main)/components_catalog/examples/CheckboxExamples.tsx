@@ -1,7 +1,7 @@
 'use client'
 import Checkbox from '@/components/ui/Checkbox'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Checkbox Examples
 export function CheckboxExamples() {
@@ -15,14 +15,11 @@ export function CheckboxExamples() {
     <ComponentExamples title="Checkboxes">
       <ComponentInfo component="Checkbox" description="Checkbox component with different sizes and states">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import Checkbox from &apos;@/components/ui/Checkbox&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import Checkbox from &apos;@/components/ui/Checkbox&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">small</code>, <code className="bg-gray-700 px-2 py-1 rounded">medium</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">partial</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>small</Code>, <Code>medium</Code>,{' '}
+          <Code>disabled</Code>, <Code>partial</Code>
         </p>
       </ComponentInfo>
 

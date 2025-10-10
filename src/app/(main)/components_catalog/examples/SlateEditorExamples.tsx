@@ -4,7 +4,7 @@ import SlateEditor from '@/components/ui/SlateEditor'
 import TextareaInput from '@/components/ui/TextareaInput'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function SlateEditorExamples() {
   const initialContent =
@@ -38,13 +38,11 @@ export function SlateEditorExamples() {
     <ComponentExamples title="Rich Text Editor">
       <ComponentInfo component="SlateEditor" description="A rich text editor built with Slate.js">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import SlateEditor from &apos;@/components/ui/SlateEditor&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import SlateEditor from &apos;@/components/ui/SlateEditor&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">srcContent</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onUpdate</code>, <code className="bg-gray-700 px-2 py-1 rounded">placeholder</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabledEditor</code>, <code className="bg-gray-700 px-2 py-1 rounded">autofocus</code>
+          <span className="font-bold">Props:</span> <Code>srcContent</Code>, <Code>onUpdate</Code>, <Code>placeholder</Code>, <Code>disabledEditor</Code>,{' '}
+          <Code>autofocus</Code>
         </p>
       </ComponentInfo>
 
@@ -62,37 +60,37 @@ export function SlateEditorExamples() {
           <SlateEditor srcContent={rtlContent} onUpdate={handleUpdate} label="Editor with RTL content" />
         </Example>
         <Example title="Editor vs. Textarea" className="col-span-1 md:col-span-2 lg:col-span-3 space-y-4">
-          <div className="flex gap-4 ">
-            <div className="flex-1">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[250px]">
               <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Editor" />
             </div>
-            <div className="mt-9.5 flex-1">
+            <div className="mt-9.5 flex-1 min-w-[250px]">
               <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Textarea" />
             </div>
           </div>
-          <div className="flex gap-4 ">
-            <div className="flex-1">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[250px]">
               <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Read-only Editor" readOnly />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-[250px]">
               <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Read-only Textarea" readOnly />
             </div>
           </div>
-          <div className="flex gap-4 ">
-            <div className="flex-1">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[250px]">
               <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Disabled Editor" disabled />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-[250px]">
               <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Disabled Textarea" disabled />
             </div>
           </div>
         </Example>
         <Example title="Editor vs. Output" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <div className="flex gap-4 ">
-            <div className="flex-1">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[250px]">
               <SlateEditor srcContent={initialContent} onUpdate={setEditorOutput} label="Editor" className="[&_[data-slate-editor]]:h-83" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-[250px]">
               <Label className="mt-9.5">Output:</Label>
               <div className={mergeClasses(slateElementStyles, 'p-2 border border-gray-500 rounded-md')} dangerouslySetInnerHTML={{ __html: editorOutput }} />
             </div>

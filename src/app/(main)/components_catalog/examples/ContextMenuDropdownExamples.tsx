@@ -1,7 +1,7 @@
 'use client'
 import ContextMenuDropdown, { type ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // ContextMenuDropdown Examples
 export function ContextMenuDropdownExamples() {
@@ -54,15 +54,11 @@ export function ContextMenuDropdownExamples() {
     <ComponentExamples title="Context Menu Dropdowns">
       <ComponentInfo component="ContextMenuDropdown" description="Context menu dropdown with submenus, loading states, and custom triggers">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ContextMenuDropdown from &apos;@/components/ui/ContextMenuDropdown&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import ContextMenuDropdown from &apos;@/components/ui/ContextMenuDropdown&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">items</code> (ContextMenuItem[]),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">processing</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">iconClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">menuWidth</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onAction</code>, <code className="bg-gray-700 px-2 py-1 rounded">children</code> (ReactNode or
-          function)
+          <span className="font-bold">Props:</span> <Code>items</Code> (ContextMenuItem[]), <Code>disabled</Code>, <Code>processing</Code>,{' '}
+          <Code>iconClass</Code>, <Code>menuWidth</Code>, <Code>onAction</Code>, <Code>children</Code> (ReactNode or function)
         </p>
       </ComponentInfo>
 

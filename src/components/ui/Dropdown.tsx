@@ -240,7 +240,7 @@ export default function Dropdown({
           disabled={disabled}
           className={mergeClasses(
             'relative w-full text-left cursor-pointer text-gray-100',
-            'ps-1 pe-8 h-full bg-transparent border-none outline-none flex items-center',
+            'ps-1 h-full bg-transparent border-none outline-none flex items-center justify-between',
             'disabled:cursor-not-allowed disabled:text-disabled',
             size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'
           )}
@@ -251,12 +251,12 @@ export default function Dropdown({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          <span className="flex items-center">
-            <span className={mergeClasses('block truncate font-sans', selectedSubtext ? 'font-semibold' : '')}>{selectedText}</span>
-            {selectedSubtext && <span>:&nbsp;</span>}
-            {selectedSubtext && <span className="font-normal block truncate font-sans text-gray-400">{selectedSubtext}</span>}
+          <span className="flex items-center min-w-0 flex-1 gap-0">
+            <span className={mergeClasses('block truncate font-sans shrink', selectedSubtext ? 'font-semibold max-w-[75%]' : '')}>{selectedText}</span>
+            {selectedSubtext && <span className="flex-shrink-0">:&nbsp;</span>}
+            {selectedSubtext && <span className="font-normal block truncate font-sans text-gray-400 shrink max-w-[25%]">{selectedSubtext}</span>}
           </span>
-          <span className="ms-3 absolute inset-y-0 end-0 flex items-center pe-2 pointer-events-none">
+          <span className="ms-3 flex items-center pointer-events-none flex-shrink-0">
             <span className="material-symbols text-2xl">expand_more</span>
           </span>
         </button>

@@ -1,7 +1,7 @@
 'use client'
 import TextareaInput from '@/components/ui/TextareaInput'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // TextareaInput Examples
 export function TextareaInputExamples() {
@@ -14,15 +14,11 @@ export function TextareaInputExamples() {
     <ComponentExamples title="Textarea Inputs">
       <ComponentInfo component="TextareaInput" description="Accessible textarea input with disabled and focus styles consistent with InputDropdown">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import TextareaInput from &apos;@/components/ui/TextareaInput&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import TextareaInput from &apos;@/components/ui/TextareaInput&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">placeholder</code>, <code className="bg-gray-700 px-2 py-1 rounded">rows</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">readOnly</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code>, <code className="bg-gray-700 px-2 py-1 rounded">id</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>placeholder</Code>, <Code>rows</Code>,{' '}
+          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>className</Code>, <Code>id</Code>
         </p>
       </ComponentInfo>
 

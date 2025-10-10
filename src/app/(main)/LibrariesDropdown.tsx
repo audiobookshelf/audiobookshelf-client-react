@@ -1,11 +1,12 @@
 'use client'
 
 import Dropdown from '@/components/ui/Dropdown'
+import { Library } from '@/types/api'
 import { usePathname, useRouter } from 'next/navigation'
 import { useTransition } from 'react'
 
 interface LibrariesDropdownProps {
-  libraries: any[]
+  libraries: Library[]
   currentLibraryId: string
 }
 
@@ -20,10 +21,12 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
   function getLibraryPath(libraryId: string) {
     const library = libraries.find((l) => l.id === libraryId)
     let page = pathname.split('/').pop() || ''
-    if (page && library.mediaType === 'book' && !bookLibraryPages.includes(page)) {
-      page = ''
-    } else if (page && library.mediaType === 'podcast' && !podcastLibraryPages.includes(page)) {
-      page = ''
+    if (library) {
+      if (page && library.mediaType === 'book' && !bookLibraryPages.includes(page)) {
+        page = ''
+      } else if (page && library.mediaType === 'podcast' && !podcastLibraryPages.includes(page)) {
+        page = ''
+      }
     }
 
     return `/library/${libraryId}/${page}`
@@ -35,7 +38,7 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
   }))
 
   return (
-    <div className="relative w-48">
+    <div className="relative">
       <Dropdown
         items={libraryItems}
         menuMaxHeight="80vh"

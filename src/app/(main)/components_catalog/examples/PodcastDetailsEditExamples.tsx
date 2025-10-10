@@ -1,10 +1,10 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import PodcastDetailsEdit, { PodcastDetailsEditRef, UpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
+import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
 import { PodcastLibraryItem } from '@/types/api'
 import { useCallback, useRef, useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
 const mockLibraryItem: PodcastLibraryItem = {
   id: 'cltjyl123000108l437q67p8o',
@@ -66,7 +66,7 @@ export function PodcastDetailsEditExamples() {
     setHasChanges(details.hasChanges)
   }, [])
 
-  const handleSubmit = useCallback((details: { updatePayload: UpdatePayload; hasChanges: boolean }) => {
+  const handleSubmit = useCallback((details: { updatePayload: PodcastUpdatePayload; hasChanges: boolean }) => {
     console.log('onSubmit', details)
     if (details.hasChanges) {
       setLibraryItem((prev) => ({
@@ -91,26 +91,25 @@ export function PodcastDetailsEditExamples() {
         description="A form for editing the metadata of a podcast library item. It includes fields for title, author, RSS feed URL, description, and more."
       >
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import PodcastDetailsEdit from &apos;@/components/widgets/PodcastDetailsEdit&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import PodcastDetailsEdit from &apos;@/components/widgets/PodcastDetailsEdit&apos;</Code>
         </p>
         <div>
           <span className="font-bold">Props:</span>
           <ul className="list-disc list-inside">
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">libraryItem</code>: The podcast library item to edit.
+              <Code>libraryItem</Code>: The podcast library item to edit.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">availableGenres</code>: A list of available genres.
+              <Code>availableGenres</Code>: A list of available genres.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">availableTags</code>: A list of available tags.
+              <Code>availableTags</Code>: A list of available tags.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>: Callback fired when form data changes.
+              <Code>onChange</Code>: Callback fired when form data changes.
             </li>
             <li>
-              <code className="bg-gray-700 px-2 py-1 rounded">onSubmit</code>: Callback fired when form is submitted.
+              <Code>onSubmit</Code>: Callback fired when form is submitted.
             </li>
           </ul>
         </div>

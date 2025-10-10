@@ -2,8 +2,9 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
+import { Library, LibraryItem, PersonalizedShelf, User, UserLoginResponse } from '../types/api'
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   data?: T
   error?: string
   needsRefresh?: boolean
@@ -14,7 +15,7 @@ interface ServerStatus {
   language: string
   isInit: boolean
   authMethods: string[]
-  authFormData: Record<string, any>
+  authFormData: Record<string, unknown>
   ConfigPath: string
   MetadataPath: string
   app: string
@@ -74,7 +75,7 @@ export async function getAccessToken() {
 /**
  * Make an authenticated API request to the server
  */
-export async function apiRequest<T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
   try {
     let accessToken: string | null = null
 
@@ -88,13 +89,13 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
 
-    const fetchHeaders: Record<string, any> = {
+    const fetchHeaders = new Headers({
       'Content-Type': 'application/json',
-      ...options.headers
-    }
+      ...(options.headers as Record<string, string>)
+    })
 
     if (accessToken) {
-      fetchHeaders.Authorization = `Bearer ${accessToken}`
+      fetchHeaders.set('Authorization', `Bearer ${accessToken}`)
     }
 
     const response = await fetch(url, {
@@ -118,15 +119,19 @@ export async function apiRequest<T = any>(endpoint: string, options: RequestInit
   }
 }
 
-export const getData = cache(async <T extends readonly Promise<ApiResponse<any>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
+/**
+ * Batch multiple API requests and handle token refresh if needed.
+ * If any request requires authentication refresh, redirects to the refresh endpoint.
+ *
+ * The function preserves the type of each promise, so:
+ * const [user, libraries] = await getData(getCurrentUser(), getLibraries())
+ * will correctly infer the type of 'user' and 'libraries'.
+ */
+export const getData = cache(async <T extends Promise<ApiResponse<unknown>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
   const responses = await Promise.all(promises)
 
-  let requiresRefresh = false
-  for (const response of responses) {
-    if (response.needsRefresh) {
-      requiresRefresh = true
-    }
-  }
+  // Check if any response requires token refresh
+  const requiresRefresh = responses.some((response) => response.needsRefresh)
 
   if (requiresRefresh) {
     const currentPath = (await headers()).get('x-current-path')
@@ -140,40 +145,40 @@ export const getData = cache(async <T extends readonly Promise<ApiResponse<any>>
  * Current user response data
  */
 export const getCurrentUser = cache(async () => {
-  return apiRequest('/api/authorize', {
+  return apiRequest<UserLoginResponse>('/api/authorize', {
     method: 'POST',
     cache: 'force-cache'
   })
 })
 
 export const getServerStatus = cache(async (): Promise<ApiResponse<ServerStatus>> => {
-  return apiRequest('/status')
+  return apiRequest<ServerStatus>('/status')
 })
 
 export const getLibraries = cache(async () => {
-  return apiRequest('/api/libraries', {})
+  return apiRequest<Library[]>('/api/libraries', {})
 })
 
 export const getLibrary = cache(async (libraryId: string) => {
-  return apiRequest(`/api/libraries/${libraryId}`, {})
+  return apiRequest<Library>(`/api/libraries/${libraryId}`, {})
 })
 
 export const getLibraryPersonalized = cache(async (libraryId: string) => {
-  return apiRequest(`/api/libraries/${libraryId}/personalized`, {})
+  return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized`, {})
 })
 
 export const getLibraryItems = cache(async (libraryId: string) => {
-  return apiRequest(`/api/libraries/${libraryId}/items`, {})
+  return apiRequest<LibraryItem[]>(`/api/libraries/${libraryId}/items`, {})
 })
 
 export const getLibraryItem = cache(async (itemId: string) => {
-  return apiRequest(`/api/items/${itemId}`, {})
+  return apiRequest<LibraryItem>(`/api/items/${itemId}`, {})
 })
 
 export const getUsers = cache(async () => {
-  return apiRequest('/api/users', {})
+  return apiRequest<User[]>('/api/users', {})
 })
 
 export const getUser = cache(async (userId: string) => {
-  return apiRequest(`/api/users/${userId}`, {})
+  return apiRequest<User>(`/api/users/${userId}`, {})
 })

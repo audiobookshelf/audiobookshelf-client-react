@@ -1,7 +1,7 @@
 'use client'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // MediaIconPicker Examples
 
@@ -12,16 +12,12 @@ export function MediaIconPickerExamples() {
     <ComponentExamples title="Media Icon Pickers">
       <ComponentInfo component="MediaIconPicker" description="Icon picker component for selecting library icons with dropdown menu">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import MediaIconPicker from &apos;@/components/ui/MediaIconPicker&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import MediaIconPicker from &apos;@/components/ui/MediaIconPicker&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code> (selected icon name, defaults to
-          &apos;database&apos;), <code className="bg-gray-700 px-2 py-1 rounded">onChange</code> (callback when icon is selected),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">label</code> (label text, defaults to &apos;Icon&apos;),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabled</code> (disables the picker),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code> (additional CSS classes),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">align</code> (menu alignment, defaults to &apos;left&apos;, options: &apos;left&apos;,
+          <span className="font-bold">Props:</span> <Code>value</Code> (selected icon name, defaults to &apos;database&apos;), <Code>onChange</Code> (callback
+          when icon is selected), <Code>label</Code> (label text, defaults to &apos;Icon&apos;), <Code>disabled</Code> (disables the picker),{' '}
+          <Code>className</Code> (additional CSS classes), <Code>align</Code> (menu alignment, defaults to &apos;left&apos;, options: &apos;left&apos;,
           &apos;right&apos;, &apos;center&apos;)
         </p>
       </ComponentInfo>

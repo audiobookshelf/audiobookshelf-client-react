@@ -2,7 +2,7 @@
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // ReadIconBtn Examples
 export function ReadIconBtnExamples() {
@@ -22,13 +22,11 @@ export function ReadIconBtnExamples() {
     <ComponentExamples title="Read Icon Buttons">
       <ComponentInfo component="ReadIconBtn" description="Read status toggle button using IconBtn with BeenHere icon and visual state indication">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import ReadIconBtn from &apos;@/components/ui/ReadIconBtn&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import ReadIconBtn from &apos;@/components/ui/ReadIconBtn&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">isRead</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">borderless</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onClick</code>, <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+          <span className="font-bold">Props:</span> <Code>isRead</Code>, <Code>disabled</Code>, <Code>borderless</Code>, <Code>onClick</Code>,{' '}
+          <Code>className</Code>
         </p>
         <p className="mb-2 text-sm text-gray-400">
           Features: uses IconBtn with e52d (BeenHere) icon, visual distinction between read/unread states with color coding, proper ARIA labels, event handling

@@ -3,7 +3,7 @@ import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import TwoStageMultiSelect, { TwoStageMultiSelectContent } from '@/components/ui/TwoStageMultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // TwoStageMultiSelect Examples
 
@@ -64,16 +64,13 @@ export function TwoStageMultiSelectExamples() {
       <ComponentInfo component="TwoStageMultiSelect" description="Two-stage multi-select component with primary and modifier values">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">
+          <Code overflow>
             import TwoStageMultiSelect, {'{'} TwoStageMultiSelectContent {'}'} from &apos;@/components/ui/TwoStageMultiSelect&apos;
-          </code>
+          </Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">selectedItems</code>{' '}
-          (MultiSelectItem&lt;TwoStageMultiSelectContent&gt;[]), <code className="bg-gray-700 px-2 py-1 rounded">onItemAdded</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onItemRemoved</code>, <code className="bg-gray-700 px-2 py-1 rounded">onItemEdited</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">items</code>, <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onValidate</code>
+          <span className="font-bold">Props:</span> <Code>selectedItems</Code>, <Code>onItemAdded</Code>, <Code>onItemRemoved</Code>, <Code>onItemEdited</Code>,{' '}
+          <Code>items</Code>, <Code>label</Code>, <Code>onValidate</Code>
         </p>
       </ComponentInfo>
 

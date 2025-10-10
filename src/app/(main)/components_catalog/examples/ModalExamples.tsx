@@ -3,7 +3,7 @@ import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // Modal Examples
 
@@ -29,16 +29,12 @@ export function ModalExamples() {
     <ComponentExamples title="Modals">
       <ComponentInfo component="Modal" description="Modal dialog component with backdrop, animations, and various customization options">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import Modal from &apos;@/components/modals/Modal&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import Modal from &apos;@/components/modals/Modal&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">isOpen</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onClose</code>, <code className="bg-gray-700 px-2 py-1 rounded">children</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">width</code>, <code className="bg-gray-700 px-2 py-1 rounded">height</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">persistent</code>, <code className="bg-gray-700 px-2 py-1 rounded">processing</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">zIndexClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">bgOpacityClass</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">contentMarginTop</code>, <code className="bg-gray-700 px-2 py-1 rounded">outerContent</code>
+          <span className="font-bold">Props:</span> <Code>isOpen</Code>, <Code>onClose</Code>, <Code>children</Code>, <Code>width</Code>, <Code>height</Code>,{' '}
+          <Code>persistent</Code>, <Code>processing</Code>, <Code>zIndexClass</Code>, <Code>bgOpacityClass</Code>, <Code>contentMarginTop</Code>,{' '}
+          <Code>outerContent</Code>
         </p>
         <p className="mb-2 text-sm text-gray-400">
           Features: portal rendering, smooth animations, focus management, keyboard navigation (Escape), backdrop click to close, processing overlay, persistent

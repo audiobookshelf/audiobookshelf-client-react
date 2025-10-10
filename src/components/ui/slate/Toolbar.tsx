@@ -197,7 +197,7 @@ export const Toolbar = () => {
   return (
     <div
       ref={toolbarRef}
-      className="pb-2 border-b border-border bg-transparent flex gap-[1.5vw]"
+      className="pb-2 border-b border-border bg-transparent flex flex-wrap gap-2"
       role="toolbar"
       aria-label="Text formatting toolbar"
       aria-orientation="horizontal"

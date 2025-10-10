@@ -13,7 +13,5 @@ import { getTranslations } from 'next-intl/server'
 export async function getTypeSafeTranslations(): Promise<TypeSafeTranslations> {
   const t = await getTranslations()
 
-  return ((key: string, values?: Record<string, any>) => {
-    return t(key, values)
-  }) as TypeSafeTranslations
+  return t as TypeSafeTranslations
 }

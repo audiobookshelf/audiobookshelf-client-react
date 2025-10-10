@@ -2,7 +2,7 @@
 import InputDropdown from '@/components/ui/InputDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // InputDropdown Examples
 export function InputDropdownExamples() {
@@ -35,15 +35,11 @@ export function InputDropdownExamples() {
     <ComponentExamples title="Input Dropdowns">
       <ComponentInfo component="InputDropdown" description="Input dropdown component that allows typing and filtering with optional new item creation">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import InputDropdown from &apos;@/components/ui/InputDropdown&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import InputDropdown from &apos;@/components/ui/InputDropdown&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">items</code> (string[] or number[]),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">label</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">editable</code>, <code className="bg-gray-700 px-2 py-1 rounded">showAllWhenEmpty</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onNewItem</code>, <code className="bg-gray-700 px-2 py-1 rounded">className</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>items</Code> (string[] or number[]), <Code>label</Code>,{' '}
+          <Code>disabled</Code>, <Code>editable</Code>, <Code>showAllWhenEmpty</Code>, <Code>onNewItem</Code>, <Code>className</Code>
         </p>
       </ComponentInfo>
 
