@@ -1,6 +1,8 @@
 'use client'
 
 import Dropdown from '@/components/ui/Dropdown'
+import { MultiSelect, MultiSelectItem } from '@/components/ui/MultiSelect'
+import LanguageDropdown from '@/components/widgets/LanguageDropdown'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
@@ -18,6 +20,15 @@ export default function SettingsClient(props: SettingsClientProps) {
   const t = useTypeSafeTranslations()
   const [isPending, startTransition] = useTransition()
   const [serverSettings, setServerSettings] = useState(initialServerSettings)
+
+  const corsAllowedItems = useMemo(() => {
+    return (
+      (serverSettings?.allowedOrigins || []).map?.((origin) => ({
+        content: origin,
+        value: origin
+      })) || []
+    )
+  }, [serverSettings?.allowedOrigins])
 
   const exampleDateFormat = useMemo(() => {
     if (!serverSettings?.dateFormat) {
@@ -53,8 +64,8 @@ export default function SettingsClient(props: SettingsClientProps) {
     })
   }
 
-  const handleSettingChanged = (key: keyof ServerSettings, value: boolean | string) => {
-    let newValue: boolean | BookshelfView | string = value
+  const handleSettingChanged = (key: keyof ServerSettings, value: boolean | string | string[]) => {
+    let newValue: boolean | BookshelfView | string | string[] = value
     if (key === 'homeBookshelfView' || key === 'bookshelfView') {
       newValue = value ? BookshelfView.STANDARD : BookshelfView.DETAIL
     }
@@ -173,6 +184,33 @@ export default function SettingsClient(props: SettingsClientProps) {
             <p className="text-xs text-gray-300 px-1 mb-2">
               {t('LabelExample')}: {exampleTimeFormat}
             </p>
+          </div>
+          <div className="w-full max-w-72">
+            <LanguageDropdown value={serverSettings?.language} onChange={(value) => handleSettingChanged('language', value as string)} />
+          </div>
+        </div>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-base font-semibold">{t('HeaderSettingsSecurity')}</h2>
+          <div className="w-full max-w-72">
+            <MultiSelect
+              label={t('LabelCorsAllowed')}
+              items={corsAllowedItems}
+              showEdit
+              onItemEdited={(value: MultiSelectItem<string>) => {
+                handleSettingChanged('allowedOrigins', serverSettings?.allowedOrigins?.map((item) => (item === value.value ? value.content : item)) as string[])
+              }}
+              onItemRemoved={(value: MultiSelectItem<string>) => {
+                handleSettingChanged('allowedOrigins', serverSettings?.allowedOrigins?.filter((item) => item !== value.content) as string[])
+              }}
+              onItemAdded={(value: MultiSelectItem<string>) => {
+                if (!corsAllowedItems.some((item) => item.content === value.content)) {
+                  handleSettingChanged('allowedOrigins', [...serverSettings?.allowedOrigins, value.content] as string[])
+                } else {
+                  handleSettingChanged('allowedOrigins', serverSettings?.allowedOrigins?.filter((item) => item !== value.content) as string[])
+                }
+              }}
+              selectedItems={corsAllowedItems}
+            />
           </div>
         </div>
       </div>
