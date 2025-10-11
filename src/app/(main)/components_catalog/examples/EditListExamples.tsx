@@ -24,17 +24,17 @@ export function EditListExamples() {
   // genres and tags don't have id's like narrators do
   const initialGenresWithIds = genreList
     .map((genre) => {
-      return { id: genre, value: genre }
+      return { id: genre, name: genre }
     })
-    .sort((a, b) => a.value.localeCompare(b.value, undefined, { sensitivity: 'base' }))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 
   const initialNarrators = [
-    { id: 'Bob Ross', numBooks: 1, value: 'Bob Ross' },
-    { id: 'Alejandro Ruiz', numBooks: 4, value: 'Alejandro Ruiz' },
-    { id: 'William Dufris', numBooks: 2, value: 'William Dufris' },
-    { id: 'Noah Michael Levine', numBooks: 1, value: 'Noah Michael Levine' },
-    { id: 'Elizabeth Evans', numBooks: 17, value: 'Elizabeth Evans' }
-  ].sort((a, b) => a.value.localeCompare(b.value, undefined, { sensitivity: 'base' }))
+    { id: 'Bob Ross', numBooks: 1, name: 'Bob Ross' },
+    { id: 'Alejandro Ruiz', numBooks: 4, name: 'Alejandro Ruiz' },
+    { id: 'William Dufris', numBooks: 2, name: 'William Dufris' },
+    { id: 'Noah Michael Levine', numBooks: 1, name: 'Noah Michael Levine' },
+    { id: 'Elizabeth Evans', numBooks: 17, name: 'Elizabeth Evans' }
+  ].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 
   const [genresWithIds, setGenresWithIds] = useState(initialGenresWithIds)
   const [narrators, setNarrators] = useState(initialNarrators)
@@ -49,8 +49,7 @@ export function EditListExamples() {
         <p className="mb-2">
           <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">items</code>,{' '}
           <code className="bg-gray-700 px-2 py-1 rounded">onItemEditSaveClick</code>,<code className="bg-gray-700 px-2 py-1 rounded">onItemDeleteClick</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">saveConfirmI18nKey</code>,<code className="bg-gray-700 px-2 py-1 rounded">deleteConfirmI18nKey</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">libraryId (optional)</code>,
+          <code className="bg-gray-700 px-2 py-1 rounded">listType</code>,<code className="bg-gray-700 px-2 py-1 rounded">libraryId (optional)</code>,
         </p>
         <p className="mb-2 text-sm text-gray-400">Features: Automatically shows extra column for number of books for pages that support that info</p>
       </ComponentInfo>
@@ -65,8 +64,8 @@ export function EditListExamples() {
                 setTimeout(() => {
                   showToast('2 items updated', { type: 'success', title: 'Success' })
                   setGenresWithIds((prev) =>
-                    [...prev.filter((genre) => genre.id !== genreToUpdate.id), { id: newValue, value: newValue }].sort((a, b) =>
-                      a.value.localeCompare(b.value, undefined, { sensitivity: 'base' })
+                    [...prev.filter((genre) => genre.id !== genreToUpdate.id), { id: newValue, name: newValue }].sort((a, b) =>
+                      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
                     )
                   )
                   res()
@@ -99,8 +98,8 @@ export function EditListExamples() {
                   // just an example, will not work correctly for multiple edits
                   const narrsUpdated = narrators.filter((narr) => narr.id !== narrToUpdate.id)
                   setNarrators(
-                    [...narrsUpdated, { id: newValue, numBooks: 3, value: newValue }].sort((a, b) =>
-                      a.value.localeCompare(b.value, undefined, { sensitivity: 'base' })
+                    [...narrsUpdated, { id: newValue, numBooks: 3, name: newValue }].sort((a, b) =>
+                      a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
                     )
                   )
                   res()

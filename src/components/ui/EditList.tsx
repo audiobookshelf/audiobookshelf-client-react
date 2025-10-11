@@ -10,13 +10,13 @@ import TextInput from './TextInput'
 
 interface EditListItem {
   id: string
-  value: string
+  name: string
   numBooks?: number
 }
 
 interface EditListProps {
   items: EditListItem[]
-  onItemEditSaveClick: (item: EditListItem, newValue: string) => Promise<void>
+  onItemEditSaveClick: (item: EditListItem, newName: string) => Promise<void>
   onItemDeleteClick: (item: EditListItem) => Promise<void>
   listType: 'Tag' | 'Genre' | 'Narrator'
   libraryId?: string
@@ -24,15 +24,15 @@ interface EditListProps {
 
 export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick, listType, libraryId }: EditListProps) {
   const t = useTypeSafeTranslations()
-  const [editedItem, setEditedItem] = useState<EditListItem>({ id: '', value: '' })
-  const [newValue, setNewValue] = useState('')
+  const [editedItem, setEditedItem] = useState<EditListItem>({ id: '', name: '' })
+  const [newName, setNewName] = useState('')
   const [isProcessingModalOpen, setIsProcessingModalOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const delRef = useRef<EditListItem>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [hasSameValue, setHasSameValue] = useState(false)
-  const [sameValueWithDifferentCase, setSameValueWithDifferentCase] = useState('')
+  const [hasSameName, setHasSameName] = useState(false)
+  const [sameNameWithDifferentCase, setSameNameWithDifferentCase] = useState('')
   const showNumBooks = items.some((item) => {
     return item.numBooks && item.numBooks > 0
   })
@@ -40,7 +40,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   // Switch to edit mode for a row
   const handleEditItemClick = (clickedItem: EditListItem) => {
     setEditedItem(clickedItem)
-    setNewValue(clickedItem.value)
+    setNewName(clickedItem.name)
   }
 
   // focus on input when it appears
@@ -75,10 +75,10 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   const handleCancelEditClick = () => {
     delRef.current = null
     setIsProcessingModalOpen(false)
-    setEditedItem({ id: '', value: '' })
-    setHasSameValue(false)
-    setSameValueWithDifferentCase('')
-    setNewValue('')
+    setEditedItem({ id: '', name: '' })
+    setHasSameName(false)
+    setSameNameWithDifferentCase('')
+    setNewName('')
     setIsDeleting(false)
   }
 
@@ -86,22 +86,20 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   const handleSaveEditClick = useCallback(
     (clickedItem: EditListItem) => {
       setEditedItem(clickedItem)
-      const hasSameValue = items.some((item) => item.value === newValue.trim())
-      setHasSameValue(hasSameValue)
-      const sameItemDifferentCase = !hasSameValue
-        ? items.find((item) => item.id !== clickedItem.id && item.value.toLowerCase() === newValue.toLowerCase())
-        : null
-      setSameValueWithDifferentCase(sameItemDifferentCase?.value ?? '')
+      const hasSameName = items.some((item) => item.name === newName.trim())
+      setHasSameName(hasSameName)
+      const sameItemDifferentCase = !hasSameName ? items.find((item) => item.id !== clickedItem.id && item.name.toLowerCase() === newName.toLowerCase()) : null
+      setSameNameWithDifferentCase(sameItemDifferentCase?.name ?? '')
       setIsDeleting(false)
       setIsProcessingModalOpen(true)
     },
-    [items, newValue]
+    [items, newName]
   )
 
   const handleSaveModalClick = async () => {
     setIsProcessing(true)
     try {
-      await onItemEditSaveClick(editedItem, newValue)
+      await onItemEditSaveClick(editedItem, newName)
     } catch (error) {
       console.error('EditList: Error saving edited item:', error)
     } finally {
@@ -114,12 +112,12 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         e.preventDefault()
-        if (editedItem?.value !== newValue && newValue.trim() !== '') {
+        if (editedItem?.name !== newName && newName.trim() !== '') {
           handleSaveEditClick(editedItem)
         }
       }
     },
-    [editedItem, newValue, handleSaveEditClick]
+    [editedItem, newName, handleSaveEditClick]
   )
 
   const getListTypeEditString = useMemo(() => {
@@ -191,12 +189,12 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                   <td className="p-3.5">
                     <a
                       className={mergeClasses('text-sm md:text-base text-gray-100')}
-                      title={item.value}
+                      title={item.name}
                       // Only narrators can be clicked on, tags/genres don't have library info attached.
                       // href could be made an EditListItem prop that is passed in if other pages start using this
                       href={libraryId ? `/library/${libraryId}/bookshelf?filter=narrators.${item.id}` : undefined}
                     >
-                      {item.value}
+                      {item.name}
                     </a>
                   </td>
                   {showNumBooks && (
@@ -238,7 +236,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
               {item === editedItem && (
                 <tr key={item.id} className={mergeClasses('p-2 group even:bg-primary/20')}>
                   <td className="p-0.5">
-                    <TextInput value={newValue} onChange={setNewValue} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5"></TextInput>
+                    <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5"></TextInput>
                   </td>
                   {showNumBooks && (
                     <td className={mergeClasses('hidden md:table-cell w-1/6')}>
@@ -253,7 +251,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         color="bg-success"
                         size="small"
                         className="mx-1"
-                        disabled={item.value === newValue.trim() || newValue.trim() === ''}
+                        disabled={item.name === newName.trim() || newName.trim() === ''}
                         onClick={() => handleSaveEditClick(item)}
                         ariaLabel="Save"
                       >
@@ -273,13 +271,13 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} width={500}>
         <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
           {isDeleting ? (
-            <p className="text-gray-300 mb-6 flex-1">{t(getListTypeDeleteString, [delRef.current?.value])}</p>
+            <p className="text-gray-300 mb-6 flex-1">{t(getListTypeDeleteString, [delRef.current?.name])}</p>
           ) : (
             <>
-              <p className="text-gray-300 mb-6 flex-1">{t(getListTypeEditString, [editedItem.value, newValue])}</p>
+              <p className="text-gray-300 mb-6 flex-1">{t(getListTypeEditString, [editedItem.name, newName])}</p>
               {/* Show warning if the new value already exists or has a different casing*/}
-              {hasSameValue && <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeMergeString)}</p>}
-              {sameValueWithDifferentCase !== '' && <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeWarningString, [sameValueWithDifferentCase])}</p>}
+              {hasSameName && <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeMergeString)}</p>}
+              {sameNameWithDifferentCase !== '' && <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeWarningString, [sameNameWithDifferentCase])}</p>}
             </>
           )}
           <div className="flex justify-end gap-3">
