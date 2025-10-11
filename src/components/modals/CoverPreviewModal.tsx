@@ -100,15 +100,7 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
 
         {/* Image area - takes remaining space */}
         <div className="flex-1 flex justify-center items-center px-6 min-h-0">
-          {selectedCover && (
-            <PreviewCover
-              src={selectedCover}
-              width={previewCoverWidth}
-              maxHeight={availableImageHeight}
-              bookCoverAspectRatio={bookCoverAspectRatio}
-              showResolution={false}
-            />
-          )}
+          {selectedCover && <PreviewCover src={selectedCover} width={previewCoverWidth} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />}
         </div>
 
         {/* Buttons */}
