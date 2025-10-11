@@ -1,7 +1,7 @@
 import { getCurrentUser, getData } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { ServerSettings } from '@/types/api'
-import { updateServerSettings } from './actions'
+import { updateServerSettings, updateSortingPrefixes } from './actions'
 import SettingsClient from './SettingsClient'
 import SettingsContent from './SettingsContent'
 
@@ -20,7 +20,11 @@ export default async function SettingsPage() {
 
   return (
     <SettingsContent title={t('HeaderSettings')}>
-      <SettingsClient serverSettings={serverSettings as ServerSettings} updateServerSettings={updateServerSettings} />
+      <SettingsClient
+        serverSettings={serverSettings as ServerSettings}
+        updateServerSettings={updateServerSettings}
+        updateSortingPrefixes={updateSortingPrefixes}
+      />
     </SettingsContent>
   )
 }

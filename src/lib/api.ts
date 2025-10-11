@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 
-interface ApiResponse<T = any> {
+export interface ApiResponse<T = any> {
   data?: T
   error?: string
   needsRefresh?: boolean

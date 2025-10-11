@@ -1,25 +1,32 @@
 'use client'
 
+import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import { MultiSelect, MultiSelectItem } from '@/components/ui/MultiSelect'
 import LanguageDropdown from '@/components/widgets/LanguageDropdown'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import type { ApiResponse } from '@/lib/api'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
 import { useMemo, useState, useTransition } from 'react'
+import type { UpdateServerSettingsApiResponse, UpdateSortingPrefixesApiResponse } from './actions'
 import { dateFormats, timeFormats } from './settingsConstants'
 import SettingsToggleSwitch from './SettingsToggleSwitch'
 
 interface SettingsClientProps {
   serverSettings: ServerSettings
-  updateServerSettings: (serverSettings: ServerSettings) => Promise<any>
+  updateServerSettings: (serverSettings: ServerSettings) => Promise<ApiResponse<UpdateServerSettingsApiResponse>>
+  updateSortingPrefixes: (sortingPrefixes: string[]) => Promise<ApiResponse<UpdateSortingPrefixesApiResponse>>
 }
 
 export default function SettingsClient(props: SettingsClientProps) {
-  const { serverSettings: initialServerSettings, updateServerSettings } = props
+  const { serverSettings: initialServerSettings, updateServerSettings, updateSortingPrefixes } = props
   const t = useTypeSafeTranslations()
   const [isPending, startTransition] = useTransition()
   const [serverSettings, setServerSettings] = useState(initialServerSettings)
+  const [sortingPrefixes, setSortingPrefixes] = useState<string[]>(initialServerSettings.sortingPrefixes || [])
+  const { showToast } = useGlobalToast()
 
   const corsAllowedItems = useMemo(() => {
     return (
@@ -29,6 +36,18 @@ export default function SettingsClient(props: SettingsClientProps) {
       })) || []
     )
   }, [serverSettings?.allowedOrigins])
+
+  const sortingPrefixItems = useMemo(() => {
+    return sortingPrefixes.map((prefix) => ({
+      content: prefix,
+      value: prefix
+    }))
+  }, [sortingPrefixes])
+
+  const hasPrefixesChanged = useMemo(() => {
+    const serverPrefixes = serverSettings?.sortingPrefixes || []
+    return sortingPrefixes.some((p) => !serverPrefixes.includes(p)) || serverPrefixes.some((p) => !sortingPrefixes.includes(p))
+  }, [sortingPrefixes, serverSettings?.sortingPrefixes])
 
   const exampleDateFormat = useMemo(() => {
     if (!serverSettings?.dateFormat) {
@@ -73,6 +92,36 @@ export default function SettingsClient(props: SettingsClientProps) {
     handleSaveSettings(updatedSettings)
   }
 
+  const handleSortingPrefixesChanged = (items: MultiSelectItem<string>[]) => {
+    const prefixes = [...new Set(items.map((item) => item.content.trim().toLowerCase()).filter((p) => p))]
+    setSortingPrefixes(prefixes)
+  }
+
+  const handleSaveSortingPrefixes = () => {
+    const prefixes = [...new Set(sortingPrefixes.map((prefix) => prefix.trim().toLowerCase()).filter((p) => p))]
+    if (!prefixes.length) {
+      showToast(t('ToastSortingPrefixesEmptyError'), { type: 'error' })
+      return
+    }
+
+    startTransition(async () => {
+      try {
+        const response = await updateSortingPrefixes(prefixes)
+        if (response?.data) {
+          const rowsUpdated = response.data.rowsUpdated
+          showToast(t('ToastSortingPrefixesUpdateSuccess', { 0: rowsUpdated }), { type: 'success' })
+          if (response.data.serverSettings) {
+            setServerSettings(response.data.serverSettings)
+            setSortingPrefixes(response.data.serverSettings.sortingPrefixes || [])
+          }
+        }
+      } catch (error) {
+        console.error('Failed to update prefixes', error)
+        showToast(t('ToastFailedToUpdate'), { type: 'error' })
+      }
+    })
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="flex flex-col gap-4 py-4">
@@ -92,6 +141,43 @@ export default function SettingsClient(props: SettingsClientProps) {
             disabled={isPending}
             tooltip={t('LabelSettingsStoreMetadataWithItemHelp')}
           />
+          <SettingsToggleSwitch
+            label={t('LabelSettingsSortingIgnorePrefixes')}
+            value={serverSettings?.sortingIgnorePrefix}
+            onChange={(value) => handleSettingChanged('sortingIgnorePrefix', value)}
+            disabled={isPending}
+            tooltip={t('LabelSettingsSortingIgnorePrefixesHelp')}
+          />
+          {serverSettings?.sortingIgnorePrefix && (
+            <div className="w-full max-w-72 ml-14 mb-2">
+              <MultiSelect
+                label={t('LabelPrefixesToIgnore')}
+                items={sortingPrefixItems}
+                showEdit
+                onItemEdited={(value: MultiSelectItem<string>) => {
+                  const updatedPrefixes = sortingPrefixes.map((item) => (item === value.value ? value.content : item))
+                  handleSortingPrefixesChanged(updatedPrefixes.map((p) => ({ content: p, value: p })))
+                }}
+                onItemRemoved={(value: MultiSelectItem<string>) => {
+                  const updatedPrefixes = sortingPrefixes.filter((item) => item !== value.content)
+                  handleSortingPrefixesChanged(updatedPrefixes.map((p) => ({ content: p, value: p })))
+                }}
+                onItemAdded={(value: MultiSelectItem<string>) => {
+                  if (!sortingPrefixes.includes(value.content)) {
+                    handleSortingPrefixesChanged([...sortingPrefixes, value.content].map((p) => ({ content: p, value: p })))
+                  }
+                }}
+                selectedItems={sortingPrefixItems}
+              />
+              {hasPrefixesChanged && (
+                <div className="flex justify-end py-1">
+                  <Btn onClick={handleSaveSortingPrefixes} disabled={isPending} loading={isPending} color="bg-success" size="small">
+                    {t('ButtonSave')}
+                  </Btn>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="text-base font-semibold">{t('HeaderSettingsScanner')}</h2>
