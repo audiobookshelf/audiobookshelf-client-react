@@ -1,3 +1,5 @@
+'use client'
+
 import Label from '@/components/ui/Label'
 import { slateElementStyles } from '@/components/ui/slate/constants'
 import SlateEditor from '@/components/ui/SlateEditor'

@@ -1,3 +1,5 @@
+'use client'
+
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'

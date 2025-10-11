@@ -1,3 +1,5 @@
+'use client'
+
 import RangeInput from '@/components/ui/RangeInput'
 import { useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'

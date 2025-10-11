@@ -1,3 +1,5 @@
+'use client'
+
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'

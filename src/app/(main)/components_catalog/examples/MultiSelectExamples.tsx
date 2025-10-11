@@ -1,3 +1,5 @@
+'use client'
+
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
