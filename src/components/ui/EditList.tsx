@@ -2,7 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Modal from '../modals/Modal'
 import Btn from './Btn'
 import IconBtn from './IconBtn'
@@ -29,7 +29,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   const [isProcessingModalOpen, setIsProcessingModalOpen] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const delRef = useRef<EditListItem>(null)
-  // const editInputRef = useRef<HTMLInputElement>(null)
+  const editInputRef = useRef<HTMLInputElement>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [hasSameValue, setHasSameValue] = useState(false)
   const [sameValueWithDifferentCase, setSameValueWithDifferentCase] = useState('')
@@ -42,6 +42,13 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
     setEditedItem(clickedItem)
     setNewValue(clickedItem.value)
   }
+
+  // focus on input when it appears
+  useEffect(() => {
+    if (editInputRef.current && editedItem.id !== '') {
+      editInputRef.current.focus()
+    }
+  }, [editInputRef, editedItem])
 
   // Delete a row
   const handleDeleteClick = (clickedItem: EditListItem) => {
@@ -231,7 +238,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
               {item === editedItem && (
                 <tr key={item.id} className={mergeClasses('p-2 group even:bg-primary/20')}>
                   <td className="p-0.5">
-                    <TextInput value={newValue} onChange={setNewValue} onKeyDown={handleInputKeyDown} className="m-1 pe-5"></TextInput>
+                    <TextInput value={newValue} onChange={setNewValue} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5"></TextInput>
                   </td>
                   {showNumBooks && (
                     <td className={mergeClasses('hidden md:table-cell w-1/6')}>
