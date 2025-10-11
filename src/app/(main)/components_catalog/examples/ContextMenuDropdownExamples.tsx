@@ -51,8 +51,8 @@ export function ContextMenuDropdownExamples() {
   ]
 
   return (
-    <ComponentExamples title="Context Menu Dropdowns">
-      <ComponentInfo component="ContextMenuDropdown" description="Context menu dropdown with submenus, loading states, and custom triggers">
+    <ComponentExamples title="Context Menu Button">
+      <ComponentInfo component="ContextMenuDropdown" description="Context menu triggered by a button with submenus, loading states, and custom triggers">
         <p className="mb-2">
           <span className="font-bold">Import:</span> <Code overflow>import ContextMenuDropdown from &apos;@/components/ui/ContextMenuDropdown&apos;</Code>
         </p>
