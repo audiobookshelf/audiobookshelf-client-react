@@ -1,6 +1,6 @@
 'use client'
 import LibraryIcon from '@/components/ui/LibraryIcon'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // LibraryIcon Examples
 export function LibraryIconExamples() {
@@ -8,14 +8,12 @@ export function LibraryIconExamples() {
     <ComponentExamples title="Library Icons">
       <ComponentInfo component="LibraryIcon" description="Library icon component using absicons font with validation and fallback">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import LibraryIcon from &apos;@/components/ui/LibraryIcon&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import LibraryIcon from &apos;@/components/ui/LibraryIcon&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">icon</code> (icon name from absicons, defaults to
-          &apos;audiobookshelf&apos;), <code className="bg-gray-700 px-2 py-1 rounded">fontSize</code> (CSS font size class, defaults to &apos;text-lg&apos;),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">size</code> (5 or 6 for container size, defaults to 5),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code> (additional CSS classes)
+          <span className="font-bold">Props:</span> <Code>icon</Code> (icon name from absicons, defaults to &apos;audiobookshelf&apos;), <Code>fontSize</Code>{' '}
+          (CSS font size class, defaults to &apos;text-lg&apos;), <Code>size</Code> (5 or 6 for container size, defaults to 5), <Code>className</Code>{' '}
+          (additional CSS classes)
         </p>
       </ComponentInfo>
 

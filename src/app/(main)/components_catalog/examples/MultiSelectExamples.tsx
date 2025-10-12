@@ -1,7 +1,9 @@
+'use client'
+
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function MultiSelectExamples() {
   const { showToast } = useGlobalToast()
@@ -59,16 +61,14 @@ export function MultiSelectExamples() {
         <ComponentInfo component="MultiSelect" description="Multi-select component with item management, editing, and validation">
           <p className="mb-2">
             <span className="font-bold">Import:</span>{' '}
-            <code className="bg-gray-700 px-2 py-1 rounded">
+            <Code overflow>
               import MultiSelect, {'{'} MultiSelectItem {'}'} from &apos;@/components/ui/MultiSelect&apos;
-            </code>
+            </Code>
           </p>
           <p className="mb-2">
-            <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">selectedItems</code> (MultiSelectItem[]),{' '}
-            <code className="bg-gray-700 px-2 py-1 rounded">onItemAdded</code>, <code className="bg-gray-700 px-2 py-1 rounded">onItemRemoved</code>,{' '}
-            <code className="bg-gray-700 px-2 py-1 rounded">onItemEdited</code>, <code className="bg-gray-700 px-2 py-1 rounded">items</code>{' '}
-            (MultiSelectItem[]), <code className="bg-gray-700 px-2 py-1 rounded">label</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-            <code className="bg-gray-700 px-2 py-1 rounded">showEdit</code>, <code className="bg-gray-700 px-2 py-1 rounded">onValidate</code>
+            <span className="font-bold">Props:</span> <Code>selectedItems</Code> (MultiSelectItem[]), <Code>onItemAdded</Code>, <Code>onItemRemoved</Code>,{' '}
+            <Code>onItemEdited</Code>, <Code>items</Code> (MultiSelectItem[]), <Code>label</Code>, <Code>disabled</Code>, <Code>showEdit</Code>,{' '}
+            <Code>onValidate</Code>
           </p>
         </ComponentInfo>
       </div>

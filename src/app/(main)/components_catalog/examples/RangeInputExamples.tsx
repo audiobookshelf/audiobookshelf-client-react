@@ -1,6 +1,8 @@
+'use client'
+
 import RangeInput from '@/components/ui/RangeInput'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function RangeInputExamples() {
   // RangeInput sample data
@@ -12,15 +14,11 @@ export function RangeInputExamples() {
     <ComponentExamples title="Range Inputs">
       <ComponentInfo component="RangeInput" description="Accessible range input component with customizable min/max/step values, labels, and disabled state">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import RangeInput from &apos;@/components/ui/RangeInput&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import RangeInput from &apos;@/components/ui/RangeInput&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">min</code>, <code className="bg-gray-700 px-2 py-1 rounded">max</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">step</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code>, <code className="bg-gray-700 px-2 py-1 rounded">aria-describedby</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>min</Code>, <Code>max</Code>,{' '}
+          <Code>step</Code>, <Code>disabled</Code>, <Code>className</Code>, <Code>aria-describedby</Code>
         </p>
         <p className="mb-2 text-sm text-gray-400">
           Features: accessible with proper ARIA attributes, keyboard navigation, screen reader support, customizable styling, flexible layout (with/without

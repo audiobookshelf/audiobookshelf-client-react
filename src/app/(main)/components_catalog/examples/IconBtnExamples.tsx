@@ -1,6 +1,6 @@
 'use client'
 import IconBtn from '@/components/ui/IconBtn'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // IconBtn Examples
 export function IconBtnExamples() {
@@ -8,14 +8,11 @@ export function IconBtnExamples() {
     <ComponentExamples title="Icon Buttons">
       <ComponentInfo component="IconBtn" description="Icon button component with material symbols, loading states, and customization options">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import IconBtn from &apos;@/components/ui/IconBtn&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import IconBtn from &apos;@/components/ui/IconBtn&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">children</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">borderless</code>, <code className="bg-gray-700 px-2 py-1 rounded">loading</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>, <code className="bg-gray-700 px-2 py-1 rounded">size</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">iconFontSize</code>, <code className="bg-gray-700 px-2 py-1 rounded">ariaLabel</code>
+          <span className="font-bold">Props:</span> <Code>children</Code>, <Code>borderless</Code>, <Code>loading</Code>, <Code>disabled</Code>,{' '}
+          <Code>size</Code>, <Code>iconFontSize</Code>, <Code>ariaLabel</Code>
         </p>
       </ComponentInfo>
 

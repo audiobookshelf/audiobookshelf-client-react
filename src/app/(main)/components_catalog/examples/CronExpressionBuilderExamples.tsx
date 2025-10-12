@@ -2,7 +2,7 @@
 import CronExpressionBuilder from '@/components/widgets/CronExpressionBuilder'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 import { useCallback, useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // CronExpressionBuilder Examples
 export function CronExpressionBuilderExamples() {
@@ -78,22 +78,22 @@ export function CronExpressionBuilderExamples() {
       >
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionBuilder from &apos;@/components/widgets/CronExpressionBuilder&apos;</code>
+          <Code overflow>import CronExpressionBuilder from &apos;@/components/widgets/CronExpressionBuilder&apos;</Code>
         </p>
         <div className="mb-2">
           <span className="font-bold">Props:</span>
           <div className="grid grid-cols-[auto_1fr] gap-2">
-            <code className="bg-gray-700 px-1 rounded">value</code>
+            <Code className="px-1">value</Code>
             <span>a cron expression</span>
-            <code className="bg-gray-700 px-1 rounded">options? </code>
+            <Code className="px-1">options? </Code>
             <span>
-              <code>
+              <Code>
                 {'{'} language?, timeZone? {'}'}
-              </code>{' '}
+              </Code>{' '}
               - server language and time zone settings
             </span>
-            <code className="bg-gray-700 px-1 rounded">onChange?</code>
-            <code>function (value: string, isValid?: boolean): void</code>
+            <Code className="px-1">onChange?</Code>
+            <Code>function (value: string, isValid?: boolean): void</Code>
           </div>
         </div>
       </ComponentInfo>
@@ -101,23 +101,23 @@ export function CronExpressionBuilderExamples() {
       <ComponentInfo component="CronExpressionPreview" description="A preview of the cron expression with a verbal description of the schedule, next run date">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import CronExpressionPreview from &apos;@/components/widgets/CronExpressionPreview&apos;</code>
+          <Code overflow>import CronExpressionPreview from &apos;@/components/widgets/CronExpressionPreview&apos;</Code>
         </p>
         <div className="mb-2">
           <span className="font-bold">Props:</span>
           <div className="grid grid-cols-[auto_1fr] gap-2">
-            <code className="bg-gray-700 px-1 rounded">cronExpression</code>
+            <Code className="px-1">cronExpression</Code>
             <span>a cron expression</span>
-            <code className="bg-gray-700 px-1 rounded">isValid?</code>
+            <Code className="px-1">isValid?</Code>
             <span>the validity of the cron expression. Will validate the cron expression internally if not provided</span>
-            <code className="bg-gray-700 px-1 rounded">options?</code>
+            <Code className="px-1">options?</Code>
             <span>
-              <code>
+              <Code>
                 {'{'} language?, dateFormat?, timeFormat?, timeZone? {'}'}
-              </code>{' '}
+              </Code>{' '}
               - the server language, date, and time settings
             </span>
-            <code className="bg-gray-700 px-1 rounded">className?</code>
+            <Code className="px-1">className?</Code>
             <span>classes to merge with the default classes</span>
           </div>
         </div>

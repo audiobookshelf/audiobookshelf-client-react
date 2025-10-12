@@ -1,8 +1,10 @@
+'use client'
+
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function MultiSelectDropdownExamples() {
   const { showToast } = useGlobalToast()
@@ -37,14 +39,11 @@ export function MultiSelectDropdownExamples() {
     <ComponentExamples title="Multi Select Dropdowns">
       <ComponentInfo component="MultiSelectDropdown" description="Multi-select dropdown component with item management">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import MultiSelectDropdown from &apos;@/components/ui/MultiSelectDropdown&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import MultiSelectDropdown from &apos;@/components/ui/MultiSelectDropdown&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">selectedItems</code> (MultiSelectItem[]),{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onItemAdded</code>, <code className="bg-gray-700 px-2 py-1 rounded">onItemRemoved</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">items</code> (MultiSelectItem[]), <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>
+          <span className="font-bold">Props:</span> <Code>selectedItems</Code> (MultiSelectItem[]), <Code>onItemAdded</Code>, <Code>onItemRemoved</Code>,{' '}
+          <Code>items</Code> (MultiSelectItem[]), <Code>label</Code>, <Code>disabled</Code>
         </p>
       </ComponentInfo>
 

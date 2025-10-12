@@ -1,6 +1,6 @@
 'use client'
 
-import React, { memo, useCallback, useMemo, useRef } from 'react'
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Descendant, Editor, Transforms } from 'slate'
 import { RenderElementProps, RenderLeafProps, Editable as SlateEditable } from 'slate-react'
 
@@ -54,6 +54,13 @@ interface EditableProps {
 export const Editable = memo(({ editor, disabled, readOnly, placeholder }: EditableProps) => {
   const { openModal } = useLinkModalContext()
   const editableRef = useRef<HTMLDivElement>(null)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Only render SlateEditable on the client to avoid hydration mismatches
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {
       // Early return if disabled - prevent all keyboard interactions
@@ -205,6 +212,18 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
       ),
     [disabled, readOnly]
   )
+
+  // Render a placeholder during SSR to prevent hydration mismatches
+  if (!isMounted) {
+    return (
+      <InputWrapper size="auto" className={mergeClasses('px-1 py-1')} readOnly={readOnly} disabled={disabled}>
+        <div
+          className={editableClass}
+          style={{ minHeight: '104px' }} // Match the min-h-26 (26 * 4px = 104px)
+        />
+      </InputWrapper>
+    )
+  }
 
   return (
     <InputWrapper size="auto" className={mergeClasses('px-1 py-1')} readOnly={readOnly} disabled={disabled} inputRef={editableRef}>

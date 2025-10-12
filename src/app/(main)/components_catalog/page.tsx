@@ -1,38 +1,5 @@
-'use client'
-
-import { AdvancedModalExamples } from './examples/AdvancedModalExamples'
-import { AlertExamples } from './examples/AlertExamples'
-import { BookDetailsEditExamples } from './examples/BookDetailsEditExamples'
-import { BtnExamples } from './examples/BtnExamples'
-import { CheckboxExamples } from './examples/CheckboxExamples'
-import { ContextMenuDropdownExamples } from './examples/ContextMenuDropdownExamples'
 import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
-import { CronExpressionBuilderExamples } from './examples/CronExpressionBuilderExamples'
-import { DropdownExamples } from './examples/DropdownExamples'
-import { DurationPickerExamples } from './examples/DurationPickerExamples'
-import { EditListExamples } from './examples/EditListExamples'
-import { FileInputExamples } from './examples/FileInputExamples'
-import { IconBtnExamples } from './examples/IconBtnExamples'
-import { InlineIndicatorExamples } from './examples/InlineIndicatorExamples'
-import { InputDropdownExamples } from './examples/InputDropdownExamples'
-import { LibraryIconExamples } from './examples/LibraryIconExamples'
-import { LoadingExamples } from './examples/LoadingExamples'
-import { MediaIconPickerExamples } from './examples/MediaIconPickerExamples'
-import { ModalExamples } from './examples/ModalExamples'
-import { MultiSelectDropdownExamples } from './examples/MultiSelectDropdownExamples'
-import { MultiSelectExamples } from './examples/MultiSelectExamples'
-import { PodcastDetailsEditExamples } from './examples/PodcastDetailsEditExamples'
-import { RangeInputExamples } from './examples/RangeInputExamples'
-import { ReadIconBtnExamples } from './examples/ReadIconBtnExamples'
 import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
-import { SlateEditorExamples } from './examples/SlateEditorExamples'
-import { TextInputExamples } from './examples/TextInputExamples'
-import { TextareaInputExamples } from './examples/TextareaInputExamples'
-import { ToastNotificationExamples } from './examples/ToastNotificationExamples'
-import { ToggleBtnsExamples } from './examples/ToggleBtnsExamples'
-import { ToggleSwitchExamples } from './examples/ToggleSwitchExamples'
-import { TooltipExamples } from './examples/TooltipExamples'
-import { TwoStageMultiSelectExamples } from './examples/TwoStageMultiSelectExamples'
 
 export default function ComponentsCatalogPage() {
   return (
@@ -46,168 +13,81 @@ export default function ComponentsCatalogPage() {
       <section className="mb-12">
         <h2 className="text-2xl font-semibold mb-6 text-gray-400">Table of Contents</h2>
         <div className="bg-gray-800 p-6 rounded-lg">
+          <div className="mb-6 border-gray-700">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <a href="/components_catalog/items" className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center gap-2">
+                <span className="material-symbols text-xl">arrow_forward</span>
+                Item Components
+              </a>
+            </div>
+          </div>
+
+          <div className="mb-6 border-gray-700">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <a href="/components_catalog/buttons" className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center gap-2">
+                <span className="material-symbols text-xl">arrow_forward</span>
+                Button Components
+              </a>
+            </div>
+          </div>
+
+          <div className="mb-6 border-gray-700">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <a href="/components_catalog/icons" className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center gap-2">
+                <span className="material-symbols text-xl">arrow_forward</span>
+                Icon & Indicator Components
+              </a>
+            </div>
+          </div>
+
+          <div className="mb-6 border-gray-700">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <a href="/components_catalog/inputs" className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center gap-2">
+                <span className="material-symbols text-xl">arrow_forward</span>
+                Input & Selection Components
+              </a>
+            </div>
+          </div>
+
+          <div className="mb-6 border-gray-700">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <a href="/components_catalog/modals" className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center gap-2">
+                <span className="material-symbols text-xl">arrow_forward</span>
+                Modal Components
+              </a>
+            </div>
+          </div>
+
+          <div className="mb-6 border-gray-700">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <a href="/components_catalog/checkboxes" className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center gap-2">
+                <span className="material-symbols text-xl">arrow_forward</span>
+                Checkbox & Switch Components
+              </a>
+            </div>
+          </div>
+
+          <div className="mb-6 border-gray-700">
+            <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
+              <a href="/components_catalog/alerts" className="text-blue-400 hover:text-blue-300 transition-colors font-medium flex items-center gap-2">
+                <span className="material-symbols text-xl">arrow_forward</span>
+                Alert, Toast & Tooltip Components
+              </a>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <h3 className="text-lg font-medium mb-3 text-white">Component Examples</h3>
+              <h3 className="text-lg font-medium mb-3 text-white">Misc. Examples</h3>
               <ul className="space-y-2 text-gray-300">
-                <li>
-                  <a href="#button-components" className="hover:text-blue-400 transition-colors">
-                    Buttons
-                  </a>
-                </li>
-                <li>
-                  <a href="#icon-button-components" className="hover:text-blue-400 transition-colors">
-                    Icon Buttons
-                  </a>
-                </li>
-                <li>
-                  <a href="#read-icon-button-components" className="hover:text-blue-400 transition-colors">
-                    Read Icon Buttons
-                  </a>
-                </li>
-                <li>
-                  <a href="#context-menu-dropdown-components" className="hover:text-blue-400 transition-colors">
-                    Context Menu Dropdowns
-                  </a>
-                </li>
-                <li>
-                  <a href="#dropdown-components" className="hover:text-blue-400 transition-colors">
-                    Dropdowns
-                  </a>
-                </li>
-                <li>
-                  <a href="#input-dropdown-components" className="hover:text-blue-400 transition-colors">
-                    Input Dropdowns
-                  </a>
-                </li>
-                <li>
-                  <a href="#textarea-input-components" className="hover:text-blue-400 transition-colors">
-                    Textarea Inputs
-                  </a>
-                </li>
-                <li>
-                  <a href="#text-input-components" className="hover:text-blue-400 transition-colors">
-                    Text Inputs
-                  </a>
-                </li>
-                <li>
-                  <a href="#multi-select-components" className="hover:text-blue-400 transition-colors">
-                    Multi Selects
-                  </a>
-                </li>
-                <li>
-                  <a href="#two-stage-multi-select-components" className="hover:text-blue-400 transition-colors">
-                    Two Stage Multi Selects
-                  </a>
-                </li>
-                <li>
-                  <a href="#multi-select-dropdown-components" className="hover:text-blue-400 transition-colors">
-                    Multi Select Dropdowns
-                  </a>
-                </li>
-                <li>
-                  <a href="#modal-components" className="hover:text-blue-400 transition-colors">
-                    Modals
-                  </a>
-                </li>
-                <li>
-                  <a href="#advanced-modal-examples" className="hover:text-blue-400 transition-colors">
-                    Advanced Modal Examples
-                  </a>
-                </li>
-                <li>
-                  <a href="#range-input-components" className="hover:text-blue-400 transition-colors">
-                    Range Inputs
-                  </a>
-                </li>
-                <li>
-                  <a href="#duration-picker-components" className="hover:text-blue-400 transition-colors">
-                    Duration Picker
-                  </a>
-                </li>
-                <li>
-                  <a href="#toggle-buttons-components" className="hover:text-blue-400 transition-colors">
-                    Toggle Buttons
-                  </a>
-                </li>
-                <li>
-                  <a href="#toggle-switch-components" className="hover:text-blue-400 transition-colors">
-                    Toggle Switches
-                  </a>
-                </li>
-                <li>
-                  <a href="#tooltip-components" className="hover:text-blue-400 transition-colors">
-                    Tooltips
-                  </a>
-                </li>
-                <li>
-                  <a href="#checkbox-components" className="hover:text-blue-400 transition-colors">
-                    Checkboxes
-                  </a>
-                </li>
-                <li>
-                  <a href="#file-input-components" className="hover:text-blue-400 transition-colors">
-                    File Inputs
-                  </a>
-                </li>
-                <li>
-                  <a href="#library-icon-components" className="hover:text-blue-400 transition-colors">
-                    Library Icons
-                  </a>
-                </li>
-                <li>
-                  <a href="#media-icon-picker-components" className="hover:text-blue-400 transition-colors">
-                    Media Icon Pickers
-                  </a>
-                </li>
                 <li>
                   <a href="#side-by-side-controls-components" className="hover:text-blue-400 transition-colors">
                     Side By Side Controls
                   </a>
                 </li>
                 <li>
-                  <a href="#loading-components" className="hover:text-blue-400 transition-colors">
-                    Loading Indicators
-                  </a>
-                </li>
-                <li>
-                  <a href="#toast-notification-examples" className="hover:text-blue-400 transition-colors">
-                    Toasts
-                  </a>
-                </li>
-                <li>
-                  <a href="#slate-editor-examples" className="hover:text-blue-400 transition-colors">
-                    Rich Text Editor
-                  </a>
-                </li>
-                <li>
-                  <a href="#abridged-indicator-examples" className="hover:text-blue-400 transition-colors">
-                    Abridged Indicator
-                  </a>
-                </li>
-                <li>
-                  <a href="#alert-examples" className="hover:text-blue-400 transition-colors">
-                    Alerts
-                  </a>
-                </li>
-                <li>
-                  <a href="#book-details-edit-examples" className="hover:text-blue-400 transition-colors">
-                    Book Details Edit
-                  </a>
-                </li>
-                <li>
-                  <a href="#podcast-details-edit-examples" className="hover:text-blue-400 transition-colors">
-                    Podcast Details Edit
-                  </a>
-                </li>
-                <li>
                   <a href="#cover-size-widget-examples" className="hover:text-blue-400 transition-colors">
                     Cover Size Widget
-                  </a>
-                </li>
-                <li>
-                  <a href="#cron-expression-builder-examples" className="hover:text-blue-400 transition-colors">
-                    Cron Expression Builder
                   </a>
                 </li>
                 <li>
@@ -221,101 +101,11 @@ export default function ComponentsCatalogPage() {
         </div>
       </section>
 
-      <div id="button-components">
-        <BtnExamples />
-      </div>
-      <div id="icon-button-components">
-        <IconBtnExamples />
-      </div>
-      <div id="read-icon-button-components">
-        <ReadIconBtnExamples />
-      </div>
-      <div id="context-menu-dropdown-components">
-        <ContextMenuDropdownExamples />
-      </div>
-      <div id="dropdown-components">
-        <DropdownExamples />
-      </div>
-      <div id="input-dropdown-components">
-        <InputDropdownExamples />
-      </div>
-      <div id="textarea-input-components">
-        <TextareaInputExamples />
-      </div>
-      <div id="text-input-components">
-        <TextInputExamples />
-      </div>
-      <div id="multi-select-components">
-        <MultiSelectExamples />
-      </div>
-      <div id="two-stage-multi-select-components">
-        <TwoStageMultiSelectExamples />
-      </div>
-      <div id="multi-select-dropdown-components">
-        <MultiSelectDropdownExamples />
-      </div>
-      <div id="modal-components">
-        <ModalExamples />
-      </div>
-      <div id="advanced-modal-examples">
-        <AdvancedModalExamples />
-      </div>
-      <div id="range-input-components">
-        <RangeInputExamples />
-      </div>
-      <div id="duration-picker-components">
-        <DurationPickerExamples />
-      </div>
-      <div id="toggle-buttons-components">
-        <ToggleBtnsExamples />
-      </div>
-      <div id="toggle-switch-components">
-        <ToggleSwitchExamples />
-      </div>
-      <div id="tooltip-components">
-        <TooltipExamples />
-      </div>
-      <div id="checkbox-components">
-        <CheckboxExamples />
-      </div>
-      <div id="file-input-components">
-        <FileInputExamples />
-      </div>
-      <div id="library-icon-components">
-        <LibraryIconExamples />
-      </div>
-      <div id="media-icon-picker-components">
-        <MediaIconPickerExamples />
-      </div>
       <div id="side-by-side-controls-components">
         <SideBySideControlsExamples />
       </div>
-      <div id="loading-components">
-        <LoadingExamples />
-      </div>
-      <div id="toast-notification-examples">
-        <ToastNotificationExamples />
-      </div>
-      <div id="slate-editor-examples">
-        <SlateEditorExamples />
-      </div>
-      <div id="abridged-indicator-examples">
-        <InlineIndicatorExamples />
-      </div>
-      <div id="alert-examples">
-        <AlertExamples />
-      </div>
-      <div id="book-details-edit-examples">
-        <BookDetailsEditExamples />
-      </div>
-      <div id="podcast-details-edit-examples">
-        <PodcastDetailsEditExamples />
-      </div>
       <div id="cover-size-widget-examples">
         <CoverSizeWidgetExamples />
-      </div>
-      <div id="cron-expression-builder-examples">
-        <CronExpressionBuilderExamples />
       </div>
       <div id="edit-list-examples">
         <EditListExamples />

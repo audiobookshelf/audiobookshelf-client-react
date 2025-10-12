@@ -1,10 +1,12 @@
+'use client'
+
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function TooltipExamples() {
   const [isTooltipModalOpen, setIsTooltipModalOpen] = useState(false)
@@ -13,17 +15,14 @@ export function TooltipExamples() {
     <ComponentExamples title="Tooltips">
       <ComponentInfo component="Tooltip" description="Tooltip component with various positions and hover/focus interactions">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import Tooltip from &apos;@/components/ui/Tooltip&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import Tooltip from &apos;@/components/ui/Tooltip&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">text</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">children</code>, <code className="bg-gray-700 px-2 py-1 rounded">position</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">usePortal</code>
+          <span className="font-bold">Props:</span> <Code>text</Code>, <Code>children</Code>, <Code>position</Code>, <Code>usePortal</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> If <code className="bg-gray-700 px-2 py-1 rounded">usePortal</code> is true, or the tooltip is inside a
-          modal, the tooltip will be rendered in a portal.
+          <span className="font-bold">Note:</span> If <Code>usePortal</Code> is true, or the tooltip is inside a modal, the tooltip will be rendered in a
+          portal.
         </p>
       </ComponentInfo>
 
