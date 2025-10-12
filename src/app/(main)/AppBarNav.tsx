@@ -1,28 +1,21 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
-import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { Library } from '@/types/api'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
 
 interface AppBarNavProps {
   userCanUpload: boolean
   isAdmin: boolean
   username: string
-  libraries?: Library[]
-  currentLibraryId?: string
 }
 
-export default function AppBarNav({ userCanUpload, isAdmin, username, libraries, currentLibraryId }: AppBarNavProps) {
+export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNavProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
-  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [showAllLibraries, setShowAllLibraries] = useState(false)
-  const [, startTransition] = useTransition()
 
   const toggleMenu = useCallback(() => {
     setMobileMenuOpen((prev) => !prev)
@@ -32,95 +25,33 @@ export default function AppBarNav({ userCanUpload, isAdmin, username, libraries,
     setMobileMenuOpen(false)
   }, [])
 
-  const toggleShowAllLibraries = useCallback(() => {
-    setShowAllLibraries((prev) => !prev)
-  }, [])
-
-  const currentLibrary = useMemo(() => {
-    return libraries?.find((lib) => lib.id === currentLibraryId)
-  }, [libraries, currentLibraryId])
-
-  const hasMultipleLibraries = useMemo(() => {
-    return libraries && libraries.length > 1
-  }, [libraries])
-
-  const getLibraryPath = useCallback(
-    (libraryId: string) => {
-      if (!libraries) return `/library/${libraryId}`
-      const library = libraries.find((l) => l.id === libraryId)
-      let page = pathname.split('/').pop() || ''
-      const bookLibraryPages = ['bookshelf', 'series', 'collections', 'playlists', 'authors', 'narrators', 'stats']
-      const podcastLibraryPages = ['bookshelf', 'latest', 'playlists', 'search', 'download-queue']
-
-      if (library) {
-        if (page && library.mediaType === 'book' && !bookLibraryPages.includes(page)) {
-          page = ''
-        } else if (page && library.mediaType === 'podcast' && !podcastLibraryPages.includes(page)) {
-          page = ''
-        }
-      }
-
-      return `/library/${libraryId}/${page}`
-    },
-    [libraries, pathname]
-  )
-
-  const handleLibraryChange = useCallback(
-    (libraryId: string) => {
-      startTransition(() => {
-        router.push(getLibraryPath(libraryId))
+  const handleLogout = useCallback(async () => {
+    try {
+      // Calls the Abs server logout endpoint and clears the NextJS server cookies
+      const res = await fetch('/internal-api/logout', {
+        method: 'POST'
       })
+      if (!res.ok) {
+        console.error('Logout error:', res.status, res.statusText)
+        return
+      }
+      router.replace('/login')
+    } catch (err) {
+      console.error('Logout error:', err)
+    } finally {
       closeMenu()
-    },
-    [router, getLibraryPath, closeMenu]
-  )
+    }
+  }, [router, closeMenu])
 
   return (
     <>
-      {/* Desktop Navigation */}
-      <div className="hidden md:flex items-center gap-0 sm:gap-1">
-        <Tooltip text={t('ButtonComponentsCatalog')} position="bottom">
-          <IconBtn borderless ariaLabel={t('ButtonComponentsCatalog')} to="/components_catalog">
-            widgets
-          </IconBtn>
-        </Tooltip>
-
-        {userCanUpload && (
-          <Tooltip text={t('ButtonUpload')} position="bottom">
-            <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
-              upload
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        {isAdmin && (
-          <Tooltip text={t('HeaderSettings')} position="bottom">
-            <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
-              settings
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        <Tooltip text={t('ButtonStats')} position="bottom">
-          <IconBtn borderless ariaLabel={t('ButtonStats')} to="/account/stats">
-            equalizer
-          </IconBtn>
-        </Tooltip>
-
-        <Tooltip text={t('HeaderAccount')} position="bottom">
-          <IconBtn borderless ariaLabel={t('HeaderAccount')} to="/account">
-            person
-          </IconBtn>
-        </Tooltip>
-      </div>
-
-      {/* Mobile Menu Button */}
-      <div className="md:hidden relative">
+      {/* Hamburger Menu Button - Always Visible */}
+      <div className="relative">
         <IconBtn borderless ariaLabel={t('ButtonMenu')} onClick={toggleMenu}>
           menu
         </IconBtn>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Dropdown Menu */}
         {mobileMenuOpen && (
           <>
             {/* Backdrop */}
@@ -138,45 +69,6 @@ export default function AppBarNav({ userCanUpload, isAdmin, username, libraries,
                   <span className="material-symbols text-xl mr-3">person</span>
                   <span className="text-sm font-semibold">{username}</span>
                 </Link>
-
-                {/* Library Selection (Mobile Only) */}
-                {libraries && currentLibraryId && currentLibrary && (
-                  <div className="border-b border-border">
-                    <div className="px-4 py-2">
-                      <p className="text-xs text-gray-400 uppercase tracking-wide mb-2">{t('LabelLibrary')}</p>
-                      <div className="flex flex-col gap-1">
-                        {/* Current Library - Clickable */}
-                        <button
-                          onClick={hasMultipleLibraries ? toggleShowAllLibraries : undefined}
-                          disabled={!hasMultipleLibraries}
-                          className={`flex items-center justify-start px-2 py-2 rounded bg-primary-hover text-foreground font-semibold ${
-                            hasMultipleLibraries ? 'hover:bg-primary-hover/80 cursor-pointer' : 'cursor-default'
-                          }`}
-                        >
-                          <span className="material-symbols text-lg mr-2">{currentLibrary.mediaType === 'podcast' ? 'podcasts' : 'library_books'}</span>
-                          <span className="truncate">{currentLibrary.name}</span>
-                          {hasMultipleLibraries && <span className="material-symbols text-lg ml-auto">{showAllLibraries ? 'expand_less' : 'unfold_more'}</span>}
-                        </button>
-
-                        {/* All Other Libraries (when expanded) */}
-                        {hasMultipleLibraries &&
-                          showAllLibraries &&
-                          libraries
-                            .filter((library) => library.id !== currentLibraryId)
-                            .map((library) => (
-                              <button
-                                key={library.id}
-                                onClick={() => handleLibraryChange(library.id)}
-                                className="flex items-center justify-start px-2 py-2 rounded text-sm transition-colors hover:bg-primary-hover/50 text-foreground/80"
-                              >
-                                <span className="material-symbols text-lg mr-2">{library.mediaType === 'podcast' ? 'podcasts' : 'library_books'}</span>
-                                <span className="truncate">{library.name}</span>
-                              </button>
-                            ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
 
                 {userCanUpload && (
                   <Link
@@ -221,6 +113,15 @@ export default function AppBarNav({ userCanUpload, isAdmin, username, libraries,
                   <span className="material-symbols text-xl mr-3">widgets</span>
                   <span className="text-sm">{t('ButtonComponentsCatalog')}</span>
                 </Link>
+
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors w-full text-left"
+                  aria-label={t('ButtonLogout')}
+                >
+                  <span className="material-symbols text-xl mr-3">logout</span>
+                  <span className="text-sm">{t('ButtonLogout')}</span>
+                </button>
               </nav>
             </div>
           </>

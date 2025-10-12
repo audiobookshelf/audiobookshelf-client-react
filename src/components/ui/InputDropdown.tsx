@@ -2,10 +2,14 @@
 
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useImperativeHandle, useMemo, useRef, useState } from 'react'
 import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
+
+export interface InputDropdownRef {
+  focus: () => void
+}
 
 interface InputDropdownProps {
   value?: string | number
@@ -18,13 +22,14 @@ interface InputDropdownProps {
   onChange?: (value: string | number) => void
   onNewItem?: (value: string) => void
   className?: string
+  ref?: React.Ref<InputDropdownRef>
 }
 
 /**
  * An input dropdown component that allows users to type and select from a filtered list of items.
  * The component supports both selection from existing items and creation of new items.
  */
-export default function InputDropdown({
+function InputDropdown({
   value,
   label = '',
   placeholder = '',
@@ -34,7 +39,8 @@ export default function InputDropdown({
   showAllWhenEmpty = false,
   onChange,
   onNewItem,
-  className
+  className,
+  ref
 }: InputDropdownProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [textInput, setTextInput] = useState(value?.toString() || '')
@@ -43,6 +49,16 @@ export default function InputDropdown({
   const wrapperRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLUListElement>(null)
   const lastSubmittedValueRef = useRef<string | null>(null)
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      focus: () => {
+        inputRef.current?.focus()
+      }
+    }),
+    []
+  )
 
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
@@ -285,3 +301,7 @@ export default function InputDropdown({
     </div>
   )
 }
+
+InputDropdown.displayName = 'InputDropdown'
+
+export default InputDropdown
