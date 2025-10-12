@@ -6,6 +6,7 @@
 
 :root {
   --primary: #232323;
+  --primary-hover: #2d2d2d;
   --background: #373838;
   --foreground: #ededed;
   --border: #444444;
@@ -81,6 +82,7 @@
   --text-4\.5xl: 2.625rem;
 
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
 }
