@@ -63,26 +63,27 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
         </>
       )}
 
-      {/* Search Input or Search Button */}
+      {/* Search Input mobile and desktop */}
       <div className="flex-1 min-w-0 max-w-70">
         {isSearchMode ? (
           <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} />
         ) : (
-          <>
-            {/* Show search bar on desktop, search button on mobile */}
-            <div className="hidden md:block">
-              <GlobalSearchInput onSubmit={handleSearchSubmit} />
-            </div>
-            <div className="md:hidden">
-              <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="text-foreground hover:text-foreground/80">
-                search
-              </IconBtn>
-            </div>
-          </>
+          <div className="hidden md:block">
+            <GlobalSearchInput onSubmit={handleSearchSubmit} />
+          </div>
         )}
       </div>
 
-      <div className="flex-grow hidden md:block" />
+      {!isSearchMode && (
+        <>
+          <div className="flex-grow" />
+
+          {/* Mobile only - Search Icon toggles search mode */}
+          <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="md:hidden">
+            search
+          </IconBtn>
+        </>
+      )}
 
       {/* Desktop only - Settings Button */}
       {isAdmin && (
