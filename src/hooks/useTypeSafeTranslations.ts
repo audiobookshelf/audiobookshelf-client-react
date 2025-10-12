@@ -15,13 +15,5 @@ import { useTranslations } from 'next-intl'
 export function useTypeSafeTranslations(): TypeSafeTranslations {
   const t = useTranslations()
 
-  const translationFunction = ((key: string, values?: Record<string, any>) => {
-    return t(key, values)
-  }) as TypeSafeTranslations
-
-  translationFunction.rich = ((key: string, values: Record<string, any>) => {
-    return t.rich(key, values)
-  }) as TypeSafeTranslations['rich']
-
-  return translationFunction
+  return t as TypeSafeTranslations
 }

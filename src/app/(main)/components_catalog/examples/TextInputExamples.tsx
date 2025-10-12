@@ -2,7 +2,7 @@
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
-import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
+import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // TextInput Examples
 export function TextInputExamples() {
@@ -28,20 +28,13 @@ export function TextInputExamples() {
         description="Accessible text input with password visibility toggle, copy to clipboard, clear button, and various styling options"
       >
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import TextInput from &apos;@/components/ui/TextInput&apos;</code>
+          <span className="font-bold">Import:</span> <Code overflow>import TextInput from &apos;@/components/ui/TextInput&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">value</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onChange</code>, <code className="bg-gray-700 px-2 py-1 rounded">label</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">placeholder</code>, <code className="bg-gray-700 px-2 py-1 rounded">type</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">readOnly</code>, <code className="bg-gray-700 px-2 py-1 rounded">disabled</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">clearable</code>, <code className="bg-gray-700 px-2 py-1 rounded">showCopy</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">customInputClass</code>, <code className="bg-gray-700 px-2 py-1 rounded">step</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">min</code>, <code className="bg-gray-700 px-2 py-1 rounded">onClear</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onFocus</code>, <code className="bg-gray-700 px-2 py-1 rounded">onBlur</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">id</code>, <code className="bg-gray-700 px-2 py-1 rounded">name</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">className</code>, <code className="bg-gray-700 px-2 py-1 rounded">ref</code>
+          <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>placeholder</Code>, <Code>type</Code>,{' '}
+          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>clearable</Code>, <Code>showCopy</Code>, <Code>customInputClass</Code>, <Code>step</Code>,{' '}
+          <Code>min</Code>, <Code>onClear</Code>, <Code>onFocus</Code>, <Code>onBlur</Code>, <Code>id</Code>, <Code>name</Code>, <Code>className</Code>,{' '}
+          <Code>ref</Code>
         </p>
       </ComponentInfo>
 

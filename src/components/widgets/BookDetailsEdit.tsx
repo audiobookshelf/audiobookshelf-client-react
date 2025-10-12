@@ -2,7 +2,7 @@
 
 import { DetailsEditRef, UpdatePayload, useDetailsEdit } from '@/hooks/useDetailsEdit'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { AuthorShort, BookLibraryItem, BookMetadata, SeriesShort } from '@/types/api'
+import { AuthorMinified, BookLibraryItem, BookMetadata, SeriesMinified } from '@/types/api'
 import React, { useCallback, useMemo } from 'react'
 import Checkbox from '../ui/Checkbox'
 import MultiSelect, { MultiSelectItem } from '../ui/MultiSelect'
@@ -13,6 +13,7 @@ import TwoStageMultiSelect from '../ui/TwoStageMultiSelect'
 type Details = Omit<BookMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'publishedDate'>
 
 export type BookDetailsEditRef = DetailsEditRef<Details>
+export type BookUpdatePayload = UpdatePayload<Details>
 
 interface BookDetailsEditProps {
   libraryItem: BookLibraryItem
@@ -81,7 +82,7 @@ const BookDetailsEdit = ({
   const authorItems = useMemo(() => details.authors.map((a) => ({ value: a.id, content: a.name })), [details.authors])
   const handleAddAuthor = useCallback(
     (item: MultiSelectItem<string>) => {
-      const newAuthor: AuthorShort = { id: item.value, name: item.content }
+      const newAuthor: AuthorMinified = { id: item.value, name: item.content }
       handleFieldUpdate('authors')([...details.authors, newAuthor])
     },
     [details.authors, handleFieldUpdate]
@@ -105,13 +106,13 @@ const BookDetailsEdit = ({
     () =>
       details.series.map((s) => ({
         value: s.id,
-        content: { value: s.name, modifier: s.sequence }
+        content: { value: s.name, modifier: s.sequence || '' }
       })),
     [details.series]
   )
   const handleAddSeries = useCallback(
     (item: SeriesSelectItem) => {
-      const newSeries: SeriesShort = {
+      const newSeries: SeriesMinified = {
         id: item.value,
         name: item.content.value,
         sequence: item.content.modifier
@@ -128,7 +129,7 @@ const BookDetailsEdit = ({
   )
   const handleEditSeries = useCallback(
     (item: SeriesSelectItem, index: number) => {
-      const editedSeries: SeriesShort = {
+      const editedSeries: SeriesMinified = {
         id: item.value,
         name: item.content.value,
         sequence: item.content.modifier

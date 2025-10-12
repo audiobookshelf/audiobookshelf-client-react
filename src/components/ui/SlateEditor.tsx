@@ -253,7 +253,7 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
     [onUpdate, isClient, isEditorValid, disabled]
   )
 
-  const containerClass = useMemo(() => mergeClasses('min-w-75', className), [className])
+  const containerClass = useMemo(() => mergeClasses('w-full', className), [className])
 
   const handleLabelClick = useCallback(() => {
     if (!disabled) {

@@ -13,6 +13,7 @@ import TextInput from '../ui/TextInput'
 type Details = Omit<PodcastMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'imageURL' | 'itunesPageURL' | 'itunesArtistId'>
 
 export type PodcastDetailsEditRef = DetailsEditRef<Details>
+export type PodcastUpdatePayload = UpdatePayload<Details>
 
 interface PodcastDetailsEditProps {
   libraryItem: PodcastLibraryItem

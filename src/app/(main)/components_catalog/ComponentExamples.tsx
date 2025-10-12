@@ -34,7 +34,7 @@ export function ComponentInfo({ component, description, children }: ComponentInf
           {component && (
             <>
               <span className="font-bold">Component:</span>
-              <code className="bg-gray-700 rounded py-1 px-2">{component}</code>
+              <Code>{component}</Code>
               <span> - </span>
             </>
           )}
@@ -63,4 +63,14 @@ export function Example({ title, children, className }: ExampleProps) {
 
 export function ExamplesBlock({ children, className }: { children: React.ReactNode; className?: string }) {
   return <div className={mergeClasses('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6', className)}>{children}</div>
+}
+
+interface CodeProps {
+  children: ReactNode
+  overflow?: boolean
+  className?: string
+}
+
+export function Code({ children, overflow = false, className }: CodeProps) {
+  return <code className={mergeClasses('bg-gray-700 px-2 py-1 rounded', overflow && 'block overflow-x-auto max-w-full', className)}>{children}</code>
 }
