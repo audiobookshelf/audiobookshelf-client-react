@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import { Library, LibraryItem, PersonalizedShelf, User, UserLoginResponse } from '../types/api'
 
-interface ApiResponse<T = unknown> {
+export interface ApiResponse<T = unknown> {
   data?: T
   error?: string
   needsRefresh?: boolean
