@@ -30,6 +30,8 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
     setIsSearchMode(false)
   }, [])
 
+  const isAdmin = ['admin', 'root'].includes(user.type)
+
   const currentLibrary = libraries?.find((lib) => lib.id === currentLibraryId)
   return (
     <div className="w-full h-16 bg-primary flex items-center justify-start px-2 md:px-6 gap-2 md:gap-4 shadow-xl">
@@ -80,8 +82,19 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
         )}
       </div>
 
+      <div className="flex-grow hidden md:block" />
+
+      {/* Desktop only - Settings Button */}
+      {isAdmin && (
+        <Tooltip text={t('HeaderSettings')} position="bottom" className="hidden md:block">
+          <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
+            settings
+          </IconBtn>
+        </Tooltip>
+      )}
+
       <div className="ms-auto">
-        <AppBarNav userCanUpload={userCanUpload} isAdmin={['admin', 'root'].includes(user.type)} username={user.username} />
+        <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
       </div>
     </div>
   )

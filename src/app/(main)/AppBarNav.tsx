@@ -77,6 +77,19 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
                   <span className="text-sm font-semibold">{username}</span>
                 </Link>
 
+                {/* Mobile only - Settings Button */}
+                {isAdmin && (
+                  <Link
+                    href="/settings"
+                    className="flex md:hidden items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
+                    aria-label={t('HeaderSettings')}
+                    onClick={closeMenu}
+                  >
+                    <span className="material-symbols text-xl mr-3">settings</span>
+                    <span className="text-sm">{t('HeaderSettings')}</span>
+                  </Link>
+                )}
+
                 {userCanUpload && (
                   <Link
                     href="/upload"
@@ -86,18 +99,6 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
                   >
                     <span className="material-symbols text-xl mr-3">upload</span>
                     <span className="text-sm">{t('ButtonUpload')}</span>
-                  </Link>
-                )}
-
-                {isAdmin && (
-                  <Link
-                    href="/settings"
-                    className="flex items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
-                    aria-label={t('HeaderSettings')}
-                    onClick={closeMenu}
-                  >
-                    <span className="material-symbols text-xl mr-3">settings</span>
-                    <span className="text-sm">{t('HeaderSettings')}</span>
                   </Link>
                 )}
 
