@@ -1,5 +1,6 @@
 'use client'
 
+import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Link from 'next/link'
@@ -45,9 +46,15 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
 
   return (
     <>
-      {/* Hamburger Menu Button - Always Visible */}
       <div className="relative">
-        <IconBtn borderless ariaLabel={t('ButtonMenu')} onClick={toggleMenu}>
+        {/* Desktop - Username Dropdown */}
+        <Btn size="small" ariaLabel={t('ButtonMenu')} className="hidden md:flex ps-3 pe-2 min-w-24 justify-between" onClick={toggleMenu}>
+          <span className="text-sm block truncate">{username}</span>
+          <span className={`material-symbols text-xl transition-transform duration-200 ${mobileMenuOpen ? '-scale-y-100' : ''}`}>keyboard_arrow_down</span>
+        </Btn>
+
+        {/* Mobile - Hamburger Menu Button */}
+        <IconBtn borderless ariaLabel={t('ButtonMenu')} className="md:hidden" onClick={toggleMenu}>
           menu
         </IconBtn>
 
