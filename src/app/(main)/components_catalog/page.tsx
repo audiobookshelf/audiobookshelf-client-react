@@ -1,4 +1,5 @@
 import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
+import { EditListExamples } from './examples/EditListExamples'
 import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
 
 export default function ComponentsCatalogPage() {

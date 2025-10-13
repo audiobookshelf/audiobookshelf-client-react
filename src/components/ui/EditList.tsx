@@ -271,13 +271,15 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} width={500}>
         <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
           {isDeleting ? (
-            <p className="text-gray-300 mb-6 flex-1">{t(getListTypeDeleteString, [delRef.current?.name])}</p>
+            <p className="text-gray-300 mb-6 flex-1">{t(getListTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
           ) : (
             <>
-              <p className="text-gray-300 mb-6 flex-1">{t(getListTypeEditString, [editedItem.name, newName])}</p>
+              <p className="text-gray-300 mb-6 flex-1">{t(getListTypeEditString, { 0: editedItem.name, 1: newName })}</p>
               {/* Show warning if the new value already exists or has a different casing*/}
               {hasSameName && <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeMergeString)}</p>}
-              {sameNameWithDifferentCase !== '' && <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeWarningString, [sameNameWithDifferentCase])}</p>}
+              {sameNameWithDifferentCase !== '' && (
+                <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeWarningString, { 0: sameNameWithDifferentCase })}</p>
+              )}
             </>
           )}
           <div className="flex justify-end gap-3">
