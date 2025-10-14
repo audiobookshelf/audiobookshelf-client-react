@@ -108,7 +108,7 @@ export default function SettingsClient(props: SettingsClientProps) {
       try {
         const response = await updateSortingPrefixes(prefixes)
         if (response?.data) {
-          const rowsUpdated = response.data.rowsUpdated
+          const rowsUpdated = response.data.rowsUpdated.toString()
           showToast(t('ToastSortingPrefixesUpdateSuccess', { 0: rowsUpdated }), { type: 'success' })
           if (response.data.serverSettings) {
             setServerSettings(response.data.serverSettings)
