@@ -50,7 +50,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
         {/* Desktop - Username Dropdown */}
         <Btn size="small" ariaLabel={t('ButtonMenu')} className="hidden md:flex ps-3 pe-2 min-w-24 justify-between" onClick={toggleMenu}>
           <span className="text-sm block truncate">{username}</span>
-          <span className={`material-symbols text-xl transition-transform duration-200 ${mobileMenuOpen ? '-scale-y-100' : ''}`}>keyboard_arrow_down</span>
+          <span className="material-symbols text-xl">person</span>
         </Btn>
 
         {/* Mobile - Hamburger Menu Button */}
@@ -93,7 +93,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
                 {userCanUpload && (
                   <Link
                     href="/upload"
-                    className="flex items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
+                    className="flex md:hidden items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
                     aria-label={t('ButtonUpload')}
                     onClick={closeMenu}
                   >

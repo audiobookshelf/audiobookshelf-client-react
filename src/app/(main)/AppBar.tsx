@@ -85,13 +85,20 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
         </>
       )}
 
-      {/* Desktop only - Settings Button */}
+      {/* Desktop only - Settings and Upload Buttons */}
       {isAdmin && (
-        <Tooltip text={t('HeaderSettings')} position="bottom" className="hidden md:block">
-          <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
-            settings
-          </IconBtn>
-        </Tooltip>
+        <div className="hidden md:flex items-center">
+          <Tooltip text={t('ButtonUpload')} position="bottom">
+            <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
+              upload
+            </IconBtn>
+          </Tooltip>
+          <Tooltip text={t('HeaderSettings')} position="bottom">
+            <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
+              settings
+            </IconBtn>
+          </Tooltip>
+        </div>
       )}
 
       <div className="ms-auto">
