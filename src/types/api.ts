@@ -605,6 +605,11 @@ export interface LibraryItemQueryParams {
   episode?: string // Episode ID for progress
 }
 
+export interface UploadCoverResponse {
+  success: boolean
+  cover: string
+}
+
 // ============================================================================
 // PROGRESS & BOOKMARKS
 // ============================================================================
