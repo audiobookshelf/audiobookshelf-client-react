@@ -119,7 +119,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 
   const { details, tags: currentTags, initialDetails, initialTags } = state
 
-  // Reset state when metadata or tags change
+  // Reset state when metadata, tags, or library item change
   useEffect(() => {
     dispatch({
       type: 'RESET_STATE',
@@ -128,7 +128,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         tags: [...(tags || [])]
       }
     })
-  }, [metadata, tags])
+  }, [metadata, tags, libraryItemId])
 
   const updateField = useCallback(
     <K extends keyof TDetails>(field: K) =>
