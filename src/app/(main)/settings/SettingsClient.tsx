@@ -9,6 +9,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { ApiResponse } from '@/lib/api'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
+import { useRouter } from 'next/navigation'
 import { useMemo, useState, useTransition } from 'react'
 import type { UpdateServerSettingsApiResponse, UpdateSortingPrefixesApiResponse } from './actions'
 import { dateFormats, timeFormats } from './settingsConstants'
@@ -23,6 +24,7 @@ interface SettingsClientProps {
 export default function SettingsClient(props: SettingsClientProps) {
   const { serverSettings: initialServerSettings, updateServerSettings, updateSortingPrefixes } = props
   const t = useTypeSafeTranslations()
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [serverSettings, setServerSettings] = useState(initialServerSettings)
   const [sortingPrefixes, setSortingPrefixes] = useState<string[]>(initialServerSettings.sortingPrefixes || [])
@@ -90,6 +92,39 @@ export default function SettingsClient(props: SettingsClientProps) {
     }
     const updatedSettings = { ...serverSettings, [key]: newValue } as ServerSettings
     handleSaveSettings(updatedSettings)
+  }
+
+  const handleLanguageChanged = async (language: string) => {
+    const updatedSettings = { ...serverSettings, language } as ServerSettings
+
+    try {
+      // Optimistically update the UI
+      setServerSettings(updatedSettings)
+
+      // Update server settings
+      const response = await updateServerSettings(updatedSettings)
+      if (response?.data?.serverSettings) {
+        // Update with the actual server response
+        setServerSettings(response.data.serverSettings)
+      }
+
+      // Set the language cookie
+      await fetch('/internal-api/set-language', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ language })
+      })
+
+      // Refresh so next-intl picks up the language change
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to update language:', error)
+      // Revert on error
+      setServerSettings(serverSettings)
+      showToast(t('ToastFailedToUpdate'), { type: 'error' })
+    }
   }
 
   const handleSortingPrefixesChanged = (items: MultiSelectItem<string>[]) => {
@@ -272,7 +307,7 @@ export default function SettingsClient(props: SettingsClientProps) {
             </p>
           </div>
           <div className="w-full max-w-72">
-            <LanguageDropdown value={serverSettings?.language} onChange={(value) => handleSettingChanged('language', value as string)} />
+            <LanguageDropdown value={serverSettings?.language} onChange={handleLanguageChanged} />
           </div>
         </div>
         <div className="flex flex-col gap-2">

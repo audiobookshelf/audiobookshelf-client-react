@@ -25,6 +25,7 @@ export async function POST(request: Request) {
     const data = await loginResponse.json()
     const newAccessToken = data.user.accessToken
     const newRefreshToken = data.user.refreshToken
+    const userLanguage = data.serverSettings?.language
 
     if (!newAccessToken) {
       return NextResponse.json({ error: 'No access token found' }, { status: 401 })
@@ -32,6 +33,17 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json(data)
     setTokenCookies(response, newAccessToken, newRefreshToken)
+
+    // Set language cookie from user's server settings
+    if (userLanguage) {
+      response.cookies.set('language', userLanguage, {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 365 * 24 * 60 * 60 // 1 year
+      })
+    }
 
     return response
   } catch (error) {

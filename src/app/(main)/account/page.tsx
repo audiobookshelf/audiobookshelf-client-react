@@ -3,7 +3,7 @@ import TextInput from '@/components/ui/TextInput'
 
 import { getCurrentUser } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import { getLanguageCodeOptions } from '@/lib/i18n'
+import { getLanguageCodeOptions } from '@/lib/languages'
 
 import Btn from '@/components/ui/Btn'
 import LogoutBtn from './LogoutBtn'
