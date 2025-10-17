@@ -28,6 +28,8 @@ export async function POST(request: Request) {
     // Delete token cookies
     response.cookies.delete('refresh_token')
     response.cookies.delete('access_token')
+    // Clear language cookie on logout so it gets re-initialized on next login
+    response.cookies.delete('language')
     return response
   } catch (error) {
     console.error('Logout error:', error)

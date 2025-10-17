@@ -1,4 +1,4 @@
-import { getLanguageCodeOptions } from '@/lib/i18n'
+import { getLanguageCodeOptions } from '@/lib/languages'
 import Dropdown from '../ui/Dropdown'
 
 interface LanguageDropdownProps {
