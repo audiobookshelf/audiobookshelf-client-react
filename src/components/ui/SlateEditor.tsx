@@ -179,7 +179,11 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
   useEffect(() => {
     if (isClient && srcContent && srcContent.trim() !== '') {
       try {
-        const document = new DOMParser().parseFromString(srcContent, 'text/html')
+        // Wrap plain text in a paragraph to ensure proper DOM structure for parsing
+        // Check if content contains HTML tags (simple heuristic)
+        const hasHtmlTags = /<[^>]+>/.test(srcContent)
+        const htmlContent = hasHtmlTags ? srcContent : `<p>${srcContent}</p>`
+        const document = new DOMParser().parseFromString(htmlContent, 'text/html')
         const parsedValue = (deserialize(document.body) as Descendant[]) || initialValue
         replaceContentSilently(editor, parsedValue)
       } catch (error) {
@@ -192,35 +196,52 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
 
   // Refocus editor whenever the modal closes (this will be handled by the context now)
   useEffect(() => {
-    if (!readOnly && !disabled) {
-      // If the modal was cancelled, selection likely didn't change; if it did,
-      // and you want to *force* restoring, uncomment the block below:
-      // if (!editor.selection && savedSelectionRef.current) {
-      //   Transforms.select(editor, savedSelectionRef.current)
-      // }
+    // Only run after client-side hydration is complete
+    if (!isClient || readOnly || disabled) {
+      return
+    }
 
-      // Focus on the next frame so it's after the DOM updates/unmount
-      requestAnimationFrame(() => {
-        try {
-          // Safety check: ensure editor has valid content before focusing
-          if (editor.children.length > 0) {
-            // Check if there's at least one text node in the editor
-            const hasTextNode = Editor.nodes(editor, {
-              at: [],
-              match: (n) => Text.isText(n)
-            }).next().value
+    // Focus on the next frame so it's after the DOM updates/unmount
+    requestAnimationFrame(() => {
+      try {
+        // Safety check: ensure editor has valid content before focusing
+        if (editor.children.length > 0) {
+          // Check if the editor is actually attached to the DOM
+          try {
+            const editorElement = ReactEditor.toDOMNode(editor, editor)
+            if (!editorElement || !document.body.contains(editorElement)) {
+              return
+            }
+          } catch {
+            // Editor not yet attached to DOM
+            return
+          }
 
-            if (hasTextNode) {
+          // Check if there's at least one text node and it can be resolved to DOM
+          const textNodeEntry = Editor.nodes(editor, {
+            at: [],
+            match: (n) => Text.isText(n)
+          }).next().value
+
+          if (textNodeEntry) {
+            // Verify that the text node can actually be resolved to a DOM node
+            try {
+              const [textNode] = textNodeEntry
+              ReactEditor.toDOMNode(editor, textNode)
+              // If we got here, the text node is in the DOM, so we can focus
               ReactEditor.focus(editor)
+            } catch {
+              // Text node not yet in DOM, skip focus
+              return
             }
           }
-        } catch (error) {
-          // Silently handle focus errors during hot reload or invalid states
-          console.warn('SlateEditor: Could not focus editor:', error)
         }
-      })
-    }
-  }, [readOnly, disabled, editor])
+      } catch (error) {
+        // Silently handle focus errors during hot reload or invalid states
+        console.warn('SlateEditor: Could not focus editor:', error)
+      }
+    })
+  }, [isClient, readOnly, disabled, editor])
 
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
