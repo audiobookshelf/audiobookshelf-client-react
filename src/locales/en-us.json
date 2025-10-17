@@ -859,6 +859,8 @@
   "MessageConfirmResetProgress": "Are you sure you want to reset your progress?",
   "MessageConfirmSendEbookToDevice": "Are you sure you want to send {0} ebook \"{1}\" to device \"{2}\"?",
   "MessageConfirmUnlinkOpenId": "Are you sure you want to unlink this user from OpenID?",
+  "MessageConnectionNotAvailable": "Connection not available",
+  "MessageCoverSearchFailed": "Cover search failed",
   "MessageCronServerTimeZoneNote": "Note: Time should be specified in the server's time zone ({timeZone})",
   "MessageDaysListenedInTheLastYear": "{0} days listened in the last year",
   "MessageDownloadingEpisode": "Downloading episode",

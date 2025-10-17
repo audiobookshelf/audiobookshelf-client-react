@@ -76,14 +76,34 @@ export const useLinkModal = (editor: Editor) => {
         try {
           // Safety check: ensure editor has valid content before focusing
           if (editor.children.length > 0) {
-            // Check if there's at least one text node in the editor
-            const hasTextNode = Editor.nodes(editor, {
+            // Check if the editor is actually attached to the DOM
+            try {
+              const editorElement = ReactEditor.toDOMNode(editor, editor)
+              if (!editorElement || !document.body.contains(editorElement)) {
+                return
+              }
+            } catch {
+              // Editor not yet attached to DOM
+              return
+            }
+
+            // Check if there's at least one text node and it can be resolved to DOM
+            const textNodeEntry = Editor.nodes(editor, {
               at: [],
               match: (n) => Text.isText(n)
             }).next().value
 
-            if (hasTextNode) {
-              ReactEditor.focus(editor)
+            if (textNodeEntry) {
+              // Verify that the text node can actually be resolved to a DOM node
+              try {
+                const [textNode] = textNodeEntry
+                ReactEditor.toDOMNode(editor, textNode)
+                // If we got here, the text node is in the DOM, so we can focus
+                ReactEditor.focus(editor)
+              } catch {
+                // Text node not yet in DOM, skip focus
+                return
+              }
             }
           }
         } catch (error) {

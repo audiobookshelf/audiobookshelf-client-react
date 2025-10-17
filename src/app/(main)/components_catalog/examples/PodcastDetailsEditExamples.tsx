@@ -3,45 +3,11 @@
 import Btn from '@/components/ui/Btn'
 import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
 import { PodcastLibraryItem } from '@/types/api'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
-const mockLibraryItem: PodcastLibraryItem = {
-  id: 'cltjyl123000108l437q67p8o',
-  ino: '13631488-1679503385065',
-  libraryId: 'cltjx6i95000008jp5e2p3j4c',
-  folderId: 'cltjx6i95000008jp5e2p3j4c-root',
-  path: '/data/podcasts/My Favorite Podcast',
-  relPath: 'My Favorite Podcast',
-  isFile: false,
-  mtimeMs: 1679503385065,
-  ctimeMs: 1679503385065,
-  birthtimeMs: 1679503385065,
-  addedAt: 1679503385065,
-  updatedAt: 1679503385065,
-  isMissing: false,
-  isInvalid: false,
-  mediaType: 'podcast',
-  media: {
-    id: 'cltjyl123000208l46y4d3g4h',
-    libraryItemId: 'cltjyl123000108l437q67p8o',
-    metadata: {
-      title: 'My Favorite Podcast',
-      author: 'Jane Doe',
-      description: '<p>An amazing podcast about technology and culture.</p>',
-      releaseDate: '2023-01-15',
-      genres: ['Technology', 'Culture'],
-      feedURL: 'https://example.com/feed.xml',
-      itunesId: '123456789',
-      language: 'English',
-      explicit: false,
-      podcastType: 'episodic'
-    },
-    coverPath: '/data/podcasts/My Favorite Podcast/cover.jpg',
-    tags: ['Tech', 'Weekly'],
-    episodes: []
-  },
-  libraryFiles: []
+interface PodcastDetailsEditExamplesProps {
+  selectedPodcast?: PodcastLibraryItem | null
 }
 
 const mockGenres = [
@@ -56,10 +22,15 @@ const mockTags = [
   { value: 'Daily', content: 'Daily' }
 ]
 
-export function PodcastDetailsEditExamples() {
+export function PodcastDetailsEditExamples({ selectedPodcast }: PodcastDetailsEditExamplesProps) {
   const podcastDetailsEditRef = useRef<PodcastDetailsEditRef>(null)
-  const [libraryItem, setLibraryItem] = useState(mockLibraryItem)
+  const [libraryItem, setLibraryItem] = useState(selectedPodcast)
   const [hasChanges, setHasChanges] = useState(false)
+
+  // Update library item when selectedPodcast changes
+  useEffect(() => {
+    setLibraryItem(selectedPodcast)
+  }, [selectedPodcast])
 
   const handleChange = useCallback((details: { libraryItemId: string; hasChanges: boolean }) => {
     console.log('onChange', details)
@@ -69,20 +40,28 @@ export function PodcastDetailsEditExamples() {
   const handleSubmit = useCallback((details: { updatePayload: PodcastUpdatePayload; hasChanges: boolean }) => {
     console.log('onSubmit', details)
     if (details.hasChanges) {
-      setLibraryItem((prev) => ({
-        ...prev,
-        media: {
-          ...prev.media,
-          metadata: {
-            ...prev.media.metadata,
-            ...details.updatePayload.metadata
-          },
-          tags: details.updatePayload.tags ?? prev.media.tags
+      setLibraryItem((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          media: {
+            ...prev.media,
+            metadata: {
+              ...prev.media.metadata,
+              ...details.updatePayload.metadata
+            },
+            tags: details.updatePayload.tags ?? prev.media.tags
+          }
         }
-      }))
+      })
       setHasChanges(false)
     }
   }, [])
+
+  // Don't render if no podcast is selected
+  if (!selectedPodcast) {
+    return null
+  }
 
   return (
     <ComponentExamples title="Podcast Details Edit">
@@ -115,10 +94,10 @@ export function PodcastDetailsEditExamples() {
         </div>
       </ComponentInfo>
 
-      <Example title="Default">
+      <Example title={`Podcast Details Edit for: ${libraryItem?.media.metadata.title}`}>
         <PodcastDetailsEdit
           ref={podcastDetailsEditRef}
-          libraryItem={libraryItem}
+          libraryItem={libraryItem!}
           availableGenres={mockGenres}
           availableTags={mockTags}
           onChange={handleChange}

@@ -24,7 +24,15 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
   const coverRef = useRef<HTMLImageElement>(null)
   const coverBgRef = useRef<HTMLDivElement>(null)
 
-  const sizeMultiplier = useMemo(() => width / 120, [width])
+  // Calculate final dimensions
+  const finalDimensions = useMemo(() => {
+    const finalWidth = width
+    const finalHeight = width * bookCoverAspectRatio
+
+    return { width: finalWidth, height: finalHeight }
+  }, [width, bookCoverAspectRatio])
+
+  const sizeMultiplier = useMemo(() => finalDimensions.width / 120, [finalDimensions.width])
 
   const invalidCoverFontSize = useMemo(() => Math.max(sizeMultiplier * 0.8, 0.5), [sizeMultiplier])
 
@@ -35,12 +43,6 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
     return `${naturalWidth}×${naturalHeight}px`
   }, [naturalWidth, naturalHeight])
 
-  const setCoverBg = useCallback(() => {
-    if (coverBgRef.current) {
-      coverBgRef.current.style.backgroundImage = `url("${src}")`
-    }
-  }, [src])
-
   const imageLoaded = useCallback(() => {
     if (coverRef.current) {
       const { naturalWidth: imgNaturalWidth, naturalHeight: imgNaturalHeight } = coverRef.current
@@ -50,7 +52,8 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
       const aspectRatio = imgNaturalHeight / imgNaturalWidth
       const arDiff = Math.abs(aspectRatio - bookCoverAspectRatio)
 
-      // If image aspect ratio is <= 1.45 or >= 1.75 then use cover bg, otherwise stretch to fit
+      // If image aspect ratio is significantly different from target aspect ratio, use background image
+      // This happens when arDiff > 0.15 (i.e., image is not close to 1.45-1.75 range for typical book covers)
       if (arDiff > 0.15) {
         setShowCoverBg(true)
       } else {
@@ -59,22 +62,33 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
     }
   }, [bookCoverAspectRatio])
 
-  const imageError = useCallback((err: React.SyntheticEvent<HTMLImageElement, Event>) => {
-    console.error('ImgError', err)
-    setImageFailed(true)
-  }, [])
+  // Set background image when showCoverBg changes to true
+  useEffect(() => {
+    if (showCoverBg && coverBgRef.current) {
+      coverBgRef.current.style.backgroundImage = `url("${src}")`
+    }
+  }, [showCoverBg, src])
+
+  const imageError = useCallback(
+    (err: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      // Log with more context - this is a handled error so we use warn instead of error
+      console.warn('PreviewCover: Failed to load image', {
+        src,
+        naturalWidth: err.currentTarget.naturalWidth,
+        naturalHeight: err.currentTarget.naturalHeight,
+        errorType: err.type
+      })
+      setImageFailed(true)
+    },
+    [src]
+  )
 
   // Reset imageFailed when src changes
   useEffect(() => {
     setImageFailed(forceErrorState || false)
   }, [src, forceErrorState])
 
-  // Update cover bg when showCoverBg changes
-  useEffect(() => {
-    if (showCoverBg) {
-      setCoverBg()
-    }
-  }, [showCoverBg, setCoverBg])
+  // No effect needed for background image; it is bound directly in JSX now
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -91,10 +105,10 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
     <div
       className="relative rounded-xs"
       style={{
-        height: `${width * bookCoverAspectRatio}px`,
-        width: `${width}px`,
-        maxWidth: `${width}px`,
-        minWidth: `${width}px`
+        height: `${finalDimensions.height}px`,
+        width: `${finalDimensions.width}px`,
+        maxWidth: `${finalDimensions.width}px`,
+        minWidth: `${finalDimensions.width}px`
       }}
       onClick={onClick}
       role={onClick ? 'button' : undefined}

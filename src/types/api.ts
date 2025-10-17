@@ -152,6 +152,10 @@ export interface Library {
   folders?: LibraryFolder[]
 }
 
+export interface GetLibrariesResponse {
+  libraries: Library[]
+}
+
 export interface LibraryFolder {
   id: string
   path: string
@@ -601,6 +605,11 @@ export interface LibraryItemQueryParams {
   episode?: string // Episode ID for progress
 }
 
+export interface UploadCoverResponse {
+  success: boolean
+  cover: string
+}
+
 // ============================================================================
 // PROGRESS & BOOKMARKS
 // ============================================================================
@@ -754,6 +763,38 @@ export interface PersonalizedShelf {
   /** type depends on shelf type */
   entities: LibraryItemMinified[] | SeriesExpanded[] | AuthorExpanded[]
   total: number
+}
+
+// ============================================================================
+// SEARCH
+// ============================================================================
+
+export interface SearchLibraryResponse {
+  book: Array<{ libraryItem: BookLibraryItem }>
+  podcast: Array<{ libraryItem: PodcastLibraryItem }>
+  narrators: Array<{ name: string; numBooks: number }>
+  tags: Array<{ name: string; numItems: number }>
+  genres: Array<{ name: string; numItems: number }>
+  series: Array<{
+    series: Series
+    books: LibraryItem[]
+  }>
+  authors: AuthorExpanded[]
+}
+
+// ============================================================================
+// METADATA PROVIDERS
+// ============================================================================
+
+export interface MetadataProvider {
+  /** Provider identifier (e.g. 'google', 'audible', 'itunes') */
+  value: string
+  /** Display name (e.g. 'Google Books', 'Audible.com') */
+  text: string
+}
+
+export interface MetadataProvidersResponse {
+  providers: MetadataProvider[]
 }
 
 // ============================================================================

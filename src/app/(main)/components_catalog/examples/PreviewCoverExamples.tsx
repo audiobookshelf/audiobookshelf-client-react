@@ -2,13 +2,24 @@
 
 import PreviewCover from '@/components/covers/PreviewCover'
 import CoverPreviewModal from '@/components/modals/CoverPreviewModal'
+import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
-export function PreviewCoverExamples() {
+interface PreviewCoverExamplesProps {
+  selectedBook?: BookLibraryItem | null
+  selectedPodcast?: PodcastLibraryItem | null
+}
+
+export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewCoverExamplesProps) {
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false)
   const [modalCoverSrc, setModalCoverSrc] = useState('')
   const [modalCoverAspectRatio, setModalCoverAspectRatio] = useState(1.0)
+
+  // Determine which item to use for examples (prefer book over podcast)
+  const exampleItem = selectedBook || selectedPodcast
+  const exampleAspectRatio = selectedBook ? 1.6 : 1.0
 
   const handleCoverClick = useCallback((src: string, aspectRatio: number) => {
     setModalCoverSrc(src)
@@ -24,6 +35,11 @@ export function PreviewCoverExamples() {
   const handleCancel = useCallback(() => {
     setIsCoverModalOpen(false)
   }, [])
+
+  // Don't render if no library item is selected
+  if (!selectedBook && !selectedPodcast) {
+    return null
+  }
 
   return (
     <ComponentExamples title="Preview Cover">
@@ -59,63 +75,71 @@ export function PreviewCoverExamples() {
       <ExamplesBlock>
         <Example title="Standard Cover">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.6.png" bookCoverAspectRatio={1.6} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} bookCoverAspectRatio={exampleAspectRatio} />
             <p className="text-xs text-gray-400">120px width</p>
           </div>
         </Example>
 
         <Example title="Large Cover">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.6.png" width={200} bookCoverAspectRatio={1.6} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} width={200} bookCoverAspectRatio={exampleAspectRatio} />
             <p className="text-xs text-gray-400">200px width</p>
           </div>
         </Example>
 
         <Example title="Small square Cover">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.0.png" width={80} bookCoverAspectRatio={1.0} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} width={80} bookCoverAspectRatio={1.0} />
             <p className="text-xs text-gray-400">80px width</p>
           </div>
         </Example>
 
         <Example title="Standard Square Cover">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.0.png" bookCoverAspectRatio={1.0} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} bookCoverAspectRatio={1.0} />
             <p className="text-xs text-gray-400">1:1 aspect ratio</p>
           </div>
         </Example>
 
         <Example title="Square Cover with non-square image">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.6.png" width={120} bookCoverAspectRatio={1.0} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} width={120} bookCoverAspectRatio={1.0} />
             <p className="text-xs text-gray-400">1.6 aspect ratio </p>
           </div>
         </Example>
 
         <Example title="Square Cover without resolution">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.0.png" bookCoverAspectRatio={1.0} showResolution={false} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} bookCoverAspectRatio={1.0} showResolution={false} />
             <p className="text-xs text-gray-400">1:1 aspect ratio, no resolution</p>
           </div>
         </Example>
 
         <Example title="Square Cover with click handler">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.0.png" bookCoverAspectRatio={1.0} onClick={() => handleCoverClick('/examples/ltr.1.0.png', 1.0)} />
+            <PreviewCover
+              src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)}
+              bookCoverAspectRatio={1.0}
+              onClick={() => handleCoverClick(getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt), 1.0)}
+            />
             <p className="text-xs text-gray-400">1:1 aspect ratio, click to open modal</p>
           </div>
         </Example>
 
         <Example title="Non-square Cover with click handler">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/examples/ltr.1.6.png" bookCoverAspectRatio={1.6} onClick={() => handleCoverClick('/examples/ltr.1.6.png', 1.6)} />
+            <PreviewCover
+              src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)}
+              bookCoverAspectRatio={1.6}
+              onClick={() => handleCoverClick(getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt), 1.6)}
+            />
             <p className="text-xs text-gray-400">1.6 aspect ratio, click to open modal</p>
           </div>
         </Example>
 
         <Example title="Invalid Cover Error State">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/book_placeholder.jpg" width={120} bookCoverAspectRatio={1.6} forceErrorState={true} />
+            <PreviewCover src="/book_placeholder.jpg" width={120} bookCoverAspectRatio={exampleAspectRatio} forceErrorState={true} />
             <p className="text-xs text-gray-400">Shows error state when image fails to load</p>
           </div>
         </Example>
