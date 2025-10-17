@@ -2,7 +2,17 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
-import { Library, LibraryItem, PersonalizedShelf, User, UserLoginResponse } from '../types/api'
+import {
+  GetLibrariesResponse,
+  Library,
+  LibraryItem,
+  MetadataProvidersResponse,
+  PersonalizedShelf,
+  SearchLibraryResponse,
+  UploadCoverResponse,
+  User,
+  UserLoginResponse
+} from '../types/api'
 
 export interface ApiResponse<T = unknown> {
   data?: T
@@ -89,10 +99,16 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
 
-    const fetchHeaders = new Headers({
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string>)
-    })
+    // Check if body is FormData - if so, don't set Content-Type
+    // Node.js fetch will automatically set 'multipart/form-data' with the correct boundary
+    const isFormData = options.body instanceof FormData
+
+    const fetchHeaders = new Headers(options.headers as Record<string, string>)
+
+    // Only set Content-Type for non-FormData requests (defaults to application/json)
+    if (!isFormData && !fetchHeaders.has('Content-Type')) {
+      fetchHeaders.set('Content-Type', 'application/json')
+    }
 
     if (accessToken) {
       fetchHeaders.set('Authorization', `Bearer ${accessToken}`)
@@ -156,7 +172,7 @@ export const getServerStatus = cache(async (): Promise<ApiResponse<ServerStatus>
 })
 
 export const getLibraries = cache(async () => {
-  return apiRequest<Library[]>('/api/libraries', {})
+  return apiRequest<GetLibrariesResponse>('/api/libraries', {})
 })
 
 export const getLibrary = cache(async (libraryId: string) => {
@@ -181,4 +197,126 @@ export const getUsers = cache(async () => {
 
 export const getUser = cache(async (userId: string) => {
   return apiRequest<User>(`/api/users/${userId}`, {})
+})
+
+/**
+ * Upload a cover image file for a library item
+ * Returns: { success: true, cover: coverPath }
+ */
+export async function uploadCover(libraryItemId: string, file: File): Promise<ApiResponse<UploadCoverResponse>> {
+  const formData = new FormData()
+  formData.set('cover', file)
+
+  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
+    method: 'POST',
+    body: formData
+  })
+}
+
+/**
+ * Remove the current cover from a library item
+ * Returns: 200 status with no body
+ */
+export async function removeCover(libraryItemId: string): Promise<ApiResponse<void>> {
+  return apiRequest<void>(`/api/items/${libraryItemId}/cover`, {
+    method: 'DELETE'
+  })
+}
+
+/**
+ * Update cover from a URL
+ * Returns: { success: true, cover: coverPath }
+ */
+export async function updateCoverFromUrl(libraryItemId: string, coverUrl: string): Promise<ApiResponse<UploadCoverResponse>> {
+  if (!coverUrl.startsWith('http:') && !coverUrl.startsWith('https:')) {
+    return { error: 'Invalid URL' }
+  }
+
+  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
+    method: 'POST',
+    body: JSON.stringify({ url: coverUrl })
+  })
+}
+
+/**
+ * Set cover from a local file in the library
+ * Returns: { success: true, cover: coverPath }
+ */
+export async function setCoverFromLocalFile(libraryItemId: string, filePath: string): Promise<ApiResponse<UploadCoverResponse>> {
+  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
+    method: 'PATCH',
+    body: JSON.stringify({ cover: filePath })
+  })
+}
+
+/**
+ * Search library for books, authors, series, etc.
+ * @param libraryId - The library to search
+ * @param query - Search query string
+ * @param limit - Maximum number of results per category (default 12)
+ * Returns: Search results grouped by category (books, authors, series, etc.)
+ */
+export async function searchLibrary(libraryId: string, query: string, limit?: number): Promise<ApiResponse<SearchLibraryResponse>> {
+  if (!query || !query.trim()) {
+    return { error: 'Search query is required' }
+  }
+
+  const params = new URLSearchParams({ q: query.trim() })
+  if (limit) {
+    params.set('limit', limit.toString())
+  }
+
+  return apiRequest<SearchLibraryResponse>(`/api/libraries/${libraryId}/search?${params.toString()}`, {})
+}
+
+//
+// Search Provider endpoints
+//
+
+/**
+ * Get available book search providers
+ * Returns: Array of available book metadata search providers
+ */
+export const getBookProviders = cache(async () => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers/books', {})
+})
+
+/**
+ * Get available book cover search providers
+ * Returns: Array of available book cover search providers
+ */
+export const getBookCoverProviders = cache(async () => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers/books/covers', {})
+})
+
+/**
+ * Get available podcast search providers
+ * Returns: Array of available podcast search providers
+ */
+export const getPodcastProviders = cache(async () => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers/podcasts', {})
+})
+
+/**
+ * Get available podcast cover search providers
+ * Returns: Array of available podcast cover search providers
+ */
+export const getPodcastCoverProviders = cache(async () => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers/podcasts/covers', {})
+})
+
+/**
+ * Get available author search providers
+ * Returns: Array of available author search providers
+ */
+export const getAuthorProviders = cache(async () => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers/authors', {})
+})
+
+/**
+ * Get available chapter search providers
+ * Returns: Array of available chapter search providers
+ */
+export const getChapterProviders = cache(async () => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers/chapters', {})
 })
