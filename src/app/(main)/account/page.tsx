@@ -1,12 +1,12 @@
-import Dropdown from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
 
 import { getCurrentUser } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import { getLanguageCodeOptions } from '@/lib/languages'
 
 import Btn from '@/components/ui/Btn'
+import { cookies } from 'next/headers'
 import LogoutBtn from './LogoutBtn'
+import UserLanguageSelector from './UserLanguageSelector'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,7 +15,9 @@ export default async function AccountPage() {
   const userResponse = await getCurrentUser()
   const user = userResponse.data?.user
 
-  const languageOptions = getLanguageCodeOptions()
+  // Get current language from cookies (userLanguage takes precedence over language)
+  const cookieStore = await cookies()
+  const currentLanguage = cookieStore.get('userLanguage')?.value || cookieStore.get('language')?.value || 'en-us'
 
   if (!user) {
     return null
@@ -35,7 +37,7 @@ export default async function AccountPage() {
           </div>
         </div>
         <div className="w-full">
-          <Dropdown value={'en-us'} items={languageOptions} label={t('LabelLanguage')} />
+          <UserLanguageSelector value={currentLanguage} label={t('LabelLanguage')} />
         </div>
         <div className="w-full h-px bg-border" />
         <div className="flex items-center justify-between w-full">

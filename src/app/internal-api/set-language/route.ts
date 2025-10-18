@@ -2,14 +2,21 @@ import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
-    const { language } = await request.json()
+    const { language, scope = 'server' } = await request.json()
 
     if (!language || typeof language !== 'string') {
       return NextResponse.json({ error: 'Invalid language parameter' }, { status: 400 })
     }
 
+    if (scope !== 'server' && scope !== 'user') {
+      return NextResponse.json({ error: 'Invalid scope parameter. Must be "server" or "user"' }, { status: 400 })
+    }
+
+    // User-specific language cookie or default server language cookie
+    const cookieName = scope === 'user' ? 'userLanguage' : 'language'
+
     const response = NextResponse.json({ success: true })
-    response.cookies.set('language', language, {
+    response.cookies.set(cookieName, language, {
       httpOnly: false,
       secure: false,
       sameSite: 'lax',

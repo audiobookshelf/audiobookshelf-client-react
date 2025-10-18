@@ -170,11 +170,13 @@ export const getData = cache(async <T extends Promise<ApiResponse<unknown>>[]>(.
 
 /**
  * Current user response data
+ *
+ * call revalidateTag('current-user') when server settings change or user is updated
  */
 export const getCurrentUser = cache(async () => {
   return apiRequest<UserLoginResponse>('/api/authorize', {
     method: 'POST',
-    cache: 'force-cache'
+    next: { tags: ['current-user'] }
   })
 })
 
