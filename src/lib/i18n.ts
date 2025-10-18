@@ -2,9 +2,14 @@ import { getRequestConfig } from 'next-intl/server'
 import { cookies } from 'next/headers'
 
 export default getRequestConfig(async () => {
-  // Read locale from cookie, fallback to 'en-us'
+  // Read locale from cookies with priority:
+  // 1. userLanguage (user's personal preference)
+  // 2. language (server default)
+  // 3. 'en-us' (hardcoded fallback)
   const cookieStore = await cookies()
-  const locale = cookieStore.get('language')?.value || 'en-us'
+  const userLanguage = cookieStore.get('userLanguage')?.value
+  const serverLanguage = cookieStore.get('language')?.value
+  const locale = userLanguage || serverLanguage || 'en-us'
 
   // Always load English as fallback
   const fallbackMessages = (await import(`../locales/en-us.json`)).default

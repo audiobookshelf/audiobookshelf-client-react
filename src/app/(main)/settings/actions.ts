@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api'
 import { ServerSettings } from '@/types/api'
+import { revalidateTag } from 'next/cache'
 
 export type UpdateServerSettingsApiResponse = {
   serverSettings: ServerSettings
@@ -19,6 +20,11 @@ export async function updateServerSettings(serverSettings: ServerSettings) {
     body: JSON.stringify(serverSettings)
   })
 
+  // Invalidate the current user cache
+  if (response.data) {
+    revalidateTag('current-user')
+  }
+
   return response
 }
 
@@ -30,6 +36,11 @@ export async function updateSortingPrefixes(sortingPrefixes: string[]) {
     method: 'PATCH',
     body: JSON.stringify({ sortingPrefixes })
   })
+
+  // Invalidate the current user cache
+  if (response.data) {
+    revalidateTag('current-user')
+  }
 
   return response
 }
