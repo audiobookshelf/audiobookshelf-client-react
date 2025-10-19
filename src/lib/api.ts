@@ -108,11 +108,38 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
         // Return special response indicating refresh is needed
         return { error: 'Unauthorized', needsRefresh: true }
       }
-      return { error: `HTTP ${response.status}: ${response.statusText}` }
+      const errorMessage = await response.text()
+      return { error: errorMessage || `HTTP ${response.status}: ${response.statusText}` }
     }
 
-    const data = await response.json()
-    return { data }
+    // Check if response has content before trying to parse JSON
+    const contentType = response.headers.get('content-type')
+    const contentLength = response.headers.get('content-length')
+
+    // If no content or explicit 204 No Content status, return empty data
+    if (response.status === 204 || contentLength === '0') {
+      return { data: undefined as T }
+    }
+
+    // If there's a content-type header and it's JSON, parse it
+    if (contentType?.includes('application/json')) {
+      const data = await response.json()
+      return { data }
+    }
+
+    // Try to get text content, if empty return undefined
+    const text = await response.text()
+    if (!text || text.trim() === '') {
+      return { data: undefined as T }
+    }
+
+    // Try to parse as JSON, fallback to undefined if it fails
+    try {
+      const data = JSON.parse(text)
+      return { data }
+    } catch {
+      return { data: undefined as T }
+    }
   } catch (error) {
     console.error('API request failed:', error)
     return { error: 'Network error' }
@@ -143,11 +170,13 @@ export const getData = cache(async <T extends Promise<ApiResponse<unknown>>[]>(.
 
 /**
  * Current user response data
+ *
+ * call revalidateTag('current-user') when server settings change or user is updated
  */
 export const getCurrentUser = cache(async () => {
   return apiRequest<UserLoginResponse>('/api/authorize', {
     method: 'POST',
-    cache: 'force-cache'
+    next: { tags: ['current-user'] }
   })
 })
 
