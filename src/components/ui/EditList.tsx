@@ -2,7 +2,8 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { TranslationKey } from '@/types/translations'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Modal from '../modals/Modal'
 import Btn from './Btn'
 import IconBtn from './IconBtn'
@@ -33,9 +34,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   const [isDeleting, setIsDeleting] = useState(false)
   const [hasSameName, setHasSameName] = useState(false)
   const [sameNameWithDifferentCase, setSameNameWithDifferentCase] = useState('')
-  const showNumBooks = items.some((item) => {
-    return item.numBooks && item.numBooks > 0
-  })
+  const showNumBooks = listType === 'Narrator'
 
   // Switch to edit mode for a row
   const handleEditItemClick = (clickedItem: EditListItem) => {
@@ -120,7 +119,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
     [editedItem, newName, handleSaveEditClick]
   )
 
-  const getListTypeEditString = useMemo(() => {
+  const listTypeEditString: TranslationKey = useMemo(() => {
     switch (listType) {
       case 'Tag':
         return 'MessageConfirmRenameTag'
@@ -132,7 +131,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
     }
   }, [listType])
 
-  const getListTypeDeleteString = useMemo(() => {
+  const listTypeDeleteString: TranslationKey = useMemo(() => {
     switch (listType) {
       case 'Tag':
         return 'MessageConfirmRemoveTag'
@@ -144,7 +143,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
     }
   }, [listType])
 
-  const getListTypeMergeString = useMemo(() => {
+  const listTypeMergeString: TranslationKey = useMemo(() => {
     switch (listType) {
       case 'Tag':
         return 'MessageConfirmRenameTagMergeNote'
@@ -156,7 +155,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
     }
   }, [listType])
 
-  const getListTypeWarningString = useMemo(() => {
+  const listTypeWarningString: TranslationKey = useMemo(() => {
     switch (listType) {
       case 'Tag':
         return 'MessageConfirmRenameTagWarning'
@@ -183,26 +182,32 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
         </thead>
         <tbody>
           {items.map((item) => (
-            <>
+            <Fragment key={item.id}>
               {item !== editedItem && (
                 <tr key={item.id} className={mergeClasses('p-2 group even:bg-primary/20')}>
                   <td className="p-3.5">
-                    <a
-                      className={mergeClasses('text-sm md:text-base text-gray-100')}
-                      title={item.name}
-                      // Only narrators can be clicked on, tags/genres don't have library info attached.
-                      // href could be made an EditListItem prop that is passed in if other pages start using this
-                      href={libraryId ? `/library/${libraryId}/bookshelf?filter=narrators.${item.id}` : undefined}
-                    >
-                      {item.name}
-                    </a>
+                    {showNumBooks ? (
+                      <a
+                        className={mergeClasses('text-sm md:text-base text-gray-100 hover:underline')}
+                        title={item.name}
+                        // Only narrators can be clicked on, tags/genres don't have library info attached.
+                        // href could be made an EditListItem prop that is passed in if other pages start using this
+                        href={`/library/${libraryId}/bookshelf?filter=narrators.${item.id}`}
+                      >
+                        {item.name}
+                      </a>
+                    ) : (
+                      <span className={mergeClasses('text-sm md:text-base text-gray-100')} title={item.name}>
+                        {item.name}
+                      </span>
+                    )}
                   </td>
                   {showNumBooks && (
                     <td className={mergeClasses('hidden md:table-cell w-1/6')}>
                       <div className="flex justify-center">
                         <a
-                          className={mergeClasses('text-sm md:text-base hover:underline')}
-                          href={libraryId ? `/library/${libraryId}/bookshelf?filter=narrators.${item.id}` : undefined}
+                          className={mergeClasses('text-sm md:text-base text-gray-100 hover:underline')}
+                          href={`/library/${libraryId}/bookshelf?filter=narrators.${item.id}`}
                         >
                           {item.numBooks}
                         </a>
@@ -264,22 +269,20 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                   </td>
                 </tr>
               )}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} width={500}>
         <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
           {isDeleting ? (
-            <p className="text-gray-300 mb-6 flex-1">{t(getListTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
+            <p className="text-gray-300 mb-6 flex-1">{t(listTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
           ) : (
             <>
-              <p className="text-gray-300 mb-6 flex-1">{t(getListTypeEditString, { 0: editedItem.name, 1: newName })}</p>
+              <p className="text-gray-300 mb-6 flex-1">{t(listTypeEditString, { 0: editedItem.name, 1: newName })}</p>
               {/* Show warning if the new value already exists or has a different casing*/}
-              {hasSameName && <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeMergeString)}</p>}
-              {sameNameWithDifferentCase !== '' && (
-                <p className="text-yellow-500 mb-6 flex-1">{t(getListTypeWarningString, { 0: sameNameWithDifferentCase })}</p>
-              )}
+              {hasSameName && <p className="text-yellow-500 mb-6 flex-1">{t(listTypeMergeString)}</p>}
+              {sameNameWithDifferentCase !== '' && <p className="text-yellow-500 mb-6 flex-1">{t(listTypeWarningString, { 0: sameNameWithDifferentCase })}</p>}
             </>
           )}
           <div className="flex justify-end gap-3">
