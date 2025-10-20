@@ -794,7 +794,11 @@ export interface MetadataProvider {
 }
 
 export interface MetadataProvidersResponse {
-  providers: MetadataProvider[]
+  providers: {
+    books: MetadataProvider[]
+    booksCovers: MetadataProvider[]
+    podcasts: MetadataProvider[]
+  }
 }
 
 // ============================================================================

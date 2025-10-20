@@ -8,7 +8,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import FileInput from '@/components/ui/FileInput'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
-import { useBookCoverProviders, usePodcastCoverProviders } from '@/contexts/MetadataContext'
+import { useBookCoverProviders, useMetadata, usePodcastCoverProviders } from '@/contexts/MetadataContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useCoverSearch } from '@/hooks/useCoverSearch'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -37,12 +37,18 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
   const isPodcast = useMemo(() => libraryItem.mediaType === 'podcast', [libraryItem.mediaType])
 
   // Get providers from context based on media type
+  const { ensureProvidersLoaded } = useMetadata()
   const bookCoverProviders = useBookCoverProviders()
   const podcastCoverProviders = usePodcastCoverProviders()
 
   const providers = useMemo(() => {
     return isPodcast ? podcastCoverProviders : bookCoverProviders
   }, [isPodcast, bookCoverProviders, podcastCoverProviders])
+
+  // Ensure providers are loaded when component mounts
+  useEffect(() => {
+    ensureProvidersLoaded()
+  }, [ensureProvidersLoaded])
 
   // Cover search via WebSocket
   const handleSearchError = useCallback(() => {

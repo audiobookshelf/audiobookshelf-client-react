@@ -274,49 +274,9 @@ export async function searchLibrary(libraryId: string, query: string, limit?: nu
 //
 
 /**
- * Get available book search providers
- * Returns: Array of available book metadata search providers
+ * Get all available metadata search providers
+ * Returns: Object with providers for books, book covers, and podcasts
  */
-export const getBookProviders = cache(async () => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers/books', {})
-})
-
-/**
- * Get available book cover search providers
- * Returns: Array of available book cover search providers
- */
-export const getBookCoverProviders = cache(async () => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers/books/covers', {})
-})
-
-/**
- * Get available podcast search providers
- * Returns: Array of available podcast search providers
- */
-export const getPodcastProviders = cache(async () => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers/podcasts', {})
-})
-
-/**
- * Get available podcast cover search providers
- * Returns: Array of available podcast cover search providers
- */
-export const getPodcastCoverProviders = cache(async () => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers/podcasts/covers', {})
-})
-
-/**
- * Get available author search providers
- * Returns: Array of available author search providers
- */
-export const getAuthorProviders = cache(async () => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers/authors', {})
-})
-
-/**
- * Get available chapter search providers
- * Returns: Array of available chapter search providers
- */
-export const getChapterProviders = cache(async () => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers/chapters', {})
+export const getMetadataProviders = cache(async () => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers', {})
 })

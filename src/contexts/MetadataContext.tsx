@@ -1,15 +1,8 @@
 'use client'
 
-import {
-  getAuthorProvidersAction,
-  getBookCoverProvidersAction,
-  getBookProvidersAction,
-  getChapterProvidersAction,
-  getPodcastCoverProvidersAction,
-  getPodcastProvidersAction
-} from '@/app/actions/providerActions'
+import { getMetadataProvidersAction } from '@/app/actions/providerActions'
 import { MetadataProvider as MetadataProviderType } from '@/types/api'
-import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useMemo, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
 
 interface MetadataState {
@@ -17,12 +10,12 @@ interface MetadataState {
   podcastProviders: MetadataProviderType[]
   bookCoverProviders: MetadataProviderType[]
   podcastCoverProviders: MetadataProviderType[]
-  authorProviders: MetadataProviderType[]
-  chapterProviders: MetadataProviderType[]
+  providersLoaded: boolean
   isLoading: boolean
 }
 
 interface MetadataContextType extends MetadataState {
+  ensureProvidersLoaded: () => Promise<void>
   refreshProviders: () => Promise<void>
 }
 
@@ -43,83 +36,61 @@ export function MetadataProvider({ children }: MetadataProviderProps) {
     podcastProviders: [],
     bookCoverProviders: [],
     podcastCoverProviders: [],
-    authorProviders: [],
-    chapterProviders: [],
-    isLoading: true
+    providersLoaded: false,
+    isLoading: false
   })
 
-  // Fetch all providers
-  const fetchAllProviders = useCallback(async () => {
-    setState((prev) => ({ ...prev, isLoading: true }))
+  // Fetch all providers (internal method)
+  const fetchProviders = useCallback(
+    async (force = false) => {
+      // Only fetch if not already loaded (unless forced)
+      if (state.providersLoaded && !force) {
+        return
+      }
 
-    try {
-      const [bookResult, podcastResult, bookCoverResult, podcastCoverResult, authorResult, chapterResult] = await Promise.all([
-        getBookProvidersAction(),
-        getPodcastProvidersAction(),
-        getBookCoverProvidersAction(),
-        getPodcastCoverProvidersAction(),
-        getAuthorProvidersAction(),
-        getChapterProvidersAction()
-      ])
+      setState((prev) => ({ ...prev, isLoading: true }))
 
-      // Log errors but don't break the app
-      if (bookResult.error) console.error('Failed to fetch book providers:', bookResult.error)
-      if (podcastResult.error) console.error('Failed to fetch podcast providers:', podcastResult.error)
-      if (bookCoverResult.error) console.error('Failed to fetch book cover providers:', bookCoverResult.error)
-      if (podcastCoverResult.error) console.error('Failed to fetch podcast cover providers:', podcastCoverResult.error)
-      if (authorResult.error) console.error('Failed to fetch author providers:', authorResult.error)
-      if (chapterResult.error) console.error('Failed to fetch chapter providers:', chapterResult.error)
+      try {
+        const result = await getMetadataProvidersAction()
 
-      setState({
-        bookProviders: bookResult.data?.providers || [],
-        podcastProviders: podcastResult.data?.providers || [],
-        bookCoverProviders: bookCoverResult.data?.providers || [],
-        podcastCoverProviders: podcastCoverResult.data?.providers || [],
-        authorProviders: authorResult.data?.providers || [],
-        chapterProviders: chapterResult.data?.providers || [],
-        isLoading: false
-      })
-    } catch (error) {
-      console.error('Failed to fetch providers:', error)
-      setState((prev) => ({ ...prev, isLoading: false }))
+        if (result.error) {
+          console.error('Failed to fetch providers:', result.error)
+          setState((prev) => ({ ...prev, isLoading: false }))
+          return
+        }
+
+        if (result.data?.providers) {
+          setState({
+            bookProviders: result.data.providers.books || [],
+            podcastProviders: result.data.providers.podcasts || [],
+            bookCoverProviders: result.data.providers.booksCovers || [],
+            // Use same as podcasts for podcast covers per Vue client pattern
+            podcastCoverProviders: result.data.providers.podcasts || [],
+            providersLoaded: true,
+            isLoading: false
+          })
+        }
+      } catch (error) {
+        console.error('Failed to fetch providers:', error)
+        setState((prev) => ({ ...prev, isLoading: false }))
+      }
+    },
+    [state.providersLoaded]
+  )
+
+  // Ensure providers are loaded (lazy load on first use)
+  const ensureProvidersLoaded = useCallback(async () => {
+    await fetchProviders(false)
+  }, [fetchProviders])
+
+  // Force refresh providers (for socket events and manual refresh)
+  const refreshProviders = useCallback(async () => {
+    // Only refresh if providers were already loaded
+    if (!state.providersLoaded) {
+      return
     }
-  }, [])
-
-  // Fetch book-related providers
-  const fetchBookProviders = useCallback(async () => {
-    try {
-      const [bookResult, bookCoverResult] = await Promise.all([getBookProvidersAction(), getBookCoverProvidersAction()])
-
-      if (bookResult.error) console.error('Failed to fetch book providers:', bookResult.error)
-      if (bookCoverResult.error) console.error('Failed to fetch book cover providers:', bookCoverResult.error)
-
-      setState((prev) => ({
-        ...prev,
-        bookProviders: bookResult.data?.providers || prev.bookProviders,
-        bookCoverProviders: bookCoverResult.data?.providers || prev.bookCoverProviders
-      }))
-    } catch (error) {
-      console.error('Failed to refetch book providers:', error)
-    }
-  }, [])
-
-  // Fetch podcast-related providers
-  const fetchPodcastProviders = useCallback(async () => {
-    try {
-      const [podcastResult, podcastCoverResult] = await Promise.all([getPodcastProvidersAction(), getPodcastCoverProvidersAction()])
-
-      if (podcastResult.error) console.error('Failed to fetch podcast providers:', podcastResult.error)
-      if (podcastCoverResult.error) console.error('Failed to fetch podcast cover providers:', podcastCoverResult.error)
-
-      setState((prev) => ({
-        ...prev,
-        podcastProviders: podcastResult.data?.providers || prev.podcastProviders,
-        podcastCoverProviders: podcastCoverResult.data?.providers || prev.podcastCoverProviders
-      }))
-    } catch (error) {
-      console.error('Failed to refetch podcast providers:', error)
-    }
-  }, [])
+    await fetchProviders(true)
+  }, [fetchProviders, state.providersLoaded])
 
   // Handle custom metadata provider added
   const handleProviderAdded = useCallback(
@@ -127,14 +98,10 @@ export function MetadataProvider({ children }: MetadataProviderProps) {
       if (!event?.id) return
 
       console.log('[Metadata] Custom metadata provider added:', event)
-
-      if (event.mediaType === 'book') {
-        fetchBookProviders()
-      } else if (event.mediaType === 'podcast') {
-        fetchPodcastProviders()
-      }
+      // Force refresh all providers
+      refreshProviders()
     },
-    [fetchBookProviders, fetchPodcastProviders]
+    [refreshProviders]
   )
 
   // Handle custom metadata provider removed
@@ -143,32 +110,24 @@ export function MetadataProvider({ children }: MetadataProviderProps) {
       if (!event?.id) return
 
       console.log('[Metadata] Custom metadata provider removed:', event)
-
-      if (event.mediaType === 'book') {
-        fetchBookProviders()
-      } else if (event.mediaType === 'podcast') {
-        fetchPodcastProviders()
-      }
+      // Force refresh all providers
+      refreshProviders()
     },
-    [fetchBookProviders, fetchPodcastProviders]
+    [refreshProviders]
   )
 
   // Setup websocket listeners
   useSocketEvent<CustomMetadataProviderEvent>('custom_metadata_provider_added', handleProviderAdded)
   useSocketEvent<CustomMetadataProviderEvent>('custom_metadata_provider_removed', handleProviderRemoved)
 
-  // Initial fetch on mount
-  useEffect(() => {
-    fetchAllProviders()
-  }, [fetchAllProviders])
-
   // Memoize the context value to prevent unnecessary re-renders
   const value = useMemo<MetadataContextType>(
     () => ({
       ...state,
-      refreshProviders: fetchAllProviders
+      ensureProvidersLoaded,
+      refreshProviders
     }),
-    [state, fetchAllProviders]
+    [state, ensureProvidersLoaded, refreshProviders]
   )
 
   return <MetadataContext.Provider value={value}>{children}</MetadataContext.Provider>
@@ -202,14 +161,4 @@ export function useBookCoverProviders(): MetadataProviderType[] {
 export function usePodcastCoverProviders(): MetadataProviderType[] {
   const { podcastCoverProviders } = useMetadata()
   return useMemo(() => podcastCoverProviders, [podcastCoverProviders])
-}
-
-export function useAuthorProviders(): MetadataProviderType[] {
-  const { authorProviders } = useMetadata()
-  return useMemo(() => authorProviders, [authorProviders])
-}
-
-export function useChapterProviders(): MetadataProviderType[] {
-  const { chapterProviders } = useMetadata()
-  return useMemo(() => chapterProviders, [chapterProviders])
 }
