@@ -211,3 +211,11 @@ export const getUsers = cache(async () => {
 export const getUser = cache(async (userId: string) => {
   return apiRequest<User>(`/api/users/${userId}`, {})
 })
+
+export const getTags = cache(async () => {
+  return apiRequest<{ tags: string[] }>('/api/tags', {})
+})
+
+export const getGenres = cache(async () => {
+  return apiRequest<{ genres: string[] }>('/api/genres', {})
+})

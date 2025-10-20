@@ -9,7 +9,7 @@ import Btn from './Btn'
 import IconBtn from './IconBtn'
 import TextInput from './TextInput'
 
-interface EditListItem {
+export interface EditListItem {
   id: string
   name: string
   numBooks?: number
