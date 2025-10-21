@@ -152,7 +152,7 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
       }
 
       const errorMessage = await response.text()
-      throw mew ApiError(errorMessage ||`HTTP ${response.status}: ${response.statusText}`, response.status, response.statusText)
+      throw new ApiError(errorMessage || `HTTP ${response.status}: ${response.statusText}`, response.status, response.statusText)
     }
 
     // Check if response has content before trying to parse JSON
