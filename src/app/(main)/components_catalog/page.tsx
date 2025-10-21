@@ -1,4 +1,5 @@
 import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
+import { EditListExamples } from './examples/EditListExamples'
 import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
 
 export default function ComponentsCatalogPage() {
@@ -90,6 +91,11 @@ export default function ComponentsCatalogPage() {
                     Cover Size Widget
                   </a>
                 </li>
+                <li>
+                  <a href="#edit-list-examples" className="hover:text-blue-400 transition-colors">
+                    Edit List
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -101,6 +107,9 @@ export default function ComponentsCatalogPage() {
       </div>
       <div id="cover-size-widget-examples">
         <CoverSizeWidgetExamples />
+      </div>
+      <div id="edit-list-examples">
+        <EditListExamples />
       </div>
     </div>
   )

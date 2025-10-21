@@ -1,5 +1,6 @@
 import { apiRequest } from '@/lib/api'
 import { ServerSettings } from '@/types/api'
+import { revalidateTag } from 'next/cache'
 
 export type UpdateServerSettingsApiResponse = {
   serverSettings: ServerSettings
@@ -14,18 +15,32 @@ export type UpdateSortingPrefixesApiResponse = {
 export async function updateServerSettings(serverSettings: ServerSettings): Promise<UpdateServerSettingsApiResponse> {
   'use server'
 
-  return apiRequest<UpdateServerSettingsApiResponse>('/api/settings', {
+  const response = await apiRequest<UpdateServerSettingsApiResponse>('/api/settings', {
     method: 'PATCH',
     body: JSON.stringify(serverSettings)
   })
+
+  // Invalidate the current user cache
+  if (response) {
+    revalidateTag('current-user')
+  }
+
+  return response
 }
 
 // Server Action for updating sorting prefixes
 export async function updateSortingPrefixes(sortingPrefixes: string[]): Promise<UpdateSortingPrefixesApiResponse> {
   'use server'
 
-  return apiRequest<UpdateSortingPrefixesApiResponse>('/api/sorting-prefixes', {
+  const response = await apiRequest<UpdateSortingPrefixesApiResponse>('/api/sorting-prefixes', {
     method: 'PATCH',
     body: JSON.stringify({ sortingPrefixes })
   })
+
+  // Invalidate the current user cache
+  if (response) {
+    revalidateTag('current-user')
+  }
+
+  return response
 }

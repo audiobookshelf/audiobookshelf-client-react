@@ -150,11 +150,39 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
       if (response.status === 401) {
         throw new UnauthorizedError('Unauthorized')
       }
-      throw new ApiError(`HTTP ${response.status}: ${response.statusText}`, response.status, response.statusText)
+
+      const errorMessage = await response.text()
+      throw mew ApiError(errorMessage ||`HTTP ${response.status}: ${response.statusText}`, response.status, response.statusText)
     }
 
-    const data = await response.json()
-    return data
+    // Check if response has content before trying to parse JSON
+    const contentType = response.headers.get('content-type')
+    const contentLength = response.headers.get('content-length')
+
+    // If no content or explicit 204 No Content status, return empty data
+    if (response.status === 204 || contentLength === '0') {
+      return undefined as T
+    }
+
+    // If there's a content-type header and it's JSON, parse it
+    if (contentType?.includes('application/json')) {
+      const data = await response.json()
+      return data as T
+    }
+
+    // Try to get text content, if empty return undefined
+    const text = await response.text()
+    if (!text || text.trim() === '') {
+      return undefined as T
+    }
+
+    // Try to parse as JSON, fallback to undefined if it fails
+    try {
+      const data = JSON.parse(text)
+      return data as T
+    } catch {
+      return undefined as T
+    }
   } catch (error) {
     // Re-throw our custom errors
     if (error instanceof UnauthorizedError || error instanceof ApiError) {
@@ -191,11 +219,13 @@ export const getData = cache(async <T extends Promise<unknown>[]>(...promises: T
 
 /**
  * Current user response data
+ *
+ * call revalidateTag('current-user') when server settings change or user is updated
  */
 export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
   return apiRequest<UserLoginResponse>('/api/authorize', {
     method: 'POST',
-    cache: 'force-cache'
+    next: { tags: ['current-user'] }
   })
 })
 
@@ -311,4 +341,12 @@ export async function searchLibrary(libraryId: string, query: string, limit?: nu
  */
 export const getMetadataProviders = cache(async (): Promise<MetadataProvidersResponse> => {
   return apiRequest<MetadataProvidersResponse>('/api/search/providers', {})
+})
+
+export const getTags = cache(async () => {
+  return apiRequest<{ tags: string[] }>('/api/tags', {})
+})
+
+export const getGenres = cache(async () => {
+  return apiRequest<{ genres: string[] }>('/api/genres', {})
 })
