@@ -82,25 +82,16 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
       setLoadError(null)
 
       try {
-        const [userData, librariesData] = await Promise.all([getCurrentUserAction(), getLibrariesAction()])
+        const [currentUser, librariesResponse] = await Promise.all([getCurrentUserAction(), getLibrariesAction()])
 
-        if (userData.error) {
-          setLoadError(userData.error)
-          return
+        if (currentUser?.user) {
+          setUser(currentUser.user)
         }
 
-        if (userData.data?.user) {
-          setUser(userData.data.user)
-        }
-
-        const libs = librariesData.data?.libraries || []
+        const libs = librariesResponse?.libraries || []
         setLibraries(libs)
         if (libs.length > 0) {
           setSelectedLibraryId(libs[0].id)
-        }
-
-        if (librariesData.error) {
-          setLoadError(librariesData.error)
         }
       } catch (error) {
         setLoadError(error instanceof Error ? error.message : 'Failed to load data')
@@ -124,16 +115,13 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     try {
       const result = await searchLibraryAction(selectedLibraryId, searchQuery.trim(), 10)
 
-      if (result.error) {
-        setSearchError(result.error)
-        setSearchResults(null)
-      } else if (result.data) {
-        setSearchResults(result.data)
+      if (result) {
+        setSearchResults(result)
 
         // Auto-select first item based on media types
         if (autoSelectFirst) {
-          const firstBook = result.data.book?.[0]?.libraryItem as BookLibraryItem | undefined
-          const firstPodcast = result.data.podcast?.[0]?.libraryItem as PodcastLibraryItem | undefined
+          const firstBook = result.book?.[0]?.libraryItem as BookLibraryItem | undefined
+          const firstPodcast = result.podcast?.[0]?.libraryItem as PodcastLibraryItem | undefined
 
           if (mediaTypes.includes('book') && firstBook) {
             setSelectedBook(firstBook)

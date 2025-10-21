@@ -27,16 +27,11 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
       setLoadError(null)
 
       try {
-        const userData = await getCurrentUserAction()
+        const currentUser = await getCurrentUserAction()
 
-        if (userData.error) {
-          setLoadError(userData.error)
-          return
-        }
-
-        if (userData.data?.user) {
-          setUser(userData.data.user)
-          setBookCoverAspectRatio(userData.data.serverSettings.bookshelfView || 1)
+        if (currentUser?.user) {
+          setUser(currentUser.user)
+          setBookCoverAspectRatio(currentUser.serverSettings.bookshelfView || 1)
         } else {
           setLoadError('No user data received')
         }

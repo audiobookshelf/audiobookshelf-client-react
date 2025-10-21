@@ -6,7 +6,6 @@ import { MultiSelect, MultiSelectItem } from '@/components/ui/MultiSelect'
 import LanguageDropdown from '@/components/widgets/LanguageDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { ApiResponse } from '@/lib/api'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
 import { useMemo, useState, useTransition } from 'react'
@@ -16,8 +15,8 @@ import SettingsToggleSwitch from './SettingsToggleSwitch'
 
 interface SettingsClientProps {
   serverSettings: ServerSettings
-  updateServerSettings: (serverSettings: ServerSettings) => Promise<ApiResponse<UpdateServerSettingsApiResponse>>
-  updateSortingPrefixes: (sortingPrefixes: string[]) => Promise<ApiResponse<UpdateSortingPrefixesApiResponse>>
+  updateServerSettings: (serverSettings: ServerSettings) => Promise<UpdateServerSettingsApiResponse>
+  updateSortingPrefixes: (sortingPrefixes: string[]) => Promise<UpdateSortingPrefixesApiResponse>
 }
 
 export default function SettingsClient(props: SettingsClientProps) {
@@ -71,9 +70,9 @@ export default function SettingsClient(props: SettingsClientProps) {
     startTransition(async () => {
       try {
         const response = await updateServerSettings(updatedSettings)
-        if (response?.data?.serverSettings) {
+        if (response?.serverSettings) {
           // Update with the actual server response
-          setServerSettings(response.data.serverSettings)
+          setServerSettings(response.serverSettings)
         }
       } catch (error) {
         // Revert on error
@@ -107,12 +106,12 @@ export default function SettingsClient(props: SettingsClientProps) {
     startTransition(async () => {
       try {
         const response = await updateSortingPrefixes(prefixes)
-        if (response?.data) {
-          const rowsUpdated = response.data.rowsUpdated
-          showToast(t('ToastSortingPrefixesUpdateSuccess', { 0: rowsUpdated }), { type: 'success' })
-          if (response.data.serverSettings) {
-            setServerSettings(response.data.serverSettings)
-            setSortingPrefixes(response.data.serverSettings.sortingPrefixes || [])
+        if (response) {
+          const rowsUpdated = response.rowsUpdated
+          showToast(t('ToastSortingPrefixesUpdateSuccess', { 0: rowsUpdated.toString() }), { type: 'success' })
+          if (response.serverSettings) {
+            setServerSettings(response.serverSettings)
+            setSortingPrefixes(response.serverSettings.sortingPrefixes || [])
           }
         }
       } catch (error) {

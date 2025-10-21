@@ -156,6 +156,10 @@ export interface GetLibrariesResponse {
   libraries: Library[]
 }
 
+export interface GetUsersResponse {
+  users: User[]
+}
+
 export interface LibraryFolder {
   id: string
   path: string

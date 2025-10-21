@@ -5,9 +5,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function UploadPage() {
   const t = await getTypeSafeTranslations()
-  const userResponse = await getCurrentUser()
-  const user = userResponse.data?.user
-
+  const currentUser = await getCurrentUser()
+  const user = currentUser?.user
   if (!user) {
     return null
   }

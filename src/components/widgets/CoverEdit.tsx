@@ -137,13 +137,13 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
     if (!selectedFile) return
 
     setProcessingUpload(true)
-    const result = await uploadCoverAction(libraryItem.id, selectedFile)
-    setProcessingUpload(false)
-
-    if (result.error) {
-      showToast(result.error || t('ToastUnknownError'), { type: 'error' })
-    } else {
+    try {
+      await uploadCoverAction(libraryItem.id, selectedFile)
       resetCoverPreview()
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : t('ToastUnknownError'), { type: 'error' })
+    } finally {
+      setProcessingUpload(false)
     }
   }, [selectedFile, libraryItem.id, showToast, t, resetCoverPreview])
 
@@ -156,24 +156,25 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
     if (!coverPath) return
 
     onProcessingChange(true)
-    const result = await removeCoverAction(libraryItem.id)
-    onProcessingChange(false)
-
-    if (result.error) {
-      showToast(result.error, { type: 'error' })
+    try {
+      await removeCoverAction(libraryItem.id)
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Failed to remove cover', { type: 'error' })
+    } finally {
+      onProcessingChange(false)
     }
   }, [coverPath, libraryItem.id, onProcessingChange, showToast])
 
   const handleUpdateCover = useCallback(
     async (cover: string) => {
       onProcessingChange(true)
-      const result = await updateCoverFromUrlAction(libraryItem.id, cover)
-      onProcessingChange(false)
-
-      if (result.error) {
-        showToast(result.error || t('ToastCoverUpdateFailed'), { type: 'error' })
-      } else {
+      try {
+        await updateCoverFromUrlAction(libraryItem.id, cover)
         setImageUrl('')
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
+      } finally {
+        onProcessingChange(false)
       }
     },
     [libraryItem.id, onProcessingChange, showToast, t]
@@ -216,11 +217,12 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
   const handleSetCover = useCallback(
     async (coverFile: LocalCover) => {
       onProcessingChange(true)
-      const result = await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
-      onProcessingChange(false)
-
-      if (result.error) {
-        showToast(result.error || t('ToastCoverUpdateFailed'), { type: 'error' })
+      try {
+        await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
+      } finally {
+        onProcessingChange(false)
       }
     },
     [libraryItem.id, onProcessingChange, showToast, t]

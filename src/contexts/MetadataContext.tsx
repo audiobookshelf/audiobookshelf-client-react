@@ -53,19 +53,13 @@ export function MetadataProvider({ children }: MetadataProviderProps) {
       try {
         const result = await getMetadataProvidersAction()
 
-        if (result.error) {
-          console.error('Failed to fetch providers:', result.error)
-          setState((prev) => ({ ...prev, isLoading: false }))
-          return
-        }
-
-        if (result.data?.providers) {
+        if (result?.providers) {
           setState({
-            bookProviders: result.data.providers.books || [],
-            podcastProviders: result.data.providers.podcasts || [],
-            bookCoverProviders: result.data.providers.booksCovers || [],
+            bookProviders: result.providers.books || [],
+            podcastProviders: result.providers.podcasts || [],
+            bookCoverProviders: result.providers.booksCovers || [],
             // Use same as podcasts for podcast covers per Vue client pattern
-            podcastCoverProviders: result.data.providers.podcasts || [],
+            podcastCoverProviders: result.providers.podcasts || [],
             providersLoaded: true,
             isLoading: false
           })

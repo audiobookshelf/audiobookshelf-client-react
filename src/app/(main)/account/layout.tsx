@@ -10,15 +10,15 @@ export const metadata: Metadata = {
 }
 
 export default async function AccountLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [userResponse] = await getData(getCurrentUser())
-  if (userResponse.error || !userResponse.data?.user) {
-    console.error('Error getting user data:', userResponse)
+  const [currentUser] = await getData(getCurrentUser())
+  if (!currentUser?.user) {
+    console.error('Error getting user data')
     redirect(`/login`)
   }
 
   return (
     <>
-      <AppBar user={userResponse.data.user} />
+      <AppBar user={currentUser.user} />
       <div className="page-bg-gradient h-[calc(100vh-4rem)]">
         <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
       </div>

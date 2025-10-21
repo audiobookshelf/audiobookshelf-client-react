@@ -12,23 +12,23 @@ export const metadata: Metadata = {
 }
 
 export default async function SettingsLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [userResponse] = await getData(getCurrentUser())
-  if (userResponse.error || !userResponse.data?.user) {
-    console.error('Error getting user data:', userResponse)
+  const [currentUser] = await getData(getCurrentUser())
+  if (!currentUser?.user) {
+    console.error('Error getting user data')
     redirect(`/login`)
   }
 
   // Redirect to library page if user is not admin or root
-  if (!['admin', 'root'].includes(userResponse.data.user.type)) {
+  if (!['admin', 'root'].includes(currentUser.user.type)) {
     return redirect('/library')
   }
 
-  const installSource = userResponse.data?.Source || 'Unknown'
-  const serverVersion = userResponse.data?.serverSettings?.version || 'Error'
+  const installSource = currentUser?.Source || 'Unknown'
+  const serverVersion = currentUser?.serverSettings?.version || 'Error'
 
   return (
     <>
-      <AppBar user={userResponse.data.user} />
+      <AppBar user={currentUser.user} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideNav serverVersion={serverVersion} installSource={installSource} />
         <div className="flex-1 min-w-0 page-bg-gradient">

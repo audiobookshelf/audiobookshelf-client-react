@@ -11,25 +11,21 @@ export type UpdateSortingPrefixesApiResponse = {
 }
 
 // Server Action
-export async function updateServerSettings(serverSettings: ServerSettings) {
+export async function updateServerSettings(serverSettings: ServerSettings): Promise<UpdateServerSettingsApiResponse> {
   'use server'
 
-  const response = await apiRequest<UpdateServerSettingsApiResponse>('/api/settings', {
+  return apiRequest<UpdateServerSettingsApiResponse>('/api/settings', {
     method: 'PATCH',
     body: JSON.stringify(serverSettings)
   })
-
-  return response
 }
 
 // Server Action for updating sorting prefixes
-export async function updateSortingPrefixes(sortingPrefixes: string[]) {
+export async function updateSortingPrefixes(sortingPrefixes: string[]): Promise<UpdateSortingPrefixesApiResponse> {
   'use server'
 
-  const response = await apiRequest<UpdateSortingPrefixesApiResponse>('/api/sorting-prefixes', {
+  return apiRequest<UpdateSortingPrefixesApiResponse>('/api/sorting-prefixes', {
     method: 'PATCH',
     body: JSON.stringify({ sortingPrefixes })
   })
-
-  return response
 }

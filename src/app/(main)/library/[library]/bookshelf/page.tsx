@@ -3,13 +3,11 @@ import BookshelfClient from './BookshelfClient'
 
 export default async function BookshelfPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params
-  const libraryResponse = await getData(getLibrary(libraryId), getLibraryItems(libraryId))
-  const library = libraryResponse[0].data
-  const libraryItemsData = libraryResponse[1].data
+  const [library, libraryItems] = await getData(getLibrary(libraryId), getLibraryItems(libraryId))
 
   return (
     <div className="p-8 w-full">
-      <BookshelfClient library={library} libraryItemsData={libraryItemsData} />
+      <BookshelfClient library={library} libraryItemsData={libraryItems} />
     </div>
   )
 }

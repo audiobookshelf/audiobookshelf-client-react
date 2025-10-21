@@ -9,12 +9,11 @@ import LogoutBtn from './LogoutBtn'
 export const dynamic = 'force-dynamic'
 
 export default async function AccountPage() {
-  const userResponse = await getCurrentUser()
-  const user = userResponse.data?.user
+  const currentUser = await getCurrentUser()
 
   const languageOptions = getLanguageCodeOptions()
 
-  if (!user) {
+  if (!currentUser?.user) {
     return null
   }
 
@@ -25,10 +24,10 @@ export default async function AccountPage() {
       <div className="flex flex-col items-start gap-4 mt-8">
         <div className="flex items-center gap-2 w-full">
           <div className="flex-2">
-            <TextInput value={user.username} label="Username" readOnly />
+            <TextInput value={currentUser.user.username} label="Username" readOnly />
           </div>
           <div className="flex-1">
-            <TextInput value={user.type} label="Account Type" readOnly />
+            <TextInput value={currentUser.user.type} label="Account Type" readOnly />
           </div>
         </div>
         <div className="w-full">
