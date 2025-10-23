@@ -33,6 +33,8 @@ export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', childre
         const file = files[0]
         setSelectedFileName(file.name)
         onChange?.(file)
+        // Reset the input value so the same file can be selected again
+        e.target.value = ''
       }
     },
     [onChange]
