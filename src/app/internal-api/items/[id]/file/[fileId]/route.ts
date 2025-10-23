@@ -13,9 +13,6 @@ import { NextRequest, NextResponse } from 'next/server'
  * - Keeps tokens secure (httpOnly cookies, not in URLs)
  * - Handles token expiration automatically (middleware refreshes tokens)
  * - Works seamlessly with <img> tags (browsers send cookies automatically)
- *
- * Note: This is in /internal-api/ (not /api/) to avoid routing conflicts
- * with reverse proxies that might route /api/* directly to the Express backend.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; fileId: string }> }) {
   const { id, fileId } = await params
