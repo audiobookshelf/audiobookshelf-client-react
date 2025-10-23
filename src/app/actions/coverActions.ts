@@ -5,7 +5,10 @@ import * as api from '@/lib/api'
 /**
  * Server Action: Upload a cover image file for a library item
  */
-export async function uploadCoverAction(libraryItemId: string, file: File) {
+export async function uploadCoverAction(libraryItemId: string, base64Data: string, fileName: string) {
+  // Convert Base64 to Buffer then to File
+  const buffer = Buffer.from(base64Data, 'base64')
+  const file = new File([buffer], fileName, { type: 'image/*' })
   return api.uploadCover(libraryItemId, file)
 }
 

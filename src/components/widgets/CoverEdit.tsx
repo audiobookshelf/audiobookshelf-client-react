@@ -138,9 +138,18 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
 
     setProcessingUpload(true)
     try {
-      await uploadCoverAction(libraryItem.id, selectedFile)
+      // Convert File to Base64 for server action
+      const arrayBuffer = await selectedFile.arrayBuffer()
+      const bytes = new Uint8Array(arrayBuffer)
+      let binary = ''
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i])
+      }
+      const base64 = btoa(binary)
+      await uploadCoverAction(libraryItem.id, base64, selectedFile.name)
       resetCoverPreview()
     } catch (error) {
+      console.error('Upload error:', error)
       showToast(error instanceof Error ? error.message : t('ToastUnknownError'), { type: 'error' })
     } finally {
       setProcessingUpload(false)
