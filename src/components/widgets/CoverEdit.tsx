@@ -15,7 +15,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import { BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 interface LocalCover extends LibraryFile {
   localPath: string
@@ -25,13 +25,15 @@ interface CoverEditProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   user: User
   bookCoverAspectRatio: number
-  processing: boolean
-  onProcessingChange: (processing: boolean) => void
 }
 
-export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onProcessingChange }: CoverEditProps) {
+export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: CoverEditProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+
+  // Transitions for server actions
+  const [isPendingUpload, startUploadTransition] = useTransition()
+  const [isPendingUpdate, startUpdateTransition] = useTransition()
 
   // Computed values
   const isPodcast = useMemo(() => libraryItem.mediaType === 'podcast', [libraryItem.mediaType])
@@ -58,7 +60,6 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
   const { coversFound, searchInProgress, hasSearched, searchCovers, cancelSearch, resetSearch } = useCoverSearch(handleSearchError)
 
   // State
-  const [processingUpload, setProcessingUpload] = useState(false)
   const [searchTitle, setSearchTitle] = useState('')
   const [searchAuthor, setSearchAuthor] = useState('')
   const [imageUrl, setImageUrl] = useState('')
@@ -101,9 +102,11 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
     return t('LabelSearchTitle')
   }, [provider, t])
 
-  // Initialize component
+  // Initialize component - only run when library item ID changes
   useEffect(() => {
     setShowLocalCovers(false)
+    setPreviewUpload(null)
+    setSelectedFile(null)
     const authorNameValue = 'authorName' in mediaMetadata ? mediaMetadata.authorName || '' : ''
     setImageUrl('')
     setSearchTitle(typeof mediaMetadata.title === 'string' ? mediaMetadata.title : '')
@@ -133,60 +136,60 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
     setSelectedFile(null)
   }, [])
 
-  const submitCoverUpload = useCallback(async () => {
+  const submitCoverUpload = useCallback(() => {
     if (!selectedFile) return
 
-    setProcessingUpload(true)
-    try {
-      // Convert File to Base64 for server action
-      const arrayBuffer = await selectedFile.arrayBuffer()
-      const bytes = new Uint8Array(arrayBuffer)
-      let binary = ''
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i])
+    const fileToUpload = selectedFile
+
+    startUploadTransition(async () => {
+      try {
+        // Convert File to Base64 for server action
+        const arrayBuffer = await fileToUpload.arrayBuffer()
+        const bytes = new Uint8Array(arrayBuffer)
+        const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('')
+        const base64 = btoa(binary)
+        await uploadCoverAction(libraryItem.id, base64, fileToUpload.name)
+      } catch (error) {
+        console.error('Upload error:', error)
+        showToast(error instanceof Error ? error.message : t('ToastUnknownError'), { type: 'error' })
       }
-      const base64 = btoa(binary)
-      await uploadCoverAction(libraryItem.id, base64, selectedFile.name)
-      resetCoverPreview()
-    } catch (error) {
-      console.error('Upload error:', error)
-      showToast(error instanceof Error ? error.message : t('ToastUnknownError'), { type: 'error' })
-    } finally {
-      setProcessingUpload(false)
-    }
-  }, [selectedFile, libraryItem.id, showToast, t, resetCoverPreview])
+    })
+
+    // Reset preview immediately, not inside the transition
+    resetCoverPreview()
+  }, [startUploadTransition, selectedFile, libraryItem.id, showToast, t, resetCoverPreview])
 
   const fileUploadSelected = useCallback((file: File) => {
     setPreviewUpload(URL.createObjectURL(file))
     setSelectedFile(file)
   }, [])
 
-  const handleRemoveCover = useCallback(async () => {
+  const handleRemoveCover = useCallback(() => {
     if (!coverPath) return
 
-    onProcessingChange(true)
-    try {
-      await removeCoverAction(libraryItem.id)
-    } catch (error) {
-      showToast(error instanceof Error ? error.message : 'Failed to remove cover', { type: 'error' })
-    } finally {
-      onProcessingChange(false)
-    }
-  }, [coverPath, libraryItem.id, onProcessingChange, showToast])
+    startUpdateTransition(async () => {
+      try {
+        await removeCoverAction(libraryItem.id)
+      } catch (error) {
+        console.error('Error removing cover:', error)
+        showToast(error instanceof Error ? error.message : 'Failed to remove cover', { type: 'error' })
+      }
+    })
+  }, [startUpdateTransition, coverPath, libraryItem.id, showToast])
 
   const handleUpdateCover = useCallback(
-    async (cover: string) => {
-      onProcessingChange(true)
-      try {
-        await updateCoverFromUrlAction(libraryItem.id, cover)
-        setImageUrl('')
-      } catch (error) {
-        showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
-      } finally {
-        onProcessingChange(false)
-      }
+    (cover: string) => {
+      startUpdateTransition(async () => {
+        try {
+          await updateCoverFromUrlAction(libraryItem.id, cover)
+          setImageUrl('')
+        } catch (error) {
+          console.error('Error updating cover:', error)
+          showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
+        }
+      })
     },
-    [libraryItem.id, onProcessingChange, showToast, t]
+    [startUpdateTransition, libraryItem.id, showToast, t]
   )
 
   const submitForm = useCallback(
@@ -206,7 +209,7 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
   }, [provider])
 
   const submitSearchForm = useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault()
 
       // Store provider in local storage
@@ -224,17 +227,17 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
   )
 
   const handleSetCover = useCallback(
-    async (coverFile: LocalCover) => {
-      onProcessingChange(true)
-      try {
-        await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
-      } catch (error) {
-        showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
-      } finally {
-        onProcessingChange(false)
-      }
+    (coverFile: LocalCover) => {
+      startUpdateTransition(async () => {
+        try {
+          await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
+        } catch (error) {
+          console.error('Error setting cover:', error)
+          showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
+        }
+      })
     },
-    [libraryItem.id, onProcessingChange, showToast, t]
+    [startUpdateTransition, libraryItem.id, showToast, t]
   )
 
   const localCoverImageCount = useMemo(() => {
@@ -251,10 +254,10 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
     setSelectedCoverForPreview(null)
   }, [])
 
-  const handleApplyCover = useCallback(async () => {
+  const handleApplyCover = useCallback(() => {
     if (!selectedCoverForPreview) return
     handleCloseCoverPreview()
-    await handleUpdateCover(selectedCoverForPreview)
+    handleUpdateCover(selectedCoverForPreview)
   }, [selectedCoverForPreview, handleCloseCoverPreview, handleUpdateCover])
 
   return (
@@ -268,7 +271,13 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
             <div className="absolute top-0 left-0 w-full h-full z-10 opacity-0 hover:opacity-100 transition-opacity duration-100">
               <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-black/60 to-transparent" />
               {userCanDelete && (
-                <div className="p-1 absolute top-1 right-1 text-red-500 rounded-full w-8 h-8 cursor-pointer hover:text-red-400" onClick={handleRemoveCover}>
+                <div
+                  className={mergeClasses(
+                    'p-1 absolute top-1 right-1 text-red-500 rounded-full w-8 h-8',
+                    isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:text-red-400'
+                  )}
+                  onClick={isPendingUpdate ? undefined : handleRemoveCover}
+                >
                   <Tooltip text={t('LabelRemoveCover')} position="top">
                     <span className="material-symbols text-2xl">delete</span>
                   </Tooltip>
@@ -290,8 +299,8 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
             )}
 
             <form onSubmit={submitForm} className="flex grow">
-              <TextInput value={imageUrl} onChange={setImageUrl} placeholder={t('LabelImageURLFromTheWeb')} className="h-9 w-full" />
-              <Btn color="bg-success" type="submit" disabled={!imageUrl} className="ms-2 sm:ms-3 w-24 h-9 px-4">
+              <TextInput value={imageUrl} onChange={setImageUrl} placeholder={t('LabelImageURLFromTheWeb')} className="h-9 w-full" disabled={isPendingUpdate} />
+              <Btn color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="ms-2 sm:ms-3 w-24 h-9 px-4">
                 {t('ButtonSubmit')}
               </Btn>
             </form>
@@ -313,11 +322,11 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
                     <div
                       key={localCoverFile.ino}
                       className={mergeClasses(
-                        'm-0.5 mb-5 border-2 cursor-pointer',
-                        'hover:border-yellow-300',
+                        'm-0.5 mb-5 border-2',
+                        isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-yellow-300',
                         localCoverFile.metadata.path === coverPath ? 'border-yellow-300' : 'border-transparent'
                       )}
-                      onClick={() => handleSetCover(localCoverFile)}
+                      onClick={isPendingUpdate ? undefined : () => handleSetCover(localCoverFile)}
                     >
                       <div className="h-24 bg-primary" style={{ width: 96 / bookCoverAspectRatio + 'px' }}>
                         <PreviewCover
@@ -385,11 +394,11 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
               <div
                 key={cover}
                 className={mergeClasses(
-                  'm-0.5 mb-5 border-2 cursor-pointer',
-                  'hover:border-yellow-300',
+                  'm-0.5 mb-5 border-2',
+                  isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-yellow-300',
                   cover === coverPath ? 'border-yellow-300' : 'border-transparent'
                 )}
-                onClick={() => handleCoverClick(cover)}
+                onClick={isPendingUpdate ? undefined : () => handleCoverClick(cover)}
               >
                 <PreviewCover src={cover} width={80} bookCoverAspectRatio={bookCoverAspectRatio} />
               </div>
@@ -408,10 +417,10 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio, onP
             <PreviewCover src={previewUpload} width={240} bookCoverAspectRatio={bookCoverAspectRatio} />
           </div>
           <div className="absolute bottom-0 right-0 flex py-4 px-5">
-            <Btn disabled={processingUpload} className="mx-2" onClick={resetCoverPreview}>
+            <Btn disabled={isPendingUpload} className="mx-2" onClick={resetCoverPreview}>
               {t('ButtonReset')}
             </Btn>
-            <Btn loading={processingUpload} color="bg-success" onClick={submitCoverUpload}>
+            <Btn loading={isPendingUpload} color="bg-success" onClick={submitCoverUpload}>
               {t('ButtonUpload')}
             </Btn>
           </div>

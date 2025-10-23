@@ -3,7 +3,7 @@
 import { getCurrentUserAction } from '@/app/actions/searchActions'
 import CoverEdit from '@/components/widgets/CoverEdit'
 import { BookLibraryItem, PodcastLibraryItem, User } from '@/types/api'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
 interface CoverEditExamplesProps {
@@ -16,9 +16,6 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
   const [bookCoverAspectRatio, setBookCoverAspectRatio] = useState(1)
   const [isLoading, setIsLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
-
-  // Component state
-  const [processing, setProcessing] = useState(false)
 
   // Fetch user data on mount
   useEffect(() => {
@@ -43,10 +40,6 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
     }
 
     loadData()
-  }, [])
-
-  const handleProcessingChange = useCallback((isProcessing: boolean) => {
-    setProcessing(isProcessing)
   }, [])
 
   // Show loading state
@@ -88,7 +81,7 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
     <ComponentExamples title="Cover Edit">
       <ComponentInfo
         component="CoverEdit"
-        description="A comprehensive cover management component for library items. Supports uploading covers, searching from multiple providers, managing local covers, and cover URL submission. Cover providers are automatically loaded from the global MetadataContext based on the media type."
+        description="A comprehensive cover management component for library items. Supports uploading covers, searching from multiple providers, managing local covers, and cover URL submission. Cover providers are automatically loaded from the global MetadataContext based on the media type. Processing state is managed internally using React transitions."
       >
         <p className="mb-2">
           <span className="font-bold">Import:</span> <Code overflow>import CoverEdit from &apos;@/components/widgets/CoverEdit&apos;</Code>
@@ -105,12 +98,6 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
             <li>
               <Code>bookCoverAspectRatio</Code>: Aspect ratio for book covers.
             </li>
-            <li>
-              <Code>processing</Code>: Whether the component is processing an action.
-            </li>
-            <li>
-              <Code>onProcessingChange</Code>: Callback when processing state changes.
-            </li>
           </ul>
         </div>
       </ComponentInfo>
@@ -119,13 +106,7 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
         {/* Cover Component Display */}
         {selectedLibraryItem ? (
           <div style={{ height: '600px' }}>
-            <CoverEdit
-              libraryItem={selectedLibraryItem}
-              user={user}
-              bookCoverAspectRatio={bookCoverAspectRatio}
-              processing={processing}
-              onProcessingChange={handleProcessingChange}
-            />
+            <CoverEdit libraryItem={selectedLibraryItem} user={user} bookCoverAspectRatio={bookCoverAspectRatio} />
           </div>
         ) : (
           <div className="p-8 text-center border-2 border-dashed border-primary/20 rounded-lg">
