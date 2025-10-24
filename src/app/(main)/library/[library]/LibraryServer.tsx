@@ -2,19 +2,16 @@ import { getData, getLibrary, getLibraryPersonalized } from '../../../../lib/api
 import LibraryClient from './LibraryClient'
 
 export default async function LibraryDataFetcher({ libraryId }: { libraryId: string }) {
-  const [libraryResponse, personalizedResponse] = await getData(getLibrary(libraryId), getLibraryPersonalized(libraryId))
+  const [library, personalized] = await getData(getLibrary(libraryId), getLibraryPersonalized(libraryId))
 
-  if (libraryResponse.error || !libraryResponse.data) {
-    console.error('Error getting library data:', libraryResponse)
+  if (!library) {
+    console.error('Error getting library data')
     return null
   }
-  if (personalizedResponse.error || !personalizedResponse.data) {
-    console.error('Error getting personalized data:', personalizedResponse)
+  if (!personalized) {
+    console.error('Error getting personalized data')
     return null
   }
-
-  const library = libraryResponse.data
-  const personalized = personalizedResponse.data
 
   return <LibraryClient library={library} personalized={personalized} />
 }

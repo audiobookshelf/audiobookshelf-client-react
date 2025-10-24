@@ -11,9 +11,9 @@ import UserLanguageSelector from './UserLanguageSelector'
 export const dynamic = 'force-dynamic'
 
 export default async function AccountPage() {
+  const currentUser = await getCurrentUser()
   const t = await getTypeSafeTranslations()
-  const userResponse = await getCurrentUser()
-  const user = userResponse.data?.user
+  const user = currentUser?.user
 
   // Get current language from cookies (userLanguage takes precedence over language)
   const cookieStore = await cookies()
@@ -33,7 +33,7 @@ export default async function AccountPage() {
             <TextInput value={user.username} label={t('LabelUsername')} readOnly />
           </div>
           <div className="flex-1">
-            <TextInput value={user.type} label={t('LabelAccountType')} readOnly />
+            <TextInput value={user.type} label="Account Type" readOnly />
           </div>
         </div>
         <div className="w-full">

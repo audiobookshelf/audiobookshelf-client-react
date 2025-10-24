@@ -105,7 +105,11 @@ export default function Modal({
       ref={wrapperRef}
       role="dialog"
       aria-modal="true"
-      className={mergeClasses('modal modal-bg w-full h-full fixed top-0 start-0 items-center justify-center flex', zIndexClass, bgOpacityClass)}
+      className={mergeClasses(
+        'modal modal-bg w-full h-full fixed top-0 start-0 items-center justify-center flex overflow-x-hidden',
+        zIndexClass,
+        bgOpacityClass
+      )}
       onClick={clickBg}
       cy-id="modal-wrapper"
     >
@@ -114,12 +118,12 @@ export default function Modal({
 
       {/* Close button */}
       <button
-        className="absolute top-4 end-4 landscape:top-4 landscape:end-4 md:portrait:top-5 md:portrait:end-5 lg:top-5 lg:end-5 inline-flex text-gray-200 hover:text-white z-10 transition-colors"
+        className="absolute top-2 end-2 sm:top-4 sm:end-4 inline-flex text-gray-200 hover:text-white z-10 transition-colors"
         aria-label={t('ButtonCloseModal')}
         onClick={clickClose}
         cy-id="modal-close-button"
       >
-        <span className="material-symbols text-2xl landscape:text-2xl md:portrait:text-4xl lg:text-4xl">close</span>
+        <span className="material-symbols text-xl sm:text-2xl">close</span>
       </button>
 
       {/* Outer content slot */}
@@ -135,9 +139,9 @@ export default function Modal({
           marginTop: `${contentMarginTop}px`
         }}
         className={mergeClasses(
-          'relative text-white outline-none focus:outline-none',
+          'relative text-white outline-none focus:outline-none overflow-x-hidden',
           // Responsive width: full width with margin on mobile, fixed width on larger screens
-          modalWidth ? '' : 'w-[calc(100vw-2rem)] max-w-[90vw] sm:w-auto sm:min-w-[380px] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]'
+          modalWidth ? '' : 'w-[calc(100vw-1rem)] max-w-[95vw] sm:w-auto sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]'
         )}
         onMouseDown={mousedownModal}
         onMouseUp={mouseupModal}

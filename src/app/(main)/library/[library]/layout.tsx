@@ -20,23 +20,23 @@ export default async function LibraryLayout({
 }>) {
   const { library: currentLibraryId } = await params
 
-  const [librariesResponse, userResponse] = await getData(getLibraries(), getCurrentUser())
+  const [librariesResponse, currentUser] = await getData(getLibraries(), getCurrentUser())
 
-  if (userResponse.error || !userResponse.data?.user) {
-    console.error('Error getting user data:', userResponse)
+  if (!currentUser?.user) {
+    console.error('Error getting user data')
     redirect(`/login`)
   }
 
-  const installSource = userResponse.data?.Source || 'Unknown'
-  const serverVersion = userResponse.data?.serverSettings?.version || 'Error'
-  const libraries = librariesResponse.data?.libraries || []
+  const installSource = currentUser?.Source || 'Unknown'
+  const serverVersion = currentUser?.serverSettings?.version || 'Error'
+  const libraries = librariesResponse?.libraries || []
 
   const currentLibrary = libraries.find((library: any) => library.id === currentLibraryId)
   const currentLibraryMediaType = currentLibrary?.mediaType || 'book'
 
   return (
     <>
-      <AppBar user={userResponse.data.user} libraries={libraries} currentLibraryId={currentLibraryId} />
+      <AppBar user={currentUser.user} libraries={libraries} currentLibraryId={currentLibraryId} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideRail
           currentLibraryId={currentLibraryId}

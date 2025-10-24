@@ -9,9 +9,9 @@ export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage() {
   const t = await getTypeSafeTranslations()
-  const [userResponse] = await getData(getCurrentUser())
+  const [currentUser] = await getData(getCurrentUser())
 
-  const serverSettings = userResponse.data?.serverSettings
+  const serverSettings = currentUser?.serverSettings
 
   // TODO: Handle loading data error?
   if (!serverSettings) {

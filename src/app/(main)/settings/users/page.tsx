@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function UsersPage() {
   const [usersResponse] = await getData(getUsers())
-  const users = usersResponse.data?.users || []
+  const users = usersResponse?.users || []
 
   return <UsersClient users={users} />
 }

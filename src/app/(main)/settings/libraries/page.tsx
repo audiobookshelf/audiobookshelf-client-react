@@ -10,11 +10,11 @@ export default async function LibrariesPage() {
   const t = await getTypeSafeTranslations()
   const [librariesResponse] = await getData(getLibraries())
 
-  const librariesData = librariesResponse.data?.libraries || []
+  const libraries = librariesResponse?.libraries || []
 
   return (
     <SettingsContent title={t('HeaderLibraries')} moreInfoUrl="https://www.audiobookshelf.org/guides/library_creation">
-      <LibrariesList libraries={librariesData} saveLibraryOrderAction={saveLibraryOrder} />
+      <LibrariesList libraries={libraries} saveLibraryOrderAction={saveLibraryOrder} />
     </SettingsContent>
   )
 }

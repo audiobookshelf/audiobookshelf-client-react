@@ -22,10 +22,7 @@ interface BtnProps {
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
 const LoadingSpinner = memo<{ progress?: string }>(({ progress }) => {
   return (
-    <div
-      className="text-white/100 absolute top-0 start-0 w-full h-full flex items-center justify-center bg-bg-disabled rounded-md cursor-not-allowed"
-      aria-hidden="true"
-    >
+    <div className="text-white/100 absolute inset-0 flex items-center justify-center bg-bg-disabled cursor-not-allowed" aria-hidden="true">
       {progress ? (
         <span>{progress}</span>
       ) : (

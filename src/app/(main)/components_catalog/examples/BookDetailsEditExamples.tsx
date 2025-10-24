@@ -3,51 +3,11 @@
 import Btn from '@/components/ui/Btn'
 import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import { BookLibraryItem } from '@/types/api'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
-const mockLibraryItem: BookLibraryItem = {
-  id: 'cltjyl123000108l437q67p8o',
-  ino: '13631488-1679503385065',
-  libraryId: 'cltjx6i95000008jp5e2p3j4c',
-  folderId: 'cltjx6i95000008jp5e2p3j4c-root',
-  path: '/data/audiobooks/The Lord of the Rings',
-  relPath: 'The Lord of the Rings',
-  isFile: false,
-  mtimeMs: 1679503385065,
-  ctimeMs: 1679503385065,
-  birthtimeMs: 1679503385065,
-  addedAt: 1679503385065,
-  updatedAt: 1679503385065,
-  isMissing: false,
-  isInvalid: false,
-  mediaType: 'book',
-  media: {
-    id: 'cltjyl123000208l46y4d3g4h',
-    libraryItemId: 'cltjyl123000108l437q67p8o',
-    metadata: {
-      title: 'The Lord of the Rings',
-      subtitle: 'The Complete Saga',
-      authors: [{ id: 'author-1', name: 'J.R.R. Tolkien' }],
-      narrators: ['Rob Inglis'],
-      series: [{ id: 'series-1', name: 'The Lord of the Rings', sequence: '1' }],
-      genres: ['Fantasy', 'Adventure'],
-      publishedYear: '1954',
-      publisher: 'Allen & Unwin',
-      description: '<p>A fantastic journey to destroy a powerful ring.</p>',
-      isbn: '978-0-618-64015-7',
-      asin: 'B007978N6Q',
-      language: 'English',
-      explicit: false,
-      abridged: false
-    },
-    coverPath: '/data/audiobooks/The Lord of the Rings/cover.jpg',
-    tags: ['Classic', 'Epic'],
-    audioFiles: [],
-    chapters: [],
-    duration: 3600
-  },
-  libraryFiles: []
+interface BookDetailsEditExamplesProps {
+  selectedBook?: BookLibraryItem | null
 }
 
 const mockAuthors = [
@@ -72,10 +32,15 @@ const mockSeries = [
   { value: 'series-2', content: 'A Song of Ice and Fire' }
 ]
 
-export function BookDetailsEditExamples() {
+export function BookDetailsEditExamples({ selectedBook }: BookDetailsEditExamplesProps) {
   const bookDetailsEditRef = useRef<BookDetailsEditRef>(null)
-  const [libraryItem, setLibraryItem] = useState(mockLibraryItem)
+  const [libraryItem, setLibraryItem] = useState(selectedBook)
   const [hasChanges, setHasChanges] = useState(false)
+
+  // Update library item when selectedBook changes
+  useEffect(() => {
+    setLibraryItem(selectedBook)
+  }, [selectedBook])
 
   const handleChange = useCallback((details: { libraryItemId: string; hasChanges: boolean }) => {
     console.log('onChange', details)
@@ -85,20 +50,28 @@ export function BookDetailsEditExamples() {
   const handleSubmit = useCallback((details: { updatePayload: BookUpdatePayload; hasChanges: boolean }) => {
     console.log('onSubmit', details)
     if (details.hasChanges) {
-      setLibraryItem((prev) => ({
-        ...prev,
-        media: {
-          ...prev.media,
-          metadata: {
-            ...prev.media.metadata,
-            ...details.updatePayload.metadata
-          },
-          tags: details.updatePayload.tags ?? prev.media.tags
+      setLibraryItem((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          media: {
+            ...prev.media,
+            metadata: {
+              ...prev.media.metadata,
+              ...details.updatePayload.metadata
+            },
+            tags: details.updatePayload.tags ?? prev.media.tags
+          }
         }
-      }))
+      })
       setHasChanges(false)
     }
   }, [])
+
+  // Don't render if no book is selected
+  if (!selectedBook) {
+    return null
+  }
 
   return (
     <ComponentExamples title="Book Details Edit">
@@ -140,10 +113,10 @@ export function BookDetailsEditExamples() {
         </div>
       </ComponentInfo>
 
-      <Example title="Default">
+      <Example title={`Book Details Edit for: ${libraryItem?.media.metadata.title}`}>
         <BookDetailsEdit
           ref={bookDetailsEditRef}
-          libraryItem={libraryItem}
+          libraryItem={libraryItem!}
           availableAuthors={mockAuthors}
           availableNarrators={mockNarrators}
           availableGenres={mockGenres}

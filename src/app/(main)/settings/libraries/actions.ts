@@ -6,13 +6,11 @@ type SaveLibraryOrderApiResponse = {
 }
 
 // Server Action
-export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]) {
+export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]): Promise<SaveLibraryOrderApiResponse> {
   'use server'
 
-  const response = await apiRequest<SaveLibraryOrderApiResponse>('/api/libraries/order', {
+  return apiRequest<SaveLibraryOrderApiResponse>('/api/libraries/order', {
     method: 'POST',
     body: JSON.stringify(reorderObjects)
   })
-
-  return response
 }

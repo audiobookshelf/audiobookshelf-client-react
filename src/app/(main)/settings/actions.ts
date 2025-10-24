@@ -12,7 +12,7 @@ export type UpdateSortingPrefixesApiResponse = {
 }
 
 // Server Action
-export async function updateServerSettings(serverSettings: ServerSettings) {
+export async function updateServerSettings(serverSettings: ServerSettings): Promise<UpdateServerSettingsApiResponse> {
   'use server'
 
   const response = await apiRequest<UpdateServerSettingsApiResponse>('/api/settings', {
@@ -21,7 +21,7 @@ export async function updateServerSettings(serverSettings: ServerSettings) {
   })
 
   // Invalidate the current user cache
-  if (response.data) {
+  if (response) {
     revalidateTag('current-user')
   }
 
@@ -29,7 +29,7 @@ export async function updateServerSettings(serverSettings: ServerSettings) {
 }
 
 // Server Action for updating sorting prefixes
-export async function updateSortingPrefixes(sortingPrefixes: string[]) {
+export async function updateSortingPrefixes(sortingPrefixes: string[]): Promise<UpdateSortingPrefixesApiResponse> {
   'use server'
 
   const response = await apiRequest<UpdateSortingPrefixesApiResponse>('/api/sorting-prefixes', {
@@ -38,7 +38,7 @@ export async function updateSortingPrefixes(sortingPrefixes: string[]) {
   })
 
   // Invalidate the current user cache
-  if (response.data) {
+  if (response) {
     revalidateTag('current-user')
   }
 

@@ -2,12 +2,48 @@ import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
-import { Library, LibraryItem, PersonalizedShelf, User, UserLoginResponse } from '../types/api'
+import {
+  GetLibrariesResponse,
+  GetUsersResponse,
+  Library,
+  LibraryItem,
+  MetadataProvidersResponse,
+  PersonalizedShelf,
+  SearchLibraryResponse,
+  UploadCoverResponse,
+  User,
+  UserLoginResponse
+} from '../types/api'
 
-export interface ApiResponse<T = unknown> {
-  data?: T
-  error?: string
-  needsRefresh?: boolean
+/**
+ * Custom error classes for API error handling
+ */
+export class UnauthorizedError extends Error {
+  constructor(message = 'Unauthorized') {
+    super(message)
+    this.name = 'UnauthorizedError'
+  }
+}
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+    public statusText: string
+  ) {
+    super(message)
+    this.name = 'ApiError'
+  }
+}
+
+export class NetworkError extends Error {
+  constructor(
+    message = 'Network error',
+    public cause?: unknown
+  ) {
+    super(message)
+    this.name = 'NetworkError'
+  }
 }
 
 interface ServerStatus {
@@ -74,25 +110,32 @@ export async function getAccessToken() {
 
 /**
  * Make an authenticated API request to the server
+ * Throws UnauthorizedError, ApiError, or NetworkError on failure
  */
-export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
+export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
     let accessToken: string | null = null
 
     if (!publicEndpoints.includes(endpoint)) {
       accessToken = (await cookies()).get('access_token')?.value || null
       if (!accessToken) {
-        return { error: 'No authentication token found', needsRefresh: true }
+        throw new UnauthorizedError('No authentication token found')
       }
     }
 
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
 
-    const fetchHeaders = new Headers({
-      'Content-Type': 'application/json',
-      ...(options.headers as Record<string, string>)
-    })
+    // Check if body is FormData - if so, don't set Content-Type
+    // Node.js fetch will automatically set 'multipart/form-data' with the correct boundary
+    const isFormData = options.body instanceof FormData
+
+    const fetchHeaders = new Headers(options.headers as Record<string, string>)
+
+    // Only set Content-Type for non-FormData requests (defaults to application/json)
+    if (!isFormData && !fetchHeaders.has('Content-Type')) {
+      fetchHeaders.set('Content-Type', 'application/json')
+    }
 
     if (accessToken) {
       fetchHeaders.set('Authorization', `Bearer ${accessToken}`)
@@ -105,11 +148,11 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
 
     if (!response.ok) {
       if (response.status === 401) {
-        // Return special response indicating refresh is needed
-        return { error: 'Unauthorized', needsRefresh: true }
+        throw new UnauthorizedError('Unauthorized')
       }
+
       const errorMessage = await response.text()
-      return { error: errorMessage || `HTTP ${response.status}: ${response.statusText}` }
+      throw new ApiError(errorMessage || `HTTP ${response.status}: ${response.statusText}`, response.status, response.statusText)
     }
 
     // Check if response has content before trying to parse JSON
@@ -118,54 +161,60 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
 
     // If no content or explicit 204 No Content status, return empty data
     if (response.status === 204 || contentLength === '0') {
-      return { data: undefined as T }
+      return undefined as T
     }
 
     // If there's a content-type header and it's JSON, parse it
     if (contentType?.includes('application/json')) {
       const data = await response.json()
-      return { data }
+      return data as T
     }
 
     // Try to get text content, if empty return undefined
     const text = await response.text()
     if (!text || text.trim() === '') {
-      return { data: undefined as T }
+      return undefined as T
     }
 
     // Try to parse as JSON, fallback to undefined if it fails
     try {
       const data = JSON.parse(text)
-      return { data }
+      return data as T
     } catch {
-      return { data: undefined as T }
+      return undefined as T
     }
   } catch (error) {
+    // Re-throw our custom errors
+    if (error instanceof UnauthorizedError || error instanceof ApiError) {
+      throw error
+    }
+    // Wrap other errors in NetworkError
     console.error('API request failed:', error)
-    return { error: 'Network error' }
+    throw new NetworkError('Network error', error)
   }
 }
 
 /**
  * Batch multiple API requests and handle token refresh if needed.
- * If any request requires authentication refresh, redirects to the refresh endpoint.
+ * If any request throws UnauthorizedError, redirects to the refresh endpoint.
  *
  * The function preserves the type of each promise, so:
  * const [user, libraries] = await getData(getCurrentUser(), getLibraries())
  * will correctly infer the type of 'user' and 'libraries'.
  */
-export const getData = cache(async <T extends Promise<ApiResponse<unknown>>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
-  const responses = await Promise.all(promises)
-
-  // Check if any response requires token refresh
-  const requiresRefresh = responses.some((response) => response.needsRefresh)
-
-  if (requiresRefresh) {
-    const currentPath = (await headers()).get('x-current-path')
-    return redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath || '')}`)
+export const getData = cache(async <T extends Promise<unknown>[]>(...promises: T): Promise<{ [K in keyof T]: Awaited<T[K]> }> => {
+  try {
+    const responses = await Promise.all(promises)
+    return responses as { [K in keyof T]: Awaited<T[K]> }
+  } catch (error) {
+    // If any request is unauthorized, redirect to refresh token endpoint
+    if (error instanceof UnauthorizedError) {
+      const currentPath = (await headers()).get('x-current-path')
+      return redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath || '')}`)
+    }
+    // Let other errors propagate (Next.js error boundaries will handle them)
+    throw error
   }
-
-  return responses as { [K in keyof T]: Awaited<T[K]> }
 })
 
 /**
@@ -173,43 +222,125 @@ export const getData = cache(async <T extends Promise<ApiResponse<unknown>>[]>(.
  *
  * call revalidateTag('current-user') when server settings change or user is updated
  */
-export const getCurrentUser = cache(async () => {
+export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
   return apiRequest<UserLoginResponse>('/api/authorize', {
     method: 'POST',
     next: { tags: ['current-user'] }
   })
 })
 
-export const getServerStatus = cache(async (): Promise<ApiResponse<ServerStatus>> => {
+export const getServerStatus = cache(async (): Promise<ServerStatus> => {
   return apiRequest<ServerStatus>('/status')
 })
 
-export const getLibraries = cache(async () => {
-  return apiRequest<Library[]>('/api/libraries', {})
+export const getLibraries = cache(async (): Promise<GetLibrariesResponse> => {
+  return apiRequest<GetLibrariesResponse>('/api/libraries', {})
 })
 
-export const getLibrary = cache(async (libraryId: string) => {
+export const getLibrary = cache(async (libraryId: string): Promise<Library> => {
   return apiRequest<Library>(`/api/libraries/${libraryId}`, {})
 })
 
-export const getLibraryPersonalized = cache(async (libraryId: string) => {
+export const getLibraryPersonalized = cache(async (libraryId: string): Promise<PersonalizedShelf[]> => {
   return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized`, {})
 })
 
-export const getLibraryItems = cache(async (libraryId: string) => {
+export const getLibraryItems = cache(async (libraryId: string): Promise<LibraryItem[]> => {
   return apiRequest<LibraryItem[]>(`/api/libraries/${libraryId}/items`, {})
 })
 
-export const getLibraryItem = cache(async (itemId: string) => {
+export const getLibraryItem = cache(async (itemId: string): Promise<LibraryItem> => {
   return apiRequest<LibraryItem>(`/api/items/${itemId}`, {})
 })
 
-export const getUsers = cache(async () => {
-  return apiRequest<User[]>('/api/users', {})
+export const getUsers = cache(async (): Promise<GetUsersResponse> => {
+  return apiRequest<GetUsersResponse>('/api/users', {})
 })
 
-export const getUser = cache(async (userId: string) => {
+export const getUser = cache(async (userId: string): Promise<User> => {
   return apiRequest<User>(`/api/users/${userId}`, {})
+})
+
+/**
+ * Upload a cover image file for a library item
+ * Returns: { success: true, cover: coverPath }
+ */
+export async function uploadCover(libraryItemId: string, file: File): Promise<UploadCoverResponse> {
+  const formData = new FormData()
+  formData.set('cover', file)
+
+  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
+    method: 'POST',
+    body: formData
+  })
+}
+
+/**
+ * Remove the current cover from a library item
+ * Returns: 200 status with no body
+ */
+export async function removeCover(libraryItemId: string): Promise<void> {
+  return apiRequest<void>(`/api/items/${libraryItemId}/cover`, {
+    method: 'DELETE'
+  })
+}
+
+/**
+ * Update cover from a URL
+ * Returns: { success: true, cover: coverPath }
+ */
+export async function updateCoverFromUrl(libraryItemId: string, coverUrl: string): Promise<UploadCoverResponse> {
+  if (!coverUrl.startsWith('http:') && !coverUrl.startsWith('https:')) {
+    throw new ApiError('Invalid URL', 400, 'Bad Request')
+  }
+
+  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
+    method: 'POST',
+    body: JSON.stringify({ url: coverUrl })
+  })
+}
+
+/**
+ * Set cover from a local file in the library
+ * Returns: { success: true, cover: coverPath }
+ */
+export async function setCoverFromLocalFile(libraryItemId: string, filePath: string): Promise<UploadCoverResponse> {
+  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
+    method: 'PATCH',
+    body: JSON.stringify({ cover: filePath })
+  })
+}
+
+/**
+ * Search library for books, authors, series, etc.
+ * @param libraryId - The library to search
+ * @param query - Search query string
+ * @param limit - Maximum number of results per category (default 12)
+ * Returns: Search results grouped by category (books, authors, series, etc.)
+ */
+export async function searchLibrary(libraryId: string, query: string, limit?: number): Promise<SearchLibraryResponse> {
+  if (!query || !query.trim()) {
+    throw new ApiError('Search query is required', 400, 'Bad Request')
+  }
+
+  const params = new URLSearchParams({ q: query.trim() })
+  if (limit) {
+    params.set('limit', limit.toString())
+  }
+
+  return apiRequest<SearchLibraryResponse>(`/api/libraries/${libraryId}/search?${params.toString()}`, {})
+}
+
+//
+// Search Provider endpoints
+//
+
+/**
+ * Get all available metadata search providers
+ * Returns: Object with providers for books, book covers, and podcasts
+ */
+export const getMetadataProviders = cache(async (): Promise<MetadataProvidersResponse> => {
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers', {})
 })
 
 export const getTags = cache(async () => {

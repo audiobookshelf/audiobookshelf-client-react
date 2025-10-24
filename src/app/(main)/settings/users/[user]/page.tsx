@@ -1,5 +1,4 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import { User } from '@/types/api'
 import Link from 'next/link'
 import { getData, getUser } from '../../../../../lib/api'
 
@@ -9,8 +8,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   const t = await getTypeSafeTranslations()
   const { user: userId } = await params
 
-  const [usersResponse] = await getData(getUser(userId))
-  const user = usersResponse.data as User
+  const [user] = await getData(getUser(userId))
 
   return (
     <div className="w-full max-w-4xl mx-auto p-2 md:p-6">

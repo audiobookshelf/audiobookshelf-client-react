@@ -10,15 +10,15 @@ export const metadata: Metadata = {
 }
 
 export default async function ComponentsCatalogLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [userResponse] = await getData(getCurrentUser())
-  if (userResponse.error || !userResponse.data?.user) {
-    console.error('Error getting user data:', userResponse)
+  const [currentUser] = await getData(getCurrentUser())
+  if (!currentUser?.user) {
+    console.error('Error getting user data')
     redirect(`/login`)
   }
 
   return (
     <>
-      <AppBar user={userResponse.data.user} />
+      <AppBar user={currentUser.user} />
       <div>{children}</div>
     </>
   )

@@ -6,17 +6,26 @@ import { redirect } from 'next/navigation'
  * Only serves to redirect to user default library or settings/account page
  */
 export const GET = async () => {
-  const userResponse = await getCurrentUser()
-  if (userResponse.needsRefresh) {
-    return redirect('/refresh?redirect=/library')
-  }
-  if (userResponse.error || !userResponse.data?.user) {
+  try {
+    const currentUser = await getCurrentUser()
+
+    if (!currentUser?.user) {
+      return redirect('/login')
+    }
+
+    // Redirect to user default library or settings/account page
+    const userDefaultLibraryId = currentUser.userDefaultLibraryId ?? null
+    const userType = currentUser.user.type
+
+    return redirect(getUserDefaultUrlPath(userDefaultLibraryId, userType))
+  } catch (error) {
+    // Re-throw redirect errors - they are not actual errors
+    // Next.js redirects throw errors with NEXT_REDIRECT in the digest
+    if (error && typeof error === 'object' && 'digest' in error && typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
+      throw error
+    }
+    // Any other errors (including UnauthorizedError) should redirect to login
+    console.error('Error in library route:', error)
     return redirect('/login')
   }
-
-  // Redirect to user default library or settings/account page
-  const userDefaultLibraryId = userResponse.data?.userDefaultLibraryId
-  const userType = userResponse.data?.user?.type
-
-  return redirect(getUserDefaultUrlPath(userDefaultLibraryId, userType))
 }

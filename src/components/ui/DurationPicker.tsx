@@ -3,7 +3,7 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useUpdateEffect } from '@/hooks/useUpdateEffect'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useCallback, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import InputWrapper from './InputWrapper'
 
 export interface DurationPickerProps {
@@ -58,7 +58,7 @@ export default function DurationPicker({
   const [{ hText, mText, sText }, setText] = useState(init)
 
   // remember what we emitted to avoid immediate echo reset
-  const lastSentRef = React.useRef<number | null>(null)
+  const lastSentRef = useRef<number | null>(null)
 
   // sync from parent only when not editing, and only if different from last sent
   useUpdateEffect(() => {

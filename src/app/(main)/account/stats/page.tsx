@@ -6,10 +6,9 @@ export const dynamic = 'force-dynamic'
 
 export default async function AccountStatsPage() {
   const t = await getTypeSafeTranslations()
-  const userResponse = await getCurrentUser()
-  const user = userResponse.data?.user
+  const currentUser = await getCurrentUser()
 
-  if (!user) {
+  if (!currentUser?.user) {
     return null
   }
 
