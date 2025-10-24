@@ -180,8 +180,9 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
     if (isClient && srcContent && srcContent.trim() !== '') {
       try {
         // Wrap plain text in a paragraph to ensure proper DOM structure for parsing
-        // Check if content contains HTML tags (simple heuristic)
-        const hasHtmlTags = /<[^>]+>/.test(srcContent)
+        // Check if content is wrapped in HTML tags (starts with < and ends with >)
+        const trimmedContent = srcContent.trim()
+        const hasHtmlTags = trimmedContent.startsWith('<') && trimmedContent.endsWith('>')
         const htmlContent = hasHtmlTags ? srcContent : `<p>${srcContent}</p>`
         const document = new DOMParser().parseFromString(htmlContent, 'text/html')
         const parsedValue = (deserialize(document.body) as Descendant[]) || initialValue
