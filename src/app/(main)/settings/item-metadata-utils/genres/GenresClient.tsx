@@ -24,12 +24,9 @@ export default function GenresClient({ genres }: { genres: string[] }) {
     startTransition(async () => {
       const response = await removeGenre(item.name)
 
-      if (response.error) {
-        console.error('Error removing genre', response.error)
-        showToast(t('ToastRemoveFailed'), { type: 'error' })
-      } else if (response.data) {
+      if (response?.numItemsUpdated) {
         // TODO: Support pluralization
-        const numItemsUpdated = response.data.numItemsUpdated || 0
+        const numItemsUpdated = response.numItemsUpdated || 0
         showToast(t('MessageItemsUpdated', { 0: numItemsUpdated.toString() }), { type: 'success' })
       }
     })

@@ -16,7 +16,7 @@ export async function removeGenre(genre: string) {
   })
 
   // Revalidate the genres page to refresh the list
-  if (response.data) {
+  if (response?.numItemsUpdated) {
     revalidatePath('/settings/item-metadata-utils/genres')
   }
 
