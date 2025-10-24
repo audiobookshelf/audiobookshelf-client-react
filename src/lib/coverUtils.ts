@@ -1,6 +1,6 @@
 /**
  * Build cover URL for a library item
- * @param libraryItemId - The library item ID
+ * @param libraryItemId
  * @param timestamp - Optional timestamp for cache busting (typically updatedAt)
  * @param raw - If true, requests raw cover without server-side processing
  * @returns Cover URL
@@ -21,10 +21,7 @@ export function getLibraryItemCoverUrl(libraryItemId: string, timestamp?: number
  * The browser automatically includes the access_token cookie with the request.
  * If the token expires, Next.js middleware will redirect to refresh the token.
  *
- * Note: Uses /internal-api/ path to avoid routing conflicts with reverse proxies
- * that route /api/* directly to the Express backend.
- *
- * @param libraryItemId - The library item ID
+ * @param libraryItemId
  * @param fileIno - The file inode value
  * @returns Library file URL (authentication via cookies)
  */
