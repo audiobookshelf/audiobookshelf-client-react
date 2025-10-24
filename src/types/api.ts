@@ -270,9 +270,9 @@ export interface PodcastMetadata {
   releaseDate?: string
   /** comma-separated */
   genres: string[]
-  feedURL?: string
-  imageURL?: string
-  itunesPageURL?: string
+  feedUrl?: string
+  imageUrl?: string
+  itunesPageUrl?: string
   itunesId?: string
   itunesArtistId?: string
   explicit: boolean
@@ -670,7 +670,7 @@ export interface RSSFeedMinified {
   /** series/collection/item */
   entityId: string
   entityType: string
-  feedURL: string
+  feedUrl: string
 }
 
 export interface MediaItemShare {

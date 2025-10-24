@@ -10,7 +10,7 @@ import MultiSelect, { MultiSelectItem } from '../ui/MultiSelect'
 import SlateEditor from '../ui/SlateEditor'
 import TextInput from '../ui/TextInput'
 
-type Details = Omit<PodcastMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'imageURL' | 'itunesPageURL' | 'itunesArtistId'>
+type Details = Omit<PodcastMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'imageUrl' | 'itunesPageUrl' | 'itunesArtistId'>
 
 export type PodcastDetailsEditRef = DetailsEditRef<Details>
 export type PodcastUpdatePayload = UpdatePayload<Details>
@@ -122,8 +122,8 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
         </div>
 
         <TextInput
-          value={details.feedURL || ''}
-          onChange={handleFieldUpdate('feedURL') as (value: string) => void}
+          value={details.feedUrl || ''}
+          onChange={handleFieldUpdate('feedUrl') as (value: string) => void}
           label={t('LabelRSSFeedURL')}
           className="mt-2"
         />
