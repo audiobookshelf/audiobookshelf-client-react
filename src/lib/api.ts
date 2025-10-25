@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
   GetLibrariesResponse,
+  GetLibraryItemsResponse,
   GetUsersResponse,
   Library,
   LibraryItem,
@@ -245,8 +246,8 @@ export const getLibraryPersonalized = cache(async (libraryId: string): Promise<P
   return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized`, {})
 })
 
-export const getLibraryItems = cache(async (libraryId: string): Promise<LibraryItem[]> => {
-  return apiRequest<LibraryItem[]>(`/api/libraries/${libraryId}/items`, {})
+export const getLibraryItems = cache(async (libraryId: string): Promise<GetLibraryItemsResponse> => {
+  return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items`, {})
 })
 
 export const getLibraryItem = cache(async (itemId: string): Promise<LibraryItem> => {
