@@ -267,7 +267,7 @@ export const getUser = cache(async (userId: string): Promise<User> => {
  */
 export async function uploadCover(libraryItemId: string, file: File): Promise<UploadCoverResponse> {
   const formData = new FormData()
-  formData.set('cover', file)
+  formData.append('cover', file, file.name)
 
   return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
     method: 'POST',
