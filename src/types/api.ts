@@ -609,6 +609,21 @@ export interface LibraryItemQueryParams {
   episode?: string // Episode ID for progress
 }
 
+export interface GetLibraryItemsResponse {
+  results: LibraryItem[] | LibraryItemMinified[]
+  total?: number
+  limit: number
+  page: number
+  sortBy?: string
+  sortDesc: boolean
+  filterBy?: string
+  mediaType: string
+  minified: boolean
+  collapseseries: boolean
+  include: string
+  offset: number
+}
+
 export interface UploadCoverResponse {
   success: boolean
   cover: string

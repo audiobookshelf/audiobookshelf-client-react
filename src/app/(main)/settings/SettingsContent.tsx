@@ -2,7 +2,7 @@
 
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
-import eventBus from '@/lib/eventBus'
+import { useSettingsDrawer } from '@/contexts/SettingsDrawerContext'
 import Link from 'next/link'
 import SettingsMoreInfoIcon from './SettingsMoreInfoIcon'
 
@@ -19,9 +19,11 @@ export default function SettingsContent(props: {
   backLink?: string
   addButton?: AddButtonProps
 }) {
+  const { toggle } = useSettingsDrawer()
+
   return (
     <div className="w-full max-w-4xl mx-auto p-2 md:p-6">
-      <IconBtn className="md:hidden mb-2" ariaLabel="Menu" size="large" borderless onClick={() => eventBus.emit('toggleSettingsSideNav')}>
+      <IconBtn className="md:hidden mb-2" ariaLabel="Menu" size="large" borderless onClick={toggle}>
         menu
       </IconBtn>
       <div className="bg-bg rounded-md shadow-lg border border-white/5 p-2 sm:p-4 mb-8">

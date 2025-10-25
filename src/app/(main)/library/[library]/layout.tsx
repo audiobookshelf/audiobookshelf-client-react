@@ -1,3 +1,4 @@
+import { LibraryItemsProvider } from '@/contexts/LibraryItemsContext'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../../assets/globals.css'
@@ -35,7 +36,7 @@ export default async function LibraryLayout({
   const currentLibraryMediaType = currentLibrary?.mediaType || 'book'
 
   return (
-    <>
+    <LibraryItemsProvider>
       <AppBar user={currentUser.user} libraries={libraries} currentLibraryId={currentLibraryId} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideRail
@@ -49,6 +50,6 @@ export default async function LibraryLayout({
           <div className="w-full h-[calc(100%-2.5rem)] overflow-x-hidden overflow-y-auto">{children}</div>
         </div>
       </div>
-    </>
+    </LibraryItemsProvider>
   )
 }

@@ -1,19 +1,18 @@
 'use client'
 
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
-import eventBus from '@/lib/eventBus'
+import { useLibraryItems } from '@/contexts/LibraryItemsContext'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState } from 'react'
 
-export default function Toolbar({ currentLibrary }: { currentLibrary: any }) {
+interface ToolbarProps {
+  currentLibrary?: {
+    mediaType: string
+  }
+}
+
+export default function Toolbar({ currentLibrary }: ToolbarProps) {
   const pathname = usePathname()
-  const [itemCount, setItemCount] = useState(0)
-
-  useEffect(() => {
-    eventBus.on('itemCount', (itemCount: number) => {
-      setItemCount(itemCount)
-    })
-  }, [])
+  const { itemCount } = useLibraryItems()
 
   const contextMenuItems: ContextMenuDropdownItem[] = [
     { text: 'Test 1', action: 'test1' },
@@ -24,9 +23,9 @@ export default function Toolbar({ currentLibrary }: { currentLibrary: any }) {
   const isBookshelf = lastPathSegment === 'bookshelf'
 
   let itemName = 'items'
-  if (currentLibrary.mediaType === 'podcast') {
+  if (currentLibrary?.mediaType === 'podcast') {
     itemName = 'podcasts'
-  } else if (currentLibrary.mediaType === 'book') {
+  } else if (currentLibrary?.mediaType === 'book') {
     itemName = 'books'
   }
 

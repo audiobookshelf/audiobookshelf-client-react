@@ -1,3 +1,4 @@
+import { SettingsDrawerProvider } from '@/contexts/SettingsDrawerContext'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
@@ -27,7 +28,7 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
   const serverVersion = currentUser?.serverSettings?.version || 'Error'
 
   return (
-    <>
+    <SettingsDrawerProvider>
       <AppBar user={currentUser.user} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideNav serverVersion={serverVersion} installSource={installSource} />
@@ -36,6 +37,6 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
         </div>
       </div>
       <SideNavMobileDrawer serverVersion={serverVersion} installSource={installSource} />
-    </>
+    </SettingsDrawerProvider>
   )
 }
