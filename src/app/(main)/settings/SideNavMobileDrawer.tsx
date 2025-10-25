@@ -1,8 +1,7 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
-import eventBus from '@/lib/eventBus'
-import { useEffect, useState } from 'react'
+import { useSettingsDrawer } from '@/contexts/SettingsDrawerContext'
 import SideNavContent from './SideNavContent'
 
 interface SideNavMobileDrawerProps {
@@ -11,26 +10,14 @@ interface SideNavMobileDrawerProps {
 }
 
 export default function SideNavMobileDrawer({ serverVersion, installSource }: SideNavMobileDrawerProps) {
-  const [isOpen, setIsOpen] = useState(false)
-
-  useEffect(() => {
-    const handleToggle = () => {
-      setIsOpen((prev) => !prev)
-    }
-
-    eventBus.on('toggleSettingsSideNav', handleToggle)
-
-    return () => {
-      eventBus.off('toggleSettingsSideNav', handleToggle)
-    }
-  }, [])
+  const { isOpen, toggle, close } = useSettingsDrawer()
 
   const handleBackdropClick = () => {
-    setIsOpen(false)
+    close()
   }
 
   const handleItemClick = () => {
-    setIsOpen(false)
+    close()
   }
 
   return (
@@ -50,7 +37,7 @@ export default function SideNavMobileDrawer({ serverVersion, installSource }: Si
         }`}
       >
         <div className="w-full h-12 px-4 py-2 border-b border-primary/30 flex items-center justify-end">
-          <IconBtn className="md:hidden" ariaLabel="Menu" size="large" borderless onClick={() => eventBus.emit('toggleSettingsSideNav')}>
+          <IconBtn className="md:hidden" ariaLabel="Menu" size="large" borderless onClick={toggle}>
             arrow_back
           </IconBtn>
         </div>
