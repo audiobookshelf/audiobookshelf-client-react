@@ -1,8 +1,10 @@
 'use client'
 
+import { Library, PersonalizedShelf } from '@/types/api'
+
 interface LibraryClientProps {
-  library: any
-  personalized: any
+  library: Library
+  personalized: PersonalizedShelf[]
 }
 
 export default function LibraryClient({ library, personalized }: LibraryClientProps) {
