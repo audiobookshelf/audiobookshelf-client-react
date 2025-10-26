@@ -24,6 +24,18 @@ export enum BookshelfView {
 // SERVER & SYSTEM
 // ============================================================================
 
+// Server status interface
+export interface ServerStatus {
+  serverVersion: string
+  language: string
+  isInit: boolean
+  authMethods: string[]
+  authFormData: Record<string, unknown>
+  ConfigPath: string
+  MetadataPath: string
+  app: string
+}
+
 // Server settings interface
 export interface ServerSettings {
   // Scanner settings
