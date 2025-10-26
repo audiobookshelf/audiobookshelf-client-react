@@ -102,9 +102,9 @@ export default function SettingsClient(props: SettingsClientProps) {
 
       // Update server settings
       const response = await updateServerSettings(updatedSettings)
-      if (response?.data?.serverSettings) {
+      if (response.serverSettings) {
         // Update with the actual server response
-        setServerSettings(response.data.serverSettings)
+        setServerSettings(response.serverSettings)
       }
 
       // Set the language cookie
@@ -141,12 +141,12 @@ export default function SettingsClient(props: SettingsClientProps) {
     startTransition(async () => {
       try {
         const response = await updateSortingPrefixes(prefixes)
-        if (response?.data) {
-          const rowsUpdated = response.data.rowsUpdated.toString()
+        if (response.rowsUpdated) {
+          const rowsUpdated = response.rowsUpdated.toString()
           showToast(t('ToastSortingPrefixesUpdateSuccess', { 0: rowsUpdated }), { type: 'success' })
-          if (response.data.serverSettings) {
-            setServerSettings(response.data.serverSettings)
-            setSortingPrefixes(response.data.serverSettings.sortingPrefixes || [])
+          if (response.serverSettings) {
+            setServerSettings(response.serverSettings)
+            setSortingPrefixes(response.serverSettings.sortingPrefixes || [])
           }
         }
       } catch (error) {

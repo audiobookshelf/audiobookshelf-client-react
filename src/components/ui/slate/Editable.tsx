@@ -2,7 +2,7 @@
 
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Descendant, Editor, Transforms } from 'slate'
-import { RenderElementProps, RenderLeafProps, Editable as SlateEditable } from 'slate-react'
+import { RenderElementProps, RenderLeafProps, RenderPlaceholderProps, Editable as SlateEditable } from 'slate-react'
 
 import { useLinkModalContext } from '@/contexts/LinkModalContext'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -116,7 +116,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
   const renderLeaf = useCallback((props: RenderLeafProps) => <RenderLeaf {...props} />, [])
 
   const renderPlaceholder = useCallback(
-    ({ children, attributes }: { children: React.ReactNode; attributes: any }) => (
+    ({ children, attributes }: RenderPlaceholderProps) => (
       <span {...attributes} className="absolute top-1 start-1 pointer-events-none opacity-33">
         {children}
       </span>
@@ -146,7 +146,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
           parsed = parsed.filter((node) => {
             // Remove empty paragraphs
             if ('type' in node && node.type === 'paragraph') {
-              const hasContent = node.children.some((child: any) => child.text && child.text.trim())
+              const hasContent = node.children.some((child) => 'text' in child && child.text && child.text.trim())
               return hasContent
             }
             return true
@@ -158,7 +158,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
             const node = parsed[i]
             if ('type' in node && node.type === 'paragraph') {
               // Check if this paragraph only contains newlines/breaks
-              const isBreakOnly = node.children.every((child: any) => child.text && child.text.trim() === '')
+              const isBreakOnly = node.children.every((child) => 'text' in child && child.text && child.text.trim() === '')
 
               if (!isBreakOnly) {
                 normalizedParsed.push(node)
@@ -171,7 +171,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
 
           if (normalizedParsed.length > 0) {
             // Insert fragments rather than replacing
-            Transforms.insertFragment(editor, normalizedParsed as any)
+            Transforms.insertFragment(editor, normalizedParsed)
           }
         } catch (error) {
           console.warn('Failed to parse HTML paste content:', error)

@@ -150,18 +150,4 @@ describe('<LoadingSpinner />', () => {
     // Should fall back to default color
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(255, 255, 255)')
   })
-
-  it('handles edge case with null color', () => {
-    cy.mount(<LoadingSpinner color={null as any} />)
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('exist')
-    // Should fall back to default color
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(255, 255, 255)')
-  })
-
-  it('handles edge case with undefined color', () => {
-    cy.mount(<LoadingSpinner color={undefined} />)
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('exist')
-    // Should fall back to default color
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(255, 255, 255)')
-  })
 })

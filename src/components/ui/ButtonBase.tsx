@@ -17,9 +17,9 @@ interface ButtonBaseProps {
   type?: 'button' | 'submit' | 'reset'
   ariaLabel?: string
   className?: string
-  ref?: React.Ref<any>
+  ref?: React.Ref<HTMLButtonElement>
   // Allow any additional HTML attributes
-  [key: string]: any
+  [key: string]: unknown
 }
 
 const ButtonBase = ({

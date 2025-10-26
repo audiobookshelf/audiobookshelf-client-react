@@ -1,13 +1,11 @@
 import { apiRequest } from '@/lib/api'
 
 // Server Action
-export async function changePassword(oldPassword: string, newPassword: string) {
+export async function changePassword(oldPassword: string, newPassword: string): Promise<void> {
   'use server'
 
-  const response = await apiRequest('/api/me/password', {
+  return apiRequest<void>('/api/me/password', {
     method: 'PATCH',
     body: JSON.stringify({ password: oldPassword, newPassword })
   })
-
-  return response
 }

@@ -32,7 +32,7 @@ export default async function LibraryLayout({
   const serverVersion = currentUser?.serverSettings?.version || 'Error'
   const libraries = librariesResponse?.libraries || []
 
-  const currentLibrary = libraries.find((library: any) => library.id === currentLibraryId)
+  const currentLibrary = libraries.find((library) => library.id === currentLibraryId)
   const currentLibraryMediaType = currentLibrary?.mediaType || 'book'
 
   return (

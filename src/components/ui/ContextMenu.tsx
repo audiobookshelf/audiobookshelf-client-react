@@ -4,20 +4,20 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
-export interface ContextMenuSubitem {
+export interface ContextMenuSubitem<T = string> {
   text: string
   action: string
-  data?: Record<string, any>
+  data?: Record<string, T>
 }
 
-export interface ContextMenuItem {
+export interface ContextMenuItem<T = string> {
   text: string
   action: string
-  subitems?: ContextMenuSubitem[]
+  subitems?: ContextMenuSubitem<T>[]
 }
 
-interface ContextMenuProps {
-  items: ContextMenuItem[]
+interface ContextMenuProps<T = string> {
+  items: ContextMenuItem<T>[]
   isOpen: boolean
   menuWidth?: number
   menuAlign?: 'right' | 'left'
@@ -31,15 +31,15 @@ interface ContextMenuProps {
   openSubmenuIndex?: number | null
   onOpenSubmenu?: (index: number) => void
   onCloseSubmenu?: () => void
-  onItemClick?: (action: string, data?: Record<string, any>) => void
-  onSubItemClick?: (action: string, data?: Record<string, any>) => void
+  onItemClick?: (action: string, data?: Record<string, T>) => void
+  onSubItemClick?: (action: string, data?: Record<string, T>) => void
 }
 
 /**
  * A context menu component that displays a list of items with associated actions and subitems.
  * The menu can be aligned to the right or left and supports keyboard navigation.
  */
-const ContextMenu = ({
+export default function ContextMenu<T = string>({
   items,
   isOpen,
   menuWidth = 96,
@@ -55,7 +55,7 @@ const ContextMenu = ({
   onCloseSubmenu,
   onItemClick,
   onSubItemClick
-}: ContextMenuProps) => {
+}: ContextMenuProps<T>) {
   const t = useTypeSafeTranslations()
   // Track whether we're hovering over an open submenu
   const [isOverSubmenu, setIsOverSubmenu] = useState(false)
@@ -262,5 +262,3 @@ const ContextMenu = ({
     </>
   )
 }
-
-export default ContextMenu

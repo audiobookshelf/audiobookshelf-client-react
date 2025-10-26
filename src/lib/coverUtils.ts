@@ -33,5 +33,5 @@ export function getLibraryFileUrl(libraryItemId: string, fileIno: string): strin
  * Get placeholder cover image URL
  */
 export function getPlaceholderCoverUrl(): string {
-  return '/book_placeholder.jpg'
+  return '/images/book_placeholder.jpg'
 }

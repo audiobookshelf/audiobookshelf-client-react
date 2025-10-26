@@ -17,8 +17,8 @@ const TestWrapper = ({
   menuAlign?: 'right' | 'left'
   autoWidth?: boolean
   className?: string
-  onItemClick?: (action: string, data?: Record<string, any>) => void
-  onSubItemClick?: (action: string, data?: Record<string, any>) => void
+  onItemClick?: (action: string, data?: Record<string, string>) => void
+  onSubItemClick?: (action: string, data?: Record<string, string>) => void
   onCloseSubmenu?: () => void
 }) => {
   const [isOpen, setIsOpen] = useState(false)

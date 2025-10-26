@@ -31,7 +31,7 @@ export function ContextMenuDropdownExamples() {
     }
   ]
 
-  const contextMenuItemsWithData: ContextMenuDropdownItem[] = [
+  const contextMenuItemsWithData: ContextMenuDropdownItem<number>[] = [
     { text: 'Edit Item', action: 'edit' },
     { text: 'Delete Item', action: 'delete' },
     {

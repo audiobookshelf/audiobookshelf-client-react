@@ -2,6 +2,9 @@ import { escapeHtml } from '@/lib/html-utils'
 import { CustomText, DOMNode } from '@/types/slate'
 import { Descendant, Text } from 'slate'
 
+// Type for text nodes with intentional break marker
+type TextWithMarker = CustomText & { isIntentionalBreak?: boolean }
+
 // --- Serialize Function ---
 
 export const serialize = (node: Descendant): string => {
@@ -125,7 +128,7 @@ export const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
       if ('text' in child) {
         if (!child.text) return false
         // Preserve intentional breaks even if they're just newlines
-        if ((child as any).isIntentionalBreak) return true
+        if ((child as TextWithMarker).isIntentionalBreak) return true
         // Filter out pure structural whitespace (newlines/tabs) but keep spaces
         return !/^[\n\r\t]+$/.test(child.text)
       }
@@ -141,7 +144,7 @@ export const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
     children = children.map((child) => {
       if ('text' in child) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { isIntentionalBreak, ...cleanChild } = child as any
+        const { isIntentionalBreak, ...cleanChild } = child as TextWithMarker
         return {
           ...cleanChild,
           ...(isBold && { bold: true }),
@@ -154,9 +157,9 @@ export const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
   } else {
     // Clean up the intentional break marker even if no formatting is applied
     children = children.map((child) => {
-      if ('text' in child && (child as any).isIntentionalBreak) {
+      if ('text' in child && (child as TextWithMarker).isIntentionalBreak) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { isIntentionalBreak, ...cleanChild } = child as any
+        const { isIntentionalBreak, ...cleanChild } = child as TextWithMarker
         return cleanChild
       }
       return child
@@ -186,7 +189,7 @@ export const deserialize = (el: DOMNode): Descendant[] | CustomText | null => {
       return [{ type: 'link', url: element.getAttribute('href') || '', children }]
     case 'BR':
       // Use a special marker for intentional line breaks to distinguish from structural whitespace
-      return [{ text: '\n', isIntentionalBreak: true } as any]
+      return [{ text: '\n', isIntentionalBreak: true } as TextWithMarker]
     case 'H1':
     case 'H2':
     case 'H3':

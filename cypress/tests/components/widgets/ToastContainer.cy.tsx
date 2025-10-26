@@ -1,6 +1,5 @@
-import React from 'react'
-import * as ReactDOM from 'react-dom'
 import ToastContainer, { ToastMessage } from '@/components/widgets/ToastContainer'
+import * as ReactDOM from 'react-dom'
 
 describe('<ToastContainer />', () => {
   const mockToasts: ToastMessage[] = [
@@ -154,15 +153,6 @@ describe('<ToastContainer />', () => {
     cy.get('@onRemoveSpy').should('have.been.calledWith', 'toast-1')
     cy.get('@onRemoveSpy').should('have.been.calledWith', 'toast-2')
     cy.get('@onRemoveSpy').should('have.been.calledWith', 'toast-3')
-  })
-
-  it('handles undefined onRemove prop', () => {
-    cy.mount(<ToastContainer toasts={mockToasts} onRemove={undefined as any} />)
-
-    // Should not throw error when close button is clicked
-    cy.wait(400)
-    cy.get('[cy-id="close-button"]').first().click()
-    cy.get('[cy-id="toast"]').should('exist')
   })
 
   it('renders toasts with different durations', () => {

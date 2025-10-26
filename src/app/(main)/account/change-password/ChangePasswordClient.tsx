@@ -3,13 +3,12 @@
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { ApiResponse } from '@/lib/api'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 
 interface ChangePasswordClientProps {
-  changePassword: (oldPassword: string, newPassword: string) => Promise<ApiResponse>
+  changePassword: (oldPassword: string, newPassword: string) => Promise<void>
 }
 
 export default function ChangePasswordClient({ changePassword }: ChangePasswordClientProps) {
@@ -34,16 +33,12 @@ export default function ChangePasswordClient({ changePassword }: ChangePasswordC
 
     startTransition(async () => {
       try {
-        const res = await changePassword(oldPassword, newPassword)
-        if (res.error) {
-          showToast(res.error, { type: 'error' })
-        } else {
-          router.push('/account')
-          showToast(t('ToastUserPasswordChangeSuccess'), { type: 'success' })
-        }
-      } catch {
-        console.error('Failed to change password')
-        showToast(t('ToastUnknownError'), { type: 'error' })
+        await changePassword(oldPassword, newPassword)
+        router.push('/account')
+        showToast(t('ToastUserPasswordChangeSuccess'), { type: 'success' })
+      } catch (error) {
+        console.error('Failed to change password', error)
+        showToast(error instanceof Error ? error.message : t('ToastUnknownError'), { type: 'error' })
       }
     })
   }

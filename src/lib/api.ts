@@ -11,6 +11,7 @@ import {
   MetadataProvidersResponse,
   PersonalizedShelf,
   SearchLibraryResponse,
+  ServerStatus,
   UploadCoverResponse,
   User,
   UserLoginResponse
@@ -45,17 +46,6 @@ export class NetworkError extends Error {
     super(message)
     this.name = 'NetworkError'
   }
-}
-
-interface ServerStatus {
-  serverVersion: string
-  language: string
-  isInit: boolean
-  authMethods: string[]
-  authFormData: Record<string, unknown>
-  ConfigPath: string
-  MetadataPath: string
-  app: string
 }
 
 const publicEndpoints = ['/status']

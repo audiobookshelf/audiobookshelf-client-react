@@ -51,8 +51,7 @@ export interface MultiSelectProps<T = string> {
   onEditDone?: (cancelled?: boolean) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-export const MultiSelect = <T extends any = string>({
+export function MultiSelect<T = string>({
   value,
   selectedItems = [],
   items,
@@ -77,7 +76,7 @@ export const MultiSelect = <T extends any = string>({
   onInputChange,
   onEditingPillIndexChange,
   onEditDone
-}: MultiSelectProps<T>) => {
+}: MultiSelectProps<T>) {
   const t = useTypeSafeTranslations()
   const onMutate = useCallback(
     (prev: T | null, text: string): T => {
