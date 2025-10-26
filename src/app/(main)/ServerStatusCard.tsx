@@ -1,21 +1,26 @@
 'use client'
 
 import { useSocket, useSocketEmit, useSocketEvent } from '@/contexts/SocketContext'
+import { ServerStatus } from '@/types/api'
 import { useEffect } from 'react'
 
+interface AdminMessage {
+  message: string
+}
+
 interface HomeClientProps {
-  statusData: any
+  statusData: ServerStatus
 }
 
 export default function HomeClient({ statusData }: HomeClientProps) {
   const { isConnected } = useSocket()
   const { emit } = useSocketEmit()
-  useSocketEvent('admin_message', (data) => {
+  useSocketEvent<AdminMessage>('admin_message', (data) => {
     console.log('received socket event admin_message', data)
   })
   useEffect(() => {
     console.log('emitting socket event message_all_users')
-    emit('message_all_users', { message: 'Hello from server status card' })
+    emit<AdminMessage>('message_all_users', { message: 'Hello from server status card' })
   }, [emit])
 
   return (
