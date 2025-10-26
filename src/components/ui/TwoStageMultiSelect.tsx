@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { MultiSelect, type MultiSelectItem } from './MultiSelect'
 
 export interface TwoStageMultiSelectContent {
@@ -29,7 +29,7 @@ interface TwoStageMultiSelectProps {
   disabled?: boolean
 }
 
-export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
+export default function TwoStageMultiSelect({
   selectedItems: selectedItemsProp,
   items,
   label,
@@ -41,7 +41,7 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
   onValidationError,
   onDuplicateError,
   disabled
-}) => {
+}: TwoStageMultiSelectProps) {
   const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
   const [isEditingNewItem, setIsEditingNewItem] = useState(false)
   const [selectedItems, setSelectedItems] = useState<MultiSelectItem<TwoStageMultiSelectContent>[]>(selectedItemsProp)
@@ -144,5 +144,3 @@ export const TwoStageMultiSelect: React.FC<TwoStageMultiSelectProps> = ({
     />
   )
 }
-
-export default TwoStageMultiSelect
