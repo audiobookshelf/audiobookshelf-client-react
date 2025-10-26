@@ -1,10 +1,15 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { User } from '@/types/api'
 import Link from 'next/link'
 import SettingsContent from '../SettingsContent'
 
-export default function UsersClient(props: { users: any[] }) {
+interface UsersClientProps {
+  users: User[]
+}
+
+export default function UsersClient({ users }: UsersClientProps) {
   const t = useTypeSafeTranslations()
   return (
     <SettingsContent
@@ -18,7 +23,7 @@ export default function UsersClient(props: { users: any[] }) {
       }}
     >
       <div className="flex flex-col gap-2 py-4">
-        {props.users.map((user: any) => (
+        {users.map((user) => (
           <div key={user.id}>
             <Link href={`/settings/users/${user.id}`} className="text-gray-300 hover:text-white">
               {user.username}
