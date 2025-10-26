@@ -11,7 +11,9 @@ import { buttonClassBase } from './constants'
 
 // --- Helper Functions ---
 
-export const isMarkActive = (editor: Editor, format: keyof Omit<CustomText, 'text'>) => {
+type CustomTextFormat = Omit<CustomText, 'text'>
+
+export const isMarkActive = (editor: Editor, format: keyof CustomTextFormat) => {
   try {
     const { selection } = editor
     if (!selection) return false
@@ -24,7 +26,7 @@ export const isMarkActive = (editor: Editor, format: keyof Omit<CustomText, 'tex
       return false
     }
     const marks = Editor.marks(editor)
-    return marks ? (marks as any)[format] === true : false
+    return marks ? (marks as CustomTextFormat)[format] === true : false
   } catch (error) {
     console.warn('SlateEditor: Error checking mark active state:', error)
     return false
