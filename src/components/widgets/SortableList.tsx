@@ -1,11 +1,15 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import { DragendEvent, DragendEventData, DragstartEvent, DragstartEventData } from '@formkit/drag-and-drop'
+import { DragendEvent, DragstartEvent } from '@formkit/drag-and-drop'
 import { useDragAndDrop } from '@formkit/drag-and-drop/react'
 import { ReactNode, useCallback, useMemo } from 'react'
 
-interface SortableListProps<T> {
+interface SortableItem {
+  id: string | number
+}
+
+interface SortableListProps<T extends SortableItem> {
   items: T[]
   onSortEnd: (sortedItems: T[]) => void
   renderItem: (item: T, index: number) => ReactNode
@@ -15,20 +19,27 @@ interface SortableListProps<T> {
   disabled?: boolean
 }
 
-export default function SortableList<T>({ items, onSortEnd, renderItem, className = '', itemClassName = '', disabled = false }: SortableListProps<T>) {
+export default function SortableList<T extends SortableItem>({
+  items,
+  onSortEnd,
+  renderItem,
+  className = '',
+  itemClassName = '',
+  disabled = false
+}: SortableListProps<T>) {
   // Ensure each item has a unique identifier
   const itemsWithIds = items.map((item, index) => ({
     ...item,
-    id: (item as any).id || `item-${index}`
+    id: item.id || `item-${index}`
   }))
 
-  const onDragend = useCallback<DragendEvent>((data: DragendEventData<any>) => {
+  const onDragend = useCallback<DragendEvent>((data) => {
     if (data.draggedNode.el) {
       data.draggedNode.el.classList.remove('opacity-50', 'bg-white/20')
     }
   }, [])
 
-  const onDragstart = useCallback<DragstartEvent>((data: DragstartEventData<any>) => {
+  const onDragstart = useCallback<DragstartEvent>((data) => {
     if (data.draggedNode.el) {
       data.draggedNode.el.classList.add('opacity-50', 'bg-white/20')
     }
@@ -49,7 +60,7 @@ export default function SortableList<T>({ items, onSortEnd, renderItem, classNam
   return (
     <div ref={parent} className={className}>
       {sortedItems.map((item: T, index: number) => (
-        <div key={(item as any).id || `item-${index}`} className={itemWrapperClassName}>
+        <div key={item.id || `item-${index}`} className={itemWrapperClassName}>
           {renderItem(item, index)}
         </div>
       ))}
