@@ -32,6 +32,10 @@ interface SearchCoversParams {
   podcast: boolean
 }
 
+interface SearchCoversRequest extends SearchCoversParams {
+  requestId: string
+}
+
 interface UseCoverSearchReturn {
   coversFound: string[]
   searchInProgress: boolean
@@ -137,7 +141,7 @@ export function useCoverSearch(onError: (message: string) => void): UseCoverSear
     }
 
     console.log('cancelSearch: Cancelling search', currentSearchRequestId)
-    emit('cancel_cover_search', currentSearchRequestId)
+    emit<string>('cancel_cover_search', currentSearchRequestId)
     setCurrentSearchRequestId(null)
     setSearchInProgress(false)
   }, [currentSearchRequestId, isConnected, emit, onError])
@@ -166,7 +170,7 @@ export function useCoverSearch(onError: (message: string) => void): UseCoverSear
       setCurrentSearchRequestId(requestId)
 
       // Emit search request via WebSocket
-      emit('search_covers', {
+      emit<SearchCoversRequest>('search_covers', {
         requestId,
         title: params.title,
         author: params.author,
