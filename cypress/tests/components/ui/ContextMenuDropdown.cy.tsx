@@ -1,11 +1,10 @@
-import React from 'react'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 
 // Define types for the menu items based on the component's interface
 interface ContextMenuDropdownSubitem {
   text: string
   action: string
-  data?: Record<string, any>
+  data?: Record<string, string>
 }
 
 interface ContextMenuDropdownItem {
