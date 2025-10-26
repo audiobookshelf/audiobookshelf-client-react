@@ -136,7 +136,7 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
       {imageFailed && (
         <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
           <div className="w-full h-full border-2 border-error flex flex-col items-center justify-center">
-            {width > 100 && <Image src="/Logo.png" alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />}
+            {width > 100 && <Image src="/images/Logo.png" alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />}
             <p className="text-center text-error" style={{ fontSize: `${invalidCoverFontSize}rem` }}>
               {t('MessageInvalidCover')}
             </p>

@@ -139,7 +139,7 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
 
         <Example title="Invalid Cover Error State">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/book_placeholder.jpg" width={120} bookCoverAspectRatio={exampleAspectRatio} forceErrorState={true} />
+            <PreviewCover src="/images/book_placeholder.jpg" width={120} bookCoverAspectRatio={exampleAspectRatio} forceErrorState={true} />
             <p className="text-xs text-gray-400">Shows error state when image fails to load</p>
           </div>
         </Example>
