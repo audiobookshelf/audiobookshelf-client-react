@@ -8,24 +8,24 @@ import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import ContextMenu, { ContextMenuItem } from './ContextMenu'
 import IconBtn from './IconBtn'
 
-export interface ContextMenuDropdownSubitem {
+export interface ContextMenuDropdownSubitem<T = string> {
   text: string
   action: string
-  data?: Record<string, any>
+  data?: Record<string, T>
 }
 
-export interface ContextMenuDropdownItem {
+export interface ContextMenuDropdownItem<T = string> {
   text: string
   action: string
-  subitems?: ContextMenuDropdownSubitem[]
+  subitems?: ContextMenuDropdownSubitem<T>[]
 }
 
-interface ContextMenuDropdownProps {
-  items?: ContextMenuDropdownItem[]
+interface ContextMenuDropdownProps<T = string> {
+  items?: ContextMenuDropdownItem<T>[]
   iconClass?: string
   menuWidth?: number
   processing?: boolean
-  onAction?: (params: { action: string; data?: Record<string, any> }) => void
+  onAction?: (params: { action: string; data?: Record<string, T> }) => void
   menuAlign?: 'right' | 'left'
   autoWidth?: boolean
   disabled?: boolean
@@ -39,7 +39,7 @@ interface ContextMenuDropdownProps {
  * The menu is displayed below the button when the button is clicked.
  * The menu can be aligned to the right or left of the button.
  */
-export default function ContextMenuDropdown({
+export default function ContextMenuDropdown<T = string>({
   items = [],
   iconClass = '',
   menuWidth = 96,
@@ -51,7 +51,7 @@ export default function ContextMenuDropdown({
   size = 'medium',
   borderless = false,
   className
-}: ContextMenuDropdownProps) {
+}: ContextMenuDropdownProps<T>) {
   const t = useTypeSafeTranslations()
   const [showMenu, setShowMenu] = useState(false)
   const menuWrapperRef = useRef<HTMLDivElement>(null)
@@ -110,7 +110,7 @@ export default function ContextMenuDropdown({
   }, [disabled, showMenu, closeMenu, openMenu])
 
   const handleAction = useCallback(
-    (action: string, data?: Record<string, any>) => {
+    (action: string, data?: Record<string, T>) => {
       if (disabled) return
       closeMenu()
       onAction?.({ action, data })
@@ -137,7 +137,7 @@ export default function ContextMenuDropdown({
   )
 
   const handleSubItemClick = useCallback(
-    (action: string, data?: Record<string, any>) => {
+    (action: string, data?: Record<string, T>) => {
       handleAction(action, data)
     },
     [handleAction]
@@ -319,13 +319,13 @@ export default function ContextMenuDropdown({
   )
 
   // Convert items to the format expected by ContextMenu
-  const contextMenuItems: ContextMenuItem[] = items.map((item) => ({
+  const contextMenuItems: ContextMenuItem<T>[] = items.map((item) => ({
     text: item.text,
     action: item.action,
     subitems: item.subitems?.map((subitem) => ({
       text: subitem.text,
       action: subitem.action,
-      data: subitem.data
+      data: subitem.data as Record<string, T>
     }))
   }))
 
