@@ -5,7 +5,7 @@ import EditList from '@/components/ui/EditList'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useMemo, useTransition } from 'react'
-import { removeTag } from './actions'
+import { removeTag, renameTag } from './actions'
 
 export default function TagsClient({ tags }: { tags: string[] }) {
   const { showToast } = useGlobalToast()
@@ -34,8 +34,16 @@ export default function TagsClient({ tags }: { tags: string[] }) {
   }
 
   const handleSave = async (tagToUpdate: EditListItem, newTagName: string) => {
-    console.log('handleSave', tagToUpdate, newTagName)
-    showToast('Not implemented yet', { type: 'warning' })
+    if (isPending) return
+    startTransition(async () => {
+      const response = await renameTag(tagToUpdate.name, newTagName)
+
+      if (response?.numItemsUpdated) {
+        // TODO: Support pluralization
+        const numItemsUpdated = response.numItemsUpdated || 0
+        showToast(t('MessageItemsUpdated', { 0: numItemsUpdated.toString() }), { type: 'success' })
+      }
+    })
   }
 
   return (
