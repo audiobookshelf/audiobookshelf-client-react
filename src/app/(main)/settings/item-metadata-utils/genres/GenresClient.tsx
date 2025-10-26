@@ -25,7 +25,6 @@ export default function GenresClient({ genres }: { genres: string[] }) {
       const response = await removeGenre(item.name)
 
       if (response?.numItemsUpdated) {
-        // TODO: Support pluralization
         const numItemsUpdated = response.numItemsUpdated || 0
         showToast(t('MessageItemsUpdated', { 0: numItemsUpdated.toString() }), { type: 'success' })
       }
@@ -38,7 +37,6 @@ export default function GenresClient({ genres }: { genres: string[] }) {
       const response = await renameGenre(genreToUpdate.name, newGenreName)
 
       if (response?.numItemsUpdated) {
-        // TODO: Support pluralization
         const numItemsUpdated = response.numItemsUpdated || 0
         showToast(t('MessageItemsUpdated', { 0: numItemsUpdated.toString() }), { type: 'success' })
       }

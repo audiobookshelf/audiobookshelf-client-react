@@ -26,7 +26,6 @@ export default function TagsClient({ tags }: { tags: string[] }) {
       const response = await removeTag(item.name)
 
       if (response?.numItemsUpdated) {
-        // TODO: Support pluralization
         const numItemsUpdated = response.numItemsUpdated || 0
         showToast(t('MessageItemsUpdated', { 0: numItemsUpdated.toString() }), { type: 'success' })
       }
@@ -39,7 +38,6 @@ export default function TagsClient({ tags }: { tags: string[] }) {
       const response = await renameTag(tagToUpdate.name, newTagName)
 
       if (response?.numItemsUpdated) {
-        // TODO: Support pluralization
         const numItemsUpdated = response.numItemsUpdated || 0
         showToast(t('MessageItemsUpdated', { 0: numItemsUpdated.toString() }), { type: 'success' })
       }
