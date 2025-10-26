@@ -35,7 +35,7 @@ export default async function ItemLayout({
   const serverVersion = currentUser?.serverSettings?.version || 'Error'
   const libraries = librariesResponse?.libraries || []
 
-  const currentLibrary = libraries.find((library: any) => library.id === libraryItem.libraryId)
+  const currentLibrary = libraries.find((library) => library.id === libraryItem.libraryId)
   const currentLibraryMediaType = currentLibrary?.mediaType || 'book'
 
   return (
