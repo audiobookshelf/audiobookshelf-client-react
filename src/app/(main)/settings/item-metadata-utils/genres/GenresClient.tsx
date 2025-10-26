@@ -5,7 +5,7 @@ import EditList from '@/components/ui/EditList'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useMemo, useTransition } from 'react'
-import { removeGenre } from './actions'
+import { removeGenre, renameGenre } from './actions'
 
 export default function GenresClient({ genres }: { genres: string[] }) {
   const { showToast } = useGlobalToast()
@@ -33,8 +33,16 @@ export default function GenresClient({ genres }: { genres: string[] }) {
   }
 
   const handleSave = async (genreToUpdate: EditListItem, newGenreName: string) => {
-    console.log('handleSave', genreToUpdate, newGenreName)
-    showToast('Not implemented yet', { type: 'warning' })
+    if (isPending) return
+    startTransition(async () => {
+      const response = await renameGenre(genreToUpdate.name, newGenreName)
+
+      if (response?.numItemsUpdated) {
+        // TODO: Support pluralization
+        const numItemsUpdated = response.numItemsUpdated || 0
+        showToast(t('MessageItemsUpdated', { 0: numItemsUpdated.toString() }), { type: 'success' })
+      }
+    })
   }
 
   return (
