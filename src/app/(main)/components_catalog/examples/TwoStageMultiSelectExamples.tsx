@@ -26,7 +26,7 @@ export function TwoStageMultiSelectExamples() {
     { value: '8', content: 'Robots' }
   ]
 
-  const handleTwoStageMultiSelectItemAdded = (item: any) => {
+  const handleTwoStageMultiSelectItemAdded = (item: MultiSelectItem<TwoStageMultiSelectContent>) => {
     const newItems = [...twoStageMultiSelectValue, item]
     setTwoStageMultiSelectValue(newItems)
     if (item.value.startsWith('new-')) {
@@ -38,13 +38,13 @@ export function TwoStageMultiSelectExamples() {
     }
   }
 
-  const handleTwoStageMultiSelectItemRemoved = (item: any) => {
+  const handleTwoStageMultiSelectItemRemoved = (item: MultiSelectItem<TwoStageMultiSelectContent>) => {
     const newItems = twoStageMultiSelectValue.filter((i) => i.value !== item.value)
     setTwoStageMultiSelectValue(newItems)
     showToast(`Removed: ${item.content.value}${item.content.modifier ? ` #${item.content.modifier}` : ''}`, { type: 'info', title: 'Item Removed' })
   }
 
-  const handleTwoStageMultiSelectItemEdited = (item: any, index: number) => {
+  const handleTwoStageMultiSelectItemEdited = (item: MultiSelectItem<TwoStageMultiSelectContent>, index: number) => {
     const newItems = [...twoStageMultiSelectValue]
     newItems[index] = item
     setTwoStageMultiSelectValue(newItems)
