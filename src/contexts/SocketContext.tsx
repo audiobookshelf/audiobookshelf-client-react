@@ -85,7 +85,9 @@ export function useSocket() {
 }
 
 // Hook for listening to specific socket events
-export function useSocketEvent<T = any>(event: string, callback: (data: T) => void, dependencies: any[] = []) {
+export function useSocketEvent(event: string, callback: () => void, dependencies?: unknown[]): void
+export function useSocketEvent<T>(event: string, callback: (data: T) => void, dependencies?: unknown[]): void
+export function useSocketEvent<T>(event: string, callback: ((data: T) => void) | (() => void), dependencies: unknown[] = []) {
   const { socket } = useSocket()
 
   useEffect(() => {
@@ -104,7 +106,9 @@ export function useSocketEvent<T = any>(event: string, callback: (data: T) => vo
 export function useSocketEmit() {
   const { socket, isConnected } = useSocket()
 
-  const emit = (event: string, data?: any) => {
+  function emit(event: string): void
+  function emit<T>(event: string, data: T): void
+  function emit(event: string, data?: unknown): void {
     if (socket && isConnected) {
       socket.emit(event, data)
     } else {
