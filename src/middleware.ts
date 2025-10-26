@@ -12,8 +12,8 @@ export default async function middleware(request: NextRequest) {
   if (!languageCookie) {
     try {
       const statusResponse = await getServerStatus()
-      if (statusResponse.data?.language) {
-        serverLanguage = statusResponse.data.language
+      if (statusResponse.language) {
+        serverLanguage = statusResponse.language
       }
     } catch (error) {
       console.error('Failed to fetch server status for language:', error)
