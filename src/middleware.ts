@@ -6,6 +6,7 @@ export default async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get('access_token')?.value
   const refreshToken = request.cookies.get('refresh_token')?.value
   const languageCookie = request.cookies.get('language')?.value
+  const themeCookie = request.cookies.get('theme')?.value
 
   // Fetch server language if cookie doesn't exist
   let serverLanguage: string | null = null
@@ -20,10 +21,22 @@ export default async function middleware(request: NextRequest) {
     }
   }
 
-  // Helper function to set language cookie on any response
+  // Set default theme if cookie doesn't exist
+  const shouldSetDefaultTheme = !themeCookie
+
+  // Helper function to set language and theme cookies on any response
   const setLanguageCookie = (response: NextResponse) => {
     if (serverLanguage) {
       response.cookies.set('language', serverLanguage, {
+        httpOnly: false,
+        secure: false,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 365 * 24 * 60 * 60 // 1 year
+      })
+    }
+    if (shouldSetDefaultTheme) {
+      response.cookies.set('theme', 'dark', {
         httpOnly: false,
         secure: false,
         sameSite: 'lax',

@@ -5,6 +5,7 @@ import { getLocale } from 'next-intl/server'
 
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
 import { ToastProvider } from '../contexts/ToastContext'
+import { getTheme } from '../lib/theme'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
@@ -13,9 +14,10 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
+  const theme = await getTheme()
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`theme-${theme}`}>
       <body className="overflow-x-hidden">
         <NextIntlClientProvider>
           <ToastProvider>

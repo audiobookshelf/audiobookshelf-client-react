@@ -4,12 +4,34 @@
 
 @import './app.css';
 
-:root {
+/* Default theme */
+:root,
+.theme-dark {
   --primary: #232323;
   --primary-hover: #2d2d2d;
   --background: #373838;
   --foreground: #ededed;
   --border: #444444;
+  --header-height: 64px;
+}
+
+/* Light theme */
+.theme-light {
+  --primary: #ededed;
+  --primary-hover: #d9d9d9;
+  --background: #f5f5f5;
+  --foreground: #232323;
+  --border: #e0e0e0;
+  --header-height: 64px;
+}
+
+/* Black theme */
+.theme-black {
+  --primary: #000000;
+  --primary-hover: #1a1a1a;
+  --background: #000000;
+  --foreground: #ededed;
+  --border: #1a1a1a;
   --header-height: 64px;
 }
 
