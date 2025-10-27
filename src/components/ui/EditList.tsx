@@ -274,7 +274,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
         </tbody>
       </table>
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} width={500}>
-        <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+        <div className="bg-bg rounded-lg p-6 h-full flex flex-col">
           {isDeleting ? (
             <p className="text-gray-300 mb-6 flex-1">{t(listTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
           ) : (
