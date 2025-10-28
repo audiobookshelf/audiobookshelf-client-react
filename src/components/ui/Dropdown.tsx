@@ -239,7 +239,7 @@ export default function Dropdown({
           aria-label={longLabel}
           disabled={disabled}
           className={mergeClasses(
-            'relative w-full text-left cursor-pointer text-gray-100',
+            'relative w-full text-left cursor-pointer text-foreground',
             'ps-1 h-full bg-transparent border-none outline-none flex items-center justify-between',
             'disabled:cursor-not-allowed disabled:text-disabled',
             size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'

@@ -17,6 +17,10 @@
   --tc-checkbox-bg-disabled: #444444;
 
   --tc-button-selected-bg: #555555;
+
+  --tc-dropdown-item-hover: #333333;
+  --tc-dropdown-item-selected: #444444;
+  --tc-dropdown-menu-border: #555555;
 }
 
 /* Light theme */
@@ -37,6 +41,10 @@
   --tc-checkbox-bg-disabled: #e8e8e8;
 
   --tc-button-selected-bg: #e5e5e5;
+
+  --tc-dropdown-item-hover: #f0f0f0;
+  --tc-dropdown-item-selected: #e5e5e5;
+  --tc-dropdown-menu-border: #d4d4d4;
 }
 
 /* Black theme */
@@ -57,4 +65,8 @@
   --tc-checkbox-bg-disabled: #1a1a1a;
 
   --tc-button-selected-bg: #2a2a2a;
+
+  --tc-dropdown-item-hover: #1a1a1a;
+  --tc-dropdown-item-selected: #2a2a2a;
+  --tc-dropdown-menu-border: #262626;
 }

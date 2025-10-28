@@ -68,6 +68,9 @@
   --color-checkbox-disabled: var(--tc-checkbox-disabled);
   --color-checkbox-bg-disabled: var(--tc-checkbox-bg-disabled);
   --color-button-selected-bg: var(--tc-button-selected-bg);
+  --color-dropdown-item-hover: var(--tc-dropdown-item-hover);
+  --color-dropdown-item-selected: var(--tc-dropdown-item-selected);
+  --color-dropdown-menu-border: var(--tc-dropdown-menu-border);
 
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';

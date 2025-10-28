@@ -147,7 +147,10 @@ export default function DropdownMenu({
         <li
           key={item.value}
           id={`${dropdownId}-item-${index}`}
-          className={mergeClasses('text-gray-100 relative py-2 cursor-pointer hover:bg-black-400', focusedIndex === index ? 'bg-black-300' : '')}
+          className={mergeClasses(
+            'text-foreground relative py-2 cursor-pointer hover:bg-dropdown-item-hover',
+            focusedIndex === index ? 'bg-dropdown-item-selected' : ''
+          )}
           role="option"
           tabIndex={-1}
           aria-selected={isItemSelected ? isItemSelected(item) : focusedIndex === index}
@@ -173,7 +176,7 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'absolute z-10 w-full bg-primary border border-black-200 shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm mt-0.5',
+        'absolute z-10 w-full bg-primary border border-dropdown-menu-border shadow-lg rounded-md py-1 ring-1 ring-black/5 overflow-auto sm:text-sm mt-0.5',
         className
       )}
       role="listbox"

@@ -1,5 +1,5 @@
-import React from 'react'
 import DropdownMenu from '@/components/ui/DropdownMenu'
+import React from 'react'
 
 // Define types for the dropdown menu items based on the component's interface
 interface DropdownMenuItem {
@@ -127,8 +127,8 @@ describe('<DropdownMenu />', () => {
   describe('Focus and Selection', () => {
     it('applies focused styling to focused item', () => {
       cy.mount(<DropdownMenu {...defaultProps} focusedIndex={1} />)
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-black-300')
-      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'bg-dropdown-item-selected')
     })
 
     it('scrolls focused item into view', () => {
@@ -215,7 +215,7 @@ describe('<DropdownMenu />', () => {
   describe('Styling', () => {
     it('applies hover styling to menu items', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
-      cy.get('[role="listbox"] > li').first().should('have.class', 'hover:bg-black-400')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'hover:bg-dropdown-item-hover')
     })
 
     it('applies correct text styling for items with subtext', () => {
@@ -242,7 +242,7 @@ describe('<DropdownMenu />', () => {
     it('applies proper border and shadow styling', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
       cy.get('[role="listbox"]').should('have.class', 'border')
-      cy.get('[role="listbox"]').should('have.class', 'border-black-200')
+      cy.get('[role="listbox"]').should('have.class', 'border-dropdown-menu-border')
       cy.get('[role="listbox"]').should('have.class', 'shadow-lg')
     })
 
