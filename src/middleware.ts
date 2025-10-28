@@ -3,13 +3,14 @@ import { getServerStatus } from './lib/api'
 import Logger from './lib/Logger'
 
 export default async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, search } = request.nextUrl
   const accessToken = request.cookies.get('access_token')?.value
   const refreshToken = request.cookies.get('refresh_token')?.value
   const languageCookie = request.cookies.get('language')?.value
   const themeCookie = request.cookies.get('theme')?.value
+  const path = pathname + search
 
-  Logger.debug('[middleware] handling request for:', pathname)
+  Logger.debug('[middleware] handling request for:', path)
 
   // Helper to create URLs with correct host/port from request headers.
   // nextUrl/url don't always containt the right host/port,
@@ -71,7 +72,7 @@ export default async function middleware(request: NextRequest) {
   }
 
   const next = (): NextResponse => {
-    Logger.debug(`[middleware] continuing to: ${pathname}`)
+    Logger.debug(`[middleware] continuing to: ${path}`)
     return setLanguageCookie(NextResponse.next())
   }
 
@@ -104,7 +105,7 @@ export default async function middleware(request: NextRequest) {
     // Redirect to refresh token route with current path
     const refreshUrl = createUrl('/internal-api/refresh')
     if (pathname !== '/') {
-      refreshUrl.searchParams.set('redirect', pathname)
+      refreshUrl.searchParams.set('redirect', path)
     }
     Logger.debug(`[middleware] accessToken not found, refreshToken found`)
     return redirect(refreshUrl)
@@ -117,7 +118,7 @@ export default async function middleware(request: NextRequest) {
 
   const response = next()
   // Set current path to use for redirects on token refresh
-  response.headers.set('x-current-path', pathname)
+  response.headers.set('x-current-path', path)
 
   return response
 }
