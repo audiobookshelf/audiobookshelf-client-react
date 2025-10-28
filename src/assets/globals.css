@@ -3,35 +3,9 @@
 @source "../../cypress/tests/**/*.cy.tsx";
 
 @import './app.css';
+@import './themes.css';
 
-/* Default theme */
-:root,
-.theme-dark {
-  --primary: #232323;
-  --primary-hover: #2d2d2d;
-  --background: #373838;
-  --foreground: #ededed;
-  --border: #444444;
-  --header-height: 64px;
-}
-
-/* Light theme */
-.theme-light {
-  --primary: #ededed;
-  --primary-hover: #d9d9d9;
-  --background: #f5f5f5;
-  --foreground: #232323;
-  --border: #e0e0e0;
-  --header-height: 64px;
-}
-
-/* Black theme */
-.theme-black {
-  --primary: #000000;
-  --primary-hover: #1a1a1a;
-  --background: #000000;
-  --foreground: #ededed;
-  --border: #1a1a1a;
+:root {
   --header-height: 64px;
 }
 
@@ -70,7 +44,7 @@
   --spacing-80e: 20em;
   --spacing-96e: 24em;
 
-  --color-bg: var(--background);
+  --color-bg: var(--tc-background);
   --color-accent: #1ad691;
   --color-error: #ff5252;
   --color-info: #2196f3;
@@ -86,14 +60,14 @@
   --color-black-600: #111111;
   --color-black-700: #101010;
   --color-bg-hover: rgba(255, 255, 255, 0.15);
-  --color-disabled: var(--color-gray-400);
-  --color-bg-disabled: var(--color-black-300);
-  --color-read-only: var(--color-gray-300);
-  --color-bg-read-only: var(--color-black-300);
-  --color-border: var(--border);
-  --color-checkbox-disabled: var(--color-gray-400);
-  --color-checkbox-bg-disabled: var(--color-black-200);
-  --color-button-selected-bg: var(--color-black-200);
+  --color-disabled: var(--tc-disabled);
+  --color-bg-disabled: var(--tc-background-disabled);
+  --color-read-only: var(--tc-read-only);
+  --color-bg-read-only: var(--tc-background-read-only);
+  --color-border: var(--tc-border);
+  --color-checkbox-disabled: var(--tc-checkbox-disabled);
+  --color-checkbox-bg-disabled: var(--tc-checkbox-bg-disabled);
+  --color-button-selected-bg: var(--tc-button-selected-bg);
 
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';
@@ -103,22 +77,15 @@
   --text-2\.5xl: 1.6875rem;
   --text-4\.5xl: 2.625rem;
 
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #373838;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--tc-primary);
+  --color-primary-hover: var(--tc-primary-hover);
+  --color-background: var(--tc-background);
+  --color-foreground: var(--tc-foreground);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--tc-background);
+  color: var(--tc-foreground);
 }
 
 /* Screen reader only utility class */

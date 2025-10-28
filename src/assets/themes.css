@@ -1,0 +1,60 @@
+/* Default theme */
+:root,
+.theme-dark {
+  --tc-primary: #232323;
+  --tc-primary-hover: #2d2d2d;
+  --tc-background: #373838;
+  --tc-background-hover: #444444;
+  --tc-background-read-only: #444444;
+  --tc-background-disabled: #444444;
+  --tc-foreground: #ededed;
+  --tc-border: #444444;
+
+  --tc-disabled: #99a1af;
+  --tc-read-only: #d1d5dc;
+
+  --tc-checkbox-disabled: #99a1af;
+  --tc-checkbox-bg-disabled: #444444;
+
+  --tc-button-selected-bg: #555555;
+}
+
+/* Light theme */
+.theme-light {
+  --tc-primary: #ffffff;
+  --tc-primary-hover: #f5f5f5;
+  --tc-background: #fafafa;
+  --tc-background-hover: #f0f0f0;
+  --tc-background-read-only: #f5f5f5;
+  --tc-background-disabled: #e8e8e8;
+  --tc-foreground: #1a1a1a;
+  --tc-border: #d4d4d4;
+
+  --tc-disabled: #9ca3af;
+  --tc-read-only: #6b7280;
+
+  --tc-checkbox-disabled: #9ca3af;
+  --tc-checkbox-bg-disabled: #e8e8e8;
+
+  --tc-button-selected-bg: #e5e5e5;
+}
+
+/* Black theme */
+.theme-black {
+  --tc-primary: #0a0a0a;
+  --tc-primary-hover: #1f1f1f;
+  --tc-background: #000000;
+  --tc-background-hover: #1a1a1a;
+  --tc-background-read-only: #1a1a1a;
+  --tc-background-disabled: #1a1a1a;
+  --tc-foreground: #f5f5f5;
+  --tc-border: #262626;
+
+  --tc-disabled: #737373;
+  --tc-read-only: #a3a3a3;
+
+  --tc-checkbox-disabled: #737373;
+  --tc-checkbox-bg-disabled: #1a1a1a;
+
+  --tc-button-selected-bg: #2a2a2a;
+}
