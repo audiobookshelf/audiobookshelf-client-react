@@ -59,7 +59,7 @@
   --color-black-500: #222222;
   --color-black-600: #111111;
   --color-black-700: #101010;
-  --color-bg-hover: rgba(255, 255, 255, 0.15);
+  --color-bg-hover: var(--tc-background-hover);
   --color-disabled: var(--tc-disabled);
   --color-bg-disabled: var(--tc-background-disabled);
   --color-read-only: var(--tc-read-only);
@@ -68,6 +68,8 @@
   --color-checkbox-disabled: var(--tc-checkbox-disabled);
   --color-checkbox-bg-disabled: var(--tc-checkbox-bg-disabled);
   --color-button-selected-bg: var(--tc-button-selected-bg);
+  --color-button-foreground: var(--tc-button-foreground);
+  --color-button-foreground-muted: var(--tc-button-foreground-muted);
   --color-dropdown-item-hover: var(--tc-dropdown-item-hover);
   --color-dropdown-item-selected: var(--tc-dropdown-item-selected);
   --color-dropdown-menu-border: var(--tc-dropdown-menu-border);

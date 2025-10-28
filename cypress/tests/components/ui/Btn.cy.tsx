@@ -1,4 +1,3 @@
-import React from 'react'
 import Btn from '@/components/ui/Btn'
 
 describe('<Btn />', () => {
@@ -29,7 +28,7 @@ describe('<Btn />', () => {
   it('shows loading spinner when loading is true', () => {
     cy.mount(<Btn loading>Loading Button</Btn>)
     cy.get('svg.animate-spin').should('exist')
-    cy.get('button').should('have.class', 'text-white/0')
+    cy.get('button').should('have.class', 'text-button-foreground/0')
   })
 
   it('shows progress text when progress is provided', () => {

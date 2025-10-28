@@ -22,7 +22,7 @@ interface BtnProps {
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
 const LoadingSpinner = memo<{ progress?: string }>(({ progress }) => {
   return (
-    <div className="text-white/100 absolute inset-0 flex items-center justify-center bg-bg-disabled cursor-not-allowed" aria-hidden="true">
+    <div className="text-button-foreground absolute inset-0 flex items-center justify-center bg-bg-disabled cursor-not-allowed" aria-hidden="true">
       {progress ? (
         <span>{progress}</span>
       ) : (
@@ -54,7 +54,7 @@ export default function Btn({
     const list: string[] = []
 
     // Optimize conditional class logic
-    list.push(loading ? 'text-white/0 disabled:text-disabled/0' : 'text-white disabled:text-disabled')
+    list.push(loading ? 'text-button-foreground/0 disabled:text-disabled/0' : 'text-button-foreground disabled:text-disabled')
     list.push(color)
 
     if (size === 'small') {
