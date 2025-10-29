@@ -98,33 +98,35 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
       </div>
       {isExpanded && (
         <div id="chapters-table-content" role="region" aria-label={t('HeaderChapters')}>
-          <table className="text-sm tracksTable w-full">
+          <table className="text-sm w-full border-collapse border border-border">
             <caption className="sr-only">{t('HeaderChapters')}</caption>
             <thead>
               <tr>
-                <th className="text-start w-16" scope="col">
+                <th className="text-start w-16 px-2 py-1 text-xs" scope="col">
                   <span className="px-4">Id</span>
                 </th>
-                <th className="text-start" scope="col">
+                <th className="text-start px-2 py-1 text-xs" scope="col">
                   {t('LabelTitle')}
                 </th>
-                <th className="text-center" scope="col">
+                <th className="text-center px-2 py-1 text-xs" scope="col">
                   {t('LabelStart')}
                 </th>
-                <th className="text-center" scope="col">
+                <th className="text-center px-2 py-1 text-xs" scope="col">
                   {t('LabelDuration')}
                 </th>
               </tr>
             </thead>
             <tbody>
               {chapters.map((chapter) => (
-                <tr key={chapter.id}>
-                  <th className="text-start px-4" scope="row">
-                    {chapter.id}
-                  </th>
-                  <td dir="auto">{chapter.title}</td>
+                <tr key={chapter.id} className="bg-bg odd:bg-primary-hover hover:bg-dropdown-item-selected">
+                  <td className="text-start px-2 py-1">
+                    <p className="px-4">{chapter.id}</p>
+                  </td>
+                  <td dir="auto" className="px-2 py-1">
+                    {chapter.title}
+                  </td>
                   <td
-                    className="font-mono text-center hover:underline cursor-pointer"
+                    className="font-mono text-center hover:underline cursor-pointer px-2 py-1"
                     onClick={(e) => {
                       e.stopPropagation()
                       handleGoToTimestamp(chapter.start)
@@ -136,7 +138,7 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
                   >
                     {secondsToTimestamp(chapter.start)}
                   </td>
-                  <td className="font-mono text-center">{secondsToTimestamp(Math.max(0, chapter.end - chapter.start))}</td>
+                  <td className="font-mono text-center px-2 py-1">{secondsToTimestamp(Math.max(0, chapter.end - chapter.start))}</td>
                 </tr>
               ))}
             </tbody>
