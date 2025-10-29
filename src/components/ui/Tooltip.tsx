@@ -204,7 +204,7 @@ const Tooltip = ({
     () =>
       mergeClasses(
         'inline-block whitespace-normal break-words text-center',
-        'rounded-sm bg-primary text-white text-xs px-2 py-1 shadow-lg z-[1000]',
+        'rounded-sm bg-primary text-foreground text-xs px-2 py-1 shadow-lg z-[1000]',
         'transition-opacity duration-300',
         open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
       ),

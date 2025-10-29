@@ -147,9 +147,9 @@ export default function ContextMenu<T = string>({
           aria-label={`${item.text}, submenu`}
           id={`${menuId}-item-${index}`}
           className={mergeClasses(
-            'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-default w-full',
-            openSubmenuIndex === index ? 'bg-white/5' : '',
-            focusedIndex === index && focusedSubIndex === -1 ? 'bg-white/10' : ''
+            'flex items-center px-2 py-1.5 hover:bg-foreground/5 text-foreground text-xs cursor-default w-full',
+            openSubmenuIndex === index ? 'bg-foreground/5' : '',
+            focusedIndex === index && focusedSubIndex === -1 ? 'bg-foreground/10' : ''
           )}
           onMouseOver={() => handleMouseoverParent(index)}
           onMouseLeave={() => handleMouseleaveParent(index)}
@@ -187,8 +187,8 @@ export default function ContextMenu<T = string>({
                   aria-label={subitem.text}
                   id={`${menuId}-subitem-${index}-${subitemIndex}`}
                   className={mergeClasses(
-                    'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-pointer w-full',
-                    focusedSubIndex === subitemIndex && focusedSubIndex !== -1 ? 'bg-white/10' : ''
+                    'flex items-center px-2 py-1.5 hover:bg-foreground/5 text-foreground text-xs cursor-pointer w-full',
+                    focusedSubIndex === subitemIndex && focusedSubIndex !== -1 ? 'bg-foreground/10' : ''
                   )}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={(e) => {
@@ -206,7 +206,7 @@ export default function ContextMenu<T = string>({
                 role="menuitem"
                 aria-label={t('LabelNoItems')}
                 id={`${menuId}-subitem-${index}-no-items`}
-                className="flex items-center px-2 py-1.5 text-white/50 text-xs cursor-default w-full"
+                className="flex items-center px-2 py-1.5 text-disabled text-xs cursor-default w-full"
                 disabled
                 tabIndex={-1}
               >
@@ -224,8 +224,8 @@ export default function ContextMenu<T = string>({
         aria-label={item.text}
         id={`${menuId}-item-${index}`}
         className={mergeClasses(
-          'flex items-center px-2 py-1.5 hover:bg-white/5 text-white text-xs cursor-pointer w-full',
-          focusedIndex === index && focusedSubIndex === -1 ? 'bg-white/10' : ''
+          'flex items-center px-2 py-1.5 hover:bg-foreground/5 text-foreground text-xs cursor-pointer w-full',
+          focusedIndex === index && focusedSubIndex === -1 ? 'bg-foreground/10' : ''
         )}
         onClick={(e) => {
           e.stopPropagation()

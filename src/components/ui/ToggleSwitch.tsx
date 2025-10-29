@@ -75,7 +75,7 @@ export default function ToggleSwitch({
       classes.push('text-base md:text-lg')
     }
 
-    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-gray-100')
+    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-foreground')
   }, [size, disabled])
 
   const triggerChange = useCallback(() => {
