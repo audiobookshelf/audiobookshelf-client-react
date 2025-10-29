@@ -58,23 +58,12 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
 
   const isExpanded = keepOpen || expanded
 
-  const headerClasses = useMemo(
-    () => mergeClasses('w-full', 'bg-primary', 'px-6', 'py-2', 'flex', 'items-center', keepOpen ? '' : 'cursor-pointer'),
-    [keepOpen]
-  )
+  const headerClasses = useMemo(() => mergeClasses('w-full bg-primary px-6 py-2 flex items-center', keepOpen ? '' : 'cursor-pointer'), [keepOpen])
 
   const iconClasses = useMemo(
     () =>
       mergeClasses(
-        'cursor-pointer',
-        'h-10',
-        'w-10',
-        'rounded-full',
-        'hover:bg-black-400',
-        'flex',
-        'justify-center',
-        'items-center',
-        'duration-500',
+        'cursor-pointer h-10 w-10 rounded-full hover:bg-black-400 flex justify-center items-center duration-500',
         expanded ? 'transform rotate-180' : ''
       ),
     [expanded]
@@ -91,13 +80,13 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
         aria-expanded={keepOpen ? undefined : isExpanded}
         aria-controls={keepOpen ? undefined : 'chapters-table-content'}
       >
-        <p className="pr-4">{t('HeaderChapters')}</p>
+        <p className="pe-4">{t('HeaderChapters')}</p>
         <span className="bg-black-400 rounded-xl py-1 px-2 text-sm font-mono" aria-label={`${chapters.length} chapters`}>
           {chapters.length}
         </span>
         <div className="grow" />
         {userCanUpdate && (
-          <Btn to={`/item/${libraryItem.id}/chapters`} color="bg-primary" size="small" className="mr-2">
+          <Btn to={`/item/${libraryItem.id}/chapters`} color="bg-primary" size="small" className="me-2">
             {t('ButtonEditChapters')}
           </Btn>
         )}
@@ -113,10 +102,10 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
             <caption className="sr-only">{t('HeaderChapters')}</caption>
             <thead>
               <tr>
-                <th className="text-left w-16" scope="col">
+                <th className="text-start w-16" scope="col">
                   <span className="px-4">Id</span>
                 </th>
-                <th className="text-left" scope="col">
+                <th className="text-start" scope="col">
                   {t('LabelTitle')}
                 </th>
                 <th className="text-center" scope="col">
@@ -130,7 +119,7 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
             <tbody>
               {chapters.map((chapter) => (
                 <tr key={chapter.id}>
-                  <th className="text-left px-4" scope="row">
+                  <th className="text-start px-4" scope="row">
                     {chapter.id}
                   </th>
                   <td dir="auto">{chapter.title}</td>
