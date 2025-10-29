@@ -54,13 +54,10 @@ export function ChaptersExamples({ selectedBook }: ChaptersExamplesProps) {
   const { user } = useComponentsCatalog()
 
   return (
-    <ComponentExamples title="Chapters Components">
-      <ComponentInfo
-        component="ChaptersTable"
-        description="Collapsible table component that displays chapter information including ID, title, start time, and duration."
-      >
+    <ComponentExamples title="Chapters">
+      <ComponentInfo component="Chapters" description="Component that displays chapters information including ID, title, start time, and duration.">
         <p className="mb-2">
-          <span className="font-bold">Import:</span> <Code overflow>import ChaptersTable from &apos;@/components/widgets/ChaptersTable&apos;</Code>
+          <span className="font-bold">Import:</span> <Code overflow>import Chapters from &apos;@/components/widgets/Chapters&apos;</Code>
         </p>
         <div>
           <span className="font-bold">Props:</span>
@@ -70,9 +67,6 @@ export function ChaptersExamples({ selectedBook }: ChaptersExamplesProps) {
             </li>
             <li>
               <Code>user</Code>: The current user object.
-            </li>
-            <li>
-              <Code>keepOpen</Code> (optional): If true, prevents collapse functionality and keeps the table always expanded.
             </li>
           </ul>
         </div>
