@@ -1,9 +1,8 @@
 'use client'
 
-import { getCurrentUserAction } from '@/app/actions/searchActions'
 import CoverEdit from '@/components/widgets/CoverEdit'
-import { BookLibraryItem, PodcastLibraryItem, User } from '@/types/api'
-import { useEffect, useState } from 'react'
+import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
+import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
 interface CoverEditExamplesProps {
@@ -11,72 +10,7 @@ interface CoverEditExamplesProps {
 }
 
 export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProps) {
-  // Data fetching state
-  const [user, setUser] = useState<User | null>(null)
-  const [bookCoverAspectRatio, setBookCoverAspectRatio] = useState(1)
-  const [isLoading, setIsLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
-
-  // Fetch user data on mount
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true)
-      setLoadError(null)
-
-      try {
-        const currentUser = await getCurrentUserAction()
-
-        if (currentUser?.user) {
-          setUser(currentUser.user)
-          setBookCoverAspectRatio(currentUser.serverSettings.bookshelfView || 1)
-        } else {
-          setLoadError('No user data received')
-        }
-      } catch (error) {
-        setLoadError(error instanceof Error ? error.message : 'Failed to load user data')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadData()
-  }, [])
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <ComponentExamples title="Cover Tab Component">
-        <div className="p-8 text-center">
-          <p className="text-gray-400">Loading user data...</p>
-        </div>
-      </ComponentExamples>
-    )
-  }
-
-  // Show error state
-  if (loadError) {
-    return (
-      <ComponentExamples title="Cover Tab Component">
-        <div className="p-8 border-2 border-error rounded-lg">
-          <h3 className="text-xl font-semibold mb-4 text-error">Error Loading Data</h3>
-          <p className="text-gray-400">{loadError}</p>
-        </div>
-      </ComponentExamples>
-    )
-  }
-
-  // Show message if no user
-  if (!user) {
-    return (
-      <ComponentExamples title="Cover Tab Component">
-        <div className="p-8 border-2 border-dashed border-gray-600 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Cover Tab Component</h3>
-          <p className="text-gray-400">You must be logged in to view this example.</p>
-        </div>
-      </ComponentExamples>
-    )
-  }
-
+  const { user, bookCoverAspectRatio } = useComponentsCatalog()
   return (
     <ComponentExamples title="Cover Edit">
       <ComponentInfo
