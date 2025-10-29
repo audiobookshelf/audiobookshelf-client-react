@@ -4,6 +4,7 @@ import { LibrarySearchBox } from '@/components/widgets/LibrarySearchBox'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { useState } from 'react'
 import { BookDetailsEditExamples } from '../examples/BookDetailsEditExamples'
+import { ChaptersExamples } from '../examples/ChaptersExamples'
 import { CoverEditExamples } from '../examples/CoverEditExamples'
 import { PodcastDetailsEditExamples } from '../examples/PodcastDetailsEditExamples'
 import { PreviewCoverExamples } from '../examples/PreviewCoverExamples'
@@ -51,6 +52,11 @@ export default function ItemDetailsExamplesPage() {
                       Book Details Edit
                     </a>
                   </li>
+                  <li>
+                    <a href="#chapters-examples" className="hover:text-blue-400 transition-colors">
+                      Chapters
+                    </a>
+                  </li>
                 </>
               )}
               {selectedPodcast && (
@@ -79,6 +85,13 @@ export default function ItemDetailsExamplesPage() {
       {selectedBook && (
         <div id="book-details-edit-examples">
           <BookDetailsEditExamples selectedBook={selectedBook} />
+        </div>
+      )}
+
+      {/* Chapters - Only show when a book is selected */}
+      {selectedBook && (
+        <div id="chapters-examples">
+          <ChaptersExamples selectedBook={selectedBook} />
         </div>
       )}
 
