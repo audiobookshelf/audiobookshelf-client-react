@@ -63,7 +63,7 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
   const iconClasses = useMemo(
     () =>
       mergeClasses(
-        'cursor-pointer h-10 w-10 rounded-full hover:bg-black-400 flex justify-center items-center duration-500',
+        'cursor-pointer h-10 w-10 rounded-full hover:bg-bg-hover flex justify-center items-center duration-500',
         expanded ? 'transform rotate-180' : ''
       ),
     [expanded]
@@ -81,7 +81,7 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false }: C
         aria-controls={keepOpen ? undefined : 'chapters-table-content'}
       >
         <p className="pe-4">{t('HeaderChapters')}</p>
-        <span className="bg-black-400 rounded-xl py-1 px-2 text-sm font-mono" aria-label={`${chapters.length} chapters`}>
+        <span className="bg-bg-hover rounded-xl py-1 px-2 text-sm font-mono" aria-label={`${chapters.length} chapters`}>
           {chapters.length}
         </span>
         <div className="grow" />
