@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
+import { ComponentsCatalogProvider } from '../../../contexts/ComponentsCatalogContext'
 import { getCurrentUser, getData } from '../../../lib/api'
 import AppBar from '../AppBar'
 
@@ -19,7 +20,9 @@ export default async function ComponentsCatalogLayout({ children }: Readonly<{ c
   return (
     <>
       <AppBar user={currentUser.user} />
-      <div>{children}</div>
+      <ComponentsCatalogProvider currentUser={currentUser}>
+        <div>{children}</div>
+      </ComponentsCatalogProvider>
     </>
   )
 }
