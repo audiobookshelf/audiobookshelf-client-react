@@ -8,6 +8,7 @@
   --tc-background-read-only: #444444;
   --tc-background-disabled: #444444;
   --tc-foreground: #ededed;
+  --tc-foreground-muted: #d1d5dc;
   --tc-border: #444444;
 
   --tc-disabled: #99a1af;
@@ -50,6 +51,7 @@
   --tc-background-read-only: #f5f5f5;
   --tc-background-disabled: #e8e8e8;
   --tc-foreground: #1a1a1a;
+  --tc-foreground-muted: #6b7280;
   --tc-border: #d4d4d4;
 
   --tc-disabled: #9ca3af;
@@ -92,6 +94,7 @@
   --tc-background-read-only: #1a1a1a;
   --tc-background-disabled: #1a1a1a;
   --tc-foreground: #f5f5f5;
+  --tc-foreground-muted: #a3a3a3;
   --tc-border: #262626;
 
   --tc-disabled: #737373;

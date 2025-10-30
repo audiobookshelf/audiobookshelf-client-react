@@ -86,6 +86,7 @@
   --color-primary-hover: var(--tc-primary-hover);
   --color-background: var(--tc-background);
   --color-foreground: var(--tc-foreground);
+  --color-foreground-muted: var(--tc-foreground-muted);
 }
 
 body {
