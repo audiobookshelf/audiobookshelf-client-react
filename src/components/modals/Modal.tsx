@@ -139,7 +139,7 @@ export default function Modal({
           marginTop: `${contentMarginTop}px`
         }}
         className={mergeClasses(
-          'relative text-white outline-none focus:outline-none overflow-x-hidden',
+          'relative text-foreground outline-none focus:outline-none overflow-x-hidden',
           // Responsive width: full width with margin on mobile, fixed width on larger screens
           modalWidth ? '' : 'w-[calc(100vw-1rem)] max-w-[95vw] sm:w-auto sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]'
         )}

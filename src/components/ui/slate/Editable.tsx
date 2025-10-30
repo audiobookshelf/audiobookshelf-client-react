@@ -206,7 +206,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
         'relative whitespace-pre-wrap break-words',
         'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-base focus:outline-none',
         // Apply disabled/readonly styling based on state
-        disabled ? 'text-disabled cursor-not-allowed pointer-events-none' : readOnly ? 'text-read-only' : 'text-gray-200',
+        disabled ? 'text-disabled cursor-not-allowed pointer-events-none' : readOnly ? 'text-read-only' : 'text-foreground',
         // Element-specific styles using child selectors
         slateElementStyles
       ),
