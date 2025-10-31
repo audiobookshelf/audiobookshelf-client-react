@@ -450,6 +450,7 @@
   "LabelIntervalWeekly": "Weekly",
   "LabelInvert": "Invert",
   "LabelItem": "Item",
+  "LabelItemsPlural": "{count, plural, one {# item} other {# items}}",
   "LabelJumpBackwardAmount": "Jump backward amount",
   "LabelJumpForwardAmount": "Jump forward amount",
   "LabelLanguage": "Language",
