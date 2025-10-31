@@ -135,8 +135,8 @@ export default function SideRail({
             key={button.label}
             href={button.href}
             className={mergeClasses(
-              'w-full h-20 flex flex-col items-center justify-center text-white border-b border-primary/30 hover:bg-primary/50 cursor-pointer relative',
-              pathname === button.href && 'bg-primary/80'
+              'w-full h-20 flex flex-col items-center justify-center text-foreground border-b border-primary/30 hover:bg-nav-item-hover cursor-pointer relative',
+              pathname === button.href && 'bg-nav-item-selected'
             )}
           >
             {button.icon}
@@ -147,8 +147,8 @@ export default function SideRail({
         ))}
       </div>
       <div className="w-full h-12 px-1 py-2 border-t border-primary/30">
-        <p className="text-xs text-center text-gray-300 font-mono">v{serverVersion}</p>
-        <p className="text-xxs text-center text-gray-400 italic">{installSource}</p>
+        <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
+        <p className="text-xxs text-center text-disabled italic">{installSource}</p>
       </div>
     </div>
   )

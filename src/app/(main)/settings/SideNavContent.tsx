@@ -71,8 +71,8 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
             href={item.href}
             onClick={handleItemClick ?? undefined}
             className={mergeClasses(
-              pathname === item.href && 'bg-primary/70',
-              'w-full h-12 text-foreground border-b border-primary/30 hover:bg-primary/50 cursor-pointer relative flex items-center px-3'
+              pathname === item.href && 'bg-nav-item-selected',
+              'w-full h-12 text-foreground border-b border-primary/30 hover:bg-nav-item-hover cursor-pointer relative flex items-center px-3'
             )}
           >
             {item.label}
@@ -80,7 +80,7 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
         ))}
       </div>
       <div className="w-full h-8 px-4 py-2 border-t border-primary/30 flex items-center justify-between">
-        <p className="text-xs text-center text-read-only font-mono">v{serverVersion}</p>
+        <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
         <p className="text-xxs text-center text-disabled italic">{installSource}</p>
       </div>
     </>
