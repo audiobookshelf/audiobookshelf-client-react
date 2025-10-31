@@ -1,5 +1,6 @@
 'use client'
 
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -16,6 +17,7 @@ export default function SideRail({
   installSource: string
 }) {
   const pathname = usePathname()
+  const t = useTypeSafeTranslations()
 
   const buttons = [
     {
@@ -29,12 +31,12 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Home',
+      label: t('ButtonHome'),
       href: `/library/${currentLibraryId}`
     },
     {
       icon: <span className="material-symbols text-2xl">&#xe241;</span>,
-      label: 'Latest',
+      label: t('ButtonLatest'),
       href: `/library/${currentLibraryId}/latest`,
       mediaType: 'podcast'
     },
@@ -49,7 +51,7 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Library',
+      label: t('ButtonLibrary'),
       href: `/library/${currentLibraryId}/bookshelf`
     },
     {
@@ -63,19 +65,19 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Series',
+      label: t('ButtonSeries'),
       href: `/library/${currentLibraryId}/series`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xe431;</span>,
-      label: 'Collections',
+      label: t('ButtonCollections'),
       href: `/library/${currentLibraryId}/collections`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2.5xl">&#xe03d;</span>,
-      label: 'Playlists',
+      label: t('ButtonPlaylists'),
       href: `/library/${currentLibraryId}/playlists`
     },
     {
@@ -87,37 +89,37 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Authors',
+      label: t('ButtonAuthors'),
       href: `/library/${currentLibraryId}/authors`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xe91f;</span>,
-      label: 'Narrators',
+      label: t('LabelNarrators'),
       href: `/library/${currentLibraryId}/narrators`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xf190;</span>,
-      label: 'Stats',
+      label: t('ButtonStats'),
       href: `/library/${currentLibraryId}/stats`,
       mediaType: 'book'
     },
     {
       icon: <span className="abs-icons icon-podcast text-xl"></span>,
-      label: 'Add',
+      label: t('ButtonAdd'),
       href: `/library/${currentLibraryId}/search`,
       mediaType: 'podcast'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xf090;</span>,
-      label: 'Queue',
+      label: t('ButtonDownloadQueue'),
       href: `/library/${currentLibraryId}/download-queue`,
       mediaType: 'podcast'
     },
     {
       icon: <span className="material-symbols text-2xl">warning</span>,
-      label: 'Issues',
+      label: t('ButtonIssues'),
       href: `/library/${currentLibraryId}/issues`,
       hidden: true
     }
