@@ -1,4 +1,3 @@
-import React from 'react'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
 import { AVAILABLE_ICONS } from '@/lib/absicons'
 
@@ -145,7 +144,7 @@ describe('<MediaIconPicker />', () => {
       cy.mount(<MediaIconPicker />)
       cy.get('button').click()
       cy.get('[role="listbox"]').should('be.visible')
-      cy.get('[role="listbox"] [role="option"]').first().find('[role="img"]').should('have.class', 'text-white/100')
+      cy.get('[role="listbox"] [role="option"]').first().find('[role="img"]').should('have.class', 'text-foreground/100')
     })
 
     it('navigates through menu items with ArrowDown', () => {
@@ -155,15 +154,15 @@ describe('<MediaIconPicker />', () => {
       cy.get('[role="listbox"]').should('be.visible')
 
       // First item should be focused
-      cy.get('[role="listbox"] [role="option"]').first().find('[role="img"]').should('have.class', 'text-white/100')
+      cy.get('[role="listbox"] [role="option"]').first().find('[role="img"]').should('have.class', 'text-foreground/100')
 
       // Navigate to second item
       cy.get('button').type('{downarrow}')
-      cy.get('[role="listbox"] [role="option"]').eq(1).find('[role="img"]').should('have.class', 'text-white/100')
+      cy.get('[role="listbox"] [role="option"]').eq(1).find('[role="img"]').should('have.class', 'text-foreground/100')
 
       // Navigate to third item
       cy.get('button').type('{downarrow}')
-      cy.get('[role="listbox"] [role="option"]').eq(2).find('[role="img"]').should('have.class', 'text-white/100')
+      cy.get('[role="listbox"] [role="option"]').eq(2).find('[role="img"]').should('have.class', 'text-foreground/100')
     })
 
     it('navigates through menu items with ArrowUp', () => {
@@ -173,21 +172,21 @@ describe('<MediaIconPicker />', () => {
       cy.get('[role="listbox"]').should('be.visible')
 
       // Last item should be focused when opening with up arrow
-      cy.get('[role="listbox"] [role="option"]').last().find('[role="img"]').should('have.class', 'text-white/100')
+      cy.get('[role="listbox"] [role="option"]').last().find('[role="img"]').should('have.class', 'text-foreground/100')
 
       // Navigate to second to last item
       cy.get('button').type('{uparrow}')
       cy.get('[role="listbox"] [role="option"]')
         .eq(AVAILABLE_ICONS.length - 2)
         .find('[role="img"]')
-        .should('have.class', 'text-white/100')
+        .should('have.class', 'text-foreground/100')
 
       // Navigate to third to last item
       cy.get('button').type('{uparrow}')
       cy.get('[role="listbox"] [role="option"]')
         .eq(AVAILABLE_ICONS.length - 3)
         .find('[role="img"]')
-        .should('have.class', 'text-white/100')
+        .should('have.class', 'text-foreground/100')
     })
 
     it('activates menu item with Enter', () => {
@@ -221,7 +220,7 @@ describe('<MediaIconPicker />', () => {
       cy.get('button').type('{downarrow}') // Navigate to second item
       cy.get('button').type('{home}') // Go to first item
 
-      cy.get('[role="listbox"] [role="option"]').first().find('[role="img"]').should('have.class', 'text-white/100')
+      cy.get('[role="listbox"] [role="option"]').first().find('[role="img"]').should('have.class', 'text-foreground/100')
     })
 
     it('navigates to last item with End key', () => {
@@ -230,7 +229,7 @@ describe('<MediaIconPicker />', () => {
       cy.get('button').type('{downarrow}') // Open menu
       cy.get('button').type('{end}') // Go to last item
 
-      cy.get('[role="listbox"] [role="option"]').last().find('[role="img"]').should('have.class', 'text-white/100')
+      cy.get('[role="listbox"] [role="option"]').last().find('[role="img"]').should('have.class', 'text-foreground/100')
     })
 
     it('closes menu with Escape key', () => {
@@ -295,25 +294,25 @@ describe('<MediaIconPicker />', () => {
       cy.get('[role="listbox"] [role="option"]')
         .eq(AVAILABLE_ICONS.length - 1)
         .find('[role="img"]')
-        .should('have.class', 'text-white/100')
+        .should('have.class', 'text-foreground/100')
 
       cy.get('button').type('{leftarrow}') // Navigate to previous item
       cy.get('[role="listbox"] [role="option"]')
         .eq(AVAILABLE_ICONS.length - 2)
         .find('[role="img"]')
-        .should('have.class', 'text-white/100')
+        .should('have.class', 'text-foreground/100')
 
       cy.get('button').type('{rightarrow}') // Navigate to next item
       cy.get('[role="listbox"] [role="option"]')
         .eq(AVAILABLE_ICONS.length - 1)
         .find('[role="img"]')
-        .should('have.class', 'text-white/100')
+        .should('have.class', 'text-foreground/100')
 
       cy.get('button').type('{rightarrow}') // On last item, should stay on last item
       cy.get('[role="listbox"] [role="option"]')
         .eq(AVAILABLE_ICONS.length - 1)
         .find('[role="img"]')
-        .should('have.class', 'text-white/100')
+        .should('have.class', 'text-foreground/100')
     })
   })
 
@@ -456,7 +455,7 @@ describe('<MediaIconPicker />', () => {
       cy.get('button').click()
       cy.get('[role="listbox"] [role="option"]').first().trigger('mouseover')
       // Should have hover styling
-      cy.get('[role="listbox"] [role="option"]').first().should('have.class', 'hover:text-white/75')
+      cy.get('[role="listbox"] [role="option"]').first().should('have.class', 'hover:text-foreground/75')
     })
 
     it('shows disabled state styling', () => {
