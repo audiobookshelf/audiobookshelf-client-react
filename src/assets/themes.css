@@ -47,7 +47,7 @@
 
 /* Light theme */
 .theme-light {
-  --tc-primary: #ffffff;
+  --tc-primary: #ededed;
   --tc-primary-hover: #f5f5f5;
   --tc-background: #fafafa;
   --tc-background-hover: #0000001a;
