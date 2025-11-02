@@ -32,6 +32,7 @@ interface ContextMenuDropdownProps<T = string> {
   size?: 'small' | 'medium' | 'large'
   borderless?: boolean
   className?: string
+  usePortal?: boolean
 }
 
 /**
@@ -50,7 +51,8 @@ export default function ContextMenuDropdown<T = string>({
   disabled = false,
   size = 'medium',
   borderless = false,
-  className
+  className,
+  usePortal = false
 }: ContextMenuDropdownProps<T>) {
   const t = useTypeSafeTranslations()
   const [showMenu, setShowMenu] = useState(false)
@@ -382,6 +384,8 @@ export default function ContextMenuDropdown<T = string>({
         onCloseSubmenu={() => setOpenSubmenuIndex(null)}
         onItemClick={handleItemClick}
         onSubItemClick={handleSubItemClick}
+        usePortal={usePortal}
+        triggerRef={buttonRef as React.RefObject<HTMLElement>}
       />
     </div>
   )
