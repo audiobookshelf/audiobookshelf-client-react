@@ -48,8 +48,8 @@ export default function ConfirmDialog({
   }, [onClose])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose}>
-      <div className={mergeClasses('px-4 text-sm py-6 rounded-lg bg-bg shadow-lg border border-black/30 w-fit max-w-sm mx-auto', className)}>
+    <Modal isOpen={isOpen} onClose={handleClose} className="w-sm">
+      <div className={mergeClasses('px-4 text-sm py-6', className)}>
         <p className="text-lg mb-6 mt-2 px-1">{message}</p>
 
         {checkboxLabel && (
@@ -58,7 +58,7 @@ export default function ConfirmDialog({
           </div>
         )}
 
-        <div className="flex px-1 items-center gap-2">
+        <div className="flex px-1 items-center justify-end gap-2">
           <div className="grow" />
           <Btn color="bg-primary" onClick={handleClose}>
             {t('ButtonCancel')}

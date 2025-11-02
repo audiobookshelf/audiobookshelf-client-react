@@ -98,7 +98,7 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className={modalClassName} style={modalStyle}>
-      <div className="bg-bg rounded-lg h-full w-full flex flex-col overflow-hidden">
+      <div className="h-full w-full flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0 p-3 text-center">
           <p className="text-base font-semibold">{t('HeaderPreviewCover')}</p>

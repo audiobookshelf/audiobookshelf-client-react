@@ -58,7 +58,7 @@ export function AdvancedModalExamples() {
             <Btn onClick={() => setIsModalOpen(true)}>Open Modal with MultiSelect</Btn>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="w-[600px]">
-              <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+              <div className="p-6 h-full flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 border-b border-border pb-4">
                   <h3 className="text-xl font-semibold text-white">Edit Tags</h3>

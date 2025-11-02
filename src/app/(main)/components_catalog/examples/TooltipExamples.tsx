@@ -90,7 +90,7 @@ export function TooltipExamples() {
           <div className="space-y-4">
             <Btn onClick={() => setIsTooltipModalOpen(true)}>Open modal</Btn>
             <Modal isOpen={isTooltipModalOpen} onClose={() => setIsTooltipModalOpen(false)} className="w-[200px]">
-              <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
+              <div className="p-6 h-full flex flex-col">
                 <h3 className="text-xl font-semibold text-white mb-4">Tooltip inside a modal</h3>
                 <Tooltip text="This is a tooltip inside a modal" position="bottom" className="w-fit">
                   <Btn>Tooltip</Btn>

@@ -107,7 +107,7 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div
-        className={mergeClasses('w-full rounded-lg bg-bg overflow-x-hidden p-4 sm:p-6', ffprobeData ? 'overflow-hidden flex flex-col' : 'overflow-y-auto')}
+        className={mergeClasses('w-full overflow-x-hidden p-4 sm:p-6', ffprobeData ? 'overflow-hidden flex flex-col' : 'overflow-y-auto')}
         style={ffprobeData ? { height: '80vh' } : { maxHeight: '80vh' }}
       >
         <div className={mergeClasses('flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0', ffprobeData && 'shrink-0')}>
