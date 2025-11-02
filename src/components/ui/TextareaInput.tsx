@@ -15,13 +15,25 @@ export interface TextareaInputProps {
   disabled?: boolean
   onChange?: (value: string) => void
   className?: string
+  fillHeight?: boolean
 }
 
 /**
  * Accessible textarea input with optional transparent style and disabled/focus states
  * aligned with InputDropdown visual treatment.
  */
-export default function TextareaInput({ id, label, value, placeholder, readOnly = false, rows, disabled = false, onChange, className }: TextareaInputProps) {
+export default function TextareaInput({
+  id,
+  label,
+  value,
+  placeholder,
+  readOnly = false,
+  rows,
+  disabled = false,
+  onChange,
+  className,
+  fillHeight = false
+}: TextareaInputProps) {
   const generatedId = useId()
   const textareaInputId = id || generatedId
   const textareaId = `${textareaInputId}-textarea`
@@ -35,20 +47,20 @@ export default function TextareaInput({ id, label, value, placeholder, readOnly 
   )
 
   const textareaClass = useMemo(() => {
-    return mergeClasses('w-full', rows === undefined && 'flex flex-col flex-1 min-h-0', className)
-  }, [className, rows])
+    return mergeClasses('w-full', fillHeight && (label ? 'h-full grid grid-rows-[auto_1fr]' : 'h-full flex flex-col'), className)
+  }, [className, fillHeight, label])
 
   const inputWrapperClass = useMemo(() => {
-    return mergeClasses('px-1 py-1', rows === undefined && 'flex-1 min-h-0 flex flex-col')
-  }, [rows])
+    return mergeClasses('px-1 py-1', fillHeight && 'h-full flex flex-col min-h-0')
+  }, [fillHeight])
 
   const textareaClassNames = useMemo(() => {
     return mergeClasses(
       'w-full bg-transparent py-1 px-1 outline-none border-none',
-      rows === undefined ? 'h-full resize-none' : 'resize-y',
+      fillHeight ? 'h-full resize-none' : 'resize-y',
       'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only'
     )
-  }, [rows])
+  }, [fillHeight])
 
   return (
     <div className={textareaClass} cy-id="textarea-input">
@@ -65,7 +77,7 @@ export default function TextareaInput({ id, label, value, placeholder, readOnly 
           placeholder={placeholder}
           readOnly={readOnly}
           disabled={disabled}
-          rows={rows}
+          rows={fillHeight ? undefined : rows}
           dir="auto"
           className={textareaClassNames}
           aria-disabled={disabled || undefined}
