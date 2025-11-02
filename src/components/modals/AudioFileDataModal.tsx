@@ -67,7 +67,6 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
     startTransition(async () => {
       try {
         const data = await getAudioFileFFProbeDataAction(libraryItemId, audioFile.ino)
-        console.log('Got ffprobe data', data)
         setFfprobeData(data)
       } catch (error) {
         console.error('Failed to get ffprobe data', error)
