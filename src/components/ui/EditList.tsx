@@ -168,7 +168,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   }, [listType])
 
   return (
-    <div role="list" className={mergeClasses('border border-white/10 max-w-2xl mx-auto overflow-x-scroll')}>
+    <div role="list" className={mergeClasses('border border-border max-w-2xl mx-auto overflow-x-scroll')}>
       <table className="table-auto w-full">
         <thead className={mergeClasses('w-full bg-primary/50')}>
           <tr>
@@ -188,7 +188,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                   <td className="p-3.5">
                     {showNumBooks ? (
                       <a
-                        className={mergeClasses('text-sm md:text-base text-gray-100 hover:underline')}
+                        className={mergeClasses('text-sm md:text-base text-foreground hover:underline')}
                         title={item.name}
                         // Only narrators can be clicked on, tags/genres don't have library info attached.
                         // href could be made an EditListItem prop that is passed in if other pages start using this
@@ -197,7 +197,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         {item.name}
                       </a>
                     ) : (
-                      <span className={mergeClasses('text-sm md:text-base text-gray-100')} title={item.name}>
+                      <span className={mergeClasses('text-sm md:text-base text-foreground')} title={item.name}>
                         {item.name}
                       </span>
                     )}
@@ -206,7 +206,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                     <td className={mergeClasses('hidden md:table-cell w-1/6')}>
                       <div className="flex justify-center">
                         <a
-                          className={mergeClasses('text-sm md:text-base text-gray-100 hover:underline')}
+                          className={mergeClasses('text-sm md:text-base text-foreground hover:underline')}
                           href={`/library/${libraryId}/bookshelf?filter=narrators.${item.id}`}
                         >
                           {item.numBooks}
@@ -220,7 +220,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         size="small"
                         borderless={true}
                         onClick={() => handleEditItemClick(item)}
-                        className={mergeClasses('text-gray-400 group-hover:text-white')}
+                        className={mergeClasses('text-foreground-muted group-hover:text-foreground')}
                         ariaLabel={t('ButtonEdit')}
                       >
                         {t('ButtonEdit')}
@@ -229,7 +229,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         size="small"
                         borderless={true}
                         onClick={() => handleDeleteClick(item)}
-                        className={mergeClasses('text-gray-400 group-hover:text-white')}
+                        className={mergeClasses('text-foreground-muted group-hover:text-foreground')}
                         ariaLabel={t('ButtonDelete')}
                       >
                         {t('ButtonDelete')}

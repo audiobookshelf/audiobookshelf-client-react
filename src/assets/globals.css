@@ -73,6 +73,8 @@
   --color-dropdown-item-hover: var(--tc-dropdown-item-hover);
   --color-dropdown-item-selected: var(--tc-dropdown-item-selected);
   --color-dropdown-menu-border: var(--tc-dropdown-menu-border);
+  --color-nav-item-hover: var(--tc-nav-item-hover);
+  --color-nav-item-selected: var(--tc-nav-item-selected);
 
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';
@@ -86,6 +88,7 @@
   --color-primary-hover: var(--tc-primary-hover);
   --color-background: var(--tc-background);
   --color-foreground: var(--tc-foreground);
+  --color-foreground-muted: var(--tc-foreground-muted);
 
   --shadow-modal-content: var(--tc-modal-content-box-shadow);
 }

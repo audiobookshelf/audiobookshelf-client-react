@@ -26,10 +26,10 @@ export default function SettingsContent(props: {
       <IconBtn className="md:hidden mb-2" ariaLabel="Menu" size="large" borderless onClick={toggle}>
         menu
       </IconBtn>
-      <div className="bg-bg rounded-md shadow-lg border border-white/5 p-2 sm:p-4 mb-8">
+      <div className="bg-bg rounded-md shadow-lg border border-border p-2 sm:p-4 mb-8">
         <div className="flex items-center gap-2 mb-2">
           {props.backLink && (
-            <Link aria-label="Back" href={props.backLink} className="text-gray-300 hover:text-white">
+            <Link aria-label="Back" href={props.backLink} className="text-foreground-muted hover:text-foreground">
               <span className="material-symbols text-xl">arrow_back</span>
             </Link>
           )}
@@ -42,7 +42,7 @@ export default function SettingsContent(props: {
             </Btn>
           )}
         </div>
-        {props.description && <p className="text-sm text-gray-400 mb-6">{props.description}</p>}
+        {props.description && <p className="text-sm text-foreground-muted mb-6">{props.description}</p>}
         {props.children}
       </div>
     </div>

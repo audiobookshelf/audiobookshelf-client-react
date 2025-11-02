@@ -63,7 +63,7 @@ export default function Checkbox({
       classes.push('text-base md:text-lg ps-2')
     }
 
-    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-gray-100', labelClass)
+    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-foreground', labelClass)
   }, [labelClass, size, disabled])
 
   const svgClass = useMemo(() => {

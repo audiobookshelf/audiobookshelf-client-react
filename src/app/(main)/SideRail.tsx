@@ -1,5 +1,6 @@
 'use client'
 
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -16,6 +17,7 @@ export default function SideRail({
   installSource: string
 }) {
   const pathname = usePathname()
+  const t = useTypeSafeTranslations()
 
   const buttons = [
     {
@@ -29,12 +31,12 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Home',
+      label: t('ButtonHome'),
       href: `/library/${currentLibraryId}`
     },
     {
       icon: <span className="material-symbols text-2xl">&#xe241;</span>,
-      label: 'Latest',
+      label: t('ButtonLatest'),
       href: `/library/${currentLibraryId}/latest`,
       mediaType: 'podcast'
     },
@@ -49,7 +51,7 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Library',
+      label: t('ButtonLibrary'),
       href: `/library/${currentLibraryId}/bookshelf`
     },
     {
@@ -63,19 +65,19 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Series',
+      label: t('ButtonSeries'),
       href: `/library/${currentLibraryId}/series`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xe431;</span>,
-      label: 'Collections',
+      label: t('ButtonCollections'),
       href: `/library/${currentLibraryId}/collections`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2.5xl">&#xe03d;</span>,
-      label: 'Playlists',
+      label: t('ButtonPlaylists'),
       href: `/library/${currentLibraryId}/playlists`
     },
     {
@@ -87,37 +89,37 @@ export default function SideRail({
           />
         </svg>
       ),
-      label: 'Authors',
+      label: t('ButtonAuthors'),
       href: `/library/${currentLibraryId}/authors`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xe91f;</span>,
-      label: 'Narrators',
+      label: t('LabelNarrators'),
       href: `/library/${currentLibraryId}/narrators`,
       mediaType: 'book'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xf190;</span>,
-      label: 'Stats',
+      label: t('ButtonStats'),
       href: `/library/${currentLibraryId}/stats`,
       mediaType: 'book'
     },
     {
       icon: <span className="abs-icons icon-podcast text-xl"></span>,
-      label: 'Add',
+      label: t('ButtonAdd'),
       href: `/library/${currentLibraryId}/search`,
       mediaType: 'podcast'
     },
     {
       icon: <span className="material-symbols text-2xl">&#xf090;</span>,
-      label: 'Queue',
+      label: t('ButtonDownloadQueue'),
       href: `/library/${currentLibraryId}/download-queue`,
       mediaType: 'podcast'
     },
     {
       icon: <span className="material-symbols text-2xl">warning</span>,
-      label: 'Issues',
+      label: t('ButtonIssues'),
       href: `/library/${currentLibraryId}/issues`,
       hidden: true
     }
@@ -133,8 +135,8 @@ export default function SideRail({
             key={button.label}
             href={button.href}
             className={mergeClasses(
-              'w-full h-20 flex flex-col items-center justify-center text-white border-b border-primary/30 hover:bg-primary/50 cursor-pointer relative',
-              pathname === button.href && 'bg-primary/80'
+              'w-full h-20 flex flex-col items-center justify-center text-foreground border-b border-primary/30 hover:bg-nav-item-hover cursor-pointer relative',
+              pathname === button.href && 'bg-nav-item-selected'
             )}
           >
             {button.icon}
@@ -145,8 +147,8 @@ export default function SideRail({
         ))}
       </div>
       <div className="w-full h-12 px-1 py-2 border-t border-primary/30">
-        <p className="text-xs text-center text-gray-300 font-mono">v{serverVersion}</p>
-        <p className="text-xxs text-center text-gray-400 italic">{installSource}</p>
+        <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
+        <p className="text-xxs text-center text-disabled italic">{installSource}</p>
       </div>
     </div>
   )

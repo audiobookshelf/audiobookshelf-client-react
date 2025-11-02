@@ -23,9 +23,9 @@ export default function LibrariesListRow({ item }: LibrariesListRowProps) {
   }
 
   return (
-    <div className="flex items-center gap-4 py-1 px-4 hover:bg-primary/20 text-white/50 hover:text-white">
+    <div className="flex items-center gap-4 py-1 px-4 hover:bg-primary/20 text-foreground/50 hover:text-foreground">
       <LibraryIcon icon={item.icon} />
-      <Link className="text-white hover:underline" href={`/library/${item.id}`}>
+      <Link className="text-foreground hover:underline" href={`/library/${item.id}`}>
         {item.name}
       </Link>
       <div className="grow" />
@@ -34,7 +34,7 @@ export default function LibrariesListRow({ item }: LibrariesListRowProps) {
       </Btn>
       <ContextMenuDropdown borderless size="small" items={contextMenuItems} />
       <div className="drag-handle cursor-n-resize">
-        <span className="material-symbols text-xl text-white/50 hover:text-white">reorder</span>
+        <span className="material-symbols text-xl text-foreground/50 hover:text-foreground">reorder</span>
       </div>
     </div>
   )
