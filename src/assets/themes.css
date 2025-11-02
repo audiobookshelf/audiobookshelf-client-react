@@ -39,6 +39,8 @@
     #232323,
     #1f1f1f
   );
+
+  --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
 }
 
 /* Light theme */
@@ -81,6 +83,8 @@
     #e1e1e1,
     #dfdfdf
   );
+
+  --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
 }
 
 /* Black theme */
@@ -123,4 +127,6 @@
     #030303,
     #000000
   );
+
+  --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
 }

@@ -116,7 +116,7 @@ export default function Modal({
         tabIndex={0}
         style={style}
         className={mergeClasses(
-          'relative text-white outline-none focus:outline-none overflow-x-hidden',
+          'relative text-foreground outline-none focus:outline-none shadow-modal-content',
           // Responsive width: full width with margin on mobile, fixed width on larger screens
           'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
           'mt-[50px]',
