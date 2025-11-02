@@ -405,6 +405,10 @@ export interface EBookFile {
   updatedAt: number
 }
 
+// FFProbe data is a complex nested structure returned by ffprobe/ffmpeg
+// Using Record<string, unknown> to allow any JSON-serializable structure
+export type FFProbeData = Record<string, unknown>
+
 // ============================================================================
 // MEDIA
 // ============================================================================

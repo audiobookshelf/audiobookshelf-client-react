@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
+  FFProbeData,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetUsersResponse,
@@ -243,6 +244,17 @@ export const getLibraryItems = cache(async (libraryId: string): Promise<GetLibra
 export const getLibraryItem = cache(async (itemId: string): Promise<LibraryItem> => {
   return apiRequest<LibraryItem>(`/api/items/${itemId}`, {})
 })
+
+/**
+ * Get FFProbe data for an audio file
+ * Admin-only endpoint that returns raw ffprobe output
+ * @param itemId - Library item ID
+ * @param fileIno - Audio file inode
+ * Returns: FFProbe data object
+ */
+export async function getAudioFileFFProbeData(itemId: string, fileIno: string): Promise<FFProbeData> {
+  return apiRequest<FFProbeData>(`/api/items/${itemId}/ffprobe/${fileIno}`, {})
+}
 
 export const getUsers = cache(async (): Promise<GetUsersResponse> => {
   return apiRequest<GetUsersResponse>('/api/users', {})
