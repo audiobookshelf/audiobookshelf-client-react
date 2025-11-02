@@ -92,7 +92,7 @@ export default function LibraryFilesTableRow({ file, libraryItemId, showFullPath
       </td>
       {contextMenuItems.length > 0 && (
         <td className="text-center py-1">
-          <ContextMenuDropdown items={contextMenuItems} autoWidth size="small" borderless className="h-7 w-7" onAction={handleContextMenuAction} />
+          <ContextMenuDropdown items={contextMenuItems} autoWidth size="small" borderless className="h-7 w-7" onAction={handleContextMenuAction} usePortal />
         </td>
       )}
     </TableRow>
