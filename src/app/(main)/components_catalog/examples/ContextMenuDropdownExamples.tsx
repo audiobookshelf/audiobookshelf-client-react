@@ -185,6 +185,20 @@ export function ContextMenuDropdownExamples() {
             <span className="text-sm text-gray-400">Borderless state</span>
           </div>
         </Example>
+
+        <Example title="Context Menu with Portal">
+          <div className="border border-gray-300 rounded p-4 overflow-y-auto max-h-32">
+            <p className="text-xs text-gray-500 mb-2">Scrollable container (portal menu won&apos;t be clipped)</p>
+            <div className="flex items-center gap-4">
+              <ContextMenuDropdown
+                items={contextMenuItems}
+                usePortal={true}
+                onAction={(action) => showToast(`Action: ${action.action}`, { type: 'info', title: 'Context Menu Action' })}
+              />
+              <span className="text-xs text-gray-400">Menu inside scrollable container</span>
+            </div>
+          </div>
+        </Example>
       </ExamplesBlock>
     </ComponentExamples>
   )
