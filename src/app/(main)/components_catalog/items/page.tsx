@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { BookDetailsEditExamples } from '../examples/BookDetailsEditExamples'
 import { ChaptersExamples } from '../examples/ChaptersExamples'
 import { CoverEditExamples } from '../examples/CoverEditExamples'
+import { FilesExamples } from '../examples/FilesExamples'
 import { PodcastDetailsEditExamples } from '../examples/PodcastDetailsEditExamples'
 import { PreviewCoverExamples } from '../examples/PreviewCoverExamples'
 
@@ -57,14 +58,26 @@ export default function ItemDetailsExamplesPage() {
                       Chapters
                     </a>
                   </li>
+                  <li>
+                    <a href="#files-examples" className="hover:text-blue-400 transition-colors">
+                      Files
+                    </a>
+                  </li>
                 </>
               )}
               {selectedPodcast && (
-                <li>
-                  <a href="#podcast-details-edit-examples" className="hover:text-blue-400 transition-colors">
-                    Podcast Details Edit
-                  </a>
-                </li>
+                <>
+                  <li>
+                    <a href="#podcast-details-edit-examples" className="hover:text-blue-400 transition-colors">
+                      Podcast Details Edit
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#files-examples" className="hover:text-blue-400 transition-colors">
+                      Files
+                    </a>
+                  </li>
+                </>
               )}
               <li>
                 <a href="#cover-examples" className="hover:text-blue-400 transition-colors">
@@ -99,6 +112,13 @@ export default function ItemDetailsExamplesPage() {
       {selectedPodcast && (
         <div id="podcast-details-edit-examples">
           <PodcastDetailsEditExamples selectedPodcast={selectedPodcast} />
+        </div>
+      )}
+
+      {/* Files - Show when a book or podcast is selected */}
+      {(selectedBook || selectedPodcast) && (
+        <div id="files-examples">
+          <FilesExamples selectedBook={selectedBook} selectedPodcast={selectedPodcast} />
         </div>
       )}
 
