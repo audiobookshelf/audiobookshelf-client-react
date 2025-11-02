@@ -111,7 +111,7 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
         style={ffprobeData ? { height: '80vh' } : { maxHeight: '80vh' }}
       >
         <div className={mergeClasses('flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0', ffprobeData && 'shrink-0')}>
-          <h2 className="text-base text-gray-200 truncate" title={metadata?.filename}>
+          <h2 className="text-base text-foreground-muted truncate" title={metadata?.filename}>
             {metadata?.filename}
           </h2>
           {ffprobeData ? (
@@ -125,7 +125,7 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
           )}
         </div>
 
-        <div className={mergeClasses('w-full h-px bg-white/10 my-4', ffprobeData && 'shrink-0')} />
+        <div className={mergeClasses('w-full h-px bg-border my-4', ffprobeData && 'shrink-0')} />
 
         {!ffprobeData ? (
           <>
