@@ -81,7 +81,7 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
       </div>
       <div className="w-full h-8 px-4 py-2 border-t border-primary/30 flex items-center justify-between">
         <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
-        <p className="text-xxs text-center text-disabled italic">{installSource}</p>
+        <p className="text-xxs text-center text-foreground-subdued italic">{installSource}</p>
       </div>
     </>
   )

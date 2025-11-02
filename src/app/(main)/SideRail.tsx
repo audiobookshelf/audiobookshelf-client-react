@@ -148,7 +148,7 @@ export default function SideRail({
       </div>
       <div className="w-full h-12 px-1 py-2 border-t border-primary/30">
         <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
-        <p className="text-xxs text-center text-disabled italic">{installSource}</p>
+        <p className="text-xxs text-center text-foreground-subdued italic">{installSource}</p>
       </div>
     </div>
   )

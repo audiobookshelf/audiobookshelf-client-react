@@ -111,7 +111,7 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
         style={ffprobeData ? { height: '80vh' } : { maxHeight: '80vh' }}
       >
         <div className={mergeClasses('flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0', ffprobeData && 'shrink-0')}>
-          <h2 className="text-base text-foreground-muted truncate" title={metadata?.filename}>
+          <h2 className="text-base text-foreground truncate" title={metadata?.filename}>
             {metadata?.filename}
           </h2>
           {ffprobeData ? (
@@ -134,50 +134,50 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
             <dl className="flex flex-col sm:flex-row text-sm gap-4">
               <div className="w-full sm:w-1/2">
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelSize')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelSize')}</dt>
                   <dd className="break-words">{bytesPretty(metadata?.size || 0)}</dd>
                 </div>
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelDuration')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelDuration')}</dt>
                   <dd className="break-words">{secondsToTimestamp(audioFile.duration)}</dd>
                 </div>
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelFormat')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelFormat')}</dt>
                   <dd className="break-words">{audioFile.codec}</dd>
                 </div>
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('HeaderChapters')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('HeaderChapters')}</dt>
                   <dd className="break-words">{audioFile.chapters?.length || 0}</dd>
                 </div>
                 {audioFile.embeddedCoverArt && (
                   <div className="flex flex-row mb-1 gap-0">
-                    <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelEmbeddedCover')}</dt>
+                    <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelEmbeddedCover')}</dt>
                     <dd className="break-words">{audioFile.embeddedCoverArt}</dd>
                   </div>
                 )}
               </div>
               <div className="w-full sm:w-1/2">
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelCodec')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelCodec')}</dt>
                   <dd className="break-words">{audioFile.codec}</dd>
                 </div>
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelChannels')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelChannels')}</dt>
                   <dd className="break-words">
                     {audioFile.channels} ({audioFile.channelLayout})
                   </dd>
                 </div>
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelBitrate')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelBitrate')}</dt>
                   <dd className="break-words">{bytesPretty(audioFile.bitRate || 0, 0)}</dd>
                 </div>
                 <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelTimeBase')}</dt>
+                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelTimeBase')}</dt>
                   <dd className="break-words">{audioFile.timeBase}</dd>
                 </div>
                 {audioFile.language && (
                   <div className="flex flex-row mb-1 gap-0">
-                    <dt className="w-32 min-w-24 text-gray-400 shrink-0">{t('LabelLanguage')}</dt>
+                    <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelLanguage')}</dt>
                     <dd className="break-words">{audioFile.language}</dd>
                   </div>
                 )}
@@ -192,13 +192,13 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
               <dl className="text-sm">
                 {Object.entries(metaTags).map(([key, value]) => (
                   <div key={key} className="flex flex-col sm:flex-row mb-1 gap-1 sm:gap-2">
-                    <dt className="w-32 min-w-24 sm:min-w-32 text-gray-400 shrink-0 sm:break-words">{key.replace('tag', '')}</dt>
+                    <dt className="w-32 min-w-24 sm:min-w-32 text-foreground-subdued shrink-0 sm:break-words">{key.replace('tag', '')}</dt>
                     <dd className="break-words flex-1 min-w-0">{value}</dd>
                   </div>
                 ))}
               </dl>
             ) : (
-              <p className="text-sm text-gray-400" role="status">
+              <p className="text-sm text-foreground-subdued" role="status">
                 {t('MessageNoItems')}
               </p>
             )}
@@ -216,7 +216,11 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
               <IconBtn
                 ref={copyButtonRef}
                 borderless
-                className={mergeClasses('absolute top-7 right-4', 'p-2 rounded z-10', hasCopied ? 'text-success' : 'text-gray-400 hover:text-white')}
+                className={mergeClasses(
+                  'absolute top-7 right-4',
+                  'p-2 rounded z-10',
+                  hasCopied ? 'text-success' : 'text-foreground-subdued hover:text-foreground'
+                )}
                 onClick={handleCopyToClipboard}
                 onKeyDown={handleCopyKeyDown}
                 ariaLabel={t('ButtonCopyToClipboard')}
