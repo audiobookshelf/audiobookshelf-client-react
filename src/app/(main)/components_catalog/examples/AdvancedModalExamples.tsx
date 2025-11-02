@@ -57,7 +57,7 @@ export function AdvancedModalExamples() {
             <p className="text-gray-400 text-sm mb-4">This example shows how MultiSelect works inside a modal dialog.</p>
             <Btn onClick={() => setIsModalOpen(true)}>Open Modal with MultiSelect</Btn>
 
-            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} width={600}>
+            <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="w-[600px]">
               <div className="bg-gray-800 rounded-lg p-6 h-full flex flex-col">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 border-b border-border pb-4">
