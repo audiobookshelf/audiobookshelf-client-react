@@ -1,12 +1,13 @@
 'use client'
 
+import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import Btn from '@/components/ui/Btn'
 import CollapsibleTable from '@/components/ui/CollapsibleTable'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { AudioFile, BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import ConfirmDialog from './ConfirmDialog'
 import LibraryFilesTableRow from './LibraryFilesTableRow'
 
@@ -24,6 +25,7 @@ interface LibraryFilesTableProps {
 export default function LibraryFilesTable({ libraryItem, user, keepOpen = false, inModal = false }: LibraryFilesTableProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+  const [, startDeleteTransition] = useTransition()
   const [expanded, setExpanded] = useState(false)
   const [showFullPath, setShowFullPath] = useState(false)
   const [fileToDelete, setFileToDelete] = useState<LibraryFileWithAudio | null>(null)
@@ -77,27 +79,21 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
     setFileToDelete(file)
   }, [])
 
-  const handleConfirmDelete = useCallback(async () => {
+  const handleConfirmDelete = useCallback(() => {
     if (!fileToDelete) return
 
-    try {
-      const response = await fetch(`/api/items/${libraryItem.id}/file/${fileToDelete.ino}`, {
-        method: 'DELETE'
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to delete file')
+    startDeleteTransition(async () => {
+      try {
+        await deleteLibraryFileAction(libraryItem.id, fileToDelete.ino)
+        showToast(t('ToastDeleteFileSuccess'), { type: 'success' })
+      } catch (error) {
+        console.error('Failed to delete file', error)
+        showToast(t('ToastDeleteFileFailed'), { type: 'error' })
+      } finally {
+        setFileToDelete(null)
       }
-
-      showToast(t('ToastDeleteFileSuccess'), { type: 'success' })
-      // TODO: Refresh library item data
-    } catch (error) {
-      console.error('Failed to delete file', error)
-      showToast(t('ToastDeleteFileFailed'), { type: 'error' })
-    } finally {
-      setFileToDelete(null)
-    }
-  }, [fileToDelete, libraryItem.id, showToast, t])
+    })
+  }, [fileToDelete, libraryItem.id, startDeleteTransition, showToast, t])
 
   const handleShowMore = useCallback((audioFile: AudioFile) => {
     setAudioFileToShow(audioFile)

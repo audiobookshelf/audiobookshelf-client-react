@@ -289,6 +289,16 @@ export async function removeCover(libraryItemId: string): Promise<void> {
 }
 
 /**
+ * Delete a library file from a library item
+ * Returns: 200 status with no body
+ */
+export async function deleteLibraryFile(libraryItemId: string, fileIno: string): Promise<void> {
+  return apiRequest<void>(`/api/items/${libraryItemId}/file/${fileIno}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
  * Update cover from a URL
  * Returns: { success: true, cover: coverPath }
  */
