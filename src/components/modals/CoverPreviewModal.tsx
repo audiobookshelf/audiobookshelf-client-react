@@ -51,13 +51,19 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
     return currentWindowWidth > currentWindowHeight
   }, [currentWindowWidth, currentWindowHeight])
 
-  const modalHeight = useMemo(() => {
-    return isLandscape ? `${Math.min(currentWindowHeight - MODAL_VERTICAL_MARGIN, MODAL_LANDSCAPE_MAX_HEIGHT)}px` : undefined
-  }, [currentWindowHeight, isLandscape])
+  const modalClassName = useMemo(() => {
+    return 'mt-0'
+  }, [])
 
-  const modalWidth = useMemo(() => {
-    return isLandscape ? undefined : `${Math.min(currentWindowWidth - MODAL_HORIZONTAL_MARGIN, MODAL_PORTRAIT_MAX_WIDTH)}px`
-  }, [currentWindowWidth, isLandscape])
+  const modalStyle = useMemo(() => {
+    if (isLandscape) {
+      const height = Math.min(currentWindowHeight - MODAL_VERTICAL_MARGIN, MODAL_LANDSCAPE_MAX_HEIGHT)
+      return { height: `${height}px` } as React.CSSProperties
+    } else {
+      const width = Math.min(currentWindowWidth - MODAL_HORIZONTAL_MARGIN, MODAL_PORTRAIT_MAX_WIDTH)
+      return { width: `${width}px` } as React.CSSProperties
+    }
+  }, [isLandscape, currentWindowHeight, currentWindowWidth])
 
   // Calculate the available vertical space for the image within the modal.
   const availableImageHeight = useMemo(() => {
@@ -91,8 +97,8 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
   }, [isLandscape, currentWindowWidth, availableImageHeight, bookCoverAspectRatio])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} height={modalHeight} width={modalWidth} contentMarginTop={0}>
-      <div className="bg-bg rounded-lg h-full w-full flex flex-col overflow-hidden">
+    <Modal isOpen={isOpen} onClose={onClose} className={modalClassName} style={modalStyle}>
+      <div className="h-full w-full flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0 p-3 text-center">
           <p className="text-base font-semibold">{t('HeaderPreviewCover')}</p>

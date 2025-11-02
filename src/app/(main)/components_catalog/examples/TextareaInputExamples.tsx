@@ -18,7 +18,7 @@ export function TextareaInputExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>placeholder</Code>, <Code>rows</Code>,{' '}
-          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>className</Code>, <Code>id</Code>
+          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>className</Code>, <Code>id</Code>, <Code>fillHeight</Code>
         </p>
       </ComponentInfo>
 
@@ -41,6 +41,12 @@ export function TextareaInputExamples() {
 
         <Example title="Default Textarea with Placeholder">
           <TextareaInput value={textValue3} onChange={setTextValue3} placeholder="Type your text here..." />
+        </Example>
+
+        <Example title="Textarea with fillHeight (Full Height)">
+          <div className="h-64">
+            <TextareaInput value={textValue2} onChange={setTextValue2} placeholder="This textarea fills the available height..." fillHeight />
+          </div>
         </Example>
       </ExamplesBlock>
     </ComponentExamples>

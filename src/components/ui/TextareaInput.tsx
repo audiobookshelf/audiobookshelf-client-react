@@ -15,6 +15,7 @@ export interface TextareaInputProps {
   disabled?: boolean
   onChange?: (value: string) => void
   className?: string
+  fillHeight?: boolean
 }
 
 /**
@@ -27,10 +28,11 @@ export default function TextareaInput({
   value,
   placeholder,
   readOnly = false,
-  rows = 2,
+  rows,
   disabled = false,
   onChange,
-  className
+  className,
+  fillHeight = false
 }: TextareaInputProps) {
   const generatedId = useId()
   const textareaInputId = id || generatedId
@@ -45,8 +47,20 @@ export default function TextareaInput({
   )
 
   const textareaClass = useMemo(() => {
-    return mergeClasses('w-full', className)
-  }, [className])
+    return mergeClasses('w-full', fillHeight && (label ? 'h-full grid grid-rows-[auto_1fr]' : 'h-full flex flex-col'), className)
+  }, [className, fillHeight, label])
+
+  const inputWrapperClass = useMemo(() => {
+    return mergeClasses('px-1 py-1', fillHeight && 'h-full flex flex-col min-h-0')
+  }, [fillHeight])
+
+  const textareaClassNames = useMemo(() => {
+    return mergeClasses(
+      'w-full bg-transparent py-1 px-1 outline-none border-none',
+      fillHeight ? 'h-full resize-none' : 'resize-y',
+      'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only'
+    )
+  }, [fillHeight])
 
   return (
     <div className={textareaClass} cy-id="textarea-input">
@@ -55,7 +69,7 @@ export default function TextareaInput({
           {label}
         </Label>
       )}
-      <InputWrapper disabled={disabled} readOnly={readOnly} inputRef={textareaRef} size="auto" className="px-1 py-1">
+      <InputWrapper disabled={disabled} readOnly={readOnly} inputRef={textareaRef} size="auto" className={inputWrapperClass}>
         <textarea
           id={textareaId}
           ref={textareaRef}
@@ -63,12 +77,9 @@ export default function TextareaInput({
           placeholder={placeholder}
           readOnly={readOnly}
           disabled={disabled}
-          rows={rows}
+          rows={fillHeight ? undefined : rows}
           dir="auto"
-          className={mergeClasses(
-            'w-full resize-y bg-transparent py-1 px-1 outline-none border-none',
-            'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only'
-          )}
+          className={textareaClassNames}
           aria-disabled={disabled || undefined}
           aria-readonly={readOnly || undefined}
           aria-multiline="true"

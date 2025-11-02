@@ -89,6 +89,9 @@
   --color-background: var(--tc-background);
   --color-foreground: var(--tc-foreground);
   --color-foreground-muted: var(--tc-foreground-muted);
+  --color-foreground-subdued: var(--tc-foreground-subdued);
+
+  --shadow-modal-content: var(--tc-modal-content-box-shadow);
 }
 
 body {

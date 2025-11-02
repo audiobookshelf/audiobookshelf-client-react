@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
+  FFProbeData,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetUsersResponse,
@@ -244,6 +245,17 @@ export const getLibraryItem = cache(async (itemId: string): Promise<LibraryItem>
   return apiRequest<LibraryItem>(`/api/items/${itemId}`, {})
 })
 
+/**
+ * Get FFProbe data for an audio file
+ * Admin-only endpoint that returns raw ffprobe output
+ * @param itemId - Library item ID
+ * @param fileIno - Audio file inode
+ * Returns: FFProbe data object
+ */
+export async function getAudioFileFFProbeData(itemId: string, fileIno: string): Promise<FFProbeData> {
+  return apiRequest<FFProbeData>(`/api/items/${itemId}/ffprobe/${fileIno}`, {})
+}
+
 export const getUsers = cache(async (): Promise<GetUsersResponse> => {
   return apiRequest<GetUsersResponse>('/api/users', {})
 })
@@ -272,6 +284,16 @@ export async function uploadCover(libraryItemId: string, file: File): Promise<Up
  */
 export async function removeCover(libraryItemId: string): Promise<void> {
   return apiRequest<void>(`/api/items/${libraryItemId}/cover`, {
+    method: 'DELETE'
+  })
+}
+
+/**
+ * Delete a library file from a library item
+ * Returns: 200 status with no body
+ */
+export async function deleteLibraryFile(libraryItemId: string, fileIno: string): Promise<void> {
+  return apiRequest<void>(`/api/items/${libraryItemId}/file/${fileIno}`, {
     method: 'DELETE'
   })
 }

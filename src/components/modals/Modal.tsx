@@ -5,35 +5,33 @@ import { ModalProvider } from '@/contexts/ModalContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { ReactNode, useCallback, useMemo, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 export interface ModalProps {
   isOpen: boolean
   processing?: boolean
   persistent?: boolean
-  width?: string | number
-  height?: string | number
-  contentMarginTop?: number
   zIndexClass?: string
   bgOpacityClass?: string
   children?: ReactNode
   outerContent?: ReactNode
   onClose?: () => void
+  className?: string
+  style?: React.CSSProperties
 }
 
 export default function Modal({
   isOpen,
   processing = false,
   persistent = false,
-  width,
-  height = 'unset',
-  contentMarginTop = 50,
   zIndexClass = 'z-50',
   bgOpacityClass = 'bg-primary/75',
   children,
   outerContent,
-  onClose
+  onClose,
+  className,
+  style
 }: ModalProps) {
   const t = useTypeSafeTranslations()
   const [preventClickoutside, setPreventClickoutside] = useState(false)
@@ -41,23 +39,6 @@ export default function Modal({
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const dummyRef = useRef<HTMLDivElement>(null) // For useClickOutside trigger ref
-
-  const modalHeight = useMemo(() => {
-    if (typeof height === 'string') {
-      return height
-    }
-    return `${height}px`
-  }, [height])
-
-  const modalWidth = useMemo(() => {
-    if (width === undefined) {
-      return undefined // Will use responsive classes
-    }
-    if (typeof width === 'string') {
-      return width
-    }
-    return `${width}px`
-  }, [width])
 
   const mousedownModal = useCallback(() => {
     setPreventClickoutside(true)
@@ -118,7 +99,7 @@ export default function Modal({
 
       {/* Close button */}
       <button
-        className="absolute top-2 end-2 sm:top-4 sm:end-4 inline-flex text-gray-200 hover:text-white z-10 transition-colors"
+        className="absolute top-2 end-2 sm:top-4 sm:end-4 inline-flex text-foreground-muted hover:text-foreground z-10 transition-colors"
         aria-label={t('ButtonCloseModal')}
         onClick={clickClose}
         cy-id="modal-close-button"
@@ -133,15 +114,13 @@ export default function Modal({
       <div
         ref={contentRef}
         tabIndex={0}
-        style={{
-          ...(modalWidth ? { width: modalWidth } : {}),
-          height: modalHeight,
-          marginTop: `${contentMarginTop}px`
-        }}
+        style={style}
         className={mergeClasses(
-          'relative text-foreground outline-none focus:outline-none overflow-x-hidden',
+          'relative text-foreground outline-none focus:outline-none shadow-modal-content rounded-lg bg-bg',
           // Responsive width: full width with margin on mobile, fixed width on larger screens
-          modalWidth ? '' : 'w-[calc(100vw-1rem)] max-w-[95vw] sm:w-auto sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]'
+          'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
+          'mt-[50px]',
+          className
         )}
         onMouseDown={mousedownModal}
         onMouseUp={mouseupModal}

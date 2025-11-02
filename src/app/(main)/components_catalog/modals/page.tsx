@@ -1,4 +1,5 @@
 import { AdvancedModalExamples } from '../examples/AdvancedModalExamples'
+import { ConfirmDialogExamples } from '../examples/ConfirmDialogExamples'
 import { ModalExamples } from '../examples/ModalExamples'
 
 export default function ModalComponentsPage() {
@@ -27,6 +28,11 @@ export default function ModalComponentsPage() {
                 Advanced Modal Examples
               </a>
             </li>
+            <li>
+              <a href="#confirm-dialog-examples" className="hover:text-blue-400 transition-colors">
+                Confirm Dialog
+              </a>
+            </li>
           </ul>
         </div>
       </section>
@@ -36,6 +42,9 @@ export default function ModalComponentsPage() {
       </div>
       <div id="advanced-modal-examples">
         <AdvancedModalExamples />
+      </div>
+      <div id="confirm-dialog-examples">
+        <ConfirmDialogExamples />
       </div>
     </div>
   )

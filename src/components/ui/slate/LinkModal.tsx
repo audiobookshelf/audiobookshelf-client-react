@@ -45,8 +45,8 @@ export const LinkModal = memo(
     isValidUrl
   }: LinkModalProps) => {
     return (
-      <Modal isOpen={isOpen} onClose={closeModal} width={400}>
-        <div className="bg-gray-800 p-6">
+      <Modal isOpen={isOpen} onClose={closeModal} className="w-[400px]">
+        <div className="p-6">
           <h3 className="text-lg font-semibold mb-4">Insert Link</h3>
 
           <div className="space-y-4">

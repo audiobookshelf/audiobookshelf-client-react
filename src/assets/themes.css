@@ -9,6 +9,7 @@
   --tc-background-disabled: #444444;
   --tc-foreground: #ededed;
   --tc-foreground-muted: #d1d5dc;
+  --tc-foreground-subdued: #bbbbbb;
   --tc-border: #444444;
 
   --tc-disabled: #99a1af;
@@ -43,6 +44,8 @@
     #232323,
     #1f1f1f
   );
+
+  --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
 }
 
 /* Light theme */
@@ -55,6 +58,7 @@
   --tc-background-disabled: #e8e8e8;
   --tc-foreground: #1a1a1a;
   --tc-foreground-muted: #6b7280;
+  --tc-foreground-subdued: #94969a;
   --tc-border: #d4d4d4;
 
   --tc-disabled: #9ca3af;
@@ -89,6 +93,8 @@
     #e1e1e1,
     #dfdfdf
   );
+
+  --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
 }
 
 /* Black theme */
@@ -101,6 +107,7 @@
   --tc-background-disabled: #1a1a1a;
   --tc-foreground: #f5f5f5;
   --tc-foreground-muted: #a3a3a3;
+  --tc-foreground-subdued: #808080;
   --tc-border: #262626;
 
   --tc-disabled: #737373;
@@ -135,4 +142,6 @@
     #030303,
     #000000
   );
+
+  --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
 }

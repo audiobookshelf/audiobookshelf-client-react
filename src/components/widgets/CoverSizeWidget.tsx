@@ -54,7 +54,7 @@ export default function CoverSizeWidget({ sizeIndex: sizeIndexProp = 3, onSizeIn
 
   const buttonClass = useMemo(() => 'text-base h-6 w-4 disabled:bg-transparent disabled:cursor-default', [])
   const containerClass = useMemo(
-    () => mergeClasses('rounded-full py-1 bg-primary px-2 border border-black-200 text-center flex items-center box-shadow-md select-none', className),
+    () => mergeClasses('rounded-full py-1 bg-primary px-2 border border-border text-center flex items-center shadow-modal-content select-none', className),
     [className]
   )
   const textClass = useMemo(() => 'px-2 font-mono text-center w-10 text-base', [])
