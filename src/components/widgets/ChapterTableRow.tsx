@@ -6,9 +6,11 @@ import { memo, useCallback, useMemo } from 'react'
 interface ChapterTableRowProps {
   chapter: Chapter
   onGoToTimestamp: (time: number) => void
+  showDuration?: boolean
+  showId?: boolean
 }
 
-function ChapterTableRow({ chapter, onGoToTimestamp }: ChapterTableRowProps) {
+function ChapterTableRow({ chapter, onGoToTimestamp, showDuration = true, showId = true }: ChapterTableRowProps) {
   const startTimestamp = useMemo(() => secondsToTimestamp(chapter.start), [chapter.start])
   const durationTimestamp = useMemo(() => secondsToTimestamp(Math.max(0, chapter.end - chapter.start)), [chapter.end, chapter.start])
 
@@ -33,9 +35,11 @@ function ChapterTableRow({ chapter, onGoToTimestamp }: ChapterTableRowProps) {
 
   return (
     <TableRow>
-      <td className="text-start px-2 py-1">
-        <p className="px-4">{chapter.id}</p>
-      </td>
+      {showId && (
+        <td className="text-start px-2 py-1">
+          <p className="px-4">{chapter.id}</p>
+        </td>
+      )}
       <td dir="auto" className="px-2 py-1">
         {chapter.title}
       </td>
@@ -49,7 +53,7 @@ function ChapterTableRow({ chapter, onGoToTimestamp }: ChapterTableRowProps) {
       >
         {startTimestamp}
       </td>
-      <td className="font-mono text-center px-2 py-1">{durationTimestamp}</td>
+      {showDuration && <td className="font-mono text-center px-2 py-1">{durationTimestamp}</td>}
     </TableRow>
   )
 }
