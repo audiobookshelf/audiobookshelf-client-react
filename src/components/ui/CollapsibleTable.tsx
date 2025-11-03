@@ -19,6 +19,7 @@ interface CollapsibleTableProps {
   headerActions?: ReactNode
   tableHeaders: TableHeader[]
   tableClassName?: string
+  containerRef?: React.RefObject<HTMLDivElement | null>
   children: ReactNode
 }
 
@@ -31,6 +32,7 @@ export default function CollapsibleTable({
   headerActions,
   tableHeaders,
   tableClassName,
+  containerRef,
   children
 }: CollapsibleTableProps) {
   const t = useTypeSafeTranslations()
@@ -56,12 +58,17 @@ export default function CollapsibleTable({
 
   const isExpanded = keepOpen || expanded
 
-  const headerClasses = useMemo(() => mergeClasses('w-full bg-primary py-2 flex items-center px-4 md:px-6', keepOpen ? '' : 'cursor-pointer'), [keepOpen])
+  const hasHeaderActions = Boolean(headerActions)
+
+  const headerClasses = useMemo(
+    () => mergeClasses('w-full bg-primary py-2 flex items-center px-2 md:px-6 flex-wrap gap-1 md:gap-2', keepOpen ? '' : 'cursor-pointer'),
+    [keepOpen]
+  )
 
   const iconClasses = useMemo(
     () =>
       mergeClasses(
-        'cursor-pointer h-10 w-10 rounded-full hover:bg-bg-hover flex justify-center items-center duration-500',
+        'cursor-pointer h-8 w-8 md:h-10 md:w-10 rounded-full hover:bg-bg-hover flex justify-center items-center duration-500 flex-shrink-0',
         isExpanded ? 'transform rotate-180' : ''
       ),
     [isExpanded]
@@ -90,22 +97,26 @@ export default function CollapsibleTable({
         aria-expanded={ariaExpanded}
         aria-controls={ariaControls}
       >
-        <p className="pe-2 md:pe-4">{title}</p>
-        <div className={countBadgeClasses} aria-label={countAriaLabel} role="status">
-          <span className="text-sm font-mono" aria-hidden="true">
-            {count}
-          </span>
+        <div className="flex items-center flex-1 min-w-0 flex-wrap gap-1 md:gap-2">
+          <div className="flex items-center flex-shrink-0 min-w-0">
+            <p className="pe-2 md:pe-4 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{title}</p>
+            <div className={`${countBadgeClasses} flex-shrink-0`} aria-label={countAriaLabel} role="status">
+              <span className="text-sm font-mono" aria-hidden="true">
+                {count}
+              </span>
+            </div>
+          </div>
+          <div className={hasHeaderActions ? 'grow min-w-0' : 'grow'} />
+          {hasHeaderActions && <div className="flex items-center gap-2 flex-shrink-0">{headerActions}</div>}
         </div>
-        <div className="grow" />
-        {headerActions}
         {!keepOpen && (
           <div className={iconClasses} aria-hidden="true">
-            <span className="material-symbols text-4xl">keyboard_arrow_down</span>
+            <span className="material-symbols text-2xl md:text-4xl">keyboard_arrow_down</span>
           </div>
         )}
       </div>
       {isExpanded && (
-        <div id={`${id}-content`} role="region" aria-label={title}>
+        <div ref={containerRef} id={`${id}-content`} role="region" aria-label={title}>
           <table className={tableClasses}>
             <caption className="sr-only">{title}</caption>
             <thead>
