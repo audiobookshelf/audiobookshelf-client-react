@@ -4,8 +4,10 @@ import { getCurrentUser } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 
 import Btn from '@/components/ui/Btn'
+import { getTheme } from '@/lib/theme'
 import { cookies } from 'next/headers'
 import LogoutBtn from './LogoutBtn'
+import ThemeSelector from './ThemeSelector'
 import UserLanguageSelector from './UserLanguageSelector'
 
 export const dynamic = 'force-dynamic'
@@ -18,6 +20,9 @@ export default async function AccountPage() {
   // Get current language from cookies (userLanguage takes precedence over language)
   const cookieStore = await cookies()
   const currentLanguage = cookieStore.get('userLanguage')?.value || cookieStore.get('language')?.value || 'en-us'
+
+  // Get current theme
+  const currentTheme = await getTheme()
 
   if (!user) {
     return null
@@ -38,6 +43,9 @@ export default async function AccountPage() {
         </div>
         <div className="w-full">
           <UserLanguageSelector value={currentLanguage} label={t('LabelLanguage')} />
+        </div>
+        <div className="w-full">
+          <ThemeSelector value={currentTheme} label={t('LabelTheme')} />
         </div>
         <div className="w-full h-px bg-border" />
         <div className="flex items-center justify-between w-full">
