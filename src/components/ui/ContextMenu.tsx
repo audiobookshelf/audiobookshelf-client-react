@@ -1,8 +1,12 @@
 'use client'
 
+import { useModalRef } from '@/contexts/ModalContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import type { Placement } from '@floating-ui/dom'
+import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 export interface ContextMenuSubitem<T = string> {
   text: string
@@ -33,6 +37,9 @@ interface ContextMenuProps<T = string> {
   onCloseSubmenu?: () => void
   onItemClick?: (action: string, data?: Record<string, T>) => void
   onSubItemClick?: (action: string, data?: Record<string, T>) => void
+  // Portal props
+  usePortal?: boolean
+  triggerRef?: React.RefObject<HTMLElement>
 }
 
 /**
@@ -54,9 +61,70 @@ export default function ContextMenu<T = string>({
   onOpenSubmenu,
   onCloseSubmenu,
   onItemClick,
-  onSubItemClick
+  onSubItemClick,
+  usePortal: usePortalProp = false,
+  triggerRef
 }: ContextMenuProps<T>) {
   const t = useTypeSafeTranslations()
+  const modalRef = useModalRef()
+  const portalContainerRef = modalRef || undefined
+
+  // Use portal if it is explicitly enabled or if the modalRef is not null
+  // For the portal to work, triggerRef must be provided
+  const usePortal: boolean = (usePortalProp || modalRef !== null) && triggerRef !== undefined
+
+  // Map menuAlign to floating-ui placement
+  // 'left' means align left edge -> 'bottom-start', 'right' means align right edge -> 'bottom-end'
+  const placement: Placement = useMemo(() => {
+    return menuAlign === 'right' ? 'bottom-end' : 'bottom-start'
+  }, [menuAlign])
+
+  // Floating-ui positioning middleware
+  const middleware = useMemo(
+    () => [
+      offset(4), // 4px gap between trigger and menu
+      shift({ padding: 8 }), // Keep menu within viewport with 8px padding
+      flip({ fallbackAxisSideDirection: 'start' }) // Flip to opposite side if no space
+    ],
+    []
+  )
+
+  // Floating-ui positioning hook
+  const { refs, floatingStyles, elements, update } = useFloating({
+    open: usePortal && isOpen,
+    placement,
+    strategy: 'absolute',
+    middleware
+  })
+
+  // Auto-update position when menu is open and using portal
+  useEffect(() => {
+    if (usePortal && isOpen && elements.reference && elements.floating) {
+      const cleanup = autoUpdate(elements.reference, elements.floating, update)
+      return cleanup
+    }
+  }, [usePortal, isOpen, elements.reference, elements.floating, update])
+
+  // Merge forwarded ref with floating-ui ref
+  const setFloatingRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      refs.setFloating(node)
+      if (ref && 'current' in ref) {
+        ref.current = node
+      }
+    },
+    [refs, ref]
+  )
+
+  // Set reference element when using portal - ensure it's set before menu opens
+  useEffect(() => {
+    if (usePortal && triggerRef?.current) {
+      refs.setReference(triggerRef.current)
+    } else if (!usePortal) {
+      refs.setReference(null)
+    }
+  }, [usePortal, triggerRef, refs, isOpen])
+
   // Track whether we're hovering over an open submenu
   const [isOverSubmenu, setIsOverSubmenu] = useState(false)
   // Track which parent index we're hovering over
@@ -239,26 +307,44 @@ export default function ContextMenu<T = string>({
     )
   )
 
-  return (
-    <>
-      {isOpen && (
-        <div
-          cy-id="menu"
-          ref={ref}
-          id={menuId}
-          role="menu"
-          aria-label={t('LabelContextMenu')}
-          className={mergeClasses(
-            'absolute mt-1 z-10 bg-bg border border-black-200 shadow-lg rounded-md py-1 focus:outline-hidden sm:text-sm',
-            menuAlign === 'right' ? 'end-0' : 'start-0',
-            autoWidth ? 'inline-flex flex-col whitespace-nowrap' : '',
-            className
-          )}
-          style={autoWidth ? { minWidth: `${menuWidth}px` } : { width: `${menuWidth}px` }}
-        >
-          {menuItems}
-        </div>
+  const menuContent = isOpen ? (
+    <div
+      cy-id="menu"
+      ref={usePortal ? setFloatingRef : ref}
+      id={menuId}
+      role="menu"
+      aria-label={t('LabelContextMenu')}
+      className={mergeClasses(
+        'absolute z-10 bg-bg border border-black-200 shadow-lg rounded-md py-1 focus:outline-hidden sm:text-sm',
+        !usePortal && 'mt-1',
+        !usePortal && (menuAlign === 'right' ? 'end-0' : 'start-0'),
+        autoWidth ? 'inline-flex flex-col whitespace-nowrap' : '',
+        className
       )}
-    </>
-  )
+      style={{
+        ...(autoWidth && !usePortal ? { minWidth: `${menuWidth}px` } : {}),
+        ...(!usePortal && !autoWidth ? { width: `${menuWidth}px` } : {}),
+        ...(usePortal
+          ? {
+              ...floatingStyles,
+              zIndex: 9999,
+              ...(autoWidth ? {} : { width: `${menuWidth}px` })
+            }
+          : {})
+      }}
+    >
+      {menuItems}
+    </div>
+  ) : null
+
+  if (!isOpen) {
+    return null
+  }
+
+  if (usePortal && typeof document !== 'undefined') {
+    const portalTarget = portalContainerRef?.current || document.body
+    return createPortal(menuContent, portalTarget)
+  }
+
+  return menuContent
 }

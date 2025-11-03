@@ -11,11 +11,12 @@ interface ChaptersTableProps {
   libraryItem: BookLibraryItem
   user: User
   keepOpen?: boolean
+  expanded?: boolean
 }
 
-export default function ChaptersTable({ libraryItem, user, keepOpen = false }: ChaptersTableProps) {
+export default function ChaptersTable({ libraryItem, user, keepOpen = false, expanded: expandedProp = false }: ChaptersTableProps) {
   const t = useTypeSafeTranslations()
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(expandedProp)
 
   const chapters = useMemo<Chapter[]>(() => libraryItem.media.chapters || [], [libraryItem.media.chapters])
   const userCanUpdate = useMemo(() => user.permissions?.update || false, [user.permissions])

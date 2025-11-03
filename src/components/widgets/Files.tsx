@@ -24,7 +24,7 @@ export default function Files({ libraryItem, user }: FilesProps) {
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-hidden px-4 py-6" role="region" aria-label={t('HeaderLibraryFiles')}>
       <div className="w-full">
-        <LibraryFilesTable libraryItem={libraryItem} user={user} keepOpen={inModal} inModal={inModal} />
+        <LibraryFilesTable libraryItem={libraryItem} user={user} keepOpen={inModal} inModal={inModal} expanded />
       </div>
     </div>
   )

@@ -20,13 +20,14 @@ interface LibraryFilesTableProps {
   user: User
   keepOpen?: boolean
   inModal?: boolean
+  expanded?: boolean
 }
 
-export default function LibraryFilesTable({ libraryItem, user, keepOpen = false, inModal = false }: LibraryFilesTableProps) {
+export default function LibraryFilesTable({ libraryItem, user, keepOpen = false, inModal = false, expanded: expandedProp = false }: LibraryFilesTableProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [, startDeleteTransition] = useTransition()
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(expandedProp)
   const [showFullPath, setShowFullPath] = useState(false)
   const [fileToDelete, setFileToDelete] = useState<LibraryFileWithAudio | null>(null)
   const [audioFileToShow, setAudioFileToShow] = useState<AudioFile | null>(null)
@@ -62,10 +63,10 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
     }
   }, [userIsAdmin])
 
-  // Initialize expanded state
+  // Sync expanded state with props (keepOpen takes precedence)
   useEffect(() => {
-    setExpanded(keepOpen)
-  }, [keepOpen])
+    setExpanded(keepOpen || expandedProp)
+  }, [keepOpen, expandedProp])
 
   const toggleFullPath = useCallback(() => {
     setShowFullPath((prev) => {
