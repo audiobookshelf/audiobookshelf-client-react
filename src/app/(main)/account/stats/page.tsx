@@ -1,6 +1,5 @@
 import { getCurrentUser } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import SettingsContent from '../../settings/SettingsContent'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,8 +12,8 @@ export default async function AccountStatsPage() {
   }
 
   return (
-    <SettingsContent title={t('HeaderStats')}>
-      <div></div>
-    </SettingsContent>
+    <div className="p-8 w-full max-w-xl mx-auto">
+      <h1 className="text-2xl">{t('HeaderStats')}</h1>
+    </div>
   )
 }
