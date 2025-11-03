@@ -15,13 +15,25 @@ interface LibraryFilesTableRowProps {
   file: LibraryFileWithAudio
   libraryItemId: string
   showFullPath: boolean
+  showSize: boolean
+  showType: boolean
   user: User
   inModal: boolean
   onDelete: (file: LibraryFileWithAudio) => void
   onShowMore: (audioFile: AudioFile) => void
 }
 
-export default function LibraryFilesTableRow({ file, libraryItemId, showFullPath, user, inModal, onDelete, onShowMore }: LibraryFilesTableRowProps) {
+export default function LibraryFilesTableRow({
+  file,
+  libraryItemId,
+  showFullPath,
+  showSize,
+  showType,
+  user,
+  inModal,
+  onDelete,
+  onShowMore
+}: LibraryFilesTableRowProps) {
   const t = useTypeSafeTranslations()
 
   const userCanDownload = useMemo(() => user.permissions?.download || false, [user.permissions])
@@ -83,16 +95,26 @@ export default function LibraryFilesTableRow({ file, libraryItemId, showFullPath
 
   return (
     <TableRow>
-      <td className="px-4 py-1">{showFullPath ? file.metadata.path : file.metadata.relPath}</td>
-      <td className="py-1">{bytesPretty(file.metadata.size)}</td>
-      <td className="text-xs py-1">
-        <div className="flex items-center">
-          <p>{file.fileType}</p>
-        </div>
-      </td>
+      <td className="px-2 md:px-4 py-1 break-words min-w-[100px] max-w-[100px]">{showFullPath ? file.metadata.path : file.metadata.relPath}</td>
+      {showSize && <td className="py-1 text-xs md:text-sm whitespace-nowrap w-12 md:w-24 min-w-12 md:min-w-24">{bytesPretty(file.metadata.size)}</td>}
+      {showType && (
+        <td className="text-xs py-1 whitespace-nowrap w-12 md:w-24 min-w-12 md:min-w-24">
+          <div className="flex items-center">
+            <p className="truncate">{file.fileType}</p>
+          </div>
+        </td>
+      )}
       {contextMenuItems.length > 0 && (
-        <td className="text-center py-1">
-          <ContextMenuDropdown items={contextMenuItems} autoWidth size="small" borderless className="h-7 w-7" onAction={handleContextMenuAction} usePortal />
+        <td className="text-center py-1 w-10 md:w-16 min-w-10 md:min-w-16">
+          <ContextMenuDropdown
+            items={contextMenuItems}
+            autoWidth
+            size="small"
+            borderless
+            className="h-6 w-6 md:h-7 md:w-7"
+            onAction={handleContextMenuAction}
+            usePortal
+          />
         </td>
       )}
     </TableRow>
