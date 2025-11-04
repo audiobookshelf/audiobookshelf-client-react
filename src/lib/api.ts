@@ -404,7 +404,7 @@ export async function searchPodcasts(term: string): Promise<PodcastSearchResult[
     term: term.trim()
   })
 
-  return apiRequest<PodcastSearchResult[]>(`/api/search/podcasts?${params.toString()}`, {})
+  return apiRequest<PodcastSearchResult[]>(`/api/search/podcast?${params.toString()}`, {})
 }
 
 /**
