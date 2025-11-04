@@ -7,7 +7,7 @@ import CollapsibleTable from '@/components/ui/CollapsibleTable'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { AudioFile, BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import ConfirmDialog from './ConfirmDialog'
 import LibraryFilesTableRow from './LibraryFilesTableRow'
 
@@ -102,14 +102,78 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
 
   const showActionsColumn = userCanDelete || userCanDownload || (userIsAdmin && audioFiles.length > 0 && !inModal)
 
+  // Measure table width to determine which columns can fit
+  const tableContainerRef = useRef<HTMLDivElement>(null)
+  const [tableWidth, setTableWidth] = useState<number | null>(null)
+  const isExpanded = keepOpen || expanded
+
+  useEffect(() => {
+    if (!isExpanded || !tableContainerRef.current) {
+      setTableWidth(null)
+      return
+    }
+
+    const updateWidth = () => {
+      const width = tableContainerRef.current!.getBoundingClientRect().width
+      setTableWidth(width)
+    }
+
+    // Set initial width
+    updateWidth()
+
+    // Use ResizeObserver on the container element
+    const resizeObserver = new ResizeObserver(() => {
+      updateWidth()
+    })
+
+    resizeObserver.observe(tableContainerRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [isExpanded])
+
+  // Minimum widths for columns (in pixels)
+  // Actions: min-w-10 = 40px (w-10 = 2.5rem = 40px)
+  // Size: min-w-12 = 48px (w-12 = 3rem = 48px)
+  // Type: min-w-12 = 48px (w-12 = 3rem = 48px)
+  // Path: flexible, can wrap
+  const MIN_ACTIONS_WIDTH = 40 // min-w-10 = 2.5rem = 40px
+  const MIN_SIZE_WIDTH = 48 // min-w-12 = 3rem = 48px
+  const MIN_TYPE_WIDTH = 48 // min-w-12 = 3rem = 48px
+  const TABLE_BORDER = 2 // 1px border on each side
+  const PATH_MIN_WIDTH = 100 // Minimum width for path column to be readable
+
+  // Calculate which columns can fit based on available width
+  const { showSize, showType } = useMemo(() => {
+    if (tableWidth === null) {
+      // Default to showing both on first render
+      return { showSize: true, showType: true }
+    }
+
+    // Always reserve space for Path (minimum) + Actions
+    const reservedWidth = PATH_MIN_WIDTH + MIN_ACTIONS_WIDTH + TABLE_BORDER
+    const availableWidth = tableWidth - reservedWidth
+
+    // Determine what fits
+    // If we have space for Size, add it
+    const canShowSize = availableWidth >= MIN_SIZE_WIDTH
+    // If we have space for both Size and Type, add Type
+    const canShowType = canShowSize && availableWidth >= MIN_SIZE_WIDTH + MIN_TYPE_WIDTH
+    return {
+      showSize: canShowSize,
+      showType: canShowType
+    }
+  }, [tableWidth])
+
   const tableHeaders = useMemo(
     () => [
-      { label: t('LabelPath'), className: 'px-4' },
-      { label: t('LabelSize'), className: 'w-24 min-w-24' },
-      { label: t('LabelType'), className: 'w-24' },
-      ...(showActionsColumn ? [{ label: '', className: 'w-16' }] : [])
+      { label: t('LabelPath'), className: 'px-2 md:px-4 min-w-[100px] max-w-[100px]' },
+      ...(showSize ? [{ label: t('LabelSize'), className: 'w-12 md:w-24 min-w-12 md:min-w-24' }] : []),
+      ...(showType ? [{ label: t('LabelType'), className: 'w-12 md:w-24 min-w-12 md:min-w-24' }] : []),
+      ...(showActionsColumn ? [{ label: '', className: 'w-10 md:w-16 min-w-10 md:min-w-16' }] : [])
     ],
-    [t, showActionsColumn]
+    [t, showActionsColumn, showSize, showType]
   )
 
   const headerActions = useMemo(
@@ -118,7 +182,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
         <Btn
           color={showFullPath ? 'bg-gray-600' : 'bg-primary'}
           size="small"
-          className="mr-2 hidden md:block"
+          className="mr-2"
           onClick={(e) => {
             e.stopPropagation()
             toggleFullPath()
@@ -140,6 +204,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
         keepOpen={keepOpen}
         headerActions={headerActions}
         tableHeaders={tableHeaders}
+        containerRef={tableContainerRef}
       >
         {filesWithAudioFile.map((file) => (
           <LibraryFilesTableRow
@@ -147,6 +212,8 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
             file={file}
             libraryItemId={libraryItem.id}
             showFullPath={showFullPath}
+            showSize={showSize}
+            showType={showType}
             user={user}
             inModal={inModal}
             onDelete={handleDeleteFile}
