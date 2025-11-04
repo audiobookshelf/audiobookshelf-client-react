@@ -34,7 +34,7 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
 
   const currentLibrary = libraries?.find((lib) => lib.id === currentLibraryId)
   return (
-    <div className="w-full h-16 bg-primary flex items-center justify-start px-2 md:px-6 gap-2 md:gap-4 shadow-xl">
+    <div className="relative z-10 w-full h-16 bg-primary flex items-center justify-start px-2 md:px-6 gap-2 md:gap-4 shadow-md">
       <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80">
         <Image src="/images/icon.svg" alt="audiobookshelf" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10 mx-2" />
       </Link>
