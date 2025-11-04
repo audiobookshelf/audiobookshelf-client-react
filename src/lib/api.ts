@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
+  BookSearchResult,
   FFProbeData,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
@@ -11,8 +12,11 @@ import {
   LibraryItem,
   MetadataProvidersResponse,
   PersonalizedShelf,
+  PodcastSearchResult,
   SearchLibraryResponse,
   ServerStatus,
+  UpdateLibraryItemMediaPayload,
+  UpdateLibraryItemMediaResponse,
   UploadCoverResponse,
   User,
   UserLoginResponse
@@ -363,3 +367,55 @@ export const getTags = cache(async () => {
 export const getGenres = cache(async () => {
   return apiRequest<{ genres: string[] }>('/api/genres', {})
 })
+
+/**
+ * Search for books using a metadata provider
+ * @param provider - The metadata provider to use (e.g., 'google', 'audible', etc.)
+ * @param title - Book title to search for
+ * @param author - Optional author name
+ * @param libraryItemId - Optional library item ID for context
+ * Returns: Array of book match results
+ */
+export async function searchBooks(provider: string, title: string, author?: string, libraryItemId?: string): Promise<BookSearchResult[]> {
+  const params = new URLSearchParams({
+    provider,
+    fallbackTitleOnly: '1',
+    title: title.trim()
+  })
+
+  if (author) {
+    params.set('author', author.trim())
+  }
+
+  if (libraryItemId) {
+    params.set('id', libraryItemId)
+  }
+
+  return apiRequest<BookSearchResult[]>(`/api/search/books?${params.toString()}`, {})
+}
+
+/**
+ * Search for podcasts
+ * @param term - Search term or RSS feed URL
+ * Returns: Array of podcast match results
+ */
+export async function searchPodcasts(term: string): Promise<PodcastSearchResult[]> {
+  const params = new URLSearchParams({
+    term: term.trim()
+  })
+
+  return apiRequest<PodcastSearchResult[]>(`/api/search/podcasts?${params.toString()}`, {})
+}
+
+/**
+ * Update library item media (metadata, tags, cover)
+ * @param libraryItemId - Library item ID
+ * @param updatePayload - Update payload with metadata, tags, and optionally url for cover
+ * Returns: { updated: boolean, libraryItem?: LibraryItem }
+ */
+export async function updateLibraryItemMedia(libraryItemId: string, updatePayload: UpdateLibraryItemMediaPayload): Promise<UpdateLibraryItemMediaResponse> {
+  return apiRequest<UpdateLibraryItemMediaResponse>(`/api/items/${libraryItemId}/media`, {
+    method: 'PATCH',
+    body: JSON.stringify(updatePayload)
+  })
+}
