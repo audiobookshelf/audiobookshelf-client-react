@@ -1,16 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerStatus } from './lib/api'
+import { isTokenExpired } from './lib/jwt'
 import Logger from './lib/Logger'
 
 export default async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
-  const accessToken = request.cookies.get('access_token')?.value
-  const refreshToken = request.cookies.get('refresh_token')?.value
+  const accessTokenCookie = request.cookies.get('access_token')?.value
+  const refreshTokenCookie = request.cookies.get('refresh_token')?.value
   const languageCookie = request.cookies.get('language')?.value
   const themeCookie = request.cookies.get('theme')?.value
   const path = pathname + search
 
+  // Validate JWT tokens - treat expired tokens as non-existent
+  // Add 5 second buffer to proactively refresh tokens that are about to expire
+  const hasValidAccessToken = !!(accessTokenCookie && !isTokenExpired(accessTokenCookie, 5))
+  const hasValidRefreshToken = !!(refreshTokenCookie && !isTokenExpired(refreshTokenCookie, 5))
+
   Logger.debug('[middleware] handling request for:', path)
+  if (accessTokenCookie && !hasValidAccessToken) {
+    Logger.debug('[middleware] access token is expired')
+  }
+  if (refreshTokenCookie && !hasValidRefreshToken) {
+    Logger.debug('[middleware] refresh token is expired')
+  }
 
   // Helper to create URLs with correct host/port from request headers.
   // nextUrl/url don't always containt the right host/port,
@@ -78,36 +90,36 @@ export default async function middleware(request: NextRequest) {
 
   const isLoginRoute = pathname === '/login'
   if (isLoginRoute) {
-    if (accessToken) {
-      Logger.debug('[middleware] request has accessToken')
+    if (hasValidAccessToken) {
+      Logger.debug('[middleware] request has valid accessToken')
       const libraryUrl = createUrl('/library')
       return redirect(libraryUrl)
-    } else if (refreshToken) {
-      // Has refreshToken redirect to refresh
+    } else if (hasValidRefreshToken) {
+      // Has valid refreshToken redirect to refresh
       const refreshUrl = createUrl('/internal-api/refresh')
-      Logger.debug('[middleware] request has no accessToken but has refreshToken')
+      Logger.debug('[middleware] request has no valid accessToken but has valid refreshToken')
       return redirect(refreshUrl)
     }
 
-    Logger.debug('[middleware] no tokens found')
+    Logger.debug('[middleware] no valid tokens found')
     return next()
   }
 
   // Non-login routes
-  if (!accessToken && !refreshToken) {
-    // No tokens found, redirect to login
-    Logger.debug(`[middleware] no tokens found`)
+  if (!hasValidAccessToken && !hasValidRefreshToken) {
+    // No valid tokens found, redirect to login
+    Logger.debug(`[middleware] no valid tokens found`)
     const loginUrl = createUrl('/login')
     return redirect(loginUrl)
   }
 
-  if (!accessToken && refreshToken) {
+  if (!hasValidAccessToken && hasValidRefreshToken) {
     // Redirect to refresh token route with current path
     const refreshUrl = createUrl('/internal-api/refresh')
     if (pathname !== '/') {
       refreshUrl.searchParams.set('redirect', path)
     }
-    Logger.debug(`[middleware] accessToken not found, refreshToken found`)
+    Logger.debug(`[middleware] valid accessToken not found, valid refreshToken found`)
     return redirect(refreshUrl)
   }
 
