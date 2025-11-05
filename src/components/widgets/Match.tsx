@@ -58,6 +58,9 @@ export default function Match({
   const [searchResults, setSearchResults] = useState<(BookSearchResult | PodcastSearchResult)[]>([])
   const [hasSearched, setHasSearched] = useState(false)
   const [selectedMatchOrig, setSelectedMatchOrig] = useState<MatchResult | null>(null)
+  const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null)
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null)
+  const [hasScrollbar, setHasScrollbar] = useState(false)
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
   const mediaMetadata = useMemo(() => media.metadata || {}, [media.metadata])
@@ -258,7 +261,64 @@ export default function Match({
 
   const handleClearSelectedMatch = useCallback(() => {
     setSelectedMatchOrig(null)
+    setFocusedCardIndex(null)
   }, [])
+
+  const handleCardArrowKey = useCallback(
+    (direction: 'up' | 'down', index: number) => {
+      if (direction === 'down') {
+        const nextIndex = index + 1
+        if (nextIndex < searchResults.length) {
+          setFocusedCardIndex(nextIndex)
+        }
+      } else if (direction === 'up') {
+        const prevIndex = index - 1
+        if (prevIndex >= 0) {
+          setFocusedCardIndex(prevIndex)
+        }
+      }
+    },
+    [searchResults.length]
+  )
+
+  const handleContainerKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'ArrowDown' && searchResults.length > 0) {
+        e.preventDefault()
+        setFocusedCardIndex(0)
+      }
+    },
+    [searchResults.length]
+  )
+
+  // Reset focused card when search results change
+  useEffect(() => {
+    setFocusedCardIndex(null)
+  }, [searchResults])
+
+  // Check if scrollbar is present and adjust padding accordingly
+  useEffect(() => {
+    const checkScrollbar = () => {
+      if (scrollContainerRef.current) {
+        const hasScroll = scrollContainerRef.current.scrollHeight > scrollContainerRef.current.clientHeight
+        setHasScrollbar(hasScroll)
+      }
+    }
+
+    checkScrollbar()
+    const resizeObserver = new ResizeObserver(checkScrollbar)
+    if (scrollContainerRef.current) {
+      resizeObserver.observe(scrollContainerRef.current)
+    }
+
+    // Also check when search results change
+    const timeoutId = setTimeout(checkScrollbar, 100)
+
+    return () => {
+      resizeObserver.disconnect()
+      clearTimeout(timeoutId)
+    }
+  }, [searchResults])
 
   return (
     <div className="w-full h-full overflow-hidden px-2 md:px-4 py-4 md:py-6 relative flex flex-col">
@@ -321,9 +381,25 @@ export default function Match({
           )}
 
           {!isPendingSearch && (
-            <div className="flex-1 overflow-y-auto overflow-x-hidden mt-4 px-1 pr-4 pb-4 md:mx-0 md:px-0 md:pb-4 min-h-0">
+            <div
+              ref={scrollContainerRef}
+              className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden mt-4 px-1 md:mx-0 md:px-0 min-h-0 gap-4"
+              style={{ paddingRight: hasScrollbar ? '1rem' : '0' }}
+              onKeyDown={handleContainerKeyDown}
+              role="listbox"
+              aria-label="Search results"
+            >
               {searchResults.map((result, index) => (
-                <MatchCard key={index} book={result} isPodcast={isPodcast} currentBookDuration={currentBookDuration} onSelect={handleSelectMatch} />
+                <MatchCard
+                  key={index}
+                  book={result}
+                  isPodcast={isPodcast}
+                  currentBookDuration={currentBookDuration}
+                  onSelect={handleSelectMatch}
+                  isFocused={focusedCardIndex === index}
+                  cardIndex={index}
+                  onArrowKey={handleCardArrowKey}
+                />
               ))}
             </div>
           )}
