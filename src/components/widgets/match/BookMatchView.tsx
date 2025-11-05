@@ -1,21 +1,18 @@
 'use client'
 
-import { applyMatchAction } from '@/app/actions/matchActions'
-import Btn from '@/components/ui/Btn'
-import Checkbox from '@/components/ui/Checkbox'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
+import BaseMatchView from '@/components/widgets/match/BaseMatchView'
 import CheckboxMatchFieldEditor from '@/components/widgets/match/CheckboxMatchFieldEditor'
 import CoverMatchFieldEditor from '@/components/widgets/match/CoverMatchFieldEditor'
 import MultiSelectMatchFieldEditor from '@/components/widgets/match/MultiSelectMatchFieldEditor'
 import SlateEditorMatchFieldEditor from '@/components/widgets/match/SlateEditorMatchFieldEditor'
 import TextInputMatchFieldEditor from '@/components/widgets/match/TextInputMatchFieldEditor'
 import TwoStageMultiSelectMatchFieldEditor from '@/components/widgets/match/TwoStageMultiSelectMatchFieldEditor'
-import { useGlobalToast } from '@/contexts/ToastContext'
 import { useMultiSelectMatchField } from '@/hooks/useMultiSelectMatchField'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMatchBooleanValue, getMatchStringValue, processBookMatchData } from '@/lib/matchUtils'
 import { BookLibraryItem, BookSearchResult, isBookMedia, UpdateLibraryItemMediaPayload } from '@/types/api'
-import React, { useCallback, useMemo, useState, useTransition } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 interface BookMatchUsage {
   title: boolean
@@ -34,6 +31,7 @@ interface BookMatchUsage {
   asin: boolean
   isbn: boolean
   abridged: boolean
+  [key: string]: boolean
 }
 
 interface BookMatchViewProps {
@@ -83,33 +81,7 @@ export default function BookMatchView({
   onDone
 }: BookMatchViewProps) {
   const t = useTypeSafeTranslations()
-  const { showToast } = useGlobalToast()
-  const [isPendingApply, startApplyTransition] = useTransition()
-
   const [selectedMatch, setSelectedMatch] = useState<BookSearchResult>(() => processBookMatchData(selectedMatchOrig))
-
-  const [selectedMatchUsage, setSelectedMatchUsage] = useState<BookMatchUsage>(() => {
-    try {
-      const saved = localStorage.getItem('selectedMatchUsage')
-      if (saved) {
-        const parsed = JSON.parse(saved)
-        return { ...defaultMatchUsage, ...parsed }
-      }
-    } catch (error) {
-      console.error('Failed to load saved selectedMatchUsage', error)
-    }
-    return defaultMatchUsage
-  })
-
-  const selectAll = useMemo(() => Object.values(selectedMatchUsage).every((v) => v === true), [selectedMatchUsage])
-
-  // Factory function for field usage handlers
-  const createFieldUsageHandler = useCallback(
-    (field: keyof BookMatchUsage) => (value: boolean) => {
-      setSelectedMatchUsage((prev) => ({ ...prev, [field]: value }))
-    },
-    []
-  )
 
   // Factory function for field value handlers
   const createFieldValueHandler = useCallback(
@@ -189,17 +161,6 @@ export default function BookMatchView({
     setSelectedMatch((prev) => ({ ...prev, series: convertedSeries }))
   }, [])
 
-  const handleSelectAllToggle = useCallback(
-    (value: boolean) => {
-      const newUsage = Object.keys(selectedMatchUsage).reduce((acc, key) => {
-        acc[key as keyof BookMatchUsage] = value
-        return acc
-      }, {} as BookMatchUsage)
-      setSelectedMatchUsage(newUsage)
-    },
-    [selectedMatchUsage]
-  )
-
   // Computed current values
   const authorCurrentValue = useMemo(() => {
     return isBookMedia(media) && media.metadata.authors.length > 0 ? media.metadata.authors.map((a) => a.name).join(', ') : undefined
@@ -219,7 +180,7 @@ export default function BookMatchView({
     [selectedMatch]
   )
 
-  const buildMatchUpdatePayload = useCallback((): UpdateLibraryItemMediaPayload | null => {
+  const buildMatchUpdatePayload = useCallback((selectedMatchUsage: BookMatchUsage, selectedMatch: BookSearchResult): UpdateLibraryItemMediaPayload | null => {
     const updatePayload: UpdateLibraryItemMediaPayload = { metadata: {} }
 
     for (const key in selectedMatchUsage) {
@@ -270,259 +231,219 @@ export default function BookMatchView({
     }
 
     return updatePayload
-  }, [selectedMatch, selectedMatchUsage])
-
-  const handleSubmitMatchUpdate = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-
-      const updatePayload = buildMatchUpdatePayload()
-      if (!updatePayload || Object.keys(updatePayload).length === 0) {
-        return
-      }
-
-      // Persist in local storage
-      try {
-        localStorage.setItem('selectedMatchUsage', JSON.stringify(selectedMatchUsage))
-      } catch (error) {
-        console.error('Failed to save selectedMatchUsage', error)
-      }
-
-      startApplyTransition(async () => {
-        try {
-          const result = await applyMatchAction(libraryItemId, updatePayload)
-          if (result?.updated) {
-            showToast(t('ToastItemDetailsUpdateSuccess'), { type: 'success' })
-          } else {
-            showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
-          }
-          onDone()
-        } catch (error) {
-          console.error('Failed to update', error)
-          showToast(error instanceof Error ? error.message : t('ToastFailedToUpdate'), { type: 'error' })
-        }
-      })
-    },
-    [buildMatchUpdatePayload, libraryItemId, selectedMatchUsage, t, showToast, onDone]
-  )
+  }, [])
 
   return (
-    <div className="absolute top-0 left-0 w-full bg-bg h-full px-2 py-6 md:p-8 max-h-full overflow-y-auto overflow-x-hidden">
-      <div className="flex mb-4">
-        <div className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center cursor-pointer" onClick={onDone}>
-          <span className="material-symbols text-3xl">arrow_back</span>
-        </div>
-        <p className="text-xl pl-3">{t('HeaderUpdateDetails')}</p>
-      </div>
+    <BaseMatchView
+      libraryItemId={libraryItemId}
+      defaultMatchUsage={defaultMatchUsage}
+      localStorageKey="selectedMatchUsage"
+      buildMatchUpdatePayload={buildMatchUpdatePayload}
+      selectedMatch={selectedMatch}
+      onDone={onDone}
+    >
+      {({ selectedMatchUsage, createFieldUsageHandler }) => (
+        <>
+          {selectedMatchOrig.cover && (
+            <CoverMatchFieldEditor
+              usageChecked={selectedMatchUsage.cover}
+              onUsageChange={createFieldUsageHandler('cover')}
+              coverUrl={getStringValue('cover')}
+              currentCoverUrl={coverUrl}
+              bookCoverAspectRatio={bookCoverAspectRatio}
+            />
+          )}
 
-      <Checkbox value={selectAll} onChange={handleSelectAllToggle} label={t('LabelSelectAll')} checkboxBgClass="bg-bg" />
+          {selectedMatchOrig.title && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.title}
+              onUsageChange={createFieldUsageHandler('title')}
+              value={getStringValue('title')}
+              onChange={createFieldValueHandler('title')}
+              label={t('LabelTitle')}
+              currentValue={mediaMetadata.title}
+            />
+          )}
 
-      <form onSubmit={handleSubmitMatchUpdate}>
-        {selectedMatchOrig.cover && (
-          <CoverMatchFieldEditor
-            usageChecked={selectedMatchUsage.cover}
-            onUsageChange={createFieldUsageHandler('cover')}
-            coverUrl={getStringValue('cover')}
-            currentCoverUrl={coverUrl}
-            bookCoverAspectRatio={bookCoverAspectRatio}
-          />
-        )}
+          {selectedMatchOrig.subtitle && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.subtitle}
+              onUsageChange={createFieldUsageHandler('subtitle')}
+              value={getStringValue('subtitle')}
+              onChange={createFieldValueHandler('subtitle')}
+              label={t('LabelSubtitle')}
+              currentValue={mediaMetadata.subtitle}
+            />
+          )}
 
-        {selectedMatchOrig.title && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.title}
-            onUsageChange={createFieldUsageHandler('title')}
-            value={getStringValue('title')}
-            onChange={createFieldValueHandler('title')}
-            label={t('LabelTitle')}
-            currentValue={mediaMetadata.title}
-          />
-        )}
+          {selectedMatchOrig.author && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.author}
+              onUsageChange={createFieldUsageHandler('author')}
+              value={getStringValue('author')}
+              onChange={createFieldValueHandler('author')}
+              label={t('LabelAuthor')}
+              currentValue={authorCurrentValue}
+            />
+          )}
 
-        {selectedMatchOrig.subtitle && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.subtitle}
-            onUsageChange={createFieldUsageHandler('subtitle')}
-            value={getStringValue('subtitle')}
-            onChange={createFieldValueHandler('subtitle')}
-            label={t('LabelSubtitle')}
-            currentValue={mediaMetadata.subtitle}
-          />
-        )}
+          {selectedMatchOrig.narrator && (
+            <MultiSelectMatchFieldEditor
+              usageChecked={selectedMatchUsage.narrator}
+              onUsageChange={createFieldUsageHandler('narrator')}
+              selectedItems={narratorField.selectedItems}
+              items={availableNarrators}
+              onItemAdded={narratorField.handleAdd}
+              onItemRemoved={narratorField.handleRemove}
+              onReplaceAll={narratorField.handleReplaceAll}
+              label={t('LabelNarrators')}
+              currentValue={mediaMetadata.narrators}
+              allowNew
+            />
+          )}
 
-        {selectedMatchOrig.author && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.author}
-            onUsageChange={createFieldUsageHandler('author')}
-            value={getStringValue('author')}
-            onChange={createFieldValueHandler('author')}
-            label={t('LabelAuthor')}
-            currentValue={authorCurrentValue}
-          />
-        )}
+          {selectedMatchOrig.description && (
+            <SlateEditorMatchFieldEditor
+              usageChecked={selectedMatchUsage.description}
+              onUsageChange={createFieldUsageHandler('description')}
+              value={getStringValue('description')}
+              onChange={createFieldValueHandler('description')}
+              label={t('LabelDescription')}
+              currentValue={mediaMetadata.description}
+            />
+          )}
 
-        {selectedMatchOrig.narrator && (
-          <MultiSelectMatchFieldEditor
-            usageChecked={selectedMatchUsage.narrator}
-            onUsageChange={createFieldUsageHandler('narrator')}
-            selectedItems={narratorField.selectedItems}
-            items={availableNarrators}
-            onItemAdded={narratorField.handleAdd}
-            onItemRemoved={narratorField.handleRemove}
-            onReplaceAll={narratorField.handleReplaceAll}
-            label={t('LabelNarrators')}
-            currentValue={mediaMetadata.narrators}
-            allowNew
-          />
-        )}
+          {selectedMatchOrig.publisher && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.publisher}
+              onUsageChange={createFieldUsageHandler('publisher')}
+              value={getStringValue('publisher')}
+              onChange={createFieldValueHandler('publisher')}
+              label={t('LabelPublisher')}
+              currentValue={mediaMetadata.publisher}
+            />
+          )}
 
-        {selectedMatchOrig.description && (
-          <SlateEditorMatchFieldEditor
-            usageChecked={selectedMatchUsage.description}
-            onUsageChange={createFieldUsageHandler('description')}
-            value={getStringValue('description')}
-            onChange={createFieldValueHandler('description')}
-            label={t('LabelDescription')}
-            currentValue={mediaMetadata.description}
-          />
-        )}
+          {selectedMatchOrig.publishedYear && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.publishedYear}
+              onUsageChange={createFieldUsageHandler('publishedYear')}
+              value={getStringValue('publishedYear')}
+              onChange={createFieldValueHandler('publishedYear')}
+              label={t('LabelPublishYear')}
+              currentValue={mediaMetadata.publishedYear}
+            />
+          )}
 
-        {selectedMatchOrig.publisher && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.publisher}
-            onUsageChange={createFieldUsageHandler('publisher')}
-            value={getStringValue('publisher')}
-            onChange={createFieldValueHandler('publisher')}
-            label={t('LabelPublisher')}
-            currentValue={mediaMetadata.publisher}
-          />
-        )}
+          {selectedMatchOrig.series && (
+            <TwoStageMultiSelectMatchFieldEditor
+              usageChecked={selectedMatchUsage.series}
+              onUsageChange={createFieldUsageHandler('series')}
+              selectedItems={seriesItems}
+              items={seriesItemsMap}
+              onItemAdded={handleAddSeries}
+              onItemRemoved={handleRemoveSeries}
+              onItemEdited={handleEditSeries}
+              onReplaceAll={handleSeriesReplaceAll}
+              label={t('LabelSeries')}
+              currentValue={seriesCurrentValue}
+            />
+          )}
 
-        {selectedMatchOrig.publishedYear && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.publishedYear}
-            onUsageChange={createFieldUsageHandler('publishedYear')}
-            value={getStringValue('publishedYear')}
-            onChange={createFieldValueHandler('publishedYear')}
-            label={t('LabelPublishYear')}
-            currentValue={mediaMetadata.publishedYear}
-          />
-        )}
+          {selectedMatchOrig.genres && (
+            <MultiSelectMatchFieldEditor
+              usageChecked={selectedMatchUsage.genres}
+              onUsageChange={createFieldUsageHandler('genres')}
+              selectedItems={genresField.selectedItems}
+              items={allGenres}
+              onItemAdded={genresField.handleAdd}
+              onItemRemoved={genresField.handleRemove}
+              onReplaceAll={genresField.handleReplaceAll}
+              label={t('LabelGenres')}
+              currentValue={mediaMetadata.genres}
+              allowNew
+            />
+          )}
 
-        {selectedMatchOrig.series && (
-          <TwoStageMultiSelectMatchFieldEditor
-            usageChecked={selectedMatchUsage.series}
-            onUsageChange={createFieldUsageHandler('series')}
-            selectedItems={seriesItems}
-            items={seriesItemsMap}
-            onItemAdded={handleAddSeries}
-            onItemRemoved={handleRemoveSeries}
-            onItemEdited={handleEditSeries}
-            onReplaceAll={handleSeriesReplaceAll}
-            label={t('LabelSeries')}
-            currentValue={seriesCurrentValue}
-          />
-        )}
+          {selectedMatchOrig.tags && (
+            <MultiSelectMatchFieldEditor
+              usageChecked={selectedMatchUsage.tags}
+              onUsageChange={createFieldUsageHandler('tags')}
+              selectedItems={tagsField.selectedItems}
+              items={allTags}
+              onItemAdded={tagsField.handleAdd}
+              onItemRemoved={tagsField.handleRemove}
+              onReplaceAll={tagsField.handleReplaceAll}
+              label={t('LabelTags')}
+              currentValue={media.tags}
+              allowNew
+            />
+          )}
 
-        {selectedMatchOrig.genres && (
-          <MultiSelectMatchFieldEditor
-            usageChecked={selectedMatchUsage.genres}
-            onUsageChange={createFieldUsageHandler('genres')}
-            selectedItems={genresField.selectedItems}
-            items={allGenres}
-            onItemAdded={genresField.handleAdd}
-            onItemRemoved={genresField.handleRemove}
-            onReplaceAll={genresField.handleReplaceAll}
-            label={t('LabelGenres')}
-            currentValue={mediaMetadata.genres}
-            allowNew
-          />
-        )}
+          {selectedMatchOrig.language && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.language}
+              onUsageChange={createFieldUsageHandler('language')}
+              value={getStringValue('language')}
+              onChange={createFieldValueHandler('language')}
+              label={t('LabelLanguage')}
+              currentValue={mediaMetadata.language}
+            />
+          )}
 
-        {selectedMatchOrig.tags && (
-          <MultiSelectMatchFieldEditor
-            usageChecked={selectedMatchUsage.tags}
-            onUsageChange={createFieldUsageHandler('tags')}
-            selectedItems={tagsField.selectedItems}
-            items={allTags}
-            onItemAdded={tagsField.handleAdd}
-            onItemRemoved={tagsField.handleRemove}
-            onReplaceAll={tagsField.handleReplaceAll}
-            label={t('LabelTags')}
-            currentValue={media.tags}
-            allowNew
-          />
-        )}
+          {selectedMatchOrig.isbn && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.isbn}
+              onUsageChange={createFieldUsageHandler('isbn')}
+              value={getStringValue('isbn')}
+              onChange={createFieldValueHandler('isbn')}
+              label="ISBN"
+              currentValue={mediaMetadata.isbn}
+            />
+          )}
 
-        {selectedMatchOrig.language && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.language}
-            onUsageChange={createFieldUsageHandler('language')}
-            value={getStringValue('language')}
-            onChange={createFieldValueHandler('language')}
-            label={t('LabelLanguage')}
-            currentValue={mediaMetadata.language}
-          />
-        )}
+          {selectedMatchOrig.asin && (
+            <TextInputMatchFieldEditor
+              usageChecked={selectedMatchUsage.asin}
+              onUsageChange={createFieldUsageHandler('asin')}
+              value={getStringValue('asin')}
+              onChange={createFieldValueHandler('asin')}
+              label="ASIN"
+              currentValue={mediaMetadata.asin}
+            />
+          )}
 
-        {selectedMatchOrig.isbn && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.isbn}
-            onUsageChange={createFieldUsageHandler('isbn')}
-            value={getStringValue('isbn')}
-            onChange={createFieldValueHandler('isbn')}
-            label="ISBN"
-            currentValue={mediaMetadata.isbn}
-          />
-        )}
+          {selectedMatchOrig.explicit != null && (
+            <CheckboxMatchFieldEditor
+              usageChecked={selectedMatchUsage.explicit}
+              onUsageChange={createFieldUsageHandler('explicit')}
+              value={getBooleanValue('explicit')}
+              onChange={createFieldValueHandler('explicit')}
+              label={t('LabelExplicit')}
+              currentValue={mediaMetadata.explicit}
+              checkboxBgClass="bg-primary"
+              borderColorClass="border-gray-600"
+              labelClass="ps-2 text-base font-semibold"
+            />
+          )}
 
-        {selectedMatchOrig.asin && (
-          <TextInputMatchFieldEditor
-            usageChecked={selectedMatchUsage.asin}
-            onUsageChange={createFieldUsageHandler('asin')}
-            value={getStringValue('asin')}
-            onChange={createFieldValueHandler('asin')}
-            label="ASIN"
-            currentValue={mediaMetadata.asin}
-          />
-        )}
-
-        {selectedMatchOrig.explicit != null && (
-          <CheckboxMatchFieldEditor
-            usageChecked={selectedMatchUsage.explicit}
-            onUsageChange={createFieldUsageHandler('explicit')}
-            value={getBooleanValue('explicit')}
-            onChange={createFieldValueHandler('explicit')}
-            label={t('LabelExplicit')}
-            currentValue={mediaMetadata.explicit}
-            checkboxBgClass="bg-primary"
-            borderColorClass="border-gray-600"
-            labelClass="ps-2 text-base font-semibold"
-          />
-        )}
-
-        {selectedMatchOrig.abridged != null && (
-          <CheckboxMatchFieldEditor
-            usageChecked={selectedMatchUsage.abridged}
-            onUsageChange={createFieldUsageHandler('abridged')}
-            value={getBooleanValue('abridged')}
-            onChange={createFieldValueHandler('abridged')}
-            label={t('LabelAbridged')}
-            currentValue={abridgedCurrentValue}
-            checkboxBgClass="bg-primary"
-            borderColorClass="border-gray-600"
-            labelClass="ps-2 text-base font-semibold"
-            checkedLabelKey="LabelAbridgedChecked"
-            uncheckedLabelKey="LabelAbridgedUnchecked"
-          />
-        )}
-
-        <div className="flex items-center justify-end py-2">
-          <Btn color="bg-success" type="submit" disabled={isPendingApply} loading={isPendingApply}>
-            {t('ButtonSubmit')}
-          </Btn>
-        </div>
-      </form>
-    </div>
+          {selectedMatchOrig.abridged != null && (
+            <CheckboxMatchFieldEditor
+              usageChecked={selectedMatchUsage.abridged}
+              onUsageChange={createFieldUsageHandler('abridged')}
+              value={getBooleanValue('abridged')}
+              onChange={createFieldValueHandler('abridged')}
+              label={t('LabelAbridged')}
+              currentValue={abridgedCurrentValue}
+              checkboxBgClass="bg-primary"
+              borderColorClass="border-gray-600"
+              labelClass="ps-2 text-base font-semibold"
+              checkedLabelKey="LabelAbridgedChecked"
+              uncheckedLabelKey="LabelAbridgedUnchecked"
+            />
+          )}
+        </>
+      )}
+    </BaseMatchView>
   )
 }
