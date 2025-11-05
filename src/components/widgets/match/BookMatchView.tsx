@@ -133,7 +133,7 @@ export default function BookMatchView({
   const handleRemoveSeries = useCallback((item: MultiSelectItem<{ value: string; modifier: string }>) => {
     setSelectedMatch((prev) => ({
       ...prev,
-      series: (prev.series || []).filter((s: { series: string; sequence?: string; id?: string }) => s.id !== item.value)
+      series: (prev.series || []).filter((s: { series: string; sequence?: string; id?: string }) => s.series !== item.content.value)
     }))
   }, [])
 
