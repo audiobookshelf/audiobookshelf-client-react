@@ -383,7 +383,7 @@ export default function Match({
           {!isPendingSearch && (
             <div
               ref={scrollContainerRef}
-              className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden mt-4 px-1 md:mx-0 md:px-0 min-h-0 gap-4"
+              className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden mt-4 px-1 md:mx-0 md:px-0 min-h-0"
               style={{ paddingRight: hasScrollbar ? '1rem' : '0' }}
               onKeyDown={handleContainerKeyDown}
               role="listbox"
@@ -393,6 +393,8 @@ export default function Match({
                 <MatchCard
                   key={index}
                   book={result}
+                  isFirst={index === 0}
+                  isLast={index === searchResults.length - 1}
                   isPodcast={isPodcast}
                   currentBookDuration={currentBookDuration}
                   onSelect={handleSelectMatch}

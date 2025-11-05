@@ -9,6 +9,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface MatchCardProps {
   book: MatchResult
+  isFirst?: boolean
+  isLast?: boolean
   isPodcast?: boolean
   currentBookDuration?: number // in seconds
   onSelect?: (book: MatchResult) => void
@@ -17,7 +19,17 @@ interface MatchCardProps {
   onArrowKey?: (direction: 'up' | 'down', index: number) => void
 }
 
-export default function MatchCard({ book, isPodcast = false, currentBookDuration = 0, onSelect, isFocused = false, cardIndex, onArrowKey }: MatchCardProps) {
+export default function MatchCard({
+  book,
+  isFirst = false,
+  isLast = false,
+  isPodcast = false,
+  currentBookDuration = 0,
+  onSelect,
+  isFocused = false,
+  cardIndex,
+  onArrowKey
+}: MatchCardProps) {
   const t = useTypeSafeTranslations()
   const [selectedCover, setSelectedCover] = useState<string | null>(null)
   const cardRef = React.useRef<HTMLDivElement>(null)
@@ -125,11 +137,18 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
       role="option"
       aria-selected={isFocused}
       aria-label={`Select ${book.title}`}
-      className={mergeClasses('w-full border rounded p-3', 'border-border', 'focus:border-foreground', 'outline-none')}
+      className={mergeClasses(
+        'w-full border p-3 cursor-pointer hover:bg-bg-hover/50',
+        'border-border',
+        'focus:border-foreground',
+        'outline-none',
+        isFirst ? 'rounded-t-lg' : 'border-t-0',
+        isLast ? 'rounded-b-lg' : ''
+      )}
       onClick={handleSelect}
       onKeyDown={handleKeyDown}
     >
-      <div className="flex flex-col md:flex-row py-1 hover:bg-bg-hover/50 cursor-pointer">
+      <div className="flex flex-col md:flex-row py-1">
         {/* Mobile: cover image with published year and confidence on the right */}
         {/* Desktop: cover image on the left */}
         <div className="flex justify-between md:block">
