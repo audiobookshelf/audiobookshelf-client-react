@@ -7,6 +7,7 @@ import { BookDetailsEditExamples } from '../examples/BookDetailsEditExamples'
 import { ChaptersExamples } from '../examples/ChaptersExamples'
 import { CoverEditExamples } from '../examples/CoverEditExamples'
 import { FilesExamples } from '../examples/FilesExamples'
+import { MatchExamples } from '../examples/MatchExamples'
 import { PodcastDetailsEditExamples } from '../examples/PodcastDetailsEditExamples'
 import { PreviewCoverExamples } from '../examples/PreviewCoverExamples'
 
@@ -85,6 +86,11 @@ export default function ItemDetailsExamplesPage() {
                 </a>
               </li>
               <li>
+                <a href="#match-examples" className="hover:text-blue-400 transition-colors">
+                  Match
+                </a>
+              </li>
+              <li>
                 <a href="#preview-cover-examples" className="hover:text-blue-400 transition-colors">
                   Preview Cover
                 </a>
@@ -131,6 +137,12 @@ export default function ItemDetailsExamplesPage() {
       {selectedPodcast && (
         <div id="cover-examples">
           <CoverEditExamples selectedLibraryItem={selectedPodcast} />
+        </div>
+      )}
+
+      {(selectedBook || selectedPodcast) && (
+        <div id="match-examples">
+          <MatchExamples selectedLibraryItem={selectedBook ?? selectedPodcast ?? undefined} />
         </div>
       )}
 

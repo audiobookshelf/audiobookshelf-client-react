@@ -27,10 +27,13 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
   // Calculate final dimensions
   const finalDimensions = useMemo(() => {
     const finalWidth = width
-    const finalHeight = width * bookCoverAspectRatio
+    const imageHeight = width * bookCoverAspectRatio
+    // Add space for resolution label if it will be shown (text-xs + margin = ~20px)
+    const labelHeight = showResolution ? 20 : 0
+    const finalHeight = imageHeight + labelHeight
 
-    return { width: finalWidth, height: finalHeight }
-  }, [width, bookCoverAspectRatio])
+    return { width: finalWidth, height: finalHeight, imageHeight }
+  }, [width, bookCoverAspectRatio, showResolution])
 
   const sizeMultiplier = useMemo(() => finalDimensions.width / 120, [finalDimensions.width])
 
@@ -115,9 +118,9 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={handleKeyDown}
     >
-      <div className="w-full h-full relative overflow-hidden">
+      <div className="w-full relative overflow-hidden" style={{ height: `${finalDimensions.imageHeight}px` }}>
         {showCoverBg && (
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden rounded-xs bg-primary">
+          <div className="absolute top-0 start-0 w-full h-full overflow-hidden rounded-xs bg-primary">
             <div className="absolute cover-bg" ref={coverBgRef} />
           </div>
         )}
@@ -134,7 +137,7 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
       </div>
 
       {imageFailed && (
-        <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
+        <div className="absolute top-0 start-0 end-0 bottom-0 w-full h-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
           <div className="w-full h-full border-2 border-error flex flex-col items-center justify-center">
             {width > 100 && <Image src="/images/Logo.png" alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />}
             <p className="text-center text-error" style={{ fontSize: `${invalidCoverFontSize}rem` }}>
@@ -145,7 +148,7 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
       )}
 
       {!imageFailed && showResolution && resolution && (
-        <p className="absolute -bottom-5 left-0 right-0 mx-auto text-xs text-gray-300 text-center">{resolution}</p>
+        <p className="absolute bottom-0 start-0 end-0 mx-auto text-xs text-gray-300 text-center">{resolution}</p>
       )}
     </div>
   )

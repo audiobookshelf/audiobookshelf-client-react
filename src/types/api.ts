@@ -859,3 +859,90 @@ export function isBookLibraryItem(item: LibraryItem): item is BookLibraryItem {
 export function isPodcastLibraryItem(item: LibraryItem): item is PodcastLibraryItem {
   return item.mediaType === 'podcast'
 }
+
+// ============================================================================
+// SEARCH & MATCH TYPES
+// ============================================================================
+
+export interface BookSearchResult {
+  title?: string
+  subtitle?: string
+  author?: string
+  narrator?: string | string[]
+  cover?: string
+  covers?: string[]
+  description?: string
+  descriptionPlain?: string
+  publisher?: string
+  publishedYear?: string
+  series?: Array<{ series: string; sequence?: string }>
+  genres?: string | string[]
+  tags?: string | string[]
+  language?: string
+  explicit?: boolean
+  abridged?: boolean
+  isbn?: string
+  asin?: string
+  duration?: number
+  matchConfidence?: number
+}
+
+export interface PodcastSearchResult {
+  title?: string
+  author?: string
+  artistName?: string
+  cover?: string
+  covers?: string[]
+  description?: string
+  descriptionPlain?: string
+  genres?: string | string[]
+  tags?: string | string[]
+  language?: string
+  explicit?: boolean
+  feedUrl?: string
+  itunesPageUrl?: string
+  itunesId?: string | number
+  releaseDate?: string
+  duration?: number
+  trackCount?: number
+  matchConfidence?: number
+  // Raw API response fields
+  pageUrl?: string
+  id?: string | number
+}
+
+export type MatchResult = BookSearchResult | PodcastSearchResult
+
+export interface UpdateLibraryItemMediaPayload {
+  metadata?: {
+    title?: string
+    subtitle?: string
+    authors?: AuthorMinified[]
+    narrators?: string[]
+    series?: SeriesMinified[]
+    genres?: string[]
+    tags?: string[]
+    publisher?: string
+    publishedYear?: string
+    publishedDate?: string
+    description?: string
+    language?: string
+    explicit?: boolean
+    abridged?: boolean
+    isbn?: string
+    asin?: string
+    // Podcast-specific fields
+    feedUrl?: string
+    itunesPageUrl?: string
+    itunesId?: string | number
+    releaseDate?: string
+    [key: string]: unknown
+  }
+  tags?: string[]
+  url?: string
+}
+
+export interface UpdateLibraryItemMediaResponse {
+  updated: boolean
+  libraryItem?: LibraryItem
+}
