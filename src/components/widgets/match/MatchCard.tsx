@@ -142,7 +142,7 @@ export default function MatchCard({
         'border-border',
         'focus:border-foreground',
         'outline-none',
-        isFirst ? 'rounded-t-lg' : 'border-t-0',
+        isFirst ? 'rounded-t-lg' : 'border-t-0 focus:border-t-1',
         isLast ? 'rounded-b-lg' : ''
       )}
       onClick={handleSelect}
