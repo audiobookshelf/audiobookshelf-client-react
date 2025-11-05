@@ -12,11 +12,15 @@ interface MatchCardProps {
   isPodcast?: boolean
   currentBookDuration?: number // in seconds
   onSelect?: (book: MatchResult) => void
+  isFocused?: boolean
+  cardIndex?: number
+  onArrowKey?: (direction: 'up' | 'down', index: number) => void
 }
 
-export default function MatchCard({ book, isPodcast = false, currentBookDuration = 0, onSelect }: MatchCardProps) {
+export default function MatchCard({ book, isPodcast = false, currentBookDuration = 0, onSelect, isFocused = false, cardIndex, onArrowKey }: MatchCardProps) {
   const t = useTypeSafeTranslations()
   const [selectedCover, setSelectedCover] = useState<string | null>(null)
+  const cardRef = React.useRef<HTMLDivElement>(null)
 
   const bookCovers = useMemo(() => book.covers || [], [book.covers])
 
@@ -84,6 +88,29 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
     setSelectedCover(cover)
   }, [])
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        handleSelect()
+      } else if (e.key === 'ArrowDown' && cardIndex !== undefined && onArrowKey) {
+        e.preventDefault()
+        onArrowKey('down', cardIndex)
+      } else if (e.key === 'ArrowUp' && cardIndex !== undefined && onArrowKey) {
+        e.preventDefault()
+        onArrowKey('up', cardIndex)
+      }
+    },
+    [handleSelect, cardIndex, onArrowKey]
+  )
+
+  // Focus the card when isFocused becomes true
+  useEffect(() => {
+    if (isFocused && cardRef.current) {
+      cardRef.current.focus()
+    }
+  }, [isFocused])
+
   const matchConfidencePercentage = useMemo(() => {
     if (!book.matchConfidence) return null
     return (book.matchConfidence * 100).toFixed(0)
@@ -92,12 +119,21 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
   if (!book) return null
 
   return (
-    <div className="w-full border border-gray-500 md:border-0 md:border-b md:border-gray-700 rounded md:rounded-none p-3 md:p-0 md:pb-2 mb-3 md:mb-0">
-      <div className="flex flex-col md:flex-row py-1 hover:bg-gray-300/10 cursor-pointer" onClick={handleSelect}>
+    <div
+      ref={cardRef}
+      tabIndex={0}
+      role="option"
+      aria-selected={isFocused}
+      aria-label={`Select ${book.title}`}
+      className={mergeClasses('w-full border rounded p-3', 'border-gray-500', 'focus:border-white', 'outline-none')}
+      onClick={handleSelect}
+      onKeyDown={handleKeyDown}
+    >
+      <div className="flex flex-col md:flex-row py-1 hover:bg-gray-300/10 cursor-pointer">
         {/* Mobile: cover image with published year and confidence on the right */}
         {/* Desktop: cover image on the left */}
         <div className="flex justify-between md:block">
-          <div className="min-w-12 max-w-12 md:min-w-20 md:max-w-20 shrink-0">
+          <div className="min-w-12 max-w-12 md:min-w-20 md:max-w-20 shrink-0 md:pt-1 md:pl-2">
             <div className="w-full bg-primary" style={{ aspectRatio: '1' }}>
               {finalSelectedCover ? (
                 <div className="relative w-full h-full">
