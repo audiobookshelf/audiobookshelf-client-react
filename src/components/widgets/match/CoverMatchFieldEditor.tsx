@@ -25,7 +25,7 @@ export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, cov
         <Checkbox value={usageChecked} onChange={onUsageChange} checkboxBgClass="bg-bg" />
         <TextInput value={displayCoverUrl} onChange={() => {}} disabled={!usageChecked} readOnly label={t('LabelCover')} className="grow mx-4" />
       </div>
-      <div className="flex py-2">
+      <div className="flex gap-2 py-2">
         <div>
           <p className="text-center text-gray-200">{t('LabelNew')}</p>
           <a href={displayCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
@@ -33,7 +33,7 @@ export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, cov
           </a>
         </div>
         {currentCoverUrl && (
-          <div className="ml-0.5">
+          <div>
             <p className="text-center text-gray-200">{t('LabelCurrent')}</p>
             <a href={currentCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
               <PreviewCover src={currentCoverUrl} width={100} bookCoverAspectRatio={bookCoverAspectRatio} />
