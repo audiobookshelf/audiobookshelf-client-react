@@ -61,7 +61,7 @@ function CheckboxMatchFieldEditor({
         disabled={disabled || !usageChecked}
         label={label}
         checkboxBgClass={!usageChecked ? 'bg-bg' : checkboxBgClass || 'bg-primary'}
-        borderColorClass={borderColorClass || 'border-gray-600'}
+        borderColorClass={borderColorClass || 'border-border'}
         labelClass={labelClass || 'ps-2 text-base font-semibold'}
       />
     </BaseMatchFieldEditor>

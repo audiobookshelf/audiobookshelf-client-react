@@ -125,11 +125,11 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
       role="option"
       aria-selected={isFocused}
       aria-label={`Select ${book.title}`}
-      className={mergeClasses('w-full border rounded p-3', 'border-gray-500', 'focus:border-white', 'outline-none')}
+      className={mergeClasses('w-full border rounded p-3', 'border-border', 'focus:border-foreground', 'outline-none')}
       onClick={handleSelect}
       onKeyDown={handleKeyDown}
     >
-      <div className="flex flex-col md:flex-row py-1 hover:bg-gray-300/10 cursor-pointer">
+      <div className="flex flex-col md:flex-row py-1 hover:bg-bg-hover/50 cursor-pointer">
         {/* Mobile: cover image with published year and confidence on the right */}
         {/* Desktop: cover image on the left */}
         <div className="flex justify-between md:block">
@@ -150,7 +150,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
             {matchConfidencePercentage && (
               <div
                 className={mergeClasses(
-                  'rounded-full px-2 py-1 text-xs whitespace-nowrap text-white',
+                  'rounded-full px-2 py-1 text-xs whitespace-nowrap text-foreground',
                   book.matchConfidence! > 0.95 ? 'bg-success/80' : 'bg-info/80'
                 )}
               >
@@ -170,14 +170,14 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
 
             <div className="flex items-center">
               <div>
-                {book.author && <p className="text-gray-300 text-xs md:text-sm">{t('LabelByAuthor', { 0: book.author })}</p>}
+                {book.author && <p className="text-foreground-muted text-xs md:text-sm">{t('LabelByAuthor', { 0: book.author })}</p>}
                 {narratorText && (
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-foreground-subdued text-xs">
                     {t('LabelNarrators')}: {narratorText}
                   </p>
                 )}
                 {bookDurationSeconds > 0 && (
-                  <p className="text-gray-400 text-xs">
+                  <p className="text-foreground-subdued text-xs">
                     {t('LabelDuration')}: {secondsToTimestamp(bookDurationSeconds)} {durationComparison}
                   </p>
                 )}
@@ -187,7 +187,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
               {matchConfidencePercentage && (
                 <div
                   className={mergeClasses(
-                    'hidden md:flex rounded-full px-2 py-1 text-xs whitespace-nowrap text-white',
+                    'hidden md:flex rounded-full px-2 py-1 text-xs whitespace-nowrap text-foreground',
                     book.matchConfidence! > 0.95 ? 'bg-success/80' : 'bg-info/80'
                   )}
                 >
@@ -200,7 +200,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
               <div className="flex py-1 -mx-1">
                 {book.series.map((series, index) => (
                   <div key={index} className="bg-white/10 rounded-full px-1 py-0.5 mx-1">
-                    <p className="leading-3 text-xs text-gray-400">
+                    <p className="leading-3 text-xs text-foreground-subdued">
                       {series.series}
                       {series.sequence && <>&nbsp;#{series.sequence}</>}
                     </p>
@@ -210,7 +210,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
             )}
             {book.descriptionPlain && (
               <div className="w-full max-h-12 overflow-hidden">
-                <p className="text-gray-500 text-xs">{book.descriptionPlain}</p>
+                <p className="text-foreground-subdued text-xs">{book.descriptionPlain}</p>
               </div>
             )}
           </div>
@@ -222,10 +222,10 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
                 {book.explicit && <span className="material-symbols text-sm ms-1 text-error">explicit</span>}
               </div>
             </h1>
-            {book.author && <p className="text-base text-gray-300 whitespace-nowrap truncate">{t('LabelByAuthor', { 0: book.author })}</p>}
-            {genresText && <p className="text-xs text-gray-400 leading-5">{genresText}</p>}
+            {book.author && <p className="text-base text-foreground-muted whitespace-nowrap truncate">{t('LabelByAuthor', { 0: book.author })}</p>}
+            {genresText && <p className="text-xs text-foreground-subdued leading-5">{genresText}</p>}
             {'trackCount' in book && book.trackCount !== undefined && (
-              <p className="text-xs text-gray-400 leading-5">
+              <p className="text-xs text-foreground-subdued leading-5">
                 {book.trackCount} {t('LabelEpisodes')}
               </p>
             )}

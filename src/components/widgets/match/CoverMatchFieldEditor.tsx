@@ -27,14 +27,14 @@ export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, cov
       </div>
       <div className="flex gap-2 py-2">
         <div>
-          <p className="text-center text-gray-200">{t('LabelNew')}</p>
+          <p className="text-center text-foreground-muted">{t('LabelNew')}</p>
           <a href={displayCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
             <PreviewCover src={displayCoverUrl} width={100} bookCoverAspectRatio={bookCoverAspectRatio} />
           </a>
         </div>
         {currentCoverUrl && (
           <div>
-            <p className="text-center text-gray-200">{t('LabelCurrent')}</p>
+            <p className="text-center text-foreground-muted">{t('LabelCurrent')}</p>
             <a href={currentCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
               <PreviewCover src={currentCoverUrl} width={100} bookCoverAspectRatio={bookCoverAspectRatio} />
             </a>

@@ -32,7 +32,7 @@ export function BaseMatchFieldEditor({
       <Checkbox value={usageChecked} onChange={onUsageChange} checkboxBgClass="bg-bg" />
       <div className={contentClass}>
         {children}
-        {hasCurrentValue && currentValueDisplay && <p className="text-xs ml-1 text-white/60">{currentValueDisplay}</p>}
+        {hasCurrentValue && currentValueDisplay && <p className="text-xs ml-1 text-foreground-subdued">{currentValueDisplay}</p>}
       </div>
     </div>
   )

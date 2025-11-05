@@ -422,7 +422,7 @@ export default function BookMatchView({
               label={t('LabelExplicit')}
               currentValue={mediaMetadata.explicit}
               checkboxBgClass="bg-primary"
-              borderColorClass="border-gray-600"
+              borderColorClass="border-border"
               labelClass="ps-2 text-base font-semibold"
             />
           )}
@@ -436,7 +436,7 @@ export default function BookMatchView({
               label={t('LabelAbridged')}
               currentValue={abridgedCurrentValue}
               checkboxBgClass="bg-primary"
-              borderColorClass="border-gray-600"
+              borderColorClass="border-border"
               labelClass="ps-2 text-base font-semibold"
               checkedLabelKey="LabelAbridgedChecked"
               uncheckedLabelKey="LabelAbridgedUnchecked"
