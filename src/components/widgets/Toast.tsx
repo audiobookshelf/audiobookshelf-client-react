@@ -41,28 +41,28 @@ const Toast: React.FC<ToastProps> = ({ id, type = 'info', title, message, durati
   const getIcon = () => {
     switch (type) {
       case 'success':
-        return '✓'
+        return 'check_circle'
       case 'error':
-        return '✕'
+        return 'error'
       case 'warning':
-        return '⚠'
+        return 'warning'
       case 'info':
       default:
-        return 'ℹ'
+        return 'info'
     }
   }
 
   const getTypeClasses = () => {
     switch (type) {
       case 'success':
-        return 'bg-green-600 border-green-500'
+        return 'bg-success border-success'
       case 'error':
-        return 'bg-red-600 border-red-500'
+        return 'bg-error border-error'
       case 'warning':
-        return 'bg-yellow-600 border-yellow-500'
+        return 'bg-warning border-warning'
       case 'info':
       default:
-        return 'bg-blue-600 border-blue-500'
+        return 'bg-info border-info'
     }
   }
 
@@ -74,9 +74,9 @@ const Toast: React.FC<ToastProps> = ({ id, type = 'info', title, message, durati
     >
       <div className={`${getTypeClasses()} border rounded-lg shadow-lg p-4 max-w-sm w-full`}>
         <div className="flex items-start gap-3">
-          <div cy-id="toast-icon" className="flex-shrink-0 w-5 h-5 text-white font-bold text-sm flex items-center justify-center">
+          <span cy-id="toast-icon" className="material-symbols flex-shrink-0 text-white text-xl" aria-hidden="true">
             {getIcon()}
-          </div>
+          </span>
           <div className="flex-1 min-w-0">
             {title && <div className="font-semibold text-white text-sm mb-1">{title}</div>}
             <div className="text-white/90 text-sm">{message}</div>

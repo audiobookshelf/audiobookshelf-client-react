@@ -1,4 +1,3 @@
-import React from 'react'
 import Toast, { ToastProps } from '@/components/widgets/Toast'
 
 describe('<Toast />', () => {
@@ -11,7 +10,7 @@ describe('<Toast />', () => {
     cy.mount(<Toast {...defaultProps} />)
     cy.get('[cy-id="toast"]').should('exist')
     cy.contains('Test message').should('be.visible')
-    cy.get('[cy-id="toast-icon"]').should('contain', 'ℹ')
+    cy.get('[cy-id="toast-icon"]').should('contain', 'info')
   })
 
   it('renders with title and message', () => {
@@ -22,30 +21,30 @@ describe('<Toast />', () => {
 
   it('renders success type correctly', () => {
     cy.mount(<Toast {...defaultProps} type="success" message="Success message" />)
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-green-600')
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-green-500')
-    cy.get('[cy-id="toast-icon"]').should('contain', '✓')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-success')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-success')
+    cy.get('[cy-id="toast-icon"]').should('contain', 'check_circle')
   })
 
   it('renders error type correctly', () => {
     cy.mount(<Toast {...defaultProps} type="error" message="Error message" />)
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-red-600')
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-red-500')
-    cy.get('[cy-id="toast-icon"]').should('contain', '✕')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-error')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-error')
+    cy.get('[cy-id="toast-icon"]').should('contain', 'error')
   })
 
   it('renders warning type correctly', () => {
     cy.mount(<Toast {...defaultProps} type="warning" message="Warning message" />)
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-yellow-600')
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-yellow-500')
-    cy.get('[cy-id="toast-icon"]').should('contain', '⚠')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-warning')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-warning')
+    cy.get('[cy-id="toast-icon"]').should('contain', 'warning')
   })
 
   it('renders info type correctly', () => {
     cy.mount(<Toast {...defaultProps} type="info" message="Info message" />)
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-blue-600')
-    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-blue-500')
-    cy.get('[cy-id="toast-icon"]').should('contain', 'ℹ')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'bg-info')
+    cy.get('[cy-id="toast"]').find('div').first().should('have.class', 'border-info')
+    cy.get('[cy-id="toast-icon"]').should('contain', 'info')
   })
 
   it('calls onClose when close button is clicked', () => {
@@ -255,7 +254,7 @@ describe('<Toast />', () => {
       cy.contains(`${type} message`).should('be.visible')
 
       // Check for correct icon
-      const expectedIcon = type === 'success' ? '✓' : type === 'error' ? '✕' : type === 'warning' ? '⚠' : 'ℹ'
+      const expectedIcon = type === 'success' ? 'check_circle' : type === 'error' ? 'error' : type === 'warning' ? 'warning' : 'info'
       cy.get('[cy-id="toast-icon"]').should('contain', expectedIcon)
     })
   })
