@@ -35,3 +35,14 @@ export function getLibraryFileUrl(libraryItemId: string, fileIno: string): strin
 export function getPlaceholderCoverUrl(): string {
   return '/images/book_placeholder.jpg'
 }
+
+/**
+ * Get cover aspect ratio from cover aspect ratio setting (1 = square, 1.6 = standard)
+ */
+export function getCoverAspectRatio(coverAspectRatioSetting: number | undefined): number {
+  if (coverAspectRatioSetting === 1) {
+    return 1
+  } else {
+    return 1.6
+  }
+}
