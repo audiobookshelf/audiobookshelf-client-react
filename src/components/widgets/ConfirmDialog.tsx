@@ -6,10 +6,11 @@ import Checkbox from '@/components/ui/Checkbox'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useState } from 'react'
+import type { ReactNode } from 'react'
 
 interface ConfirmDialogProps {
   isOpen: boolean
-  message: string
+  message: string | ReactNode
   checkboxLabel?: string
   yesButtonText?: string
   yesButtonClassName?: string
