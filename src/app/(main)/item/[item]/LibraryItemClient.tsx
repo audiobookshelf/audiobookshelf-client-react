@@ -3,6 +3,7 @@ import ChaptersTable from '@/components/widgets/ChaptersTable'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { getCoverAspectRatio, getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, BookMetadata, Library, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
+import { Fragment } from 'react'
 
 interface LibraryItemClientProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -13,6 +14,8 @@ interface LibraryItemClientProps {
 export default function LibraryItemClient({ libraryItem, currentUser, library }: LibraryItemClientProps) {
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
+  const bookAuthors = 'authors' in metadata ? metadata.authors || [] : []
+  const bookSeries = 'series' in metadata ? metadata.series || [] : []
 
   return (
     <div>
@@ -29,6 +32,36 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
           <div className="flex-1">
             <h1 className="text-2xl md:text-3xl font-semibold">{libraryItem.media.metadata.title}</h1>
             {subtitle && <h2 className="text-xl md:text-2xl font-medium text-foreground-muted">{subtitle}</h2>}
+            {bookSeries.length > 0 && (
+              <div>
+                {bookSeries.map((series, index) => {
+                  return (
+                    <Fragment key={series.id}>
+                      <a href={`/series/${series.id}`} className="text-foreground-muted hover:underline text-lg">
+                        {series.name}
+                        {series.sequence && <span className="text-foreground-muted text-lg"> #{series.sequence}</span>}
+                      </a>
+                      {index < bookSeries.length - 1 && <span className="text-foreground-muted text-lg">, </span>}
+                    </Fragment>
+                  )
+                })}
+              </div>
+            )}
+
+            {bookAuthors.length > 0 && (
+              <div>
+                {bookAuthors.map((author, index) => {
+                  return (
+                    <Fragment key={author.id}>
+                      <a href={`/author/${author.id}`} className="text-foreground-muted hover:underline text-lg md:text-xl">
+                        {author.name}
+                      </a>
+                      {index < bookAuthors.length - 1 && <span className="text-foreground-muted text-lg md:text-xl">, </span>}
+                    </Fragment>
+                  )
+                })}
+              </div>
+            )}
 
             <div className="mt-20 flex flex-col gap-2">
               {/* chapters table */}
