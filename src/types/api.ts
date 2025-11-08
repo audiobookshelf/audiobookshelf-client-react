@@ -946,3 +946,63 @@ export interface UpdateLibraryItemMediaResponse {
   updated: boolean
   libraryItem?: LibraryItem
 }
+
+// ============================================================================
+// TASKS & PROGRESS TRACKING
+// ============================================================================
+
+export interface Task {
+  id: string
+  action: string // 'embed-metadata' | 'encode-m4b'
+  data?: {
+    libraryItemId?: string
+    [key: string]: unknown
+  }
+  title: string | null
+  titleKey: string | null
+  titleSubs: string[] | null
+  description: string | null
+  descriptionKey: string | null
+  descriptionSubs: string[] | null
+  error: string | null
+  errorKey: string | null
+  errorSubs: string[] | null
+  showSuccess: boolean
+  isFailed: boolean
+  isFinished: boolean
+  startedAt: number | null
+  finishedAt: number | null
+}
+
+export interface MetadataEmbedQueueUpdate {
+  libraryItemId: string
+  queued: boolean
+}
+
+export interface TrackStartedPayload {
+  libraryItemId: string
+  ino: string
+}
+
+export interface TrackFinishedPayload {
+  libraryItemId: string
+  ino: string
+}
+
+export interface TrackProgressPayload {
+  libraryItemId: string
+  ino: string
+  progress: number
+}
+
+export interface TaskProgressPayload {
+  libraryItemId: string
+  progress: number
+}
+
+export interface TasksResponse {
+  tasks: Task[]
+  queuedTaskData?: {
+    embedMetadata?: Array<{ libraryItemId: string }>
+  }
+}
