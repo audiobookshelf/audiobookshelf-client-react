@@ -15,6 +15,7 @@ import {
   PodcastSearchResult,
   SearchLibraryResponse,
   ServerStatus,
+  TasksResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
   UploadCoverResponse,
@@ -418,4 +419,23 @@ export async function updateLibraryItemMedia(libraryItemId: string, updatePayloa
     method: 'PATCH',
     body: JSON.stringify(updatePayload)
   })
+}
+
+/**
+ * Quick embed metadata into audio files for a library item
+ * @param libraryItemId - Library item ID
+ * Returns: void (success) or throws error
+ */
+export async function embedMetadataQuick(libraryItemId: string): Promise<void> {
+  return apiRequest<void>(`/api/tools/item/${libraryItemId}/embed-metadata`, {
+    method: 'POST'
+  })
+}
+
+/**
+ * Get all tasks with optional queue data
+ * Returns: Tasks array and queued task data
+ */
+export async function getTasks(): Promise<TasksResponse> {
+  return apiRequest<TasksResponse>('/api/tasks?include=queue', {})
 }
