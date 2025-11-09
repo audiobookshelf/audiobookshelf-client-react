@@ -69,16 +69,16 @@ describe('<ToastContainer />', () => {
     cy.mount(<ToastContainer toasts={mockToasts} onRemove={onRemoveSpy} />)
 
     // Check success toast styling
-    cy.get('[cy-id="toast"] > div').first().should('have.class', 'bg-green-600')
-    cy.get('[cy-id="toast-icon"]').first().should('contain', '✓')
+    cy.get('[cy-id="toast"] > div').first().should('have.class', 'bg-success')
+    cy.get('[cy-id="toast-icon"]').first().should('contain', 'check_circle')
 
     // Check error toast styling
-    cy.get('[cy-id="toast"] > div').eq(1).should('have.class', 'bg-red-600')
-    cy.get('[cy-id="toast-icon"]').eq(1).should('contain', '✕')
+    cy.get('[cy-id="toast"] > div').eq(1).should('have.class', 'bg-error')
+    cy.get('[cy-id="toast-icon"]').eq(1).should('contain', 'error')
 
     // Check warning toast styling
-    cy.get('[cy-id="toast"] > div').eq(2).should('have.class', 'bg-yellow-600')
-    cy.get('[cy-id="toast-icon"]').eq(2).should('contain', '⚠')
+    cy.get('[cy-id="toast"] > div').eq(2).should('have.class', 'bg-warning')
+    cy.get('[cy-id="toast-icon"]').eq(2).should('contain', 'warning')
   })
 
   it('renders toasts with and without titles', () => {
@@ -209,7 +209,7 @@ describe('<ToastContainer />', () => {
 
     cy.get('[cy-id="toast"]').should('have.length', 1)
     cy.contains('Minimal toast').should('be.visible')
-    cy.get('[cy-id="toast-icon"]').should('contain', 'ℹ') // Default info icon
+    cy.get('[cy-id="toast-icon"]').should('contain', 'info') // Default info icon
   })
 
   it('handles toasts with all optional props', () => {
@@ -229,6 +229,6 @@ describe('<ToastContainer />', () => {
     cy.get('[cy-id="toast"]').should('have.length', 1)
     cy.contains('Full Toast').should('be.visible')
     cy.contains('Complete toast with all props').should('be.visible')
-    cy.get('[cy-id="toast-icon"]').should('contain', '✓')
+    cy.get('[cy-id="toast-icon"]').should('contain', 'check_circle')
   })
 })
