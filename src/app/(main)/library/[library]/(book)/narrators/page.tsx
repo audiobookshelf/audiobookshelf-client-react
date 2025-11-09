@@ -1,3 +1,13 @@
-export default function NarratorsPage() {
-  return <div className="p-8 w-full">Narrators</div>
+import { getData, getNarrators } from '@/lib/api'
+import NarratorsClient from './NarratorsClient'
+
+export default async function NarratorsPage({ params }: { params: Promise<{ library: string }> }) {
+  const { library: libraryId } = await params
+  const [narrators] = await getData(getNarrators(libraryId))
+
+  return (
+    <div className="p-8 w-full">
+      <NarratorsClient narrators={narrators?.narrators ?? []} />
+    </div>
+  )
 }

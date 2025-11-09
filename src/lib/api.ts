@@ -7,6 +7,7 @@ import {
   FFProbeData,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
+  GetNarratorsResponse,
   GetUsersResponse,
   Library,
   LibraryItem,
@@ -366,6 +367,10 @@ export const getTags = cache(async () => {
 
 export const getGenres = cache(async () => {
   return apiRequest<{ genres: string[] }>('/api/genres', {})
+})
+
+export const getNarrators = cache(async (libraryId: string) => {
+  return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
 })
 
 /**

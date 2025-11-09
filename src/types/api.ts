@@ -946,3 +946,13 @@ export interface UpdateLibraryItemMediaResponse {
   updated: boolean
   libraryItem?: LibraryItem
 }
+
+export interface GetNarratorsResponse {
+  narrators: NarratorObject[]
+}
+
+export interface NarratorObject {
+  id: string
+  name: string
+  numBooks: number
+}
