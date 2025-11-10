@@ -13,7 +13,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   return (
     <div className="w-full max-w-4xl mx-auto p-2 md:p-6">
       <div className="bg-bg rounded-md shadow-lg border border-white/5 p-2 sm:p-4 mb-8">
-        <Link href="/settings/users" className="flex items-center gap-2 text-gray-300 hover:text-white mb-4">
+        <Link href="/settings/users" className="flex items-center gap-2 text-foreground-muted hover:text-foreground mb-4">
           <span className="material-symbols text-xl">arrow_back</span>
           <span>{t('LabelBackToUsers')}</span>
         </Link>

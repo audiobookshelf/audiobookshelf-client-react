@@ -290,7 +290,7 @@ export default function SettingsClient(props: SettingsClientProps) {
               value={serverSettings?.dateFormat}
               onChange={(value) => handleSettingChanged('dateFormat', value as string)}
             />
-            <p className="text-xs text-gray-300 px-1 mb-2">
+            <p className="text-xs text-foreground-muted px-1 mb-2">
               {t('LabelExample')}: {exampleDateFormat}
             </p>
           </div>
@@ -301,7 +301,7 @@ export default function SettingsClient(props: SettingsClientProps) {
               value={serverSettings?.timeFormat}
               onChange={(value) => handleSettingChanged('timeFormat', value as string)}
             />
-            <p className="text-xs text-gray-300 px-1 mb-2">
+            <p className="text-xs text-foreground-muted px-1 mb-2">
               {t('LabelExample')}: {exampleTimeFormat}
             </p>
           </div>
