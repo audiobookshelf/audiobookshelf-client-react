@@ -148,7 +148,7 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
       )}
 
       {!imageFailed && showResolution && resolution && (
-        <p className="absolute bottom-0 start-0 end-0 mx-auto text-xs text-gray-300 text-center">{resolution}</p>
+        <p className="absolute bottom-0 start-0 end-0 mx-auto text-xs text-foreground-muted text-center">{resolution}</p>
       )}
     </div>
   )

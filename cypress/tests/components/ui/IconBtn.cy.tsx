@@ -1,4 +1,3 @@
-import React from 'react'
 import IconBtn from '@/components/ui/IconBtn'
 
 describe('<IconBtn />', () => {
@@ -45,7 +44,7 @@ describe('<IconBtn />', () => {
     cy.mount(<IconBtn loading>edit</IconBtn>)
     cy.get('button').should('be.disabled')
     cy.get('&icon-btn-loading-spinner').should('exist')
-    cy.get('&icon-btn-loading-spinner').should('have.class', 'text-white/100')
+    cy.get('&icon-btn-loading-spinner').should('have.class', 'text-foreground/100')
     cy.get('&icon-btn-icon').should('not.exist')
     cy.get('&icon-btn-loading').should('exist')
   })

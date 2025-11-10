@@ -256,7 +256,7 @@ export default function DurationPicker({
   const sizeText = useMemo(() => (size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'), [size])
 
   const sepClass = useMemo(
-    () => mergeClasses('select-none px-1', sizeText, disabled ? 'text-disabled' : readOnly ? 'text-read-only' : 'text-white/80'),
+    () => mergeClasses('select-none px-1', sizeText, disabled ? 'text-disabled' : readOnly ? 'text-read-only' : 'text-foreground-muted'),
     [sizeText, disabled, readOnly]
   )
 
