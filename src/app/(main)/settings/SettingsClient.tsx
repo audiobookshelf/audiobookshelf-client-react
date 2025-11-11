@@ -85,6 +85,9 @@ export default function SettingsClient(props: SettingsClientProps) {
   }
 
   const handleSettingChanged = (key: keyof ServerSettings, value: boolean | string | string[]) => {
+    if (isPending) {
+      return
+    }
     let newValue: boolean | BookshelfView | string | string[] = value
     if (key === 'homeBookshelfView' || key === 'bookshelfView') {
       newValue = value ? BookshelfView.STANDARD : BookshelfView.DETAIL
@@ -165,21 +168,18 @@ export default function SettingsClient(props: SettingsClientProps) {
             label={t('LabelSettingsStoreCoversWithItem')}
             value={serverSettings?.storeCoverWithItem}
             onChange={(value) => handleSettingChanged('storeCoverWithItem', value)}
-            disabled={isPending}
             tooltip={t('LabelSettingsStoreCoversWithItemHelp')}
           />
           <SettingsToggleSwitch
             label={t('LabelSettingsStoreMetadataWithItem')}
             value={serverSettings?.storeMetadataWithItem}
             onChange={(value) => handleSettingChanged('storeMetadataWithItem', value)}
-            disabled={isPending}
             tooltip={t('LabelSettingsStoreMetadataWithItemHelp')}
           />
           <SettingsToggleSwitch
             label={t('LabelSettingsSortingIgnorePrefixes')}
             value={serverSettings?.sortingIgnorePrefix}
             onChange={(value) => handleSettingChanged('sortingIgnorePrefix', value)}
-            disabled={isPending}
             tooltip={t('LabelSettingsSortingIgnorePrefixesHelp')}
           />
           {serverSettings?.sortingIgnorePrefix && (
@@ -219,7 +219,6 @@ export default function SettingsClient(props: SettingsClientProps) {
             label={t('LabelSettingsParseSubtitles')}
             value={serverSettings?.scannerParseSubtitle}
             onChange={(value) => handleSettingChanged('scannerParseSubtitle', value)}
-            disabled={isPending}
             tooltip={t.rich('LabelSettingsParseSubtitlesHelp', {
               br: () => <br />
             })}
@@ -228,7 +227,6 @@ export default function SettingsClient(props: SettingsClientProps) {
             label={t('LabelSettingsFindCovers')}
             value={serverSettings?.scannerFindCovers}
             onChange={(value) => handleSettingChanged('scannerFindCovers', value)}
-            disabled={isPending}
             tooltip={t.rich('LabelSettingsFindCoversHelp', {
               br: () => <br />
             })}
@@ -237,14 +235,12 @@ export default function SettingsClient(props: SettingsClientProps) {
             label={t('LabelSettingsPreferMatchedMetadata')}
             value={serverSettings?.scannerPreferMatchedMetadata}
             onChange={(value) => handleSettingChanged('scannerPreferMatchedMetadata', value)}
-            disabled={isPending}
             tooltip={t('LabelSettingsPreferMatchedMetadataHelp')}
           />
           <SettingsToggleSwitch
             label={t('LabelSettingsEnableWatcher')}
             value={!serverSettings?.scannerDisableWatcher}
             onChange={(value) => handleSettingChanged('scannerDisableWatcher', !value)}
-            disabled={isPending}
             tooltip={t('LabelSettingsEnableWatcherHelp')}
           />
         </div>
@@ -255,14 +251,12 @@ export default function SettingsClient(props: SettingsClientProps) {
             label={t('LabelSettingsChromecastSupport')}
             value={serverSettings?.chromecastEnabled}
             onChange={(value) => handleSettingChanged('chromecastEnabled', value)}
-            disabled={isPending}
           />
 
           <SettingsToggleSwitch
             label={t('LabelSettingsAllowIframe')}
             value={serverSettings?.allowIframe}
             onChange={(value) => handleSettingChanged('allowIframe', value)}
-            disabled={isPending}
           />
         </div>
       </div>
@@ -273,14 +267,12 @@ export default function SettingsClient(props: SettingsClientProps) {
             label={t('LabelSettingsHomePageBookshelfView')}
             value={serverSettings?.homeBookshelfView === BookshelfView.STANDARD}
             onChange={(value) => handleSettingChanged('homeBookshelfView', value)}
-            disabled={isPending}
             tooltip={t('LabelSettingsBookshelfViewHelp')}
           />
           <SettingsToggleSwitch
             label={t('LabelSettingsLibraryBookshelfView')}
             value={serverSettings?.bookshelfView === BookshelfView.STANDARD}
             onChange={(value) => handleSettingChanged('bookshelfView', value)}
-            disabled={isPending}
             tooltip={t('LabelSettingsBookshelfViewHelp')}
           />
           <div className="w-full max-w-72">
