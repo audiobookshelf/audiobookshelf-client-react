@@ -8,7 +8,8 @@ import { useTasks } from '@/contexts/TasksContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { LibraryItem, isBookLibraryItem } from '@/types/api'
-import { useCallback, useMemo, useState } from 'react'
+import { TranslationKey } from '@/types/translations'
+import { useCallback, useMemo, useState, useTransition } from 'react'
 
 interface ToolsProps {
   libraryItem: LibraryItem
@@ -25,7 +26,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
   const t = useTypeSafeTranslations()
   const { queuedEmbedLIds, taskProgress, getTasksByLibraryItemId } = useTasks()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const libraryItemId = libraryItem.id
   const mediaTracks = useMemo(() => {
@@ -38,7 +39,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
   const itemTasks = useMemo(() => getTasksByLibraryItemId(libraryItemId), [getTasksByLibraryItemId, libraryItemId])
 
   const embedTask = useMemo(() => {
-    return itemTasks.find((t) => t.action === 'embed-metadata')
+    return itemTasks.find((task) => task.action === 'embed-metadata')
   }, [itemTasks])
 
   const isMetadataEmbedQueued = useMemo(() => {
@@ -53,6 +54,15 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
     return embedTask?.isFinished && !embedTask.isFailed
   }, [embedTask])
 
+  const embedTaskError = useMemo(() => {
+    if (!embedTask?.isFailed) return null
+    // Use errorKey for translation if available, otherwise fall back to error string
+    if (embedTask.errorKey) {
+      return t(embedTask.errorKey as TranslationKey)
+    }
+    return embedTask.error
+  }, [embedTask, t])
+
   const embedProgress = useMemo(() => {
     return taskProgress[libraryItemId] || '0%'
   }, [taskProgress, libraryItemId])
@@ -61,111 +71,108 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
     setShowConfirmDialog(true)
   }, [])
 
-  const handleConfirmEmbed = useCallback(async () => {
+  const handleConfirmEmbed = useCallback(() => {
     setShowConfirmDialog(false)
-    setIsSubmitting(true)
-    try {
-      await embedMetadataQuickAction(libraryItemId)
-      console.log('Quick embed started for', libraryItemId)
-    } catch (error) {
-      console.error('Quick embed failed', error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }, [libraryItemId])
+    startTransition(async () => {
+      try {
+        await embedMetadataQuickAction(libraryItemId)
+        console.log('Quick embed started for', libraryItemId)
+      } catch (error) {
+        console.error('Quick embed failed', error)
+      }
+    })
+  }, [libraryItemId, startTransition])
 
   const handleCloseDialog = useCallback(() => {
     setShowConfirmDialog(false)
   }, [])
 
-  const showM4bSection = mediaTracks.length > 0
-
-  if (!mediaTracks.length) {
-    return (
-      <div className={mergeClasses('w-full px-4 py-6', className)}>
-        <p className="text-xl font-semibold mb-2">{t('HeaderAudiobookTools')}</p>
-        <p className="text-lg text-center my-8">{t('MessageNoAudioTracks')}</p>
-      </div>
-    )
-  }
-
   return (
     <div className={mergeClasses('w-full px-4 py-6', className)}>
       <p className="text-xl font-semibold mb-2">{t('HeaderAudiobookTools')}</p>
 
-      {/* M4b Maker Section */}
-      {showM4bSection && (
-        <div className="w-full border border-black-200 p-4 my-8">
-          <div className="flex flex-wrap items-center">
-            <div>
-              <p className="text-lg">{t('LabelToolsMakeM4b')}</p>
-              <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsMakeM4bDescription')}</p>
-            </div>
-            <div className="grow" />
-            <div className="flex justify-end">
-              <div className="w-[180px] flex justify-end">
-                <Btn to={`/item/${libraryItemId}/manage?tool=m4b`} className="flex items-center justify-center whitespace-nowrap w-full">
-                  {t('ButtonOpenManager')}
-                  <span className="material-symbols text-lg ml-2">launch</span>
-                </Btn>
+      {!mediaTracks.length ? (
+        <p className="text-lg text-center my-8">{t('MessageNoAudioTracks')}</p>
+      ) : (
+        <>
+          {/* M4b Maker Section */}
+          <div className="w-full border border-black-200 p-4 my-8">
+            <div className="flex flex-wrap items-center">
+              <div>
+                <p className="text-lg">{t('LabelToolsMakeM4b')}</p>
+                <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsMakeM4bDescription')}</p>
+              </div>
+              <div className="grow" />
+              <div className="flex justify-end">
+                <div className="w-[180px] flex justify-end">
+                  <Btn to={`/item/${libraryItemId}/manage?tool=m4b`} className="flex items-center justify-center whitespace-nowrap w-full">
+                    {t('ButtonOpenManager')}
+                    <span className="material-symbols text-lg ml-2">launch</span>
+                  </Btn>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Embed Metadata Section */}
+          <div className="w-full border border-black-200 p-4 my-8">
+            <div className="flex items-center">
+              <div>
+                <p className="text-lg">{t('LabelToolsEmbedMetadata')}</p>
+                <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsEmbedMetadataDescription')}</p>
+              </div>
+              <div className="grow" />
+              <div className="flex flex-col items-end">
+                <div className="w-[180px] flex justify-end">
+                  <Btn to={`/item/${libraryItemId}/manage?tool=embed`} className="flex items-center justify-center whitespace-nowrap w-full">
+                    {t('ButtonOpenManager')}
+                    <span className="material-symbols text-lg ml-2">launch</span>
+                  </Btn>
+                </div>
+
+                <div className="w-[180px] flex justify-end mt-4" cy-id="quick-embed-btn">
+                  <Btn
+                    className="whitespace-nowrap w-full"
+                    disabled={isMetadataEmbedQueued || !!isEmbedTaskRunning || isPending}
+                    loading={!!isEmbedTaskRunning}
+                    progress={embedProgress}
+                    onClick={handleQuickEmbedClick}
+                  >
+                    {t('ButtonQuickEmbed')}
+                  </Btn>
+                </div>
+              </div>
+            </div>
+
+            {/* Status Alerts */}
+            {isMetadataEmbedQueued && (
+              <Alert type="warning" className="mt-4">
+                <p className="text-lg">{t('MessageQuickEmbedQueue', { count: queuedEmbedLIds.length })}</p>
+              </Alert>
+            )}
+
+            {embedTaskFinishedSuccessfully && (
+              <Alert type="success" className="mt-4">
+                <p className="text-lg">{t('MessageQuickEmbedFinished')}</p>
+              </Alert>
+            )}
+
+            {embedTaskError && (
+              <Alert type="error" className="mt-4">
+                <p className="text-lg">{embedTaskError}</p>
+              </Alert>
+            )}
+          </div>
+
+          {/* Confirm Dialog */}
+          <ConfirmDialog
+            isOpen={showConfirmDialog}
+            message={t.rich('MessageConfirmQuickEmbed', { br: () => <br /> })}
+            onClose={handleCloseDialog}
+            onConfirm={handleConfirmEmbed}
+          />
+        </>
       )}
-
-      {/* Embed Metadata Section */}
-      <div className="w-full border border-black-200 p-4 my-8">
-        <div className="flex items-center">
-          <div>
-            <p className="text-lg">{t('LabelToolsEmbedMetadata')}</p>
-            <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsEmbedMetadataDescription')}</p>
-          </div>
-          <div className="grow" />
-          <div className="flex flex-col items-end">
-            <div className="w-[180px] flex justify-end">
-              <Btn to={`/item/${libraryItemId}/manage?tool=embed`} className="flex items-center justify-center whitespace-nowrap w-full">
-                {t('ButtonOpenManager')}
-                <span className="material-symbols text-lg ml-2">launch</span>
-              </Btn>
-            </div>
-
-            <div className="w-[180px] flex justify-end mt-4">
-              <Btn
-                cy-id="quick-embed-btn"
-                className="whitespace-nowrap w-full"
-                disabled={isMetadataEmbedQueued || !!isEmbedTaskRunning || isSubmitting}
-                loading={!!isEmbedTaskRunning}
-                progress={embedProgress}
-                onClick={handleQuickEmbedClick}
-              >
-                {t('ButtonQuickEmbed')}
-              </Btn>
-            </div>
-          </div>
-        </div>
-
-        {/* Status Alerts */}
-        {isMetadataEmbedQueued && (
-          <Alert type="warning" className="mt-4">
-            <p className="text-lg">{t('MessageQuickEmbedQueue', { count: queuedEmbedLIds.length })}</p>
-          </Alert>
-        )}
-
-        {embedTaskFinishedSuccessfully && (
-          <Alert type="success" className="mt-4">
-            <p className="text-lg">{t('MessageQuickEmbedFinished')}</p>
-          </Alert>
-        )}
-      </div>
-
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        isOpen={showConfirmDialog}
-        message={t.rich('MessageConfirmQuickEmbed', { br: () => <br /> })}
-        onClose={handleCloseDialog}
-        onConfirm={handleConfirmEmbed}
-      />
     </div>
   )
 }
