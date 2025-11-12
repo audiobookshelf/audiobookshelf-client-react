@@ -187,10 +187,10 @@ export interface LibraryFolder {
 export interface Author {
   id: string
   name: string
-  nameIgnorePrefix?: string
   description?: string
-  coverPath?: string
-  relPath?: string
+  imagePath?: string
+  asin?: string
+  libraryId: string
   addedAt?: number
   updatedAt?: number
 }
