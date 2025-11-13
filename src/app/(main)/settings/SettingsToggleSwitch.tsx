@@ -5,14 +5,14 @@ interface SettingsToggleSwitchProps {
   label: string
   value: boolean
   onChange: (value: boolean) => void
-  disabled: boolean
+  disabled?: boolean
   tooltip?: string
 }
 
 export default function SettingsToggleSwitch(props: SettingsToggleSwitchProps) {
   return (
     <div className="flex items-center">
-      <ToggleSwitch label={props.label} value={props.value} onChange={props.onChange} disabled={props.disabled} />
+      <ToggleSwitch label={props.label} value={props.value} onChange={props.onChange} disabled={props.disabled ?? false} />
       {props.tooltip && (
         <Tooltip text={props.tooltip} position="right" maxWidth={300} className="-ml-2">
           <span className="material-symbols text-lg">info</span>

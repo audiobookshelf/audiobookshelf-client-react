@@ -42,18 +42,18 @@ export default function CronExpressionPreview({ cronExpression, className, isVal
     <div className={mergeClasses('p-1', className)}>
       <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-2">
         <div className="flex items-center">
-          <span className="material-symbols mr-2 text-white">schedule</span>
-          <p className="font-medium text-white">{t('LabelSchedule')}:</p>
+          <span className="material-symbols mr-2 text-foreground">schedule</span>
+          <p className="font-medium text-foreground">{t('LabelSchedule')}:</p>
         </div>
-        <p className="text-white" cy-id="cron-description">
+        <p className="text-foreground" cy-id="cron-description">
           {verbalDescription}
         </p>
 
         <div className="flex items-center">
-          <span className="material-symbols mr-2 text-white">event</span>
-          <p className="font-medium text-white">{t('LabelNextRun')}:</p>
+          <span className="material-symbols mr-2 text-foreground">event</span>
+          <p className="font-medium text-foreground">{t('LabelNextRun')}:</p>
         </div>
-        <p className="text-white">{nextRunDate || t('LabelNotAvailable')}</p>
+        <p className="text-foreground">{nextRunDate || t('LabelNotAvailable')}</p>
       </div>
     </div>
   )

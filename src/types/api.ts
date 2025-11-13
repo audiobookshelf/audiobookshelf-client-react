@@ -187,10 +187,10 @@ export interface LibraryFolder {
 export interface Author {
   id: string
   name: string
-  nameIgnorePrefix?: string
   description?: string
-  coverPath?: string
-  relPath?: string
+  imagePath?: string
+  asin?: string
+  libraryId: string
   addedAt?: number
   updatedAt?: number
 }
@@ -1005,4 +1005,14 @@ export interface TasksResponse {
   queuedTaskData?: {
     embedMetadata?: Array<{ libraryItemId: string }>
   }
+}
+  
+export interface GetNarratorsResponse {
+  narrators: NarratorObject[]
+}
+
+export interface NarratorObject {
+  id: string
+  name: string
+  numBooks: number
 }

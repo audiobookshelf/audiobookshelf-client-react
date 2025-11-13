@@ -3,10 +3,12 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
+  Author,
   BookSearchResult,
   FFProbeData,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
+  GetNarratorsResponse,
   GetUsersResponse,
   Library,
   LibraryItem,
@@ -367,6 +369,14 @@ export const getTags = cache(async () => {
 
 export const getGenres = cache(async () => {
   return apiRequest<{ genres: string[] }>('/api/genres', {})
+})
+
+export const getNarrators = cache(async (libraryId: string) => {
+  return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
+})
+
+export const getAuthor = cache(async (authorId: string): Promise<Author> => {
+  return apiRequest<Author>(`/api/authors/${authorId}`, {})
 })
 
 /**

@@ -19,7 +19,7 @@ const OnlineIndicator = ({ value, className }: OnlineIndicatorProps) => {
           </svg>
         </div>
       ) : (
-        <svg className="w-3 h-3 text-white/20" viewBox="0 0 24 24" aria-hidden="true">
+        <svg className="w-3 h-3 text-foreground/20" viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="10" fill="currentColor" />
         </svg>
       )}

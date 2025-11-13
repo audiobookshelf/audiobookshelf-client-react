@@ -386,9 +386,9 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
       {hasSearched && (
         <div className="flex items-center flex-wrap justify-center sm:max-h-80 sm:overflow-y-scroll mt-2 max-w-full">
           {searchInProgress && !coversFound.length ? (
-            <p className="text-gray-300 py-4">{t('MessageLoading')}</p>
+            <p className="text-foreground-muted py-4">{t('MessageLoading')}</p>
           ) : !searchInProgress && !coversFound.length ? (
-            <p className="text-gray-300 py-4">{t('MessageNoCoversFound')}</p>
+            <p className="text-foreground-muted py-4">{t('MessageNoCoversFound')}</p>
           ) : (
             coversFound.map((cover) => (
               <div

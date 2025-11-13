@@ -202,7 +202,7 @@ export default function TextInput({
           <div className="absolute top-0 end-0 h-full px-2 flex items-center justify-center">
             <button
               type="button"
-              className="material-symbols text-gray-300 cursor-pointer hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
+              className="material-symbols text-foreground-muted cursor-pointer hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
               style={{ fontSize: '1.1rem' }}
               onClick={handleClear}
               aria-label={t('ButtonClearInput')}
@@ -217,7 +217,7 @@ export default function TextInput({
           <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center">
             <button
               type="button"
-              className="material-symbols text-gray-400 cursor-pointer text-lg hover:text-white focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded"
+              className="material-symbols text-foreground-muted cursor-pointer text-lg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? t('ButtonHidePassword') : t('ButtonShowPassword')}
               cy-id="text-input-password-toggle"
@@ -232,8 +232,8 @@ export default function TextInput({
             <button
               type="button"
               className={mergeClasses(
-                'material-symbols cursor-pointer text-lg focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1 rounded',
-                hasCopied ? 'text-success' : 'text-gray-400 hover:text-white'
+                'material-symbols cursor-pointer text-lg focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded',
+                hasCopied ? 'text-success' : 'text-foreground-muted hover:text-foreground'
               )}
               onClick={handleCopyToClipboard}
               aria-label={hasCopied ? t('ButtonCopiedToClipboard') : t('ButtonCopyToClipboard')}

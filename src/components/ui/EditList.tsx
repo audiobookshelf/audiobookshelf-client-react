@@ -276,10 +276,10 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} className="w-[500px]">
         <div className="p-6 h-full flex flex-col">
           {isDeleting ? (
-            <p className="text-gray-300 mb-6 flex-1">{t(listTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
+            <p className="text-foreground mb-6 flex-1">{t(listTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
           ) : (
             <>
-              <p className="text-gray-300 mb-6 flex-1">{t(listTypeEditString, { 0: editedItem.name, 1: newName })}</p>
+              <p className="text-foreground mb-6 flex-1">{t(listTypeEditString, { 0: editedItem.name, 1: newName })}</p>
               {/* Show warning if the new value already exists or has a different casing*/}
               {hasSameName && <p className="text-yellow-500 mb-6 flex-1">{t(listTypeMergeString)}</p>}
               {sameNameWithDifferentCase !== '' && <p className="text-yellow-500 mb-6 flex-1">{t(listTypeWarningString, { 0: sameNameWithDifferentCase })}</p>}

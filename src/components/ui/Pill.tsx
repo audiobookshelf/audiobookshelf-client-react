@@ -276,7 +276,7 @@ export const Pill = <T,>({
           <button
             type="button"
             aria-label={t('ButtonCancelEdit')}
-            className="material-symbols text-white focus:text-error hover:text-error cursor-pointer"
+            className="material-symbols text-foreground focus:text-error hover:text-error cursor-pointer"
             style={{ fontSize: '1rem' }}
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleCancelEdit}
@@ -287,7 +287,7 @@ export const Pill = <T,>({
           <button
             type="button"
             aria-label={t('ButtonSaveEdit')}
-            className="material-symbols text-white focus:text-success hover:text-success cursor-pointer"
+            className="material-symbols text-foreground focus:text-success hover:text-success cursor-pointer"
             style={{ fontSize: '1rem' }}
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleSaveEdit}
@@ -328,7 +328,7 @@ export const Pill = <T,>({
             <button
               type="button"
               aria-label={t('ButtonEdit')}
-              className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-white hover:text-warning cursor-pointer"
+              className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-foreground hover:text-warning cursor-pointer"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleEditButtonClick}
               tabIndex={-1}
@@ -339,7 +339,7 @@ export const Pill = <T,>({
           <button
             type="button"
             aria-label={t('ButtonRemove')}
-            className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-white hover:text-error focus:text-error cursor-pointer"
+            className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-foreground hover:text-error focus:text-error cursor-pointer"
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => {
               e.stopPropagation()
