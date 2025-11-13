@@ -111,13 +111,13 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
       ) : (
         <>
           {/* M4b Maker Section */}
-          <section className="w-full border border-black-200 p-4 my-8" aria-labelledby={elementIds.m4bHeader}>
+          <section className="w-full border border-border p-4 my-8" aria-labelledby={elementIds.m4bHeader}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg" id={elementIds.m4bHeader}>
                   {t('LabelToolsMakeM4b')}
                 </h3>
-                <p className="max-w-sm text-sm pt-2 text-gray-300" id={elementIds.m4bDescription}>
+                <p className="max-w-sm text-sm pt-2 text-foreground-muted" id={elementIds.m4bDescription}>
                   {t('LabelToolsMakeM4bDescription')}
                 </p>
               </div>
@@ -128,7 +128,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
                   aria-describedby={elementIds.m4bDescription}
                 >
                   {t('ButtonOpenManager')}
-                  <span className="material-symbols text-lg ml-2" aria-hidden="true">
+                  <span className="material-symbols text-lg ms-2" aria-hidden="true">
                     launch
                   </span>
                 </Btn>
@@ -137,13 +137,13 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
           </section>
 
           {/* Embed Metadata Section */}
-          <section className="w-full border border-black-200 p-4 my-8" aria-labelledby={elementIds.embedHeader}>
+          <section className="w-full border border-border p-4 my-8" aria-labelledby={elementIds.embedHeader}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg" id={elementIds.embedHeader}>
                   {t('LabelToolsEmbedMetadata')}
                 </h3>
-                <p className="max-w-sm text-sm pt-2 text-gray-300" id={elementIds.embedDescription}>
+                <p className="max-w-sm text-sm pt-2 text-foreground-muted" id={elementIds.embedDescription}>
                   {t('LabelToolsEmbedMetadataDescription')}
                 </p>
               </div>
@@ -155,7 +155,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
                     aria-describedby={elementIds.embedDescription}
                   >
                     {t('ButtonOpenManager')}
-                    <span className="material-symbols text-lg ml-2" aria-hidden="true">
+                    <span className="material-symbols text-lg ms-2" aria-hidden="true">
                       launch
                     </span>
                   </Btn>
