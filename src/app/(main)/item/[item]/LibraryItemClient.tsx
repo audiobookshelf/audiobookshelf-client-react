@@ -37,7 +37,7 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
                 {bookSeries.map((series, index) => {
                   return (
                     <Fragment key={series.id}>
-                      <a href={`/series/${series.id}`} className="text-foreground-muted hover:underline text-lg">
+                      <a href={`/library/${library.id}/series/${series.id}`} className="text-foreground-muted hover:underline text-lg">
                         {series.name}
                         {series.sequence && <span className="text-foreground-muted text-lg"> #{series.sequence}</span>}
                       </a>

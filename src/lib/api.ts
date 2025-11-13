@@ -16,6 +16,7 @@ import {
   PersonalizedShelf,
   PodcastSearchResult,
   SearchLibraryResponse,
+  Series,
   ServerStatus,
   TasksResponse,
   UpdateLibraryItemMediaPayload,
@@ -377,6 +378,10 @@ export const getNarrators = cache(async (libraryId: string) => {
 
 export const getAuthor = cache(async (authorId: string): Promise<Author> => {
   return apiRequest<Author>(`/api/authors/${authorId}`, {})
+})
+
+export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
+  return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}`, {})
 })
 
 /**

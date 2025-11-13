@@ -221,6 +221,7 @@ export interface Series {
   nameIgnorePrefix?: string
   description?: string
   coverPath?: string
+  libraryId: string
   addedAt?: number
   updatedAt?: number
   bookSeries?: {
@@ -1006,7 +1007,7 @@ export interface TasksResponse {
     embedMetadata?: Array<{ libraryItemId: string }>
   }
 }
-  
+
 export interface GetNarratorsResponse {
   narrators: NarratorObject[]
 }
