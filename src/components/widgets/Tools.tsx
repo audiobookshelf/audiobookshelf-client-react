@@ -27,6 +27,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
   const { queuedEmbedLIds, taskProgress, getTasksByLibraryItemId } = useTasks()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const [submissionsError, setSubmissionsError] = useState<string | null>(null)
 
   const libraryItemId = libraryItem.id
   const mediaTracks = useMemo(() => {
@@ -78,10 +79,11 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
         await embedMetadataQuickAction(libraryItemId)
         console.log('Quick embed started for', libraryItemId)
       } catch (error) {
+        setSubmissionsError(t('ErrorQuickEmbedSubmission'))
         console.error('Quick embed failed', error)
       }
     })
-  }, [libraryItemId, startTransition])
+  }, [libraryItemId, startTransition, t])
 
   const handleCloseDialog = useCallback(() => {
     setShowConfirmDialog(false)
@@ -160,6 +162,12 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
             {embedTaskError && (
               <Alert type="error" className="mt-4">
                 <p className="text-lg">{embedTaskError}</p>
+              </Alert>
+            )}
+
+            {submissionsError && (
+              <Alert type="error" className="mt-4">
+                <p className="text-lg">{submissionsError}</p>
               </Alert>
             )}
           </div>
