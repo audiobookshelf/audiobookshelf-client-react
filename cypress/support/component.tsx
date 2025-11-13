@@ -1,5 +1,5 @@
 // ***********************************************************
-// This example support/component.ts is processed and
+// This example support/component.tsx is processed and
 // loaded automatically before your test files.
 //
 // This is a great place to put global configuration and
@@ -16,7 +16,10 @@ import 'cypress-plugin-tab'
 
 // Import commands.js using ES2015 syntax:
 import '@/assets/globals.css'
+import messages from '@/locales/en-us.json'
 import { mount } from 'cypress/react'
+import { NextIntlClientProvider } from 'next-intl'
+import { ReactNode } from 'react'
 import './commands'
 
 // Augment the Cypress namespace to include type definitions for
@@ -30,7 +33,16 @@ declare global {
   }
 }
 
-Cypress.Commands.add('mount', mount)
+// Custom mount command that wraps components with necessary providers
+Cypress.Commands.add('mount', (component: ReactNode, options = {}) => {
+  const wrapped = (
+    <NextIntlClientProvider locale="en-us" messages={messages}>
+      {component}
+    </NextIntlClientProvider>
+  )
+
+  return mount(wrapped, options)
+})
 
 // Example use:
 // cy.mount(<MyComponent />)

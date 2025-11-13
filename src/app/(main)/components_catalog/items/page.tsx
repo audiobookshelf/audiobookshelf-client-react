@@ -10,6 +10,7 @@ import { FilesExamples } from '../examples/FilesExamples'
 import { MatchExamples } from '../examples/MatchExamples'
 import { PodcastDetailsEditExamples } from '../examples/PodcastDetailsEditExamples'
 import { PreviewCoverExamples } from '../examples/PreviewCoverExamples'
+import { ToolsExamples } from '../examples/ToolsExamples'
 
 export default function ItemDetailsExamplesPage() {
   const [selectedBook, setSelectedBook] = useState<BookLibraryItem | null>(null)
@@ -62,6 +63,11 @@ export default function ItemDetailsExamplesPage() {
                   <li>
                     <a href="#files-examples" className="hover:text-blue-400 transition-colors">
                       Files
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#tools-examples" className="hover:text-blue-400 transition-colors">
+                      Tools
                     </a>
                   </li>
                 </>
@@ -143,6 +149,12 @@ export default function ItemDetailsExamplesPage() {
       {(selectedBook || selectedPodcast) && (
         <div id="match-examples">
           <MatchExamples selectedLibraryItem={selectedBook ?? selectedPodcast ?? undefined} />
+        </div>
+      )}
+
+      {selectedBook && (
+        <div id="tools-examples">
+          <ToolsExamples selectedBook={selectedBook} />
         </div>
       )}
 

@@ -1,4 +1,3 @@
-import React from 'react'
 import Dropdown from '@/components/ui/Dropdown'
 
 // Define types for the dropdown items based on the component's interface
@@ -166,7 +165,7 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={mockItems} />)
       cy.get('button').click()
       cy.get('[role="listbox"]').should('be.visible')
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
     })
 
     it('navigates through menu items with ArrowDown', () => {
@@ -175,19 +174,19 @@ describe('<Dropdown />', () => {
       cy.get('[role="listbox"]').should('be.visible')
 
       // First item should be focused
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
 
       // Navigate to second item
       cy.realType('{downarrow}')
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
 
       // Navigate to third item
       cy.realType('{downarrow}')
-      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-dropdown-item-selected')
 
       // Should stay on last item when pressing down again
       cy.realType('{downarrow}')
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
     })
 
     it('navigates through menu items with ArrowUp', () => {
@@ -197,23 +196,23 @@ describe('<Dropdown />', () => {
       cy.get('[role="listbox"]').should('be.visible')
 
       // Last item should be focused when opening with up arrow
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
 
       // Navigate to third item
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-dropdown-item-selected')
 
       // Navigate to second item
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
 
       // Navigate to first item
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-selected')
 
       // Should stay on first item when pressing up again
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-selected')
     })
 
     it('activates menu item with Enter', () => {
@@ -247,7 +246,7 @@ describe('<Dropdown />', () => {
       cy.get('button').type('{downarrow}') // Navigate to second item
       cy.get('button').type('{home}') // Go to first item
 
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
     })
 
     it('navigates to last item with End key', () => {
@@ -256,7 +255,7 @@ describe('<Dropdown />', () => {
       cy.get('button').type('{downarrow}') // Open menu
       cy.get('button').type('{end}') // Go to last item
 
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-black-300')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
     })
 
     it('closes menu with Escape key', () => {

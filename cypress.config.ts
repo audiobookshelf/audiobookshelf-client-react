@@ -3,6 +3,8 @@ import path from 'path'
 
 export default defineConfig({
   component: {
+    specPattern: 'cypress/tests/**/*.cy.{js,jsx,ts,tsx}',
+    supportFile: 'cypress/support/component.tsx',
     devServer: {
       framework: 'next',
       bundler: 'webpack',

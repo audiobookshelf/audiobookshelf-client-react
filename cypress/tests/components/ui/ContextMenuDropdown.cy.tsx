@@ -265,7 +265,7 @@ describe('<ContextMenuDropdown />', () => {
       )
       cy.get('[type="button"]').click()
       cy.get('[role="menu"]').should('be.visible')
-      cy.get('[role="menuitem"]').first().should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').first().should('have.class', 'bg-foreground/10')
     })
 
     it('navigates through menu items with ArrowDown', () => {
@@ -278,19 +278,19 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').click()
       cy.get('[role="menu"]').should('be.visible')
       // First item should be focused
-      cy.get('[role="menuitem"]').first().should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').first().should('have.class', 'bg-foreground/10')
 
       // Navigate to second item
       cy.realType('{downarrow}')
-      cy.get('[role="menuitem"]').eq(1).should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').eq(1).should('have.class', 'bg-foreground/10')
 
       // Navigate to third item
       cy.realType('{downarrow}')
-      cy.get('[role="menuitem"]').last().should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').last().should('have.class', 'bg-foreground/10')
 
       // Should stay on last item when pressing down again
       cy.realType('{downarrow}')
-      cy.get('[role="menuitem"]').last().should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').last().should('have.class', 'bg-foreground/10')
     })
 
     it('navigates through menu items with ArrowUp', () => {
@@ -306,19 +306,19 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[role="menu"]').should('be.visible')
 
       // Last item should be focused when opening with up arrow
-      cy.get('[role="menuitem"]', { timeout: 5000 }).last().should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]', { timeout: 5000 }).last().should('have.class', 'bg-foreground/10')
 
       // Navigate to second item
       cy.realType('{uparrow}')
-      cy.get('[role="menuitem"]').eq(1).should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').eq(1).should('have.class', 'bg-foreground/10')
 
       // Navigate to first item
       cy.realType('{uparrow}')
-      cy.get('[role="menuitem"]').first().should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').first().should('have.class', 'bg-foreground/10')
 
       // Should stay on first item when pressing up again
       cy.realType('{uparrow}')
-      cy.get('[role="menuitem"]').first().should('have.class', 'bg-white/10')
+      cy.get('[role="menuitem"]').first().should('have.class', 'bg-foreground/10')
     })
 
     it('opens submenu with ArrowRight', () => {
@@ -336,7 +336,7 @@ describe('<ContextMenuDropdown />', () => {
       // Submenu should be visible
       cy.get('[cy-id="submenu-1"]').should('be.visible')
       // First subitem should be focused
-      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-foreground/10')
     })
 
     it('navigates through submenu items with ArrowDown', () => {
@@ -351,15 +351,15 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{rightarrow}') // Open submenu
 
       // First subitem should be focused
-      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-foreground/10')
 
       // Navigate to second subitem
       cy.realType('{downarrow}')
-      cy.get('[cy-id="submenu-1"] > button').eq(1).should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').eq(1).should('have.class', 'bg-foreground/10')
 
       // Should stay on last subitem when pressing down again
       cy.realType('{downarrow}')
-      cy.get('[cy-id="submenu-1"] > button').eq(1).should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').eq(1).should('have.class', 'bg-foreground/10')
     })
 
     it('navigates through submenu items with ArrowUp', () => {
@@ -374,16 +374,16 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{rightarrow}') // Open submenu
 
       // First subitem should be focused
-      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-foreground/10')
 
       // Navigate to second subitem first
       cy.realType('{downarrow}')
       cy.realType('{uparrow}') // Go back to first subitem
-      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-foreground/10')
 
       // Should stay on first subitem when pressing up again
       cy.realType('{uparrow}')
-      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-foreground/10')
     })
 
     it('closes submenu with ArrowLeft', () => {
@@ -500,7 +500,7 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{downarrow}') // Navigate to second item
       cy.get('[type="button"]').type('{home}') // Go to first item
 
-      cy.get('[role="menu"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[role="menu"] > button').first().should('have.class', 'bg-foreground/10')
     })
 
     it('navigates to last item with End key', () => {
@@ -514,7 +514,7 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{downarrow}') // Open menu
       cy.get('[type="button"]').type('{end}') // Go to last item
 
-      cy.get('[role="menu"] > button').last().should('have.class', 'bg-white/10')
+      cy.get('[role="menu"] > button').last().should('have.class', 'bg-foreground/10')
     })
 
     it('navigates to first submenu item with Home key', () => {
@@ -531,7 +531,7 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{downarrow}') // Navigate to second subitem
       cy.get('[type="button"]').type('{home}') // Go to first subitem
 
-      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').first().should('have.class', 'bg-foreground/10')
     })
 
     it('navigates to last submenu item with End key', () => {
@@ -547,7 +547,7 @@ describe('<ContextMenuDropdown />', () => {
       cy.get('[type="button"]').type('{rightarrow}') // Open submenu
       cy.get('[type="button"]').type('{end}') // Go to last subitem
 
-      cy.get('[cy-id="submenu-1"] > button').last().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="submenu-1"] > button').last().should('have.class', 'bg-foreground/10')
     })
 
     it('closes menu with Escape key', () => {
@@ -692,9 +692,9 @@ describe('<ContextMenuDropdown />', () => {
       // Check if the no-items subitem is disabled
       cy.get('[cy-id="no-items-subitem"]').should('be.disabled')
       // Check if the no-items subitem is not visually focused
-      cy.get('[cy-id="no-items-subitem"]').should('not.have.class', 'bg-white/10')
+      cy.get('[cy-id="no-items-subitem"]').should('not.have.class', 'bg-bg')
       // Focus should remain on the parent item
-      cy.get('[cy-id="parent-item"]').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="parent-item"]').first().should('have.class', 'bg-foreground/10')
     })
 
     it('toggles empty submenu with Enter', () => {
@@ -800,8 +800,8 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{uparrow}') // Close submenu
       cy.get('[cy-id="submenu-1"]').should('not.exist')
       cy.get('[cy-id="menu"]').should('be.visible')
-      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
-      cy.get('[cy-id="action-item"]').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-foreground/10')
+      cy.get('[cy-id="action-item"]').first().should('have.class', 'bg-foreground/10')
     })
 
     it('closes empty submenu and moves down with down arrow', () => {
@@ -818,8 +818,8 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{downarrow}') // Close submenu
       cy.get('[cy-id="submenu-1"]').should('not.exist')
       cy.get('[cy-id="menu"]').should('be.visible')
-      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
-      cy.get('[cy-id="action-item"]').eq(1).should('have.class', 'bg-white/10')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-foreground/10')
+      cy.get('[cy-id="action-item"]').eq(1).should('have.class', 'bg-foreground/10')
     })
 
     it('closes empty submenu and moves to first item with Home', () => {
@@ -836,8 +836,8 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{home}') // Close submenu
       cy.get('[cy-id="submenu-1"]').should('not.exist')
       cy.get('[cy-id="menu"]').should('be.visible')
-      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
-      cy.get('[cy-id="action-item"]').first().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-foreground/10')
+      cy.get('[cy-id="action-item"]').first().should('have.class', 'bg-foreground/10')
     })
 
     it('closes empty submenu and moves to last item with End', () => {
@@ -854,8 +854,8 @@ describe('<ContextMenuDropdown />', () => {
       cy.realType('{end}') // Close submenu
       cy.get('[cy-id="submenu-1"]').should('not.exist')
       cy.get('[cy-id="menu"]').should('be.visible')
-      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-white/10')
-      cy.get('[cy-id="parent-item"]').last().should('have.class', 'bg-white/10')
+      cy.get('[cy-id="parent-item"]').first().should('not.have.class', 'bg-foreground/10')
+      cy.get('[cy-id="parent-item"]').last().should('have.class', 'bg-foreground/10')
     })
 
     it('shows empty submenu when hovering over parent item', () => {
