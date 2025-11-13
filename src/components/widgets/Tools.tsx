@@ -9,7 +9,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { LibraryItem, isBookLibraryItem } from '@/types/api'
 import { TranslationKey } from '@/types/translations'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useCallback, useId, useMemo, useState, useTransition } from 'react'
 
 interface ToolsProps {
   libraryItem: LibraryItem
@@ -28,6 +28,17 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [submissionsError, setSubmissionsError] = useState<string | null>(null)
+
+  const baseId = useId()
+  const elementIds = useMemo(() => {
+    return {
+      rootHeader: `${baseId}-audiobook-tools-header`,
+      m4bHeader: `${baseId}-m4b-tool-header`,
+      m4bDescription: `${baseId}-m4b-tool-description`,
+      embedHeader: `${baseId}-embed-tool-header`,
+      embedDescription: `${baseId}-embed-tool-description`
+    }
+  }, [baseId])
 
   const libraryItemId = libraryItem.id
   const mediaTracks = useMemo(() => {
@@ -90,41 +101,63 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
   }, [])
 
   return (
-    <div className={mergeClasses('w-full px-4 py-6', className)}>
-      <p className="text-xl font-semibold mb-2">{t('HeaderAudiobookTools')}</p>
+    <section className={mergeClasses('w-full px-4 py-6', className)} aria-labelledby={elementIds.rootHeader}>
+      <h2 className="text-xl font-semibold mb-2" id={elementIds.rootHeader}>
+        {t('HeaderAudiobookTools')}
+      </h2>
 
       {!mediaTracks.length ? (
         <p className="text-lg text-center my-8">{t('MessageNoAudioTracks')}</p>
       ) : (
         <>
           {/* M4b Maker Section */}
-          <div className="w-full border border-black-200 p-4 my-8">
+          <section className="w-full border border-black-200 p-4 my-8" aria-labelledby={elementIds.m4bHeader}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-lg">{t('LabelToolsMakeM4b')}</p>
-                <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsMakeM4bDescription')}</p>
+                <h3 className="text-lg" id={elementIds.m4bHeader}>
+                  {t('LabelToolsMakeM4b')}
+                </h3>
+                <p className="max-w-sm text-sm pt-2 text-gray-300" id={elementIds.m4bDescription}>
+                  {t('LabelToolsMakeM4bDescription')}
+                </p>
               </div>
               <div className="w-full sm:w-[180px]">
-                <Btn to={`/item/${libraryItemId}/manage?tool=m4b`} className="flex items-center justify-center whitespace-nowrap w-full">
+                <Btn
+                  to={`/item/${libraryItemId}/manage?tool=m4b`}
+                  className="flex items-center justify-center whitespace-nowrap w-full"
+                  aria-describedby={elementIds.m4bDescription}
+                >
                   {t('ButtonOpenManager')}
-                  <span className="material-symbols text-lg ml-2">launch</span>
+                  <span className="material-symbols text-lg ml-2" aria-hidden="true">
+                    launch
+                  </span>
                 </Btn>
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Embed Metadata Section */}
-          <div className="w-full border border-black-200 p-4 my-8">
+          <section className="w-full border border-black-200 p-4 my-8" aria-labelledby={elementIds.embedHeader}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="text-lg">{t('LabelToolsEmbedMetadata')}</p>
-                <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsEmbedMetadataDescription')}</p>
+                <h3 className="text-lg" id={elementIds.embedHeader}>
+                  {t('LabelToolsEmbedMetadata')}
+                </h3>
+                <p className="max-w-sm text-sm pt-2 text-gray-300" id={elementIds.embedDescription}>
+                  {t('LabelToolsEmbedMetadataDescription')}
+                </p>
               </div>
               <div className="flex w-full flex-col items-end sm:w-auto">
                 <div className="w-full sm:w-[180px]">
-                  <Btn to={`/item/${libraryItemId}/manage?tool=embed`} className="flex items-center justify-center whitespace-nowrap w-full">
+                  <Btn
+                    to={`/item/${libraryItemId}/manage?tool=embed`}
+                    className="flex items-center justify-center whitespace-nowrap w-full"
+                    aria-describedby={elementIds.embedDescription}
+                  >
                     {t('ButtonOpenManager')}
-                    <span className="material-symbols text-lg ml-2">launch</span>
+                    <span className="material-symbols text-lg ml-2" aria-hidden="true">
+                      launch
+                    </span>
                   </Btn>
                 </div>
 
@@ -135,6 +168,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
                     loading={!!isEmbedTaskRunning}
                     progress={embedProgress}
                     onClick={handleQuickEmbedClick}
+                    aria-describedby={elementIds.embedDescription}
                   >
                     {t('ButtonQuickEmbed')}
                   </Btn>
@@ -166,7 +200,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
                 <p className="text-lg">{submissionsError}</p>
               </Alert>
             )}
-          </div>
+          </section>
 
           {/* Confirm Dialog */}
           <ConfirmDialog
@@ -177,6 +211,6 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
           />
         </>
       )}
-    </div>
+    </section>
   )
 }
