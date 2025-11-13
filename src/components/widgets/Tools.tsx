@@ -99,40 +99,36 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
         <>
           {/* M4b Maker Section */}
           <div className="w-full border border-black-200 p-4 my-8">
-            <div className="flex flex-wrap items-center">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-lg">{t('LabelToolsMakeM4b')}</p>
                 <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsMakeM4bDescription')}</p>
               </div>
-              <div className="grow" />
-              <div className="flex justify-end">
-                <div className="w-[180px] flex justify-end">
-                  <Btn to={`/item/${libraryItemId}/manage?tool=m4b`} className="flex items-center justify-center whitespace-nowrap w-full">
-                    {t('ButtonOpenManager')}
-                    <span className="material-symbols text-lg ml-2">launch</span>
-                  </Btn>
-                </div>
+              <div className="w-full sm:w-[180px]">
+                <Btn to={`/item/${libraryItemId}/manage?tool=m4b`} className="flex items-center justify-center whitespace-nowrap w-full">
+                  {t('ButtonOpenManager')}
+                  <span className="material-symbols text-lg ml-2">launch</span>
+                </Btn>
               </div>
             </div>
           </div>
 
           {/* Embed Metadata Section */}
           <div className="w-full border border-black-200 p-4 my-8">
-            <div className="flex items-center">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <p className="text-lg">{t('LabelToolsEmbedMetadata')}</p>
                 <p className="max-w-sm text-sm pt-2 text-gray-300">{t('LabelToolsEmbedMetadataDescription')}</p>
               </div>
-              <div className="grow" />
-              <div className="flex flex-col items-end">
-                <div className="w-[180px] flex justify-end">
+              <div className="flex w-full flex-col items-end sm:w-auto">
+                <div className="w-full sm:w-[180px]">
                   <Btn to={`/item/${libraryItemId}/manage?tool=embed`} className="flex items-center justify-center whitespace-nowrap w-full">
                     {t('ButtonOpenManager')}
                     <span className="material-symbols text-lg ml-2">launch</span>
                   </Btn>
                 </div>
 
-                <div className="w-[180px] flex justify-end mt-4" cy-id="quick-embed-btn">
+                <div className="mt-4 w-full sm:w-[180px]" cy-id="quick-embed-btn">
                   <Btn
                     className="whitespace-nowrap w-full"
                     disabled={isMetadataEmbedQueued || !!isEmbedTaskRunning || isPending}
