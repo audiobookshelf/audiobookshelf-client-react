@@ -249,8 +249,8 @@ export const getLibraryItems = cache(async (libraryId: string): Promise<GetLibra
   return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items`, {})
 })
 
-export const getLibraryItem = cache(async (itemId: string): Promise<LibraryItem> => {
-  return apiRequest<LibraryItem>(`/api/items/${itemId}`, {})
+export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): Promise<LibraryItem> => {
+  return apiRequest<LibraryItem>(`/api/items/${itemId}?expanded=${expanded ? '1' : '0'}`, {})
 })
 
 /**

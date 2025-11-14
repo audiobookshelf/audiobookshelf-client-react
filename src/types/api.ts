@@ -290,7 +290,7 @@ export interface PodcastMetadata {
   itunesArtistId?: string
   explicit: boolean
   language?: string
-  podcastType?: string
+  type?: string
 }
 
 export interface AudioMetaTags {
