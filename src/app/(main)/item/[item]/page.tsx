@@ -4,7 +4,7 @@ import LibraryItemClient from './LibraryItemClient'
 
 export default async function ItemPage({ params }: { params: Promise<{ item: string }> }) {
   const { item: itemId } = await params
-  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId), getCurrentUser())
+  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId, true), getCurrentUser())
 
   // TODO: Handle loading data error?
   if (!libraryItem || !currentUser) {

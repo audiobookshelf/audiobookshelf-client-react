@@ -4,6 +4,7 @@ import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { getCoverAspectRatio, getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, BookMetadata, Library, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
 import { Fragment } from 'react'
+import LibraryItemDetails from './LibraryItemDetails'
 
 interface LibraryItemClientProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -62,6 +63,8 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
                 })}
               </div>
             )}
+
+            <LibraryItemDetails libraryItem={libraryItem} />
 
             <div className="mt-20 flex flex-col gap-2">
               {/* chapters table */}
