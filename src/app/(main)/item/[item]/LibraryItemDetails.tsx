@@ -1,6 +1,9 @@
+'use client'
+
 import { elapsedPretty } from '@/lib/formatElapsedTime'
 import { bytesPretty } from '@/lib/string'
 
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { useLocale } from 'next-intl'
 
@@ -37,6 +40,7 @@ function getLibraryItemDuration(libraryItem: BookLibraryItem | PodcastLibraryIte
 }
 
 export default function LibraryItemDetails({ libraryItem }: LibraryItemDetailsProps) {
+  const t = useTypeSafeTranslations()
   const locale = useLocale()
 
   const metadata = libraryItem.media.metadata
@@ -54,21 +58,21 @@ export default function LibraryItemDetails({ libraryItem }: LibraryItemDetailsPr
       {/* Book-specific fields */}
       {isBook && bookMetadata && (
         <>
-          <DetailRow label="Narrators" value={bookMetadata.narrators} />
-          <DetailRow label="Publish Year" value={bookMetadata.publishedYear} />
-          <DetailRow label="Publisher" value={bookMetadata.publisher} />
+          <DetailRow label={t('LabelNarrators')} value={bookMetadata.narrators} />
+          <DetailRow label={t('LabelPublishYear')} value={bookMetadata.publishedYear} />
+          <DetailRow label={t('LabelPublisher')} value={bookMetadata.publisher} />
         </>
       )}
 
       {/* Podcast-specific fields */}
-      {isPodcast && podcastMetadata && <DetailRow label="Podcast Type" value={podcastMetadata.type} />}
+      {isPodcast && podcastMetadata && <DetailRow label={t('LabelPodcastType')} value={podcastMetadata.type} />}
 
       {/* Common fields */}
-      <DetailRow label="Genres" value={metadata.genres} />
-      <DetailRow label="Tags" value={libraryItem.media.tags} />
-      <DetailRow label="Language" value={metadata.language} />
-      <DetailRow label="Duration" value={elapsedPretty(duration || 0, locale || 'en-us')} />
-      <DetailRow label="Size" value={bytesPretty(size)} />
+      <DetailRow label={t('LabelGenres')} value={metadata.genres} />
+      <DetailRow label={t('LabelTags')} value={libraryItem.media.tags} />
+      <DetailRow label={t('LabelLanguage')} value={metadata.language} />
+      <DetailRow label={t('LabelDuration')} value={elapsedPretty(duration || 0, locale || 'en-us')} />
+      <DetailRow label={t('LabelSize')} value={bytesPretty(size)} />
     </div>
   )
 }
