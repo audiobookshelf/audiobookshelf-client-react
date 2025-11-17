@@ -49,7 +49,7 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
 
   return (
     <div className="flex">
-      <div className="w-40 text-sm font-medium text-foreground-subdued uppercase">{label}</div>
+      <div className="w-32 text-sm font-medium text-foreground-subdued uppercase">{label}</div>
       <div className="flex-1 text-base">{displayValue}</div>
     </div>
   )
