@@ -68,12 +68,12 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
 
             <div className="mt-20 flex flex-col gap-2">
               {/* chapters table */}
-              {libraryItem.mediaType === 'book' && libraryItem.media.chapters.length > 0 && (
+              {libraryItem.mediaType === 'book' && (libraryItem.media.chapters?.length ?? 0) > 0 && (
                 <ChaptersTable libraryItem={libraryItem as BookLibraryItem} user={currentUser.user} />
               )}
 
               {/* library files table */}
-              {libraryItem.libraryFiles.length > 0 && <LibraryFilesTable libraryItem={libraryItem} user={currentUser.user} />}
+              {(libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} user={currentUser.user} />}
             </div>
           </div>
         </div>

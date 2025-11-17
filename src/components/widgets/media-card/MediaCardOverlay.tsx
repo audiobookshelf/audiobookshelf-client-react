@@ -5,7 +5,7 @@ import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { MediaItemShare, RSSFeedMinified } from '@/types/api'
+import type { MediaItemShare, RssFeed } from '@/types/api'
 import { useCallback, useMemo, type ReactNode } from 'react'
 
 interface MediaCardOverlayProps {
@@ -20,7 +20,7 @@ interface MediaCardOverlayProps {
   userCanUpdate: boolean
   playIconFontSize: number
   moreMenuItems: MediaCardMoreMenuItem[]
-  rssFeed: RSSFeedMinified | null
+  rssFeed: RssFeed | null
   mediaItemShare: MediaItemShare | null
   showError: boolean
   errorText: string

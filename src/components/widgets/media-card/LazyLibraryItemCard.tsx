@@ -10,7 +10,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode, RSSFeedMinified, UserPermissions } from '@/types/api'
+import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode, RssFeed, UserPermissions } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useId, useMemo, useState, type ReactNode } from 'react'
@@ -108,7 +108,7 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
   const isAlternativeBookshelfView = useMemo(() => bookshelfView === BookshelfView.DETAIL, [bookshelfView])
   const isAuthorBookshelfView = false
 
-  const rssFeed = useMemo<RSSFeedMinified | null>(() => (libraryItem as { rssFeed?: RSSFeedMinified }).rssFeed ?? null, [libraryItem])
+  const rssFeed = useMemo<RssFeed | null>(() => (libraryItem as { rssFeed?: RssFeed }).rssFeed ?? null, [libraryItem])
   const mediaItemShare = useMemo<MediaItemShare | null>(() => (libraryItem as { mediaItemShare?: MediaItemShare }).mediaItemShare ?? null, [libraryItem])
 
   const collapsedSeries = useMemo(

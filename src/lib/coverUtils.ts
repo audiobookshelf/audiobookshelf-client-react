@@ -1,4 +1,4 @@
-import type { LibraryItem, LibraryItemMinified } from '@/types/api'
+import type { LibraryItem } from '@/types/api'
 
 /**
  * Build cover URL for a library item
@@ -38,13 +38,11 @@ export function getPlaceholderCoverUrl(): string {
   return '/images/book_placeholder.jpg'
 }
 
-type LibraryItemWithMedia = LibraryItem | LibraryItemMinified
-
 /**
  * Get cover src for a library item, falling back to the provided placeholder
  * when no coverPath is available.
  */
-export function getLibraryItemCoverSrc(libraryItem: LibraryItemWithMedia, placeholder: string): string {
+export function getLibraryItemCoverSrc(libraryItem: LibraryItem, placeholder: string): string {
   const hasCover =
     // Full library item media
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

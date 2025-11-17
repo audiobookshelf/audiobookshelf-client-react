@@ -3,7 +3,7 @@
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { SeriesMinified } from '@/types/api'
+import { Series } from '@/types/api'
 import { memo, useCallback } from 'react'
 import { BaseMatchFieldEditor } from './BaseMatchFieldEditor'
 
@@ -17,8 +17,8 @@ interface TwoStageMultiSelectMatchFieldEditorProps {
   onItemEdited: (item: MultiSelectItem<{ value: string; modifier: string }>, index: number) => void
   disabled?: boolean
   label: string
-  currentValue?: SeriesMinified[]
-  onReplaceAll?: (items: SeriesMinified[]) => void
+  currentValue?: Series[]
+  onReplaceAll?: (items: Series[]) => void
 }
 
 function TwoStageMultiSelectMatchFieldEditor({
