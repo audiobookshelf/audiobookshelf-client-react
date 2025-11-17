@@ -26,6 +26,7 @@ interface ContextMenuDropdownProps<T = string> {
   menuWidth?: number
   processing?: boolean
   onAction?: (params: { action: string; data?: Record<string, T> }) => void
+  onOpenChange?: (isOpen: boolean) => void
   menuAlign?: 'right' | 'left'
   autoWidth?: boolean
   disabled?: boolean
@@ -46,6 +47,7 @@ export default function ContextMenuDropdown<T = string>({
   menuWidth = 96,
   processing = false,
   onAction,
+  onOpenChange,
   menuAlign = 'right',
   autoWidth = false,
   disabled = false,
@@ -68,17 +70,19 @@ export default function ContextMenuDropdown<T = string>({
   // Helper functions to manage menu state
   const openMenu = useCallback((index: number = 0) => {
     setShowMenu(true)
+    onOpenChange?.(true)
     setFocusedIndex(index)
     setFocusedSubIndex(-1)
     setOpenSubmenuIndex(null)
-  }, [])
+  }, [onOpenChange])
 
   const closeMenu = useCallback(() => {
     setShowMenu(false)
+    onOpenChange?.(false)
     setFocusedIndex(-1)
     setFocusedSubIndex(-1)
     setOpenSubmenuIndex(null)
-  }, [])
+  }, [onOpenChange])
 
   // Handle click outside to close menu
   useClickOutside(menuWrapperRef, buttonRef, closeMenu)
