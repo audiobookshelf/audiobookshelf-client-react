@@ -9,7 +9,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useMemo } from 'react'
-import { requestScanLibrary } from './actions'
+import { matchAll, requestScanLibrary } from './actions'
 
 interface LibrariesListRowProps {
   item: Library
@@ -50,8 +50,12 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
   }, [item.id])
 
   const handleMatchBooks = useCallback(() => {
-    console.error('Match All Books Not Implemented')
-  }, [])
+    try {
+      matchAll(item.id)
+    } catch (error) {
+      console.error('Failed to start matching', error)
+    }
+  }, [item.id])
 
   const handleContextMenuActions = useCallback(
     (params: { action: string; data?: Record<string, string> }) => {
