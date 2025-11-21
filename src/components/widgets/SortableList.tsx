@@ -3,7 +3,7 @@
 import { mergeClasses } from '@/lib/merge-classes'
 import { DragendEvent, DragstartEvent } from '@formkit/drag-and-drop'
 import { useDragAndDrop } from '@formkit/drag-and-drop/react'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo } from 'react'
 
 interface SortableItem {
   id: string | number
@@ -28,10 +28,14 @@ export default function SortableList<T extends SortableItem>({
   disabled = false
 }: SortableListProps<T>) {
   // Ensure each item has a unique identifier
-  const itemsWithIds = items.map((item, index) => ({
-    ...item,
-    id: item.id || `item-${index}`
-  }))
+  const itemsWithIds = useMemo(
+    () =>
+      items.map((item, index) => ({
+        ...item,
+        id: item.id || `item-${index}`
+      })),
+    [items]
+  )
 
   const onDragend = useCallback<DragendEvent>((data) => {
     if (data.draggedNode.el) {
@@ -45,13 +49,19 @@ export default function SortableList<T extends SortableItem>({
     }
   }, [])
 
-  const [parent, sortedItems] = useDragAndDrop<HTMLDivElement, T>(itemsWithIds, {
+  const [parent, sortedItems, setItems] = useDragAndDrop<HTMLDivElement, T>(itemsWithIds, {
     dragHandle: '.drag-handle',
     disabled,
     onDragend,
     onDragstart,
     handleDragend: () => onSortEnd(sortedItems)
   })
+
+  // Reset items only when the array length changes (item added/removed), not on every render
+  useEffect(() => {
+    setItems(itemsWithIds)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsWithIds.length, setItems])
 
   const itemWrapperClassName = useMemo(() => {
     return mergeClasses('transition-all duration-200', itemClassName)

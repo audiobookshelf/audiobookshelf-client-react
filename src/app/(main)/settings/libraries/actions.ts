@@ -1,16 +1,28 @@
-import { apiRequest } from '@/lib/api'
-import { Library } from '@/types/api'
+'use server'
 
-type SaveLibraryOrderApiResponse = {
-  libraries: Library[]
+import * as api from '@/lib/api'
+import { Library, SaveLibraryOrderApiResponse } from '@/types/api'
+
+export async function createLibrary(newLibrary: Library): Promise<Library> {
+  return api.createLibrary(newLibrary)
 }
 
-// Server Action
-export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]): Promise<SaveLibraryOrderApiResponse> {
-  'use server'
+export async function editLibrary(libraryId: string, updatedLibrary: Library): Promise<Library> {
+  return api.updateLibrary(libraryId, updatedLibrary)
+}
 
-  return apiRequest<SaveLibraryOrderApiResponse>('/api/libraries/order', {
-    method: 'POST',
-    body: JSON.stringify(reorderObjects)
-  })
+export async function deleteLibrary(libraryId: string): Promise<Library> {
+  return api.deleteLibrary(libraryId)
+}
+
+export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]): Promise<SaveLibraryOrderApiResponse> {
+  return api.saveLibraryOrder(reorderObjects)
+}
+
+export async function requestScanLibrary(libraryId: string): Promise<void> {
+  return api.scanLibrary(libraryId)
+}
+
+export async function matchAll(libraryId: string): Promise<void> {
+  return api.matchAll(libraryId)
 }

@@ -19,6 +19,7 @@ interface TasksContextType extends TasksState {
   getAudioFilesEncoding: (libraryItemId: string) => Record<string, string> | undefined
   getAudioFilesFinished: (libraryItemId: string) => Record<string, boolean> | undefined
   getTaskProgress: (libraryItemId: string) => string | undefined
+  getTasksByLibraryId: (libraryId: string) => Task[]
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined)
@@ -44,14 +45,21 @@ export function TasksProvider({ children }: TasksProviderProps) {
         newTasks[index] = task
         return newTasks
       } else {
-        // Add new task (remove duplicate by libraryItemId + action)
-        const newLibraryItemId = task.data?.libraryItemId
+        // Add new task (remove duplicate by libraryItemId or libraryId — whichever is provided)
+        const libraryItemId = task.data?.libraryItemId
+        const libraryId = task.data?.libraryId
+
         const filteredTasks = prevTasks.filter((t) => {
           if (t.action !== task.action) return true
-          if (!newLibraryItemId) return true
-          if (!t.data?.libraryItemId) return true
-          return t.data.libraryItemId !== newLibraryItemId
+          if (libraryItemId) {
+            return t.data?.libraryItemId !== libraryItemId
+          }
+          if (libraryId) {
+            return t.data?.libraryId !== libraryId
+          }
+          return true
         })
+
         return [...filteredTasks, task]
       }
     })
@@ -128,6 +136,13 @@ export function TasksProvider({ children }: TasksProviderProps) {
     [taskProgress]
   )
 
+  const getTasksByLibraryId = useCallback(
+    (libraryId: string) => {
+      return tasks.filter((t) => t.data?.libraryId === libraryId)
+    },
+    [tasks]
+  )
+
   // Socket event listeners
   useSocketEvent<Task>('task_started', addUpdateTask, [addUpdateTask])
   useSocketEvent<Task>('task_finished', addUpdateTask, [addUpdateTask])
@@ -189,7 +204,8 @@ export function TasksProvider({ children }: TasksProviderProps) {
       getTasksByLibraryItemId,
       getAudioFilesEncoding,
       getAudioFilesFinished,
-      getTaskProgress
+      getTaskProgress,
+      getTasksByLibraryId
     }),
     [
       tasks,
@@ -202,7 +218,8 @@ export function TasksProvider({ children }: TasksProviderProps) {
       getTasksByLibraryItemId,
       getAudioFilesEncoding,
       getAudioFilesFinished,
-      getTaskProgress
+      getTaskProgress,
+      getTasksByLibraryId
     ]
   )
 
