@@ -21,6 +21,7 @@ interface IconBtnProps {
   className?: string
   ref?: React.Ref<HTMLButtonElement>
   tabIndex?: number
+  [key: string]: unknown
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
