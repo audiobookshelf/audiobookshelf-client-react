@@ -1,5 +1,6 @@
 'use client'
 
+import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
@@ -24,6 +25,7 @@ interface MediaCardOverlayProps {
   mediaItemShare: MediaItemShare | null
   showError: boolean
   errorText: string
+  isAuthorBookshelfView?: boolean
   renderOverlayBadges?: () => ReactNode
   renderBadges?: (props: { isHovering: boolean; isSelectionMode: boolean; processing: boolean }) => ReactNode
   renderSeriesNameOverlay?: (isHovering: boolean) => ReactNode
@@ -31,6 +33,7 @@ interface MediaCardOverlayProps {
   onRead: () => void
   onMoreAction: (action: string, data?: Record<string, string>) => void
   onMoreMenuOpenChange: (isOpen: boolean) => void
+  onSelect?: (event: React.MouseEvent) => void
 }
 
 export default function MediaCardOverlay({
@@ -49,13 +52,15 @@ export default function MediaCardOverlay({
   mediaItemShare,
   showError,
   errorText,
+  isAuthorBookshelfView = false,
   renderOverlayBadges,
   renderBadges,
   renderSeriesNameOverlay,
   onPlay,
   onRead,
   onMoreAction,
-  onMoreMenuOpenChange
+  onMoreMenuOpenChange,
+  onSelect
 }: MediaCardOverlayProps) {
   const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !processing
 
@@ -67,7 +72,7 @@ export default function MediaCardOverlay({
   )
 
   const handlePlayClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) => {
+    (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
       event.preventDefault()
       event.stopPropagation()
       onPlay()
@@ -76,12 +81,21 @@ export default function MediaCardOverlay({
   )
 
   const handleReadClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>) => {
+    (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
       event.preventDefault()
       event.stopPropagation()
       onRead()
     },
     [onRead]
+  )
+
+  const handleSelectClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+      event.preventDefault()
+      event.stopPropagation()
+      onSelect?.(event)
+    },
+    [onSelect]
   )
 
   return (
@@ -92,52 +106,73 @@ export default function MediaCardOverlay({
           {/* Play button */}
           {showPlayButton && (
             <div cy-id="playButton" className="h-full flex items-center justify-center pointer-events-none">
-              <button
-                type="button"
-                className="hover:text-white text-gray-200 hover:scale-110 transform duration-200 pointer-events-auto"
+              <IconBtn
+                borderless
+                outlined={false}
+                className="hover:text-white text-gray-200 hover:scale-110 transform duration-200 pointer-events-auto w-auto h-auto"
                 onClick={handlePlayClick}
-                aria-label={t('ButtonPlay')}
+                ariaLabel={t('ButtonPlay')}
+                style={{ fontSize: `${playIconFontSize}em` }}
               >
-                <span className="material-symbols fill" style={{ fontSize: `${playIconFontSize}em` }}>
-                  play_arrow
-                </span>
-              </button>
+                play_arrow
+              </IconBtn>
             </div>
           )}
 
           {/* Read button */}
           {showReadButton && (
             <div cy-id="readButton" className="h-full flex items-center justify-center pointer-events-none">
-              <button
-                type="button"
-                className="hover:text-white text-gray-200 hover:scale-110 transform duration-200 pointer-events-auto"
+              <IconBtn
+                borderless
+                className="hover:text-white text-gray-200 hover:scale-110 transform duration-200 pointer-events-auto w-auto h-auto"
                 onClick={handleReadClick}
-                aria-label={t('ButtonRead')}
+                ariaLabel={t('ButtonRead')}
+                style={{ fontSize: `${playIconFontSize}em` }}
               >
-                <span className="material-symbols" style={{ fontSize: `${playIconFontSize}em` }}>
-                  auto_stories
-                </span>
-              </button>
+                auto_stories
+              </IconBtn>
+            </div>
+          )}
+
+          {/* Select button */}
+          {!isAuthorBookshelfView && (
+            <div cy-id="selectedRadioButton" className="absolute top-[0.375em] start-[0.375em]">
+              <IconBtn
+                borderless
+                size="small"
+                className={mergeClasses(
+                  'text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125 transform duration-100 text-[1em] w-auto h-auto',
+                  selected && 'text-yellow-400'
+                )}
+                onClick={handleSelectClick}
+                ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
+              >
+                {selected ? 'radio_button_checked' : 'radio_button_unchecked'}
+              </IconBtn>
             </div>
           )}
 
           {/* Edit button */}
           {userCanUpdate && !isSelectionMode && (
-            <div
-              cy-id="editButton"
-              className="absolute cursor-pointer hover:text-yellow-300 hover:scale-125 transform duration-150 top-0 end-0"
-              style={{ padding: `${0.375}em` }}
-            >
+            <div cy-id="editButton" className="absolute top-[0.375em] end-[0.375em] ">
               {/* TODO: wire up edit modal when available */}
-              <span className="material-symbols" style={{ fontSize: `${1}em` }}>
+              <IconBtn
+                borderless
+                size="small"
+                className="text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125 transform duration-150 text-[1em] w-auto h-auto"
+                ariaLabel={t('ButtonEdit')}
+              >
                 edit
-              </span>
+              </IconBtn>
             </div>
           )}
 
           {/* More menu icon */}
           {!isSelectionMode && moreMenuItems.length > 0 && (
-            <div cy-id="moreButton" className="md:block absolute cursor-pointer bottom-[0.375em] end-[0.375em]">
+            <div
+              cy-id="moreButton"
+              className="md:block absolute cursor-pointer bottom-[0.375em] end-[0.375em] hover:[&_.material-symbols]:!text-yellow-300 hover:scale-125"
+            >
               <MediaCardMoreMenu items={moreMenuItems} processing={processing || isPending} onAction={onMoreAction} onOpenChange={onMoreMenuOpenChange} />
             </div>
           )}
