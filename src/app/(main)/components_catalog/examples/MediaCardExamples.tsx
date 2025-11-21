@@ -47,6 +47,12 @@ function DimensionComparison({ cardDimensions, skeletonDimensions }: { cardDimen
 export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardExamplesProps) {
   const { user, bookCoverAspectRatio } = useComponentsCatalog()
 
+  // Selection state for examples
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null)
+  const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null)
+  const [isBookSelectionMode, setIsBookSelectionMode] = useState(false)
+  const [isPodcastSelectionMode, setIsPodcastSelectionMode] = useState(false)
+
   // Default props for media cards
   const sizeMultiplier = 1
   const defaultProps = {
@@ -58,6 +64,23 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
     showSubtitles: true,
     sizeMultiplier,
     bookCoverAspectRatio: bookCoverAspectRatio ?? 1.6
+  }
+
+  // Selection handlers
+  const handleBookSelect = () => {
+    if (selectedBook) {
+      const isCurrentlySelected = selectedBookId === selectedBook.id
+      setSelectedBookId(isCurrentlySelected ? null : selectedBook.id)
+      setIsBookSelectionMode(!isCurrentlySelected)
+    }
+  }
+
+  const handlePodcastSelect = () => {
+    if (selectedPodcast) {
+      const isCurrentlySelected = selectedPodcastId === selectedPodcast.id
+      setSelectedPodcastId(isCurrentlySelected ? null : selectedPodcast.id)
+      setIsPodcastSelectionMode(!isCurrentlySelected)
+    }
   }
 
   // Refs for dimension checking
@@ -203,7 +226,14 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 <div>
                   <p className="text-sm text-gray-400 mb-2">With Data</p>
                   <div ref={bookStandardCardRef}>
-                    <BookMediaCard {...defaultProps} libraryItem={selectedBook} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                    <BookMediaCard
+                      {...defaultProps}
+                      libraryItem={selectedBook}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
+                    />
                   </div>
                 </div>
                 <div>
@@ -233,6 +263,9 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       libraryItem={selectedBook}
                       bookshelfView={BookshelfView.DETAIL}
                       bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
                     />
                   </div>
                 </div>
@@ -264,6 +297,9 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       bookshelfView={BookshelfView.DETAIL}
                       showSubtitles={false}
                       bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
                     />
                   </div>
                 </div>
@@ -295,6 +331,9 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       bookshelfView={BookshelfView.DETAIL}
                       orderBy="addedAt"
                       bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
                     />
                   </div>
                 </div>
@@ -315,6 +354,63 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               </div>
               <DimensionComparison cardDimensions={bookDetailOrderByCardDims} skeletonDimensions={bookDetailOrderBySkeletonDims} />
             </Example>
+
+            <Example title={`Book Media Card - Size Multipliers (Detail View): ${selectedBook.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap items-start">
+                <div style={{ fontSize: `${2 / 3}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 2/3</p>
+                  <BookMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedBook}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={2 / 3}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isBookSelectionMode}
+                    selected={selectedBookId === selectedBook.id}
+                    onSelect={handleBookSelect}
+                  />
+                </div>
+                <div style={{ fontSize: `${1}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 1</p>
+                  <BookMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedBook}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={1}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isBookSelectionMode}
+                    selected={selectedBookId === selectedBook.id}
+                    onSelect={handleBookSelect}
+                  />
+                </div>
+                <div style={{ fontSize: `${4 / 3}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 4/3</p>
+                  <BookMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedBook}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={4 / 3}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isBookSelectionMode}
+                    selected={selectedBookId === selectedBook.id}
+                    onSelect={handleBookSelect}
+                  />
+                </div>
+                <div style={{ fontSize: `${11 / 6}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 11/6</p>
+                  <BookMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedBook}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={11 / 6}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isBookSelectionMode}
+                    selected={selectedBookId === selectedBook.id}
+                    onSelect={handleBookSelect}
+                  />
+                </div>
+              </div>
+            </Example>
           </>
         ) : (
           <div className="p-8 border-2 border-dashed border-gray-600 rounded-lg">
@@ -329,7 +425,14 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 <div>
                   <p className="text-sm text-gray-400 mb-2">With Data</p>
                   <div ref={podcastStandardCardRef}>
-                    <PodcastMediaCard {...defaultProps} libraryItem={selectedPodcast} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                    <PodcastMediaCard
+                      {...defaultProps}
+                      libraryItem={selectedPodcast}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isPodcastSelectionMode}
+                      selected={selectedPodcastId === selectedPodcast.id}
+                      onSelect={handlePodcastSelect}
+                    />
                   </div>
                 </div>
                 <div>
@@ -359,6 +462,9 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       libraryItem={selectedPodcast}
                       bookshelfView={BookshelfView.DETAIL}
                       bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isPodcastSelectionMode}
+                      selected={selectedPodcastId === selectedPodcast.id}
+                      onSelect={handlePodcastSelect}
                     />
                   </div>
                 </div>
@@ -390,6 +496,9 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       bookshelfView={BookshelfView.DETAIL}
                       showSubtitles={false}
                       bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isPodcastSelectionMode}
+                      selected={selectedPodcastId === selectedPodcast.id}
+                      onSelect={handlePodcastSelect}
                     />
                   </div>
                 </div>
@@ -421,6 +530,9 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       bookshelfView={BookshelfView.DETAIL}
                       orderBy="addedAt"
                       bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isPodcastSelectionMode}
+                      selected={selectedPodcastId === selectedPodcast.id}
+                      onSelect={handlePodcastSelect}
                     />
                   </div>
                 </div>
@@ -440,6 +552,63 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 </div>
               </div>
               <DimensionComparison cardDimensions={podcastDetailOrderByCardDims} skeletonDimensions={podcastDetailOrderBySkeletonDims} />
+            </Example>
+
+            <Example title={`Podcast Media Card - Size Multipliers (Detail View): ${selectedPodcast.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap items-start">
+                <div style={{ fontSize: `${2 / 3}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 2/3</p>
+                  <PodcastMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedPodcast}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={2 / 3}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isPodcastSelectionMode}
+                    selected={selectedPodcastId === selectedPodcast.id}
+                    onSelect={handlePodcastSelect}
+                  />
+                </div>
+                <div style={{ fontSize: `${1}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 1</p>
+                  <PodcastMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedPodcast}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={1}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isPodcastSelectionMode}
+                    selected={selectedPodcastId === selectedPodcast.id}
+                    onSelect={handlePodcastSelect}
+                  />
+                </div>
+                <div style={{ fontSize: `${4 / 3}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 4/3</p>
+                  <PodcastMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedPodcast}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={4 / 3}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isPodcastSelectionMode}
+                    selected={selectedPodcastId === selectedPodcast.id}
+                    onSelect={handlePodcastSelect}
+                  />
+                </div>
+                <div style={{ fontSize: `${11 / 6}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size Multiplier: 11/6</p>
+                  <PodcastMediaCard
+                    {...defaultProps}
+                    libraryItem={selectedPodcast}
+                    bookshelfView={BookshelfView.DETAIL}
+                    sizeMultiplier={11 / 6}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    isSelectionMode={isPodcastSelectionMode}
+                    selected={selectedPodcastId === selectedPodcast.id}
+                    onSelect={handlePodcastSelect}
+                  />
+                </div>
+              </div>
             </Example>
           </>
         ) : (
