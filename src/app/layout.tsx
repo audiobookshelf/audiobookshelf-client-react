@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
+import { MediaProvider } from '../contexts/MediaContext'
 import { ToastProvider } from '../contexts/ToastContext'
 import { getTheme } from '../lib/theme'
 
@@ -21,8 +22,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="overflow-x-hidden">
         <NextIntlClientProvider>
           <ToastProvider>
-            {children}
-            <GlobalToastContainer />
+            <MediaProvider>
+              {children}
+              <GlobalToastContainer />
+            </MediaProvider>
           </ToastProvider>
         </NextIntlClientProvider>
       </body>

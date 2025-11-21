@@ -230,7 +230,7 @@ describe('<DropdownMenu />', () => {
 
     it('renders subtext with correct styling', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
-      cy.get('[role="listbox"] > li').eq(1).find('span').last().should('have.class', 'text-gray-400')
+      cy.get('[role="listbox"] > li').eq(1).find('span').last().should('have.class', 'text-foreground-subdued')
       cy.get('[role="listbox"] > li').eq(1).find('span').last().should('have.class', 'font-normal')
     })
 

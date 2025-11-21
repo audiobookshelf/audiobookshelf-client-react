@@ -190,24 +190,9 @@ export interface Author {
   description?: string
   imagePath?: string
   asin?: string
-  libraryId: string
+  libraryId?: string
   addedAt?: number
   updatedAt?: number
-}
-
-export interface AuthorMinified {
-  id: string
-  name: string
-}
-
-export interface AuthorExpanded extends AuthorMinified {
-  asin?: string
-  description?: string
-  /** author image path */
-  imagePath?: string
-  libraryId: string
-  addedAt: number
-  updatedAt: number
   numBooks?: number
 }
 
@@ -218,37 +203,22 @@ export interface AuthorExpanded extends AuthorMinified {
 export interface Series {
   id: string
   name: string
+  /** in series sequence */
+  sequence?: string
+  /** name with prefix moved to end (for sorting) */
   nameIgnorePrefix?: string
   description?: string
   coverPath?: string
-  libraryId: string
+  libraryId?: string
   addedAt?: number
   updatedAt?: number
   bookSeries?: {
     sequence: string
   }
-}
-
-export interface SeriesMinified {
-  id: string
-  name: string
-  /** in series */
-  sequence?: string
-}
-
-export interface SeriesExpanded {
-  id: string
-  name: string
-  /** name with prefix moved to end (for sorting) */
-  nameIgnorePrefix: string
-  description?: string
-  addedAt: number
-  updatedAt: number
-  libraryId: string
-  /** books in the series */
-  books?: LibraryItemMinified[]
-  /** if available */
-  rssFeed?: RSSFeedMinified
+  /** books in the series (expanded only) */
+  books?: LibraryItem[]
+  /** if available (expanded only) */
+  rssFeed?: RssFeed
 }
 
 // ============================================================================
@@ -258,11 +228,9 @@ export interface SeriesExpanded {
 export interface BookMetadata {
   title?: string
   subtitle?: string
-  /** minified */
-  authors: AuthorMinified[]
+  authors: Author[]
   narrators: string[]
-  /** minified */
-  series: SeriesMinified[]
+  series: Series[]
   /** comma-separated */
   genres: string[]
   publishedYear?: string
@@ -415,13 +383,13 @@ export type FFProbeData = Record<string, unknown>
 // ============================================================================
 
 export interface BookMedia {
-  id: string
-  libraryItemId: string
+  id?: string
+  libraryItemId?: string
   metadata: BookMetadata
   coverPath?: string
   tags: string[]
-  audioFiles: AudioFile[]
-  chapters: Chapter[]
+  audioFiles?: AudioFile[]
+  chapters?: Chapter[]
   ebookFile?: EBookFile
   duration?: number
   size?: number
@@ -432,29 +400,13 @@ export interface BookMedia {
   ebookFormat?: string
 }
 
-export interface BookMediaMinified {
-  metadata: BookMetadata
-  /** cover image */
-  coverPath?: string
-  tags: string[]
-  numTracks?: number
-  numAudioFiles?: number
-  numChapters?: number
-  /** in seconds */
-  duration?: number
-  /** in bytes */
-  size?: number
-  /** if ebook */
-  ebookFormat?: string
-}
-
 export interface PodcastMedia {
-  id: string
-  libraryItemId: string
+  id?: string
+  libraryItemId?: string
   metadata: PodcastMetadata
   coverPath?: string
   tags: string[]
-  episodes: PodcastEpisode[]
+  episodes?: PodcastEpisode[]
   autoDownloadEpisodes?: boolean
   autoDownloadSchedule?: string
   lastEpisodeCheck?: number
@@ -462,21 +414,6 @@ export interface PodcastMedia {
   maxNewEpisodesToDownload?: number
   size?: number
   numEpisodes?: number
-}
-
-export interface PodcastMediaMinified {
-  metadata: PodcastMetadata
-  /** cover image */
-  coverPath?: string
-  tags: string[]
-  numEpisodes: number
-  autoDownloadEpisodes: boolean
-  autoDownloadSchedule?: string
-  lastEpisodeCheck?: number
-  maxEpisodesToKeep: number
-  maxNewEpisodesToDownload: number
-  /** in bytes */
-  size: number
 }
 
 // ============================================================================
@@ -566,7 +503,7 @@ export interface LibraryItem {
   isInvalid: boolean
   mediaType: 'book' | 'podcast'
   media: BookMedia | PodcastMedia
-  libraryFiles: LibraryFile[]
+  libraryFiles?: LibraryFile[]
   size?: number
   numFiles?: number
 
@@ -577,6 +514,7 @@ export interface LibraryItem {
   episodeDownloadsQueued?: PodcastEpisodeDownload[] // included when include=downloads
   episodesDownloading?: PodcastEpisodeDownload[] // included when include=downloads
   numEpisodesIncomplete?: number // included in some contexts
+  recentEpisode?: PodcastEpisode // included in some contexts (podcasts only)
 }
 
 export interface BookLibraryItem extends LibraryItem {
@@ -589,37 +527,6 @@ export interface PodcastLibraryItem extends LibraryItem {
   media: PodcastMedia
 }
 
-export interface LibraryItemMinified {
-  id: string
-  ino: string
-  /** legacy */
-  oldLibraryItemId?: string
-  libraryId: string
-  folderId: string
-  path: string
-  relPath: string
-  isFile: boolean
-  mtimeMs: number
-  ctimeMs: number
-  birthtimeMs: number
-  addedAt: number
-  updatedAt: number
-  isMissing: boolean
-  isInvalid: boolean
-  mediaType: 'book' | 'podcast'
-  media: BookMediaMinified | PodcastMediaMinified
-  numFiles: number
-  /** in bytes */
-  size: number
-  /** included when requested */
-  rssFeed?: RSSFeedMinified
-  /** included when requested */
-  mediaItemShare?: MediaItemShare
-  /** podcasts only */
-  numEpisodesIncomplete?: number
-  recentEpisode?: PodcastEpisode
-}
-
 export interface LibraryItemQueryParams {
   include?: string // Comma-separated list: progress, rssfeed, share, downloads
   expanded?: number // 1 for expanded view
@@ -627,7 +534,7 @@ export interface LibraryItemQueryParams {
 }
 
 export interface GetLibraryItemsResponse {
-  results: LibraryItem[] | LibraryItemMinified[]
+  results: LibraryItem[]
   total?: number
   limit: number
   page: number
@@ -686,23 +593,14 @@ export interface AudioBookmark {
 export interface RssFeed {
   id: string
   slug: string
-  entityType: 'book' | 'podcast'
   entityId: string
+  entityType?: string
   feedUrl: string
   metaTitle?: string
   metaDescription?: string
-  isPublic: boolean
-  createdAt: number
-  updatedAt: number
-}
-
-export interface RSSFeedMinified {
-  id: string
-  slug: string
-  /** series/collection/item */
-  entityId: string
-  entityType: string
-  feedUrl: string
+  isPublic?: boolean
+  createdAt?: number
+  updatedAt?: number
 }
 
 export interface MediaItemShare {
@@ -797,7 +695,7 @@ export interface PersonalizedShelf {
   labelStringKey: string
   type: 'book' | 'podcast' | 'episode' | 'series' | 'authors'
   /** type depends on shelf type */
-  entities: LibraryItemMinified[] | SeriesExpanded[] | AuthorExpanded[]
+  entities: LibraryItem[] | Series[] | Author[]
   total: number
 }
 
@@ -815,7 +713,7 @@ export interface SearchLibraryResponse {
     series: Series
     books: LibraryItem[]
   }>
-  authors: AuthorExpanded[]
+  authors: Author[]
 }
 
 // ============================================================================
@@ -918,9 +816,9 @@ export interface UpdateLibraryItemMediaPayload {
   metadata?: {
     title?: string
     subtitle?: string
-    authors?: AuthorMinified[]
+    authors?: Author[]
     narrators?: string[]
-    series?: SeriesMinified[]
+    series?: Series[]
     genres?: string[]
     tags?: string[]
     publisher?: string
