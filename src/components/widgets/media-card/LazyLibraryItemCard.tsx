@@ -51,6 +51,18 @@ export interface LazyLibraryItemCardProps {
    * Optional render function for series name overlay when hovering
    */
   renderSeriesNameOverlay?: (isHovering: boolean) => ReactNode
+  /**
+   * Whether the card is in selection mode
+   */
+  isSelectionMode?: boolean
+  /**
+   * Whether the card is currently selected
+   */
+  selected?: boolean
+  /**
+   * Callback when the select button is clicked
+   */
+  onSelect?: (event: React.MouseEvent) => void
 }
 
 function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
@@ -71,7 +83,10 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
     showSubtitles,
     renderBadges,
     renderOverlayBadges,
-    renderSeriesNameOverlay
+    renderSeriesNameOverlay,
+    isSelectionMode = false,
+    selected = false,
+    onSelect
   } = props
 
   const t = useTypeSafeTranslations()
@@ -81,8 +96,6 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
 
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
-  const [isSelectionMode] = useState(false)
-  const [selected] = useState(false)
 
   const isPodcast = useMemo(() => libraryItem.mediaType === 'podcast', [libraryItem.mediaType])
   const media = libraryItem.media as LibraryItem['media']
@@ -266,7 +279,7 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
         cy-id="mediaCard"
         id={cardId}
         tabIndex={0}
-        className={mergeClasses('rounded-xs z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent')}
+        className={mergeClasses('rounded-xs z-10', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
         style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
       >
         <div
@@ -307,6 +320,7 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
               mediaItemShare={mediaItemShare}
               showError={showError}
               errorText={errorText}
+              isAuthorBookshelfView={isAuthorBookshelfView}
               renderOverlayBadges={renderOverlayBadges}
               renderBadges={renderBadges}
               renderSeriesNameOverlay={renderSeriesNameOverlay}
@@ -314,6 +328,7 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
               onRead={handleReadEBook}
               onMoreAction={handleMoreAction}
               onMoreMenuOpenChange={setIsMoreMenuOpen}
+              onSelect={onSelect}
             />
           </div>
         </div>
