@@ -57,10 +57,11 @@ export default function SortableList<T extends SortableItem>({
     handleDragend: () => onSortEnd(sortedItems)
   })
 
-  // Without this, the list will never update when the items prop changes
+  // Reset items only when the array length changes (item added/removed), not on every render
   useEffect(() => {
     setItems(itemsWithIds)
-  }, [itemsWithIds, setItems])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsWithIds.length, setItems])
 
   const itemWrapperClassName = useMemo(() => {
     return mergeClasses('transition-all duration-200', itemClassName)
