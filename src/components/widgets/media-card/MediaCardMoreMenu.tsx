@@ -1,6 +1,7 @@
 'use client'
 
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useMemo } from 'react'
 
 export interface MediaCardMoreMenuSubitem {
@@ -20,9 +21,10 @@ interface MediaCardMoreMenuProps {
   processing?: boolean
   onAction: (func: string, data?: Record<string, string>) => void
   onOpenChange?: (isOpen: boolean) => void
+  className?: string
 }
 
-export default function MediaCardMoreMenu({ items, processing = false, onAction, onOpenChange }: MediaCardMoreMenuProps) {
+export default function MediaCardMoreMenu({ items, processing = false, onAction, onOpenChange, className }: MediaCardMoreMenuProps) {
   const contextMenuItems = useMemo<ContextMenuDropdownItem<string>[]>(() => {
     return items.map((item) => ({
       text: item.text,
@@ -60,13 +62,12 @@ export default function MediaCardMoreMenu({ items, processing = false, onAction,
       borderless
       size="small"
       menuAlign="right"
+      autoWidth
       processing={processing}
       onAction={handleContextMenuAction}
       onOpenChange={handleOpenChange}
-      className="h-6 w-6 md:h-7 md:w-7"
+      className={mergeClasses('w-auto h-auto text-[1em]', className)}
       usePortal
     />
   )
 }
-
-
