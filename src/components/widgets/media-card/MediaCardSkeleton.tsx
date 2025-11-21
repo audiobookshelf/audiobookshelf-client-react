@@ -30,7 +30,7 @@ export default function MediaCardSkeleton({
   timeFormat = 'h:mm a'
 }: MediaCardSkeletonProps) {
   const cardId = useId()
-  
+
   const coverAspect = useMemo(() => {
     if (bookCoverAspectRatio === 0) return 1.6
     return bookCoverAspectRatio
@@ -64,7 +64,7 @@ export default function MediaCardSkeleton({
       cy-id="mediaCard"
       id={cardId}
       tabIndex={0}
-      className={mergeClasses('rounded-xs z-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent')}
+      className={mergeClasses('rounded-xs z-10 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton */}
