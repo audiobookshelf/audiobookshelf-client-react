@@ -3,10 +3,13 @@
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTranslations } from 'next-intl'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 export default function LoginForm() {
   const t = useTranslations()
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -31,15 +34,14 @@ export default function LoginForm() {
       const userResponse = await res.json()
       const userDefaultLibraryId = userResponse?.userDefaultLibraryId
 
-      // Get redirect parameter from URL search params
-      const urlParams = new URLSearchParams(window.location.search)
-      const redirect = urlParams.get('redirect')
+      // Get redirect parameter
+      const redirect = searchParams.get('redirect')
       if (redirect) {
-        window.location.href = redirect
+        router.replace(redirect)
       } else if (userDefaultLibraryId) {
-        window.location.href = `/library/${userDefaultLibraryId}`
+        router.replace(`/library/${userDefaultLibraryId}`)
       } else {
-        window.location.href = '/settings'
+        router.replace('/settings')
       }
     } catch {
       setError('Network error. Please try again.')
