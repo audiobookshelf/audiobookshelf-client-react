@@ -2,12 +2,12 @@
 
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
-import { useTranslations } from 'next-intl'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 export default function LoginForm() {
-  const t = useTranslations()
+  const t = useTypeSafeTranslations()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [username, setUsername] = useState('')
@@ -26,8 +26,9 @@ export default function LoginForm() {
         body: JSON.stringify({ username, password })
       })
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        setError(data?.error || 'Invalid username or password.')
+        // const data = await res.json().catch(() => ({}))
+        // setError(data?.error || 'Invalid username or password.')
+        setError(t('ErrorInvalidUsernameOrPassword'))
         setLoading(false)
         return
       }
@@ -44,7 +45,7 @@ export default function LoginForm() {
         router.replace('/settings')
       }
     } catch {
-      setError('Network error. Please try again.')
+      setError(t('ErrorNetwork'))
       setLoading(false)
     }
   }
@@ -60,7 +61,7 @@ export default function LoginForm() {
       {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
       <div className="flex justify-end">
         <Btn type="submit" disabled={loading}>
-          {loading ? 'Logging in...' : t('LabelSubmit')}
+          {loading ? t('LabelLoggingIn') : t('LabelSubmit')}
         </Btn>
       </div>
     </form>
