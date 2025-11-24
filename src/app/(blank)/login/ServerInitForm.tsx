@@ -73,8 +73,8 @@ export default function ServerInitForm() {
       </div>
       {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
       <div className="flex justify-end">
-        <Btn type="submit" disabled={loading}>
-          {loading ? t('LabelLoggingIn') : t('LabelSubmit')}
+        <Btn type="submit" loading={loading}>
+          {t('LabelSubmit')}
         </Btn>
       </div>
     </form>
