@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getServerBaseUrl, setTokenCookies } from '../../../lib/api'
+import { getTypeSafeTranslations } from '../../../lib/getTypeSafeTranslations'
 
 export async function POST(request: Request) {
+  const t = await getTypeSafeTranslations()
+
   try {
     const { username, password } = await request.json()
 
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
     })
 
     if (!loginResponse.ok) {
-      return NextResponse.json({ error: 'Login failed' }, { status: 401 })
+      return NextResponse.json({ error: t('ErrorLoginFailed') }, { status: 401 })
     }
 
     const data = await loginResponse.json()
@@ -28,7 +31,7 @@ export async function POST(request: Request) {
     const userLanguage = data.serverSettings?.language
 
     if (!newAccessToken) {
-      return NextResponse.json({ error: 'No access token found' }, { status: 401 })
+      return NextResponse.json({ error: t('ErrorNoAccessTokenFound') }, { status: 401 })
     }
 
     const response = NextResponse.json(data)
@@ -48,6 +51,6 @@ export async function POST(request: Request) {
     return response
   } catch (error) {
     console.error('Login error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: t('ErrorInternalServerError') }, { status: 500 })
   }
 }

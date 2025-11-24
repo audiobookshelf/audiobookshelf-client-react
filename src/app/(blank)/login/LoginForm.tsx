@@ -27,9 +27,9 @@ export default function LoginForm() {
           body: JSON.stringify({ username, password })
         })
         if (!res.ok) {
-          // const data = await res.json().catch(() => ({}))
-          // setError(data?.error || 'Invalid username or password.')
-          setError(t('ErrorInvalidUsernameOrPassword'))
+          const data = await res.json()
+          console.error('[LoginForm] Error:', res.statusText, data?.error)
+          setError(data?.error || t('ErrorLoginFailed'))
           setLoading(false)
           return
         }
@@ -45,7 +45,8 @@ export default function LoginForm() {
         } else {
           router.replace('/settings')
         }
-      } catch {
+      } catch (error) {
+        console.error('[LoginForm] Error:', error)
         setError(t('ErrorNetwork'))
         setLoading(false)
       }
