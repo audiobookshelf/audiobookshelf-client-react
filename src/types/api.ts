@@ -1017,3 +1017,7 @@ export interface NarratorObject {
   name: string
   numBooks: number
 }
+
+export interface GetAuthorsResponse {
+  authors: AuthorExpanded[]
+}

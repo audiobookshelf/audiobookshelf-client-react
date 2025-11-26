@@ -6,6 +6,7 @@ import {
   Author,
   BookSearchResult,
   FFProbeData,
+  GetAuthorsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetNarratorsResponse,
@@ -374,6 +375,10 @@ export const getGenres = cache(async () => {
 
 export const getNarrators = cache(async (libraryId: string) => {
   return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
+})
+
+export const getAuthors = cache(async (libraryId: string) => {
+  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors`, {})
 })
 
 export const getAuthor = cache(async (authorId: string): Promise<Author> => {
