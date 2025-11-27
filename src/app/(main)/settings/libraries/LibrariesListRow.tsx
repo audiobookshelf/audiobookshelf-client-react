@@ -23,13 +23,9 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
 
   const libraryTasks = useMemo(() => getTasksByLibraryId(item.id), [getTasksByLibraryId, item.id])
 
-  const libraryTask = useMemo(() => {
-    return libraryTasks.find((task) => task.action === 'library-scan' || task.action === 'library-match-all')
-  }, [libraryTasks])
-
   const isLibraryTaskRunning = useMemo(() => {
-    return libraryTask && !libraryTask.isFinished
-  }, [libraryTask])
+    return libraryTasks.find((task) => (task.action === 'library-scan' || task.action === 'library-match-all') && !task.isFinished)
+  }, [libraryTasks])
 
   const contextMenuItems: ContextMenuDropdownItem[] = [
     { text: t('ButtonEdit'), action: 'edit' },
