@@ -1023,6 +1023,10 @@ export interface NarratorObject {
   numBooks: number
 }
 
+export interface GetAuthorsResponse {
+  authors: AuthorExpanded[]
+}
+
 export type SaveLibraryOrderApiResponse = {
   libraries: Library[]
 }

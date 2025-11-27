@@ -80,7 +80,6 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
       await copyToClipboard(prettyFfprobeData)
       setHasCopied(true)
       setTimeout(() => setHasCopied(false), 2000)
-      showToast(t('ButtonCopiedToClipboard'), { type: 'success' })
     } catch (error) {
       console.error('Failed to copy to clipboard', error)
       showToast(t('ToastFailedToShare'), { type: 'error' })
