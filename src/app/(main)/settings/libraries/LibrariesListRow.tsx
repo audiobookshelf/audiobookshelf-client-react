@@ -76,7 +76,6 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
     },
     [handleDeleteLibrary, handleEditLibrary, handleMatchBooks, handleScanLibrary, item]
   )
-  console.log('Rendering LibrariesListRow for library:', item.id, 'Is task running:', isLibraryTaskRunning)
 
   return (
     <div className="flex items-center gap-4 py-1 px-4 hover:bg-primary/20 text-foreground/50 hover:text-foreground">
@@ -90,7 +89,7 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
           <Btn color="bg-bg" className="h-auto px-3 text-xs" size="small" onClick={handleScanLibrary} disabled={isLibraryTaskRunning}>
             {t('ButtonScan')}
           </Btn>
-          <ContextMenuDropdown borderless size="small" items={contextMenuItems} onAction={handleContextMenuActions} />
+          <ContextMenuDropdown usePortal borderless size="small" items={contextMenuItems} onAction={handleContextMenuActions} />
         </>
       )}
       <div className="drag-handle cursor-n-resize">
