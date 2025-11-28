@@ -2,9 +2,9 @@
 
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
 import { useMemo } from 'react'
-import LazyLibraryItemCard, { type LazyLibraryItemCardProps } from './LazyLibraryItemCard'
+import MediaCard, { type MediaCardProps } from './MediaCard'
 
-export type PodcastMediaCardProps = LazyLibraryItemCardProps
+export type PodcastMediaCardProps = MediaCardProps
 
 /**
  * Podcast-specific media card with podcast-specific badges.
@@ -80,5 +80,5 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
     return PodcastBadges
   }, [numEpisodes, numEpisodesIncomplete, recentEpisodeNumber])
 
-  return <LazyLibraryItemCard {...props} renderBadges={renderBadges} />
+  return <MediaCard {...props} renderBadges={renderBadges} />
 }
