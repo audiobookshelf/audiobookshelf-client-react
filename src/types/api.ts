@@ -221,6 +221,14 @@ export interface Series {
   rssFeed?: RssFeed
 }
 
+export interface CollapsedSeries {
+  id: string
+  name?: string
+  nameIgnorePrefix?: string
+  numBooks?: number
+  seriesSequenceList?: string
+}
+
 // ============================================================================
 // METADATA
 // ============================================================================
@@ -515,6 +523,7 @@ export interface LibraryItem {
   episodesDownloading?: PodcastEpisodeDownload[] // included when include=downloads
   numEpisodesIncomplete?: number // included in some contexts
   recentEpisode?: PodcastEpisode // included in some contexts (podcasts only)
+  collapsedSeries?: CollapsedSeries // included when collapseseries=1
 }
 
 export interface BookLibraryItem extends LibraryItem {
