@@ -7,6 +7,7 @@ import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode, RssFeed, UserPermissions } from '@/types/api'
@@ -96,6 +97,7 @@ function MediaCard(props: MediaCardProps) {
   const router = useRouter()
   const { libraryItemIdStreaming, isStreaming, isStreamingFromDifferentLibrary, getIsMediaQueued } = useMediaContext()
   const cardId = useId()
+  const t = useTypeSafeTranslations()
 
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
@@ -196,13 +198,13 @@ function MediaCard(props: MediaCardProps) {
   const showError = useMemo(() => !isPodcast && (isMissing || isInvalid), [isPodcast, isMissing, isInvalid])
 
   const errorText = useMemo(() => {
-    if (isMissing) return 'Item directory is missing!'
+    if (isMissing) return t('ErrorItemDirectoryMissing')
     if (isInvalid) {
-      if (isPodcast) return 'Podcast has no episodes'
-      return 'Item has no audio tracks & ebook'
+      if (isPodcast) return t('ErrorPodcastHasNoEpisodes')
+      return t('ErrorItemNoAudioTracksOrEbook')
     }
-    return 'Unknown Error'
-  }, [isMissing, isInvalid, isPodcast])
+    return t('ErrorUnknown')
+  }, [isMissing, isInvalid, isPodcast, t])
 
   const isStreamingFromDifferentLib = useMemo(
     () => isStreamingFromDifferentLibrary(libraryItem.libraryId),
