@@ -70,7 +70,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
   const handlePodcastTypeChange = useCallback(
     (value: string | number) => {
-      handleFieldUpdate('podcastType')(String(value) as Details['podcastType'])
+      handleFieldUpdate('type')(String(value) as Details['type'])
     },
     [handleFieldUpdate]
   )
@@ -180,7 +180,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
           <div className="w-full md:w-1/4 px-1">
             <Dropdown
               label={t('LabelPodcastType')}
-              value={details.podcastType || 'episodic'}
+              value={details.type || 'episodic'}
               items={podcastTypeItems}
               onChange={handlePodcastTypeChange}
               className="md:max-w-52"

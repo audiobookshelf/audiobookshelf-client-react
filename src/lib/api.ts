@@ -257,6 +257,13 @@ export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): 
 })
 
 /**
+ * Convenience helper to get an expanded library item (with full media data)
+ */
+export async function getExpandedLibraryItem(itemId: string): Promise<LibraryItem> {
+  return getLibraryItem(itemId, true)
+}
+
+/**
  * Get FFProbe data for an audio file
  * Admin-only endpoint that returns raw ffprobe output
  * @param itemId - Library item ID
@@ -444,6 +451,68 @@ export async function updateLibraryItemMedia(libraryItemId: string, updatePayloa
   return apiRequest<UpdateLibraryItemMediaResponse>(`/api/items/${libraryItemId}/media`, {
     method: 'PATCH',
     body: JSON.stringify(updatePayload)
+  })
+}
+
+/**
+ * Update media finished state for a library item (and optional episode)
+ */
+export async function updateMediaFinished(libraryItemId: string, payload: { isFinished: boolean; episodeId?: string }): Promise<void> {
+  let endpoint = `/api/me/progress/${libraryItemId}`
+  if (payload.episodeId) {
+    endpoint += `/${payload.episodeId}`
+  }
+
+  return apiRequest<void>(endpoint, {
+    method: 'PATCH',
+    body: JSON.stringify({ isFinished: payload.isFinished })
+  })
+}
+
+/**
+ * Trigger a rescan for a library item
+ */
+export async function rescanLibraryItem(libraryItemId: string): Promise<{ result: 'UPDATED' | 'UPTODATE' | 'REMOVED' | null }> {
+  return apiRequest<{ result: 'UPDATED' | 'UPTODATE' | 'REMOVED' | null }>(`/api/items/${libraryItemId}/scan`, {
+    method: 'POST'
+  })
+}
+
+/**
+ * Send an ebook to a configured e-reader device
+ */
+export async function sendEbookToDevice(payload: { libraryItemId: string; deviceName: string }): Promise<void> {
+  return apiRequest<void>('/api/emails/send-ebook-to-device', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Remove a series from the "continue listening" shelf
+ */
+export async function removeSeriesFromContinueListening(seriesId: string): Promise<void> {
+  return apiRequest<void>(`/api/me/series/${seriesId}/remove-from-continue-listening`, {
+    method: 'GET'
+  })
+}
+
+/**
+ * Remove a single progress entry from the continue listening/reading shelf
+ */
+export async function removeFromContinueListening(progressId: string): Promise<void> {
+  return apiRequest<void>(`/api/me/progress/${progressId}/remove-from-continue-listening`, {
+    method: 'GET'
+  })
+}
+
+/**
+ * Delete a library item, optionally deleting from the file system (hard delete)
+ */
+export async function deleteLibraryItem(libraryItemId: string, hardDelete: boolean): Promise<void> {
+  const hard = hardDelete ? '1' : '0'
+  return apiRequest<void>(`/api/items/${libraryItemId}?hard=${hard}`, {
+    method: 'DELETE'
   })
 }
 

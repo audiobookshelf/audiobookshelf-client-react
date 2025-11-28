@@ -26,8 +26,8 @@ export default async function AuthorLayout({
     redirect(`/login`)
   }
 
-  if (!author) {
-    console.error('Error getting author data')
+  if (!author || !author.libraryId) {
+    console.error('Error getting author data or author missing libraryId')
     return null
   }
 

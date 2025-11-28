@@ -2,7 +2,7 @@
 
 import { DetailsEditRef, UpdatePayload, useDetailsEdit } from '@/hooks/useDetailsEdit'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { AuthorMinified, BookLibraryItem, BookMetadata, SeriesMinified } from '@/types/api'
+import { Author, BookLibraryItem, BookMetadata, Series } from '@/types/api'
 import React, { useCallback, useMemo } from 'react'
 import Checkbox from '../ui/Checkbox'
 import MultiSelect, { MultiSelectItem } from '../ui/MultiSelect'
@@ -82,7 +82,7 @@ const BookDetailsEdit = ({
   const authorItems = useMemo(() => details.authors.map((a) => ({ value: a.id, content: a.name })), [details.authors])
   const handleAddAuthor = useCallback(
     (item: MultiSelectItem<string>) => {
-      const newAuthor: AuthorMinified = { id: item.value, name: item.content }
+      const newAuthor: Author = { id: item.value, name: item.content }
       handleFieldUpdate('authors')([...details.authors, newAuthor])
     },
     [details.authors, handleFieldUpdate]
@@ -112,7 +112,7 @@ const BookDetailsEdit = ({
   )
   const handleAddSeries = useCallback(
     (item: SeriesSelectItem) => {
-      const newSeries: SeriesMinified = {
+      const newSeries: Series = {
         id: item.value,
         name: item.content.value,
         sequence: item.content.modifier
@@ -129,7 +129,7 @@ const BookDetailsEdit = ({
   )
   const handleEditSeries = useCallback(
     (item: SeriesSelectItem, index: number) => {
-      const editedSeries: SeriesMinified = {
+      const editedSeries: Series = {
         id: item.value,
         name: item.content.value,
         sequence: item.content.modifier
