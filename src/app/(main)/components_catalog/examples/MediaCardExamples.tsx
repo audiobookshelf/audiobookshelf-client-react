@@ -1,11 +1,13 @@
 'use client'
 
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
+import CollapsedSeriesCard from '@/components/widgets/media-card/CollapsedSeriesCard'
 import MediaCardSkeleton from '@/components/widgets/media-card/MediaCardSkeleton'
+import PodcastEpisodeCard from '@/components/widgets/media-card/PodcastEpisodeCard'
 import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
 import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
 import { MediaProvider } from '@/contexts/MediaContext'
-import { BookLibraryItem, BookshelfView, EReaderDevice, PodcastLibraryItem } from '@/types/api'
+import { BookLibraryItem, BookshelfView, EReaderDevice, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
 import { useEffect, useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
@@ -92,6 +94,12 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const bookDetailNoSubSkeletonRef = useRef<HTMLDivElement>(null)
   const bookDetailOrderByCardRef = useRef<HTMLDivElement>(null)
   const bookDetailOrderBySkeletonRef = useRef<HTMLDivElement>(null)
+  const bookCollapsedSeriesCardRef = useRef<HTMLDivElement>(null)
+  const bookCollapsedSeriesSkeletonRef = useRef<HTMLDivElement>(null)
+  const bookRssFeedCardRef = useRef<HTMLDivElement>(null)
+  const bookRssFeedSkeletonRef = useRef<HTMLDivElement>(null)
+  const bookEbookCardRef = useRef<HTMLDivElement>(null)
+  const bookEbookSkeletonRef = useRef<HTMLDivElement>(null)
   const podcastStandardCardRef = useRef<HTMLDivElement>(null)
   const podcastStandardSkeletonRef = useRef<HTMLDivElement>(null)
   const podcastDetailCardRef = useRef<HTMLDivElement>(null)
@@ -100,6 +108,10 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const podcastDetailNoSubSkeletonRef = useRef<HTMLDivElement>(null)
   const podcastDetailOrderByCardRef = useRef<HTMLDivElement>(null)
   const podcastDetailOrderBySkeletonRef = useRef<HTMLDivElement>(null)
+  const podcastRecentEpisodeCardRef = useRef<HTMLDivElement>(null)
+  const podcastRecentEpisodeSkeletonRef = useRef<HTMLDivElement>(null)
+  const podcastRssFeedCardRef = useRef<HTMLDivElement>(null)
+  const podcastRssFeedSkeletonRef = useRef<HTMLDivElement>(null)
 
   // State for dimensions
   const [bookStandardCardDims, setBookStandardCardDims] = useState<Dimensions | null>(null)
@@ -110,6 +122,12 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const [bookDetailNoSubSkeletonDims, setBookDetailNoSubSkeletonDims] = useState<Dimensions | null>(null)
   const [bookDetailOrderByCardDims, setBookDetailOrderByCardDims] = useState<Dimensions | null>(null)
   const [bookDetailOrderBySkeletonDims, setBookDetailOrderBySkeletonDims] = useState<Dimensions | null>(null)
+  const [bookCollapsedSeriesCardDims, setBookCollapsedSeriesCardDims] = useState<Dimensions | null>(null)
+  const [bookCollapsedSeriesSkeletonDims, setBookCollapsedSeriesSkeletonDims] = useState<Dimensions | null>(null)
+  const [bookRssFeedCardDims, setBookRssFeedCardDims] = useState<Dimensions | null>(null)
+  const [bookRssFeedSkeletonDims, setBookRssFeedSkeletonDims] = useState<Dimensions | null>(null)
+  const [bookEbookCardDims, setBookEbookCardDims] = useState<Dimensions | null>(null)
+  const [bookEbookSkeletonDims, setBookEbookSkeletonDims] = useState<Dimensions | null>(null)
   const [podcastStandardCardDims, setPodcastStandardCardDims] = useState<Dimensions | null>(null)
   const [podcastStandardSkeletonDims, setPodcastStandardSkeletonDims] = useState<Dimensions | null>(null)
   const [podcastDetailCardDims, setPodcastDetailCardDims] = useState<Dimensions | null>(null)
@@ -118,6 +136,10 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const [podcastDetailNoSubSkeletonDims, setPodcastDetailNoSubSkeletonDims] = useState<Dimensions | null>(null)
   const [podcastDetailOrderByCardDims, setPodcastDetailOrderByCardDims] = useState<Dimensions | null>(null)
   const [podcastDetailOrderBySkeletonDims, setPodcastDetailOrderBySkeletonDims] = useState<Dimensions | null>(null)
+  const [podcastRecentEpisodeCardDims, setPodcastRecentEpisodeCardDims] = useState<Dimensions | null>(null)
+  const [podcastRecentEpisodeSkeletonDims, setPodcastRecentEpisodeSkeletonDims] = useState<Dimensions | null>(null)
+  const [podcastRssFeedCardDims, setPodcastRssFeedCardDims] = useState<Dimensions | null>(null)
+  const [podcastRssFeedSkeletonDims, setPodcastRssFeedSkeletonDims] = useState<Dimensions | null>(null)
 
   // Measure dimensions
   useEffect(() => {
@@ -151,6 +173,12 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
         measureElement(bookDetailNoSubSkeletonRef, setBookDetailNoSubSkeletonDims),
         measureElement(bookDetailOrderByCardRef, setBookDetailOrderByCardDims),
         measureElement(bookDetailOrderBySkeletonRef, setBookDetailOrderBySkeletonDims),
+        measureElement(bookCollapsedSeriesCardRef, setBookCollapsedSeriesCardDims),
+        measureElement(bookCollapsedSeriesSkeletonRef, setBookCollapsedSeriesSkeletonDims),
+        measureElement(bookRssFeedCardRef, setBookRssFeedCardDims),
+        measureElement(bookRssFeedSkeletonRef, setBookRssFeedSkeletonDims),
+        measureElement(bookEbookCardRef, setBookEbookCardDims),
+        measureElement(bookEbookSkeletonRef, setBookEbookSkeletonDims),
         measureElement(podcastStandardCardRef, setPodcastStandardCardDims),
         measureElement(podcastStandardSkeletonRef, setPodcastStandardSkeletonDims),
         measureElement(podcastDetailCardRef, setPodcastDetailCardDims),
@@ -158,7 +186,11 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
         measureElement(podcastDetailNoSubCardRef, setPodcastDetailNoSubCardDims),
         measureElement(podcastDetailNoSubSkeletonRef, setPodcastDetailNoSubSkeletonDims),
         measureElement(podcastDetailOrderByCardRef, setPodcastDetailOrderByCardDims),
-        measureElement(podcastDetailOrderBySkeletonRef, setPodcastDetailOrderBySkeletonDims)
+        measureElement(podcastDetailOrderBySkeletonRef, setPodcastDetailOrderBySkeletonDims),
+        measureElement(podcastRecentEpisodeCardRef, setPodcastRecentEpisodeCardDims),
+        measureElement(podcastRecentEpisodeSkeletonRef, setPodcastRecentEpisodeSkeletonDims),
+        measureElement(podcastRssFeedCardRef, setPodcastRssFeedCardDims),
+        measureElement(podcastRssFeedSkeletonRef, setPodcastRssFeedSkeletonDims)
       ]
 
       return () => {
@@ -175,13 +207,17 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
     <MediaProvider>
       <ComponentExamples title="Media Cards">
         <ComponentInfo
-          component="BookMediaCard / PodcastMediaCard / MediaCardSkeleton"
-          description="Media card components for displaying library items in the bookshelf. BookMediaCard displays books with book-specific badges (series sequence, books in series, ebook format). PodcastMediaCard displays podcasts with podcast-specific badges (episode numbers, episode counts). Both components handle cover display, progress indicators, and overlay controls. MediaCardSkeleton provides a loading state that matches the exact dimensions of the cards."
+          component="BookMediaCard / PodcastMediaCard / PodcastEpisodeCard / CollapsedSeriesCard / MediaCardSkeleton"
+          description="Media card components for displaying library items in the bookshelf. BookMediaCard displays books with book-specific badges (series sequence, ebook format). PodcastMediaCard displays podcasts with podcast-specific badges. PodcastEpisodeCard displays a specific podcast episode. CollapsedSeriesCard displays collapsed series items with series count badges. MediaCardSkeleton provides a loading state."
         >
           <p className="mb-2">
             <span className="font-bold">Import:</span> <Code overflow>import BookMediaCard from &apos;@/components/widgets/media-card/BookMediaCard&apos;</Code>
             <br />
             <Code overflow>import PodcastMediaCard from &apos;@/components/widgets/media-card/PodcastMediaCard&apos;</Code>
+            <br />
+            <Code overflow>import PodcastEpisodeCard from &apos;@/components/widgets/media-card/PodcastEpisodeCard&apos;</Code>
+            <br />
+            <Code overflow>import CollapsedSeriesCard from &apos;@/components/widgets/media-card/CollapsedSeriesCard&apos;</Code>
             <br />
             <Code overflow>import MediaCardSkeleton from &apos;@/components/widgets/media-card/MediaCardSkeleton&apos;</Code>
           </p>
@@ -320,6 +356,51 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               <DimensionComparison cardDimensions={bookDetailNoSubCardDims} skeletonDimensions={bookDetailNoSubSkeletonDims} />
             </Example>
 
+            <Example title={`Book Media Card - Ebook: ${selectedBook.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">With Data</p>
+                  <div ref={bookEbookCardRef}>
+                    <BookMediaCard
+                      {...defaultProps}
+                      libraryItem={
+                        {
+                          ...selectedBook,
+                          media: {
+                            ...selectedBook.media,
+                            ebookFormat: 'EPUB',
+                            tracks: [],
+                            numTracks: 0,
+                            audioFiles: [],
+                            numAudioFiles: 0
+                          }
+                        } as BookLibraryItem
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                  <div ref={bookEbookSkeletonRef}>
+                    <MediaCardSkeleton
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
+                      showSubtitles={defaultProps.showSubtitles}
+                      sizeMultiplier={defaultProps.sizeMultiplier}
+                      dateFormat={defaultProps.dateFormat}
+                      timeFormat={defaultProps.timeFormat}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DimensionComparison cardDimensions={bookEbookCardDims} skeletonDimensions={bookEbookSkeletonDims} />
+            </Example>
+
             <Example title={`Book Media Card - Detail View with OrderBy AddedAt: ${selectedBook.media.metadata.title}`} className="mb-6">
               <div className="flex gap-4 flex-wrap">
                 <div>
@@ -353,6 +434,110 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 </div>
               </div>
               <DimensionComparison cardDimensions={bookDetailOrderByCardDims} skeletonDimensions={bookDetailOrderBySkeletonDims} />
+            </Example>
+
+            <Example title={`Book Media Card - Collapsed Series: ${selectedBook.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">With Data</p>
+                  <div ref={bookCollapsedSeriesCardRef}>
+                    <CollapsedSeriesCard
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={defaultProps.sizeMultiplier}
+                      dateFormat={defaultProps.dateFormat}
+                      timeFormat={defaultProps.timeFormat}
+                      showSubtitles={defaultProps.showSubtitles}
+                      libraryItem={
+                        {
+                          ...selectedBook,
+                          collapsedSeries: {
+                            id: 'series-123',
+                            name: 'The Example Series',
+                            nameIgnorePrefix: 'Example Series',
+                            numBooks: 5,
+                            seriesSequenceList: '1-3'
+                          }
+                        } as BookLibraryItem
+                      }
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                  <div ref={bookCollapsedSeriesSkeletonRef}>
+                    <MediaCardSkeleton
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
+                      showSubtitles={defaultProps.showSubtitles}
+                      sizeMultiplier={defaultProps.sizeMultiplier}
+                      dateFormat={defaultProps.dateFormat}
+                      timeFormat={defaultProps.timeFormat}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DimensionComparison cardDimensions={bookCollapsedSeriesCardDims} skeletonDimensions={bookCollapsedSeriesSkeletonDims} />
+            </Example>
+
+            <Example title={`Book Media Card - Detail View with RSS Feed & Share: ${selectedBook.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">With Data</p>
+                  <div ref={bookRssFeedCardRef}>
+                    <BookMediaCard
+                      {...defaultProps}
+                      libraryItem={
+                        {
+                          ...selectedBook,
+                          rssFeed: {
+                            id: 'rss-book-123',
+                            slug: 'example-book-feed',
+                            entityId: selectedBook.id,
+                            entityType: 'book',
+                            feedUrl: 'https://example.com/book-feed.xml',
+                            metaTitle: selectedBook.media.metadata.title,
+                            isPublic: true,
+                            createdAt: Date.now(),
+                            updatedAt: Date.now()
+                          },
+                          mediaItemShare: {
+                            id: 'share-book-123',
+                            mediaItemId: selectedBook.id,
+                            mediaItemType: 'book',
+                            userId: user.id,
+                            slug: 'example-book-share',
+                            createdAt: Date.now(),
+                            updatedAt: Date.now()
+                          }
+                        } as BookLibraryItem
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                  <div ref={bookRssFeedSkeletonRef}>
+                    <MediaCardSkeleton
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
+                      showSubtitles={defaultProps.showSubtitles}
+                      sizeMultiplier={defaultProps.sizeMultiplier}
+                      dateFormat={defaultProps.dateFormat}
+                      timeFormat={defaultProps.timeFormat}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DimensionComparison cardDimensions={bookRssFeedCardDims} skeletonDimensions={bookRssFeedSkeletonDims} />
             </Example>
 
             <Example title={`Book Media Card - Size Multipliers (Detail View): ${selectedBook.media.metadata.title}`} className="mb-6">
@@ -441,7 +626,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     <MediaCardSkeleton
                       bookshelfView={defaultProps.bookshelfView}
                       bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                      showSubtitles={defaultProps.showSubtitles}
                       sizeMultiplier={defaultProps.sizeMultiplier}
                       dateFormat={defaultProps.dateFormat}
                       timeFormat={defaultProps.timeFormat}
@@ -474,7 +658,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     <MediaCardSkeleton
                       bookshelfView={BookshelfView.DETAIL}
                       bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                      showSubtitles={defaultProps.showSubtitles}
                       sizeMultiplier={defaultProps.sizeMultiplier}
                       dateFormat={defaultProps.dateFormat}
                       timeFormat={defaultProps.timeFormat}
@@ -494,7 +677,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       {...defaultProps}
                       libraryItem={selectedPodcast}
                       bookshelfView={BookshelfView.DETAIL}
-                      showSubtitles={false}
                       bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
                       isSelectionMode={isPodcastSelectionMode}
                       selected={selectedPodcastId === selectedPodcast.id}
@@ -508,7 +690,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     <MediaCardSkeleton
                       bookshelfView={BookshelfView.DETAIL}
                       bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                      showSubtitles={false}
                       sizeMultiplier={defaultProps.sizeMultiplier}
                       dateFormat={defaultProps.dateFormat}
                       timeFormat={defaultProps.timeFormat}
@@ -542,7 +723,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     <MediaCardSkeleton
                       bookshelfView={BookshelfView.DETAIL}
                       bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                      showSubtitles={defaultProps.showSubtitles}
                       orderBy="addedAt"
                       sizeMultiplier={defaultProps.sizeMultiplier}
                       dateFormat={defaultProps.dateFormat}
@@ -552,6 +732,110 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 </div>
               </div>
               <DimensionComparison cardDimensions={podcastDetailOrderByCardDims} skeletonDimensions={podcastDetailOrderBySkeletonDims} />
+            </Example>
+
+            <Example title={`Recent Episode Card: ${selectedPodcast.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">With Data</p>
+                  <div ref={podcastRecentEpisodeCardRef}>
+                    <PodcastEpisodeCard
+                      {...defaultProps}
+                      libraryItem={
+                        {
+                          ...selectedPodcast,
+                          recentEpisode: {
+                            libraryItemId: selectedPodcast.id,
+                            podcastId: selectedPodcast.id,
+                            id: 'episode-123',
+                            episode: '#42',
+                            title: 'Recent Episode Title',
+                            subtitle: 'Episode Subtitle',
+                            description: 'This is a recent episode',
+                            chapters: [],
+                            addedAt: Date.now(),
+                            updatedAt: Date.now()
+                          } as PodcastEpisode
+                        } as PodcastLibraryItem
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isPodcastSelectionMode}
+                      selected={selectedPodcastId === selectedPodcast.id}
+                      onSelect={handlePodcastSelect}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                  <div ref={podcastRecentEpisodeSkeletonRef}>
+                    <MediaCardSkeleton
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
+                      sizeMultiplier={defaultProps.sizeMultiplier}
+                      dateFormat={defaultProps.dateFormat}
+                      timeFormat={defaultProps.timeFormat}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DimensionComparison cardDimensions={podcastRecentEpisodeCardDims} skeletonDimensions={podcastRecentEpisodeSkeletonDims} />
+            </Example>
+
+            <Example title={`Podcast Media Card - Detail View with RSS Feed & Share: ${selectedPodcast.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">With Data</p>
+                  <div ref={podcastRssFeedCardRef}>
+                    <PodcastMediaCard
+                      {...defaultProps}
+                      libraryItem={
+                        {
+                          ...selectedPodcast,
+                          rssFeed: {
+                            id: 'rss-123',
+                            slug: 'example-podcast-feed',
+                            entityId: selectedPodcast.id,
+                            entityType: 'podcast',
+                            feedUrl: 'https://example.com/feed.xml',
+                            metaTitle: selectedPodcast.media.metadata.title,
+                            isPublic: true,
+                            createdAt: Date.now(),
+                            updatedAt: Date.now()
+                          },
+                          mediaItemShare: {
+                            id: 'share-123',
+                            mediaItemId: selectedPodcast.id,
+                            mediaItemType: 'book',
+                            userId: user.id,
+                            slug: 'example-podcast-share',
+                            createdAt: Date.now(),
+                            updatedAt: Date.now()
+                          }
+                        } as PodcastLibraryItem
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isPodcastSelectionMode}
+                      selected={selectedPodcastId === selectedPodcast.id}
+                      onSelect={handlePodcastSelect}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                  <div ref={podcastRssFeedSkeletonRef}>
+                    <MediaCardSkeleton
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
+                      sizeMultiplier={defaultProps.sizeMultiplier}
+                      dateFormat={defaultProps.dateFormat}
+                      timeFormat={defaultProps.timeFormat}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DimensionComparison cardDimensions={podcastRssFeedCardDims} skeletonDimensions={podcastRssFeedSkeletonDims} />
             </Example>
 
             <Example title={`Podcast Media Card - Size Multipliers (Detail View): ${selectedPodcast.media.metadata.title}`} className="mb-6">
