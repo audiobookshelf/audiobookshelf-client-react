@@ -191,7 +191,7 @@ export default function MediaCardOverlay({
 
       {/* Error tooltip */}
       {showError && (
-        <Tooltip text={errorText} position="top" className="absolute bottom-4 start-0 z-10">
+        <Tooltip text={errorText} position="right" usePortal className="absolute bottom-4 start-0 z-10" tooltipClassName="whitespace-nowrap">
           <div
             className="bg-error rounded-r-full shadow-md flex items-center justify-end border-r border-b border-red-300"
             style={{ height: `${1.5}em`, width: `${2.5}em` }}
