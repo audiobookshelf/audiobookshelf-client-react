@@ -18,6 +18,7 @@ interface TooltipProps {
   maxWidth?: number
   withArrow?: boolean
   closeOnClick?: boolean
+  tooltipClassName?: string
 }
 
 const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
@@ -37,7 +38,8 @@ const Tooltip = ({
   edgePadding = 8,
   maxWidth,
   withArrow = true,
-  closeOnClick = false
+  closeOnClick = false,
+  tooltipClassName
 }: TooltipProps) => {
   const tooltipId = useId()
   const [open, setOpen] = useState(false)
@@ -206,9 +208,10 @@ const Tooltip = ({
         'inline-block whitespace-normal break-words text-center',
         'rounded-sm bg-primary text-foreground text-xs px-2 py-1 shadow-lg z-[1000]',
         'transition-opacity duration-300',
-        open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
+        tooltipClassName
       ),
-    [open]
+    [open, tooltipClassName]
   )
 
   const referenceClass = useMemo(() => {
