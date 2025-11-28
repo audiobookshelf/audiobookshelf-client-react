@@ -1,4 +1,8 @@
+'use client'
+
 import PreviewCover from '@/components/covers/PreviewCover'
+import Btn from '@/components/ui/Btn'
+import IconBtn from '@/components/ui/IconBtn'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { getCoverAspectRatio, getLibraryItemCoverUrl } from '@/lib/coverUtils'
@@ -17,6 +21,7 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
   const bookAuthors = 'authors' in metadata ? metadata.authors || [] : []
   const bookSeries = 'series' in metadata ? metadata.series || [] : []
+  const description = 'description' in metadata ? metadata.description : undefined
 
   return (
     <div>
@@ -54,10 +59,10 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
                 {bookAuthors.map((author, index) => {
                   return (
                     <Fragment key={author.id}>
-                      <a href={`/author/${author.id}`} className="text-foreground-muted hover:underline text-lg md:text-xl">
+                      <a href={`/author/${author.id}`} className="text-foreground hover:underline text-lg md:text-xl">
                         {author.name}
                       </a>
-                      {index < bookAuthors.length - 1 && <span className="text-foreground-muted text-lg md:text-xl">, </span>}
+                      {index < bookAuthors.length - 1 && <span className="text-foreground text-lg md:text-xl">, </span>}
                     </Fragment>
                   )
                 })}
@@ -65,6 +70,18 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
             )}
 
             <LibraryItemDetails libraryItem={libraryItem} />
+
+            <div className="flex items-center gap-2 mt-6">
+              <Btn onClick={() => {}} color="bg-success" size="small">
+                <span className="material-symbols fill text-xl mr-1">play_arrow</span>
+                Play
+              </Btn>
+              <IconBtn onClick={() => {}} size="small">
+                edit
+              </IconBtn>
+            </div>
+
+            {description && <div className="mt-6" dangerouslySetInnerHTML={{ __html: description }} />}
 
             <div className="mt-20 flex flex-col gap-2">
               {/* chapters table */}

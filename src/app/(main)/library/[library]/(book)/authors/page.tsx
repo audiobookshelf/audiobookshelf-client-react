@@ -1,3 +1,13 @@
-export default function AuthorsPage() {
-  return <div className="p-8 w-full">Authors</div>
+import { getAuthors, getData } from '@/lib/api'
+import AuthorsClient from './AuthorsClient'
+
+export default async function AuthorsPage({ params }: { params: Promise<{ library: string }> }) {
+  const { library: libraryId } = await params
+  const [authors] = await getData(getAuthors(libraryId))
+
+  return (
+    <div className="p-8 w-full">
+      <AuthorsClient authors={authors ?? { authors: [] }} />
+    </div>
+  )
 }

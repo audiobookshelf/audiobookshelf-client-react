@@ -863,6 +863,7 @@ export interface Task {
   id: string
   action: string // 'embed-metadata' | 'encode-m4b'
   data?: {
+    libraryId?: string
     libraryItemId?: string
     [key: string]: unknown
   }
@@ -915,6 +916,10 @@ export interface TasksResponse {
   }
 }
 
+export interface LibraryTaskPayload {
+  libraryId: string
+}
+
 export interface GetNarratorsResponse {
   narrators: NarratorObject[]
 }
@@ -923,4 +928,12 @@ export interface NarratorObject {
   id: string
   name: string
   numBooks: number
+}
+
+export interface GetAuthorsResponse {
+  authors: AuthorExpanded[]
+}
+
+export type SaveLibraryOrderApiResponse = {
+  libraries: Library[]
 }

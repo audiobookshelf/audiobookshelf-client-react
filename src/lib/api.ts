@@ -6,6 +6,7 @@ import {
   Author,
   BookSearchResult,
   FFProbeData,
+  GetAuthorsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetNarratorsResponse,
@@ -15,6 +16,7 @@ import {
   MetadataProvidersResponse,
   PersonalizedShelf,
   PodcastSearchResult,
+  SaveLibraryOrderApiResponse,
   SearchLibraryResponse,
   Series,
   ServerStatus,
@@ -383,6 +385,10 @@ export const getNarrators = cache(async (libraryId: string) => {
   return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
 })
 
+export const getAuthors = cache(async (libraryId: string) => {
+  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors`, {})
+})
+
 export const getAuthor = cache(async (authorId: string): Promise<Author> => {
   return apiRequest<Author>(`/api/authors/${authorId}`, {})
 })
@@ -522,4 +528,80 @@ export async function embedMetadataQuick(libraryItemId: string): Promise<void> {
  */
 export async function getTasks(): Promise<TasksResponse> {
   return apiRequest<TasksResponse>('/api/tasks?include=queue', {})
+}
+
+//
+// Library Action endpoints
+//
+
+/**
+ * Create a library
+ * @param newLibrary - New library object
+ * Returns: Library object
+ */
+export async function createLibrary(newLibrary: Library): Promise<Library> {
+  return apiRequest<Library>(`/api/libraries/`, {
+    method: 'POST',
+    body: JSON.stringify(newLibrary)
+  })
+}
+
+/**
+ * Update a library
+ * @param libraryId - Library ID
+ * @param newLibrary - New library object
+ * Returns: Library object
+ */
+export async function updateLibrary(libraryId: string, updatedLibrary: Library): Promise<Library> {
+  return apiRequest<Library>(`/api/libraries/${libraryId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(updatedLibrary)
+  })
+}
+
+/**
+ * Delete a library
+ * @param libraryId - Library ID
+ * @param newLibrary - New library object
+ * Returns: Library object
+ */
+export async function deleteLibrary(libraryId: string): Promise<Library> {
+  return apiRequest<Library>(`/api/libraries/${libraryId}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
+ * Scan a library
+ * @param libraryItemId - Library item ID
+ * @param force - force a scan
+ * Returns: void (success) or throws error
+ */
+export async function scanLibrary(libraryId: string, force: boolean = false): Promise<void> {
+  return apiRequest<void>(`/api/libraries/${libraryId}/scan?force=${force ? 1 : 0}`, {
+    method: 'POST'
+  })
+}
+
+/**
+ * Save the order of libraries
+ * @param libraryItemId - Library item ID
+ * Returns: void (success) or throws error TODO
+ */
+export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]): Promise<SaveLibraryOrderApiResponse> {
+  return apiRequest<SaveLibraryOrderApiResponse>('/api/libraries/order', {
+    method: 'POST',
+    body: JSON.stringify(reorderObjects)
+  })
+}
+
+/**
+ * Match all books in a library
+ * @param libraryId - Library item ID
+ * Returns: void (success) or throws error
+ */
+export async function matchAll(libraryId: string): Promise<void> {
+  return apiRequest<void>(`/api/libraries/${libraryId}/matchall`, {
+    method: 'GET'
+  })
 }
