@@ -1027,6 +1027,10 @@ export interface GetAuthorsResponse {
   authors: AuthorExpanded[]
 }
 
+export interface GetSeriesResponse {
+  series: SeriesExpanded[]
+}
+
 export type SaveLibraryOrderApiResponse = {
   libraries: Library[]
 }

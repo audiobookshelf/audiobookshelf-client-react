@@ -10,6 +10,7 @@ import {
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetNarratorsResponse,
+  GetSeriesResponse,
   GetUsersResponse,
   Library,
   LibraryItem,
@@ -384,6 +385,10 @@ export const getAuthors = cache(async (libraryId: string) => {
 
 export const getAuthor = cache(async (authorId: string): Promise<Author> => {
   return apiRequest<Author>(`/api/authors/${authorId}`, {})
+})
+
+export const getSeriesList = cache(async (libraryId: string) => {
+  return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series?limit=100`, {})
 })
 
 export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
