@@ -931,7 +931,7 @@ export interface NarratorObject {
 }
 
 export interface GetAuthorsResponse {
-  authors: AuthorExpanded[]
+  authors: Author[]
 }
 
 export type SaveLibraryOrderApiResponse = {
