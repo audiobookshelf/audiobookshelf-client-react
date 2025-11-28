@@ -3,19 +3,18 @@
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
+import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
 import { useMediaContext } from '@/contexts/MediaContext'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode, RssFeed, UserPermissions } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useId, useMemo, useState, type ReactNode } from 'react'
 
-export interface LazyLibraryItemCardProps {
+export interface MediaCardProps {
   libraryItem: LibraryItem
   bookshelfView: BookshelfView
   orderBy?: string
@@ -52,6 +51,10 @@ export interface LazyLibraryItemCardProps {
    */
   renderSeriesNameOverlay?: (isHovering: boolean) => ReactNode
   /**
+   * Optional episode to display instead of the main library item (e.g. for recent episodes)
+   */
+  episode?: PodcastEpisode
+  /**
    * Whether the card is in selection mode
    */
   isSelectionMode?: boolean
@@ -65,7 +68,7 @@ export interface LazyLibraryItemCardProps {
   onSelect?: (event: React.MouseEvent) => void
 }
 
-function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
+function MediaCard(props: MediaCardProps) {
   const {
     libraryItem,
     bookshelfView,
@@ -84,12 +87,12 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
     renderBadges,
     renderOverlayBadges,
     renderSeriesNameOverlay,
+    episode,
     isSelectionMode = false,
     selected = false,
     onSelect
   } = props
 
-  const t = useTypeSafeTranslations()
   const router = useRouter()
   const { libraryItemIdStreaming, isStreaming, isStreamingFromDifferentLibrary, getIsMediaQueued } = useMediaContext()
   const cardId = useId()
@@ -124,18 +127,6 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
   const rssFeed = useMemo<RssFeed | null>(() => (libraryItem as { rssFeed?: RssFeed }).rssFeed ?? null, [libraryItem])
   const mediaItemShare = useMemo<MediaItemShare | null>(() => (libraryItem as { mediaItemShare?: MediaItemShare }).mediaItemShare ?? null, [libraryItem])
 
-  const collapsedSeries = useMemo(
-    () =>
-      (
-        libraryItem as {
-          collapsedSeries?: { id: string; name?: string; nameIgnorePrefix?: string; numBooks?: number }
-        }
-      ).collapsedSeries,
-    [libraryItem]
-  )
-
-  const booksInSeries = useMemo(() => collapsedSeries?.numBooks || 0, [collapsedSeries])
-
   const isMissing = libraryItem.isMissing
   const isInvalid = libraryItem.isInvalid
 
@@ -145,10 +136,7 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
     lastUpdated,
     startedAt,
     finishedAt
-  } = useMemo(
-    () => computeProgress({ progress: mediaProgress, seriesProgressPercent, useSeriesProgress: !!booksInSeries }),
-    [mediaProgress, seriesProgressPercent, booksInSeries]
-  )
+  } = useMemo(() => computeProgress({ progress: mediaProgress, seriesProgressPercent, useSeriesProgress: false }), [mediaProgress, seriesProgressPercent])
 
   const playIconFontSize = useMemo(() => Math.max(2, 3 * (sizeMultiplier || 1)), [sizeMultiplier])
 
@@ -158,39 +146,26 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
     return metadata.authorName ?? metadata.author
   }, [isPodcast, rawMetadata])
 
-  const episodeForQueue = (libraryItem as { recentEpisode?: PodcastEpisode }).recentEpisode
-
   const displayTitle = useMemo(() => {
-    if (episodeForQueue) return episodeForQueue.title
+    if (episode) return episode.title
     const ignorePrefix = orderBy === 'media.metadata.title' && sortingIgnorePrefix
-
-    if (collapsedSeries) {
-      const name = ignorePrefix ? (collapsedSeries.nameIgnorePrefix ?? collapsedSeries.name) : collapsedSeries.name
-      return name || '\u00A0'
-    }
 
     const metadata = rawMetadata as { title?: string; titleIgnorePrefix?: string }
     if (ignorePrefix) return metadata.titleIgnorePrefix || '\u00A0'
     return title || '\u00A0'
-  }, [collapsedSeries, episodeForQueue, orderBy, rawMetadata, sortingIgnorePrefix, title])
+  }, [episode, orderBy, rawMetadata, sortingIgnorePrefix, title])
 
   const displaySubtitle = useMemo(() => {
     if (!libraryItem) return '\u00A0'
-    if (collapsedSeries) {
-      const count = collapsedSeries.numBooks || 0
-      if (!count) return '\u00A0'
-      return `${count} ${t('LabelBooks')}`
-    }
     const metadata = rawMetadata as { subtitle?: string; seriesName?: string }
     if (metadata.subtitle) return metadata.subtitle
     if (metadata.seriesName) return metadata.seriesName
     return ''
-  }, [collapsedSeries, libraryItem, rawMetadata, t])
+  }, [libraryItem, rawMetadata])
 
   const displayLineTwo = useMemo(() => {
-    if (episodeForQueue) return title
+    if (episode) return title
     if (isPodcast) return author || ''
-    if (collapsedSeries) return ''
     if (isAuthorBookshelfView) {
       const publishedYear = (rawMetadata as { publishedYear?: string }).publishedYear
       return publishedYear || ''
@@ -200,7 +175,7 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
       return metadata.authorNameLF || ''
     }
     return author || ''
-  }, [author, collapsedSeries, episodeForQueue, isAuthorBookshelfView, isPodcast, orderBy, rawMetadata, title])
+  }, [author, episode, isAuthorBookshelfView, isPodcast, orderBy, rawMetadata, title])
 
   const titleCleaned = useMemo(() => {
     if (!title) return ''
@@ -235,11 +210,22 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
   )
 
   const isQueued = useMemo(() => {
-    const episodeId = episodeForQueue ? episodeForQueue.id : null
+    const episodeId = episode ? episode.id : null
     return getIsMediaQueued(libraryItem.id, episodeId)
-  }, [getIsMediaQueued, libraryItem.id, episodeForQueue])
+  }, [getIsMediaQueued, libraryItem.id, episode])
 
-  const showPlayButton = !isSelectionMode && !isMissing && !isInvalid && !isStreaming(libraryItem.id, episodeForQueue?.id ?? null)
+  const numTracks = useMemo(() => {
+    const m = media as { tracks?: unknown[]; numTracks?: number }
+    if (m.tracks) return m.tracks.length
+    return m.numTracks || 0
+  }, [media])
+
+  const showPlayButton =
+    !isSelectionMode &&
+    !isMissing &&
+    !isInvalid &&
+    !isStreaming(libraryItem.id, episode?.id ?? null) &&
+    (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
   const showReadButton = !isSelectionMode && !showPlayButton && !!(media as { ebookFormat?: string }).ebookFormat
 
   const { processing, confirmState, setConfirmState, handlePlay, handleReadEBook, handleMoreAction, moreMenuItems } = useMediaCardActions({
@@ -248,7 +234,7 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
     rawMetadata: rawMetadata as unknown as Record<string, unknown>,
     title,
     author: author || null,
-    episodeForQueue: episodeForQueue || null,
+    episodeForQueue: episode || null,
     mediaProgress,
     itemIsFinished,
     userProgressPercent,
@@ -263,95 +249,81 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
   })
 
   const handleCardClick = useCallback(() => {
-    if (booksInSeries) {
-      const collapsedSeries = (libraryItem as { collapsedSeries?: { id: string } }).collapsedSeries
-      if (collapsedSeries) {
-        router.push(`/library/${libraryItem.libraryId}/series/${collapsedSeries.id}`)
-        return
-      }
-    }
     router.push(`/item/${libraryItem.id}`)
-  }, [booksInSeries, libraryItem, router])
+  }, [libraryItem.id, router])
 
   return (
     <>
-      <div
-        cy-id="mediaCard"
-        id={cardId}
-        tabIndex={0}
-        className={mergeClasses('rounded-xs z-10', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
-        style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
-      >
-        <div
-          className="relative w-full top-0 start-0 rounded-sm overflow-hidden z-10 bg-primary box-shadow-book cursor-pointer"
-          style={{ height: `${coverHeight}px` }}
-          onClick={!processing ? handleCardClick : undefined}
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-        >
-          <div className="absolute w-full h-full top-0 start-0 rounded-sm overflow-hidden z-10">
-            <MediaCardCover
+      <MediaCardFrame
+        width={coverWidth}
+        height={coverHeight}
+        onClick={!processing ? handleCardClick : undefined}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+        cardId={cardId}
+        footer={
+          (isAlternativeBookshelfView || isAuthorBookshelfView) && (
+            <MediaCardDetailView
+              displayTitle={displayTitle}
+              displaySubtitle={displaySubtitle}
+              displayLineTwo={displayLineTwo}
+              isExplicit={isExplicit}
+              showSubtitles={showSubtitles}
+              orderBy={orderBy}
               libraryItem={libraryItem}
-              coverWidth={coverWidth}
-              coverAspect={coverAspect}
-              placeholderUrl={placeholderUrl}
-              hasCover={hasCover}
-              title={title}
-              titleCleaned={titleCleaned}
-              authorCleaned={authorCleaned}
-              isPodcast={isPodcast}
-              userProgressPercent={userProgressPercent}
-              itemIsFinished={itemIsFinished}
+              media={media}
+              dateFormat={dateFormat}
+              timeFormat={timeFormat}
+              lastUpdated={lastUpdated}
+              startedAt={startedAt}
+              finishedAt={finishedAt}
             />
-
-            <MediaCardOverlay
-              isHovering={isHovering}
-              isSelectionMode={isSelectionMode}
-              selected={selected}
-              processing={processing}
-              isPending={false}
-              isMoreMenuOpen={isMoreMenuOpen}
-              showPlayButton={showPlayButton}
-              showReadButton={showReadButton}
-              userCanUpdate={userPermissions.update}
-              playIconFontSize={playIconFontSize}
-              moreMenuItems={moreMenuItems}
-              rssFeed={rssFeed}
-              mediaItemShare={mediaItemShare}
-              showError={showError}
-              errorText={errorText}
-              isAuthorBookshelfView={isAuthorBookshelfView}
-              renderOverlayBadges={renderOverlayBadges}
-              renderBadges={renderBadges}
-              renderSeriesNameOverlay={renderSeriesNameOverlay}
-              onPlay={handlePlay}
-              onRead={handleReadEBook}
-              onMoreAction={handleMoreAction}
-              onMoreMenuOpenChange={setIsMoreMenuOpen}
-              onSelect={onSelect}
-            />
-          </div>
-        </div>
-
-        {/* Alternative bookshelf title/author/sort */}
-        {(isAlternativeBookshelfView || isAuthorBookshelfView) && (
-          <MediaCardDetailView
-            displayTitle={displayTitle}
-            displaySubtitle={displaySubtitle}
-            displayLineTwo={displayLineTwo}
-            isExplicit={isExplicit}
-            showSubtitles={showSubtitles}
-            orderBy={orderBy}
+          )
+        }
+        cover={
+          <MediaCardCover
             libraryItem={libraryItem}
-            media={media}
-            dateFormat={dateFormat}
-            timeFormat={timeFormat}
-            lastUpdated={lastUpdated}
-            startedAt={startedAt}
-            finishedAt={finishedAt}
+            coverWidth={coverWidth}
+            coverAspect={coverAspect}
+            placeholderUrl={placeholderUrl}
+            hasCover={hasCover}
+            title={title}
+            titleCleaned={titleCleaned}
+            authorCleaned={authorCleaned}
+            isPodcast={isPodcast}
+            userProgressPercent={userProgressPercent}
+            itemIsFinished={itemIsFinished}
           />
-        )}
-      </div>
+        }
+        overlay={
+          <MediaCardOverlay
+            isHovering={isHovering}
+            isSelectionMode={isSelectionMode}
+            selected={selected}
+            processing={processing}
+            isPending={false}
+            isMoreMenuOpen={isMoreMenuOpen}
+            showPlayButton={showPlayButton}
+            showReadButton={showReadButton}
+            userCanUpdate={userPermissions.update}
+            playIconFontSize={playIconFontSize}
+            moreMenuItems={moreMenuItems}
+            rssFeed={rssFeed}
+            mediaItemShare={mediaItemShare}
+            showError={showError}
+            errorText={errorText}
+            isAuthorBookshelfView={isAuthorBookshelfView}
+            renderOverlayBadges={renderOverlayBadges}
+            renderBadges={renderBadges}
+            renderSeriesNameOverlay={renderSeriesNameOverlay}
+            onPlay={handlePlay}
+            onRead={handleReadEBook}
+            onMoreAction={handleMoreAction}
+            onMoreMenuOpenChange={setIsMoreMenuOpen}
+            onSelect={onSelect}
+          />
+        }
+      />
 
       {confirmState && (
         <ConfirmDialog
@@ -372,4 +344,4 @@ function LazyLibraryItemCard(props: LazyLibraryItemCardProps) {
 }
 
 // Make LazyLibraryItemCardBase the default export
-export default LazyLibraryItemCard
+export default MediaCard

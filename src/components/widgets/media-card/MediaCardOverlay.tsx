@@ -205,15 +205,27 @@ export default function MediaCardOverlay({
 
       {/* RSS feed & share icons */}
       {rssFeed && !isSelectionMode && !isHovering && (
-        <div cy-id="rssFeed" className="absolute text-success top-0 start-0 z-10" style={{ padding: `${0.375}em` }}>
-          <span className="material-symbols" aria-hidden="true" style={{ fontSize: `${1.5}em` }}>
+        <div
+          cy-id="rssFeed"
+          className="absolute top-[0.375em] start-[0.375em] z-10 bg-black/40 rounded-full flex items-center justify-center shadow-sm"
+          style={{ width: `${1.5}em`, height: `${1.5}em` }}
+        >
+          <span className="material-symbols text-orange-500" aria-hidden="true" style={{ fontSize: `${1}em` }}>
             rss_feed
           </span>
         </div>
       )}
       {mediaItemShare && !isSelectionMode && !isHovering && (
-        <div cy-id="mediaItemShare" className="absolute text-success start-0 z-10" style={{ padding: `${0.375}em`, top: rssFeed ? '2em' : '0px' }}>
-          <span className="material-symbols" aria-hidden="true" style={{ fontSize: `${1.5}em` }}>
+        <div
+          cy-id="mediaItemShare"
+          className="absolute start-[0.375em] z-10 bg-black/40 rounded-full flex items-center justify-center shadow-sm"
+          style={{
+            width: `${1.5}em`,
+            height: `${1.5}em`,
+            top: rssFeed ? `${2.125}em` : `${0.375}em`
+          }}
+        >
+          <span className="material-symbols text-green-500" aria-hidden="true" style={{ fontSize: `${1}em` }}>
             public
           </span>
         </div>
