@@ -100,6 +100,8 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const bookRssFeedSkeletonRef = useRef<HTMLDivElement>(null)
   const bookEbookCardRef = useRef<HTMLDivElement>(null)
   const bookEbookSkeletonRef = useRef<HTMLDivElement>(null)
+  const bookMissingCardRef = useRef<HTMLDivElement>(null)
+  const bookMissingSkeletonRef = useRef<HTMLDivElement>(null)
   const podcastStandardCardRef = useRef<HTMLDivElement>(null)
   const podcastStandardSkeletonRef = useRef<HTMLDivElement>(null)
   const podcastDetailCardRef = useRef<HTMLDivElement>(null)
@@ -128,6 +130,8 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const [bookRssFeedSkeletonDims, setBookRssFeedSkeletonDims] = useState<Dimensions | null>(null)
   const [bookEbookCardDims, setBookEbookCardDims] = useState<Dimensions | null>(null)
   const [bookEbookSkeletonDims, setBookEbookSkeletonDims] = useState<Dimensions | null>(null)
+  const [bookMissingCardDims, setBookMissingCardDims] = useState<Dimensions | null>(null)
+  const [bookMissingSkeletonDims, setBookMissingSkeletonDims] = useState<Dimensions | null>(null)
   const [podcastStandardCardDims, setPodcastStandardCardDims] = useState<Dimensions | null>(null)
   const [podcastStandardSkeletonDims, setPodcastStandardSkeletonDims] = useState<Dimensions | null>(null)
   const [podcastDetailCardDims, setPodcastDetailCardDims] = useState<Dimensions | null>(null)
@@ -179,6 +183,8 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
         measureElement(bookRssFeedSkeletonRef, setBookRssFeedSkeletonDims),
         measureElement(bookEbookCardRef, setBookEbookCardDims),
         measureElement(bookEbookSkeletonRef, setBookEbookSkeletonDims),
+        measureElement(bookMissingCardRef, setBookMissingCardDims),
+        measureElement(bookMissingSkeletonRef, setBookMissingSkeletonDims),
         measureElement(podcastStandardCardRef, setPodcastStandardCardDims),
         measureElement(podcastStandardSkeletonRef, setPodcastStandardSkeletonDims),
         measureElement(podcastDetailCardRef, setPodcastDetailCardDims),
@@ -399,6 +405,44 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 </div>
               </div>
               <DimensionComparison cardDimensions={bookEbookCardDims} skeletonDimensions={bookEbookSkeletonDims} />
+            </Example>
+
+            <Example title={`Book Media Card - Missing: ${selectedBook.media.metadata.title}`} className="mb-6">
+              <div className="flex gap-4 flex-wrap">
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">With Data</p>
+                  <div ref={bookMissingCardRef}>
+                    <BookMediaCard
+                      {...defaultProps}
+                      libraryItem={
+                        {
+                          ...selectedBook,
+                          isMissing: true
+                        } as BookLibraryItem
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      isSelectionMode={isBookSelectionMode}
+                      selected={selectedBookId === selectedBook.id}
+                      onSelect={handleBookSelect}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                  <div ref={bookMissingSkeletonRef}>
+                    <MediaCardSkeleton
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
+                      showSubtitles={defaultProps.showSubtitles}
+                      sizeMultiplier={defaultProps.sizeMultiplier}
+                      dateFormat={defaultProps.dateFormat}
+                      timeFormat={defaultProps.timeFormat}
+                    />
+                  </div>
+                </div>
+              </div>
+              <DimensionComparison cardDimensions={bookMissingCardDims} skeletonDimensions={bookMissingSkeletonDims} />
             </Example>
 
             <Example title={`Book Media Card - Detail View with OrderBy AddedAt: ${selectedBook.media.metadata.title}`} className="mb-6">
