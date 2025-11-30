@@ -791,7 +791,7 @@
   "LabelWebRedirectURLsDescription": "Authorize these URLs in your OAuth provider to allow redirection back to the web app after login:",
   "LabelWebRedirectURLsSubfolder": "Subfolder for Redirect URLs",
   "LabelWeekdaysToRun": "Weekdays to run",
-  "LabelXBooks": "{0} books",
+  "LabelXBooks": "{count} {count, plural, one {book} other {books}}",
   "LabelXItems": "{0} items",
   "LabelYearReviewHide": "Hide Year in Review",
   "LabelYearReviewShow": "See Year in Review",
