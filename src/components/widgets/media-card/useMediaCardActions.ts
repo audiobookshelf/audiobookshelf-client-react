@@ -27,7 +27,6 @@ interface ConfirmState {
 interface UseMediaCardActionsProps {
   libraryItem: LibraryItem
   media: LibraryItem['media']
-  rawMetadata: Record<string, unknown>
   title: string
   author: string | null
   episodeForQueue: PodcastEpisode | null
@@ -47,7 +46,6 @@ interface UseMediaCardActionsProps {
 export function useMediaCardActions({
   libraryItem,
   media,
-  rawMetadata,
   title,
   author,
   episodeForQueue,
@@ -88,7 +86,7 @@ export function useMediaCardActions({
         libraryId: libraryItem.libraryId,
         episodeId: episodeForQueue.id,
         title: episodeForQueue.title,
-        subtitle: (rawMetadata as { title?: string }).title || '',
+        subtitle: title,
         caption,
         duration: episodeForQueue.audioFile?.duration ?? null,
         coverPath: (media as { coverPath?: string }).coverPath ?? null
@@ -111,7 +109,7 @@ export function useMediaCardActions({
       episodeId: episodeForQueue?.id ?? null,
       queueItems
     })
-  }, [author, episodeForQueue, libraryItem, media, playItem, rawMetadata, t, title])
+  }, [author, episodeForQueue, libraryItem, media, playItem, t, title])
 
   const handleReadEBook = useCallback(() => {
     startTransition(async () => {
@@ -133,11 +131,12 @@ export function useMediaCardActions({
       if (!itemIsFinished && userProgressPercent > 0 && !confirmed) {
         setConfirmState({
           isOpen: true,
-          message: t('MessageConfirmMarkItemFinished', { 0: (rawMetadata as { title?: string }).title || title }),
+          message: t('MessageConfirmMarkItemFinished', { 0: title }),
           yesButtonText: t('ButtonYes'),
           yesButtonClassName: 'bg-success',
           onConfirm: () => {
             toggleFinished(true)
+            setConfirmState(null)
           }
         })
         return
@@ -160,7 +159,7 @@ export function useMediaCardActions({
         }
       })
     },
-    [episodeForQueue, itemIsFinished, libraryItem.id, rawMetadata, showToast, t, title, userProgressPercent]
+    [episodeForQueue, itemIsFinished, libraryItem.id, showToast, t, title, userProgressPercent]
   )
 
   const handleMoreAction = useCallback(
@@ -171,7 +170,7 @@ export function useMediaCardActions({
           libraryId: libraryItem.libraryId,
           episodeId: episodeForQueue ? episodeForQueue.id : null,
           title: episodeForQueue ? episodeForQueue.title : title,
-          subtitle: episodeForQueue ? (rawMetadata as { title?: string }).title || '' : author || '',
+          subtitle: episodeForQueue ? title : author || '',
           caption: '',
           duration: episodeForQueue?.audioFile?.duration ?? (media as { duration?: number }).duration ?? null,
           coverPath: (media as { coverPath?: string }).coverPath ?? null
@@ -195,6 +194,7 @@ export function useMediaCardActions({
           yesButtonText: t('ButtonYes'),
           yesButtonClassName: 'bg-success',
           onConfirm: () => {
+            setConfirmState(null)
             startTransition(async () => {
               try {
                 setProcessing(true)
@@ -255,8 +255,17 @@ export function useMediaCardActions({
           yesButtonText: t('ButtonDelete'),
           yesButtonClassName: 'bg-error',
           onConfirm: (hardDeleteChecked?: boolean) => {
+            setConfirmState(null)
             const hardDelete = !!hardDeleteChecked
-            localStorage.setItem('softDeleteDefault', hardDelete ? '0' : '1')
+
+            // SSR-safe localStorage access
+            if (typeof window !== 'undefined') {
+              try {
+                localStorage.setItem('softDeleteDefault', hardDelete ? '0' : '1')
+              } catch (error) {
+                console.warn('Failed to save delete preference to localStorage', error)
+              }
+            }
 
             startTransition(async () => {
               try {
@@ -281,7 +290,6 @@ export function useMediaCardActions({
       libraryItem.id,
       libraryItem.libraryId,
       media,
-      rawMetadata,
       mediaProgress,
       removeItemFromQueue,
       showToast,
@@ -401,10 +409,15 @@ export function useMediaCardActions({
     userIsAdminOrUp
   ])
 
+  const closeConfirm = useCallback(() => {
+    setConfirmState(null)
+  }, [])
+
   return {
     processing: processing || isPending,
+    isPending,
     confirmState,
-    setConfirmState,
+    closeConfirm,
     handlePlay,
     handleReadEBook,
     handleMoreAction,
