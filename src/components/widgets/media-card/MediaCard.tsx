@@ -10,10 +10,20 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
-import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode, RssFeed, UserPermissions } from '@/types/api'
-import { BookshelfView } from '@/types/api'
+import type {
+  BookMedia,
+  BookMetadata,
+  EReaderDevice,
+  LibraryItem,
+  MediaProgress,
+  PodcastEpisode,
+  PodcastMedia,
+  PodcastMetadata,
+  UserPermissions
+} from '@/types/api'
+import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useCallback, useId, useMemo, useState, type ReactNode } from 'react'
+import { memo, useCallback, useId, useMemo, useState, type ReactNode } from 'react'
 
 export interface MediaCardProps {
   libraryItem: LibraryItem
@@ -102,32 +112,53 @@ function MediaCard(props: MediaCardProps) {
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
 
-  const isPodcast = useMemo(() => libraryItem.mediaType === 'podcast', [libraryItem.mediaType])
-  const media = libraryItem.media as LibraryItem['media']
-  const rawMetadata = useMemo(() => media.metadata ?? {}, [media.metadata])
+  const isPodcast = isPodcastLibraryItem(libraryItem)
 
+  // Memoize media to prevent cascading re-renders in dependent memos
+  const media = useMemo<BookMedia | PodcastMedia>(() => libraryItem.media, [libraryItem.media])
+  const originalMetadata = useMemo<BookMetadata | PodcastMetadata>(() => media.metadata, [media.metadata])
+
+  // Normalize metadata properties once to avoid repeated type checks
+  const metadata = useMemo(() => {
+    if (isBookMetadata(originalMetadata)) {
+      return {
+        authorName: originalMetadata.authorName ?? originalMetadata.author,
+        authorNameLF: originalMetadata.authorNameLF,
+        titleIgnorePrefix: originalMetadata.titleIgnorePrefix,
+        subtitle: originalMetadata.subtitle,
+        seriesName: originalMetadata.seriesName,
+        publishedYear: originalMetadata.publishedYear
+      }
+    }
+    // Podcast metadata
+    return {
+      authorName: originalMetadata.author,
+      authorNameLF: null,
+      titleIgnorePrefix: null,
+      subtitle: null,
+      seriesName: null,
+      publishedYear: null
+    }
+  }, [originalMetadata])
+
+  const placeholderUrl = getPlaceholderCoverUrl()
+  const hasCover = !!media.coverPath
+
+  // Memoize aspect ratio calculation based on configuration
   const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1.6), [bookCoverAspectRatio])
 
-  const coverHeight = useMemo(() => 192 * (sizeMultiplier || 1), [sizeMultiplier])
-  const coverWidth = useMemo(() => {
-    const explicitWidth = 0
-    if (explicitWidth) return explicitWidth
-    return coverHeight / coverAspect
-  }, [coverHeight, coverAspect])
+  // Memoize cover dimensions based on size multiplier
+  const coverHeight = useMemo(() => 192 * sizeMultiplier, [sizeMultiplier])
+  const coverWidth = useMemo(() => coverHeight / coverAspect, [coverHeight, coverAspect])
 
-  const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
+  const title = originalMetadata.title || ''
+  const isExplicit = originalMetadata.explicit
 
-  const hasCover = useMemo(() => !!(media as { coverPath?: string }).coverPath, [media])
+  const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
+  const isAuthorBookshelfView = bookshelfView === BookshelfView.AUTHOR
 
-  const title = useMemo(() => (rawMetadata as { title?: string }).title || '', [rawMetadata])
-
-  const isExplicit = useMemo(() => !!(rawMetadata as { explicit?: boolean }).explicit, [rawMetadata])
-
-  const isAlternativeBookshelfView = useMemo(() => bookshelfView === BookshelfView.DETAIL, [bookshelfView])
-  const isAuthorBookshelfView = false
-
-  const rssFeed = useMemo<RssFeed | null>(() => (libraryItem as { rssFeed?: RssFeed }).rssFeed ?? null, [libraryItem])
-  const mediaItemShare = useMemo<MediaItemShare | null>(() => (libraryItem as { mediaItemShare?: MediaItemShare }).mediaItemShare ?? null, [libraryItem])
+  const rssFeed = libraryItem.rssFeed ?? null
+  const mediaItemShare = libraryItem.mediaItemShare ?? null
 
   const isMissing = libraryItem.isMissing
   const isInvalid = libraryItem.isInvalid
@@ -140,44 +171,38 @@ function MediaCard(props: MediaCardProps) {
     finishedAt
   } = useMemo(() => computeProgress({ progress: mediaProgress, seriesProgressPercent, useSeriesProgress: false }), [mediaProgress, seriesProgressPercent])
 
-  const playIconFontSize = useMemo(() => Math.max(2, 3 * (sizeMultiplier || 1)), [sizeMultiplier])
+  const playIconFontSize = useMemo(() => Math.max(2, 3 * sizeMultiplier), [sizeMultiplier])
 
-  const author = useMemo(() => {
-    const metadata = rawMetadata as { author?: string; authorName?: string }
-    if (isPodcast) return metadata.author
-    return metadata.authorName ?? metadata.author
-  }, [isPodcast, rawMetadata])
+  const author = useMemo(() => metadata.authorName, [metadata.authorName])
 
   const displayTitle = useMemo(() => {
     if (episode) return episode.title
     const ignorePrefix = orderBy === 'media.metadata.title' && sortingIgnorePrefix
 
-    const metadata = rawMetadata as { title?: string; titleIgnorePrefix?: string }
-    if (ignorePrefix) return metadata.titleIgnorePrefix || '\u00A0'
+    if (ignorePrefix && metadata.titleIgnorePrefix) {
+      return metadata.titleIgnorePrefix
+    }
     return title || '\u00A0'
-  }, [episode, orderBy, rawMetadata, sortingIgnorePrefix, title])
+  }, [episode, orderBy, metadata.titleIgnorePrefix, sortingIgnorePrefix, title])
 
   const displaySubtitle = useMemo(() => {
     if (!libraryItem) return '\u00A0'
-    const metadata = rawMetadata as { subtitle?: string; seriesName?: string }
     if (metadata.subtitle) return metadata.subtitle
     if (metadata.seriesName) return metadata.seriesName
     return ''
-  }, [libraryItem, rawMetadata])
+  }, [libraryItem, metadata.subtitle, metadata.seriesName])
 
   const displayLineTwo = useMemo(() => {
     if (episode) return title
     if (isPodcast) return author || ''
-    if (isAuthorBookshelfView) {
-      const publishedYear = (rawMetadata as { publishedYear?: string }).publishedYear
-      return publishedYear || ''
+    if (isAuthorBookshelfView && metadata.publishedYear) {
+      return metadata.publishedYear
     }
-    if (orderBy === 'media.metadata.authorNameLF') {
-      const metadata = rawMetadata as { authorNameLF?: string }
-      return metadata.authorNameLF || ''
+    if (orderBy === 'media.metadata.authorNameLF' && metadata.authorNameLF) {
+      return metadata.authorNameLF
     }
     return author || ''
-  }, [author, episode, isAuthorBookshelfView, isPodcast, orderBy, rawMetadata, title])
+  }, [author, episode, isAuthorBookshelfView, isPodcast, orderBy, metadata.publishedYear, metadata.authorNameLF, title])
 
   const titleCleaned = useMemo(() => {
     if (!title) return ''
@@ -217,9 +242,11 @@ function MediaCard(props: MediaCardProps) {
   }, [getIsMediaQueued, libraryItem.id, episode])
 
   const numTracks = useMemo(() => {
-    const m = media as { tracks?: unknown[]; numTracks?: number }
-    if (m.tracks) return m.tracks.length
-    return m.numTracks || 0
+    if (isBookMedia(media)) {
+      if (media.tracks) return media.tracks.length
+      return media.numTracks || 0
+    }
+    return 0
   }, [media])
 
   const showPlayButton =
@@ -228,12 +255,11 @@ function MediaCard(props: MediaCardProps) {
     !isInvalid &&
     !isStreaming(libraryItem.id, episode?.id ?? null) &&
     (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
-  const showReadButton = !isSelectionMode && !showPlayButton && !!(media as { ebookFormat?: string }).ebookFormat
+  const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!media.ebookFormat
 
-  const { processing, confirmState, setConfirmState, handlePlay, handleReadEBook, handleMoreAction, moreMenuItems } = useMediaCardActions({
+  const { processing, isPending, confirmState, closeConfirm, handlePlay, handleReadEBook, handleMoreAction, moreMenuItems } = useMediaCardActions({
     libraryItem,
     media,
-    rawMetadata: rawMetadata as unknown as Record<string, unknown>,
     title,
     author: author || null,
     episodeForQueue: episode || null,
@@ -254,6 +280,11 @@ function MediaCard(props: MediaCardProps) {
     router.push(`/item/${libraryItem.id}`)
   }, [libraryItem.id, router])
 
+  const handleEdit = useCallback(() => {
+    // TODO: wire up edit modal when available
+    console.log('handleEdit', libraryItem.id)
+  }, [libraryItem.id])
+
   return (
     <>
       <MediaCardFrame
@@ -263,6 +294,7 @@ function MediaCard(props: MediaCardProps) {
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
+        cy-id="MediaCard"
         footer={
           (isAlternativeBookshelfView || isAuthorBookshelfView) && (
             <MediaCardDetailView
@@ -303,7 +335,7 @@ function MediaCard(props: MediaCardProps) {
             isSelectionMode={isSelectionMode}
             selected={selected}
             processing={processing}
-            isPending={false}
+            isPending={isPending}
             isMoreMenuOpen={isMoreMenuOpen}
             showPlayButton={showPlayButton}
             showReadButton={showReadButton}
@@ -320,6 +352,7 @@ function MediaCard(props: MediaCardProps) {
             renderSeriesNameOverlay={renderSeriesNameOverlay}
             onPlay={handlePlay}
             onRead={handleReadEBook}
+            onEdit={handleEdit}
             onMoreAction={handleMoreAction}
             onMoreMenuOpenChange={setIsMoreMenuOpen}
             onSelect={onSelect}
@@ -334,10 +367,9 @@ function MediaCard(props: MediaCardProps) {
           checkboxLabel={confirmState.checkboxLabel}
           yesButtonText={confirmState.yesButtonText}
           yesButtonClassName={confirmState.yesButtonClassName}
-          onClose={() => setConfirmState(null)}
+          onClose={closeConfirm}
           onConfirm={(value) => {
             confirmState.onConfirm(value)
-            setConfirmState(null)
           }}
         />
       )}
@@ -345,5 +377,14 @@ function MediaCard(props: MediaCardProps) {
   )
 }
 
-// Make LazyLibraryItemCardBase the default export
-export default MediaCard
+/**
+ * Memoized MediaCard component to prevent unnecessary re-renders when parent updates.
+ * Only re-renders when props actually change.
+ */
+const MemoizedMediaCard = memo(MediaCard)
+
+// Named export for testing
+export { MemoizedMediaCard as MediaCard }
+
+// Default export for compatibility
+export default MemoizedMediaCard
