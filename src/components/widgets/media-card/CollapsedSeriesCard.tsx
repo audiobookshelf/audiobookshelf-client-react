@@ -50,7 +50,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
 
   const media = libraryItem.media as LibraryItem['media']
-  const hasCover = useMemo(() => !!(media as { coverPath?: string }).coverPath, [media])
+  const hasCover = useMemo(() => !!media.coverPath, [media])
 
   const {
     percent: userProgressPercent,
@@ -95,10 +95,10 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
         return (
           <div
             cy-id="seriesSequenceList"
-            className="absolute rounded-lg bg-black/90 box-shadow-md z-20 text-end top-[0.375em] end-[0.375em]"
-            style={{ padding: `0.1em 0.25em`, backgroundColor: '#78350f' }}
+            className="absolute rounded-lg bg-amber-900 shadow-modal-content z-20 text-end top-[0.375em] end-[0.375em]"
+            style={{ padding: '0.1em 0.25em' }}
           >
-            <p style={{ fontSize: `${0.8}em` }}>#{seriesSequenceList}</p>
+            <p style={{ fontSize: '0.8em' }}>#{seriesSequenceList}</p>
           </div>
         )
       }
@@ -108,10 +108,10 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
         return (
           <div
             cy-id="booksInSeries"
-            className="absolute rounded-lg bg-black/90 box-shadow-md z-20 top-[0.375em] end-[0.375em]"
-            style={{ padding: `0.1em 0.25em`, backgroundColor: '#cd9d49dd' }}
+            className="absolute rounded-lg bg-yellow-600/90 shadow-modal-content z-20 top-[0.375em] end-[0.375em]"
+            style={{ padding: '0.1em 0.25em' }}
           >
-            <p style={{ fontSize: `${0.8}em` }}>{booksInSeries}</p>
+            <p style={{ fontSize: '0.8em' }}>{booksInSeries}</p>
           </div>
         )
       }
@@ -129,9 +129,9 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
           <div
             cy-id="seriesNameOverlay"
             className="w-full h-full absolute top-0 start-0 z-10 bg-black/60 rounded-sm flex items-center justify-center"
-            style={{ padding: `${1}em` }}
+            style={{ padding: '1em' }}
           >
-            <p className="text-gray-200 text-center" style={{ fontSize: `${1.1}em` }}>
+            <p className="text-gray-200 text-center" style={{ fontSize: '1.1em' }}>
               {seriesName}
             </p>
           </div>
