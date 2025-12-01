@@ -9,6 +9,33 @@ import { mergeClasses } from '@/lib/merge-classes'
 import type { MediaItemShare, RssFeed } from '@/types/api'
 import { useCallback, useMemo, type ReactNode } from 'react'
 
+/**
+ * Safely renders a render function with error boundary handling.
+ * Prevents crashes from external render prop errors.
+ */
+function safeRender(fn: (() => ReactNode) | undefined, errorMessage: string): ReactNode {
+  if (!fn) return null
+  try {
+    return fn()
+  } catch (error) {
+    console.error(errorMessage, error)
+    return null
+  }
+}
+
+// Layout constants
+const ICON_SIZE = {
+  SMALL: 1.5,
+  ERROR_BADGE_HEIGHT: 1.5,
+  ERROR_BADGE_WIDTH: 2.5,
+  ERROR_ICON: 0.875
+} as const
+
+const SPACING = {
+  CORNER: 0.375,
+  RSS_SHARE_GAP: 2.125
+} as const
+
 interface MediaCardOverlayProps {
   isHovering: boolean
   isSelectionMode: boolean
@@ -31,6 +58,7 @@ interface MediaCardOverlayProps {
   renderSeriesNameOverlay?: (isHovering: boolean) => ReactNode
   onPlay: () => void
   onRead: () => void
+  onEdit?: () => void
   onMoreAction: (action: string, data?: Record<string, string>) => void
   onMoreMenuOpenChange: (isOpen: boolean) => void
   onSelect?: (event: React.MouseEvent) => void
@@ -58,6 +86,7 @@ export default function MediaCardOverlay({
   renderSeriesNameOverlay,
   onPlay,
   onRead,
+  onEdit,
   onMoreAction,
   onMoreMenuOpenChange,
   onSelect
@@ -66,9 +95,30 @@ export default function MediaCardOverlay({
 
   const t = useTypeSafeTranslations()
 
+  const isProcessingOrPending = useMemo(() => processing || isPending, [processing, isPending])
+
   const overlayWrapperClasslist = useMemo(
     () => mergeClasses(isSelectionMode ? 'bg-black/60' : 'bg-black/40', selected && 'border-2 border-yellow-400'),
     [isSelectionMode, selected]
+  )
+
+  const playButtonStyle = useMemo(() => ({ fontSize: `${playIconFontSize}em` }), [playIconFontSize])
+
+  const errorBadgeStyle = useMemo(() => ({ height: `${ICON_SIZE.ERROR_BADGE_HEIGHT}em`, width: `${ICON_SIZE.ERROR_BADGE_WIDTH}em` }), [])
+
+  const errorIconStyle = useMemo(() => ({ fontSize: `${ICON_SIZE.ERROR_ICON}em` }), [])
+
+  const iconBadgeStyle = useMemo(() => ({ width: `${ICON_SIZE.SMALL}em`, height: `${ICON_SIZE.SMALL}em` }), [])
+
+  const iconStyle = useMemo(() => ({ fontSize: `1em` }), [])
+
+  const shareIconStyle = useMemo(
+    () => ({
+      width: `${ICON_SIZE.SMALL}em`,
+      height: `${ICON_SIZE.SMALL}em`,
+      top: rssFeed ? `${SPACING.RSS_SHARE_GAP}em` : `${SPACING.CORNER}em`
+    }),
+    [rssFeed]
   )
 
   const handlePlayClick = useCallback(
@@ -98,21 +148,30 @@ export default function MediaCardOverlay({
     [onSelect]
   )
 
+  const handleEditClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+      event.preventDefault()
+      event.stopPropagation()
+      onEdit?.()
+    },
+    [onEdit]
+  )
+
   return (
     <>
       {/* Overlay */}
       {showOverlay && (
-        <div cy-id="overlay" className={mergeClasses('w-full h-full absolute top-0 start-0 z-10 bg-black rounded-sm', 'md:block', overlayWrapperClasslist)}>
+        <div cy-id="overlay" className={mergeClasses('w-full h-full absolute top-0 start-0 z-10 bg-black rounded-sm md:block', overlayWrapperClasslist)}>
           {/* Play button */}
           {showPlayButton && (
             <div cy-id="playButton" className="h-full flex items-center justify-center pointer-events-none">
               <IconBtn
                 borderless
                 outlined={false}
-                className="hover:text-white text-gray-200 hover:scale-110 transform duration-200 pointer-events-auto w-auto h-auto"
+                className={mergeClasses('hover:text-white text-gray-200 hover:scale-110', 'transform duration-200 pointer-events-auto w-auto h-auto')}
                 onClick={handlePlayClick}
                 ariaLabel={t('ButtonPlay')}
-                style={{ fontSize: `${playIconFontSize}em` }}
+                style={playButtonStyle}
               >
                 play_arrow
               </IconBtn>
@@ -124,10 +183,10 @@ export default function MediaCardOverlay({
             <div cy-id="readButton" className="h-full flex items-center justify-center pointer-events-none">
               <IconBtn
                 borderless
-                className="hover:text-white text-gray-200 hover:scale-110 transform duration-200 pointer-events-auto w-auto h-auto"
+                className={mergeClasses('hover:text-white text-gray-200 hover:scale-110', 'transform duration-200 pointer-events-auto w-auto h-auto')}
                 onClick={handleReadClick}
                 ariaLabel={t('ButtonRead')}
-                style={{ fontSize: `${playIconFontSize}em` }}
+                style={playButtonStyle}
               >
                 auto_stories
               </IconBtn>
@@ -154,12 +213,12 @@ export default function MediaCardOverlay({
 
           {/* Edit button */}
           {userCanUpdate && !isSelectionMode && (
-            <div cy-id="editButton" className="absolute top-[0.375em] end-[0.375em] ">
-              {/* TODO: wire up edit modal when available */}
+            <div cy-id="editButton" className="absolute top-[0.375em] end-[0.375em]">
               <IconBtn
                 borderless
                 size="small"
-                className="text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125 transform duration-150 text-[1em] w-auto h-auto"
+                className={mergeClasses('text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125', 'transform duration-150 text-[1em] w-auto h-auto')}
+                onClick={handleEditClick}
                 ariaLabel={t('ButtonEdit')}
               >
                 edit
@@ -171,14 +230,17 @@ export default function MediaCardOverlay({
           {!isSelectionMode && moreMenuItems.length > 0 && (
             <div
               cy-id="moreButton"
-              className="md:block absolute cursor-pointer bottom-[0.375em] end-[0.375em] hover:[&_.material-symbols]:!text-yellow-300 hover:scale-125"
+              className={mergeClasses(
+                'md:block absolute cursor-pointer bottom-[0.375em] end-[0.375em]',
+                'hover:[&_.material-symbols]:!text-yellow-300 hover:scale-125'
+              )}
             >
-              <MediaCardMoreMenu items={moreMenuItems} processing={processing || isPending} onAction={onMoreAction} onOpenChange={onMoreMenuOpenChange} />
+              <MediaCardMoreMenu items={moreMenuItems} processing={isProcessingOrPending} onAction={onMoreAction} onOpenChange={onMoreMenuOpenChange} />
             </div>
           )}
 
           {/* Overlay badges (e.g., ebook format) */}
-          {renderOverlayBadges?.()}
+          {safeRender(renderOverlayBadges, 'Error rendering overlay badges:')}
         </div>
       )}
 
@@ -193,10 +255,10 @@ export default function MediaCardOverlay({
       {showError && (
         <Tooltip text={errorText} position="right" usePortal className="absolute bottom-4 start-0 z-10" tooltipClassName="whitespace-nowrap">
           <div
-            className="bg-error rounded-r-full shadow-md flex items-center justify-end border-r border-b border-red-300"
-            style={{ height: `${1.5}em`, width: `${2.5}em` }}
+            className={mergeClasses('bg-error rounded-r-full shadow-md flex items-center justify-end', 'border-r border-b border-red-300')}
+            style={errorBadgeStyle}
           >
-            <span className="material-symbols text-red-100 pr-1" style={{ fontSize: `${0.875}em` }}>
+            <span className="material-symbols text-red-100 pr-1" style={errorIconStyle}>
               priority_high
             </span>
           </div>
@@ -207,10 +269,10 @@ export default function MediaCardOverlay({
       {rssFeed && !isSelectionMode && !isHovering && (
         <div
           cy-id="rssFeed"
-          className="absolute top-[0.375em] start-[0.375em] z-10 bg-black/40 rounded-full flex items-center justify-center shadow-sm"
-          style={{ width: `${1.5}em`, height: `${1.5}em` }}
+          className={mergeClasses('absolute top-[0.375em] start-[0.375em] z-10', 'bg-black/40 rounded-full flex items-center justify-center shadow-sm')}
+          style={iconBadgeStyle}
         >
-          <span className="material-symbols text-orange-500" aria-hidden="true" style={{ fontSize: `${1}em` }}>
+          <span className="material-symbols text-orange-500" aria-hidden="true" style={iconStyle}>
             rss_feed
           </span>
         </div>
@@ -218,24 +280,20 @@ export default function MediaCardOverlay({
       {mediaItemShare && !isSelectionMode && !isHovering && (
         <div
           cy-id="mediaItemShare"
-          className="absolute start-[0.375em] z-10 bg-black/40 rounded-full flex items-center justify-center shadow-sm"
-          style={{
-            width: `${1.5}em`,
-            height: `${1.5}em`,
-            top: rssFeed ? `${2.125}em` : `${0.375}em`
-          }}
+          className={mergeClasses('absolute start-[0.375em] z-10', 'bg-black/40 rounded-full flex items-center justify-center shadow-sm')}
+          style={shareIconStyle}
         >
-          <span className="material-symbols text-green-500" aria-hidden="true" style={{ fontSize: `${1}em` }}>
+          <span className="material-symbols text-green-500" aria-hidden="true" style={iconStyle}>
             public
           </span>
         </div>
       )}
 
       {/* Type-specific badges (books/podcasts) */}
-      {renderBadges?.({ isHovering, isSelectionMode, processing: processing || isPending })}
+      {safeRender(() => renderBadges?.({ isHovering, isSelectionMode, processing: isProcessingOrPending }), 'Error rendering badges:')}
 
       {/* Series name overlay */}
-      {renderSeriesNameOverlay?.(isHovering)}
+      {safeRender(() => renderSeriesNameOverlay?.(isHovering), 'Error rendering series name overlay:')}
     </>
   )
 }
