@@ -3,7 +3,7 @@
 import { getLibraryItemCoverSrc } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface MediaCardCoverProps {
   libraryItem: LibraryItem
@@ -19,6 +19,11 @@ interface MediaCardCoverProps {
   itemIsFinished: boolean
   onImageLoad?: (showBg: boolean) => void
 }
+
+const PLACEHOLDER_COVER_PADDING = 0.8
+const TITLE_FONT_SIZE = 0.75
+const AUTHOR_FONT_SIZE = 0.6
+const AUTHOR_BOTTOM = 0.75
 
 export default function MediaCardCover({
   libraryItem,
@@ -39,15 +44,19 @@ export default function MediaCardCover({
 
   const bookCoverSrc = useMemo(() => getLibraryItemCoverSrc(libraryItem, placeholderUrl), [libraryItem, placeholderUrl])
 
-  const placeholderCoverPadding = 0.8
-  const titleFontSize = 0.75
-  const authorFontSize = 0.6
-  const authorBottom = 0.75
+  const [prevSrc, setPrevSrc] = useState(bookCoverSrc)
+
+  // Reset image ready state when cover source changes
+  useEffect(() => {
+    if (bookCoverSrc !== prevSrc) {
+      setPrevSrc(bookCoverSrc)
+      setImageReady(false)
+    }
+  }, [bookCoverSrc, prevSrc])
 
   const handleImageLoaded = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement>) => {
       const img = event.currentTarget
-      console.log('imageLoaded', img.src, img.naturalWidth, img.naturalHeight)
       setImageReady(true)
 
       if (bookCoverSrc !== placeholderUrl) {
@@ -115,10 +124,10 @@ export default function MediaCardCover({
           <div
             cy-id="placeholderTitle"
             className="absolute top-0 start-0 end-0 bottom-0 w-full h-full flex items-center justify-center"
-            style={{ padding: `${placeholderCoverPadding}em` }}
+            style={{ padding: `${PLACEHOLDER_COVER_PADDING}em` }}
           >
             <div>
-              <p cy-id="placeholderTitleText" aria-hidden="true" className="text-center" style={{ color: 'rgb(247 223 187)', fontSize: `${titleFontSize}em` }}>
+              <p cy-id="placeholderTitleText" aria-hidden="true" className="text-center text-amber-100" style={{ fontSize: `${TITLE_FONT_SIZE}em` }}>
                 {titleCleaned}
               </p>
             </div>
@@ -126,14 +135,9 @@ export default function MediaCardCover({
           <div
             cy-id="placeholderAuthor"
             className="absolute start-0 end-0 w-full flex items-center justify-center"
-            style={{ padding: `${placeholderCoverPadding}em`, bottom: `${authorBottom}em` }}
+            style={{ padding: `${PLACEHOLDER_COVER_PADDING}em`, bottom: `${AUTHOR_BOTTOM}em` }}
           >
-            <p
-              cy-id="placeholderAuthorText"
-              aria-hidden="true"
-              className="text-center"
-              style={{ color: 'rgb(247 223 187)', opacity: 0.75, fontSize: `${authorFontSize}em` }}
-            >
+            <p cy-id="placeholderAuthorText" aria-hidden="true" className="text-center text-amber-100 opacity-75" style={{ fontSize: `${AUTHOR_FONT_SIZE}em` }}>
               {authorCleaned}
             </p>
           </div>
