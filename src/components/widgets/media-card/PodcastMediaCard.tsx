@@ -1,6 +1,6 @@
 'use client'
 
-import type { LibraryItem, PodcastEpisode } from '@/types/api'
+import type { PodcastMedia } from '@/types/api'
 import { useMemo } from 'react'
 import MediaCard, { type MediaCardProps } from './MediaCard'
 
@@ -11,9 +11,9 @@ export type PodcastMediaCardProps = MediaCardProps
  */
 export default function PodcastMediaCard(props: PodcastMediaCardProps) {
   const { libraryItem } = props
-  const media = libraryItem.media as LibraryItem['media']
+  const media = libraryItem.media as PodcastMedia
 
-  const recentEpisode = useMemo(() => (libraryItem as { recentEpisode?: PodcastEpisode }).recentEpisode, [libraryItem])
+  const recentEpisode = useMemo(() => libraryItem.recentEpisode, [libraryItem])
 
   const recentEpisodeNumber = useMemo(() => {
     if (!recentEpisode) return null
@@ -23,8 +23,8 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
     return ''
   }, [recentEpisode])
 
-  const numEpisodes = useMemo(() => (media as { numEpisodes?: number }).numEpisodes || 0, [media])
-  const numEpisodesIncomplete = useMemo(() => (libraryItem as { numEpisodesIncomplete?: number }).numEpisodesIncomplete || 0, [libraryItem])
+  const numEpisodes = useMemo(() => media.numEpisodes || 0, [media])
+  const numEpisodesIncomplete = useMemo(() => libraryItem.numEpisodesIncomplete || 0, [libraryItem])
 
   const renderBadges = useMemo(() => {
     const PodcastBadges = ({ isHovering, isSelectionMode, processing }: { isHovering: boolean; isSelectionMode: boolean; processing: boolean }) => {
@@ -33,10 +33,10 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
         return (
           <div
             cy-id="podcastEpisodeNumber"
-            className="absolute rounded-lg bg-black/90 box-shadow-md z-10 top-[0.375em] end-[0.375em]"
-            style={{ padding: `0.1em 0.25em` }}
+            className="absolute rounded-lg bg-black/90 shadow-modal-content z-10 top-[0.375em] end-[0.375em]"
+            style={{ padding: '0.1em 0.25em' }}
           >
-            <p style={{ fontSize: `${0.8}em` }}>
+            <p style={{ fontSize: '0.8em' }}>
               Episode
               {recentEpisodeNumber && <span>#{recentEpisodeNumber}</span>}
             </p>
@@ -49,10 +49,10 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
         return (
           <div
             cy-id="numEpisodesIncomplete"
-            className="absolute rounded-full bg-yellow-400 text-black font-semibold box-shadow-md z-10 flex items-center justify-center top-[0.375em] end-[0.375em]"
-            style={{ width: `${1.25}em`, height: `${1.25}em` }}
+            className="absolute rounded-full bg-yellow-400 text-black font-semibold shadow-modal-content z-10 flex items-center justify-center top-[0.375em] end-[0.375em]"
+            style={{ width: '1.25em', height: '1.25em' }}
           >
-            <p style={{ fontSize: `${0.8}em` }} role="status" aria-label="Number of episodes">
+            <p style={{ fontSize: '0.8em' }} role="status" aria-label="Number of episodes">
               {numEpisodesIncomplete}
             </p>
           </div>
@@ -64,10 +64,10 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
         return (
           <div
             cy-id="numEpisodes"
-            className="absolute rounded-full bg-black/90 box-shadow-md z-10 flex items-center justify-center top-[0.375em] end-[0.375em]"
-            style={{ width: `${1.25}em`, height: `${1.25}em` }}
+            className="absolute rounded-full bg-black/90 shadow-modal-content z-10 flex items-center justify-center top-[0.375em] end-[0.375em]"
+            style={{ width: '1.25em', height: '1.25em' }}
           >
-            <p style={{ fontSize: `${0.8}em` }} role="status" aria-label="Number of episodes">
+            <p style={{ fontSize: '0.8em' }} role="status" aria-label="Number of episodes">
               {numEpisodes}
             </p>
           </div>
