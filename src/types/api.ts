@@ -17,7 +17,8 @@ export enum AuthMethod {
 
 export enum BookshelfView {
   STANDARD = 0, // Skeumorphic (original) design
-  DETAIL = 1 // Modern default design
+  DETAIL = 1, // Modern default design
+  AUTHOR = 2 // Books shown on author page
 }
 
 // ============================================================================
@@ -250,6 +251,12 @@ export interface BookMetadata {
   language?: string
   explicit: boolean
   abridged?: boolean
+  // Server-computed properties for display/sorting
+  authorName?: string
+  authorNameLF?: string
+  titleIgnorePrefix?: string
+  seriesName?: string
+  author?: string
 }
 
 export interface PodcastMetadata {
@@ -758,6 +765,14 @@ export function isBookMedia(media: BookMedia | PodcastMedia): media is BookMedia
 
 export function isPodcastMedia(media: BookMedia | PodcastMedia): media is PodcastMedia {
   return 'episodes' in media
+}
+
+export function isBookMetadata(metadata: BookMetadata | PodcastMetadata): metadata is BookMetadata {
+  return 'authors' in metadata
+}
+
+export function isPodcastMetadata(metadata: BookMetadata | PodcastMetadata): metadata is PodcastMetadata {
+  return 'author' in metadata && !('authors' in metadata)
 }
 
 export function isBookLibraryItem(item: LibraryItem): item is BookLibraryItem {
