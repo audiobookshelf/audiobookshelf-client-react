@@ -39,7 +39,7 @@ export default function MediaCardSkeleton({
   const coverHeight = useMemo(() => 192 * sizeMultiplier, [sizeMultiplier])
   const coverWidth = useMemo(() => coverHeight / coverAspect, [coverHeight, coverAspect])
 
-  const isDetailedView = bookshelfView === BookshelfView.DETAIL
+  const isDetailedView = bookshelfView === BookshelfView.DETAIL || bookshelfView === BookshelfView.AUTHOR
 
   // Mock library item for detail view
   const mockLibraryItem = useMemo(
@@ -64,6 +64,8 @@ export default function MediaCardSkeleton({
       cy-id="mediaCard"
       id={cardId}
       tabIndex={0}
+      aria-busy="true"
+      aria-live="polite"
       className={mergeClasses('rounded-xs z-10 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
@@ -71,6 +73,7 @@ export default function MediaCardSkeleton({
       <div
         className={mergeClasses('relative w-full rounded-sm overflow-hidden z-10 bg-primary box-shadow-book', 'animate-pulse')}
         style={{ height: `${coverHeight}px` }}
+        aria-hidden="true"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800" />
       </div>
