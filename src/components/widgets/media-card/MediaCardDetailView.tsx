@@ -2,9 +2,10 @@
 
 import Tooltip from '@/components/ui/Tooltip'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
+import { useTruncation } from '@/hooks/useTruncation'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { LibraryItem } from '@/types/api'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId } from 'react'
 import { formatSortLine } from './formatSortLine'
 
 interface MediaCardDetailViewProps {
@@ -42,36 +43,21 @@ export default function MediaCardDetailView({
 }: MediaCardDetailViewProps) {
   const t = useTypeSafeTranslations()
   const descriptionId = useId()
-  const titleRef = useRef<HTMLParagraphElement | null>(null)
-  const subtitleRef = useRef<HTMLParagraphElement | null>(null)
-  const [displayTitleTruncated, setDisplayTitleTruncated] = useState(false)
-  const [displaySubtitleTruncated, setDisplaySubtitleTruncated] = useState(false)
-
-  useEffect(() => {
-    if (titleRef.current && !isSkeleton) {
-      const el = titleRef.current
-      setDisplayTitleTruncated(el.scrollWidth > el.clientWidth)
-    }
-  }, [displayTitle, isSkeleton])
-
-  useEffect(() => {
-    if (subtitleRef.current && !isSkeleton) {
-      const el = subtitleRef.current
-      setDisplaySubtitleTruncated(el.scrollWidth > el.clientWidth)
-    }
-  }, [displaySubtitle, isSkeleton])
+  const { ref: titleRef, isTruncated: displayTitleTruncated } = useTruncation(displayTitle, isSkeleton)
+  const { ref: subtitleRef, isTruncated: displaySubtitleTruncated } = useTruncation(displaySubtitle, isSkeleton)
 
   return (
     <div cy-id="detailBottom" id={descriptionId} dir="auto" className="relative mt-2 mb-2 start-0 z-50 w-full">
       <div style={{ fontSize: `${0.9}em` }}>
         {isSkeleton ? (
-          <div className="flex items-center">
+          <div className="flex items-center" aria-busy="true" aria-live="polite">
             <div
               className="h-[1em] w-3/4 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
               style={{
                 animationDelay: '0s',
                 animationDuration: '1.5s'
               }}
+              aria-hidden="true"
             />
             &nbsp;
           </div>
@@ -93,13 +79,14 @@ export default function MediaCardDetailView({
       </div>
       {showSubtitles &&
         (isSkeleton ? (
-          <p className="truncate" style={{ fontSize: `${0.6}em` }}>
+          <p className="truncate" style={{ fontSize: `${0.6}em` }} aria-busy="true" aria-live="polite">
             <span
               className="inline-block h-[1em] w-1/2 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
               style={{
                 animationDelay: '0.1s',
                 animationDuration: '1.5s'
               }}
+              aria-hidden="true"
             />
             &nbsp;
           </p>
@@ -115,13 +102,14 @@ export default function MediaCardDetailView({
           </p>
         ))}
       {isSkeleton ? (
-        <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }}>
+        <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
           <span
             className="inline-block h-[1em] w-2/3 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
             style={{
               animationDelay: '0.2s',
               animationDuration: '1.5s'
             }}
+            aria-hidden="true"
           />
           &nbsp;
         </p>
@@ -132,13 +120,14 @@ export default function MediaCardDetailView({
       )}
       {orderBy &&
         (isSkeleton ? (
-          <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }}>
+          <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
             <span
               className="inline-block h-[1em] w-1/2 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
               style={{
                 animationDelay: '0.3s',
                 animationDuration: '1.5s'
               }}
+              aria-hidden="true"
             />
             &nbsp;
           </p>
