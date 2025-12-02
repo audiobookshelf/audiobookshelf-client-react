@@ -624,6 +624,36 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 </div>
               </Example>
 
+              <Example title={`Long Title (Truncated)`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">With Data</p>
+                    <div>
+                      <BookMediaCard
+                        {...defaultProps}
+                        libraryItem={
+                          {
+                            ...selectedBook,
+                            media: {
+                              ...selectedBook.media,
+                              metadata: {
+                                ...selectedBook.media.metadata,
+                                title: 'The Incredibly Long and Extraordinarily Detailed Title of This Audiobook That Should Definitely Be Truncated'
+                              }
+                            }
+                          } as BookLibraryItem
+                        }
+                        bookshelfView={BookshelfView.DETAIL}
+                        bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                        isSelectionMode={isBookSelectionMode}
+                        selected={selectedBookId === selectedBook.id}
+                        onSelect={handleBookSelect}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </Example>
+
               <Example title={`Detail View with RSS Feed & Share`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
