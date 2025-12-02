@@ -19,6 +19,7 @@ interface TooltipProps {
   withArrow?: boolean
   closeOnClick?: boolean
   tooltipClassName?: string
+  disabled?: boolean
 }
 
 const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
@@ -39,7 +40,8 @@ const Tooltip = ({
   maxWidth,
   withArrow = true,
   closeOnClick = false,
-  tooltipClassName
+  tooltipClassName,
+  disabled = false
 }: TooltipProps) => {
   const tooltipId = useId()
   const [open, setOpen] = useState(false)
@@ -119,8 +121,8 @@ const Tooltip = ({
   }, [clearHideTimeout])
 
   const onMouseEnter = useCallback(() => {
-    openNow()
-  }, [openNow])
+    if (!disabled) openNow()
+  }, [openNow, disabled])
 
   const onMouseLeave = useCallback(() => {
     closeSoon()
@@ -128,8 +130,8 @@ const Tooltip = ({
 
   // Focus/blur (keyboard a11y)
   const onFocus = useCallback(() => {
-    openNow()
-  }, [openNow])
+    if (!disabled) openNow()
+  }, [openNow, disabled])
 
   const onBlur = useCallback(() => {
     setOpen(false)

@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState, type RefObject } from 'react'
 
 /**
  * Custom hook to detect if text content is truncated using ResizeObserver.
- * More efficient than checking scrollWidth/clientWidth on every render.
  *
  * @param content - The text content to check for truncation
  * @param isSkeleton - Whether the component is in skeleton/loading state
@@ -15,35 +14,44 @@ export function useTruncation<T extends HTMLElement = HTMLParagraphElement>(
   const ref = useRef<T | null>(null)
   const [isTruncated, setIsTruncated] = useState(false)
 
-  useEffect(() => {
-    if (isSkeleton || !ref.current) {
+  const checkTruncation = useCallback(() => {
+    const element = ref.current
+    if (!element) return
+
+    const truncated = element.scrollWidth > element.clientWidth
+    setIsTruncated((prev) => (prev !== truncated ? truncated : prev))
+  }, [])
+
+  useLayoutEffect(() => {
+    if (isSkeleton) {
       setIsTruncated(false)
       return
     }
 
     const element = ref.current
-
-    // Check initial state
-    const checkTruncation = () => {
-      if (element) {
-        setIsTruncated(element.scrollWidth > element.clientWidth)
-      }
-    }
+    if (!element) return
 
     // Initial check
     checkTruncation()
 
-    // Use ResizeObserver to efficiently detect size changes
-    const resizeObserver = new ResizeObserver(() => {
-      checkTruncation()
-    })
+    // Throttled handler for ResizeObserver
+    let rafId: number | null = null
+    const throttledCheck = () => {
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(() => {
+        checkTruncation()
+        rafId = null
+      })
+    }
 
+    const resizeObserver = new ResizeObserver(throttledCheck)
     resizeObserver.observe(element)
 
     return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
       resizeObserver.disconnect()
     }
-  }, [content, isSkeleton])
+  }, [content, isSkeleton, checkTruncation])
 
   return { ref, isTruncated }
 }

@@ -61,20 +61,13 @@ export default function MediaCardDetailView({
             />
             &nbsp;
           </div>
-        ) : displayTitleTruncated ? (
-          <Tooltip text={displayTitle} position="bottom" className="flex items-center">
+        ) : (
+          <Tooltip text={displayTitle} position="bottom" className="flex items-center" disabled={!displayTitleTruncated}>
             <p cy-id="title" ref={titleRef} className="truncate">
               {displayTitle}
             </p>
             {isExplicit && <ExplicitIndicator className="ms-1" />}
           </Tooltip>
-        ) : (
-          <div className="flex items-center">
-            <p cy-id="title" ref={titleRef} className="truncate">
-              {displayTitle}
-            </p>
-            {isExplicit && <ExplicitIndicator className="ms-1" />}
-          </div>
         )}
       </div>
       {showSubtitles &&
@@ -90,16 +83,12 @@ export default function MediaCardDetailView({
             />
             &nbsp;
           </p>
-        ) : displaySubtitleTruncated ? (
-          <Tooltip text={displaySubtitle} position="bottom" className="flex items-center">
+        ) : (
+          <Tooltip text={displaySubtitle} position="bottom" disabled={!displaySubtitleTruncated} className="block w-full">
             <p cy-id="subtitle" ref={subtitleRef} className="truncate" style={{ fontSize: `${0.6}em` }}>
               {displaySubtitle}
             </p>
           </Tooltip>
-        ) : (
-          <p cy-id="subtitle" ref={subtitleRef} className="truncate" style={{ fontSize: `${0.6}em` }}>
-            {displaySubtitle}
-          </p>
         ))}
       {isSkeleton ? (
         <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
