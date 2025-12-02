@@ -205,7 +205,7 @@ export default function SettingsClient(props: SettingsClientProps) {
               />
               {hasPrefixesChanged && (
                 <div className="flex justify-end py-1">
-                  <Btn onClick={handleSaveSortingPrefixes} disabled={isPending} loading={isPending} color="bg-success" size="small">
+                  <Btn onClick={handleSaveSortingPrefixes} disabled={isPending} loading={isPending} color="bg-success text-white" size="small">
                     {t('ButtonSave')}
                   </Btn>
                 </div>

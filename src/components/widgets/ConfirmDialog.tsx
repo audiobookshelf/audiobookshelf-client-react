@@ -32,7 +32,7 @@ export default function ConfirmDialog({
   title,
   checkboxLabel,
   yesButtonText,
-  yesButtonClassName = 'bg-success',
+  yesButtonClassName = 'bg-success text-white',
   onClose,
   onConfirm,
   className

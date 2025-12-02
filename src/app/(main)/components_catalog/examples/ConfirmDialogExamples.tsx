@@ -118,7 +118,7 @@ export function ConfirmDialogExamples() {
               isOpen={destructiveOpen}
               message="This action cannot be undone. Are you sure you want to delete this item?"
               yesButtonText="Delete"
-              yesButtonClassName="bg-error"
+              yesButtonClassName="bg-error text-white"
               onClose={() => setDestructiveOpen(false)}
               onConfirm={handleDestructiveConfirm}
             />
@@ -134,7 +134,7 @@ export function ConfirmDialogExamples() {
               isOpen={longMessageOpen}
               message="This action will permanently delete all selected items from your library. This includes all associated metadata, cover art, and user progress. This action cannot be undone. Are you absolutely certain you want to proceed?"
               yesButtonText="Yes, Delete Everything"
-              yesButtonClassName="bg-error"
+              yesButtonClassName="bg-error text-white"
               onClose={() => setLongMessageOpen(false)}
               onConfirm={handleLongMessageConfirm}
             />
@@ -151,7 +151,7 @@ export function ConfirmDialogExamples() {
               message="Remove this item from your library?"
               checkboxLabel="Also remove from device"
               yesButtonText="Remove"
-              yesButtonClassName="bg-warning"
+              yesButtonClassName="bg-warning text-white"
               onClose={() => setCombinedDialogOpen(false)}
               onConfirm={handleCombinedConfirm}
             />
