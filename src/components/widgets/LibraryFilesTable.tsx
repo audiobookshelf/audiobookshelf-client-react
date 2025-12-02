@@ -180,7 +180,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
     () =>
       userIsAdmin ? (
         <Btn
-          color={showFullPath ? 'bg-gray-600' : 'bg-primary'}
+          color={showFullPath ? 'bg-button-selected-bg' : ''}
           size="small"
           className="mr-2"
           onClick={(e) => {
