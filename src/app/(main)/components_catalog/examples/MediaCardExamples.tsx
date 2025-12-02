@@ -274,7 +274,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
         {selectedBook ? (
           <>
             <h3 className="text-lg font-bold mb-4">Book Media Card: {selectedBook.media.metadata.title}</h3>
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <Example title={`Standard View`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -341,7 +341,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               </Example>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <Example title={`Detail View Without Subtitles`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -422,7 +422,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               </Example>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <Example title={`Collapsed Series`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -553,7 +553,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               </Example>
             </div>
 
-            <div className="grid grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
               <Example title={`Author Bookshelf View`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -761,7 +761,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     onSelect={handleBookSelect}
                   />
                 </div>
-                <div style={{ fontSize: `${4 / 3}em` }}>
+                <div className="hidden sm:block" style={{ fontSize: `${4 / 3}em` }}>
                   <p className="text-sm text-gray-400 mb-2">Size Multiplier: 4/3</p>
                   <BookMediaCard
                     {...defaultProps}
@@ -774,7 +774,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     onSelect={handleBookSelect}
                   />
                 </div>
-                <div style={{ fontSize: `${11 / 6}em` }}>
+                <div className="hidden lg:block" style={{ fontSize: `${11 / 6}em` }}>
                   <p className="text-sm text-gray-400 mb-2">Size Multiplier: 11/6</p>
                   <BookMediaCard
                     {...defaultProps}
@@ -795,7 +795,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
         {selectedPodcast ? (
           <>
             <h3 className="text-lg font-bold mb-4">Podcast Media Card: {selectedPodcast.media.metadata.title}</h3>
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <Example title={`Standard View`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -860,7 +860,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               </Example>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <Example title={`Detail View Without Subtitles`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -928,7 +928,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               </Example>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <Example title={`Recent Episode`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -1034,7 +1034,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
               </Example>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
               <Example title={`With numEpisodes`}>
                 <div className="flex gap-4 flex-wrap">
                   <div>
@@ -1141,7 +1141,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     onSelect={handlePodcastSelect}
                   />
                 </div>
-                <div style={{ fontSize: `${4 / 3}em` }}>
+                <div className="hidden sm:block" style={{ fontSize: `${4 / 3}em` }}>
                   <p className="text-sm text-gray-400 mb-2">Size Multiplier: 4/3</p>
                   <PodcastMediaCard
                     {...defaultProps}
@@ -1154,7 +1154,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     onSelect={handlePodcastSelect}
                   />
                 </div>
-                <div style={{ fontSize: `${11 / 6}em` }}>
+                <div className="hidden lg:block" style={{ fontSize: `${11 / 6}em` }}>
                   <p className="text-sm text-gray-400 mb-2">Size Multiplier: 11/6</p>
                   <PodcastMediaCard
                     {...defaultProps}
