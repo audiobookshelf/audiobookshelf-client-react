@@ -768,7 +768,7 @@ export function isPodcastMedia(media: BookMedia | PodcastMedia): media is Podcas
 }
 
 export function isBookMetadata(metadata: BookMetadata | PodcastMetadata): metadata is BookMetadata {
-  return 'authors' in metadata
+  return 'authors' in metadata || 'authorName' in metadata
 }
 
 export function isPodcastMetadata(metadata: BookMetadata | PodcastMetadata): metadata is PodcastMetadata {
