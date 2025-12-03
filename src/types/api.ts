@@ -950,7 +950,7 @@ export interface GetAuthorsResponse {
 }
 
 export interface GetSeriesResponse {
-  series: SeriesExpanded[]
+  series: Series[]
 }
 
 export type SaveLibraryOrderApiResponse = {
