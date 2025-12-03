@@ -3,7 +3,7 @@
 import { getLibraryItemCoverSrc } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface MediaCardCoverProps {
   libraryItem: LibraryItem
@@ -41,6 +41,8 @@ export default function MediaCardCover({
 }: MediaCardCoverProps) {
   const [imageReady, setImageReady] = useState(false)
   const [showCoverBg, setShowCoverBg] = useState(false)
+  const imgRef = useRef<HTMLImageElement>(null)
+  const hasHandledLoad = useRef(false)
 
   const bookCoverSrc = useMemo(() => getLibraryItemCoverSrc(libraryItem, placeholderUrl), [libraryItem, placeholderUrl])
 
@@ -56,6 +58,9 @@ export default function MediaCardCover({
 
   const handleImageLoaded = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement>) => {
+      if (hasHandledLoad.current) return
+      hasHandledLoad.current = true
+
       const img = event.currentTarget
       setImageReady(true)
 
@@ -71,6 +76,15 @@ export default function MediaCardCover({
     },
     [bookCoverSrc, coverAspect, placeholderUrl, onImageLoad]
   )
+
+  // Check if image is already loaded (e.g., from cache)
+  useEffect(() => {
+    const img = imgRef.current
+    if (img && img.complete && img.naturalWidth > 0) {
+      // Image was loaded from cache before event handler was attached
+      handleImageLoaded({ currentTarget: img } as React.SyntheticEvent<HTMLImageElement>)
+    }
+  }, [bookCoverSrc, handleImageLoaded])
 
   return (
     <>
@@ -108,6 +122,7 @@ export default function MediaCardCover({
       {libraryItem && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          ref={imgRef}
           cy-id="coverImage"
           alt={`${title}, Cover`}
           aria-hidden="true"

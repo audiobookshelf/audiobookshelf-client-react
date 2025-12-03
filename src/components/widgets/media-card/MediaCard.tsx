@@ -153,7 +153,7 @@ function MediaCard(props: MediaCardProps) {
   const hasCover = !!media.coverPath
 
   // Memoize aspect ratio calculation based on configuration
-  const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1.6), [bookCoverAspectRatio])
+  const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1), [bookCoverAspectRatio])
 
   // Memoize cover dimensions based on size multiplier
   const coverHeight = useMemo(() => 192 * sizeMultiplier, [sizeMultiplier])
@@ -263,6 +263,7 @@ function MediaCard(props: MediaCardProps) {
     !isInvalid &&
     !isStreaming(libraryItem.id, episode?.id ?? null) &&
     (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
+
   const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!media.ebookFormat
 
   const { processing, isPending, confirmState, closeConfirm, handlePlay, handleReadEBook, handleMoreAction, moreMenuItems } = useMediaCardActions({

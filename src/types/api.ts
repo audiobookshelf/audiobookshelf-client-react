@@ -760,11 +760,11 @@ export type MediaType<T extends LibraryItem> = T['mediaType']
 export type MediaByType<T extends LibraryItem['mediaType']> = T extends 'book' ? BookMedia : T extends 'podcast' ? PodcastMedia : never
 
 export function isBookMedia(media: BookMedia | PodcastMedia): media is BookMedia {
-  return 'audioFiles' in media
+  return 'audioFiles' in media || 'numTracks' in media
 }
 
 export function isPodcastMedia(media: BookMedia | PodcastMedia): media is PodcastMedia {
-  return 'episodes' in media
+  return 'episodes' in media || 'numEpisodes' in media
 }
 
 export function isBookMetadata(metadata: BookMetadata | PodcastMetadata): metadata is BookMetadata {
