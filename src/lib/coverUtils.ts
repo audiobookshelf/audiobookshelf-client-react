@@ -1,3 +1,5 @@
+import type { LibraryItem } from '@/types/api'
+
 /**
  * Build cover URL for a library item
  * @param libraryItemId
@@ -34,6 +36,24 @@ export function getLibraryFileUrl(libraryItemId: string, fileIno: string): strin
  */
 export function getPlaceholderCoverUrl(): string {
   return '/images/book_placeholder.jpg'
+}
+
+/**
+ * Get cover src for a library item, falling back to the provided placeholder
+ * when no coverPath is available.
+ */
+export function getLibraryItemCoverSrc(libraryItem: LibraryItem, placeholder: string): string {
+  const hasCover =
+    // Full library item media
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    !!(libraryItem as any).media?.coverPath
+
+  if (!hasCover) {
+    return placeholder
+  }
+
+  const timestamp = 'updatedAt' in libraryItem ? libraryItem.updatedAt : undefined
+  return getLibraryItemCoverUrl(libraryItem.id, timestamp ?? null)
 }
 
 /**

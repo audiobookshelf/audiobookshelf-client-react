@@ -40,7 +40,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
 
   const audioFiles = useMemo<AudioFile[]>(() => {
     if (libraryItem.mediaType === 'podcast') {
-      return ((libraryItem as PodcastLibraryItem).media?.episodes.map((ep) => ep.audioFile).filter((af) => af) as AudioFile[]) || []
+      return ((libraryItem as PodcastLibraryItem).media?.episodes?.map((ep) => ep.audioFile).filter((af) => af) as AudioFile[]) || []
     }
     return (libraryItem as BookLibraryItem).media?.audioFiles || []
   }, [libraryItem])

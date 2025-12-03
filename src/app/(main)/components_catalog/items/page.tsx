@@ -8,6 +8,7 @@ import { ChaptersExamples } from '../examples/ChaptersExamples'
 import { CoverEditExamples } from '../examples/CoverEditExamples'
 import { FilesExamples } from '../examples/FilesExamples'
 import { MatchExamples } from '../examples/MatchExamples'
+import { MediaCardExamples } from '../examples/MediaCardExamples'
 import { PodcastDetailsEditExamples } from '../examples/PodcastDetailsEditExamples'
 import { PreviewCoverExamples } from '../examples/PreviewCoverExamples'
 import { ToolsExamples } from '../examples/ToolsExamples'
@@ -101,6 +102,11 @@ export default function ItemDetailsExamplesPage() {
                   Preview Cover
                 </a>
               </li>
+              <li>
+                <a href="#media-card-examples" className="hover:text-blue-400 transition-colors">
+                  Media Cards
+                </a>
+              </li>
             </ul>
           </div>
         </section>
@@ -161,6 +167,12 @@ export default function ItemDetailsExamplesPage() {
       {(selectedBook || selectedPodcast) && (
         <div id="preview-cover-examples">
           <PreviewCoverExamples selectedBook={selectedBook} selectedPodcast={selectedPodcast} />
+        </div>
+      )}
+
+      {(selectedBook || selectedPodcast) && (
+        <div id="media-card-examples">
+          <MediaCardExamples selectedBook={selectedBook} selectedPodcast={selectedPodcast} />
         </div>
       )}
     </div>

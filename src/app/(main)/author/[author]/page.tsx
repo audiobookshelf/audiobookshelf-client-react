@@ -6,8 +6,8 @@ export default async function AuthorPage({ params }: { params: Promise<{ author:
   const [author, currentUser] = await getData(getAuthor(authorId), getCurrentUser())
 
   // TODO: Handle loading data error?
-  if (!author || !currentUser) {
-    console.error('Error getting author or user data')
+  if (!author || !currentUser || !author.libraryId) {
+    console.error('Error getting author or user data, or author missing libraryId')
     return null
   }
 

@@ -59,7 +59,7 @@ function getLibraryItemDuration(libraryItem: BookLibraryItem | PodcastLibraryIte
   if (libraryItem.mediaType === 'book') {
     return (libraryItem.media as BookLibraryItem['media']).duration
   } else if (libraryItem.mediaType === 'podcast') {
-    return (libraryItem.media as PodcastLibraryItem['media']).episodes.reduce((acc, episode) => acc + (episode.audioTrack?.duration || 0), 0)
+    return (libraryItem.media as PodcastLibraryItem['media']).episodes?.reduce((acc, episode) => acc + (episode.audioTrack?.duration || 0), 0)
   }
   return undefined
 }
