@@ -112,6 +112,14 @@ function MediaCard(props: MediaCardProps) {
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
 
+  const handleMoreMenuOpenChange = useCallback((isOpen: boolean) => {
+    setIsMoreMenuOpen(isOpen)
+    // Clear hovering state when menu closes to prevent overlay from staying open
+    if (!isOpen) {
+      setIsHovering(false)
+    }
+  }, [])
+
   const isPodcast = isPodcastLibraryItem(libraryItem)
 
   // Memoize media to prevent cascading re-renders in dependent memos
@@ -354,7 +362,7 @@ function MediaCard(props: MediaCardProps) {
             onRead={handleReadEBook}
             onEdit={handleEdit}
             onMoreAction={handleMoreAction}
-            onMoreMenuOpenChange={setIsMoreMenuOpen}
+            onMoreMenuOpenChange={handleMoreMenuOpenChange}
             onSelect={onSelect}
           />
         }
