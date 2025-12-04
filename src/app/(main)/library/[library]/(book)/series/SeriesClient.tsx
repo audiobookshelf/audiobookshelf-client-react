@@ -1,6 +1,5 @@
 'use client'
 
-import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
 import { SeriesCard } from '@/components/widgets/media-card/SeriesCard'
 import { BookshelfView, GetSeriesResponse, Library, UserLoginResponse } from '@/types/api'
 
@@ -33,7 +32,6 @@ export default function SeriesClient({ seriesData, library, currentUser }: Serie
           )
         })}
       </div>
-      <CoverSizeWidget className="absolute bottom-4 right-4 z-10" />
     </div>
   )
 }

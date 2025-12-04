@@ -27,7 +27,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
 
   return (
     <div>
-      <div className="flex flex-wrap gap-4">
+      <div className="flex justify-center flex-wrap gap-4">
         {results.map((result) => {
           return (
             <EntityMediaCard
