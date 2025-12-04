@@ -6,6 +6,7 @@ import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetail
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
@@ -89,7 +90,7 @@ function MediaCard(props: MediaCardProps) {
     mediaProgress,
     seriesProgressPercent,
     bookCoverAspectRatio,
-    sizeMultiplier = 1,
+    sizeMultiplier,
     dateFormat,
     timeFormat,
     userPermissions,
@@ -106,8 +107,12 @@ function MediaCard(props: MediaCardProps) {
 
   const router = useRouter()
   const { libraryItemIdStreaming, isStreaming, isStreamingFromDifferentLibrary, getIsMediaQueued } = useMediaContext()
+  const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
+
+  // Use prop to override context value if provided
+  const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
 
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
@@ -155,8 +160,8 @@ function MediaCard(props: MediaCardProps) {
   // Memoize aspect ratio calculation based on configuration
   const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1), [bookCoverAspectRatio])
 
-  // Memoize cover dimensions based on size multiplier
-  const coverHeight = useMemo(() => 192 * sizeMultiplier, [sizeMultiplier])
+  // Memoize cover dimensions based on effective size multiplier (capped on mobile)
+  const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
   const coverWidth = useMemo(() => coverHeight / coverAspect, [coverHeight, coverAspect])
 
   const title = originalMetadata.title || ''
@@ -179,7 +184,7 @@ function MediaCard(props: MediaCardProps) {
     finishedAt
   } = useMemo(() => computeProgress({ progress: mediaProgress, seriesProgressPercent, useSeriesProgress: false }), [mediaProgress, seriesProgressPercent])
 
-  const playIconFontSize = useMemo(() => Math.max(2, 3 * sizeMultiplier), [sizeMultiplier])
+  const playIconFontSize = useMemo(() => Math.max(2, 3 * effectiveSizeMultiplier), [effectiveSizeMultiplier])
 
   const author = useMemo(() => metadata.authorName, [metadata.authorName])
 

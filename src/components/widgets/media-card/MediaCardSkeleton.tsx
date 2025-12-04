@@ -1,6 +1,7 @@
 'use client'
 
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
@@ -23,20 +24,24 @@ interface MediaCardSkeletonProps {
 export default function MediaCardSkeleton({
   bookshelfView,
   bookCoverAspectRatio = 1.6,
-  sizeMultiplier = 1,
+  sizeMultiplier,
   showSubtitles = false,
   orderBy,
   dateFormat = 'MM/dd/yyyy',
   timeFormat = 'h:mm a'
 }: MediaCardSkeletonProps) {
   const cardId = useId()
+  const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
+
+  // Use prop to override context value if provided
+  const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
 
   const coverAspect = useMemo(() => {
     if (bookCoverAspectRatio === 0) return 1.6
     return bookCoverAspectRatio
   }, [bookCoverAspectRatio])
 
-  const coverHeight = useMemo(() => 192 * sizeMultiplier, [sizeMultiplier])
+  const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
   const coverWidth = useMemo(() => coverHeight / coverAspect, [coverHeight, coverAspect])
 
   const isDetailedView = bookshelfView === BookshelfView.DETAIL || bookshelfView === BookshelfView.AUTHOR
@@ -66,7 +71,7 @@ export default function MediaCardSkeleton({
       tabIndex={0}
       aria-busy="true"
       aria-live="polite"
-      className={mergeClasses('rounded-xs z-10 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
+      className={mergeClasses('relative rounded-xs z-10 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton */}

@@ -107,6 +107,11 @@ export default function ItemDetailsExamplesPage() {
                   Media Cards
                 </a>
               </li>
+              <li>
+                <a href="#series-card-examples" className="hover:text-blue-400 transition-colors">
+                  Series Cards
+                </a>
+              </li>
             </ul>
           </div>
         </section>

@@ -13,9 +13,13 @@ export function useClickOutside(menuRef: RefObject<HTMLElement | null>, triggerR
   )
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside)
+    // Use 'click' instead of 'mousedown' to ensure that interactive elements
+    // (like buttons) receive their click events before the menu closes.
+    // With 'mousedown', the menu close and React re-render would happen between
+    // mousedown and mouseup, preventing the clicked element's onClick from firing.
+    document.addEventListener('click', handleClickOutside)
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('click', handleClickOutside)
     }
   }, [handleClickOutside])
 }
