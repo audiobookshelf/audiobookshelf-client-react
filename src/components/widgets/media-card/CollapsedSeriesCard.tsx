@@ -2,6 +2,7 @@
 
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
@@ -23,7 +24,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
     sortingIgnorePrefix = false,
     seriesProgressPercent,
     bookCoverAspectRatio,
-    sizeMultiplier = 1,
+    sizeMultiplier,
     dateFormat,
     timeFormat,
     showSubtitles,
@@ -34,7 +35,11 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
 
   const t = useTypeSafeTranslations()
   const router = useRouter()
+  const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
+
+  // Use prop to override context value if provided
+  const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
 
   const [isHovering, setIsHovering] = useState(false)
 
@@ -45,7 +50,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   const seriesName = useMemo(() => collapsedSeries?.name || null, [collapsedSeries])
 
   const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1.6), [bookCoverAspectRatio])
-  const coverHeight = useMemo(() => 192 * (sizeMultiplier || 1), [sizeMultiplier])
+  const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
   const coverWidth = useMemo(() => coverHeight / coverAspect, [coverHeight, coverAspect])
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
 
