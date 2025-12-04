@@ -1,56 +1,46 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+/** Available cover sizes in pixels */
+export const availableCoverSizes = [60, 80, 100, 120, 140, 160, 180, 200, 220]
+/** Base cover size for calculating size multiplier */
+const BASE_COVER_SIZE = 120
+/** Default size index */
+const DEFAULT_SIZE_INDEX = 3
+
 interface CoverSizeWidgetProps {
-  sizeIndex?: number
-  onSizeIndexChange?: (size: number) => void
   className?: string
 }
 
-export const availableCoverSizes = [60, 80, 100, 120, 140, 160, 180, 200, 220]
-
-export default function CoverSizeWidget({ sizeIndex: sizeIndexProp = 3, onSizeIndexChange, className }: CoverSizeWidgetProps) {
+export default function CoverSizeWidget({ className }: CoverSizeWidgetProps) {
   const t = useTypeSafeTranslations()
-  const sizeIndex = useMemo(() => {
-    if (sizeIndexProp === undefined) return 3
-    if (sizeIndexProp >= 0 && sizeIndexProp < availableCoverSizes.length) return sizeIndexProp
-    return 3
-  }, [sizeIndexProp])
+  const { setSizeMultiplier } = useCardSize()
 
-  const [selectedSizeIndex, setSelectedSizeIndex] = useState(sizeIndex)
+  const [sizeIndex, setSizeIndex] = useState(DEFAULT_SIZE_INDEX)
 
-  const bookCoverWidth = useMemo(() => availableCoverSizes[selectedSizeIndex], [selectedSizeIndex])
+  const coverWidth = useMemo(() => availableCoverSizes[sizeIndex], [sizeIndex])
 
-  // Update index when initialSize prop changes
+  // Update context sizeMultiplier when size index changes
   useEffect(() => {
-    setSelectedSizeIndex(sizeIndex)
-  }, [sizeIndex])
-
-  // Call onSizeChange when size changes
-  useEffect(() => {
-    onSizeIndexChange?.(selectedSizeIndex)
-  }, [selectedSizeIndex, onSizeIndexChange])
+    const multiplier = coverWidth / BASE_COVER_SIZE
+    setSizeMultiplier(multiplier)
+  }, [coverWidth, setSizeMultiplier])
 
   const increaseSize = useCallback(() => {
-    setSelectedSizeIndex((prevIndex) => {
-      const newIndex = Math.min(availableCoverSizes.length - 1, prevIndex + 1)
-      return newIndex
-    })
+    setSizeIndex((prev) => Math.min(availableCoverSizes.length - 1, prev + 1))
   }, [])
 
   const decreaseSize = useCallback(() => {
-    setSelectedSizeIndex((prevIndex) => {
-      const newIndex = Math.max(0, prevIndex - 1)
-      return newIndex
-    })
+    setSizeIndex((prev) => Math.max(0, prev - 1))
   }, [])
 
-  const isAtMinSize = selectedSizeIndex === 0
-  const isAtMaxSize = selectedSizeIndex === availableCoverSizes.length - 1
+  const isAtMinSize = sizeIndex === 0
+  const isAtMaxSize = sizeIndex === availableCoverSizes.length - 1
 
   const buttonClass = useMemo(() => 'text-base h-6 w-4 disabled:bg-transparent disabled:cursor-default', [])
   const containerClass = useMemo(
@@ -66,7 +56,7 @@ export default function CoverSizeWidget({ sizeIndex: sizeIndexProp = 3, onSizeIn
           remove
         </IconBtn>
         <p className={textClass} aria-live="polite">
-          {bookCoverWidth}
+          {coverWidth}
         </p>
         <IconBtn className={buttonClass} disabled={isAtMaxSize} onClick={increaseSize} ariaLabel={t('LabelIncreaseCoverSize')} borderless>
           add
