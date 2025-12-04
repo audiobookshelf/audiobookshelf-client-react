@@ -5,9 +5,11 @@ import CollapsedSeriesCard from '@/components/widgets/media-card/CollapsedSeries
 import MediaCardSkeleton from '@/components/widgets/media-card/MediaCardSkeleton'
 import PodcastEpisodeCard from '@/components/widgets/media-card/PodcastEpisodeCard'
 import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
+import SeriesCard from '@/components/widgets/media-card/SeriesCard'
+import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
 import { MediaProvider } from '@/contexts/MediaContext'
-import { BookLibraryItem, BookshelfView, EReaderDevice, MediaProgress, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
+import { BookLibraryItem, BookshelfView, EReaderDevice, MediaProgress, PodcastEpisode, PodcastLibraryItem, Series } from '@/types/api'
 import { useEffect, useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
@@ -55,8 +57,7 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const [isBookSelectionMode, setIsBookSelectionMode] = useState(false)
   const [isPodcastSelectionMode, setIsPodcastSelectionMode] = useState(false)
 
-  // Default props for media cards
-  const sizeMultiplier = 1
+  // Default props for media cards (sizeMultiplier comes from CardSizeContext)
   const defaultProps = {
     bookshelfView: BookshelfView.STANDARD,
     dateFormat: 'MM/dd/yyyy',
@@ -64,7 +65,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
     userPermissions: user.permissions,
     ereaderDevices: [] as EReaderDevice[],
     showSubtitles: true,
-    sizeMultiplier,
     bookCoverAspectRatio: bookCoverAspectRatio ?? 1.6
   }
 
@@ -120,6 +120,13 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const podcastNumEpisodesSkeletonRef = useRef<HTMLDivElement>(null)
   const podcastNumEpisodesIncompleteCardRef = useRef<HTMLDivElement>(null)
   const podcastNumEpisodesIncompleteSkeletonRef = useRef<HTMLDivElement>(null)
+  // Series card refs
+  const seriesStandardCardRef = useRef<HTMLDivElement>(null)
+  const seriesStandardSkeletonRef = useRef<HTMLDivElement>(null)
+  const seriesDetailCardRef = useRef<HTMLDivElement>(null)
+  const seriesDetailSkeletonRef = useRef<HTMLDivElement>(null)
+  const seriesDetailOrderByCardRef = useRef<HTMLDivElement>(null)
+  const seriesDetailOrderBySkeletonRef = useRef<HTMLDivElement>(null)
 
   // State for dimensions
   const [bookStandardCardDims, setBookStandardCardDims] = useState<Dimensions | null>(null)
@@ -152,6 +159,13 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const [podcastNumEpisodesSkeletonDims, setPodcastNumEpisodesSkeletonDims] = useState<Dimensions | null>(null)
   const [podcastNumEpisodesIncompleteCardDims, setPodcastNumEpisodesIncompleteCardDims] = useState<Dimensions | null>(null)
   const [podcastNumEpisodesIncompleteSkeletonDims, setPodcastNumEpisodesIncompleteSkeletonDims] = useState<Dimensions | null>(null)
+  // Series card dimensions
+  const [seriesStandardCardDims, setSeriesStandardCardDims] = useState<Dimensions | null>(null)
+  const [seriesStandardSkeletonDims, setSeriesStandardSkeletonDims] = useState<Dimensions | null>(null)
+  const [seriesDetailCardDims, setSeriesDetailCardDims] = useState<Dimensions | null>(null)
+  const [seriesDetailSkeletonDims, setSeriesDetailSkeletonDims] = useState<Dimensions | null>(null)
+  const [seriesDetailOrderByCardDims, setSeriesDetailOrderByCardDims] = useState<Dimensions | null>(null)
+  const [seriesDetailOrderBySkeletonDims, setSeriesDetailOrderBySkeletonDims] = useState<Dimensions | null>(null)
 
   // Measure dimensions
   useEffect(() => {
@@ -206,7 +220,14 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
         measureElement(podcastNumEpisodesCardRef, setPodcastNumEpisodesCardDims),
         measureElement(podcastNumEpisodesSkeletonRef, setPodcastNumEpisodesSkeletonDims),
         measureElement(podcastNumEpisodesIncompleteCardRef, setPodcastNumEpisodesIncompleteCardDims),
-        measureElement(podcastNumEpisodesIncompleteSkeletonRef, setPodcastNumEpisodesIncompleteSkeletonDims)
+        measureElement(podcastNumEpisodesIncompleteSkeletonRef, setPodcastNumEpisodesIncompleteSkeletonDims),
+        // Series card measurements
+        measureElement(seriesStandardCardRef, setSeriesStandardCardDims),
+        measureElement(seriesStandardSkeletonRef, setSeriesStandardSkeletonDims),
+        measureElement(seriesDetailCardRef, setSeriesDetailCardDims),
+        measureElement(seriesDetailSkeletonRef, setSeriesDetailSkeletonDims),
+        measureElement(seriesDetailOrderByCardRef, setSeriesDetailOrderByCardDims),
+        measureElement(seriesDetailOrderBySkeletonRef, setSeriesDetailOrderBySkeletonDims)
       ]
 
       return () => {
@@ -297,7 +318,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookshelfView={defaultProps.bookshelfView}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         showSubtitles={defaultProps.showSubtitles}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -330,7 +350,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         showSubtitles={defaultProps.showSubtitles}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -366,7 +385,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         showSubtitles={false}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -411,7 +429,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         showSubtitles={defaultProps.showSubtitles}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -431,7 +448,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <CollapsedSeriesCard
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                         showSubtitles={defaultProps.showSubtitles}
@@ -460,7 +476,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         showSubtitles={defaultProps.showSubtitles}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -478,7 +493,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <CollapsedSeriesCard
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                         showSubtitles={defaultProps.showSubtitles}
@@ -507,7 +521,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         showSubtitles={defaultProps.showSubtitles}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -542,7 +555,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         showSubtitles={defaultProps.showSubtitles}
                         orderBy="addedAt"
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -847,7 +859,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <MediaCardSkeleton
                         bookshelfView={defaultProps.bookshelfView}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -879,7 +890,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <MediaCardSkeleton
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -913,7 +923,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <MediaCardSkeleton
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -947,7 +956,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                         orderBy="addedAt"
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -997,7 +1005,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <MediaCardSkeleton
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -1053,7 +1060,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <MediaCardSkeleton
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -1095,7 +1101,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <MediaCardSkeleton
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -1132,7 +1137,6 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                       <MediaCardSkeleton
                         bookshelfView={BookshelfView.DETAIL}
                         bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                        sizeMultiplier={defaultProps.sizeMultiplier}
                         dateFormat={defaultProps.dateFormat}
                         timeFormat={defaultProps.timeFormat}
                       />
@@ -1195,6 +1199,452 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                     isSelectionMode={isPodcastSelectionMode}
                     selected={selectedPodcastId === selectedPodcast.id}
                     onSelect={handlePodcastSelect}
+                  />
+                </div>
+              </div>
+            </Example>
+          </>
+        ) : null}
+
+        {/* Series Card Examples - Uses selected book to create mock series */}
+        {selectedBook ? (
+          <>
+            <h3 id="series-card-examples" className="text-lg font-bold mb-4 mt-8">
+              Series Card (Standalone Series View)
+            </h3>
+            <ComponentInfo
+              component="SeriesCard"
+              description="Card component for displaying series in a Series bookshelf view. Shows multiple book covers in a stacked mosaic layout, series progress bar, book count badge, and RSS feed indicator. Different from CollapsedSeriesCard which is used for collapsed series within a library items view."
+            >
+              <p className="mb-2">
+                <span className="font-bold">Import:</span> <Code overflow>import SeriesCard from &apos;@/components/widgets/media-card/SeriesCard&apos;</Code>
+              </p>
+              <div>
+                <span className="font-bold">Props:</span>
+                <ul className="list-disc list-inside">
+                  <li>
+                    <Code>series</Code>: The Series object containing id, name, books array, rssFeed, etc.
+                  </li>
+                  <li>
+                    <Code>libraryId</Code>: Library ID for navigation.
+                  </li>
+                  <li>
+                    <Code>bookshelfView</Code>: View mode (BookshelfView.STANDARD or BookshelfView.DETAIL).
+                  </li>
+                  <li>
+                    <Code>orderBy</Code>: Sort field (addedAt, totalDuration, lastBookUpdated, lastBookAdded).
+                  </li>
+                  <li>
+                    <Code>bookProgressMap</Code>: Map of book progress by library item ID for calculating series progress.
+                  </li>
+                </ul>
+              </div>
+            </ComponentInfo>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Example title={`Standard View`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">With Data</p>
+                    <div ref={seriesStandardCardRef}>
+                      <SeriesCard
+                        series={
+                          {
+                            id: 'series-multi',
+                            name: 'The Multi-Book Series',
+                            nameIgnorePrefix: 'Multi-Book Series',
+                            addedAt: Date.now() - 86400000 * 60,
+                            books: [selectedBook, selectedBook, selectedBook]
+                          } as Series
+                        }
+                        libraryId={selectedBook.libraryId}
+                        bookshelfView={BookshelfView.STANDARD}
+                        bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                        dateFormat={defaultProps.dateFormat}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                    <div ref={seriesStandardSkeletonRef}>
+                      <SeriesCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                    </div>
+                  </div>
+                </div>
+                <DimensionComparison cardDimensions={seriesStandardCardDims} skeletonDimensions={seriesStandardSkeletonDims} />
+              </Example>
+
+              <Example title={`Detail View`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">With Data</p>
+                    <div ref={seriesDetailCardRef}>
+                      <SeriesCard
+                        series={
+                          {
+                            id: 'series-detail',
+                            name: 'The Example Series',
+                            nameIgnorePrefix: 'Example Series',
+                            addedAt: Date.now() - 86400000 * 45,
+                            books: [selectedBook, selectedBook, selectedBook, selectedBook, selectedBook]
+                          } as Series
+                        }
+                        libraryId={selectedBook.libraryId}
+                        bookshelfView={BookshelfView.DETAIL}
+                        bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                        dateFormat={defaultProps.dateFormat}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                    <div ref={seriesDetailSkeletonRef}>
+                      <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                    </div>
+                  </div>
+                </div>
+                <DimensionComparison cardDimensions={seriesDetailCardDims} skeletonDimensions={seriesDetailSkeletonDims} />
+              </Example>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Example title={`With Progress Bar`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">50% Progress (2/4 books)</p>
+                    <SeriesCard
+                      series={
+                        {
+                          id: 'series-progress',
+                          name: 'Series In Progress',
+                          addedAt: Date.now() - 86400000 * 20,
+                          books: [selectedBook, selectedBook, selectedBook, selectedBook]
+                        } as Series
+                      }
+                      libraryId={selectedBook.libraryId}
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      dateFormat={defaultProps.dateFormat}
+                      bookProgressMap={
+                        new Map([[selectedBook.id, { id: 'p1', libraryItemId: selectedBook.id, isFinished: false, progress: 0.5 } as MediaProgress]])
+                      }
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">100% Complete (Finished)</p>
+                    <SeriesCard
+                      series={
+                        {
+                          id: 'series-complete',
+                          name: 'Completed Series',
+                          addedAt: Date.now() - 86400000 * 90,
+                          books: [selectedBook, selectedBook, selectedBook]
+                        } as Series
+                      }
+                      libraryId={selectedBook.libraryId}
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      dateFormat={defaultProps.dateFormat}
+                      bookProgressMap={
+                        new Map([[selectedBook.id, { id: 'pc1', libraryItemId: selectedBook.id, isFinished: true, progress: 1 } as MediaProgress]])
+                      }
+                    />
+                  </div>
+                </div>
+              </Example>
+
+              <Example title={`With RSS Feed`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">RSS Feed Active</p>
+                    <SeriesCard
+                      series={
+                        {
+                          id: 'series-rss',
+                          name: 'Series with RSS Feed',
+                          addedAt: Date.now() - 86400000 * 15,
+                          books: [selectedBook, selectedBook],
+                          rssFeed: {
+                            id: 'rss-series-123',
+                            slug: 'series-feed',
+                            entityId: 'series-rss',
+                            entityType: 'series',
+                            feedUrl: 'https://example.com/series-feed.xml',
+                            metaTitle: 'Series with RSS Feed',
+                            isPublic: true,
+                            createdAt: Date.now(),
+                            updatedAt: Date.now()
+                          }
+                        } as Series
+                      }
+                      libraryId={selectedBook.libraryId}
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      dateFormat={defaultProps.dateFormat}
+                    />
+                  </div>
+                </div>
+              </Example>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Example title={`Detail View Ordered by AddedAt`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">With Data</p>
+                    <div ref={seriesDetailOrderByCardRef}>
+                      <SeriesCard
+                        series={
+                          {
+                            id: 'series-sort-added',
+                            name: 'Recently Added Series',
+                            addedAt: Date.now() - 86400000 * 7,
+                            books: [selectedBook, selectedBook]
+                          } as Series
+                        }
+                        libraryId={selectedBook.libraryId}
+                        bookshelfView={BookshelfView.DETAIL}
+                        orderBy="addedAt"
+                        bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                        dateFormat={defaultProps.dateFormat}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                    <div ref={seriesDetailOrderBySkeletonRef}>
+                      <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} orderBy="addedAt" />
+                    </div>
+                  </div>
+                </div>
+                <DimensionComparison cardDimensions={seriesDetailOrderByCardDims} skeletonDimensions={seriesDetailOrderBySkeletonDims} />
+              </Example>
+
+              <Example title={`Sort by: totalDuration`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">With Data</p>
+                    <SeriesCard
+                      series={
+                        {
+                          id: 'series-sort-duration',
+                          name: 'Long Duration Series',
+                          addedAt: Date.now() - 86400000 * 30,
+                          books: [
+                            { ...selectedBook, media: { ...selectedBook.media, duration: 36000 } } as BookLibraryItem,
+                            { ...selectedBook, media: { ...selectedBook.media, duration: 28800 } } as BookLibraryItem
+                          ]
+                        } as Series
+                      }
+                      libraryId={selectedBook.libraryId}
+                      bookshelfView={BookshelfView.DETAIL}
+                      orderBy="totalDuration"
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      dateFormat={defaultProps.dateFormat}
+                    />
+                  </div>
+                </div>
+              </Example>
+
+              <Example title={`No Covers (Fallback)`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">Books without covers</p>
+                    <SeriesCard
+                      series={
+                        {
+                          id: 'series-no-cover',
+                          name: 'The Mysterious Series Without Covers',
+                          addedAt: Date.now() - 86400000 * 50,
+                          books: [
+                            { ...selectedBook, media: { ...selectedBook.media, coverPath: undefined } } as BookLibraryItem,
+                            { ...selectedBook, media: { ...selectedBook.media, coverPath: undefined } } as BookLibraryItem
+                          ]
+                        } as Series
+                      }
+                      libraryId={selectedBook.libraryId}
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      dateFormat={defaultProps.dateFormat}
+                    />
+                  </div>
+                </div>
+              </Example>
+            </div>
+
+            <Example title={`Size Multipliers (Standard View)`}>
+              <div className="flex gap-4 flex-wrap items-start">
+                <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
+                  <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-sm',
+                        name: 'Very Small Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.STANDARD}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={1 / 2}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
+                  <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-md',
+                        name: 'Small Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.STANDARD}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={3 / 4}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
+                  <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-md',
+                        name: 'Medium Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.STANDARD}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={5 / 6}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div className="mb-6" style={{ fontSize: `${1}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size: 1 (effective 5/6 on mobile)</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-lg',
+                        name: 'Standard Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.STANDARD}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-lg',
+                        name: 'Large Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.STANDARD}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={4 / 3}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+              </div>
+            </Example>
+
+            <Example title={`Size Multipliers (Detail View)`}>
+              <div className="flex gap-4 flex-wrap items-start">
+                <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
+                  <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-sm',
+                        name: 'Very Small Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.DETAIL}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={1 / 2}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
+                  <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-md',
+                        name: 'Small Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.DETAIL}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={3 / 4}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
+                  <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-md',
+                        name: 'Medium Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.DETAIL}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={5 / 6}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div className="mb-6" style={{ fontSize: `${1}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size: 1 (effective 5/6 on mobile)</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-lg',
+                        name: 'Standard Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.DETAIL}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    dateFormat={defaultProps.dateFormat}
+                  />
+                </div>
+                <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
+                  <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+                  <SeriesCard
+                    series={
+                      {
+                        id: 'series-std-lg',
+                        name: 'Large Series',
+                        books: [selectedBook, selectedBook, selectedBook]
+                      } as Series
+                    }
+                    libraryId={selectedBook.libraryId}
+                    bookshelfView={BookshelfView.DETAIL}
+                    bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                    sizeMultiplier={4 / 3}
+                    dateFormat={defaultProps.dateFormat}
                   />
                 </div>
               </div>
