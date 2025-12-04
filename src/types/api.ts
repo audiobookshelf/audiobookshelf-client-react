@@ -950,7 +950,13 @@ export interface GetAuthorsResponse {
 }
 
 export interface GetSeriesResponse {
-  series: Series[]
+  results: Series[]
+  total: number
+  limit: number
+  page: number
+  sortDesc: boolean
+  minified: boolean
+  include: string
 }
 
 export type SaveLibraryOrderApiResponse = {
