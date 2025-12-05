@@ -248,8 +248,8 @@ export const getLibraryPersonalized = cache(async (libraryId: string): Promise<P
   return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized`, {})
 })
 
-export const getLibraryItems = cache(async (libraryId: string): Promise<GetLibraryItemsResponse> => {
-  return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items`, {})
+export const getLibraryItems = cache(async (libraryId: string, queryParams?: string): Promise<GetLibraryItemsResponse> => {
+  return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items${queryParams ? `?${queryParams}` : ''}`, {})
 })
 
 export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): Promise<LibraryItem> => {
