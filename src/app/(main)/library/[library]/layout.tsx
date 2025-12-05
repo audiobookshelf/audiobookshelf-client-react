@@ -1,3 +1,4 @@
+import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
 import { LibraryItemsProvider } from '@/contexts/LibraryItemsContext'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
@@ -49,6 +50,8 @@ export default async function LibraryLayout({
           <Toolbar currentLibrary={currentLibrary} />
           <div className="w-full h-[calc(100%-2.5rem)] overflow-x-hidden overflow-y-auto">{children}</div>
         </div>
+
+        <CoverSizeWidget className="absolute bottom-4 right-4 z-10" />
       </div>
     </LibraryItemsProvider>
   )
