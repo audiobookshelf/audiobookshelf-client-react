@@ -40,7 +40,7 @@ export default function Toolbar({ currentLibrary }: ToolbarProps) {
 
         <div className="flex-grow" />
 
-        <ContextMenuDropdown items={contextMenuItems} borderless onAction={(action) => console.log(action)} />
+        <ContextMenuDropdown items={contextMenuItems} borderless usePortal onAction={(action) => console.log(action)} />
       </div>
     </div>
   )
