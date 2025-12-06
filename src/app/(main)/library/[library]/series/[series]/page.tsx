@@ -7,7 +7,7 @@ export default async function SeriesPage({ params }: { params: Promise<{ series:
     getSeries(libraryId, seriesId),
     getCurrentUser(),
     getLibrary(libraryId),
-    getLibraryItems(libraryId, `series=${encodeURIComponent(Buffer.from(seriesId).toString('base64'))}`)
+    getLibraryItems(libraryId, `filter=series.${encodeURIComponent(Buffer.from(seriesId).toString('base64'))}`)
   )
 
   if (!series || !currentUser || !library || !libraryItems) {

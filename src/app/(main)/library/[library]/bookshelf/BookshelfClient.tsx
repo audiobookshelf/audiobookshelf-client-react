@@ -22,6 +22,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
   }, [libraryItemsData, setItemCount])
 
   const results = libraryItemsData.results
+  const userMediaProgress = currentUser.user.mediaProgress
 
   const EntityMediaCard = isPodcastLibrary ? PodcastMediaCard : BookMediaCard
 
@@ -29,12 +30,14 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
     <div>
       <div className="flex justify-center flex-wrap gap-4">
         {results.map((result) => {
+          const entityProgress = isPodcastLibrary ? null : userMediaProgress.find((progress) => progress.libraryItemId === result.id)
           return (
             <EntityMediaCard
               key={result.id}
               libraryItem={result}
               bookshelfView={BookshelfView.DETAIL}
               bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
+              mediaProgress={entityProgress}
               isSelectionMode={false}
               selected={false}
               onSelect={() => {}}

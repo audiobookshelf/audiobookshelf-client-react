@@ -8,22 +8,27 @@ interface SeriesClientProps {
 }
 
 export default function SeriesClient({ currentUser, library, libraryItems }: SeriesClientProps) {
+  const userMediaProgress = currentUser.user.mediaProgress
   return (
     <div>
-      <div className="flex justify-center flex-wrap gap-4">
-        {libraryItems.results.map((libraryItem) => (
-          <BookMediaCard
-            key={libraryItem.id}
-            libraryItem={libraryItem}
-            bookshelfView={BookshelfView.DETAIL}
-            dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-            timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-            userPermissions={currentUser.user.permissions}
-            ereaderDevices={currentUser.ereaderDevices}
-            showSubtitles={true}
-            bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
-          />
-        ))}
+      <div className="flex flex-wrap gap-4">
+        {libraryItems.results.map((libraryItem) => {
+          const entityProgress = userMediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+          return (
+            <BookMediaCard
+              key={libraryItem.id}
+              libraryItem={libraryItem}
+              bookshelfView={BookshelfView.DETAIL}
+              dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+              timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
+              userPermissions={currentUser.user.permissions}
+              ereaderDevices={currentUser.ereaderDevices}
+              showSubtitles={true}
+              bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
+              mediaProgress={entityProgress}
+            />
+          )
+        })}
       </div>
     </div>
   )
