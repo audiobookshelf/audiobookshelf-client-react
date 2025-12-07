@@ -404,6 +404,10 @@ export const getCollectionsList = cache(async (libraryId: string) => {
   return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections`, {})
 })
 
+export const getCollection = cache(async (collectionId: string): Promise<Collection> => {
+  return apiRequest<Collection>(`/api/collections/${collectionId}?include=rssfeed`, {})
+})
+
 export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
   return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}`, {})
 })
