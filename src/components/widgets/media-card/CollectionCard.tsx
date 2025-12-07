@@ -87,8 +87,8 @@ function CollectionCard(props: CollectionCardProps) {
   const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !false // not processing locally
 
   const handleCardClick = useCallback(() => {
-    router.push(`/collection/${collection.id}`)
-  }, [collection.id, router])
+    router.push(`/library/${collection.libraryId}/collection/${collection.id}`)
+  }, [collection.id, collection.libraryId, router])
 
   const handleEditClick = useCallback(
     (event: React.MouseEvent) => {
