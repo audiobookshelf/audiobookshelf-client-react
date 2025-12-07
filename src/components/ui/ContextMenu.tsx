@@ -225,7 +225,7 @@ export default function ContextMenu<T = string>({
           onMouseDown={(e) => e.preventDefault()}
           tabIndex={-1}
         >
-          <p>{item.text}</p>
+          <p className={mergeClasses(autoWidth && 'whitespace-nowrap')}>{item.text}</p>
         </button>
         {openSubmenuIndex === index && (
           <div
@@ -265,7 +265,7 @@ export default function ContextMenu<T = string>({
                   }}
                   tabIndex={-1}
                 >
-                  <p>{subitem.text}</p>
+                  <p className={mergeClasses(autoWidth && 'whitespace-nowrap')}>{subitem.text}</p>
                 </button>
               ))
             ) : (
@@ -302,7 +302,7 @@ export default function ContextMenu<T = string>({
         onMouseDown={(e) => e.preventDefault()}
         tabIndex={-1}
       >
-        <p className="text-left">{item.text}</p>
+        <p className={mergeClasses('text-left', autoWidth && 'whitespace-nowrap')}>{item.text}</p>
       </button>
     )
   )

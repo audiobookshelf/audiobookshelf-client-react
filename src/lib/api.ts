@@ -5,6 +5,7 @@ import { cache } from 'react'
 import {
   Author,
   BookSearchResult,
+  Collection,
   FFProbeData,
   GetAuthorsResponse,
   GetLibrariesResponse,
@@ -608,5 +609,47 @@ export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: n
 export async function matchAll(libraryId: string): Promise<void> {
   return apiRequest<void>(`/api/libraries/${libraryId}/matchall`, {
     method: 'GET'
+  })
+}
+
+//
+// Collection endpoints
+//
+
+/**
+ * Update a collection
+ * @param collectionId - Collection ID
+ * @param payload - Update payload with name and/or description
+ * Returns: Updated collection
+ */
+export async function updateCollection(
+  collectionId: string,
+  payload: { name?: string; description?: string | null }
+): Promise<Collection> {
+  return apiRequest<Collection>(`/api/collections/${collectionId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Delete a collection
+ * @param collectionId - Collection ID
+ * Returns: void (success) or throws error
+ */
+export async function deleteCollection(collectionId: string): Promise<void> {
+  return apiRequest<void>(`/api/collections/${collectionId}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
+ * Create a playlist from a collection
+ * @param collectionId - Collection ID to create playlist from
+ * Returns: The created playlist with id
+ */
+export async function createPlaylistFromCollection(collectionId: string): Promise<{ id: string }> {
+  return apiRequest<{ id: string }>(`/api/playlists/collection/${collectionId}`, {
+    method: 'POST'
   })
 }

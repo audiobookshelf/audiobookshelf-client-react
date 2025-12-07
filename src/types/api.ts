@@ -231,6 +231,23 @@ export interface CollapsedSeries {
 }
 
 // ============================================================================
+// COLLECTIONS
+// ============================================================================
+
+export interface Collection {
+  id: string
+  name: string
+  description?: string
+  libraryId: string
+  /** books in the collection (expanded only) */
+  books?: LibraryItem[]
+  /** if available (expanded only) */
+  rssFeed?: RssFeed
+  createdAt?: number
+  updatedAt?: number
+}
+
+// ============================================================================
 // METADATA
 // ============================================================================
 

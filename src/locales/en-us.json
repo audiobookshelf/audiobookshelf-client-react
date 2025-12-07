@@ -953,7 +953,7 @@
   "MessageOr": "or",
   "MessagePauseChapter": "Pause chapter playback",
   "MessagePlayChapter": "Listen to beginning of chapter",
-  "MessagePlaylistCreateFromCollection": "Create playlist from collection",
+  "MessagePlaylistCreateFromCollection": "Create Playlist From Collection",
   "MessagePleaseWait": "Please wait...",
   "MessagePodcastHasNoRSSFeedForMatching": "Podcast has no RSS feed url to use for matching",
   "MessagePodcastSearchField": "Enter search term or RSS feed URL",
