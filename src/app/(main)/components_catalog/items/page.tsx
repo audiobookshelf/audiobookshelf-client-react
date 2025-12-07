@@ -112,6 +112,11 @@ export default function ItemDetailsExamplesPage() {
                   Series Cards
                 </a>
               </li>
+              <li>
+                <a href="#collection-card-examples" className="hover:text-blue-400 transition-colors">
+                  Collection Cards
+                </a>
+              </li>
             </ul>
           </div>
         </section>

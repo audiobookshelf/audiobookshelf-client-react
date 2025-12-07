@@ -2,6 +2,8 @@
 
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import CollapsedSeriesCard from '@/components/widgets/media-card/CollapsedSeriesCard'
+import CollectionCard from '@/components/widgets/media-card/CollectionCard'
+import CollectionCardSkeleton from '@/components/widgets/media-card/CollectionCardSkeleton'
 import MediaCardSkeleton from '@/components/widgets/media-card/MediaCardSkeleton'
 import PodcastEpisodeCard from '@/components/widgets/media-card/PodcastEpisodeCard'
 import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
@@ -9,7 +11,7 @@ import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
 import { MediaProvider } from '@/contexts/MediaContext'
-import { BookLibraryItem, BookshelfView, EReaderDevice, MediaProgress, PodcastEpisode, PodcastLibraryItem, Series } from '@/types/api'
+import { BookLibraryItem, BookshelfView, Collection, EReaderDevice, MediaProgress, PodcastEpisode, PodcastLibraryItem, Series } from '@/types/api'
 import { useEffect, useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
@@ -127,6 +129,11 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const seriesDetailSkeletonRef = useRef<HTMLDivElement>(null)
   const seriesDetailOrderByCardRef = useRef<HTMLDivElement>(null)
   const seriesDetailOrderBySkeletonRef = useRef<HTMLDivElement>(null)
+  // Collection card refs
+  const collectionStandardCardRef = useRef<HTMLDivElement>(null)
+  const collectionStandardSkeletonRef = useRef<HTMLDivElement>(null)
+  const collectionDetailCardRef = useRef<HTMLDivElement>(null)
+  const collectionDetailSkeletonRef = useRef<HTMLDivElement>(null)
 
   // State for dimensions
   const [bookStandardCardDims, setBookStandardCardDims] = useState<Dimensions | null>(null)
@@ -166,6 +173,11 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
   const [seriesDetailSkeletonDims, setSeriesDetailSkeletonDims] = useState<Dimensions | null>(null)
   const [seriesDetailOrderByCardDims, setSeriesDetailOrderByCardDims] = useState<Dimensions | null>(null)
   const [seriesDetailOrderBySkeletonDims, setSeriesDetailOrderBySkeletonDims] = useState<Dimensions | null>(null)
+  // Collection card dimensions
+  const [collectionStandardCardDims, setCollectionStandardCardDims] = useState<Dimensions | null>(null)
+  const [collectionStandardSkeletonDims, setCollectionStandardSkeletonDims] = useState<Dimensions | null>(null)
+  const [collectionDetailCardDims, setCollectionDetailCardDims] = useState<Dimensions | null>(null)
+  const [collectionDetailSkeletonDims, setCollectionDetailSkeletonDims] = useState<Dimensions | null>(null)
 
   // Measure dimensions
   useEffect(() => {
@@ -227,7 +239,12 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
         measureElement(seriesDetailCardRef, setSeriesDetailCardDims),
         measureElement(seriesDetailSkeletonRef, setSeriesDetailSkeletonDims),
         measureElement(seriesDetailOrderByCardRef, setSeriesDetailOrderByCardDims),
-        measureElement(seriesDetailOrderBySkeletonRef, setSeriesDetailOrderBySkeletonDims)
+        measureElement(seriesDetailOrderBySkeletonRef, setSeriesDetailOrderBySkeletonDims),
+        // Collection card measurements
+        measureElement(collectionStandardCardRef, setCollectionStandardCardDims),
+        measureElement(collectionStandardSkeletonRef, setCollectionStandardSkeletonDims),
+        measureElement(collectionDetailCardRef, setCollectionDetailCardDims),
+        measureElement(collectionDetailSkeletonRef, setCollectionDetailSkeletonDims)
       ]
 
       return () => {
@@ -1470,6 +1487,45 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                   </div>
                 </div>
               </Example>
+
+              <Example title={`Single Book Series`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Standard View</p>
+                    <SeriesCard
+                      series={
+                        {
+                          id: 'series-single-book-std',
+                          name: 'Standalone Novel Series',
+                          addedAt: Date.now() - 86400000 * 10,
+                          books: [selectedBook]
+                        } as Series
+                      }
+                      libraryId={selectedBook.libraryId}
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      dateFormat={defaultProps.dateFormat}
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Detail View</p>
+                    <SeriesCard
+                      series={
+                        {
+                          id: 'series-single-book-detail',
+                          name: 'Standalone Novel Series',
+                          addedAt: Date.now() - 86400000 * 10,
+                          books: [selectedBook]
+                        } as Series
+                      }
+                      libraryId={selectedBook.libraryId}
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      dateFormat={defaultProps.dateFormat}
+                    />
+                  </div>
+                </div>
+              </Example>
             </div>
 
             <Example title={`Size Multipliers (Standard View)`}>
@@ -1649,6 +1705,432 @@ export function MediaCardExamples({ selectedBook, selectedPodcast }: MediaCardEx
                 </div>
               </div>
             </Example>
+          </>
+        ) : null}
+
+        {/* Collection Card Examples - Uses selected book to create mock collection */}
+        {selectedBook ? (
+          <>
+            <h3 id="collection-card-examples" className="text-lg font-bold mb-4 mt-8">
+              Collection Card
+            </h3>
+            <ComponentInfo
+              component="CollectionCard"
+              description="Card component for displaying collections in a Collection bookshelf view. Shows book covers side by side (up to 2), RSS feed indicator, edit button, and more menu with actions (create playlist, open RSS feed, delete). Different from Series cards as collections are user-created groupings."
+            >
+              <p className="mb-2">
+                <span className="font-bold">Import:</span>{' '}
+                <Code overflow>import CollectionCard from &apos;@/components/widgets/media-card/CollectionCard&apos;</Code>
+              </p>
+              <div>
+                <span className="font-bold">Props:</span>
+                <ul className="list-disc list-inside">
+                  <li>
+                    <Code>collection</Code>: Collection - The collection to display
+                  </li>
+                  <li>
+                    <Code>bookshelfView</Code>: BookshelfView - View mode (STANDARD or DETAIL)
+                  </li>
+                  <li>
+                    <Code>bookCoverAspectRatio</Code>?: number - Cover aspect ratio
+                  </li>
+                  <li>
+                    <Code>userCanUpdate</Code>?: boolean - Show edit button
+                  </li>
+                  <li>
+                    <Code>userCanDelete</Code>?: boolean - Show delete option in more menu
+                  </li>
+                  <li>
+                    <Code>userIsAdmin</Code>?: boolean - Show RSS feed option in more menu
+                  </li>
+                </ul>
+              </div>
+            </ComponentInfo>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Example title={`Standard View`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">With Data</p>
+                    <div ref={collectionStandardCardRef}>
+                      <CollectionCard
+                        collection={
+                          {
+                            id: 'collection-1',
+                            name: 'My Favorite Books',
+                            description: 'A collection of my favorite audiobooks',
+                            libraryId: selectedBook.libraryId,
+                            books: [selectedBook, selectedBook]
+                          } as Collection
+                        }
+                        bookshelfView={BookshelfView.STANDARD}
+                        bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                        userCanUpdate={true}
+                        userCanDelete={true}
+                        userIsAdmin={true}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                    <div ref={collectionStandardSkeletonRef}>
+                      <CollectionCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                    </div>
+                  </div>
+                </div>
+                <DimensionComparison cardDimensions={collectionStandardCardDims} skeletonDimensions={collectionStandardSkeletonDims} />
+              </Example>
+
+              <Example title={`Detail View`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">With Data</p>
+                    <div ref={collectionDetailCardRef}>
+                      <CollectionCard
+                        collection={
+                          {
+                            id: 'collection-2',
+                            name: 'Science Fiction Collection',
+                            description: 'Great sci-fi books',
+                            libraryId: selectedBook.libraryId,
+                            books: [selectedBook, selectedBook]
+                          } as Collection
+                        }
+                        bookshelfView={BookshelfView.DETAIL}
+                        bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                        userCanUpdate={true}
+                        userCanDelete={true}
+                        userIsAdmin={true}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+                    <div ref={collectionDetailSkeletonRef}>
+                      <CollectionCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                    </div>
+                  </div>
+                </div>
+                <DimensionComparison cardDimensions={collectionDetailCardDims} skeletonDimensions={collectionDetailSkeletonDims} />
+              </Example>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Example title={`With RSS Feed`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Standard View</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-rss',
+                          name: 'Collection with RSS Feed',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook],
+                          rssFeed: {
+                            id: 'feed-1',
+                            slug: 'my-collection',
+                            entityId: 'collection-rss',
+                            feedUrl: 'https://example.com/feed'
+                          }
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      userCanUpdate={true}
+                      userIsAdmin={true}
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Detail View</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-rss-detail',
+                          name: 'Collection with RSS Feed',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook],
+                          rssFeed: {
+                            id: 'feed-2',
+                            slug: 'my-collection-2',
+                            entityId: 'collection-rss-detail',
+                            feedUrl: 'https://example.com/feed2'
+                          }
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      userCanUpdate={true}
+                      userIsAdmin={true}
+                    />
+                  </div>
+                </div>
+              </Example>
+
+              <Example title={`Empty Collection`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Standard View</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-empty',
+                          name: 'Empty Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: []
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      userCanUpdate={true}
+                      userCanDelete={true}
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Detail View</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-empty-detail',
+                          name: 'Empty Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: []
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      userCanUpdate={true}
+                      userCanDelete={true}
+                    />
+                  </div>
+                </div>
+              </Example>
+            </div>
+
+            <div className="mb-6">
+              <Example title={`Single Book Collection`}>
+                <div className="flex gap-4 flex-wrap">
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Standard View</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-single',
+                          name: 'Single Book Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      userCanUpdate={true}
+                      userCanDelete={true}
+                    />
+                  </div>
+                  <div className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Detail View</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-single-detail',
+                          name: 'Single Book Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      userCanUpdate={true}
+                      userCanDelete={true}
+                    />
+                  </div>
+                </div>
+              </Example>
+            </div>
+
+            <div className="mb-6">
+              <Example title={`Size Multipliers (Standard View)`}>
+                <div className="flex gap-8 flex-wrap items-start pb-6">
+                  <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-half-std',
+                          name: 'Very Small Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={1 / 2}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-threequarter-std',
+                          name: 'Small Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={3 / 4}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-five-std',
+                          name: 'Medium Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={5 / 6}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
+                    <p className="text-sm text-gray-400 mb-2">Size: 1</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-one-std',
+                          name: 'Standard Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={1}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
+                    <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-fourthirds-std',
+                          name: 'Large Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.STANDARD}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={4 / 3}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                </div>
+              </Example>
+            </div>
+
+            <div className="mb-6">
+              <Example title={`Size Multipliers (Detail View)`}>
+                <div className="flex gap-8 flex-wrap items-start pb-6">
+                  <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-half-detail',
+                          name: 'Very Small Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={1 / 2}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-threequarter-detail',
+                          name: 'Small Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={3 / 4}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
+                    <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-five-detail',
+                          name: 'Medium Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={5 / 6}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
+                    <p className="text-sm text-gray-400 mb-2">Size: 1</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-one-detail',
+                          name: 'Standard Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={1}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                  <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
+                    <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+                    <CollectionCard
+                      collection={
+                        {
+                          id: 'collection-size-fourthirds-detail',
+                          name: 'Large Collection',
+                          libraryId: selectedBook.libraryId,
+                          books: [selectedBook, selectedBook]
+                        } as Collection
+                      }
+                      bookshelfView={BookshelfView.DETAIL}
+                      bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                      sizeMultiplier={4 / 3}
+                      userCanUpdate={true}
+                    />
+                  </div>
+                </div>
+              </Example>
+            </div>
           </>
         ) : null}
       </ComponentExamples>
