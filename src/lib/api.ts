@@ -8,6 +8,7 @@ import {
   Collection,
   FFProbeData,
   GetAuthorsResponse,
+  GetCollectionsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetNarratorsResponse,
@@ -399,6 +400,10 @@ export const getSeriesList = cache(async (libraryId: string) => {
   return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series?limit=100`, {})
 })
 
+export const getCollectionsList = cache(async (libraryId: string) => {
+  return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections`, {})
+})
+
 export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
   return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}`, {})
 })
@@ -622,10 +627,7 @@ export async function matchAll(libraryId: string): Promise<void> {
  * @param payload - Update payload with name and/or description
  * Returns: Updated collection
  */
-export async function updateCollection(
-  collectionId: string,
-  payload: { name?: string; description?: string | null }
-): Promise<Collection> {
+export async function updateCollection(collectionId: string, payload: { name?: string; description?: string | null }): Promise<Collection> {
   return apiRequest<Collection>(`/api/collections/${collectionId}`, {
     method: 'PATCH',
     body: JSON.stringify(payload)

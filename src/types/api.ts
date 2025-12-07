@@ -976,6 +976,16 @@ export interface GetSeriesResponse {
   include: string
 }
 
+export interface GetCollectionsResponse {
+  results: Collection[]
+  total: number
+  limit: number
+  page: number
+  sortDesc: boolean
+  minified: boolean
+  include: string
+}
+
 export type SaveLibraryOrderApiResponse = {
   libraries: Library[]
 }

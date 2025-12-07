@@ -14,8 +14,6 @@ export default function SeriesClient({ seriesData, library, currentUser }: Serie
   const dateFormat = currentUser?.serverSettings?.dateFormat ?? 'MM/dd/yyyy'
   const libraryId = library.id
 
-  console.log('currentUser', currentUser)
-
   return (
     <div>
       <div className="flex justify-center flex-wrap gap-4">
