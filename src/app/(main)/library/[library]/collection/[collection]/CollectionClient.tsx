@@ -1,6 +1,7 @@
 'use client'
 
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
+import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { Collection, Library } from '@/types/api'
 
 interface CollectionClientProps {
@@ -9,9 +10,7 @@ interface CollectionClientProps {
 }
 
 export default function CollectionClient({ collection, library }: CollectionClientProps) {
-  // TODO: coverAspectRatio is an enum, not a decimal value
-  const coverAspectRatio = library.settings?.coverAspectRatio ?? 1
-  // Temporary
+  const coverAspectRatio = getCoverAspectRatio(library.settings?.coverAspectRatio ?? 1)
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio
 
