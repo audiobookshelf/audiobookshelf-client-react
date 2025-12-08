@@ -2,7 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { DropdownMenuItem } from './DropdownMenu'
 import DropdownMenu from './DropdownMenu'
 import InputWrapper from './InputWrapper'
@@ -78,29 +78,24 @@ export function MultiSelect<T = string>({
   onEditDone
 }: MultiSelectProps<T>) {
   const t = useTypeSafeTranslations()
-  const onMutate = useCallback(
-    (prev: T | null, text: string): T => {
-      if (onMutateProp) {
-        return onMutateProp(prev, text)
-      }
-      // For string types, just return the string
-      return text as unknown as T
-    },
-    [onMutateProp]
-  )
 
-  const getItemTextId = useCallback(
-    (content: T) => {
-      if (getItemTextIdProp) {
-        return getItemTextIdProp(content)
-      } else if (typeof content === 'string') {
-        return content
-      } else {
-        return String(content)
-      }
-    },
-    [getItemTextIdProp]
-  )
+  const onMutate = (prev: T | null, text: string): T => {
+    if (onMutateProp) {
+      return onMutateProp(prev, text)
+    }
+    // For string types, just return the string
+    return text as unknown as T
+  }
+
+  const getItemTextId = (content: T) => {
+    if (getItemTextIdProp) {
+      return getItemTextIdProp(content)
+    } else if (typeof content === 'string') {
+      return content
+    } else {
+      return String(content)
+    }
+  }
 
   const isControlled = value !== undefined
   const [textInput, setTextInput] = useState<string>(isControlled ? value : '')
@@ -113,15 +108,12 @@ export function MultiSelect<T = string>({
   const isEditingPillIndexControlled = controlledEditingPillIndex !== undefined
   const editingPillIndex = isEditingPillIndexControlled ? controlledEditingPillIndex : uncontrolledEditingPillIndex
 
-  const setEditingPillIndex = useCallback(
-    (index: number | null) => {
-      if (!isEditingPillIndexControlled) {
-        setUncontrolledEditingPillIndex(index)
-      }
-      onEditingPillIndexChange?.(index)
-    },
-    [isEditingPillIndexControlled, onEditingPillIndexChange]
-  )
+  const setEditingPillIndex = (index: number | null) => {
+    if (!isEditingPillIndexControlled) {
+      setUncontrolledEditingPillIndex(index)
+    }
+    onEditingPillIndexChange?.(index)
+  }
   const multiSelectId = useId()
 
   const selectedItemValues = useMemo(() => selectedItems.map((i) => i.value), [selectedItems])
@@ -173,142 +165,111 @@ export function MultiSelect<T = string>({
     }))
   }, [itemsToShow])
 
-  const openMenu = useCallback((index: number | null) => {
+  const openMenu = (index: number | null) => {
     setIsMenuOpen(true)
     setFocusIndex(index)
-  }, [])
+  }
 
-  const closeMenu = useCallback(() => {
+  const closeMenu = () => {
     setIsMenuOpen(false)
     setFocusIndex(null)
-  }, [])
+  }
 
-  const setInputValue = useCallback(
-    (inputValue: string) => {
-      if (!isControlled) {
-        setTextInput(inputValue)
-      }
-      onInputChange?.(inputValue)
-    },
-    [isControlled, onInputChange]
-  )
+  const setInputValueFn = (inputValue: string) => {
+    if (!isControlled) {
+      setTextInput(inputValue)
+    }
+    onInputChange?.(inputValue)
+  }
 
-  const resetInput = useCallback(() => {
-    setInputValue('')
+  const resetInput = () => {
+    setInputValueFn('')
     setFocusIndex(null)
-  }, [setInputValue])
+  }
 
   // Handle input changes
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      openMenu(null)
-      setInputValue(e.target.value)
-    },
-    [openMenu, setInputValue]
-  )
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    openMenu(null)
+    setInputValueFn(e.target.value)
+  }
 
-  const isDuplicateByValue = useCallback(
-    (itemValue: string, excludeIndex?: number) => {
-      const isDupe = selectedItemValues.some((v, idx) => idx !== excludeIndex && v === itemValue)
-      return isDupe
-    },
-    [selectedItemValues]
-  )
+  const isDuplicateByValue = (itemValue: string, excludeIndex?: number) => {
+    return selectedItemValues.some((v, idx) => idx !== excludeIndex && v === itemValue)
+  }
 
-  const isDuplicateByText = useCallback(
-    (text: string, excludeIndex?: number) => {
-      return selectedItems.some((item, idx) => idx !== excludeIndex && getItemTextId(item.content).toLowerCase() === text.toLowerCase())
-    },
-    [selectedItems, getItemTextId]
-  )
+  const isDuplicateByText = (text: string, excludeIndex?: number) => {
+    return selectedItems.some((item, idx) => idx !== excludeIndex && getItemTextId(item.content).toLowerCase() === text.toLowerCase())
+  }
 
   // Remove item
-  const removeItem = useCallback(
-    (itemValue: string) => {
-      const itemToRemove = selectedItems.find((i) => i.value === itemValue)
-      if (itemToRemove) {
-        onItemRemoved?.(itemToRemove)
-      }
-    },
-    [selectedItems, onItemRemoved]
-  )
+  const removeItem = (itemValue: string) => {
+    const itemToRemove = selectedItems.find((i) => i.value === itemValue)
+    if (itemToRemove) {
+      onItemRemoved?.(itemToRemove)
+    }
+  }
 
-  const validate = useCallback(
-    (content: T): boolean => {
-      const validationError = onValidate?.(content)
-      if (validationError) {
-        onValidationError?.(validationError)
-        resetInput()
-        return false
-      }
-      return true
-    },
-    [onValidate, onValidationError, resetInput]
-  )
-
-  const addSelectedItem = useCallback(
-    (itemValue: string, removeIfDuplicate = false) => {
-      if (isDuplicateByValue(itemValue)) {
-        if (removeIfDuplicate) {
-          removeItem(itemValue)
-        }
-        resetInput()
-        return
-      }
-
-      const itemToAdd = items.find((i) => i.value === itemValue)
-      if (!itemToAdd) return
-
-      const newContent = onMutate(null, itemToAdd.content)
-
-      // Validate the new item
-      if (!validate(newContent)) return
-
-      onItemAdded?.({ value: itemToAdd.value, content: newContent })
+  const validate = (content: T): boolean => {
+    const validationError = onValidate?.(content)
+    if (validationError) {
+      onValidationError?.(validationError)
       resetInput()
-    },
-    [isDuplicateByValue, items, onItemAdded, resetInput, removeItem, onMutate, validate]
-  )
+      return false
+    }
+    return true
+  }
+
+  const addSelectedItem = (itemValue: string, removeIfDuplicate = false) => {
+    if (isDuplicateByValue(itemValue)) {
+      if (removeIfDuplicate) {
+        removeItem(itemValue)
+      }
+      resetInput()
+      return
+    }
+
+    const itemToAdd = items.find((i) => i.value === itemValue)
+    if (!itemToAdd) return
+
+    const newContent = onMutate(null, itemToAdd.content)
+
+    // Validate the new item
+    if (!validate(newContent)) return
+
+    onItemAdded?.({ value: itemToAdd.value, content: newContent })
+    resetInput()
+  }
 
   // Handle dropdown menu item click
-  const handleDropdownItemClick = useCallback(
-    (item: DropdownMenuItem) => {
-      addSelectedItem(String(item.value), true)
-    },
-    [addSelectedItem]
-  )
+  const handleDropdownItemClick = (item: DropdownMenuItem) => {
+    addSelectedItem(String(item.value), true)
+  }
 
   // Check if item is selected
-  const isItemSelected = useCallback(
-    (item: DropdownMenuItem) => {
-      return selectedItemValues.includes(String(item.value))
-    },
-    [selectedItemValues]
-  )
+  const isItemSelected = (item: DropdownMenuItem) => {
+    return selectedItemValues.includes(String(item.value))
+  }
 
   // Insert new item
-  const insertNewItem = useCallback(
-    (item: string) => {
-      if (!allowNew) return
-      if (isDuplicateByText(item)) {
-        resetInput()
-        return
-      }
-      // Generate value for new items with 'new-' prefix
-      const newContent = onMutate(null, item)
-
-      // Validate the new item
-      if (!validate(newContent)) return
-
-      const newItem = { value: 'new-' + item, content: newContent }
-      onItemAdded?.(newItem)
+  const insertNewItem = (item: string) => {
+    if (!allowNew) return
+    if (isDuplicateByText(item)) {
       resetInput()
-    },
-    [onItemAdded, resetInput, allowNew, isDuplicateByText, onMutate, validate]
-  )
+      return
+    }
+    // Generate value for new items with 'new-' prefix
+    const newContent = onMutate(null, item)
+
+    // Validate the new item
+    if (!validate(newContent)) return
+
+    const newItem = { value: 'new-' + item, content: newContent }
+    onItemAdded?.(newItem)
+    resetInput()
+  }
 
   // Submit form
-  const submitForm = useCallback(() => {
+  const submitForm = () => {
     if (!textInput) return
     const cleaned = textInput.trim()
     if (!cleaned) {
@@ -321,263 +282,218 @@ export function MultiSelect<T = string>({
         insertNewItem(cleaned)
       }
     }
-  }, [textInput, items, addSelectedItem, insertNewItem, resetInput])
+  }
 
   // Focus/blur logic
-  const inputFocus = useCallback(() => {
+  const inputFocus = () => {
     openMenu(null)
-  }, [openMenu])
+  }
 
-  const inputBlur = useCallback(() => {
+  const inputBlur = () => {
     if (!isMenuOpen) return
     setTimeout(() => {
       if (document.activeElement === inputRef.current) return
       closeMenu()
       if (textInput) submitForm()
     }, 50)
-  }, [isMenuOpen, textInput, submitForm, closeMenu])
+  }
 
-  const addPastedItems = useCallback(
-    (pastedItems: string[]) => {
-      const itemsToAdd = pastedItems
-        .filter((item) => !isDuplicateByText(item))
-        .map((item) => {
-          const itemExists = items.find((i) => i.content.toLowerCase() === item.toLowerCase())
-          if (itemExists) {
-            return { value: itemExists.value, content: onMutate(null, itemExists.content) }
-          } else {
-            // Generate value for new items with 'new-' prefix
-            return { value: 'new-' + item, content: onMutate(null, item) }
-          }
-        })
-      if (itemsToAdd.length) {
-        itemsToAdd.forEach((item) => {
-          onItemAdded?.(item)
-        })
-        resetInput()
-      }
-    },
-    [onItemAdded, items, resetInput, isDuplicateByText, onMutate]
-  )
-
-  const inputPaste = useCallback(
-    (e: React.ClipboardEvent<HTMLInputElement>) => {
-      const pastedText = e.clipboardData?.getData('text') || ''
-      const pastedItems = [
-        ...new Set(
-          pastedText
-            .split(';')
-            .map((i) => i.trim())
-            .filter((i) => i)
-        )
-      ]
-      addPastedItems(pastedItems)
-      e.preventDefault()
-    },
-    [addPastedItems]
-  )
-
-  const handleArrowDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      e.preventDefault()
-      const itemCount = dropdownItems.length
-      if (!isMenuOpen) {
-        openMenu(0)
-      } else {
-        setFocusIndex((prev) => {
-          if (prev === null || prev < 0) return 0
-          return prev < itemCount - 1 ? prev + 1 : prev
-        })
-      }
-    },
-    [dropdownItems, isMenuOpen, openMenu]
-  )
-
-  const handleArrowUp = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      e.preventDefault()
-      const itemCount = dropdownItems.length
-      if (!isMenuOpen) {
-        openMenu(itemCount - 1)
-      } else {
-        setFocusIndex((prev) => {
-          if (prev === null || prev < 0) return itemCount - 1
-          return prev > 0 ? prev - 1 : prev
-        })
-      }
-    },
-    [dropdownItems, isMenuOpen, openMenu]
-  )
-
-  const handleEnter = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      e.preventDefault()
-      const itemCount = dropdownItems.length
-      if (focusIndex !== null && focusIndex >= 0 && focusIndex < itemCount) {
-        handleDropdownItemClick(dropdownItems[focusIndex])
-      } else if (focusIndex !== null && focusIndex < 0) {
-        const pillIdx = selectedItemValues.length + focusIndex
-        if (pillIdx >= 0 && selectedItemValues[pillIdx]) {
-          if (showEdit) {
-            setEditingPillIndex(pillIdx)
-          }
+  const addPastedItems = (pastedItems: string[]) => {
+    const itemsToAdd = pastedItems
+      .filter((item) => !isDuplicateByText(item))
+      .map((item) => {
+        const itemExists = items.find((i) => i.content.toLowerCase() === item.toLowerCase())
+        if (itemExists) {
+          return { value: itemExists.value, content: onMutate(null, itemExists.content) }
+        } else {
+          // Generate value for new items with 'new-' prefix
+          return { value: 'new-' + item, content: onMutate(null, item) }
         }
-      } else if (textInput) {
-        submitForm()
-      }
-    },
-    [dropdownItems, focusIndex, handleDropdownItemClick, selectedItemValues, showEdit, submitForm, textInput, setEditingPillIndex]
-  )
+      })
+    if (itemsToAdd.length) {
+      itemsToAdd.forEach((item) => {
+        onItemAdded?.(item)
+      })
+      resetInput()
+    }
+  }
 
-  const handleEscape = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      e.preventDefault()
-      closeMenu()
-    },
-    [closeMenu]
-  )
+  const inputPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pastedText = e.clipboardData?.getData('text') || ''
+    const pastedItems = [
+      ...new Set(
+        pastedText
+          .split(';')
+          .map((i) => i.trim())
+          .filter((i) => i)
+      )
+    ]
+    addPastedItems(pastedItems)
+    e.preventDefault()
+  }
 
-  const handleHome = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      e.preventDefault()
+  const handleArrowDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const itemCount = dropdownItems.length
+    if (!isMenuOpen) {
       openMenu(0)
-    },
-    [openMenu]
-  )
+    } else {
+      setFocusIndex((prev) => {
+        if (prev === null || prev < 0) return 0
+        return prev < itemCount - 1 ? prev + 1 : prev
+      })
+    }
+  }
 
-  const handleEnd = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      e.preventDefault()
-      const itemCount = dropdownItems.length
+  const handleArrowUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const itemCount = dropdownItems.length
+    if (!isMenuOpen) {
       openMenu(itemCount - 1)
-    },
-    [dropdownItems, openMenu]
-  )
+    } else {
+      setFocusIndex((prev) => {
+        if (prev === null || prev < 0) return itemCount - 1
+        return prev > 0 ? prev - 1 : prev
+      })
+    }
+  }
 
-  const handleTab = useCallback(() => {
+  const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const itemCount = dropdownItems.length
+    if (focusIndex !== null && focusIndex >= 0 && focusIndex < itemCount) {
+      handleDropdownItemClick(dropdownItems[focusIndex])
+    } else if (focusIndex !== null && focusIndex < 0) {
+      const pillIdx = selectedItemValues.length + focusIndex
+      if (pillIdx >= 0 && selectedItemValues[pillIdx]) {
+        if (showEdit) {
+          setEditingPillIndex(pillIdx)
+        }
+      }
+    } else if (textInput) {
+      submitForm()
+    }
+  }
+
+  const handleEscape = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    closeMenu()
+  }
+
+  const handleHome = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    openMenu(0)
+  }
+
+  const handleEnd = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    const itemCount = dropdownItems.length
+    openMenu(itemCount - 1)
+  }
+
+  const handleTab = () => {
     closeMenu()
     inputRef.current?.blur()
-  }, [closeMenu])
+  }
 
-  const handleArrowLeft = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      const pillCount = selectedItemValues.length
-      if (!textInput && pillCount > 0) {
-        e.preventDefault()
+  const handleArrowLeft = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    const pillCount = selectedItemValues.length
+    if (!textInput && pillCount > 0) {
+      e.preventDefault()
+      setFocusIndex((prev) => {
+        if (prev === null || prev >= 0) return -1
+        if (Math.abs(prev) < pillCount) return prev - 1
+        return prev
+      })
+    }
+  }
+
+  const handleArrowRight = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!textInput && focusIndex !== null && focusIndex < 0) {
+      e.preventDefault()
+      setFocusIndex((prev) => {
+        if (prev === null) return null
+        if (prev < -1) return prev + 1
+        return null
+      })
+    }
+  }
+
+  const handlePillEdit = (editedPillItem: T, idx: number) => {
+    const itemToUpdate = selectedItems[idx]
+    if (itemToUpdate) {
+      const newText = getItemTextId(editedPillItem)
+      const isDupe = isDuplicateByText(newText, idx)
+      if (isDupe) {
+        onDuplicateError?.(`"${newText}" is already selected`)
+        return
+      }
+      const updatedItem = { ...itemToUpdate, content: editedPillItem }
+      onItemEdited?.(updatedItem, idx)
+    }
+  }
+
+  const handlePillEditDone = (shouldRefocus = false, cancelled = false) => {
+    setEditingPillIndex(null)
+    if (shouldRefocus) {
+      inputRef.current?.focus()
+    }
+    onEditDone?.(cancelled)
+  }
+
+  const handlePillDeletion = (key: 'Backspace' | 'Delete') => {
+    if (focusIndex === null || focusIndex >= 0) {
+      if (key === 'Backspace' && !textInput && selectedItemValues.length > 0) {
+        removeItem(selectedItemValues[selectedItemValues.length - 1])
+      }
+      return
+    }
+
+    if (focusIndex !== null && focusIndex < 0) {
+      const pillIdx = selectedItemValues.length + focusIndex
+      if (pillIdx < 0) return
+
+      const pillToRemove = selectedItemValues[pillIdx]
+      if (key === 'Backspace') {
+        // Focus moves to the pill to the left, or to input if first pill is deleted
         setFocusIndex((prev) => {
-          if (prev === null || prev >= 0) return -1
-          if (Math.abs(prev) < pillCount) return prev - 1
+          if (prev === null || prev === -selectedItemValues.length) return null
+          if (prev <= -1) return prev
+          return prev
+        })
+      } else {
+        // Focus remains on the current index, which is now the next pill
+        setFocusIndex((prev) => {
+          if (prev === null || prev === -1) return null
+          if (prev < -1) return prev + 1
           return prev
         })
       }
-    },
-    [selectedItemValues, textInput]
-  )
+      removeItem(pillToRemove)
+    }
+  }
 
-  const handleArrowRight = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (!textInput && focusIndex !== null && focusIndex < 0) {
-        e.preventDefault()
-        setFocusIndex((prev) => {
-          if (prev === null) return null
-          if (prev < -1) return prev + 1
-          return null
-        })
-      }
-    },
-    [focusIndex, textInput]
-  )
-
-  const handlePillEdit = useCallback(
-    (editedPillItem: T, idx: number) => {
-      const itemToUpdate = selectedItems[idx]
-      if (itemToUpdate) {
-        const newText = getItemTextId(editedPillItem)
-        const isDupe = isDuplicateByText(newText, idx)
-        if (isDupe) {
-          onDuplicateError?.(`"${newText}" is already selected`)
-          return
-        }
-        const updatedItem = { ...itemToUpdate, content: editedPillItem }
-        onItemEdited?.(updatedItem, idx)
-      }
-    },
-    [selectedItems, getItemTextId, isDuplicateByText, onDuplicateError, onItemEdited]
-  )
-
-  const handlePillEditDone = useCallback(
-    (shouldRefocus = false, cancelled = false) => {
-      setEditingPillIndex(null)
-      if (shouldRefocus) {
-        inputRef.current?.focus()
-      }
-      onEditDone?.(cancelled)
-    },
-    [setEditingPillIndex, onEditDone]
-  )
-
-  const handlePillDeletion = useCallback(
-    (key: 'Backspace' | 'Delete') => {
-      if (focusIndex === null || focusIndex >= 0) {
-        if (key === 'Backspace' && !textInput && selectedItemValues.length > 0) {
-          removeItem(selectedItemValues[selectedItemValues.length - 1])
-        }
-        return
-      }
-
-      if (focusIndex !== null && focusIndex < 0) {
-        const pillIdx = selectedItemValues.length + focusIndex
-        if (pillIdx < 0) return
-
-        const pillToRemove = selectedItemValues[pillIdx]
-        if (key === 'Backspace') {
-          // Focus moves to the pill to the left, or to input if first pill is deleted
-          setFocusIndex((prev) => {
-            if (prev === null || prev === -selectedItemValues.length) return null
-            if (prev <= -1) return prev
-            return prev
-          })
-        } else {
-          // Focus remains on the current index, which is now the next pill
-          setFocusIndex((prev) => {
-            if (prev === null || prev === -1) return null
-            if (prev < -1) return prev + 1
-            return prev
-          })
-        }
-        removeItem(pillToRemove)
-      }
-    },
-    [focusIndex, removeItem, selectedItemValues, textInput]
-  )
-
-  const keydownHandlers: Record<string, (e: React.KeyboardEvent<HTMLInputElement>) => void> = useMemo(
-    () => ({
-      ArrowDown: handleArrowDown,
-      ArrowUp: handleArrowUp,
-      Enter: handleEnter,
-      Escape: handleEscape,
-      Home: handleHome,
-      End: handleEnd,
-      Tab: handleTab,
-      ArrowLeft: handleArrowLeft,
-      ArrowRight: handleArrowRight,
-      Backspace: () => handlePillDeletion('Backspace'),
-      Delete: () => handlePillDeletion('Delete')
-    }),
-    [handleArrowDown, handleArrowUp, handleEnter, handleEscape, handleHome, handleEnd, handleTab, handleArrowLeft, handleArrowRight, handlePillDeletion]
-  )
+  const keydownHandlers: Record<string, (e: React.KeyboardEvent<HTMLInputElement>) => void> = {
+    ArrowDown: handleArrowDown,
+    ArrowUp: handleArrowUp,
+    Enter: handleEnter,
+    Escape: handleEscape,
+    Home: handleHome,
+    End: handleEnd,
+    Tab: handleTab,
+    ArrowLeft: handleArrowLeft,
+    ArrowRight: handleArrowRight,
+    Backspace: () => handlePillDeletion('Backspace'),
+    Delete: () => handlePillDeletion('Delete')
+  }
 
   // Keyboard navigation for dropdown menu
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (disabled) return
-      if (keydownHandlers[e.key]) {
-        keydownHandlers[e.key](e)
-      }
-    },
-    [disabled, keydownHandlers]
-  )
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled) return
+    if (keydownHandlers[e.key]) {
+      keydownHandlers[e.key](e)
+    }
+  }
 
   // Search logic with debouncing
   useEffect(() => {
@@ -632,26 +548,23 @@ export function MultiSelect<T = string>({
     }
   }
 
-  const focusPill = useCallback(
-    (idx: number) => {
-      if (!disabled) {
-        // Focus input first, then set focus index
-        inputRef.current?.focus()
-        setFocusIndex(idx - selectedItemValues.length)
-      }
-    },
-    [disabled, selectedItemValues]
-  )
+  const focusPill = (idx: number) => {
+    if (!disabled) {
+      // Focus input first, then set focus index
+      inputRef.current?.focus()
+      setFocusIndex(idx - selectedItemValues.length)
+    }
+  }
 
   // Handler for input wrapper click
-  const handleInputWrapperClick = useCallback(() => {
+  const handleInputWrapperClick = () => {
     if (disabled) return
     if (document.activeElement === inputRef.current) {
       setIsMenuOpen((prev) => !prev)
     }
-  }, [disabled])
+  }
 
-  const inputId = useMemo(() => `${multiSelectId}-input`, [multiSelectId])
+  const inputId = `${multiSelectId}-input`
 
   return (
     <div className="w-full">

@@ -1,7 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useCallback, useId, useMemo, useRef } from 'react'
+import React, { useId, useRef } from 'react'
 import InputWrapper from './InputWrapper'
 
 interface ToggleSwitchProps {
@@ -36,87 +36,60 @@ export default function ToggleSwitch({
   const toggleId = `${id}-toggle`
   const labelId = `${id}-label`
 
-  const bgColorClasses = useMemo(() => {
-    const colorMap = {
-      success: 'bg-success',
-      primary: 'bg-primary',
-      warning: 'bg-warning',
-      error: 'bg-error'
-    }
-    return colorMap[value ? onColor : offColor] || 'bg-primary'
-  }, [value, onColor, offColor])
+  const colorMap: Record<string, string> = {
+    success: 'bg-success',
+    primary: 'bg-primary',
+    warning: 'bg-warning',
+    error: 'bg-error'
+  }
+  const bgColorClasses = colorMap[value ? onColor : offColor] || 'bg-primary'
 
-  const buttonClassName = useMemo(() => {
-    const baseClasses = 'border rounded-full border-border flex items-center cursor-pointer justify-start outline-none'
-    const disabledClasses = disabled ? 'cursor-not-allowed bg-checkbox-bg-disabled border-checkbox-bg-disabled' : ''
-    const widthClasses = size === 'small' ? 'w-6' : size === 'medium' ? 'w-8' : 'w-10'
+  const widthClasses = size === 'small' ? 'w-6' : size === 'medium' ? 'w-8' : 'w-10'
+  const buttonClassName = mergeClasses(
+    'border rounded-full border-border flex items-center cursor-pointer justify-start outline-none',
+    bgColorClasses,
+    disabled ? 'cursor-not-allowed bg-checkbox-bg-disabled border-checkbox-bg-disabled' : '',
+    widthClasses
+  )
 
-    return mergeClasses(baseClasses, bgColorClasses, disabledClasses, widthClasses)
-  }, [disabled, size, bgColorClasses])
+  const sizeClasses = size === 'small' ? 'w-3 h-3' : size === 'medium' ? 'w-4 h-4' : 'w-5 h-5'
+  const translateClass = size === 'small' ? 'translate-x-3' : size === 'medium' ? 'translate-x-4' : 'translate-x-5'
+  const switchClassName = mergeClasses(
+    'rounded-full border border-black-50 shadow-sm transform transition-transform duration-100',
+    disabled ? 'bg-disabled' : 'bg-white',
+    value ? translateClass : '',
+    sizeClasses
+  )
 
-  const switchClassName = useMemo(() => {
-    const baseClasses = 'rounded-full border border-black-50 shadow-sm transform transition-transform duration-100'
-    const bgColor = disabled ? 'bg-disabled' : 'bg-white'
-    const sizeClasses = size === 'small' ? 'w-3 h-3' : size === 'medium' ? 'w-4 h-4' : 'w-5 h-5'
-    const translateClass = size === 'small' ? 'translate-x-3' : size === 'medium' ? 'translate-x-4' : 'translate-x-5'
-    const transformClass = value ? translateClass : ''
+  const labelSizeClass = size === 'small' ? 'text-xs md:text-sm' : size === 'medium' ? 'text-sm md:text-base' : 'text-base md:text-lg'
+  const labelClassName = mergeClasses('ps-2', labelSizeClass, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-foreground')
 
-    return mergeClasses(baseClasses, bgColor, transformClass, sizeClasses)
-  }, [value, disabled, size])
-
-  const labelClassName = useMemo(() => {
-    const classes = []
-    classes.push('ps-2')
-    if (size === 'small') {
-      classes.push('text-xs md:text-sm')
-    } else if (size === 'medium') {
-      classes.push('text-sm md:text-base')
-    } else {
-      classes.push('text-base md:text-lg')
-    }
-
-    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-foreground')
-  }, [size, disabled])
-
-  const triggerChange = useCallback(() => {
+  const triggerChange = () => {
     if (!disabled) {
       onChange?.(!value)
     }
-  }, [onChange, value, disabled])
+  }
 
-  const handleToggle = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleToggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault()
+    triggerChange()
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       triggerChange()
-    },
-    [triggerChange]
-  )
+    }
+  }
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        triggerChange()
-      }
-    },
-    [triggerChange]
-  )
-
-  const handleWrapperClick = useCallback(() => {
+  const handleWrapperClick = () => {
     if (buttonRef.current && !disabled) {
       buttonRef.current.focus()
     }
-  }, [disabled])
+  }
 
-  const derivedAriaLabel = useMemo(() => {
-    if (label) return undefined // aria-labelledby will be used instead
-    return ariaLabel
-  }, [label, ariaLabel])
-
-  const derivedAriaLabelledBy = useMemo(() => {
-    if (label) return labelId
-    return ariaLabelledBy
-  }, [label, labelId, ariaLabelledBy])
+  const derivedAriaLabel = label ? undefined : ariaLabel
+  const derivedAriaLabelledBy = label ? labelId : ariaLabelledBy
 
   return (
     <InputWrapper disabled={disabled} borderless size={size} className={mergeClasses('bg-transparent', className)}>

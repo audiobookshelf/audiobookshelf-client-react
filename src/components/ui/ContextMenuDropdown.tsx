@@ -4,7 +4,7 @@ import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useId, useRef, useState } from 'react'
 import ContextMenu, { ContextMenuItem } from './ContextMenu'
 import IconBtn from './IconBtn'
 
@@ -68,14 +68,15 @@ export default function ContextMenuDropdown<T = string>({
   const dropdownId = useId()
 
   // Helper functions to manage menu state
-  const openMenu = useCallback((index: number = 0) => {
+  const openMenu = (index: number = 0) => {
     setShowMenu(true)
     onOpenChange?.(true)
     setFocusedIndex(index)
     setFocusedSubIndex(-1)
     setOpenSubmenuIndex(null)
-  }, [onOpenChange])
+  }
 
+  // Keep useCallback for closeMenu since it's used in useClickOutside hook dependency
   const closeMenu = useCallback(() => {
     setShowMenu(false)
     onOpenChange?.(false)
@@ -87,119 +88,98 @@ export default function ContextMenuDropdown<T = string>({
   // Handle click outside to close menu
   useClickOutside(menuWrapperRef, buttonRef, closeMenu)
 
-  const openSubMenu = useCallback(
-    (index: number) => {
-      const currentItem = items[index]
-      setOpenSubmenuIndex(index)
-      // Only set focusedSubIndex to 0 if there are actual subitems
-      if (currentItem?.subitems && currentItem.subitems.length > 0) {
-        setFocusedSubIndex(0)
-      } else {
-        setFocusedSubIndex(-1)
-      }
-    },
-    [items]
-  )
+  const openSubMenu = (index: number) => {
+    const currentItem = items[index]
+    setOpenSubmenuIndex(index)
+    // Only set focusedSubIndex to 0 if there are actual subitems
+    if (currentItem?.subitems && currentItem.subitems.length > 0) {
+      setFocusedSubIndex(0)
+    } else {
+      setFocusedSubIndex(-1)
+    }
+  }
 
-  const closeSubMenu = useCallback(() => {
+  const closeSubMenu = () => {
     setOpenSubmenuIndex(null)
     setFocusedSubIndex(-1)
-  }, [])
+  }
 
-  const toggleMenu = useCallback(() => {
+  const toggleMenu = () => {
     if (disabled) return
     if (showMenu) {
       closeMenu()
     } else {
       openMenu()
     }
-  }, [disabled, showMenu, closeMenu, openMenu])
+  }
 
-  const handleAction = useCallback(
-    (action: string, data?: Record<string, T>) => {
-      if (disabled) return
-      closeMenu()
-      onAction?.({ action, data })
-    },
-    [disabled, onAction, closeMenu]
-  )
+  const handleAction = (action: string, data?: Record<string, T>) => {
+    if (disabled) return
+    closeMenu()
+    onAction?.({ action, data })
+  }
 
-  const toggleSubmenu = useCallback(
-    (index: number) => {
-      if (openSubmenuIndex === index) {
-        closeSubMenu()
-      } else {
-        openSubMenu(index)
-      }
-    },
-    [openSubmenuIndex, closeSubMenu, openSubMenu]
-  )
+  const toggleSubmenu = (index: number) => {
+    if (openSubmenuIndex === index) {
+      closeSubMenu()
+    } else {
+      openSubMenu(index)
+    }
+  }
 
-  const handleItemClick = useCallback(
-    (action: string) => {
-      handleAction(action)
-    },
-    [handleAction]
-  )
+  const handleItemClick = (action: string) => {
+    handleAction(action)
+  }
 
-  const handleSubItemClick = useCallback(
-    (action: string, data?: Record<string, T>) => {
-      handleAction(action, data)
-    },
-    [handleAction]
-  )
+  const handleSubItemClick = (action: string, data?: Record<string, T>) => {
+    handleAction(action, data)
+  }
 
   // Keyboard navigation handlers
-  const handleVerticalNavigation = useCallback(
-    (direction: 'up' | 'down') => {
-      if (direction === 'down') {
-        if (!showMenu) {
-          openMenu()
-        } else if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
-          const currentItem = items[openSubmenuIndex]
-          if (currentItem?.subitems && currentItem.subitems.length > 0) {
-            setFocusedSubIndex((prev) => (prev < currentItem.subitems!.length - 1 ? prev + 1 : prev))
-          }
-        } else {
-          closeSubMenu()
-          setFocusedIndex((prev) => (prev < items.length - 1 ? prev + 1 : prev))
+  const handleVerticalNavigation = (direction: 'up' | 'down') => {
+    if (direction === 'down') {
+      if (!showMenu) {
+        openMenu()
+      } else if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
+        const currentItem = items[openSubmenuIndex]
+        if (currentItem?.subitems && currentItem.subitems.length > 0) {
+          setFocusedSubIndex((prev) => (prev < currentItem.subitems!.length - 1 ? prev + 1 : prev))
         }
       } else {
-        if (!showMenu) {
-          openMenu(items.length - 1)
-        } else if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
-          const currentItem = items[openSubmenuIndex]
-          if (currentItem?.subitems && currentItem.subitems.length > 0) {
-            setFocusedSubIndex((prev) => (prev > 0 ? prev - 1 : prev))
-          }
-        } else {
-          closeSubMenu()
-          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
-        }
+        closeSubMenu()
+        setFocusedIndex((prev) => (prev < items.length - 1 ? prev + 1 : prev))
       }
-    },
-    [showMenu, focusedSubIndex, openSubmenuIndex, items, openMenu, closeSubMenu]
-  )
-
-  const handleHorizontalNavigation = useCallback(
-    (direction: 'left' | 'right') => {
-      if (direction === 'right') {
-        if (showMenu && focusedSubIndex === -1 && focusedIndex >= 0) {
-          const currentItem = items[focusedIndex]
-          if (currentItem?.subitems) {
-            openSubMenu(focusedIndex)
-          }
+    } else {
+      if (!showMenu) {
+        openMenu(items.length - 1)
+      } else if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
+        const currentItem = items[openSubmenuIndex]
+        if (currentItem?.subitems && currentItem.subitems.length > 0) {
+          setFocusedSubIndex((prev) => (prev > 0 ? prev - 1 : prev))
         }
       } else {
-        if (showMenu) {
-          closeSubMenu()
+        closeSubMenu()
+        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+      }
+    }
+  }
+
+  const handleHorizontalNavigation = (direction: 'left' | 'right') => {
+    if (direction === 'right') {
+      if (showMenu && focusedSubIndex === -1 && focusedIndex >= 0) {
+        const currentItem = items[focusedIndex]
+        if (currentItem?.subitems) {
+          openSubMenu(focusedIndex)
         }
       }
-    },
-    [showMenu, focusedSubIndex, focusedIndex, items, openSubMenu, closeSubMenu]
-  )
+    } else {
+      if (showMenu) {
+        closeSubMenu()
+      }
+    }
+  }
 
-  const handleEnterSpace = useCallback(() => {
+  const handleEnterSpace = () => {
     if (!showMenu) {
       openMenu()
     } else if (focusedSubIndex !== -1 && focusedSubIndex >= 0 && openSubmenuIndex !== null) {
@@ -218,111 +198,102 @@ export default function ContextMenuDropdown<T = string>({
         handleAction(currentItem.action)
       }
     }
-  }, [showMenu, focusedSubIndex, openSubmenuIndex, items, handleAction, toggleSubmenu, openMenu, focusedIndex])
+  }
 
-  const handleHomeEnd = useCallback(
-    (key: 'home' | 'end') => {
-      if (showMenu) {
-        if (key === 'home') {
-          if (focusedSubIndex !== -1) {
-            setFocusedSubIndex(0)
-          } else {
-            closeSubMenu()
-            setFocusedIndex(0)
+  const handleHomeEnd = (key: 'home' | 'end') => {
+    if (showMenu) {
+      if (key === 'home') {
+        if (focusedSubIndex !== -1) {
+          setFocusedSubIndex(0)
+        } else {
+          closeSubMenu()
+          setFocusedIndex(0)
+        }
+      } else {
+        if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
+          const currentItem = items[openSubmenuIndex]
+          if (currentItem?.subitems && currentItem.subitems.length > 0) {
+            setFocusedSubIndex(currentItem.subitems.length - 1)
           }
         } else {
-          if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
-            const currentItem = items[openSubmenuIndex]
-            if (currentItem?.subitems && currentItem.subitems.length > 0) {
-              setFocusedSubIndex(currentItem.subitems.length - 1)
-            }
-          } else {
-            closeSubMenu()
-            setFocusedIndex(items.length - 1)
-          }
+          closeSubMenu()
+          setFocusedIndex(items.length - 1)
         }
       }
-    },
-    [showMenu, focusedSubIndex, openSubmenuIndex, items, closeSubMenu]
-  )
+    }
+  }
 
-  const handleTab = useCallback(() => {
+  const handleTab = () => {
     if (showMenu) {
       closeMenu()
     }
-  }, [showMenu, closeMenu])
+  }
 
-  const handleEscape = useCallback(() => {
+  const handleEscape = () => {
     if (openSubmenuIndex !== null) {
       closeSubMenu()
     } else {
       closeMenu()
       buttonRef.current?.focus()
     }
-  }, [openSubmenuIndex, closeSubMenu, closeMenu])
+  }
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-      if (disabled) return
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    if (disabled) return
 
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault()
-          handleVerticalNavigation('down')
-          break
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        handleVerticalNavigation('down')
+        break
 
-        case 'ArrowUp':
-          e.preventDefault()
-          handleVerticalNavigation('up')
-          break
+      case 'ArrowUp':
+        e.preventDefault()
+        handleVerticalNavigation('up')
+        break
 
-        case 'ArrowRight':
-          e.preventDefault()
-          handleHorizontalNavigation('right')
-          break
+      case 'ArrowRight':
+        e.preventDefault()
+        handleHorizontalNavigation('right')
+        break
 
-        case 'ArrowLeft':
-          e.preventDefault()
-          handleHorizontalNavigation('left')
-          break
+      case 'ArrowLeft':
+        e.preventDefault()
+        handleHorizontalNavigation('left')
+        break
 
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          handleEnterSpace()
-          break
+      case 'Enter':
+      case ' ':
+        e.preventDefault()
+        handleEnterSpace()
+        break
 
-        case 'Escape':
-          e.preventDefault()
-          handleEscape()
-          break
+      case 'Escape':
+        e.preventDefault()
+        handleEscape()
+        break
 
-        case 'Home':
-          e.preventDefault()
-          handleHomeEnd('home')
-          break
+      case 'Home':
+        e.preventDefault()
+        handleHomeEnd('home')
+        break
 
-        case 'End':
-          e.preventDefault()
-          handleHomeEnd('end')
-          break
+      case 'End':
+        e.preventDefault()
+        handleHomeEnd('end')
+        break
 
-        case 'Tab':
-          handleTab()
-          break
-      }
-    },
-    [disabled, handleVerticalNavigation, handleHorizontalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab]
-  )
+      case 'Tab':
+        handleTab()
+        break
+    }
+  }
 
-  const handleButtonClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      toggleMenu()
-    },
-    [toggleMenu]
-  )
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleMenu()
+  }
 
   // Convert items to the format expected by ContextMenu
   const contextMenuItems: ContextMenuItem<T>[] = items.map((item) => ({
@@ -335,9 +306,7 @@ export default function ContextMenuDropdown<T = string>({
     }))
   }))
 
-  const buttonClass = useMemo(() => {
-    return mergeClasses(size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
-  }, [size, className])
+  const buttonClass = mergeClasses(size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
 
   return (
     <div cy-id="wrapper" className={mergeClasses('relative', className)}>

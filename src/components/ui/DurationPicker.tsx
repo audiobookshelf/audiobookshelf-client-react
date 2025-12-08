@@ -3,7 +3,7 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useUpdateEffect } from '@/hooks/useUpdateEffect'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useId, useMemo, useRef, useState } from 'react'
+import { useId, useMemo, useRef, useState } from 'react'
 import InputWrapper from './InputWrapper'
 
 export interface DurationPickerProps {
@@ -84,25 +84,21 @@ export default function DurationPicker({
     }
   }, [hText, mText, sText])
 
-  const sanitize = useCallback((text: string, maxLength: number) => text.replace(/\D/g, '').slice(0, maxLength), [])
+  const sanitize = (text: string, maxLength: number) => text.replace(/\D/g, '').slice(0, maxLength)
+  const normalize = (input: string, maxValue: number, maxLength: number) => padZeros(clamp(parseInt(input || '0') || 0, 0, maxValue), maxLength)
 
   // change handlers (just keep digits; pad on blur)
-  const handleHoursChange = useCallback((input: string) => setText((p) => ({ ...p, hText: sanitize(input, hoursW) })), [sanitize, hoursW])
-  const handleMinutesChange = useCallback((input: string) => setText((p) => ({ ...p, mText: sanitize(input, 2) })), [sanitize])
-  const handleSecondsChange = useCallback((input: string) => setText((p) => ({ ...p, sText: sanitize(input, 2) })), [sanitize])
-
-  const normalize = useCallback(
-    (input: string, maxValue: number, maxLength: number) => padZeros(clamp(parseInt(input || '0') || 0, 0, maxValue), maxLength),
-    []
-  )
+  const handleHoursChange = (input: string) => setText((p) => ({ ...p, hText: sanitize(input, hoursW) }))
+  const handleMinutesChange = (input: string) => setText((p) => ({ ...p, mText: sanitize(input, 2) }))
+  const handleSecondsChange = (input: string) => setText((p) => ({ ...p, sText: sanitize(input, 2) }))
 
   // normalize on blur (clamp + pad)
-  const normalizeHours = useCallback(() => setText((p) => ({ ...p, hText: normalize(p.hText, hoursMax, hoursW) })), [normalize, hoursMax, hoursW])
-  const normalizeMinutes = useCallback(() => setText((p) => ({ ...p, mText: normalize(p.mText, 59, 2) })), [normalize])
-  const normalizeSeconds = useCallback(() => setText((p) => ({ ...p, sText: normalize(p.sText, 59, 2) })), [normalize])
+  const normalizeHours = () => setText((p) => ({ ...p, hText: normalize(p.hText, hoursMax, hoursW) }))
+  const normalizeMinutes = () => setText((p) => ({ ...p, mText: normalize(p.mText, 59, 2) }))
+  const normalizeSeconds = () => setText((p) => ({ ...p, sText: normalize(p.sText, 59, 2) }))
 
   // select on focus (works for click + programmatic)
-  const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
     setIsEditing(true)
     const el = e.currentTarget // capture now; don't read from e in rAF
     requestAnimationFrame(() => {
@@ -113,44 +109,38 @@ export default function DurationPicker({
         /* noop: element might be gone */
       }
     })
-  }, [])
+  }
 
-  const handleBlur = useCallback(
-    (field: 'h' | 'm' | 's') => {
-      if (field === 'h') normalizeHours()
-      else if (field === 'm') normalizeMinutes()
-      else normalizeSeconds()
-      setIsEditing(false)
-    },
-    [normalizeHours, normalizeMinutes, normalizeSeconds]
-  )
+  const handleBlur = (field: 'h' | 'm' | 's') => {
+    if (field === 'h') normalizeHours()
+    else if (field === 'm') normalizeMinutes()
+    else normalizeSeconds()
+    setIsEditing(false)
+  }
 
-  const handleWrapperClick = useCallback(() => {
+  const handleWrapperClick = () => {
     if (disabled || readOnly) return
     // Only focus hours if none of the inputs are already focused
     const activeElement = document.activeElement
     if (activeElement !== hRef.current && activeElement !== mRef.current && activeElement !== sRef.current) {
       hRef.current?.focus()
     }
-  }, [disabled, readOnly])
+  }
 
   // arrow inc/dec; Enter moves forward (minutes→seconds, hours→minutes); seconds Enter blurs
-  const arrowAdjust = useCallback(
-    (field: 'h' | 'm' | 's', dir: 1 | -1) => {
-      setText((prev) => {
-        const h = clamp(parseInt(prev.hText || '0', 10) || 0, 0, hoursMax)
-        const m = clamp(parseInt(prev.mText || '0', 10) || 0, 0, 59)
-        const s = clamp(parseInt(prev.sText || '0', 10) || 0, 0, 59)
-        if (field === 'h') return { ...prev, hText: padZeros(clamp(h + dir, 0, hoursMax), hoursW) }
-        if (field === 'm') return { ...prev, mText: padZeros((m + (dir + 60)) % 60, 2) }
-        return { ...prev, sText: padZeros((s + (dir + 60)) % 60, 2) }
-      })
-    },
-    [hoursMax, hoursW]
-  )
+  const arrowAdjust = (field: 'h' | 'm' | 's', dir: 1 | -1) => {
+    setText((prev) => {
+      const h = clamp(parseInt(prev.hText || '0', 10) || 0, 0, hoursMax)
+      const m = clamp(parseInt(prev.mText || '0', 10) || 0, 0, 59)
+      const s = clamp(parseInt(prev.sText || '0', 10) || 0, 0, 59)
+      if (field === 'h') return { ...prev, hText: padZeros(clamp(h + dir, 0, hoursMax), hoursW) }
+      if (field === 'm') return { ...prev, mText: padZeros((m + (dir + 60)) % 60, 2) }
+      return { ...prev, sText: padZeros((s + (dir + 60)) % 60, 2) }
+    })
+  }
 
   // Navigate between fields cyclically
-  const navigateToField = useCallback((currentField: 'h' | 'm' | 's', direction: 'left' | 'right') => {
+  const navigateToField = (currentField: 'h' | 'm' | 's', direction: 'left' | 'right') => {
     const fieldOrder = ['h', 'm', 's'] as const
     const currentIndex = fieldOrder.indexOf(currentField)
     let nextIndex: number
@@ -164,105 +154,92 @@ export default function DurationPicker({
     const nextField = fieldOrder[nextIndex]
     const nextRef = nextField === 'h' ? hRef : nextField === 'm' ? mRef : sRef
     nextRef.current?.focus()
-  }, [])
+  }
 
-  const handleHoursKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (disabled || readOnly) return
-      if (e.key === 'ArrowUp') {
+  const handleHoursKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled || readOnly) return
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      arrowAdjust('h', +1)
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      arrowAdjust('h', -1)
+    } else if (e.key === 'ArrowLeft') {
+      const input = e.currentTarget
+      if (input.selectionStart === 0) {
         e.preventDefault()
-        arrowAdjust('h', +1)
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        arrowAdjust('h', -1)
-      } else if (e.key === 'ArrowLeft') {
-        const input = e.currentTarget
-        if (input.selectionStart === 0) {
-          e.preventDefault()
-          navigateToField('h', 'left')
-        }
-      } else if (e.key === 'ArrowRight') {
-        const input = e.currentTarget
-        if (input.selectionStart === input.value.length) {
-          e.preventDefault()
-          navigateToField('h', 'right')
-        }
-      } else if (e.key === 'Enter') {
-        e.preventDefault()
-        mRef.current?.focus()
+        navigateToField('h', 'left')
       }
-    },
-    [disabled, readOnly, arrowAdjust, navigateToField]
-  )
-
-  const handleMinutesKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (disabled || readOnly) return
-      if (e.key === 'ArrowUp') {
+    } else if (e.key === 'ArrowRight') {
+      const input = e.currentTarget
+      if (input.selectionStart === input.value.length) {
         e.preventDefault()
-        arrowAdjust('m', +1)
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        arrowAdjust('m', -1)
-      } else if (e.key === 'ArrowLeft') {
-        const input = e.currentTarget
-        if (input.selectionStart === 0) {
-          e.preventDefault()
-          navigateToField('m', 'left')
-        }
-      } else if (e.key === 'ArrowRight') {
-        const input = e.currentTarget
-        if (input.selectionStart === input.value.length) {
-          e.preventDefault()
-          navigateToField('m', 'right')
-        }
-      } else if (e.key === 'Enter') {
-        e.preventDefault()
-        sRef.current?.focus()
+        navigateToField('h', 'right')
       }
-    },
-    [disabled, readOnly, arrowAdjust, navigateToField]
-  )
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      mRef.current?.focus()
+    }
+  }
 
-  const handleSecondsKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (disabled || readOnly) return
-      if (e.key === 'ArrowUp') {
+  const handleMinutesKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled || readOnly) return
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      arrowAdjust('m', +1)
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      arrowAdjust('m', -1)
+    } else if (e.key === 'ArrowLeft') {
+      const input = e.currentTarget
+      if (input.selectionStart === 0) {
         e.preventDefault()
-        arrowAdjust('s', +1)
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        arrowAdjust('s', -1)
-      } else if (e.key === 'ArrowLeft') {
-        const input = e.currentTarget
-        if (input.selectionStart === 0) {
-          e.preventDefault()
-          navigateToField('s', 'left')
-        }
-      } else if (e.key === 'ArrowRight') {
-        const input = e.currentTarget
-        if (input.selectionStart === input.value.length) {
-          e.preventDefault()
-          navigateToField('s', 'right')
-        }
-      } else if (e.key === 'Enter') {
-        e.preventDefault()
-        ;(e.currentTarget as HTMLInputElement).blur()
+        navigateToField('m', 'left')
       }
-    },
-    [disabled, readOnly, arrowAdjust, navigateToField]
-  )
+    } else if (e.key === 'ArrowRight') {
+      const input = e.currentTarget
+      if (input.selectionStart === input.value.length) {
+        e.preventDefault()
+        navigateToField('m', 'right')
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      sRef.current?.focus()
+    }
+  }
 
-  const sizeText = useMemo(() => (size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'), [size])
+  const handleSecondsKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (disabled || readOnly) return
+    if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      arrowAdjust('s', +1)
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      arrowAdjust('s', -1)
+    } else if (e.key === 'ArrowLeft') {
+      const input = e.currentTarget
+      if (input.selectionStart === 0) {
+        e.preventDefault()
+        navigateToField('s', 'left')
+      }
+    } else if (e.key === 'ArrowRight') {
+      const input = e.currentTarget
+      if (input.selectionStart === input.value.length) {
+        e.preventDefault()
+        navigateToField('s', 'right')
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      ;(e.currentTarget as HTMLInputElement).blur()
+    }
+  }
 
-  const sepClass = useMemo(
-    () => mergeClasses('select-none px-1', sizeText, disabled ? 'text-disabled' : readOnly ? 'text-read-only' : 'text-foreground-muted'),
-    [sizeText, disabled, readOnly]
-  )
+  const sizeText = size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'
+  const sepClass = mergeClasses('select-none px-1', sizeText, disabled ? 'text-disabled' : readOnly ? 'text-read-only' : 'text-foreground-muted')
 
-  const hoursId = useMemo(() => `${id}-h`, [id])
-  const minutesId = useMemo(() => `${id}-m`, [id])
-  const secondsId = useMemo(() => `${id}-s`, [id])
+  const hoursId = `${id}-h`
+  const minutesId = `${id}-m`
+  const secondsId = `${id}-s`
 
   const human = useMemo(() => {
     const h = clamp(parseInt(hText || '0', 10) || 0, 0, hoursMax)
@@ -275,20 +252,16 @@ export default function DurationPicker({
     return parts.join(' ')
   }, [hText, mText, sText, hoursMax, t])
 
-  const wrapperClass = useMemo(() => {
-    return mergeClasses('flex items-center gap-0 h-full px-1', disabled ? 'cursor-not-allowed' : 'cursor-text')
-  }, [disabled])
-
-  const inputClass = useMemo(() => {
-    const inputBase = 'bg-transparent outline-none text-center caret-current tabular-nums box-content'
-    const specialClass = 'disabled:cursor-not-allowed disabled:text-disabled read-only:cursor-default read-only:text-read-only'
-    const inputBox = 'px-0 py-1 rounded-sm'
-    return mergeClasses(sizeText, inputBase, specialClass, inputBox)
-  }, [sizeText])
-
-  const hoursClass = useMemo(() => mergeClasses(inputClass, showThreeDigitHour ? 'w-[3ch]' : 'w-[2ch]'), [inputClass, showThreeDigitHour])
-  const minutesClass = useMemo(() => mergeClasses(inputClass, 'w-[2ch]'), [inputClass])
-  const secondsClass = useMemo(() => mergeClasses(inputClass, 'w-[2ch]'), [inputClass])
+  const wrapperClass = mergeClasses('flex items-center gap-0 h-full px-1', disabled ? 'cursor-not-allowed' : 'cursor-text')
+  const inputClass = mergeClasses(
+    sizeText,
+    'bg-transparent outline-none text-center caret-current tabular-nums box-content',
+    'disabled:cursor-not-allowed disabled:text-disabled read-only:cursor-default read-only:text-read-only',
+    'px-0 py-1 rounded-sm'
+  )
+  const hoursClass = mergeClasses(inputClass, showThreeDigitHour ? 'w-[3ch]' : 'w-[2ch]')
+  const minutesClass = mergeClasses(inputClass, 'w-[2ch]')
+  const secondsClass = mergeClasses(inputClass, 'w-[2ch]')
 
   return (
     <InputWrapper disabled={disabled} readOnly={readOnly} borderless={borderless} size={size} className={className}>

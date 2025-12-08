@@ -120,25 +120,25 @@ const Tooltip = ({
     hideTimeoutRef.current = window.setTimeout(() => setOpen(false), 100)
   }, [clearHideTimeout])
 
-  const onMouseEnter = useCallback(() => {
+  const onMouseEnter = () => {
     if (!disabled) openNow()
-  }, [openNow, disabled])
+  }
 
-  const onMouseLeave = useCallback(() => {
+  const onMouseLeave = () => {
     closeSoon()
-  }, [closeSoon])
+  }
 
   // Focus/blur (keyboard a11y)
-  const onFocus = useCallback(() => {
+  const onFocus = () => {
     if (!disabled) openNow()
-  }, [openNow, disabled])
+  }
 
-  const onBlur = useCallback(() => {
+  const onBlur = () => {
     setOpen(false)
-  }, [])
+  }
 
   // Handle click to close (used when child opens an external link)
-  const onClick = useCallback(() => {
+  const onClick = () => {
     if (closeOnClick) {
       closeSoon()
 
@@ -151,7 +151,7 @@ const Tooltip = ({
         }
       }
     }
-  }, [closeSoon, closeOnClick, refs.reference])
+  }
 
   // Add aria-describedby to the first element child of the container
   useEffect(() => {
@@ -204,21 +204,15 @@ const Tooltip = ({
     } as React.CSSProperties
   }, [middlewareData.arrow, resolvedPlacement, withArrow])
 
-  const tooltipClass = useMemo(
-    () =>
-      mergeClasses(
-        'inline-block whitespace-normal break-words text-center',
-        'rounded-sm bg-primary text-foreground text-xs px-2 py-1 shadow-lg z-[1000]',
-        'transition-opacity duration-300',
-        open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
-        tooltipClassName
-      ),
-    [open, tooltipClassName]
+  const tooltipClass = mergeClasses(
+    'inline-block whitespace-normal break-words text-center',
+    'rounded-sm bg-primary text-foreground text-xs px-2 py-1 shadow-lg z-[1000]',
+    'transition-opacity duration-300',
+    open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
+    tooltipClassName
   )
 
-  const referenceClass = useMemo(() => {
-    return mergeClasses('inline-flex', className)
-  }, [className])
+  const referenceClass = mergeClasses('inline-flex', className)
 
   const tooltipElement = (
     <div

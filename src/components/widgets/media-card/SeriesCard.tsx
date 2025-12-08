@@ -11,7 +11,7 @@ import { mergeClasses } from '@/lib/merge-classes'
 import type { MediaProgress, Series } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { memo, useCallback, useId, useMemo, useState } from 'react'
+import { memo, useId, useMemo, useState } from 'react'
 
 export interface SeriesCardProps {
   /** The series to display */
@@ -71,27 +71,21 @@ function SeriesCard(props: SeriesCardProps) {
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
 
-  const books = useMemo(() => series.books || [], [series.books])
-
   // Cover dimensions - series card is wider (2x width of a single book cover)
-  const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1.6), [bookCoverAspectRatio])
-  const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
+  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1.6)
+  const coverHeight = 192 * effectiveSizeMultiplier
   // Series card is wider (2x width of a single book cover)
-  const coverWidth = useMemo(() => (coverHeight / coverAspect) * 2, [coverHeight, coverAspect])
+  const coverWidth = (coverHeight / coverAspect) * 2
 
   // Label font size based on width
-  const labelFontSize = useMemo(() => (coverWidth < 160 ? 0.75 : 0.9), [coverWidth])
+  const labelFontSize = coverWidth < 160 ? 0.75 : 0.9
 
   // Display title with optional ignore prefix handling
-  const displayTitle = useMemo(() => {
-    if (sortingIgnorePrefix && series.nameIgnorePrefix) {
-      return series.nameIgnorePrefix
-    }
-    return series.name || '\u00A0'
-  }, [series.name, series.nameIgnorePrefix, sortingIgnorePrefix])
+  const displayTitle = sortingIgnorePrefix && series.nameIgnorePrefix ? series.nameIgnorePrefix : series.name || '\u00A0'
 
   // Calculate series progress from book progress
   const { seriesProgressPercent, isSeriesFinished } = useMemo(() => {
+    const books = series.books || []
     if (!books.length || !bookProgressMap) {
       return { seriesProgressPercent: 0, isSeriesFinished: false }
     }
@@ -118,15 +112,20 @@ function SeriesCard(props: SeriesCardProps) {
       seriesProgressPercent: progressPercent,
       isSeriesFinished: finishedCount === books.length
     }
-  }, [books, bookProgressMap])
+  }, [series.books, bookProgressMap])
 
   // Check if any books have valid covers
   const hasValidCovers = useMemo(() => {
+    const books = series.books || []
     return books.some((book) => book.media?.coverPath)
-  }, [books])
+  }, [series.books])
+
+  // For JSX usage
+  const books = series.books || []
 
   // Sort line for detail view
   const displaySortLine = useMemo(() => {
+    const seriesBooks = series.books || []
     if (!orderBy) return null
 
     switch (orderBy) {
@@ -135,41 +134,38 @@ function SeriesCard(props: SeriesCardProps) {
         return t('LabelAddedDate', { 0: formatJsDate(new Date(series.addedAt), dateFormat) })
       }
       case 'totalDuration': {
-        const totalDuration = books.reduce((acc, book) => {
+        const totalDuration = seriesBooks.reduce((acc: number, book) => {
           const duration = (book.media as { duration?: number })?.duration || 0
           return acc + duration
         }, 0)
         return `${t('LabelDuration')} ${elapsedPretty(totalDuration, locale, true)}`
       }
       case 'lastBookUpdated': {
-        const lastUpdated = Math.max(...books.map((book) => book.updatedAt || 0), 0)
+        const lastUpdated = Math.max(...seriesBooks.map((book) => book.updatedAt || 0), 0)
         if (!lastUpdated) return null
         return `${t('LabelLastBookUpdated')} ${formatJsDate(new Date(lastUpdated), dateFormat)}`
       }
       case 'lastBookAdded': {
-        const lastAdded = Math.max(...books.map((book) => book.addedAt || 0), 0)
+        const lastAdded = Math.max(...seriesBooks.map((book) => book.addedAt || 0), 0)
         if (!lastAdded) return null
         return `${t('LabelLastBookAdded')} ${formatJsDate(new Date(lastAdded), dateFormat)}`
       }
       default:
         return null
     }
-  }, [orderBy, series.addedAt, books, dateFormat, locale, t])
+  }, [orderBy, series.addedAt, series.books, dateFormat, locale, t])
 
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
 
-  const handleCardClick = useCallback(() => {
+  const handleCardClick = () => {
     router.push(`/library/${libraryId}/series/${series.id}`)
-  }, [libraryId, series.id, router])
+  }
 
-  const handleSelectClick = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
-      onSelect?.(event)
-    },
-    [onSelect]
-  )
+  const handleSelectClick = (event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    onSelect?.(event)
+  }
 
   return (
     <MediaCardFrame

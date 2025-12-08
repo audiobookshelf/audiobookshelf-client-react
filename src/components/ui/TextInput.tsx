@@ -4,7 +4,7 @@ import { useMergedRef } from '@/hooks/useMergedRef'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { copyToClipboard } from '@/lib/clipboard'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useId, useMemo, useState } from 'react'
+import { useId, useState } from 'react'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
 
@@ -69,76 +69,48 @@ export default function TextInput({
   const [hasCopied, setHasCopied] = useState<boolean | null>(null)
   const [isInvalidDate, setIsInvalidDate] = useState(false)
 
-  const actualType = useMemo(() => {
-    if (type === 'password' && showPassword) return 'text'
-    return type
-  }, [type, showPassword])
+  const actualType = type === 'password' && showPassword ? 'text' : type
+  const ariaLabel = label || placeholder || undefined
+  const ariaInvalid = isInvalidDate
 
-  // Derive aria-label from label or placeholder
-  const ariaLabel = useMemo(() => {
-    if (label) return label
-    if (placeholder) return placeholder
-    return undefined
-  }, [label, placeholder])
-
-  // Derive aria-invalid from isInvalidDate state
-  const ariaInvalid = useMemo(() => isInvalidDate, [isInvalidDate])
-
-  const inputClass = useMemo(() => {
-    const classes: string[] = []
-
-    if (showCopy) {
-      classes.push('ps-1', 'pe-8')
-    } else {
-      classes.push('px-1')
-    }
-
-    if (customInputClass) classes.push(customInputClass)
-
-    return mergeClasses(
-      'w-full bg-transparent px-1 outline-none border-none h-full',
-      'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only',
-      '[&::-webkit-calendar-picker-indicator]:invert',
-      classes
-    )
-  }, [customInputClass, showCopy])
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      onChange?.(e.target.value)
-    },
-    [onChange]
+  const inputClass = mergeClasses(
+    'w-full bg-transparent px-1 outline-none border-none h-full',
+    'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only',
+    '[&::-webkit-calendar-picker-indicator]:invert',
+    showCopy ? 'ps-1 pe-8' : 'px-1',
+    customInputClass
   )
 
-  const handleClear = useCallback(() => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value)
+  }
+
+  const handleClear = () => {
     onChange?.('')
     onClear?.()
-  }, [onChange, onClear])
+  }
 
-  const handleFocus = useCallback(() => {
+  const handleFocus = () => {
     setIsFocused(true)
     onFocus?.()
-  }, [onFocus])
+  }
 
-  const handleBlur = useCallback(() => {
+  const handleBlur = () => {
     setIsFocused(false)
     onBlur?.()
-  }, [onBlur])
+  }
 
-  const handleKeyUp = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (type === 'datetime-local') {
-        if (e.currentTarget.validity?.badInput) {
-          setIsInvalidDate(true)
-        } else {
-          setIsInvalidDate(false)
-        }
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (type === 'datetime-local') {
+      if (e.currentTarget.validity?.badInput) {
+        setIsInvalidDate(true)
+      } else {
+        setIsInvalidDate(false)
       }
-    },
-    [type]
-  )
+    }
+  }
 
-  const handleCopyToClipboard = useCallback(async () => {
+  const handleCopyToClipboard = async () => {
     if (hasCopied) return
 
     const textToCopy = value?.toString() ?? ''
@@ -152,16 +124,14 @@ export default function TextInput({
     } catch (error) {
       console.error('Failed to copy to clipboard:', error)
     }
-  }, [value, hasCopied])
+  }
 
-  const togglePasswordVisibility = useCallback(() => {
+  const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev)
-  }, [])
+  }
 
   // Show password toggle when focused or when password field has value
-  const shouldShowPasswordToggle = useMemo(() => {
-    return type === 'password' && (isFocused || value)
-  }, [type, isFocused, value])
+  const shouldShowPasswordToggle = type === 'password' && (isFocused || value)
 
   return (
     <div className={mergeClasses('w-full', className)} cy-id="text-input">

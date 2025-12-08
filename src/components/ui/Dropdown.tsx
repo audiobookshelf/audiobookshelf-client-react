@@ -46,39 +46,34 @@ export default function Dropdown({
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
 
-  const openMenu = useCallback((index: number = 0) => {
+  const openMenu = (index: number = 0) => {
     setShowMenu(true)
     setFocusedIndex(index)
-  }, [])
+  }
 
+  // Keep useCallback for closeMenu since it's used in useClickOutside hook dependency
   const closeMenu = useCallback(() => {
     setShowMenu(false)
     setFocusedIndex(-1)
   }, [])
 
-  const handleClickOutside = useCallback(() => {
-    closeMenu()
-  }, [closeMenu])
+  useClickOutside(menuRef, buttonRef, closeMenu)
 
-  useClickOutside(menuRef, buttonRef, handleClickOutside)
-
-  const toggleMenu = useCallback(() => {
+  const toggleMenu = () => {
     if (disabled) return
     if (showMenu) {
       closeMenu()
     } else {
       openMenu()
     }
-  }, [disabled, showMenu, openMenu, closeMenu])
+  }
 
-  const handleOptionClick = useCallback(
-    (itemValue: string | number) => {
-      onChange?.(itemValue)
-      closeMenu()
-    },
-    [onChange, closeMenu]
-  )
+  const handleOptionClick = (itemValue: string | number) => {
+    onChange?.(itemValue)
+    closeMenu()
+  }
 
+  // Keep useMemo for itemsToShow since it maps an array
   const itemsToShow = useMemo(
     () =>
       items.map((item) => {
@@ -93,135 +88,115 @@ export default function Dropdown({
     [items]
   )
 
-  const selectedItem = useMemo(() => itemsToShow.find((item) => item.value === value), [itemsToShow, value])
-
+  const selectedItem = itemsToShow.find((item) => item.value === value)
   const selectedText = selectedItem?.text || ''
   const selectedSubtext = selectedItem?.subtext || ''
 
-  const longLabel = useMemo(() => {
-    let result = ''
-    if (label) result += label + ': '
-    if (selectedText) result += selectedText
-    if (selectedSubtext) result += ' ' + selectedSubtext
-    return result
-  }, [label, selectedText, selectedSubtext])
+  let longLabel = ''
+  if (label) longLabel += label + ': '
+  if (selectedText) longLabel += selectedText
+  if (selectedSubtext) longLabel += ' ' + selectedSubtext
 
-  const handleButtonClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      toggleMenu()
-    },
-    [toggleMenu]
-  )
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    toggleMenu()
+  }
 
   // Keyboard navigation handlers
-  const handleVerticalNavigation = useCallback(
-    (direction: 'up' | 'down') => {
-      if (direction === 'down') {
-        if (!showMenu) {
-          openMenu()
-        } else {
-          setFocusedIndex((prev) => (prev < itemsToShow.length - 1 ? prev + 1 : prev))
-        }
+  const handleVerticalNavigation = (direction: 'up' | 'down') => {
+    if (direction === 'down') {
+      if (!showMenu) {
+        openMenu()
       } else {
-        if (!showMenu) {
-          openMenu(itemsToShow.length - 1)
-        } else {
-          setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
-        }
+        setFocusedIndex((prev) => (prev < itemsToShow.length - 1 ? prev + 1 : prev))
       }
-    },
-    [showMenu, itemsToShow, openMenu]
-  )
+    } else {
+      if (!showMenu) {
+        openMenu(itemsToShow.length - 1)
+      } else {
+        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+      }
+    }
+  }
 
-  const handleEnterSpace = useCallback(() => {
+  const handleEnterSpace = () => {
     if (!showMenu) {
       openMenu()
     } else if (focusedIndex >= 0 && focusedIndex < itemsToShow.length) {
       handleOptionClick(itemsToShow[focusedIndex].value)
     }
-  }, [showMenu, focusedIndex, itemsToShow, handleOptionClick, openMenu])
+  }
 
-  const handleEscape = useCallback(() => {
+  const handleEscape = () => {
     closeMenu()
     buttonRef.current?.focus()
-  }, [closeMenu])
+  }
 
-  const handleHomeEnd = useCallback(
-    (key: 'home' | 'end') => {
-      if (showMenu) {
-        if (key === 'home') {
-          setFocusedIndex(0)
-        } else {
-          setFocusedIndex(itemsToShow.length - 1)
-        }
+  const handleHomeEnd = (key: 'home' | 'end') => {
+    if (showMenu) {
+      if (key === 'home') {
+        setFocusedIndex(0)
+      } else {
+        setFocusedIndex(itemsToShow.length - 1)
       }
-    },
-    [showMenu, itemsToShow]
-  )
+    }
+  }
 
-  const handleTab = useCallback(() => {
+  const handleTab = () => {
     if (showMenu) {
       closeMenu()
     }
-  }, [showMenu, closeMenu])
+  }
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (disabled) return
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (disabled) return
 
-      switch (e.key) {
-        case 'ArrowDown':
-          e.preventDefault()
-          handleVerticalNavigation('down')
-          break
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        handleVerticalNavigation('down')
+        break
 
-        case 'ArrowUp':
-          e.preventDefault()
-          handleVerticalNavigation('up')
-          break
+      case 'ArrowUp':
+        e.preventDefault()
+        handleVerticalNavigation('up')
+        break
 
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          handleEnterSpace()
-          break
+      case 'Enter':
+      case ' ':
+        e.preventDefault()
+        handleEnterSpace()
+        break
 
-        case 'Escape':
-          e.preventDefault()
-          handleEscape()
-          break
+      case 'Escape':
+        e.preventDefault()
+        handleEscape()
+        break
 
-        case 'Home':
-          e.preventDefault()
-          handleHomeEnd('home')
-          break
+      case 'Home':
+        e.preventDefault()
+        handleHomeEnd('home')
+        break
 
-        case 'End':
-          e.preventDefault()
-          handleHomeEnd('end')
-          break
+      case 'End':
+        e.preventDefault()
+        handleHomeEnd('end')
+        break
 
-        case 'Tab':
-          handleTab()
-          break
-      }
-    },
-    [disabled, handleVerticalNavigation, handleEnterSpace, handleEscape, handleHomeEnd, handleTab]
-  )
+      case 'Tab':
+        handleTab()
+        break
+    }
+  }
 
-  const dropdownMenuItems: DropdownMenuItem[] = useMemo(
-    () =>
-      itemsToShow.map((item) => ({
-        text: item.text,
-        value: item.value,
-        subtext: item.subtext
-      })),
-    [itemsToShow]
-  )
+  const dropdownMenuItems: DropdownMenuItem[] = itemsToShow.map((item) => ({
+    text: item.text,
+    value: item.value,
+    subtext: item.subtext
+  }))
 
-  const dropdownButtonId = useMemo(() => `${dropdownId}-button`, [dropdownId])
+  const dropdownButtonId = `${dropdownId}-button`
 
   return (
     <div className={mergeClasses('relative w-full', className)}>

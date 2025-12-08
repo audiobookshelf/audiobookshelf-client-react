@@ -1,7 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { memo, useCallback, useMemo } from 'react'
+import React, { memo } from 'react'
 import ButtonBase from './ButtonBase'
 
 interface IconBtnProps {
@@ -60,35 +60,17 @@ export default function IconBtn({
 }: IconBtnProps) {
   const isDisabled = disabled || loading
 
-  const additionalClasses = useMemo(() => {
-    const list: string[] = []
+  // Icon button specific styling based on size
+  const sizeClass = size === 'small' ? 'w-9 text-lg' : size === 'large' ? 'w-11 text-2xl' : 'w-10 text-xl'
+  const classList = mergeClasses(sizeClass, className)
 
-    // Icon button specific styling
-    if (size === 'small') {
-      list.push('w-9 text-lg')
-    } else if (size === 'large') {
-      list.push('w-11 text-2xl')
-    } else {
-      list.push('w-10 text-xl')
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    if (isDisabled) {
+      e.preventDefault()
+      return
     }
-
-    return list
-  }, [size])
-
-  const classList = useMemo(() => {
-    return mergeClasses(additionalClasses, className)
-  }, [additionalClasses, className])
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-      if (isDisabled) {
-        e.preventDefault()
-        return
-      }
-      onClick?.(e)
-    },
-    [onClick, isDisabled]
-  )
+    onClick?.(e)
+  }
 
   return (
     <ButtonBase

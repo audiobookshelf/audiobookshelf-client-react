@@ -1,7 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useCallback, useId, useMemo, useRef } from 'react'
+import React, { useId, useRef } from 'react'
 import InputWrapper from './InputWrapper'
 
 interface CheckboxProps {
@@ -38,85 +38,47 @@ export default function Checkbox({
 
   const checkboxId = useId()
 
-  const checkboxWrapperClassName = useMemo(() => {
-    const classes = [checkboxBgClass, disabled ? 'border-checkbox-bg-disabled' : borderColorClass]
-
-    if (size === 'small') {
-      classes.push('w-4 h-4')
-    } else if (size === 'medium') {
-      classes.push('w-5 h-5')
-    } else {
-      // large
-      classes.push('w-6 h-6')
-    }
-
-    return mergeClasses('rounded-sm flex shrink-0 justify-center items-center border', classes)
-  }, [checkboxBgClass, borderColorClass, size, disabled])
-
-  const checkboxLabelClassName = useMemo(() => {
-    const classes = []
-    if (size === 'small') {
-      classes.push('text-xs md:text-sm ps-1')
-    } else if (size === 'medium') {
-      classes.push('text-sm md:text-base ps-2')
-    } else {
-      classes.push('text-base md:text-lg ps-2')
-    }
-
-    return mergeClasses(classes, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-foreground', labelClass)
-  }, [labelClass, size, disabled])
-
-  const svgClass = useMemo(() => {
-    const classes = [checkColorClass]
-
-    if (size === 'small') {
-      classes.push('w-3 h-3')
-    } else if (size === 'medium') {
-      classes.push('w-3.5 h-3.5')
-    } else {
-      // large
-      classes.push('w-4 h-4')
-    }
-
-    return mergeClasses('pointer-events-none', disabled ? 'fill-checkbox-disabled' : 'fill-current', classes)
-  }, [checkColorClass, size, disabled])
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!disabled) {
-        onChange?.(e.target.checked)
-      }
-    },
-    [onChange, disabled]
+  const sizeClass = size === 'small' ? 'w-4 h-4' : size === 'medium' ? 'w-5 h-5' : 'w-6 h-6'
+  const checkboxWrapperClassName = mergeClasses(
+    'rounded-sm flex shrink-0 justify-center items-center border',
+    checkboxBgClass,
+    disabled ? 'border-checkbox-bg-disabled' : borderColorClass,
+    sizeClass
   )
 
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        if (!disabled) {
-          inputRef.current?.click()
-        }
-      }
-    },
-    [disabled]
-  )
+  const labelSizeClass = size === 'small' ? 'text-xs md:text-sm ps-1' : size === 'medium' ? 'text-sm md:text-base ps-2' : 'text-base md:text-lg ps-2'
+  const checkboxLabelClassName = mergeClasses(labelSizeClass, disabled ? 'cursor-not-allowed text-disabled' : 'cursor-pointer text-foreground', labelClass)
 
-  const handleLabelClick = useCallback(
-    (e: React.MouseEvent<HTMLLabelElement>) => {
+  const svgSizeClass = size === 'small' ? 'w-3 h-3' : size === 'medium' ? 'w-3.5 h-3.5' : 'w-4 h-4'
+  const svgClass = mergeClasses('pointer-events-none', disabled ? 'fill-checkbox-disabled' : 'fill-current', checkColorClass, svgSizeClass)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!disabled) {
+      onChange?.(e.target.checked)
+    }
+  }
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
       e.preventDefault()
       if (!disabled) {
         inputRef.current?.click()
       }
-    },
-    [disabled]
-  )
+    }
+  }
 
-  const handleWrapperClick = useCallback(() => {
+  const handleLabelClick = (e: React.MouseEvent<HTMLLabelElement>) => {
+    e.preventDefault()
+    if (!disabled) {
+      inputRef.current?.click()
+    }
+  }
+
+  const handleWrapperClick = () => {
     if (inputRef.current && !disabled) {
       inputRef.current.focus()
     }
-  }, [disabled])
+  }
 
   return (
     <InputWrapper disabled={disabled} borderless size={size} className={mergeClasses('bg-transparent', className)} inputRef={inputRef}>

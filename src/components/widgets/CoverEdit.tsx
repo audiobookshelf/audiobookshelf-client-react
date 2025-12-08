@@ -15,7 +15,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import { BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
-import React, { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import React, { useEffect, useMemo, useState, useTransition } from 'react'
 
 interface LocalCover extends LibraryFile {
   localPath: string
@@ -35,17 +35,14 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
   const [isPendingUpload, startUploadTransition] = useTransition()
   const [isPendingUpdate, startUpdateTransition] = useTransition()
 
-  // Computed values
-  const isPodcast = useMemo(() => libraryItem.mediaType === 'podcast', [libraryItem.mediaType])
+  const isPodcast = libraryItem.mediaType === 'podcast'
 
   // Get providers from context based on media type
   const { ensureProvidersLoaded } = useMetadata()
   const bookCoverProviders = useBookCoverProviders()
   const podcastCoverProviders = usePodcastCoverProviders()
 
-  const providers = useMemo(() => {
-    return isPodcast ? podcastCoverProviders : bookCoverProviders
-  }, [isPodcast, bookCoverProviders, podcastCoverProviders])
+  const providers = isPodcast ? podcastCoverProviders : bookCoverProviders
 
   // Ensure providers are loaded when component mounts
   useEffect(() => {
@@ -53,9 +50,9 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
   }, [ensureProvidersLoaded])
 
   // Cover search via WebSocket
-  const handleSearchError = useCallback(() => {
+  const handleSearchError = () => {
     showToast(t('MessageCoverSearchFailed'), { type: 'error' })
-  }, [showToast, t])
+  }
 
   const { coversFound, searchInProgress, hasSearched, searchCovers, cancelSearch, resetSearch } = useCoverSearch(handleSearchError)
 
@@ -69,20 +66,14 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
   const [provider, setProvider] = useState('google')
   const [selectedCoverForPreview, setSelectedCoverForPreview] = useState<string | null>(null)
 
-  const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
-  const mediaMetadata = useMemo(() => media.metadata || {}, [media.metadata])
-  const coverPath = useMemo(() => media.coverPath, [media.coverPath])
+  const media = libraryItem.media || {}
+  const coverPath = media.coverPath
 
-  const coverUrl = useMemo(() => {
-    if (!coverPath) {
-      return getPlaceholderCoverUrl()
-    }
-    return getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, true)
-  }, [coverPath, libraryItem.id, libraryItem.updatedAt])
+  const coverUrl = !coverPath ? getPlaceholderCoverUrl() : getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, true)
 
-  const libraryFiles = useMemo(() => (libraryItem.libraryFiles || []) as LibraryFile[], [libraryItem.libraryFiles])
-
+  // Keep useMemo for localCovers since it filters and maps an array
   const localCovers = useMemo(() => {
+    const libraryFiles = (libraryItem.libraryFiles || []) as LibraryFile[]
     return libraryFiles
       .filter((f) => f.fileType === 'image')
       .map(
@@ -91,25 +82,23 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
           localPath: getLibraryFileUrl(libraryItem.id, file.ino)
         })
       )
-  }, [libraryFiles, libraryItem.id])
+  }, [libraryItem.libraryFiles, libraryItem.id])
 
-  const userCanUpload = useMemo(() => user.permissions?.upload || false, [user.permissions])
-  const userCanDelete = useMemo(() => user.permissions?.delete || false, [user.permissions])
+  const userCanUpload = user.permissions?.upload || false
+  const userCanDelete = user.permissions?.delete || false
 
-  const searchTitleLabel = useMemo(() => {
-    if (provider.startsWith('audible')) return t('LabelSearchTitleOrASIN')
-    else if (provider === 'itunes') return t('LabelSearchTerm')
-    return t('LabelSearchTitle')
-  }, [provider, t])
+  const searchTitleLabel = provider.startsWith('audible') ? t('LabelSearchTitleOrASIN') : provider === 'itunes' ? t('LabelSearchTerm') : t('LabelSearchTitle')
 
   // Initialize component - only run when library item ID changes
   useEffect(() => {
     setShowLocalCovers(false)
     setPreviewUpload(null)
     setSelectedFile(null)
-    const authorNameValue = 'authorName' in mediaMetadata ? mediaMetadata.authorName || '' : ''
+    // Access metadata directly from libraryItem to avoid dependency on computed object
+    const metadata = libraryItem.media?.metadata
+    const authorNameValue = metadata && 'authorName' in metadata ? metadata.authorName || '' : ''
     setImageUrl('')
-    setSearchTitle(typeof mediaMetadata.title === 'string' ? mediaMetadata.title : '')
+    setSearchTitle(typeof metadata?.title === 'string' ? metadata.title : '')
     setSearchAuthor(typeof authorNameValue === 'string' ? authorNameValue : '')
     resetSearch()
 
@@ -128,15 +117,15 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
         setProvider(currentProvider)
       }
     }
-  }, [libraryItem, mediaMetadata, isPodcast, resetSearch])
+  }, [libraryItem, isPodcast, resetSearch])
 
   // Handlers
-  const resetCoverPreview = useCallback(() => {
+  const resetCoverPreview = () => {
     setPreviewUpload(null)
     setSelectedFile(null)
-  }, [])
+  }
 
-  const submitCoverUpload = useCallback(() => {
+  const submitCoverUpload = () => {
     if (!selectedFile) return
 
     const fileToUpload = selectedFile
@@ -157,14 +146,14 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
 
     // Reset preview immediately, not inside the transition
     resetCoverPreview()
-  }, [startUploadTransition, selectedFile, libraryItem.id, showToast, t, resetCoverPreview])
+  }
 
-  const fileUploadSelected = useCallback((file: File) => {
+  const fileUploadSelected = (file: File) => {
     setPreviewUpload(URL.createObjectURL(file))
     setSelectedFile(file)
-  }, [])
+  }
 
-  const handleRemoveCover = useCallback(() => {
+  const handleRemoveCover = () => {
     if (!coverPath) return
 
     startUpdateTransition(async () => {
@@ -175,90 +164,74 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
         showToast(error instanceof Error ? error.message : 'Failed to remove cover', { type: 'error' })
       }
     })
-  }, [startUpdateTransition, coverPath, libraryItem.id, showToast])
+  }
 
-  const handleUpdateCover = useCallback(
-    (cover: string) => {
-      startUpdateTransition(async () => {
-        try {
-          await updateCoverFromUrlAction(libraryItem.id, cover)
-          setImageUrl('')
-        } catch (error) {
-          console.error('Error updating cover:', error)
-          showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
-        }
-      })
-    },
-    [startUpdateTransition, libraryItem.id, showToast, t]
-  )
+  const handleUpdateCover = (cover: string) => {
+    startUpdateTransition(async () => {
+      try {
+        await updateCoverFromUrlAction(libraryItem.id, cover)
+        setImageUrl('')
+      } catch (error) {
+        console.error('Error updating cover:', error)
+        showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
+      }
+    })
+  }
 
-  const submitForm = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
-      handleUpdateCover(imageUrl)
-    },
-    [imageUrl, handleUpdateCover]
-  )
+  const submitForm = (e: React.FormEvent) => {
+    e.preventDefault()
+    handleUpdateCover(imageUrl)
+  }
 
-  const persistProvider = useCallback(() => {
+  const persistProvider = () => {
     try {
       localStorage.setItem('book-cover-provider', provider)
     } catch (error) {
       console.error('PersistProvider', error)
     }
-  }, [provider])
+  }
 
-  const submitSearchForm = useCallback(
-    (e: React.FormEvent) => {
-      e.preventDefault()
+  const submitSearchForm = (e: React.FormEvent) => {
+    e.preventDefault()
 
-      // Store provider in local storage
-      persistProvider()
+    // Store provider in local storage
+    persistProvider()
 
-      // Initiate search via hook
-      searchCovers({
-        title: searchTitle,
-        author: searchAuthor || '',
-        provider: provider,
-        podcast: isPodcast
-      })
-    },
-    [persistProvider, searchCovers, searchTitle, searchAuthor, provider, isPodcast]
-  )
+    // Initiate search via hook
+    searchCovers({
+      title: searchTitle,
+      author: searchAuthor || '',
+      provider: provider,
+      podcast: isPodcast
+    })
+  }
 
-  const handleSetCover = useCallback(
-    (coverFile: LocalCover) => {
-      startUpdateTransition(async () => {
-        try {
-          await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
-        } catch (error) {
-          console.error('Error setting cover:', error)
-          showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
-        }
-      })
-    },
-    [startUpdateTransition, libraryItem.id, showToast, t]
-  )
+  const handleSetCover = (coverFile: LocalCover) => {
+    startUpdateTransition(async () => {
+      try {
+        await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
+      } catch (error) {
+        console.error('Error setting cover:', error)
+        showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
+      }
+    })
+  }
 
-  const localCoverImageCount = useMemo(() => {
-    const count = localCovers.length
-    const imageWord = count === 1 ? 'image' : 'images'
-    return `${count} local ${imageWord}`
-  }, [localCovers.length])
+  const localCoverImageCount = `${localCovers.length} local ${localCovers.length === 1 ? 'image' : 'images'}`
 
-  const handleCoverClick = useCallback((cover: string) => {
+  const handleCoverClick = (cover: string) => {
     setSelectedCoverForPreview(cover)
-  }, [])
+  }
 
-  const handleCloseCoverPreview = useCallback(() => {
+  const handleCloseCoverPreview = () => {
     setSelectedCoverForPreview(null)
-  }, [])
+  }
 
-  const handleApplyCover = useCallback(() => {
+  const handleApplyCover = () => {
     if (!selectedCoverForPreview) return
     handleCloseCoverPreview()
     handleUpdateCover(selectedCoverForPreview)
-  }, [selectedCoverForPreview, handleCloseCoverPreview, handleUpdateCover])
+  }
 
   return (
     <div className="w-full h-full overflow-hidden overflow-y-auto px-2 sm:px-4 py-6 relative">
