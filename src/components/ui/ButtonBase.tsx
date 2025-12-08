@@ -2,7 +2,7 @@
 
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
-import React, { useCallback, useMemo } from 'react'
+import React from 'react'
 
 interface ButtonBaseProps {
   id?: string
@@ -38,42 +38,37 @@ const ButtonBase = ({
   ref,
   ...props
 }: ButtonBaseProps) => {
-  const buttonClass = useMemo(() => {
-    return mergeClasses(
-      // Base styles
-      'relative shadow-md border border-border rounded-md bg-primary flex items-center justify-center overflow-hidden',
+  const buttonClass = mergeClasses(
+    // Base styles
+    'relative shadow-md border border-border rounded-md bg-primary flex items-center justify-center overflow-hidden',
 
-      // Focus styles
-      'focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0',
+    // Focus styles
+    'focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0',
 
-      // Size-based height (identical to InputWrapper)
-      size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'min-h-10 h-auto' : 'h-10',
+    // Size-based height (identical to InputWrapper)
+    size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'min-h-10 h-auto' : 'h-10',
 
-      // Disabled styles
-      'disabled:bg-bg-disabled disabled:cursor-not-allowed disabled:border-none disabled:text-disabled',
+    // Disabled styles
+    'disabled:bg-bg-disabled disabled:cursor-not-allowed disabled:border-none disabled:text-disabled',
 
-      // Borderless styles
-      borderless ? 'border-0 bg-transparent shadow-none text-button-foreground-muted' : 'border',
+    // Borderless styles
+    borderless ? 'border-0 bg-transparent shadow-none text-button-foreground-muted' : 'border',
 
-      // Before pseudo-element (replacing abs-btn::before)
-      'before:content-[""] before:absolute before:inset-0 before:bg-transparent before:pointer-events-none',
+    // Before pseudo-element (replacing abs-btn::before)
+    'before:content-[""] before:absolute before:inset-0 before:bg-transparent before:pointer-events-none',
 
-      // Hover styles
-      borderless ? 'hover:not-disabled:text-button-foreground' : 'hover:not-disabled:before:bg-bg-hover',
+    // Hover styles
+    borderless ? 'hover:not-disabled:text-button-foreground' : 'hover:not-disabled:before:bg-bg-hover',
 
-      // Custom className
-      className
-    )
-  }, [size, className, borderless])
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-      if (onClick && !disabled) {
-        onClick(e)
-      }
-    },
-    [onClick, disabled]
+    // Custom className
+    className
   )
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    if (onClick && !disabled) {
+      onClick(e)
+    }
+  }
 
   const isDisabled = disabled
 

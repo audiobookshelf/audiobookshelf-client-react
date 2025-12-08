@@ -3,7 +3,7 @@
 import ButtonBase from '@/components/ui/ButtonBase'
 import Label from '@/components/ui/Label'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useId, useRef, useState } from 'react'
 
 type ToggleItem = {
   text: string
@@ -52,86 +52,64 @@ export default function ToggleButtonGroup({
     setFocusIndex(selectedIndex)
   }, [selectedIndex])
 
-  // Derive aria-label from label or ariaLabel prop
-  const derivedAriaLabel = useMemo(() => {
-    if (label) return undefined // aria-labelledby will be used instead
-    return ariaLabel
-  }, [label, ariaLabel])
+  const derivedAriaLabel = label ? undefined : ariaLabel
+  const derivedAriaLabelledBy = label ? labelId : ariaLabelledBy
 
-  const derivedAriaLabelledBy = useMemo(() => {
-    if (label) return labelId
-    return ariaLabelledBy
-  }, [label, labelId, ariaLabelledBy])
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (disabled) return
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (disabled) return
+    const last = items.length - 1
+    let next = focusIndex
 
-      const last = items.length - 1
-      let next = focusIndex
+    switch (e.key) {
+      case 'ArrowRight':
+        e.preventDefault()
+        next = focusIndex === last ? 0 : focusIndex + 1
+        break
+      case 'ArrowLeft':
+        e.preventDefault()
+        next = focusIndex === 0 ? last : focusIndex - 1
+        break
+      case 'Home':
+        e.preventDefault()
+        next = 0
+        break
+      case 'End':
+        e.preventDefault()
+        next = last
+        break
+      default:
+        return
+    }
 
-      switch (e.key) {
-        case 'ArrowRight':
-          e.preventDefault()
-          next = focusIndex === last ? 0 : focusIndex + 1
-          break
-        case 'ArrowLeft':
-          e.preventDefault()
-          next = focusIndex === 0 ? last : focusIndex - 1
-          break
-        case 'Home':
-          e.preventDefault()
-          next = 0
-          break
-        case 'End':
-          e.preventDefault()
-          next = last
-          break
-        default:
-          return
-      }
+    if (next !== focusIndex) {
+      setFocusIndex(next)
+      btnRefs.current[next]?.focus()
+      onChange(items[next].value)
+    }
+  }
 
-      if (next !== focusIndex) {
-        setFocusIndex(next)
-        btnRefs.current[next]?.focus()
-        onChange(items[next].value)
-      }
-    },
-    [disabled, focusIndex, items, onChange]
-  )
+  const handleRadioButtonClick = (item: ToggleItem) => {
+    if (disabled) return
+    onChange(item.value)
+  }
 
-  const handleRadioButtonClick = useCallback(
-    (item: ToggleItem) => {
-      if (disabled) return
-      onChange(item.value)
-    },
-    [disabled, onChange]
-  )
-
-  const handleRadioButtonKeyDown = useCallback((e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+  const handleRadioButtonKeyDown = (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     if (e.key === ' ' || e.key === 'Enter') e.preventDefault()
-  }, [])
+  }
 
-  const containerClass = useMemo(
-    () =>
-      mergeClasses(
-        'inline-flex w-full sm:w-fit h-full overflow-hidden rounded-md shadow-md focus-within:outline [&>button:not(:first-child)]:border-s-0',
-        className
-      ),
-    [className]
+  const containerClass = mergeClasses(
+    'inline-flex w-full sm:w-fit h-full overflow-hidden rounded-md shadow-md focus-within:outline [&>button:not(:first-child)]:border-s-0',
+    className
   )
 
-  const buttonClass = useCallback(
-    (isSelected: boolean) => {
-      return mergeClasses(
-        size === 'small' ? 'text-sm px-3 sm:px-4' : size === 'large' ? 'text-base sm:text-lg px-4 sm:px-6' : 'text-base px-3 sm:px-4',
-        isSelected ? 'text-foreground bg-button-selected-bg disabled:bg-button-selected-bg/80' : '',
-        'rounded-none first:rounded-s-md last:rounded-e-md', // squared inside; wrapper provides outer rounding
-        'focus-visible:outline-0' // focus ring is on the container
-      )
-    },
-    [size]
-  )
+  const getButtonClass = (isSelected: boolean) =>
+    mergeClasses(
+      size === 'small' ? 'text-sm px-3 sm:px-4' : size === 'large' ? 'text-base sm:text-lg px-4 sm:px-6' : 'text-base px-3 sm:px-4',
+      isSelected ? 'text-foreground bg-button-selected-bg disabled:bg-button-selected-bg/80' : '',
+      'rounded-none first:rounded-s-md last:rounded-e-md', // squared inside; wrapper provides outer rounding
+      'focus-visible:outline-0' // focus ring is on the container
+    )
 
   return (
     <div className="w-full" cy-id="toggle-button-group">
@@ -169,7 +147,7 @@ export default function ToggleButtonGroup({
               onClick={() => handleRadioButtonClick(item)}
               onKeyDown={handleRadioButtonKeyDown}
               size={size}
-              className={buttonClass(isSelected)}
+              className={getButtonClass(isSelected)}
             >
               {item.text}
             </ButtonBase>

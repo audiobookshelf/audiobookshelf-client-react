@@ -2,7 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { memo, useCallback, useMemo } from 'react'
+import React, { memo } from 'react'
 import ButtonBase from './ButtonBase'
 
 interface BtnProps {
@@ -50,34 +50,17 @@ export default function Btn({
   ariaLabel
 }: BtnProps) {
   const t = useTypeSafeTranslations()
-  const classList = useMemo(() => {
-    const list: string[] = []
 
-    // Optimize conditional class logic
-    list.push(loading ? 'text-button-foreground/0 disabled:text-disabled/0' : 'text-button-foreground disabled:text-disabled')
-    list.push(color)
+  const textClass = loading ? 'text-button-foreground/0 disabled:text-disabled/0' : 'text-button-foreground disabled:text-disabled'
+  const sizeClass = size === 'small' ? 'text-sm px-4 py-1' : 'px-8 py-2'
+  const classList = mergeClasses('inline-flex', textClass, color, sizeClass, className)
 
-    if (size === 'small') {
-      list.push('text-sm')
-      list.push('px-4')
-      list.push('py-1')
-    } else {
-      list.push('px-8')
-      list.push('py-2')
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    // Prevent clicks during loading or when disabled
+    if (onClick && !disabled && !loading) {
+      onClick(e)
     }
-    const baseClassList = 'inline-flex'
-    return mergeClasses(baseClassList, list, className)
-  }, [loading, color, size, className])
-
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-      // Prevent clicks during loading or when disabled
-      if (onClick && !disabled && !loading) {
-        onClick(e)
-      }
-    },
-    [onClick, disabled, loading]
-  )
+  }
 
   return (
     <ButtonBase

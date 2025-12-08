@@ -2,7 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useEffect, useMemo, useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 
 export interface AlertProps {
   type?: 'error' | 'warning' | 'success' | 'info'
@@ -15,53 +15,33 @@ export default function Alert({ type = 'error', autoFocus = true, children, clas
   const t = useTypeSafeTranslations()
   const alertRef = useRef<HTMLDivElement>(null)
 
-  const isAlert = useMemo(() => {
-    return type === 'error' || type === 'warning'
-  }, [type])
+  const isAlert = type === 'error' || type === 'warning'
+  const icon = isAlert ? 'report' : 'info'
+  const alertRole = isAlert ? 'alert' : 'status'
 
-  const icon = useMemo(() => {
-    return isAlert ? 'report' : 'info'
-  }, [isAlert])
+  const prefix =
+    type === 'error'
+      ? t('LabelError')
+      : type === 'warning'
+        ? t('LabelWarning')
+        : type === 'success'
+          ? t('LabelSuccess')
+          : type === 'info'
+            ? t('LabelInformation')
+            : t('LabelAlert')
 
-  const prefix = useMemo(() => {
-    switch (type) {
-      case 'error':
-        return t('LabelError')
-      case 'warning':
-        return t('LabelWarning')
-      case 'success':
-        return t('LabelSuccess')
-      case 'info':
-        return t('LabelInformation')
-      default:
-        return t('LabelAlert')
-    }
-  }, [type, t])
+  const typeClasses =
+    type === 'error'
+      ? 'bg-error/5 border-error/60 text-error'
+      : type === 'warning'
+        ? 'bg-warning/5 border-warning/60 text-warning'
+        : type === 'success'
+          ? 'bg-success/5 border-success/60 text-success'
+          : type === 'info'
+            ? 'bg-info/5 border-info/60 text-info'
+            : 'bg-primary/5 border-primary/60 text-primary'
 
-  const alertRole = useMemo(() => {
-    return isAlert ? 'alert' : 'status'
-  }, [isAlert])
-
-  const wrapperClass = useMemo(() => {
-    const baseClasses = 'w-full border rounded-lg flex items-center relative py-4 ps-16'
-
-    const typeClasses = (() => {
-      switch (type) {
-        case 'error':
-          return 'bg-error/5 border-error/60 text-error'
-        case 'warning':
-          return 'bg-warning/5 border-warning/60 text-warning'
-        case 'success':
-          return 'bg-success/5 border-success/60 text-success'
-        case 'info':
-          return 'bg-info/5 border-info/60 text-info'
-        default:
-          return 'bg-primary/5 border-primary/60 text-primary'
-      }
-    })()
-
-    return mergeClasses(baseClasses, typeClasses, className)
-  }, [type, className])
+  const wrapperClass = mergeClasses('w-full border rounded-lg flex items-center relative py-4 ps-16', typeClasses, className)
 
   useEffect(() => {
     if (isAlert && alertRef.current && autoFocus) {

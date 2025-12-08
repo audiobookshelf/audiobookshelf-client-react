@@ -1,7 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useCallback, useMemo } from 'react'
+import React from 'react'
 import IconBtn from './IconBtn'
 
 interface ReadIconBtnProps {
@@ -13,21 +13,17 @@ interface ReadIconBtnProps {
 }
 
 export default function ReadIconBtn({ isRead, disabled = false, borderless = false, onClick, className }: ReadIconBtnProps) {
-  const handleClick = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
-      e.stopPropagation()
-      if (disabled) {
-        e.preventDefault()
-        return
-      }
-      onClick?.()
-    },
-    [disabled, onClick]
-  )
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    e.stopPropagation()
+    if (disabled) {
+      e.preventDefault()
+      return
+    }
+    onClick?.()
+  }
 
-  const ariaLabel = useMemo(() => (isRead ? 'Mark as not finished' : 'Mark as finished'), [isRead])
-
-  const classes = useMemo(() => mergeClasses(isRead ? 'text-green-400' : 'text-gray-400', className), [isRead, className])
+  const ariaLabel = isRead ? 'Mark as not finished' : 'Mark as finished'
+  const classes = mergeClasses(isRead ? 'text-green-400' : 'text-gray-400', className)
 
   return (
     <IconBtn

@@ -2,7 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 interface PillProps<T> {
   item: T
@@ -47,9 +47,9 @@ export const Pill = <T,>({
   const [isInputReady, setIsInputReady] = useState(false)
   const [hasValidationError, setHasValidationError] = useState(false)
 
-  const itemText = useMemo(() => (getEditableText ? getEditableText(item) : String(item)), [getEditableText, item])
-  const readOnlyPrefix = useMemo(() => (getReadOnlyPrefix ? getReadOnlyPrefix(item) : undefined), [getReadOnlyPrefix, item])
-  const fullText = useMemo(() => (getFullText ? getFullText(item) : itemText), [getFullText, itemText, item])
+  const itemText = getEditableText ? getEditableText(item) : String(item)
+  const readOnlyPrefix = getReadOnlyPrefix ? getReadOnlyPrefix(item) : undefined
+  const fullText = getFullText ? getFullText(item) : itemText
 
   const [inputValue, setInputValue] = useState(itemText)
 
@@ -142,24 +142,21 @@ export const Pill = <T,>({
   }, [inputValue, isEditing, isInputReady])
 
   // Start editing when edit button is clicked
-  const handleEditButtonClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-      if (!disabled && showEditButton) {
-        onEditButtonClick?.()
-      }
-    },
-    [disabled, showEditButton, onEditButtonClick]
-  )
+  const handleEditButtonClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!disabled && showEditButton) {
+      onEditButtonClick?.()
+    }
+  }
 
   // Handle edit input changes
-  const handleEditInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value)
-  }, [])
+  }
 
   // Save the edit
-  const handleSaveEdit = useCallback(() => {
+  const handleSaveEdit = () => {
     const trimmedInput = inputValue.trim()
     const newContent = onMutate ? onMutate(item, trimmedInput) : (trimmedInput as T)
 
@@ -178,44 +175,38 @@ export const Pill = <T,>({
     }
 
     onEditDone?.(true, false) // Refocus input when explicitly saving
-  }, [inputValue, onEdit, onEditDone, onMutate, onValidate, onValidationError, item, getFullText])
+  }
 
-  const handleCancelEdit = useCallback(() => {
+  const handleCancelEdit = () => {
     // Reset to the original itemText
     setInputValue(itemText)
     setHasValidationError(false)
     onEditDone?.(true, true)
-  }, [itemText, onEditDone])
+  }
 
   // Handle input blur - only exit edit mode, don't save
-  const handleInputBlur = useCallback(
-    (e: React.FocusEvent<HTMLInputElement>) => {
-      const newFocusTarget = e.relatedTarget as HTMLElement
+  const handleInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const newFocusTarget = e.relatedTarget as HTMLElement
 
-      // Only exit edit mode if focus is moving outside the pill container
-      if (!pillContainerRef.current?.contains(newFocusTarget)) {
-        onEditDone?.(false, true)
-      }
-    },
-    [onEditDone]
-  )
+    // Only exit edit mode if focus is moving outside the pill container
+    if (!pillContainerRef.current?.contains(newFocusTarget)) {
+      onEditDone?.(false, true)
+    }
+  }
 
   // Handle edit input key events
-  const handleEditInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        handleSaveEdit()
-      } else if (e.key === 'Escape') {
-        e.preventDefault()
-        handleCancelEdit()
-      }
-    },
-    [handleSaveEdit, handleCancelEdit]
-  )
+  const handleEditInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleSaveEdit()
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      handleCancelEdit()
+    }
+  }
 
   // Tab trap for edit mode
-  const handlePillKeyDown = useCallback((e: React.KeyboardEvent) => {
+  const handlePillKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Tab') {
       e.preventDefault()
 
@@ -227,7 +218,7 @@ export const Pill = <T,>({
 
       focusableElements[nextIndex]?.focus()
     }
-  }, [])
+  }
 
   // If editing, show the input field
   if (isEditing) {

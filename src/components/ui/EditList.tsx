@@ -3,7 +3,7 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { TranslationKey } from '@/types/translations'
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import Modal from '../modals/Modal'
 import Btn from './Btn'
 import IconBtn from './IconBtn'
@@ -82,18 +82,17 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   }
 
   // Save an edited row
-  const handleSaveEditClick = useCallback(
-    (clickedItem: EditListItem) => {
-      setEditedItem(clickedItem)
-      const hasSameName = items.some((item) => item.name === newName.trim())
-      setHasSameName(hasSameName)
-      const sameItemDifferentCase = !hasSameName ? items.find((item) => item.id !== clickedItem.id && item.name.toLowerCase() === newName.toLowerCase()) : null
-      setSameNameWithDifferentCase(sameItemDifferentCase?.name ?? '')
-      setIsDeleting(false)
-      setIsProcessingModalOpen(true)
-    },
-    [items, newName]
-  )
+  const handleSaveEditClick = (clickedItem: EditListItem) => {
+    setEditedItem(clickedItem)
+    const hasSameNameCheck = items.some((item) => item.name === newName.trim())
+    setHasSameName(hasSameNameCheck)
+    const sameItemDifferentCase = !hasSameNameCheck
+      ? items.find((item) => item.id !== clickedItem.id && item.name.toLowerCase() === newName.toLowerCase())
+      : null
+    setSameNameWithDifferentCase(sameItemDifferentCase?.name ?? '')
+    setIsDeleting(false)
+    setIsProcessingModalOpen(true)
+  }
 
   const handleSaveModalClick = async () => {
     setIsProcessing(true)
@@ -107,65 +106,30 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
     }
   }
 
-  const handleInputKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        if (editedItem?.name !== newName && newName.trim() !== '') {
-          handleSaveEditClick(editedItem)
-        }
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      if (editedItem?.name !== newName && newName.trim() !== '') {
+        handleSaveEditClick(editedItem)
       }
-    },
-    [editedItem, newName, handleSaveEditClick]
-  )
-
-  const listTypeEditString: TranslationKey = useMemo(() => {
-    switch (listType) {
-      case 'Tag':
-        return 'MessageConfirmRenameTag'
-      case 'Genre':
-        return 'MessageConfirmRenameGenre'
-      case 'Narrator':
-      default:
-        return 'MessageConfirmRenameNarrator'
     }
-  }, [listType])
+  }
 
-  const listTypeDeleteString: TranslationKey = useMemo(() => {
-    switch (listType) {
-      case 'Tag':
-        return 'MessageConfirmRemoveTag'
-      case 'Genre':
-        return 'MessageConfirmRemoveGenre'
-      case 'Narrator':
-      default:
-        return 'MessageConfirmRemoveNarrator'
-    }
-  }, [listType])
+  const listTypeEditString: TranslationKey =
+    listType === 'Tag' ? 'MessageConfirmRenameTag' : listType === 'Genre' ? 'MessageConfirmRenameGenre' : 'MessageConfirmRenameNarrator'
 
-  const listTypeMergeString: TranslationKey = useMemo(() => {
-    switch (listType) {
-      case 'Tag':
-        return 'MessageConfirmRenameTagMergeNote'
-      case 'Genre':
-        return 'MessageConfirmRenameGenreMergeNote'
-      case 'Narrator':
-      default:
-        return 'MessageConfirmRenameNarratorMergeNote'
-    }
-  }, [listType])
+  const listTypeDeleteString: TranslationKey =
+    listType === 'Tag' ? 'MessageConfirmRemoveTag' : listType === 'Genre' ? 'MessageConfirmRemoveGenre' : 'MessageConfirmRemoveNarrator'
 
-  const listTypeWarningString: TranslationKey = useMemo(() => {
-    switch (listType) {
-      case 'Tag':
-        return 'MessageConfirmRenameTagWarning'
-      case 'Genre':
-        return 'MessageConfirmRenameGenreWarning'
-      case 'Narrator':
-      default:
-        return 'MessageConfirmRenameNarratorWarning'
-    }
-  }, [listType])
+  const listTypeMergeString: TranslationKey =
+    listType === 'Tag'
+      ? 'MessageConfirmRenameTagMergeNote'
+      : listType === 'Genre'
+        ? 'MessageConfirmRenameGenreMergeNote'
+        : 'MessageConfirmRenameNarratorMergeNote'
+
+  const listTypeWarningString: TranslationKey =
+    listType === 'Tag' ? 'MessageConfirmRenameTagWarning' : listType === 'Genre' ? 'MessageConfirmRenameGenreWarning' : 'MessageConfirmRenameNarratorWarning'
 
   return (
     <div role="list" className={mergeClasses('border border-border max-w-2xl mx-auto overflow-x-scroll')}>

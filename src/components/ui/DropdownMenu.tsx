@@ -4,7 +4,7 @@ import { useModalRef } from '@/contexts/ModalContext'
 import { useMenuPosition } from '@/hooks/useMenuPosition'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 export interface DropdownMenuItem {
@@ -115,18 +115,6 @@ export default function DropdownMenu({
     }
   }, [showMenu, isMouseOver, menuRef])
 
-  const handleItemClick = useCallback(
-    (e: React.MouseEvent, item: DropdownMenuItem) => {
-      e.stopPropagation()
-      onItemClick?.(item)
-    },
-    [onItemClick]
-  )
-
-  const handleItemMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault()
-  }
-
   const handleMouseEnter = () => {
     setIsMouseOver(true)
   }
@@ -154,8 +142,11 @@ export default function DropdownMenu({
           role="option"
           tabIndex={-1}
           aria-selected={isItemSelected ? isItemSelected(item) : focusedIndex === index}
-          onClick={(e) => handleItemClick(e, item)}
-          onMouseDown={handleItemMouseDown}
+          onClick={(e) => {
+            e.stopPropagation()
+            onItemClick?.(item)
+          }}
+          onMouseDown={(e) => e.preventDefault()}
         >
           <div className="flex items-center">
             <span className={mergeClasses('ms-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
@@ -169,7 +160,7 @@ export default function DropdownMenu({
           )}
         </li>
       )),
-    [items, focusedIndex, dropdownId, isItemSelected, showSelectedIndicator, handleItemClick]
+    [items, focusedIndex, dropdownId, isItemSelected, showSelectedIndicator, onItemClick]
   )
 
   const menuContent = (

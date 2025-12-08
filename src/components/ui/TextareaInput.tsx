@@ -1,7 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useId, useMemo, useRef } from 'react'
+import { useId, useRef } from 'react'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
 
@@ -39,28 +39,17 @@ export default function TextareaInput({
   const textareaId = `${textareaInputId}-textarea`
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onChange?.(e.target.value)
-    },
-    [onChange]
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange?.(e.target.value)
+  }
+
+  const textareaClass = mergeClasses('w-full', fillHeight && (label ? 'h-full grid grid-rows-[auto_1fr]' : 'h-full flex flex-col'), className)
+  const inputWrapperClass = mergeClasses('px-1 py-1', fillHeight && 'h-full flex flex-col min-h-0')
+  const textareaClassNames = mergeClasses(
+    'w-full bg-transparent py-1 px-1 outline-none border-none',
+    fillHeight ? 'h-full resize-none' : 'resize-y',
+    'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only'
   )
-
-  const textareaClass = useMemo(() => {
-    return mergeClasses('w-full', fillHeight && (label ? 'h-full grid grid-rows-[auto_1fr]' : 'h-full flex flex-col'), className)
-  }, [className, fillHeight, label])
-
-  const inputWrapperClass = useMemo(() => {
-    return mergeClasses('px-1 py-1', fillHeight && 'h-full flex flex-col min-h-0')
-  }, [fillHeight])
-
-  const textareaClassNames = useMemo(() => {
-    return mergeClasses(
-      'w-full bg-transparent py-1 px-1 outline-none border-none',
-      fillHeight ? 'h-full resize-none' : 'resize-y',
-      'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only'
-    )
-  }, [fillHeight])
 
   return (
     <div className={textareaClass} cy-id="textarea-input">
