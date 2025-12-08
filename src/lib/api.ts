@@ -631,7 +631,7 @@ export async function matchAll(libraryId: string): Promise<void> {
  * @param payload - Update payload with name and/or description
  * Returns: Updated collection
  */
-export async function updateCollection(collectionId: string, payload: { name?: string; description?: string | null }): Promise<Collection> {
+export async function updateCollection(collectionId: string, payload: { name?: string; description?: string }): Promise<Collection> {
   return apiRequest<Collection>(`/api/collections/${collectionId}`, {
     method: 'PATCH',
     body: JSON.stringify(payload)
