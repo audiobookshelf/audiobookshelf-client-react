@@ -1,8 +1,8 @@
-import { getData, getLibrary, getLibraryPersonalized } from '../../../../lib/api'
+import { getCurrentUser, getData, getLibrary, getLibraryPersonalized } from '../../../../lib/api'
 import LibraryClient from './LibraryClient'
 
 export default async function LibraryDataFetcher({ libraryId }: { libraryId: string }) {
-  const [library, personalized] = await getData(getLibrary(libraryId), getLibraryPersonalized(libraryId))
+  const [library, personalized, currentUser] = await getData(getLibrary(libraryId), getLibraryPersonalized(libraryId), getCurrentUser())
 
   if (!library) {
     console.error('Error getting library data')
@@ -13,5 +13,5 @@ export default async function LibraryDataFetcher({ libraryId }: { libraryId: str
     return null
   }
 
-  return <LibraryClient library={library} personalized={personalized} />
+  return <LibraryClient library={library} personalized={personalized} currentUser={currentUser} />
 }
