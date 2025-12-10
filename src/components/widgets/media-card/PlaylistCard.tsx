@@ -79,8 +79,8 @@ function PlaylistCard(props: PlaylistCardProps) {
   const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !false // not processing locally
 
   const handleCardClick = useCallback(() => {
-    router.push(`/playlist/${playlist.id}`)
-  }, [playlist.id, router])
+    router.push(`/library/${playlist.libraryId}/playlist/${playlist.id}`)
+  }, [playlist.libraryId, playlist.id, router])
 
   const handleEditClick = useCallback(
     (event: React.MouseEvent) => {
