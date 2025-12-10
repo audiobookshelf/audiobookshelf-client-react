@@ -248,6 +248,29 @@ export interface Collection {
 }
 
 // ============================================================================
+// PLAYLISTS
+// ============================================================================
+
+export interface PlaylistItem {
+  libraryItemId: string
+  libraryItem: LibraryItem
+  episodeId?: string
+  episode?: PodcastEpisode
+}
+
+export interface Playlist {
+  id: string
+  name: string
+  description?: string
+  libraryId: string
+  userId: string
+  /** items in the playlist (expanded only) */
+  items?: PlaylistItem[]
+  lastUpdate?: number
+  createdAt?: number
+}
+
+// ============================================================================
 // METADATA
 // ============================================================================
 
