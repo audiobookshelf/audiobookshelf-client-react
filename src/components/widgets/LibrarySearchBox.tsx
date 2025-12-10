@@ -11,11 +11,13 @@ interface LibrarySearchBoxProps {
   mediaTypes?: ('book' | 'podcast')[]
   onBookSelect?: (book: BookLibraryItem | null) => void
   onPodcastSelect?: (podcast: PodcastLibraryItem | null) => void
+  /** Called with all books found in the search results */
+  onBooksFound?: (books: BookLibraryItem[]) => void
   onClear?: () => void
   className?: string
 }
 
-export function LibrarySearchBox({ mediaTypes = ['book', 'podcast'], onBookSelect, onPodcastSelect, onClear, className = '' }: LibrarySearchBoxProps) {
+export function LibrarySearchBox({ mediaTypes = ['book', 'podcast'], onBookSelect, onPodcastSelect, onBooksFound, onClear, className = '' }: LibrarySearchBoxProps) {
   const {
     libraries,
     selectedLibraryId,
@@ -48,6 +50,14 @@ export function LibrarySearchBox({ mediaTypes = ['book', 'podcast'], onBookSelec
       onPodcastSelect(selectedPodcast)
     }
   }, [selectedPodcast, onPodcastSelect])
+
+  // Notify parent when search results contain books
+  useEffect(() => {
+    if (onBooksFound && searchResults?.book) {
+      const books = searchResults.book.map((item) => item.libraryItem as BookLibraryItem)
+      onBooksFound(books)
+    }
+  }, [searchResults, onBooksFound])
 
   const handleClear = () => {
     clearSelection()
