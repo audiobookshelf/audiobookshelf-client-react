@@ -1,5 +1,6 @@
 'use client'
 
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
@@ -20,23 +21,20 @@ interface CollectionGroupCoverProps {
  * Cover component for collections that displays up to 2 book covers side-by-side.
  * Falls back to "Empty Collection" text when no books are available.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export default function CollectionGroupCover({ books, width, height, bookCoverAspectRatio }: CollectionGroupCoverProps) {
+  const { sizeMultiplier } = useCardSize()
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
-
-  const sizeMultiplier = useMemo(() => {
-    if (bookCoverAspectRatio === 1) return width / (120 * 1.6 * 2)
-    return width / 240
-  }, [bookCoverAspectRatio, width])
 
   // No books - show empty collection message
   if (!books.length) {
     return (
       <div
         className="relative w-full h-full flex items-center justify-center bg-primary rounded-xs"
-        style={{ width: `${width}px`, height: `${height}px`, padding: `${sizeMultiplier}rem` }}
+        style={{ width: `${width}px`, height: `${height}px`, padding: `${sizeMultiplier}em` }}
       >
         <div className="absolute top-0 left-0 w-full h-full bg-gray-400/5" />
-        <p className="text-white/60 text-center z-10" style={{ fontSize: `${Math.min(1, sizeMultiplier)}rem` }}>
+        <p className="text-white/60 text-center z-10" style={{ fontSize: `${Math.min(1, sizeMultiplier)}em` }}>
           Empty Collection
         </p>
       </div>
