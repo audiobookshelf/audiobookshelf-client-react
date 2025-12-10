@@ -16,6 +16,7 @@ import { ToolsExamples } from '../examples/ToolsExamples'
 export default function ItemDetailsExamplesPage() {
   const [selectedBook, setSelectedBook] = useState<BookLibraryItem | null>(null)
   const [selectedPodcast, setSelectedPodcast] = useState<PodcastLibraryItem | null>(null)
+  const [allBooks, setAllBooks] = useState<BookLibraryItem[]>([])
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
@@ -36,9 +37,11 @@ export default function ItemDetailsExamplesPage() {
           mediaTypes={['book', 'podcast']}
           onBookSelect={setSelectedBook}
           onPodcastSelect={setSelectedPodcast}
+          onBooksFound={setAllBooks}
           onClear={() => {
             setSelectedBook(null)
             setSelectedPodcast(null)
+            setAllBooks([])
           }}
         />
       </section>
@@ -117,6 +120,11 @@ export default function ItemDetailsExamplesPage() {
                   Collection Cards
                 </a>
               </li>
+              <li>
+                <a href="#playlist-card-examples" className="hover:text-blue-400 transition-colors">
+                  Playlist Cards
+                </a>
+              </li>
             </ul>
           </div>
         </section>
@@ -182,7 +190,7 @@ export default function ItemDetailsExamplesPage() {
 
       {(selectedBook || selectedPodcast) && (
         <div id="media-card-examples">
-          <MediaCardExamples selectedBook={selectedBook} selectedPodcast={selectedPodcast} />
+          <MediaCardExamples selectedBook={selectedBook} selectedPodcast={selectedPodcast} allBooks={allBooks} />
         </div>
       )}
     </div>
