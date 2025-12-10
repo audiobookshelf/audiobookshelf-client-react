@@ -1,5 +1,6 @@
 'use client'
 
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
@@ -27,15 +28,11 @@ interface CoverData {
 const MAX_COVERS = 10
 
 export default function SeriesGroupCover({ name, books, width, height, bookCoverAspectRatio }: SeriesGroupCoverProps) {
+  const { sizeMultiplier } = useCardSize()
   const [coverData, setCoverData] = useState<CoverData[]>([])
   const [noValidCovers, setNoValidCovers] = useState(false)
   const mountedRef = useRef(true)
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
-
-  const sizeMultiplier = useMemo(() => {
-    if (bookCoverAspectRatio === 1) return width / (120 * 1.6 * 2)
-    return width / 240
-  }, [bookCoverAspectRatio, width])
 
   // Single cover width based on aspect ratio
   const coverWidth = useMemo(() => height / bookCoverAspectRatio, [height, bookCoverAspectRatio])
@@ -115,8 +112,11 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
   // Fallback when no valid covers
   if (noValidCovers) {
     return (
-      <div className="absolute top-0 start-0 w-full h-full flex items-center justify-center box-shadow-book" style={{ padding: `${sizeMultiplier}rem` }}>
-        <p style={{ fontSize: `${sizeMultiplier}rem` }} className="text-center text-gray-200">
+      <div
+        className="absolute top-0 start-0 w-full h-full flex items-center justify-center box-shadow-book bg-gray-400/5"
+        style={{ padding: `${sizeMultiplier}em` }}
+      >
+        <p style={{ fontSize: `${sizeMultiplier}em` }} className="text-center text-white/60">
           {name}
         </p>
       </div>
@@ -169,4 +169,3 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
     </div>
   )
 }
-

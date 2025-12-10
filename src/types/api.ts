@@ -248,6 +248,29 @@ export interface Collection {
 }
 
 // ============================================================================
+// PLAYLISTS
+// ============================================================================
+
+export interface PlaylistItem {
+  libraryItemId: string
+  libraryItem: LibraryItem
+  episodeId?: string
+  episode?: PodcastEpisode
+}
+
+export interface Playlist {
+  id: string
+  name: string
+  description?: string
+  libraryId: string
+  userId: string
+  /** items in the playlist (expanded only) */
+  items?: PlaylistItem[]
+  lastUpdate?: number
+  createdAt?: number
+}
+
+// ============================================================================
 // METADATA
 // ============================================================================
 
@@ -747,6 +770,10 @@ export interface SearchLibraryResponse {
     books: LibraryItem[]
   }>
   authors: Author[]
+  /** Client-side filtered collections (not from server search API) */
+  collections?: Collection[]
+  /** Client-side filtered playlists (not from server search API) */
+  playlists?: Playlist[]
 }
 
 // ============================================================================
@@ -984,6 +1011,13 @@ export interface GetCollectionsResponse {
   sortDesc: boolean
   minified: boolean
   include: string
+}
+
+export interface GetPlaylistsResponse {
+  results: Playlist[]
+  total: number
+  limit: number
+  page: number
 }
 
 export type SaveLibraryOrderApiResponse = {

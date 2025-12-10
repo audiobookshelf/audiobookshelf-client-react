@@ -4,18 +4,33 @@ import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
 import { useLibrarySearch } from '@/hooks/useLibrarySearch'
-import { BookLibraryItem, Library, PodcastLibraryItem } from '@/types/api'
+import { BookLibraryItem, Collection, Library, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
 import { useEffect } from 'react'
 
 interface LibrarySearchBoxProps {
   mediaTypes?: ('book' | 'podcast')[]
   onBookSelect?: (book: BookLibraryItem | null) => void
   onPodcastSelect?: (podcast: PodcastLibraryItem | null) => void
+  onCollectionSelect?: (collection: Collection | null) => void
+  onPlaylistSelect?: (playlist: Playlist | null) => void
+  onSeriesSelect?: (series: { series: Series; books: LibraryItem[] } | null) => void
+  /** Called with all books found in the search results */
+  onBooksFound?: (books: BookLibraryItem[]) => void
   onClear?: () => void
   className?: string
 }
 
-export function LibrarySearchBox({ mediaTypes = ['book', 'podcast'], onBookSelect, onPodcastSelect, onClear, className = '' }: LibrarySearchBoxProps) {
+export function LibrarySearchBox({
+  mediaTypes = ['book', 'podcast'],
+  onBookSelect,
+  onPodcastSelect,
+  onCollectionSelect,
+  onPlaylistSelect,
+  onSeriesSelect,
+  onBooksFound,
+  onClear,
+  className = ''
+}: LibrarySearchBoxProps) {
   const {
     libraries,
     selectedLibraryId,
@@ -27,6 +42,9 @@ export function LibrarySearchBox({ mediaTypes = ['book', 'podcast'], onBookSelec
     searchError,
     selectedBook,
     selectedPodcast,
+    selectedCollection,
+    selectedPlaylist,
+    selectedSeries,
     setSelectedLibraryId,
     setSearchQuery,
     handleSearch,
@@ -48,6 +66,32 @@ export function LibrarySearchBox({ mediaTypes = ['book', 'podcast'], onBookSelec
       onPodcastSelect(selectedPodcast)
     }
   }, [selectedPodcast, onPodcastSelect])
+
+  useEffect(() => {
+    if (onCollectionSelect) {
+      onCollectionSelect(selectedCollection)
+    }
+  }, [selectedCollection, onCollectionSelect])
+
+  useEffect(() => {
+    if (onPlaylistSelect) {
+      onPlaylistSelect(selectedPlaylist)
+    }
+  }, [selectedPlaylist, onPlaylistSelect])
+
+  useEffect(() => {
+    if (onSeriesSelect) {
+      onSeriesSelect(selectedSeries)
+    }
+  }, [selectedSeries, onSeriesSelect])
+
+  // Notify parent when search results contain books
+  useEffect(() => {
+    if (onBooksFound && searchResults?.book) {
+      const books = searchResults.book.map((item) => item.libraryItem as BookLibraryItem)
+      onBooksFound(books)
+    }
+  }, [searchResults, onBooksFound])
 
   const handleClear = () => {
     clearSelection()
@@ -117,16 +161,24 @@ export function LibrarySearchBox({ mediaTypes = ['book', 'podcast'], onBookSelec
 
         {searchResults && (
           <div className="text-sm text-gray-400">
-            Found {searchResults.book?.length || 0} book(s), {searchResults.podcast?.length || 0} podcast(s)
-            {(selectedBook || selectedPodcast) && (
+            Found {searchResults.book?.length || 0} book(s), {searchResults.podcast?.length || 0} podcast(s), {searchResults.series?.length || 0} series,{' '}
+            {searchResults.collections?.length || 0} collection(s), {searchResults.playlists?.length || 0} playlist(s)
+            {(selectedBook || selectedPodcast || selectedCollection || selectedPlaylist || selectedSeries) && (
               <span className="ml-2">
-                • Selected: <strong>{selectedBook?.media.metadata.title || selectedPodcast?.media.metadata.title}</strong>
+                • Selected:{' '}
+                <strong>
+                  {selectedBook?.media.metadata.title ||
+                    selectedPodcast?.media.metadata.title ||
+                    selectedCollection?.name ||
+                    selectedPlaylist?.name ||
+                    selectedSeries?.series.name}
+                </strong>
               </span>
             )}
           </div>
         )}
 
-        {(selectedBook || selectedPodcast) && (
+        {(selectedBook || selectedPodcast || selectedCollection || selectedPlaylist || selectedSeries) && (
           <div className="flex justify-end">
             <Btn onClick={handleClear} size="small">
               Clear Selection

@@ -1,8 +1,8 @@
 'use client'
 
-import { getCurrentUserAction, getLibrariesAction, searchLibraryAction } from '@/app/actions/searchActions'
+import { getCollectionsAction, getCurrentUserAction, getLibrariesAction, getPlaylistsAction, searchLibraryAction } from '@/app/actions/searchActions'
 import { useSocketEvent } from '@/contexts/SocketContext'
-import { BookLibraryItem, Library, LibraryItem, PodcastLibraryItem, SearchLibraryResponse, User } from '@/types/api'
+import { BookLibraryItem, Collection, Library, LibraryItem, Playlist, PodcastLibraryItem, SearchLibraryResponse, Series, User } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
 
 export interface UseLibrarySearchOptions {
@@ -30,6 +30,9 @@ export interface UseLibrarySearchReturn {
   // Selected items
   selectedBook: BookLibraryItem | null
   selectedPodcast: PodcastLibraryItem | null
+  selectedCollection: Collection | null
+  selectedPlaylist: Playlist | null
+  selectedSeries: { series: Series; books: LibraryItem[] } | null
 
   // Actions
   setSelectedLibraryId: (id: string) => void
@@ -37,6 +40,9 @@ export interface UseLibrarySearchReturn {
   handleSearch: () => Promise<void>
   setProcessing: (processing: boolean) => void
   clearSelection: () => void
+  setSelectedCollection: (collection: Collection | null) => void
+  setSelectedPlaylist: (playlist: Playlist | null) => void
+  setSelectedSeries: (series: { series: Series; books: LibraryItem[] } | null) => void
 }
 
 export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibrarySearchReturn {
@@ -59,6 +65,13 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
   // Selected items
   const [selectedBook, setSelectedBook] = useState<BookLibraryItem | null>(null)
   const [selectedPodcast, setSelectedPodcast] = useState<PodcastLibraryItem | null>(null)
+  const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null)
+  const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
+  const [selectedSeries, setSelectedSeries] = useState<{ series: Series; books: LibraryItem[] } | null>(null)
+
+  // Cached collections and playlists for client-side filtering
+  const [cachedCollections, setCachedCollections] = useState<Collection[]>([])
+  const [cachedPlaylists, setCachedPlaylists] = useState<Playlist[]>([])
 
   // Listen for item updates via WebSocket
   const handleItemUpdated = useCallback(
@@ -103,6 +116,31 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     loadData()
   }, [])
 
+  // Fetch collections and playlists when library changes
+  useEffect(() => {
+    if (!selectedLibraryId) {
+      setCachedCollections([])
+      setCachedPlaylists([])
+      return
+    }
+
+    async function fetchCollectionsAndPlaylists() {
+      try {
+        const [collectionsResponse, playlistsResponse] = await Promise.all([getCollectionsAction(selectedLibraryId), getPlaylistsAction(selectedLibraryId)])
+
+        setCachedCollections(collectionsResponse?.results || [])
+        setCachedPlaylists(playlistsResponse?.results || [])
+      } catch (error) {
+        // Silently fail - collections/playlists are supplementary search data
+        console.error('Failed to fetch collections/playlists:', error)
+        setCachedCollections([])
+        setCachedPlaylists([])
+      }
+    }
+
+    fetchCollectionsAndPlaylists()
+  }, [selectedLibraryId])
+
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim() || !selectedLibraryId) return
 
@@ -111,12 +149,27 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     // Clear current selection when starting a new search
     setSelectedBook(null)
     setSelectedPodcast(null)
+    setSelectedCollection(null)
+    setSelectedPlaylist(null)
+    setSelectedSeries(null)
 
     try {
       const result = await searchLibraryAction(selectedLibraryId, searchQuery.trim(), 10)
 
       if (result) {
-        setSearchResults(result)
+        // Client-side filter collections and playlists by name
+        const queryLower = searchQuery.trim().toLowerCase()
+        const filteredCollections = cachedCollections.filter((c) => c.name.toLowerCase().includes(queryLower))
+        const filteredPlaylists = cachedPlaylists.filter((p) => p.name.toLowerCase().includes(queryLower))
+
+        // Merge server results with client-side filtered collections/playlists
+        const mergedResults: SearchLibraryResponse = {
+          ...result,
+          collections: filteredCollections,
+          playlists: filteredPlaylists
+        }
+
+        setSearchResults(mergedResults)
 
         // Auto-select first item based on media types
         if (autoSelectFirst) {
@@ -133,6 +186,22 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
             setSelectedBook(null)
             setSelectedPodcast(null)
           }
+
+          // Auto-select first series, collection, and playlist if found
+          const firstSeries = result.series?.[0]
+          if (firstSeries) {
+            setSelectedSeries(firstSeries)
+          }
+
+          const firstCollection = filteredCollections[0]
+          if (firstCollection) {
+            setSelectedCollection(firstCollection)
+          }
+
+          const firstPlaylist = filteredPlaylists[0]
+          if (firstPlaylist) {
+            setSelectedPlaylist(firstPlaylist)
+          }
         } else {
           setSelectedBook(null)
           setSelectedPodcast(null)
@@ -144,11 +213,14 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     } finally {
       setIsSearching(false)
     }
-  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes])
+  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes, cachedCollections, cachedPlaylists])
 
   const clearSelection = useCallback(() => {
     setSelectedBook(null)
     setSelectedPodcast(null)
+    setSelectedCollection(null)
+    setSelectedPlaylist(null)
+    setSelectedSeries(null)
     setSearchResults(null)
     setSearchQuery('')
   }, [])
@@ -173,12 +245,18 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     // Selected items
     selectedBook,
     selectedPodcast,
+    selectedCollection,
+    selectedPlaylist,
+    selectedSeries,
 
     // Actions
     setSelectedLibraryId,
     setSearchQuery,
     handleSearch,
     setProcessing,
-    clearSelection
+    clearSelection,
+    setSelectedCollection,
+    setSelectedPlaylist,
+    setSelectedSeries
   }
 }

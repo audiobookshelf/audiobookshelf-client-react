@@ -12,6 +12,7 @@ import {
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetNarratorsResponse,
+  GetPlaylistsResponse,
   GetSeriesResponse,
   GetUsersResponse,
   Library,
@@ -404,6 +405,10 @@ export const getCollectionsList = cache(async (libraryId: string) => {
   return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections`, {})
 })
 
+export const getPlaylistsList = cache(async (libraryId: string) => {
+  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists`, {})
+})
+
 export const getCollection = cache(async (collectionId: string): Promise<Collection> => {
   return apiRequest<Collection>(`/api/collections/${collectionId}?include=rssfeed`, {})
 })
@@ -657,5 +662,16 @@ export async function deleteCollection(collectionId: string): Promise<void> {
 export async function createPlaylistFromCollection(collectionId: string): Promise<{ id: string }> {
   return apiRequest<{ id: string }>(`/api/playlists/collection/${collectionId}`, {
     method: 'POST'
+  })
+}
+
+/**
+ * Delete a playlist
+ * @param playlistId - Playlist ID to delete
+ * Returns: void (success) or throws error
+ */
+export async function deletePlaylist(playlistId: string): Promise<void> {
+  return apiRequest<void>(`/api/playlists/${playlistId}`, {
+    method: 'DELETE'
   })
 }

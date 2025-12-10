@@ -1,7 +1,7 @@
 'use server'
 
 import * as api from '@/lib/api'
-import { GetLibrariesResponse, SearchLibraryResponse, UserLoginResponse } from '@/types/api'
+import { GetCollectionsResponse, GetLibrariesResponse, GetPlaylistsResponse, SearchLibraryResponse, UserLoginResponse } from '@/types/api'
 
 /**
  * Server Action: Search a library
@@ -22,4 +22,18 @@ export async function getCurrentUserAction(): Promise<UserLoginResponse> {
  */
 export async function getLibrariesAction(): Promise<GetLibrariesResponse> {
   return api.getLibraries()
+}
+
+/**
+ * Server Action: Get collections for a library
+ */
+export async function getCollectionsAction(libraryId: string): Promise<GetCollectionsResponse> {
+  return api.getCollectionsList(libraryId)
+}
+
+/**
+ * Server Action: Get playlists for a library
+ */
+export async function getPlaylistsAction(libraryId: string): Promise<GetPlaylistsResponse> {
+  return api.getPlaylistsList(libraryId)
 }
