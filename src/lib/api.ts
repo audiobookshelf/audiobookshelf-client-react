@@ -659,3 +659,14 @@ export async function createPlaylistFromCollection(collectionId: string): Promis
     method: 'POST'
   })
 }
+
+/**
+ * Delete a playlist
+ * @param playlistId - Playlist ID to delete
+ * Returns: void (success) or throws error
+ */
+export async function deletePlaylist(playlistId: string): Promise<void> {
+  return apiRequest<void>(`/api/playlists/${playlistId}`, {
+    method: 'DELETE'
+  })
+}
