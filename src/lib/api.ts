@@ -12,6 +12,7 @@ import {
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetNarratorsResponse,
+  GetPlaylistsResponse,
   GetSeriesResponse,
   GetUsersResponse,
   Library,
@@ -402,6 +403,10 @@ export const getSeriesList = cache(async (libraryId: string) => {
 
 export const getCollectionsList = cache(async (libraryId: string) => {
   return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections`, {})
+})
+
+export const getPlaylistsList = cache(async (libraryId: string) => {
+  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists`, {})
 })
 
 export const getCollection = cache(async (collectionId: string): Promise<Collection> => {
