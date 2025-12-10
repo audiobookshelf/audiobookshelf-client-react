@@ -40,6 +40,7 @@ function PlaylistCard(props: PlaylistCardProps) {
   const {
     playlist,
     bookshelfView,
+    bookCoverAspectRatio = 1,
     sizeMultiplier,
     userCanUpdate = false,
     userCanDelete = false,
@@ -124,7 +125,7 @@ function PlaylistCard(props: PlaylistCardProps) {
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
         cy-id="playlistCard"
-        cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} />}
+        cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} bookCoverAspectRatio={bookCoverAspectRatio} />}
         overlay={
           <>
             {/* Hover overlay */}
@@ -229,4 +230,3 @@ const MemoizedPlaylistCard = memo(PlaylistCard)
 export { MemoizedPlaylistCard as PlaylistCard }
 
 export default MemoizedPlaylistCard
-
