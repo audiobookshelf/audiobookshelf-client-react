@@ -19,6 +19,7 @@ import {
   LibraryItem,
   MetadataProvidersResponse,
   PersonalizedShelf,
+  Playlist,
   PodcastSearchResult,
   SaveLibraryOrderApiResponse,
   SearchLibraryResponse,
@@ -407,6 +408,10 @@ export const getCollectionsList = cache(async (libraryId: string) => {
 
 export const getPlaylistsList = cache(async (libraryId: string) => {
   return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists`, {})
+})
+
+export const getPlaylist = cache(async (playlistId: string): Promise<Playlist> => {
+  return apiRequest<Playlist>(`/api/playlists/${playlistId}`, {})
 })
 
 export const getCollection = cache(async (collectionId: string): Promise<Collection> => {
