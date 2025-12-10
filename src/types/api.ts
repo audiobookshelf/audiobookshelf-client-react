@@ -770,6 +770,10 @@ export interface SearchLibraryResponse {
     books: LibraryItem[]
   }>
   authors: Author[]
+  /** Client-side filtered collections (not from server search API) */
+  collections?: Collection[]
+  /** Client-side filtered playlists (not from server search API) */
+  playlists?: Playlist[]
 }
 
 // ============================================================================
@@ -1007,6 +1011,13 @@ export interface GetCollectionsResponse {
   sortDesc: boolean
   minified: boolean
   include: string
+}
+
+export interface GetPlaylistsResponse {
+  results: Playlist[]
+  total: number
+  limit: number
+  page: number
 }
 
 export type SaveLibraryOrderApiResponse = {
