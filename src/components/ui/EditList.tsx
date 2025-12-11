@@ -131,6 +131,14 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   const listTypeWarningString: TranslationKey =
     listType === 'Tag' ? 'MessageConfirmRenameTagWarning' : listType === 'Genre' ? 'MessageConfirmRenameGenreWarning' : 'MessageConfirmRenameNarratorWarning'
 
+  const listTypeEmptyString: TranslationKey =
+    listType === 'Tag' ? 'MessageListEmptyTag' : listType === 'Genre' ? 'MessageListEmptyGenre' : 'MessageListEmptyNarrator'
+
+  // Empty state message
+  if (!items.length) {
+    return <p className="text-foreground text-center py-4">{t(listTypeEmptyString)}</p>
+  }
+
   return (
     <div role="list" className={mergeClasses('border border-border max-w-2xl mx-auto overflow-x-scroll')}>
       <table className="table-auto w-full">
