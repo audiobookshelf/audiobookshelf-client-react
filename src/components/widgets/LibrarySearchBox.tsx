@@ -4,7 +4,7 @@ import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
 import { useLibrarySearch } from '@/hooks/useLibrarySearch'
-import { BookLibraryItem, Collection, Library, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
+import { Author, BookLibraryItem, Collection, Library, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
 import { useEffect } from 'react'
 
 interface LibrarySearchBoxProps {
@@ -14,6 +14,7 @@ interface LibrarySearchBoxProps {
   onCollectionSelect?: (collection: Collection | null) => void
   onPlaylistSelect?: (playlist: Playlist | null) => void
   onSeriesSelect?: (series: { series: Series; books: LibraryItem[] } | null) => void
+  onAuthorSelect?: (author: Author | null) => void
   /** Called with all books found in the search results */
   onBooksFound?: (books: BookLibraryItem[]) => void
   onClear?: () => void
@@ -27,6 +28,7 @@ export function LibrarySearchBox({
   onCollectionSelect,
   onPlaylistSelect,
   onSeriesSelect,
+  onAuthorSelect,
   onBooksFound,
   onClear,
   className = ''
@@ -45,6 +47,7 @@ export function LibrarySearchBox({
     selectedCollection,
     selectedPlaylist,
     selectedSeries,
+    selectedAuthor,
     setSelectedLibraryId,
     setSearchQuery,
     handleSearch,
@@ -84,6 +87,12 @@ export function LibrarySearchBox({
       onSeriesSelect(selectedSeries)
     }
   }, [selectedSeries, onSeriesSelect])
+
+  useEffect(() => {
+    if (onAuthorSelect) {
+      onAuthorSelect(selectedAuthor)
+    }
+  }, [selectedAuthor, onAuthorSelect])
 
   // Notify parent when search results contain books
   useEffect(() => {
@@ -162,8 +171,8 @@ export function LibrarySearchBox({
         {searchResults && (
           <div className="text-sm text-gray-400">
             Found {searchResults.book?.length || 0} book(s), {searchResults.podcast?.length || 0} podcast(s), {searchResults.series?.length || 0} series,{' '}
-            {searchResults.collections?.length || 0} collection(s), {searchResults.playlists?.length || 0} playlist(s)
-            {(selectedBook || selectedPodcast || selectedCollection || selectedPlaylist || selectedSeries) && (
+            {searchResults.collections?.length || 0} collection(s), {searchResults.playlists?.length || 0} playlist(s), {searchResults.authors?.length || 0} author(s)
+            {(selectedBook || selectedPodcast || selectedCollection || selectedPlaylist || selectedSeries || selectedAuthor) && (
               <span className="ml-2">
                 • Selected:{' '}
                 <strong>
@@ -171,14 +180,15 @@ export function LibrarySearchBox({
                     selectedPodcast?.media.metadata.title ||
                     selectedCollection?.name ||
                     selectedPlaylist?.name ||
-                    selectedSeries?.series.name}
+                    selectedSeries?.series.name ||
+                    selectedAuthor?.name}
                 </strong>
               </span>
             )}
           </div>
         )}
 
-        {(selectedBook || selectedPodcast || selectedCollection || selectedPlaylist || selectedSeries) && (
+        {(selectedBook || selectedPodcast || selectedCollection || selectedPlaylist || selectedSeries || selectedAuthor) && (
           <div className="flex justify-end">
             <Btn onClick={handleClear} size="small">
               Clear Selection
