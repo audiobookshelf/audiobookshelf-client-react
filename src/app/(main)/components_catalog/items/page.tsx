@@ -1,7 +1,7 @@
 'use client'
 
 import { LibrarySearchBox } from '@/components/widgets/LibrarySearchBox'
-import { BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
+import { Author, BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
 import { useState } from 'react'
 import { BookDetailsEditExamples } from '../examples/BookDetailsEditExamples'
 import { ChaptersExamples } from '../examples/ChaptersExamples'
@@ -19,6 +19,7 @@ export default function ItemDetailsExamplesPage() {
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null)
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [selectedSeries, setSelectedSeries] = useState<{ series: Series; books: LibraryItem[] } | null>(null)
+  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
   const [allBooks, setAllBooks] = useState<BookLibraryItem[]>([])
 
   return (
@@ -43,6 +44,7 @@ export default function ItemDetailsExamplesPage() {
           onCollectionSelect={setSelectedCollection}
           onPlaylistSelect={setSelectedPlaylist}
           onSeriesSelect={setSelectedSeries}
+          onAuthorSelect={setSelectedAuthor}
           onBooksFound={setAllBooks}
           onClear={() => {
             setSelectedBook(null)
@@ -50,13 +52,14 @@ export default function ItemDetailsExamplesPage() {
             setSelectedCollection(null)
             setSelectedPlaylist(null)
             setSelectedSeries(null)
+            setSelectedAuthor(null)
             setAllBooks([])
           }}
         />
       </section>
 
       {/* Table of Contents - Only show when there's a selected item */}
-      {(selectedBook || selectedPodcast || selectedSeries || selectedCollection || selectedPlaylist) && (
+      {(selectedBook || selectedPodcast || selectedSeries || selectedCollection || selectedPlaylist || selectedAuthor) && (
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6 text-gray-400">Table of Contents</h2>
           <div className="bg-gray-800 p-6 rounded-lg">
@@ -153,6 +156,13 @@ export default function ItemDetailsExamplesPage() {
                   </a>
                 </li>
               )}
+              {selectedAuthor && (
+                <li>
+                  <a href="#author-card-examples" className="hover:text-blue-400 transition-colors">
+                    Author Cards
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         </section>
@@ -216,7 +226,7 @@ export default function ItemDetailsExamplesPage() {
         </div>
       )}
 
-      {(selectedBook || selectedPodcast || selectedSeries || selectedCollection || selectedPlaylist) && (
+      {(selectedBook || selectedPodcast || selectedSeries || selectedCollection || selectedPlaylist || selectedAuthor) && (
         <div id="media-card-examples">
           <MediaCardExamples
             selectedBook={selectedBook}
@@ -224,6 +234,7 @@ export default function ItemDetailsExamplesPage() {
             selectedSeries={selectedSeries}
             selectedCollection={selectedCollection}
             selectedPlaylist={selectedPlaylist}
+            selectedAuthor={selectedAuthor}
             allBooks={allBooks}
           />
         </div>
