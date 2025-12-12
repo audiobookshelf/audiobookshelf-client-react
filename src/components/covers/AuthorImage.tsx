@@ -2,7 +2,7 @@
 
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Author } from '@/types/api'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface AuthorImageProps {
   author: Author
@@ -18,13 +18,19 @@ export default function AuthorImage({ author, className }: AuthorImageProps) {
 
   const imageSrc = author.imagePath ? `/api/authors/${author.id}/image?ts=${author.updatedAt || Date.now()}` : null
 
+  // Reset state when author or image source changes
+  useEffect(() => {
+    setImageError(false)
+    setShowCoverBg(false)
+  }, [author.id, author.imagePath, imageSrc])
+
   const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
     const img = e.currentTarget
     const aspectRatio = img.naturalHeight / img.naturalWidth
-    // Show background blur if aspect ratio is too extreme
-    if (aspectRatio < 0.5 || aspectRatio > 2) {
-      setShowCoverBg(true)
-    }
+    // Reset error state when image loads successfully
+    setImageError(false)
+    // Show background blur if aspect ratio is too extreme, otherwise hide it
+    setShowCoverBg(aspectRatio < 0.5 || aspectRatio > 2)
   }
 
   const handleImageError = () => {
