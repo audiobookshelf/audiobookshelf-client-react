@@ -20,8 +20,6 @@ export interface MediaCardExamplesProps {
   selectedPlaylist?: Playlist | null
   /** Selected author from search results */
   selectedAuthor?: Author | null
-  /** All books from search results for creating varied playlist examples */
-  allBooks?: BookLibraryItem[]
 }
 
 export function MediaCardExamples({
@@ -30,8 +28,7 @@ export function MediaCardExamples({
   selectedSeries,
   selectedCollection,
   selectedPlaylist,
-  selectedAuthor,
-  allBooks = []
+  selectedAuthor
 }: MediaCardExamplesProps) {
   // Get libraryId from real series data or fall back to selectedBook
   const seriesLibraryId = selectedSeries?.books?.[0]?.libraryId ?? selectedBook?.libraryId ?? ''
@@ -56,7 +53,7 @@ export function MediaCardExamples({
       {selectedCollection && <CollectionCardExamples collectionData={selectedCollection} />}
 
       {/* Playlist Cards - only when playlist is selected */}
-      {selectedPlaylist && <PlaylistCardExamples playlistData={selectedPlaylist} allBooks={allBooks} />}
+      {selectedPlaylist && <PlaylistCardExamples playlistData={selectedPlaylist} />}
 
       {/* Author Cards - only when author is selected */}
       {selectedAuthor && <AuthorCardExamples authorData={selectedAuthor} />}
