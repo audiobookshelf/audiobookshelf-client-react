@@ -97,7 +97,6 @@ function PlaylistCard(props: PlaylistCardProps) {
   )
 
   // Selection handler - kept for future use
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSelectClick = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault()
