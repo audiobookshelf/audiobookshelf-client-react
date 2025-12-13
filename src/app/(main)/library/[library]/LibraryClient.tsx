@@ -1,11 +1,11 @@
 'use client'
 
+import { AuthorCard } from '@/components/widgets/media-card/AuthorCard'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import PodcastEpisodeCard from '@/components/widgets/media-card/PodcastEpisodeCard'
 import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
 import { SeriesCard } from '@/components/widgets/media-card/SeriesCard'
 import { Author, BookshelfView, Library, LibraryItem, MediaProgress, PersonalizedShelf, Series, UserLoginResponse } from '@/types/api'
-import Link from 'next/link'
 interface LibraryClientProps {
   library: Library
   personalized: PersonalizedShelf[]
@@ -13,6 +13,8 @@ interface LibraryClientProps {
 }
 
 export default function LibraryClient({ library, personalized, currentUser }: LibraryClientProps) {
+  const user = currentUser.user
+
   return (
     <div className="pl-8 py-8 space-y-8">
       {personalized.map((shelf) => (
@@ -83,16 +85,7 @@ export default function LibraryClient({ library, personalized, currentUser }: Li
                 )
               } else if (shelf.type === 'authors') {
                 const author = entity as Author
-                return (
-                  <Link
-                    key={author.id + '-' + shelf.id}
-                    href={`/author/${author.id}`}
-                    className="w-40 p-2 rounded-lg border border-border bg-primary/30 hover:bg-primary/70 cursor-pointer"
-                  >
-                    <p className="text-sm font-semibold">{author.name}</p>
-                    <p className="text-sm text-gray-500">{author.numBooks}</p>
-                  </Link>
-                )
+                return <AuthorCard key={author.id + '-' + shelf.id} author={author} userCanUpdate={user.permissions.update} />
               }
             })}
           </div>
