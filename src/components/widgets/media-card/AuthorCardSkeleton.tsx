@@ -50,15 +50,15 @@ export default function AuthorCardSkeleton({ sizeMultiplier }: AuthorCardSkeleto
         </div>
 
         {/* Text overlay skeleton */}
-        <div className="absolute bottom-0 start-0 w-full bg-black/60 z-10" style={{ padding: '0.25em 0.5em' }}>
+        <div className="absolute bottom-0 start-0 w-full bg-black/60 z-10 px-2 py-1">
           {/* Name skeleton */}
-          <div className="mx-auto rounded bg-gray-600 animate-pulse" style={{ height: '0.75em', width: '70%' }}>
+          <p className="mx-auto rounded bg-gray-600 animate-pulse text-[0.75em]" style={{ width: '70%' }}>
             &nbsp;
-          </div>
+          </p>
           {/* Books count skeleton */}
-          <div className="mx-auto mt-1 rounded bg-gray-700 animate-pulse" style={{ height: '0.65em', width: '50%' }}>
+          <p className="mx-auto rounded bg-gray-700 animate-pulse text-[0.65em]" style={{ width: '50%' }}>
             &nbsp;
-          </div>
+          </p>
         </div>
       </div>
     </div>
