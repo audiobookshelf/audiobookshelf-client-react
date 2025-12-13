@@ -1,12 +1,12 @@
 'use client'
 
 import AuthorImage from '@/components/covers/AuthorImage'
-import IconBtn from '@/components/ui/IconBtn'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
+import MediaCardOverlayContainer from '@/components/widgets/media-card/MediaCardOverlayContainer'
+import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { Author } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useId, useState } from 'react'
@@ -129,63 +129,41 @@ function AuthorCard(props: AuthorCardProps) {
 
           {/* Hover overlay with dark semi-transparent background */}
           {showOverlay && (
-            <div
-              cy-id="overlay"
-              className={mergeClasses(
-                'w-full h-full absolute top-0 start-0 z-10 bg-black rounded-sm',
-                isSelectionMode ? 'bg-black/60' : 'bg-black/40',
-                selected && 'border-2 border-yellow-400'
-              )}
-            >
+            <MediaCardOverlayContainer isSelectionMode={isSelectionMode} selected={selected}>
               {/* Selection button */}
               {isSelectionMode && (
-                <button
-                  cy-id="selectButton"
-                  type="button"
+                <MediaOverlayIconBtn
+                  cyId="selectButton"
+                  position="top-start"
+                  icon={selected ? 'radio_button_checked' : 'radio_button_unchecked'}
                   onClick={handleSelectClick}
-                  onKeyDown={handleKeyDown}
-                  className={mergeClasses(
-                    'absolute top-[0.375em] start-[0.375em]',
-                    'w-6 h-6 flex items-center justify-center',
-                    'text-gray-200 hover:text-yellow-300 transition-colors',
-                    selected && 'text-yellow-400'
-                  )}
-                  aria-label={selected ? t('ButtonDeselect') : t('ButtonSelect')}
-                >
-                  <span className="material-symbols text-[1.25em]">{selected ? 'radio_button_checked' : 'radio_button_unchecked'}</span>
-                </button>
+                  ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
+                  selected={selected}
+                />
               )}
 
               {/* Quick Match button (top-left) */}
               {!isSelectionMode && userCanUpdate && (
-                <div cy-id="quickMatch" className="absolute top-[0.375em] start-[0.375em]">
-                  <IconBtn
-                    borderless
-                    size="small"
-                    className="text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125 transform duration-150 text-[1em] w-auto h-auto"
-                    onClick={handleQuickMatchClick}
-                    ariaLabel={t('ButtonQuickMatch')}
-                  >
-                    search
-                  </IconBtn>
-                </div>
+                <MediaOverlayIconBtn
+                  cyId="quickMatch"
+                  position="top-start"
+                  icon="search"
+                  onClick={handleQuickMatchClick}
+                  ariaLabel={t('ButtonQuickMatch')}
+                />
               )}
 
               {/* Edit button (top-right) */}
               {!isSelectionMode && userCanUpdate && (
-                <div cy-id="editButton" className="absolute top-[0.375em] end-[0.375em]">
-                  <IconBtn
-                    borderless
-                    size="small"
-                    className="text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125 transform duration-150 text-[1em] w-auto h-auto"
-                    onClick={handleEditClick}
-                    ariaLabel={t('ButtonEdit')}
-                  >
-                    edit
-                  </IconBtn>
-                </div>
+                <MediaOverlayIconBtn
+                  cyId="editButton"
+                  position="top-end"
+                  icon="edit"
+                  onClick={handleEditClick}
+                  ariaLabel={t('ButtonEdit')}
+                />
               )}
-            </div>
+            </MediaCardOverlayContainer>
           )}
 
           {/* Loading spinner overlay (Quick Match in progress) */}
