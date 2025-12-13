@@ -20,7 +20,6 @@ export default function ItemDetailsExamplesPage() {
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [selectedSeries, setSelectedSeries] = useState<{ series: Series; books: LibraryItem[] } | null>(null)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
-  const [allBooks, setAllBooks] = useState<BookLibraryItem[]>([])
 
   return (
     <div className="p-8 w-full max-w-7xl mx-auto">
@@ -45,7 +44,6 @@ export default function ItemDetailsExamplesPage() {
           onPlaylistSelect={setSelectedPlaylist}
           onSeriesSelect={setSelectedSeries}
           onAuthorSelect={setSelectedAuthor}
-          onBooksFound={setAllBooks}
           onClear={() => {
             setSelectedBook(null)
             setSelectedPodcast(null)
@@ -53,7 +51,6 @@ export default function ItemDetailsExamplesPage() {
             setSelectedPlaylist(null)
             setSelectedSeries(null)
             setSelectedAuthor(null)
-            setAllBooks([])
           }}
         />
       </section>
