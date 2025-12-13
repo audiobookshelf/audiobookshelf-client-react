@@ -235,7 +235,6 @@ export default function ItemDetailsExamplesPage() {
             selectedCollection={selectedCollection}
             selectedPlaylist={selectedPlaylist}
             selectedAuthor={selectedAuthor}
-            allBooks={allBooks}
           />
         </div>
       )}
