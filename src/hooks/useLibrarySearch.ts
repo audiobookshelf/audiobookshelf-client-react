@@ -2,7 +2,7 @@
 
 import { getCollectionsAction, getCurrentUserAction, getLibrariesAction, getPlaylistsAction, searchLibraryAction } from '@/app/actions/searchActions'
 import { useSocketEvent } from '@/contexts/SocketContext'
-import { BookLibraryItem, Collection, Library, LibraryItem, Playlist, PodcastLibraryItem, SearchLibraryResponse, Series, User } from '@/types/api'
+import { Author, BookLibraryItem, Collection, Library, LibraryItem, Playlist, PodcastLibraryItem, SearchLibraryResponse, Series, User } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
 
 export interface UseLibrarySearchOptions {
@@ -33,6 +33,7 @@ export interface UseLibrarySearchReturn {
   selectedCollection: Collection | null
   selectedPlaylist: Playlist | null
   selectedSeries: { series: Series; books: LibraryItem[] } | null
+  selectedAuthor: Author | null
 
   // Actions
   setSelectedLibraryId: (id: string) => void
@@ -43,6 +44,7 @@ export interface UseLibrarySearchReturn {
   setSelectedCollection: (collection: Collection | null) => void
   setSelectedPlaylist: (playlist: Playlist | null) => void
   setSelectedSeries: (series: { series: Series; books: LibraryItem[] } | null) => void
+  setSelectedAuthor: (author: Author | null) => void
 }
 
 export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibrarySearchReturn {
@@ -68,6 +70,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null)
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null)
   const [selectedSeries, setSelectedSeries] = useState<{ series: Series; books: LibraryItem[] } | null>(null)
+  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
 
   // Cached collections and playlists for client-side filtering
   const [cachedCollections, setCachedCollections] = useState<Collection[]>([])
@@ -152,6 +155,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     setSelectedCollection(null)
     setSelectedPlaylist(null)
     setSelectedSeries(null)
+    setSelectedAuthor(null)
 
     try {
       const result = await searchLibraryAction(selectedLibraryId, searchQuery.trim(), 10)
@@ -202,6 +206,11 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
           if (firstPlaylist) {
             setSelectedPlaylist(firstPlaylist)
           }
+
+          const firstAuthor = result.authors?.[0]
+          if (firstAuthor) {
+            setSelectedAuthor(firstAuthor)
+          }
         } else {
           setSelectedBook(null)
           setSelectedPodcast(null)
@@ -221,6 +230,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     setSelectedCollection(null)
     setSelectedPlaylist(null)
     setSelectedSeries(null)
+    setSelectedAuthor(null)
     setSearchResults(null)
     setSearchQuery('')
   }, [])
@@ -248,6 +258,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     selectedCollection,
     selectedPlaylist,
     selectedSeries,
+    selectedAuthor,
 
     // Actions
     setSelectedLibraryId,
@@ -257,6 +268,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     clearSelection,
     setSelectedCollection,
     setSelectedPlaylist,
-    setSelectedSeries
+    setSelectedSeries,
+    setSelectedAuthor
   }
 }

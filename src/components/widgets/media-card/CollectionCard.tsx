@@ -1,10 +1,12 @@
 'use client'
 
-import IconBtn from '@/components/ui/IconBtn'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardMoreMenu from '@/components/widgets/media-card/MediaCardMoreMenu'
+import MediaCardOverlayContainer from '@/components/widgets/media-card/MediaCardOverlayContainer'
+import MediaCardStandardFooter from '@/components/widgets/media-card/MediaCardStandardFooter'
+import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -38,6 +40,8 @@ export interface CollectionCardProps {
   onEdit?: (collection: Collection) => void
   /** Callback to open RSS feed modal */
   onOpenRssFeedModal?: (collection: Collection) => void
+  /** Whether to show the selection button */
+  showSelectedButton?: boolean
 }
 
 function CollectionCard(props: CollectionCardProps) {
@@ -53,7 +57,8 @@ function CollectionCard(props: CollectionCardProps) {
     selected = false,
     onSelect,
     onEdit,
-    onOpenRssFeedModal
+    onOpenRssFeedModal,
+    showSelectedButton = false
   } = props
 
   const router = useRouter()
@@ -100,7 +105,6 @@ function CollectionCard(props: CollectionCardProps) {
   )
 
   // Selection handler - kept for future use
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSelectClick = useCallback(
     (event: React.MouseEvent) => {
       event.preventDefault()
@@ -145,30 +149,28 @@ function CollectionCard(props: CollectionCardProps) {
           <>
             {/* Hover overlay */}
             {showOverlay && (
-              <div
-                cy-id="overlay"
-                className={mergeClasses(
-                  'w-full h-full absolute top-0 start-0 z-10 bg-black rounded-sm',
-                  isSelectionMode ? 'bg-black/60' : 'bg-black/40',
-                  selected && 'border-2 border-yellow-400'
+              <MediaCardOverlayContainer isSelectionMode={isSelectionMode} selected={selected}>
+                {/* Selection button */}
+                {showSelectedButton && (isSelectionMode || isHovering) && (
+                  <MediaOverlayIconBtn
+                    cyId="selectButton"
+                    position="top-start"
+                    icon={selected ? 'radio_button_checked' : 'radio_button_unchecked'}
+                    onClick={handleSelectClick}
+                    ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
+                    selected={selected}
+                  />
                 )}
-              >
+
                 {/* Edit button */}
                 {userCanUpdate && !isSelectionMode && (
-                  <div cy-id="editButton" className="absolute top-[0.375em] end-[0.375em]">
-                    <IconBtn
-                      borderless
-                      size="small"
-                      className={mergeClasses(
-                        'text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125',
-                        'transform duration-150 text-[1em] w-auto h-auto'
-                      )}
-                      onClick={handleEditClick}
-                      ariaLabel={t('ButtonEdit')}
-                    >
-                      edit
-                    </IconBtn>
-                  </div>
+                  <MediaOverlayIconBtn
+                    cyId="editButton"
+                    position="top-end"
+                    icon="edit"
+                    onClick={handleEditClick}
+                    ariaLabel={t('ButtonEdit')}
+                  />
                 )}
 
                 {/* More menu button */}
@@ -183,7 +185,7 @@ function CollectionCard(props: CollectionCardProps) {
                     <MediaCardMoreMenu items={moreMenuItems} processing={processing} onAction={handleMoreAction} onOpenChange={handleMoreMenuOpenChange} />
                   </div>
                 )}
-              </div>
+              </MediaCardOverlayContainer>
             )}
 
             {/* Processing overlay */}
@@ -217,17 +219,7 @@ function CollectionCard(props: CollectionCardProps) {
             </div>
           ) : (
             // Standard view footer (shiny black placard)
-            <div
-              cy-id="standardBottomText"
-              className={mergeClasses('categoryPlacard absolute z-10 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center')}
-              style={{ width: `${Math.min(200, coverWidth)}px` }}
-            >
-              <div className="w-full h-full shinyBlack flex items-center justify-center rounded-xs border" style={{ padding: '0em 0.5em' }}>
-                <p cy-id="standardBottomDisplayTitle" className="truncate" style={{ fontSize: `${labelFontSize}em` }}>
-                  {displayTitle}
-                </p>
-              </div>
-            </div>
+            <MediaCardStandardFooter displayTitle={displayTitle} fontSize={labelFontSize} width={Math.min(200, coverWidth)} />
           )
         }
       />

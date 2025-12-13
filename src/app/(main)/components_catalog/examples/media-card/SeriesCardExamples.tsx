@@ -295,6 +295,41 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Example title="Selection Mode">
+          <div className="flex gap-4 flex-wrap">
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
+              <SeriesCard
+                series={seriesData}
+                libraryId={libraryId}
+                bookshelfView={BookshelfView.STANDARD}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                dateFormat={defaultDateFormat}
+                isSelectionMode={true}
+                selected={false}
+                showSelectedButton={true}
+                onSelect={(e) => console.log('Toggle selection', e)}
+              />
+            </div>
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
+              <SeriesCard
+                series={seriesData}
+                libraryId={libraryId}
+                bookshelfView={BookshelfView.STANDARD}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                dateFormat={defaultDateFormat}
+                isSelectionMode={true}
+                selected={true}
+                showSelectedButton={true}
+                onSelect={(e) => console.log('Toggle selection', e)}
+              />
+            </div>
+          </div>
+        </Example>
+      </div>
+
       <Example title={`Size Multipliers (Standard View)`}>
         <div className="flex gap-4 flex-wrap items-start">
           <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">

@@ -1,7 +1,8 @@
 'use client'
 
 import { MediaProvider } from '@/contexts/MediaContext'
-import { BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
+import { Author, BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
+import { AuthorCardExamples } from './media-card/AuthorCardExamples'
 import { BookMediaCardExamples } from './media-card/BookMediaCardExamples'
 import { CollectionCardExamples } from './media-card/CollectionCardExamples'
 import { PlaylistCardExamples } from './media-card/PlaylistCardExamples'
@@ -17,8 +18,8 @@ export interface MediaCardExamplesProps {
   selectedCollection?: Collection | null
   /** Selected playlist from search results */
   selectedPlaylist?: Playlist | null
-  /** All books from search results for creating varied playlist examples */
-  allBooks?: BookLibraryItem[]
+  /** Selected author from search results */
+  selectedAuthor?: Author | null
 }
 
 export function MediaCardExamples({
@@ -27,7 +28,7 @@ export function MediaCardExamples({
   selectedSeries,
   selectedCollection,
   selectedPlaylist,
-  allBooks = []
+  selectedAuthor
 }: MediaCardExamplesProps) {
   // Get libraryId from real series data or fall back to selectedBook
   const seriesLibraryId = selectedSeries?.books?.[0]?.libraryId ?? selectedBook?.libraryId ?? ''
@@ -52,7 +53,10 @@ export function MediaCardExamples({
       {selectedCollection && <CollectionCardExamples collectionData={selectedCollection} />}
 
       {/* Playlist Cards - only when playlist is selected */}
-      {selectedPlaylist && <PlaylistCardExamples playlistData={selectedPlaylist} allBooks={allBooks} />}
+      {selectedPlaylist && <PlaylistCardExamples playlistData={selectedPlaylist} />}
+
+      {/* Author Cards - only when author is selected */}
+      {selectedAuthor && <AuthorCardExamples authorData={selectedAuthor} />}
     </MediaProvider>
   )
 }

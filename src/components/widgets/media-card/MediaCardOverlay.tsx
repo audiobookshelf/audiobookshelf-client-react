@@ -4,6 +4,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
+import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { MediaItemShare, RssFeed } from '@/types/api'
@@ -140,7 +141,7 @@ export default function MediaCardOverlay({
   )
 
   const handleSelectClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    (event: React.MouseEvent) => {
       event.preventDefault()
       event.stopPropagation()
       onSelect?.(event)
@@ -149,7 +150,7 @@ export default function MediaCardOverlay({
   )
 
   const handleEditClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+    (event: React.MouseEvent) => {
       event.preventDefault()
       event.stopPropagation()
       onEdit?.()
@@ -195,35 +196,25 @@ export default function MediaCardOverlay({
 
           {/* Select button */}
           {!isAuthorBookshelfView && (
-            <div cy-id="selectedRadioButton" className="absolute top-[0.375em] start-[0.375em]">
-              <IconBtn
-                borderless
-                size="small"
-                className={mergeClasses(
-                  'text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125 transform duration-100 text-[1em] w-auto h-auto',
-                  selected && 'text-yellow-400'
-                )}
-                onClick={handleSelectClick}
-                ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
-              >
-                {selected ? 'radio_button_checked' : 'radio_button_unchecked'}
-              </IconBtn>
-            </div>
+            <MediaOverlayIconBtn
+              cyId="selectedRadioButton"
+              position="top-start"
+              icon={selected ? 'radio_button_checked' : 'radio_button_unchecked'}
+              onClick={handleSelectClick}
+              ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
+              selected={selected}
+            />
           )}
 
           {/* Edit button */}
           {userCanUpdate && !isSelectionMode && (
-            <div cy-id="editButton" className="absolute top-[0.375em] end-[0.375em]">
-              <IconBtn
-                borderless
-                size="small"
-                className={mergeClasses('text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125', 'transform duration-150 text-[1em] w-auto h-auto')}
-                onClick={handleEditClick}
-                ariaLabel={t('ButtonEdit')}
-              >
-                edit
-              </IconBtn>
-            </div>
+            <MediaOverlayIconBtn
+              cyId="editButton"
+              position="top-end"
+              icon="edit"
+              onClick={handleEditClick}
+              ariaLabel={t('ButtonEdit')}
+            />
           )}
 
           {/* More menu icon */}

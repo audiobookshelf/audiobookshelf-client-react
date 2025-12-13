@@ -3,18 +3,16 @@
 import PlaylistCard from '@/components/widgets/media-card/PlaylistCard'
 import PlaylistCardSkeleton from '@/components/widgets/media-card/PlaylistCardSkeleton'
 import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
-import { BookLibraryItem, BookshelfView, Playlist } from '@/types/api'
+import { BookshelfView, Playlist } from '@/types/api'
 import { useRef, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../../ComponentExamples'
 import { DimensionComparison, Dimensions, useDimensionMeasurement } from './mediaCardExamplesUtils'
 
 interface PlaylistCardExamplesProps {
   playlistData: Playlist
-  /** All books from search results for creating varied playlist examples */
-  allBooks?: BookLibraryItem[]
 }
 
-export function PlaylistCardExamples({ playlistData, allBooks = [] }: PlaylistCardExamplesProps) {
+export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps) {
   const { bookCoverAspectRatio } = useComponentsCatalog()
 
   // Refs for dimension checking
@@ -223,6 +221,41 @@ export function PlaylistCardExamples({ playlistData, allBooks = [] }: PlaylistCa
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
                 userCanUpdate={true}
                 userCanDelete={true}
+              />
+            </div>
+          </div>
+        </Example>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Example title="Selection Mode">
+          <div className="flex gap-4 flex-wrap">
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
+              <PlaylistCard
+                playlist={playlistData}
+                bookshelfView={BookshelfView.STANDARD}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                userCanUpdate={true}
+                userCanDelete={true}
+                isSelectionMode={true}
+                selected={false}
+                showSelectedButton={true}
+                onSelect={(e) => console.log('Toggle selection', e)}
+              />
+            </div>
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
+              <PlaylistCard
+                playlist={playlistData}
+                bookshelfView={BookshelfView.STANDARD}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                userCanUpdate={true}
+                userCanDelete={true}
+                isSelectionMode={true}
+                selected={true}
+                showSelectedButton={true}
+                onSelect={(e) => console.log('Toggle selection', e)}
               />
             </div>
           </div>

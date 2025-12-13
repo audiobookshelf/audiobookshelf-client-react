@@ -1,6 +1,9 @@
 'use client'
 
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
+import MediaCardOverlayContainer from '@/components/widgets/media-card/MediaCardOverlayContainer'
+import MediaCardStandardFooter from '@/components/widgets/media-card/MediaCardStandardFooter'
+import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import SeriesGroupCover from '@/components/widgets/media-card/SeriesGroupCover'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -42,6 +45,8 @@ export interface SeriesCardProps {
   selected?: boolean
   /** Callback when the select button is clicked */
   onSelect?: (event: React.MouseEvent) => void
+  /** Whether to show the selection button */
+  showSelectedButton?: boolean
 }
 
 function SeriesCard(props: SeriesCardProps) {
@@ -58,7 +63,8 @@ function SeriesCard(props: SeriesCardProps) {
     bookProgressMap,
     isSelectionMode = false,
     selected = false,
-    onSelect
+    onSelect,
+    showSelectedButton = false
   } = props
 
   const router = useRouter()
@@ -207,20 +213,30 @@ function SeriesCard(props: SeriesCardProps) {
             />
           )}
 
-          {/* Hover overlay with display title */}
-          {hasValidCovers && (
-            <div
-              cy-id="hoveringDisplayTitle"
-              aria-hidden="true"
-              className={mergeClasses(
-                'bg-black/60 absolute top-0 start-0 w-full h-full z-20 flex items-center justify-center text-center transition-opacity',
-                isHovering ? 'opacity-100' : 'opacity-0'
-              )}
-              style={{ padding: '1em' }}
-            >
-              <p style={{ fontSize: '1.2em' }}>{displayTitle}</p>
-            </div>
-          )}
+          {/* Hover/Selection overlay with display title */}
+          <MediaCardOverlayContainer
+            isSelectionMode={isSelectionMode}
+            selected={selected}
+            cyId="hoveringDisplayTitle"
+            className={mergeClasses(
+              'bg-black/60 flex items-center justify-center text-center transition-opacity z-20',
+              isHovering || isSelectionMode ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            <div style={{ padding: '1em' }}>{hasValidCovers && isHovering && <p style={{ fontSize: '1.2em' }}>{displayTitle}</p>}</div>
+
+            {/* Selection button */}
+            {showSelectedButton && (isSelectionMode || isHovering) && (
+              <MediaOverlayIconBtn
+                cyId="selectButton"
+                position="top-start"
+                icon={selected ? 'radio_button_checked' : 'radio_button_unchecked'}
+                onClick={handleSelectClick}
+                ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
+                selected={selected}
+              />
+            )}
+          </MediaCardOverlayContainer>
 
           {/* RSS feed indicator */}
           {series.rssFeed && !isSelectionMode && !isHovering && (
@@ -233,24 +249,6 @@ function SeriesCard(props: SeriesCardProps) {
                 rss_feed
               </span>
             </div>
-          )}
-
-          {/* Selection button */}
-          {isSelectionMode && (
-            <button
-              cy-id="selectButton"
-              type="button"
-              onClick={handleSelectClick}
-              className={mergeClasses(
-                'absolute top-[0.375em] start-[0.375em] z-20',
-                'w-6 h-6 flex items-center justify-center',
-                'text-gray-200 hover:text-yellow-300 transition-colors',
-                selected && 'text-yellow-400'
-              )}
-              aria-label={selected ? t('ButtonDeselect') : t('ButtonSelect')}
-            >
-              <span className="material-symbols text-[1.25em]">{selected ? 'radio_button_checked' : 'radio_button_unchecked'}</span>
-            </button>
           )}
         </>
       }
@@ -269,16 +267,7 @@ function SeriesCard(props: SeriesCardProps) {
           </div>
         ) : (
           // Standard view footer (shiny black placard)
-          <div
-            cy-id="standardBottomText"
-            className="categoryPlacard absolute z-10 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] w-[12em] rounded-md text-center"
-          >
-            <div className="w-full h-full shinyBlack flex items-center justify-center rounded-xs border" style={{ padding: '0em 0.5em' }}>
-              <p cy-id="standardBottomDisplayTitle" className="truncate" style={{ fontSize: `${labelFontSize}em` }}>
-                {displayTitle}
-              </p>
-            </div>
-          </div>
+          <MediaCardStandardFooter displayTitle={displayTitle} fontSize={labelFontSize} width="12em" />
         )
       }
     />
