@@ -227,6 +227,43 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
         </Example>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Example title="Selection Mode">
+          <div className="flex gap-4 flex-wrap">
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
+              <CollectionCard
+                collection={collectionData}
+                bookshelfView={BookshelfView.STANDARD}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                userCanUpdate={true}
+                userCanDelete={true}
+                userIsAdmin={true}
+                isSelectionMode={true}
+                selected={false}
+                showSelectedButton={true}
+                onSelect={(e) => console.log('Toggle selection', e)}
+              />
+            </div>
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
+              <CollectionCard
+                collection={collectionData}
+                bookshelfView={BookshelfView.STANDARD}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                userCanUpdate={true}
+                userCanDelete={true}
+                userIsAdmin={true}
+                isSelectionMode={true}
+                selected={true}
+                showSelectedButton={true}
+                onSelect={(e) => console.log('Toggle selection', e)}
+              />
+            </div>
+          </div>
+        </Example>
+      </div>
+
       <div className="mb-6">
         <Example title={`Size Multipliers (Standard View)`}>
           <div className="flex gap-8 flex-wrap items-start pb-6">

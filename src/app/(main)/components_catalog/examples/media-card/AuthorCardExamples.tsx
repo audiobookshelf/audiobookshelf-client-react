@@ -150,6 +150,31 @@ export function AuthorCardExamples({ authorData }: AuthorCardExamplesProps) {
         </Example>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <Example title="Selection Mode">
+          <div className="flex gap-4 flex-wrap">
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
+              <AuthorCard
+                author={authorData}
+                isSelectionMode={true}
+                selected={false}
+                onSelect={(e) => console.log('Toggle selection', e)}
+              />
+            </div>
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
+              <AuthorCard
+                author={authorData}
+                isSelectionMode={true}
+                selected={true}
+                onSelect={(e) => console.log('Toggle selection', e)}
+              />
+            </div>
+          </div>
+        </Example>
+      </div>
+
       <div className="mb-6">
         <Example title="Size Multipliers">
           <div className="flex gap-8 flex-wrap items-start pb-6">
