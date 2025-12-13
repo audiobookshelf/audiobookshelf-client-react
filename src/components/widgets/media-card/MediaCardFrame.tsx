@@ -7,6 +7,7 @@ interface MediaCardFrameProps {
   onClick?: (event: React.MouseEvent) => void
   onMouseEnter?: () => void
   onMouseLeave?: () => void
+  onKeyDown?: (event: React.KeyboardEvent) => void
   cardId?: string
   cover: ReactNode
   overlay: ReactNode
@@ -20,6 +21,7 @@ export default function MediaCardFrame({
   onClick,
   onMouseEnter,
   onMouseLeave,
+  onKeyDown,
   cardId,
   cover,
   overlay,
@@ -31,6 +33,7 @@ export default function MediaCardFrame({
       cy-id={cyId}
       id={cardId}
       tabIndex={0}
+      onKeyDown={onKeyDown}
       className={mergeClasses('relative rounded-xs z-10', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
       style={{ minWidth: `${width}px`, maxWidth: `${width}px` }}
     >

@@ -112,6 +112,7 @@ function AuthorCard(props: AuthorCardProps) {
       onClick={!isSearching ? handleCardClick : undefined}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
+      onKeyDown={handleKeyDown}
       cardId={cardId}
       cy-id="authorCard"
       cover={<AuthorImage author={author} />}
