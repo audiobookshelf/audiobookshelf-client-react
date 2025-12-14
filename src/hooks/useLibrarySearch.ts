@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 export interface UseLibrarySearchOptions {
   autoSelectFirst?: boolean
   mediaTypes?: ('book' | 'podcast')[]
+  libraryId?: string
 }
 
 export interface UseLibrarySearchReturn {
@@ -47,8 +48,10 @@ export interface UseLibrarySearchReturn {
   setSelectedAuthor: (author: Author | null) => void
 }
 
+const DEFAULT_MEDIA_TYPES: ('book' | 'podcast')[] = ['book', 'podcast']
+
 export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibrarySearchReturn {
-  const { autoSelectFirst = true, mediaTypes = ['book', 'podcast'] } = options
+  const { autoSelectFirst = true, mediaTypes = DEFAULT_MEDIA_TYPES, libraryId } = options
 
   // Data fetching state
   const [user, setUser] = useState<User | null>(null)
@@ -57,7 +60,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
   const [loadError, setLoadError] = useState<string | null>(null)
 
   // Search state
-  const [selectedLibraryId, setSelectedLibraryId] = useState<string>('')
+  const [selectedLibraryId, setSelectedLibraryId] = useState<string>(libraryId || '')
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<SearchLibraryResponse | null>(null)
   const [isSearching, setIsSearching] = useState(false)
@@ -106,7 +109,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
 
         const libs = librariesResponse?.libraries || []
         setLibraries(libs)
-        if (libs.length > 0) {
+        if (!libraryId && libs.length > 0) {
           setSelectedLibraryId(libs[0].id)
         }
       } catch (error) {
@@ -117,7 +120,14 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     }
 
     loadData()
-  }, [])
+  }, [libraryId])
+
+  // Sync selectedLibraryId with libraryId prop if it changes
+  useEffect(() => {
+    if (libraryId) {
+      setSelectedLibraryId(libraryId)
+    }
+  }, [libraryId])
 
   // Fetch collections and playlists when library changes
   useEffect(() => {
