@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 
 interface LibrarySearchBoxProps {
   mediaTypes?: ('book' | 'podcast')[]
+  libraryId?: string
   onBookSelect?: (book: BookLibraryItem | null) => void
   onPodcastSelect?: (podcast: PodcastLibraryItem | null) => void
   onCollectionSelect?: (collection: Collection | null) => void
@@ -23,6 +24,7 @@ interface LibrarySearchBoxProps {
 
 export function LibrarySearchBox({
   mediaTypes = ['book', 'podcast'],
+  libraryId,
   onBookSelect,
   onPodcastSelect,
   onCollectionSelect,
@@ -54,7 +56,8 @@ export function LibrarySearchBox({
     clearSelection
   } = useLibrarySearch({
     autoSelectFirst: true,
-    mediaTypes
+    mediaTypes,
+    libraryId
   })
 
   // Notify parent components when items are selected or cleared
