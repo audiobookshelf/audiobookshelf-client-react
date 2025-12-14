@@ -1,5 +1,5 @@
 import AuthorImage from '@/components/covers/AuthorImage'
-import { FlatResultItem } from '@/hooks/useGlobalSearchTransformer'
+import { FlatResultItem, SearchResultType } from '@/hooks/useGlobalSearchTransformer'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import React, { useEffect, useMemo } from 'react'
@@ -28,6 +28,21 @@ const HighlightMatch = ({ text, query }: { text: string; query: string }) => {
       )}
     </>
   )
+}
+
+const getMaterialSymbolIcon = (type: SearchResultType): string => {
+  switch (type) {
+    case 'tag':
+      return 'label'
+    case 'genre':
+      return 'category'
+    case 'collection':
+      return 'collections_bookmark'
+    case 'playlist':
+      return 'library_music'
+    default:
+      return 'record_voice_over'
+  }
 }
 
 interface GlobalSearchMenuProps {
@@ -77,6 +92,7 @@ export default function GlobalSearchMenu({ results, focusedIndex, onItemClick, m
 
         const isSelected = focusedIndex === index
         const isAuthor = result.type === 'author'
+        const shouldHighlightSubtitle = result.type === 'book' || result.type === 'podcast' || result.type === 'episode'
         const usePortrait = isAuthor // Authors keep the portrait ratio
         // Books, Series, Podcasts, etc use square
         const containerClass = usePortrait
@@ -104,7 +120,12 @@ export default function GlobalSearchMenu({ results, focusedIndex, onItemClick, m
             <div className="flex items-center gap-3">
               {/* Image / Icon */}
               {hasImage ? (
-                <div className={mergeClasses('flex-shrink-0 relative bg-bg-secondary rounded-sm overflow-hidden flex items-center justify-center shadow-sm', containerClass)}>
+                <div
+                  className={mergeClasses(
+                    'flex-shrink-0 relative bg-bg-secondary rounded-sm overflow-hidden flex items-center justify-center shadow-sm',
+                    containerClass
+                  )}
+                >
                   {result.type === 'author' && result.originalItem ? (
                     <AuthorImage author={result.originalItem} className="w-full h-full" />
                   ) : (
@@ -115,9 +136,7 @@ export default function GlobalSearchMenu({ results, focusedIndex, onItemClick, m
               ) : (
                 // Placeholder or Icon for items without images (Tags/Genres)
                 <div className="flex-shrink-0 w-8 h-8 rounded-full bg-bg-secondary flex items-center justify-center">
-                  <span className="material-symbols text-gray-400 text-lg">
-                    {result.type === 'tag' ? 'label' : result.type === 'genre' ? 'category' : result.type === 'collection' ? 'collections_bookmark' : result.type === 'playlist' ? 'library_music' : 'record_voice_over'}
-                  </span>
+                  <span className="material-symbols text-gray-400 text-lg">{getMaterialSymbolIcon(result.type)}</span>
                 </div>
               )}
 
@@ -129,7 +148,7 @@ export default function GlobalSearchMenu({ results, focusedIndex, onItemClick, m
                 {/* Only show subtitle if it exists */}
                 {result.subtitle && (
                   <div className="text-xxs text-foreground-subdued truncate">
-                    <HighlightMatch text={result.subtitle} query={searchQuery} />
+                    {shouldHighlightSubtitle ? <HighlightMatch text={result.subtitle} query={searchQuery} /> : <span>{result.subtitle}</span>}
                   </div>
                 )}
                 {/* Show author if it exists */}

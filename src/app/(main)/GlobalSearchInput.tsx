@@ -11,8 +11,6 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import GlobalSearchMenu from './GlobalSearchMenu'
 
-
-
 interface GlobalSearchInputProps {
   libraryId?: string
   autoFocus?: boolean
@@ -167,7 +165,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: Gl
       {/* Search Icon, Spinner or Clear Button */}
       <div className="absolute end-0 top-0 h-full flex items-center pe-2">
         {isSearching || isTyping ? (
-           <LoadingSpinner size="la-sm" className="scale-50 text-gray-400" />
+          <LoadingSpinner size="la-sm" className="scale-50 text-gray-400" />
         ) : searchQuery ? (
           <button onClick={handleClear} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer" aria-label="Clear search">
             <span className="material-symbols text-lg">close</span>
@@ -179,13 +177,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: Gl
 
       {/* Dropdown Menu */}
       {showMenu && (searchQuery || isSearching || isTyping) && (
-        <GlobalSearchMenu
-          results={flatResults}
-          focusedIndex={focusedIndex}
-          onItemClick={handleResultClick}
-          menuRef={menuRef}
-          searchQuery={searchQuery}
-        />
+        <GlobalSearchMenu results={flatResults} focusedIndex={focusedIndex} onItemClick={handleResultClick} menuRef={menuRef} searchQuery={searchQuery} />
       )}
     </div>
   )
