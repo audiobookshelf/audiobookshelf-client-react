@@ -44,12 +44,7 @@ export function useGlobalSearchTransformer({
 
     const results: FlatResultItem[] = []
 
-    const addGroup = <T,>(
-      items: T[] | undefined,
-      headerId: string,
-      headerTitle: string,
-      mapItem: (item: T) => FlatResultItem | null
-    ) => {
+    const addGroup = <T>(items: T[] | undefined, headerId: string, headerTitle: string, mapItem: (item: T) => FlatResultItem | null) => {
       if (items?.length) {
         results.push({ type: 'header', id: headerId, title: headerTitle })
         items.slice(0, 3).forEach((item) => {
@@ -196,7 +191,7 @@ export function useGlobalSearchTransformer({
       id: `collection-${collection.id}`,
       title: collection.name,
       subtitle: collection.books?.length ? `${collection.books.length} books` : undefined,
-      link: `/library/${selectedLibraryId}/collections/${collection.id}`
+      link: `/library/${selectedLibraryId}/collection/${collection.id}`
     }))
 
     // Playlists
@@ -205,7 +200,7 @@ export function useGlobalSearchTransformer({
       id: `playlist-${playlist.id}`,
       title: playlist.name,
       subtitle: playlist.items?.length ? `${playlist.items.length} items` : undefined,
-      link: `/library/${selectedLibraryId}/playlists/${playlist.id}`
+      link: `/library/${selectedLibraryId}/playlist/${playlist.id}`
     }))
 
     return results
