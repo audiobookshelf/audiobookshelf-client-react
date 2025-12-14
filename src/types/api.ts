@@ -770,6 +770,7 @@ export interface SearchLibraryResponse {
     books: LibraryItem[]
   }>
   authors: Author[]
+  episodes?: Array<{ libraryItem: PodcastLibraryItem }>
   /** Client-side filtered collections (not from server search API) */
   collections?: Collection[]
   /** Client-side filtered playlists (not from server search API) */
