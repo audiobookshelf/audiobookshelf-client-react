@@ -115,16 +115,6 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: Gl
     }
   }
 
-  // Scroll focused item into view
-  useEffect(() => {
-    if (focusedIndex >= 0 && menuRef.current) {
-      const el = menuRef.current.querySelector(`[data-index="${focusedIndex}"]`)
-      if (el) {
-        el.scrollIntoView({ block: 'nearest' })
-      }
-    }
-  }, [focusedIndex])
-
   const handleClear = () => {
     setSearchQuery('')
     setFocusedIndex(-1)
