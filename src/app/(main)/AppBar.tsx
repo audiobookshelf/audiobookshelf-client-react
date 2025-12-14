@@ -66,10 +66,10 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
       {/* Search Input mobile and desktop */}
       <div className="flex-1 min-w-0 max-w-70">
         {isSearchMode ? (
-          <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} />
+          <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
         ) : (
           <div className="hidden md:block">
-            <GlobalSearchInput onSubmit={handleSearchSubmit} />
+            <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
           </div>
         )}
       </div>
