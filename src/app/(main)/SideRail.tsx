@@ -108,7 +108,7 @@ export default function SideRail({
     {
       icon: <span className="abs-icons icon-podcast text-xl"></span>,
       label: t('ButtonAdd'),
-      href: `/library/${currentLibraryId}/search`,
+      href: `/library/${currentLibraryId}/add-podcast`,
       mediaType: 'podcast'
     },
     {
