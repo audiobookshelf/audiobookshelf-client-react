@@ -2,9 +2,10 @@
 
 import { useModalRef } from '@/contexts/ModalContext'
 import { useMenuPosition } from '@/hooks/useMenuPosition'
+import { useScrollToFocused } from '@/hooks/useScrollToFocused'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 export interface DropdownMenuItem {
@@ -80,17 +81,13 @@ export default function DropdownMenu({
   })
 
   // Scroll focused item into view
-  useEffect(() => {
-    if (showMenu && focusedIndex >= 0 && menuRef?.current) {
-      const focusedElement = menuRef.current.querySelector(`#${dropdownId}-item-${focusedIndex}`) as HTMLElement
-      if (focusedElement) {
-        focusedElement.scrollIntoView({
-          block: 'nearest',
-          behavior: 'smooth'
-        })
-      }
-    }
-  }, [focusedIndex, showMenu, dropdownId, menuRef])
+  // Scroll focused item into view
+  useScrollToFocused({
+    containerRef: menuRef,
+    focusedIndex,
+    active: showMenu,
+    getElement: useCallback((container, index) => container.querySelector(`#${dropdownId}-item-${index}`) as HTMLElement, [dropdownId])
+  })
 
   // Add global wheel event listener for quicker catching of mouse wheel events
   useEffect(() => {

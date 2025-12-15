@@ -1,8 +1,9 @@
 import AuthorImage from '@/components/covers/AuthorImage'
 import { FlatResultItem, SearchResultType } from '@/hooks/useGlobalSearchTransformer'
+import { useScrollToFocused } from '@/hooks/useScrollToFocused'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
-import React, { useEffect, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 const HighlightMatch = ({ text, query }: { text: string; query: string }) => {
   const parts = useMemo(() => {
@@ -55,14 +56,12 @@ interface GlobalSearchMenuProps {
 
 export default function GlobalSearchMenu({ results, focusedIndex, onItemClick, menuRef, searchQuery }: GlobalSearchMenuProps) {
   // Scroll focused item into view
-  useEffect(() => {
-    if (focusedIndex >= 0 && menuRef.current) {
-      const el = menuRef.current.querySelector(`[data-index="${focusedIndex}"]`)
-      if (el) {
-        el.scrollIntoView({ block: 'nearest' })
-      }
-    }
-  }, [focusedIndex, menuRef])
+  // Scroll focused item into view
+  useScrollToFocused({
+    containerRef: menuRef,
+    focusedIndex,
+    getElement: useCallback((container, index) => container.querySelector(`[data-index="${index}"]`) as HTMLElement, [])
+  })
 
   return (
     <div
