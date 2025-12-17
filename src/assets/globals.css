@@ -92,6 +92,7 @@
   --color-foreground-subdued: var(--tc-foreground-subdued);
 
   --shadow-modal-content: var(--tc-modal-content-box-shadow);
+  --shadow-media-player: var(--tc-shadow-media-player);
 }
 
 body {

@@ -5,6 +5,7 @@ import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
+import { useMediaContext } from '@/contexts/MediaContext'
 import { getCoverAspectRatio, getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, BookMetadata, Library, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
 import { Fragment } from 'react'
@@ -17,11 +18,21 @@ interface LibraryItemClientProps {
 }
 
 export default function LibraryItemClient({ libraryItem, currentUser, library }: LibraryItemClientProps) {
+  const { setStreamMedia } = useMediaContext()
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
   const bookAuthors = 'authors' in metadata ? metadata.authors || [] : []
   const bookSeries = 'series' in metadata ? metadata.series || [] : []
   const description = 'description' in metadata ? metadata.description : undefined
+
+  // TODO: Implement play logic
+  const handlePlay = () => {
+    setStreamMedia({
+      libraryItem,
+      episodeId: null,
+      queueItems: []
+    })
+  }
 
   return (
     <div>
@@ -72,7 +83,7 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
             <LibraryItemDetails libraryItem={libraryItem} />
 
             <div className="flex items-center gap-2 mt-6">
-              <Btn onClick={() => {}} color="bg-success" size="small">
+              <Btn onClick={handlePlay} color="bg-success" size="small">
                 <span className="material-symbols fill text-xl mr-1">play_arrow</span>
                 Play
               </Btn>

@@ -1,5 +1,6 @@
 'use client'
 
+import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
 import type { LibraryItem } from '@/types/api'
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
@@ -158,7 +159,12 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     ]
   )
 
-  return <MediaContext.Provider value={value}>{children}</MediaContext.Provider>
+  return (
+    <MediaContext.Provider value={value}>
+      {children}
+      <MediaPlayerContainer />
+    </MediaContext.Provider>
+  )
 }
 
 export function useMediaContext(): MediaContextValue {
@@ -168,5 +174,3 @@ export function useMediaContext(): MediaContextValue {
   }
   return ctx
 }
-
-

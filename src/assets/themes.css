@@ -46,6 +46,7 @@
   );
 
   --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
+  --tc-shadow-media-player: 0px -6px 8px #1111113f;
 }
 
 /* Light theme */
@@ -95,6 +96,7 @@
   );
 
   --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
+  --tc-shadow-media-player: 0px -6px 8px #1111113f;
 }
 
 /* Black theme */
@@ -144,4 +146,5 @@
   );
 
   --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
+  --tc-shadow-media-player: 0px -6px 8px #1111113f;
 }
