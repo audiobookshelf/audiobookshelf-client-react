@@ -25,21 +25,16 @@ export default function CoverSizeWidget({ className }: CoverSizeWidgetProps) {
   const numAvailableCoverSizes = isMobile ? NUM_AVAILABLE_MOBILE_COVER_SIZES : NUM_AVAILABLE_COVER_SIZES
   const [coverWidth, setCoverWidth] = useState(AVAILABLE_COVER_SIZES[sizeIndex])
 
-  // Update context sizeMultiplier when size index changes
   useEffect(() => {
-    console.log('isMobile', isMobile)
     setSizeIndex(isMobile ? DEFAULT_MOBILE_SIZE_INDEX : DEFAULT_SIZE_INDEX)
   }, [isMobile])
 
   useEffect(() => {
-    console.log('sizeIndex', sizeIndex)
     setCoverWidth(AVAILABLE_COVER_SIZES[sizeIndex])
   }, [sizeIndex])
 
   useEffect(() => {
-    console.log('coverWidth', coverWidth)
     const multiplier = coverWidth / BASE_COVER_SIZE
-    console.log('multiplier', multiplier)
     setSizeMultiplier(multiplier)
   }, [coverWidth, setSizeMultiplier])
 
