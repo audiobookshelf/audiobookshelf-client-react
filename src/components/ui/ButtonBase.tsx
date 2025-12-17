@@ -10,7 +10,7 @@ interface ButtonBaseProps {
   children: React.ReactNode
   disabled?: boolean
   borderless?: boolean
-  size?: 'small' | 'medium' | 'large' | 'auto'
+  size?: 'small' | 'medium' | 'large' | 'auto' | 'custom'
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   onMouseDown?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => void
@@ -46,7 +46,7 @@ const ButtonBase = ({
     'focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0',
 
     // Size-based height (identical to InputWrapper)
-    size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'min-h-10 h-auto' : 'h-10',
+    size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'min-h-10 h-auto' : size === 'custom' ? '' : 'h-10',
 
     // Disabled styles
     'disabled:bg-bg-disabled disabled:cursor-not-allowed disabled:border-none disabled:text-disabled',
