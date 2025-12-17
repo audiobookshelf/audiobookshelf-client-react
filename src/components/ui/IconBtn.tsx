@@ -10,7 +10,7 @@ interface IconBtnProps {
   outlined?: boolean
   borderless?: boolean
   loading?: boolean
-  size?: 'small' | 'medium' | 'large'
+  size?: 'small' | 'medium' | 'large' | 'auto' | 'custom'
   iconClass?: string
   ariaLabel?: string
   to?: string
@@ -61,7 +61,7 @@ export default function IconBtn({
   const isDisabled = disabled || loading
 
   // Icon button specific styling based on size
-  const sizeClass = size === 'small' ? 'w-9 text-lg' : size === 'large' ? 'w-11 text-2xl' : 'w-10 text-xl'
+  const sizeClass = size === 'small' ? 'w-9 text-lg' : size === 'large' ? 'w-11 text-2xl' : size === 'medium' ? 'w-10 text-xl' : size === 'auto' ? 'w-auto' : ''
   const classList = mergeClasses(sizeClass, className)
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
