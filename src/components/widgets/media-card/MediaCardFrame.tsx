@@ -34,7 +34,10 @@ export default function MediaCardFrame({
       id={cardId}
       tabIndex={0}
       onKeyDown={onKeyDown}
-      className={mergeClasses('relative rounded-xs z-10', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
+      className={mergeClasses(
+        'relative rounded-xs z-10',
+        'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-[0.5em]'
+      )}
       style={{ minWidth: `${width}px`, maxWidth: `${width}px` }}
     >
       <div
