@@ -194,6 +194,10 @@ input[type='number'] {
   box-shadow: 5px 0px 5px #11111166;
 }
 
+.box-shadow-appbar {
+  box-shadow: 0px 5px 5px #11111155;
+}
+
 .box-shadow-toolbar {
   box-shadow: 0px 8px 6px #111111aa;
 }
@@ -255,4 +259,44 @@ Bookshelf Label
 
 .abs-btn:disabled::before {
   background-color: rgba(0, 0, 0, 0.2);
+}
+
+.categorizedBookshelfRow {
+  scroll-behavior: smooth;
+  background-image: var(--bookshelf-texture-img);
+  background-repeat: repeat-x;
+}
+
+.bookshelfDividerCategorized {
+  background: rgb(149, 119, 90);
+  background: linear-gradient(180deg, rgb(122, 94, 68) 0%, rgb(92, 62, 31) 17%, rgb(82, 54, 26) 88%, rgba(71, 48, 25, 1) 100%);
+  box-shadow: 2px 14px 8px #111111aa;
+}
+
+.book-shelf-arrow-right {
+  height: calc(100% - 1.5em);
+  background: rgb(48, 48, 48);
+  background: linear-gradient(
+    90deg,
+    rgba(48, 48, 48, 0) 0%,
+    rgba(25, 25, 25, 0.25) 8%,
+    rgba(17, 17, 17, 0.4) 28%,
+    rgba(17, 17, 17, 0.6) 71%,
+    rgba(10, 10, 10, 0.6) 86%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+
+.book-shelf-arrow-left {
+  height: calc(100% - 1.5em);
+  background: rgb(48, 48, 48);
+  background: linear-gradient(
+    -90deg,
+    rgba(48, 48, 48, 0) 0%,
+    rgba(25, 25, 25, 0.25) 8%,
+    rgba(17, 17, 17, 0.4) 28%,
+    rgba(17, 17, 17, 0.6) 71%,
+    rgba(10, 10, 10, 0.6) 86%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
 }
