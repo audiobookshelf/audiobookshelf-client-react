@@ -1,5 +1,5 @@
 import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
-import { LibraryItemsProvider } from '@/contexts/LibraryItemsContext'
+import { LibraryProvider } from '@/contexts/LibraryContext'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../../assets/globals.css'
@@ -34,10 +34,11 @@ export default async function LibraryLayout({
   const libraries = librariesResponse?.libraries || []
 
   const currentLibrary = libraries.find((library) => library.id === currentLibraryId)
+  const homeBookshelfView = currentUser?.serverSettings?.homeBookshelfView || 0 // Default to STANDARD if undefined
   const currentLibraryMediaType = currentLibrary?.mediaType || 'book'
 
   return (
-    <LibraryItemsProvider>
+    <LibraryProvider bookshelfView={homeBookshelfView}>
       <AppBar user={currentUser.user} libraries={libraries} currentLibraryId={currentLibraryId} />
       <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
         <SideRail
@@ -53,6 +54,6 @@ export default async function LibraryLayout({
 
         <CoverSizeWidget className="absolute bottom-4 right-4 z-10" />
       </div>
-    </LibraryItemsProvider>
+    </LibraryProvider>
   )
 }
