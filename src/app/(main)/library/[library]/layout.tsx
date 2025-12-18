@@ -52,7 +52,7 @@ export default async function LibraryLayout({
           <div className="w-full h-[calc(100%-2.5rem)] overflow-x-hidden overflow-y-auto">{children}</div>
         </div>
 
-        <CoverSizeWidget className="absolute bottom-4 right-4 z-10" />
+        <CoverSizeWidget className="absolute bottom-4 right-4 z-50" />
       </div>
     </LibraryProvider>
   )
