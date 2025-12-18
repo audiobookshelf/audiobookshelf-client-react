@@ -10,6 +10,31 @@ interface ItemSliderProps {
   className?: string
 }
 
+interface SliderNavBtnProps {
+  direction: 'left' | 'right'
+  disabled: boolean
+  onClick: () => void
+}
+
+const SliderNavBtn = ({ direction, disabled, onClick }: SliderNavBtnProps) => {
+  const isLeft = direction === 'left'
+  return (
+    <IconBtn
+      className={mergeClasses(
+        'rounded-full w-8e h-8e disabled:bg-transparent',
+        !disabled ? 'text-foreground hover:bg-white/10' : 'text-foreground/30 cursor-default'
+      )}
+      borderless
+      size="custom"
+      disabled={disabled}
+      onClick={onClick}
+      ariaLabel={isLeft ? 'Scroll Left' : 'Scroll Right'}
+    >
+      <span style={{ fontSize: '1.5em' }}>{isLeft ? 'chevron_left' : 'chevron_right'}</span>
+    </IconBtn>
+  )
+}
+
 export default function ItemSlider({ title, children, className = '' }: ItemSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null)
   const [isScrollable, setIsScrollable] = useState(false)
@@ -55,37 +80,19 @@ export default function ItemSlider({ title, children, className = '' }: ItemSlid
   }
 
   return (
-    <div className={mergeClasses('w-full', className)}>
-      <div className="flex items-center p-2e">
+    <div className={mergeClasses('w-full ps-6e mt-6e', className)}>
+      <div className="flex items-center py-1e px-4e">
         <div className="font-bold flex-grow text-foreground">{title}</div>
 
         {isScrollable && (
           <div className="flex gap-1e items-center">
-            <IconBtn
-              className={mergeClasses('rounded-full w-8e h-8e', canScrollLeft ? 'text-foreground hover:bg-white/10' : 'text-foreground/30 cursor-default')}
-              borderless
-              size="custom"
-              disabled={!canScrollLeft}
-              onClick={scrollLeft}
-              ariaLabel="Scroll Left"
-            >
-              chevron_left
-            </IconBtn>
-            <IconBtn
-              className={mergeClasses('rounded-full w-8e h-8e', canScrollRight ? 'text-foreground hover:bg-white/10' : 'text-foreground/30 cursor-default')}
-              borderless
-              size="custom"
-              disabled={!canScrollRight}
-              onClick={scrollRight}
-              ariaLabel="Scroll Right"
-            >
-              chevron_right
-            </IconBtn>
+            <SliderNavBtn direction="left" disabled={!canScrollLeft} onClick={scrollLeft} />
+            <SliderNavBtn direction="right" disabled={!canScrollRight} onClick={scrollRight} />
           </div>
         )}
       </div>
 
-      <div ref={sliderRef} className="w-full overflow-y-hidden overflow-x-auto no-scroll scroll-smooth flex gap-4e p-4e" onScroll={checkScroll}>
+      <div ref={sliderRef} className="w-full overflow-y-hidden overflow-x-auto no-scroll scroll-smooth flex px-2e py-3e" onScroll={checkScroll}>
         {children}
       </div>
     </div>
