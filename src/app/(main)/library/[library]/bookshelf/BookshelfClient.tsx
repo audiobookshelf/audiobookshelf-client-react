@@ -2,7 +2,7 @@
 
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
-import { useLibraryItems } from '@/contexts/LibraryItemsContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { BookshelfView, GetLibraryItemsResponse, Library, UserLoginResponse } from '@/types/api'
 import { useEffect } from 'react'
 
@@ -13,7 +13,7 @@ interface BookshelfClientProps {
 }
 
 export default function BookshelfClient({ library, libraryItemsData, currentUser }: BookshelfClientProps) {
-  const { setItemCount } = useLibraryItems()
+  const { setItemCount } = useLibrary()
   const isPodcastLibrary = library.mediaType === 'podcast'
 
   useEffect(() => {
