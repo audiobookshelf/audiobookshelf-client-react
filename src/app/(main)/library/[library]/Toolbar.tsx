@@ -1,7 +1,7 @@
 'use client'
 
-import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
-import { useLibraryItems } from '@/contexts/LibraryItemsContext'
+import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { usePathname } from 'next/navigation'
 
 interface ToolbarProps {
@@ -12,12 +12,7 @@ interface ToolbarProps {
 
 export default function Toolbar({ currentLibrary }: ToolbarProps) {
   const pathname = usePathname()
-  const { itemCount } = useLibraryItems()
-
-  const contextMenuItems: ContextMenuDropdownItem[] = [
-    { text: 'Test 1', action: 'test1' },
-    { text: 'Test 2', action: 'test2' }
-  ]
+  const { itemCount, contextMenuItems, onContextMenuAction } = useLibrary()
 
   const lastPathSegment = pathname.split('/').pop()
   const isBookshelf = lastPathSegment === 'bookshelf'
@@ -30,7 +25,7 @@ export default function Toolbar({ currentLibrary }: ToolbarProps) {
   }
 
   return (
-    <div className="w-full h-10 bg-bg box-shadow-toolbar relative">
+    <div className="w-full h-10 bg-bg box-shadow-toolbar relative z-40" cy-id="library-toolbar">
       <div className="w-full h-full flex items-center justify-between px-4">
         {isBookshelf && (
           <p className="text-sm text-foreground">
@@ -40,7 +35,14 @@ export default function Toolbar({ currentLibrary }: ToolbarProps) {
 
         <div className="flex-grow" />
 
-        <ContextMenuDropdown items={contextMenuItems} borderless usePortal onAction={(action) => console.log(action)} />
+        <ContextMenuDropdown
+          items={contextMenuItems}
+          borderless
+          usePortal
+          onAction={(args) => {
+            if (onContextMenuAction) onContextMenuAction(args.action)
+          }}
+        />
       </div>
     </div>
   )
