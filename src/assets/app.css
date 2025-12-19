@@ -9,15 +9,13 @@
   --bookshelf-divider-bg: linear-gradient(180deg, rgba(149, 119, 90, 1) 0%, rgba(103, 70, 37, 1) 17%, rgba(103, 70, 37, 1) 88%, rgba(71, 48, 25, 1) 100%);
 }
 
-.page {
-  width: 100%;
-  height: calc(100% - 64px);
-  max-height: calc(100% - 64px);
+/* Subtract height of app bar */
+.library-page-wrapper {
+  height: calc(100vh - 4rem);
 }
-
-.page.streaming {
-  height: calc(100% - 64px - 165px);
-  max-height: calc(100% - 64px - 165px);
+/* Subtract height of app bar and media player */
+.library-page-wrapper.streaming {
+  height: calc(100vh - 4rem - 165px);
 }
 
 #bookshelf {
