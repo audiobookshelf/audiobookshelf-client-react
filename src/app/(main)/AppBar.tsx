@@ -34,75 +34,82 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
 
   const currentLibrary = libraries?.find((lib) => lib.id === currentLibraryId)
   return (
-    <div className="relative z-20 w-full h-16 bg-primary flex items-center justify-start px-2 md:px-6 gap-2 md:gap-4 shadow-md">
-      <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80">
-        <Image src="/images/icon.svg" alt="audiobookshelf" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10 mx-2" />
-      </Link>
-      <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80 hidden lg:block">
-        <h1 className="text-xl hover:underline">audiobookshelf</h1>
-      </Link>
+    <div className="w-full h-16 bg-primary relative">
+      <div
+        cy-id="appbar"
+        role="toolbar"
+        aria-label="Appbar"
+        className="absolute top-0 bottom-0 start-0 w-full h-full px-2 md:px-6 py-1 z-60 flex items-center justify-start gap-2 md:gap-4 box-shadow-appbar"
+      >
+        <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80">
+          <Image src="/images/icon.svg" alt="audiobookshelf" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10 mx-2" />
+        </Link>
+        <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80 hidden lg:block">
+          <h1 className="text-xl hover:underline">audiobookshelf</h1>
+        </Link>
 
-      {/* Libraries Dropdown or Library Books Button */}
-      {libraries && currentLibraryId && !isSearchMode && <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />}
+        {/* Libraries Dropdown or Library Books Button */}
+        {libraries && currentLibraryId && !isSearchMode && <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />}
 
-      {/* In search mode: show libraries dropdown on desktop, library_books button on mobile */}
-      {isSearchMode && currentLibrary && (
-        <>
-          {/* Desktop: show libraries dropdown */}
-          <div className="hidden md:block">
-            <LibrariesDropdown currentLibraryId={currentLibraryId!} libraries={libraries!} />
-          </div>
-          {/* Mobile: show library_books button */}
-          <div className="md:hidden">
-            <Tooltip text={currentLibrary.name} position="bottom">
-              <IconBtn borderless ariaLabel={t('ButtonLibrary')} onClick={handleSearchModeToggle} className="text-foreground hover:text-foreground/80">
-                library_books
+        {/* In search mode: show libraries dropdown on desktop, library_books button on mobile */}
+        {isSearchMode && currentLibrary && (
+          <>
+            {/* Desktop: show libraries dropdown */}
+            <div className="hidden md:block">
+              <LibrariesDropdown currentLibraryId={currentLibraryId!} libraries={libraries!} />
+            </div>
+            {/* Mobile: show library_books button */}
+            <div className="md:hidden">
+              <Tooltip text={currentLibrary.name} position="bottom">
+                <IconBtn borderless ariaLabel={t('ButtonLibrary')} onClick={handleSearchModeToggle} className="text-foreground hover:text-foreground/80">
+                  library_books
+                </IconBtn>
+              </Tooltip>
+            </div>
+          </>
+        )}
+
+        {/* Search Input mobile and desktop */}
+        <div className="flex-1 min-w-0 max-w-70">
+          {isSearchMode ? (
+            <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
+          ) : (
+            <div className="hidden md:block">
+              <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
+            </div>
+          )}
+        </div>
+
+        {!isSearchMode && (
+          <>
+            <div className="flex-grow" />
+
+            {/* Mobile only - Search Icon toggles search mode */}
+            <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="md:hidden">
+              search
+            </IconBtn>
+          </>
+        )}
+
+        {/* Desktop only - Settings and Upload Buttons */}
+        {isAdmin && (
+          <div className="hidden md:flex items-center">
+            <Tooltip text={t('ButtonUpload')} position="bottom">
+              <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
+                upload
+              </IconBtn>
+            </Tooltip>
+            <Tooltip text={t('HeaderSettings')} position="bottom">
+              <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
+                settings
               </IconBtn>
             </Tooltip>
           </div>
-        </>
-      )}
-
-      {/* Search Input mobile and desktop */}
-      <div className="flex-1 min-w-0 max-w-70">
-        {isSearchMode ? (
-          <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
-        ) : (
-          <div className="hidden md:block">
-            <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
-          </div>
         )}
-      </div>
 
-      {!isSearchMode && (
-        <>
-          <div className="flex-grow" />
-
-          {/* Mobile only - Search Icon toggles search mode */}
-          <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="md:hidden">
-            search
-          </IconBtn>
-        </>
-      )}
-
-      {/* Desktop only - Settings and Upload Buttons */}
-      {isAdmin && (
-        <div className="hidden md:flex items-center">
-          <Tooltip text={t('ButtonUpload')} position="bottom">
-            <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
-              upload
-            </IconBtn>
-          </Tooltip>
-          <Tooltip text={t('HeaderSettings')} position="bottom">
-            <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
-              settings
-            </IconBtn>
-          </Tooltip>
+        <div className="ms-auto">
+          <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
         </div>
-      )}
-
-      <div className="ms-auto">
-        <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
       </div>
     </div>
   )

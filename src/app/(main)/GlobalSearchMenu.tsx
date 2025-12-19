@@ -66,7 +66,7 @@ export default function GlobalSearchMenu({ results, focusedIndex, onItemClick, m
   return (
     <div
       ref={menuRef}
-      id="global-search-menu"
+      cy-id="global-search-menu"
       role="listbox"
       tabIndex={-1}
       className="absolute z-50 mt-1 w-full max-h-[calc(100vh-100px)] overflow-y-auto bg-primary border border-dropdown-menu-border shadow-lg rounded-md py-1 ring-1 ring-black/5 globalSearchMenu"
