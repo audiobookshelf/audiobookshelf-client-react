@@ -70,7 +70,7 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
                 {bookAuthors.map((author, index) => {
                   return (
                     <Fragment key={author.id}>
-                      <a href={`/author/${author.id}`} className="text-foreground hover:underline text-lg md:text-xl">
+                      <a href={`/library/${library.id}/authors/${author.id}`} className="text-foreground hover:underline text-lg md:text-xl">
                         {author.name}
                       </a>
                       {index < bookAuthors.length - 1 && <span className="text-foreground text-lg md:text-xl">, </span>}

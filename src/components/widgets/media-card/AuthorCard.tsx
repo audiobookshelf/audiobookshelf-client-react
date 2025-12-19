@@ -67,9 +67,9 @@ function AuthorCard(props: AuthorCardProps) {
 
   const handleCardClick = useCallback(() => {
     if (!isSearching) {
-      router.push(`/author/${author.id}`)
+      router.push(`/library/${author.libraryId}/authors/${author.id}`)
     }
-  }, [author.id, isSearching, router])
+  }, [author.id, author.libraryId, isSearching, router])
 
   const handleEditClick = useCallback(
     (event: React.MouseEvent) => {
@@ -145,24 +145,12 @@ function AuthorCard(props: AuthorCardProps) {
 
               {/* Quick Match button (top-left) */}
               {!isSelectionMode && userCanUpdate && (
-                <MediaOverlayIconBtn
-                  cyId="quickMatch"
-                  position="top-start"
-                  icon="search"
-                  onClick={handleQuickMatchClick}
-                  ariaLabel={t('ButtonQuickMatch')}
-                />
+                <MediaOverlayIconBtn cyId="quickMatch" position="top-start" icon="search" onClick={handleQuickMatchClick} ariaLabel={t('ButtonQuickMatch')} />
               )}
 
               {/* Edit button (top-right) */}
               {!isSelectionMode && userCanUpdate && (
-                <MediaOverlayIconBtn
-                  cyId="editButton"
-                  position="top-end"
-                  icon="edit"
-                  onClick={handleEditClick}
-                  ariaLabel={t('ButtonEdit')}
-                />
+                <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
               )}
             </MediaCardOverlayContainer>
           )}

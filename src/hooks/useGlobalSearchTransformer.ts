@@ -133,7 +133,7 @@ export function useGlobalSearchTransformer({
       id: author.id,
       title: author.name,
       subtitle: author.numBooks ? `${author.numBooks} books` : undefined,
-      link: `/author/${author.id}`,
+      link: `/library/${author.libraryId}/authors/${author.id}`,
       originalItem: author
     }))
 
