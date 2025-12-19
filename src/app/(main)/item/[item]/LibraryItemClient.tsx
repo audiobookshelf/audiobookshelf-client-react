@@ -40,7 +40,7 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
         <div className="flex gap-8">
           <div className="w-52 max-w-52">
             <PreviewCover
-              src={getLibraryItemCoverUrl(libraryItem.id)}
+              src={getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt)}
               bookCoverAspectRatio={getCoverAspectRatio(library.settings?.coverAspectRatio)}
               showResolution={false}
               width={208}

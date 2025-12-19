@@ -18,7 +18,12 @@ export default function MediaPlayerContainer() {
   return (
     <div className="w-full fixed bottom-0 left-0 right-0 h-48 lg:h-40 z-50 bg-primary px-2 lg:px-4 pb-1 lg:pb-4 pt-2 shadow-media-player">
       <div className="absolute left-2 top-2 lg:left-4 cursor-pointer">
-        <PreviewCover src={getLibraryItemCoverUrl(streamLibraryItem.id)} bookCoverAspectRatio={coverAspectRatio} showResolution={false} width={77} />
+        <PreviewCover
+          src={getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt)}
+          bookCoverAspectRatio={coverAspectRatio}
+          showResolution={false}
+          width={77}
+        />
       </div>
       <div className="absolute right-2 top-2 lg:right-4 cursor-pointer">
         <IconBtn size="small" borderless onClick={clearStreamMedia}>
