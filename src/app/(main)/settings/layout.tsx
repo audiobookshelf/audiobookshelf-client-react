@@ -4,8 +4,7 @@ import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
 import { getCurrentUser, getData } from '../../../lib/api'
 import AppBar from '../AppBar'
-import SideNav from './SideNav'
-import SideNavMobileDrawer from './SideNavMobileDrawer'
+import SettingsLayoutWrapper from './SettingsLayoutWrapper'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
@@ -24,19 +23,10 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
     return redirect('/library')
   }
 
-  const installSource = currentUser?.Source || 'Unknown'
-  const serverVersion = currentUser?.serverSettings?.version || 'Error'
-
   return (
     <SettingsDrawerProvider>
       <AppBar user={currentUser.user} />
-      <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden">
-        <SideNav serverVersion={serverVersion} installSource={installSource} />
-        <div className="flex-1 min-w-0 page-bg-gradient">
-          <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
-        </div>
-      </div>
-      <SideNavMobileDrawer serverVersion={serverVersion} installSource={installSource} />
+      <SettingsLayoutWrapper currentUser={currentUser}>{children}</SettingsLayoutWrapper>
     </SettingsDrawerProvider>
   )
 }

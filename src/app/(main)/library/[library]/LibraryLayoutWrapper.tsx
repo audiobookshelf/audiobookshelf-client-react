@@ -20,7 +20,7 @@ export default function LibraryLayoutWrapper({ children, currentUser, currentLib
   const installSource = currentUser?.Source || 'Unknown'
 
   return (
-    <div className={mergeClasses('flex library-page-wrapper overflow-x-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
+    <div className={mergeClasses('flex page-wrapper overflow-x-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
       <SideRail
         currentLibraryId={currentLibrary.id}
         currentLibraryMediaType={currentLibraryMediaType}

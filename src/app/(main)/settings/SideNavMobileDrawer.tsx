@@ -32,7 +32,7 @@ export default function SideNavMobileDrawer({ serverVersion, installSource }: Si
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-bg border-e border-border shadow-2xl z-50 md:hidden transform transition-transform duration-100 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-64 bg-bg border-e border-border shadow-2xl z-70 md:hidden transform transition-transform duration-100 ease-in-out ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
