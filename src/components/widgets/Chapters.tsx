@@ -25,7 +25,7 @@ export default function Chapters({ libraryItem, user }: ChaptersProps) {
         ) : (
           <div className="py-4 text-center" role="status">
             <p className="mb-8 text-xl">{t('MessageNoChapters')}</p>
-            {userCanUpdate && <Btn to={`/item/${libraryItem.id}/chapters`}>{t('ButtonAddChapters')}</Btn>}
+            {userCanUpdate && <Btn to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`}>{t('ButtonAddChapters')}</Btn>}
           </div>
         )}
       </div>

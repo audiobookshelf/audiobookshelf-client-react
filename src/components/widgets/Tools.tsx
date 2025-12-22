@@ -123,7 +123,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
               </div>
               <div className="w-full sm:w-[180px]">
                 <Btn
-                  to={`/item/${libraryItemId}/manage?tool=m4b`}
+                  to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/manage?tool=m4b`}
                   className="flex items-center justify-center whitespace-nowrap w-full"
                   aria-describedby={elementIds.m4bDescription}
                 >
@@ -150,7 +150,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
               <div className="flex w-full flex-col items-end sm:w-auto">
                 <div className="w-full sm:w-[180px]">
                   <Btn
-                    to={`/item/${libraryItemId}/manage?tool=embed`}
+                    to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/manage?tool=embed`}
                     className="flex items-center justify-center whitespace-nowrap w-full"
                     aria-describedby={elementIds.embedDescription}
                   >

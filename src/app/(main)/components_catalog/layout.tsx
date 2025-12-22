@@ -21,7 +21,7 @@ export default async function ComponentsCatalogLayout({ children }: Readonly<{ c
     <>
       <AppBar user={currentUser.user} />
       <ComponentsCatalogProvider currentUser={currentUser}>
-        <div>{children}</div>
+        <div className="w-full h-full max-h-screen overflow-x-hidden overflow-y-auto">{children}</div>
       </ComponentsCatalogProvider>
     </>
   )

@@ -248,7 +248,7 @@ function MediaCard(props: MediaCardProps) {
   })
 
   const handleCardClick = () => {
-    router.push(`/item/${libraryItem.id}`)
+    router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
   }
 
   const handleEdit = () => {
