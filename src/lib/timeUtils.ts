@@ -66,3 +66,52 @@ export const elapsedPretty = (seconds: number, locale: string, useFullNames: boo
     return `${hours} ${useFullNames ? `hour${hours === 1 ? '' : 's'}` : 'hr'} ${minutes} ${useFullNames ? `minute${minutes === 1 ? '' : 's'}` : 'min'}`
   }
 }
+
+/**
+ * Format duration in hours, minutes with short unit labels using Intl.DurationFormat.
+ * Never uses days - always converts to total hours.
+ * @param seconds - Duration in seconds
+ * @param locale - Locale for formatting (e.g., 'en-US', 'de-DE')
+ * @returns Formatted string like "61 hr 30 min" or "45 min" or "30 sec"
+ * @example
+ * durationPrettyShort(221400, 'en-US') // "61 hr, 30 min"
+ * durationPrettyShort(2700, 'en-US') // "45 min"
+ * durationPrettyShort(30, 'en-US') // "30 sec"
+ */
+export const durationPrettyShort = (seconds: number, locale: string): string => {
+  if (isNaN(seconds) || seconds == null || seconds < 0) return ''
+
+  const totalSeconds = Math.floor(seconds)
+
+  try {
+    // @ts-expect-error Intl.DurationFormat is not supported in TypeScript
+    const df = new Intl.DurationFormat(locale, {
+      style: 'short'
+    })
+
+    const duration: { seconds?: number; minutes?: number; hours?: number } = {}
+
+    const seconds = Math.floor(totalSeconds % 60)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+
+    if (hours > 0) {
+      duration.hours = hours
+    }
+    if (minutes > 0) {
+      duration.minutes = minutes
+    }
+    if (seconds > 0) {
+      duration.seconds = seconds
+    }
+
+    const durationString = df.format(duration)
+    return durationString
+  } catch {
+    const seconds = Math.floor(totalSeconds % 60)
+    const hours = Math.floor(totalSeconds / 3600)
+    const minutes = Math.floor((totalSeconds % 3600) / 60)
+
+    return `${hours > 0 ? `${hours} hr` : ''} ${minutes > 0 ? `${minutes} min` : ''} ${seconds > 0 ? `${seconds} sec` : ''}`
+  }
+}
