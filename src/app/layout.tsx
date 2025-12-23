@@ -19,7 +19,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     <html lang={locale} className={`theme-${theme}`}>
-      <body className="overflow-x-hidden">
+      <body className="overflow-hidden">
         <NextIntlClientProvider>
           <ToastProvider>
             <CardSizeProvider>
