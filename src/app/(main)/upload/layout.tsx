@@ -9,8 +9,14 @@ export const metadata: Metadata = {
   description: 'audiobookshelf'
 }
 
-export default async function UploadLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function UploadLayout({
+  children
+}: Readonly<{
+  children: React.ReactNode
+}>) {
+  //TODO move to context provider
   const [currentUser] = await getData(getCurrentUser())
+
   if (!currentUser?.user) {
     console.error('Error getting user data')
     redirect(`/login`)
@@ -19,8 +25,10 @@ export default async function UploadLayout({ children }: Readonly<{ children: Re
   return (
     <>
       <AppBar user={currentUser.user} />
-      <div className="page-bg-gradient h-[calc(100vh-4rem)]">
-        <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
+      <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden" draggable={false}>
+        <div className="flex-1 min-w-0 page-bg-gradient">
+          <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
+        </div>
       </div>
     </>
   )

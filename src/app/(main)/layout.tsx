@@ -1,3 +1,4 @@
+import { LibrariesProvider } from '@/contexts/LibrariesContext'
 import { MediaProvider } from '@/contexts/MediaContext'
 import { MetadataProvider } from '@/contexts/MetadataContext'
 import { SocketProvider } from '@/contexts/SocketContext'
@@ -9,9 +10,11 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   return (
     <SocketProvider accessToken={accesstoken}>
       <TasksProvider>
-        <MetadataProvider>
-          <MediaProvider>{children}</MediaProvider>
-        </MetadataProvider>
+        <LibrariesProvider>
+          <MetadataProvider>
+            <MediaProvider>{children}</MediaProvider>
+          </MetadataProvider>
+        </LibrariesProvider>
       </TasksProvider>
     </SocketProvider>
   )
