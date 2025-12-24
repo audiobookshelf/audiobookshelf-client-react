@@ -5,6 +5,7 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
+import { useLocale } from 'next-intl'
 import { useId, useMemo } from 'react'
 
 interface MediaCardSkeletonProps {
@@ -31,6 +32,7 @@ export default function MediaCardSkeleton({
   timeFormat = 'h:mm a'
 }: MediaCardSkeletonProps) {
   const cardId = useId()
+  const locale = useLocale()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
 
   // Use prop to override context value if provided
@@ -47,6 +49,7 @@ export default function MediaCardSkeleton({
   const isDetailedView = bookshelfView === BookshelfView.DETAIL || bookshelfView === BookshelfView.AUTHOR
 
   // Mock library item for detail view
+  // Include publishedYear when orderBy is media.metadata.publishedYear so skeleton renders line 3
   const mockLibraryItem = useMemo(
     () =>
       ({
@@ -54,14 +57,14 @@ export default function MediaCardSkeleton({
         libraryId: 'skeleton',
         mediaType: 'book',
         media: {
-          metadata: {}
+          metadata: orderBy === 'media.metadata.publishedYear' ? { publishedYear: '0000' } : {}
         },
         mtimeMs: 0,
         birthtimeMs: 0,
         addedAt: 0,
         size: 0
       }) as LibraryItem,
-    []
+    [orderBy]
   )
 
   return (
@@ -96,9 +99,11 @@ export default function MediaCardSkeleton({
           media={mockLibraryItem.media}
           dateFormat={dateFormat}
           timeFormat={timeFormat}
-          lastUpdated={null}
-          startedAt={null}
-          finishedAt={null}
+          locale={locale}
+          // Provide mock timestamps for progress sorts so skeleton renders line 3
+          lastUpdated={orderBy === 'progress' ? 1 : null}
+          startedAt={orderBy === 'progress.createdAt' ? 1 : null}
+          finishedAt={orderBy === 'progress.finishedAt' ? 1 : null}
           isSkeleton={true}
         />
       )}
