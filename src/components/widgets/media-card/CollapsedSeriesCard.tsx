@@ -8,6 +8,7 @@ import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
+import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useId, useMemo, useState } from 'react'
 import { MediaCardProps } from './MediaCard'
@@ -34,6 +35,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   } = props
 
   const t = useTypeSafeTranslations()
+  const locale = useLocale()
   const router = useRouter()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
@@ -156,6 +158,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
             media={media}
             dateFormat={dateFormat}
             timeFormat={timeFormat}
+            locale={locale}
             lastUpdated={lastUpdated}
             startedAt={startedAt}
             finishedAt={finishedAt}
