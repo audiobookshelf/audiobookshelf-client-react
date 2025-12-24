@@ -357,7 +357,7 @@ export default function LibraryFilterSelect({ isSeries = false, user }: LibraryF
         size="auto"
         className="h-full text-xs"
         displayText={getSelectedText()}
-        menuMaxHeight="none"
+        menuMaxHeight="80vh"
       />
       {showClear && (
         <button
