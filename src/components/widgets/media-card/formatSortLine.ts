@@ -1,12 +1,14 @@
-import { formatJsDate } from '@/lib/datefns'
-import type { LibraryItem } from '@/types/api'
 import type { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { formatJsDate } from '@/lib/datefns'
+import { durationPrettyShort } from '@/lib/timeUtils'
+import type { LibraryItem } from '@/types/api'
 
 export interface SortLineContext {
   libraryItem: LibraryItem
   media: LibraryItem['media']
   dateFormat: string
   timeFormat: string
+  locale: string
   lastUpdated: number | null
   startedAt: number | null
   finishedAt: number | null
@@ -14,7 +16,7 @@ export interface SortLineContext {
 }
 
 export function formatSortLine(orderBy: string, context: SortLineContext): string | null {
-  const { libraryItem, media, dateFormat, timeFormat, lastUpdated, startedAt, finishedAt, t } = context
+  const { libraryItem, media, dateFormat, timeFormat, locale, lastUpdated, startedAt, finishedAt, t } = context
 
   if (orderBy === 'mtimeMs') {
     return t('LabelFileModifiedDate', { 0: formatJsDate(new Date(libraryItem.mtimeMs), dateFormat) })
@@ -26,7 +28,13 @@ export function formatSortLine(orderBy: string, context: SortLineContext): strin
     return t('LabelAddedDate', { 0: formatJsDate(new Date(libraryItem.addedAt), dateFormat) })
   }
   if (orderBy === 'media.duration') {
-    return `${t('LabelDuration')}: ${(media as { duration?: number }).duration ?? 0}s`
+    const duration = (media as { duration?: number }).duration ?? 0
+    return `${t('LabelDuration')}: ${durationPrettyShort(duration, locale)}`
+  }
+  if (orderBy === 'media.numTracks') {
+    // For podcasts, the sort key is 'media.numTracks' but the actual field is 'numEpisodes'
+    const numEpisodes = (media as { numEpisodes?: number }).numEpisodes ?? 0
+    return `${numEpisodes} ${t('LabelEpisodes')}`
   }
   if (orderBy === 'size') {
     return `${t('LabelSize')}: ${(libraryItem.size ?? 0).toString()}`
@@ -46,7 +54,12 @@ export function formatSortLine(orderBy: string, context: SortLineContext): strin
       0: formatJsDate(new Date(finishedAt), `${dateFormat} ${timeFormat}`)
     })
   }
+  if (orderBy === 'media.metadata.publishedYear') {
+    const publishedYear = (media.metadata as { publishedYear?: string | number }).publishedYear
+    if (publishedYear) {
+      return t('LabelPublishedDate', { 0: String(publishedYear) })
+    }
+  }
 
   return null
 }
-
