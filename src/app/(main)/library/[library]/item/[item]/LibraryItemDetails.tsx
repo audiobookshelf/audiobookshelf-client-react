@@ -1,7 +1,7 @@
 'use client'
 
-import { elapsedPretty } from '@/lib/formatElapsedTime'
 import { bytesPretty } from '@/lib/string'
+import { elapsedPretty } from '@/lib/timeUtils'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
