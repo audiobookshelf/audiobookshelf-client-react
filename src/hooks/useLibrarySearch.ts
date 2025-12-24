@@ -1,8 +1,8 @@
 'use client'
 
-import { getCollectionsAction, getCurrentUserAction, getLibrariesAction, getPlaylistsAction, searchLibraryAction } from '@/app/actions/searchActions'
+import { getCollectionsAction, getPlaylistsAction, searchLibraryAction } from '@/app/actions/searchActions'
 import { useSocketEvent } from '@/contexts/SocketContext'
-import { Author, BookLibraryItem, Collection, Library, LibraryItem, Playlist, PodcastLibraryItem, SearchLibraryResponse, Series, User } from '@/types/api'
+import { Author, BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, SearchLibraryResponse, Series } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
 
 export interface UseLibrarySearchOptions {
@@ -13,13 +13,9 @@ export interface UseLibrarySearchOptions {
 
 export interface UseLibrarySearchReturn {
   // Data
-  user: User | null
-  libraries: Library[]
   searchResults: SearchLibraryResponse | null
 
   // State
-  isLoading: boolean
-  loadError: string | null
   isSearching: boolean
   searchError: string | null
   processing: boolean
@@ -52,12 +48,6 @@ const DEFAULT_MEDIA_TYPES: ('book' | 'podcast')[] = ['book', 'podcast']
 
 export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibrarySearchReturn {
   const { autoSelectFirst = true, mediaTypes = DEFAULT_MEDIA_TYPES, libraryId } = options
-
-  // Data fetching state
-  const [user, setUser] = useState<User | null>(null)
-  const [libraries, setLibraries] = useState<Library[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [loadError, setLoadError] = useState<string | null>(null)
 
   // Search state
   const [selectedLibraryId, setSelectedLibraryId] = useState<string>(libraryId || '')
@@ -94,34 +84,6 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
 
   useSocketEvent<LibraryItem>('item_updated', handleItemUpdated)
 
-  // Fetch user and libraries on mount
-  useEffect(() => {
-    async function loadData() {
-      setIsLoading(true)
-      setLoadError(null)
-
-      try {
-        const [currentUser, librariesResponse] = await Promise.all([getCurrentUserAction(), getLibrariesAction()])
-
-        if (currentUser?.user) {
-          setUser(currentUser.user)
-        }
-
-        const libs = librariesResponse?.libraries || []
-        setLibraries(libs)
-        if (!libraryId && libs.length > 0) {
-          setSelectedLibraryId(libs[0].id)
-        }
-      } catch (error) {
-        setLoadError(error instanceof Error ? error.message : 'Failed to load data')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadData()
-  }, [libraryId])
-
   // Sync selectedLibraryId with libraryId prop if it changes
   useEffect(() => {
     if (libraryId) {
@@ -129,30 +91,36 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     }
   }, [libraryId])
 
-  // Fetch collections and playlists when library changes
+  // Track if collections/playlists have been fetched for current library
+  const [hasFetchedExtras, setHasFetchedExtras] = useState(false)
+
+  // Reset fetch flag when library changes
   useEffect(() => {
-    if (!selectedLibraryId) {
+    if (selectedLibraryId) {
+      setHasFetchedExtras(false)
       setCachedCollections([])
       setCachedPlaylists([])
-      return
     }
-
-    async function fetchCollectionsAndPlaylists() {
-      try {
-        const [collectionsResponse, playlistsResponse] = await Promise.all([getCollectionsAction(selectedLibraryId), getPlaylistsAction(selectedLibraryId)])
-
-        setCachedCollections(collectionsResponse?.results || [])
-        setCachedPlaylists(playlistsResponse?.results || [])
-      } catch (error) {
-        // Silently fail - collections/playlists are supplementary search data
-        console.error('Failed to fetch collections/playlists:', error)
-        setCachedCollections([])
-        setCachedPlaylists([])
-      }
-    }
-
-    fetchCollectionsAndPlaylists()
   }, [selectedLibraryId])
+
+  // Fetch collections and playlists on-demand (called before first search)
+  const fetchCollectionsAndPlaylists = useCallback(async () => {
+    if (hasFetchedExtras || !selectedLibraryId) return
+
+    try {
+      const [collectionsResponse, playlistsResponse] = await Promise.all([getCollectionsAction(selectedLibraryId), getPlaylistsAction(selectedLibraryId)])
+
+      setCachedCollections(collectionsResponse?.results || [])
+      setCachedPlaylists(playlistsResponse?.results || [])
+      setHasFetchedExtras(true)
+    } catch (error) {
+      // Silently fail - collections/playlists are supplementary search data
+      console.error('Failed to fetch collections/playlists:', error)
+      setCachedCollections([])
+      setCachedPlaylists([])
+      setHasFetchedExtras(true) // Don't retry on failure
+    }
+  }, [selectedLibraryId, hasFetchedExtras])
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim() || !selectedLibraryId) return
@@ -168,6 +136,9 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     setSelectedAuthor(null)
 
     try {
+      // Fetch collections/playlists on-demand if not yet fetched
+      await fetchCollectionsAndPlaylists()
+
       const result = await searchLibraryAction(selectedLibraryId, searchQuery.trim(), 10)
 
       if (result) {
@@ -232,7 +203,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     } finally {
       setIsSearching(false)
     }
-  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes, cachedCollections, cachedPlaylists])
+  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes, cachedCollections, cachedPlaylists, fetchCollectionsAndPlaylists])
 
   const clearSelection = useCallback(() => {
     setSelectedBook(null)
@@ -247,13 +218,9 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
 
   return {
     // Data
-    user,
-    libraries,
     searchResults,
 
     // State
-    isLoading,
-    loadError,
     isSearching,
     searchError,
     processing,
