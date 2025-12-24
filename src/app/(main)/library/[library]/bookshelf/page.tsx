@@ -6,7 +6,7 @@ export default async function BookshelfPage({ params }: { params: Promise<{ libr
   const [library, libraryItems, currentUser] = await getData(getLibrary(libraryId), getLibraryItems(libraryId, 'limit=100'), getCurrentUser())
 
   return (
-    <div className="p-8 w-full">
+    <div className="w-full h-full">
       <BookshelfClient library={library} libraryItemsData={libraryItems} currentUser={currentUser} />
     </div>
   )
