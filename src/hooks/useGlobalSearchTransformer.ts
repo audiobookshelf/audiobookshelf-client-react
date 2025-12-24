@@ -154,7 +154,7 @@ export function useGlobalSearchTransformer({
         subtitle: item.books?.length ? `${item.books.length} books` : undefined,
         link: `/library/${selectedLibraryId}/series/${item.series.id}`,
         imageSrc,
-        originalItem: item.series
+        originalItem: { ...item.series, books: item.books }
       }
     })
 
@@ -191,7 +191,8 @@ export function useGlobalSearchTransformer({
       id: `collection-${collection.id}`,
       title: collection.name,
       subtitle: collection.books?.length ? `${collection.books.length} books` : undefined,
-      link: `/library/${selectedLibraryId}/collection/${collection.id}`
+      link: `/library/${selectedLibraryId}/collection/${collection.id}`,
+      originalItem: collection
     }))
 
     // Playlists
@@ -200,7 +201,8 @@ export function useGlobalSearchTransformer({
       id: `playlist-${playlist.id}`,
       title: playlist.name,
       subtitle: playlist.items?.length ? `${playlist.items.length} items` : undefined,
-      link: `/library/${selectedLibraryId}/playlist/${playlist.id}`
+      link: `/library/${selectedLibraryId}/playlist/${playlist.id}`,
+      originalItem: playlist
     }))
 
     return results
