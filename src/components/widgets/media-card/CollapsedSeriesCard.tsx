@@ -197,7 +197,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
           mediaItemShare={null}
           showError={false}
           errorText=""
-          isAuthorBookshelfView={false}
+          showSelectRadioButton={false}
           renderOverlayBadges={undefined}
           renderBadges={renderBadges}
           renderSeriesNameOverlay={renderSeriesNameOverlay}

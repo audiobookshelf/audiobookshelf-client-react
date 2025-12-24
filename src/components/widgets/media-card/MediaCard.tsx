@@ -320,7 +320,7 @@ function MediaCard(props: MediaCardProps) {
             mediaItemShare={mediaItemShare}
             showError={showError}
             errorText={errorText}
-            isAuthorBookshelfView={isAuthorBookshelfView}
+            showSelectRadioButton={!isAuthorBookshelfView}
             renderOverlayBadges={renderOverlayBadges}
             renderBadges={renderBadges}
             renderSeriesNameOverlay={renderSeriesNameOverlay}
