@@ -28,7 +28,7 @@ const InputWrapper = ({
     'relative flex items-stretch rounded-md px-2 focus-within:outline',
 
     // Size-based padding
-    size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'min-h-10 h-auto' : 'h-10',
+    size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'h-full' : 'h-10',
 
     // Border and focus styles
     error ? 'border-error focus-within:outline-error' : 'border-border',
