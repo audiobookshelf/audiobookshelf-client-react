@@ -5,6 +5,7 @@ import { useMenuPosition } from '@/hooks/useMenuPosition'
 import { useScrollToFocused } from '@/hooks/useScrollToFocused'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -23,8 +24,7 @@ export interface DropdownMenuItem {
 }
 
 /**
- * Submenu component that handles viewport-aware height limiting.
- * Limits height so submenu doesn't overflow beyond the bottom of the viewport.
+ * Submenu component that handles viewport-aware height limiting and positioning via Portal.
  */
 function DropdownSubmenu({
   subitems,
@@ -35,7 +35,7 @@ function DropdownSubmenu({
   onMouseOver,
   onMouseLeave,
   openLeft,
-  submenuWidth,
+  referenceElement,
   filterText,
   t
 }: {
@@ -47,14 +47,51 @@ function DropdownSubmenu({
   onMouseOver: () => void
   onMouseLeave: () => void
   openLeft: boolean
-  submenuWidth: number
+  referenceElement: HTMLElement | null
   filterText: string
   t: ReturnType<typeof useTypeSafeTranslations>
 }) {
   const submenuRef = useRef<HTMLUListElement>(null)
-  const [calculatedMaxHeight, setCalculatedMaxHeight] = useState<string>('none')
 
-  // Filter subitems based on filter text (case-insensitive starts-with matching)
+  const [scrollbarOffset, setScrollbarOffset] = useState(0)
+
+  // Calculate scrollbar offset to prevent overlapping
+  useLayoutEffect(() => {
+    if (referenceElement?.parentElement) {
+      const parent = referenceElement.parentElement
+      const width = parent.offsetWidth - parent.clientWidth
+      // Only apply offset if opening to the right and scrollbar is present
+      if (width > 0 && !openLeft) {
+        setScrollbarOffset(width)
+      } else {
+        setScrollbarOffset(0)
+      }
+    }
+  }, [referenceElement, openLeft])
+
+  // Floating UI setup
+  const { refs, floatingStyles, isPositioned } = useFloating({
+    placement: openLeft ? 'left-start' : 'right-start',
+    strategy: 'fixed', // Use fixed positioning for portals to avoid stacking context issues
+    middleware: [
+      // mainAxis: scrollbar gap, crossAxis: -4 to align first item with parent (counteract py-1)
+      offset({ mainAxis: scrollbarOffset, crossAxis: -4 }),
+      flip(),
+      shift({ padding: 10 })
+    ],
+    whileElementsMounted: autoUpdate,
+    elements: {
+      reference: referenceElement
+    }
+  })
+
+  // Sync refs
+  useEffect(() => {
+    if (submenuRef.current) {
+      refs.setFloating(submenuRef.current)
+    }
+  }, [refs])
+
   const filteredSubitems = useMemo(() => {
     if (!filterText) return subitems
     return subitems.filter((subitem) => subitem.text.toLowerCase().startsWith(filterText.toLowerCase()))
@@ -71,34 +108,18 @@ function DropdownSubmenu({
     )
   })
 
-  // Calculate maxHeight to not overflow beyond viewport bottom
-  useLayoutEffect(() => {
-    if (submenuRef.current) {
-      const rect = submenuRef.current.getBoundingClientRect()
-      const viewportHeight = window.innerHeight
-      // Calculate available height from top of submenu to bottom of viewport (with 10px padding)
-      const availableHeight = viewportHeight - rect.top - 10
-      // Only set if content would overflow
-      if (rect.height > availableHeight) {
-        setCalculatedMaxHeight(`${Math.max(availableHeight, 100)}px`)
-      }
-    }
-  }, [filteredSubitems])
-
-  return (
+  const submenuContent = (
     <ul
       ref={submenuRef}
       role="menu"
-      className={mergeClasses(
-        'absolute bg-primary border border-dropdown-menu-border shadow-lg z-50 py-1 rounded-md',
-        openLeft ? 'rounded-s-md' : 'rounded-e-md',
-        'overflow-y-auto'
-      )}
+      className={mergeClasses('absolute bg-primary border border-dropdown-menu-border shadow-lg z-[9999] py-1 rounded-md overflow-y-auto')}
       style={{
-        left: openLeft ? `${-submenuWidth + 1}px` : '100%',
-        top: '0',
-        width: `${submenuWidth}px`,
-        maxHeight: calculatedMaxHeight
+        ...floatingStyles,
+        width: '192px',
+        maxHeight: '300px', // Reasonable max height
+        // Hide until positioned to prevent flicker at 0,0
+        opacity: isPositioned ? 1 : 0,
+        visibility: isPositioned ? 'visible' : 'hidden'
       }}
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
@@ -139,6 +160,11 @@ function DropdownSubmenu({
       )}
     </ul>
   )
+
+  if (typeof document !== 'undefined') {
+    return createPortal(submenuContent, document.body)
+  }
+  return null
 }
 
 interface DropdownMenuProps {
@@ -207,14 +233,16 @@ export default function DropdownMenu({
   })
   const [isMouseOver, setIsMouseOver] = useState(false)
 
-  // Track whether we're hovering over an open submenu
-  const [isOverSubmenu, setIsOverSubmenu] = useState(false)
-  // Track which parent index we're hovering over
-  const [isOverParentIndex, setIsOverParentIndex] = useState(-1)
   // Track whether the submenu should open on the left
   const [openSubmenuLeft, setOpenSubmenuLeft] = useState(false)
-  // Track pending submenu closure
-  const pendingCloseRef = useRef<number | null>(null)
+  // Track pending submenu closure with timeout
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Track hover state for timeout logic
+  const isOverSubmenuRef = useRef(false)
+
+  // Store refs to menu items for submenu positioning
+  const menuItemRefs = useRef<(HTMLLIElement | null)[]>([])
 
   const submenuWidth = 192 // Fixed submenu width
 
@@ -250,15 +278,12 @@ export default function DropdownMenu({
     }
   }, [showMenu, menuRef])
 
-  // Handle pending submenu closure
-  useLayoutEffect(() => {
-    if (pendingCloseRef.current !== null) {
-      if (openSubmenuIndex === pendingCloseRef.current && !isOverSubmenu && isOverParentIndex !== openSubmenuIndex) {
-        onCloseSubmenu?.()
-      }
-      pendingCloseRef.current = null
+  // Clear timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
     }
-  }, [openSubmenuIndex, onCloseSubmenu, isOverSubmenu, isOverParentIndex])
+  }, [])
 
   // Add global wheel event listener for quicker catching of mouse wheel events
   useEffect(() => {
@@ -308,26 +333,39 @@ export default function DropdownMenu({
   }
 
   const handleMouseoverSubmenu = useCallback(() => {
-    setIsOverSubmenu(true)
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
+
+    isOverSubmenuRef.current = true
   }, [])
 
   const handleMouseleaveSubmenu = useCallback(() => {
-    setIsOverSubmenu(false)
-    pendingCloseRef.current = openSubmenuIndex
-  }, [openSubmenuIndex])
+    isOverSubmenuRef.current = false
+
+    // Schedule close when leaving submenu
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
+    closeTimeoutRef.current = setTimeout(() => {
+      onCloseSubmenu?.()
+    }, 150) // Grace period
+  }, [onCloseSubmenu])
+
+  const handleMouseleaveParent = useCallback(() => {
+    // Schedule close when leaving parent item
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
+    closeTimeoutRef.current = setTimeout(() => {
+      // Only close if we haven't entered the submenu
+      if (!isOverSubmenuRef.current) {
+        onCloseSubmenu?.()
+      }
+    }, 150) // Grace period
+  }, [onCloseSubmenu])
 
   const handleMouseoverParent = useCallback(
     (index: number) => {
-      setIsOverParentIndex(index)
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current)
       onOpenSubmenu?.(index)
     },
     [onOpenSubmenu]
   )
-
-  const handleMouseleaveParent = useCallback((index: number) => {
-    setIsOverParentIndex(-1)
-    pendingCloseRef.current = index
-  }, [])
 
   const menuItems = useMemo(
     () =>
@@ -339,6 +377,9 @@ export default function DropdownMenu({
           <li
             key={item.value}
             id={`${dropdownId}-item-${index}`}
+            ref={(el) => {
+              menuItemRefs.current[index] = el
+            }}
             className={mergeClasses(
               'text-foreground relative py-2 cursor-pointer hover:bg-dropdown-item-hover',
               focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-selected' : '',
@@ -356,7 +397,7 @@ export default function DropdownMenu({
             }}
             onMouseDown={(e) => e.preventDefault()}
             onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
-            onMouseLeave={hasSubitems ? () => handleMouseleaveParent(index) : undefined}
+            onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
             <div className="flex items-center">
               <span className={mergeClasses('ms-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
@@ -386,7 +427,7 @@ export default function DropdownMenu({
                 onMouseOver={handleMouseoverSubmenu}
                 onMouseLeave={handleMouseleaveSubmenu}
                 openLeft={openSubmenuLeft}
-                submenuWidth={submenuWidth}
+                referenceElement={menuItemRefs.current[index]}
                 filterText={submenuFilterText}
                 t={t}
               />
@@ -409,7 +450,6 @@ export default function DropdownMenu({
       handleMouseleaveParent,
       handleMouseoverSubmenu,
       handleMouseleaveSubmenu,
-      submenuWidth,
       openSubmenuLeft,
       submenuFilterText,
       t
@@ -420,16 +460,13 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'absolute z-10 w-full bg-primary border border-dropdown-menu-border shadow-lg rounded-md py-1 ring-1 ring-black/5 sm:text-sm mt-0.5',
-        // Only allow overflow when no submenu is open, otherwise submenu gets clipped
-        openSubmenuIndex === null ? 'overflow-auto' : 'overflow-visible',
+        'absolute z-10 w-full bg-primary border border-dropdown-menu-border shadow-lg rounded-md py-1 ring-1 ring-black/5 sm:text-sm mt-0.5 overflow-auto',
         className
       )}
       role="listbox"
       id={`${dropdownId}-listbox`}
       tabIndex={-1}
       style={{
-        // Use max available viewport height minus some padding, unless explicitly set smaller
         maxHeight: `min(${menuMaxHeight}, calc(100vh - 100px))`,
         ...(usePortal
           ? {
