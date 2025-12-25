@@ -261,13 +261,6 @@ export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): 
 })
 
 /**
- * Convenience helper to get an expanded library item (with full media data)
- */
-export async function getExpandedLibraryItem(itemId: string): Promise<LibraryItem> {
-  return getLibraryItem(itemId, true)
-}
-
-/**
  * Get FFProbe data for an audio file
  * Admin-only endpoint that returns raw ffprobe output
  * @param itemId - Library item ID
