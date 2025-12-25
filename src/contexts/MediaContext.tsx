@@ -33,7 +33,7 @@ interface MediaContextValue {
   removeItemFromQueue: (params: { libraryItemId: string; episodeId?: string | null }) => void
 
   // Placeholder for integration with the actual audio player
-  playItem: (params: { libraryItemId: string; episodeId?: string | null; queueItems: PlayerQueueItem[] }) => void
+  playItem: (params: { libraryItem: LibraryItem; episodeId?: string | null; queueItems: PlayerQueueItem[] }) => void
 }
 
 const MediaContext = createContext<MediaContextValue | undefined>(undefined)
@@ -111,15 +111,15 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const playItem = useCallback(
-    ({ libraryItemId, episodeId = null, queueItems }: { libraryItemId: string; episodeId?: string | null; queueItems: PlayerQueueItem[] }) => {
+    ({ libraryItem, episodeId = null, queueItems }: { libraryItem: LibraryItem; episodeId?: string | null; queueItems: PlayerQueueItem[] }) => {
       // For now, just set the stream state and queue locally.
       // Integration with the actual audio player can hook into this later.
-      const current = queueItems.find((item) => item.libraryItemId === libraryItemId && (episodeId == null || item.episodeId === episodeId))
+      const current = queueItems.find((item) => item.libraryItemId === libraryItem.id && (episodeId == null || item.episodeId === episodeId))
       if (!current && queueItems.length === 0) {
         return
       }
 
-      // We don't have the full LibraryItem here, so keep the previous one if IDs match.
+      setStreamLibraryItem(libraryItem)
       setStreamEpisodeId(episodeId ?? null)
       setPlayerQueueItems(queueItems)
     },
