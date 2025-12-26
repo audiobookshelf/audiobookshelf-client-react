@@ -35,14 +35,11 @@ export default async function LibraryLayout({
   }
 
   const homeBookshelfView = currentUser?.serverSettings?.homeBookshelfView || 0 // Default to STANDARD if undefined
-  const currentLibraryMediaType = currentLibrary?.mediaType || 'book'
 
   return (
-    <LibraryProvider bookshelfView={homeBookshelfView}>
+    <LibraryProvider bookshelfView={homeBookshelfView} library={currentLibrary}>
       <AppBar user={currentUser.user} libraries={libraries} currentLibraryId={currentLibraryId} />
-      <LibraryLayoutWrapper currentUser={currentUser} currentLibrary={currentLibrary} currentLibraryMediaType={currentLibraryMediaType}>
-        {children}
-      </LibraryLayoutWrapper>
+      <LibraryLayoutWrapper currentUser={currentUser}>{children}</LibraryLayoutWrapper>
     </LibraryProvider>
   )
 }

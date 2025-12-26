@@ -1,10 +1,16 @@
 import Dropdown from '@/components/ui/Dropdown'
 
 // Define types for the dropdown items based on the component's interface
+interface DropdownSubitem {
+  text: string
+  value: string | number
+}
+
 interface DropdownItem {
   text: string
   value: string | number
   subtext?: string
+  subitems?: DropdownSubitem[]
 }
 
 describe('<Dropdown />', () => {
@@ -348,10 +354,13 @@ describe('<Dropdown />', () => {
 
   describe('Accessibility', () => {
     it('has proper ARIA selected states', () => {
-      cy.mount(<Dropdown items={mockItems} />)
+      // Dropdown passes isItemSelected based on value, so aria-selected reflects the selected item
+      cy.mount(<Dropdown items={mockItems} value="option2" />)
       cy.get('button').click()
-      cy.get('[role="listbox"] > li').first().should('have.attr', 'aria-selected', 'true')
-      cy.get('[role="listbox"] > li').eq(1).should('have.attr', 'aria-selected', 'false')
+      // Items without subitems use role="option" and have aria-selected
+      // The item with matching value should have aria-selected="true"
+      cy.get('[role="listbox"] > li[role="option"]').first().should('have.attr', 'aria-selected', 'false')
+      cy.get('[role="listbox"] > li[role="option"]').eq(1).should('have.attr', 'aria-selected', 'true')
     })
 
     it('has proper ARIA controls relationship', () => {
@@ -404,6 +413,274 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={duplicateTextItems} />)
       cy.get('button').click()
       cy.get('[role="listbox"] > li').should('have.length', 2)
+    })
+  })
+
+  describe('Submenu Support', () => {
+    const itemsWithSubmenus: DropdownItem[] = [
+      { text: 'Simple Option', value: 'simple' },
+      {
+        text: 'With Submenu',
+        value: 'parent',
+        subitems: [
+          { text: 'Sub Option 1', value: 'sub1' },
+          { text: 'Sub Option 2', value: 'sub2' },
+          { text: 'Sub Option 3', value: 'sub3' }
+        ]
+      },
+      { text: 'Another Simple', value: 'another' }
+    ]
+
+    it('renders items with subitems indicator', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').should('have.length', 3)
+      // Item with subitems should have aria-haspopup="menu" and role="menuitem"
+      cy.get('[role="listbox"] > li').eq(1).should('have.attr', 'aria-haspopup', 'menu')
+      cy.get('[role="listbox"] > li').eq(1).should('have.attr', 'role', 'menuitem')
+    })
+
+    it('opens submenu on hover', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      // Hover over item with subitems
+      cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
+      // Submenu should appear - submenu uses role="menu"
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"]').should('exist')
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li').should('have.length', 3)
+    })
+
+    it('selects subitem on click', () => {
+      const onChangeSpy = cy.spy().as('onChangeSpy')
+      cy.mount(<Dropdown items={itemsWithSubmenus} onChange={onChangeSpy} />)
+      cy.get('button').click()
+      // Hover to open submenu
+      cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
+      // Click on subitem - submenu uses role="menu", use force since submenu may be positioned off-screen in test
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li').first().click({ force: true })
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'sub1')
+    })
+
+    it('closes menu after subitem selection', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
+      // Submenu uses role="menu", use force since submenu may be positioned off-screen in test
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li').first().click({ force: true })
+      cy.get('[role="listbox"]').should('not.exist')
+    })
+
+    it('navigates to submenu with ArrowRight key', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      // Navigate to item with subitems
+      cy.realType('{downarrow}')
+      // Open submenu with right arrow
+      cy.realType('{rightarrow}')
+      // Submenu should be visible
+      cy.get('[role="listbox"] > li').eq(1).find('ul').should('be.visible')
+      // First subitem should be focused
+      cy.get('[role="listbox"] > li').eq(1).find('ul li').first().should('have.class', 'bg-dropdown-item-selected')
+    })
+
+    it('closes submenu with ArrowLeft key', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      cy.get('[role="listbox"] > li').eq(1).find('ul').should('be.visible')
+      cy.realType('{leftarrow}')
+      cy.get('[role="listbox"] > li').eq(1).find('ul').should('not.exist')
+    })
+
+    it('navigates within submenu with ArrowUp/ArrowDown', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      // First subitem focused
+      cy.get('[role="listbox"] > li').eq(1).find('ul li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      // Navigate down
+      cy.realType('{downarrow}')
+      cy.get('[role="listbox"] > li').eq(1).find('ul li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      // Navigate up
+      cy.realType('{uparrow}')
+      cy.get('[role="listbox"] > li').eq(1).find('ul li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+    })
+
+    it('selects subitem with Enter key', () => {
+      const onChangeSpy = cy.spy().as('onChangeSpy')
+      cy.mount(<Dropdown items={itemsWithSubmenus} onChange={onChangeSpy} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      cy.realType('{enter}')
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'sub1')
+      cy.get('[role="listbox"]').should('not.exist')
+    })
+
+    it('closes submenu with Escape without closing main menu', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      cy.get('[role="listbox"] > li').eq(1).find('ul').should('be.visible')
+      cy.realType('{esc}')
+      // Submenu should be closed but main menu still open
+      cy.get('[role="listbox"] > li').eq(1).find('ul').should('not.exist')
+      cy.get('[role="listbox"]').should('be.visible')
+    })
+
+    it('clicking parent item with subitems toggles submenu', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} />)
+      cy.get('button').click()
+      // Click on item with subitems
+      cy.get('[role="listbox"] > li').eq(1).click()
+      // Submenu should be visible (not close menu)
+      cy.get('[role="listbox"]').should('be.visible')
+    })
+  })
+
+  describe('Type-to-Filter in Submenu', () => {
+    const itemsWithLargeSubmenu: DropdownItem[] = [
+      { text: 'Simple Option', value: 'simple' },
+      {
+        text: 'Filter Test',
+        value: 'filterParent',
+        subitems: [
+          { text: 'Apple', value: 'apple' },
+          { text: 'Apricot', value: 'apricot' },
+          { text: 'Banana', value: 'banana' },
+          { text: 'Cherry', value: 'cherry' },
+          { text: 'Date', value: 'date' }
+        ]
+      }
+    ]
+
+    it('filters submenu items when typing characters', () => {
+      cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
+      cy.get('button').click()
+      // Navigate to item with submenu
+      cy.realType('{downarrow}')
+      // Open submenu
+      cy.realType('{rightarrow}')
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"]').should('exist')
+      // Type 'a' to filter - should show Apple and Apricot
+      cy.realType('a')
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 2)
+    })
+
+    it('shows filter text indicator in submenu', () => {
+      cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      // Type 'ban' to filter
+      cy.realType('ban')
+      // Should show filter text indicator
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="presentation"]').should('contain.text', 'ban')
+      // Should only show Banana
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('contain.text', 'Banana')
+    })
+
+    it('clears filter with Backspace key', () => {
+      cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      // Type 'ch' to filter to Cherry only
+      cy.realType('ch')
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
+      // Press backspace to remove last character
+      cy.realType('{backspace}')
+      // Should now match items starting with 'c' - Cherry only
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
+      // Press backspace again to clear filter
+      cy.realType('{backspace}')
+      // Should show all 5 items
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 5)
+    })
+
+    it('shows no items message when filter has no matches', () => {
+      cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      // Type 'xyz' which matches nothing
+      cy.realType('xyz')
+      // Should show no items message - check for aria-selected false option (the "No items" message)
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"][aria-selected="false"]').should('exist')
+    })
+
+    it('selects from filtered list with Enter key', () => {
+      const onChangeSpy = cy.spy().as('onChangeSpy')
+      cy.mount(<Dropdown items={itemsWithLargeSubmenu} onChange={onChangeSpy} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      // Type 'ban' to filter to Banana
+      cy.realType('ban')
+      // First filtered item should be focused, press Enter to select
+      cy.realType('{enter}')
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'banana')
+    })
+
+    it('clears filter when closing submenu', () => {
+      cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.realType('{rightarrow}')
+      // Type 'ch' to filter
+      cy.realType('ch')
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
+      // Close submenu with left arrow
+      cy.realType('{leftarrow}')
+      // Reopen submenu
+      cy.realType('{rightarrow}')
+      // Should show all items (filter was cleared)
+      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 5)
+    })
+  })
+
+  describe('displayText Prop', () => {
+    it('displays custom text instead of selected item text', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" displayText="Custom Display" />)
+      cy.get('button').should('contain.text', 'Custom Display')
+      cy.get('button').should('not.contain.text', 'Option 2')
+    })
+
+    it('does not show subtext when displayText is provided', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" displayText="Override Text" />)
+      cy.get('button').should('contain.text', 'Override Text')
+      cy.get('button').should('not.contain.text', 'Description')
+    })
+  })
+
+  describe('highlightSelected Prop', () => {
+    it('highlights selected item when highlightSelected is true', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" highlightSelected={true} />)
+      cy.get('button').click()
+      // The selected item (option2, index 1) should have yellow text
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
+      // Other items should not have yellow text
+      cy.get('[role="listbox"] > li').first().should('not.have.class', 'text-yellow-400')
+    })
+
+    it('does not highlight selected item when highlightSelected is false', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" highlightSelected={false} />)
+      cy.get('button').click()
+      // The selected item should not have yellow text
+      cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'text-yellow-400')
+    })
+
+    it('does not highlight when no value is selected', () => {
+      cy.mount(<Dropdown items={mockItems} highlightSelected={true} />)
+      cy.get('button').click()
+      // No items should have yellow text
+      cy.get('[role="listbox"] > li').each(($el) => {
+        cy.wrap($el).should('not.have.class', 'text-yellow-400')
+      })
     })
   })
 })

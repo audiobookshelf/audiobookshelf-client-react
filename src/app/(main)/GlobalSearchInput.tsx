@@ -6,7 +6,7 @@ import { useClickOutside } from '@/hooks/useClickOutside'
 import { useLibrarySearch } from '@/hooks/useLibrarySearch'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
-import { useGlobalSearchTransformer } from '@/hooks/useGlobalSearchTransformer'
+import { FlatResultItem, useGlobalSearchTransformer } from '@/hooks/useGlobalSearchTransformer'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import GlobalSearchMenu from './GlobalSearchMenu'
@@ -15,9 +15,15 @@ interface GlobalSearchInputProps {
   libraryId?: string
   autoFocus?: boolean
   onSubmit?: () => void
+  /** Optional callback for when an item is selected. If provided, items become selectable instead of navigating. */
+  onItemSelect?: (item: FlatResultItem) => void
+  /** Optional callback for when the search is cleared. */
+  onClear?: () => void
+  /** Use portal to render the dropdown menu. Useful for avoiding clipping issues. */
+  usePortal?: boolean
 }
 
-export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: GlobalSearchInputProps = {}) {
+export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onItemSelect, onClear, usePortal = false }: GlobalSearchInputProps = {}) {
   const searchOptions = useMemo(() => ({ autoSelectFirst: false, libraryId }), [libraryId])
   const { searchQuery, setSearchQuery, isSearching, searchResults, selectedLibraryId, handleSearch, searchError } = useLibrarySearch(searchOptions)
   const t = useTypeSafeTranslations()
@@ -96,13 +102,21 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: Gl
       e.preventDefault()
       if (focusedIndex >= 0 && flatResults[focusedIndex]) {
         const item = flatResults[focusedIndex]
-        if (item.link) {
+        // If onItemSelect is provided, use it for selection
+        if (onItemSelect) {
+          onItemSelect(item)
+          setShowMenu(false)
+          inputRef.current?.blur()
+          onSubmit?.()
+        } else if (item.link) {
+          // Otherwise navigate to the item link
           router.push(item.link)
           setShowMenu(false)
           inputRef.current?.blur()
           onSubmit?.()
         }
-      } else if (searchQuery.trim()) {
+      } else if (searchQuery.trim() && !onItemSelect) {
+        // Only navigate to search results if not in selection mode
         router.push(`/library/${selectedLibraryId}/search?q=${encodeURIComponent(searchQuery.trim())}`)
         setShowMenu(false)
         inputRef.current?.blur()
@@ -119,6 +133,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: Gl
     setSearchQuery('')
     setFocusedIndex(-1)
     inputRef.current?.focus()
+    onClear?.()
   }
 
   const handleResultClick = () => {
@@ -128,7 +143,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: Gl
 
   return (
     <div className="w-full relative sm:w-80" ref={containerRef}>
-      <InputWrapper size="small" borderless className="w-full" inputRef={inputRef}>
+      <InputWrapper size="small" className="w-full" inputRef={inputRef}>
         <input
           ref={inputRef}
           type="text"
@@ -167,7 +182,16 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit }: Gl
 
       {/* Dropdown Menu */}
       {showMenu && (searchQuery || isSearching || isTyping) && (
-        <GlobalSearchMenu results={flatResults} focusedIndex={focusedIndex} onItemClick={handleResultClick} menuRef={menuRef} searchQuery={searchQuery} />
+        <GlobalSearchMenu
+          results={flatResults}
+          focusedIndex={focusedIndex}
+          onItemClick={handleResultClick}
+          menuRef={menuRef}
+          searchQuery={searchQuery}
+          onItemSelect={onItemSelect}
+          usePortal={usePortal}
+          triggerRef={containerRef}
+        />
       )}
     </div>
   )
