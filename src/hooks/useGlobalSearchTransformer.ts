@@ -95,7 +95,7 @@ export function useGlobalSearchTransformer({
       title: item.libraryItem.media.metadata.title || 'Unknown Title',
       subtitle: item.libraryItem.media.metadata.subtitle,
       author: item.libraryItem.media.metadata.authorName,
-      link: `/item/${item.libraryItem.id}`,
+      link: `/library/${item.libraryItem.libraryId}/item/${item.libraryItem.id}`,
       imageSrc: getLibraryItemCoverSrc(item.libraryItem, getPlaceholderCoverUrl()),
       originalItem: item.libraryItem
     }))
@@ -106,7 +106,7 @@ export function useGlobalSearchTransformer({
       id: item.libraryItem.id,
       title: item.libraryItem.media.metadata.title || 'Unknown Podcast',
       subtitle: item.libraryItem.media.metadata.author,
-      link: `/item/${item.libraryItem.id}`,
+      link: `/library/${item.libraryItem.libraryId}/item/${item.libraryItem.id}`,
       imageSrc: getLibraryItemCoverSrc(item.libraryItem, getPlaceholderCoverUrl()),
       originalItem: item.libraryItem
     }))
@@ -121,7 +121,7 @@ export function useGlobalSearchTransformer({
         id: episode.id,
         title: episode.title, // Episode Title
         subtitle: libItem.media.metadata.title, // Podcast Title as subtitle
-        link: `/item/${libItem.id}`,
+        link: `/library/${libItem.libraryId}/item/${libItem.id}`,
         imageSrc: getLibraryItemCoverSrc(libItem, getPlaceholderCoverUrl()),
         originalItem: episode
       }

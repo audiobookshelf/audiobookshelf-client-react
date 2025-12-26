@@ -27,7 +27,5 @@ export async function deleteLibraryItemAction(libraryItemId: string, hardDelete:
 }
 
 export async function getExpandedLibraryItemAction(libraryItemId: string) {
-  return api.getExpandedLibraryItem(libraryItemId)
+  return api.getLibraryItem(libraryItemId, true)
 }
-
-
