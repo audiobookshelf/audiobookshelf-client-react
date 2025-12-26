@@ -22,6 +22,7 @@ interface BookshelfClientProps {
 export default function BookshelfClient({ library, libraryItemsData, currentUser }: BookshelfClientProps) {
   const { setItemCount, orderBy, orderDesc, filterBy, collapseSeries, showSubtitles } = useLibrary()
   const isPodcastLibrary = library.mediaType === 'podcast'
+  const actualShowSubtitles = isPodcastLibrary ? false : showSubtitles
 
   // Ref for the container div
   const containerRef = useRef<HTMLDivElement>(null)
@@ -86,7 +87,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
     })
     observer.observe(dummyCardRef.current)
     return () => observer.disconnect()
-  }, [coverAspectRatio, showSubtitles, sizeMultiplier, orderBy])
+  }, [coverAspectRatio, actualShowSubtitles, sizeMultiplier, orderBy])
 
   // Reset cardSize when sizeMultiplier changes so we wait for re-measurement
   useEffect(() => {
@@ -218,18 +219,22 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
     )
 
     // Build context menu items
-    const menuItems = [
-      {
-        text: showSubtitles ? 'Hide Subtitles' : 'Show Subtitles',
-        action: showSubtitles ? 'hide-subtitles' : 'show-subtitles'
-      }
-    ]
+    const menuItems = []
 
     // Add collapse/expand series only for book libraries
     if (isBookLibrary) {
       menuItems.push({
+        text: actualShowSubtitles ? 'Hide Subtitles' : 'Show Subtitles',
+        action: actualShowSubtitles ? 'hide-subtitles' : 'show-subtitles'
+      })
+      menuItems.push({
         text: collapseSeries ? 'Expand Series' : 'Collapse Series',
         action: collapseSeries ? 'expand-series' : 'collapse-series'
+      })
+    } else {
+      menuItems.push({
+        text: 'Export OPML',
+        action: 'export-opml'
       })
     }
 
@@ -237,7 +242,10 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
 
     // Set up action handler
     setContextMenuActionHandler((action: string) => {
-      if (action === 'show-subtitles') {
+      if (action === 'export-opml') {
+        // TODO: Implement export OPML
+        console.log('Not implemented yet')
+      } else if (action === 'show-subtitles') {
         updateSetting('showSubtitles', true)
       } else if (action === 'hide-subtitles') {
         updateSetting('showSubtitles', false)
@@ -259,7 +267,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
     updateSetting,
     library.mediaType,
     isBookLibrary,
-    showSubtitles,
+    actualShowSubtitles,
     collapseSeries,
     currentUser.user
   ])
@@ -273,7 +281,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
     >
       {/* Measurement Dummy - Hidden but rendered for sizing */}
       <div ref={dummyCardRef} style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
-        <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} showSubtitles={showSubtitles} orderBy={orderBy} />
+        <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} showSubtitles={actualShowSubtitles} orderBy={orderBy} />
       </div>
 
       {/* Error State - Show regardless of card measurement */}
@@ -326,7 +334,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
                           key={`skeleton-${startIndex + k}`}
                           bookshelfView={BookshelfView.DETAIL}
                           bookCoverAspectRatio={coverAspectRatio}
-                          showSubtitles={showSubtitles}
+                          showSubtitles={actualShowSubtitles}
                           orderBy={orderBy}
                         />
                       </div>
@@ -351,7 +359,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
                           onSelect={() => {}}
                           dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                           timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-                          showSubtitles={showSubtitles}
+                          showSubtitles={actualShowSubtitles}
                           orderBy={orderBy}
                         />
                       </div>
@@ -373,7 +381,7 @@ export default function BookshelfClient({ library, libraryItemsData, currentUser
                         timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
                         userPermissions={currentUser.user.permissions}
                         ereaderDevices={currentUser.ereaderDevices}
-                        showSubtitles={showSubtitles}
+                        showSubtitles={actualShowSubtitles}
                         orderBy={orderBy}
                       />
                     </div>
