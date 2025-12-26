@@ -275,6 +275,13 @@ export default function DropdownMenu({
       if (boundingRect) {
         setOpenSubmenuLeft(window.innerWidth - boundingRect.x < boundingRect.width + submenuWidth + 5)
       }
+    } else if (!showMenu) {
+      // Reset internal state when menu closes
+      isOverSubmenuRef.current = false
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current)
+        closeTimeoutRef.current = null
+      }
     }
   }, [showMenu, menuRef])
 
