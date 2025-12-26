@@ -1,5 +1,6 @@
 import type { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
+import { bytesPretty } from '@/lib/string'
 import { durationPrettyShort } from '@/lib/timeUtils'
 import type { LibraryItem } from '@/types/api'
 
@@ -37,7 +38,7 @@ export function formatSortLine(orderBy: string, context: SortLineContext): strin
     return `${numEpisodes} ${t('LabelEpisodes')}`
   }
   if (orderBy === 'size') {
-    return `${t('LabelSize')}: ${(libraryItem.size ?? 0).toString()}`
+    return `${t('LabelSize')}: ${bytesPretty(libraryItem.size ?? 0)}`
   }
   if (orderBy === 'progress' && lastUpdated) {
     return t('LabelLastProgressDate', {
