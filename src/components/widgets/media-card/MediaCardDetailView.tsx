@@ -19,6 +19,7 @@ interface MediaCardDetailViewProps {
   media: LibraryItem['media']
   dateFormat: string
   timeFormat: string
+  locale: string
   lastUpdated: number | null
   startedAt: number | null
   finishedAt: number | null
@@ -36,6 +37,7 @@ export default function MediaCardDetailView({
   media,
   dateFormat,
   timeFormat,
+  locale,
   lastUpdated,
   startedAt,
   finishedAt,
@@ -108,32 +110,40 @@ export default function MediaCardDetailView({
         </p>
       )}
       {orderBy &&
-        (isSkeleton ? (
-          <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
-            <span
-              className="inline-block h-[1em] w-1/2 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
-              style={{
-                animationDelay: '0.3s',
-                animationDuration: '1.5s'
-              }}
-              aria-hidden="true"
-            />
-            &nbsp;
-          </p>
-        ) : (
-          <p cy-id="line3" className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }}>
-            {formatSortLine(orderBy, {
-              libraryItem,
-              media,
-              dateFormat,
-              timeFormat,
-              lastUpdated,
-              startedAt,
-              finishedAt,
-              t
-            })}
-          </p>
-        ))}
+        (() => {
+          const sortLine = formatSortLine(orderBy, {
+            libraryItem,
+            media,
+            dateFormat,
+            timeFormat,
+            locale,
+            lastUpdated,
+            startedAt,
+            finishedAt,
+            t
+          })
+          // Only render if there's actual content or if skeleton
+          if (isSkeleton) {
+            return sortLine !== null ? (
+              <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
+                <span
+                  className="inline-block h-[1em] w-1/2 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
+                  style={{
+                    animationDelay: '0.3s',
+                    animationDuration: '1.5s'
+                  }}
+                  aria-hidden="true"
+                />
+                &nbsp;
+              </p>
+            ) : null
+          }
+          return sortLine ? (
+            <p cy-id="line3" className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }}>
+              {sortLine}
+            </p>
+          ) : null
+        })()}
     </div>
   )
 }

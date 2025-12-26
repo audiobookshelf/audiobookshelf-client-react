@@ -182,6 +182,21 @@ export interface LibraryFolder {
 }
 
 // ============================================================================
+// LIBRARY FILTER DATA
+// ============================================================================
+
+export interface LibraryFilterData {
+  authors: { id: string; name: string }[]
+  genres: string[]
+  tags: string[]
+  series: { id: string; name: string }[]
+  narrators: string[]
+  publishers: string[]
+  languages: string[]
+  publishedDecades: string[]
+}
+
+// ============================================================================
 // AUTHORS
 // ============================================================================
 

@@ -13,6 +13,7 @@ import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
+import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { memo, useId, useMemo, useState, type ReactNode } from 'react'
 
@@ -100,6 +101,7 @@ function MediaCard(props: MediaCardProps) {
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
+  const locale = useLocale()
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
@@ -248,7 +250,7 @@ function MediaCard(props: MediaCardProps) {
   })
 
   const handleCardClick = () => {
-    router.push(`/item/${libraryItem.id}`)
+    router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
   }
 
   const handleEdit = () => {
@@ -279,6 +281,7 @@ function MediaCard(props: MediaCardProps) {
               media={media}
               dateFormat={dateFormat}
               timeFormat={timeFormat}
+              locale={locale}
               lastUpdated={lastUpdated}
               startedAt={startedAt}
               finishedAt={finishedAt}
@@ -317,7 +320,7 @@ function MediaCard(props: MediaCardProps) {
             mediaItemShare={mediaItemShare}
             showError={showError}
             errorText={errorText}
-            isAuthorBookshelfView={isAuthorBookshelfView}
+            showSelectRadioButton={!isAuthorBookshelfView}
             renderOverlayBadges={renderOverlayBadges}
             renderBadges={renderBadges}
             renderSeriesNameOverlay={renderSeriesNameOverlay}

@@ -95,7 +95,7 @@ export function useGlobalSearchTransformer({
       title: item.libraryItem.media.metadata.title || 'Unknown Title',
       subtitle: item.libraryItem.media.metadata.subtitle,
       author: item.libraryItem.media.metadata.authorName,
-      link: `/item/${item.libraryItem.id}`,
+      link: `/library/${item.libraryItem.libraryId}/item/${item.libraryItem.id}`,
       imageSrc: getLibraryItemCoverSrc(item.libraryItem, getPlaceholderCoverUrl()),
       originalItem: item.libraryItem
     }))
@@ -106,7 +106,7 @@ export function useGlobalSearchTransformer({
       id: item.libraryItem.id,
       title: item.libraryItem.media.metadata.title || 'Unknown Podcast',
       subtitle: item.libraryItem.media.metadata.author,
-      link: `/item/${item.libraryItem.id}`,
+      link: `/library/${item.libraryItem.libraryId}/item/${item.libraryItem.id}`,
       imageSrc: getLibraryItemCoverSrc(item.libraryItem, getPlaceholderCoverUrl()),
       originalItem: item.libraryItem
     }))
@@ -121,7 +121,7 @@ export function useGlobalSearchTransformer({
         id: episode.id,
         title: episode.title, // Episode Title
         subtitle: libItem.media.metadata.title, // Podcast Title as subtitle
-        link: `/item/${libItem.id}`,
+        link: `/library/${libItem.libraryId}/item/${libItem.id}`,
         imageSrc: getLibraryItemCoverSrc(libItem, getPlaceholderCoverUrl()),
         originalItem: episode
       }
@@ -133,7 +133,7 @@ export function useGlobalSearchTransformer({
       id: author.id,
       title: author.name,
       subtitle: author.numBooks ? `${author.numBooks} books` : undefined,
-      link: `/author/${author.id}`,
+      link: `/library/${author.libraryId}/authors/${author.id}`,
       originalItem: author
     }))
 
@@ -154,7 +154,7 @@ export function useGlobalSearchTransformer({
         subtitle: item.books?.length ? `${item.books.length} books` : undefined,
         link: `/library/${selectedLibraryId}/series/${item.series.id}`,
         imageSrc,
-        originalItem: item.series
+        originalItem: { ...item.series, books: item.books }
       }
     })
 
@@ -191,7 +191,8 @@ export function useGlobalSearchTransformer({
       id: `collection-${collection.id}`,
       title: collection.name,
       subtitle: collection.books?.length ? `${collection.books.length} books` : undefined,
-      link: `/library/${selectedLibraryId}/collection/${collection.id}`
+      link: `/library/${selectedLibraryId}/collection/${collection.id}`,
+      originalItem: collection
     }))
 
     // Playlists
@@ -200,7 +201,8 @@ export function useGlobalSearchTransformer({
       id: `playlist-${playlist.id}`,
       title: playlist.name,
       subtitle: playlist.items?.length ? `${playlist.items.length} items` : undefined,
-      link: `/library/${selectedLibraryId}/playlist/${playlist.id}`
+      link: `/library/${selectedLibraryId}/playlist/${playlist.id}`,
+      originalItem: playlist
     }))
 
     return results

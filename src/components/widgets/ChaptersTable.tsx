@@ -113,7 +113,7 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false, exp
     () =>
       userCanUpdate ? (
         <Btn
-          to={`/item/${libraryItem.id}/chapters`}
+          to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`}
           color="bg-primary"
           size="small"
           className="me-2"
@@ -124,7 +124,7 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false, exp
           {t('ButtonEditChapters')}
         </Btn>
       ) : null,
-    [userCanUpdate, libraryItem.id, t]
+    [userCanUpdate, libraryItem.libraryId, libraryItem.id, t]
   )
 
   return (

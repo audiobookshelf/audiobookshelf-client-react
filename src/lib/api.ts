@@ -16,6 +16,7 @@ import {
   GetSeriesResponse,
   GetUsersResponse,
   Library,
+  LibraryFilterData,
   LibraryItem,
   MetadataProvidersResponse,
   PersonalizedShelf,
@@ -255,6 +256,14 @@ export const getLibraryPersonalized = cache(async (libraryId: string): Promise<P
 export const getLibraryItems = cache(async (libraryId: string, queryParams?: string): Promise<GetLibraryItemsResponse> => {
   return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items${queryParams ? `?${queryParams}` : ''}`, {})
 })
+
+/**
+ * Get filter data for a library (genres, tags, authors, series, etc.)
+ * Used for populating filter dropdown menus
+ */
+export async function getLibraryFilterData(libraryId: string): Promise<LibraryFilterData> {
+  return apiRequest<LibraryFilterData>(`/api/libraries/${libraryId}/filterdata`, {})
+}
 
 export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): Promise<LibraryItem> => {
   return apiRequest<LibraryItem>(`/api/items/${itemId}?expanded=${expanded ? '1' : '0'}`, {})
