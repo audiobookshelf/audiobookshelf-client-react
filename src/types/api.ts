@@ -175,9 +175,8 @@ export interface GetUsersResponse {
 
 export interface LibraryFolder {
   id: string
-  path: string
+  fullPath: string
   libraryId: string
-  createdAt: number
   updatedAt: number
 }
 

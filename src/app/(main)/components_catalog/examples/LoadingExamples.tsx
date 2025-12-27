@@ -1,5 +1,6 @@
 'use client'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
+import ProgressIndicator from '@/components/ui/ProgressIndicator'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
@@ -29,7 +30,17 @@ export function LoadingExamples() {
         </div>
 
         <Example title="Loading Indicator">
-          <LoadingIndicator />
+          <div className="relative h-32">
+            <LoadingIndicator />
+          </div>
+        </Example>
+
+        <Example title="Loading Indicator with progress">
+          <div className="relative h-40">
+            <LoadingIndicator label="MessageUploading">
+              <ProgressIndicator progress={45} />
+            </LoadingIndicator>
+          </div>
         </Example>
 
         <Example title="Loading Spinner (Default - Small)">
