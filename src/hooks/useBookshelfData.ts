@@ -1,26 +1,60 @@
-import { fetchLibraryItemsAction } from '@/app/actions/libraryActions'
-import { LibraryItem } from '@/types/api'
+import { fetchAuthorsAction, fetchCollectionsAction, fetchLibraryItemsAction, fetchPlaylistsAction, fetchSeriesAction } from '@/app/actions/libraryActions'
+import { Author, BookshelfEntity, Collection, EntityType, LibraryItem, Playlist, Series } from '@/types/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface UseBookshelfDataProps {
   libraryId: string
+  entityType: EntityType
   query: string // URLSearchParams string
-  initialTotal?: number
   itemsPerPage: number
 }
 
 interface BookshelfDataState {
-  items: (LibraryItem | null)[]
+  items: (BookshelfEntity | null)[]
   totalEntities: number
   isInitialized: boolean
   isLoading: boolean
   error: Error | null
 }
 
-export function useBookshelfData({ libraryId, query, initialTotal = 0, itemsPerPage }: UseBookshelfDataProps) {
+// Fetch action dispatcher based on entity type
+async function fetchEntityData(entityType: EntityType, libraryId: string, queryParams: string) {
+  switch (entityType) {
+    case 'items':
+      return fetchLibraryItemsAction(libraryId, queryParams)
+    case 'series':
+      return fetchSeriesAction(libraryId, queryParams)
+    case 'collections':
+      return fetchCollectionsAction(libraryId, queryParams)
+    case 'playlists':
+      return fetchPlaylistsAction(libraryId, queryParams)
+    case 'authors':
+      return fetchAuthorsAction(libraryId, queryParams)
+  }
+}
+
+// Get results array from response (different APIs return different keys)
+function getResultsFromResponse(entityType: EntityType, data: unknown): BookshelfEntity[] {
+  const response = data as Record<string, unknown>
+  switch (entityType) {
+    case 'items':
+      return (response.results as LibraryItem[]) || []
+    case 'series':
+      return (response.results as Series[]) || []
+    case 'collections':
+      return (response.results as Collection[]) || []
+    case 'playlists':
+      return (response.results as Playlist[]) || []
+    case 'authors':
+      // Authors API uses 'results' when paginated, 'authors' when not paginated
+      return (response.results as Author[]) || (response.authors as Author[]) || []
+  }
+}
+
+export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }: UseBookshelfDataProps) {
   const [state, setState] = useState<BookshelfDataState>({
     items: [],
-    totalEntities: initialTotal,
+    totalEntities: 0,
     isInitialized: false,
     isLoading: false,
     error: null
@@ -30,7 +64,7 @@ export function useBookshelfData({ libraryId, query, initialTotal = 0, itemsPerP
   const loadingPagesRef = useRef<Set<number>>(new Set())
   const itemsPerPageRef = useRef(itemsPerPage)
 
-  // Reset when query changes
+  // Reset when query or entityType changes
   useEffect(() => {
     setState({
       items: [],
@@ -41,7 +75,7 @@ export function useBookshelfData({ libraryId, query, initialTotal = 0, itemsPerP
     })
     pagesLoadedRef.current.clear()
     loadingPagesRef.current.clear()
-  }, [libraryId, query])
+  }, [libraryId, entityType, query])
 
   // Handle itemsPerPage changes - invalidate cache but keep items
   // Only clear cache when itemsPerPage changes AFTER initial data load is complete
@@ -75,17 +109,22 @@ export function useBookshelfData({ libraryId, query, initialTotal = 0, itemsPerP
 
       try {
         const fullQuery = query ? `${query}&` : ''
-        const queryParams = `${fullQuery}limit=${currentItemsPerPage}&page=${page}&minified=1&include=rssfeed,numEpisodesIncomplete,share`
+        // Build query params - include common params and entity-specific ones
+        let queryParams = `${fullQuery}limit=${currentItemsPerPage}&page=${page}&minified=1`
 
-        const data = await fetchLibraryItemsAction(libraryId, queryParams)
+        // Add entity-specific includes
+        if (entityType === 'items') {
+          queryParams += '&include=rssfeed,numEpisodesIncomplete,share'
+        }
 
-        const results = data.results as LibraryItem[]
-        const total = data.total as number
+        const data = await fetchEntityData(entityType, libraryId, queryParams)
+
+        const results = getResultsFromResponse(entityType, data)
+        const total = (data as { total?: number }).total ?? results.length
 
         setState((prev) => {
           let newItems = [...prev.items]
           if (!prev.isInitialized || prev.totalEntities !== total) {
-            // Initialize sparse array
             newItems = new Array(total).fill(null)
           }
 
@@ -111,7 +150,7 @@ export function useBookshelfData({ libraryId, query, initialTotal = 0, itemsPerP
         loadingPagesRef.current.delete(page)
       }
     },
-    [libraryId, query]
+    [libraryId, entityType, query]
   )
 
   return {
