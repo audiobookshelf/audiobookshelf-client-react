@@ -168,7 +168,6 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       cover={
         <MediaCardCover
           libraryItem={libraryItem}
-          coverWidth={coverWidth}
           coverAspect={coverAspect}
           placeholderUrl={placeholderUrl}
           hasCover={hasCover}
