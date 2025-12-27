@@ -1,7 +1,7 @@
 import { getCurrentUser, getData, getLibrary } from '@/lib/api'
 import { EntityType } from '@/types/api'
 import { notFound } from 'next/navigation'
-import BookshelfClient from '../BookshelfClient'
+import BookshelfClient from './BookshelfClient'
 
 export default async function EntityPage({ params }: { params: Promise<{ library: string; entityType: string }> }) {
   const { library: libraryId, entityType: entityTypeString } = await params
