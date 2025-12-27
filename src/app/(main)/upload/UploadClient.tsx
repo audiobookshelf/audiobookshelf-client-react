@@ -17,9 +17,9 @@ import Tooltip from '@/components/ui/Tooltip'
 import Alert from '@/components/widgets/Alert'
 import DragDrop from '@/components/widgets/DragDrop'
 import FilePicker from '@/components/widgets/FilePicker'
-import { useLibraries } from '@/contexts/LibrariesContext'
 import { sanitizeFileName, SupportedFileTypes } from '@/lib/fileUtils'
 import { bytesPretty } from '@/lib/string'
+import { Library } from '@/types/api'
 import path from 'path'
 import { CleanedItem, FileWithMetadata, getItemsFromFilelist, upload } from './UploadHelper'
 import { fetchBookMetadata, fetchPodcastMetadata, getCookie } from './actions'
@@ -34,17 +34,18 @@ export interface ItemToUpload extends CleanedItem {
   uploadFailed?: boolean
 }
 
-export default function UploadClient() {
+interface LibraryClientProps {
+  libraries: Library[]
+}
+
+export default function UploadClient({ libraries }: LibraryClientProps) {
   const t = useTypeSafeTranslations()
   const { ensureProvidersLoaded } = useMetadata()
   const bookProviders = useBookProviders()
-  const { ensureLibrariesLoaded } = useLibraries()
-  const libraries = useLibraries().libraries
 
   useEffect(() => {
     ensureProvidersLoaded()
-    ensureLibrariesLoaded()
-  }, [ensureProvidersLoaded, ensureLibrariesLoaded])
+  }, [ensureProvidersLoaded])
 
   const [selectedLibrary, setSelectedLibrary] = useState<string>()
   const [selectedFolder, setSelectedFolder] = useState<string>()
@@ -374,7 +375,7 @@ export default function UploadClient() {
                         <div className="flex items-end">
                           <div className="w-full pe-2">
                             <label htmlFor="" className="text-sm mb-1 px-1">
-                              {t('LabelProvider')}
+                              {t('LabelAuthor')}
                             </label>
                             <TextInput value={item.author} onChange={(value) => handleItemPropertyChange(index, 'author', value)} />
                           </div>

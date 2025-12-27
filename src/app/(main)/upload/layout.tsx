@@ -14,7 +14,6 @@ export default async function UploadLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  //TODO move to context provider
   const [currentUser] = await getData(getCurrentUser())
 
   if (!currentUser?.user) {

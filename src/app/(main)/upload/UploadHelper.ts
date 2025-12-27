@@ -193,7 +193,7 @@ export async function upload(
   console.error('Preparing upload for item:', item.title)
   const form = new FormData()
   form.set('title', item.title)
-  if (mediaType === 'podcast') {
+  if (mediaType !== 'podcast') {
     form.set('author', item.author || '')
     form.set('series', item.series || '')
   }
