@@ -392,24 +392,8 @@ export const getNarrators = cache(async (libraryId: string) => {
   return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
 })
 
-export const getAuthors = cache(async (libraryId: string) => {
-  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors`, {})
-})
-
 export const getAuthor = cache(async (authorId: string): Promise<Author> => {
   return apiRequest<Author>(`/api/authors/${authorId}`, {})
-})
-
-export const getSeriesList = cache(async (libraryId: string) => {
-  return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series?limit=100`, {})
-})
-
-export const getCollectionsList = cache(async (libraryId: string) => {
-  return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections`, {})
-})
-
-export const getPlaylistsList = cache(async (libraryId: string) => {
-  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists`, {})
 })
 
 export const getPlaylist = cache(async (playlistId: string): Promise<Playlist> => {
