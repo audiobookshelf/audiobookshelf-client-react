@@ -47,7 +47,7 @@ export default function SideRail({ serverVersion, installSource }: { serverVersi
         </svg>
       ),
       label: t('ButtonLibrary'),
-      href: `/library/${currentLibraryId}/bookshelf`
+      href: `/library/${currentLibraryId}/items`
     },
     {
       icon: (

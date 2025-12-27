@@ -392,24 +392,8 @@ export const getNarrators = cache(async (libraryId: string) => {
   return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
 })
 
-export const getAuthors = cache(async (libraryId: string) => {
-  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors`, {})
-})
-
 export const getAuthor = cache(async (authorId: string): Promise<Author> => {
   return apiRequest<Author>(`/api/authors/${authorId}`, {})
-})
-
-export const getSeriesList = cache(async (libraryId: string) => {
-  return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series?limit=100`, {})
-})
-
-export const getCollectionsList = cache(async (libraryId: string) => {
-  return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections`, {})
-})
-
-export const getPlaylistsList = cache(async (libraryId: string) => {
-  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists`, {})
 })
 
 export const getPlaylist = cache(async (playlistId: string): Promise<Playlist> => {
@@ -422,6 +406,23 @@ export const getCollection = cache(async (collectionId: string): Promise<Collect
 
 export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
   return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}`, {})
+})
+
+// Paginated entity list functions for bookshelf views
+export const getLibrarySeries = cache(async (libraryId: string, queryParams?: string): Promise<GetSeriesResponse> => {
+  return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series${queryParams ? `?${queryParams}` : ''}`, {})
+})
+
+export const getLibraryAuthors = cache(async (libraryId: string, queryParams?: string): Promise<GetAuthorsResponse> => {
+  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors${queryParams ? `?${queryParams}` : ''}`, {})
+})
+
+export const getLibraryCollections = cache(async (libraryId: string, queryParams?: string): Promise<GetCollectionsResponse> => {
+  return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections${queryParams ? `?${queryParams}` : ''}`, {})
+})
+
+export const getLibraryPlaylists = cache(async (libraryId: string, queryParams?: string): Promise<GetPlaylistsResponse> => {
+  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists${queryParams ? `?${queryParams}` : ''}`, {})
 })
 
 /**

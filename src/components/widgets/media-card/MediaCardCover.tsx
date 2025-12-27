@@ -7,7 +7,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface MediaCardCoverProps {
   libraryItem: LibraryItem
-  coverWidth: number
   coverAspect: number
   placeholderUrl: string
   hasCover: boolean
@@ -27,7 +26,6 @@ const AUTHOR_BOTTOM = 0.75
 
 export default function MediaCardCover({
   libraryItem,
-  coverWidth,
   coverAspect,
   placeholderUrl,
   hasCover,
@@ -167,7 +165,7 @@ export default function MediaCardCover({
             'absolute bottom-0 start-0 h-1 max-w-full z-20 rounded-b box-shadow-progressbar',
             itemIsFinished ? 'bg-success' : 'bg-yellow-400'
           )}
-          style={{ width: `${coverWidth * userProgressPercent}px` }}
+          style={{ width: `${userProgressPercent * 100}%` }}
         />
       )}
     </>

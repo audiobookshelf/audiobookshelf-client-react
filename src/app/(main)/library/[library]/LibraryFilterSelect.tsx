@@ -4,18 +4,19 @@ import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterDecode, filterEncode } from '@/lib/filterUtils'
-import { User } from '@/types/api'
+import { EntityType, User } from '@/types/api'
 import { useCallback, useMemo } from 'react'
 
 interface LibraryFilterSelectProps {
-  isSeries?: boolean
+  entityType?: EntityType
   user?: User
 }
 
-export default function LibraryFilterSelect({ isSeries = false, user }: LibraryFilterSelectProps) {
+export default function LibraryFilterSelect({ entityType = 'items', user }: LibraryFilterSelectProps) {
   const { filterBy, updateSetting, seriesFilterBy, library, filterData } = useLibrary()
   const t = useTypeSafeTranslations()
 
+  const isSeries = entityType === 'series'
   const currentFilter = isSeries ? seriesFilterBy : filterBy
   const isBook = library?.mediaType === 'book'
 
@@ -169,6 +170,96 @@ export default function LibraryFilterSelect({ isSeries = false, user }: LibraryF
   const filterItems = useMemo(() => {
     const items: DropdownItem[] = [{ text: t('LabelAll'), value: 'all' }]
 
+    // For series page, show reduced set of filters
+    if (isSeries) {
+      // Genre submenu
+      if (filterData?.genres?.length) {
+        items.push({
+          text: t('LabelGenre'),
+          value: 'genres',
+          subitems: filterData.genres.map((genre) => ({
+            text: genre,
+            value: `genres.${filterEncode(genre)}`
+          }))
+        })
+      }
+
+      // Tags submenu
+      if (filterData?.tags?.length) {
+        items.push({
+          text: t('LabelTag'),
+          value: 'tags',
+          subitems: filterData.tags.map((tag) => ({
+            text: tag,
+            value: `tags.${filterEncode(tag)}`
+          }))
+        })
+      }
+
+      // Authors submenu
+      if (filterData?.authors?.length) {
+        items.push({
+          text: t('LabelAuthor'),
+          value: 'authors',
+          subitems: filterData.authors.map((author) => ({
+            text: author.name,
+            value: `authors.${filterEncode(author.id)}`
+          }))
+        })
+      }
+
+      // Narrators submenu
+      if (filterData?.narrators?.length) {
+        items.push({
+          text: t('LabelNarrator'),
+          value: 'narrators',
+          subitems: filterData.narrators.map((narrator) => ({
+            text: narrator,
+            value: `narrators.${filterEncode(narrator)}`
+          }))
+        })
+      }
+
+      // Publishers submenu
+      if (filterData?.publishers?.length) {
+        items.push({
+          text: t('LabelPublisher'),
+          value: 'publishers',
+          subitems: filterData.publishers.map((publisher) => ({
+            text: publisher,
+            value: `publishers.${filterEncode(publisher)}`
+          }))
+        })
+      }
+
+      // Languages submenu
+      if (filterData?.languages?.length) {
+        items.push({
+          text: t('LabelLanguage'),
+          value: 'languages',
+          subitems: filterData.languages.map((language) => ({
+            text: language,
+            value: `languages.${filterEncode(language)}`
+          }))
+        })
+      }
+
+      // Series Progress submenu
+      items.push({
+        text: t('LabelSeriesProgress'),
+        value: 'progress',
+        subitems: [
+          { text: t('LabelFinished'), value: `progress.${filterEncode('finished')}` },
+          { text: t('LabelInProgress'), value: `progress.${filterEncode('in-progress')}` },
+          { text: t('LabelNotStarted'), value: `progress.${filterEncode('not-started')}` },
+          { text: t('LabelNotFinished'), value: `progress.${filterEncode('not-finished')}` }
+        ]
+      })
+
+      return items
+    }
+
+    // Non-series filters (existing logic)
     // Genre submenu
     if (filterData?.genres?.length) {
       items.push({
@@ -343,10 +434,12 @@ export default function LibraryFilterSelect({ isSeries = false, user }: LibraryF
     }
 
     return items
-  }, [t, filterData, isBook, user])
+  }, [t, filterData, isBook, isSeries, user])
 
   // Clear button logic
   const showClear = currentFilter !== 'all'
+
+  if (entityType === 'authors') return null
 
   return (
     <div className="w-36 sm:w-44 md:w-48 h-9 relative">

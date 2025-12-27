@@ -28,12 +28,12 @@ export async function getLibrariesAction(): Promise<GetLibrariesResponse> {
  * Server Action: Get collections for a library
  */
 export async function getCollectionsAction(libraryId: string): Promise<GetCollectionsResponse> {
-  return api.getCollectionsList(libraryId)
+  return api.getLibraryCollections(libraryId)
 }
 
 /**
  * Server Action: Get playlists for a library
  */
 export async function getPlaylistsAction(libraryId: string): Promise<GetPlaylistsResponse> {
-  return api.getPlaylistsList(libraryId)
+  return api.getLibraryPlaylists(libraryId)
 }

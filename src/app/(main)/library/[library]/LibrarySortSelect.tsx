@@ -3,28 +3,47 @@
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { EntityType } from '@/types/api'
 import { useCallback, useEffect, useMemo } from 'react'
 
 interface LibrarySortSelectProps {
-  isSeries?: boolean
+  entityType?: EntityType
   libraryMediaType?: 'book' | 'podcast'
 }
 
 // Default sort that works for both book and podcast libraries
 const DEFAULT_SORT = 'media.metadata.title'
 
-export default function LibrarySortSelect({ isSeries = false, libraryMediaType = 'book' }: LibrarySortSelectProps) {
-  const { orderBy, orderDesc, seriesSortBy, seriesSortDesc, filterBy, updateSetting } = useLibrary()
+export default function LibrarySortSelect({ entityType = 'items', libraryMediaType = 'book' }: LibrarySortSelectProps) {
+  const { orderBy, orderDesc, seriesSortBy, seriesSortDesc, authorSortBy, authorSortDesc, filterBy, updateSetting } = useLibrary()
   const t = useTypeSafeTranslations()
 
   const isPodcast = libraryMediaType === 'podcast'
-  const isFilteredBySeries = filterBy?.startsWith('series.') ?? false
+  const isSeries = entityType === 'series'
+  const isAuthors = entityType === 'authors'
+  const isFilteredBySeries = !isSeries && !isAuthors && (filterBy?.startsWith('series.') ?? false)
 
-  const currentSortBy = isSeries ? seriesSortBy : orderBy
-  const currentSortDesc = isSeries ? seriesSortDesc : orderDesc
+  let currentSortBy = orderBy
+  let currentSortDesc = orderDesc
+
+  if (isSeries) {
+    currentSortBy = seriesSortBy
+    currentSortDesc = seriesSortDesc
+  } else if (isAuthors) {
+    currentSortBy = authorSortBy
+    currentSortDesc = authorSortDesc
+  }
 
   const defaultsToAsc = useCallback((val: string) => {
-    return ['media.metadata.title', 'media.metadata.author', 'media.metadata.authorName', 'media.metadata.authorNameLF', 'sequence', 'name'].includes(val)
+    return [
+      'media.metadata.title',
+      'media.metadata.author',
+      'media.metadata.authorName',
+      'media.metadata.authorNameLF',
+      'sequence',
+      'name',
+      'lastFirst'
+    ].includes(val)
   }, [])
 
   const handleSortChange = useCallback(
@@ -32,16 +51,33 @@ export default function LibrarySortSelect({ isSeries = false, libraryMediaType =
       const val = String(value)
       if (currentSortBy === val) {
         // Toggle direction
-        updateSetting(isSeries ? 'seriesSortDesc' : 'orderDesc', !currentSortDesc)
+        let key = 'orderDesc'
+        if (isSeries) key = 'seriesSortDesc'
+        else if (isAuthors) key = 'authorSortDesc'
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        updateSetting(key as any, !currentSortDesc)
       } else {
         // New sort
-        updateSetting(isSeries ? 'seriesSortBy' : 'orderBy', val)
+        let key = 'orderBy'
+        let descKey = 'orderDesc'
+        if (isSeries) {
+          key = 'seriesSortBy'
+          descKey = 'seriesSortDesc'
+        } else if (isAuthors) {
+          key = 'authorSortBy'
+          descKey = 'authorSortDesc'
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        updateSetting(key as any, val)
         if (defaultsToAsc(val)) {
-          updateSetting(isSeries ? 'seriesSortDesc' : 'orderDesc', false)
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          updateSetting(descKey as any, false)
         }
       }
     },
-    [currentSortBy, currentSortDesc, isSeries, updateSetting, defaultsToAsc]
+    [currentSortBy, currentSortDesc, isSeries, isAuthors, updateSetting, defaultsToAsc]
   )
 
   // Podcast sort items (matching Vue podcastItems)
@@ -96,22 +132,37 @@ export default function LibrarySortSelect({ isSeries = false, libraryMediaType =
     [t]
   )
 
+  // Author page sort items
+  const authorPageItems = useMemo(
+    (): DropdownItem[] => [
+      { text: t('LabelAuthorFirstLast'), value: 'name' },
+      { text: t('LabelAuthorLastFirst'), value: 'lastFirst' },
+      { text: t('LabelNumberOfBooks'), value: 'numBooks' },
+      { text: t('LabelAddedAt'), value: 'addedAt' },
+      { text: t('LabelUpdatedAt'), value: 'updatedAt' }
+    ],
+    [t]
+  )
+
   // Get the available items based on current context (without sort icons)
   const availableItems = useMemo(() => {
+    if (isAuthors) return authorPageItems
     if (isSeries) return seriesPageItems
     if (isPodcast) return podcastItems
     if (isFilteredBySeries) return seriesItems
     return bookItems
-  }, [isSeries, isPodcast, isFilteredBySeries, seriesPageItems, podcastItems, seriesItems, bookItems])
+  }, [isSeries, isAuthors, isPodcast, isFilteredBySeries, seriesPageItems, authorPageItems, podcastItems, seriesItems, bookItems])
 
   // Auto-reset sort to a valid value when current sort doesn't exist in available items
   // This handles switching between library types with incompatible sort keys
   useEffect(() => {
     const isValidSort = availableItems.some((item) => item.value === currentSortBy)
     if (currentSortBy && !isValidSort) {
-      updateSetting(isSeries ? 'seriesSortBy' : 'orderBy', DEFAULT_SORT)
+      if (isSeries) updateSetting('seriesSortBy', 'name')
+      else if (isAuthors) updateSetting('authorSortBy', 'name')
+      else updateSetting('orderBy', DEFAULT_SORT)
     }
-  }, [availableItems, currentSortBy, isSeries, updateSetting])
+  }, [availableItems, currentSortBy, isSeries, isAuthors, updateSetting])
 
   const sortItems = useMemo(() => {
     // Clone items to avoid mutating the memoized arrays

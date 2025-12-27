@@ -291,7 +291,6 @@ function MediaCard(props: MediaCardProps) {
         cover={
           <MediaCardCover
             libraryItem={libraryItem}
-            coverWidth={coverWidth}
             coverAspect={coverAspect}
             placeholderUrl={placeholderUrl}
             hasCover={hasCover}
