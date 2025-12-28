@@ -1,23 +1,18 @@
 'use client'
 
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-export default function SideRail({
-  currentLibraryId,
-  currentLibraryMediaType,
-  serverVersion,
-  installSource
-}: {
-  currentLibraryId: string
-  currentLibraryMediaType: string
-  serverVersion: string
-  installSource: string
-}) {
+export default function SideRail({ serverVersion, installSource }: { serverVersion: string; installSource: string }) {
   const pathname = usePathname()
   const t = useTypeSafeTranslations()
+  const { library } = useLibrary()
+
+  const currentLibraryId = library?.id ?? ''
+  const currentLibraryMediaType = library?.mediaType ?? 'book'
 
   const buttons = [
     {
@@ -52,7 +47,7 @@ export default function SideRail({
         </svg>
       ),
       label: t('ButtonLibrary'),
-      href: `/library/${currentLibraryId}/bookshelf`
+      href: `/library/${currentLibraryId}/items`
     },
     {
       icon: (

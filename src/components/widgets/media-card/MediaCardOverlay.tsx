@@ -53,7 +53,7 @@ interface MediaCardOverlayProps {
   mediaItemShare: MediaItemShare | null
   showError: boolean
   errorText: string
-  isAuthorBookshelfView?: boolean
+  showSelectRadioButton?: boolean
   renderOverlayBadges?: () => ReactNode
   renderBadges?: (props: { isHovering: boolean; isSelectionMode: boolean; processing: boolean }) => ReactNode
   renderSeriesNameOverlay?: (isHovering: boolean) => ReactNode
@@ -81,7 +81,7 @@ export default function MediaCardOverlay({
   mediaItemShare,
   showError,
   errorText,
-  isAuthorBookshelfView = false,
+  showSelectRadioButton = false,
   renderOverlayBadges,
   renderBadges,
   renderSeriesNameOverlay,
@@ -195,7 +195,7 @@ export default function MediaCardOverlay({
           )}
 
           {/* Select button */}
-          {!isAuthorBookshelfView && (
+          {showSelectRadioButton && (
             <MediaOverlayIconBtn
               cyId="selectedRadioButton"
               position="top-start"
@@ -208,13 +208,7 @@ export default function MediaCardOverlay({
 
           {/* Edit button */}
           {userCanUpdate && !isSelectionMode && (
-            <MediaOverlayIconBtn
-              cyId="editButton"
-              position="top-end"
-              icon="edit"
-              onClick={handleEditClick}
-              ariaLabel={t('ButtonEdit')}
-            />
+            <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
           )}
 
           {/* More menu icon */}

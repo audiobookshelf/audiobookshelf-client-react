@@ -5,19 +5,20 @@ import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { getCoverAspectRatio, getLibraryItemCoverUrl } from '@/lib/coverUtils'
-import { BookLibraryItem, BookMetadata, Library, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
+import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
 import { Fragment } from 'react'
 import LibraryItemDetails from './LibraryItemDetails'
 
 interface LibraryItemClientProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   currentUser: UserLoginResponse
-  library: Library
 }
 
-export default function LibraryItemClient({ libraryItem, currentUser, library }: LibraryItemClientProps) {
+export default function LibraryItemClient({ libraryItem, currentUser }: LibraryItemClientProps) {
+  const { library } = useLibrary()
   const { setStreamMedia } = useMediaContext()
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
@@ -41,7 +42,7 @@ export default function LibraryItemClient({ libraryItem, currentUser, library }:
           <div className="w-52 max-w-52">
             <PreviewCover
               src={getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt)}
-              bookCoverAspectRatio={getCoverAspectRatio(library.settings?.coverAspectRatio)}
+              bookCoverAspectRatio={getCoverAspectRatio(library.settings?.coverAspectRatio ?? 1)}
               showResolution={false}
               width={208}
             />

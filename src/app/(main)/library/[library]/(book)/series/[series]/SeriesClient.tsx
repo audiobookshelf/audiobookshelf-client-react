@@ -1,13 +1,16 @@
+'use client'
+
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
-import { BookshelfView, GetLibraryItemsResponse, Library, UserLoginResponse } from '@/types/api'
+import { useLibrary } from '@/contexts/LibraryContext'
+import { BookshelfView, GetLibraryItemsResponse, UserLoginResponse } from '@/types/api'
 
 interface SeriesClientProps {
   currentUser: UserLoginResponse
-  library: Library
   libraryItems: GetLibraryItemsResponse
 }
 
-export default function SeriesClient({ currentUser, library, libraryItems }: SeriesClientProps) {
+export default function SeriesClient({ currentUser, libraryItems }: SeriesClientProps) {
+  const { library } = useLibrary()
   const userMediaProgress = currentUser.user.mediaProgress
   return (
     <div>

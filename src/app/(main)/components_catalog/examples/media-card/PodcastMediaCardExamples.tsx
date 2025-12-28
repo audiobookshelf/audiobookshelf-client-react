@@ -27,7 +27,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
     timeFormat: 'h:mm a',
     userPermissions: user.permissions,
     ereaderDevices: [] as EReaderDevice[],
-    showSubtitles: true,
+    showSubtitles: false,
     bookCoverAspectRatio: bookCoverAspectRatio ?? 1.6
   }
 

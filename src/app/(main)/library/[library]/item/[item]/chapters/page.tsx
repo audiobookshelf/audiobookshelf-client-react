@@ -1,11 +1,11 @@
-import { getCurrentUser, getData, getLibrary, getLibraryItem } from '@/lib/api'
+import { getCurrentUser, getData, getLibraryItem } from '@/lib/api'
 
 export default async function ChaptersPage({ params }: { params: Promise<{ item: string; library: string }> }) {
-  const { item: itemId, library: libraryId } = await params
-  const [libraryItem, currentUser, library] = await getData(getLibraryItem(itemId), getCurrentUser(), getLibrary(libraryId))
+  const { item: itemId } = await params
+  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId), getCurrentUser())
 
-  if (!libraryItem || !currentUser || !library) {
-    console.error('Error getting library item or user or library data')
+  if (!libraryItem || !currentUser) {
+    console.error('Error getting library item or user data')
     return null
   }
 

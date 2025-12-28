@@ -22,6 +22,14 @@ export enum BookshelfView {
 }
 
 // ============================================================================
+// ENTITY TYPES
+// ============================================================================
+
+export type EntityType = 'items' | 'series' | 'collections' | 'playlists' | 'authors'
+
+export type BookshelfEntity = LibraryItem | Series | Collection | Playlist | Author
+
+// ============================================================================
 // SERVER & SYSTEM
 // ============================================================================
 
@@ -178,6 +186,21 @@ export interface LibraryFolder {
   fullPath: string
   libraryId: string
   updatedAt: number
+}
+
+// ============================================================================
+// LIBRARY FILTER DATA
+// ============================================================================
+
+export interface LibraryFilterData {
+  authors: { id: string; name: string }[]
+  genres: string[]
+  tags: string[]
+  series: { id: string; name: string }[]
+  narrators: string[]
+  publishers: string[]
+  languages: string[]
+  publishedDecades: string[]
 }
 
 // ============================================================================
@@ -990,7 +1013,17 @@ export interface NarratorObject {
 }
 
 export interface GetAuthorsResponse {
-  authors: Author[]
+  // When paginated (limit/page query params), uses 'results' instead of 'authors'
+  authors?: Author[]
+  results?: Author[]
+  total?: number
+  limit?: number
+  page?: number
+  sortBy?: string
+  sortDesc?: boolean
+  filterBy?: string
+  minified?: boolean
+  include?: string
 }
 
 export interface GetSeriesResponse {
