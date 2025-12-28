@@ -25,7 +25,9 @@ interface GlobalSettings {
   showSubtitles: boolean
 }
 
-interface LibrarySettings extends PerLibrarySettings, GlobalSettings {}
+export interface LibrarySettings extends PerLibrarySettings, GlobalSettings {}
+
+export type LibrarySettingKey = keyof LibrarySettings
 
 const DEFAULT_PER_LIBRARY_SETTINGS: PerLibrarySettings = {
   orderBy: 'media.metadata.title',
@@ -62,7 +64,7 @@ const PER_LIBRARY_KEYS: (keyof PerLibrarySettings)[] = [
 ]
 
 interface LibraryContextType extends LibrarySettings {
-  library: Library | undefined
+  library: Library
   itemCount: number
   setItemCount: (count: number) => void
   contextMenuItems: ContextMenuDropdownItem[]
@@ -70,25 +72,27 @@ interface LibraryContextType extends LibrarySettings {
   onContextMenuAction: ((action: string) => void) | undefined
   setContextMenuActionHandler: (handler: (action: string) => void) => void
   bookshelfView: BookshelfView
-  updateSetting: (key: keyof LibrarySettings, value: LibrarySettings[keyof LibrarySettings]) => void
+  updateSetting: (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => void
   toolbarExtras: React.ReactNode
   setToolbarExtras: (node: React.ReactNode) => void
   // Filter data
   filterData: LibraryFilterData | null
   filterDataLoading: boolean
+  isSettingsLoaded: boolean
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
-export function LibraryProvider({ children, bookshelfView, library }: { children: React.ReactNode; bookshelfView: BookshelfView; library?: Library }) {
+export function LibraryProvider({ children, bookshelfView, library }: { children: React.ReactNode; bookshelfView: BookshelfView; library: Library }) {
   const [itemCount, setItemCount] = useState(0)
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
   const [settings, setSettings] = useState<LibrarySettings>(DEFAULT_SETTINGS)
   const [toolbarExtras, setToolbarExtras] = useState<React.ReactNode>(null)
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false)
 
   // Filter data hook
-  const { filterData, isLoading: filterDataLoading, updateFilterDataWithItem, removeSeriesFromFilterData } = useFilterData(library?.id)
+  const { filterData, isLoading: filterDataLoading, updateFilterDataWithItem, removeSeriesFromFilterData } = useFilterData(library.id)
 
   // Socket listeners for real-time filter data updates
   const handleItemAdded = useCallback(
@@ -121,11 +125,11 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
 
   const handleSeriesRemoved = useCallback(
     (data: { id: string; libraryId: string }) => {
-      if (data.libraryId === library?.id) {
+      if (data.libraryId === library.id) {
         removeSeriesFromFilterData(data.id)
       }
     },
-    [library?.id, removeSeriesFromFilterData]
+    [library.id, removeSeriesFromFilterData]
   )
 
   // Register socket listeners
@@ -142,9 +146,9 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       const globalStored = localStorage.getItem('userSettings')
       const globalParsed = globalStored ? JSON.parse(globalStored) : {}
 
-      // Load per-library settings if we have a library
+      // Load per-library settings
       let perLibraryParsed: Partial<PerLibrarySettings> = {}
-      if (library?.id) {
+      if (library.id) {
         const perLibraryStored = localStorage.getItem(`librarySettings_${library.id}`)
         if (perLibraryStored) {
           perLibraryParsed = JSON.parse(perLibraryStored)
@@ -158,15 +162,17 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       })
     } catch (e) {
       console.error('Failed to load user settings', e)
+    } finally {
+      setIsSettingsLoaded(true)
     }
-  }, [library?.id])
+  }, [library.id])
 
   const updateSetting = useCallback(
-    (key: keyof LibrarySettings, value: LibrarySettings[keyof LibrarySettings]) => {
+    (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => {
       setSettings((prev) => {
         const newSettings = { ...prev, [key]: value }
         try {
-          if (PER_LIBRARY_KEYS.includes(key as keyof PerLibrarySettings) && library?.id) {
+          if (PER_LIBRARY_KEYS.includes(key as keyof PerLibrarySettings) && library.id) {
             // Save per-library setting
             const perLibraryStored = localStorage.getItem(`librarySettings_${library.id}`)
             const perLibraryParsed = perLibraryStored ? JSON.parse(perLibraryStored) : {}
@@ -183,7 +189,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
         return newSettings
       })
     },
-    [library?.id]
+    [library.id]
   )
 
   const setContextMenuActionHandler = useCallback((handler: (action: string) => void) => {
@@ -205,7 +211,8 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       toolbarExtras,
       setToolbarExtras,
       filterData,
-      filterDataLoading
+      filterDataLoading,
+      isSettingsLoaded
     }),
     [
       library,
@@ -218,7 +225,8 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       updateSetting,
       toolbarExtras,
       filterData,
-      filterDataLoading
+      filterDataLoading,
+      isSettingsLoaded
     ]
   )
 

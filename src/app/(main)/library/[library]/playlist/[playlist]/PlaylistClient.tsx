@@ -1,15 +1,16 @@
 'use client'
 
 import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCover'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
-import { Library, Playlist } from '@/types/api'
+import { Playlist } from '@/types/api'
 
 interface PlaylistClientProps {
   playlist: Playlist
-  library: Library
 }
 
-export default function PlaylistClient({ playlist, library }: PlaylistClientProps) {
+export default function PlaylistClient({ playlist }: PlaylistClientProps) {
+  const { library } = useLibrary()
   const coverAspectRatio = getCoverAspectRatio(library.settings?.coverAspectRatio ?? 1)
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio
