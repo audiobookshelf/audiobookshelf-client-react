@@ -330,14 +330,14 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       {/* 'staging' area */}
       {(uploadItems.length > 0 || ignoredFiles.length > 0 || errors !== '') && (
         <>
-          <div className="w-full flex items-center pb-4 border-b border-disabled p-6">
+          <div className="w-full flex items-center pb-4 border-b border-border p-6">
             <p className="text-lg flex-1">{t('LabelXItems', { 0: uploadItems.length })}</p>
             <Btn disabled={uploadProcessing} onClick={resetUpload}>
               {t('ButtonReset')}
             </Btn>
           </div>
           {uploadItems.map((item, index) => (
-            <div key={index} className="relative w-full py-4 px-6 border border-white/10 shadow-lg rounded-md my-6">
+            <div key={index} className="relative w-full py-4 px-6 border border-border shadow-lg rounded-md my-6">
               <>
                 {!item.uploadComplete && !item.uploadFailed && (
                   <>
@@ -348,14 +348,11 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                     )}
                     {item.isFetchingMetadata && <LoadingIndicator label="LabelFetchingMetadata" />}
                     {/* floating # on left */}
-                    <div className="absolute -top-3 -left-3 w-8 h-8 bg-bg border border-white/10 flex items-center justify-center rounded-full">
+                    <div className="absolute -top-3 -left-3 w-8 h-8 bg-bg border border-border flex items-center justify-center rounded-full">
                       <p className="text-base">{'#' + (index + 1)}</p>
                     </div>
                     {/* floating x on right */}
-                    <IconBtn
-                      className="absolute -top-3 -right-3 w-8 h-8 bg-bg border border-white/10 rounded-full"
-                      onClick={() => handleRemoveStagedItem(index)}
-                    >
+                    <IconBtn className="absolute -top-3 -right-3 w-8 h-8 bg-bg border border-border rounded-full" onClick={() => handleRemoveStagedItem(index)}>
                       close
                     </IconBtn>
                     <div className="flex flex-wrap mb-4 gap-4 items-center">
