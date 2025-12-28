@@ -17,6 +17,7 @@ import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkelet
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
+import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, LibraryItem, MediaProgress, Playlist, Series, UserLoginResponse } from '@/types/api'
@@ -32,20 +33,9 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const {
-    library,
-    setItemCount,
-    orderBy,
-    orderDesc,
-    filterBy,
-    collapseSeries,
-    showSubtitles,
-    seriesSortBy,
-    seriesSortDesc,
-    seriesFilterBy,
-    authorSortBy,
-    authorSortDesc
-  } = useLibrary()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting } = useLibrary()
+
+  const { query } = useBookshelfQuery(entityType)
 
   const isPodcastLibrary = library.mediaType === 'podcast'
   const isBookLibrary = library.mediaType === 'book'
@@ -55,43 +45,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   // Container dimensions state
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-
-  // Build query string based on entity type and context settings
-  const query = useMemo(() => {
-    const params = new URLSearchParams()
-
-    switch (entityType) {
-      case 'items':
-        if (orderBy) {
-          params.set('sort', orderBy)
-          params.set('desc', orderDesc ? '1' : '0')
-        }
-        if (filterBy && filterBy !== 'all') {
-          params.set('filter', filterBy)
-        }
-        if (collapseSeries && !isPodcastLibrary) {
-          params.set('collapseseries', '1')
-        }
-        break
-      case 'series':
-        if (seriesSortBy) {
-          params.set('sort', seriesSortBy)
-          params.set('desc', seriesSortDesc ? '1' : '0')
-        }
-        if (seriesFilterBy && seriesFilterBy !== 'all') {
-          params.set('filter', seriesFilterBy)
-        }
-        break
-      case 'authors':
-        if (authorSortBy) {
-          params.set('sort', authorSortBy)
-          params.set('desc', authorSortDesc ? '1' : '0')
-        }
-        break
-      // collections and playlists have no sort/filter currently
-    }
-    return params.toString()
-  }, [entityType, orderBy, orderDesc, filterBy, collapseSeries, isPodcastLibrary, seriesSortBy, seriesSortDesc, seriesFilterBy, authorSortBy, authorSortDesc])
 
   // Reset scroll position when query changes (sort/filter changed)
   useEffect(() => {
@@ -239,7 +192,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   }, [userMediaProgress])
 
   // Inject Toolbar Controls and Menu Items
-  const { setToolbarExtras, setContextMenuItems, setContextMenuActionHandler, updateSetting } = useLibrary()
+  const { setToolbarExtras, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
 
   useEffect(() => {
     // Set up toolbar extras based on entity type
