@@ -407,27 +407,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     }
   }
 
-  // Get error message based on entity type
-  const getErrorMessage = () => {
-    switch (entityType) {
-      case 'series':
-        return t('MessageFailedToLoadSeries')
-      case 'collections':
-        return t('MessageFailedToLoadCollections')
-      case 'playlists':
-        return t('MessageFailedToLoadPlaylists')
-      case 'authors':
-        return t('MessageFailedToLoadAuthors')
-      case 'items':
-      default:
-        if (isPodcastLibrary) {
-          return t('MessageFailedToLoadPodcasts')
-        } else {
-          return t('MessageFailedToLoadBooks')
-        }
-    }
-  }
-
   // Get empty state message based on entity type
   const getEmptyMessage = () => {
     switch (entityType) {
@@ -475,7 +454,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       {/* Error State */}
       {error && (
         <div className="flex h-full flex-col items-center justify-center p-10 text-center">
-          <p className="text-red-500 mb-2">{getErrorMessage()}</p>
+          <p className="text-red-500 mb-2">{t('MessageFailedToLoadData')}</p>
           <p className="text-sm text-gray-500 mb-4">{error.message}</p>
           <button onClick={() => loadPage(0)} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
             {t('ButtonRetry')}
