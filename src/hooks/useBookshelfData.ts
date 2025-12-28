@@ -63,9 +63,11 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
   const pagesLoadedRef = useRef<Set<number>>(new Set())
   const loadingPagesRef = useRef<Set<number>>(new Set())
   const itemsPerPageRef = useRef(itemsPerPage)
+  const activeQueryRef = useRef(query)
 
   // Reset when query or entityType changes
   useEffect(() => {
+    activeQueryRef.current = query
     setState({
       items: [],
       totalEntities: 0,
@@ -119,6 +121,9 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
 
         const data = await fetchEntityData(entityType, libraryId, queryParams)
 
+        // Check if query changed while fetching
+        if (query !== activeQueryRef.current) return
+
         const results = getResultsFromResponse(entityType, data)
         const total = (data as { total?: number }).total ?? results.length
 
@@ -143,11 +148,14 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
         })
         pagesLoadedRef.current.add(page)
       } catch (err) {
+        if (query !== activeQueryRef.current) return
         const error = err instanceof Error ? err : new Error('Failed to load page')
         console.error('Failed to load page', page, error)
         setState((prev) => ({ ...prev, error, isLoading: false }))
       } finally {
-        loadingPagesRef.current.delete(page)
+        if (query === activeQueryRef.current) {
+          loadingPagesRef.current.delete(page)
+        }
       }
     },
     [libraryId, entityType, query]
