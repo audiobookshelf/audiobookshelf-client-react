@@ -286,14 +286,11 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       {/* Second row: Auto Fetch, Metadata Provider (books only) */}
       {currentLibraryMediaType === 'book' && (
         <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex items-center gap-2 pt-6">
-            <ToggleSwitch value={autoFetch} onChange={setAutoFetch} />
-            <label htmlFor="autoFetch" className="text-sm flex items-center px-1">
-              {t('LabelAutoFetchMetadata')}
-              <Tooltip className="pl-1" text={t('LabelAutoFetchMetadataHelp')}>
-                <span className="material-symbols icon-text text-sm cursor-pointer">info</span>
-              </Tooltip>
-            </label>
+          <div className="flex items-center pt-6">
+            <ToggleSwitch label={t('LabelAutoFetchMetadata')} value={autoFetch} className="pr-0" onChange={setAutoFetch} />
+            <Tooltip maxWidth={300} text={t('LabelAutoFetchMetadataHelp')}>
+              <span className="material-symbols text-lg">info</span>
+            </Tooltip>
           </div>
 
           <div className="flex-1 min-w-[200px]">

@@ -153,10 +153,6 @@ input[type='number'] {
   border-right: 8px solid rgb(34, 127, 35);
 }
 
-.icon-text {
-  font-size: 1.1rem;
-}
-
 .box-shadow-sm-up {
   box-shadow: 0px -5px 8px #11111122;
 }
