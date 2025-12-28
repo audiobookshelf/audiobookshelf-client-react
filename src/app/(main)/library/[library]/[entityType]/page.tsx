@@ -16,7 +16,7 @@ export default async function EntityPage({ params }: { params: Promise<{ library
 
   return (
     <div className="w-full h-full">
-      <BookshelfClient entityType={entityType} currentUser={currentUser} />
+      <BookshelfClient key={entityType} entityType={entityType} currentUser={currentUser} />
     </div>
   )
 }
