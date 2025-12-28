@@ -25,7 +25,9 @@ interface GlobalSettings {
   showSubtitles: boolean
 }
 
-interface LibrarySettings extends PerLibrarySettings, GlobalSettings {}
+export interface LibrarySettings extends PerLibrarySettings, GlobalSettings {}
+
+export type LibrarySettingKey = keyof LibrarySettings
 
 const DEFAULT_PER_LIBRARY_SETTINGS: PerLibrarySettings = {
   orderBy: 'media.metadata.title',
@@ -70,12 +72,13 @@ interface LibraryContextType extends LibrarySettings {
   onContextMenuAction: ((action: string) => void) | undefined
   setContextMenuActionHandler: (handler: (action: string) => void) => void
   bookshelfView: BookshelfView
-  updateSetting: (key: keyof LibrarySettings, value: LibrarySettings[keyof LibrarySettings]) => void
+  updateSetting: (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => void
   toolbarExtras: React.ReactNode
   setToolbarExtras: (node: React.ReactNode) => void
   // Filter data
   filterData: LibraryFilterData | null
   filterDataLoading: boolean
+  isSettingsLoaded: boolean
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
@@ -86,6 +89,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
   const [settings, setSettings] = useState<LibrarySettings>(DEFAULT_SETTINGS)
   const [toolbarExtras, setToolbarExtras] = useState<React.ReactNode>(null)
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false)
 
   // Filter data hook
   const { filterData, isLoading: filterDataLoading, updateFilterDataWithItem, removeSeriesFromFilterData } = useFilterData(library.id)
@@ -158,11 +162,13 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       })
     } catch (e) {
       console.error('Failed to load user settings', e)
+    } finally {
+      setIsSettingsLoaded(true)
     }
   }, [library.id])
 
   const updateSetting = useCallback(
-    (key: keyof LibrarySettings, value: LibrarySettings[keyof LibrarySettings]) => {
+    (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => {
       setSettings((prev) => {
         const newSettings = { ...prev, [key]: value }
         try {
@@ -205,7 +211,8 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       toolbarExtras,
       setToolbarExtras,
       filterData,
-      filterDataLoading
+      filterDataLoading,
+      isSettingsLoaded
     }),
     [
       library,
@@ -218,7 +225,8 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       updateSetting,
       toolbarExtras,
       filterData,
-      filterDataLoading
+      filterDataLoading,
+      isSettingsLoaded
     ]
   )
 
