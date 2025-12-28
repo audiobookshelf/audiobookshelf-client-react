@@ -231,6 +231,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
           setUploadItems(updatedItemsForProgress)
         })
       } catch (error) {
+        console.error('Upload failed:', error)
         item.uploadFailed = true
       } finally {
         item.isUploading = false
@@ -422,27 +423,29 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                         </TableRow>
                       ))}
                     </CollapsibleTable>
-                    <CollapsibleTable
-                      title={t('HeaderOtherFiles')}
-                      count={item.otherFiles.length}
-                      expanded={expandedTables[`${index}-otherFiles`] || false}
-                      onExpandedChange={() => toggleTableExpanded(index, 'otherFiles')}
-                      tableHeaders={tableHeaders}
-                    >
-                      {item.otherFiles.map((file) => (
-                        <TableRow key={file.name} className="text-left">
-                          <td>
-                            <p className="pl-2">{file.name}</p>
-                          </td>
-                          <td>
-                            <p>{bytesPretty(file.size)}</p>
-                          </td>
-                          <td>
-                            <p>{file.filetype}</p>
-                          </td>
-                        </TableRow>
-                      ))}
-                    </CollapsibleTable>
+                    {item.otherFiles.length > 0 && (
+                      <CollapsibleTable
+                        title={t('HeaderOtherFiles')}
+                        count={item.otherFiles.length}
+                        expanded={expandedTables[`${index}-otherFiles`] || false}
+                        onExpandedChange={() => toggleTableExpanded(index, 'otherFiles')}
+                        tableHeaders={tableHeaders}
+                      >
+                        {item.otherFiles.map((file) => (
+                          <TableRow key={file.name} className="text-left">
+                            <td>
+                              <p className="pl-2">{file.name}</p>
+                            </td>
+                            <td>
+                              <p>{bytesPretty(file.size)}</p>
+                            </td>
+                            <td>
+                              <p>{file.filetype}</p>
+                            </td>
+                          </TableRow>
+                        ))}
+                      </CollapsibleTable>
+                    )}
                   </>
                 )}
                 {item.uploadComplete && (
