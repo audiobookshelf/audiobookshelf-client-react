@@ -62,7 +62,7 @@ const PER_LIBRARY_KEYS: (keyof PerLibrarySettings)[] = [
 ]
 
 interface LibraryContextType extends LibrarySettings {
-  library: Library | undefined
+  library: Library
   itemCount: number
   setItemCount: (count: number) => void
   contextMenuItems: ContextMenuDropdownItem[]
@@ -80,7 +80,7 @@ interface LibraryContextType extends LibrarySettings {
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
-export function LibraryProvider({ children, bookshelfView, library }: { children: React.ReactNode; bookshelfView: BookshelfView; library?: Library }) {
+export function LibraryProvider({ children, bookshelfView, library }: { children: React.ReactNode; bookshelfView: BookshelfView; library: Library }) {
   const [itemCount, setItemCount] = useState(0)
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
@@ -88,7 +88,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
   const [toolbarExtras, setToolbarExtras] = useState<React.ReactNode>(null)
 
   // Filter data hook
-  const { filterData, isLoading: filterDataLoading, updateFilterDataWithItem, removeSeriesFromFilterData } = useFilterData(library?.id)
+  const { filterData, isLoading: filterDataLoading, updateFilterDataWithItem, removeSeriesFromFilterData } = useFilterData(library.id)
 
   // Socket listeners for real-time filter data updates
   const handleItemAdded = useCallback(
@@ -121,11 +121,11 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
 
   const handleSeriesRemoved = useCallback(
     (data: { id: string; libraryId: string }) => {
-      if (data.libraryId === library?.id) {
+      if (data.libraryId === library.id) {
         removeSeriesFromFilterData(data.id)
       }
     },
-    [library?.id, removeSeriesFromFilterData]
+    [library.id, removeSeriesFromFilterData]
   )
 
   // Register socket listeners
@@ -142,9 +142,9 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       const globalStored = localStorage.getItem('userSettings')
       const globalParsed = globalStored ? JSON.parse(globalStored) : {}
 
-      // Load per-library settings if we have a library
+      // Load per-library settings
       let perLibraryParsed: Partial<PerLibrarySettings> = {}
-      if (library?.id) {
+      if (library.id) {
         const perLibraryStored = localStorage.getItem(`librarySettings_${library.id}`)
         if (perLibraryStored) {
           perLibraryParsed = JSON.parse(perLibraryStored)
@@ -159,14 +159,14 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
     } catch (e) {
       console.error('Failed to load user settings', e)
     }
-  }, [library?.id])
+  }, [library.id])
 
   const updateSetting = useCallback(
     (key: keyof LibrarySettings, value: LibrarySettings[keyof LibrarySettings]) => {
       setSettings((prev) => {
         const newSettings = { ...prev, [key]: value }
         try {
-          if (PER_LIBRARY_KEYS.includes(key as keyof PerLibrarySettings) && library?.id) {
+          if (PER_LIBRARY_KEYS.includes(key as keyof PerLibrarySettings) && library.id) {
             // Save per-library setting
             const perLibraryStored = localStorage.getItem(`librarySettings_${library.id}`)
             const perLibraryParsed = perLibraryStored ? JSON.parse(perLibraryStored) : {}
@@ -183,7 +183,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
         return newSettings
       })
     },
-    [library?.id]
+    [library.id]
   )
 
   const setContextMenuActionHandler = useCallback((handler: (action: string) => void) => {
