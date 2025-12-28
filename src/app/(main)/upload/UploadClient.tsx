@@ -396,7 +396,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                       </div>
                       <div className="flex-1 w-1/2">
                         <label htmlFor="" className="text-sm mb-1 px-1">
-                          {t('LabelDirectory')} {t('LabelAuto')}
+                          {t('LabelUploaderItemDirectory')}
                         </label>
                         <TextInput readOnly={true} value={getDirectory(item)} />
                       </div>
