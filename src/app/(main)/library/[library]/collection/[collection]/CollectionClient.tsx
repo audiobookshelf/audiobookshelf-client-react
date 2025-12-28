@@ -1,15 +1,16 @@
 'use client'
 
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
-import { Collection, Library } from '@/types/api'
+import { Collection } from '@/types/api'
 
 interface CollectionClientProps {
   collection: Collection
-  library: Library
 }
 
-export default function CollectionClient({ collection, library }: CollectionClientProps) {
+export default function CollectionClient({ collection }: CollectionClientProps) {
+  const { library } = useLibrary()
   const coverAspectRatio = getCoverAspectRatio(library.settings?.coverAspectRatio ?? 1)
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio

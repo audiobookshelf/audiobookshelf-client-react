@@ -18,23 +18,11 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
-import {
-  Author,
-  BookshelfEntity,
-  BookshelfView,
-  Collection,
-  EntityType,
-  Library,
-  LibraryItem,
-  MediaProgress,
-  Playlist,
-  Series,
-  UserLoginResponse
-} from '@/types/api'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, LibraryItem, MediaProgress, Playlist, Series, UserLoginResponse } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface BookshelfClientProps {
-  library: Library
   entityType: EntityType
   // Different APIs return different structures:
   // - items/series/collections/playlists: { results: T[], total?: number }
@@ -42,8 +30,10 @@ interface BookshelfClientProps {
   currentUser: UserLoginResponse
 }
 
-export default function BookshelfClient({ library, entityType, currentUser }: BookshelfClientProps) {
+export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
+  const t = useTypeSafeTranslations()
   const {
+    library,
     setItemCount,
     orderBy,
     orderDesc,
@@ -56,6 +46,7 @@ export default function BookshelfClient({ library, entityType, currentUser }: Bo
     authorSortBy,
     authorSortDesc
   } = useLibrary()
+
   const isPodcastLibrary = library.mediaType === 'podcast'
   const isBookLibrary = library.mediaType === 'book'
 
@@ -287,18 +278,18 @@ export default function BookshelfClient({ library, entityType, currentUser }: Bo
 
     if (entityType === 'items') {
       menuItems.push({
-        text: showSubtitles ? 'Hide Subtitles' : 'Show Subtitles',
+        text: showSubtitles ? t('LabelHideSubtitles') : t('LabelShowSubtitles'),
         action: showSubtitles ? 'hide-subtitles' : 'show-subtitles'
       })
       if (isBookLibrary) {
         menuItems.push({
-          text: collapseSeries ? 'Expand Series' : 'Collapse Series',
+          text: collapseSeries ? t('LabelExpandSeries') : t('LabelCollapseSeries'),
           action: collapseSeries ? 'expand-series' : 'collapse-series'
         })
       }
     } else if (entityType === 'authors' && currentUser.user.permissions?.update) {
       menuItems.push({
-        text: 'Match All Authors',
+        text: t('ButtonMatchAllAuthors'),
         action: 'match-all-authors'
       })
     }
@@ -335,7 +326,8 @@ export default function BookshelfClient({ library, entityType, currentUser }: Bo
     isBookLibrary,
     showSubtitles,
     collapseSeries,
-    currentUser.user
+    currentUser.user,
+    t
   ])
 
   // Render the appropriate skeleton for the current entity type
@@ -462,20 +454,57 @@ export default function BookshelfClient({ library, entityType, currentUser }: Bo
     }
   }
 
+  // Get error message based on entity type
+  const getErrorMessage = () => {
+    switch (entityType) {
+      case 'series':
+        return t('MessageFailedToLoadSeries')
+      case 'collections':
+        return t('MessageFailedToLoadCollections')
+      case 'playlists':
+        return t('MessageFailedToLoadPlaylists')
+      case 'authors':
+        return t('MessageFailedToLoadAuthors')
+      case 'items':
+      default:
+        if (isPodcastLibrary) {
+          return t('MessageFailedToLoadPodcasts')
+        } else {
+          return t('MessageFailedToLoadBooks')
+        }
+    }
+  }
+
   // Get empty state message based on entity type
   const getEmptyMessage = () => {
     switch (entityType) {
       case 'series':
-        return 'No series found'
+        return t('MessageNoSeriesFound')
       case 'collections':
-        return 'No collections found'
+        return t('MessageNoCollectionsFound')
       case 'playlists':
-        return 'No playlists found'
+        return t('MessageNoPlaylistsFound')
       case 'authors':
-        return 'No authors found'
+        return t('MessageNoAuthorsFound')
       default:
-        return 'No items found'
+        if (isPodcastLibrary) {
+          return t('MessageNoPodcastsFound')
+        } else {
+          return t('MessageNoBooksFound')
+        }
     }
+  }
+
+  // VALIDATION CHECK
+  const validEntities = isPodcastLibrary ? ['items', 'playlists'] : ['items', 'series', 'collections', 'playlists', 'authors']
+
+  if (!validEntities.includes(entityType as string)) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-foreground-muted">
+        <h2 className="text-2xl font-bold mb-2">{t('LabelPageNotFound')}</h2>
+        <p>{t('MessagePageNotFoundForLibraryType')}</p>
+      </div>
+    )
   }
 
   return (
@@ -493,10 +522,10 @@ export default function BookshelfClient({ library, entityType, currentUser }: Bo
       {/* Error State */}
       {error && (
         <div className="flex h-full flex-col items-center justify-center p-10 text-center">
-          <p className="text-red-500 mb-2">Failed to load {entityType}</p>
+          <p className="text-red-500 mb-2">{getErrorMessage()}</p>
           <p className="text-sm text-gray-500 mb-4">{error.message}</p>
           <button onClick={() => loadPage(0)} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-            Retry
+            {t('ButtonRetry')}
           </button>
         </div>
       )}

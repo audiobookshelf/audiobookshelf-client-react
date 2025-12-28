@@ -70,8 +70,22 @@ export default function ItemDetailsExamplesPage() {
     setSelectedAuthor(null)
   }, [])
 
+  const activeLibrary = libraries.find((l) => l.id === selectedLibraryId)
+
+  if (!activeLibrary) {
+    if (libraries.length > 0) {
+      // Should theoretically be initialized to [0] but if selectedLibraryId became stale
+      setSelectedLibraryId(libraries[0].id)
+    }
+    return (
+      <div className="p-8 text-center text-gray-500">
+        <p>No library selected or libraries not loaded.</p>
+      </div>
+    )
+  }
+
   return (
-    <LibraryProvider bookshelfView={0} library={libraries.find((l) => l.id === selectedLibraryId)}>
+    <LibraryProvider bookshelfView={0} library={activeLibrary}>
       <div className="p-8 w-full max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Item Details & Cover Examples</h1>

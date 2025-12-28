@@ -9,19 +9,18 @@ import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
 import { SeriesCard } from '@/components/widgets/media-card/SeriesCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { Author, BookshelfView, Library, LibraryItem, MediaProgress, PersonalizedShelf, Series, UserLoginResponse } from '@/types/api'
+import { Author, BookshelfView, LibraryItem, MediaProgress, PersonalizedShelf, Series, UserLoginResponse } from '@/types/api'
 import { useEffect } from 'react'
 
 interface LibraryClientProps {
-  library: Library
   personalized: PersonalizedShelf[]
   currentUser: UserLoginResponse
 }
 
-export default function LibraryClient({ library, personalized, currentUser }: LibraryClientProps) {
+export default function LibraryClient({ personalized, currentUser }: LibraryClientProps) {
   const user = currentUser.user
   const { sizeMultiplier } = useCardSize()
-  const { setContextMenuItems, setContextMenuActionHandler, bookshelfView } = useLibrary()
+  const { library, setContextMenuItems, setContextMenuActionHandler, bookshelfView } = useLibrary()
 
   useEffect(() => {
     const items = []
@@ -77,7 +76,7 @@ export default function LibraryClient({ library, personalized, currentUser }: Li
                       userPermissions={currentUser.user.permissions}
                       ereaderDevices={currentUser.ereaderDevices}
                       showSubtitles={true}
-                      bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
+                      bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
                       mediaProgress={mediaProgress}
                     />
                   </div>
