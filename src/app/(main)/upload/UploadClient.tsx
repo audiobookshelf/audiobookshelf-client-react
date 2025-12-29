@@ -245,7 +245,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
 
   return (
     <div
-      className="upload-page pt-16 p-8 space-y-4 w-full h-full overflow-x-hidden overflow-y-auto"
+      className="pt-16 p-8 space-y-4 w-full max-w-7xl mx-auto h-full overflow-x-hidden overflow-y-auto"
       draggable={false}
       onDragEnter={preventDef}
       onDragOver={preventDef}
