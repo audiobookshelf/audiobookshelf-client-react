@@ -341,7 +341,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                     <>
                       {item.isUploading && (
                         <LoadingIndicator label={'MessageUploading'}>
-                          <ProgressIndicator progress={item.uploadProgress || 0} animated={item.isUploading || false} />
+                          <ProgressIndicator progress={item.uploadProgress || 0} />
                         </LoadingIndicator>
                       )}
                       {item.isFetchingMetadata && <LoadingIndicator label="LabelFetchingMetadata" />}
@@ -356,14 +356,12 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                       >
                         close
                       </IconBtn>
+                      {item.metadataError && (
+                        <Alert type="error" autoFocus={false}>
+                          <p>{item.metadataError}</p>
+                        </Alert>
+                      )}
                       <div className="flex flex-wrap mb-4 items-center -mx-2">
-                        {item.metadataError && (
-                          <Alert type="error" autoFocus={false}>
-                            <div className="pr-4">
-                              <p>{item.metadataError}</p>
-                            </div>
-                          </Alert>
-                        )}
                         <div className="w-full md:w-1/2 p-2">
                           <label htmlFor="" className="text-sm mb-1 px-1">
                             {t('LabelTitle')}
