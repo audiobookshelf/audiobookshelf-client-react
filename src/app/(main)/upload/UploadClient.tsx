@@ -91,8 +91,8 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     console.log('Selected files:', itemResults)
     setUploadItems(itemResults.items)
     setIgnoredFiles(itemResults.ignoredFiles)
-    if (itemResults.error) {
-      setErrors(itemResults.error)
+    if (itemResults.items.length === 0) {
+      setErrors('MessageNoItemsFound')
     }
 
     if (itemResults.items.length > 0 && autoFetch) {
@@ -108,8 +108,8 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     console.log('Selected files:', itemResults)
     setUploadItems(itemResults.items)
     setIgnoredFiles(itemResults.ignoredFiles)
-    if (itemResults.error) {
-      setErrors(itemResults.error)
+    if (itemResults.items.length === 0) {
+      setErrors('MessageNoItemsFound')
     }
     if (itemResults.items.length > 0 && autoFetch) {
       itemResults.items.forEach((_, index) => {
@@ -324,6 +324,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
           </DragDrop>
         </div>
       )}
+
       {/* 'staging' area */}
       {(uploadItems.length > 0 || ignoredFiles.length > 0 || errors !== '') && (
         <>
@@ -333,6 +334,13 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
               {t('ButtonReset')}
             </Btn>
           </div>
+          {errors === 'MessageNoItemsFound' && (
+            <Alert type="error" autoFocus={false}>
+              <div className="pr-4">
+                <p>{t('MessageNoItemsFound')}</p>
+              </div>
+            </Alert>
+          )}
           {ignoredFiles.length > 0 && (
             <Alert type="warning" autoFocus={false}>
               <div className="pe-8">
