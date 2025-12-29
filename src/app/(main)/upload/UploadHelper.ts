@@ -190,7 +190,6 @@ export async function upload(
   cookie: string,
   onProgress?: (progress: number) => void
 ): Promise<void> {
-  console.error('Preparing upload for item:', item.title)
   const form = new FormData()
   form.set('title', item.title)
   if (mediaType !== 'podcast') {

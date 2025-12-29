@@ -245,7 +245,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
 
   return (
     <div
-      className="pt-16 p-8 space-y-4 w-full max-w-7xl mx-auto h-full overflow-x-hidden overflow-y-auto"
+      className="pt-16 p-4 md:p-8 space-y-4 w-full max-w-7xl mx-auto h-full overflow-x-hidden overflow-y-auto"
       draggable={false}
       onDragEnter={preventDef}
       onDragOver={preventDef}
@@ -269,7 +269,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
           />
         </div>
 
-        <div className="flex-3 min-w-[200px]">
+        <div className="md:flex-3 min-w-[200px] w-full">
           <label htmlFor="folder" className="block text-sm font-medium mb-1 px-1">
             {t('LabelFolder')}
           </label>
@@ -334,7 +334,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
             </Btn>
           </div>
           {uploadItems.map((item, index) => (
-            <div key={index} className="relative w-full py-4 px-6 border border-border shadow-lg rounded-md my-6">
+            <div key={index} className="relative w-full py-4 px-2 md:px-6 border border-border shadow-lg rounded-md my-6">
               <>
                 {!item.uploadComplete && !item.uploadFailed && (
                   <>
@@ -352,7 +352,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                     <IconBtn className="absolute -top-3 -right-3 w-8 h-8 bg-bg border border-border rounded-full" onClick={() => handleRemoveStagedItem(index)}>
                       close
                     </IconBtn>
-                    <div className="flex flex-wrap mb-4 gap-4 items-center">
+                    <div className="flex flex-wrap mb-4 items-center -mx-2">
                       {item.metadataError && (
                         <Alert type="error" autoFocus={false}>
                           <div className="pr-4">
@@ -360,34 +360,38 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                           </div>
                         </Alert>
                       )}
-                      <div className="flex-1 w-1/2">
+                      <div className="w-full md:w-1/2 p-2">
                         <label htmlFor="" className="text-sm mb-1 px-1">
                           {t('LabelTitle')}
                         </label>
                         <TextInput value={item.title} onChange={(value) => handleItemPropertyChange(index, 'title', value)} />
                       </div>
-                      <div className="flex-1 w-1/2">
-                        <div className="flex items-end">
-                          <div className="w-full pe-2">
-                            <label htmlFor="" className="text-sm mb-1 px-1">
-                              {t('LabelAuthor')}
-                            </label>
-                            <TextInput value={item.author} onChange={(value) => handleItemPropertyChange(index, 'author', value)} />
+                      {currentLibraryMediaType === 'book' && (
+                        <div className="w-full md:w-1/2 p-2">
+                          <div className="flex items-end">
+                            <div className="w-full pe-2">
+                              <label htmlFor="" className="text-sm mb-1 px-1">
+                                {t('LabelAuthor')}
+                              </label>
+                              <TextInput value={item.author} onChange={(value) => handleItemPropertyChange(index, 'author', value)} />
+                            </div>
+                            <Tooltip text={t('LabelUploaderItemFetchMetadataHelp')}>
+                              <IconBtn onClick={() => handleFetchMetadata(index)}>sync</IconBtn>
+                            </Tooltip>
                           </div>
-                          <Tooltip text={t('LabelUploaderItemFetchMetadataHelp')}>
-                            <IconBtn onClick={() => handleFetchMetadata(index)}>sync</IconBtn>
-                          </Tooltip>
                         </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap mb-4 gap-4 items-center">
-                      <div className="flex-1 w-1/2">
-                        <label htmlFor="" className="text-sm mb-1 px-1">
-                          {t('LabelUploaderItemSeriesLabel')}
-                        </label>
-                        <TextInput value={item.series} onChange={(value) => handleItemPropertyChange(index, 'series', value)} />
-                      </div>
-                      <div className="flex-1 w-1/2">
+                      )}
+
+                      {currentLibraryMediaType === 'book' && (
+                        <div className="w-full md:w-1/2 p-2">
+                          <label htmlFor="" className="text-sm mb-1 px-1">
+                            {t('LabelUploaderItemSeriesLabel')}
+                          </label>
+                          <TextInput value={item.series} onChange={(value) => handleItemPropertyChange(index, 'series', value)} />
+                        </div>
+                      )}
+
+                      <div className="w-full md:w-1/2 p-2">
                         <label htmlFor="" className="text-sm mb-1 px-1">
                           {t('LabelUploaderItemDirectory')}
                         </label>
