@@ -149,7 +149,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     setUploadItems(updatedItems)
   }
 
-  const toggleTableExpanded = (itemIndex: number, tableType: 'itemFiles' | 'otherFiles') => {
+  const toggleTableExpanded = (itemIndex: number, tableType: 'itemFiles' | 'otherFiles' | 'ignoredFiles') => {
     const key = `${itemIndex}-${tableType}`
     setExpandedTables((prev) => ({
       ...prev,
@@ -333,6 +333,41 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
               {t('ButtonReset')}
             </Btn>
           </div>
+          {ignoredFiles.length > 0 && (
+            <Alert type="warning" autoFocus={false}>
+              <div className="pe-8">
+                <p>{t('NoteUploaderUnsupportedFiles')}</p>
+                <div className="text-read-only">
+                  <CollapsibleTable
+                    tableClassName="bg-bg"
+                    title={t('HeaderIgnoredFiles')}
+                    count={ignoredFiles.length}
+                    // hard coded to index 0 as there will only be one ignored files table
+                    expanded={expandedTables[`0-ignoredFiles`] || false}
+                    onExpandedChange={() => toggleTableExpanded(0, 'ignoredFiles')}
+                    tableHeaders={tableHeaders}
+                  >
+                    {ignoredFiles.map((file) => (
+                      <TableRow key={file.name} className="text-left">
+                        <td>
+                          <p className="pl-2">{file.name}</p>
+                        </td>
+                        <td>
+                          <p>{bytesPretty(file.size)}</p>
+                        </td>
+                        <td>
+                          <p>{file.filetype}</p>
+                        </td>
+                      </TableRow>
+                    ))}
+                  </CollapsibleTable>
+                </div>
+                <p className="text-sm text-read-only">
+                  <strong>{t('LabelSupportedFileTypes')}:</strong> {supFileTypes}
+                </p>
+              </div>
+            </Alert>
+          )}
           {uploadItems.map((item, index) => (
             <div key={index} className="relative w-full py-4 px-6 border border-border shadow-lg rounded-md my-6">
               <>
