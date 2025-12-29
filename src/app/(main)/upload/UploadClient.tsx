@@ -315,7 +315,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                 {t('ButtonChooseAFolder')}
               </FilePicker>
             </div>
-            <p className="p-6 text-sm text-foreground-subdued">
+            <p className="p-6 text-xs text-foreground-subdued">
               <strong>{t('LabelSupportedFileTypes')}:</strong> {supFileTypes}
             </p>
             <p className="pb-6 px-6 text-sm text-foreground-subdued">
@@ -336,7 +336,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
           </div>
           {errors === 'MessageNoItemsFound' && (
             <Alert type="error" autoFocus={false}>
-              <div className="pr-4">
+              <div className="pe-4">
                 <p>{t('MessageNoItemsFound')}</p>
               </div>
             </Alert>
@@ -370,7 +370,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                     ))}
                   </CollapsibleTable>
                 </div>
-                <p className="text-sm text-read-only">
+                <p className="text-xs text-foreground-subdued">
                   <strong>{t('LabelSupportedFileTypes')}:</strong> {supFileTypes}
                 </p>
               </div>
