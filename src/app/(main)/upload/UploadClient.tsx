@@ -385,7 +385,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                     <div className="flex flex-wrap mb-4 gap-4 items-center">
                       <div className="flex-1 w-1/2">
                         <label htmlFor="" className="text-sm mb-1 px-1">
-                          {t('LabelSeries')} {t('LabelOptional')}
+                          {t('LabelUploaderItemSeriesLabel')}
                         </label>
                         <TextInput value={item.series} onChange={(value) => handleItemPropertyChange(index, 'series', value)} />
                       </div>
