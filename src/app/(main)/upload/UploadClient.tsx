@@ -269,14 +269,14 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
           />
         </div>
 
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-3 min-w-[200px]">
           <label htmlFor="folder" className="block text-sm font-medium mb-1 px-1">
             {t('LabelFolder')}
           </label>
           <Dropdown items={folderItems} value={selectedFolder} onChange={(value) => setSelectedFolder(value as string)} />
         </div>
 
-        <div className="flex-1 min-w-[200px]">
+        <div className="w-32 min-w-32">
           <label htmlFor="mediaType" className="block text-sm font-medium mb-1 px-1">
             {t('LabelMediaType')}
           </label>
@@ -327,9 +327,9 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       {/* 'staging' area */}
       {(uploadItems.length > 0 || ignoredFiles.length > 0 || errors !== '') && (
         <>
-          <div className="w-full flex items-center pb-4 border-b border-border p-6">
+          <div className="w-full flex items-center py-4 border-b border-border">
             <p className="text-lg flex-1">{t('LabelXItems', { 0: uploadItems.length })}</p>
-            <Btn disabled={uploadProcessing} onClick={resetUpload}>
+            <Btn disabled={uploadProcessing} size="small" onClick={resetUpload}>
               {t('ButtonReset')}
             </Btn>
           </div>
@@ -375,9 +375,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                             <TextInput value={item.author} onChange={(value) => handleItemPropertyChange(index, 'author', value)} />
                           </div>
                           <Tooltip text={t('LabelUploaderItemFetchMetadataHelp')}>
-                            <IconBtn className="rounded-full" onClick={() => handleFetchMetadata(index)}>
-                              sync
-                            </IconBtn>
+                            <IconBtn onClick={() => handleFetchMetadata(index)}>sync</IconBtn>
                           </Tooltip>
                         </div>
                       </div>
