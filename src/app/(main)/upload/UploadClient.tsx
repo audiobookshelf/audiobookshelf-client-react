@@ -91,8 +91,8 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     console.log('Selected files:', itemResults)
     setUploadItems(itemResults.items)
     setIgnoredFiles(itemResults.ignoredFiles)
-    if (itemResults.error) {
-      setErrors(itemResults.error)
+    if (itemResults.items.length === 0) {
+      setErrors('MessageNoItemsFound')
     }
 
     if (itemResults.items.length > 0 && autoFetch) {
@@ -108,8 +108,8 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     console.log('Selected files:', itemResults)
     setUploadItems(itemResults.items)
     setIgnoredFiles(itemResults.ignoredFiles)
-    if (itemResults.error) {
-      setErrors(itemResults.error)
+    if (itemResults.items.length === 0) {
+      setErrors('MessageNoItemsFound')
     }
     if (itemResults.items.length > 0 && autoFetch) {
       itemResults.items.forEach((_, index) => {
@@ -149,7 +149,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     setUploadItems(updatedItems)
   }
 
-  const toggleTableExpanded = (itemIndex: number, tableType: 'itemFiles' | 'otherFiles') => {
+  const toggleTableExpanded = (itemIndex: number, tableType: 'itemFiles' | 'otherFiles' | 'ignoredFiles') => {
     const key = `${itemIndex}-${tableType}`
     setExpandedTables((prev) => ({
       ...prev,
@@ -324,6 +324,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
           </DragDrop>
         </div>
       )}
+
       {/* 'staging' area */}
       {(uploadItems.length > 0 || ignoredFiles.length > 0 || errors !== '') && (
         <>
@@ -333,6 +334,48 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
               {t('ButtonReset')}
             </Btn>
           </div>
+          {errors === 'MessageNoItemsFound' && (
+            <Alert type="error" autoFocus={false}>
+              <div className="pr-4">
+                <p>{t('MessageNoItemsFound')}</p>
+              </div>
+            </Alert>
+          )}
+          {ignoredFiles.length > 0 && (
+            <Alert type="warning" autoFocus={false}>
+              <div className="pe-8">
+                <p>{t('NoteUploaderUnsupportedFiles')}</p>
+                <div className="text-read-only">
+                  <CollapsibleTable
+                    tableClassName="bg-bg"
+                    title={t('HeaderIgnoredFiles')}
+                    count={ignoredFiles.length}
+                    // hard coded to index 0 as there will only be one ignored files table
+                    expanded={expandedTables[`0-ignoredFiles`] || false}
+                    onExpandedChange={() => toggleTableExpanded(0, 'ignoredFiles')}
+                    tableHeaders={tableHeaders}
+                  >
+                    {ignoredFiles.map((file) => (
+                      <TableRow key={file.name} className="text-left">
+                        <td>
+                          <p className="pl-2">{file.name}</p>
+                        </td>
+                        <td>
+                          <p>{bytesPretty(file.size)}</p>
+                        </td>
+                        <td>
+                          <p>{file.filetype}</p>
+                        </td>
+                      </TableRow>
+                    ))}
+                  </CollapsibleTable>
+                </div>
+                <p className="text-sm text-read-only">
+                  <strong>{t('LabelSupportedFileTypes')}:</strong> {supFileTypes}
+                </p>
+              </div>
+            </Alert>
+          )}
           {uploadItems.map((item, index) => (
             <div key={index} className="relative w-full py-4 px-2 md:px-6 border border-border shadow-lg rounded-md my-6 flex flex-col gap-1">
               <>
