@@ -315,11 +315,11 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                 {t('ButtonChooseAFolder')}
               </FilePicker>
             </div>
-            <p className="p-6 text-sm">
+            <p className="p-6 text-sm text-foreground-subdued">
               <strong>{t('LabelSupportedFileTypes')}:</strong> {supFileTypes}
             </p>
-            <p className="pb-6 px-6 text-sm">
-              {t('NoteUploaderFoldersWithMediaFiles')} {t('NoteUploaderOnlyAudioFiles')}
+            <p className="pb-6 px-6 text-sm text-foreground-subdued">
+              {t('NoteUploaderFoldersWithMediaFiles')} {currentLibraryMediaType === 'book' ? t('NoteUploaderOnlyAudioFiles') : ''}
             </p>
           </DragDrop>
         </div>
