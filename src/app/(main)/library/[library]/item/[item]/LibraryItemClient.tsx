@@ -3,6 +3,7 @@
 import PreviewCover from '@/components/covers/PreviewCover'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
+import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -28,6 +29,8 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
   const bookAuthors = 'authors' in metadata ? metadata.authors || [] : []
   const bookSeries = 'series' in metadata ? metadata.series || [] : []
   const description = 'description' in metadata ? metadata.description : undefined
+
+  const userProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
 
   // TODO: Implement play logic
   const handlePlay = () => {
@@ -91,13 +94,12 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
             <LibraryItemDetails libraryItem={libraryItem} />
 
             <div className="flex items-center gap-2 mt-6">
-              <Btn onClick={handlePlay} color="bg-success" size="small">
+              <Btn onClick={handlePlay} color="bg-success" className="px-6">
                 <span className="material-symbols fill text-xl mr-1">play_arrow</span>
                 Play
               </Btn>
-              <IconBtn onClick={() => {}} size="small">
-                edit
-              </IconBtn>
+              <IconBtn onClick={() => {}}>edit</IconBtn>
+              <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />
             </div>
 
             {description && <div className="mt-6" dangerouslySetInnerHTML={{ __html: description }} />}
