@@ -5,7 +5,7 @@ import { useMenuPosition } from '@/hooks/useMenuPosition'
 import { useScrollToFocused } from '@/hooks/useScrollToFocused'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
+import { autoUpdate, flip, offset, shift, size, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -54,6 +54,7 @@ function DropdownSubmenu({
   const submenuRef = useRef<HTMLUListElement>(null)
 
   const [scrollbarOffset, setScrollbarOffset] = useState(0)
+  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined)
 
   // Calculate scrollbar offset to prevent overlapping
   useLayoutEffect(() => {
@@ -76,8 +77,17 @@ function DropdownSubmenu({
     middleware: [
       // mainAxis: scrollbar gap, crossAxis: -4 to align first item with parent (counteract py-1)
       offset({ mainAxis: scrollbarOffset, crossAxis: -4 }),
-      flip(),
-      shift({ padding: 10 })
+      // Only allow horizontal flipping (left/right), keep -start alignment so submenu always opens downward
+      flip({
+        fallbackPlacements: openLeft ? ['right-start'] : ['left-start']
+      }),
+      shift({ padding: 10 }),
+      size({
+        padding: 10,
+        apply({ availableHeight }) {
+          setMaxHeight(availableHeight)
+        }
+      })
     ],
     whileElementsMounted: autoUpdate,
     elements: {
@@ -116,7 +126,7 @@ function DropdownSubmenu({
       style={{
         ...floatingStyles,
         width: '192px',
-        maxHeight: '300px', // Reasonable max height
+        maxHeight: maxHeight ? `${maxHeight}px` : '300px', // Dynamic height based on available viewport space
         // Hide until positioned to prevent flicker at 0,0
         opacity: isPositioned ? 1 : 0,
         visibility: isPositioned ? 'visible' : 'hidden'
