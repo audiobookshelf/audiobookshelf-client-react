@@ -450,7 +450,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         size="auto"
         className="h-full text-xs"
         displayText={getSelectedText()}
-        menuMaxHeight="80vh"
+        menuMaxHeight="calc(100vh - 120px)"
       />
       {showClear && (
         <button
