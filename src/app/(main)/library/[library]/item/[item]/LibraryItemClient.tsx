@@ -57,7 +57,7 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
             <div className="flex flex-col gap-1">
               <h1 className="text-2xl md:text-3xl font-semibold">{libraryItem.media.metadata.title}</h1>
               {subtitle && <h2 className="text-xl md:text-2xl font-medium text-foreground-muted">{subtitle}</h2>}
-              {podcastAuthor && <h2 className="text-lg md:text-xl font-medium text-foreground-muted">{t('LabelByAuthor', { 0: podcastAuthor })}</h2>}
+              {podcastAuthor && <h2 className="text-lg md:text-xl font-medium text-foreground">{t('LabelByAuthor', { 0: podcastAuthor })}</h2>}
               {bookSeries.length > 0 && (
                 <div>
                   {bookSeries.map((series, index) => {
@@ -76,7 +76,7 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
 
               {bookAuthors.length > 0 && (
                 <div>
-                  <span className="text-foreground-muted text-lg">{t('LabelByAuthor', { 0: '' })}</span>
+                  <span className="text-foreground text-lg">{t('LabelByAuthor', { 0: '' })}</span>
                   {bookAuthors.map((author, index) => {
                     return (
                       <Fragment key={author.id}>
