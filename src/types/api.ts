@@ -30,6 +30,17 @@ export type EntityType = 'items' | 'series' | 'collections' | 'playlists' | 'aut
 export type BookshelfEntity = LibraryItem | Series | Collection | Playlist | Author
 
 // ============================================================================
+// Tasks
+// ============================================================================
+
+export enum TaskType {
+  EMBED_METADATA = 'embed-metadata',
+  ENCODE_M4B = 'encode-m4b',
+  DOWNLOAD_EPISODE = 'download-podcast-episode',
+  OPML_IMPORT = 'opml-import'
+}
+
+// ============================================================================
 // SERVER & SYSTEM
 // ============================================================================
 
