@@ -23,6 +23,8 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
   const { library } = useLibrary()
   const { setStreamMedia } = useMediaContext()
   const t = useTypeSafeTranslations()
+
+  const isPodcast = libraryItem.mediaType === 'podcast'
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
   const podcastAuthor = 'author' in metadata ? metadata.author : undefined
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
@@ -99,7 +101,8 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
                 Play
               </Btn>
               <IconBtn onClick={() => {}}>edit</IconBtn>
-              <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />
+              {!isPodcast && <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />}
+              {isPodcast && <IconBtn onClick={() => {}}>search</IconBtn>}
             </div>
 
             {description && <div className="mt-6" dangerouslySetInnerHTML={{ __html: description }} />}
