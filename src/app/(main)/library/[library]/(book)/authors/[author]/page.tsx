@@ -3,7 +3,7 @@ import AuthorClient from './AuthorClient'
 
 export default async function AuthorPage({ params }: { params: Promise<{ author: string; library: string }> }) {
   const { author: authorId } = await params
-  const [author, currentUser] = await getData(getAuthor(authorId), getCurrentUser())
+  const [author, currentUser] = await getData(getAuthor(authorId, 'include=items,series'), getCurrentUser())
 
   // TODO: Handle loading data error?
   if (!author || !currentUser) {

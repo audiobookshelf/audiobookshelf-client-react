@@ -217,6 +217,8 @@ export interface Author {
   addedAt?: number
   updatedAt?: number
   numBooks?: number
+  libraryItems?: LibraryItem[]
+  series?: Series[]
 }
 
 // ============================================================================

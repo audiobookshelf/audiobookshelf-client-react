@@ -2,18 +2,18 @@
 
 import AuthorImage from '@/components/covers/AuthorImage'
 import IconBtn from '@/components/ui/IconBtn'
+import ItemSlider from '@/components/widgets/ItemSlider'
+import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { Author, UserLoginResponse } from '@/types/api'
+import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
 
 interface AuthorClientProps {
   author: Author
   currentUser: UserLoginResponse
 }
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export default function AuthorClient({ author, currentUser }: AuthorClientProps) {
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const { library } = useLibrary()
+  const { library, showSubtitles } = useLibrary()
 
   return (
     <div className="w-full max-w-6xl mx-auto">
@@ -39,6 +39,28 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
           <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">Description</div>
           {author.description && <p className="text-base text-foreground" dangerouslySetInnerHTML={{ __html: author.description }} />}
         </div>
+      </div>
+      <div className="mt-20 -ms-2e">
+        <ItemSlider title="Books" className="!ps-0">
+          {author.libraryItems?.map((libraryItem) => {
+            const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+            return (
+              <div key={libraryItem.id} className="shrink-0 mx-2e">
+                <BookMediaCard
+                  libraryItem={libraryItem}
+                  bookshelfView={BookshelfView.DETAIL}
+                  dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                  timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
+                  userPermissions={currentUser.user.permissions}
+                  ereaderDevices={currentUser.ereaderDevices}
+                  showSubtitles={showSubtitles}
+                  bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
+                  mediaProgress={mediaProgress}
+                />
+              </div>
+            )
+          })}
+        </ItemSlider>
       </div>
     </div>
   )

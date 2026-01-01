@@ -392,8 +392,8 @@ export const getNarrators = cache(async (libraryId: string) => {
   return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
 })
 
-export const getAuthor = cache(async (authorId: string): Promise<Author> => {
-  return apiRequest<Author>(`/api/authors/${authorId}`, {})
+export const getAuthor = cache(async (authorId: string, queryParams?: string): Promise<Author> => {
+  return apiRequest<Author>(`/api/authors/${authorId}${queryParams ? `?${queryParams}` : ''}`, {})
 })
 
 export const getPlaylist = cache(async (playlistId: string): Promise<Playlist> => {
