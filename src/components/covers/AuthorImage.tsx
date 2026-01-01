@@ -40,7 +40,7 @@ export default function AuthorImage({ author, className }: AuthorImageProps) {
   // SVG placeholder when no image
   if (!imageSrc || imageError) {
     return (
-      <div className={mergeClasses('w-full h-full bg-primary overflow-hidden rounded-md', className)}>
+      <div className={mergeClasses('w-full h-full bg-primary overflow-hidden rounded-lg', className)}>
         <svg
           width="140%"
           height="140%"
