@@ -5,6 +5,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import ItemSlider from '@/components/widgets/ItemSlider'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
 
 interface AuthorClientProps {
@@ -13,6 +14,7 @@ interface AuthorClientProps {
 }
 
 export default function AuthorClient({ author, currentUser }: AuthorClientProps) {
+  const t = useTypeSafeTranslations()
   const { library, showSubtitles } = useLibrary()
 
   return (
@@ -36,12 +38,12 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
               edit
             </IconBtn>
           </div>
-          <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">Description</div>
+          <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">{t('LabelDescription')}</div>
           {author.description && <p className="text-base text-foreground" dangerouslySetInnerHTML={{ __html: author.description }} />}
         </div>
       </div>
       <div className="mt-20 -ms-2e">
-        <ItemSlider title="Books" className="!ps-0">
+        <ItemSlider title={t('LabelXItems', { 0: author.libraryItems?.length ?? 0 })} className="!ps-0">
           {author.libraryItems?.map((libraryItem) => {
             const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
             return (
