@@ -244,6 +244,8 @@ export interface Series {
   books?: LibraryItem[]
   /** if available (expanded only) */
   rssFeed?: RssFeed
+  /** library items (author page endpoint only) */
+  items?: LibraryItem[]
 }
 
 export interface CollapsedSeries {

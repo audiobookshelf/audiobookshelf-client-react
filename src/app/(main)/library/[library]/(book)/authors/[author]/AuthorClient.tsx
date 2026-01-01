@@ -17,6 +17,9 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
   const t = useTypeSafeTranslations()
   const { library, showSubtitles } = useLibrary()
 
+  const libraryItems = author.libraryItems || []
+  const series = author.series || []
+
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="flex gap-8">
@@ -42,28 +45,64 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
           {author.description && <p className="text-base text-foreground" dangerouslySetInnerHTML={{ __html: author.description }} />}
         </div>
       </div>
-      <div className="mt-20 -ms-2e">
-        <ItemSlider title={t('LabelXItems', { 0: author.libraryItems?.length ?? 0 })} className="!ps-0">
-          {author.libraryItems?.map((libraryItem) => {
-            const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
-            return (
-              <div key={libraryItem.id} className="shrink-0 mx-2e">
-                <BookMediaCard
-                  libraryItem={libraryItem}
-                  bookshelfView={BookshelfView.DETAIL}
-                  dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-                  timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-                  userPermissions={currentUser.user.permissions}
-                  ereaderDevices={currentUser.ereaderDevices}
-                  showSubtitles={showSubtitles}
-                  bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
-                  mediaProgress={mediaProgress}
-                />
-              </div>
-            )
-          })}
-        </ItemSlider>
-      </div>
+
+      {libraryItems.length > 0 && (
+        <div className="mt-20 -ms-2e">
+          <ItemSlider title={t('LabelXItems', { 0: libraryItems.length })} className="!ps-0">
+            {libraryItems.map((libraryItem) => {
+              const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+              return (
+                <div key={libraryItem.id} className="shrink-0 mx-2e">
+                  <BookMediaCard
+                    libraryItem={libraryItem}
+                    bookshelfView={BookshelfView.DETAIL}
+                    dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                    timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
+                    userPermissions={currentUser.user.permissions}
+                    ereaderDevices={currentUser.ereaderDevices}
+                    showSubtitles={showSubtitles}
+                    bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
+                    mediaProgress={mediaProgress}
+                  />
+                </div>
+              )
+            })}
+          </ItemSlider>
+        </div>
+      )}
+
+      {series.map((bookSeries) => {
+        const seriesTitle = (
+          <span>
+            {bookSeries.name}
+            <span className="text-foreground-subdued ps-3e">{t('LabelSeries')}</span>
+          </span>
+        )
+        return (
+          <div key={bookSeries.id} className="shrink-0 mx-2e">
+            <ItemSlider title={seriesTitle} className="!ps-0">
+              {bookSeries.items?.map((libraryItem) => {
+                const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+                return (
+                  <div key={libraryItem.id} className="shrink-0 mx-2e">
+                    <BookMediaCard
+                      libraryItem={libraryItem}
+                      bookshelfView={BookshelfView.DETAIL}
+                      dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                      timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
+                      userPermissions={currentUser.user.permissions}
+                      ereaderDevices={currentUser.ereaderDevices}
+                      showSubtitles={showSubtitles}
+                      bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
+                      mediaProgress={mediaProgress}
+                    />
+                  </div>
+                )
+              })}
+            </ItemSlider>
+          </div>
+        )
+      })}
     </div>
   )
 }
