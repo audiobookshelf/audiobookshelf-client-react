@@ -2,6 +2,7 @@
 
 import AuthorImage from '@/components/covers/AuthorImage'
 import IconBtn from '@/components/ui/IconBtn'
+import ExpandableDescription from '@/components/widgets/ExpandableDescription'
 import ItemSlider from '@/components/widgets/ItemSlider'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -42,7 +43,7 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
             </IconBtn>
           </div>
           <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">{t('LabelDescription')}</div>
-          {author.description && <p className="text-base text-foreground" dangerouslySetInnerHTML={{ __html: author.description }} />}
+          {author.description && <ExpandableDescription description={author.description} lineClamp={4} />}
         </div>
       </div>
 
