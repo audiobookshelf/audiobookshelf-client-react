@@ -42,7 +42,7 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
               edit
             </IconBtn>
           </div>
-          <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">{t('LabelDescription')}</div>
+          {author.description && <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">{t('LabelDescription')}</div>}
           {author.description && <ExpandableDescription description={author.description} lineClamp={4} />}
         </div>
       </div>
