@@ -29,6 +29,7 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
   const { filterData, filterDataLoading } = useLibrary()
   const [isPending, startTransition] = useTransition()
   const [hasChanges, setHasChanges] = useState(false)
+  const saveAndCloseRef = useRef(false)
 
   const bookDetailsRef = useRef<BookDetailsEditRef>(null)
   const podcastDetailsRef = useRef<PodcastDetailsEditRef>(null)
@@ -39,6 +40,7 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
   useEffect(() => {
     if (!isOpen) {
       setHasChanges(false)
+      saveAndCloseRef.current = false
     }
   }, [isOpen])
 
@@ -56,7 +58,9 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
   const handleSubmit = useCallback(
     (details: { updatePayload: BookUpdatePayload | PodcastUpdatePayload; hasChanges: boolean }) => {
       if (!details.hasChanges) {
-        onClose()
+        if (saveAndCloseRef.current) {
+          onClose()
+        }
         return
       }
 
@@ -68,7 +72,9 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
           })
           showToast(t('ToastItemUpdateSuccess'), { type: 'success' })
           onSaved?.(updatedItem.libraryItem as BookLibraryItem | PodcastLibraryItem)
-          onClose()
+          if (saveAndCloseRef.current) {
+            onClose()
+          }
         } catch (error) {
           console.error('Failed to update library item:', error)
           showToast(t('ToastFailedToUpdate'), { type: 'error' })
@@ -78,7 +84,8 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
     [libraryItem.id, onClose, onSaved, showToast, t]
   )
 
-  const handleSave = () => {
+  const handleSave = (close: boolean = false) => {
+    saveAndCloseRef.current = close
     if (isPodcast) {
       podcastDetailsRef.current?.submit()
     } else {
@@ -125,11 +132,11 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
 
         {/* Footer */}
         <div className="sticky bottom-0 z-10 bg-bg px-4 py-3 border-t border-border flex justify-end gap-3">
-          <Btn onClick={onClose} disabled={isPending}>
-            {t('ButtonCancel')}
-          </Btn>
-          <Btn color="bg-success" onClick={handleSave} disabled={!hasChanges} loading={isPending}>
+          <Btn onClick={() => handleSave(false)} disabled={!hasChanges || isPending}>
             {t('ButtonSave')}
+          </Btn>
+          <Btn onClick={() => handleSave(true)} disabled={!hasChanges || isPending}>
+            {t('ButtonSaveAndClose')}
           </Btn>
         </div>
       </div>
