@@ -1,6 +1,7 @@
 'use client'
 
 import PreviewCover from '@/components/covers/PreviewCover'
+import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
@@ -12,7 +13,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 import LibraryItemDetails from './LibraryItemDetails'
 
 interface LibraryItemClientProps {
@@ -20,10 +21,13 @@ interface LibraryItemClientProps {
   currentUser: UserLoginResponse
 }
 
-export default function LibraryItemClient({ libraryItem, currentUser }: LibraryItemClientProps) {
+export default function LibraryItemClient({ libraryItem: initialLibraryItem, currentUser }: LibraryItemClientProps) {
   const { library } = useLibrary()
   const { setStreamMedia } = useMediaContext()
   const t = useTypeSafeTranslations()
+
+  const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
   const isPodcast = libraryItem.mediaType === 'podcast'
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
@@ -42,6 +46,18 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
       episodeId: null,
       queueItems: []
     })
+  }
+
+  const handleOpenEditModal = () => {
+    setIsEditModalOpen(true)
+  }
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false)
+  }
+
+  const handleItemSaved = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
+    setLibraryItem(updatedItem)
   }
 
   return (
@@ -101,7 +117,7 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
                 <span className="material-symbols fill text-xl mr-1">play_arrow</span>
                 Play
               </Btn>
-              <IconBtn onClick={() => {}}>edit</IconBtn>
+              <IconBtn onClick={handleOpenEditModal}>edit</IconBtn>
               {!isPodcast && <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />}
               {isPodcast && <IconBtn onClick={() => {}}>search</IconBtn>}
             </div>
@@ -120,6 +136,8 @@ export default function LibraryItemClient({ libraryItem, currentUser }: LibraryI
           </div>
         </div>
       </div>
+
+      <LibraryItemEditModal isOpen={isEditModalOpen} libraryItem={libraryItem} onClose={handleCloseEditModal} onSaved={handleItemSaved} />
     </div>
   )
 }

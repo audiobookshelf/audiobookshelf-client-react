@@ -25,7 +25,7 @@ export default function Modal({
   isOpen,
   processing = false,
   persistent = false,
-  zIndexClass = 'z-50',
+  zIndexClass = 'z-70',
   bgOpacityClass = 'bg-primary/75',
   children,
   outerContent,

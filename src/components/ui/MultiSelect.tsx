@@ -574,7 +574,7 @@ export function MultiSelect<T = string>({
         </Label>
       )}
       <div ref={wrapperRef} className="relative">
-        <InputWrapper disabled={disabled} inputRef={inputRef} size="auto">
+        <InputWrapper disabled={disabled} inputRef={inputRef} size="medium">
           <div
             ref={inputWrapperRef}
             role="list"

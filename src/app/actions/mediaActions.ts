@@ -1,9 +1,14 @@
 'use server'
 
 import * as api from '@/lib/api'
+import { UpdateLibraryItemMediaPayload } from '@/types/api'
 
 export async function toggleFinishedAction(libraryItemId: string, params: { isFinished: boolean; episodeId?: string }) {
   return api.updateMediaFinished(libraryItemId, params)
+}
+
+export async function updateLibraryItemMediaAction(libraryItemId: string, payload: UpdateLibraryItemMediaPayload) {
+  return api.updateLibraryItemMedia(libraryItemId, payload)
 }
 
 export async function rescanLibraryItemAction(libraryItemId: string) {
