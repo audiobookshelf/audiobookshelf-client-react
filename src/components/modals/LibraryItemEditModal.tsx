@@ -102,7 +102,7 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} processing={isProcessing} className="sm:max-w-screen md:max-w-screen">
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} processing={isProcessing} className="sm:max-w-screen md:max-w-[800px]">
       <div className="w-full overflow-x-hidden overflow-y-auto rounded-lg max-h-[85vh]">
         {/* Content */}
         <div className="min-h-[400px]">
