@@ -36,8 +36,6 @@ export class LocalAudioPlayer {
   private startTime = 0
   private trackStartTime = 0
   private playWhenReady = false
-  private defaultPlaybackRate = 1
-  private defaultVolume = 1
 
   // Supported MIME types (detected on init)
   readonly playableMimeTypes: string[] = []
@@ -369,14 +367,12 @@ export class LocalAudioPlayer {
   }
 
   setPlaybackRate(rate: number): void {
-    this.defaultPlaybackRate = rate
     if (this.player) {
       this.player.playbackRate = rate
     }
   }
 
   setVolume(volume: number): void {
-    this.defaultVolume = volume
     if (this.player) {
       this.player.volume = volume
     }

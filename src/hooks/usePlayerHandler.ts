@@ -30,6 +30,12 @@ export interface PlayerHandlerState {
   displayAuthor: string | null
   /** Current chapters */
   chapters: Chapter[]
+  /** Current chapter */
+  currentChapter: Chapter | null
+  /** Next chapter */
+  nextChapter: Chapter | null
+  /** Previous chapter */
+  previousChapter: Chapter | null
 }
 
 export interface PlayerHandlerControls {
@@ -97,6 +103,10 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
   const tempJumpForwardAmount = 10
   const tempJumpBackwardAmount = 10
 
+  const currentChapter = chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null
+  const nextChapter = chapters.find((chapter) => chapter.start > currentTime && chapter.end > currentTime) ?? null
+  const previousChapter = chapters.findLast((chapter) => chapter.end <= currentTime && chapter.start < currentTime) ?? null
+
   // ============================================================================
   // Session Management
   // ============================================================================
@@ -105,7 +115,17 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
     setSessionId(session.id)
     setDisplayTitle(session.displayTitle)
     setDisplayAuthor(session.displayAuthor)
-    setChapters(session.chapters ?? [])
+    setChapters(
+      (session.chapters ?? []).map((chapter) => {
+        const start = parseFloat((chapter.start ?? 0).toFixed(6))
+        const end = parseFloat((chapter.end ?? 0).toFixed(6))
+        return {
+          ...chapter,
+          start,
+          end
+        }
+      })
+    )
     setPlayMethod(session.playMethod)
     setIsHlsTranscode(hlsTranscode)
     setDuration(session.duration)
@@ -316,7 +336,10 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       sessionId,
       displayTitle,
       displayAuthor,
-      chapters
+      chapters,
+      currentChapter,
+      nextChapter,
+      previousChapter
     },
     controls: {
       load,

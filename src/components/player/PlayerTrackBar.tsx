@@ -3,7 +3,6 @@
 import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { Chapter } from '@/types/api'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -16,15 +15,8 @@ interface ChapterTick {
   left: number
 }
 
-/**
- * Returns the chapter that contains the given time, or undefined if none.
- */
-function findCurrentChapter(chapters: Chapter[], time: number): Chapter | undefined {
-  return chapters.find((chapter) => chapter.start <= time && time < chapter.end)
-}
-
 export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
-  const { currentTime, duration, bufferedTime, playbackRate, chapters, playerState } = playerHandler.state
+  const { currentTime, duration, bufferedTime, playbackRate, chapters, playerState, currentChapter } = playerHandler.state
   const { seek } = playerHandler.controls
 
   const isLoading = playerState === PlayerState.LOADING
@@ -42,9 +34,6 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
   // TODO: Implement chapter track in player settings
   const useChapterTrack = false
   const [isHovering, setIsHovering] = useState(false)
-
-  // Compute current chapter
-  const currentChapter = useMemo(() => findCurrentChapter(chapters, currentTime), [chapters, currentTime])
 
   // Chapter duration and start for chapter-mode display
   const currentChapterDuration = currentChapter ? currentChapter.end - currentChapter.start : 0
