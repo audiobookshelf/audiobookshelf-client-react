@@ -18,7 +18,7 @@ interface ChapterTick {
 export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
   const { currentTime, duration, bufferedTime, settings, chapters, playerState, currentChapter } = playerHandler.state
   const { seek } = playerHandler.controls
-  const { playbackRate } = settings
+  const { playbackRate, useChapterTrack } = settings
 
   const isLoading = playerState === PlayerState.LOADING
 
@@ -32,8 +32,6 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
   // State
   const [trackWidth, setTrackWidth] = useState(0)
   const [trackOffsetLeft, setTrackOffsetLeft] = useState(16)
-  // TODO: Implement chapter track in player settings
-  const useChapterTrack = false
   const [isHovering, setIsHovering] = useState(false)
 
   // Chapter duration and start for chapter-mode display
@@ -51,6 +49,7 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
   // Current time timestamp
   const currentTimeToShow = useChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
   const currentTimeFormatted = secondsToTimestamp(currentTimeToShow / effectivePlaybackRate)
+  const currentChapterNumber = currentChapter ? chapters.findIndex((ch) => ch.id === currentChapter.id) + 1 : null
 
   // Calculate track widths as percentages
   const effectiveDuration = useChapterTrack ? currentChapterDuration : duration
@@ -246,7 +245,16 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         <p className="text-sm text-gray-300 font-mono">
           {currentTimeFormatted} / {Math.round(playedPercent)}%
         </p>
-        {currentChapter && <p className="text-sm text-foreground-muted">{currentChapter.title}</p>}
+        {currentChapter && (
+          <p className="text-sm text-foreground-muted">
+            {currentChapter.title}{' '}
+            {useChapterTrack && (
+              <span className="text-xs text-foreground-subdued pl-1">
+                ({currentChapterNumber} of {chapters.length})
+              </span>
+            )}
+          </p>
+        )}
         <p className="text-sm text-gray-300 font-mono">{timeRemainingFormatted}</p>
       </div>
     </div>
