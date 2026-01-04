@@ -23,7 +23,7 @@ interface LibraryItemClientProps {
 
 export default function LibraryItemClient({ libraryItem: initialLibraryItem, currentUser }: LibraryItemClientProps) {
   const { library } = useLibrary()
-  const { setStreamMedia } = useMediaContext()
+  const { playItem } = useMediaContext()
   const t = useTypeSafeTranslations()
 
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
@@ -41,7 +41,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
 
   // TODO: Implement play logic
   const handlePlay = () => {
-    setStreamMedia({
+    playItem({
       libraryItem,
       episodeId: null,
       queueItems: []

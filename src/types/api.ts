@@ -21,6 +21,23 @@ export enum BookshelfView {
   AUTHOR = 2 // Books shown on author page
 }
 
+export enum PlayMethod {
+  DIRECT_PLAY = 0,
+  DIRECT_STREAM = 1,
+  TRANSCODE = 2,
+  LOCAL = 3
+}
+
+export enum PlayerState {
+  IDLE = 'IDLE',
+  LOADING = 'LOADING',
+  LOADED = 'LOADED',
+  PLAYING = 'PLAYING',
+  PAUSED = 'PAUSED',
+  FINISHED = 'FINISHED',
+  ERROR = 'ERROR'
+}
+
 // ============================================================================
 // ENTITY TYPES
 // ============================================================================
@@ -1059,4 +1076,68 @@ export interface GetPlaylistsResponse {
 
 export type SaveLibraryOrderApiResponse = {
   libraries: Library[]
+}
+
+/**
+ * Audio track metadata from server
+ */
+export interface AudioTrackData {
+  index: number
+  startOffset: number
+  duration: number
+  title: string
+  contentUrl: string
+  mimeType: string
+  metadata?: Record<string, unknown>
+}
+
+/**
+ * Device info sent to server when starting a session
+ */
+export interface DeviceInfo {
+  clientName: string
+  deviceId: string
+}
+
+/**
+ * Playback session response from server
+ */
+export interface PlaybackSession {
+  id: string
+  userId: string
+  libraryId: string
+  libraryItemId: string
+  bookId?: string
+  episodeId?: string
+  mediaType: 'book' | 'podcast'
+  mediaMetadata: Record<string, unknown>
+  chapters: Chapter[]
+  displayTitle: string
+  displayAuthor: string
+  coverPath?: string
+  duration: number
+  playMethod: PlayMethod
+  mediaPlayer: string
+  deviceInfo: DeviceInfo | null
+  serverVersion: string
+  date: string
+  dayOfWeek: string
+  timeListening: number
+  startTime: number
+  currentTime: number
+  startedAt: number
+  updatedAt: number
+  audioTracks: AudioTrackData[]
+  libraryItem: LibraryItem | null
+}
+
+/**
+ * Payload for starting a playback session
+ */
+export interface StartSessionPayload {
+  deviceInfo: DeviceInfo
+  supportedMimeTypes: string[]
+  mediaPlayer: 'html5' | 'chromecast'
+  forceTranscode: boolean
+  forceDirectPlay: boolean
 }
