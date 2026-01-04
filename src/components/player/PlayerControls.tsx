@@ -4,6 +4,7 @@ import { PlayerState } from '@/types/api'
 import { useState } from 'react'
 import IconBtn from '../ui/IconBtn'
 import Tooltip from '../ui/Tooltip'
+import PlaybackRateWidget from './PlaybackRateWidget'
 import PlayerSettingsModal from './PlayerSettingsModal'
 
 interface PlayerControlsProps {
@@ -54,8 +55,11 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
   return (
     <>
       <div className="flex items-center mt-10">
-        <div className="grow" />
-        <div className="flex items-center gap-4">
+        {/* Left spacer */}
+        <div className="flex-1 min-w-0" />
+
+        {/* Center - play controls */}
+        <div className="flex items-center gap-4 shrink-0">
           {/* previous chapter */}
           <Tooltip text={t('ButtonPreviousChapter')} position="top">
             <IconBtn borderless size="custom" className="w-10 text-3xl" onClick={handlePreviousChapter}>
@@ -85,13 +89,20 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
             </IconBtn>
           </Tooltip>
         </div>
-        <div className="grow" />
-        {/* player settings */}
-        <Tooltip text={t('LabelViewPlayerSettings')} position="top">
-          <IconBtn size="custom" borderless className="w-10 text-2xl" onClick={() => setIsSettingsModalOpen(true)} ariaLabel={t('LabelViewPlayerSettings')}>
-            settings_slow_motion
-          </IconBtn>
-        </Tooltip>
+
+        {/* Right section settings buttons */}
+        <div className="flex-1 min-w-0 flex justify-end">
+          <div className="flex items-center gap-4">
+            {/* playback rate widget */}
+            <PlaybackRateWidget playerHandler={playerHandler} />
+            {/* player settings button */}
+            <Tooltip text={t('LabelViewPlayerSettings')} position="top">
+              <IconBtn size="custom" borderless className="w-10 text-2xl" onClick={() => setIsSettingsModalOpen(true)} ariaLabel={t('LabelViewPlayerSettings')}>
+                settings_slow_motion
+              </IconBtn>
+            </Tooltip>
+          </div>
+        </div>
       </div>
       <PlayerSettingsModal
         isOpen={isSettingsModalOpen}
