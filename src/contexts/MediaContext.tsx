@@ -181,7 +181,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       // Main play function
       playItem,
 
-      // Player handler (grouped)
+      // Player handler (state + controls)
       playerHandler: {
         state: playerState,
         controls: playerControls
