@@ -242,7 +242,7 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         </div>
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-300 font-mono">
+        <p className="text-sm text-foreground-muted font-mono">
           {currentTimeFormatted} / {Math.round(playedPercent)}%
         </p>
         {currentChapter && (
@@ -255,7 +255,7 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
             )}
           </p>
         )}
-        <p className="text-sm text-gray-300 font-mono">{timeRemainingFormatted}</p>
+        <p className="text-sm text-foreground-muted font-mono">{timeRemainingFormatted}</p>
       </div>
     </div>
   )
