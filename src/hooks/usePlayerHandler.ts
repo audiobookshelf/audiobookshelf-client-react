@@ -1,4 +1,5 @@
 import { usePlaybackSession } from '@/hooks/usePlaybackSession'
+import { usePlayerSettings, type PlayerSettings, type UsePlayerSettingsReturn } from '@/hooks/usePlayerSettings'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
 import type { Chapter, LibraryItem, PlaybackSession, PlayMethod } from '@/types/api'
@@ -16,8 +17,6 @@ export interface PlayerHandlerState {
   bufferedTime: number
   /** Current volume (0-1) */
   volume: number
-  /** Current playback rate */
-  playbackRate: number
   /** Whether using HLS transcode */
   isHlsTranscode: boolean
   /** Current play method */
@@ -36,6 +35,8 @@ export interface PlayerHandlerState {
   nextChapter: Chapter | null
   /** Previous chapter */
   previousChapter: Chapter | null
+  /** Player settings (persisted in local storage) */
+  settings: PlayerSettings
 }
 
 export interface PlayerHandlerControls {
@@ -55,8 +56,14 @@ export interface PlayerHandlerControls {
   jumpBackward: () => void
   /** Set volume (0-1) */
   setVolume: (volume: number) => void
-  /** Set playback rate */
+  /** Set playback rate (also updates player settings) */
   setPlaybackRate: (rate: number) => void
+  /** Increment playback rate by configured amount */
+  incrementPlaybackRate: () => void
+  /** Decrement playback rate by configured amount */
+  decrementPlaybackRate: () => void
+  /** Update player settings */
+  updateSettings: UsePlayerSettingsReturn['updateSettings']
   /** Close the player and end session */
   closePlayer: () => Promise<void>
 }
@@ -76,13 +83,16 @@ export interface UsePlayerHandlerReturn {
  * the LocalAudioPlayer and coordinates with the server for session management.
  */
 export function usePlayerHandler(): UsePlayerHandlerReturn {
+  // Player settings (persisted in local storage)
+  const playerSettings = usePlayerSettings()
+  const { settings } = playerSettings
+
   // Player state
   const [playerState, setPlayerState] = useState<PlayerState>(PlayerState.IDLE)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [bufferedTime, setBufferedTime] = useState(0)
   const [volume, setVolumeState] = useState(1)
-  const [playbackRate, setPlaybackRateState] = useState(1)
   const [isHlsTranscode, setIsHlsTranscode] = useState(false)
   const [playMethod, setPlayMethod] = useState<PlayMethod | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -96,12 +106,8 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
   const libraryItemRef = useRef<LibraryItem | null>(null)
 
   // Refs for values needed in callbacks (to avoid stale closures)
-  const playbackRateRef = useRef(playbackRate)
-  playbackRateRef.current = playbackRate
-
-  // TODO: Use local player settings
-  const tempJumpForwardAmount = 10
-  const tempJumpBackwardAmount = 10
+  const playbackRateRef = useRef(settings.playbackRate)
+  playbackRateRef.current = settings.playbackRate
 
   const currentChapter = chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null
   const nextChapter = chapters.find((chapter) => chapter.start > currentTime && chapter.end > currentTime) ?? null
@@ -278,25 +284,38 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
 
   const jumpForward = useCallback(() => {
     if (!playerRef.current) return
-    const newTime = Math.min(currentTime + tempJumpForwardAmount, duration)
+    const newTime = Math.min(currentTime + settings.jumpForwardAmount, duration)
     seek(newTime)
-  }, [currentTime, duration, seek])
+  }, [currentTime, duration, seek, settings.jumpForwardAmount])
 
   const jumpBackward = useCallback(() => {
     if (!playerRef.current) return
-    const newTime = Math.max(currentTime - tempJumpBackwardAmount, 0)
+    const newTime = Math.max(currentTime - settings.jumpBackwardAmount, 0)
     seek(newTime)
-  }, [currentTime, seek])
+  }, [currentTime, seek, settings.jumpBackwardAmount])
 
   const setVolume = useCallback((vol: number) => {
     setVolumeState(vol)
     playerRef.current?.setVolume(vol)
   }, [])
 
-  const setPlaybackRate = useCallback((rate: number) => {
-    setPlaybackRateState(rate)
-    playerRef.current?.setPlaybackRate(rate)
-  }, [])
+  const setPlaybackRate = useCallback(
+    (rate: number) => {
+      playerSettings.setPlaybackRate(rate)
+      playerRef.current?.setPlaybackRate(rate)
+    },
+    [playerSettings]
+  )
+
+  const incrementPlaybackRate = useCallback(() => {
+    const newRate = playerSettings.incrementPlaybackRate()
+    playerRef.current?.setPlaybackRate(newRate)
+  }, [playerSettings])
+
+  const decrementPlaybackRate = useCallback(() => {
+    const newRate = playerSettings.decrementPlaybackRate()
+    playerRef.current?.setPlaybackRate(newRate)
+  }, [playerSettings])
 
   const closePlayer = useCallback(async () => {
     stopSyncInterval()
@@ -330,7 +349,6 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       duration,
       bufferedTime,
       volume,
-      playbackRate,
       isHlsTranscode,
       playMethod,
       sessionId,
@@ -339,7 +357,8 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       chapters,
       currentChapter,
       nextChapter,
-      previousChapter
+      previousChapter,
+      settings
     },
     controls: {
       load,
@@ -351,6 +370,9 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       jumpBackward,
       setVolume,
       setPlaybackRate,
+      incrementPlaybackRate,
+      decrementPlaybackRate,
+      updateSettings: playerSettings.updateSettings,
       closePlayer
     }
   }

@@ -16,8 +16,9 @@ interface ChapterTick {
 }
 
 export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
-  const { currentTime, duration, bufferedTime, playbackRate, chapters, playerState, currentChapter } = playerHandler.state
+  const { currentTime, duration, bufferedTime, settings, chapters, playerState, currentChapter } = playerHandler.state
   const { seek } = playerHandler.controls
+  const { playbackRate } = settings
 
   const isLoading = playerState === PlayerState.LOADING
 
@@ -52,19 +53,12 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
   const currentTimeFormatted = secondsToTimestamp(currentTimeToShow / effectivePlaybackRate)
 
   // Calculate track widths as percentages
-  const playedPercent = useMemo(() => {
-    const time = useChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
-    const dur = useChapterTrack ? currentChapterDuration : duration
-    if (!dur || dur === 0) return 0
-    return Math.min(100, (time / dur) * 100)
-  }, [currentTime, duration, currentChapterStart, currentChapterDuration, useChapterTrack])
+  const effectiveDuration = useChapterTrack ? currentChapterDuration : duration
+  const playedTime = useChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
+  const playedPercent = effectiveDuration ? Math.min(100, (playedTime / effectiveDuration) * 100) : 0
 
-  const bufferedPercent = useMemo(() => {
-    const time = useChapterTrack ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
-    const dur = useChapterTrack ? currentChapterDuration : duration
-    if (!dur || dur === 0) return 0
-    return Math.min(100, (time / dur) * 100)
-  }, [bufferedTime, duration, currentChapterStart, currentChapterDuration, useChapterTrack])
+  const bufferedTimeAdjusted = useChapterTrack ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
+  const bufferedPercent = effectiveDuration ? Math.min(100, (bufferedTimeAdjusted / effectiveDuration) * 100) : 0
 
   // Chapter ticks for display (only visible when not in chapter mode)
   const chapterTicks = useMemo<ChapterTick[]>(() => {
