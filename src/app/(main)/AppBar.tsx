@@ -39,7 +39,11 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
         cy-id="appbar"
         className="absolute top-0 bottom-0 start-0 w-full h-full px-2 md:px-6 py-1 z-60 flex items-center justify-start gap-2 md:gap-4 box-shadow-appbar"
       >
-        <Link href={'/'} title={t('ButtonHome')} className="text-sm text-foreground hover:text-foreground/80 flex items-center justify-start gap-2 md:gap-4">
+        <Link
+          href={'/'}
+          aria-label={`audiobookshelf - ${t('ButtonHome')}`}
+          className="text-sm text-foreground hover:text-foreground/80 flex items-center justify-start gap-2 md:gap-4"
+        >
           <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10 mx-2" />
           <span className="text-xl hover:underline">audiobookshelf</span>
         </Link>
