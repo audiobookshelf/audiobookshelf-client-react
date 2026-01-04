@@ -9,6 +9,7 @@ import { Fragment } from 'react'
 import PreviewCover from '../covers/PreviewCover'
 import IconBtn from '../ui/IconBtn'
 import PlayerControls from './PlayerControls'
+import PlayerTrackBar from './PlayerTrackBar'
 
 export default function MediaPlayerContainer() {
   const { streamLibraryItem, clearStreamMedia, playerHandler } = useMediaContext()
@@ -57,12 +58,15 @@ export default function MediaPlayerContainer() {
           )}
         </div>
       </div>
-      <div className="flex items-center mt-10">
-        <div className="grow" />
-        <div>
-          <PlayerControls playerHandler={playerHandler} />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center mt-10">
+          <div className="grow" />
+          <div>
+            <PlayerControls playerHandler={playerHandler} />
+          </div>
+          <div className="grow" />
         </div>
-        <div className="grow" />
+        <PlayerTrackBar playerHandler={playerHandler} />
       </div>
 
       <div className="absolute right-2 top-2 lg:right-4 cursor-pointer">
