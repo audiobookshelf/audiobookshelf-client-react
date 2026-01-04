@@ -17,6 +17,9 @@ interface BtnProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   className?: string
   ariaLabel?: string
+  ariaDescription?: string
+  ariaExpanded?: boolean
+  ariaControls?: string
 }
 
 // Memoized LoadingSpinner component to prevent unnecessary re-renders
@@ -47,7 +50,10 @@ export default function Btn({
   children,
   onClick,
   className = '',
-  ariaLabel
+  ariaLabel,
+  ariaDescription,
+  ariaExpanded,
+  ariaControls
 }: BtnProps) {
   const t = useTypeSafeTranslations()
 
@@ -73,6 +79,9 @@ export default function Btn({
       onMouseDown={(e) => e.preventDefault()}
       ariaLabel={ariaLabel}
       aria-busy={loading || undefined}
+      aria-description={ariaDescription}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
     >
       {children}
       {loading && <LoadingSpinner progress={progress} />}

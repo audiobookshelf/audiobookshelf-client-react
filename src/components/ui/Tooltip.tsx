@@ -232,6 +232,7 @@ const Tooltip = ({
 
   return (
     <div
+      tabIndex={0}
       ref={refs.setReference}
       className={referenceClass}
       onMouseEnter={onMouseEnter}
@@ -239,6 +240,7 @@ const Tooltip = ({
       onFocus={onFocus}
       onBlur={onBlur}
       onClick={onClick}
+      aria-describedby={tooltipId}
     >
       {children}
       {mounted &&

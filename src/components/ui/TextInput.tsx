@@ -130,8 +130,8 @@ export default function TextInput({
     setShowPassword((prev) => !prev)
   }
 
-  // Show password toggle when focused or when password field has value
-  const shouldShowPasswordToggle = type === 'password' && (isFocused || value)
+  // Show password toggle when it is a password field
+  const shouldShowPasswordToggle = type === 'password'
 
   return (
     <div className={mergeClasses('w-full', className)} cy-id="text-input">
@@ -190,9 +190,10 @@ export default function TextInput({
               className="material-symbols text-foreground-muted cursor-pointer text-lg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? t('ButtonHidePassword') : t('ButtonShowPassword')}
+              aria-controls={inputId}
               cy-id="text-input-password-toggle"
             >
-              {!showPassword ? 'visibility' : 'visibility_off'}
+              {!showPassword ? (<span className="material-symbols" aria-hidden="true">visibility</span>) : <span className="material-symbols" aria-hidden="true">visibility_off</span>}
             </button>
           </div>
         )}

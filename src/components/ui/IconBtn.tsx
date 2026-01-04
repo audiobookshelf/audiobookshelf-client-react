@@ -1,5 +1,6 @@
 'use client'
 
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import React, { memo } from 'react'
 import ButtonBase from './ButtonBase'
@@ -58,6 +59,7 @@ export default function IconBtn({
   tabIndex,
   ...props
 }: IconBtnProps) {
+  const t = useTypeSafeTranslations()
   const isDisabled = disabled || loading
 
   // Icon button specific styling based on size
@@ -91,11 +93,11 @@ export default function IconBtn({
       {loading && <LoadingSpinner />}
       {loading && (
         <span cy-id="icon-btn-loading" className="sr-only">
-          Loading...
+          {t('LabelLoadingIndicator')}
         </span>
       )}
       {!loading && (
-        <span cy-id="icon-btn-icon" className={mergeClasses(outlined ? 'material-symbols' : 'material-symbols fill', iconClass)}>
+        <span cy-id="icon-btn-icon" className={mergeClasses(outlined ? 'material-symbols' : 'material-symbols fill', iconClass)} aria-hidden="true">
           {children}
         </span>
       )}

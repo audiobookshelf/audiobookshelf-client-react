@@ -48,9 +48,17 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
     <>
       <div className="relative">
         {/* Desktop - Username Dropdown */}
-        <Btn size="small" ariaLabel={t('ButtonMenu')} className="hidden md:flex ps-3 pe-2 min-w-24 justify-between" onClick={toggleMenu}>
+        <Btn
+          size="small"
+          ariaDescription={t('ButtonMenu')}
+          ariaExpanded={mobileMenuOpen}
+          className="hidden md:flex ps-3 pe-2 min-w-24 justify-between"
+          onClick={toggleMenu}
+        >
           <span className="text-sm block truncate">{username}</span>
-          <span className="material-symbols text-xl">person</span>
+          <span className="material-symbols text-xl" aria-hidden="true">
+            person
+          </span>
         </Btn>
 
         {/* Mobile - Hamburger Menu Button */}
