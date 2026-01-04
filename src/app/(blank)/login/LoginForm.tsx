@@ -56,7 +56,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-bg border border-border rounded-lg shadow-lg p-10 w-full max-w-md">
-      <h2 className="text-2xl font-bold text-center mb-6 text-postcss">{t('LabelLogin')}</h2>
+      <h1 className="text-2xl font-bold text-center mb-6 text-postcss">{t('LabelLogin')}</h1>
 
       <div className="flex flex-col gap-4 mb-4">
         <TextInput label={t('LabelUsername')} value={username} onChange={setUsername} />
