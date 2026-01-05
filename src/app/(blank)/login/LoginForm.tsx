@@ -59,8 +59,8 @@ export default function LoginForm() {
       <h1 className="text-2xl font-bold text-center mb-6 text-postcss">{t('LabelLogin')}</h1>
 
       <div className="flex flex-col gap-4 mb-4">
-        <TextInput label={t('LabelUsername')} value={username} onChange={setUsername} />
-        <TextInput label={t('LabelPassword')} value={password} type="password" onChange={setPassword} />
+        <TextInput label={t('LabelUsername')} value={username} autocomplete="username" onChange={setUsername} />
+        <TextInput label={t('LabelPassword')} value={password} type="password" autocomplete="current-password" onChange={setPassword} />
       </div>
       {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
       <div className="flex justify-end">

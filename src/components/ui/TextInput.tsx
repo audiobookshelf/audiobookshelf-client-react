@@ -31,6 +31,7 @@ export interface TextInputProps {
   className?: string
   ref?: React.Ref<HTMLInputElement>
   error?: string
+  autocomplete?: 'off' | 'username' | 'current-password' | 'new-password' | 'email' | 'tel' | string
 }
 
 export default function TextInput({
@@ -55,7 +56,8 @@ export default function TextInput({
   onKeyDown,
   className,
   ref,
-  error
+  error,
+  autocomplete = 'off'
 }: TextInputProps) {
   const t = useTypeSafeTranslations()
   const generatedId = useId()
@@ -147,7 +149,7 @@ export default function TextInput({
           id={inputId}
           name={name}
           value={value?.toString() ?? ''}
-          autoComplete="off"
+          autoComplete={autocomplete}
           type={actualType}
           step={step?.toString()}
           min={min?.toString()}
@@ -193,7 +195,15 @@ export default function TextInput({
               aria-controls={inputId}
               cy-id="text-input-password-toggle"
             >
-              {!showPassword ? (<span className="material-symbols" aria-hidden="true">visibility</span>) : <span className="material-symbols" aria-hidden="true">visibility_off</span>}
+              {!showPassword ? (
+                <span className="material-symbols" aria-hidden="true">
+                  visibility
+                </span>
+              ) : (
+                <span className="material-symbols" aria-hidden="true">
+                  visibility_off
+                </span>
+              )}
             </button>
           </div>
         )}
