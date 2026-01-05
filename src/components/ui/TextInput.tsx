@@ -140,7 +140,7 @@ export default function TextInput({
         </Label>
       )}
 
-      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef}>
+      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef} className="group">
         <input
           ref={writeInputRef}
           id={inputId}
@@ -183,10 +183,11 @@ export default function TextInput({
         )}
 
         {shouldShowPasswordToggle && (
-          <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center">
+          // password visibility toggle button only show on hover and focus
+          <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center group-focus-within:opacity-100 group-hover:opacity-100 opacity-0 group-focus-within:pointer-events-auto group-hover:pointer-events-auto pointer-events-none">
             <button
               type="button"
-              className="material-symbols text-foreground-muted cursor-pointer text-lg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
+              className="flex text-foreground-muted cursor-pointer text-lg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? t('ButtonHidePassword') : t('ButtonShowPassword')}
               aria-controls={inputId}
