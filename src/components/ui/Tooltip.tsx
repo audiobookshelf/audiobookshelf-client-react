@@ -20,6 +20,7 @@ interface TooltipProps {
   closeOnClick?: boolean
   tooltipClassName?: string
   disabled?: boolean
+  addTabIndex?: boolean
 }
 
 const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
@@ -41,7 +42,8 @@ const Tooltip = ({
   withArrow = true,
   closeOnClick = false,
   tooltipClassName,
-  disabled = false
+  disabled = false,
+  addTabIndex = false
 }: TooltipProps) => {
   const tooltipId = useId()
   const [open, setOpen] = useState(false)
@@ -232,6 +234,7 @@ const Tooltip = ({
 
   return (
     <div
+      tabIndex={addTabIndex ? 0 : undefined}
       ref={refs.setReference}
       className={referenceClass}
       onMouseEnter={onMouseEnter}
@@ -239,6 +242,7 @@ const Tooltip = ({
       onFocus={onFocus}
       onBlur={onBlur}
       onClick={onClick}
+      aria-describedby={tooltipId}
     >
       {children}
       {mounted &&

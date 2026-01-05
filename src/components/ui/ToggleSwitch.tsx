@@ -104,7 +104,7 @@ export default function ToggleSwitch({
           ref={buttonRef}
           id={toggleId}
           type="button"
-          role="checkbox"
+          role="switch"
           aria-checked={value}
           aria-label={derivedAriaLabel}
           aria-labelledby={derivedAriaLabelledBy}
