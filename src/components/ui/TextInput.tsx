@@ -67,7 +67,6 @@ export default function TextInput({
   const [readInputRef, writeInputRef] = useMergedRef<HTMLInputElement>(ref)
 
   const [showPassword, setShowPassword] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
   const [hasCopied, setHasCopied] = useState<boolean | null>(null)
   const [isInvalidDate, setIsInvalidDate] = useState(false)
 
@@ -93,12 +92,10 @@ export default function TextInput({
   }
 
   const handleFocus = () => {
-    setIsFocused(true)
     onFocus?.()
   }
 
   const handleBlur = () => {
-    setIsFocused(false)
     onBlur?.()
   }
 
