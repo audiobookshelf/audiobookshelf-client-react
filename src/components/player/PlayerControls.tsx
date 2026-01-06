@@ -62,29 +62,36 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
         <div className="flex items-center gap-4 shrink-0">
           {/* previous chapter */}
           <Tooltip text={t('ButtonPreviousChapter')} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl" onClick={handlePreviousChapter}>
+            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={handlePreviousChapter}>
               first_page
             </IconBtn>
           </Tooltip>
           {/* jump backward */}
           <Tooltip text={jumpBackwardTooltipText} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl" onClick={jumpBackward}>
+            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={jumpBackward}>
               replay
             </IconBtn>
           </Tooltip>
           {/* play/pause */}
-          <IconBtn borderless size="custom" loading={isLoading} className="w-10 h-10 text-3xl" onClick={playPause}>
+          <IconBtn
+            borderless
+            size="custom"
+            loading={isLoading}
+            outlined={false}
+            className="w-10 h-10 bg-accent text-primary hover:text-primary hover:not-disabled:text-primary rounded-full text-2xl cursor-pointer"
+            onClick={playPause}
+          >
             {isPlaying ? 'pause' : 'play_arrow'}
           </IconBtn>
           {/* jump forward */}
           <Tooltip text={jumpForwardTooltipText} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl" onClick={jumpForward}>
+            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={jumpForward}>
               forward_media
             </IconBtn>
           </Tooltip>
           {/* next chapter */}
           <Tooltip text={t('ButtonNextChapter')} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl" onClick={handleNextChapter}>
+            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={handleNextChapter}>
               last_page
             </IconBtn>
           </Tooltip>
