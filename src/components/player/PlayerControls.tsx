@@ -6,6 +6,7 @@ import IconBtn from '../ui/IconBtn'
 import Tooltip from '../ui/Tooltip'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import PlayerSettingsModal from './PlayerSettingsModal'
+import VolumeControl from './VolumeControl'
 
 interface PlayerControlsProps {
   playerHandler: UsePlayerHandlerReturn
@@ -100,6 +101,8 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
         {/* Right section settings buttons */}
         <div className="flex-1 min-w-0 flex justify-end">
           <div className="flex items-center gap-4">
+            {/* volume control */}
+            <VolumeControl playerHandler={playerHandler} />
             {/* playback rate widget */}
             <PlaybackRateWidget playerHandler={playerHandler} />
             {/* player settings button */}

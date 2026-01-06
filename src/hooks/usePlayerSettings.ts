@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface PlayerSettings {
   /** Track shows chapter instead of full duration */
@@ -11,6 +11,8 @@ export interface PlayerSettings {
   playbackRate: number
   /** Increment/decrement amount for playback rate changes (0.1 or 0.05) */
   playbackRateIncrementDecrement: 0.1 | 0.05
+  /** Current volume level (0-1) */
+  volume: number
 }
 
 export interface UsePlayerSettingsReturn {
@@ -26,6 +28,10 @@ export interface UsePlayerSettingsReturn {
   incrementPlaybackRate: () => number
   /** Decrement playback rate by the configured decrement amount */
   decrementPlaybackRate: () => number
+  /** Set volume level (0-1) */
+  setVolume: (value: number) => void
+  /** Toggle mute on/off. Returns the new volume. */
+  toggleMute: () => number
 }
 
 // ============================================================================
@@ -39,7 +45,8 @@ const DEFAULT_SETTINGS: PlayerSettings = {
   jumpForwardAmount: 10,
   jumpBackwardAmount: 10,
   playbackRate: 1.0,
-  playbackRateIncrementDecrement: 0.1
+  playbackRateIncrementDecrement: 0.1,
+  volume: 0.5
 }
 
 // Playback rate bounds
@@ -112,6 +119,9 @@ export function usePlayerSettings(): UsePlayerSettingsReturn {
   const [settings, setSettings] = useState<PlayerSettings>(DEFAULT_SETTINGS)
   const [isInitialized, setIsInitialized] = useState(false)
 
+  // Track volume before mute (for toggling mute to keep the same volume)
+  const lastVolumeBeforeMuteRef = useRef<number | null>(null)
+
   // Load settings from localStorage on mount (client-side only)
   useEffect(() => {
     const loaded = loadSettingsFromStorage()
@@ -171,6 +181,27 @@ export function usePlayerSettings(): UsePlayerSettingsReturn {
     return newRate
   }, [settings.playbackRate])
 
+  const setVolume = useCallback((value: number) => {
+    const clampedVolume = Math.max(0, Math.min(1, value))
+    setSettings((prev) => ({ ...prev, volume: clampedVolume }))
+  }, [])
+
+  const toggleMute = useCallback((): number => {
+    const currentVolume = settings.volume
+    if (currentVolume > 0) {
+      // Muting: set to 0
+      lastVolumeBeforeMuteRef.current = currentVolume
+      setSettings((prev) => ({ ...prev, volume: 0 }))
+      return 0
+    } else {
+      // Unmuting: restore previous volume or default to 0.5
+      const restoredVolume = lastVolumeBeforeMuteRef.current ?? 0.5
+      lastVolumeBeforeMuteRef.current = null
+      setSettings((prev) => ({ ...prev, volume: restoredVolume }))
+      return restoredVolume
+    }
+  }, [settings.volume])
+
   return {
     settings,
     setUseChapterTrack,
@@ -180,6 +211,8 @@ export function usePlayerSettings(): UsePlayerSettingsReturn {
     setPlaybackRateIncrementDecrement,
     updateSettings,
     incrementPlaybackRate,
-    decrementPlaybackRate
+    decrementPlaybackRate,
+    setVolume,
+    toggleMute
   }
 }

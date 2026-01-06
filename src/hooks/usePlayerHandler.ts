@@ -56,7 +56,9 @@ export interface PlayerHandlerControls {
   jumpBackward: () => void
   /** Set volume (0-1) */
   setVolume: (volume: number) => void
-  /** Set playback rate (also updates player settings) */
+  /** Toggle mute on/off */
+  toggleMute: () => void
+  /** Set playback rate */
   setPlaybackRate: (rate: number) => void
   /** Increment playback rate by configured amount */
   incrementPlaybackRate: () => void
@@ -92,7 +94,6 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [bufferedTime, setBufferedTime] = useState(0)
-  const [volume, setVolumeState] = useState(1)
   const [isHlsTranscode, setIsHlsTranscode] = useState(false)
   const [playMethod, setPlayMethod] = useState<PlayMethod | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
@@ -108,6 +109,9 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
   // Refs for values needed in callbacks (to avoid stale closures)
   const playbackRateRef = useRef(settings.playbackRate)
   playbackRateRef.current = settings.playbackRate
+
+  const volumeRef = useRef(settings.volume)
+  volumeRef.current = settings.volume
 
   const currentChapter = chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null
   const nextChapter = chapters.find((chapter) => chapter.start > currentTime && chapter.end > currentTime) ?? null
@@ -167,8 +171,9 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
         if (state === PlayerState.PLAYING) {
           // Start sync interval when playing
           startSyncInterval(() => playerRef.current?.getCurrentTime() ?? 0)
-          // Apply playback rate from ref to avoid stale closure
+          // Apply playback rate and volume from refs to avoid stale closures
           player.setPlaybackRate(playbackRateRef.current)
+          player.setVolume(volumeRef.current)
         } else {
           stopSyncInterval()
         }
@@ -294,10 +299,18 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
     seek(newTime)
   }, [currentTime, seek, settings.jumpBackwardAmount])
 
-  const setVolume = useCallback((vol: number) => {
-    setVolumeState(vol)
-    playerRef.current?.setVolume(vol)
-  }, [])
+  const setVolume = useCallback(
+    (vol: number) => {
+      playerSettings.setVolume(vol)
+      playerRef.current?.setVolume(vol)
+    },
+    [playerSettings]
+  )
+
+  const toggleMute = useCallback(() => {
+    const newVolume = playerSettings.toggleMute()
+    playerRef.current?.setVolume(newVolume)
+  }, [playerSettings])
 
   const setPlaybackRate = useCallback(
     (rate: number) => {
@@ -348,7 +361,7 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       currentTime,
       duration,
       bufferedTime,
-      volume,
+      volume: settings.volume,
       isHlsTranscode,
       playMethod,
       sessionId,
@@ -369,6 +382,7 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       jumpForward,
       jumpBackward,
       setVolume,
+      toggleMute,
       setPlaybackRate,
       incrementPlaybackRate,
       decrementPlaybackRate,
