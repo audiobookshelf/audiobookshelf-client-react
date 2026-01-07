@@ -4,6 +4,7 @@ import { PlayerState } from '@/types/api'
 import { useState } from 'react'
 import IconBtn from '../ui/IconBtn'
 import Tooltip from '../ui/Tooltip'
+import ChaptersModal from './ChaptersModal'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import PlayerSettingsModal from './PlayerSettingsModal'
 import VolumeControl from './VolumeControl'
@@ -15,8 +16,9 @@ interface PlayerControlsProps {
 export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
   const t = useTypeSafeTranslations()
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
+  const [isChaptersModalOpen, setIsChaptersModalOpen] = useState(false)
   const { jumpBackward, jumpForward, playPause, seek } = playerHandler.controls
-  const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings } = playerHandler.state
+  const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings, chapters } = playerHandler.state
 
   const isPlaying = playerState === PlayerState.PLAYING
   const isLoading = playerState === PlayerState.LOADING
@@ -105,6 +107,14 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
             <VolumeControl playerHandler={playerHandler} />
             {/* playback rate widget */}
             <PlaybackRateWidget playerHandler={playerHandler} />
+            {/* chapters button */}
+            {chapters.length > 0 && (
+              <Tooltip text={t('LabelViewChapters')} position="top">
+                <IconBtn size="custom" borderless className="w-10 text-2xl" onClick={() => setIsChaptersModalOpen(true)} ariaLabel={t('LabelViewChapters')}>
+                  format_list_bulleted
+                </IconBtn>
+              </Tooltip>
+            )}
             {/* player settings button */}
             <Tooltip text={t('LabelViewPlayerSettings')} position="top">
               <IconBtn size="custom" borderless className="w-10 text-2xl" onClick={() => setIsSettingsModalOpen(true)} ariaLabel={t('LabelViewPlayerSettings')}>
@@ -120,6 +130,7 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
         onClose={() => setIsSettingsModalOpen(false)}
         onUpdateSettings={playerHandler.controls.updateSettings}
       />
+      <ChaptersModal isOpen={isChaptersModalOpen} playerHandler={playerHandler} onClose={() => setIsChaptersModalOpen(false)} />
     </>
   )
 }
