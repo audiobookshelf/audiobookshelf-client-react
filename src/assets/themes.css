@@ -47,6 +47,9 @@
 
   --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
   --tc-shadow-media-player: 0px -6px 8px #1111113f;
+
+  --tc-track-bg: #374151;
+  --tc-track-progress: #e5e7eb;
 }
 
 /* Light theme */
@@ -97,6 +100,9 @@
 
   --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
   --tc-shadow-media-player: 0px -6px 8px #1111113f;
+
+  --tc-track-bg: #d1d5db;
+  --tc-track-progress: #374151;
 }
 
 /* Black theme */
@@ -147,4 +153,7 @@
 
   --tc-modal-content-box-shadow: 2px 8px 6px #111111aa;
   --tc-shadow-media-player: 0px -6px 8px #1111113f;
+
+  --tc-track-bg: #1f2937;
+  --tc-track-progress: #f3f4f6;
 }

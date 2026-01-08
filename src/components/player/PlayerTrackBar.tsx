@@ -182,36 +182,39 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         {/* Track */}
         <div
           ref={trackRef}
-          className="w-full h-2 bg-gray-700 relative cursor-pointer transition-transform duration-100 hover:scale-y-125 overflow-hidden"
+          className="w-full h-2 bg-track-bg relative cursor-pointer transition-transform duration-100 hover:scale-y-125 overflow-hidden"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onClick={handleTrackClick}
         >
           {/* Buffer track */}
           <div
-            className="h-full bg-gray-500 absolute top-0 left-0 pointer-events-none transition-[width] duration-75"
+            className="h-full bg-track-progress/50 absolute top-0 left-0 pointer-events-none transition-[width] duration-75"
             style={{ width: `${bufferedPercent}%` }}
           />
           {/* Played track */}
-          <div className="h-full bg-gray-200 absolute top-0 left-0 pointer-events-none transition-[width] duration-75" style={{ width: `${playedPercent}%` }} />
+          <div
+            className="h-full bg-track-progress absolute top-0 left-0 pointer-events-none transition-[width] duration-75"
+            style={{ width: `${playedPercent}%` }}
+          />
           {/* Track cursor (vertical line on hover) */}
           <div
             ref={trackCursorRef}
             className={mergeClasses(
-              'h-full w-0.5 bg-gray-50 absolute top-0 left-0 pointer-events-none transition-opacity duration-100',
+              'h-full w-0.5 bg-track-progress absolute top-0 left-0 pointer-events-none transition-opacity duration-100',
               isHovering ? 'opacity-100' : 'opacity-0'
             )}
           />
           {/* Loading animation - sliding shimmer effect */}
           {isLoading && (
-            <div className="h-full w-1/4 absolute top-0 pointer-events-none bg-gradient-to-r from-transparent via-white/30 to-transparent loading-track-slide" />
+            <div className="h-full w-1/4 absolute top-0 pointer-events-none bg-gradient-to-r from-transparent via-track-progress/30 to-transparent loading-track-slide" />
           )}
         </div>
 
         {/* Chapter ticks */}
         <div className={mergeClasses('w-full h-2 relative overflow-hidden', useChapterTrack ? 'opacity-0' : '')}>
           {chapterTicks.map((tick, index) => (
-            <div key={index} className="absolute top-0 w-px bg-white/30 h-1 pointer-events-none" style={{ left: `${tick.left}px` }} />
+            <div key={index} className="absolute top-0 w-px bg-track-progress/30 h-1 pointer-events-none" style={{ left: `${tick.left}px` }} />
           ))}
         </div>
 
@@ -219,7 +222,7 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         <div
           ref={hoverTimestampRef}
           className={mergeClasses(
-            'absolute -top-8 left-0 bg-white text-black rounded-full pointer-events-none z-10 transition-opacity duration-100',
+            'absolute -top-8 left-0 bg-foreground text-background rounded-full pointer-events-none z-10 transition-opacity duration-100',
             isHovering ? 'opacity-100' : 'opacity-0'
           )}
         >
@@ -232,12 +235,12 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         <div
           ref={hoverTimestampArrowRef}
           className={mergeClasses(
-            'absolute -top-3.5 left-0 bg-white text-black rounded-full pointer-events-none transition-opacity duration-100',
+            'absolute -top-3.5 left-0 bg-foreground text-background rounded-full pointer-events-none transition-opacity duration-100',
             isHovering ? 'opacity-100' : 'opacity-0'
           )}
         >
           <div className="absolute -bottom-1.5 left-0 right-0 w-full flex justify-center">
-            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-white" />
+            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-foreground" />
           </div>
         </div>
       </div>

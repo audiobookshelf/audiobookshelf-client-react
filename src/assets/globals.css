@@ -93,6 +93,9 @@
 
   --shadow-modal-content: var(--tc-modal-content-box-shadow);
   --shadow-media-player: var(--tc-shadow-media-player);
+
+  --color-track-bg: var(--tc-track-bg);
+  --color-track-progress: var(--tc-track-progress);
 }
 
 body {
