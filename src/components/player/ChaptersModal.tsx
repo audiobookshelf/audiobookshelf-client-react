@@ -47,7 +47,7 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       onKeyDown={handleKeyDown}
       className={mergeClasses(
         'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors rounded-lg',
-        'hover:bg-white/5 focus:bg-white/5 focus:outline-none',
+        'hover:bg-foreground-muted/5 focus:bg-foreground-muted/5 focus:outline-none',
         isCurrentChapter && 'bg-accent/15 border-l-3 border-accent',
         isListened && !isCurrentChapter && 'bg-success/5'
       )}
@@ -57,7 +57,7 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       <div
         className={mergeClasses(
           'w-8 h-8 rounded-full grid place-items-center text-sm font-medium leading-none shrink-0',
-          isCurrentChapter ? 'bg-accent text-primary' : isListened ? 'bg-success/20 text-success' : 'bg-white/10 text-foreground-muted'
+          isCurrentChapter ? 'bg-accent text-primary' : isListened ? 'bg-success/20 text-success' : 'bg-foreground-muted/10 text-foreground-muted'
         )}
       >
         {chapter.id + 1}
