@@ -774,6 +774,33 @@ export interface UserLoginResponse {
   Source: string
 }
 
+export interface ApiKey {
+  createdAt: string
+  createdByUser: {
+    id: string
+    username: string
+    type: string
+  }
+  createdByUserId: string
+  description: string | null
+  expiresAt: string | null
+  id: string
+  isActive: boolean
+  lastUsedAt: string | null
+  name: string
+  updatedAt: string
+  user: {
+    id: string
+    username: string
+    type: string
+  }
+  userId: string
+}
+
+export interface GetApiKeysResponse {
+  apiKeys: ApiKey[]
+}
+
 // ============================================================================
 // SHELVES
 // ============================================================================

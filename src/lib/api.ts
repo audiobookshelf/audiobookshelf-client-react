@@ -7,6 +7,7 @@ import {
   BookSearchResult,
   Collection,
   FFProbeData,
+  GetApiKeysResponse,
   GetAuthorsResponse,
   GetCollectionsResponse,
   GetLibrariesResponse,
@@ -423,6 +424,10 @@ export const getLibraryCollections = cache(async (libraryId: string, queryParams
 
 export const getLibraryPlaylists = cache(async (libraryId: string, queryParams?: string): Promise<GetPlaylistsResponse> => {
   return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists${queryParams ? `?${queryParams}` : ''}`, {})
+})
+
+export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
+  return apiRequest<GetApiKeysResponse>('/api/api-keys', {})
 })
 
 /**

@@ -1,13 +1,11 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import SettingsContent from '../SettingsContent'
+import { getApiKeys, getData } from '@/lib/api'
+import ApiKeysClient from './ApiKeysClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ApiKeysPage() {
-  const t = await getTypeSafeTranslations()
-  return (
-    <SettingsContent title={t('HeaderApiKeys')} moreInfoUrl="https://www.audiobookshelf.org/guides/api-keys">
-      <div></div>
-    </SettingsContent>
-  )
+  const [apiKeysResponse] = await getData(getApiKeys())
+  const apiKeys = apiKeysResponse?.apiKeys || []
+
+  return <ApiKeysClient apiKeys={apiKeys} />
 }
