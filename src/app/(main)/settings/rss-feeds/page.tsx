@@ -1,13 +1,11 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import SettingsContent from '../SettingsContent'
+import { getData, getRssFeeds } from '@/lib/api'
+import RssFeedsClient from './RssFeedsClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function RssFeedsPage() {
-  const t = await getTypeSafeTranslations()
-  return (
-    <SettingsContent title={t('HeaderRSSFeeds')} moreInfoUrl="https://www.audiobookshelf.org/guides/rss_feeds">
-      <div></div>
-    </SettingsContent>
-  )
+  const [rssFeedsResponse] = await getData(getRssFeeds())
+  const rssFeeds = rssFeedsResponse?.feeds || []
+
+  return <RssFeedsClient rssFeeds={rssFeeds} />
 }

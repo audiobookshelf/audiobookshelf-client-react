@@ -14,6 +14,7 @@ import {
   GetLibraryItemsResponse,
   GetNarratorsResponse,
   GetPlaylistsResponse,
+  GetRssFeedsResponse,
   GetSeriesResponse,
   GetUsersResponse,
   Library,
@@ -428,6 +429,10 @@ export const getLibraryPlaylists = cache(async (libraryId: string, queryParams?:
 
 export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
   return apiRequest<GetApiKeysResponse>('/api/api-keys', {})
+})
+
+export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
+  return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
 })
 
 /**

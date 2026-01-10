@@ -689,17 +689,39 @@ export interface AudioBookmark {
 // RSS FEEDS & SHARES
 // ============================================================================
 
+export interface RssFeedMeta {
+  author: string
+  description: string
+  explicit: boolean
+  feedUrl: string
+  imageUrl: string
+  language: string
+  link: string
+  ownerEmail: string | null
+  ownerName: string | null
+  preventIndexing: boolean
+  title: string
+  type: 'serial' | 'episodic'
+}
+
 export interface RssFeed {
   id: string
   slug: string
   entityId: string
-  entityType?: string
+  entityType: string
+  entityUpdatedAt: number
+  coverPath: string
   feedUrl: string
-  metaTitle?: string
-  metaDescription?: string
-  isPublic?: boolean
-  createdAt?: number
-  updatedAt?: number
+  serverAddress: string
+  userId: string
+  episodes?: PodcastEpisode[]
+  meta: RssFeedMeta
+  createdAt: number
+  updatedAt: number
+}
+
+export interface GetRssFeedsResponse {
+  feeds: RssFeed[]
 }
 
 export interface MediaItemShare {
