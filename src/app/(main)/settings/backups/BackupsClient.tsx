@@ -12,7 +12,13 @@ export default function BackupsClient({ backups }: BackupsClientProps) {
   const t = useTypeSafeTranslations()
 
   return (
-    <SettingsContent title={t('HeaderBackups')}>
+    <SettingsContent
+      title={t('HeaderBackups')}
+      description={t.rich('MessageBackupsDescription', {
+        code: (chunks) => <code className="bg-foreground/10 text-foreground px-1 py-0.5 rounded-md">{chunks}</code>,
+        strong: (chunks) => <strong className="font-bold text-foreground">{chunks}</strong>
+      })}
+    >
       <div>
         {backups.map((backup) => (
           <div key={backup.id}>{backup.datePretty}</div>
