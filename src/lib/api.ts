@@ -9,6 +9,7 @@ import {
   FFProbeData,
   GetApiKeysResponse,
   GetAuthorsResponse,
+  GetBackupsResponse,
   GetCollectionsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
@@ -433,6 +434,10 @@ export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
 
 export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
   return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
+})
+
+export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
+  return apiRequest<GetBackupsResponse>('/api/backups', {})
 })
 
 /**

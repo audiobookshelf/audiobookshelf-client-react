@@ -1,13 +1,11 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import SettingsContent from '../SettingsContent'
+import { getBackups, getData } from '@/lib/api'
+import BackupsClient from './BackupsClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function BackupsPage() {
-  const t = await getTypeSafeTranslations()
-  return (
-    <SettingsContent title={t('HeaderBackups')}>
-      <div></div>
-    </SettingsContent>
-  )
+  const [backupsResponse] = await getData(getBackups())
+  const backups = backupsResponse?.backups || []
+
+  return <BackupsClient backups={backups} />
 }
