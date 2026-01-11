@@ -5,7 +5,10 @@ export const dynamic = 'force-dynamic'
 
 export default async function BackupsPage() {
   const [backupsResponse] = await getData(getBackups())
-  const backups = backupsResponse?.backups || []
 
-  return <BackupsClient backups={backups} />
+  if (!backupsResponse) {
+    return <div>Error loading backups</div>
+  }
+
+  return <BackupsClient backupResponse={backupsResponse} />
 }
