@@ -1,8 +1,10 @@
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
+import { updateBackupPath } from './actions'
 
 interface BackupLocationProps {
   backupLocation: string
@@ -10,16 +12,34 @@ interface BackupLocationProps {
 
 export default function BackupLocation({ backupLocation }: BackupLocationProps) {
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
+  const [isPending, startTransition] = useTransition()
   const [isEditing, setIsEditing] = useState(false)
   const [editedBackupLocation, setEditedBackupLocation] = useState(backupLocation)
 
   const handleSave = () => {
-    setIsEditing(false)
-    if (editedBackupLocation === backupLocation) {
+    if (isPending) return
+
+    const newBackupLocation = editedBackupLocation.trim()
+    if (!newBackupLocation) {
+      showToast(t('MessageBackupsLocationPathEmpty'), { type: 'error' })
       return
     }
-    // TODO: Save the backup location
-    console.log('Saving backup location:', editedBackupLocation)
+
+    if (newBackupLocation === backupLocation) {
+      setIsEditing(false)
+      return
+    }
+
+    startTransition(async () => {
+      const success = await updateBackupPath(newBackupLocation)
+      if (success) {
+        setIsEditing(false)
+        setEditedBackupLocation(newBackupLocation)
+      } else {
+        showToast(t('ToastFailedToUpdate'), { type: 'error' })
+      }
+    })
   }
 
   const handleCancel = () => {
