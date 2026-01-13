@@ -300,3 +300,9 @@ Bookshelf Label
     rgba(0, 0, 0, 0.7) 100%
   );
 }
+
+.hover-error-button {
+  &:hover {
+    color: var(--color-error);
+  }
+}

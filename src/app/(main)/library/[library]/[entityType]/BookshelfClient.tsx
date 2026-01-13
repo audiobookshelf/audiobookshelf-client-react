@@ -2,6 +2,7 @@
 
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
+import AuthorEditModal from '@/components/modals/AuthorEditModal'
 import AuthorCard from '@/components/widgets/media-card/AuthorCard'
 import AuthorCardSkeleton from '@/components/widgets/media-card/AuthorCardSkeleton'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
@@ -39,6 +40,9 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   const isPodcastLibrary = library.mediaType === 'podcast'
   const isBookLibrary = library.mediaType === 'book'
+
+  const [isAuthorEditModalOpen, setIsAuthorEditModalOpen] = useState(false)
+  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
 
   // Ref for the container div
   const containerRef = useRef<HTMLDivElement>(null)
@@ -353,7 +357,14 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
         const author = entity as Author
         return (
           <div key={`card-wrapper-${author.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-            <AuthorCard author={author} userCanUpdate={currentUser.user.permissions?.update} />
+            <AuthorCard
+              author={author}
+              userCanUpdate={currentUser.user.permissions?.update}
+              onEdit={(author) => {
+                setSelectedAuthor(author)
+                setIsAuthorEditModalOpen(true)
+              }}
+            />
           </div>
         )
       }
@@ -513,6 +524,17 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           )}
         </div>
       )}
+
+      {/* Modals */}
+      <AuthorEditModal
+        isOpen={isAuthorEditModalOpen}
+        author={selectedAuthor}
+        onClose={() => {
+          setIsAuthorEditModalOpen(false)
+          setSelectedAuthor(null)
+        }}
+        user={currentUser.user}
+      />
     </div>
   )
 }
