@@ -1,4 +1,5 @@
 import { getBackups, getCurrentUser, getData } from '@/lib/api'
+import { updateServerSettings } from '../actions'
 import BackupsClient from './BackupsClient'
 
 export const dynamic = 'force-dynamic'
@@ -10,5 +11,5 @@ export default async function BackupsPage() {
     return <div>Error loading backups</div>
   }
 
-  return <BackupsClient backupResponse={backupsResponse} currentUser={currentUser} />
+  return <BackupsClient backupResponse={backupsResponse} currentUser={currentUser} updateServerSettings={updateServerSettings} />
 }
