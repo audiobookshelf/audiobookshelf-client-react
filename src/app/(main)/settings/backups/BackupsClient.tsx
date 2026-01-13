@@ -1,5 +1,6 @@
 'use client'
 
+import TextInput from '@/components/ui/TextInput'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -13,7 +14,7 @@ import BackupLocation from './BackupLocation'
 interface BackupsClientProps {
   backupResponse: GetBackupsResponse
   currentUser: UserLoginResponse
-  updateServerSettings: (serverSettings: ServerSettings) => Promise<UpdateServerSettingsApiResponse>
+  updateServerSettings: (settingsUpdatePayload: Partial<ServerSettings>) => Promise<UpdateServerSettingsApiResponse>
 }
 
 export default function BackupsClient({ backupResponse, currentUser, updateServerSettings }: BackupsClientProps) {
@@ -24,25 +25,53 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
 
   const backups = backupResponse.backups
   const serverSettings = currentUser.serverSettings
+
+  const [backupsToKeep, setBackupsToKeep] = useState(serverSettings.backupsToKeep ? String(serverSettings.backupsToKeep) : '')
+  const [maxBackupSize, setMaxBackupSize] = useState(serverSettings.maxBackupSize ? String(serverSettings.maxBackupSize) : '')
+
   const backupSchedule = serverSettings.backupSchedule // cron expression or false if disabled
 
-  const handleUpdateBackupSettings = (newAutoBackupsEnabled: boolean) => {
+  const handleUpdateBackupSettings = (settingsUpdatePayload: Partial<ServerSettings>) => {
     if (isPending) return
 
     // Store the previous cron expression to allow toggling back to the previous schedule
-    if (!newAutoBackupsEnabled && backupSchedule) {
+    if (!settingsUpdatePayload.backupSchedule && backupSchedule) {
       setPreviousCronExpress(backupSchedule)
     }
 
     startTransition(async () => {
-      // default schedule to run at 1:30 AM every day
-      const newBackupSchedule = newAutoBackupsEnabled ? previousCronExpress || '30 1 * * *' : false
-      const response = await updateServerSettings({ ...serverSettings, backupSchedule: newBackupSchedule })
+      const response = await updateServerSettings(settingsUpdatePayload)
       if (!response?.serverSettings) {
         console.error('Failed to update server settings')
         showToast(t('ToastFailedToUpdate'), { type: 'error' })
       }
     })
+  }
+
+  const handleAutoBackupsChanged = (value: boolean) => {
+    // default schedule to run at 1:30 AM every day
+    const newBackupSchedule = value ? previousCronExpress || '30 1 * * *' : false
+    handleUpdateBackupSettings({ backupSchedule: newBackupSchedule })
+  }
+
+  const handleBackupsToKeepBlur = () => {
+    const newValue = parseInt(backupsToKeep)
+    if (isNaN(newValue) || newValue < 1 || newValue > 99) {
+      showToast(t('ToastBackupInvalidMaxKeep'), { type: 'error' })
+      setBackupsToKeep(String(serverSettings.backupsToKeep))
+      return
+    }
+    handleUpdateBackupSettings({ backupsToKeep: newValue })
+  }
+
+  const handleMaxBackupSizeBlur = () => {
+    const newValue = parseInt(maxBackupSize)
+    if (isNaN(newValue) || newValue < 0) {
+      showToast(t('ToastBackupInvalidMaxSize'), { type: 'error' })
+      setMaxBackupSize(String(serverSettings.maxBackupSize))
+      return
+    }
+    handleUpdateBackupSettings({ maxBackupSize: newValue })
   }
 
   return (
@@ -61,7 +90,7 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
           <SettingsToggleSwitch
             label={t('LabelBackupsEnableAutomaticBackups')}
             value={!!backupSchedule}
-            onChange={handleUpdateBackupSettings}
+            onChange={handleAutoBackupsChanged}
             tooltip={t('LabelBackupsEnableAutomaticBackupsHelp')}
           />
           {!!backupSchedule && (
@@ -69,6 +98,33 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
               <CronExpressionPreview cronExpression={backupSchedule as string} />
             </div>
           )}
+        </div>
+
+        <div className="mb-4 flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <TextInput
+              value={backupsToKeep}
+              onChange={setBackupsToKeep}
+              type="number"
+              min="1"
+              id="backups-to-keep"
+              className="w-16"
+              onBlur={handleBackupsToKeepBlur}
+            />
+            <label htmlFor="backups-to-keep-input">{t('LabelBackupsNumberToKeep')}</label>
+          </div>
+          <div className="flex items-center gap-2">
+            <TextInput
+              value={maxBackupSize}
+              onChange={setMaxBackupSize}
+              type="number"
+              min="0"
+              id="max-backup-size"
+              className="w-16"
+              onBlur={handleMaxBackupSizeBlur}
+            />
+            <label htmlFor="max-backup-size-input">{t('LabelBackupsMaxBackupSize')}</label>
+          </div>
         </div>
 
         {/* backups */}
