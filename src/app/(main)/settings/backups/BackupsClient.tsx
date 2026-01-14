@@ -2,6 +2,7 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
+import Tooltip from '@/components/ui/Tooltip'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -137,6 +138,11 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
               disabled={isPending}
             />
             <label htmlFor="backups-to-keep-input">{t('LabelBackupsNumberToKeep')}</label>
+            <Tooltip text={t('LabelBackupsNumberToKeepHelp')} maxWidth={300}>
+              <span className="material-symbols text-lg" aria-hidden="true">
+                info
+              </span>
+            </Tooltip>
           </div>
           <div className="flex items-center gap-2">
             <TextInput
@@ -150,6 +156,11 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
               disabled={isPending}
             />
             <label htmlFor="max-backup-size-input">{t('LabelBackupsMaxBackupSize')}</label>
+            <Tooltip text={t('LabelBackupsMaxBackupSizeHelp')} maxWidth={300}>
+              <span className="material-symbols text-lg" aria-hidden="true">
+                info
+              </span>
+            </Tooltip>
           </div>
         </div>
 
