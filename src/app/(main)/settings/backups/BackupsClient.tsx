@@ -1,5 +1,6 @@
 'use client'
 
+import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -10,6 +11,7 @@ import { UpdateServerSettingsApiResponse } from '../actions'
 import SettingsContent from '../SettingsContent'
 import SettingsToggleSwitch from '../SettingsToggleSwitch'
 import BackupLocation from './BackupLocation'
+import BackupScheduleModal from './BackupScheduleModal'
 
 interface BackupsClientProps {
   backupResponse: GetBackupsResponse
@@ -21,6 +23,7 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
   const t = useTypeSafeTranslations()
   const [isPending, startTransition] = useTransition()
   const [previousCronExpress, setPreviousCronExpress] = useState<string | false>()
+  const [isBackupScheduleModalOpen, setIsBackupScheduleModalOpen] = useState(false)
   const { showToast } = useGlobalToast()
 
   const backups = backupResponse.backups
@@ -44,6 +47,8 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
       if (!response?.serverSettings) {
         console.error('Failed to update server settings')
         showToast(t('ToastFailedToUpdate'), { type: 'error' })
+      } else {
+        setIsBackupScheduleModalOpen(false)
       }
     })
   }
@@ -74,6 +79,10 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
     handleUpdateBackupSettings({ maxBackupSize: newValue })
   }
 
+  const handleUpdateBackupSchedule = (cronExpression: string) => {
+    handleUpdateBackupSettings({ backupSchedule: cronExpression })
+  }
+
   return (
     <SettingsContent
       title={t('HeaderBackups')}
@@ -95,7 +104,22 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
           />
           {!!backupSchedule && (
             <div className="pl-6">
-              <CronExpressionPreview cronExpression={backupSchedule as string} />
+              <div className="flex gap-2">
+                <div>
+                  <CronExpressionPreview cronExpression={backupSchedule as string} />
+                </div>
+                <div>
+                  <IconBtn
+                    ariaLabel={t('LabelEdit')}
+                    borderless
+                    size="small"
+                    className="text-foreground-muted cursor-pointer"
+                    onClick={() => setIsBackupScheduleModalOpen(true)}
+                  >
+                    edit
+                  </IconBtn>
+                </div>
+              </div>
             </div>
           )}
         </div>
@@ -110,6 +134,7 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
               id="backups-to-keep"
               className="w-16"
               onBlur={handleBackupsToKeepBlur}
+              disabled={isPending}
             />
             <label htmlFor="backups-to-keep-input">{t('LabelBackupsNumberToKeep')}</label>
           </div>
@@ -122,6 +147,7 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
               id="max-backup-size"
               className="w-16"
               onBlur={handleMaxBackupSizeBlur}
+              disabled={isPending}
             />
             <label htmlFor="max-backup-size-input">{t('LabelBackupsMaxBackupSize')}</label>
           </div>
@@ -132,6 +158,13 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
           <div key={backup.id}>{backup.datePretty}</div>
         ))}
       </div>
+      <BackupScheduleModal
+        isOpen={isBackupScheduleModalOpen}
+        isPending={isPending}
+        onClose={() => setIsBackupScheduleModalOpen(false)}
+        cronExpression={backupSchedule || ''}
+        onUpdate={handleUpdateBackupSchedule}
+      />
     </SettingsContent>
   )
 }
