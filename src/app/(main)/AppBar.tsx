@@ -2,6 +2,7 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library, User } from '@/types/api'
 import Image from 'next/image'
@@ -21,6 +22,8 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
   const t = useTypeSafeTranslations()
   const userCanUpload = user.permissions.upload
   const [isSearchMode, setIsSearchMode] = useState(false)
+  // When not on a library page, use the last current library id when navigating home
+  const { lastCurrentLibraryId } = useMediaContext()
 
   const handleSearchModeToggle = useCallback(() => {
     setIsSearchMode((prev) => !prev)
@@ -40,7 +43,7 @@ export default function AppBar({ libraries, currentLibraryId, user }: AppBarProp
         className="absolute top-0 bottom-0 start-0 w-full h-full px-2 md:px-6 py-1 z-60 flex items-center justify-start gap-2 md:gap-4 box-shadow-appbar"
       >
         <Link
-          href={`/library/${currentLibraryId}`}
+          href={`/library/${currentLibraryId || lastCurrentLibraryId}`}
           aria-label={`audiobookshelf - ${t('ButtonHome')}`}
           className="text-sm text-foreground hover:text-foreground/80 flex items-center justify-start gap-2 md:gap-4"
         >

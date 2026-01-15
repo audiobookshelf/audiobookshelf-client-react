@@ -1,10 +1,12 @@
 'use client'
 
 import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { mergeClasses } from '@/lib/merge-classes'
 import { UserLoginResponse } from '@/types/api'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
 import SideRail from '../../SideRail'
 import Toolbar from './Toolbar'
 
@@ -14,10 +16,17 @@ interface LibraryLayoutWrapperProps {
 }
 
 export default function LibraryLayoutWrapper({ children, currentUser }: LibraryLayoutWrapperProps) {
-  const { libraryItemIdStreaming } = useMediaContext()
+  const { libraryItemIdStreaming, setLastCurrentLibraryId } = useMediaContext()
+  const { library } = useLibrary()
   const serverVersion = currentUser?.serverSettings?.version || 'Error'
   const installSource = currentUser?.Source || 'Unknown'
   const isLibraryItemPage = usePathname().includes('/item/')
+
+  useEffect(() => {
+    if (library) {
+      setLastCurrentLibraryId(library.id)
+    }
+  }, [library, setLastCurrentLibraryId])
 
   return (
     <div className={mergeClasses('flex page-wrapper overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
