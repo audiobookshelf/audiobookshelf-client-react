@@ -8,9 +8,10 @@ import { updateBackupPath } from './actions'
 
 interface BackupLocationProps {
   backupLocation: string
+  backupPathEnvSet: boolean
 }
 
-export default function BackupLocation({ backupLocation }: BackupLocationProps) {
+export default function BackupLocation({ backupLocation, backupPathEnvSet }: BackupLocationProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [isPending, startTransition] = useTransition()
@@ -56,14 +57,20 @@ export default function BackupLocation({ backupLocation }: BackupLocationProps) 
         <p className="text-foreground-subdued uppercase text-sm">{t('LabelBackupLocation')}</p>
       </div>
       {isEditing ? (
-        <div className="flex items-center gap-2">
-          <TextInput value={editedBackupLocation} className="text-sm" onChange={(value) => setEditedBackupLocation(value)} />
-          <Btn size="small" color="bg-success" onClick={handleSave}>
-            {t('ButtonSave')}
-          </Btn>
-          <Btn size="small" onClick={handleCancel}>
-            {t('ButtonCancel')}
-          </Btn>
+        <div>
+          <div className="flex items-center gap-2">
+            <TextInput value={editedBackupLocation} disabled={backupPathEnvSet} className="text-sm" onChange={(value) => setEditedBackupLocation(value)} />
+            {!backupPathEnvSet && (
+              <Btn size="small" color="bg-success" onClick={handleSave}>
+                {t('ButtonSave')}
+              </Btn>
+            )}
+
+            <Btn size="small" onClick={handleCancel}>
+              {t('ButtonCancel')}
+            </Btn>
+          </div>
+          <p className="text-sm text-foreground-subdued">{backupPathEnvSet ? t('MessageBackupsLocationNoEditNote') : t('MessageBackupsLocationEditNote')}</p>
         </div>
       ) : (
         <div className="flex items-center gap-2">

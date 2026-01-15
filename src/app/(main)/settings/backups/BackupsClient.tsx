@@ -94,7 +94,7 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
     >
       <div>
         {/* backup location */}
-        <BackupLocation backupLocation={backupResponse.backupLocation} />
+        <BackupLocation backupLocation={backupResponse.backupLocation} backupPathEnvSet={backupResponse.backupPathEnvSet} />
 
         <div className="mb-4 -ml-2">
           <SettingsToggleSwitch
