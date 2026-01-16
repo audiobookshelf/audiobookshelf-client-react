@@ -1,13 +1,17 @@
 'use client'
 
+import Btn from '@/components/ui/Btn'
+import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { GetBackupsResponse, ServerSettings, UserLoginResponse } from '@/types/api'
-import { useState, useTransition } from 'react'
+import { formatJsDatetime } from '@/lib/datefns'
+import { bytesPretty } from '@/lib/string'
+import { Backup, GetBackupsResponse, ServerSettings, UserLoginResponse } from '@/types/api'
+import { useMemo, useState, useTransition } from 'react'
 import { UpdateServerSettingsApiResponse } from '../actions'
 import SettingsContent from '../SettingsContent'
 import SettingsToggleSwitch from '../SettingsToggleSwitch'
@@ -29,6 +33,8 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
 
   const backups = backupResponse.backups
   const serverSettings = currentUser.serverSettings
+  const dateFormat = serverSettings.dateFormat
+  const timeFormat = serverSettings.timeFormat
 
   const [backupsToKeep, setBackupsToKeep] = useState(serverSettings.backupsToKeep ? String(serverSettings.backupsToKeep) : '')
   const [maxBackupSize, setMaxBackupSize] = useState(serverSettings.maxBackupSize ? String(serverSettings.maxBackupSize) : '')
@@ -164,10 +170,8 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
           </div>
         </div>
 
-        {/* backups */}
-        {backups.map((backup) => (
-          <div key={backup.id}>{backup.datePretty}</div>
-        ))}
+        {/* backups table */}
+        <BackupsTable backups={backups} dateFormat={dateFormat} timeFormat={timeFormat} />
       </div>
       <BackupScheduleModal
         isOpen={isBackupScheduleModalOpen}
@@ -178,4 +182,56 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
       />
     </SettingsContent>
   )
+}
+
+interface BackupsTableProps {
+  backups: Backup[]
+  dateFormat: string
+  timeFormat: string
+  onRestore?: (backup: Backup) => void
+  onDownload?: (backup: Backup) => void
+  onDelete?: (backup: Backup) => void
+}
+
+function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, onDelete }: BackupsTableProps) {
+  const t = useTypeSafeTranslations()
+
+  const columns: DataTableColumn<Backup>[] = useMemo(
+    () => [
+      {
+        label: t('LabelFile'),
+        accessor: (backup) => `/backups/${backup.filename}`
+      },
+      {
+        label: t('LabelDatetime'),
+        accessor: (backup) => formatJsDatetime(new Date(backup.createdAt), dateFormat, timeFormat)
+      },
+      {
+        label: t('LabelSize'),
+        accessor: (backup) => bytesPretty(backup.fileSize),
+        cellClassName: 'font-mono'
+      },
+      {
+        label: '',
+        accessor: (backup) => (
+          <div className="flex items-center justify-end gap-2">
+            <Btn size="small" onClick={() => onRestore?.(backup)}>
+              {t('ButtonRestore')}
+            </Btn>
+            <IconBtn ariaLabel={t('LabelDownload')} borderless size="small" onClick={() => onDownload?.(backup)}>
+              download
+            </IconBtn>
+            <IconBtn ariaLabel={t('ButtonDelete')} borderless size="small" className="hover:not-disabled:text-error" onClick={() => onDelete?.(backup)}>
+              delete
+            </IconBtn>
+          </div>
+        ),
+        headerClassName: 'w-48',
+        cellClassName: 'text-right'
+      }
+    ],
+    [t, onRestore, onDownload, onDelete, dateFormat, timeFormat]
+  )
+
+  return <DataTable data={backups} columns={columns} getRowKey={(backup) => backup.id} caption={t('HeaderBackups')} />
 }
