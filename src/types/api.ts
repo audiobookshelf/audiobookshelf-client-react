@@ -824,6 +824,29 @@ export interface GetApiKeysResponse {
 }
 
 // ============================================================================
+// BACKUPS
+// ============================================================================
+
+export interface Backup {
+  id: string
+  key: string
+  backupDirPath: string
+  datePretty: string
+  fullPath: string
+  path: string
+  filename: string
+  fileSize: number
+  createdAt: number
+  serverVersion: string
+}
+
+export interface GetBackupsResponse {
+  backupLocation: string
+  backupPathEnvSet: boolean
+  backups: Backup[]
+}
+
+// ============================================================================
 // SHELVES
 // ============================================================================
 

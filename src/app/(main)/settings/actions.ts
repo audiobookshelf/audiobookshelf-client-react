@@ -12,12 +12,12 @@ export type UpdateSortingPrefixesApiResponse = {
 }
 
 // Server Action
-export async function updateServerSettings(serverSettings: ServerSettings): Promise<UpdateServerSettingsApiResponse> {
+export async function updateServerSettings(settingsUpdatePayload: Partial<ServerSettings>): Promise<UpdateServerSettingsApiResponse> {
   'use server'
 
   const response = await apiRequest<UpdateServerSettingsApiResponse>('/api/settings', {
     method: 'PATCH',
-    body: JSON.stringify(serverSettings)
+    body: JSON.stringify(settingsUpdatePayload)
   })
 
   // Invalidate the current user cache

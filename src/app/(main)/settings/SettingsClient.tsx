@@ -16,7 +16,7 @@ import SettingsToggleSwitch from './SettingsToggleSwitch'
 
 interface SettingsClientProps {
   serverSettings: ServerSettings
-  updateServerSettings: (serverSettings: ServerSettings) => Promise<UpdateServerSettingsApiResponse>
+  updateServerSettings: (settingsUpdatePayload: Partial<ServerSettings>) => Promise<UpdateServerSettingsApiResponse>
   updateSortingPrefixes: (sortingPrefixes: string[]) => Promise<UpdateSortingPrefixesApiResponse>
 }
 

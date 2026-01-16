@@ -17,6 +17,10 @@ export interface PlayerQueueItem {
 }
 
 interface MediaContextValue {
+  // Current library state (used for navigation when not on a library page to go back to the last library)
+  lastCurrentLibraryId: string | null
+  setLastCurrentLibraryId: (libraryId: string) => void
+
   // Stream state
   streamLibraryItem: LibraryItem | null
   streamEpisodeId: string | null
@@ -47,6 +51,8 @@ interface MediaContextValue {
 const MediaContext = createContext<MediaContextValue | undefined>(undefined)
 
 export function MediaProvider({ children }: { children: React.ReactNode }) {
+  // Current library state
+  const [lastCurrentLibraryId, setLastCurrentLibraryId] = useState<string | null>(null)
   // Stream state
   const [streamLibraryItem, setStreamLibraryItem] = useState<LibraryItem | null>(null)
   const [streamEpisodeId, setStreamEpisodeId] = useState<string | null>(null)
@@ -161,6 +167,10 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
 
   const value: MediaContextValue = useMemo(
     () => ({
+      // Current library state
+      lastCurrentLibraryId,
+      setLastCurrentLibraryId,
+
       // Stream state
       streamLibraryItem,
       streamEpisodeId,
@@ -188,6 +198,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       }
     }),
     [
+      lastCurrentLibraryId,
+      setLastCurrentLibraryId,
       streamLibraryItem,
       streamEpisodeId,
       playerQueueItems,
