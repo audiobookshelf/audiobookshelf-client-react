@@ -46,8 +46,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   const [isAuthorEditModalOpen, setIsAuthorEditModalOpen] = useState(false)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
-  const [deletedAuthorIds, setDeletedAuthorIds] = useState<Set<string>>(new Set())
-  const [authorUpdates, setAuthorUpdates] = useState<Record<string, Author>>({})
   const [quickMatchingAuthorIds, setQuickMatchingAuthorIds] = useState<Set<string>>(new Set())
 
   // Ref for the container div
@@ -152,6 +150,8 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const {
     items,
     loadPage,
+    updateItem,
+    removeItem,
     totalEntities: fetchedTotal,
     isLoading,
     isInitialized,
@@ -361,19 +361,13 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       }
       case 'authors': {
         const author = entity as Author
-        // Skip rendering if author has been deleted
-        if (deletedAuthorIds.has(author.id)) {
-          return null
-        }
-        const displayAuthor = authorUpdates[author.id] || author
         return (
-          <div key={`card-wrapper-${displayAuthor.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
+          <div key={`card-wrapper-${author.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
             <AuthorCard
-              author={displayAuthor}
+              author={author}
               userCanUpdate={currentUser.user.permissions?.update}
               onEdit={(author) => {
-                const updatedAuthor = authorUpdates[author.id] || author
-                setSelectedAuthor(updatedAuthor)
+                setSelectedAuthor(author)
                 setIsAuthorEditModalOpen(true)
               }}
               onQuickMatch={async (author) => {
@@ -381,13 +375,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                 try {
                   const resp = await quickMatchAuthor(author, library.provider || 'audible')
                   if (resp) {
-                    setAuthorUpdates((prev) => ({
-                      ...prev,
-                      [author.id]: {
-                        ...author,
-                        ...resp.author
-                      }
-                    }))
+                    updateItem(author.id, { ...author, ...resp.author })
                     if (resp.updated) {
                       if (resp.author.imagePath) {
                         showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
@@ -398,7 +386,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                       showToast(t('ToastNoUpdatesNecessary'))
                     }
                   } else {
-                    showToast(t('ToastAuthorNotFound', { 0: displayAuthor?.name }), { type: 'warning' })
+                    showToast(t('ToastAuthorNotFound', { 0: author?.name }), { type: 'warning' })
                   }
                 } finally {
                   setQuickMatchingAuthorIds((prev) => {
@@ -408,7 +396,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                   })
                 }
               }}
-              isSearching={quickMatchingAuthorIds.has(displayAuthor.id)}
+              isSearching={quickMatchingAuthorIds.has(author.id)}
             />
           </div>
         )
@@ -586,13 +574,8 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
             try {
               const resp = await quickMatchAuthor(selectedAuthor, library.provider || 'audible', editedAuthor)
               if (resp) {
-                setAuthorUpdates((prev) => ({
-                  ...prev,
-                  [selectedAuthor.id]: {
-                    ...selectedAuthor,
-                    ...resp.author
-                  }
-                }))
+                const updatedAuthor = { ...selectedAuthor, ...resp.author }
+                updateItem(selectedAuthor.id, updatedAuthor)
                 setSelectedAuthor(resp.author)
                 if (resp.updated) {
                   if (resp.author.imagePath) {
@@ -619,20 +602,14 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           if (selectedAuthor?.id) {
             const resp = await updateAuthorAction(selectedAuthor.id, editedAuthor)
             if (resp) {
-              setAuthorUpdates((prev) => ({
-                ...prev,
-                [selectedAuthor.id]: {
-                  ...selectedAuthor,
-                  ...resp.author
-                }
-              }))
+              updateItem(selectedAuthor.id, { ...selectedAuthor, ...resp.author })
               setIsAuthorEditModalOpen(false)
               setSelectedAuthor(resp.author)
               if (resp.updated) {
                 showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
               } else if (resp.merged) {
                 showToast(t('ToastAuthorUpdateMerged'), { type: 'success' })
-                setDeletedAuthorIds((prev) => new Set([...prev, selectedAuthor.id]))
+                removeItem(selectedAuthor.id)
               } else {
                 showToast(t('ToastNoUpdatesNecessary'))
               }
@@ -645,7 +622,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           if (selectedAuthor?.id) {
             try {
               await deleteAuthorAction(selectedAuthor.id)
-              setDeletedAuthorIds((prev) => new Set([...prev, selectedAuthor.id]))
+              removeItem(selectedAuthor.id)
               showToast(t('ToastAuthorRemoveSuccess'), { type: 'success' })
             } catch (error) {
               console.error('Failed to remove author', error)
@@ -660,13 +637,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
             try {
               const updatedAuthorResp = await submitAuthorImageAction(selectedAuthor.id, url)
               if (updatedAuthorResp.author) {
-                setAuthorUpdates((prev) => ({
-                  ...prev,
-                  [selectedAuthor.id]: {
-                    ...selectedAuthor,
-                    ...updatedAuthorResp.author
-                  }
-                }))
+                updateItem(selectedAuthor.id, { ...selectedAuthor, ...updatedAuthorResp.author })
                 setSelectedAuthor(updatedAuthorResp.author)
               }
               showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
@@ -681,13 +652,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
             try {
               const updatedAuthorResp = await removeAuthorImageAction(selectedAuthor.id)
               if (updatedAuthorResp.author) {
-                setAuthorUpdates((prev) => ({
-                  ...prev,
-                  [selectedAuthor.id]: {
-                    ...selectedAuthor,
-                    ...updatedAuthorResp.author
-                  }
-                }))
+                updateItem(selectedAuthor.id, { ...selectedAuthor, ...updatedAuthorResp.author })
                 setSelectedAuthor(updatedAuthorResp.author)
               }
               showToast(t('ToastAuthorImageRemoveSuccess'), { type: 'success' })
