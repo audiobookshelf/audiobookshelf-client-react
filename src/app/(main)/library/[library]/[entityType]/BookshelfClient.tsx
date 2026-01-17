@@ -17,15 +17,13 @@ import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { useGlobalToast } from '@/contexts/ToastContext'
+import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, LibraryItem, MediaProgress, Playlist, Series, UserLoginResponse } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { deleteAuthorAction, removeAuthorImageAction, submitAuthorImageAction, updateAuthorAction } from './actions'
-import { quickMatchAuthor } from './authorHelper'
 
 interface BookshelfClientProps {
   entityType: EntityType
@@ -37,7 +35,6 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { showToast } = useGlobalToast()
   const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting } = useLibrary()
 
   const { query } = useBookshelfQuery(entityType)
@@ -47,7 +44,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   const [isAuthorEditModalOpen, setIsAuthorEditModalOpen] = useState(false)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
-  const [quickMatchingAuthorIds, setQuickMatchingAuthorIds] = useState<Set<string>>(new Set())
 
   // Ref for the container div
   const containerRef = useRef<HTMLDivElement>(null)
@@ -162,6 +158,23 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     entityType,
     query,
     itemsPerPage
+  })
+
+  // Author actions hook
+  const {
+    quickMatchingAuthorIds,
+    handleQuickMatch,
+    handleSave: handleAuthorSave,
+    handleDelete: handleAuthorDelete,
+    handleSubmitImage: handleAuthorSubmitImage,
+    handleRemoveImage: handleAuthorRemoveImage
+  } = useAuthorActions({
+    updateItem,
+    removeItem,
+    libraryProvider: library.provider || 'audible',
+    selectedAuthor,
+    setSelectedAuthor,
+    setIsModalOpen: setIsAuthorEditModalOpen
   })
 
   // Sync total count from data hook
@@ -371,32 +384,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                 setSelectedAuthor(author)
                 setIsAuthorEditModalOpen(true)
               }}
-              onQuickMatch={async (author) => {
-                setQuickMatchingAuthorIds((prev) => new Set([...prev, author.id]))
-                try {
-                  const resp = await quickMatchAuthor(author, library.provider || 'audible')
-                  if (resp) {
-                    updateItem(author.id, { ...author, ...resp.author })
-                    if (resp.updated) {
-                      if (resp.author.imagePath) {
-                        showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
-                      } else {
-                        showToast(t('ToastAuthorUpdateSuccessNoImageFound'), { type: 'warning' })
-                      }
-                    } else {
-                      showToast(t('ToastNoUpdatesNecessary'))
-                    }
-                  } else {
-                    showToast(t('ToastAuthorNotFound', { 0: author?.name }), { type: 'warning' })
-                  }
-                } finally {
-                  setQuickMatchingAuthorIds((prev) => {
-                    const next = new Set(prev)
-                    next.delete(author.id)
-                    return next
-                  })
-                }
-              }}
+              onQuickMatch={(author) => handleQuickMatch(author)}
               isSearching={quickMatchingAuthorIds.has(author.id)}
             />
           </div>
@@ -569,100 +557,11 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           setIsAuthorEditModalOpen(false)
           setSelectedAuthor(null)
         }}
-        onQuickMatch={async (editedAuthor) => {
-          if (selectedAuthor?.id) {
-            setQuickMatchingAuthorIds((prev) => new Set([...prev, selectedAuthor.id]))
-            try {
-              const resp = await quickMatchAuthor(selectedAuthor, library.provider || 'audible', editedAuthor)
-              if (resp) {
-                const updatedAuthor = { ...selectedAuthor, ...resp.author }
-                updateItem(selectedAuthor.id, updatedAuthor)
-                setSelectedAuthor(resp.author)
-                if (resp.updated) {
-                  if (resp.author.imagePath) {
-                    showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
-                  } else {
-                    showToast(t('ToastAuthorUpdateSuccessNoImageFound'), { type: 'warning' })
-                  }
-                } else {
-                  showToast(t('ToastNoUpdatesNecessary'))
-                }
-              } else {
-                showToast(t('ToastAuthorNotFound', { 0: selectedAuthor?.name }), { type: 'warning' })
-              }
-            } finally {
-              setQuickMatchingAuthorIds((prev) => {
-                const next = new Set(prev)
-                next.delete(selectedAuthor.id)
-                return next
-              })
-            }
-          }
-        }}
-        onSave={async (editedAuthor) => {
-          if (selectedAuthor?.id) {
-            const resp = await updateAuthorAction(selectedAuthor.id, editedAuthor)
-            if (resp) {
-              updateItem(selectedAuthor.id, { ...selectedAuthor, ...resp.author })
-              setIsAuthorEditModalOpen(false)
-              setSelectedAuthor(resp.author)
-              if (resp.updated) {
-                showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
-              } else if (resp.merged) {
-                showToast(t('ToastAuthorUpdateMerged'), { type: 'success' })
-                removeItem(selectedAuthor.id)
-              } else {
-                showToast(t('ToastNoUpdatesNecessary'))
-              }
-            } else {
-              showToast(t('ToastAuthorNotFound', { 0: selectedAuthor?.name }), { type: 'warning' })
-            }
-          }
-        }}
-        onDelete={async () => {
-          if (selectedAuthor?.id) {
-            try {
-              await deleteAuthorAction(selectedAuthor.id)
-              removeItem(selectedAuthor.id)
-              showToast(t('ToastAuthorRemoveSuccess'), { type: 'success' })
-            } catch (error) {
-              console.error('Failed to remove author', error)
-              showToast(t('ToastRemoveFailed'), { type: 'error' })
-            }
-          }
-          setIsAuthorEditModalOpen(false)
-          setSelectedAuthor(null)
-        }}
-        onSubmitImage={async function (url: string): Promise<void> {
-          if (selectedAuthor?.id) {
-            try {
-              const updatedAuthorResp = await submitAuthorImageAction(selectedAuthor.id, url)
-              if (updatedAuthorResp.author) {
-                updateItem(selectedAuthor.id, { ...selectedAuthor, ...updatedAuthorResp.author })
-                setSelectedAuthor(updatedAuthorResp.author)
-              }
-              showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
-            } catch (error) {
-              console.error('Failed to submit author image', error)
-              showToast(t('ToastRemoveFailed'), { type: 'error' })
-            }
-          }
-        }}
-        onRemoveImage={async function (): Promise<void> {
-          if (selectedAuthor?.id) {
-            try {
-              const updatedAuthorResp = await removeAuthorImageAction(selectedAuthor.id)
-              if (updatedAuthorResp.author) {
-                updateItem(selectedAuthor.id, { ...selectedAuthor, ...updatedAuthorResp.author })
-                setSelectedAuthor(updatedAuthorResp.author)
-              }
-              showToast(t('ToastAuthorImageRemoveSuccess'), { type: 'success' })
-            } catch (error) {
-              console.error('Failed to remove author image', error)
-              showToast(t('ToastRemoveFailed'), { type: 'error' })
-            }
-          }
-        }}
+        onQuickMatch={(editedAuthor) => selectedAuthor && handleQuickMatch(selectedAuthor, editedAuthor)}
+        onSave={handleAuthorSave}
+        onDelete={handleAuthorDelete}
+        onSubmitImage={handleAuthorSubmitImage}
+        onRemoveImage={handleAuthorRemoveImage}
       />
     </div>
   )
