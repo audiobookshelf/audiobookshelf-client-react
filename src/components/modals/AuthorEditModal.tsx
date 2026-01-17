@@ -92,7 +92,7 @@ export default function AuthorEditModal({
                 <div className="absolute top-0 right-0 w-full h-full opacity-0 hover:opacity-100">
                   <IconBtn
                     borderless={true}
-                    className="absolute top-0 right-0 text-error cursor-pointer transform hover:scale-125 hover-error-button transition-transform"
+                    className="absolute top-0 right-0 text-error cursor-pointer transform hover:scale-125 hover:not-disabled:text-error transition-transform"
                     onClick={onRemoveImage}
                   >
                     delete
