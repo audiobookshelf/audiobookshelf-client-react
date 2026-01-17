@@ -55,6 +55,7 @@ export default function AuthorEditModal({
         asin: author.asin,
         description: author.description
       })
+      setShowConfirmDialog(false)
     }
   }, [author])
 
