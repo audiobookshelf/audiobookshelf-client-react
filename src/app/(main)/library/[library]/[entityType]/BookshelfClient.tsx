@@ -1,5 +1,4 @@
 'use client'
-
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import AuthorEditModal from '@/components/modals/AuthorEditModal'
@@ -17,12 +16,15 @@ import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, LibraryItem, MediaProgress, Playlist, Series, UserLoginResponse } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { deleteAuthorAction, removeAuthorImageAction, submitAuthorImageAction, updateAuthorAction } from './actions'
+import { quickMatchAuthor } from './authorHelper'
 
 interface BookshelfClientProps {
   entityType: EntityType
@@ -34,6 +36,7 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
   const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting } = useLibrary()
 
   const { query } = useBookshelfQuery(entityType)
@@ -43,6 +46,9 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   const [isAuthorEditModalOpen, setIsAuthorEditModalOpen] = useState(false)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
+  const [deletedAuthorIds, setDeletedAuthorIds] = useState<Set<string>>(new Set())
+  const [authorUpdates, setAuthorUpdates] = useState<Record<string, Author>>({})
+  const [quickMatchingAuthorIds, setQuickMatchingAuthorIds] = useState<Set<string>>(new Set())
 
   // Ref for the container div
   const containerRef = useRef<HTMLDivElement>(null)
@@ -355,15 +361,54 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       }
       case 'authors': {
         const author = entity as Author
+        // Skip rendering if author has been deleted
+        if (deletedAuthorIds.has(author.id)) {
+          return null
+        }
+        const displayAuthor = authorUpdates[author.id] || author
         return (
-          <div key={`card-wrapper-${author.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
+          <div key={`card-wrapper-${displayAuthor.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
             <AuthorCard
-              author={author}
+              author={displayAuthor}
               userCanUpdate={currentUser.user.permissions?.update}
               onEdit={(author) => {
-                setSelectedAuthor(author)
+                const updatedAuthor = authorUpdates[author.id] || author
+                setSelectedAuthor(updatedAuthor)
                 setIsAuthorEditModalOpen(true)
               }}
+              onQuickMatch={async (author) => {
+                setQuickMatchingAuthorIds((prev) => new Set([...prev, author.id]))
+                try {
+                  const resp = await quickMatchAuthor(author, library.provider || 'audible')
+                  if (resp) {
+                    setAuthorUpdates((prev) => ({
+                      ...prev,
+                      [author.id]: {
+                        ...author,
+                        ...resp.author
+                      }
+                    }))
+                    if (resp.updated) {
+                      if (resp.author.imagePath) {
+                        showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
+                      } else {
+                        showToast(t('ToastAuthorUpdateSuccessNoImageFound'), { type: 'warning' })
+                      }
+                    } else {
+                      showToast(t('ToastNoUpdatesNecessary'))
+                    }
+                  } else {
+                    showToast(t('ToastAuthorNotFound', { 0: displayAuthor?.name }), { type: 'warning' })
+                  }
+                } finally {
+                  setQuickMatchingAuthorIds((prev) => {
+                    const next = new Set(prev)
+                    next.delete(author.id)
+                    return next
+                  })
+                }
+              }}
+              isSearching={quickMatchingAuthorIds.has(displayAuthor.id)}
             />
           </div>
         )
@@ -529,11 +574,129 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       <AuthorEditModal
         isOpen={isAuthorEditModalOpen}
         author={selectedAuthor}
+        user={currentUser.user}
+        isProcessing={quickMatchingAuthorIds.has(selectedAuthor?.id ?? '')}
         onClose={() => {
           setIsAuthorEditModalOpen(false)
           setSelectedAuthor(null)
         }}
-        user={currentUser.user}
+        onQuickMatch={async (editedAuthor) => {
+          if (selectedAuthor?.id) {
+            setQuickMatchingAuthorIds((prev) => new Set([...prev, selectedAuthor.id]))
+            try {
+              const resp = await quickMatchAuthor(selectedAuthor, library.provider || 'audible', editedAuthor)
+              if (resp) {
+                setAuthorUpdates((prev) => ({
+                  ...prev,
+                  [selectedAuthor.id]: {
+                    ...selectedAuthor,
+                    ...resp.author
+                  }
+                }))
+                setSelectedAuthor(resp.author)
+                if (resp.updated) {
+                  if (resp.author.imagePath) {
+                    showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
+                  } else {
+                    showToast(t('ToastAuthorUpdateSuccessNoImageFound'), { type: 'warning' })
+                  }
+                } else {
+                  showToast(t('ToastNoUpdatesNecessary'))
+                }
+              } else {
+                showToast(t('ToastAuthorNotFound', { 0: selectedAuthor?.name }), { type: 'warning' })
+              }
+            } finally {
+              setQuickMatchingAuthorIds((prev) => {
+                const next = new Set(prev)
+                next.delete(selectedAuthor.id)
+                return next
+              })
+            }
+          }
+        }}
+        onSave={async (editedAuthor) => {
+          if (selectedAuthor?.id) {
+            const resp = await updateAuthorAction(selectedAuthor.id, editedAuthor)
+            if (resp) {
+              setAuthorUpdates((prev) => ({
+                ...prev,
+                [selectedAuthor.id]: {
+                  ...selectedAuthor,
+                  ...resp.author
+                }
+              }))
+              setIsAuthorEditModalOpen(false)
+              setSelectedAuthor(resp.author)
+              if (resp.updated) {
+                showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
+              } else if (resp.merged) {
+                showToast(t('ToastAuthorUpdateMerged'), { type: 'success' })
+                setDeletedAuthorIds((prev) => new Set([...prev, selectedAuthor.id]))
+              } else {
+                showToast(t('ToastNoUpdatesNecessary'))
+              }
+            } else {
+              showToast(t('ToastAuthorNotFound', { 0: selectedAuthor?.name }), { type: 'warning' })
+            }
+          }
+        }}
+        onDelete={async () => {
+          if (selectedAuthor?.id) {
+            try {
+              await deleteAuthorAction(selectedAuthor.id)
+              setDeletedAuthorIds((prev) => new Set([...prev, selectedAuthor.id]))
+              showToast(t('ToastAuthorRemoveSuccess'), { type: 'success' })
+            } catch (error) {
+              console.error('Failed to remove author', error)
+              showToast(t('ToastRemoveFailed'), { type: 'error' })
+            }
+          }
+          setIsAuthorEditModalOpen(false)
+          setSelectedAuthor(null)
+        }}
+        onSubmitImage={async function (url: string): Promise<void> {
+          if (selectedAuthor?.id) {
+            try {
+              const updatedAuthorResp = await submitAuthorImageAction(selectedAuthor.id, url)
+              if (updatedAuthorResp.author) {
+                setAuthorUpdates((prev) => ({
+                  ...prev,
+                  [selectedAuthor.id]: {
+                    ...selectedAuthor,
+                    ...updatedAuthorResp.author
+                  }
+                }))
+                setSelectedAuthor(updatedAuthorResp.author)
+              }
+              showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
+            } catch (error) {
+              console.error('Failed to submit author image', error)
+              showToast(t('ToastRemoveFailed'), { type: 'error' })
+            }
+          }
+        }}
+        onRemoveImage={async function (): Promise<void> {
+          if (selectedAuthor?.id) {
+            try {
+              const updatedAuthorResp = await removeAuthorImageAction(selectedAuthor.id)
+              if (updatedAuthorResp.author) {
+                setAuthorUpdates((prev) => ({
+                  ...prev,
+                  [selectedAuthor.id]: {
+                    ...selectedAuthor,
+                    ...updatedAuthorResp.author
+                  }
+                }))
+                setSelectedAuthor(updatedAuthorResp.author)
+              }
+              showToast(t('ToastAuthorImageRemoveSuccess'), { type: 'success' })
+            } catch (error) {
+              console.error('Failed to remove author image', error)
+              showToast(t('ToastRemoveFailed'), { type: 'error' })
+            }
+          }
+        }}
       />
     </div>
   )
