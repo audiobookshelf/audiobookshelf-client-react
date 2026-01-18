@@ -8,7 +8,13 @@ import { Author, AuthorQuickMatchPayload } from '@/types/api'
 ////////////////
 
 export async function quickMatchAuthorAction(authorId: string, payload: AuthorQuickMatchPayload) {
-  return quickMatchAuthor(authorId, payload)
+  return quickMatchAuthor(authorId, payload).catch((error) => {
+    // 404 returned when author is not found
+    if (error?.status === 404) {
+      return null
+    }
+    throw error
+  })
 }
 
 export async function updateAuthorAction(authorId: string, editedAuthor: Partial<Author>) {
