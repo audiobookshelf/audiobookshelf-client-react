@@ -30,6 +30,7 @@ export interface AuthorCardProps {
   onEdit?: (author: Author) => void
   /** Callback when the quick match button is clicked */
   onQuickMatch?: (author: Author) => void
+  id?: string
 }
 
 function AuthorCard(props: AuthorCardProps) {
@@ -47,7 +48,8 @@ function AuthorCard(props: AuthorCardProps) {
 
   const router = useRouter()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
-  const cardId = useId()
+  const generatedId = useId()
+  const cardId = props.id || generatedId
   const t = useTypeSafeTranslations()
 
   const [isHovering, setIsHovering] = useState(false)
