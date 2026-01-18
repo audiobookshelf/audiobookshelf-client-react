@@ -40,7 +40,7 @@ export default function CronExpressionPreview({ cronExpression, className, isVal
 
   return (
     <div className={mergeClasses('p-1', className)}>
-      <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-[auto_1fr] gap-x-2 gap-y-1 sm:gap-y-2">
         <div className="flex items-center">
           <span className="material-symbols mr-2 text-foreground">schedule</span>
           <p className="font-medium text-foreground">{t('LabelSchedule')}:</p>
@@ -49,7 +49,7 @@ export default function CronExpressionPreview({ cronExpression, className, isVal
           {verbalDescription}
         </p>
 
-        <div className="flex items-center">
+        <div className="flex items-center mt-2 sm:mt-0">
           <span className="material-symbols mr-2 text-foreground">event</span>
           <p className="font-medium text-foreground">{t('LabelNextRun')}:</p>
         </div>
