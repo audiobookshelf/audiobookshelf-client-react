@@ -77,88 +77,95 @@ export default function AuthorEditModal({
     <>
       <Modal
         isOpen={isOpen}
-        className="p-4 py-6"
         onClose={() => {
           setImgUrl('')
           onClose()
         }}
         processing={isProcessing}
       >
-        <div className="h-full w-full flex">
-          <div className="w-40 p-2">
-            <div className="w-full h-45 relative">
-              <AuthorImage author={author}></AuthorImage>
-              {author.imagePath && (
-                <div className="absolute top-0 right-0 w-full h-full opacity-0 hover:opacity-100">
-                  <IconBtn
-                    borderless={true}
-                    className="absolute top-0 right-0 text-error cursor-pointer transform hover:scale-125 hover:not-disabled:text-error transition-transform"
-                    onClick={onRemoveImage}
-                  >
-                    delete
-                  </IconBtn>
-                </div>
-              )}
-            </div>
-          </div>
-          {/* form */}
-          <div className="grow mb-2 px-2 pt-2">
-            <div className="flex grow ">
-              <TextInput className="w-full" placeholder={t('LabelImageURLFromTheWeb')} value={imgUrl} onChange={setImgUrl}></TextInput>
-              <Btn
-                color="bg-success"
-                className="ml-2 flex-shrink-0"
-                onClick={() => {
-                  if (!imgUrl?.startsWith('http:') && !imgUrl?.startsWith('https:')) {
-                    showToast(t('ToastInvalidImageUrl'), { type: 'error' })
-                    return
-                  }
-                  onSubmitImage(imgUrl)
-                  setImgUrl('')
-                }}
-              >
-                {t('ButtonSubmit')}
-              </Btn>
-            </div>
-            <div className="flex grow pt-4">
-              <div className="w-3/4">
-                <label htmlFor="" className="text-sm mb-1 px-1">
-                  {t('LabelName')}
-                </label>
-                <TextInput
-                  className="pe-2"
-                  placeholder={t('LabelName')}
-                  value={editedAuthor.name || ''}
-                  onChange={(value) => setEditedAuthor({ ...editedAuthor, name: value })}
-                />
-              </div>
-              <div className="w-1/4">
-                <label htmlFor="" className="text-sm mb-1 px-1">
-                  ASIN
-                </label>
-                <TextInput placeholder="ASIN" value={editedAuthor.asin || ''} onChange={(value) => setEditedAuthor({ ...editedAuthor, asin: value })} />
+        <div className="h-full max-h-[85vh] overflow-y-auto px-2 sm:px-4 py-6">
+          <div className="h-full w-full flex flex-col sm:flex-row">
+            <div className="w-full sm:w-40 p-2 flex justify-center sm:block">
+              <div className="w-32 sm:w-full h-40 sm:h-45 relative">
+                <AuthorImage author={author}></AuthorImage>
+                {author.imagePath && (
+                  <div className="absolute top-0 right-0 w-full h-full opacity-0 hover:opacity-100">
+                    <IconBtn
+                      borderless={true}
+                      className="absolute top-0 right-0 text-error cursor-pointer transform hover:scale-125 hover:not-disabled:text-error transition-transform"
+                      onClick={onRemoveImage}
+                    >
+                      delete
+                    </IconBtn>
+                  </div>
+                )}
               </div>
             </div>
-            <div className="flex grow pt-4">
-              <div className="w-full">
-                <label htmlFor="" className="text-sm mb-1 px-1">
-                  {t('LabelDescription')}
-                </label>
-                <TextareaInput rows={8} value={editedAuthor.description || ''} onChange={(value) => setEditedAuthor({ ...editedAuthor, description: value })} />
-              </div>
-            </div>
-            {/* Buttons */}
-            <div className="flex gap-3 sm:gap-4 justify-center pt-6">
-              {user.permissions.delete && (
-                <Btn color="bg-error" onClick={handleOnDelete}>
-                  {t('ButtonRemove')}
+            {/* form */}
+            <div className="grow mb-2 px-2 pt-2">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                <TextInput className="w-full" placeholder={t('LabelImageURLFromTheWeb')} value={imgUrl} onChange={setImgUrl}></TextInput>
+                <Btn
+                  color="bg-success"
+                  className="sm:ml-2 flex-shrink-0"
+                  onClick={() => {
+                    if (!imgUrl?.startsWith('http:') && !imgUrl?.startsWith('https:')) {
+                      showToast(t('ToastInvalidImageUrl'), { type: 'error' })
+                      return
+                    }
+                    onSubmitImage(imgUrl)
+                    setImgUrl('')
+                  }}
+                >
+                  {t('ButtonSubmit')}
                 </Btn>
-              )}
-              <div className="grow" />
-              <Btn onClick={() => onQuickMatch(editedAuthor)}>{t('ButtonQuickMatch')}</Btn>
-              <Btn color="bg-success" disabled={saveDisabled} onClick={() => handleSave()}>
-                {t('ButtonSave')}
-              </Btn>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 pt-4">
+                <div className="w-full sm:w-3/4">
+                  <label htmlFor="" className="text-sm mb-1 px-1">
+                    {t('LabelName')}
+                  </label>
+                  <TextInput
+                    className="sm:pe-2"
+                    placeholder={t('LabelName')}
+                    value={editedAuthor.name || ''}
+                    onChange={(value) => setEditedAuthor({ ...editedAuthor, name: value })}
+                  />
+                </div>
+                <div className="w-full sm:w-1/4">
+                  <label htmlFor="" className="text-sm mb-1 px-1">
+                    ASIN
+                  </label>
+                  <TextInput placeholder="ASIN" value={editedAuthor.asin || ''} onChange={(value) => setEditedAuthor({ ...editedAuthor, asin: value })} />
+                </div>
+              </div>
+              <div className="flex grow pt-4">
+                <div className="w-full">
+                  <label htmlFor="" className="text-sm mb-1 px-1">
+                    {t('LabelDescription')}
+                  </label>
+                  <TextareaInput
+                    rows={8}
+                    value={editedAuthor.description || ''}
+                    onChange={(value) => setEditedAuthor({ ...editedAuthor, description: value })}
+                  />
+                </div>
+              </div>
+              {/* Buttons */}
+              <div className="flex flex-wrap gap-3 sm:gap-4 justify-center pt-6">
+                {user.permissions.delete && (
+                  <Btn color="bg-error" className="flex-1 sm:flex-none" onClick={handleOnDelete}>
+                    {t('ButtonRemove')}
+                  </Btn>
+                )}
+                <div className="hidden sm:block grow" />
+                <Btn className="flex-2 sm:flex-none" onClick={() => onQuickMatch(editedAuthor)}>
+                  {t('ButtonQuickMatch')}
+                </Btn>
+                <Btn color="bg-success" className="w-full sm:w-auto" disabled={saveDisabled} onClick={() => handleSave()}>
+                  {t('ButtonSave')}
+                </Btn>
+              </div>
             </div>
           </div>
         </div>
