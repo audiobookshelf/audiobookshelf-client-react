@@ -66,7 +66,8 @@ export function useBookshelfQuery(entityType: EntityType) {
   useEffect(() => {
     if (!isSettingsLoaded) return
 
-    const params = new URLSearchParams()
+    // Initialize with current search params to preserve other params (like focusIndex)
+    const params = new URLSearchParams(searchParams.toString())
 
     const setParam = (key: string, value: string) => params.set(key, value)
 
@@ -77,9 +78,13 @@ export function useBookshelfQuery(entityType: EntityType) {
       }
       if (filterBy && filterBy !== 'all') {
         setParam('filter', filterBy)
+      } else {
+        params.delete('filter')
       }
       if (collapseSeries && !isPodcastLibrary) {
         setParam('collapseseries', '1')
+      } else {
+        params.delete('collapseseries')
       }
     } else if (entityType === 'series') {
       if (seriesSortBy) {
@@ -88,6 +93,8 @@ export function useBookshelfQuery(entityType: EntityType) {
       }
       if (seriesFilterBy && seriesFilterBy !== 'all') {
         setParam('filter', seriesFilterBy)
+      } else {
+        params.delete('filter')
       }
     } else if (entityType === 'authors') {
       if (authorSortBy) {
