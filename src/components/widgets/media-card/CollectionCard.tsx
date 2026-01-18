@@ -42,6 +42,7 @@ export interface CollectionCardProps {
   onOpenRssFeedModal?: (collection: Collection) => void
   /** Whether to show the selection button */
   showSelectedButton?: boolean
+  id?: string
 }
 
 function CollectionCard(props: CollectionCardProps) {
@@ -63,7 +64,8 @@ function CollectionCard(props: CollectionCardProps) {
 
   const router = useRouter()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
-  const cardId = useId()
+  const generatedId = useId()
+  const cardId = props.id || generatedId
   const t = useTypeSafeTranslations()
 
   const [isHovering, setIsHovering] = useState(false)
@@ -164,13 +166,7 @@ function CollectionCard(props: CollectionCardProps) {
 
                 {/* Edit button */}
                 {userCanUpdate && !isSelectionMode && (
-                  <MediaOverlayIconBtn
-                    cyId="editButton"
-                    position="top-end"
-                    icon="edit"
-                    onClick={handleEditClick}
-                    ariaLabel={t('ButtonEdit')}
-                  />
+                  <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
                 )}
 
                 {/* More menu button */}

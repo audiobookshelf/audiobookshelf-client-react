@@ -38,6 +38,7 @@ export interface PlaylistCardProps {
   onEdit?: (playlist: Playlist) => void
   /** Whether to show the selection button */
   showSelectedButton?: boolean
+  id?: string
 }
 
 function PlaylistCard(props: PlaylistCardProps) {
@@ -57,7 +58,8 @@ function PlaylistCard(props: PlaylistCardProps) {
 
   const router = useRouter()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
-  const cardId = useId()
+  const generatedId = useId()
+  const cardId = props.id || generatedId
   const t = useTypeSafeTranslations()
 
   const [isHovering, setIsHovering] = useState(false)
@@ -129,7 +131,7 @@ function PlaylistCard(props: PlaylistCardProps) {
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
         cy-id="playlistCard"
-      cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} bookCoverAspectRatio={bookCoverAspectRatio} />}
+        cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} bookCoverAspectRatio={bookCoverAspectRatio} />}
         overlay={
           <>
             {/* Hover overlay */}
@@ -149,13 +151,7 @@ function PlaylistCard(props: PlaylistCardProps) {
 
                 {/* Edit button */}
                 {userCanUpdate && !isSelectionMode && (
-                  <MediaOverlayIconBtn
-                    cyId="editButton"
-                    position="top-end"
-                    icon="edit"
-                    onClick={handleEditClick}
-                    ariaLabel={t('ButtonEdit')}
-                  />
+                  <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
                 )}
 
                 {/* More menu button */}
