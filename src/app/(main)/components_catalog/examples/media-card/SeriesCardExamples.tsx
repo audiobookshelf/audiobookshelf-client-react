@@ -186,9 +186,25 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                       slug: 'series-feed',
                       entityId: seriesData.id,
                       entityType: 'series',
+                      entityUpdatedAt: Date.now(),
+                      coverPath: '',
                       feedUrl: 'https://example.com/series-feed.xml',
-                      metaTitle: seriesData.name,
-                      isPublic: true,
+                      serverAddress: 'https://example.com',
+                      userId: 'user-123',
+                      meta: {
+                        author: 'Series Author',
+                        description: `RSS feed for ${seriesData.name}`,
+                        explicit: false,
+                        feedUrl: 'https://example.com/series-feed.xml',
+                        imageUrl: '',
+                        language: 'en',
+                        link: 'https://example.com',
+                        ownerEmail: null,
+                        ownerName: null,
+                        preventIndexing: false,
+                        title: seriesData.name,
+                        type: 'serial'
+                      },
                       createdAt: Date.now(),
                       updatedAt: Date.now()
                     }
