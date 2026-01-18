@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
 import { getCurrentUser, getData } from '../../../lib/api'
 import AppBar from '../AppBar'
+import UploadLayoutWrapper from './UploadLayoutWrapper'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
@@ -24,11 +25,7 @@ export default async function UploadLayout({
   return (
     <>
       <AppBar user={currentUser.user} />
-      <div className="flex h-[calc(100vh-4rem)] overflow-x-hidden" draggable={false}>
-        <div className="flex-1 min-w-0 page-bg-gradient">
-          <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
-        </div>
-      </div>
+      <UploadLayoutWrapper>{children}</UploadLayoutWrapper>
     </>
   )
 }

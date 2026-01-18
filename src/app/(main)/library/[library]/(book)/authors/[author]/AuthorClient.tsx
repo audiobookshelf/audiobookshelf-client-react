@@ -1,7 +1,13 @@
 'use client'
 
+import AuthorImage from '@/components/covers/AuthorImage'
+import IconBtn from '@/components/ui/IconBtn'
+import ExpandableDescription from '@/components/widgets/ExpandableDescription'
+import ItemSlider from '@/components/widgets/ItemSlider'
+import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { Author, UserLoginResponse } from '@/types/api'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
 
 interface AuthorClientProps {
   author: Author
@@ -9,21 +15,95 @@ interface AuthorClientProps {
 }
 
 export default function AuthorClient({ author, currentUser }: AuthorClientProps) {
-  const { library } = useLibrary()
+  const t = useTypeSafeTranslations()
+  const { library, showSubtitles } = useLibrary()
+
+  const libraryItems = author.libraryItems || []
+  const series = author.series || []
 
   return (
-    <div>
-      <div className="w-full max-w-6xl mx-auto space-y-4">
-        <div className="bg-black p-2 rounded border">
-          <pre className="text-sm whitespace-pre-wrap overflow-x-auto">{JSON.stringify(author, null, 2)}</pre>
+    <div className="w-full max-w-6xl mx-auto">
+      <div className="flex gap-8">
+        <div className="w-48 max-w-48">
+          <div className="w-full h-60">
+            <AuthorImage author={author} className="w-full h-full" />
+          </div>
         </div>
-        <div className="bg-black p-2 rounded border">
-          <pre className="text-sm whitespace-pre-wrap overflow-x-auto">{JSON.stringify(library, null, 2)}</pre>
-        </div>
-        <div className="bg-black p-2 rounded border">
-          <pre className="text-sm whitespace-pre-wrap overflow-x-auto">{JSON.stringify(currentUser, null, 2)}</pre>
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-8">
+            <h1 className="text-2xl">{author.name}</h1>
+            <IconBtn
+              borderless
+              size="small"
+              // todo add this affect to icon btn?
+              iconClass="hover:text-warning hover:scale-120 transition-colors transition-transform duration-100"
+              onClick={() => {}}
+            >
+              edit
+            </IconBtn>
+          </div>
+          {author.description && <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">{t('LabelDescription')}</div>}
+          {author.description && <ExpandableDescription description={author.description} lineClamp={4} />}
         </div>
       </div>
+
+      {libraryItems.length > 0 && (
+        <div className="mt-20 -ms-2e">
+          <ItemSlider title={t('LabelXItems', { 0: libraryItems.length })} className="!ps-0">
+            {libraryItems.map((libraryItem) => {
+              const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+              return (
+                <div key={libraryItem.id} className="shrink-0 mx-2e">
+                  <BookMediaCard
+                    libraryItem={libraryItem}
+                    bookshelfView={BookshelfView.DETAIL}
+                    dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                    timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
+                    userPermissions={currentUser.user.permissions}
+                    ereaderDevices={currentUser.ereaderDevices}
+                    showSubtitles={showSubtitles}
+                    bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
+                    mediaProgress={mediaProgress}
+                  />
+                </div>
+              )
+            })}
+          </ItemSlider>
+        </div>
+      )}
+
+      {series.map((bookSeries) => {
+        const seriesTitle = (
+          <span>
+            {bookSeries.name}
+            <span className="text-foreground-subdued ps-3e">{t('LabelSeries')}</span>
+          </span>
+        )
+        return (
+          <div key={bookSeries.id} className="shrink-0 mx-2e">
+            <ItemSlider title={seriesTitle} className="!ps-0">
+              {bookSeries.items?.map((libraryItem) => {
+                const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+                return (
+                  <div key={libraryItem.id} className="shrink-0 mx-2e">
+                    <BookMediaCard
+                      libraryItem={libraryItem}
+                      bookshelfView={BookshelfView.DETAIL}
+                      dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                      timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
+                      userPermissions={currentUser.user.permissions}
+                      ereaderDevices={currentUser.ereaderDevices}
+                      showSubtitles={showSubtitles}
+                      bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
+                      mediaProgress={mediaProgress}
+                    />
+                  </div>
+                )
+              })}
+            </ItemSlider>
+          </div>
+        )
+      })}
     </div>
   )
 }

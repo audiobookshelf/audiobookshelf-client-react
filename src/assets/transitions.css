@@ -40,7 +40,9 @@
 .menu-enter-active {
   opacity: 1;
   transform: translateY(0);
-  transition: opacity 200ms ease-out, transform 200ms ease-out;
+  transition:
+    opacity 200ms ease-out,
+    transform 200ms ease-out;
 }
 
 .menu-exit {
@@ -51,7 +53,9 @@
 .menu-exit-active {
   opacity: 0;
   transform: translateY(-15px);
-  transition: opacity 100ms ease-in, transform 100ms ease-in;
+  transition:
+    opacity 100ms ease-in,
+    transform 100ms ease-in;
 }
 
 .menux-enter,
@@ -84,4 +88,18 @@
 
 .list-complete-exit-active {
   position: absolute;
+}
+
+/* Player track loading animation */
+.loading-track-slide {
+  animation: loading-track-slide 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-track-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
 }

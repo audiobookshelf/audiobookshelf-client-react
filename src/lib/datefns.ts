@@ -7,6 +7,13 @@ export function formatJsDate(date: Date, fnsFormat: string = 'MM/dd/yyyy HH:mm')
   return format(date, fnsFormat)
 }
 
+export function formatJsDatetime(date: Date, fnsDateFormat: string = 'MM/dd/yyyy', fnsTimeFormat: string = 'HH:mm') {
+  if (!date || !(date instanceof Date)) {
+    return ''
+  }
+  return format(date, `${fnsDateFormat} ${fnsTimeFormat}`)
+}
+
 /**
  * Converts seconds to timestamp format (HH:MM:SS or MM:SS)
  * @param seconds - Number of seconds to convert

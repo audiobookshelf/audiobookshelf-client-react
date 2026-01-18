@@ -212,7 +212,7 @@ const BookDetailsEdit = ({
               allowNew
             />
           </div>
-          <div className="grow px-1 mt-2 md:mt-0">
+          <div className="grow md:w-28 px-1 mt-2 md:mt-0">
             <TextInput value={details.publishedYear || ''} onChange={handleFieldUpdate('publishedYear')} type="number" label={t('LabelPublishYear')} />
           </div>
         </div>

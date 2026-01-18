@@ -4,15 +4,22 @@ import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
   Author,
+  AuthorImagePayload,
+  AuthorQuickMatchPayload,
+  AuthorResponse,
+  AuthorUpdateResponse,
   BookSearchResult,
   Collection,
   FFProbeData,
+  GetApiKeysResponse,
   GetAuthorsResponse,
+  GetBackupsResponse,
   GetCollectionsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetNarratorsResponse,
   GetPlaylistsResponse,
+  GetRssFeedsResponse,
   GetSeriesResponse,
   GetUsersResponse,
   Library,
@@ -27,6 +34,7 @@ import {
   Series,
   ServerStatus,
   TasksResponse,
+  UpdateAuthorPayload,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
   UploadCoverResponse,
@@ -392,8 +400,8 @@ export const getNarrators = cache(async (libraryId: string) => {
   return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
 })
 
-export const getAuthor = cache(async (authorId: string): Promise<Author> => {
-  return apiRequest<Author>(`/api/authors/${authorId}`, {})
+export const getAuthor = cache(async (authorId: string, queryParams?: string): Promise<Author> => {
+  return apiRequest<Author>(`/api/authors/${authorId}${queryParams ? `?${queryParams}` : ''}`, {})
 })
 
 export const getPlaylist = cache(async (playlistId: string): Promise<Playlist> => {
@@ -423,6 +431,18 @@ export const getLibraryCollections = cache(async (libraryId: string, queryParams
 
 export const getLibraryPlaylists = cache(async (libraryId: string, queryParams?: string): Promise<GetPlaylistsResponse> => {
   return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists${queryParams ? `?${queryParams}` : ''}`, {})
+})
+
+export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
+  return apiRequest<GetApiKeysResponse>('/api/api-keys', {})
+})
+
+export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
+  return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
+})
+
+export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
+  return apiRequest<GetBackupsResponse>('/api/backups', {})
 })
 
 /**
@@ -680,6 +700,68 @@ export async function createPlaylistFromCollection(collectionId: string): Promis
  */
 export async function deletePlaylist(playlistId: string): Promise<void> {
   return apiRequest<void>(`/api/playlists/${playlistId}`, {
+    method: 'DELETE'
+  })
+}
+
+//
+// Author endpoints
+//
+
+/**
+ * Match an author by ID
+ * @param authorId - Author ID to match
+ * @param payload - Quick match payload with provider and optional search data
+ * Returns: Updated author response
+ */
+export async function quickMatchAuthor(authorId: string, payload: AuthorQuickMatchPayload): Promise<AuthorUpdateResponse> {
+  return apiRequest<AuthorUpdateResponse>(`/api/authors/${authorId}/match`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Update an author
+ * @param authorId - Author ID
+ * @param payload - Update payload with author data
+ * Returns: Updated author response
+ */
+export async function updateAuthor(authorId: string, payload: UpdateAuthorPayload): Promise<AuthorUpdateResponse> {
+  return apiRequest<AuthorUpdateResponse>(`/api/authors/${authorId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Delete an author
+ * @param authorId - Author ID to delete
+ * Returns: void (success) or throws error
+ */
+export async function deleteAuthor(authorId: string): Promise<void> {
+  return apiRequest<void>(`/api/authors/${authorId}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
+ * Upload a cover image file for an author
+ * Returns: @AuthorResponse
+ */
+export async function submitAuthorImage(authorId: string, payload: AuthorImagePayload): Promise<AuthorResponse> {
+  return apiRequest<AuthorResponse>(`/api/authors/${authorId}/image`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Remove the current cover image from an author
+ * Returns: @AuthorResponse
+ */
+export async function removeAuthorImage(authorId: string): Promise<AuthorResponse> {
+  return apiRequest<AuthorResponse>(`/api/authors/${authorId}/image`, {
     method: 'DELETE'
   })
 }

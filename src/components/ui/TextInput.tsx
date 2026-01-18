@@ -31,6 +31,7 @@ export interface TextInputProps {
   className?: string
   ref?: React.Ref<HTMLInputElement>
   error?: string
+  autocomplete?: 'off' | 'username' | 'current-password' | 'new-password' | 'email' | 'tel' | string
 }
 
 export default function TextInput({
@@ -55,7 +56,8 @@ export default function TextInput({
   onKeyDown,
   className,
   ref,
-  error
+  error,
+  autocomplete = 'off'
 }: TextInputProps) {
   const t = useTypeSafeTranslations()
   const generatedId = useId()
@@ -65,7 +67,6 @@ export default function TextInput({
   const [readInputRef, writeInputRef] = useMergedRef<HTMLInputElement>(ref)
 
   const [showPassword, setShowPassword] = useState(false)
-  const [isFocused, setIsFocused] = useState(false)
   const [hasCopied, setHasCopied] = useState<boolean | null>(null)
   const [isInvalidDate, setIsInvalidDate] = useState(false)
 
@@ -91,12 +92,10 @@ export default function TextInput({
   }
 
   const handleFocus = () => {
-    setIsFocused(true)
     onFocus?.()
   }
 
   const handleBlur = () => {
-    setIsFocused(false)
     onBlur?.()
   }
 
@@ -130,8 +129,8 @@ export default function TextInput({
     setShowPassword((prev) => !prev)
   }
 
-  // Show password toggle when focused or when password field has value
-  const shouldShowPasswordToggle = type === 'password' && (isFocused || value)
+  // Show password toggle when it is a password field
+  const shouldShowPasswordToggle = type === 'password'
 
   return (
     <div className={mergeClasses('w-full', className)} cy-id="text-input">
@@ -141,13 +140,13 @@ export default function TextInput({
         </Label>
       )}
 
-      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef}>
+      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef} className="group">
         <input
           ref={writeInputRef}
           id={inputId}
           name={name}
           value={value?.toString() ?? ''}
-          autoComplete="off"
+          autoComplete={autocomplete}
           type={actualType}
           step={step?.toString()}
           min={min?.toString()}
@@ -184,15 +183,25 @@ export default function TextInput({
         )}
 
         {shouldShowPasswordToggle && (
-          <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center">
+          // password visibility toggle button only show on hover and focus
+          <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center group-focus-within:opacity-100 group-hover:opacity-100 opacity-0 group-focus-within:pointer-events-auto group-hover:pointer-events-auto pointer-events-none">
             <button
               type="button"
-              className="material-symbols text-foreground-muted cursor-pointer text-lg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
+              className="flex text-foreground-muted cursor-pointer text-lg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? t('ButtonHidePassword') : t('ButtonShowPassword')}
+              aria-controls={inputId}
               cy-id="text-input-password-toggle"
             >
-              {!showPassword ? 'visibility' : 'visibility_off'}
+              {!showPassword ? (
+                <span className="material-symbols" aria-hidden="true">
+                  visibility
+                </span>
+              ) : (
+                <span className="material-symbols" aria-hidden="true">
+                  visibility_off
+                </span>
+              )}
             </button>
           </div>
         )}

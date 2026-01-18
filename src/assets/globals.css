@@ -76,6 +76,10 @@
   --color-nav-item-hover: var(--tc-nav-item-hover);
   --color-nav-item-selected: var(--tc-nav-item-selected);
 
+  --color-table-header-bg: var(--tc-table-header-bg);
+  --color-table-row-bg-even: var(--tc-table-row-bg-even);
+  --color-table-row-bg-hover: var(--tc-table-row-bg-hover);
+
   --font-sans: 'Source Sans Pro';
   --font-mono: 'Ubuntu Mono';
 
@@ -93,6 +97,9 @@
 
   --shadow-modal-content: var(--tc-modal-content-box-shadow);
   --shadow-media-player: var(--tc-shadow-media-player);
+
+  --color-track-bg: var(--tc-track-bg);
+  --color-track-progress: var(--tc-track-progress);
 }
 
 body {

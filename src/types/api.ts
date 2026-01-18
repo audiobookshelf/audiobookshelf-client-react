@@ -2,6 +2,8 @@
 // ENUMS
 // ============================================================================
 
+import { AudibleRegion } from '@/lib/providerUtils'
+
 export enum LogLevel {
   ERROR = 'error',
   WARN = 'warn',
@@ -19,6 +21,23 @@ export enum BookshelfView {
   STANDARD = 0, // Skeumorphic (original) design
   DETAIL = 1, // Modern default design
   AUTHOR = 2 // Books shown on author page
+}
+
+export enum PlayMethod {
+  DIRECT_PLAY = 0,
+  DIRECT_STREAM = 1,
+  TRANSCODE = 2,
+  LOCAL = 3
+}
+
+export enum PlayerState {
+  IDLE = 'IDLE',
+  LOADING = 'LOADING',
+  LOADED = 'LOADED',
+  PLAYING = 'PLAYING',
+  PAUSED = 'PAUSED',
+  FINISHED = 'FINISHED',
+  ERROR = 'ERROR'
 }
 
 // ============================================================================
@@ -228,6 +247,34 @@ export interface Author {
   addedAt?: number
   updatedAt?: number
   numBooks?: number
+  libraryItems?: LibraryItem[]
+  series?: Series[]
+}
+
+export interface AuthorQuickMatchPayload {
+  asin?: string
+  q?: string
+  region: AudibleRegion
+}
+
+export interface AuthorImagePayload {
+  url: string
+}
+
+export interface UpdateAuthorPayload {
+  name?: string
+  description?: string
+  asin?: string
+}
+
+export interface AuthorUpdateResponse {
+  updated: boolean
+  merged?: boolean
+  author: Author
+}
+
+export interface AuthorResponse {
+  author: Author
 }
 
 // ============================================================================
@@ -253,6 +300,8 @@ export interface Series {
   books?: LibraryItem[]
   /** if available (expanded only) */
   rssFeed?: RssFeed
+  /** library items (author page endpoint only) */
+  items?: LibraryItem[]
 }
 
 export interface CollapsedSeries {
@@ -679,17 +728,39 @@ export interface AudioBookmark {
 // RSS FEEDS & SHARES
 // ============================================================================
 
+export interface RssFeedMeta {
+  author: string
+  description: string
+  explicit: boolean
+  feedUrl: string
+  imageUrl: string
+  language: string
+  link: string
+  ownerEmail: string | null
+  ownerName: string | null
+  preventIndexing: boolean
+  title: string
+  type: 'serial' | 'episodic'
+}
+
 export interface RssFeed {
   id: string
   slug: string
   entityId: string
-  entityType?: string
+  entityType: string
+  entityUpdatedAt: number
+  coverPath: string
   feedUrl: string
-  metaTitle?: string
-  metaDescription?: string
-  isPublic?: boolean
-  createdAt?: number
-  updatedAt?: number
+  serverAddress: string
+  userId: string
+  episodes?: PodcastEpisode[]
+  meta: RssFeedMeta
+  createdAt: number
+  updatedAt: number
+}
+
+export interface GetRssFeedsResponse {
+  feeds: RssFeed[]
 }
 
 export interface MediaItemShare {
@@ -762,6 +833,56 @@ export interface UserLoginResponse {
   ereaderDevices: EReaderDevice[]
   /** e.g., 'local', 'docker' */
   Source: string
+}
+
+export interface ApiKey {
+  createdAt: string
+  createdByUser: {
+    id: string
+    username: string
+    type: string
+  }
+  createdByUserId: string
+  description: string | null
+  expiresAt: string | null
+  id: string
+  isActive: boolean
+  lastUsedAt: string | null
+  name: string
+  updatedAt: string
+  user: {
+    id: string
+    username: string
+    type: string
+  }
+  userId: string
+}
+
+export interface GetApiKeysResponse {
+  apiKeys: ApiKey[]
+}
+
+// ============================================================================
+// BACKUPS
+// ============================================================================
+
+export interface Backup {
+  id: string
+  key: string
+  backupDirPath: string
+  datePretty: string
+  fullPath: string
+  path: string
+  filename: string
+  fileSize: number
+  createdAt: number
+  serverVersion: string
+}
+
+export interface GetBackupsResponse {
+  backupLocation: string
+  backupPathEnvSet: boolean
+  backups: Backup[]
 }
 
 // ============================================================================
@@ -1066,4 +1187,68 @@ export interface GetPlaylistsResponse {
 
 export type SaveLibraryOrderApiResponse = {
   libraries: Library[]
+}
+
+/**
+ * Audio track metadata from server
+ */
+export interface AudioTrackData {
+  index: number
+  startOffset: number
+  duration: number
+  title: string
+  contentUrl: string
+  mimeType: string
+  metadata?: Record<string, unknown>
+}
+
+/**
+ * Device info sent to server when starting a session
+ */
+export interface DeviceInfo {
+  clientName: string
+  deviceId: string
+}
+
+/**
+ * Playback session response from server
+ */
+export interface PlaybackSession {
+  id: string
+  userId: string
+  libraryId: string
+  libraryItemId: string
+  bookId?: string
+  episodeId?: string
+  mediaType: 'book' | 'podcast'
+  mediaMetadata: Record<string, unknown>
+  chapters: Chapter[]
+  displayTitle: string
+  displayAuthor: string
+  coverPath?: string
+  duration: number
+  playMethod: PlayMethod
+  mediaPlayer: string
+  deviceInfo: DeviceInfo | null
+  serverVersion: string
+  date: string
+  dayOfWeek: string
+  timeListening: number
+  startTime: number
+  currentTime: number
+  startedAt: number
+  updatedAt: number
+  audioTracks: AudioTrackData[]
+  libraryItem: LibraryItem | null
+}
+
+/**
+ * Payload for starting a playback session
+ */
+export interface StartSessionPayload {
+  deviceInfo: DeviceInfo
+  supportedMimeTypes: string[]
+  mediaPlayer: 'html5' | 'chromecast'
+  forceTranscode: boolean
+  forceDirectPlay: boolean
 }

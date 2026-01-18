@@ -8,9 +8,12 @@ import Link from 'next/link'
 import { Fragment } from 'react'
 import PreviewCover from '../covers/PreviewCover'
 import IconBtn from '../ui/IconBtn'
+import PlayerControls from './PlayerControls'
+import PlayerTrackBar from './PlayerTrackBar'
 
 export default function MediaPlayerContainer() {
-  const { streamLibraryItem, clearStreamMedia } = useMediaContext()
+  const { streamLibraryItem, clearStreamMedia, playerHandler } = useMediaContext()
+
   // TODO: Set library in media context for streaming library item
   const coverAspectRatio = 1
 
@@ -56,7 +59,13 @@ export default function MediaPlayerContainer() {
           )}
         </div>
       </div>
-      <div className="absolute right-2 top-2 lg:right-4 cursor-pointer">
+      <div className="flex flex-col gap-3">
+        <PlayerControls playerHandler={playerHandler} />
+
+        <PlayerTrackBar playerHandler={playerHandler} />
+      </div>
+
+      <div className="absolute right-2 top-2 lg:right-4 flex items-center gap-1">
         <IconBtn size="small" borderless onClick={clearStreamMedia}>
           close
         </IconBtn>

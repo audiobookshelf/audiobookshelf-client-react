@@ -64,7 +64,7 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
 
   return (
     <>
-      <div className="w-full h-full max-h-[calc(100%-2rem)] overflow-y-auto">
+      <nav className="w-full h-full max-h-[calc(100%-2rem)] overflow-y-auto">
         {items.map((item) => (
           <Link
             key={item.label}
@@ -78,7 +78,7 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
             {item.label}
           </Link>
         ))}
-      </div>
+      </nav>
       <div className="w-full h-8 px-4 py-2 border-t border-primary/30 flex items-center justify-between">
         <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
         <p className="text-xxs text-center text-foreground-subdued italic">{installSource}</p>
