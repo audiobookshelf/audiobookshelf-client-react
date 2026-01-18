@@ -46,7 +46,7 @@ export enum PlayerState {
 
 export type EntityType = 'items' | 'series' | 'collections' | 'playlists' | 'authors'
 
-export type BookshelfEntity = LibraryItem | Series | Collection | Playlist | Author
+export type BookshelfEntity = LibraryItem | Series | Collection | Playlist | Author | PersonalizedShelf
 
 // ============================================================================
 // Tasks
