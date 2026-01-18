@@ -2,6 +2,8 @@
 // ENUMS
 // ============================================================================
 
+import { AudibleRegion } from '@/lib/providerUtils'
+
 export enum LogLevel {
   ERROR = 'error',
   WARN = 'warn',
@@ -236,6 +238,32 @@ export interface Author {
   numBooks?: number
   libraryItems?: LibraryItem[]
   series?: Series[]
+}
+
+export interface AuthorQuickMatchPayload {
+  asin?: string
+  q?: string
+  region: AudibleRegion
+}
+
+export interface AuthorImagePayload {
+  url: string
+}
+
+export interface UpdateAuthorPayload {
+  name?: string
+  description?: string
+  asin?: string
+}
+
+export interface AuthorUpdateResponse {
+  updated: boolean
+  merged?: boolean
+  author: Author
+}
+
+export interface AuthorResponse {
+  author: Author
 }
 
 // ============================================================================

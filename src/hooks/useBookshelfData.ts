@@ -94,6 +94,29 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
     }
   }, [itemsPerPage, state.isInitialized])
 
+  // Update a single item in the items array by ID
+  const updateItem = useCallback((id: string, updatedItem: BookshelfEntity) => {
+    setState((prev) => ({
+      ...prev,
+      items: prev.items.map((item) => (item?.id === id ? updatedItem : item))
+    }))
+  }, [])
+
+  // Remove a single item from the items array by ID
+  // Clears page tracking since indices shift after removal
+  const removeItem = useCallback((id: string) => {
+    // Clear page tracking - indices shift after filter, so we need to
+    // allow re-fetching if user scrolls to areas that had loaded data
+    pagesLoadedRef.current.clear()
+    loadingPagesRef.current.clear()
+
+    setState((prev) => ({
+      ...prev,
+      items: prev.items.filter((item) => item?.id !== id),
+      totalEntities: Math.max(0, prev.totalEntities - 1)
+    }))
+  }, [])
+
   const loadPage = useCallback(
     async (page: number) => {
       // Use ref to get current itemsPerPage - this keeps callback identity stable
@@ -163,6 +186,8 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
 
   return {
     ...state,
-    loadPage
+    loadPage,
+    updateItem,
+    removeItem
   }
 }

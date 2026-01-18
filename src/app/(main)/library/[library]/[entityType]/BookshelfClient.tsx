@@ -2,6 +2,7 @@
 
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
+import AuthorEditModal from '@/components/modals/AuthorEditModal'
 import AuthorCard from '@/components/widgets/media-card/AuthorCard'
 import AuthorCardSkeleton from '@/components/widgets/media-card/AuthorCardSkeleton'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
@@ -16,6 +17,7 @@ import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
@@ -39,6 +41,9 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   const isPodcastLibrary = library.mediaType === 'podcast'
   const isBookLibrary = library.mediaType === 'book'
+
+  const [isAuthorEditModalOpen, setIsAuthorEditModalOpen] = useState(false)
+  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
 
   // Ref for the container div
   const containerRef = useRef<HTMLDivElement>(null)
@@ -142,6 +147,8 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const {
     items,
     loadPage,
+    updateItem,
+    removeItem,
     totalEntities: fetchedTotal,
     isLoading,
     isInitialized,
@@ -151,6 +158,23 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     entityType,
     query,
     itemsPerPage
+  })
+
+  // Author actions hook
+  const {
+    quickMatchingAuthorIds,
+    handleQuickMatch,
+    handleSave: handleAuthorSave,
+    handleDelete: handleAuthorDelete,
+    handleSubmitImage: handleAuthorSubmitImage,
+    handleRemoveImage: handleAuthorRemoveImage
+  } = useAuthorActions({
+    updateItem,
+    removeItem,
+    libraryProvider: library.provider || 'audible',
+    selectedAuthor,
+    setSelectedAuthor,
+    setIsModalOpen: setIsAuthorEditModalOpen
   })
 
   // Sync total count from data hook
@@ -353,7 +377,16 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
         const author = entity as Author
         return (
           <div key={`card-wrapper-${author.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-            <AuthorCard author={author} userCanUpdate={currentUser.user.permissions?.update} />
+            <AuthorCard
+              author={author}
+              userCanUpdate={currentUser.user.permissions?.update}
+              onEdit={(author) => {
+                setSelectedAuthor(author)
+                setIsAuthorEditModalOpen(true)
+              }}
+              onQuickMatch={(author) => handleQuickMatch(author)}
+              isSearching={quickMatchingAuthorIds.has(author.id)}
+            />
           </div>
         )
       }
@@ -513,6 +546,23 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           )}
         </div>
       )}
+
+      {/* Modals */}
+      <AuthorEditModal
+        isOpen={isAuthorEditModalOpen}
+        author={selectedAuthor}
+        user={currentUser.user}
+        isProcessing={quickMatchingAuthorIds.has(selectedAuthor?.id ?? '')}
+        onClose={() => {
+          setIsAuthorEditModalOpen(false)
+          setSelectedAuthor(null)
+        }}
+        onQuickMatch={(editedAuthor) => selectedAuthor && handleQuickMatch(selectedAuthor, editedAuthor)}
+        onSave={handleAuthorSave}
+        onDelete={handleAuthorDelete}
+        onSubmitImage={handleAuthorSubmitImage}
+        onRemoveImage={handleAuthorRemoveImage}
+      />
     </div>
   )
 }
