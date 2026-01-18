@@ -174,7 +174,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
           cy-id="interval-dropdown"
         />
 
-        <div className="flex items-center gap-2 mb-2" cy-id="cron-expression-builder-inputs">
+        <div className="flex flex-col sm:flex-row items-center gap-2 mb-2" cy-id="cron-expression-builder-inputs">
           {(selectedInterval === 'weekly' || selectedInterval === 'daily') && (
             <TextInput
               value={formatTimeValue}
@@ -182,7 +182,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
               type="time"
               label={t('LabelTime')}
               customInputClass="[&::-webkit-calendar-picker-indicator]:hidden"
-              className="w-fit"
+              className="w-full sm:w-fit"
               cy-id="time-input"
             />
           )}
