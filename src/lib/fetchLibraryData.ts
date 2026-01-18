@@ -7,7 +7,7 @@ import {
   fetchLibrarySeriesAction,
   fetchPlaylistAction,
   fetchPlaylistsAction
-} from '@/app/actions/navigationActions'
+} from '@/app/actions/libraryDataFetchActions'
 import { BookshelfEntity, EntityType, PersonalizedShelf } from '@/types/api'
 
 // Include fields for library items (used by BookshelfClient)
