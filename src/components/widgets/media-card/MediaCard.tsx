@@ -69,6 +69,16 @@ export interface MediaCardProps {
    * Callback when the select button is clicked
    */
   onSelect?: (event: React.MouseEvent) => void
+  /**
+   * Navigation context to pass to the item page
+   */
+  navigationContext?: {
+    name: string
+    id?: string
+    params?: string
+    index?: number
+  }
+  id?: string
 }
 
 function MediaCard(props: MediaCardProps) {
@@ -93,13 +103,16 @@ function MediaCard(props: MediaCardProps) {
     episode,
     isSelectionMode = false,
     selected = false,
-    onSelect
+    onSelect,
+    navigationContext,
+    id
   } = props
 
   const router = useRouter()
   const { libraryItemIdStreaming, isStreaming, isStreamingFromDifferentLibrary, getIsMediaQueued } = useMediaContext()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
-  const cardId = useId()
+  const useIdValue = useId()
+  const cardId = id || useIdValue
   const t = useTypeSafeTranslations()
   const locale = useLocale()
 
@@ -250,7 +263,16 @@ function MediaCard(props: MediaCardProps) {
   })
 
   const handleCardClick = () => {
-    router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
+    let url = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`
+    if (navigationContext) {
+      const params = new URLSearchParams()
+      params.set('context', navigationContext.name)
+      if (navigationContext.id) params.set('contextId', navigationContext.id)
+      if (navigationContext.params) params.set('params', navigationContext.params)
+      if (typeof navigationContext.index === 'number') params.set('contextIndex', String(navigationContext.index))
+      url += `?${params.toString()}`
+    }
+    router.push(url)
   }
 
   const handleEdit = () => {
