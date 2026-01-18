@@ -5,7 +5,7 @@ import { mergeClasses } from '@/lib/merge-classes'
 import React, { memo } from 'react'
 import ButtonBase from './ButtonBase'
 
-interface BtnProps {
+export interface BtnProps {
   to?: string
   color?: string
   type?: 'button' | 'submit' | 'reset'

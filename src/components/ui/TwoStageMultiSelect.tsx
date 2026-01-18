@@ -12,8 +12,9 @@ interface TwoStageMultiSelectProps {
   // Core props
   selectedItems: MultiSelectItem<TwoStageMultiSelectContent>[]
   items: MultiSelectItem<string>[]
-  label: string
+  label?: string
   delimiter?: string
+  size?: 'small' | 'medium' | 'large' | 'auto'
 
   // Event handlers
   onItemAdded?: (item: MultiSelectItem<TwoStageMultiSelectContent>) => void
@@ -27,6 +28,7 @@ interface TwoStageMultiSelectProps {
 
   // Optional props
   disabled?: boolean
+  autoFocus?: boolean
 }
 
 export default function TwoStageMultiSelect({
@@ -34,13 +36,15 @@ export default function TwoStageMultiSelect({
   items,
   label,
   delimiter = ' #',
+  size = 'auto',
   onItemAdded,
   onItemRemoved,
   onItemEdited,
   onValidate,
   onValidationError,
   onDuplicateError,
-  disabled
+  disabled,
+  autoFocus
 }: TwoStageMultiSelectProps) {
   const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
   const [isEditingNewItem, setIsEditingNewItem] = useState(false)
@@ -121,6 +125,7 @@ export default function TwoStageMultiSelect({
 
   return (
     <MultiSelect
+      size={size}
       selectedItems={selectedItems}
       items={items}
       onItemAdded={handleItemAdded}
@@ -141,6 +146,7 @@ export default function TwoStageMultiSelect({
       getEditableText={getEditableText}
       getReadOnlyPrefix={getReadOnlyPrefix}
       getFullText={getFullText}
+      autoFocus={autoFocus}
     />
   )
 }

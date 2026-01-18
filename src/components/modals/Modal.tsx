@@ -5,7 +5,7 @@ import { ModalProvider } from '@/contexts/ModalContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { ReactNode, useCallback, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 export interface ModalProps {
@@ -19,6 +19,7 @@ export interface ModalProps {
   onClose?: () => void
   className?: string
   style?: React.CSSProperties
+  fullScreen?: boolean
 }
 
 export default function Modal({
@@ -31,7 +32,8 @@ export default function Modal({
   outerContent,
   onClose,
   className,
-  style
+  style,
+  fullScreen = false
 }: ModalProps) {
   const t = useTypeSafeTranslations()
   const [preventClickoutside, setPreventClickoutside] = useState(false)
@@ -77,6 +79,20 @@ export default function Modal({
   // Use click outside hook
   useClickOutside(contentRef, dummyRef, handleClickOutside)
 
+  // Handle Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isOpen || processing || persistent) return
+      if (e.key === 'Escape') {
+        e.stopPropagation()
+        onClose?.()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, processing, persistent, onClose])
+
   if (!isOpen) {
     return null
   }
@@ -87,19 +103,20 @@ export default function Modal({
       role="dialog"
       aria-modal="true"
       className={mergeClasses(
-        'modal modal-bg w-full h-full fixed top-0 start-0 items-center justify-center flex overflow-x-hidden',
+        'modal modal-bg w-full fixed start-0 items-center justify-center flex overflow-x-hidden',
+        fullScreen ? 'top-0 h-full' : 'top-16 h-[calc(100%-4rem)]',
         zIndexClass,
         bgOpacityClass
       )}
       onClick={clickBg}
       cy-id="modal-wrapper"
     >
-      {/* Background gradient */}
+      {/* Background gradient - only for fullScreen or adjust? Keep as is, it's decorative */}
       <div className="absolute inset-x-0 top-0 w-full h-36 bg-gradient-to-t from-transparent via-gray-900/50 to-gray-800/70 opacity-90 pointer-events-none" />
 
       {/* Close button */}
       <button
-        className="absolute top-2 end-2 sm:top-4 sm:end-4 inline-flex text-foreground-muted hover:text-foreground z-10 transition-colors"
+        className="absolute top-2 end-4 sm:top-4 sm:end-4 inline-flex text-foreground-muted hover:text-foreground z-10 transition-colors"
         aria-label={t('ButtonCloseModal')}
         onClick={clickClose}
         cy-id="modal-close-button"
@@ -119,7 +136,6 @@ export default function Modal({
           'relative text-foreground outline-none focus:outline-none shadow-modal-content rounded-lg bg-bg',
           // Responsive width: full width with margin on mobile, fixed width on larger screens
           'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
-          'mt-[50px]',
           className
         )}
         onMouseDown={mousedownModal}

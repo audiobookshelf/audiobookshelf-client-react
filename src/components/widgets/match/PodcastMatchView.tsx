@@ -38,7 +38,8 @@ interface PodcastMatchViewProps {
   bookCoverAspectRatio: number
   availableGenres: MultiSelectItem<string>[]
   availableTags: MultiSelectItem<string>[]
-  onDone: () => void
+  onBack: () => void
+  onSuccess?: () => void
 }
 
 const defaultMatchUsage: PodcastMatchUsage = {
@@ -65,7 +66,8 @@ export default function PodcastMatchView({
   bookCoverAspectRatio,
   availableGenres,
   availableTags,
-  onDone
+  onBack,
+  onSuccess
 }: PodcastMatchViewProps) {
   const t = useTypeSafeTranslations()
   const [selectedMatch, setSelectedMatch] = useState<PodcastSearchResult>(() => processPodcastMatchData(selectedMatchOrig))
@@ -140,7 +142,8 @@ export default function PodcastMatchView({
       localStorageKey="selectedMatchUsage"
       buildMatchUpdatePayload={buildMatchUpdatePayload}
       selectedMatch={selectedMatch}
-      onDone={onDone}
+      onBack={onBack}
+      onSuccess={onSuccess}
     >
       {({ selectedMatchUsage, createFieldUsageHandler }) => (
         <>

@@ -17,6 +17,7 @@ interface CheckboxProps {
   ariaLabel?: string
   onChange?: (value: boolean) => void
   className?: string
+  autoFocus?: boolean
 }
 
 export default function Checkbox({
@@ -31,7 +32,8 @@ export default function Checkbox({
   partial = false,
   ariaLabel = '',
   onChange,
-  className = ''
+  className = '',
+  autoFocus = false
 }: CheckboxProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -100,6 +102,7 @@ export default function Checkbox({
             onMouseDown={(e) => e.preventDefault()}
             onChange={handleChange}
             onKeyDown={handleInputKeyDown}
+            autoFocus={autoFocus}
             className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
           />
           <div

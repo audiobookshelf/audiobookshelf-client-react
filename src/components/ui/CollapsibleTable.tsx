@@ -1,8 +1,6 @@
-'use client'
-
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import AccordionSection from '@/components/ui/AccordionSection'
 import { mergeClasses } from '@/lib/merge-classes'
-import { KeyboardEvent, ReactNode, useCallback, useId, useMemo } from 'react'
+import { ReactNode } from 'react'
 
 interface TableHeader {
   label: ReactNode
@@ -19,6 +17,7 @@ interface CollapsibleTableProps {
   headerActions?: ReactNode
   tableHeaders: TableHeader[]
   tableClassName?: string
+  className?: string
   containerRef?: React.RefObject<HTMLDivElement | null>
   children: ReactNode
 }
@@ -32,106 +31,37 @@ export default function CollapsibleTable({
   headerActions,
   tableHeaders,
   tableClassName,
+  className,
   containerRef,
   children
 }: CollapsibleTableProps) {
-  const t = useTypeSafeTranslations()
-  const id = useId()
-
-  // Note: Click events from headerActions buttons should call e.stopPropagation()
-  // to prevent toggling the table when clicking action buttons
-  const handleClickBar = useCallback(() => {
-    if (!keepOpen) {
-      onExpandedChange(!expanded)
-    }
-  }, [keepOpen, expanded, onExpandedChange])
-
-  const handleKeyDownBar = useCallback(
-    (e: KeyboardEvent) => {
-      if (!keepOpen && (e.key === 'Enter' || e.key === ' ')) {
-        e.preventDefault()
-        onExpandedChange(!expanded)
-      }
-    },
-    [keepOpen, expanded, onExpandedChange]
-  )
-
-  const isExpanded = keepOpen || expanded
-
-  const hasHeaderActions = Boolean(headerActions)
-
-  const headerClasses = useMemo(
-    () => mergeClasses('w-full bg-primary py-2 flex items-center px-2 md:px-6 flex-wrap gap-1 md:gap-2', keepOpen ? '' : 'cursor-pointer'),
-    [keepOpen]
-  )
-
-  const iconClasses = useMemo(
-    () =>
-      mergeClasses(
-        'cursor-pointer h-8 w-8 md:h-10 md:w-10 rounded-full hover:bg-bg-hover flex justify-center items-center duration-500 flex-shrink-0',
-        isExpanded ? 'transform rotate-180' : ''
-      ),
-    [isExpanded]
-  )
-
-  const countBadgeClasses = 'h-5 md:h-7 w-5 md:w-7 rounded-full bg-white/10 flex items-center justify-center'
-
-  const countAriaLabel = useMemo(() => t('LabelItemsPlural', { count }), [count, t])
-
   const tableClasses = mergeClasses('text-sm w-full border-collapse border border-border', tableClassName)
 
-  const contentId = useMemo(() => `${id}-content`, [id])
-  const ariaControls = useMemo(() => (keepOpen ? undefined : contentId), [keepOpen, contentId])
-  const ariaExpanded = useMemo(() => (keepOpen ? undefined : isExpanded), [keepOpen, isExpanded])
-  const role = useMemo(() => (keepOpen ? undefined : 'button'), [keepOpen])
-  const tabIndex = useMemo(() => (keepOpen ? undefined : 0), [keepOpen])
-
   return (
-    <div className="w-full my-2">
-      <div
-        className={headerClasses}
-        onClick={handleClickBar}
-        onKeyDown={handleKeyDownBar}
-        role={role}
-        tabIndex={tabIndex}
-        aria-expanded={ariaExpanded}
-        aria-controls={ariaControls}
-      >
-        <div className="flex items-center flex-1 min-w-0 flex-wrap gap-1 md:gap-2">
-          <div className="flex items-center flex-shrink-0 min-w-0">
-            <p className="pe-2 md:pe-4 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{title}</p>
-            <div className={`${countBadgeClasses} flex-shrink-0`} aria-label={countAriaLabel} role="status">
-              <span className="text-sm font-mono" aria-hidden="true">
-                {count}
-              </span>
-            </div>
-          </div>
-          <div className={hasHeaderActions ? 'grow min-w-0' : 'grow'} />
-          {hasHeaderActions && <div className="flex items-center gap-2 flex-shrink-0">{headerActions}</div>}
-        </div>
-        {!keepOpen && (
-          <div className={iconClasses} aria-hidden="true">
-            <span className="material-symbols text-2xl md:text-4xl">keyboard_arrow_down</span>
-          </div>
-        )}
+    <AccordionSection
+      title={title}
+      count={count}
+      expanded={expanded}
+      onExpandedChange={onExpandedChange}
+      keepOpen={keepOpen}
+      headerActions={headerActions}
+      className={mergeClasses(!keepOpen && 'my-2', className)}
+    >
+      <div ref={containerRef}>
+        <table className={tableClasses}>
+          <caption className="sr-only">{title}</caption>
+          <thead>
+            <tr>
+              {tableHeaders.map((header, index) => (
+                <th key={index} className={mergeClasses('text-start py-1 text-xs', header.className)} scope={header.scope ?? 'col'}>
+                  {header.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>{children}</tbody>
+        </table>
       </div>
-      {isExpanded && (
-        <div ref={containerRef} id={`${id}-content`} role="region" aria-label={title}>
-          <table className={tableClasses}>
-            <caption className="sr-only">{title}</caption>
-            <thead>
-              <tr>
-                {tableHeaders.map((header, index) => (
-                  <th key={index} className={mergeClasses('text-start py-1 text-xs', header.className)} scope={header.scope ?? 'col'}>
-                    {header.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>{children}</tbody>
-          </table>
-        </div>
-      )}
-    </div>
+    </AccordionSection>
   )
 }

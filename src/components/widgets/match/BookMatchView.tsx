@@ -45,7 +45,8 @@ interface BookMatchViewProps {
   availableTags: MultiSelectItem<string>[]
   availableNarrators: MultiSelectItem<string>[]
   availableSeries: MultiSelectItem<string>[]
-  onDone: () => void
+  onBack: () => void
+  onSuccess?: () => void
 }
 
 const defaultMatchUsage: BookMatchUsage = {
@@ -78,7 +79,8 @@ export default function BookMatchView({
   availableTags,
   availableNarrators,
   availableSeries,
-  onDone
+  onBack,
+  onSuccess
 }: BookMatchViewProps) {
   const t = useTypeSafeTranslations()
   const [selectedMatch, setSelectedMatch] = useState<BookSearchResult>(() => processBookMatchData(selectedMatchOrig))
@@ -240,7 +242,8 @@ export default function BookMatchView({
       localStorageKey="selectedMatchUsage"
       buildMatchUpdatePayload={buildMatchUpdatePayload}
       selectedMatch={selectedMatch}
-      onDone={onDone}
+      onBack={onBack}
+      onSuccess={onSuccess}
     >
       {({ selectedMatchUsage, createFieldUsageHandler }) => (
         <>
