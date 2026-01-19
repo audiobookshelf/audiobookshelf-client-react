@@ -37,7 +37,7 @@ export function useItemNavigation(libraryItem: LibraryItem): ItemNavigation {
   // But we can just pass 'library' or something safe if missing, and rely on `useEffect` to skip if context is invalid.
   // However, `useItemNavigation` returns specific navigation for THIS item.
 
-  const { getItem } = useLibraryDataContext<LibraryItem>(
+  const { getItem, total } = useLibraryDataContext<LibraryItem>(
     context || 'items', // Default or dummy
     contextId,
     rawParams,
@@ -77,11 +77,13 @@ export function useItemNavigation(libraryItem: LibraryItem): ItemNavigation {
 
         const [prev, next] = await Promise.all([
           parsedIndex > 0 ? getItem(parsedIndex - 1) : Promise.resolve(null),
-          getItem(parsedIndex + 1) // getItem checks total internally or returns null?
-          // Our `getItem` implementation (wrapper) calls `getItemAsync`.
-          // `getItemAsync` tries to fetch if missing.
-          // Accessing `parsedIndex + 1` might trigger a fetch for that page.
-          // If it returns null, it means end of list (or error).
+          // Check bounds to prevent wrapping at the end of the shelf
+          (async () => {
+            if (total !== undefined && parsedIndex + 1 >= total) {
+              return null // Next item is out of bounds
+            }
+            return getItem(parsedIndex + 1)
+          })()
         ])
 
         if (isMounted) {
@@ -103,7 +105,7 @@ export function useItemNavigation(libraryItem: LibraryItem): ItemNavigation {
     return () => {
       isMounted = false
     }
-  }, [context, contextId, rawParams, searchParams, getItem])
+  }, [context, contextId, rawParams, searchParams, getItem, total])
 
   return navState
 }
