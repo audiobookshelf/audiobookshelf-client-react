@@ -1,15 +1,17 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { User } from '@/types/api'
-import Link from 'next/link'
+import { ServerSettings, User, UserLoginResponse } from '@/types/api'
 import SettingsContent from '../SettingsContent'
+import UsersTable from './UsersTable'
 
 interface UsersClientProps {
+  currentUser: UserLoginResponse
   users: User[]
+  serverSettings: ServerSettings
 }
 
-export default function UsersClient({ users }: UsersClientProps) {
+export default function UsersClient({ currentUser, users, serverSettings }: UsersClientProps) {
   const t = useTypeSafeTranslations()
   return (
     <SettingsContent
@@ -23,13 +25,7 @@ export default function UsersClient({ users }: UsersClientProps) {
       }}
     >
       <div className="flex flex-col gap-2 py-4">
-        {users.map((user) => (
-          <div key={user.id}>
-            <Link href={`/settings/users/${user.id}`} className="text-gray-300 hover:text-white">
-              {user.username}
-            </Link>
-          </div>
-        ))}
+        <UsersTable currentUser={currentUser} users={users} dateFormat={serverSettings.dateFormat} timeFormat={serverSettings.timeFormat} />
       </div>
     </SettingsContent>
   )
