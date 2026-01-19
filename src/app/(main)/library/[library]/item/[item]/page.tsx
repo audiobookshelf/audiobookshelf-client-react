@@ -4,7 +4,7 @@ import LibraryItemClient from './LibraryItemClient'
 
 export default async function ItemPage({ params }: { params: Promise<{ item: string; library: string }> }) {
   const { item: itemId } = await params
-  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId, true), getCurrentUser())
+  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId, true, ['progress', 'rssfeed', 'downloads', 'share']), getCurrentUser())
 
   // TODO: Handle loading data error?
   if (!libraryItem || !currentUser) {
@@ -14,7 +14,11 @@ export default async function ItemPage({ params }: { params: Promise<{ item: str
 
   return (
     <div className="p-8 w-full">
-      <LibraryItemClient libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem} currentUser={currentUser} />
+      <LibraryItemClient
+        libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem}
+        currentUser={currentUser}
+        mediaProgress={libraryItem.userMediaProgress}
+      />
     </div>
   )
 }

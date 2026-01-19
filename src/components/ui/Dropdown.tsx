@@ -38,6 +38,7 @@ interface DropdownProps {
   displayText?: string
   /** Use portal to render the dropdown menu. Useful for avoiding clipping issues. */
   usePortal?: boolean
+  autoFocus?: boolean
 }
 
 /**
@@ -57,7 +58,8 @@ export default function Dropdown({
   rightIcon,
   highlightSelected = false,
   displayText,
-  usePortal = false
+  usePortal = false,
+  autoFocus = false
 }: DropdownProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -410,6 +412,7 @@ export default function Dropdown({
           aria-controls={`${dropdownId}-listbox`}
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
+          autoFocus={autoFocus}
         >
           <span className="flex items-center min-w-0 flex-1 gap-0">
             <span className={mergeClasses('block truncate font-sans shrink', selectedSubtext ? 'font-semibold max-w-[75%]' : '')}>{selectedText}</span>

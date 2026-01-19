@@ -38,7 +38,8 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   const locale = useLocale()
   const router = useRouter()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
-  const cardId = useId()
+  const generatedId = useId()
+  const cardId = props.id || generatedId
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier

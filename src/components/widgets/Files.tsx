@@ -3,7 +3,7 @@
 import { useModalRef } from '@/contexts/ModalContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, PodcastLibraryItem, User } from '@/types/api'
-import LibraryFilesTable from './LibraryFilesTable'
+import LibraryFilesAccordion from './LibraryFilesAccordion'
 
 interface FilesProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -24,7 +24,7 @@ export default function Files({ libraryItem, user }: FilesProps) {
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-hidden px-4 py-6" role="region" aria-label={t('HeaderLibraryFiles')}>
       <div className="w-full">
-        <LibraryFilesTable libraryItem={libraryItem} user={user} keepOpen={inModal} inModal={inModal} expanded />
+        <LibraryFilesAccordion libraryItem={libraryItem} user={user} keepOpen={inModal} inModal={inModal} expanded />
       </div>
     </div>
   )

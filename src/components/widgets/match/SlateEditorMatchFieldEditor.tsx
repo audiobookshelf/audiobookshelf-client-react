@@ -2,7 +2,7 @@
 
 import SlateEditor from '@/components/ui/SlateEditor'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useRef, useState } from 'react'
 import { BaseMatchFieldEditor } from './BaseMatchFieldEditor'
 
 interface SlateEditorMatchFieldEditorProps {
@@ -18,8 +18,29 @@ interface SlateEditorMatchFieldEditorProps {
 function SlateEditorMatchFieldEditor({ usageChecked, onUsageChange, value, onChange, disabled, label, currentValue }: SlateEditorMatchFieldEditorProps) {
   const t = useTypeSafeTranslations()
 
+  // Local state to manage what we pass to SlateEditor as srcContent
+  const [srcContent, setSrcContent] = useState(value)
+  const lastEmittedValue = useRef(value)
+
+  // Sync srcContent from props ONLY if the change didn't come from us
+  // This prevents the editor from re-initializing while we are typing
+  if (value !== lastEmittedValue.current) {
+    setSrcContent(value)
+    lastEmittedValue.current = value
+  }
+
+  const handleEditorUpdate = useCallback(
+    (newValue: string) => {
+      lastEmittedValue.current = newValue
+      onChange(newValue)
+    },
+    [onChange]
+  )
+
   const handleUseCurrentValue = useCallback(() => {
     if (currentValue !== undefined) {
+      setSrcContent(currentValue)
+      lastEmittedValue.current = currentValue
       onChange(currentValue)
     }
   }, [currentValue, onChange])
@@ -39,7 +60,7 @@ function SlateEditorMatchFieldEditor({ usageChecked, onUsageChange, value, onCha
 
   return (
     <BaseMatchFieldEditor usageChecked={usageChecked} onUsageChange={onUsageChange} currentValueDisplay={currentValueDisplay} hasCurrentValue={hasCurrentValue}>
-      <SlateEditor srcContent={value || ''} onUpdate={onChange} disabled={disabled || !usageChecked} label={label} />
+      <SlateEditor srcContent={srcContent || ''} onUpdate={handleEditorUpdate} disabled={disabled || !usageChecked} label={label} />
     </BaseMatchFieldEditor>
   )
 }

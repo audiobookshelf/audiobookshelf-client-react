@@ -4,6 +4,7 @@ import PreviewCover from '@/components/covers/PreviewCover'
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
 import { useEffect, useMemo, useState } from 'react'
 
 // Constants for layout calculations to avoid magic numbers in the component.
@@ -21,10 +22,11 @@ interface CoverPreviewModalProps {
   selectedCover: string | null
   bookCoverAspectRatio: number
   onClose: () => void
-  onApply: () => void
+  onApply?: () => void
+  readonly?: boolean
 }
 
-export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspectRatio, onClose, onApply }: CoverPreviewModalProps) {
+export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspectRatio, onClose, onApply, readonly = false }: CoverPreviewModalProps) {
   const t = useTypeSafeTranslations()
 
   // Track actual window dimensions for accurate orientation detection.
@@ -52,8 +54,9 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
   }, [currentWindowWidth, currentWindowHeight])
 
   const modalClassName = useMemo(() => {
+    if (readonly) return '!bg-transparent !shadow-none !border-none !p-0 mt-0 !max-w-none !w-auto'
     return 'mt-0'
-  }, [])
+  }, [readonly])
 
   const modalStyle = useMemo(() => {
     if (isLandscape) {
@@ -99,25 +102,29 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
   return (
     <Modal isOpen={isOpen} onClose={onClose} className={modalClassName} style={modalStyle}>
       <div className="h-full w-full flex flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex-shrink-0 p-3 text-center">
-          <p className="text-base font-semibold">{t('HeaderPreviewCover')}</p>
-        </div>
+        {/* Header - hide in readonly */}
+        {!readonly && (
+          <div className="flex-shrink-0 p-3 text-center">
+            <p className="text-base font-semibold">{t('HeaderPreviewCover')}</p>
+          </div>
+        )}
 
         {/* Image area - takes remaining space */}
-        <div className="flex-1 flex justify-center items-center px-6 min-h-0">
+        <div className={mergeClasses('flex-1 flex justify-center items-center min-h-0', readonly ? 'p-0' : 'px-6')}>
           {selectedCover && <PreviewCover src={selectedCover} width={previewCoverWidth} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />}
         </div>
 
-        {/* Buttons */}
-        <div className="flex-shrink-0 flex gap-3 sm:gap-4 justify-center py-3 px-6">
-          <Btn onClick={onClose} className="flex-1 sm:flex-none sm:min-w-24">
-            {t('ButtonCancel')}
-          </Btn>
-          <Btn color="bg-success" onClick={onApply} className="flex-1 sm:flex-none sm:min-w-24">
-            {t('ButtonApply')}
-          </Btn>
-        </div>
+        {/* Buttons - hide in readonly */}
+        {!readonly && (
+          <div className="flex-shrink-0 flex gap-3 sm:gap-4 justify-center py-3 px-6">
+            <Btn onClick={onClose} className="flex-1 sm:flex-none sm:min-w-24">
+              {t('ButtonCancel')}
+            </Btn>
+            <Btn color="bg-success" onClick={onApply} className="flex-1 sm:flex-none sm:min-w-24">
+              {t('ButtonApply')}
+            </Btn>
+          </div>
+        )}
       </div>
     </Modal>
   )
