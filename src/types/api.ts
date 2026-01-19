@@ -1197,8 +1197,23 @@ export interface AudioTrackData {
  * Device info sent to server when starting a session
  */
 export interface DeviceInfo {
-  clientName: string
+  id: string
+  userId: string
   deviceId: string
+  ipAddress: string
+  // From user agent
+  browserName?: string
+  browserVersion?: string
+  osName?: string
+  osVersion?: string
+  deviceType?: string
+  // From client
+  clientVersion?: string
+  manufacturer?: string
+  model?: string
+  sdkVersion?: string // Android only
+  clientName?: string
+  deviceName?: string
 }
 
 /**
