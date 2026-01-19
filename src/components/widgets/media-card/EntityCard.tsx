@@ -146,7 +146,7 @@ export const EntityCard: React.FC<EntityCardProps> = ({
             showSubtitles={showSubtitles}
             orderBy={orderBy}
             navigationContext={{
-              name: 'library',
+              name: 'items',
               id: libraryId,
               params: query,
               index
