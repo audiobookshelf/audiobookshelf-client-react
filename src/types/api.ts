@@ -1251,8 +1251,12 @@ export interface PlaybackSession {
 /**
  * Payload for starting a playback session
  */
+export interface StartSessionDeviceInfo {
+  clientName: string
+  deviceId: string
+}
 export interface StartSessionPayload {
-  deviceInfo: DeviceInfo
+  deviceInfo: StartSessionDeviceInfo
   supportedMimeTypes: string[]
   mediaPlayer: 'html5' | 'chromecast'
   forceTranscode: boolean
