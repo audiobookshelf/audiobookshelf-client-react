@@ -516,8 +516,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                         entityId: selectedBook.id,
                         entityType: 'book',
                         feedUrl: 'https://example.com/book-feed.xml',
-                        metaTitle: selectedBook.media.metadata.title,
-                        isPublic: true,
                         createdAt: Date.now(),
                         updatedAt: Date.now()
                       },

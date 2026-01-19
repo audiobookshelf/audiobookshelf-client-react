@@ -322,8 +322,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                         entityId: selectedPodcast.id,
                         entityType: 'podcast',
                         feedUrl: 'https://example.com/feed.xml',
-                        metaTitle: selectedPodcast.media.metadata.title,
-                        isPublic: true,
                         createdAt: Date.now(),
                         updatedAt: Date.now()
                       },

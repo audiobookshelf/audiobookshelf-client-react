@@ -187,8 +187,6 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                       entityId: seriesData.id,
                       entityType: 'series',
                       feedUrl: 'https://example.com/series-feed.xml',
-                      metaTitle: seriesData.name,
-                      isPublic: true,
                       createdAt: Date.now(),
                       updatedAt: Date.now()
                     }
