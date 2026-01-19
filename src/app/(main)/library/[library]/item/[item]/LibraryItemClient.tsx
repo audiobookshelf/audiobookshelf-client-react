@@ -268,44 +268,40 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
             />
 
             {/* Navigation Buttons - Below Cover */}
-            {(prevId || nextId || showNavigation) && (
+            {showNavigation && (
               <div className="flex justify-between mt-4">
-                <div className={!prevId ? 'invisible' : ''}>
-                  <IconBtn
-                    ariaLabel={t('ButtonPrevious')}
-                    onClick={() => {
-                      if (prevId) {
-                        const newIndex = !isNaN(contextIndex) ? contextIndex - 1 : undefined
-                        handleNavigate(prevId, newIndex)
-                      }
-                    }}
-                    className="bg-primary hover:bg-bg-hover border border-white/10"
-                  >
-                    arrow_back
-                  </IconBtn>
-                </div>
+                <IconBtn
+                  ariaLabel={t('ButtonPrevious')}
+                  onClick={() => {
+                    if (prevId) {
+                      const newIndex = !isNaN(contextIndex) ? contextIndex - 1 : undefined
+                      handleNavigate(prevId, newIndex)
+                    }
+                  }}
+                  disabled={!prevId}
+                  className="bg-primary hover:bg-bg-hover border border-white/10"
+                >
+                  arrow_back
+                </IconBtn>
 
                 <div className="flex items-center gap-2">
-                  {showNavigation && (
-                    <IconBtn ariaLabel={t('ButtonClose')} onClick={handleUpNavigation} className="bg-primary hover:bg-bg-hover border border-white/10">
-                      close
-                    </IconBtn>
-                  )}
+                  <IconBtn ariaLabel={t('ButtonClose')} onClick={handleUpNavigation} className="bg-primary hover:bg-bg-hover border border-white/10">
+                    close
+                  </IconBtn>
 
-                  <div className={!nextId ? 'invisible' : ''}>
-                    <IconBtn
-                      ariaLabel={t('ButtonNext')}
-                      onClick={() => {
-                        if (nextId) {
-                          const newIndex = !isNaN(contextIndex) ? contextIndex + 1 : undefined
-                          handleNavigate(nextId, newIndex)
-                        }
-                      }}
-                      className="bg-primary hover:bg-bg-hover border border-white/10"
-                    >
-                      arrow_forward
-                    </IconBtn>
-                  </div>
+                  <IconBtn
+                    ariaLabel={t('ButtonNext')}
+                    onClick={() => {
+                      if (nextId) {
+                        const newIndex = !isNaN(contextIndex) ? contextIndex + 1 : undefined
+                        handleNavigate(nextId, newIndex)
+                      }
+                    }}
+                    disabled={!nextId}
+                    className="bg-primary hover:bg-bg-hover border border-white/10"
+                  >
+                    arrow_forward
+                  </IconBtn>
                 </div>
               </div>
             )}
