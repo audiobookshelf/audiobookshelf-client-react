@@ -288,8 +288,8 @@ export async function getAudioFileFFProbeData(itemId: string, fileIno: string): 
   return apiRequest<FFProbeData>(`/api/items/${itemId}/ffprobe/${fileIno}`, {})
 }
 
-export const getUsers = cache(async (): Promise<GetUsersResponse> => {
-  return apiRequest<GetUsersResponse>('/api/users', {})
+export const getUsers = cache(async (queryParams?: string): Promise<GetUsersResponse> => {
+  return apiRequest<GetUsersResponse>(`/api/users${queryParams ? `?${queryParams}` : ''}`, {})
 })
 
 export const getUser = cache(async (userId: string): Promise<User> => {

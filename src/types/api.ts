@@ -805,6 +805,8 @@ export interface User {
   /** Tags selected/filtered for user (empty if accessAllTags is true) */
   itemTagsSelected: string[]
   hasOpenIDLink: boolean
+  /** Latest playback session (included when include=latestSession) */
+  latestSession?: PlaybackSession
 }
 
 export interface EReaderDevice {
