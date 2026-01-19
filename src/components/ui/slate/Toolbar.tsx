@@ -138,7 +138,7 @@ export const Toolbar = () => {
         if (!isButtonAvailable) {
           return -1
         }
-        return focusedButtonId === buttonId ? 0 : -1
+        return -1
       })(),
       onFocus: () => {
         const isButtonAvailable = buttonAvailability[buttonId as keyof typeof buttonAvailability]
@@ -148,7 +148,7 @@ export const Toolbar = () => {
         }
       }
     }),
-    [focusedButtonId, buttonAvailability]
+    [buttonAvailability]
   )
 
   // Handle focus loss from disabled buttons

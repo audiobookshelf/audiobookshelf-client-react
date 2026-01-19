@@ -1,46 +1,32 @@
 'use client'
 
-import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
-import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import AuthorEditModal from '@/components/modals/AuthorEditModal'
-import AuthorCard from '@/components/widgets/media-card/AuthorCard'
-import AuthorCardSkeleton from '@/components/widgets/media-card/AuthorCardSkeleton'
-import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
-import CollapsedSeriesCard from '@/components/widgets/media-card/CollapsedSeriesCard'
-import CollectionCard from '@/components/widgets/media-card/CollectionCard'
-import CollectionCardSkeleton from '@/components/widgets/media-card/CollectionCardSkeleton'
-import MediaCardSkeleton from '@/components/widgets/media-card/MediaCardSkeleton'
-import PlaylistCard from '@/components/widgets/media-card/PlaylistCard'
-import PlaylistCardSkeleton from '@/components/widgets/media-card/PlaylistCardSkeleton'
-import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
-import SeriesCard from '@/components/widgets/media-card/SeriesCard'
-import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
+import { EntityCard } from '@/components/widgets/media-card/EntityCard'
+import { EntitySkeleton } from '@/components/widgets/media-card/EntitySkeleton'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useLibraryDataContext } from '@/contexts/LibraryDataContext'
 import { useAuthorActions } from '@/hooks/useAuthorActions'
-import { useBookshelfData } from '@/hooks/useBookshelfData'
+import { useBookshelfControls } from '@/hooks/useBookshelfControls'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, LibraryItem, MediaProgress, Playlist, Series, UserLoginResponse } from '@/types/api'
+import { Author, BookshelfEntity, EntityType, MediaProgress, UserLoginResponse } from '@/types/api'
+import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 interface BookshelfClientProps {
   entityType: EntityType
-  // Different APIs return different structures:
-  // - items/series/collections/playlists: { results: T[], total?: number }
-  // - authors: { authors: Author[], total?: number }
   currentUser: UserLoginResponse
 }
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting } = useLibrary()
+  const { library, setItemCount, orderBy, showSubtitles, seriesSortBy } = useLibrary()
 
   const { query } = useBookshelfQuery(entityType)
-
-  const isPodcastLibrary = library.mediaType === 'podcast'
-  const isBookLibrary = library.mediaType === 'book'
+  const searchParams = useSearchParams()
+  const focusIndex = parseInt(searchParams.get('focusIndex') || '', 10)
 
   const [isAuthorEditModalOpen, setIsAuthorEditModalOpen] = useState(false)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
@@ -57,9 +43,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       containerRef.current.scrollTop = 0
     }
   }, [query])
-
-  // totalEntities state
-  const [totalEntities, setTotalEntities] = useState(0)
 
   // Card Dimensions & Layout Logic
   const { sizeMultiplier } = useCardSize()
@@ -105,6 +88,17 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const totalEntityCardWidth = cardSize.width + cardMargin
   const shelfRowHeight = cardSize.height + 16 * sizeMultiplier
 
+  const {
+    items: contextItems,
+    total: totalEntities,
+    isLoading,
+    load,
+    updateItem: updateItemInContext,
+    removeItem: removeItemFromContext
+  } = useLibraryDataContext<BookshelfEntity>(entityType, null, query, library.id, false)
+
+  const isPodcastLibrary = library.mediaType === 'podcast'
+
   // Resize Observer for Container
   useEffect(() => {
     if (!containerRef.current) return
@@ -118,21 +112,18 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     }
     measure()
     const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        setDimensions({
-          width: entry.contentRect.width,
-          height: entry.contentRect.height
-        })
-      }
+      entries.forEach(() => {
+        measure() // Re-measure on resize
+      })
     })
     observer.observe(containerRef.current)
     return () => observer.disconnect()
-  }, [])
+  }, []) // Empty deps for single mount observer setup
 
   // Virtualizer
   const hasMeasuredCard = cardSize.width > 0
   const { columns, shelfHeight, totalShelves, shelvesPerPage, visibleShelfStart, visibleShelfEnd, handleScroll } = useBookshelfVirtualizer({
-    totalEntities,
+    totalEntities, // This now uses the aliased 'totalEntities'
     itemWidth: hasMeasuredCard ? totalEntityCardWidth : 0,
     itemHeight: hasMeasuredCard ? shelfRowHeight : 0,
     containerWidth: dimensions.width,
@@ -140,27 +131,35 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     padding: shelfPadding / 2
   })
 
+  const visibleShelfCount = visibleShelfEnd - visibleShelfStart
+
+  // Scroll to focused item
+  useEffect(() => {
+    if (isNaN(focusIndex) || !hasMeasuredCard || columns === 0 || shelfHeight === 0 || !containerRef.current) {
+      return
+    }
+
+    // Calculate row
+    const row = Math.floor(focusIndex / columns)
+    const scrollTop = row * shelfHeight
+
+    // Scroll
+    containerRef.current.scrollTop = scrollTop
+
+    // Try to focus the element after a brief delay to allow virtualization to render
+    setTimeout(() => {
+      const el = document.getElementById(`entity-card-${focusIndex}`)
+      if (el) {
+        el.focus({ preventScroll: true })
+      }
+    }, 100)
+  }, [focusIndex, hasMeasuredCard, columns, shelfHeight])
+
+  // Center the bookshelf
   const bookshelfMarginLeft = Math.max(0, (dimensions.width - columns * totalEntityCardWidth) / 2)
   const itemsPerPage = columns * shelvesPerPage
 
-  // Data hook
-  const {
-    items,
-    loadPage,
-    updateItem,
-    removeItem,
-    totalEntities: fetchedTotal,
-    isLoading,
-    isInitialized,
-    error
-  } = useBookshelfData({
-    libraryId: library.id,
-    entityType,
-    query,
-    itemsPerPage
-  })
-
-  // Author actions hook
+  // Author actions hook - wrap the context functions to match the expected signature
   const {
     quickMatchingAuthorIds,
     handleQuickMatch,
@@ -169,20 +168,13 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     handleSubmitImage: handleAuthorSubmitImage,
     handleRemoveImage: handleAuthorRemoveImage
   } = useAuthorActions({
-    updateItem,
-    removeItem,
+    updateItem: (id: string, item: BookshelfEntity) => updateItemInContext(item),
+    removeItem: (id: string) => removeItemFromContext(id),
     libraryProvider: library.provider || 'audible',
     selectedAuthor,
     setSelectedAuthor,
     setIsModalOpen: setIsAuthorEditModalOpen
   })
-
-  // Sync total count from data hook
-  useEffect(() => {
-    if (isInitialized) {
-      setTotalEntities(fetchedTotal)
-    }
-  }, [fetchedTotal, isInitialized])
 
   // Sync total count to context/toolbar
   useEffect(() => {
@@ -195,15 +187,16 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
     const itemsPerShelf = columns
     const startItem = visibleShelfStart * itemsPerShelf
-    const endItem = Math.min(totalEntities, visibleShelfEnd * itemsPerShelf)
+    const endItem = Math.min(totalEntities, visibleShelfEnd * itemsPerShelf + itemsPerPage) // Add buffer
 
-    const startPage = Math.floor(startItem / itemsPerPage)
-    const endPage = Math.floor(endItem / itemsPerPage)
+    const CHUNK_SIZE = 50
+    const startPage = Math.floor(startItem / CHUNK_SIZE)
+    const endPage = Math.floor(endItem / CHUNK_SIZE)
 
     for (let p = startPage; p <= endPage; p++) {
-      loadPage(p)
+      load(p, CHUNK_SIZE)
     }
-  }, [hasMeasuredCard, visibleShelfStart, visibleShelfEnd, columns, totalEntities, itemsPerPage, loadPage])
+  }, [hasMeasuredCard, visibleShelfStart, visibleShelfEnd, columns, totalEntities, itemsPerPage, load])
 
   const userMediaProgress = currentUser.user.mediaProgress
 
@@ -216,229 +209,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   }, [userMediaProgress])
 
   // Inject Toolbar Controls and Menu Items
-  const { setToolbarExtras, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
-
-  useEffect(() => {
-    // Set up toolbar extras based on entity type
-    switch (entityType) {
-      case 'items':
-        setToolbarExtras(
-          <>
-            <LibraryFilterSelect user={currentUser.user} entityType="items" />
-            <LibrarySortSelect entityType="items" libraryMediaType={library.mediaType} />
-          </>
-        )
-        break
-      case 'series':
-        setToolbarExtras(
-          <>
-            <LibraryFilterSelect user={currentUser.user} entityType="series" />
-            <LibrarySortSelect entityType="series" />
-          </>
-        )
-        break
-      case 'authors':
-        setToolbarExtras(
-          <>
-            <LibraryFilterSelect user={currentUser.user} entityType="authors" />
-            <LibrarySortSelect entityType="authors" libraryMediaType={library.mediaType} />
-          </>
-        )
-        break
-      default:
-        // collections and playlists have no sort/filter
-        setToolbarExtras(null)
-    }
-
-    // Build context menu items based on entity type
-    const menuItems: { text: string; action: string }[] = []
-
-    if (entityType === 'items') {
-      menuItems.push({
-        text: showSubtitles ? t('LabelHideSubtitles') : t('LabelShowSubtitles'),
-        action: showSubtitles ? 'hide-subtitles' : 'show-subtitles'
-      })
-      if (isBookLibrary) {
-        menuItems.push({
-          text: collapseSeries ? t('LabelExpandSeries') : t('LabelCollapseSeries'),
-          action: collapseSeries ? 'expand-series' : 'collapse-series'
-        })
-      }
-    } else if (entityType === 'authors' && currentUser.user.permissions?.update) {
-      menuItems.push({
-        text: t('ButtonMatchAllAuthors'),
-        action: 'match-all-authors'
-      })
-    }
-
-    setContextMenuItems(menuItems)
-
-    // Set up action handler
-    setContextMenuActionHandler((action: string) => {
-      if (action === 'show-subtitles') {
-        updateSetting('showSubtitles', true)
-      } else if (action === 'hide-subtitles') {
-        updateSetting('showSubtitles', false)
-      } else if (action === 'expand-series') {
-        updateSetting('collapseSeries', false)
-      } else if (action === 'collapse-series') {
-        updateSetting('collapseSeries', true)
-      } else if (action === 'match-all-authors') {
-        // TODO: Implement match all authors
-        console.log('Match all authors - to be implemented')
-      }
-    })
-
-    return () => {
-      setToolbarExtras(null)
-      setContextMenuItems([])
-    }
-  }, [
-    entityType,
-    setToolbarExtras,
-    setContextMenuItems,
-    setContextMenuActionHandler,
-    updateSetting,
-    library.mediaType,
-    isBookLibrary,
-    showSubtitles,
-    collapseSeries,
-    currentUser.user,
-    t
-  ])
-
-  // Render the appropriate skeleton for the current entity type
-  const renderSkeleton = () => {
-    switch (entityType) {
-      case 'series':
-        return <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} orderBy={seriesSortBy} />
-      case 'collections':
-        return <CollectionCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} />
-      case 'playlists':
-        return <PlaylistCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} />
-      case 'authors':
-        return <AuthorCardSkeleton />
-      default:
-        return (
-          <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} showSubtitles={showSubtitles} orderBy={orderBy} />
-        )
-    }
-  }
-
-  // Render a card based on entity type
-  const renderCard = (entity: BookshelfEntity, cardWidth: number) => {
-    switch (entityType) {
-      case 'series': {
-        const series = entity as Series
-        return (
-          <div key={`card-wrapper-${series.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-            <SeriesCard
-              series={series}
-              libraryId={library.id}
-              bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={coverAspectRatio}
-              dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-              orderBy={seriesSortBy}
-              bookProgressMap={bookProgressMap}
-            />
-          </div>
-        )
-      }
-      case 'collections': {
-        const collection = entity as Collection
-        return (
-          <div key={`card-wrapper-${collection.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-            <CollectionCard
-              collection={collection}
-              bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={coverAspectRatio}
-              userCanUpdate={currentUser.user.permissions?.update}
-              userCanDelete={currentUser.user.permissions?.delete}
-              userIsAdmin={currentUser.user.type === 'admin' || currentUser.user.type === 'root'}
-            />
-          </div>
-        )
-      }
-      case 'playlists': {
-        const playlist = entity as Playlist
-        return (
-          <div key={`card-wrapper-${playlist.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-            <PlaylistCard
-              playlist={playlist}
-              bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={coverAspectRatio}
-              userCanUpdate={currentUser.user.permissions?.update}
-              userCanDelete={currentUser.user.permissions?.delete}
-            />
-          </div>
-        )
-      }
-      case 'authors': {
-        const author = entity as Author
-        return (
-          <div key={`card-wrapper-${author.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-            <AuthorCard
-              author={author}
-              userCanUpdate={currentUser.user.permissions?.update}
-              onEdit={(author) => {
-                setSelectedAuthor(author)
-                setIsAuthorEditModalOpen(true)
-              }}
-              onQuickMatch={(author) => handleQuickMatch(author)}
-              isSearching={quickMatchingAuthorIds.has(author.id)}
-            />
-          </div>
-        )
-      }
-      default: {
-        // Library items (books/podcasts)
-        const item = entity as LibraryItem
-        const isCollapsedSeries = !!(item as LibraryItem & { collapsedSeries?: unknown }).collapsedSeries
-        const entityProgress = isPodcastLibrary ? null : userMediaProgress.find((progress) => progress.libraryItemId === item.id)
-        const EntityMediaCard = isPodcastLibrary ? PodcastMediaCard : BookMediaCard
-
-        if (isCollapsedSeries) {
-          return (
-            <div key={`card-wrapper-${item.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-              <CollapsedSeriesCard
-                libraryItem={item}
-                bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={coverAspectRatio}
-                mediaProgress={entityProgress}
-                isSelectionMode={false}
-                selected={false}
-                onSelect={() => {}}
-                dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-                timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-                showSubtitles={showSubtitles}
-                orderBy={orderBy}
-              />
-            </div>
-          )
-        }
-
-        return (
-          <div key={`card-wrapper-${item.id}`} style={{ width: `${cardWidth}px`, flexShrink: 0 }}>
-            <EntityMediaCard
-              libraryItem={item}
-              bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={coverAspectRatio}
-              mediaProgress={entityProgress}
-              isSelectionMode={false}
-              selected={false}
-              onSelect={() => {}}
-              dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-              timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-              userPermissions={currentUser.user.permissions}
-              ereaderDevices={currentUser.ereaderDevices}
-              showSubtitles={showSubtitles}
-              orderBy={orderBy}
-            />
-          </div>
-        )
-      }
-    }
-  }
+  useBookshelfControls(entityType, currentUser)
 
   // Get empty state message based on entity type
   const getEmptyMessage = () => {
@@ -481,32 +252,27 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     >
       {/* Measurement Dummy - Hidden but rendered for sizing */}
       <div ref={dummyCardRef} style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
-        {renderSkeleton()}
+        <EntitySkeleton
+          entityType={entityType}
+          coverAspectRatio={coverAspectRatio}
+          seriesSortBy={seriesSortBy}
+          orderBy={orderBy}
+          showSubtitles={showSubtitles}
+        />
       </div>
 
-      {/* Error State */}
-      {error && (
-        <div className="flex h-full flex-col items-center justify-center p-10 text-center">
-          <p className="text-red-500 mb-2">{t('MessageFailedToLoadData')}</p>
-          <p className="text-sm text-gray-500 mb-4">{error.message}</p>
-          <button onClick={() => loadPage(0)} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
-            {t('ButtonRetry')}
-          </button>
-        </div>
-      )}
-
       {/* Virtualized content */}
-      {hasMeasuredCard && !error && (
+      {hasMeasuredCard && (
         <div className="relative w-full" style={{ height: `${totalShelves * shelfHeight}px` }}>
           {/* Render Visible Shelves */}
-          {Array.from({ length: visibleShelfEnd - visibleShelfStart }).map((_, i) => {
+          {Array.from({ length: visibleShelfCount }).map((_, i) => {
             const shelfIndex = visibleShelfStart + i
             const startIndex = shelfIndex * columns
             const shelfItems: (BookshelfEntity | null)[] = []
             for (let k = 0; k < columns; k++) {
               const itemIndex = startIndex + k
               if (itemIndex < totalEntities) {
-                shelfItems.push(items[itemIndex] ?? null)
+                shelfItems.push(contextItems[itemIndex] ?? null)
               }
             }
 
@@ -527,12 +293,36 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                   if (!item) {
                     return (
                       <div key={`skeleton-wrapper-${startIndex + k}`} style={{ width: `${currentCardWidth}px`, flexShrink: 0 }}>
-                        {renderSkeleton()}
+                        <EntitySkeleton
+                          entityType={entityType}
+                          coverAspectRatio={coverAspectRatio}
+                          seriesSortBy={seriesSortBy}
+                          orderBy={orderBy}
+                          showSubtitles={showSubtitles}
+                        />
                       </div>
                     )
                   }
 
-                  return renderCard(item, currentCardWidth)
+                  return (
+                    <EntityCard
+                      key={`card-wrapper-${item.id}`}
+                      entity={item}
+                      entityType={entityType}
+                      libraryId={library.id}
+                      isPodcastLibrary={isPodcastLibrary}
+                      cardWidth={currentCardWidth}
+                      id={`entity-card-${startIndex + k}`}
+                      coverAspectRatio={coverAspectRatio}
+                      currentUser={currentUser}
+                      seriesSortBy={seriesSortBy}
+                      orderBy={orderBy}
+                      bookProgressMap={bookProgressMap}
+                      showSubtitles={showSubtitles}
+                      query={query}
+                      index={startIndex + k}
+                    />
+                  )
                 })}
               </div>
             )

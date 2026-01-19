@@ -15,7 +15,8 @@ interface BaseMatchViewProps<TUsage extends { [key: string]: boolean }, TMatch> 
   localStorageKey: string
   buildMatchUpdatePayload: (selectedMatchUsage: TUsage, selectedMatch: TMatch) => UpdateLibraryItemMediaPayload | null
   selectedMatch: TMatch
-  onDone: () => void
+  onBack: () => void
+  onSuccess?: () => void
   children: (props: {
     selectedMatchUsage: TUsage
     setSelectedMatchUsage: React.Dispatch<React.SetStateAction<TUsage>>
@@ -30,7 +31,8 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
   localStorageKey,
   buildMatchUpdatePayload,
   selectedMatch,
-  onDone,
+  onBack,
+  onSuccess,
   children
 }: BaseMatchViewProps<TUsage, TMatch>) {
   const t = useTypeSafeTranslations()
@@ -96,14 +98,18 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
           } else {
             showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
           }
-          onDone()
+          if (onSuccess) {
+            onSuccess()
+          } else {
+            onBack()
+          }
         } catch (error) {
           console.error('Failed to update', error)
           showToast(error instanceof Error ? error.message : t('ToastFailedToUpdate'), { type: 'error' })
         }
       })
     },
-    [buildMatchUpdatePayload, libraryItemId, selectedMatchUsage, selectedMatch, localStorageKey, t, showToast, onDone]
+    [buildMatchUpdatePayload, libraryItemId, selectedMatchUsage, selectedMatch, localStorageKey, t, showToast, onBack, onSuccess]
   )
 
   const checkScroll = useCallback(() => {
@@ -136,9 +142,9 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
   }, [checkScroll])
 
   return (
-    <div className="absolute top-0 left-0 w-full bg-bg h-full py-6 md:py-8 max-h-full flex flex-col overflow-hidden">
+    <div className="w-full py-6 md:py-8 flex flex-col overflow-hidden">
       <div className="flex items-center mb-4 flex-shrink-0">
-        <IconBtn borderless size="large" iconClass="text-3xl" onClick={onDone} ariaLabel={t('ButtonBack')}>
+        <IconBtn borderless size="large" iconClass="text-3xl" onClick={onBack} ariaLabel={t('ButtonBack')}>
           arrow_back
         </IconBtn>
         <p className="text-xl pl-3">{t('HeaderUpdateDetails')}</p>

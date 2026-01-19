@@ -2,7 +2,7 @@
 
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Descendant, Editor, Transforms } from 'slate'
-import { RenderElementProps, RenderLeafProps, RenderPlaceholderProps, Editable as SlateEditable } from 'slate-react'
+import { ReactEditor, RenderElementProps, RenderLeafProps, RenderPlaceholderProps, Editable as SlateEditable } from 'slate-react'
 
 import { useLinkModalContext } from '@/contexts/LinkModalContext'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -49,17 +49,33 @@ interface EditableProps {
   disabled: boolean
   readOnly: boolean
   placeholder?: string
+  autoFocus?: boolean
 }
 
-export const Editable = memo(({ editor, disabled, readOnly, placeholder }: EditableProps) => {
+export const Editable = memo(({ editor, disabled, readOnly, placeholder, autoFocus }: EditableProps) => {
   const { openModal } = useLinkModalContext()
   const editableRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
+  const hasFocused = useRef(false)
 
   // Only render SlateEditable on the client to avoid hydration mismatches
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  // Handle autoFocus when mounted
+  useEffect(() => {
+    if (isMounted && autoFocus && !disabled && !readOnly && !hasFocused.current) {
+      try {
+        hasFocused.current = true
+        ReactEditor.focus(editor)
+        // Move cursor to end
+        Transforms.select(editor, Editor.end(editor, []))
+      } catch (error) {
+        console.warn('Editable: Failed to auto-focus editor:', error)
+      }
+    }
+  }, [isMounted, autoFocus, disabled, readOnly, editor])
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent) => {

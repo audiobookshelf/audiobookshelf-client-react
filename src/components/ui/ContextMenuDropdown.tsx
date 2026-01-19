@@ -34,6 +34,7 @@ interface ContextMenuDropdownProps<T = string> {
   borderless?: boolean
   className?: string
   usePortal?: boolean
+  triggerIcon?: string
 }
 
 /**
@@ -54,7 +55,8 @@ export default function ContextMenuDropdown<T = string>({
   size = 'medium',
   borderless = false,
   className,
-  usePortal = false
+  usePortal = false,
+  triggerIcon = 'more_vert'
 }: ContextMenuDropdownProps<T>) {
   const t = useTypeSafeTranslations()
   const [showMenu, setShowMenu] = useState(false)
@@ -332,7 +334,7 @@ export default function ContextMenuDropdown<T = string>({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          more_vert
+          {triggerIcon}
         </IconBtn>
       ) : (
         <div className="h-full w-full flex items-center justify-center">

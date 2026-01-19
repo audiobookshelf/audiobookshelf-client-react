@@ -69,8 +69,9 @@ export const useLinkModal = (editor: Editor) => {
   const isValidUrl = useMemo(() => validateUrl(url), [url, validateUrl])
 
   // Focus management - refocus editor when modal closes
+  const prevIsOpen = useRef(isOpen)
   useEffect(() => {
-    if (!isOpen) {
+    if (prevIsOpen.current && !isOpen) {
       // Focus on the next frame so it's after the DOM updates/unmount
       requestAnimationFrame(() => {
         try {
@@ -112,6 +113,7 @@ export const useLinkModal = (editor: Editor) => {
         }
       })
     }
+    prevIsOpen.current = isOpen
   }, [isOpen, editor])
 
   const openModal = useCallback(() => {

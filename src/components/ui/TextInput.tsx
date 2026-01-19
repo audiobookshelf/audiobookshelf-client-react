@@ -22,6 +22,7 @@ export interface TextInputProps {
   step?: string | number
   min?: string | number
   customInputClass?: string
+  size?: 'small' | 'medium' | 'large' | 'auto'
   enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
   onChange?: (value: string) => void
   onClear?: () => void
@@ -32,6 +33,7 @@ export interface TextInputProps {
   ref?: React.Ref<HTMLInputElement>
   error?: string
   autocomplete?: 'off' | 'username' | 'current-password' | 'new-password' | 'email' | 'tel' | string
+  autoFocus?: boolean
 }
 
 export default function TextInput({
@@ -48,6 +50,7 @@ export default function TextInput({
   step,
   min,
   customInputClass,
+  size = 'medium',
   enterKeyHint,
   onChange,
   onClear,
@@ -57,7 +60,8 @@ export default function TextInput({
   className,
   ref,
   error,
-  autocomplete = 'off'
+  autocomplete = 'off',
+  autoFocus
 }: TextInputProps) {
   const t = useTypeSafeTranslations()
   const generatedId = useId()
@@ -79,6 +83,7 @@ export default function TextInput({
     'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only',
     '[&::-webkit-calendar-picker-indicator]:invert',
     showCopy ? 'ps-1 pe-8' : 'px-1',
+    size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : size === 'medium' ? 'text-base' : '',
     customInputClass
   )
 
@@ -140,7 +145,7 @@ export default function TextInput({
         </Label>
       )}
 
-      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef} className="group">
+      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef} size={size} className="group">
         <input
           ref={writeInputRef}
           id={inputId}
@@ -161,6 +166,7 @@ export default function TextInput({
           onKeyDown={onKeyDown}
           onFocus={handleFocus}
           onBlur={handleBlur}
+          autoFocus={autoFocus}
           // Accessibility attributes
           aria-invalid={ariaInvalid}
           aria-label={ariaLabel}

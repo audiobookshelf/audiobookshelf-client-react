@@ -43,12 +43,10 @@ export function BookDetailsEditExamples({ selectedBook }: BookDetailsEditExample
   }, [selectedBook])
 
   const handleChange = useCallback((details: { libraryItemId: string; hasChanges: boolean }) => {
-    console.log('onChange', details)
     setHasChanges(details.hasChanges)
   }, [])
 
   const handleSubmit = useCallback((details: { updatePayload: BookUpdatePayload; hasChanges: boolean }) => {
-    console.log('onSubmit', details)
     if (details.hasChanges) {
       setLibraryItem((prev) => {
         if (!prev) return prev

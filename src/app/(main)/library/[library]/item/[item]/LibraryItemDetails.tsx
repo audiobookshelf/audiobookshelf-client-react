@@ -6,6 +6,7 @@ import { elapsedPretty } from '@/lib/timeUtils'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { useLocale } from 'next-intl'
+import Link from 'next/link'
 import { Fragment } from 'react'
 
 interface LibraryItemDetailsProps {
@@ -30,17 +31,17 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
     if (Array.isArray(value)) {
       displayValue = (value as string[]).map((v, index) => (
         <Fragment key={v}>
-          <a href={`/library/${libraryId}/bookshelf?filter=${filterKey}.${encode(v)}`} className="text-foreground hover:underline">
+          <Link href={`/library/${libraryId}/items?filter=${filterKey}.${encode(v)}`} className="text-foreground hover:underline">
             {v}
-          </a>
+          </Link>
           {index < (value as string[]).length - 1 && <span className="text-foreground">, </span>}
         </Fragment>
       ))
     } else {
       displayValue = (
-        <a href={`/library/${libraryId}/bookshelf?filter=${filterKey}.${encode(value)}`} className="text-foreground hover:underline">
+        <Link href={`/library/${libraryId}/items?filter=${filterKey}.${encode(value)}`} className="text-foreground hover:underline">
           {value}
-        </a>
+        </Link>
       )
     }
   } else {
@@ -48,9 +49,11 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
   }
 
   return (
-    <div className="flex">
+    <div className="flex items-center">
       <div className="w-32 text-sm font-medium text-foreground-subdued uppercase">{label}</div>
-      <div className="flex-1 text-base">{displayValue}</div>
+      <div className="flex-1 text-base" suppressHydrationWarning>
+        {displayValue}
+      </div>
     </div>
   )
 }

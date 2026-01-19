@@ -1,4 +1,5 @@
 import { LibraryProvider } from '@/contexts/LibraryContext'
+import { LibraryDataProvider } from '@/contexts/LibraryDataContext'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../../assets/globals.css'
@@ -38,8 +39,10 @@ export default async function LibraryLayout({
 
   return (
     <LibraryProvider bookshelfView={homeBookshelfView} library={currentLibrary}>
-      <AppBar user={currentUser.user} libraries={libraries} currentLibraryId={currentLibraryId} />
-      <LibraryLayoutWrapper currentUser={currentUser}>{children}</LibraryLayoutWrapper>
+      <LibraryDataProvider>
+        <AppBar user={currentUser.user} libraries={libraries} currentLibraryId={currentLibraryId} />
+        <LibraryLayoutWrapper currentUser={currentUser}>{children}</LibraryLayoutWrapper>
+      </LibraryDataProvider>
     </LibraryProvider>
   )
 }

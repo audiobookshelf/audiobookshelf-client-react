@@ -46,7 +46,7 @@ export const LinkModal = memo(
   }: LinkModalProps) => {
     return (
       <Modal isOpen={isOpen} onClose={closeModal} className="w-[400px]">
-        <div className="p-6">
+        <div className="p-6" data-slate-editor-modal="true">
           <h3 className="text-lg font-semibold mb-4">Insert Link</h3>
 
           <div className="space-y-4">

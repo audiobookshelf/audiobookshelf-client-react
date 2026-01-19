@@ -25,6 +25,8 @@ export interface MultiSelectProps<T = string> {
   allowNew?: boolean
   menuDisabled?: boolean
   editingPillIndex?: number | null
+  size?: 'small' | 'medium' | 'large' | 'auto'
+  autoFocus?: boolean
 
   // Pill content introspection callbacks
   getEditableText?: (content: T) => string
@@ -62,6 +64,8 @@ export function MultiSelect<T = string>({
   allowNew = true,
   menuDisabled = false,
   editingPillIndex: controlledEditingPillIndex,
+  size = 'auto',
+  autoFocus = false,
   getEditableText,
   getReadOnlyPrefix,
   getFullText,
@@ -75,8 +79,9 @@ export function MultiSelect<T = string>({
   onItemRemoved,
   onInputChange,
   onEditingPillIndexChange,
-  onEditDone
-}: MultiSelectProps<T>) {
+  onEditDone,
+  className
+}: MultiSelectProps<T> & { className?: string }) {
   const t = useTypeSafeTranslations()
 
   const onMutate = (prev: T | null, text: string): T => {
@@ -132,6 +137,12 @@ export function MultiSelect<T = string>({
       setTextInput(value)
     }
   }, [value, isControlled])
+
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [autoFocus])
 
   useEffect(() => {
     if (inputRef.current && inputWrapperRef.current) {
@@ -359,11 +370,15 @@ export function MultiSelect<T = string>({
   }
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
+    // If we have an active item to select or text to submit, prevent default (don't submit parent form / save parent field)
+    // If not, let it bubble (e.g. to save parent EditableField)
     const itemCount = dropdownItems.length
     if (focusIndex !== null && focusIndex >= 0 && focusIndex < itemCount) {
+      e.preventDefault()
       handleDropdownItemClick(dropdownItems[focusIndex])
     } else if (focusIndex !== null && focusIndex < 0) {
+      // Activating edit on a pill
+      e.preventDefault()
       const pillIdx = selectedItemValues.length + focusIndex
       if (pillIdx >= 0 && selectedItemValues[pillIdx]) {
         if (showEdit) {
@@ -371,13 +386,19 @@ export function MultiSelect<T = string>({
         }
       }
     } else if (textInput) {
+      // Submitting text input
+      e.preventDefault()
       submitForm()
     }
+    // If none of the above, we do NOT prevent default, allowing EditableField to catch it and Save.
   }
 
   const handleEscape = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    closeMenu()
+    if (isMenuOpen) {
+      e.preventDefault()
+      closeMenu()
+    }
+    // If menu is closed, let it bubble (e.g. to cancel parent EditableField)
   }
 
   const handleHome = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -393,7 +414,7 @@ export function MultiSelect<T = string>({
 
   const handleTab = () => {
     closeMenu()
-    inputRef.current?.blur()
+    // Don't blur manually, let the browser handle focus text input
   }
 
   const handleArrowLeft = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -567,14 +588,14 @@ export function MultiSelect<T = string>({
   const inputId = `${multiSelectId}-input`
 
   return (
-    <div className="w-full">
+    <div className={mergeClasses('w-full', className)}>
       {label && (
         <Label htmlFor={inputId} disabled={disabled}>
           {label}
         </Label>
       )}
       <div ref={wrapperRef} className="relative">
-        <InputWrapper disabled={disabled} inputRef={inputRef} size="medium">
+        <InputWrapper disabled={disabled} inputRef={inputRef} size={size}>
           <div
             ref={inputWrapperRef}
             role="list"

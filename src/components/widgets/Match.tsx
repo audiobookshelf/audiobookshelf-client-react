@@ -22,7 +22,9 @@ interface MatchProps {
   availableGenres?: MultiSelectItem<string>[]
   availableTags?: MultiSelectItem<string>[]
   availableSeries?: MultiSelectItem<string>[]
+  isEnabled?: boolean
   bookCoverAspectRatio: number
+  onClose?: () => void
 }
 
 type MatchResult = BookSearchResult | PodcastSearchResult
@@ -33,7 +35,9 @@ export default function Match({
   availableGenres = [],
   availableTags = [],
   availableSeries = [],
-  bookCoverAspectRatio
+  isEnabled = true,
+  bookCoverAspectRatio,
+  onClose
 }: MatchProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
@@ -155,7 +159,7 @@ export default function Match({
 
   // Auto-search if providers are loaded and we have a title (only on initial load)
   useEffect(() => {
-    if (providersLoaded && searchTitle && !hasSearched && libraryItem.id) {
+    if (isEnabled && providersLoaded && searchTitle && !hasSearched && libraryItem.id) {
       // Use setTimeout to avoid calling during render
       const timer = setTimeout(() => {
         if (!searchTitle) {
@@ -203,7 +207,7 @@ export default function Match({
       }, 100)
       return () => clearTimeout(timer)
     }
-  }, [providersLoaded, libraryItem.id, searchTitle, searchAuthor, validProvider, isPodcast, hasSearched, t, showToast])
+  }, [isEnabled, providersLoaded, libraryItem.id, searchTitle, searchAuthor, validProvider, isPodcast, hasSearched, t, showToast])
 
   const handleSubmitSearch = useCallback(
     (e?: React.FormEvent) => {
@@ -264,6 +268,13 @@ export default function Match({
     setFocusedCardIndex(null)
   }, [])
 
+  const handleMatchSuccess = useCallback(() => {
+    handleClearSelectedMatch()
+    if (onClose) {
+      onClose()
+    }
+  }, [handleClearSelectedMatch, onClose])
+
   const handleCardArrowKey = useCallback(
     (direction: 'up' | 'down', index: number) => {
       if (direction === 'down') {
@@ -321,9 +332,9 @@ export default function Match({
   }, [searchResults])
 
   return (
-    <div className="w-full h-full overflow-hidden px-2 md:px-4 py-4 md:py-6 relative flex flex-col">
+    <div className="w-full relative flex flex-col">
       {!selectedMatchOrig ? (
-        <>
+        <div className="flex flex-col h-full overflow-hidden px-2 md:px-4 py-4 md:py-6">
           <form onSubmit={handleSubmitSearch} className="flex-shrink-0">
             <div className="flex flex-wrap md:flex-nowrap items-center justify-start -mx-1">
               {providersLoaded && providers.length > 0 && (
@@ -403,7 +414,7 @@ export default function Match({
               ))}
             </div>
           )}
-        </>
+        </div>
       ) : selectedMatchOrig ? (
         isPodcast ? (
           <PodcastMatchView
@@ -415,7 +426,8 @@ export default function Match({
             bookCoverAspectRatio={bookCoverAspectRatio}
             availableGenres={availableGenres}
             availableTags={availableTags}
-            onDone={handleClearSelectedMatch}
+            onBack={handleClearSelectedMatch}
+            onSuccess={handleMatchSuccess}
           />
         ) : (
           <BookMatchView
@@ -429,7 +441,8 @@ export default function Match({
             availableTags={availableTags}
             availableNarrators={availableNarrators}
             availableSeries={availableSeries}
-            onDone={handleClearSelectedMatch}
+            onBack={handleClearSelectedMatch}
+            onSuccess={handleMatchSuccess}
           />
         )
       ) : null}

@@ -322,7 +322,6 @@ export default function ContextMenu<T = string>({
         className
       )}
       style={{
-        ...(autoWidth && !usePortal ? { minWidth: `${menuWidth}px` } : {}),
         ...(!usePortal && !autoWidth ? { width: `${menuWidth}px` } : {}),
         ...(usePortal
           ? {

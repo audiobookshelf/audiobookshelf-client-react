@@ -56,6 +56,7 @@
 
 .default-style.less-spacing p {
   margin-block-start: 0;
+  margin-block-end: 0.5em;
 }
 
 .default-style.less-spacing ul {

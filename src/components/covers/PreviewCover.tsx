@@ -12,9 +12,20 @@ interface PreviewCoverProps {
   showResolution?: boolean
   forceErrorState?: boolean // For testing purposes
   onClick?: () => void
+  className?: string
+  fill?: boolean
 }
 
-export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, showResolution = true, forceErrorState = false, onClick }: PreviewCoverProps) {
+export default function PreviewCover({
+  src,
+  width = 120,
+  bookCoverAspectRatio,
+  showResolution = true,
+  forceErrorState = false,
+  onClick,
+  className,
+  fill = false
+}: PreviewCoverProps) {
   const t = useTypeSafeTranslations()
   const [imageFailed, setImageFailed] = useState(forceErrorState || false)
   const [showCoverBg, setShowCoverBg] = useState(false)
@@ -104,21 +115,29 @@ export default function PreviewCover({ src, width = 120, bookCoverAspectRatio, s
     [onClick]
   )
 
+  const containerStyle = useMemo(() => {
+    if (fill) return { width: '100%' }
+    return {
+      height: `${finalDimensions.height}px`,
+      width: `${finalDimensions.width}px`,
+      maxWidth: `${finalDimensions.width}px`,
+      minWidth: `${finalDimensions.width}px`
+    }
+  }, [fill, finalDimensions.height, finalDimensions.width])
+
   return (
     <div
-      className="relative rounded-xs"
-      style={{
-        height: `${finalDimensions.height}px`,
-        width: `${finalDimensions.width}px`,
-        maxWidth: `${finalDimensions.width}px`,
-        minWidth: `${finalDimensions.width}px`
-      }}
+      className={mergeClasses('relative rounded-xs', className)}
+      style={containerStyle}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onKeyDown={handleKeyDown}
     >
-      <div className="w-full relative overflow-hidden" style={{ height: `${finalDimensions.imageHeight}px` }}>
+      <div
+        className="w-full relative overflow-hidden"
+        style={fill ? { aspectRatio: `${1 / bookCoverAspectRatio}` } : { height: `${finalDimensions.imageHeight}px` }}
+      >
         {showCoverBg && (
           <div className="absolute top-0 start-0 w-full h-full overflow-hidden rounded-xs bg-primary">
             <div className="absolute cover-bg" ref={coverBgRef} />

@@ -7,12 +7,11 @@ import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import FileInput from '@/components/ui/FileInput'
 import TextInput from '@/components/ui/TextInput'
-import Tooltip from '@/components/ui/Tooltip'
 import { useBookCoverProviders, useMetadata, usePodcastCoverProviders } from '@/contexts/MetadataContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useCoverSearch } from '@/hooks/useCoverSearch'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getLibraryFileUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import { BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
 import React, { useEffect, useMemo, useState, useTransition } from 'react'
@@ -68,8 +67,6 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
 
   const media = libraryItem.media || {}
   const coverPath = media.coverPath
-
-  const coverUrl = !coverPath ? getPlaceholderCoverUrl() : getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, true)
 
   // Keep useMemo for localCovers since it filters and maps an array
   const localCovers = useMemo(() => {
@@ -234,40 +231,29 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
   }
 
   return (
-    <div className="w-full h-full overflow-hidden overflow-y-auto px-2 sm:px-4 py-6 relative">
+    <div className="w-full px-2 sm:px-4 py-6 relative">
       <div className="flex flex-col sm:flex-row mb-4">
-        <div className="relative self-center md:self-start">
-          <PreviewCover src={coverUrl} width={120} bookCoverAspectRatio={bookCoverAspectRatio} />
-
-          {/* book cover overlay */}
-          {media.coverPath && (
-            <div className="absolute top-0 left-0 w-full h-full z-10 opacity-0 hover:opacity-100 transition-opacity duration-100">
-              <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-black/60 to-transparent" />
-              {userCanDelete && (
-                <div
-                  className={mergeClasses(
-                    'p-1 absolute top-1 right-1 text-red-500 rounded-full w-8 h-8',
-                    isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:text-red-400'
-                  )}
-                  onClick={isPendingUpdate ? undefined : handleRemoveCover}
-                >
-                  <Tooltip text={t('LabelRemoveCover')} position="top">
-                    <span className="material-symbols text-2xl">delete</span>
-                  </Tooltip>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="grow sm:ps-2 md:ps-6 sm:pe-2 mt-6 md:mt-0">
-          <div className="flex items-center">
+        <div className="w-full mb-4">
+          <div className="flex items-center gap-2">
             {userCanUpload && (
-              <div className="w-10 md:w-40 pe-2 md:min-w-32">
+              <div className="w-10 md:w-40 md:min-w-32">
                 <FileInput onChange={fileUploadSelected}>
                   <span className="hidden md:inline-block">{t('ButtonUploadCover')}</span>
                   <span className="material-symbols text-2xl inline-block md:!hidden">upload</span>
                 </FileInput>
+              </div>
+            )}
+
+            {userCanDelete && coverPath && (
+              <div className="w-10 md:w-auto">
+                <Btn onClick={handleRemoveCover} color="bg-error" className="hidden md:block w-full px-4" disabled={isPendingUpdate}>
+                  {t('LabelRemoveCover')}
+                </Btn>
+                <div className="block md:hidden">
+                  <Btn onClick={handleRemoveCover} color="bg-error" disabled={isPendingUpdate} className="w-10 h-10 px-0 flex items-center justify-center">
+                    <span className="material-symbols text-xl">delete</span>
+                  </Btn>
+                </div>
               </div>
             )}
 
@@ -280,13 +266,11 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
           </div>
 
           {localCovers.length > 0 && (
-            <div className="mb-4 mt-6 border-t border-b border-white/10">
+            <div className="mt-6 border-t border-b border-white/10">
               <div className="flex items-center justify-center py-2">
                 <p>{localCoverImageCount}</p>
                 <div className="grow" />
-                <Btn size="small" onClick={() => setShowLocalCovers(!showLocalCovers)}>
-                  {showLocalCovers ? t('ButtonHide') : t('ButtonShow')}
-                </Btn>
+                <Btn onClick={() => setShowLocalCovers(!showLocalCovers)}>{showLocalCovers ? t('ButtonHide') : t('ButtonShow')}</Btn>
               </div>
 
               {showLocalCovers && (
@@ -319,8 +303,8 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
       </div>
 
       <form onSubmit={submitSearchForm}>
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-start -mx-1">
-          <div className="w-48 grow p-1">
+        <div className="flex flex-col md:flex-row gap-2">
+          <div className="md:w-1/4">
             <Dropdown
               value={provider}
               items={providers}
@@ -328,31 +312,35 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
               label={t('LabelProvider')}
               size="small"
               onChange={(val) => setProvider(String(val))}
+              className="w-full"
             />
           </div>
-          <div className="w-72 grow p-1">
+          <div className="flex-1">
             <TextInput
               value={searchTitle}
               onChange={setSearchTitle}
               disabled={searchInProgress}
               label={searchTitleLabel}
               placeholder={t('PlaceholderSearch')}
+              className="w-full"
             />
           </div>
           {provider !== 'itunes' && provider !== 'audiobookcovers' && (
-            <div className="w-72 grow p-1">
-              <TextInput value={searchAuthor} onChange={setSearchAuthor} disabled={searchInProgress} label={t('LabelAuthor')} />
+            <div className="flex-1">
+              <TextInput value={searchAuthor} onChange={setSearchAuthor} disabled={searchInProgress} label={t('LabelAuthor')} className="w-full" />
             </div>
           )}
-          {!searchInProgress ? (
-            <Btn className="mt-5 ms-1 md:min-w-24 px-4" type="submit">
-              {t('ButtonSearch')}
-            </Btn>
-          ) : (
-            <Btn className="mt-5 ms-1 md:min-w-24 px-4" type="button" color="bg-error" onClick={cancelSearch}>
-              {t('ButtonCancel')}
-            </Btn>
-          )}
+          <div className="mt-5 md:mt-auto">
+            {!searchInProgress ? (
+              <Btn className="w-full md:w-auto px-4" type="submit">
+                {t('ButtonSearch')}
+              </Btn>
+            ) : (
+              <Btn className="w-full md:w-auto px-4 bg-error hover:bg-error-dark" type="button" onClick={cancelSearch}>
+                {t('ButtonCancel')}
+              </Btn>
+            )}
+          </div>
         </div>
       </form>
 

@@ -65,7 +65,14 @@ export function useBookshelfVirtualizer({ totalEntities, itemWidth, itemHeight, 
 
   // Initial/Layout-change visibility update
   useEffect(() => {
-    if (layout.totalShelves === 0 || containerHeight === 0) return
+    if (layout.totalShelves === 0 || containerHeight === 0) {
+      // If the shelf has collapsed (e.g. during re-measurement), we must reset the scroll tracker
+      // because the browser will have reset the container scrollTop to 0.
+      if (layout.shelfHeight === 0) {
+        lastScrollTopRef.current = 0
+      }
+      return
+    }
 
     const newRange = calculateVisibleRange(lastScrollTopRef.current)
     if (newRange) {

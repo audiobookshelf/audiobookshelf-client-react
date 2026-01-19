@@ -47,6 +47,7 @@ export interface SeriesCardProps {
   onSelect?: (event: React.MouseEvent) => void
   /** Whether to show the selection button */
   showSelectedButton?: boolean
+  id?: string
 }
 
 function SeriesCard(props: SeriesCardProps) {
@@ -69,7 +70,8 @@ function SeriesCard(props: SeriesCardProps) {
 
   const router = useRouter()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
-  const cardId = useId()
+  const generatedId = useId()
+  const cardId = props.id || generatedId
   const t = useTypeSafeTranslations()
 
   const [isHovering, setIsHovering] = useState(false)
@@ -260,7 +262,7 @@ function SeriesCard(props: SeriesCardProps) {
               {displayTitle}
             </p>
             {displaySortLine && (
-              <p cy-id="detailBottomSortLine" className="truncate text-gray-400" style={{ fontSize: '0.8em' }}>
+              <p cy-id="detailBottomSortLine" className="truncate text-gray-400" style={{ fontSize: '0.8em' }} suppressHydrationWarning>
                 {displaySortLine}
               </p>
             )}

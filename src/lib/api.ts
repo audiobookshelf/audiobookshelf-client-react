@@ -273,8 +273,11 @@ export async function getLibraryFilterData(libraryId: string): Promise<LibraryFi
   return apiRequest<LibraryFilterData>(`/api/libraries/${libraryId}/filterdata`, {})
 }
 
-export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): Promise<LibraryItem> => {
-  return apiRequest<LibraryItem>(`/api/items/${itemId}?expanded=${expanded ? '1' : '0'}`, {})
+export const getLibraryItem = cache(async (itemId: string, expanded?: boolean, includes?: string[]): Promise<LibraryItem> => {
+  const params = new URLSearchParams()
+  if (expanded) params.set('expanded', '1')
+  if (includes?.length) params.set('include', includes.join(','))
+  return apiRequest<LibraryItem>(`/api/items/${itemId}?${params.toString()}`, {})
 })
 
 /**

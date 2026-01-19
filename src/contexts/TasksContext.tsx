@@ -20,6 +20,7 @@ interface TasksContextType extends TasksState {
   getAudioFilesFinished: (libraryItemId: string) => Record<string, boolean> | undefined
   getTaskProgress: (libraryItemId: string) => string | undefined
   getTasksByLibraryId: (libraryId: string) => Task[]
+  getTask: (libraryItemId: string, action: string) => Task | undefined
 }
 
 const TasksContext = createContext<TasksContextType | undefined>(undefined)
@@ -143,6 +144,13 @@ export function TasksProvider({ children }: TasksProviderProps) {
     [tasks]
   )
 
+  const getTask = useCallback(
+    (libraryItemId: string, action: string) => {
+      return tasks.find((t) => t.data?.libraryItemId === libraryItemId && t.action === action)
+    },
+    [tasks]
+  )
+
   // Socket event listeners
   useSocketEvent<Task>('task_started', addUpdateTask, [addUpdateTask])
   useSocketEvent<Task>('task_finished', addUpdateTask, [addUpdateTask])
@@ -205,7 +213,8 @@ export function TasksProvider({ children }: TasksProviderProps) {
       getAudioFilesEncoding,
       getAudioFilesFinished,
       getTaskProgress,
-      getTasksByLibraryId
+      getTasksByLibraryId,
+      getTask
     }),
     [
       tasks,
@@ -219,7 +228,8 @@ export function TasksProvider({ children }: TasksProviderProps) {
       getAudioFilesEncoding,
       getAudioFilesFinished,
       getTaskProgress,
-      getTasksByLibraryId
+      getTasksByLibraryId,
+      getTask
     ]
   )
 
