@@ -1,6 +1,11 @@
 'use client'
 
+import { useSocketEmit, useSocketEvent } from '@/contexts/SocketContext'
 import { LoggerDataLog } from '@/types/api'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+const MAX_LOGS = 5000
+const TRIM_AMOUNT = 1000 // Remove this many logs when we hit the max
 
 interface LogsContainerProps {
   currentDailyLogs: LoggerDataLog[]
@@ -22,10 +27,58 @@ function getLogLevelColor(levelName: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'TRAC
 }
 
 export default function LogsContainer({ currentDailyLogs }: LogsContainerProps) {
+  const [logs, setLogs] = useState<LoggerDataLog[]>(currentDailyLogs)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { emit } = useSocketEmit()
+
+  // Emit set_log_listener when socket connects
+  useEffect(() => {
+    emit('set_log_listener', 1)
+
+    return () => {
+      emit('remove_log_listener')
+    }
+  }, [emit])
+
+  // Scroll to bottom helper
+  const scrollToBottom = useCallback(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight
+    }
+  }, [])
+
+  // Scroll to bottom on initial load
+  useEffect(() => {
+    scrollToBottom()
+  }, [scrollToBottom])
+
+  // Handle incoming log events
+  const handleLogEvent = useCallback(
+    (log: LoggerDataLog) => {
+      setLogs((prevLogs) => {
+        let newLogs = [...prevLogs, log]
+
+        // Trim old logs if we exceed the max (prevents memory leak)
+        if (newLogs.length > MAX_LOGS) {
+          newLogs = newLogs.slice(TRIM_AMOUNT)
+        }
+
+        return newLogs
+      })
+
+      // Scroll to bottom after adding new log
+      // Use setTimeout to ensure DOM has updated
+      setTimeout(scrollToBottom, 0)
+    },
+    [scrollToBottom]
+  )
+
+  useSocketEvent<LoggerDataLog>('log', handleLogEvent, [handleLogEvent])
+
   return (
-    <div className="w-full h-full max-h-[calc(100vh-20rem)] overflow-y-auto overflow-x-hidden border border-border rounded-md">
+    <div ref={containerRef} className="w-full h-full max-h-[calc(100vh-20rem)] overflow-y-auto overflow-x-hidden border border-border rounded-md">
       <div className="flex flex-col">
-        {currentDailyLogs.map((log, index) => (
+        {logs.map((log, index) => (
           <LogsRow key={index} log={log} isEven={index % 2 === 0} />
         ))}
       </div>
