@@ -1269,7 +1269,7 @@ export interface StartSessionPayload {
 
 export interface LoggerDataLog {
   level: number
-  levelName: LogLevel
+  levelName: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'TRACE'
   message: string
   source: string // e.g. Server.js:143
   timestamp: string // e.g. 2026-01-20 15:37:42.926

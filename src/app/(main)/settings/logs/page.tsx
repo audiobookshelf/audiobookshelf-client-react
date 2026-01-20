@@ -1,11 +1,11 @@
-import SettingsContent from '../SettingsContent'
+import { getData, getLoggerData } from '@/lib/api'
+import LogsClient from './LogsClient'
 
 export const dynamic = 'force-dynamic'
 
-export default function LogsPage() {
-  return (
-    <SettingsContent title="Logs" moreInfoUrl="https://www.audiobookshelf.org/guides/server_logs">
-      <div></div>
-    </SettingsContent>
-  )
+export default async function LogsPage() {
+  const [loggerDataResponse] = await getData(getLoggerData())
+  const currentDailyLogs = loggerDataResponse?.currentDailyLogs || []
+
+  return <LogsClient currentDailyLogs={currentDailyLogs} />
 }
