@@ -17,6 +17,7 @@ import {
   GetCollectionsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
+  GetLoggerDataResponse,
   GetNarratorsResponse,
   GetPlaylistsResponse,
   GetRssFeedsResponse,
@@ -443,6 +444,10 @@ export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
 
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
   return apiRequest<GetBackupsResponse>('/api/backups', {})
+})
+
+export const getLoggerData = cache(async (): Promise<GetLoggerDataResponse> => {
+  return apiRequest<GetLoggerDataResponse>('/api/logger-data', {})
 })
 
 /**

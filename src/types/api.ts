@@ -1262,3 +1262,19 @@ export interface StartSessionPayload {
   forceTranscode: boolean
   forceDirectPlay: boolean
 }
+
+// ============================================================================
+// LOGGER DATA
+// ============================================================================
+
+export interface LoggerDataLog {
+  level: number
+  levelName: LogLevel
+  message: string
+  source: string // e.g. Server.js:143
+  timestamp: string // e.g. 2026-01-20 15:37:42.926
+}
+
+export interface GetLoggerDataResponse {
+  currentDailyLogs: LoggerDataLog[]
+}
