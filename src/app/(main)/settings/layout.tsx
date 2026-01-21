@@ -25,7 +25,7 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
 
   return (
     <SettingsDrawerProvider>
-      <AppBar user={currentUser.user} />
+      <AppBar currentUser={currentUser} />
       <SettingsLayoutWrapper currentUser={currentUser}>{children}</SettingsLayoutWrapper>
     </SettingsDrawerProvider>
   )

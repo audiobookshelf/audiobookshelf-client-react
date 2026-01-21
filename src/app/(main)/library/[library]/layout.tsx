@@ -38,7 +38,7 @@ export default async function LibraryLayout({
 
   return (
     <LibraryProvider bookshelfView={homeBookshelfView} library={currentLibrary}>
-      <AppBar user={currentUser.user} libraries={libraries} currentLibraryId={currentLibraryId} />
+      <AppBar currentUser={currentUser} libraries={libraries} currentLibraryId={currentLibraryId} />
       <LibraryLayoutWrapper currentUser={currentUser}>{children}</LibraryLayoutWrapper>
     </LibraryProvider>
   )

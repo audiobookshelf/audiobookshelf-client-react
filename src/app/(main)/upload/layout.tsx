@@ -24,7 +24,7 @@ export default async function UploadLayout({
 
   return (
     <>
-      <AppBar user={currentUser.user} />
+      <AppBar currentUser={currentUser} />
       <UploadLayoutWrapper>{children}</UploadLayoutWrapper>
     </>
   )

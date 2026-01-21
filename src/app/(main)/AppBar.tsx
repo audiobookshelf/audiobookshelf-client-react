@@ -4,7 +4,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { Library, User } from '@/types/api'
+import { Library, UserLoginResponse } from '@/types/api'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
@@ -15,11 +15,12 @@ import LibrariesDropdown from './LibrariesDropdown'
 interface AppBarProps {
   libraries?: Library[]
   currentLibraryId?: string
-  user: User
+  currentUser: UserLoginResponse
 }
 
-export default function AppBar({ libraries, currentLibraryId, user }: AppBarProps) {
+export default function AppBar({ libraries, currentLibraryId, currentUser }: AppBarProps) {
   const t = useTypeSafeTranslations()
+  const user = currentUser.user
   const userCanUpload = user.permissions.upload
   const [isSearchMode, setIsSearchMode] = useState(false)
   // When not on a library page, use the last current library id when navigating home
