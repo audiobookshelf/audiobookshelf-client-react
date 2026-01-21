@@ -835,7 +835,7 @@ export interface ApiKey {
   }
   createdByUserId: string
   description: string | null
-  expiresAt: string | null
+  expiresAt: string | null // e.g. 2026-01-23T00:56:47.402Z
   id: string
   isActive: boolean
   lastUsedAt: string | null

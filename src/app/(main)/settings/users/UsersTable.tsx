@@ -81,7 +81,7 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
     {
       label: '',
       accessor: (user) => (
-        <div className="flex items-center gap-1">
+        <div className="flex items-center justify-end gap-1">
           <IconBtn
             ariaLabel={t('ButtonUserEdit', { 0: user.username })}
             borderless
@@ -103,8 +103,7 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
             </IconBtn>
           )}
         </div>
-      ),
-      cellClassName: 'text-end'
+      )
     }
   ]
 

@@ -1,14 +1,16 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { ApiKey } from '@/types/api'
+import { ApiKey, UserLoginResponse } from '@/types/api'
 import SettingsContent from '../SettingsContent'
+import ApiKeysTable from './ApiKeysTable'
 
 interface ApiKeysClientProps {
   apiKeys: ApiKey[]
+  currentUser: UserLoginResponse
 }
 
-export default function ApiKeysClient({ apiKeys }: ApiKeysClientProps) {
+export default function ApiKeysClient({ apiKeys, currentUser }: ApiKeysClientProps) {
   const t = useTypeSafeTranslations()
   return (
     <SettingsContent
@@ -21,11 +23,7 @@ export default function ApiKeysClient({ apiKeys }: ApiKeysClientProps) {
         }
       }}
     >
-      <div className="flex flex-col gap-2 py-4">
-        {apiKeys.map((apiKey) => (
-          <div key={apiKey.id}>{apiKey.name}</div>
-        ))}
-      </div>
+      <ApiKeysTable apiKeys={apiKeys} currentUser={currentUser} />
     </SettingsContent>
   )
 }
