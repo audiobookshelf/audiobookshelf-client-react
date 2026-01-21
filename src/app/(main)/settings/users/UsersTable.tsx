@@ -8,6 +8,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { DeviceInfo, User, UserLoginResponse } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
+import { useRouter } from 'next/navigation'
 
 interface UsersTableProps {
   currentUser: UserLoginResponse
@@ -18,6 +19,7 @@ interface UsersTableProps {
 
 export default function UsersTable({ currentUser, users, dateFormat, timeFormat }: UsersTableProps) {
   const t = useTypeSafeTranslations()
+  const router = useRouter()
   const currentUserId = currentUser.user.id
 
   const getDeviceInfoString = (deviceInfo: DeviceInfo | null) => {
@@ -81,7 +83,7 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
     {
       label: '',
       accessor: (user) => (
-        <div className="flex items-center justify-end gap-1">
+        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
           <IconBtn
             ariaLabel={t('ButtonUserEdit', { 0: user.username })}
             borderless
@@ -113,6 +115,7 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
       columns={columns}
       getRowKey={(user) => user.id}
       rowClassName={(user) => (!user.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
+      onRowClick={(user) => router.push(`/settings/users/${user.id}`)}
     />
   )
 }

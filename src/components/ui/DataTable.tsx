@@ -54,6 +54,8 @@ export interface DataTableProps<T> {
   tableClassName?: string
   /** Optional className for rows */
   rowClassName?: string | ((row: T, index: number) => string)
+  /** Optional callback when a row is clicked */
+  onRowClick?: (row: T, index: number) => void
 }
 
 function DataTablePagination({
@@ -98,14 +100,24 @@ function DataTablePagination({
   )
 }
 
-export default function DataTable<T>({ data, columns, getRowKey, renderRow, pagination, caption, className, tableClassName, rowClassName }: DataTableProps<T>) {
+export default function DataTable<T>({
+  data,
+  columns,
+  getRowKey,
+  renderRow,
+  pagination,
+  caption,
+  className,
+  tableClassName,
+  rowClassName,
+  onRowClick
+}: DataTableProps<T>) {
   const id = useId()
 
   const getRowClassName = (row: T, index: number): string => {
-    if (typeof rowClassName === 'function') {
-      return rowClassName(row, index)
-    }
-    return rowClassName || ''
+    const baseClassName = typeof rowClassName === 'function' ? rowClassName(row, index) : rowClassName || ''
+    const clickableClassName = onRowClick ? 'cursor-pointer' : ''
+    return mergeClasses(baseClassName, clickableClassName)
   }
 
   const renderCellContent = (row: T, column: DataTableColumn<T>, index: number): ReactNode => {
@@ -126,6 +138,7 @@ export default function DataTable<T>({ data, columns, getRowKey, renderRow, pagi
     <tr
       key={getRowKey(row, index)}
       className={mergeClasses('border-b border-border even:bg-table-row-bg-even hover:bg-table-row-bg-hover', getRowClassName(row, index))}
+      onClick={onRowClick ? () => onRowClick(row, index) : undefined}
     >
       {columns.map((column, colIndex) => (
         <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('py-3 px-4', column.cellClassName)}>
