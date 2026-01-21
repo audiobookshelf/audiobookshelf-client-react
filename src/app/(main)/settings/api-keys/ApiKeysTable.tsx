@@ -79,5 +79,12 @@ export default function ApiKeysTable({ apiKeys, currentUser }: ApiKeysTableProps
     }
   ]
 
-  return <DataTable data={apiKeys} columns={columns} getRowKey={(apiKey) => apiKey.id} />
+  return (
+    <DataTable
+      data={apiKeys}
+      columns={columns}
+      getRowKey={(apiKey) => apiKey.id}
+      rowClassName={(apiKey) => (!apiKey.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
+    />
+  )
 }

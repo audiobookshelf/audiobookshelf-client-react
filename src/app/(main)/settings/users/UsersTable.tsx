@@ -107,5 +107,12 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
     }
   ]
 
-  return <DataTable data={users} columns={columns} getRowKey={(user) => user.id} />
+  return (
+    <DataTable
+      data={users}
+      columns={columns}
+      getRowKey={(user) => user.id}
+      rowClassName={(user) => (!user.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
+    />
+  )
 }
