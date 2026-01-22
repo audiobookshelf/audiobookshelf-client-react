@@ -19,8 +19,6 @@ interface ItemActionButtonsProps {
   mediaItemShare?: MediaItemShare | null
   onToggleFinished?: (isFinished: boolean) => void
   onContextMenuAction?: (action: string) => void
-  availableAddFields?: { key: string; label: string }[]
-  onAddField?: (key: string) => void
   onMatchClick?: () => void
   onQuickMatchClick?: () => void
 }
@@ -32,11 +30,9 @@ interface ItemActionButtonsProps {
  * - Play button (books with tracks, podcasts with episodes)
  * - Read button (books with ebook)
  * - Queue toggle (books only, when streaming)
- * - Edit button (users with update permission)
  * - Mark finished toggle (books only)
  * - Find episodes button (podcasts, admin only)
  * - Context menu dropdown (Collections, Playlists, Bookmarks, RSS, Download, Share, Delete)
- * - Add Field dropdown (when passed, for metadata editing)
  */
 export default function ItemActionButtons({
   libraryItem,
@@ -46,8 +42,6 @@ export default function ItemActionButtons({
   mediaItemShare,
   onToggleFinished,
   onContextMenuAction,
-  availableAddFields,
-  onAddField,
   onMatchClick,
   onQuickMatchClick
 }: ItemActionButtonsProps) {
@@ -222,13 +216,6 @@ export default function ItemActionButtons({
     [onContextMenuAction, onMatchClick]
   )
 
-  const handleAddAction = useCallback(
-    ({ action }: { action: string }) => {
-      onAddField?.(action)
-    },
-    [onAddField]
-  )
-
   return (
     <div className="flex items-center justify-start gap-1 flex-wrap pt-6">
       {/* Play button */}
@@ -270,19 +257,8 @@ export default function ItemActionButtons({
         </Tooltip>
       )}
 
-      {/* Add Field Dropdown */}
-      {availableAddFields && availableAddFields.length > 0 && onAddField && (
-        <Tooltip text={t('ButtonAddField')} position="top">
-          <ContextMenuDropdown
-            items={availableAddFields.map((f) => ({ text: f.label, action: f.key }))}
-            onAction={handleAddAction}
-            triggerIcon="add"
-            className="bg-primary border border-white/10"
-            menuAlign="right"
-            autoWidth
-          />
-        </Tooltip>
-      )}
+      {/* Add Field Dropdown - REMOVED, moved to details section */}
+      {/* isPageEditMode && availableAddFields && ... */}
 
       {/* Mark finished toggle (books only) */}
       {!isPodcast && (
