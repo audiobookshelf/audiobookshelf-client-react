@@ -24,9 +24,7 @@ export default function UsersClient({ currentUser, users, serverSettings }: User
         }
       }}
     >
-      <div className="flex flex-col gap-2 py-4">
-        <UsersTable currentUser={currentUser} users={users} dateFormat={serverSettings.dateFormat} timeFormat={serverSettings.timeFormat} />
-      </div>
+      <UsersTable currentUser={currentUser} users={users} dateFormat={serverSettings.dateFormat} timeFormat={serverSettings.timeFormat} />
     </SettingsContent>
   )
 }
