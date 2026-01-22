@@ -12,9 +12,11 @@ interface BookSeriesProps {
   onSave: (series: Series[]) => Promise<void>
   openInEditMode?: boolean
   onCancel?: () => void
+  /** Page-level edit mode control */
+  pageEditMode?: boolean
 }
 
-export function BookSeries({ series, libraryId, availableSeries, onSave, openInEditMode, onCancel }: BookSeriesProps) {
+export function BookSeries({ series, libraryId, availableSeries, onSave, openInEditMode, onCancel, pageEditMode }: BookSeriesProps) {
   // Note: Visibility checked in parent
 
   return (
@@ -23,18 +25,26 @@ export function BookSeries({ series, libraryId, availableSeries, onSave, openInE
       onSave={onSave}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
+      pageEditMode={pageEditMode}
       renderView={({ value }) => (
         <div className="w-full">
           {value.map((s, index) => (
             <Fragment key={s.id}>
-              <Link
-                href={`/library/${libraryId}/series/${s.id}`}
-                className="text-foreground-muted hover:underline text-lg"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {s.name}
-                {s.sequence && <span> #{s.sequence}</span>}
-              </Link>
+              {pageEditMode ? (
+                <span className="text-foreground-muted text-lg">
+                  {s.name}
+                  {s.sequence && <span> #{s.sequence}</span>}
+                </span>
+              ) : (
+                <Link
+                  href={`/library/${libraryId}/series/${s.id}`}
+                  className="text-foreground-muted hover:underline text-lg"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {s.name}
+                  {s.sequence && <span> #{s.sequence}</span>}
+                </Link>
+              )}
               {index < value.length - 1 && <span className="text-foreground-muted">, </span>}
             </Fragment>
           ))}

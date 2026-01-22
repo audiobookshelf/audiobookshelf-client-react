@@ -11,9 +11,10 @@ interface MetadataMultiSelectFieldProps {
   libraryId: string
   filterKey: string
   onSave: (items: string[]) => Promise<void>
-  onSaveCustom?: (items: string[]) => Promise<void>
   openInEditMode?: boolean
   onCancel?: () => void
+  /** Page-level edit mode control */
+  pageEditMode?: boolean
 }
 
 /**
@@ -23,37 +24,42 @@ interface MetadataMultiSelectFieldProps {
  */
 export function MetadataMultiSelectField({
   label,
-  items,
+  items = [],
   availableItems,
   libraryId,
   filterKey,
   onSave,
-  onSaveCustom,
   openInEditMode,
-  onCancel
+  onCancel,
+  pageEditMode
 }: MetadataMultiSelectFieldProps) {
   return (
     <MetadataField
       label={label}
-      value={items || []}
-      onSave={onSaveCustom || onSave}
+      value={items}
+      onSave={onSave}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
+      pageEditMode={pageEditMode}
       renderView={(val) =>
         val.length > 0 ? (
           <div>
-            {val.map((v, i) => (
-              <Fragment key={v}>
-                <Link
-                  href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(v)}`}
-                  className="text-foreground hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {v}
-                </Link>
-                {i < val.length - 1 && <span className="text-foreground">, </span>}
-              </Fragment>
-            ))}
+            {pageEditMode ? (
+              <span>{val.join(', ')}</span>
+            ) : (
+              val.map((v, i) => (
+                <Fragment key={v}>
+                  <Link
+                    href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(v)}`}
+                    className="text-foreground hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {v}
+                  </Link>
+                  {i < val.length - 1 && <span className="text-foreground">, </span>}
+                </Fragment>
+              ))
+            )}
           </div>
         ) : null
       }

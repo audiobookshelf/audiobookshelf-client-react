@@ -5,9 +5,11 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 interface PodcastAuthorProps {
   author: string | undefined
   onSave: (val: string) => Promise<void>
+  /** Page-level edit mode control */
+  pageEditMode?: boolean
 }
 
-export function PodcastAuthor({ author, onSave }: PodcastAuthorProps) {
+export function PodcastAuthor({ author, onSave, pageEditMode }: PodcastAuthorProps) {
   const t = useTypeSafeTranslations()
 
   return (
@@ -15,6 +17,7 @@ export function PodcastAuthor({ author, onSave }: PodcastAuthorProps) {
       value={author || ''}
       onSave={onSave}
       className="mt-0.5"
+      pageEditMode={pageEditMode}
       renderView={({ value }) =>
         value ? ( //
           <div className="w-full text-lg md:text-xl leading-9 text-foreground-muted">{t('LabelByAuthor', { 0: value })}</div>

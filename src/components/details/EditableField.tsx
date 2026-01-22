@@ -14,6 +14,13 @@ interface EditableFieldProps<T> {
   contentClassName?: string
   openInEditMode?: boolean
   onCancel?: () => void
+  /**
+   * Page-level edit mode control:
+   * - undefined: legacy behavior (click-to-edit always enabled)
+   * - false: view mode - fields are read-only, no click-to-edit, no hover edit button
+   * - true: edit mode - click-to-edit enabled, Tab navigation enabled
+   */
+  pageEditMode?: boolean
 }
 
 export function EditableField<T>({
@@ -25,7 +32,8 @@ export function EditableField<T>({
   className = '',
   contentClassName = '',
   openInEditMode = false,
-  onCancel
+  onCancel,
+  pageEditMode
 }: EditableFieldProps<T>) {
   const t = useTypeSafeTranslations()
   const [isEditing, setIsEditing] = useState(openInEditMode)
@@ -80,11 +88,16 @@ export function EditableField<T>({
     }
   }, [])
 
+  // Determine if editing is allowed based on pageEditMode
+  // When pageEditMode is explicitly false, editing is disabled
+  // When pageEditMode is true or undefined, use canEdit prop
+  const isEditingAllowed = pageEditMode === false ? false : canEdit
+
   const handleStartEdit = useCallback(() => {
-    if (!canEdit) return
+    if (!isEditingAllowed) return
     setTempValue(initialValue)
     setIsEditing(true)
-  }, [canEdit, initialValue])
+  }, [isEditingAllowed, initialValue])
 
   const handleCancel = useCallback(() => {
     setIsEditing(false)
@@ -158,9 +171,12 @@ export function EditableField<T>({
   const handleFocus = (e: React.FocusEvent) => {
     setIsFocused(true)
 
+    // In page view mode (pageEditMode === false), do not enter edit mode on focus
+    if (pageEditMode === false) return
+
     if (isMobile) return
 
-    if (!isEditing && canEdit) {
+    if (!isEditing && isEditingAllowed) {
       const target = e.target as HTMLElement
       // Prevent entering edit mode if focusing a button or link
       if (target.closest('button') || target.closest('a')) {
@@ -188,6 +204,9 @@ export function EditableField<T>({
     if (e.defaultPrevented) return
 
     if (!isEditing) {
+      // In page view mode (pageEditMode === false), do not enter edit mode on key press
+      if (pageEditMode === false) return
+
       // Prevent entering edit mode if focusing a button or link (e.g. "Read more")
       const target = e.target as HTMLElement
       if (target.closest('button') || target.closest('a')) {
@@ -230,7 +249,8 @@ export function EditableField<T>({
     }
   }
 
-  const showEditButton = canEdit && (isHovered || (isMobile && isFocused))
+  // Show edit button on hover only when editing is allowed (not in page view mode)
+  const showEditButton = isEditingAllowed && (isHovered || (isMobile && isFocused))
 
   const handleChange = useCallback((val: T) => {
     setTempValue(val)
@@ -239,13 +259,14 @@ export function EditableField<T>({
   return (
     <div
       ref={containerRef}
-      className={`relative group flex items-center -ms-2 ps-2 rounded-sm hover:bg-bg-hover/30 transition-colors ${className} outline-none`}
+      className={`relative group flex items-center -ms-2 ps-2 rounded-sm ${isEditingAllowed ? 'hover:bg-bg-hover/30' : ''} transition-colors ${className} outline-none`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
-      tabIndex={canEdit && !isEditing ? 0 : undefined}
+      // In page view mode (pageEditMode === false), field is not focusable via Tab
+      tabIndex={isEditingAllowed && !isEditing ? 0 : undefined}
       onTouchStart={() => {
         // Capture focus state BEFORE any ephemeral focus events fire (which might be triggered by the touch)
         // If we are NOT focused yet, this touch should just focus us and we should ignore the subsequent click for editing
@@ -283,6 +304,9 @@ export function EditableField<T>({
           isMobile && !isFocused ? '[&_a]:pointer-events-none' : ''
         } ${isMobile && isFocused ? '[&_a]:underline' : ''}`}
         onClick={(e) => {
+          // In page view mode (pageEditMode === false), do not enter edit mode on click
+          if (pageEditMode === false) return
+
           const target = e.target as HTMLElement
           const isLinkOrBtn = target.closest('a') || target.closest('button')
 

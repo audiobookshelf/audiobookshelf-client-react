@@ -1,6 +1,5 @@
 import { EditableField } from '@/components/details/EditableField'
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author } from '@/types/api'
 import Link from 'next/link'
 import { Fragment } from 'react'
@@ -10,11 +9,15 @@ interface BookAuthorsProps {
   libraryId: string
   availableAuthors: MultiSelectItem<string>[]
   onSave: (authors: Author[]) => Promise<void>
+  /** Page-level edit mode control */
+  pageEditMode?: boolean
+  /** Whether to open in edit mode when mounted */
+  openInEditMode?: boolean
+  /** Callback when editing is cancelled */
+  onCancel?: () => void
 }
 
-export function BookAuthors({ authors, libraryId, availableAuthors, onSave }: BookAuthorsProps) {
-  const t = useTypeSafeTranslations()
-
+export function BookAuthors({ authors, libraryId, availableAuthors, onSave, pageEditMode, openInEditMode, onCancel }: BookAuthorsProps) {
   return (
     <div className="w-full text-lg md:text-xl flex items-center gap-1">
       <div className="text-foreground-muted whitespace-nowrap">by </div>
@@ -22,9 +25,14 @@ export function BookAuthors({ authors, libraryId, availableAuthors, onSave }: Bo
         value={authors || []}
         onSave={onSave}
         className="flex-1 min-w-0"
+        pageEditMode={pageEditMode}
+        openInEditMode={openInEditMode}
+        onCancel={onCancel}
         renderView={({ value }) => (
           <div>
-            {value.length > 0 ? (
+            {pageEditMode ? (
+              <span className="text-foreground-muted">{value.map((a) => a.name).join(', ')}</span>
+            ) : (
               value.map((author, index) => (
                 <Fragment key={author.id}>
                   <Link
@@ -37,8 +45,6 @@ export function BookAuthors({ authors, libraryId, availableAuthors, onSave }: Bo
                   {index < value.length - 1 && <span>, </span>}
                 </Fragment>
               ))
-            ) : (
-              <span className="text-foreground-muted/50 italic">{t('LabelAuthors')}</span>
             )}
           </div>
         )}

@@ -14,6 +14,8 @@ interface MetadataTextFieldProps {
   type?: 'text' | 'number'
   openInEditMode?: boolean
   onCancel?: () => void
+  /** Page-level edit mode control */
+  pageEditMode?: boolean
 }
 
 /**
@@ -21,19 +23,33 @@ interface MetadataTextFieldProps {
  * Renders text (optional link) in View mode.
  * Renders TextInput in Edit mode.
  */
-export function MetadataTextField({ label, value, onSave, libraryId, filterKey, type = 'text', openInEditMode, onCancel }: MetadataTextFieldProps) {
+export function MetadataTextField({
+  label,
+  value,
+  onSave,
+  libraryId,
+  filterKey,
+  type = 'text',
+  openInEditMode,
+  onCancel,
+  pageEditMode
+}: MetadataTextFieldProps) {
   return (
     <MetadataField
       label={label}
       value={value}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
+      pageEditMode={pageEditMode}
       onSave={async (val) => {
         // Ensure we pass a string to onSave, defaulting to empty string if null/undefined
         await onSave(val || '')
       }}
       renderView={(val) => {
         if (!val) return null
+        if (pageEditMode) {
+          return val
+        }
         if (libraryId && filterKey) {
           return (
             <Link
