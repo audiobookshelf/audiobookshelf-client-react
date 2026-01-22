@@ -1,9 +1,13 @@
 'use client'
 
+import AddField from '@/components/details/AddField'
 import { DetailRow } from '@/components/details/DetailRow'
+import { MetadataCheckboxField } from '@/components/details/MetadataCheckboxField'
 import { MetadataMultiSelectField } from '@/components/details/MetadataMultiSelectField'
 import { MetadataTextField } from '@/components/details/MetadataTextField'
+import IconBtn from '@/components/ui/IconBtn'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
+import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
 import { elapsedPretty } from '@/lib/timeUtils'
@@ -23,6 +27,7 @@ type Details = Omit<BookMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'pu
 // Fields that are considered "optional" and can be added via the dropdown
 export type OptionalField =
   | 'subtitle'
+  | 'authors'
   | 'publisher'
   | 'publishedYear'
   | 'language'
@@ -33,10 +38,13 @@ export type OptionalField =
   | 'narrators'
   | 'series'
   | 'description'
+  | 'explicit'
+  | 'abridged'
 
 export const getPopulatedFields = (currentMetadata: BookMetadata, currentTags: string[] = []) => {
   const populated = new Set<string>()
   if (currentMetadata.subtitle) populated.add('subtitle')
+  if (currentMetadata.authors?.length) populated.add('authors')
   if (currentMetadata.publisher) populated.add('publisher')
   if (currentMetadata.publishedYear) populated.add('publishedYear')
   if (currentMetadata.language) populated.add('language')
@@ -46,6 +54,8 @@ export const getPopulatedFields = (currentMetadata: BookMetadata, currentTags: s
   if (currentMetadata.narrators?.length) populated.add('narrators')
   if (currentMetadata.series?.length) populated.add('series')
   if (currentTags.length) populated.add('tags')
+  if (currentMetadata.explicit) populated.add('explicit')
+  if (currentMetadata.abridged) populated.add('abridged')
 
   // Description check
   const desc = currentMetadata.description
@@ -58,6 +68,7 @@ export const getPopulatedFields = (currentMetadata: BookMetadata, currentTags: s
 
 export const getAvailableOptionalFields = (t: TypeSafeTranslations): { key: OptionalField; label: string }[] => [
   { key: 'subtitle', label: t('LabelSubtitle') },
+  { key: 'authors', label: t('LabelAuthors') },
   { key: 'narrators', label: t('LabelNarrators') },
   { key: 'series', label: t('LabelSeries') },
   { key: 'publishedYear', label: t('LabelPublishYear') },
@@ -67,7 +78,9 @@ export const getAvailableOptionalFields = (t: TypeSafeTranslations): { key: Opti
   { key: 'tags', label: t('LabelTags') },
   { key: 'language', label: t('LabelLanguage') },
   { key: 'isbn', label: 'ISBN' },
-  { key: 'asin', label: 'ASIN' }
+  { key: 'asin', label: 'ASIN' },
+  { key: 'explicit', label: t('LabelExplicit') },
+  { key: 'abridged', label: t('LabelAbridged') }
 ]
 
 interface BookDetailsSectionProps {
@@ -82,6 +95,16 @@ interface BookDetailsSectionProps {
   visibleFields: Set<string>
   setVisibleFields: (fields: Set<string>) => void
   fieldToAutoEdit: string | null
+  /** Page-level edit mode: false = view mode (read-only), true = edit mode */
+  isPageEditMode?: boolean
+  /** When true, open the title field in edit mode */
+  titleInEditMode?: boolean
+  /** User has update permission */
+  userCanUpdate?: boolean
+  /** Toggle page edit mode */
+  onToggleEditMode?: () => void
+  /** Handler to add a new field */
+  onAddField?: (key: string) => void
 }
 
 /**
@@ -100,7 +123,12 @@ export default function BookDetailsSection({
   onSave,
   visibleFields,
   setVisibleFields,
-  fieldToAutoEdit
+  fieldToAutoEdit,
+  isPageEditMode,
+  titleInEditMode,
+  userCanUpdate,
+  onToggleEditMode,
+  onAddField
 }: BookDetailsSectionProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
@@ -165,14 +193,20 @@ export default function BookDetailsSection({
 
   const isFieldVisible = (key: string) => visibleFields.has(key)
 
+  const activeAvailableFields = useMemo(() => {
+    return getAvailableOptionalFields(t).filter((f) => !visibleFields.has(f.key) && !(f.key === 'series' && metadata.series?.length))
+  }, [t, visibleFields, metadata.series])
+
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <div className="flex justify-between items-start gap-4">
-        <div className="flex-1 flex flex-col gap-1">
+        <div className="flex-1 flex flex-col gap-1 pr-12">
           <BookTitle
             metadata={metadata}
+            pageEditMode={isPageEditMode}
+            openInEditMode={titleInEditMode}
             onSave={async (val) => {
-              await onSave?.({ metadata: { title: val.title, explicit: val.explicit, abridged: val.abridged } })
+              await onSave?.({ metadata: { title: val.title } })
             }}
           />
 
@@ -182,6 +216,7 @@ export default function BookDetailsSection({
               onSave={(val) => handleSaveField('subtitle', val)}
               openInEditMode={fieldToAutoEdit === 'subtitle'}
               onCancel={() => handleCancelField('subtitle')}
+              pageEditMode={isPageEditMode}
             />
           )}
         </div>
@@ -195,15 +230,21 @@ export default function BookDetailsSection({
           onSave={(val) => handleSaveField('series', val)}
           openInEditMode={fieldToAutoEdit === 'series'}
           onCancel={() => handleCancelField('series')}
+          pageEditMode={isPageEditMode}
         />
       )}
 
-      <BookAuthors
-        authors={metadata.authors || []}
-        libraryId={libraryItem.libraryId}
-        availableAuthors={availableAuthors}
-        onSave={(val) => handleSaveField('authors', val)} // API expects Author[]
-      />
+      {isFieldVisible('authors') && (
+        <BookAuthors
+          authors={metadata.authors || []}
+          libraryId={libraryItem.libraryId}
+          availableAuthors={availableAuthors}
+          onSave={(val) => handleSaveField('authors', val)} // API expects Author[]
+          openInEditMode={fieldToAutoEdit === 'authors'}
+          onCancel={() => handleCancelField('authors')}
+          pageEditMode={isPageEditMode}
+        />
+      )}
 
       {/* Details Grid */}
       <div className="mt-6 flex flex-col">
@@ -218,6 +259,7 @@ export default function BookDetailsSection({
             onSave={(val) => handleSaveField('narrators', val)}
             openInEditMode={fieldToAutoEdit === 'narrators'}
             onCancel={() => handleCancelField('narrators')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -230,6 +272,7 @@ export default function BookDetailsSection({
             type="number"
             openInEditMode={fieldToAutoEdit === 'publishedYear'}
             onCancel={() => handleCancelField('publishedYear')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -243,6 +286,7 @@ export default function BookDetailsSection({
             filterKey="publishers"
             openInEditMode={fieldToAutoEdit === 'publisher'}
             onCancel={() => handleCancelField('publisher')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -257,6 +301,7 @@ export default function BookDetailsSection({
             onSave={(val) => handleSaveField('genres', val)}
             openInEditMode={fieldToAutoEdit === 'genres'}
             onCancel={() => handleCancelField('genres')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -271,6 +316,7 @@ export default function BookDetailsSection({
             onSave={handleSaveTags} // Special case for tags
             openInEditMode={fieldToAutoEdit === 'tags'}
             onCancel={() => handleCancelField('tags')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -284,6 +330,7 @@ export default function BookDetailsSection({
             filterKey="languages"
             openInEditMode={fieldToAutoEdit === 'language'}
             onCancel={() => handleCancelField('language')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -295,6 +342,7 @@ export default function BookDetailsSection({
             onSave={(val) => handleSaveField('isbn', val)}
             openInEditMode={fieldToAutoEdit === 'isbn'}
             onCancel={() => handleCancelField('isbn')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -306,6 +354,31 @@ export default function BookDetailsSection({
             onSave={(val) => handleSaveField('asin', val)}
             openInEditMode={fieldToAutoEdit === 'asin'}
             onCancel={() => handleCancelField('asin')}
+            pageEditMode={isPageEditMode}
+          />
+        )}
+
+        {/* Explicit */}
+        {isFieldVisible('explicit') && (
+          <MetadataCheckboxField
+            label={t('LabelExplicit')}
+            value={!!metadata.explicit}
+            onSave={(val) => handleSaveField('explicit', val)}
+            openInEditMode={fieldToAutoEdit === 'explicit'}
+            onCancel={() => handleCancelField('explicit')}
+            pageEditMode={isPageEditMode}
+          />
+        )}
+
+        {/* Abridged */}
+        {isFieldVisible('abridged') && (
+          <MetadataCheckboxField
+            label={t('LabelAbridged')}
+            value={!!metadata.abridged}
+            onSave={(val) => handleSaveField('abridged', val)}
+            openInEditMode={fieldToAutoEdit === 'abridged'}
+            onCancel={() => handleCancelField('abridged')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -315,13 +388,30 @@ export default function BookDetailsSection({
         {/* Size (Read Only) */}
         {<DetailRow label={t('LabelSize')} value={<span suppressHydrationWarning>{bytesPretty(size)}</span>} />}
 
+        {/* Add Field Dropdown */}
+        {isPageEditMode && onAddField && (
+          <div className="py-1">
+            <AddField availableFields={activeAvailableFields} onAdd={onAddField} className="w-full md:w-48" />
+          </div>
+        )}
+
         {isFieldVisible('description') && (
           <ItemDescription
             description={metadata.description}
             onSave={(val) => handleSaveField('description', val)}
             openInEditMode={fieldToAutoEdit === 'description'}
             onCancel={() => handleCancelField('description')}
+            pageEditMode={isPageEditMode}
           />
+        )}
+
+        {/* Edit/View button - positioned absolutely at top right, but placed in DOM here for tab order */}
+        {userCanUpdate && onToggleEditMode && (
+          <Tooltip text={isPageEditMode ? t('ButtonView') : t('ButtonEdit')} position="top" className="absolute top-0 right-0">
+            <IconBtn size="small" onClick={onToggleEditMode} ariaLabel={isPageEditMode ? t('ButtonView') : t('ButtonEdit')}>
+              {isPageEditMode ? 'visibility' : 'edit'}
+            </IconBtn>
+          </Tooltip>
         )}
       </div>
     </div>
