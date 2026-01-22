@@ -65,7 +65,7 @@ export default function ExpandableText({ html, className = '', maxLines = 4 }: E
       {(isOverflowing || isExpanded) && (
         <button
           type="button"
-          className="mt-2 text-foreground-muted font-semibold hover:text-foreground flex items-center gap-1 text-sm select-none focus:outline"
+          className="ps-1 mt-2 text-foreground-muted font-semibold hover:text-foreground flex items-center gap-1 text-sm select-none focus-visible:outline-1 focus-visible:outline-foreground focus-visible:outline-offset-1 rounded"
           onClick={(e) => {
             e.stopPropagation()
             e.nativeEvent.stopImmediatePropagation()
