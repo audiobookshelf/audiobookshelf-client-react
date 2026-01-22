@@ -133,6 +133,7 @@
   "ButtonUploadOPMLFile": "Upload OPML File",
   "ButtonUserDelete": "Delete user {0}",
   "ButtonUserEdit": "Edit user {0}",
+  "ButtonView": "View",
   "ButtonViewAll": "View All",
   "ButtonYes": "Yes",
   "ErrorInternalServerError": "Internal server error",
