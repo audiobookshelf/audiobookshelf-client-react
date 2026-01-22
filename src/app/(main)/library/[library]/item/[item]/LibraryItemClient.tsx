@@ -20,13 +20,10 @@ import {
   UserLoginResponse
 } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import BookDetailsSection, { getAvailableOptionalFields, getPopulatedFields } from './BookDetailsSection'
+import BookDetailsSection, { getPopulatedFields } from './BookDetailsSection'
 import ItemActionButtons from './ItemActionButtons'
 import ItemCover from './ItemCover'
-import PodcastDetailsSection, {
-  getAvailableOptionalFields as getPodcastAvailableOptionalFields,
-  getPopulatedFields as getPodcastPopulatedFields
-} from './PodcastDetailsSection'
+import PodcastDetailsSection, { getPopulatedFields as getPodcastPopulatedFields } from './PodcastDetailsSection'
 import ProgressCard from './ProgressCard'
 // import ToolsAccordion from './ToolsAccordion'
 
@@ -76,9 +73,8 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
       currentParams.set('focusIndex', String(contextIndex))
     }
 
-    if (context === 'library') {
+    if (context === 'items') {
       // Library context: /library/[libId]/items
-      // BookshelfClient expects 'items', 'series', 'collections', etc.
       url = `/library/${initialLibraryItem.libraryId}/items`
     } else if (context === 'series' && contextId) {
       url = `/library/${initialLibraryItem.libraryId}/series/${contextId}`
@@ -110,6 +106,11 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
 
   const [podcastVisibleFields, setPodcastVisibleFields] = useState<Set<string>>(new Set())
   const [podcastFieldToAutoEdit, setPodcastFieldToAutoEdit] = useState<string | null>(null)
+
+  // Page-level edit mode: false = view mode (read-only), true = edit mode (allows editing)
+  const [isPageEditMode, setIsPageEditMode] = useState(false)
+  // When entering edit mode, auto-focus title field
+  const [titleInEditMode, setTitleInEditMode] = useState(false)
 
   const isBook = libraryItem.mediaType === 'book'
   const isPodcast = libraryItem.mediaType === 'podcast'
@@ -166,6 +167,21 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
 
   const handleQuickMatchClick = useCallback(() => {
     console.log('Quick match clicked')
+  }, [])
+
+  // Toggle page edit mode
+  const handleToggleEditMode = useCallback(() => {
+    setIsPageEditMode((prev) => {
+      const newMode = !prev
+      // When entering edit mode, auto-focus title field
+      if (newMode) {
+        setTitleInEditMode(true)
+      } else {
+        // When leaving edit mode, reset title edit state
+        setTitleInEditMode(false)
+      }
+      return newMode
+    })
   }, [])
 
   const handleAddBookField = useCallback((key: string) => {
@@ -265,6 +281,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
               mediaProgress={mediaProgress}
               isExpanded={false}
               onToggleExpand={handleToggleCoverEdit}
+              isPageEditMode={isPageEditMode}
             />
 
             {/* Navigation Buttons - Below Cover */}
@@ -339,6 +356,11 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
                 visibleFields={bookVisibleFields}
                 setVisibleFields={setBookVisibleFields}
                 fieldToAutoEdit={bookFieldToAutoEdit}
+                isPageEditMode={isPageEditMode}
+                titleInEditMode={titleInEditMode}
+                userCanUpdate={userCanUpdate}
+                onToggleEditMode={handleToggleEditMode}
+                onAddField={handleAddBookField}
               />
             ) : (
               <PodcastDetailsSection
@@ -349,6 +371,11 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
                 visibleFields={podcastVisibleFields}
                 setVisibleFields={setPodcastVisibleFields}
                 fieldToAutoEdit={podcastFieldToAutoEdit}
+                isPageEditMode={isPageEditMode}
+                titleInEditMode={titleInEditMode}
+                userCanUpdate={userCanUpdate}
+                onToggleEditMode={handleToggleEditMode}
+                onAddField={handleAddPodcastField}
               />
             )}
 
@@ -372,16 +399,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
               mediaItemShare={mediaItemShare}
               onToggleFinished={handleToggleFinished}
               onContextMenuAction={(action) => console.log('Context menu action:', action)}
-              availableAddFields={
-                isBook
-                  ? getAvailableOptionalFields(t).filter(
-                      (f) => !bookVisibleFields.has(f.key) && !(f.key === 'series' && (libraryItem as BookLibraryItem).media.metadata?.series?.length)
-                    )
-                  : isPodcast
-                    ? getPodcastAvailableOptionalFields(t).filter((f) => !podcastVisibleFields.has(f.key))
-                    : undefined
-              }
-              onAddField={isBook ? handleAddBookField : isPodcast ? handleAddPodcastField : undefined}
               onMatchClick={handleToggleMatchModal}
               onQuickMatchClick={handleQuickMatchClick}
             />
