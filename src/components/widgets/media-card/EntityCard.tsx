@@ -147,7 +147,6 @@ export const EntityCard: React.FC<EntityCardProps> = ({
             orderBy={orderBy}
             navigationContext={{
               name: 'items',
-              id: libraryId,
               params: query,
               index
             }}
