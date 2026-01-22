@@ -1,11 +1,15 @@
 'use client'
 
+import AddField from '@/components/details/AddField'
 import { DetailRow } from '@/components/details/DetailRow'
 import { EditableField } from '@/components/details/EditableField'
+import { MetadataCheckboxField } from '@/components/details/MetadataCheckboxField'
 import { MetadataMultiSelectField } from '@/components/details/MetadataMultiSelectField'
 import { MetadataTextField } from '@/components/details/MetadataTextField'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
+import IconBtn from '@/components/ui/IconBtn'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
+import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
 import { elapsedPretty } from '@/lib/timeUtils'
@@ -20,7 +24,7 @@ import { PodcastTitle } from './details/PodcastTitle'
 type Details = Omit<PodcastMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'imageUrl' | 'itunesPageUrl' | 'itunesArtistId'>
 
 // --- Field Visibility Logic (Add Field) ---
-export type OptionalField = 'feedUrl' | 'itunesId' | 'releaseDate' | 'language' | 'genres' | 'tags' | 'type' | 'description'
+export type OptionalField = 'feedUrl' | 'itunesId' | 'releaseDate' | 'language' | 'genres' | 'tags' | 'type' | 'description' | 'explicit'
 
 export const getPopulatedFields = (currentMetadata: PodcastMetadata, currentTags: string[] = []) => {
   const populated = new Set<string>()
@@ -31,6 +35,7 @@ export const getPopulatedFields = (currentMetadata: PodcastMetadata, currentTags
   if (currentMetadata.genres?.length) populated.add('genres')
   if (currentMetadata.type) populated.add('type')
   if (currentTags.length) populated.add('tags')
+  if (currentMetadata.explicit) populated.add('explicit')
 
   // Description check
   const desc = currentMetadata.description
@@ -49,7 +54,8 @@ export const getAvailableOptionalFields = (t: TypeSafeTranslations): { key: Opti
   { key: 'genres', label: t('LabelGenres') },
   { key: 'tags', label: t('LabelTags') },
   { key: 'type', label: t('LabelPodcastType') },
-  { key: 'description', label: t('LabelDescription') }
+  { key: 'description', label: t('LabelDescription') },
+  { key: 'explicit', label: t('LabelExplicit') }
 ]
 
 interface PodcastDetailsSectionProps {
@@ -61,6 +67,16 @@ interface PodcastDetailsSectionProps {
   visibleFields: Set<string>
   setVisibleFields: (fields: Set<string>) => void
   fieldToAutoEdit: string | null
+  /** Page-level edit mode: false = view mode (read-only), true = edit mode */
+  isPageEditMode?: boolean
+  /** When true, open the title field in edit mode */
+  titleInEditMode?: boolean
+  /** User has update permission */
+  userCanUpdate?: boolean
+  /** Toggle page edit mode */
+  onToggleEditMode?: () => void
+  /** Handler to add a new field */
+  onAddField?: (key: string) => void
 }
 
 /**
@@ -73,7 +89,12 @@ export default function PodcastDetailsSection({
   onSave,
   visibleFields,
   setVisibleFields,
-  fieldToAutoEdit
+  fieldToAutoEdit,
+  isPageEditMode,
+  titleInEditMode,
+  userCanUpdate,
+  onToggleEditMode,
+  onAddField
 }: PodcastDetailsSectionProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
@@ -150,19 +171,26 @@ export default function PodcastDetailsSection({
     [t]
   )
 
+  const activeAvailableFields = useMemo(() => {
+    return getAvailableOptionalFields(t).filter((f) => !visibleFields.has(f.key))
+  }, [t, visibleFields])
+
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <div className="flex justify-between items-start gap-4">
-        <div className="flex-1 flex flex-col gap-1">
+        <div className="flex-1 flex flex-col gap-1 pr-12">
           <PodcastTitle
             metadata={metadata}
+            pageEditMode={isPageEditMode}
+            openInEditMode={titleInEditMode}
             onSave={async (val) => {
-              await onSave?.({ metadata: { title: val.title, explicit: val.explicit } })
+              await onSave?.({ metadata: { title: val.title } })
             }}
           />
 
           <PodcastAuthor
             author={metadata.author}
+            pageEditMode={isPageEditMode}
             onSave={async (val) => {
               await onSave?.({ metadata: { author: val } })
             }}
@@ -178,6 +206,7 @@ export default function PodcastDetailsSection({
           <DetailRow label={t('LabelPodcastType')}>
             <EditableField
               value={metadata.type || 'episodic'}
+              pageEditMode={isPageEditMode}
               renderView={({ value }: { value: string }) => (
                 <div className="min-w-[40px]">{podcastTypeItems.find((item) => item.value === value)?.text || value}</div>
               )}
@@ -213,6 +242,7 @@ export default function PodcastDetailsSection({
             onSave={(val) => handleSaveField('genres', val)}
             openInEditMode={fieldToAutoEdit === 'genres'}
             onCancel={() => handleCancelField('genres')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -227,6 +257,7 @@ export default function PodcastDetailsSection({
             onSave={handleSaveTags} // Special case
             openInEditMode={fieldToAutoEdit === 'tags'}
             onCancel={() => handleCancelField('tags')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -240,6 +271,7 @@ export default function PodcastDetailsSection({
             filterKey="languages"
             openInEditMode={fieldToAutoEdit === 'language'}
             onCancel={() => handleCancelField('language')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -251,6 +283,7 @@ export default function PodcastDetailsSection({
             onSave={(val) => handleSaveField('releaseDate', val)}
             openInEditMode={fieldToAutoEdit === 'releaseDate'}
             onCancel={() => handleCancelField('releaseDate')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -262,6 +295,7 @@ export default function PodcastDetailsSection({
             onSave={(val) => handleSaveField('itunesId', val)}
             openInEditMode={fieldToAutoEdit === 'itunesId'}
             onCancel={() => handleCancelField('itunesId')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -273,6 +307,19 @@ export default function PodcastDetailsSection({
             onSave={(val) => handleSaveField('feedUrl', val)}
             openInEditMode={fieldToAutoEdit === 'feedUrl'}
             onCancel={() => handleCancelField('feedUrl')}
+            pageEditMode={isPageEditMode}
+          />
+        )}
+
+        {/* Explicit */}
+        {isFieldVisible('explicit') && (
+          <MetadataCheckboxField
+            label={t('LabelExplicit')}
+            value={!!metadata.explicit}
+            onSave={(val) => handleSaveField('explicit', val)}
+            openInEditMode={fieldToAutoEdit === 'explicit'}
+            onCancel={() => handleCancelField('explicit')}
+            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -282,6 +329,13 @@ export default function PodcastDetailsSection({
         {/* Size (Read Only) */}
         {<DetailRow label={t('LabelSize')} value={<span suppressHydrationWarning>{bytesPretty(size)}</span>} />}
 
+        {/* Add Field Dropdown */}
+        {isPageEditMode && onAddField && (
+          <div className="py-1">
+            <AddField availableFields={activeAvailableFields} onAdd={onAddField} className="w-full md:w-48" />
+          </div>
+        )}
+
         {/* Description */}
         {isFieldVisible('description') && (
           <ItemDescription
@@ -289,7 +343,17 @@ export default function PodcastDetailsSection({
             onSave={(val) => handleSaveField('description', val)}
             openInEditMode={fieldToAutoEdit === 'description'}
             onCancel={() => handleCancelField('description')}
+            pageEditMode={isPageEditMode}
           />
+        )}
+
+        {/* Edit/View button - positioned absolutely at top right, but placed in DOM here for tab order */}
+        {userCanUpdate && onToggleEditMode && (
+          <Tooltip text={isPageEditMode ? t('ButtonView') : t('ButtonEdit')} position="top" className="absolute top-0 right-0">
+            <IconBtn size="small" onClick={onToggleEditMode} ariaLabel={isPageEditMode ? t('ButtonView') : t('ButtonEdit')}>
+              {isPageEditMode ? 'visibility' : 'edit'}
+            </IconBtn>
+          </Tooltip>
         )}
       </div>
     </div>
