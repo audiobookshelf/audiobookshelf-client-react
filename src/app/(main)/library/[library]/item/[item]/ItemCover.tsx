@@ -25,6 +25,8 @@ interface ItemCoverProps {
   onToggleExpand: () => void
   /** User's media progress for this item */
   mediaProgress?: MediaProgress | null
+  /** Whether the page is in edit mode (vs view mode) */
+  isPageEditMode?: boolean
 }
 
 export default function ItemCover({
@@ -34,7 +36,8 @@ export default function ItemCover({
   className,
   mediaProgress,
   isExpanded,
-  onToggleExpand
+  onToggleExpand,
+  isPageEditMode = false
 }: ItemCoverProps) {
   const t = useTypeSafeTranslations()
   const [isHovering, setIsHovering] = useState(false)
@@ -126,7 +129,7 @@ export default function ItemCover({
               </div>
 
               {/* Edit Button - Bottom Right */}
-              {canUpdate && (
+              {canUpdate && isPageEditMode && (
                 <MediaOverlayIconBtn
                   position="bottom-end"
                   icon="edit"
