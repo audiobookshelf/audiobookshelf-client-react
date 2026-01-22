@@ -25,7 +25,7 @@ export function ItemDescription({ description, onSave, openInEditMode, onCancel,
       className="mt-4"
       renderView={({ value }) =>
         value ? (
-          <ExpandableText html={value} className="text-foreground-muted w-full" />
+          <ExpandableText html={value} className="text-foreground-muted w-full" pageEditMode={pageEditMode} />
         ) : (
           <div className="text-foreground-muted/50 italic p-2">{t('LabelDescription')}</div>
         )

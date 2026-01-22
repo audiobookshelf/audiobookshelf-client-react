@@ -7,9 +7,10 @@ interface ExpandableTextProps {
   html: string
   className?: string
   maxLines?: number
+  pageEditMode?: boolean
 }
 
-export default function ExpandableText({ html, className = '', maxLines = 4 }: ExpandableTextProps) {
+export default function ExpandableText({ html, className = '', maxLines = 4, pageEditMode }: ExpandableTextProps) {
   const t = useTypeSafeTranslations()
   const [isExpanded, setIsExpanded] = useState(false)
   // Heuristic: If text is long > 300 chars, assume it overflows initially to avoid pop-in.
@@ -47,11 +48,23 @@ export default function ExpandableText({ html, className = '', maxLines = 4 }: E
     }
   }, [html])
 
+  const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    // In page view mode (!pageEditMode), clicking anywhere on the description should expand/collapse
+    if (pageEditMode === false) {
+      const target = e.target as HTMLElement
+      // Don't toggle if clicking on a link or button
+      if (target.closest('a') || target.closest('button')) {
+        return
+      }
+      setIsExpanded((prev) => !prev)
+    }
+  }
+
   return (
     <div className={className}>
       <div
         ref={contentRef}
-        className={`default-style less-spacing max-w-none transition-all duration-300 overflow-hidden ${isExpanded ? '' : 'line-clamp-4'}`}
+        className={`default-style less-spacing max-w-none transition-all duration-300 overflow-hidden ${isExpanded ? '' : 'line-clamp-4'} ${pageEditMode === false ? 'cursor-pointer' : ''}`}
         dir="auto"
         style={{
           display: '-webkit-box',
@@ -59,6 +72,7 @@ export default function ExpandableText({ html, className = '', maxLines = 4 }: E
           // Only apply line clamp when not expanded
           WebkitLineClamp: isExpanded ? 'unset' : maxLines
         }}
+        onClick={handleContentClick}
         dangerouslySetInnerHTML={{ __html: html }}
       />
 
