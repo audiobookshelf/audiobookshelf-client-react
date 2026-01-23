@@ -32,6 +32,25 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
 
   const columns: DataTableColumn<RssFeed>[] = [
     {
+      label: '',
+      accessor: (rssFeed) => (
+        <div className="w-12">
+          {rssFeed.coverPath ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={`/feed/${rssFeed.slug}/cover`} alt={t('LabelCover')} className="w-full h-auto" />
+            </>
+          ) : (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/images/Logo.png" alt={t('LabelLogo')} className="w-full h-auto" />
+            </>
+          )}
+        </div>
+      ),
+      cellClassName: 'py-1'
+    },
+    {
       label: t('LabelTitle'),
       accessor: (rssFeed) => (
         <div className="max-w-64">
