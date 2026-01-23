@@ -2,7 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { KeyboardEvent, ReactNode, useCallback, useId, useMemo, useState } from 'react'
+import { KeyboardEvent, MouseEvent, ReactNode, useCallback, useId, useMemo, useState } from 'react'
 import IconBtn from './IconBtn'
 
 interface AccordionSectionProps {
@@ -69,6 +69,21 @@ export default function AccordionSection({
     onExpandedChange?.(newValue)
   }, [isExpanded, controlledExpanded, onExpandedChange, keepOpen])
 
+  const handleHeaderClick = useCallback(
+    (e: MouseEvent) => {
+      if (keepOpen) return
+
+      // Prevent toggling if clicking on an interactive element
+      const target = e.target as HTMLElement
+      if (target.closest('button, a, input, [role="button"]')) {
+        return
+      }
+
+      handleToggle()
+    },
+    [keepOpen, handleToggle]
+  )
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (keepOpen) return
@@ -114,7 +129,7 @@ export default function AccordionSection({
   return (
     <div className={mergeClasses('w-full', className)}>
       {/* Header - clickable to toggle */}
-      <div id={headerId} className={headerClasses}>
+      <div id={headerId} className={headerClasses} onClick={handleHeaderClick}>
         <div className="flex items-center flex-1 min-w-0 flex-wrap gap-1 md:gap-2 text-left bg-transparent border-none p-0 text-inherit">
           <div className="flex items-center flex-shrink-0 min-w-0 gap-2">
             <p className="font-medium whitespace-nowrap overflow-hidden text-ellipsis">{title}</p>
