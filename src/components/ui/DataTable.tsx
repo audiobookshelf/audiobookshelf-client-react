@@ -158,7 +158,7 @@ export default function DataTable<T>({
               {columns.map((column, index) => (
                 <th
                   key={`${id}-header-${index}`}
-                  className={mergeClasses('text-start py-2 px-2 text-sm font-semibold text-foreground-muted', column.headerClassName)}
+                  className={mergeClasses('text-start py-2 px-2 text-xs font-semibold text-foreground-muted', column.headerClassName)}
                   scope="col"
                 >
                   {column.label}
