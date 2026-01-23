@@ -141,7 +141,7 @@ export default function DataTable<T>({
       onClick={onRowClick ? () => onRowClick(row, index) : undefined}
     >
       {columns.map((column, colIndex) => (
-        <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('py-3 px-4', column.cellClassName)}>
+        <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('py-2 px-2', column.cellClassName)}>
           {renderCellContent(row, column, index)}
         </td>
       ))}
@@ -158,7 +158,7 @@ export default function DataTable<T>({
               {columns.map((column, index) => (
                 <th
                   key={`${id}-header-${index}`}
-                  className={mergeClasses('text-start py-2 px-4 text-sm font-semibold text-foreground-muted', column.headerClassName)}
+                  className={mergeClasses('text-start py-2 px-2 text-sm font-semibold text-foreground-muted', column.headerClassName)}
                   scope="col"
                 >
                   {column.label}
