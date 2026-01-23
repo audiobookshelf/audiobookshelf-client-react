@@ -1,6 +1,7 @@
 'use client'
 
 import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
+import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
@@ -102,6 +103,22 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
           </Tooltip>
         )
       }
+    },
+    {
+      label: '',
+      accessor: (rssFeed) => (
+        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+          <IconBtn
+            ariaLabel={t('ButtonDelete')}
+            borderless
+            size="small"
+            className="text-foreground-muted hover:not-disabled:text-error"
+            onClick={() => console.log('Delete', rssFeed.id)}
+          >
+            delete
+          </IconBtn>
+        </div>
+      )
     }
   ]
   return <DataTable data={rssFeeds} columns={columns} getRowKey={(rssFeed) => rssFeed.id} />
