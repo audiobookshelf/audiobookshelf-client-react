@@ -5,6 +5,9 @@ import { ReactNode, useId, useMemo } from 'react'
 import Dropdown from './Dropdown'
 import IconBtn from './IconBtn'
 
+/** Tailwind responsive breakpoints */
+export type TailwindBreakpoint = 'sm' | 'md' | 'lg'
+
 export interface DataTableColumn<T> {
   /** Header label to display */
   label: ReactNode
@@ -14,6 +17,8 @@ export interface DataTableColumn<T> {
   headerClassName?: string
   /** Optional className for the data cell */
   cellClassName?: string
+  /** Hide column below this breakpoint (e.g., 'md' hides on sm screens) */
+  hiddenBelow?: TailwindBreakpoint
 }
 
 export interface DataTablePaginationProps {
@@ -120,6 +125,16 @@ export default function DataTable<T>({
     return mergeClasses(baseClassName, clickableClassName)
   }
 
+  const getResponsiveHiddenClass = (breakpoint?: TailwindBreakpoint): string => {
+    if (!breakpoint) return ''
+    const hiddenClasses: Record<TailwindBreakpoint, string> = {
+      sm: 'hidden sm:table-cell',
+      md: 'hidden md:table-cell',
+      lg: 'hidden lg:table-cell'
+    }
+    return hiddenClasses[breakpoint]
+  }
+
   const renderCellContent = (row: T, column: DataTableColumn<T>, index: number): ReactNode => {
     if (!column.accessor) {
       return null
@@ -141,7 +156,7 @@ export default function DataTable<T>({
       onClick={onRowClick ? () => onRowClick(row, index) : undefined}
     >
       {columns.map((column, colIndex) => (
-        <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('py-2 px-2', column.cellClassName)}>
+        <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('py-2 px-2', getResponsiveHiddenClass(column.hiddenBelow), column.cellClassName)}>
           {renderCellContent(row, column, index)}
         </td>
       ))}
@@ -158,7 +173,11 @@ export default function DataTable<T>({
               {columns.map((column, index) => (
                 <th
                   key={`${id}-header-${index}`}
-                  className={mergeClasses('text-start py-2 px-2 text-xs font-semibold text-foreground-muted', column.headerClassName)}
+                  className={mergeClasses(
+                    'text-start py-2 px-2 text-xs font-semibold text-foreground-muted',
+                    getResponsiveHiddenClass(column.hiddenBelow),
+                    column.headerClassName
+                  )}
                   scope="col"
                 >
                   {column.label}

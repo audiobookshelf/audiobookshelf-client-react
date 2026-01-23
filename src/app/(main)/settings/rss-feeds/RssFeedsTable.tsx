@@ -54,7 +54,7 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
     {
       label: t('LabelTitle'),
       accessor: (rssFeed) => (
-        <div className="max-w-64">
+        <div className="max-w-40 md:max-w-64">
           <p className="text-xs truncate" title={rssFeed.meta.title}>
             {rssFeed.meta.title}
           </p>
@@ -69,7 +69,8 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
             {rssFeed.slug || '-'}
           </p>
         </div>
-      )
+      ),
+      hiddenBelow: 'lg'
     },
     {
       label: t('LabelType'),
@@ -92,7 +93,8 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
             </span>
           </div>
         ),
-      headerClassName: 'text-center'
+      headerClassName: 'text-center',
+      hiddenBelow: 'md'
     },
     {
       label: t('LabelLastUpdate'),
@@ -102,7 +104,8 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
             <span className="text-xs whitespace-nowrap">{formatJsDate(new Date(rssFeed.entityUpdatedAt), dateFormat)}</span>
           </Tooltip>
         )
-      }
+      },
+      hiddenBelow: 'sm'
     },
     {
       label: '',
