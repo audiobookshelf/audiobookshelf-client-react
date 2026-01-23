@@ -35,7 +35,7 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
     {
       label: '',
       accessor: (rssFeed) => (
-        <div className="w-12">
+        <>
           {rssFeed.coverPath ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -47,14 +47,15 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
               <img src="/images/Logo.png" alt={t('LabelLogo')} className="w-full h-auto" />
             </>
           )}
-        </div>
+        </>
       ),
-      cellClassName: 'py-1'
+      headerClassName: 'min-w-16 w-16',
+      cellClassName: 'py-1 min-w-16 w-16'
     },
     {
       label: t('LabelTitle'),
       accessor: (rssFeed) => (
-        <div className="max-w-40 md:max-w-64">
+        <div className="max-w-40 sm:max-w-64">
           <p className="text-xs truncate" title={rssFeed.meta.title}>
             {rssFeed.meta.title}
           </p>
