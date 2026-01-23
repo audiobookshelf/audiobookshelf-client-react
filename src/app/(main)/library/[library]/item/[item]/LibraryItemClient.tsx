@@ -101,10 +101,26 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
   const [libraryItem, setLibraryItem] = useState<BookLibraryItem | PodcastLibraryItem>(initialLibraryItem)
   const [isCoverEditModalOpen, setIsCoverEditModalOpen] = useState(false)
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false)
-  const [bookVisibleFields, setBookVisibleFields] = useState<Set<string>>(new Set())
+  const [bookVisibleFields, setBookVisibleFields] = useState<Set<string>>(() => {
+    if (initialLibraryItem.mediaType === 'book') {
+      const bookItem = initialLibraryItem as BookLibraryItem
+      const meta = bookItem.media.metadata
+      const tags = bookItem.media.tags || []
+      return getPopulatedFields(meta, tags)
+    }
+    return new Set()
+  })
   const [bookFieldToAutoEdit, setBookFieldToAutoEdit] = useState<string | null>(null)
 
-  const [podcastVisibleFields, setPodcastVisibleFields] = useState<Set<string>>(new Set())
+  const [podcastVisibleFields, setPodcastVisibleFields] = useState<Set<string>>(() => {
+    if (initialLibraryItem.mediaType === 'podcast') {
+      const podcastItem = initialLibraryItem as PodcastLibraryItem
+      const meta = podcastItem.media.metadata
+      const tags = podcastItem.media.tags || []
+      return getPodcastPopulatedFields(meta, tags)
+    }
+    return new Set()
+  })
   const [podcastFieldToAutoEdit, setPodcastFieldToAutoEdit] = useState<string | null>(null)
 
   // Page-level edit mode: false = view mode (read-only), true = edit mode (allows editing)
