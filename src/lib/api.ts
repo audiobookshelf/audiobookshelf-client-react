@@ -442,6 +442,12 @@ export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
   return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
 })
 
+export const closeRssFeed = cache(async (feedId: string): Promise<void> => {
+  return apiRequest<void>(`/api/feeds/${feedId}/close`, {
+    method: 'POST'
+  })
+})
+
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
   return apiRequest<GetBackupsResponse>('/api/backups', {})
 })
