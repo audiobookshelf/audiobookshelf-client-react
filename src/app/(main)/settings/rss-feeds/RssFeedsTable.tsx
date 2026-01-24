@@ -6,6 +6,8 @@ import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { RssFeed, UserLoginResponse } from '@/types/api'
+import { useState } from 'react'
+import RssFeedModal from './RssFeedModal'
 
 interface RssFeedsTableProps {
   rssFeeds: RssFeed[]
@@ -14,6 +16,8 @@ interface RssFeedsTableProps {
 
 export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTableProps) {
   const t = useTypeSafeTranslations()
+  const [selectedFeed, setSelectedFeed] = useState<RssFeed | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const serverSettings = currentUser.serverSettings
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
@@ -125,5 +129,20 @@ export default function RssFeedsTable({ rssFeeds, currentUser }: RssFeedsTablePr
       )
     }
   ]
-  return <DataTable data={rssFeeds} columns={columns} getRowKey={(rssFeed) => rssFeed.id} />
+
+  const handleRowClick = (rssFeed: RssFeed) => {
+    setSelectedFeed(rssFeed)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+  }
+
+  return (
+    <>
+      <DataTable data={rssFeeds} columns={columns} getRowKey={(rssFeed) => rssFeed.id} onRowClick={handleRowClick} />
+      <RssFeedModal isOpen={isModalOpen} onClose={handleCloseModal} rssFeed={selectedFeed} />
+    </>
+  )
 }
