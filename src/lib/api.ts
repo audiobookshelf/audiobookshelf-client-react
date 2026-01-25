@@ -297,6 +297,12 @@ export const getUser = cache(async (userId: string): Promise<User> => {
   return apiRequest<User>(`/api/users/${userId}`, {})
 })
 
+export const deleteUser = cache(async (userId: string): Promise<void> => {
+  return apiRequest<void>(`/api/users/${userId}`, {
+    method: 'DELETE'
+  })
+})
+
 /**
  * Upload a cover image file for a library item
  * Returns: { success: true, cover: coverPath }

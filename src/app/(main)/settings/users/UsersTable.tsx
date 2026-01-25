@@ -3,12 +3,16 @@
 import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import OnlineIndicator from '@/components/widgets/OnlineIndicator'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { DeviceInfo, User, UserLoginResponse } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { useCallback, useRef, useState } from 'react'
+import { deleteUser } from './actions'
 
 interface UsersTableProps {
   currentUser: UserLoginResponse
@@ -20,7 +24,35 @@ interface UsersTableProps {
 export default function UsersTable({ currentUser, users, dateFormat, timeFormat }: UsersTableProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
+  const { showToast } = useGlobalToast()
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  const deletingUserRef = useRef<User | null>(null)
   const currentUserId = currentUser.user.id
+
+  const handleDeleteClick = useCallback((user: User) => {
+    deletingUserRef.current = user
+    setShowConfirmDialog(true)
+  }, [])
+
+  const handleConfirmDeleteUser = useCallback(async () => {
+    if (!deletingUserRef.current) return
+    setShowConfirmDialog(false)
+
+    const userToDelete = deletingUserRef.current
+    setDeletingUserId(userToDelete.id)
+
+    try {
+      await deleteUser(userToDelete.id)
+      showToast(t('ToastUserDeleteSuccess'), { type: 'success' })
+    } catch (error) {
+      showToast(t('ToastUserDeleteFailed'), { type: 'error' })
+      console.error('Failed to delete user:', error)
+    } finally {
+      setDeletingUserId(null)
+      deletingUserRef.current = null
+    }
+  }, [showToast, t])
 
   const getDeviceInfoString = (deviceInfo: DeviceInfo | null) => {
     if (!deviceInfo) return ''
@@ -99,7 +131,8 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
               borderless
               size="small"
               className="text-foreground-muted hover:not-disabled:text-error"
-              onClick={() => console.log('Delete', user.id)}
+              loading={deletingUserId === user.id}
+              onClick={() => handleDeleteClick(user)}
             >
               delete
             </IconBtn>
@@ -110,12 +143,22 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
   ]
 
   return (
-    <DataTable
-      data={users}
-      columns={columns}
-      getRowKey={(user) => user.id}
-      rowClassName={(user) => (!user.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
-      onRowClick={(user) => router.push(`/settings/users/${user.id}`)}
-    />
+    <>
+      <DataTable
+        data={users}
+        columns={columns}
+        getRowKey={(user) => user.id}
+        rowClassName={(user) => (!user.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
+        onRowClick={(user) => router.push(`/settings/users/${user.id}`)}
+      />
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        message={t('MessageRemoveUserWarning', { 0: deletingUserRef.current?.username || '' })}
+        yesButtonText={t('ButtonDelete')}
+        yesButtonClassName="bg-error text-white"
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmDeleteUser}
+      />
+    </>
   )
 }
