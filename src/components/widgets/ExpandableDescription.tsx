@@ -1,7 +1,7 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 interface ExpandableDescriptionProps {
   description: string
@@ -19,38 +19,39 @@ export default function ExpandableDescription({ description, lineClamp = 4, clas
     if (contentRef.current) {
       const element = contentRef.current
       // Compare scrollHeight (full content height) with clientHeight (visible height)
-      setIsClamped(element.scrollHeight > element.clientHeight)
+      // We use a small tolerance (e.g., 1px) to avoid false positives due to sub-pixel rendering
+      const isOverflowing = element.scrollHeight > element.clientHeight + 1
+      setIsClamped(isOverflowing)
     }
   }, [])
 
-  // Check clamping
-  useEffect(() => {
+  // Reset expanded state when description changes
+  useLayoutEffect(() => {
     setIsExpanded(false)
+  }, [description])
 
-    requestAnimationFrame(() => {
-      checkClamping()
-    })
-  }, [description, checkClamping])
-
-  // Re-check clamping on window resize or when collapsing
-  useEffect(() => {
+  // Use useLayoutEffect to check clamping immediately after DOM updates but before paint
+  useLayoutEffect(() => {
+    // Initial check
     if (!isExpanded) {
-      // handles case where window was resized while expanded and no longer needs to be clamped
-      requestAnimationFrame(() => {
-        checkClamping()
-      })
+      checkClamping()
     }
 
-    const handleResize = () => {
+    // Use ResizeObserver to detect size changes
+    const resizeObserver = new ResizeObserver(() => {
       if (!isExpanded) {
-        // handles case where window was resized while collapsed and now needs to be clamped
         checkClamping()
       }
+    })
+
+    if (contentRef.current) {
+      resizeObserver.observe(contentRef.current)
     }
 
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [isExpanded, checkClamping])
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [description, checkClamping, isExpanded])
 
   const toggleExpanded = () => {
     setIsExpanded((prev) => !prev)
