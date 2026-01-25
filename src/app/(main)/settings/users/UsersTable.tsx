@@ -19,9 +19,10 @@ interface UsersTableProps {
   users: User[]
   dateFormat: string
   timeFormat: string
+  onEditUser: (user: User) => void
 }
 
-export default function UsersTable({ currentUser, users, dateFormat, timeFormat }: UsersTableProps) {
+export default function UsersTable({ currentUser, users, dateFormat, timeFormat, onEditUser }: UsersTableProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const { showToast } = useGlobalToast()
@@ -121,7 +122,7 @@ export default function UsersTable({ currentUser, users, dateFormat, timeFormat 
             borderless
             size="small"
             className="text-foreground-muted"
-            onClick={() => console.log('Edit', user.id)}
+            onClick={() => onEditUser(user)}
           >
             edit
           </IconBtn>
