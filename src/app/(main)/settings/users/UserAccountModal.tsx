@@ -235,10 +235,10 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
           {/* Change Password */}
           {!isRootUser && (
             <TextInput
-              label={t('LabelChangePassword')}
+              label={isEditing ? t('LabelChangePassword') : t('LabelPassword')}
               type="password"
               value={formData.password}
-              placeholder={t('LabelChangePassword')}
+              placeholder={isEditing ? t('LabelChangePassword') : t('LabelPassword')}
               onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
             />
           )}
