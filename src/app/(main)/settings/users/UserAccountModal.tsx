@@ -12,27 +12,32 @@ import { Library, User, UserPermissions } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
 import { fetchLibraries, fetchTags } from './actions'
 
+type AccountType = 'admin' | 'user' | 'guest'
+
 interface UserFormData {
   username: string
   email: string
   password: string
-  type: 'admin' | 'user' | 'guest'
+  type: AccountType
   isActive: boolean
   permissions: UserPermissions
   librariesAccessible: string[]
   itemTagsSelected: string[]
 }
 
-const defaultPermissions: UserPermissions = {
-  download: true,
-  update: false,
-  delete: false,
-  upload: false,
-  createEreader: false,
-  accessAllLibraries: true,
-  accessAllTags: true,
-  accessExplicitContent: false,
-  selectedTagsNotAccessible: false
+const getDefaultPermissions = (type: AccountType): UserPermissions => {
+  const permissions: UserPermissions = {
+    download: type !== 'guest',
+    update: type === 'admin',
+    delete: type === 'admin',
+    upload: type === 'admin',
+    accessExplicitContent: type === 'admin',
+    accessAllLibraries: true,
+    accessAllTags: true,
+    selectedTagsNotAccessible: false,
+    createEreader: type === 'admin'
+  }
+  return permissions
 }
 
 const getInitialFormData = (user: User | null): UserFormData => {
@@ -55,7 +60,7 @@ const getInitialFormData = (user: User | null): UserFormData => {
     password: '',
     type: 'user',
     isActive: true,
-    permissions: { ...defaultPermissions },
+    permissions: { ...getDefaultPermissions('user') },
     librariesAccessible: [],
     itemTagsSelected: []
   }
@@ -140,6 +145,14 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
   const handleConfirmUnlinkOpenId = () => {
     setShowUnlinkConfirm(false)
     onUnlinkOpenId?.()
+  }
+
+  const handleAccountTypeChange = (value: AccountType) => {
+    setFormData((prev) => ({
+      ...prev,
+      type: value,
+      permissions: { ...getDefaultPermissions(value) }
+    }))
   }
 
   const updatePermission = (key: keyof UserPermissions, value: boolean) => {
@@ -260,7 +273,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
                 value={formData.type}
                 items={accountTypeItems}
                 highlightSelected
-                onChange={(value) => setFormData((prev) => ({ ...prev, type: value as 'admin' | 'user' | 'guest' }))}
+                onChange={(value) => handleAccountTypeChange(value as AccountType)}
                 className="flex-1"
               />
 
