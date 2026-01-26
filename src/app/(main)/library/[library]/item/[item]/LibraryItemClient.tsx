@@ -110,7 +110,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
     }
     return new Set()
   })
-  const [bookFieldToAutoEdit, setBookFieldToAutoEdit] = useState<string | null>(null)
 
   const [podcastVisibleFields, setPodcastVisibleFields] = useState<Set<string>>(() => {
     if (initialLibraryItem.mediaType === 'podcast') {
@@ -121,7 +120,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
     }
     return new Set()
   })
-  const [podcastFieldToAutoEdit, setPodcastFieldToAutoEdit] = useState<string | null>(null)
 
   // Page-level edit mode: false = view mode (read-only), true = edit mode (allows editing)
   const [isPageEditMode, setIsPageEditMode] = useState(false)
@@ -198,24 +196,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
       }
       return newMode
     })
-  }, [])
-
-  const handleAddBookField = useCallback((key: string) => {
-    setBookVisibleFields((prev) => {
-      const next = new Set(prev)
-      next.add(key)
-      return next
-    })
-    setBookFieldToAutoEdit(key)
-  }, [])
-
-  const handleAddPodcastField = useCallback((key: string) => {
-    setPodcastVisibleFields((prev) => {
-      const next = new Set(prev)
-      next.add(key)
-      return next
-    })
-    setPodcastFieldToAutoEdit(key)
   }, [])
 
   // Socket event listeners for real-time updates
@@ -371,12 +351,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
                 onSave={handleSaveDetails}
                 visibleFields={bookVisibleFields}
                 setVisibleFields={setBookVisibleFields}
-                fieldToAutoEdit={bookFieldToAutoEdit}
                 isPageEditMode={isPageEditMode}
                 titleInEditMode={titleInEditMode}
                 userCanUpdate={userCanUpdate}
                 onToggleEditMode={handleToggleEditMode}
-                onAddField={handleAddBookField}
               />
             ) : (
               <PodcastDetailsSection
@@ -386,12 +364,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
                 onSave={handleSaveDetails}
                 visibleFields={podcastVisibleFields}
                 setVisibleFields={setPodcastVisibleFields}
-                fieldToAutoEdit={podcastFieldToAutoEdit}
                 isPageEditMode={isPageEditMode}
                 titleInEditMode={titleInEditMode}
                 userCanUpdate={userCanUpdate}
                 onToggleEditMode={handleToggleEditMode}
-                onAddField={handleAddPodcastField}
               />
             )}
 

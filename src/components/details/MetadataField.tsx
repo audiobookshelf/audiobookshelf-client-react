@@ -30,7 +30,10 @@ export function MetadataField<T>({ label, value, renderView, renderEdit, onSave,
       onCancel={onCancel}
       pageEditMode={pageEditMode}
       renderView={({ value: v }) => (
-        <DetailRow label={label} value={renderView(v) || <span className="text-foreground-muted opacity-50 italic">{t('LabelNone')}</span>} />
+        <DetailRow
+          label={label}
+          value={renderView(v) || <span className="text-foreground-muted opacity-50 italic">{pageEditMode ? t('LabelAdd') : t('LabelNone')}</span>}
+        />
       )}
       renderEdit={({ value: v, onChange }) => <DetailRow label={label}>{renderEdit(v, onChange)}</DetailRow>}
     />

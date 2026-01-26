@@ -1,6 +1,5 @@
 'use client'
 
-import AddField from '@/components/details/AddField'
 import { DetailRow } from '@/components/details/DetailRow'
 import { EditableField } from '@/components/details/EditableField'
 import { MetadataCheckboxField } from '@/components/details/MetadataCheckboxField'
@@ -66,7 +65,6 @@ interface PodcastDetailsSectionProps {
 
   visibleFields: Set<string>
   setVisibleFields: (fields: Set<string>) => void
-  fieldToAutoEdit: string | null
   /** Page-level edit mode: false = view mode (read-only), true = edit mode */
   isPageEditMode?: boolean
   /** When true, open the title field in edit mode */
@@ -75,8 +73,6 @@ interface PodcastDetailsSectionProps {
   userCanUpdate?: boolean
   /** Toggle page edit mode */
   onToggleEditMode?: () => void
-  /** Handler to add a new field */
-  onAddField?: (key: string) => void
 }
 
 /**
@@ -89,12 +85,10 @@ export default function PodcastDetailsSection({
   onSave,
   visibleFields,
   setVisibleFields,
-  fieldToAutoEdit,
   isPageEditMode,
   titleInEditMode,
   userCanUpdate,
-  onToggleEditMode,
-  onAddField
+  onToggleEditMode
 }: PodcastDetailsSectionProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
@@ -160,7 +154,7 @@ export default function PodcastDetailsSection({
     [metadata, media.tags, visibleFields, setVisibleFields]
   )
 
-  const isFieldVisible = (key: string) => visibleFields.has(key)
+  const isFieldVisible = (key: string) => isPageEditMode || visibleFields.has(key)
 
   // Podcast type options
   const podcastTypeItems = useMemo<DropdownItem[]>(
@@ -170,10 +164,6 @@ export default function PodcastDetailsSection({
     ],
     [t]
   )
-
-  const activeAvailableFields = useMemo(() => {
-    return getAvailableOptionalFields(t).filter((f) => !visibleFields.has(f.key))
-  }, [t, visibleFields])
 
   return (
     <div className="w-full relative">
@@ -225,7 +215,6 @@ export default function PodcastDetailsSection({
                 </div>
               )}
               onSave={(val) => handleSaveField('type', val)}
-              openInEditMode={fieldToAutoEdit === 'type'}
               onCancel={() => handleCancelField('type')}
             />
           </DetailRow>
@@ -240,7 +229,6 @@ export default function PodcastDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="genres"
             onSave={(val) => handleSaveField('genres', val)}
-            openInEditMode={fieldToAutoEdit === 'genres'}
             onCancel={() => handleCancelField('genres')}
             pageEditMode={isPageEditMode}
           />
@@ -255,7 +243,6 @@ export default function PodcastDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="tags"
             onSave={handleSaveTags} // Special case
-            openInEditMode={fieldToAutoEdit === 'tags'}
             onCancel={() => handleCancelField('tags')}
             pageEditMode={isPageEditMode}
           />
@@ -269,7 +256,6 @@ export default function PodcastDetailsSection({
             onSave={(val) => handleSaveField('language', val)}
             libraryId={libraryItem.libraryId}
             filterKey="languages"
-            openInEditMode={fieldToAutoEdit === 'language'}
             onCancel={() => handleCancelField('language')}
             pageEditMode={isPageEditMode}
           />
@@ -281,7 +267,6 @@ export default function PodcastDetailsSection({
             label={t('LabelReleaseDate')}
             value={metadata.releaseDate}
             onSave={(val) => handleSaveField('releaseDate', val)}
-            openInEditMode={fieldToAutoEdit === 'releaseDate'}
             onCancel={() => handleCancelField('releaseDate')}
             pageEditMode={isPageEditMode}
           />
@@ -293,7 +278,6 @@ export default function PodcastDetailsSection({
             label="iTunes ID"
             value={metadata.itunesId}
             onSave={(val) => handleSaveField('itunesId', val)}
-            openInEditMode={fieldToAutoEdit === 'itunesId'}
             onCancel={() => handleCancelField('itunesId')}
             pageEditMode={isPageEditMode}
           />
@@ -305,7 +289,6 @@ export default function PodcastDetailsSection({
             label={t('LabelRSSFeedURL')}
             value={metadata.feedUrl}
             onSave={(val) => handleSaveField('feedUrl', val)}
-            openInEditMode={fieldToAutoEdit === 'feedUrl'}
             onCancel={() => handleCancelField('feedUrl')}
             pageEditMode={isPageEditMode}
           />
@@ -317,7 +300,6 @@ export default function PodcastDetailsSection({
             label={t('LabelExplicit')}
             value={!!metadata.explicit}
             onSave={(val) => handleSaveField('explicit', val)}
-            openInEditMode={fieldToAutoEdit === 'explicit'}
             onCancel={() => handleCancelField('explicit')}
             pageEditMode={isPageEditMode}
           />
@@ -329,19 +311,11 @@ export default function PodcastDetailsSection({
         {/* Size (Read Only) */}
         {<DetailRow label={t('LabelSize')} value={<span suppressHydrationWarning>{bytesPretty(size)}</span>} />}
 
-        {/* Add Field Dropdown */}
-        {isPageEditMode && onAddField && (
-          <div className="py-1">
-            <AddField availableFields={activeAvailableFields} onAdd={onAddField} className="w-full md:w-48" />
-          </div>
-        )}
-
         {/* Description */}
         {isFieldVisible('description') && (
           <ItemDescription
             description={metadata.description}
             onSave={(val) => handleSaveField('description', val)}
-            openInEditMode={fieldToAutoEdit === 'description'}
             onCancel={() => handleCancelField('description')}
             pageEditMode={isPageEditMode}
           />

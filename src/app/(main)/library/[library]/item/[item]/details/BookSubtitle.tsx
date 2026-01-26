@@ -28,7 +28,7 @@ export function BookSubtitle({ value, onSave, openInEditMode, onCancel, pageEdit
         v ? (
           <div className="text-xl md:text-2xl font-medium text-foreground-muted">{v}</div>
         ) : (
-          <div className="text-foreground-muted opacity-50 italic">{t('LabelSubtitle')}</div>
+          <div className="text-xl md:text-2xl text-foreground-muted opacity-50 italic">{t('LabelAddSubtitle')}</div>
         )
       }
       renderEdit={({ value: v, onChange }) => <TextInput value={v} onChange={onChange} autoFocus />}

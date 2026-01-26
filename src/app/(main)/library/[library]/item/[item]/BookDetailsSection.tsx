@@ -1,6 +1,5 @@
 'use client'
 
-import AddField from '@/components/details/AddField'
 import { DetailRow } from '@/components/details/DetailRow'
 import { MetadataCheckboxField } from '@/components/details/MetadataCheckboxField'
 import { MetadataMultiSelectField } from '@/components/details/MetadataMultiSelectField'
@@ -94,7 +93,6 @@ interface BookDetailsSectionProps {
 
   visibleFields: Set<string>
   setVisibleFields: (fields: Set<string>) => void
-  fieldToAutoEdit: string | null
   /** Page-level edit mode: false = view mode (read-only), true = edit mode */
   isPageEditMode?: boolean
   /** When true, open the title field in edit mode */
@@ -103,8 +101,6 @@ interface BookDetailsSectionProps {
   userCanUpdate?: boolean
   /** Toggle page edit mode */
   onToggleEditMode?: () => void
-  /** Handler to add a new field */
-  onAddField?: (key: string) => void
 }
 
 /**
@@ -123,12 +119,10 @@ export default function BookDetailsSection({
   onSave,
   visibleFields,
   setVisibleFields,
-  fieldToAutoEdit,
   isPageEditMode,
   titleInEditMode,
   userCanUpdate,
-  onToggleEditMode,
-  onAddField
+  onToggleEditMode
 }: BookDetailsSectionProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
@@ -191,11 +185,7 @@ export default function BookDetailsSection({
     [metadata, media.tags, visibleFields, setVisibleFields]
   )
 
-  const isFieldVisible = (key: string) => visibleFields.has(key)
-
-  const activeAvailableFields = useMemo(() => {
-    return getAvailableOptionalFields(t).filter((f) => !visibleFields.has(f.key) && !(f.key === 'series' && metadata.series?.length))
-  }, [t, visibleFields, metadata.series])
+  const isFieldVisible = (key: string) => isPageEditMode || visibleFields.has(key)
 
   return (
     <div className="w-full relative">
@@ -214,7 +204,6 @@ export default function BookDetailsSection({
             <BookSubtitle
               value={metadata.subtitle}
               onSave={(val) => handleSaveField('subtitle', val)}
-              openInEditMode={fieldToAutoEdit === 'subtitle'}
               onCancel={() => handleCancelField('subtitle')}
               pageEditMode={isPageEditMode}
             />
@@ -228,7 +217,6 @@ export default function BookDetailsSection({
           libraryId={libraryItem.libraryId}
           availableSeries={availableSeries}
           onSave={(val) => handleSaveField('series', val)}
-          openInEditMode={fieldToAutoEdit === 'series'}
           onCancel={() => handleCancelField('series')}
           pageEditMode={isPageEditMode}
         />
@@ -240,7 +228,6 @@ export default function BookDetailsSection({
           libraryId={libraryItem.libraryId}
           availableAuthors={availableAuthors}
           onSave={(val) => handleSaveField('authors', val)} // API expects Author[]
-          openInEditMode={fieldToAutoEdit === 'authors'}
           onCancel={() => handleCancelField('authors')}
           pageEditMode={isPageEditMode}
         />
@@ -257,7 +244,6 @@ export default function BookDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="narrators"
             onSave={(val) => handleSaveField('narrators', val)}
-            openInEditMode={fieldToAutoEdit === 'narrators'}
             onCancel={() => handleCancelField('narrators')}
             pageEditMode={isPageEditMode}
           />
@@ -270,7 +256,6 @@ export default function BookDetailsSection({
             value={metadata.publishedYear}
             onSave={(val) => handleSaveField('publishedYear', val)}
             type="number"
-            openInEditMode={fieldToAutoEdit === 'publishedYear'}
             onCancel={() => handleCancelField('publishedYear')}
             pageEditMode={isPageEditMode}
           />
@@ -284,7 +269,6 @@ export default function BookDetailsSection({
             onSave={(val) => handleSaveField('publisher', val)}
             libraryId={libraryItem.libraryId}
             filterKey="publishers"
-            openInEditMode={fieldToAutoEdit === 'publisher'}
             onCancel={() => handleCancelField('publisher')}
             pageEditMode={isPageEditMode}
           />
@@ -299,7 +283,6 @@ export default function BookDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="genres"
             onSave={(val) => handleSaveField('genres', val)}
-            openInEditMode={fieldToAutoEdit === 'genres'}
             onCancel={() => handleCancelField('genres')}
             pageEditMode={isPageEditMode}
           />
@@ -314,7 +297,6 @@ export default function BookDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="tags"
             onSave={handleSaveTags} // Special case for tags
-            openInEditMode={fieldToAutoEdit === 'tags'}
             onCancel={() => handleCancelField('tags')}
             pageEditMode={isPageEditMode}
           />
@@ -328,7 +310,6 @@ export default function BookDetailsSection({
             onSave={(val) => handleSaveField('language', val)}
             libraryId={libraryItem.libraryId}
             filterKey="languages"
-            openInEditMode={fieldToAutoEdit === 'language'}
             onCancel={() => handleCancelField('language')}
             pageEditMode={isPageEditMode}
           />
@@ -340,7 +321,6 @@ export default function BookDetailsSection({
             label="ISBN"
             value={metadata.isbn}
             onSave={(val) => handleSaveField('isbn', val)}
-            openInEditMode={fieldToAutoEdit === 'isbn'}
             onCancel={() => handleCancelField('isbn')}
             pageEditMode={isPageEditMode}
           />
@@ -352,7 +332,6 @@ export default function BookDetailsSection({
             label="ASIN"
             value={metadata.asin}
             onSave={(val) => handleSaveField('asin', val)}
-            openInEditMode={fieldToAutoEdit === 'asin'}
             onCancel={() => handleCancelField('asin')}
             pageEditMode={isPageEditMode}
           />
@@ -364,7 +343,6 @@ export default function BookDetailsSection({
             label={t('LabelExplicit')}
             value={!!metadata.explicit}
             onSave={(val) => handleSaveField('explicit', val)}
-            openInEditMode={fieldToAutoEdit === 'explicit'}
             onCancel={() => handleCancelField('explicit')}
             pageEditMode={isPageEditMode}
           />
@@ -376,7 +354,6 @@ export default function BookDetailsSection({
             label={t('LabelAbridged')}
             value={!!metadata.abridged}
             onSave={(val) => handleSaveField('abridged', val)}
-            openInEditMode={fieldToAutoEdit === 'abridged'}
             onCancel={() => handleCancelField('abridged')}
             pageEditMode={isPageEditMode}
           />
@@ -388,18 +365,10 @@ export default function BookDetailsSection({
         {/* Size (Read Only) */}
         {<DetailRow label={t('LabelSize')} value={<span suppressHydrationWarning>{bytesPretty(size)}</span>} />}
 
-        {/* Add Field Dropdown */}
-        {isPageEditMode && onAddField && (
-          <div className="py-1">
-            <AddField availableFields={activeAvailableFields} onAdd={onAddField} className="w-full md:w-48" />
-          </div>
-        )}
-
         {isFieldVisible('description') && (
           <ItemDescription
             description={metadata.description}
             onSave={(val) => handleSaveField('description', val)}
-            openInEditMode={fieldToAutoEdit === 'description'}
             onCancel={() => handleCancelField('description')}
             pageEditMode={isPageEditMode}
           />

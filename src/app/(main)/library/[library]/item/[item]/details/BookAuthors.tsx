@@ -1,5 +1,6 @@
 import { EditableField } from '@/components/details/EditableField'
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author } from '@/types/api'
 import Link from 'next/link'
 import { Fragment } from 'react'
@@ -18,6 +19,8 @@ interface BookAuthorsProps {
 }
 
 export function BookAuthors({ authors, libraryId, availableAuthors, onSave, pageEditMode, openInEditMode, onCancel }: BookAuthorsProps) {
+  const t = useTypeSafeTranslations()
+
   return (
     <div className="w-full text-lg md:text-xl flex items-center gap-1">
       <div className="text-foreground-muted whitespace-nowrap">by </div>
@@ -31,7 +34,11 @@ export function BookAuthors({ authors, libraryId, availableAuthors, onSave, page
         renderView={({ value }) => (
           <div>
             {pageEditMode ? (
-              <span className="text-foreground-muted">{value.map((a) => a.name).join(', ')}</span>
+              !value || value.length === 0 ? (
+                <div className="text-foreground-muted opacity-50 italic">{t('LabelAuthors')}</div>
+              ) : (
+                <span className="text-foreground-muted">{value.map((a) => a.name).join(', ')}</span>
+              )
             ) : (
               value.map((author, index) => (
                 <Fragment key={author.id}>

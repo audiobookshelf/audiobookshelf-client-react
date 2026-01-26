@@ -1,6 +1,7 @@
 import { EditableField } from '@/components/details/EditableField'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Series } from '@/types/api'
 import Link from 'next/link'
 import { Fragment } from 'react'
@@ -17,6 +18,7 @@ interface BookSeriesProps {
 }
 
 export function BookSeries({ series, libraryId, availableSeries, onSave, openInEditMode, onCancel, pageEditMode }: BookSeriesProps) {
+  const t = useTypeSafeTranslations()
   // Note: Visibility checked in parent
 
   return (
@@ -26,30 +28,34 @@ export function BookSeries({ series, libraryId, availableSeries, onSave, openInE
       openInEditMode={openInEditMode}
       onCancel={onCancel}
       pageEditMode={pageEditMode}
-      renderView={({ value }) => (
-        <div className="w-full">
-          {value.map((s, index) => (
-            <Fragment key={s.id}>
-              {pageEditMode ? (
-                <span className="text-foreground-muted text-lg">
-                  {s.name}
-                  {s.sequence && <span> #{s.sequence}</span>}
-                </span>
-              ) : (
-                <Link
-                  href={`/library/${libraryId}/series/${s.id}`}
-                  className="text-foreground-muted hover:underline text-lg"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {s.name}
-                  {s.sequence && <span> #{s.sequence}</span>}
-                </Link>
-              )}
-              {index < value.length - 1 && <span className="text-foreground-muted">, </span>}
-            </Fragment>
-          ))}
-        </div>
-      )}
+      renderView={({ value }) =>
+        value.length > 0 ? (
+          <div className="w-full">
+            {value.map((s, index) => (
+              <Fragment key={s.id}>
+                {pageEditMode ? (
+                  <span className="text-foreground-muted text-lg">
+                    {s.name}
+                    {s.sequence && <span> #{s.sequence}</span>}
+                  </span>
+                ) : (
+                  <Link
+                    href={`/library/${libraryId}/series/${s.id}`}
+                    className="text-foreground-muted hover:underline text-lg"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {s.name}
+                    {s.sequence && <span> #{s.sequence}</span>}
+                  </Link>
+                )}
+                {index < value.length - 1 && <span className="text-foreground-muted">, </span>}
+              </Fragment>
+            ))}
+          </div>
+        ) : (
+          <div className="text-lg text-foreground-muted opacity-50 italic">{t('LabelAddSeries')}</div>
+        )
+      }
       renderEdit={({ value, onChange }) => (
         <div className="py-0.5">
           <TwoStageMultiSelect
