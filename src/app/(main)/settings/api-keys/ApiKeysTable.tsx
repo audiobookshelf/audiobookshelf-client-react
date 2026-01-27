@@ -3,10 +3,13 @@
 import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { ApiKey, UserLoginResponse } from '@/types/api'
 import Link from 'next/link'
+import { useCallback, useRef, useState } from 'react'
+import { deleteApiKey } from './actions'
 
 interface ApiKeysTableProps {
   apiKeys: ApiKey[]
@@ -15,9 +18,34 @@ interface ApiKeysTableProps {
 
 export default function ApiKeysTable({ apiKeys, currentUser }: ApiKeysTableProps) {
   const t = useTypeSafeTranslations()
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [deletingApiKeyId, setDeletingApiKeyId] = useState<string | null>(null)
+  const deletingApiKeyRef = useRef<ApiKey | null>(null)
   const serverSettings = currentUser.serverSettings
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
+
+  const handleDeleteClick = useCallback((apiKey: ApiKey) => {
+    deletingApiKeyRef.current = apiKey
+    setShowConfirmDialog(true)
+  }, [])
+
+  const handleConfirmDeleteApiKey = useCallback(async () => {
+    if (!deletingApiKeyRef.current) return
+    setShowConfirmDialog(false)
+
+    const apiKeyToDelete = deletingApiKeyRef.current
+    setDeletingApiKeyId(apiKeyToDelete.id)
+
+    try {
+      await deleteApiKey(apiKeyToDelete.id)
+    } catch (error) {
+      console.error('Failed to delete API key:', error)
+    } finally {
+      setDeletingApiKeyId(null)
+      deletingApiKeyRef.current = null
+    }
+  }, [])
 
   const getExpiresAtDisplay = (expiresAt: string | null) => {
     if (!expiresAt) return t('LabelExpiresNever')
@@ -70,7 +98,8 @@ export default function ApiKeysTable({ apiKeys, currentUser }: ApiKeysTableProps
             borderless
             size="small"
             className="text-foreground-muted hover:not-disabled:text-error"
-            onClick={() => console.log('Delete', apiKey.id)}
+            loading={deletingApiKeyId === apiKey.id}
+            onClick={() => handleDeleteClick(apiKey)}
           >
             delete
           </IconBtn>
@@ -80,11 +109,21 @@ export default function ApiKeysTable({ apiKeys, currentUser }: ApiKeysTableProps
   ]
 
   return (
-    <DataTable
-      data={apiKeys}
-      columns={columns}
-      getRowKey={(apiKey) => apiKey.id}
-      rowClassName={(apiKey) => (!apiKey.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
-    />
+    <>
+      <DataTable
+        data={apiKeys}
+        columns={columns}
+        getRowKey={(apiKey) => apiKey.id}
+        rowClassName={(apiKey) => (!apiKey.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
+      />
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        message={t('MessageConfirmDeleteApiKey', { 0: deletingApiKeyRef.current?.name || '' })}
+        yesButtonText={t('ButtonDelete')}
+        yesButtonClassName="bg-error text-white"
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmDeleteApiKey}
+      />
+    </>
   )
 }

@@ -444,6 +444,12 @@ export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
   return apiRequest<GetApiKeysResponse>('/api/api-keys', {})
 })
 
+export const deleteApiKey = cache(async (apiKeyId: string): Promise<void> => {
+  return apiRequest<void>(`/api/api-keys/${apiKeyId}`, {
+    method: 'DELETE'
+  })
+})
+
 export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
   return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
 })
