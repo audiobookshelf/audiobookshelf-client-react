@@ -7,6 +7,9 @@ import AudioTracksAccordion from '@/components/widgets/AudioTracksAccordion'
 import Chapters from '@/components/widgets/Chapters'
 import EpisodesAccordion from '@/components/widgets/EpisodesAccordion'
 import LibraryFilesAccordion from '@/components/widgets/LibraryFilesAccordion'
+import { ItemPageEditModeProvider } from '@/contexts/ItemPageEditModeContext'
+import { useLibrary } from '@/contexts/LibraryContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import {
@@ -25,10 +28,6 @@ import ItemActionButtons from './ItemActionButtons'
 import ItemCover from './ItemCover'
 import PodcastDetailsSection, { getPopulatedFields as getPodcastPopulatedFields } from './PodcastDetailsSection'
 import ProgressCard from './ProgressCard'
-// import ToolsAccordion from './ToolsAccordion'
-
-import { useLibrary } from '@/contexts/LibraryContext'
-import { useGlobalToast } from '@/contexts/ToastContext'
 
 import IconBtn from '@/components/ui/IconBtn'
 import { useItemNavigation } from '@/hooks/useItemNavigation'
@@ -261,176 +260,175 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
   }
 
   return (
-    <div className="pb-8 bg-none">
-      <div className="w-full max-w-6xl mx-auto">
-        {/* Navigation Buttons */}
-        {/* Navigation Buttons REMOVED - moved to action bar and title line */}
+    <ItemPageEditModeProvider value={{ isPageEditMode }}>
+      <div className="pb-8 bg-none">
+        <div className="w-full max-w-6xl mx-auto">
+          {/* Navigation Buttons */}
+          {/* Navigation Buttons REMOVED - moved to action bar and title line */}
 
-        {/* Main content: Cover + Details */}
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-          {/* Cover column */}
-          <div className="w-full md:w-62 md:max-w-62 flex-shrink-0">
-            <ItemCover
-              libraryItem={libraryItem}
-              bookCoverAspectRatio={coverAspectRatio}
-              canUpdate={userCanUpdate}
-              mediaProgress={mediaProgress}
-              isExpanded={false}
-              onToggleExpand={handleToggleCoverEdit}
-              isPageEditMode={isPageEditMode}
-            />
+          {/* Main content: Cover + Details */}
+          <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+            {/* Cover column */}
+            <div className="w-full md:w-62 md:max-w-62 flex-shrink-0">
+              <ItemCover
+                libraryItem={libraryItem}
+                bookCoverAspectRatio={coverAspectRatio}
+                canUpdate={userCanUpdate}
+                mediaProgress={mediaProgress}
+                isExpanded={false}
+                onToggleExpand={handleToggleCoverEdit}
+              />
 
-            {/* Navigation Buttons - Below Cover */}
-            {showNavigation && (
-              <div className="flex justify-between mt-4">
-                <IconBtn
-                  ariaLabel={t('ButtonPrevious')}
-                  onClick={() => {
-                    if (prevId) {
-                      const newIndex = !isNaN(contextIndex) ? contextIndex - 1 : undefined
-                      handleNavigate(prevId, newIndex)
-                    }
-                  }}
-                  disabled={!prevId}
-                  className="bg-primary hover:bg-bg-hover border border-white/10"
-                >
-                  arrow_back
-                </IconBtn>
-
-                <div className="flex items-center gap-2">
-                  <IconBtn ariaLabel={t('ButtonClose')} onClick={handleUpNavigation} className="bg-primary hover:bg-bg-hover border border-white/10">
-                    close
-                  </IconBtn>
-
+              {/* Navigation Buttons - Below Cover */}
+              {showNavigation && (
+                <div className="flex justify-between mt-4">
                   <IconBtn
-                    ariaLabel={t('ButtonNext')}
+                    ariaLabel={t('ButtonPrevious')}
                     onClick={() => {
-                      if (nextId) {
-                        const newIndex = !isNaN(contextIndex) ? contextIndex + 1 : undefined
-                        handleNavigate(nextId, newIndex)
+                      if (prevId) {
+                        const newIndex = !isNaN(contextIndex) ? contextIndex - 1 : undefined
+                        handleNavigate(prevId, newIndex)
                       }
                     }}
-                    disabled={!nextId}
+                    disabled={!prevId}
                     className="bg-primary hover:bg-bg-hover border border-white/10"
                   >
-                    arrow_forward
+                    arrow_back
                   </IconBtn>
+
+                  <div className="flex items-center gap-2">
+                    <IconBtn ariaLabel={t('ButtonClose')} onClick={handleUpNavigation} className="bg-primary hover:bg-bg-hover border border-white/10">
+                      close
+                    </IconBtn>
+
+                    <IconBtn
+                      ariaLabel={t('ButtonNext')}
+                      onClick={() => {
+                        if (nextId) {
+                          const newIndex = !isNaN(contextIndex) ? contextIndex + 1 : undefined
+                          handleNavigate(nextId, newIndex)
+                        }
+                      }}
+                      disabled={!nextId}
+                      className="bg-primary hover:bg-bg-hover border border-white/10"
+                    >
+                      arrow_forward
+                    </IconBtn>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+
+            {/* Details column */}
+            <div className="flex-1 min-w-0">
+              {/* Edit Cover Modal */}
+              <CoverEditModal
+                isOpen={isCoverEditModalOpen}
+                onClose={() => setIsCoverEditModalOpen(false)}
+                libraryItem={libraryItem}
+                user={user}
+                bookCoverAspectRatio={coverAspectRatio}
+              />
+
+              {/* Match Modal */}
+              <MatchModal
+                isOpen={isMatchModalOpen}
+                onClose={() => setIsMatchModalOpen(false)}
+                libraryItem={libraryItem}
+                bookCoverAspectRatio={coverAspectRatio}
+              />
+
+              {/* Book or Podcast details section */}
+              {isBook ? (
+                <BookDetailsSection
+                  libraryItem={libraryItem as BookLibraryItem}
+                  availableAuthors={availableAuthors}
+                  availableNarrators={availableNarrators}
+                  availableGenres={availableGenres}
+                  availableTags={availableTags}
+                  availableSeries={availableSeries}
+                  onSave={handleSaveDetails}
+                  visibleFields={bookVisibleFields}
+                  setVisibleFields={setBookVisibleFields}
+                  titleInEditMode={titleInEditMode}
+                  userCanUpdate={userCanUpdate}
+                  onToggleEditMode={handleToggleEditMode}
+                />
+              ) : (
+                <PodcastDetailsSection
+                  libraryItem={libraryItem as PodcastLibraryItem}
+                  availableGenres={availableGenres}
+                  availableTags={availableTags}
+                  onSave={handleSaveDetails}
+                  visibleFields={podcastVisibleFields}
+                  setVisibleFields={setPodcastVisibleFields}
+                  titleInEditMode={titleInEditMode}
+                  userCanUpdate={userCanUpdate}
+                  onToggleEditMode={handleToggleEditMode}
+                />
+              )}
+
+              {/* Additional details (narrators, genres, etc) - shown in view mode */}
+              {/* REMOVED LibraryItemDetails usage, now integrated into *DetailsSection */}
+              {/* {!isDetailsEditOpen && <LibraryItemDetails libraryItem={libraryItem} />} */}
+
+              {/* Progress Card matches design of action buttons area */}
+              {mediaProgress && (
+                <div className="mt-4">
+                  <ProgressCard progress={mediaProgress} duration={duration} onResetProgress={handleResetProgress} />
+                </div>
+              )}
+
+              {/* Action buttons */}
+              <ItemActionButtons
+                libraryItem={libraryItem}
+                user={user}
+                mediaProgress={mediaProgress}
+                rssFeed={rssFeed}
+                mediaItemShare={mediaItemShare}
+                onToggleFinished={handleToggleFinished}
+                onContextMenuAction={(action) => console.log('Context menu action:', action)}
+                onMatchClick={handleToggleMatchModal}
+                onQuickMatchClick={handleQuickMatchClick}
+              />
+            </div>
           </div>
 
-          {/* Details column */}
-          <div className="flex-1 min-w-0">
-            {/* Edit Cover Modal */}
-            <CoverEditModal
-              isOpen={isCoverEditModalOpen}
-              onClose={() => setIsCoverEditModalOpen(false)}
-              libraryItem={libraryItem}
-              user={user}
-              bookCoverAspectRatio={coverAspectRatio}
-            />
+          {/* Tables section */}
+          <div className="mt-8 flex flex-col gap-4">
+            {/* Chapters table - books only */}
+            {isBook && ((libraryItem as BookLibraryItem).media.chapters?.length ?? 0) > 0 && (
+              <Chapters libraryItem={libraryItem as BookLibraryItem} user={user} className="my-0" />
+            )}
 
-            {/* Match Modal */}
-            <MatchModal
-              isOpen={isMatchModalOpen}
-              onClose={() => setIsMatchModalOpen(false)}
-              libraryItem={libraryItem}
-              bookCoverAspectRatio={coverAspectRatio}
-            />
+            {/* Audio tracks table - books only */}
+            {isBook && ((libraryItem as BookLibraryItem).media.tracks?.length ?? 0) > 0 && (
+              <AudioTracksAccordion libraryItem={libraryItem as BookLibraryItem} user={user} className="my-0" />
+            )}
 
-            {/* Book or Podcast details section */}
-            {isBook ? (
-              <BookDetailsSection
-                libraryItem={libraryItem as BookLibraryItem}
-                availableAuthors={availableAuthors}
-                availableNarrators={availableNarrators}
-                availableGenres={availableGenres}
-                availableTags={availableTags}
-                availableSeries={availableSeries}
-                onSave={handleSaveDetails}
-                visibleFields={bookVisibleFields}
-                setVisibleFields={setBookVisibleFields}
-                isPageEditMode={isPageEditMode}
-                titleInEditMode={titleInEditMode}
-                userCanUpdate={userCanUpdate}
-                onToggleEditMode={handleToggleEditMode}
-              />
-            ) : (
-              <PodcastDetailsSection
+            {/* Podcast episodes table - podcasts only */}
+            {isPodcast && ((libraryItem as PodcastLibraryItem).media.episodes?.length ?? 0) > 0 && (
+              <EpisodesAccordion
                 libraryItem={libraryItem as PodcastLibraryItem}
-                availableGenres={availableGenres}
-                availableTags={availableTags}
-                onSave={handleSaveDetails}
-                visibleFields={podcastVisibleFields}
-                setVisibleFields={setPodcastVisibleFields}
-                isPageEditMode={isPageEditMode}
-                titleInEditMode={titleInEditMode}
-                userCanUpdate={userCanUpdate}
-                onToggleEditMode={handleToggleEditMode}
+                user={user}
+                getEpisodeProgress={(epId) => (mediaProgress?.episodeId === epId ? mediaProgress : null)}
+                episodesDownloading={episodesDownloading}
+                episodeDownloadsQueued={episodeDownloadsQueued}
+                onDownloadEpisode={handleDownloadEpisode}
+                onFindEpisodes={() => console.log('Find episodes clicked')}
+                className="my-0 py-0"
               />
             )}
 
-            {/* Additional details (narrators, genres, etc) - shown in view mode */}
-            {/* REMOVED LibraryItemDetails usage, now integrated into *DetailsSection */}
-            {/* {!isDetailsEditOpen && <LibraryItemDetails libraryItem={libraryItem} />} */}
+            {/* Library files table */}
+            {(libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesAccordion libraryItem={libraryItem} user={user} className="my-0" />}
 
-            {/* Progress Card matches design of action buttons area */}
-            {mediaProgress && (
-              <div className="mt-4">
-                <ProgressCard progress={mediaProgress} duration={duration} onResetProgress={handleResetProgress} />
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <ItemActionButtons
-              libraryItem={libraryItem}
-              user={user}
-              mediaProgress={mediaProgress}
-              rssFeed={rssFeed}
-              mediaItemShare={mediaItemShare}
-              onToggleFinished={handleToggleFinished}
-              onContextMenuAction={(action) => console.log('Context menu action:', action)}
-              onMatchClick={handleToggleMatchModal}
-              onQuickMatchClick={handleQuickMatchClick}
-            />
+            {/* Tools & Match accordions - only for users with update permission */}
+            {/* REMOVED ToolsAccordion */}
+            {/* {userCanUpdate && (<><ToolsAccordion libraryItem={libraryItem} /></>)} */}
           </div>
-        </div>
-
-        {/* Tables section */}
-        <div className="mt-8 flex flex-col gap-4">
-          {/* Chapters table - books only */}
-          {isBook && ((libraryItem as BookLibraryItem).media.chapters?.length ?? 0) > 0 && (
-            <Chapters libraryItem={libraryItem as BookLibraryItem} user={user} className="my-0" />
-          )}
-
-          {/* Audio tracks table - books only */}
-          {isBook && ((libraryItem as BookLibraryItem).media.tracks?.length ?? 0) > 0 && (
-            <AudioTracksAccordion libraryItem={libraryItem as BookLibraryItem} user={user} className="my-0" />
-          )}
-
-          {/* Podcast episodes table - podcasts only */}
-          {isPodcast && ((libraryItem as PodcastLibraryItem).media.episodes?.length ?? 0) > 0 && (
-            <EpisodesAccordion
-              libraryItem={libraryItem as PodcastLibraryItem}
-              user={user}
-              getEpisodeProgress={(epId) => (mediaProgress?.episodeId === epId ? mediaProgress : null)}
-              episodesDownloading={episodesDownloading}
-              episodeDownloadsQueued={episodeDownloadsQueued}
-              onDownloadEpisode={handleDownloadEpisode}
-              onFindEpisodes={() => console.log('Find episodes clicked')}
-              className="my-0 py-0"
-            />
-          )}
-
-          {/* Library files table */}
-          {(libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesAccordion libraryItem={libraryItem} user={user} className="my-0" />}
-
-          {/* Tools & Match accordions - only for users with update permission */}
-          {/* REMOVED ToolsAccordion */}
-          {/* {userCanUpdate && (<><ToolsAccordion libraryItem={libraryItem} /></>)} */}
         </div>
       </div>
-    </div>
+    </ItemPageEditModeProvider>
   )
 }
