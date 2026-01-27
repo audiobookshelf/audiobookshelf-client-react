@@ -7,6 +7,7 @@ import { MetadataTextField } from '@/components/details/MetadataTextField'
 import IconBtn from '@/components/ui/IconBtn'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import Tooltip from '@/components/ui/Tooltip'
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
 import { elapsedPretty } from '@/lib/timeUtils'
@@ -93,8 +94,6 @@ interface BookDetailsSectionProps {
 
   visibleFields: Set<string>
   setVisibleFields: (fields: Set<string>) => void
-  /** Page-level edit mode: false = view mode (read-only), true = edit mode */
-  isPageEditMode?: boolean
   /** When true, open the title field in edit mode */
   titleInEditMode?: boolean
   /** User has update permission */
@@ -119,12 +118,12 @@ export default function BookDetailsSection({
   onSave,
   visibleFields,
   setVisibleFields,
-  isPageEditMode,
   titleInEditMode,
   userCanUpdate,
   onToggleEditMode
 }: BookDetailsSectionProps) {
   const t = useTypeSafeTranslations()
+  const { isPageEditMode } = useItemPageEditMode()
   const locale = useLocale()
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
@@ -193,7 +192,6 @@ export default function BookDetailsSection({
         <div className="flex-1 flex flex-col gap-1 pr-12">
           <BookTitle
             metadata={metadata}
-            pageEditMode={isPageEditMode}
             openInEditMode={titleInEditMode}
             onSave={async (val) => {
               await onSave?.({ metadata: { title: val.title } })
@@ -201,12 +199,7 @@ export default function BookDetailsSection({
           />
 
           {isFieldVisible('subtitle') && (
-            <BookSubtitle
-              value={metadata.subtitle}
-              onSave={(val) => handleSaveField('subtitle', val)}
-              onCancel={() => handleCancelField('subtitle')}
-              pageEditMode={isPageEditMode}
-            />
+            <BookSubtitle value={metadata.subtitle} onSave={(val) => handleSaveField('subtitle', val)} onCancel={() => handleCancelField('subtitle')} />
           )}
         </div>
       </div>
@@ -218,7 +211,6 @@ export default function BookDetailsSection({
           availableSeries={availableSeries}
           onSave={(val) => handleSaveField('series', val)}
           onCancel={() => handleCancelField('series')}
-          pageEditMode={isPageEditMode}
         />
       )}
 
@@ -229,7 +221,6 @@ export default function BookDetailsSection({
           availableAuthors={availableAuthors}
           onSave={(val) => handleSaveField('authors', val)} // API expects Author[]
           onCancel={() => handleCancelField('authors')}
-          pageEditMode={isPageEditMode}
         />
       )}
 
@@ -245,7 +236,6 @@ export default function BookDetailsSection({
             filterKey="narrators"
             onSave={(val) => handleSaveField('narrators', val)}
             onCancel={() => handleCancelField('narrators')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -257,7 +247,6 @@ export default function BookDetailsSection({
             onSave={(val) => handleSaveField('publishedYear', val)}
             type="number"
             onCancel={() => handleCancelField('publishedYear')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -270,7 +259,6 @@ export default function BookDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="publishers"
             onCancel={() => handleCancelField('publisher')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -284,7 +272,6 @@ export default function BookDetailsSection({
             filterKey="genres"
             onSave={(val) => handleSaveField('genres', val)}
             onCancel={() => handleCancelField('genres')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -298,7 +285,6 @@ export default function BookDetailsSection({
             filterKey="tags"
             onSave={handleSaveTags} // Special case for tags
             onCancel={() => handleCancelField('tags')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -311,30 +297,17 @@ export default function BookDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="languages"
             onCancel={() => handleCancelField('language')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
         {/* ISBN */}
         {isFieldVisible('isbn') && (
-          <MetadataTextField
-            label="ISBN"
-            value={metadata.isbn}
-            onSave={(val) => handleSaveField('isbn', val)}
-            onCancel={() => handleCancelField('isbn')}
-            pageEditMode={isPageEditMode}
-          />
+          <MetadataTextField label="ISBN" value={metadata.isbn} onSave={(val) => handleSaveField('isbn', val)} onCancel={() => handleCancelField('isbn')} />
         )}
 
         {/* ASIN */}
         {isFieldVisible('asin') && (
-          <MetadataTextField
-            label="ASIN"
-            value={metadata.asin}
-            onSave={(val) => handleSaveField('asin', val)}
-            onCancel={() => handleCancelField('asin')}
-            pageEditMode={isPageEditMode}
-          />
+          <MetadataTextField label="ASIN" value={metadata.asin} onSave={(val) => handleSaveField('asin', val)} onCancel={() => handleCancelField('asin')} />
         )}
 
         {/* Explicit */}
@@ -344,7 +317,6 @@ export default function BookDetailsSection({
             value={!!metadata.explicit}
             onSave={(val) => handleSaveField('explicit', val)}
             onCancel={() => handleCancelField('explicit')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -355,7 +327,6 @@ export default function BookDetailsSection({
             value={!!metadata.abridged}
             onSave={(val) => handleSaveField('abridged', val)}
             onCancel={() => handleCancelField('abridged')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -370,7 +341,6 @@ export default function BookDetailsSection({
             description={metadata.description}
             onSave={(val) => handleSaveField('description', val)}
             onCancel={() => handleCancelField('description')}
-            pageEditMode={isPageEditMode}
           />
         )}
 

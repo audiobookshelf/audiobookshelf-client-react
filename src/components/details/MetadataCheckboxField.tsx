@@ -7,8 +7,6 @@ interface MetadataCheckboxFieldProps {
   onSave: (val: boolean) => Promise<void>
   openInEditMode?: boolean
   onCancel?: () => void
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
 }
 
 /**
@@ -16,14 +14,13 @@ interface MetadataCheckboxFieldProps {
  * Renders a checkmark or empty in View mode.
  * Renders a Checkbox in Edit mode.
  */
-export function MetadataCheckboxField({ label, value, onSave, openInEditMode, onCancel, pageEditMode }: MetadataCheckboxFieldProps) {
+export function MetadataCheckboxField({ label, value, onSave, openInEditMode, onCancel }: MetadataCheckboxFieldProps) {
   return (
     <MetadataField
       label={label}
       value={value}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
-      pageEditMode={pageEditMode}
       onSave={async (val) => {
         await onSave(!!val)
       }}

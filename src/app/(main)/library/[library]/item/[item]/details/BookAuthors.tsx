@@ -5,21 +5,22 @@ import { Author } from '@/types/api'
 import Link from 'next/link'
 import { Fragment } from 'react'
 
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
+
 interface BookAuthorsProps {
   authors: Author[]
   libraryId: string
   availableAuthors: MultiSelectItem<string>[]
   onSave: (authors: Author[]) => Promise<void>
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
   /** Whether to open in edit mode when mounted */
   openInEditMode?: boolean
   /** Callback when editing is cancelled */
   onCancel?: () => void
 }
 
-export function BookAuthors({ authors, libraryId, availableAuthors, onSave, pageEditMode, openInEditMode, onCancel }: BookAuthorsProps) {
+export function BookAuthors({ authors, libraryId, availableAuthors, onSave, openInEditMode, onCancel }: BookAuthorsProps) {
   const t = useTypeSafeTranslations()
+  const { isPageEditMode: pageEditMode } = useItemPageEditMode()
 
   return (
     <div className="w-full text-lg md:text-xl flex items-center gap-1">
@@ -28,7 +29,6 @@ export function BookAuthors({ authors, libraryId, availableAuthors, onSave, page
         value={authors || []}
         onSave={onSave}
         className="flex-1 min-w-0"
-        pageEditMode={pageEditMode}
         openInEditMode={openInEditMode}
         onCancel={onCancel}
         renderView={({ value }) => (

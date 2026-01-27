@@ -9,20 +9,17 @@ import { BookMetadata } from '@/types/api'
 interface BookTitleProps {
   metadata: BookMetadata
   onSave: (val: { title: string | undefined }) => Promise<void>
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
   /** Force open in edit mode */
   openInEditMode?: boolean
 }
 
-export function BookTitle({ metadata, onSave, pageEditMode, openInEditMode }: BookTitleProps) {
+export function BookTitle({ metadata, onSave, openInEditMode }: BookTitleProps) {
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
   return (
     <EditableField
       value={metadata.title || ''}
-      pageEditMode={pageEditMode}
       openInEditMode={openInEditMode}
       onSave={async (val) => {
         if (!val || !val.trim()) {

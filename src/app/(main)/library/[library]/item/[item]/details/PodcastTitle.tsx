@@ -8,20 +8,17 @@ import { PodcastMetadata } from '@/types/api'
 interface PodcastTitleProps {
   metadata: PodcastMetadata
   onSave: (val: { title: string | undefined }) => Promise<void>
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
   /** Force open in edit mode */
   openInEditMode?: boolean
 }
 
-export function PodcastTitle({ metadata, onSave, pageEditMode, openInEditMode }: PodcastTitleProps) {
+export function PodcastTitle({ metadata, onSave, openInEditMode }: PodcastTitleProps) {
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
   return (
     <EditableField
       value={metadata.title || ''}
-      pageEditMode={pageEditMode}
       openInEditMode={openInEditMode}
       onSave={async (val) => {
         if (!val || !val.trim()) {

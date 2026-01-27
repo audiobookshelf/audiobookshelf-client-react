@@ -11,6 +11,8 @@ import { mergeClasses } from '@/lib/merge-classes'
 import { BookLibraryItem, MediaProgress, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useMemo, useState } from 'react'
 
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
+
 interface ItemCoverProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   /** Cover aspect ratio from library settings */
@@ -25,8 +27,6 @@ interface ItemCoverProps {
   onToggleExpand: () => void
   /** User's media progress for this item */
   mediaProgress?: MediaProgress | null
-  /** Whether the page is in edit mode (vs view mode) */
-  isPageEditMode?: boolean
 }
 
 export default function ItemCover({
@@ -36,9 +36,9 @@ export default function ItemCover({
   className,
   mediaProgress,
   isExpanded,
-  onToggleExpand,
-  isPageEditMode = false
+  onToggleExpand
 }: ItemCoverProps) {
+  const { isPageEditMode } = useItemPageEditMode()
   const t = useTypeSafeTranslations()
   const [isHovering, setIsHovering] = useState(false)
 

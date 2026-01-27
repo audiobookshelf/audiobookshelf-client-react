@@ -4,6 +4,8 @@ import { filterEncode } from '@/lib/filterUtils'
 import Link from 'next/link'
 import { Fragment } from 'react'
 
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
+
 interface MetadataMultiSelectFieldProps {
   label: string
   items: string[]
@@ -13,8 +15,6 @@ interface MetadataMultiSelectFieldProps {
   onSave: (items: string[]) => Promise<void>
   openInEditMode?: boolean
   onCancel?: () => void
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
 }
 
 /**
@@ -30,9 +30,10 @@ export function MetadataMultiSelectField({
   filterKey,
   onSave,
   openInEditMode,
-  onCancel,
-  pageEditMode
+  onCancel
 }: MetadataMultiSelectFieldProps) {
+  const { isPageEditMode: pageEditMode } = useItemPageEditMode()
+
   return (
     <MetadataField
       label={label}
@@ -40,7 +41,6 @@ export function MetadataMultiSelectField({
       onSave={onSave}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
-      pageEditMode={pageEditMode}
       renderView={(val) =>
         val.length > 0 ? (
           <div>

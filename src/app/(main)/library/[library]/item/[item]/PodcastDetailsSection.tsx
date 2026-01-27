@@ -9,6 +9,7 @@ import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import Tooltip from '@/components/ui/Tooltip'
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
 import { elapsedPretty } from '@/lib/timeUtils'
@@ -65,8 +66,6 @@ interface PodcastDetailsSectionProps {
 
   visibleFields: Set<string>
   setVisibleFields: (fields: Set<string>) => void
-  /** Page-level edit mode: false = view mode (read-only), true = edit mode */
-  isPageEditMode?: boolean
   /** When true, open the title field in edit mode */
   titleInEditMode?: boolean
   /** User has update permission */
@@ -85,12 +84,12 @@ export default function PodcastDetailsSection({
   onSave,
   visibleFields,
   setVisibleFields,
-  isPageEditMode,
   titleInEditMode,
   userCanUpdate,
   onToggleEditMode
 }: PodcastDetailsSectionProps) {
   const t = useTypeSafeTranslations()
+  const { isPageEditMode } = useItemPageEditMode()
   const locale = useLocale()
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
@@ -171,7 +170,6 @@ export default function PodcastDetailsSection({
         <div className="flex-1 flex flex-col gap-1 pr-12">
           <PodcastTitle
             metadata={metadata}
-            pageEditMode={isPageEditMode}
             openInEditMode={titleInEditMode}
             onSave={async (val) => {
               await onSave?.({ metadata: { title: val.title } })
@@ -180,7 +178,6 @@ export default function PodcastDetailsSection({
 
           <PodcastAuthor
             author={metadata.author}
-            pageEditMode={isPageEditMode}
             onSave={async (val) => {
               await onSave?.({ metadata: { author: val } })
             }}
@@ -196,7 +193,6 @@ export default function PodcastDetailsSection({
           <DetailRow label={t('LabelPodcastType')}>
             <EditableField
               value={metadata.type || 'episodic'}
-              pageEditMode={isPageEditMode}
               renderView={({ value }: { value: string }) => (
                 <div className="min-w-[40px]">{podcastTypeItems.find((item) => item.value === value)?.text || value}</div>
               )}
@@ -230,7 +226,6 @@ export default function PodcastDetailsSection({
             filterKey="genres"
             onSave={(val) => handleSaveField('genres', val)}
             onCancel={() => handleCancelField('genres')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -244,7 +239,6 @@ export default function PodcastDetailsSection({
             filterKey="tags"
             onSave={handleSaveTags} // Special case
             onCancel={() => handleCancelField('tags')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -257,7 +251,6 @@ export default function PodcastDetailsSection({
             libraryId={libraryItem.libraryId}
             filterKey="languages"
             onCancel={() => handleCancelField('language')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -268,7 +261,6 @@ export default function PodcastDetailsSection({
             value={metadata.releaseDate}
             onSave={(val) => handleSaveField('releaseDate', val)}
             onCancel={() => handleCancelField('releaseDate')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -279,7 +271,6 @@ export default function PodcastDetailsSection({
             value={metadata.itunesId}
             onSave={(val) => handleSaveField('itunesId', val)}
             onCancel={() => handleCancelField('itunesId')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -290,7 +281,6 @@ export default function PodcastDetailsSection({
             value={metadata.feedUrl}
             onSave={(val) => handleSaveField('feedUrl', val)}
             onCancel={() => handleCancelField('feedUrl')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -301,7 +291,6 @@ export default function PodcastDetailsSection({
             value={!!metadata.explicit}
             onSave={(val) => handleSaveField('explicit', val)}
             onCancel={() => handleCancelField('explicit')}
-            pageEditMode={isPageEditMode}
           />
         )}
 
@@ -317,7 +306,6 @@ export default function PodcastDetailsSection({
             description={metadata.description}
             onSave={(val) => handleSaveField('description', val)}
             onCancel={() => handleCancelField('description')}
-            pageEditMode={isPageEditMode}
           />
         )}
 

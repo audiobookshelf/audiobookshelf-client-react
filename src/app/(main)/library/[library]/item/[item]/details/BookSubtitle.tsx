@@ -7,11 +7,9 @@ interface BookSubtitleProps {
   onSave: (val: string) => Promise<void>
   openInEditMode?: boolean
   onCancel?: () => void
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
 }
 
-export function BookSubtitle({ value, onSave, openInEditMode, onCancel, pageEditMode }: BookSubtitleProps) {
+export function BookSubtitle({ value, onSave, openInEditMode, onCancel }: BookSubtitleProps) {
   const t = useTypeSafeTranslations()
 
   // Note: Visibility check is done by parent to avoid mounting if not needed,
@@ -23,7 +21,6 @@ export function BookSubtitle({ value, onSave, openInEditMode, onCancel, pageEdit
       onSave={onSave}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
-      pageEditMode={pageEditMode}
       renderView={({ value: v }) =>
         v ? (
           <div className="text-xl md:text-2xl font-medium text-foreground-muted">{v}</div>

@@ -1,5 +1,6 @@
 import { MetadataField } from '@/components/details/MetadataField'
 import TextInput from '@/components/ui/TextInput'
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
 import { filterEncode } from '@/lib/filterUtils'
 import Link from 'next/link'
 
@@ -14,8 +15,6 @@ interface MetadataTextFieldProps {
   type?: 'text' | 'number'
   openInEditMode?: boolean
   onCancel?: () => void
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
 }
 
 /**
@@ -23,24 +22,15 @@ interface MetadataTextFieldProps {
  * Renders text (optional link) in View mode.
  * Renders TextInput in Edit mode.
  */
-export function MetadataTextField({
-  label,
-  value,
-  onSave,
-  libraryId,
-  filterKey,
-  type = 'text',
-  openInEditMode,
-  onCancel,
-  pageEditMode
-}: MetadataTextFieldProps) {
+export function MetadataTextField({ label, value, onSave, libraryId, filterKey, type = 'text', openInEditMode, onCancel }: MetadataTextFieldProps) {
+  const { isPageEditMode: pageEditMode } = useItemPageEditMode()
+
   return (
     <MetadataField
       label={label}
       value={value}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
-      pageEditMode={pageEditMode}
       onSave={async (val) => {
         // Ensure we pass a string to onSave, defaulting to empty string if null/undefined
         await onSave(val || '')

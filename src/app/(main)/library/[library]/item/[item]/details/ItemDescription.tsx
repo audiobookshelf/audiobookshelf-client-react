@@ -8,11 +8,9 @@ interface ItemDescriptionProps {
   onSave: (val: string) => Promise<void>
   openInEditMode?: boolean
   onCancel?: () => void
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
 }
 
-export function ItemDescription({ description, onSave, openInEditMode, onCancel, pageEditMode }: ItemDescriptionProps) {
+export function ItemDescription({ description, onSave, openInEditMode, onCancel }: ItemDescriptionProps) {
   const t = useTypeSafeTranslations()
 
   return (
@@ -21,11 +19,10 @@ export function ItemDescription({ description, onSave, openInEditMode, onCancel,
       onSave={onSave}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
-      pageEditMode={pageEditMode}
       className="mt-4"
       renderView={({ value }) =>
         value ? (
-          <ExpandableText html={value} className="text-foreground-muted w-full" pageEditMode={pageEditMode} />
+          <ExpandableText html={value} className="text-foreground-muted w-full" />
         ) : (
           <div className="text-foreground-muted/50 italic p-2">{t('LabelDescription')}</div>
         )

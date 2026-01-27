@@ -1,5 +1,6 @@
 'use client'
 
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useLayoutEffect, useRef, useState } from 'react'
 
@@ -7,10 +8,10 @@ interface ExpandableTextProps {
   html: string
   className?: string
   maxLines?: number
-  pageEditMode?: boolean
 }
 
-export default function ExpandableText({ html, className = '', maxLines = 4, pageEditMode }: ExpandableTextProps) {
+export default function ExpandableText({ html, className = '', maxLines = 4 }: ExpandableTextProps) {
+  const { isPageEditMode: pageEditMode } = useItemPageEditMode()
   const t = useTypeSafeTranslations()
   const [isExpanded, setIsExpanded] = useState(false)
   // Heuristic: If text is long > 300 chars, assume it overflows initially to avoid pop-in.

@@ -1,6 +1,7 @@
 import { EditableField } from '@/components/details/EditableField'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Series } from '@/types/api'
 import Link from 'next/link'
@@ -13,12 +14,11 @@ interface BookSeriesProps {
   onSave: (series: Series[]) => Promise<void>
   openInEditMode?: boolean
   onCancel?: () => void
-  /** Page-level edit mode control */
-  pageEditMode?: boolean
 }
 
-export function BookSeries({ series, libraryId, availableSeries, onSave, openInEditMode, onCancel, pageEditMode }: BookSeriesProps) {
+export function BookSeries({ series, libraryId, availableSeries, onSave, openInEditMode, onCancel }: BookSeriesProps) {
   const t = useTypeSafeTranslations()
+  const { isPageEditMode: pageEditMode } = useItemPageEditMode()
   // Note: Visibility checked in parent
 
   return (
@@ -27,7 +27,7 @@ export function BookSeries({ series, libraryId, availableSeries, onSave, openInE
       onSave={onSave}
       openInEditMode={openInEditMode}
       onCancel={onCancel}
-      pageEditMode={pageEditMode}
+      // pageEditMode handled by context in EditableField, but needed for renderView
       renderView={({ value }) =>
         value.length > 0 ? (
           <div className="w-full">
