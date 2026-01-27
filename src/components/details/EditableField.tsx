@@ -2,7 +2,10 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { mergeClasses } from '@/lib/merge-classes'
+import React, { ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+
+import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
 
 interface EditableFieldProps<T> {
   value: T
@@ -14,13 +17,6 @@ interface EditableFieldProps<T> {
   contentClassName?: string
   openInEditMode?: boolean
   onCancel?: () => void
-  /**
-   * Page-level edit mode control:
-   * - undefined: legacy behavior (click-to-edit always enabled)
-   * - false: view mode - fields are read-only, no click-to-edit, no hover edit button
-   * - true: edit mode - click-to-edit enabled, Tab navigation enabled
-   */
-  pageEditMode?: boolean
 }
 
 export function EditableField<T>({
@@ -32,9 +28,10 @@ export function EditableField<T>({
   className = '',
   contentClassName = '',
   openInEditMode = false,
-  onCancel,
-  pageEditMode
+  onCancel
 }: EditableFieldProps<T>) {
+  const { isPageEditMode: pageEditMode } = useItemPageEditMode()
+
   const t = useTypeSafeTranslations()
   const [isEditing, setIsEditing] = useState(openInEditMode)
   const [tempValue, setTempValue] = useState<T>(initialValue)
@@ -47,6 +44,9 @@ export function EditableField<T>({
   const viewContentRef = useRef<HTMLDivElement>(null)
   const lastTabDirection = useRef<'forward' | 'backward' | null>(null)
   const shouldIgnoreClickRef = useRef(false)
+  const isMouseDownRef = useRef(false)
+  const isProgrammaticFocusRef = useRef(false)
+  const isShiftPressedRef = useRef(false)
 
   // Sync temp value when initial value changes (if not editing)
   useEffect(() => {
@@ -82,9 +82,27 @@ export function EditableField<T>({
     }
     window.addEventListener('touchstart', touchHandler)
 
+    // Global listener to clear mouse down state
+    const mouseUpHandler = () => {
+      isMouseDownRef.current = false
+    }
+    window.addEventListener('mouseup', mouseUpHandler)
+
+    const keyDownHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') isShiftPressedRef.current = true
+    }
+    const keyUpHandler = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') isShiftPressedRef.current = false
+    }
+    window.addEventListener('keydown', keyDownHandler)
+    window.addEventListener('keyup', keyUpHandler)
+
     return () => {
       mql.removeEventListener('change', handler)
       window.removeEventListener('touchstart', touchHandler)
+      window.removeEventListener('mouseup', mouseUpHandler)
+      window.removeEventListener('keydown', keyDownHandler)
+      window.removeEventListener('keyup', keyUpHandler)
     }
   }, [])
 
@@ -154,17 +172,23 @@ export function EditableField<T>({
   }, [isEditing, handleSave])
 
   // Focus management after switching to view mode
-  useEffect(() => {
+  // useLayoutEffect runs synchronously after DOM mutations, before paint
+  useLayoutEffect(() => {
     if (!isEditing && lastTabDirection.current === 'forward') {
       lastTabDirection.current = null
-      // Attempt to focus the first interactive element in view mode
-      // We use a small timeout to allow any renders/unhides to process if needed
-      setTimeout(() => {
-        const interactive = viewContentRef.current?.querySelector('a, button:not([tabindex="-1"]), input, select, textarea, [tabindex]:not([tabindex="-1"])')
-        if (interactive) {
-          ;(interactive as HTMLElement).focus()
-        }
-      }, 50)
+
+      const interactive = viewContentRef.current?.querySelector<HTMLElement>(
+        'a, button:not([tabindex="-1"]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+
+      if (interactive) {
+        isProgrammaticFocusRef.current = true
+        interactive.focus()
+        // queueMicrotask ensures the flag is cleared after focus event handlers run
+        queueMicrotask(() => {
+          isProgrammaticFocusRef.current = false
+        })
+      }
     }
   }, [isEditing])
 
@@ -177,11 +201,66 @@ export function EditableField<T>({
     if (isMobile) return
 
     if (!isEditing && isEditingAllowed) {
+      // If focus landed on an interactive element inside view content, don't enter edit mode
+      // This handles both programmatic focus (after save) and user clicking on links/buttons
       const target = e.target as HTMLElement
-      // Prevent entering edit mode if focusing a button or link
-      if (target.closest('button') || target.closest('a')) {
-        return
+      const isOnInteractiveChild =
+        viewContentRef.current?.contains(target) && target.matches('a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])')
+      if (isOnInteractiveChild) return
+
+      // Also check for programmatic focus flag (backup for edge cases)
+      if (isProgrammaticFocusRef.current) return
+
+      // Backward Tab (Shift+Tab) Entry Handling
+      // If entering via Shift+Tab, we should try to focus the LAST interactive element in the view
+      // instead of entering edit mode immediately.
+      if (isShiftPressedRef.current) {
+        // Use relatedTarget to determine if we are entering from outside or bubbling from inside
+        const isEntering = !containerRef.current?.contains(e.relatedTarget as Node)
+
+        // Check if we have interactive elements to redirect to
+        const interactive = viewContentRef.current?.querySelectorAll(
+          'a, button:not([tabindex="-1"]):not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
+        )
+
+        // If focus landed on the container (wrapper)
+        if (target === containerRef.current) {
+          if (interactive && interactive.length > 0) {
+            if (isEntering) {
+              // We entered from outside onto the container -> Redirect to last item
+              const last = interactive[interactive.length - 1] as HTMLElement
+              isProgrammaticFocusRef.current = true
+              last.focus()
+              queueMicrotask(() => {
+                isProgrammaticFocusRef.current = false
+              })
+              return
+            }
+            // If we bubbled from inside loops, just return (don't auto-edit)
+            // This allows Shift+Tab from the button to land on the container, then next Shift+Tab leaves the field.
+            return
+          }
+          // If no interactive elements, allow fall-through to Auto-Edit (standard Backward Tab behavior)
+        }
+
+        // If focus landed on an internal interactive element (e.g. Firefox focused button directly)
+        // We ensure we don't catch the container itself (which was handled above)
+        if (target !== containerRef.current && containerRef.current?.contains(target)) {
+          // We are rightfully on a child element in view mode -> Return (don't auto-edit)
+          return
+        }
       }
+
+      // If the interaction that caused focus was NOT a mouse down (i.e. it was keyboard/tab),
+      // we generally want to enter edit mode, regardless of where specifically focus landed (e.g. on a button).
+      // If it WAS a mouse down (click), we respect the "don't edit if clicking a link/button" rule.
+      if (isMouseDownRef.current) {
+        // Prevent entering edit mode if focusing a button or link via Click
+        if (target.closest('button') || target.closest('a')) {
+          return
+        }
+      }
+
       handleStartEdit()
     }
   }
@@ -210,6 +289,21 @@ export function EditableField<T>({
       // Prevent entering edit mode if focusing a button or link (e.g. "Read more")
       const target = e.target as HTMLElement
       if (target.closest('button') || target.closest('a')) {
+        // Special Handling for Back-Tab (Shift+Tab) from the first interactive element
+        // This ensures that shift+tabbing from the first element (e.g. "Read More" button)
+        // correctly triggers edit mode instead of getting lost (as seen in Firefox)
+        if (e.key === 'Tab' && e.shiftKey) {
+          const interactive = viewContentRef.current?.querySelectorAll(
+            'a, button:not([tabindex="-1"]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+          if (interactive && interactive.length > 0) {
+            const first = interactive[0]
+            if (first === target || first.contains(target as Node)) {
+              e.preventDefault()
+              handleStartEdit()
+            }
+          }
+        }
         return
       }
 
@@ -259,14 +353,21 @@ export function EditableField<T>({
   return (
     <div
       ref={containerRef}
-      className={`relative group flex items-center -ms-2 ps-2 rounded-sm ${isEditingAllowed ? 'hover:bg-bg-hover/30' : ''} transition-colors ${className} outline-none`}
+      className={mergeClasses(
+        'relative group flex items-center -ms-2 ps-2 rounded-sm transition-colors outline-none',
+        isEditingAllowed && 'hover:bg-bg-hover/30',
+        className
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
+      onMouseDownCapture={() => {
+        isMouseDownRef.current = true
+      }}
       // In page view mode (pageEditMode === false), field is not focusable via Tab
-      tabIndex={isEditingAllowed && !isEditing ? 0 : undefined}
+      tabIndex={isEditingAllowed && !isEditing ? 0 : -1}
       onTouchStart={() => {
         // Capture focus state BEFORE any ephemeral focus events fire (which might be triggered by the touch)
         // If we are NOT focused yet, this touch should just focus us and we should ignore the subsequent click for editing
@@ -300,9 +401,14 @@ export function EditableField<T>({
       {/* View Mode Content (Hidden when editing, but present for querying) */}
       <div
         ref={viewContentRef}
-        className={`min-w-0 ${isMobile && !isFocused ? 'pr-2' : 'pr-12'} ${contentClassName} cursor-pointer w-full ${isEditing ? 'absolute top-0 left-0 w-full opacity-0 pointer-events-none -z-50 h-0 overflow-hidden' : ''} ${
-          isMobile && !isFocused ? '[&_a]:pointer-events-none' : ''
-        } ${isMobile && isFocused ? '[&_a]:underline' : ''}`}
+        className={mergeClasses(
+          'min-w-0 cursor-pointer w-full',
+          isMobile && !isFocused ? 'pr-2' : 'pr-12',
+          contentClassName,
+          isEditing && 'absolute opacity-0 pointer-events-none h-0 overflow-hidden',
+          isMobile && !isFocused && '[&_a]:pointer-events-none',
+          isMobile && isFocused && '[&_a]:underline'
+        )}
         onClick={(e) => {
           // In page view mode (pageEditMode === false), do not enter edit mode on click
           if (pageEditMode === false) return
@@ -328,9 +434,11 @@ export function EditableField<T>({
       {/* Edit Trigger Button - visible on hover (View Mode only) */}
       {!isEditing && (
         <div
-          className={`absolute right-2 top-1/2 -translate-y-1/2 flex-shrink-0 transition-opacity duration-200 ${showEditButton ? 'opacity-100' : 'opacity-0'} ${
-            !showEditButton ? 'pointer-events-none' : ''
-          }`}
+          className={mergeClasses(
+            'absolute right-2 top-1/2 -translate-y-1/2 flex-shrink-0 transition-opacity duration-200',
+            showEditButton ? 'opacity-100' : 'opacity-0',
+            !showEditButton && 'pointer-events-none'
+          )}
         >
           <IconBtn
             size="custom"
