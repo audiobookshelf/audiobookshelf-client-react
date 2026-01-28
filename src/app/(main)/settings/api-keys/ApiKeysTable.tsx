@@ -14,9 +14,10 @@ import { deleteApiKey } from './actions'
 interface ApiKeysTableProps {
   apiKeys: ApiKey[]
   currentUser: UserLoginResponse
+  onEditClick: (apiKey: ApiKey) => void
 }
 
-export default function ApiKeysTable({ apiKeys, currentUser }: ApiKeysTableProps) {
+export default function ApiKeysTable({ apiKeys, currentUser, onEditClick }: ApiKeysTableProps) {
   const t = useTypeSafeTranslations()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [deletingApiKeyId, setDeletingApiKeyId] = useState<string | null>(null)
@@ -90,7 +91,7 @@ export default function ApiKeysTable({ apiKeys, currentUser }: ApiKeysTableProps
       label: '',
       accessor: (apiKey) => (
         <div className="flex items-center justify-end gap-1">
-          <IconBtn ariaLabel={t('ButtonEdit')} borderless size="small" className="text-foreground-muted" onClick={() => console.log('Edit', apiKey.id)}>
+          <IconBtn ariaLabel={t('ButtonEdit')} borderless size="small" className="text-foreground-muted" onClick={() => onEditClick(apiKey)}>
             edit
           </IconBtn>
           <IconBtn
