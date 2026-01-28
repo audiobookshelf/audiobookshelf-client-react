@@ -847,10 +847,22 @@ export interface ApiKey {
     type: string
   }
   userId: string
+  apiKey?: string // Only returned when creating a new API key
 }
 
 export interface GetApiKeysResponse {
   apiKeys: ApiKey[]
+}
+
+export interface CreateApiKeyPayload {
+  name: string
+  expiresIn?: number
+  isActive: boolean
+  userId: string
+}
+
+export interface CreateUpdateApiKeyResponse {
+  apiKey: ApiKey
 }
 
 // ============================================================================

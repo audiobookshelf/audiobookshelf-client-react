@@ -59,10 +59,27 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
   useEffect(() => {
     if (isOpen) {
       setFormData(getInitialFormData(apiKey))
+      setExpiresInSeconds(undefined)
     }
   }, [isOpen, apiKey])
 
+  // Check if form has required fields
+  const isValid = formData.name.trim() !== '' && formData.userId !== ''
+
+  // Check if form data has changed from the original API key
+  const hasChanges = useMemo(() => {
+    if (!apiKey) return true
+    return formData.isActive !== apiKey.isActive || formData.userId !== apiKey.userId
+  }, [apiKey, formData.isActive, formData.userId])
+
   const handleSubmit = () => {
+    if (!isValid) return
+
+    if (!hasChanges) {
+      onClose()
+      return
+    }
+
     if (expiresInSeconds) {
       formData.expiresIn = parseInt(expiresInSeconds)
     }
@@ -139,7 +156,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
 
         {/* Footer Actions */}
         <div className="border-t border-border mt-4 pt-4 flex items-center justify-end">
-          <Btn color="bg-success" onClick={handleSubmit}>
+          <Btn color="bg-success" disabled={!isValid} onClick={handleSubmit}>
             {t('ButtonSubmit')}
           </Btn>
         </div>

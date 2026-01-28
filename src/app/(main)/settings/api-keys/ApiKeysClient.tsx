@@ -4,6 +4,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiKey, User, UserLoginResponse } from '@/types/api'
 import { useCallback, useState } from 'react'
 import SettingsContent from '../SettingsContent'
+import { createApiKey, updateApiKey } from './actions'
 import ApiKeysTable from './ApiKeysTable'
 import EditApiKeyModal, { ApiKeyFormData } from './EditApiKeyModal'
 
@@ -34,12 +35,24 @@ export default function ApiKeysClient({ apiKeys, currentUser, users }: ApiKeysCl
   }, [])
 
   const handleSubmit = useCallback(
-    (formData: ApiKeyFormData) => {
-      // TODO: Wire up server actions
-      console.log('Submit', formData)
+    async (formData: ApiKeyFormData) => {
+      const payload = {
+        name: formData.name,
+        expiresIn: formData.expiresIn,
+        isActive: formData.isActive,
+        userId: formData.userId
+      }
+
+      if (editingApiKey) {
+        await updateApiKey(editingApiKey.id, payload)
+      } else {
+        await createApiKey(payload)
+        // TODO: Show the new API key
+      }
+
       handleCloseModal()
     },
-    [handleCloseModal]
+    [editingApiKey, handleCloseModal]
   )
 
   return (

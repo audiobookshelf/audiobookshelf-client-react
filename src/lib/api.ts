@@ -10,6 +10,8 @@ import {
   AuthorUpdateResponse,
   BookSearchResult,
   Collection,
+  CreateApiKeyPayload,
+  CreateUpdateApiKeyResponse,
   FFProbeData,
   GetApiKeysResponse,
   GetAuthorsResponse,
@@ -449,6 +451,20 @@ export const deleteApiKey = cache(async (apiKeyId: string): Promise<void> => {
     method: 'DELETE'
   })
 })
+
+export async function createApiKey(payload: CreateApiKeyPayload): Promise<CreateUpdateApiKeyResponse> {
+  return apiRequest<CreateUpdateApiKeyResponse>('/api/api-keys', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function updateApiKey(apiKeyId: string, payload: CreateApiKeyPayload): Promise<CreateUpdateApiKeyResponse> {
+  return apiRequest<CreateUpdateApiKeyResponse>(`/api/api-keys/${apiKeyId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
 
 export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
   return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
