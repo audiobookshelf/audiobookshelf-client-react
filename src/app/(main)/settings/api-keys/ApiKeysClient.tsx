@@ -7,6 +7,7 @@ import SettingsContent from '../SettingsContent'
 import { createApiKey, updateApiKey } from './actions'
 import ApiKeysTable from './ApiKeysTable'
 import EditApiKeyModal, { ApiKeyFormData } from './EditApiKeyModal'
+import NewApiKeyModal from './NewApiKeyModal'
 
 interface ApiKeysClientProps {
   apiKeys: ApiKey[]
@@ -18,6 +19,7 @@ export default function ApiKeysClient({ apiKeys, currentUser, users }: ApiKeysCl
   const t = useTypeSafeTranslations()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingApiKey, setEditingApiKey] = useState<ApiKey | null>(null)
+  const [newApiKey, setNewApiKey] = useState<{ name: string; value: string } | null>(null)
 
   const handleAddClick = useCallback(() => {
     setEditingApiKey(null)
@@ -46,14 +48,20 @@ export default function ApiKeysClient({ apiKeys, currentUser, users }: ApiKeysCl
       if (editingApiKey) {
         await updateApiKey(editingApiKey.id, payload)
       } else {
-        await createApiKey(payload)
-        // TODO: Show the new API key
+        const result = await createApiKey(payload)
+        if (result.apiKey.apiKey) {
+          setNewApiKey({ name: result.apiKey.name, value: result.apiKey.apiKey })
+        }
       }
 
       handleCloseModal()
     },
     [editingApiKey, handleCloseModal]
   )
+
+  const handleCloseNewApiKeyModal = useCallback(() => {
+    setNewApiKey(null)
+  }, [])
 
   return (
     <SettingsContent
@@ -67,6 +75,8 @@ export default function ApiKeysClient({ apiKeys, currentUser, users }: ApiKeysCl
       <ApiKeysTable apiKeys={apiKeys} currentUser={currentUser} onEditClick={handleEditClick} />
 
       <EditApiKeyModal isOpen={isModalOpen} apiKey={editingApiKey} users={users} onClose={handleCloseModal} onSubmit={handleSubmit} />
+
+      {newApiKey && <NewApiKeyModal isOpen={!!newApiKey} apiKeyName={newApiKey.name} apiKeyValue={newApiKey.value} onClose={handleCloseNewApiKeyModal} />}
     </SettingsContent>
   )
 }
