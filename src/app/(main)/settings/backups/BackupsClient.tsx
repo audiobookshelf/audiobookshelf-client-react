@@ -170,6 +170,15 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
           </div>
         </div>
 
+        <div className="mb-4 mt-8 flex justify-between">
+          <Btn onClick={() => {}}>
+            {t('ButtonUploadBackup')}
+          </Btn>
+          <Btn onClick={() => {}}>
+            {t('ButtonCreateBackup')}
+          </Btn>
+        </div>
+
         {/* backups table */}
         <BackupsTable backups={backups} dateFormat={dateFormat} timeFormat={timeFormat} />
       </div>
