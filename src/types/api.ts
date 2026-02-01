@@ -688,6 +688,8 @@ export interface MediaProgress {
   id: string
   libraryItemId: string
   episodeId?: string
+  displayTitle: string
+  displaySubtitle?: string // episode title for podcasts
   duration: number
   progress: number
   currentTime: number
