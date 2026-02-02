@@ -2,7 +2,8 @@
 
 import { useItemPageEditMode } from '@/contexts/ItemPageEditModeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { mergeClasses } from '@/lib/merge-classes'
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
 
 interface ExpandableTextProps {
   html: string
@@ -10,44 +11,46 @@ interface ExpandableTextProps {
   maxLines?: number
 }
 
-export default function ExpandableText({ html, className = '', maxLines = 4 }: ExpandableTextProps) {
+function ExpandableText({ html, className = '', maxLines = 4 }: ExpandableTextProps) {
   const { isPageEditMode: pageEditMode } = useItemPageEditMode()
   const t = useTypeSafeTranslations()
+  const measurementRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(false)
-  // Heuristic: If text is long > 300 chars, assume it overflows initially to avoid pop-in.
-  // This might cause a pop-out (button disappears) but that is less jarring than pop-in.
-  const [isOverflowing, setIsOverflowing] = useState(() => html.length > 300)
-  const contentRef = useRef<HTMLDivElement>(null)
+  const [isClamped, setIsClamped] = useState(() => html.length > 300)
+
+  const checkClamping = useCallback(() => {
+    if (measurementRef.current) {
+      const element = measurementRef.current
+      // Compare scrollHeight (full content height) with clientHeight (visible height)
+      // We use a small tolerance (e.g., 1px) to avoid false positives due to sub-pixel rendering
+      const isOverflowing = element.scrollHeight > element.clientHeight + 1
+      setIsClamped(isOverflowing)
+    }
+  }, [])
 
   useLayoutEffect(() => {
-    if (!contentRef.current) return
+    setIsExpanded(false)
+    checkClamping()
+  }, [html, checkClamping])
 
-    const element = contentRef.current
-
-    // Function to check overflow
-    const checkOverflow = () => {
-      // If element is hidden (display: none), measurement will be 0. Avoid resetting state.
-      if (element.clientHeight === 0) return
-
-      // We use a threshold of 1px to avoid precision issues
-      const isOverflowingNow = element.scrollHeight - element.clientHeight > 1
-      setIsOverflowing(isOverflowingNow)
-    }
-
-    // Initial check
-    checkOverflow()
-
-    // Add resize observer to handle window resize or content changes
+  useLayoutEffect(() => {
+    // Use ResizeObserver to detect size changes
     const resizeObserver = new ResizeObserver(() => {
-      checkOverflow()
+      checkClamping()
     })
 
-    resizeObserver.observe(element)
+    if (measurementRef.current) {
+      resizeObserver.observe(measurementRef.current)
+    }
 
     return () => {
       resizeObserver.disconnect()
     }
-  }, [html])
+  }, [checkClamping])
+
+  const toggleExpanded = () => {
+    setIsExpanded((prev) => !prev)
+  }
 
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // In page view mode (!pageEditMode), clicking anywhere on the description should expand/collapse
@@ -57,35 +60,51 @@ export default function ExpandableText({ html, className = '', maxLines = 4 }: E
       if (target.closest('a') || target.closest('button')) {
         return
       }
-      setIsExpanded((prev) => !prev)
+      toggleExpanded()
     }
   }
 
+  const showButton = isClamped
+
   return (
-    <div className={className}>
+    <div className={mergeClasses('relative', className)}>
+      {/* Hidden wrapper to contain measurement div in flow but zero height */}
+      <div className="h-0 overflow-hidden invisible" aria-hidden="true">
+        <div
+          ref={measurementRef}
+          className="default-style less-spacing max-w-none overflow-hidden"
+          style={{
+            display: '-webkit-box',
+            WebkitBoxOrient: 'vertical',
+            WebkitLineClamp: maxLines,
+            overflow: 'hidden'
+          }}
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </div>
+
       <div
-        ref={contentRef}
-        className={`default-style less-spacing max-w-none transition-all duration-300 overflow-hidden ${isExpanded ? '' : 'line-clamp-4'} ${pageEditMode === false ? 'cursor-pointer' : ''}`}
+        className={mergeClasses(
+          'default-style less-spacing max-w-none transition-all duration-300 overflow-hidden',
+          pageEditMode === false ? 'cursor-pointer' : ''
+        )}
         dir="auto"
         style={{
           display: '-webkit-box',
           WebkitBoxOrient: 'vertical',
           // Only apply line clamp when not expanded
-          WebkitLineClamp: isExpanded ? 'unset' : maxLines
+          WebkitLineClamp: isExpanded ? 'unset' : maxLines,
+          overflow: isExpanded ? 'visible' : 'hidden'
         }}
         onClick={handleContentClick}
         dangerouslySetInnerHTML={{ __html: html }}
       />
 
-      {(isOverflowing || isExpanded) && (
+      {showButton && (
         <button
           type="button"
           className="ps-1 mt-2 text-foreground-muted font-semibold hover:text-foreground flex items-center gap-1 text-sm select-none focus-visible:outline-1 focus-visible:outline-foreground focus-visible:outline-offset-1 rounded"
-          onClick={(e) => {
-            e.stopPropagation()
-            e.nativeEvent.stopImmediatePropagation()
-            setIsExpanded((prev) => !prev)
-          }}
+          onClick={toggleExpanded}
         >
           {isExpanded ? t('ButtonReadLess') : t('ButtonReadMore')}
           <span className={`material-symbols text-lg transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
@@ -94,3 +113,5 @@ export default function ExpandableText({ html, className = '', maxLines = 4 }: E
     </div>
   )
 }
+
+export default React.memo(ExpandableText)
