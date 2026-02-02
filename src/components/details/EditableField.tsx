@@ -36,8 +36,6 @@ export function EditableField<T>({
   const [isEditing, setIsEditing] = useState(openInEditMode)
   const [tempValue, setTempValue] = useState<T>(initialValue)
   const [isLoading, setIsLoading] = useState(false)
-  // Track if we are hovering to show the edit button (in view mode)
-  const [isHovered, setIsHovered] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [isFocused, setIsFocused] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -120,7 +118,6 @@ export function EditableField<T>({
   const handleCancel = useCallback(() => {
     setIsEditing(false)
     setTempValue(initialValue)
-    setIsHovered(false)
     setIsFocused(false) // Clear focus state on cancel
     onCancel?.()
   }, [initialValue, onCancel])
@@ -137,7 +134,6 @@ export function EditableField<T>({
     try {
       await onSave(tempValue)
       setIsEditing(false)
-      setIsHovered(false)
     } catch (error) {
       console.error('Failed to save field', error)
     } finally {
@@ -343,9 +339,6 @@ export function EditableField<T>({
     }
   }
 
-  // Show edit button on hover only when editing is allowed (not in page view mode)
-  const showEditButton = isEditingAllowed && (isHovered || (isMobile && isFocused))
-
   const handleChange = useCallback((val: T) => {
     setTempValue(val)
   }, [])
@@ -358,8 +351,6 @@ export function EditableField<T>({
         isEditingAllowed && 'hover:bg-bg-hover/30',
         className
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       onFocus={handleFocus}
       onKeyDown={handleKeyDown}
       onBlur={handleBlur}
@@ -436,8 +427,11 @@ export function EditableField<T>({
         <div
           className={mergeClasses(
             'absolute right-2 top-1/2 -translate-y-1/2 flex-shrink-0 transition-opacity duration-200',
-            showEditButton ? 'opacity-100' : 'opacity-0',
-            !showEditButton && 'pointer-events-none'
+            'opacity-0 pointer-events-none',
+            // Show on hover (if allowed)
+            isEditingAllowed && 'group-hover:opacity-100 group-hover:pointer-events-auto',
+            // Show on mobile focus (if allowed)
+            isEditingAllowed && isMobile && isFocused && 'opacity-100 pointer-events-auto'
           )}
         >
           <IconBtn
