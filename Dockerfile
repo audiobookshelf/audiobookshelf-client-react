@@ -6,8 +6,13 @@ FROM node:20-alpine AS build-client
 
 WORKDIR /client-react
 COPY ./client-react /client-react
+
+# Install all deps (including dev) to build
 RUN npm ci && npm cache clean --force
 RUN npm run build
+
+# Replace with production-only deps for smaller runtime image
+RUN rm -rf node_modules && npm ci --only=production && npm cache clean --force
 
 ### STAGE 1: Build server ###
 FROM node:20-alpine AS build-server
@@ -58,6 +63,7 @@ WORKDIR /app
 COPY --from=build-client /client-react/.next /app/client-react/.next
 COPY --from=build-client /client-react/public /app/client-react/public
 COPY --from=build-client /client-react/package.json /app/client-react/package.json
+COPY --from=build-client /client-react/node_modules /app/client-react/node_modules
 
 # Copy server from build stage
 COPY --from=build-server /server /app

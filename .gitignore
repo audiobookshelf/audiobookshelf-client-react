@@ -21,6 +21,7 @@
 /build
 
 # misc
+/local-scripts
 .DS_Store
 *.pem
 
