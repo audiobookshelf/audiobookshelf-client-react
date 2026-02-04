@@ -180,7 +180,12 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
         </div>
 
         {/* backups table */}
-        <BackupsTable backups={backups} dateFormat={dateFormat} timeFormat={timeFormat} />
+        {backups.length > 0 ? (
+          <BackupsTable backups={backups} dateFormat={dateFormat} timeFormat={timeFormat} />
+        ) : (
+          <p className="text-center text-lg text-foreground py-4">{t('MessageNoBackups')}</p>
+        )}
+
       </div>
       <BackupScheduleModal
         isOpen={isBackupScheduleModalOpen}
