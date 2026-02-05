@@ -4,6 +4,18 @@ import { NextResponse } from 'next/server'
 
 const rscMap = new Map<string, boolean>()
 
+/**
+ * Get the client-facing base URL from request headers.
+ * This is needed for redirects since the server's internal URL (localhost)
+ * differs from the URL the client used to reach the server.
+ */
+function getClientBaseUrl(request: Request): string {
+  const headers = new Headers(request.headers)
+  const host = headers.get('x-forwarded-host') || headers.get('host') || 'localhost'
+  const protocol = headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
+  return `${protocol}://${host}`
+}
+
 export async function GET(request: Request) {
   return handleRefresh(request)
 }
@@ -13,7 +25,10 @@ export async function POST(request: Request) {
 }
 
 async function handleRefresh(request: Request) {
+  // Server URL for backend API calls (internal network)
   const audiobookshelfServerUrl = getServerBaseUrl()
+  // Client URL for browser redirects (what the user sees)
+  const clientBaseUrl = getClientBaseUrl(request)
 
   try {
     const cookieStore = await cookies()
@@ -50,7 +65,7 @@ async function handleRefresh(request: Request) {
 
     if (!refreshResponse.ok) {
       // Refresh failed, redirect to login page and delete refresh token cookie
-      const redirectUrl = new URL('/login', audiobookshelfServerUrl)
+      const redirectUrl = new URL('/login', clientBaseUrl)
       redirectUrl.searchParams.set('error', 'Token refresh failed')
       const response = NextResponse.redirect(redirectUrl)
       response.cookies.delete('refresh_token')
@@ -67,7 +82,8 @@ async function handleRefresh(request: Request) {
 
     // Get redirect URL from query parameters or default to user default path
     const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(data.userDefaultLibraryId, data.user.type)
-    const redirectUrl = new URL(redirectUrlPath, audiobookshelfServerUrl)
+    const redirectUrl = new URL(redirectUrlPath, clientBaseUrl)
+
     const response = NextResponse.redirect(redirectUrl)
     setTokenCookies(response, newAccessToken, newRefreshToken)
 
@@ -75,7 +91,7 @@ async function handleRefresh(request: Request) {
   } catch (error) {
     console.error('Token refresh error:', error)
     // Redirect to login page and delete refresh token cookie
-    const redirectUrl = new URL('/login', audiobookshelfServerUrl)
+    const redirectUrl = new URL('/login', clientBaseUrl)
     redirectUrl.searchParams.set('error', 'Internal server error')
     const response = NextResponse.redirect(redirectUrl)
     response.cookies.delete('refresh_token')
