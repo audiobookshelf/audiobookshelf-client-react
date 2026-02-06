@@ -2,17 +2,24 @@
 
 import * as api from '@/lib/api'
 import { Library, SaveLibraryOrderApiResponse } from '@/types/api'
+import { revalidatePath } from 'next/cache'
 
 export async function createLibrary(newLibrary: Library): Promise<Library> {
-  return api.createLibrary(newLibrary)
+  const result = await api.createLibrary(newLibrary)
+  revalidatePath('/settings/libraries')
+  return result
 }
 
 export async function editLibrary(libraryId: string, updatedLibrary: Library): Promise<Library> {
-  return api.updateLibrary(libraryId, updatedLibrary)
+  const result = await api.updateLibrary(libraryId, updatedLibrary)
+  revalidatePath('/settings/libraries')
+  return result
 }
 
 export async function deleteLibrary(libraryId: string): Promise<Library> {
-  return api.deleteLibrary(libraryId)
+  const result = await api.deleteLibrary(libraryId)
+  revalidatePath('/settings/libraries')
+  return result
 }
 
 export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]): Promise<SaveLibraryOrderApiResponse> {
