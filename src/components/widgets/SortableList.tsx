@@ -57,11 +57,23 @@ export default function SortableList<T extends SortableItem>({
     handleDragend: () => onSortEnd(sortedItems)
   })
 
-  // Reset items only when the array length changes (item added/removed), not on every render
+  // Order-independent content hash: detects add/remove/property-change but NOT reorder.
+  // Sorting by ID before serializing ensures a drag reorder produces the same hash,
+  // so we don't call setItems after a drop (which would corrupt formkit's internal state).
+  const itemsContentHash = useMemo(
+    () =>
+      [...items]
+        .sort((a, b) => String(a.id).localeCompare(String(b.id)))
+        .map((item) => JSON.stringify(item))
+        .join('|'),
+    [items]
+  )
+
+  // Sync the drag-and-drop internal list when items change (add/remove/edit)
   useEffect(() => {
     setItems(itemsWithIds)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemsWithIds.length, setItems])
+  }, [itemsContentHash])
 
   const itemWrapperClassName = useMemo(() => {
     return mergeClasses('transition-all duration-200', itemClassName)
