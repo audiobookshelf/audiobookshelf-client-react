@@ -50,7 +50,7 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
 
       {libraryItems.length > 0 && (
         <div className="mt-20e -ms-2e">
-          <ItemSlider title={t('LabelBooks', { 0: libraryItems.length })} className="!ps-0">
+          <ItemSlider title={t('LabelXBooks', { count: libraryItems.length })} className="!ps-0">
             {libraryItems.map((libraryItem) => {
               const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
               return (
