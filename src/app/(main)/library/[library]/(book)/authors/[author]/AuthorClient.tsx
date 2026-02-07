@@ -5,6 +5,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import ItemSlider from '@/components/widgets/ItemSlider'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
@@ -17,21 +18,22 @@ interface AuthorClientProps {
 export default function AuthorClient({ author, currentUser }: AuthorClientProps) {
   const t = useTypeSafeTranslations()
   const { library, showSubtitles } = useLibrary()
+  const { sizeMultiplier } = useCardSize()
 
   const libraryItems = author.libraryItems || []
   const series = author.series || []
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="flex gap-8">
-        <div className="w-48 max-w-48">
-          <div className="w-full h-60">
+    <div className="w-full mx-auto" style={{ fontSize: sizeMultiplier + 'rem' }}>
+      <div className="flex gap-8e">
+        <div className="w-48e max-w-48e">
+          <div className="w-full h-60e">
             <AuthorImage author={author} className="w-full h-full" />
           </div>
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-8">
-            <h1 className="text-2xl">{author.name}</h1>
+          <div className="flex items-center gap-2e mb-2e">
+            <h1 className="text-[1.5em]">{author.name}</h1>
             <IconBtn
               borderless
               size="small"
@@ -42,14 +44,13 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
               edit
             </IconBtn>
           </div>
-          {author.description && <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">{t('LabelDescription')}</div>}
-          {author.description && <ExpandableHtml html={author.description} lineClamp={4} />}
+          {author.description && <ExpandableHtml html={author.description} lineClamp={7} className="max-w-[48em]" />}
         </div>
       </div>
 
       {libraryItems.length > 0 && (
-        <div className="mt-20 -ms-2e">
-          <ItemSlider title={t('LabelXItems', { 0: libraryItems.length })} className="!ps-0">
+        <div className="mt-20e -ms-2e">
+          <ItemSlider title={t('LabelBooks', { 0: libraryItems.length })} className="!ps-0">
             {libraryItems.map((libraryItem) => {
               const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
               return (
