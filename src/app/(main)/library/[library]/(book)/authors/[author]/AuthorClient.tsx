@@ -52,7 +52,7 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
       </div>
 
       {libraryItems.length > 0 && (
-        <div className="mt-20e -ms-2e">
+        <div className="mt-8e -ms-2e">
           <ItemSlider
             title={
               <Link href={`/library/${library.id}/items?filter=authors.${filterEncode(author.id)}`} className="hover:underline transition-colors">
@@ -91,7 +91,7 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
           </span>
         )
         return (
-          <div key={bookSeries.id} className="shrink-0 mx-2e">
+          <div key={bookSeries.id} className="shrink-0 -ms-2e">
             <ItemSlider title={seriesTitle} className="!ps-0">
               {bookSeries.items?.map((libraryItem) => {
                 const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
