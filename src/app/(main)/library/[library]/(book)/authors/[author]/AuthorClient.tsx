@@ -47,7 +47,7 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
               edit
             </IconBtn>
           </div>
-          {author.description && <ExpandableHtml html={author.description} lineClamp={7} className="max-w-48e" />}
+          {author.description && <ExpandableHtml html={author.description} lineClamp={7} className="max-w-[48em]" />}
         </div>
       </div>
 
