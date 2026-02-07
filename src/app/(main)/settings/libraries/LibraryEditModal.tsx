@@ -150,7 +150,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">
       <div className="px-4 sm:px-8 py-8 max-h-[90vh] overflow-y-auto">
         {/* Top Row: Media Type, Library Name, Icon, Metadata Provider */}
-        <div className="flex items-start gap-4">
+        <div className="flex flex-wrap items-start gap-2">
           {/* Media Type */}
           <Dropdown
             label={t('LabelMediaType')}
@@ -159,7 +159,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
             disabled={isEditing}
             highlightSelected
             onChange={handleMediaTypeChange}
-            className="w-36 shrink-0"
+            className="w-full sm:w-36 shrink-0"
           />
 
           {/* Library Name */}
@@ -168,7 +168,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
             value={formData.name}
             placeholder={t('LabelLibraryName')}
             onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
-            className="flex-1"
+            className="w-full sm:flex-1"
           />
 
           {/* Icon */}
@@ -185,7 +185,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
             items={providerItems}
             highlightSelected
             onChange={(value) => setFormData((prev) => ({ ...prev, provider: String(value) }))}
-            className="w-44 shrink-0"
+            className="flex-1 sm:w-44 sm:shrink-0"
           />
         </div>
 
