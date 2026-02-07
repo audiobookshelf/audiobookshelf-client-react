@@ -29,16 +29,18 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
       setIsClampedIfOverflowing()
     } else {
       // If it's expanded, we have to "fake" the clamp to see if it SHOULD be clampable
-      const { webkitLineClamp, overflow } = element.style
+      const { webkitLineClamp, overflow, display } = element.style
 
       element.style.webkitLineClamp = lineClamp.toString()
       element.style.overflow = 'hidden'
+      element.style.display = '-webkit-box'
 
       setIsClampedIfOverflowing()
 
       // Restore
       element.style.webkitLineClamp = webkitLineClamp
       element.style.overflow = overflow
+      element.style.display = display
     }
   }, [lineClamp, isExpanded])
 
@@ -73,7 +75,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
         className="default-style less-spacing max-w-none transition-all duration-300 overflow-hidden cursor-pointer"
         dir="auto"
         style={{
-          display: '-webkit-box',
+          display: isExpanded ? 'block' : '-webkit-box',
           WebkitBoxOrient: 'vertical',
           WebkitLineClamp: isExpanded ? 'unset' : lineClamp,
           overflow: isExpanded ? 'visible' : 'hidden'

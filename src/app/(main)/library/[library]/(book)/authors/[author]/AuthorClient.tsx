@@ -28,13 +28,13 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
 
   return (
     <div className="w-full mx-auto" style={{ fontSize: sizeMultiplier + 'rem' }}>
-      <div className="flex gap-8e">
-        <div className="w-48e max-w-48e">
+      <div className="flow-root">
+        <div className="float-start me-8e mb-2e w-48e max-w-48e">
           <div className="w-full h-60e">
             <AuthorImage author={author} className="w-full h-full" />
           </div>
         </div>
-        <div className="flex-1">
+        <div>
           <div className="flex items-center gap-2e mb-2e">
             <h1 className="text-[1.5em]">{author.name}</h1>
             <IconBtn
