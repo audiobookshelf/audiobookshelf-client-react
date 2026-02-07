@@ -85,11 +85,11 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
       {isClamped && (
         <button
           type="button"
-          className="ps-1 mt-2 text-foreground-muted font-semibold hover:text-foreground flex items-center gap-1 text-sm select-none focus-visible:outline-1 focus-visible:outline-foreground focus-visible:outline-offset-1 rounded"
+          className="ps-1 mt-2 text-foreground-muted font-semibold hover:text-foreground flex items-center gap-1 text-[0.875em] select-none focus-visible:outline-1 focus-visible:outline-foreground focus-visible:outline-offset-1 rounded"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? t('ButtonReadLess') : t('ButtonReadMore')}
-          <span className={`material-symbols text-lg transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
+          <span className={`material-symbols text-[1.125em] transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`}>expand_more</span>
         </button>
       )}
     </div>
