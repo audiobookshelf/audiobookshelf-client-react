@@ -39,7 +39,7 @@ const getInitialFormData = (library: Library | null): LibraryFormData => {
     mediaType: 'book',
     icon: 'database',
     provider: '',
-    folders: [{ fullPath: '' }]
+    folders: []
   }
 }
 
@@ -55,6 +55,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   const t = useTypeSafeTranslations()
   const { bookProviders, podcastProviders, ensureProvidersLoaded } = useMetadata()
   const [formData, setFormData] = useState<LibraryFormData>(getInitialFormData(library))
+  const [newFolderPath, setNewFolderPath] = useState('')
 
   const isEditing = !!library
 
@@ -69,6 +70,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   useEffect(() => {
     if (isOpen) {
       setFormData(getInitialFormData(library))
+      setNewFolderPath('')
     }
   }, [isOpen, library])
 
@@ -110,35 +112,62 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     [bookProviders, podcastProviders]
   )
 
-  // Handle folder path change
-  const handleFolderPathChange = useCallback((index: number, value: string) => {
-    setFormData((prev) => {
-      const newFolders = [...prev.folders]
-      newFolders[index] = { fullPath: value }
-      return { ...prev, folders: newFolders }
-    })
-  }, [])
-
   // Remove a folder entry
   const handleRemoveFolder = useCallback((index: number) => {
-    setFormData((prev) => {
-      const newFolders = prev.folders.filter((_, i) => i !== index)
-      return { ...prev, folders: newFolders.length > 0 ? newFolders : [{ fullPath: '' }] }
-    })
+    setFormData((prev) => ({
+      ...prev,
+      folders: prev.folders.filter((_, i) => i !== index)
+    }))
   }, [])
+
+  // Commit the new folder path to the folders list
+  const commitNewFolder = useCallback(() => {
+    const trimmed = newFolderPath.trim()
+    if (trimmed) {
+      const existingFolder = formData.folders.find((f) => f.fullPath.trim() === trimmed)
+      if (!existingFolder) {
+        setFormData((prev) => ({
+          ...prev,
+          folders: [...prev.folders, { fullPath: trimmed }]
+        }))
+        setNewFolderPath('')
+      }
+    }
+  }, [newFolderPath, formData.folders])
+
+  // Handle Enter key in new folder input
+  const handleNewFolderKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        commitNewFolder()
+      }
+    },
+    [commitNewFolder]
+  )
 
   // Check if form is valid
   const isValid = useMemo(() => {
     const hasName = formData.name.trim() !== ''
-    const hasFolders = formData.folders.some((f) => f.fullPath.trim() !== '')
+    const hasFolders = formData.folders.some((f) => f.fullPath.trim() !== '') || newFolderPath.trim() !== ''
     return hasName && hasFolders
-  }, [formData.name, formData.folders])
+  }, [formData.name, formData.folders, newFolderPath])
 
   // Handle submit
   const handleSubmit = useCallback(() => {
     if (!isValid || processing) return
-    onSubmit(formData)
-  }, [isValid, processing, formData, onSubmit])
+
+    // Include any pending new folder path that hasn't been committed yet (and is not already in the list)
+    const trimmedNew = newFolderPath.trim()
+    if (trimmedNew && !formData.folders.some((f) => f.fullPath.trim() === trimmedNew)) {
+      onSubmit({
+        ...formData,
+        folders: [...formData.folders, { fullPath: trimmedNew }]
+      })
+    } else {
+      onSubmit(formData)
+    }
+  }, [isValid, processing, formData, newFolderPath, onSubmit])
 
   const outerContentTitle = (
     <div className="absolute top-0 start-0 p-4">
@@ -172,11 +201,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
           />
 
           {/* Icon */}
-          <MediaIconPicker
-            value={formData.icon}
-            label={t('LabelIcon')}
-            onChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))}
-          />
+          <MediaIconPicker value={formData.icon} label={t('LabelIcon')} onChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))} />
 
           {/* Metadata Provider */}
           <Dropdown
@@ -194,18 +219,12 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
           <h3 className="text-sm font-semibold text-foreground-muted mb-2">{t('LabelFolders')}</h3>
 
           <div className="space-y-2">
+            {/* Committed folder paths */}
             {formData.folders.map((folder, index) => (
               <div key={index} className="flex items-center gap-2">
-                {/* TODO: Support remove and add new folder paths */}
                 <span className="material-symbols fill text-yellow-200 text-xl">folder</span>
-                <TextInput
-                  value={folder.fullPath}
-                  placeholder={t('PlaceholderNewFolderPath')}
-                  readOnly={isEditing}
-                  onChange={(value) => handleFolderPathChange(index, value)}
-                  className="flex-1"
-                />
-                {formData.folders.length > 1 && (
+                <TextInput value={folder.fullPath} readOnly className="flex-1 text-sm" />
+                <div className="w-5">
                   <button
                     type="button"
                     className="material-symbols text-foreground-muted hover:text-error text-xl cursor-pointer"
@@ -214,9 +233,23 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
                   >
                     close
                   </button>
-                )}
+                </div>
               </div>
             ))}
+
+            {/* Always-visible new folder input */}
+            <div className="flex items-center gap-2">
+              <span className="material-symbols fill text-yellow-200/50 text-xl">create_new_folder</span>
+              <TextInput
+                value={newFolderPath}
+                placeholder={t('PlaceholderNewFolderPath')}
+                onChange={setNewFolderPath}
+                onBlur={commitNewFolder}
+                onKeyDown={handleNewFolderKeyDown}
+                className="flex-1 text-sm"
+              />
+              {formData.folders.length > 0 && <div className="w-5"></div>}
+            </div>
           </div>
 
           {/* Browse for Folder button */}
