@@ -85,10 +85,12 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
 
       {series.map((bookSeries) => {
         const seriesTitle = (
-          <span>
-            {bookSeries.name}
-            <span className="text-foreground-subdued ps-3e">{t('LabelSeries')}</span>
-          </span>
+          <>
+            <Link href={`/library/${library.id}/series/${bookSeries.id}`} className="hover:underline transition-colors">
+              {bookSeries.name}
+            </Link>
+            <span className="text-foreground-subdued ps-2e">{t('LabelSeries')}</span>
+          </>
         )
         return (
           <div key={bookSeries.id} className="shrink-0 -ms-2e">
