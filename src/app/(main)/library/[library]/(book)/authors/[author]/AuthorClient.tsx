@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link'
+
 import AuthorImage from '@/components/covers/AuthorImage'
 import IconBtn from '@/components/ui/IconBtn'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
@@ -8,6 +10,7 @@ import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { filterEncode } from '@/lib/filterUtils'
 import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
 
 interface AuthorClientProps {
@@ -50,7 +53,14 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
 
       {libraryItems.length > 0 && (
         <div className="mt-20e -ms-2e">
-          <ItemSlider title={t('LabelXBooks', { count: libraryItems.length })} className="!ps-0">
+          <ItemSlider
+            title={
+              <Link href={`/library/${library.id}/items?filter=authors.${filterEncode(author.id)}`} className="hover:underline transition-colors">
+                {t('LabelXBooks', { count: libraryItems.length })}
+              </Link>
+            }
+            className="!ps-0"
+          >
             {libraryItems.map((libraryItem) => {
               const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
               return (
