@@ -1,4 +1,4 @@
-import { RefObject, useCallback, useEffect, useRef } from 'react'
+import { RefObject, useCallback, useLayoutEffect, useRef } from 'react'
 
 interface MenuPosition {
   top: string
@@ -68,7 +68,7 @@ export const useMenuPosition = ({
   }, [onPositionChange, menuRef, triggerRef, portalContainerRef, disable])
 
   // Set up event listeners and ResizeObserver when menu is open
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (isOpen && !disable) {
       const scrollTarget = portalContainerRef?.current || window
       const handleScroll = (event: Event): void => {

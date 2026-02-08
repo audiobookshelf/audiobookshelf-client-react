@@ -56,12 +56,15 @@
 
 .default-style.less-spacing p {
   margin-block-start: 0;
+  margin-block-end: 0.25em;
 }
 
 .default-style.less-spacing ul {
   margin-block-start: 0;
+  margin-block-end: 0.25em;
 }
 
 .default-style.less-spacing ol {
   margin-block-start: 0;
+  margin-block-end: 0.25em;
 }
