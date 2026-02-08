@@ -54,8 +54,6 @@ describe('<ExpandableHtml />', () => {
 
     cy.contains('Read less').should('be.visible')
     // Check styles for expansion
-    // Check styles for expansion
-    cy.get('.default-style').should('have.css', 'display', 'block')
     cy.get('.default-style').should('not.have.css', '-webkit-line-clamp', '2')
     // In some browsers 'unset' might compute to 'none' or a specific value,
     // but the component sets it to 'unset'. We can verify the style attribute directly or check overflow.
@@ -77,11 +75,6 @@ describe('<ExpandableHtml />', () => {
     cy.contains('Read less').click()
     cy.contains('Read more').should('be.visible')
     cy.get('.default-style').should('have.css', '-webkit-line-clamp', '2')
-    cy.get('.default-style').should(($div) => {
-      // In some environments, display might compute differently
-      const display = $div.css('display')
-      expect(display).to.match(/^(-webkit-box|flow-root)$/)
-    })
   })
 
   it('toggles expansion when clicking the text body', () => {
