@@ -32,10 +32,33 @@ export function DropdownExamples() {
     { text: 'Option 3 with a longer text that is even longer', value: 'option3', subtext: 'Subtext 3' }
   ]
 
+  const dropdownItemsWithSubmenus: DropdownItem[] = [
+    { text: 'Option 1', value: 'option1' },
+    {
+      text: 'Option 2 (Submenu)',
+      value: 'option2',
+      subitems: [
+        { text: 'Subitem 2.1', value: 'option2.1' },
+        { text: 'Subitem 2.2', value: 'option2.2' },
+        { text: 'Subitem 2.3', value: 'option2.3' }
+      ]
+    },
+    {
+      text: 'Option 3 (Submenu)',
+      value: 'option3',
+      subitems: [
+        { text: 'Subitem 3.1', value: 'option3.1' },
+        { text: 'Subitem 3.2', value: 'option3.2' }
+      ]
+    },
+    { text: 'Option 4', value: 'option4' }
+  ]
+
   const [dropdownValue, setDropdownValue] = useState('option1')
   const [dropdownValue2, setDropdownValue2] = useState('en')
   const [dropdownValue3, setDropdownValue3] = useState('option1')
   const [dropdownValue4, setDropdownValue4] = useState('option1')
+  const [dropdownValue5, setDropdownValue5] = useState('option1')
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -54,6 +77,10 @@ export function DropdownExamples() {
     setDropdownValue4(String(value))
   }
 
+  const handleDropdownChange5 = (value: string | number) => {
+    setDropdownValue5(String(value))
+  }
+
   return (
     <ComponentExamples title="Dropdowns">
       <ComponentInfo component="Dropdown" description="Select dropdown component with labels, subtext, and various states">
@@ -69,6 +96,10 @@ export function DropdownExamples() {
       <ExamplesBlock>
         <Example title="Default Dropdown">
           <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} label="Select Option" />
+        </Example>
+
+        <Example title="Dropdown with portal">
+          <Dropdown value={dropdownValue} onChange={handleDropdownChange} items={dropdownItems} label="Select Option" usePortal={true} />
         </Example>
 
         <Example title="Dropdown with Subtext">
@@ -111,6 +142,9 @@ export function DropdownExamples() {
             items={dropdownItemsWithDifferentLengthsAndSubtext}
             label="Dropdown with different item lengths and subtext"
           />
+        </Example>
+        <Example title="Dropdown with submenus">
+          <Dropdown value={dropdownValue5} onChange={handleDropdownChange5} items={dropdownItemsWithSubmenus} label="Dropdown with submenus" />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>
