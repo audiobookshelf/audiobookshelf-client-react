@@ -21,6 +21,7 @@ import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
+import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, LibraryItem, MediaProgress, Playlist, Series, UserLoginResponse } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -42,6 +43,9 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const isPodcastLibrary = library.mediaType === 'podcast'
   const isBookLibrary = library.mediaType === 'book'
 
+  // Scroll storage key
+  const scrollKey = useMemo(() => `bookshelf-scroll-${library.id}-${entityType}-${query}`, [library.id, entityType, query])
+
   const [isAuthorEditModalOpen, setIsAuthorEditModalOpen] = useState(false)
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
 
@@ -50,13 +54,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   // Container dimensions state
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-
-  // Reset scroll position when query changes (sort/filter changed)
-  useEffect(() => {
-    if (containerRef.current) {
-      containerRef.current.scrollTop = 0
-    }
-  }, [query])
 
   // totalEntities state
   const [totalEntities, setTotalEntities] = useState(0)
@@ -139,6 +136,15 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     containerHeight: dimensions.height,
     padding: shelfPadding / 2
   })
+
+  // Use custom hook for persistent scroll logic
+  const { handleScroll: handlePersistentScroll } = usePersistentScroll({
+    scrollKey,
+    containerRef,
+    isEnabled: hasMeasuredCard && totalEntities > 0
+  })
+
+  // Author actions hook
 
   const bookshelfMarginLeft = Math.max(0, (dimensions.width - columns * totalEntityCardWidth) / 2)
   const itemsPerPage = columns * shelvesPerPage
@@ -477,7 +483,11 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       ref={containerRef}
       className="h-full overflow-y-auto relative py-8"
       style={{ fontSize: sizeMultiplier + 'rem' }}
-      onScroll={(e) => handleScroll(e.currentTarget.scrollTop)}
+      onScroll={(e) => {
+        const scrollTop = e.currentTarget.scrollTop
+        handleScroll(scrollTop)
+        handlePersistentScroll(scrollTop)
+      }}
     >
       {/* Measurement Dummy - Hidden but rendered for sizing */}
       <div ref={dummyCardRef} style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
