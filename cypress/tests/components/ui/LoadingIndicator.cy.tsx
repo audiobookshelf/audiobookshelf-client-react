@@ -1,4 +1,3 @@
-import React from 'react'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 
 describe('<LoadingIndicator />', () => {
@@ -14,6 +13,6 @@ describe('<LoadingIndicator />', () => {
 
   it('has a loading text', () => {
     cy.mount(<LoadingIndicator />)
-    cy.get('&loading-text').should('contain.text', 'Loading...')
+    cy.get('&loading-text').should('contain.text', 'Loading content')
   })
 })
