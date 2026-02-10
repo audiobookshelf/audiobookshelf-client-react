@@ -37,7 +37,7 @@ export default function LibraryLayoutWrapper({ children, currentUser }: LibraryL
         <div className={mergeClasses('w-full overflow-x-hidden overflow-y-auto', isLibraryItemPage ? 'h-full' : 'h-[calc(100%-2.5rem)]')}>{children}</div>
       </div>
 
-      <CoverSizeWidget className="absolute bottom-4 right-4 z-50" />
+      <CoverSizeWidget className={`absolute ${libraryItemIdStreaming ? 'lg:bottom-44 bottom-50' : 'bottom-4'} right-4 z-50`} />
     </div>
   )
 }
