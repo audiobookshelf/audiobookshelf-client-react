@@ -25,7 +25,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
     }
 
     if (!isExpanded) {
-      // If it's already clamped by React, just measure it!
+      // If it's already clamped by React, just measure it
       setIsClampedIfOverflowing()
     } else {
       // If it's expanded, we have to "fake" the clamp to see if it SHOULD be clampable
@@ -70,13 +70,14 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
     <div className={className}>
       <div
         ref={contentRef}
-        className="default-style less-spacing max-w-none transition-all duration-300 overflow-hidden cursor-pointer"
+        className="default-style less-spacing max-w-none transition-all duration-300 overflow-hidden"
         dir="auto"
         style={{
           display: '-webkit-box',
           WebkitBoxOrient: 'vertical',
           WebkitLineClamp: isExpanded ? 'unset' : lineClamp,
-          overflow: isExpanded ? 'visible' : 'hidden'
+          overflow: isExpanded ? 'visible' : 'hidden',
+          cursor: isClamped ? 'pointer' : 'default'
         }}
         onClick={handleContentClick}
         dangerouslySetInnerHTML={{ __html: html }}
