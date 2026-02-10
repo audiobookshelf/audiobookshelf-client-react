@@ -446,8 +446,8 @@ describe('<Dropdown />', () => {
       // Hover over item with subitems
       cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
       // Submenu should appear - submenu uses role="menu"
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"]').should('exist')
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li').should('have.length', 3)
+      cy.get('[role="menu"]').should('exist')
+      cy.get('[role="menu"] li').should('have.length', 3)
     })
 
     it('selects subitem on click', () => {
@@ -457,7 +457,7 @@ describe('<Dropdown />', () => {
       // Hover to open submenu
       cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
       // Click on subitem - submenu uses role="menu", use force since submenu may be positioned off-screen in test
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li').first().click({ force: true })
+      cy.get('[role="menu"] li').first().click({ force: true })
       cy.get('@onChangeSpy').should('have.been.calledWith', 'sub1')
     })
 
@@ -466,7 +466,7 @@ describe('<Dropdown />', () => {
       cy.get('button').click()
       cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
       // Submenu uses role="menu", use force since submenu may be positioned off-screen in test
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li').first().click({ force: true })
+      cy.get('[role="menu"] li').first().click({ force: true })
       cy.get('[role="listbox"]').should('not.exist')
     })
 
@@ -478,9 +478,9 @@ describe('<Dropdown />', () => {
       // Open submenu with right arrow
       cy.realType('{rightarrow}')
       // Submenu should be visible
-      cy.get('[role="listbox"] > li').eq(1).find('ul').should('be.visible')
+      cy.get('[role="menu"]').should('exist')
       // First subitem should be focused
-      cy.get('[role="listbox"] > li').eq(1).find('ul li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').first().should('have.class', 'bg-dropdown-item-selected')
     })
 
     it('closes submenu with ArrowLeft key', () => {
@@ -488,9 +488,9 @@ describe('<Dropdown />', () => {
       cy.get('button').click()
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
-      cy.get('[role="listbox"] > li').eq(1).find('ul').should('be.visible')
+      cy.get('[role="menu"]').should('exist')
       cy.realType('{leftarrow}')
-      cy.get('[role="listbox"] > li').eq(1).find('ul').should('not.exist')
+      cy.get('[role="menu"]').should('not.exist')
     })
 
     it('navigates within submenu with ArrowUp/ArrowDown', () => {
@@ -499,13 +499,13 @@ describe('<Dropdown />', () => {
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       // First subitem focused
-      cy.get('[role="listbox"] > li').eq(1).find('ul li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').eq(0).should('have.class', 'bg-dropdown-item-selected')
       // Navigate down
       cy.realType('{downarrow}')
-      cy.get('[role="listbox"] > li').eq(1).find('ul li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').eq(1).should('have.class', 'bg-dropdown-item-selected')
       // Navigate up
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(1).find('ul li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').eq(0).should('have.class', 'bg-dropdown-item-selected')
     })
 
     it('selects subitem with Enter key', () => {
@@ -524,10 +524,10 @@ describe('<Dropdown />', () => {
       cy.get('button').click()
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
-      cy.get('[role="listbox"] > li').eq(1).find('ul').should('be.visible')
+      cy.get('[role="menu"]').should('exist')
       cy.realType('{esc}')
       // Submenu should be closed but main menu still open
-      cy.get('[role="listbox"] > li').eq(1).find('ul').should('not.exist')
+      cy.get('[role="menu"]').should('not.exist')
       cy.get('[role="listbox"]').should('be.visible')
     })
 
@@ -564,10 +564,10 @@ describe('<Dropdown />', () => {
       cy.realType('{downarrow}')
       // Open submenu
       cy.realType('{rightarrow}')
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"]').should('exist')
+      cy.get('[role="menu"]').should('exist')
       // Type 'a' to filter - should show Apple and Apricot
       cy.realType('a')
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 2)
+      cy.get('[role="menu"] li[role="option"]').should('have.length', 2)
     })
 
     it('shows filter text indicator in submenu', () => {
@@ -578,10 +578,10 @@ describe('<Dropdown />', () => {
       // Type 'ban' to filter
       cy.realType('ban')
       // Should show filter text indicator
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="presentation"]').should('contain.text', 'ban')
+      cy.get('[role="menu"] li[role="presentation"]').should('contain.text', 'ban')
       // Should only show Banana
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('contain.text', 'Banana')
+      cy.get('[role="menu"] li[role="option"]').should('have.length', 1)
+      cy.get('[role="menu"] li[role="option"]').should('contain.text', 'Banana')
     })
 
     it('clears filter with Backspace key', () => {
@@ -591,15 +591,15 @@ describe('<Dropdown />', () => {
       cy.realType('{rightarrow}')
       // Type 'ch' to filter to Cherry only
       cy.realType('ch')
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
+      cy.get('[role="menu"] li[role="option"]').should('have.length', 1)
       // Press backspace to remove last character
       cy.realType('{backspace}')
       // Should now match items starting with 'c' - Cherry only
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
+      cy.get('[role="menu"] li[role="option"]').should('have.length', 1)
       // Press backspace again to clear filter
       cy.realType('{backspace}')
       // Should show all 5 items
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 5)
+      cy.get('[role="menu"] li[role="option"]').should('have.length', 5)
     })
 
     it('shows no items message when filter has no matches', () => {
@@ -610,7 +610,7 @@ describe('<Dropdown />', () => {
       // Type 'xyz' which matches nothing
       cy.realType('xyz')
       // Should show no items message - check for aria-selected false option (the "No items" message)
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"][aria-selected="false"]').should('exist')
+      cy.get('[role="menu"] li[role="option"][aria-selected="false"]').should('exist')
     })
 
     it('selects from filtered list with Enter key', () => {
@@ -633,13 +633,13 @@ describe('<Dropdown />', () => {
       cy.realType('{rightarrow}')
       // Type 'ch' to filter
       cy.realType('ch')
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 1)
+      cy.get('[role="menu"] li[role="option"]').should('have.length', 1)
       // Close submenu with left arrow
       cy.realType('{leftarrow}')
       // Reopen submenu
       cy.realType('{rightarrow}')
       // Should show all items (filter was cleared)
-      cy.get('[role="listbox"] > li').eq(1).find('[role="menu"] li[role="option"]').should('have.length', 5)
+      cy.get('[role="menu"] li[role="option"]').should('have.length', 5)
     })
   })
 

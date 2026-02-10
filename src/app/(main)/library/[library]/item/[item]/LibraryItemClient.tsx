@@ -6,7 +6,7 @@ import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
-import ExpandableDescription from '@/components/widgets/ExpandableDescription'
+import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
@@ -122,7 +122,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
               {isPodcast && <IconBtn onClick={() => {}}>search</IconBtn>}
             </div>
 
-            {description && <ExpandableDescription description={description} lineClamp={4} className="mt-6" />}
+            {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
             <div className="mt-20 flex flex-col gap-2">
               {/* chapters table */}

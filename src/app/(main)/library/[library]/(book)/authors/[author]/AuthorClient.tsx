@@ -1,12 +1,16 @@
 'use client'
 
+import Link from 'next/link'
+
 import AuthorImage from '@/components/covers/AuthorImage'
 import IconBtn from '@/components/ui/IconBtn'
-import ExpandableDescription from '@/components/widgets/ExpandableDescription'
+import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import ItemSlider from '@/components/widgets/ItemSlider'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { filterEncode } from '@/lib/filterUtils'
 import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
 
 interface AuthorClientProps {
@@ -17,21 +21,22 @@ interface AuthorClientProps {
 export default function AuthorClient({ author, currentUser }: AuthorClientProps) {
   const t = useTypeSafeTranslations()
   const { library, showSubtitles } = useLibrary()
+  const { sizeMultiplier } = useCardSize()
 
   const libraryItems = author.libraryItems || []
   const series = author.series || []
 
   return (
-    <div className="w-full max-w-6xl mx-auto">
-      <div className="flex gap-8">
-        <div className="w-48 max-w-48">
-          <div className="w-full h-60">
+    <div className="w-full" style={{ fontSize: sizeMultiplier + 'rem' }}>
+      <div className="flex flex-col md:flex-row gap-8e">
+        <div className="w-48e max-w-48e mx-auto">
+          <div className="w-full h-60e">
             <AuthorImage author={author} className="w-full h-full" />
           </div>
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-8">
-            <h1 className="text-2xl">{author.name}</h1>
+          <div className="flex items-center gap-2e mb-2e">
+            <h1 className="text-[1.5em]">{author.name}</h1>
             <IconBtn
               borderless
               size="small"
@@ -42,14 +47,20 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
               edit
             </IconBtn>
           </div>
-          {author.description && <div className="text-sm font-medium text-foreground-subdued uppercase mb-2">{t('LabelDescription')}</div>}
-          {author.description && <ExpandableDescription description={author.description} lineClamp={4} />}
+          {author.description && <ExpandableHtml html={author.description} lineClamp={7} className="max-w-[48em]" />}
         </div>
       </div>
 
       {libraryItems.length > 0 && (
-        <div className="mt-20 -ms-2e">
-          <ItemSlider title={t('LabelXItems', { 0: libraryItems.length })} className="!ps-0">
+        <div className="mt-8e -ms-2e">
+          <ItemSlider
+            title={
+              <Link href={`/library/${library.id}/items?filter=authors.${filterEncode(author.id)}`} className="hover:underline transition-colors">
+                {t('LabelXBooks', { count: libraryItems.length })}
+              </Link>
+            }
+            className="!ps-0"
+          >
             {libraryItems.map((libraryItem) => {
               const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
               return (
@@ -74,13 +85,15 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
 
       {series.map((bookSeries) => {
         const seriesTitle = (
-          <span>
-            {bookSeries.name}
-            <span className="text-foreground-subdued ps-3e">{t('LabelSeries')}</span>
-          </span>
+          <>
+            <Link href={`/library/${library.id}/series/${bookSeries.id}`} className="hover:underline transition-colors">
+              {bookSeries.name}
+            </Link>
+            <span className="text-foreground-subdued ps-2e">{t('LabelSeries')}</span>
+          </>
         )
         return (
-          <div key={bookSeries.id} className="shrink-0 mx-2e">
+          <div key={bookSeries.id} className="shrink-0 -ms-2e">
             <ItemSlider title={seriesTitle} className="!ps-0">
               {bookSeries.items?.map((libraryItem) => {
                 const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
