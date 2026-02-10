@@ -27,9 +27,9 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
   const series = author.series || []
 
   return (
-    <div className="w-full mx-auto" style={{ fontSize: sizeMultiplier + 'rem' }}>
-      <div className="flex gap-8e">
-        <div className="w-48e max-w-48e">
+    <div className="w-full" style={{ fontSize: sizeMultiplier + 'rem' }}>
+      <div className="flex flex-col md:flex-row gap-8e">
+        <div className="w-48e max-w-48e mx-auto">
           <div className="w-full h-60e">
             <AuthorImage author={author} className="w-full h-full" />
           </div>
