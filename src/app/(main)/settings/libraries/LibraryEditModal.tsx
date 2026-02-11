@@ -9,6 +9,7 @@ import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import LibraryFolderChooser from './LibraryFolderChooser'
 
 export interface LibraryFormData {
   name: string
@@ -56,6 +57,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   const { bookProviders, podcastProviders, ensureProvidersLoaded } = useMetadata()
   const [formData, setFormData] = useState<LibraryFormData>(getInitialFormData(library))
   const [newFolderPath, setNewFolderPath] = useState('')
+  const [showFolderChooser, setShowFolderChooser] = useState(false)
 
   const isEditing = !!library
 
@@ -71,6 +73,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     if (isOpen) {
       setFormData(getInitialFormData(library))
       setNewFolderPath('')
+      setShowFolderChooser(false)
     }
   }, [isOpen, library])
 
@@ -146,6 +149,21 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     [commitNewFolder]
   )
 
+  // Handle folder selection from FolderChooser
+  const handleFolderSelected = useCallback(
+    (folderPath: string) => {
+      const trimmed = folderPath.trim()
+      if (trimmed && !formData.folders.some((f) => f.fullPath.trim() === trimmed)) {
+        setFormData((prev) => ({
+          ...prev,
+          folders: [...prev.folders, { fullPath: trimmed }]
+        }))
+      }
+      setShowFolderChooser(false)
+    },
+    [formData.folders]
+  )
+
   // Check if form is valid
   const isValid = useMemo(() => {
     const hasName = formData.name.trim() !== ''
@@ -177,7 +195,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">
-      <div className="px-4 sm:px-8 py-8 max-h-[90vh] overflow-y-auto">
+      <div className="relative px-4 sm:px-8 py-8 max-h-[90vh] min-h-[400px] overflow-y-auto">
         {/* Top Row: Media Type, Library Name, Icon, Metadata Provider */}
         <div className="flex flex-wrap items-start gap-2">
           {/* Media Type */}
@@ -253,14 +271,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
           </div>
 
           {/* Browse for Folder button */}
-          <Btn
-            color="bg-primary"
-            disabled
-            className="w-full mt-3"
-            onClick={() => {
-              // TODO: Implement folder browser
-            }}
-          >
+          <Btn color="bg-primary" className="w-full mt-3" onClick={() => setShowFolderChooser(true)}>
             {t('ButtonBrowseForFolder')}
           </Btn>
         </div>
@@ -271,6 +282,11 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
             {isEditing ? t('ButtonSave') : t('ButtonCreate')}
           </Btn>
         </div>
+
+        {/* Folder Chooser Overlay */}
+        {showFolderChooser && (
+          <LibraryFolderChooser paths={formData.folders.map((f) => f.fullPath)} onSelect={handleFolderSelected} onBack={() => setShowFolderChooser(false)} />
+        )}
       </div>
     </Modal>
   )

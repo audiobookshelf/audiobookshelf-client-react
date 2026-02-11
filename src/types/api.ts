@@ -157,6 +157,17 @@ export interface LibraryFile {
   fileType?: 'image' | 'audio' | 'ebook' | 'text' | 'metadata' | 'unknown'
 }
 
+export interface DirectoryEntry {
+  path: string
+  dirname: string
+  level: number
+}
+
+export interface GetFilesystemPathsResponse {
+  directories: DirectoryEntry[]
+  posix: boolean
+}
+
 // ============================================================================
 // LIBRARIES
 // ============================================================================

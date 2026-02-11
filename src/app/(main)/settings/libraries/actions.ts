@@ -1,7 +1,7 @@
 'use server'
 
 import * as api from '@/lib/api'
-import { Library, SaveLibraryOrderApiResponse } from '@/types/api'
+import { GetFilesystemPathsResponse, Library, SaveLibraryOrderApiResponse } from '@/types/api'
 import { revalidatePath } from 'next/cache'
 
 export async function createLibrary(newLibrary: Library): Promise<Library> {
@@ -32,4 +32,8 @@ export async function requestScanLibrary(libraryId: string): Promise<void> {
 
 export async function matchAll(libraryId: string): Promise<void> {
   return api.matchAll(libraryId)
+}
+
+export async function getFilesystemPaths(path: string, level: number): Promise<GetFilesystemPathsResponse> {
+  return api.getFilesystemPaths(path, level)
 }

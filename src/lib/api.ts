@@ -17,6 +17,7 @@ import {
   GetAuthorsResponse,
   GetBackupsResponse,
   GetCollectionsResponse,
+  GetFilesystemPathsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
   GetLoggerDataResponse,
@@ -782,6 +783,17 @@ export async function deleteAuthor(authorId: string): Promise<void> {
   return apiRequest<void>(`/api/authors/${authorId}`, {
     method: 'DELETE'
   })
+}
+
+/**
+ * Get filesystem directories for folder browsing
+ * Used by the folder chooser when creating/editing libraries
+ * @param path - Directory path to list (empty string for root)
+ * @param level - Depth level for the listing
+ * Returns: { directories: Array<{ path, dirname, level }>, posix: boolean }
+ */
+export async function getFilesystemPaths(path: string, level: number): Promise<GetFilesystemPathsResponse> {
+  return apiRequest(`/api/filesystem?path=${encodeURIComponent(path)}&level=${level}`)
 }
 
 /**
