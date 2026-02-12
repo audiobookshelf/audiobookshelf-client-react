@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import TabbedModal from '@/components/modals/TabbedModal'
 import Btn from '@/components/ui/Btn'
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -9,6 +10,8 @@ import { ComponentExamples, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function AdvancedModalExamples() {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isTabbedModalOpen, setIsTabbedModalOpen] = useState(false)
+  const [selectedTab, setSelectedTab] = useState('details')
   const { showToast } = useGlobalToast()
 
   // MultiSelect sample data
@@ -94,6 +97,95 @@ export function AdvancedModalExamples() {
                 </div>
               </div>
             </Modal>
+          </div>
+        </Example>
+        <Example title="Tabbed Modal">
+          <div>
+            <p className="text-gray-400 text-sm mb-4">A modal with tabs and a footer.</p>
+            <Btn
+              onClick={() => {
+                setIsTabbedModalOpen(true)
+                setSelectedTab('details')
+              }}
+            >
+              Open Tabbed Modal
+            </Btn>
+
+            <TabbedModal
+              isOpen={isTabbedModalOpen}
+              onClose={() => setIsTabbedModalOpen(false)}
+              tabs={[
+                { id: 'details', label: 'Details' },
+                { id: 'settings', label: 'Settings' },
+                { id: 'scanner', label: 'Scanner' },
+                { id: 'schedule', label: 'Schedule' }
+              ]}
+              selectedTab={selectedTab}
+              onTabChange={setSelectedTab}
+              contentClassName="p-6"
+              footer={
+                <div className="flex justify-end gap-3">
+                  <Btn onClick={() => setIsTabbedModalOpen(false)} color="bg-gray-600">
+                    Cancel
+                  </Btn>
+                  <Btn
+                    onClick={() => {
+                      showToast(`Saved from "${selectedTab}" tab!`, { type: 'success', title: 'Tabbed Modal' })
+                      setIsTabbedModalOpen(false)
+                    }}
+                    color="bg-success"
+                  >
+                    Save
+                  </Btn>
+                </div>
+              }
+            >
+              {selectedTab === 'details' && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">Details</h3>
+                  <p className="text-foreground-muted">Configure the basic details for this library. Name, description, and other metadata.</p>
+                  <div className="bg-primary rounded p-4">
+                    <p className="text-sm text-foreground-subdued">This is sample content for the Details tab.</p>
+                  </div>
+                </div>
+              )}
+              {selectedTab === 'settings' && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">Settings</h3>
+                  <p className="text-foreground-muted">Adjust library-level settings such as scan behavior, metadata preferences, and more.</p>
+                  <div className="bg-primary rounded p-4">
+                    <p className="text-sm text-foreground-subdued">This is sample content for the Settings tab.</p>
+                  </div>
+                </div>
+              )}
+              {selectedTab === 'scanner' && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">Scanner</h3>
+                  <p className="text-foreground-muted">Configure how the scanner processes files in this library.</p>
+                  <div className="bg-primary rounded p-4">
+                    <p className="text-sm text-foreground-subdued">This is sample content for the Scanner tab.</p>
+                  </div>
+                </div>
+              )}
+              {selectedTab === 'schedule' && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">Schedule</h3>
+                  <p className="text-foreground-muted">Set up automatic scan schedules for this library.</p>
+                  <div className="bg-primary rounded p-4">
+                    <p className="text-sm text-foreground-subdued">This is sample content for the Schedule tab.</p>
+                  </div>
+                </div>
+              )}
+              {selectedTab === 'tools' && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-foreground">Tools</h3>
+                  <p className="text-foreground-muted">Library management tools for bulk operations and maintenance.</p>
+                  <div className="bg-primary rounded p-4">
+                    <p className="text-sm text-foreground-subdued">This is sample content for the Tools tab.</p>
+                  </div>
+                </div>
+              )}
+            </TabbedModal>
           </div>
         </Example>
       </ExamplesBlock>
