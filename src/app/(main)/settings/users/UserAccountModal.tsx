@@ -345,7 +345,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
                     <div className="flex items-end gap-4">
                       <div className="flex-1">
                         <MultiSelect
-                          label={t('LabelTagsAccessibleToUser')}
+                          label={formData.permissions.selectedTagsNotAccessible ? t('LabelTagsNotAccessibleToUser') : t('LabelTagsAccessibleToUser')}
                           items={tagItems}
                           selectedItems={selectedTagItems}
                           allowNew={false}
