@@ -1,4 +1,5 @@
 import { fetchAuthorsAction, fetchCollectionsAction, fetchLibraryItemsAction, fetchPlaylistsAction, fetchSeriesAction } from '@/app/actions/libraryActions'
+import { useSocketEvent } from '@/contexts/SocketContext'
 import { Author, BookshelfEntity, Collection, EntityType, LibraryItem, Playlist, Series } from '@/types/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -184,10 +185,55 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
     [libraryId, entityType, query]
   )
 
+  // Socket listeners for Author updates
+  // Only active when viewing authors
+  const handleAuthorAdded = useCallback(
+    (author: Author) => {
+      if (entityType !== 'authors' || author.libraryId !== libraryId) return
+
+      // Since an author was added, the sort order might change completely
+      // We must invalidate the current data and refetch
+      pagesLoadedRef.current.clear()
+      loadingPagesRef.current.clear()
+
+      setState((prev) => ({
+        ...prev,
+        items: [],
+        totalEntities: 0,
+        isInitialized: false,
+        isLoading: true,
+        error: null
+      }))
+    },
+    [entityType, libraryId]
+  )
+
+  const handleAuthorUpdated = useCallback(
+    (author: Author) => {
+      if (entityType !== 'authors' || author.libraryId !== libraryId) return
+      updateItem(author.id, author)
+    },
+    [entityType, libraryId, updateItem]
+  )
+
+  const handleAuthorRemoved = useCallback(
+    (data: { id: string; libraryId: string } | Author) => {
+      // data might be the author object or { id, libraryId } depending on server event
+      const libId = 'libraryId' in data ? data.libraryId : (data as Author).libraryId
+      const id = 'id' in data ? data.id : (data as Author).id
+
+      if (entityType !== 'authors' || libId !== libraryId) return
+      removeItem(id)
+    },
+    [entityType, libraryId, removeItem]
+  )
+
+  useSocketEvent<Author>('author_added', handleAuthorAdded)
+  useSocketEvent<Author>('author_updated', handleAuthorUpdated)
+  useSocketEvent<Author | { id: string; libraryId: string }>('author_removed', handleAuthorRemoved)
+
   return {
     ...state,
-    loadPage,
-    updateItem,
-    removeItem
+    loadPage
   }
 }
