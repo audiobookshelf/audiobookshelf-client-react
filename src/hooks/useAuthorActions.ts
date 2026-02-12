@@ -5,22 +5,22 @@ import {
   submitAuthorImageAction,
   updateAuthorAction
 } from '@/app/(main)/library/[library]/[entityType]/actions'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getProviderRegion } from '@/lib/providerUtils'
-import { Author, AuthorQuickMatchPayload, BookshelfEntity } from '@/types/api'
+import { Author, AuthorQuickMatchPayload } from '@/types/api'
 import { useCallback, useState } from 'react'
 
 interface UseAuthorActionsProps {
-  updateItem: (id: string, item: BookshelfEntity) => void
-  removeItem: (id: string) => void
-  libraryProvider: string
   selectedAuthor: Author | null
   setSelectedAuthor: (author: Author | null) => void
   setIsModalOpen: (open: boolean) => void
 }
 
-export function useAuthorActions({ updateItem, removeItem, libraryProvider, selectedAuthor, setSelectedAuthor, setIsModalOpen }: UseAuthorActionsProps) {
+export function useAuthorActions({ selectedAuthor, setSelectedAuthor, setIsModalOpen }: UseAuthorActionsProps) {
+  const { library } = useLibrary()
+  const libraryProvider = library.provider || 'audible'
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
@@ -45,7 +45,6 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
 
         const resp = await quickMatchAuthorAction(author.id, payload)
         if (resp) {
-          updateItem(author.id, { ...author, ...resp.author })
           // Update selectedAuthor if it matches the quick matched author
           if (selectedAuthor?.id === author.id) {
             setSelectedAuthor(resp.author)
@@ -72,7 +71,7 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
         })
       }
     },
-    [libraryProvider, selectedAuthor?.id, setSelectedAuthor, showToast, t, updateItem]
+    [libraryProvider, selectedAuthor?.id, setSelectedAuthor, showToast, t]
   )
 
   // Save/update author
@@ -82,14 +81,12 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
 
       const resp = await updateAuthorAction(selectedAuthor.id, editedAuthor)
       if (resp) {
-        updateItem(selectedAuthor.id, { ...selectedAuthor, ...resp.author })
         setIsModalOpen(false)
         setSelectedAuthor(resp.author)
         if (resp.updated) {
           showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
         } else if (resp.merged) {
           showToast(t('ToastAuthorUpdateMerged'), { type: 'success' })
-          removeItem(selectedAuthor.id)
         } else {
           showToast(t('ToastNoUpdatesNecessary'))
         }
@@ -97,7 +94,7 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
         showToast(t('ToastAuthorNotFound', { 0: selectedAuthor?.name }), { type: 'warning' })
       }
     },
-    [selectedAuthor, updateItem, removeItem, setIsModalOpen, setSelectedAuthor, showToast, t]
+    [selectedAuthor, setIsModalOpen, setSelectedAuthor, showToast, t]
   )
 
   // Delete author
@@ -106,7 +103,6 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
 
     try {
       await deleteAuthorAction(selectedAuthor.id)
-      removeItem(selectedAuthor.id)
       showToast(t('ToastAuthorRemoveSuccess'), { type: 'success' })
     } catch (error) {
       console.error('Failed to remove author', error)
@@ -114,7 +110,7 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
     }
     setIsModalOpen(false)
     setSelectedAuthor(null)
-  }, [selectedAuthor, removeItem, setIsModalOpen, setSelectedAuthor, showToast, t])
+  }, [selectedAuthor, setIsModalOpen, setSelectedAuthor, showToast, t])
 
   // Submit author image
   const handleSubmitImage = useCallback(
@@ -124,7 +120,6 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
       try {
         const updatedAuthorResp = await submitAuthorImageAction(selectedAuthor.id, url)
         if (updatedAuthorResp.author) {
-          updateItem(selectedAuthor.id, { ...selectedAuthor, ...updatedAuthorResp.author })
           setSelectedAuthor(updatedAuthorResp.author)
         }
         showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
@@ -133,7 +128,7 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
         showToast(t('ToastRemoveFailed'), { type: 'error' })
       }
     },
-    [selectedAuthor, updateItem, setSelectedAuthor, showToast, t]
+    [selectedAuthor, setSelectedAuthor, showToast, t]
   )
 
   // Remove author image
@@ -143,7 +138,6 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
     try {
       const updatedAuthorResp = await removeAuthorImageAction(selectedAuthor.id)
       if (updatedAuthorResp.author) {
-        updateItem(selectedAuthor.id, { ...selectedAuthor, ...updatedAuthorResp.author })
         setSelectedAuthor(updatedAuthorResp.author)
       }
       showToast(t('ToastAuthorImageRemoveSuccess'), { type: 'success' })
@@ -151,7 +145,7 @@ export function useAuthorActions({ updateItem, removeItem, libraryProvider, sele
       console.error('Failed to remove author image', error)
       showToast(t('ToastRemoveFailed'), { type: 'error' })
     }
-  }, [selectedAuthor, updateItem, setSelectedAuthor, showToast, t])
+  }, [selectedAuthor, setSelectedAuthor, showToast, t])
 
   return {
     quickMatchingAuthorIds,
