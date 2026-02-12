@@ -5,7 +5,7 @@ import { ModalProvider } from '@/contexts/ModalContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { ReactNode, useCallback, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 export interface ModalProps {
@@ -34,48 +34,21 @@ export default function Modal({
   style
 }: ModalProps) {
   const t = useTypeSafeTranslations()
-  const [preventClickoutside, setPreventClickoutside] = useState(false)
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
-  const dummyRef = useRef<HTMLDivElement>(null) // For useClickOutside trigger ref
-
-  const mousedownModal = useCallback(() => {
-    setPreventClickoutside(true)
-  }, [])
-
-  const mouseupModal = useCallback(() => {
-    setPreventClickoutside(false)
-  }, [])
 
   const clickClose = useCallback(() => {
     onClose?.()
   }, [onClose])
 
-  const clickBg = useCallback(
-    (event: MouseEvent | React.MouseEvent) => {
-      if (!isOpen) return
-      if (preventClickoutside) {
-        setPreventClickoutside(false)
-        return
-      }
-      if (processing || persistent) return
-
-      const target = event.target as HTMLElement
-      if (target && target.classList.contains('modal-bg')) {
-        onClose?.()
-      }
-    },
-    [isOpen, preventClickoutside, processing, persistent, onClose]
-  )
-
   const handleClickOutside = useCallback(() => {
-    if (!isOpen || preventClickoutside || processing || persistent) return
+    if (!isOpen || processing || persistent) return
     onClose?.()
-  }, [isOpen, preventClickoutside, processing, persistent, onClose])
+  }, [isOpen, processing, persistent, onClose])
 
   // Use click outside hook
-  useClickOutside(contentRef, dummyRef, handleClickOutside)
+  useClickOutside(contentRef, null, handleClickOutside)
 
   if (!isOpen) {
     return null
@@ -91,7 +64,6 @@ export default function Modal({
         zIndexClass,
         bgOpacityClass
       )}
-      onClick={clickBg}
       cy-id="modal-wrapper"
     >
       {/* Background gradient */}
@@ -122,8 +94,6 @@ export default function Modal({
           'mt-[50px]',
           className
         )}
-        onMouseDown={mousedownModal}
-        onMouseUp={mouseupModal}
         cy-id="modal-content"
       >
         <ModalProvider modalRef={wrapperRef as React.RefObject<HTMLDivElement>}>{children}</ModalProvider>
