@@ -1,6 +1,10 @@
 import { RefObject, useCallback, useEffect, useRef } from 'react'
 
-export function useClickOutside(menuRef: RefObject<HTMLElement | null>, triggerRef: RefObject<HTMLElement | null>, handler: () => void): void {
+export function useClickOutside(
+  menuRef: RefObject<HTMLElement | null>,
+  triggerRef: RefObject<HTMLElement | null> | null | undefined,
+  handler: () => void
+): void {
   const mouseDownTargetRef = useRef<EventTarget | null>(null)
 
   const handleMouseDown = useCallback((event: MouseEvent) => {
@@ -9,19 +13,19 @@ export function useClickOutside(menuRef: RefObject<HTMLElement | null>, triggerR
 
   const handleClickOutside = useCallback(
     (event: MouseEvent) => {
-      if (!menuRef.current || !triggerRef.current) return
+      if (!menuRef.current) return
 
-      // If mousedown was inside but the click ended up outside, ignore it
-      // This prevents closing when dragging to select text
-      if (mouseDownTargetRef.current) {
-        const mouseDownTarget = mouseDownTargetRef.current as Node
-        if (menuRef.current.contains(mouseDownTarget) || triggerRef.current.contains(mouseDownTarget)) {
-          mouseDownTargetRef.current = null
-          return
-        }
-      }
+      const clickTarget = event.target as Node
+      const startTarget = mouseDownTargetRef.current as Node
 
-      if (!menuRef.current.contains(event.target as Node) && !triggerRef.current.contains(event.target as Node)) {
+      // 1. Check if the mouseup (click) is inside the modal or trigger
+      const isInside = menuRef.current.contains(clickTarget) || (triggerRef?.current?.contains(clickTarget) ?? false)
+
+      // 2. Check if the mousedown (start) was inside the modal or trigger
+      const startedInside = menuRef.current.contains(startTarget) || (triggerRef?.current?.contains(startTarget) ?? false)
+
+      // ONLY trigger handler if both the start and end of the click were truly outside
+      if (!isInside && !startedInside) {
         handler()
       }
 
