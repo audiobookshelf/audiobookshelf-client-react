@@ -1,6 +1,6 @@
 'use client'
 
-import Modal from '@/components/modals/Modal'
+import TabbedModal from '@/components/modals/TabbedModal'
 import Btn from '@/components/ui/Btn'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
@@ -58,6 +58,14 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   const [formData, setFormData] = useState<LibraryFormData>(getInitialFormData(library))
   const [newFolderPath, setNewFolderPath] = useState('')
   const [showFolderChooser, setShowFolderChooser] = useState(false)
+  const [selectedTab, setSelectedTab] = useState('details')
+
+  const tabs = [
+    { id: 'details', label: t('HeaderDetails') },
+    { id: 'settings', label: t('HeaderSettings') },
+    { id: 'scanner', label: t('HeaderSettingsScanner') },
+    { id: 'schedule', label: t('HeaderSchedule') }
+  ]
 
   const isEditing = !!library
 
@@ -74,6 +82,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       setFormData(getInitialFormData(library))
       setNewFolderPath('')
       setShowFolderChooser(false)
+      setSelectedTab('details')
     }
   }, [isOpen, library])
 
@@ -194,100 +203,133 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">
-      <div className="relative px-4 sm:px-8 py-8 max-h-[90vh] min-h-[400px] overflow-y-auto">
-        {/* Top Row: Media Type, Library Name, Icon, Metadata Provider */}
-        <div className="flex flex-wrap items-start gap-2">
-          {/* Media Type */}
-          <Dropdown
-            label={t('LabelMediaType')}
-            value={formData.mediaType}
-            items={mediaTypeItems}
-            disabled={isEditing}
-            highlightSelected
-            onChange={handleMediaTypeChange}
-            className="w-full sm:w-36 shrink-0"
-          />
-
-          {/* Library Name */}
-          <TextInput
-            label={t('LabelLibraryName')}
-            value={formData.name}
-            placeholder={t('LabelLibraryName')}
-            onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
-            className="w-full sm:flex-1"
-          />
-
-          {/* Icon */}
-          <MediaIconPicker value={formData.icon} label={t('LabelIcon')} onChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))} />
-
-          {/* Metadata Provider */}
-          <Dropdown
-            label={t('LabelMetadataProvider')}
-            value={formData.provider}
-            items={providerItems}
-            highlightSelected
-            onChange={(value) => setFormData((prev) => ({ ...prev, provider: String(value) }))}
-            className="flex-1 sm:w-44 sm:shrink-0"
-          />
-        </div>
-
-        {/* Folders Section */}
-        <div className="mt-6">
-          <h3 className="text-sm font-semibold text-foreground-muted mb-2">{t('LabelFolders')}</h3>
-
-          <div className="space-y-2">
-            {/* Committed folder paths */}
-            {formData.folders.map((folder, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <span className="material-symbols fill text-yellow-200 text-xl">folder</span>
-                <TextInput value={folder.fullPath} readOnly className="flex-1 text-sm" />
-                <div className="w-5">
-                  <button
-                    type="button"
-                    className="material-symbols text-foreground-muted hover:text-error text-xl cursor-pointer"
-                    onClick={() => handleRemoveFolder(index)}
-                    aria-label={t('ButtonRemove')}
-                  >
-                    close
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {/* Always-visible new folder input */}
-            <div className="flex items-center gap-2">
-              <span className="material-symbols fill text-yellow-200/50 text-xl">create_new_folder</span>
-              <TextInput
-                value={newFolderPath}
-                placeholder={t('PlaceholderNewFolderPath')}
-                onChange={setNewFolderPath}
-                onBlur={commitNewFolder}
-                onKeyDown={handleNewFolderKeyDown}
-                className="flex-1 text-sm"
-              />
-              {formData.folders.length > 0 && <div className="w-5"></div>}
-            </div>
-          </div>
-
-          {/* Browse for Folder button */}
-          <Btn color="bg-primary" className="w-full mt-3" onClick={() => setShowFolderChooser(true)}>
-            {t('ButtonBrowseForFolder')}
-          </Btn>
-        </div>
-
-        {/* Footer Actions */}
-        <div className="flex items-center justify-end mt-6">
-          <Btn color="bg-success" disabled={!isValid} loading={processing} onClick={handleSubmit}>
+    <TabbedModal
+      isOpen={isOpen}
+      onClose={onClose}
+      outerContent={outerContentTitle}
+      tabs={tabs}
+      selectedTab={selectedTab}
+      onTabChange={setSelectedTab}
+      className="w-[700px]"
+      contentClassName="relative px-4 sm:px-8 py-6 max-h-[70vh] min-h-[400px] overflow-y-auto"
+      footer={
+        <div className="flex items-center justify-end">
+          <Btn disabled={!isValid} loading={processing} onClick={handleSubmit}>
             {isEditing ? t('ButtonSave') : t('ButtonCreate')}
           </Btn>
         </div>
+      }
+    >
+      {/* Details Tab */}
+      {selectedTab === 'details' && (
+        <>
+          {/* Top Row: Media Type, Library Name, Icon, Metadata Provider */}
+          <div className="flex flex-wrap items-start gap-2">
+            {/* Media Type */}
+            <Dropdown
+              label={t('LabelMediaType')}
+              value={formData.mediaType}
+              items={mediaTypeItems}
+              disabled={isEditing}
+              highlightSelected
+              onChange={handleMediaTypeChange}
+              className="w-full sm:w-36 shrink-0"
+            />
 
-        {/* Folder Chooser Overlay */}
-        {showFolderChooser && (
-          <LibraryFolderChooser paths={formData.folders.map((f) => f.fullPath)} onSelect={handleFolderSelected} onBack={() => setShowFolderChooser(false)} />
-        )}
-      </div>
-    </Modal>
+            {/* Library Name */}
+            <TextInput
+              label={t('LabelLibraryName')}
+              value={formData.name}
+              placeholder={t('LabelLibraryName')}
+              onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
+              className="w-full sm:flex-1"
+            />
+
+            {/* Icon */}
+            <MediaIconPicker value={formData.icon} label={t('LabelIcon')} onChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))} />
+
+            {/* Metadata Provider */}
+            <Dropdown
+              label={t('LabelMetadataProvider')}
+              value={formData.provider}
+              items={providerItems}
+              highlightSelected
+              onChange={(value) => setFormData((prev) => ({ ...prev, provider: String(value) }))}
+              className="flex-1 sm:w-44 sm:shrink-0"
+            />
+          </div>
+
+          {/* Folders Section */}
+          <div className="mt-6">
+            <h3 className="text-sm font-semibold text-foreground-muted mb-2">{t('LabelFolders')}</h3>
+
+            <div className="space-y-2">
+              {/* Committed folder paths */}
+              {formData.folders.map((folder, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <span className="material-symbols fill text-yellow-200 text-xl">folder</span>
+                  <TextInput value={folder.fullPath} readOnly className="flex-1 text-sm" />
+                  <div className="w-5">
+                    <button
+                      type="button"
+                      className="material-symbols text-foreground-muted hover:text-error text-xl cursor-pointer"
+                      onClick={() => handleRemoveFolder(index)}
+                      aria-label={t('ButtonRemove')}
+                    >
+                      close
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Always-visible new folder input */}
+              <div className="flex items-center gap-2">
+                <span className="material-symbols fill text-yellow-200/50 text-xl">create_new_folder</span>
+                <TextInput
+                  value={newFolderPath}
+                  placeholder={t('PlaceholderNewFolderPath')}
+                  onChange={setNewFolderPath}
+                  onBlur={commitNewFolder}
+                  onKeyDown={handleNewFolderKeyDown}
+                  className="flex-1 text-sm"
+                />
+                {formData.folders.length > 0 && <div className="w-5"></div>}
+              </div>
+            </div>
+
+            {/* Browse for Folder button */}
+            <Btn color="bg-primary" className="w-full mt-3" onClick={() => setShowFolderChooser(true)}>
+              {t('ButtonBrowseForFolder')}
+            </Btn>
+          </div>
+
+          {/* Folder Chooser Overlay */}
+          {showFolderChooser && (
+            <LibraryFolderChooser paths={formData.folders.map((f) => f.fullPath)} onSelect={handleFolderSelected} onBack={() => setShowFolderChooser(false)} />
+          )}
+        </>
+      )}
+
+      {/* Settings Tab */}
+      {selectedTab === 'settings' && (
+        <div className="text-foreground-muted text-sm">
+          <p>{t('HeaderSettings')}</p>
+        </div>
+      )}
+
+      {/* Scanner Tab */}
+      {selectedTab === 'scanner' && (
+        <div className="text-foreground-muted text-sm">
+          <p>{t('HeaderSettingsScanner')}</p>
+        </div>
+      )}
+
+      {/* Schedule Tab */}
+      {selectedTab === 'schedule' && (
+        <div className="text-foreground-muted text-sm">
+          <p>{t('HeaderSchedule')}</p>
+        </div>
+      )}
+    </TabbedModal>
   )
 }
