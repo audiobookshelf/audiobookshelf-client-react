@@ -57,9 +57,12 @@ export function getLibraryItemCoverSrc(libraryItem: LibraryItem, placeholder: st
 }
 
 /**
- * Get cover aspect ratio from cover aspect ratio setting (1 = square, 1.6 = standard)
+ * Get cover aspect ratio from cover aspect ratio setting
+ * coverAspectRatioSetting is 0 or 1
+ * 0 = standard (1.6)
+ * 1 = square (1)
  */
-export function getCoverAspectRatio(coverAspectRatioSetting: number | undefined): number {
+export function getCoverAspectRatio(coverAspectRatioSetting: 0 | 1 | undefined): number {
   if (coverAspectRatioSetting === 1) {
     return 1
   } else {

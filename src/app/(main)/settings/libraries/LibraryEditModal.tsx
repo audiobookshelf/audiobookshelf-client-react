@@ -5,7 +5,7 @@ import Btn from '@/components/ui/Btn'
 import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { Library } from '@/types/api'
+import { Library, LibrarySettings } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import LibraryDetailsTab from './LibraryDetailsTab'
 import LibraryScannerTab from './LibraryScannerTab'
@@ -18,6 +18,20 @@ export interface LibraryFormData {
   icon: string
   provider: string
   folders: { fullPath: string }[]
+  settings: LibrarySettings
+}
+
+const defaultLibrarySettings: LibrarySettings = {
+  coverAspectRatio: 1,
+  disableWatcher: false,
+  skipMatchingMediaWithAsin: false,
+  skipMatchingMediaWithIsbn: false,
+  audiobooksOnly: false,
+  hideSingleBookSeries: false,
+  onlyShowLaterBooksInContinueSeries: false,
+  epubsAllowScriptedContent: false,
+  markAsFinishedTimeRemaining: 30,
+  markAsFinishedPercentComplete: null
 }
 
 const getInitialFormData = (library: Library | null): LibraryFormData => {
@@ -27,7 +41,8 @@ const getInitialFormData = (library: Library | null): LibraryFormData => {
       mediaType: library.mediaType,
       icon: library.icon || 'database',
       provider: library.provider || '',
-      folders: library.folders?.map((f) => ({ fullPath: f.fullPath })) || []
+      folders: library.folders?.map((f) => ({ fullPath: f.fullPath })) || [],
+      settings: { ...defaultLibrarySettings, ...library.settings }
     }
   }
 
@@ -36,7 +51,8 @@ const getInitialFormData = (library: Library | null): LibraryFormData => {
     mediaType: 'book',
     icon: 'database',
     provider: '',
-    folders: []
+    folders: [],
+    settings: { ...defaultLibrarySettings }
   }
 }
 
@@ -206,8 +222,8 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       tabs={tabs}
       selectedTab={selectedTab}
       onTabChange={setSelectedTab}
-      className="w-[700px]"
-      contentClassName="relative px-4 sm:px-8 py-6 max-h-[70vh] min-h-[400px] overflow-y-auto"
+      className="w-[800px]"
+      contentClassName="relative px-4 sm:px-6 py-6 max-h-[70vh] min-h-[400px] overflow-y-auto"
       footer={
         <div className="flex items-center justify-end">
           <Btn disabled={!isValid} loading={processing} onClick={handleSubmit}>
@@ -234,7 +250,13 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
           onHideFolderChooser={() => setShowFolderChooser(false)}
         />
       )}
-      {selectedTab === 'settings' && <LibrarySettingsTab />}
+      {selectedTab === 'settings' && (
+        <LibrarySettingsTab
+          settings={formData.settings}
+          mediaType={formData.mediaType}
+          onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
+        />
+      )}
       {selectedTab === 'scanner' && <LibraryScannerTab />}
       {selectedTab === 'schedule' && <LibraryScheduleTab />}
     </TabbedModal>

@@ -173,7 +173,7 @@ export interface GetFilesystemPathsResponse {
 // ============================================================================
 
 export interface LibrarySettings {
-  coverAspectRatio: number
+  coverAspectRatio: 0 | 1
   disableWatcher: boolean
   skipMatchingMediaWithAsin?: boolean
   skipMatchingMediaWithIsbn?: boolean
@@ -182,8 +182,8 @@ export interface LibrarySettings {
   hideSingleBookSeries?: boolean
   onlyShowLaterBooksInContinueSeries?: boolean
   metadataPrecedence?: string[]
-  markAsFinishedTimeRemaining?: number
-  markAsFinishedPercentComplete?: number
+  markAsFinishedTimeRemaining?: number | null
+  markAsFinishedPercentComplete?: number | null
   podcastSearchRegion?: string
   epubsAllowScriptedContent?: boolean
 }

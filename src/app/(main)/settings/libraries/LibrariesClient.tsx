@@ -45,7 +45,8 @@ export default function LibrariesClient({ libraries }: LibraryClientProps) {
           mediaType: formData.mediaType,
           icon: formData.icon,
           provider: formData.provider,
-          folders: validFolders
+          folders: validFolders,
+          settings: formData.settings
         } as Library
 
         if (editingLibrary) {
