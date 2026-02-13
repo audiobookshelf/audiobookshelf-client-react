@@ -82,7 +82,7 @@ export default function TabbedModal({
       {/* Modal content */}
       <div className="bg-bg rounded-b-lg rounded-tr-lg shadow-modal-content border-t border-border flex flex-col">
         {/* Tab content */}
-        <div id={`tabpanel-${selectedTab}`} role="tabpanel" className={contentClassName}>
+        <div id={`tabpanel-${selectedTab}`} role="tabpanel" className={contentClassName} onClick={(e) => e.stopPropagation()}>
           {children}
         </div>
 

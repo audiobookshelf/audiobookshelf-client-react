@@ -2,14 +2,15 @@
 
 import TabbedModal from '@/components/modals/TabbedModal'
 import Btn from '@/components/ui/Btn'
-import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
-import MediaIconPicker from '@/components/ui/MediaIconPicker'
-import TextInput from '@/components/ui/TextInput'
+import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import LibraryFolderChooser from './LibraryFolderChooser'
+import LibraryDetailsTab from './LibraryDetailsTab'
+import LibraryScannerTab from './LibraryScannerTab'
+import LibraryScheduleTab from './LibraryScheduleTab'
+import LibrarySettingsTab from './LibrarySettingsTab'
 
 export interface LibraryFormData {
   name: string
@@ -18,11 +19,6 @@ export interface LibraryFormData {
   provider: string
   folders: { fullPath: string }[]
 }
-
-const mediaTypeItems: DropdownItem[] = [
-  { text: 'Books', value: 'book' },
-  { text: 'Podcasts', value: 'podcast' }
-]
 
 const getInitialFormData = (library: Library | null): LibraryFormData => {
   if (library) {
@@ -220,116 +216,27 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
         </div>
       }
     >
-      {/* Details Tab */}
       {selectedTab === 'details' && (
-        <>
-          {/* Top Row: Media Type, Library Name, Icon, Metadata Provider */}
-          <div className="flex flex-wrap items-start gap-2">
-            {/* Media Type */}
-            <Dropdown
-              label={t('LabelMediaType')}
-              value={formData.mediaType}
-              items={mediaTypeItems}
-              disabled={isEditing}
-              highlightSelected
-              onChange={handleMediaTypeChange}
-              className="w-full sm:w-36 shrink-0"
-            />
-
-            {/* Library Name */}
-            <TextInput
-              label={t('LabelLibraryName')}
-              value={formData.name}
-              placeholder={t('LabelLibraryName')}
-              onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
-              className="w-full sm:flex-1"
-            />
-
-            {/* Icon */}
-            <MediaIconPicker value={formData.icon} label={t('LabelIcon')} onChange={(value) => setFormData((prev) => ({ ...prev, icon: value }))} />
-
-            {/* Metadata Provider */}
-            <Dropdown
-              label={t('LabelMetadataProvider')}
-              value={formData.provider}
-              items={providerItems}
-              highlightSelected
-              onChange={(value) => setFormData((prev) => ({ ...prev, provider: String(value) }))}
-              className="flex-1 sm:w-44 sm:shrink-0"
-            />
-          </div>
-
-          {/* Folders Section */}
-          <div className="mt-6">
-            <h3 className="text-sm font-semibold text-foreground-muted mb-2">{t('LabelFolders')}</h3>
-
-            <div className="space-y-2">
-              {/* Committed folder paths */}
-              {formData.folders.map((folder, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <span className="material-symbols fill text-yellow-200 text-xl">folder</span>
-                  <TextInput value={folder.fullPath} readOnly className="flex-1 text-sm" />
-                  <div className="w-5">
-                    <button
-                      type="button"
-                      className="material-symbols text-foreground-muted hover:text-error text-xl cursor-pointer"
-                      onClick={() => handleRemoveFolder(index)}
-                      aria-label={t('ButtonRemove')}
-                    >
-                      close
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Always-visible new folder input */}
-              <div className="flex items-center gap-2">
-                <span className="material-symbols fill text-yellow-200/50 text-xl">create_new_folder</span>
-                <TextInput
-                  value={newFolderPath}
-                  placeholder={t('PlaceholderNewFolderPath')}
-                  onChange={setNewFolderPath}
-                  onBlur={commitNewFolder}
-                  onKeyDown={handleNewFolderKeyDown}
-                  className="flex-1 text-sm"
-                />
-                {formData.folders.length > 0 && <div className="w-5"></div>}
-              </div>
-            </div>
-
-            {/* Browse for Folder button */}
-            <Btn color="bg-primary" className="w-full mt-3" onClick={() => setShowFolderChooser(true)}>
-              {t('ButtonBrowseForFolder')}
-            </Btn>
-          </div>
-
-          {/* Folder Chooser Overlay */}
-          {showFolderChooser && (
-            <LibraryFolderChooser paths={formData.folders.map((f) => f.fullPath)} onSelect={handleFolderSelected} onBack={() => setShowFolderChooser(false)} />
-          )}
-        </>
+        <LibraryDetailsTab
+          formData={formData}
+          isEditing={isEditing}
+          providerItems={providerItems}
+          newFolderPath={newFolderPath}
+          showFolderChooser={showFolderChooser}
+          onFormDataChange={setFormData}
+          onMediaTypeChange={handleMediaTypeChange}
+          onNewFolderPathChange={setNewFolderPath}
+          onCommitNewFolder={commitNewFolder}
+          onNewFolderKeyDown={handleNewFolderKeyDown}
+          onRemoveFolder={handleRemoveFolder}
+          onFolderSelected={handleFolderSelected}
+          onShowFolderChooser={() => setShowFolderChooser(true)}
+          onHideFolderChooser={() => setShowFolderChooser(false)}
+        />
       )}
-
-      {/* Settings Tab */}
-      {selectedTab === 'settings' && (
-        <div className="text-foreground-muted text-sm">
-          <p>{t('HeaderSettings')}</p>
-        </div>
-      )}
-
-      {/* Scanner Tab */}
-      {selectedTab === 'scanner' && (
-        <div className="text-foreground-muted text-sm">
-          <p>{t('HeaderSettingsScanner')}</p>
-        </div>
-      )}
-
-      {/* Schedule Tab */}
-      {selectedTab === 'schedule' && (
-        <div className="text-foreground-muted text-sm">
-          <p>{t('HeaderSchedule')}</p>
-        </div>
-      )}
+      {selectedTab === 'settings' && <LibrarySettingsTab />}
+      {selectedTab === 'scanner' && <LibraryScannerTab />}
+      {selectedTab === 'schedule' && <LibraryScheduleTab />}
     </TabbedModal>
   )
 }
