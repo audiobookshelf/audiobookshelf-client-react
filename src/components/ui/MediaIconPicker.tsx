@@ -245,6 +245,7 @@ export default function MediaIconPicker({ value, disabled = false, label, onChan
             aria-label={t('LabelIconOptions', { label: defaultLabel })}
             className={`absolute z-10 mt-0.5 bg-primary border border-dropdown-menu-border shadow-lg max-h-56 w-48 rounded-md py-1 overflow-auto focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
             onKeyDown={handleKeyDown}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-center items-center flex-wrap">
               {AVAILABLE_ICONS.map((icon, index) => (
