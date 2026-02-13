@@ -321,6 +321,7 @@ export default function ContextMenu<T = string>({
         autoWidth ? 'inline-flex flex-col whitespace-nowrap' : '',
         className
       )}
+      onClick={(e) => e.stopPropagation()}
       style={{
         ...(autoWidth && !usePortal ? { minWidth: `${menuWidth}px` } : {}),
         ...(!usePortal && !autoWidth ? { width: `${menuWidth}px` } : {}),

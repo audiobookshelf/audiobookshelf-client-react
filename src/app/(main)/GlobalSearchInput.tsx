@@ -55,7 +55,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
   const menuRef = useRef<HTMLDivElement>(null)
 
   // Close menu when clicking outside
-  useClickOutside(containerRef, containerRef, () => {
+  useClickOutside(menuRef, containerRef, () => {
     setShowMenu(false)
   })
 
@@ -174,10 +174,14 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
           <LoadingSpinner size="la-sm" className="scale-50 text-gray-400" />
         ) : searchQuery ? (
           <button onClick={handleClear} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer" aria-label="Clear search">
-            <span className="material-symbols text-lg" aria-hidden="true">close</span>
+            <span className="material-symbols text-lg" aria-hidden="true">
+              close
+            </span>
           </button>
         ) : (
-          <span className="material-symbols text-gray-400 text-lg pointer-events-none" aria-hidden="true">search</span>
+          <span className="material-symbols text-gray-400 text-lg pointer-events-none" aria-hidden="true">
+            search
+          </span>
         )}
       </div>
 

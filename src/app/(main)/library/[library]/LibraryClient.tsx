@@ -129,7 +129,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
                 const author = entity as Author
                 return (
                   <div key={author.id + '-' + shelf.id} className="shrink-0 mx-2e">
-                    <AuthorCard author={author} userCanUpdate={user.permissions.update} />
+                    <AuthorCard author={author} user={user} />
                   </div>
                 )
               }

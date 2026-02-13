@@ -133,6 +133,7 @@ function DropdownSubmenu({
       }}
       onMouseOver={onMouseOver}
       onMouseLeave={onMouseLeave}
+      onClick={(e) => e.stopPropagation()}
     >
       {filterText && (
         <li className="text-foreground-subdued select-none relative px-3 py-1 text-xs border-b border-dropdown-menu-border mb-1" role="presentation">
@@ -504,6 +505,7 @@ export default function DropdownMenu({
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseDown={handleMenuMouseDown}
+      onClick={(e) => e.stopPropagation()}
     >
       {menuItems}
       {showNoItemsMessage && !items.length && (
