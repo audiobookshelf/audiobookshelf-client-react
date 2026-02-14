@@ -12,13 +12,7 @@ import { getProviderRegion } from '@/lib/providerUtils'
 import { Author, AuthorQuickMatchPayload } from '@/types/api'
 import { useCallback, useState } from 'react'
 
-interface UseAuthorActionsProps {
-  selectedAuthor: Author | null
-  setSelectedAuthor: (author: Author | null) => void
-  setIsModalOpen: (open: boolean) => void
-}
-
-export function useAuthorActions({ selectedAuthor, setSelectedAuthor, setIsModalOpen }: UseAuthorActionsProps) {
+export function useAuthorActions() {
   const { library } = useLibrary()
   const libraryProvider = library.provider || 'audible'
   const { showToast } = useGlobalToast()
@@ -45,10 +39,6 @@ export function useAuthorActions({ selectedAuthor, setSelectedAuthor, setIsModal
 
         const resp = await quickMatchAuthorAction(author.id, payload)
         if (resp) {
-          // Update selectedAuthor if it matches the quick matched author
-          if (selectedAuthor?.id === author.id) {
-            setSelectedAuthor(resp.author)
-          }
           if (resp.updated) {
             if (resp.author.imagePath) {
               showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
@@ -71,18 +61,16 @@ export function useAuthorActions({ selectedAuthor, setSelectedAuthor, setIsModal
         })
       }
     },
-    [libraryProvider, selectedAuthor?.id, setSelectedAuthor, showToast, t]
+    [libraryProvider, showToast, t]
   )
 
   // Save/update author
   const handleSave = useCallback(
-    async (editedAuthor: Partial<Author>) => {
-      if (!selectedAuthor?.id) return
+    async (authorId: string, authorName: string, editedAuthor: Partial<Author>): Promise<boolean> => {
+      if (!authorId) return false
 
-      const resp = await updateAuthorAction(selectedAuthor.id, editedAuthor)
+      const resp = await updateAuthorAction(authorId, editedAuthor)
       if (resp) {
-        setIsModalOpen(false)
-        setSelectedAuthor(resp.author)
         if (resp.updated) {
           showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
         } else if (resp.merged) {
@@ -90,62 +78,64 @@ export function useAuthorActions({ selectedAuthor, setSelectedAuthor, setIsModal
         } else {
           showToast(t('ToastNoUpdatesNecessary'))
         }
+        return true
       } else {
-        showToast(t('ToastAuthorNotFound', { 0: selectedAuthor?.name }), { type: 'warning' })
+        showToast(t('ToastAuthorNotFound', { 0: authorName }), { type: 'warning' })
+        return false
       }
     },
-    [selectedAuthor, setIsModalOpen, setSelectedAuthor, showToast, t]
+    [showToast, t]
   )
 
   // Delete author
-  const handleDelete = useCallback(async () => {
-    if (!selectedAuthor?.id) return
+  const handleDelete = useCallback(
+    async (authorId: string): Promise<boolean> => {
+      if (!authorId) return false
 
-    try {
-      await deleteAuthorAction(selectedAuthor.id)
-      showToast(t('ToastAuthorRemoveSuccess'), { type: 'success' })
-    } catch (error) {
-      console.error('Failed to remove author', error)
-      showToast(t('ToastRemoveFailed'), { type: 'error' })
-    }
-    setIsModalOpen(false)
-    setSelectedAuthor(null)
-  }, [selectedAuthor, setIsModalOpen, setSelectedAuthor, showToast, t])
+      try {
+        await deleteAuthorAction(authorId)
+        showToast(t('ToastAuthorRemoveSuccess'), { type: 'success' })
+        return true
+      } catch (error) {
+        console.error('Failed to remove author', error)
+        showToast(t('ToastRemoveFailed'), { type: 'error' })
+        return false
+      }
+    },
+    [showToast, t]
+  )
 
   // Submit author image
   const handleSubmitImage = useCallback(
-    async (url: string) => {
-      if (!selectedAuthor?.id) return
+    async (authorId: string, url: string) => {
+      if (!authorId) return
 
       try {
-        const updatedAuthorResp = await submitAuthorImageAction(selectedAuthor.id, url)
-        if (updatedAuthorResp.author) {
-          setSelectedAuthor(updatedAuthorResp.author)
-        }
+        await submitAuthorImageAction(authorId, url)
         showToast(t('ToastAuthorUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Failed to submit author image', error)
         showToast(t('ToastRemoveFailed'), { type: 'error' })
       }
     },
-    [selectedAuthor, setSelectedAuthor, showToast, t]
+    [showToast, t]
   )
 
   // Remove author image
-  const handleRemoveImage = useCallback(async () => {
-    if (!selectedAuthor?.id) return
+  const handleRemoveImage = useCallback(
+    async (authorId: string) => {
+      if (!authorId) return
 
-    try {
-      const updatedAuthorResp = await removeAuthorImageAction(selectedAuthor.id)
-      if (updatedAuthorResp.author) {
-        setSelectedAuthor(updatedAuthorResp.author)
+      try {
+        await removeAuthorImageAction(authorId)
+        showToast(t('ToastAuthorImageRemoveSuccess'), { type: 'success' })
+      } catch (error) {
+        console.error('Failed to remove author image', error)
+        showToast(t('ToastRemoveFailed'), { type: 'error' })
       }
-      showToast(t('ToastAuthorImageRemoveSuccess'), { type: 'success' })
-    } catch (error) {
-      console.error('Failed to remove author image', error)
-      showToast(t('ToastRemoveFailed'), { type: 'error' })
-    }
-  }, [selectedAuthor, setSelectedAuthor, showToast, t])
+    },
+    [showToast, t]
+  )
 
   return {
     quickMatchingAuthorIds,
