@@ -1,12 +1,11 @@
-'use client'
-
-import Modal from '@/components/modals/Modal'
-import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, User } from '@/types/api'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import AuthorImage from '../covers/AuthorImage'
+import Modal from '../modals/Modal'
+import Btn from '../ui/Btn'
 import IconBtn from '../ui/IconBtn'
 import TextInput from '../ui/TextInput'
 import TextareaInput from '../ui/TextareaInput'
@@ -16,32 +15,18 @@ interface AuthorEditModalProps {
   isOpen: boolean
   user: User
   author?: Author | null
-  isProcessing: boolean
   onClose: () => void
-  onSave: (editedAuthor: Partial<Author>) => void
-  onDelete: (editedAuthor: Partial<Author>) => void
-  onQuickMatch: (editedAuthor: Partial<Author>) => void
-  onSubmitImage: (url: string) => void
-  onRemoveImage: () => void
 }
 
-export default function AuthorEditModal({
-  isOpen,
-  user,
-  author,
-  isProcessing,
-  onClose,
-  onSave,
-  onDelete,
-  onQuickMatch,
-  onSubmitImage,
-  onRemoveImage
-}: AuthorEditModalProps) {
+export default function AuthorEditModal({ isOpen, user, author, onClose }: AuthorEditModalProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [editedAuthor, setEditedAuthor] = useState<Partial<Author> | null>(null)
   const [imgUrl, setImgUrl] = useState('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [isPending, startTransition] = useTransition()
+
+  const { handleQuickMatch, handleSave, handleDelete, handleSubmitImage, handleRemoveImage } = useAuthorActions()
 
   const saveDisabled = useMemo(() => {
     return !!(editedAuthor?.name === author?.name && editedAuthor?.asin === author?.asin && editedAuthor?.description === author?.description)
@@ -65,12 +50,40 @@ export default function AuthorEditModal({
     setShowConfirmDialog(true)
   }
 
-  const handleSave = () => {
+  const handleSaveClick = () => {
     if (editedAuthor?.name === author?.name && editedAuthor.asin === author?.asin && editedAuthor?.description === author?.description) {
       showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
       return
     }
-    onSave(editedAuthor)
+    startTransition(async () => {
+      const success = await handleSave(author.id, author.name || '', editedAuthor)
+      if (success) onClose()
+    })
+  }
+
+  const handleQuickMatchWrapper = () => {
+    startTransition(async () => {
+      await handleQuickMatch(author, editedAuthor)
+    })
+  }
+
+  const handleSubmitImageWrapper = (url: string) => {
+    startTransition(async () => {
+      await handleSubmitImage(author.id, url)
+    })
+  }
+
+  const handleRemoveImageWrapper = () => {
+    startTransition(async () => {
+      await handleRemoveImage(author.id)
+    })
+  }
+
+  const handleDeleteWrapper = () => {
+    startTransition(async () => {
+      const success = await handleDelete(author.id)
+      if (success) onClose()
+    })
   }
 
   return (
@@ -81,7 +94,7 @@ export default function AuthorEditModal({
           setImgUrl('')
           onClose()
         }}
-        processing={isProcessing}
+        processing={isPending}
       >
         <div className="h-full max-h-[85vh] overflow-y-auto px-2 sm:px-4 py-6">
           <div className="h-full w-full flex flex-col sm:flex-row">
@@ -89,11 +102,11 @@ export default function AuthorEditModal({
               <div className="w-32 sm:w-full h-40 sm:h-45 relative">
                 <AuthorImage author={author}></AuthorImage>
                 {author.imagePath && (
-                  <div className="absolute top-0 right-0 w-full h-full opacity-0 hover:opacity-100">
+                  <div className="absolute top-0 right-0 w-full h-full opacity-0 hover:opacity-100 focus-within:opacity-100">
                     <IconBtn
                       borderless={true}
                       className="absolute top-0 right-0 text-error cursor-pointer transform hover:scale-125 hover:not-disabled:text-error transition-transform"
-                      onClick={onRemoveImage}
+                      onClick={handleRemoveImageWrapper}
                     >
                       delete
                     </IconBtn>
@@ -113,7 +126,7 @@ export default function AuthorEditModal({
                       showToast(t('ToastInvalidImageUrl'), { type: 'error' })
                       return
                     }
-                    onSubmitImage(imgUrl)
+                    handleSubmitImageWrapper(imgUrl)
                     setImgUrl('')
                   }}
                 >
@@ -159,10 +172,10 @@ export default function AuthorEditModal({
                   </Btn>
                 )}
                 <div className="hidden sm:block grow" />
-                <Btn className="flex-2 sm:flex-none" onClick={() => onQuickMatch(editedAuthor)}>
+                <Btn className="flex-2 sm:flex-none" onClick={handleQuickMatchWrapper}>
                   {t('ButtonQuickMatch')}
                 </Btn>
-                <Btn color="bg-success" className="w-full sm:w-auto" disabled={saveDisabled} onClick={() => handleSave()}>
+                <Btn color="bg-success" className="w-full sm:w-auto" disabled={saveDisabled} onClick={handleSaveClick}>
                   {t('ButtonSave')}
                 </Btn>
               </div>
@@ -176,7 +189,7 @@ export default function AuthorEditModal({
         yesButtonText={t('ButtonDelete')}
         yesButtonClassName="bg-error text-white"
         onClose={() => setShowConfirmDialog(false)}
-        onConfirm={() => onDelete(editedAuthor)}
+        onConfirm={handleDeleteWrapper}
       />
     </>
   )
