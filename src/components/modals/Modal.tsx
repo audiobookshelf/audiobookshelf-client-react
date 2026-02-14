@@ -5,7 +5,7 @@ import { ModalProvider } from '@/contexts/ModalContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { ReactNode, useCallback, useRef } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 export interface ModalProps {
@@ -49,6 +49,86 @@ export default function Modal({
 
   // Use click outside hook
   useClickOutside(contentRef, null, handleClickOutside)
+
+  const previousActiveElement = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement
+      // Focus the modal content when it opens
+      // We use requestAnimationFrame to ensure the element is ready to receive focus
+      requestAnimationFrame(() => {
+        contentRef.current?.focus()
+      })
+    }
+    return () => {
+      // Restore focus when modal closes or unmounts (if it was open)
+      if (isOpen && previousActiveElement.current) {
+        previousActiveElement.current.focus()
+      }
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape key to close
+      if (e.key === 'Escape' && !processing && !persistent) {
+        e.preventDefault()
+        e.stopPropagation()
+        onClose?.()
+        return
+      }
+
+      // Focus trap
+      if (e.key === 'Tab') {
+        if (!contentRef.current) return
+
+        const focusableElements = contentRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+        )
+
+        // If no focusable elements, keep focus on content container
+        if (focusableElements.length === 0) {
+          e.preventDefault()
+          contentRef.current.focus()
+          return
+        }
+
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        // Check if focus is within the modal
+        const isFocusInModal = contentRef.current.contains(document.activeElement)
+
+        if (!isFocusInModal) {
+          // If focus somehow got outside, bring it back
+          e.preventDefault()
+          if (e.shiftKey) lastElement.focus()
+          else firstElement.focus()
+        } else {
+          // Normal trap logic
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement || document.activeElement === contentRef.current) {
+              e.preventDefault()
+              lastElement.focus()
+            }
+          } else {
+            if (document.activeElement === lastElement) {
+              e.preventDefault()
+              firstElement.focus()
+            }
+          }
+        }
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, processing, persistent, onClose])
 
   if (!isOpen) {
     return null
