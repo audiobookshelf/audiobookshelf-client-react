@@ -92,7 +92,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                   series={seriesData}
                   libraryId={libraryId}
                   bookshelfView={BookshelfView.STANDARD}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                   dateFormat={defaultDateFormat}
                 />
               </div>
@@ -100,7 +100,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
               <div ref={seriesStandardSkeletonRef}>
-                <SeriesCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                <SeriesCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 0} />
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                   series={seriesData}
                   libraryId={libraryId}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                   dateFormat={defaultDateFormat}
                 />
               </div>
@@ -124,7 +124,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             <div>
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
               <div ref={seriesDetailSkeletonRef}>
-                <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 0} />
               </div>
             </div>
           </div>
@@ -141,7 +141,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 series={seriesData}
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
                 bookProgressMap={
                   new Map(
@@ -158,7 +158,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 series={seriesData}
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
                 bookProgressMap={
                   new Map(
@@ -194,7 +194,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 }
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
               />
             </div>
@@ -213,7 +213,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                   libraryId={libraryId}
                   bookshelfView={BookshelfView.DETAIL}
                   orderBy="addedAt"
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                   dateFormat={defaultDateFormat}
                 />
               </div>
@@ -221,7 +221,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             <div>
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
               <div ref={seriesDetailOrderBySkeletonRef}>
-                <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} orderBy="addedAt" />
+                <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 0} orderBy="addedAt" />
               </div>
             </div>
           </div>
@@ -237,7 +237,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
                 orderBy="totalDuration"
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
               />
             </div>
@@ -260,7 +260,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 }
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
               />
             </div>
@@ -275,7 +275,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 series={{ ...seriesData, books: seriesData.books?.slice(0, 1) } as Series}
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
               />
             </div>
@@ -285,7 +285,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 series={{ ...seriesData, books: seriesData.books?.slice(0, 1) } as Series}
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
               />
             </div>
@@ -302,7 +302,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 series={seriesData}
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
                 isSelectionMode={true}
                 selected={false}
@@ -316,7 +316,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 series={seriesData}
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
                 dateFormat={defaultDateFormat}
                 isSelectionMode={true}
                 selected={true}
@@ -336,7 +336,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.STANDARD}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={1 / 2}
               dateFormat={defaultDateFormat}
             />
@@ -347,7 +347,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.STANDARD}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={3 / 4}
               dateFormat={defaultDateFormat}
             />
@@ -358,7 +358,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.STANDARD}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={5 / 6}
               dateFormat={defaultDateFormat}
             />
@@ -369,7 +369,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.STANDARD}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               dateFormat={defaultDateFormat}
             />
           </div>
@@ -379,7 +379,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.STANDARD}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={4 / 3}
               dateFormat={defaultDateFormat}
             />
@@ -395,7 +395,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={1 / 2}
               dateFormat={defaultDateFormat}
             />
@@ -406,7 +406,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={3 / 4}
               dateFormat={defaultDateFormat}
             />
@@ -417,7 +417,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={5 / 6}
               dateFormat={defaultDateFormat}
             />
@@ -428,7 +428,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               dateFormat={defaultDateFormat}
             />
           </div>
@@ -438,7 +438,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               series={seriesData}
               libraryId={libraryId}
               bookshelfView={BookshelfView.DETAIL}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 0}
               sizeMultiplier={4 / 3}
               dateFormat={defaultDateFormat}
             />

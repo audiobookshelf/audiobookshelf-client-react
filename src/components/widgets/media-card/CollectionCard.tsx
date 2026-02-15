@@ -24,7 +24,7 @@ export interface CollectionCardProps {
   /** View mode (standard or detail) */
   bookshelfView: BookshelfView
   /** Cover configuration */
-  bookCoverAspectRatio?: number
+  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   /** User permissions */
   userCanUpdate?: boolean
@@ -76,7 +76,7 @@ function CollectionCard(props: CollectionCardProps) {
   const rssFeed = useMemo(() => collection.rssFeed ?? null, [collection.rssFeed])
 
   // Cover dimensions - collection card is wider (2x width of a single book cover)
-  const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1.6), [bookCoverAspectRatio])
+  const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1), [bookCoverAspectRatio])
   const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
   // Collection card is wider (2x width of a single book cover)
   const coverWidth = useMemo(() => (coverHeight / coverAspect) * 2, [coverHeight, coverAspect])
@@ -164,13 +164,7 @@ function CollectionCard(props: CollectionCardProps) {
 
                 {/* Edit button */}
                 {userCanUpdate && !isSelectionMode && (
-                  <MediaOverlayIconBtn
-                    cyId="editButton"
-                    position="top-end"
-                    icon="edit"
-                    onClick={handleEditClick}
-                    ariaLabel={t('ButtonEdit')}
-                  />
+                  <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
                 )}
 
                 {/* More menu button */}

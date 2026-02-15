@@ -28,7 +28,7 @@ export interface SeriesCardProps {
   /** Whether to use title without prefix when sorting */
   sortingIgnorePrefix?: boolean
   /** Cover configuration */
-  bookCoverAspectRatio?: number
+  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   /** Date format from server settings */
   dateFormat: string
@@ -78,7 +78,7 @@ function SeriesCard(props: SeriesCardProps) {
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
 
   // Cover dimensions - series card is wider (2x width of a single book cover)
-  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1.6)
+  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1)
   const coverHeight = 192 * effectiveSizeMultiplier
   // Series card is wider (2x width of a single book cover)
   const coverWidth = (coverHeight / coverAspect) * 2
