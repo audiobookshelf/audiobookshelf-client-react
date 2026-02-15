@@ -41,71 +41,8 @@ function AuthorCard(props: AuthorCardProps) {
   const t = useTypeSafeTranslations()
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
 
-  const { quickMatchingAuthorIds, handleQuickMatch, handleSave, handleDelete, handleSubmitImage, handleRemoveImage } = useAuthorActions({
-    selectedAuthor,
-    setSelectedAuthor,
-    setIsModalOpen
-  })
-
-  // Wrap actions to handle processing state
-  const handleSaveWrapper = useCallback(
-    async (editedAuthor: Partial<Author>) => {
-      setIsProcessing(true)
-      try {
-        await handleSave(editedAuthor)
-      } finally {
-        setIsProcessing(false)
-      }
-    },
-    [handleSave]
-  )
-
-  const handleDeleteWrapper = useCallback(async () => {
-    setIsProcessing(true)
-    try {
-      await handleDelete()
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [handleDelete])
-
-  const handleQuickMatchWrapper = useCallback(
-    async (editedAuthor: Partial<Author>) => {
-      setIsProcessing(true)
-      try {
-        if (selectedAuthor) {
-          await handleQuickMatch(selectedAuthor, editedAuthor)
-        }
-      } finally {
-        setIsProcessing(false)
-      }
-    },
-    [handleQuickMatch, selectedAuthor]
-  )
-
-  const handleSubmitImageWrapper = useCallback(
-    async (url: string) => {
-      setIsProcessing(true)
-      try {
-        await handleSubmitImage(url)
-      } finally {
-        setIsProcessing(false)
-      }
-    },
-    [handleSubmitImage]
-  )
-
-  const handleRemoveImageWrapper = useCallback(async () => {
-    setIsProcessing(true)
-    try {
-      await handleRemoveImage()
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [handleRemoveImage])
+  const { quickMatchingAuthorIds, handleQuickMatch } = useAuthorActions()
 
   const isSearching = quickMatchingAuthorIds.has(author.id)
 
@@ -130,15 +67,11 @@ function AuthorCard(props: AuthorCardProps) {
     }
   }, [author.id, author.libraryId, isSearching, router])
 
-  const handleEditClick = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
-      setSelectedAuthor(author)
-      setIsModalOpen(true)
-    },
-    [author, setSelectedAuthor]
-  )
+  const handleEditClick = useCallback((event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setIsModalOpen(true)
+  }, [])
 
   const handleQuickMatchClick = useCallback(
     (event: React.MouseEvent) => {
@@ -231,20 +164,7 @@ function AuthorCard(props: AuthorCardProps) {
         }
       />
 
-      {isModalOpen && selectedAuthor && user && (
-        <AuthorEditModal
-          isOpen={isModalOpen}
-          user={user}
-          onClose={() => setIsModalOpen(false)}
-          author={selectedAuthor}
-          isProcessing={isProcessing}
-          onSave={handleSaveWrapper}
-          onDelete={handleDeleteWrapper}
-          onQuickMatch={handleQuickMatchWrapper}
-          onSubmitImage={handleSubmitImageWrapper}
-          onRemoveImage={handleRemoveImageWrapper}
-        />
-      )}
+      {isModalOpen && user && <AuthorEditModal isOpen={isModalOpen} user={user} onClose={() => setIsModalOpen(false)} author={author} />}
     </>
   )
 }
