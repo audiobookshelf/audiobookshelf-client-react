@@ -7,8 +7,8 @@ import AuthorImage from '../covers/AuthorImage'
 import Modal from '../modals/Modal'
 import Btn from '../ui/Btn'
 import IconBtn from '../ui/IconBtn'
+import SlateEditor from '../ui/SlateEditor'
 import TextInput from '../ui/TextInput'
-import TextareaInput from '../ui/TextareaInput'
 import ConfirmDialog from '../widgets/ConfirmDialog'
 
 interface AuthorEditModalProps {
@@ -98,7 +98,7 @@ export default function AuthorEditModal({ isOpen, user, author, onClose }: Autho
       >
         <div className="h-full max-h-[85vh] overflow-y-auto px-2 sm:px-4 py-6">
           <div className="h-full w-full flex flex-col sm:flex-row">
-            <div className="w-full sm:w-40 p-2 flex justify-center sm:block">
+            <div className="w-full sm:w-40 p-2 flex justify-center sm:block shrink-0">
               <div className="w-32 sm:w-full h-40 sm:h-45 relative">
                 <AuthorImage author={author}></AuthorImage>
                 {author.imagePath && (
@@ -154,13 +154,11 @@ export default function AuthorEditModal({ isOpen, user, author, onClose }: Autho
               </div>
               <div className="flex grow pt-4">
                 <div className="w-full">
-                  <label htmlFor="" className="text-sm mb-1 px-1">
-                    {t('LabelDescription')}
-                  </label>
-                  <TextareaInput
-                    rows={8}
-                    value={editedAuthor.description || ''}
-                    onChange={(value) => setEditedAuthor({ ...editedAuthor, description: value })}
+                  <SlateEditor
+                    key={author.id}
+                    srcContent={author.description || ''}
+                    onUpdate={(value: string) => setEditedAuthor((prev) => ({ ...prev!, description: value }))}
+                    label={t('LabelDescription')}
                   />
                 </div>
               </div>
