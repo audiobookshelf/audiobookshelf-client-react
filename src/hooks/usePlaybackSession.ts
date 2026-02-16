@@ -1,4 +1,5 @@
 import { closePlaybackSession, startPlaybackSession, syncPlaybackSession } from '@/app/actions/playbackActions'
+import { generateUUID } from '@/lib/cryptoUtils'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { FIRST_SYNC_DELAY, SUBSEQUENT_SYNC_INTERVAL } from '@/lib/player/constants'
 import type { LibraryItem, PlaybackSession, StartSessionPayload } from '@/types/api'
@@ -11,7 +12,7 @@ function getDeviceId(): string {
 
   let deviceId = localStorage.getItem('absDeviceId')
   if (!deviceId) {
-    deviceId = crypto.randomUUID()
+    deviceId = generateUUID()
     localStorage.setItem('absDeviceId', deviceId)
   }
   return deviceId
