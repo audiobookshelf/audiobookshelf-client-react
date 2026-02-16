@@ -13,7 +13,7 @@ interface EntityCardProps {
   width: number
   libraryId: string
   isPodcastLibrary: boolean
-  coverAspectRatio: number
+  coverAspectRatio: 0 | 1
   showSubtitles: boolean
   currentUser: UserLoginResponse
   orderBy?: string

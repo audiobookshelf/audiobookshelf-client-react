@@ -47,7 +47,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const { sizeMultiplier } = useCardSize()
 
   // Aspect Ratio
-  const coverAspectRatio = library.settings?.coverAspectRatio ?? 1.6
+  const coverAspectRatio = library.settings?.coverAspectRatio ?? 1
 
   // Measured Card Size State
   const [cardSize, setCardSize] = useState({ width: 0, height: 0 })
