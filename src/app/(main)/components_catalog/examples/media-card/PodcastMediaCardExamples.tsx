@@ -28,7 +28,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
     userPermissions: user.permissions,
     ereaderDevices: [] as EReaderDevice[],
     showSubtitles: false,
-    bookCoverAspectRatio: bookCoverAspectRatio ?? 1.6
+    bookCoverAspectRatio: bookCoverAspectRatio ?? 1
   }
 
   // Selection handler
@@ -138,7 +138,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                 <PodcastMediaCard
                   {...defaultProps}
                   libraryItem={selectedPodcast}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -169,7 +169,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                   {...defaultProps}
                   libraryItem={selectedPodcast}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -202,7 +202,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                   {...defaultProps}
                   libraryItem={selectedPodcast}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -234,7 +234,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                   libraryItem={selectedPodcast}
                   bookshelfView={BookshelfView.DETAIL}
                   orderBy="addedAt"
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -284,7 +284,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -337,7 +337,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -378,7 +378,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -414,7 +414,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -446,7 +446,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={2 / 3}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}
@@ -459,7 +459,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={1}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}
@@ -472,7 +472,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={4 / 3}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}
@@ -485,7 +485,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={11 / 6}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}

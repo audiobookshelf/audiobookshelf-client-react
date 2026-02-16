@@ -7,7 +7,7 @@ import { BookshelfView, EntityType } from '@/types/api'
 
 interface EntityCardSkeletonProps {
   entityType: EntityType
-  coverAspectRatio: number
+  coverAspectRatio: 0 | 1
   seriesSortBy: string
   showSubtitles: boolean
   orderBy: string
