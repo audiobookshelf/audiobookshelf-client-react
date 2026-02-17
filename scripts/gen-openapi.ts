@@ -2,9 +2,19 @@ import { writeFile } from 'node:fs/promises'
 import fs from 'node:fs'
 import path from 'node:path'
 import { createGenerator } from 'ts-json-schema-generator'
-import { apiRegistry } from '../src/lib/apiRegistry'
+import { apiRegistry, type ApiEndpoint } from '../src/lib/apiRegistry'
 
-type ApiEndpoint = (typeof apiRegistry)[keyof typeof apiRegistry]
+type FsWithOptionalGlobSync = typeof fs & {
+  globSync?: (pattern: string) => string[]
+}
+
+const getResponseSchemaRef = (endpoint: ApiEndpoint): string | undefined => {
+  const response = endpoint.response
+  if (response && 'schemaRef' in response) {
+    return response.schemaRef
+  }
+  return undefined
+}
 
 const schemaId = (typeName: string) => typeName.replace(/[^A-Za-z0-9_]/g, '_')
 
@@ -53,8 +63,9 @@ function buildOpenApi(endpoints: ApiEndpoint[]): OpenApiDocument {
   const schemaTypes = new Set<string>()
 
   for (const endpoint of endpoints) {
-    if (endpoint.response && endpoint.response.schemaRef) {
-      schemaTypes.add(endpoint.response.schemaRef)
+    const responseSchemaRef = getResponseSchemaRef(endpoint)
+    if (responseSchemaRef) {
+      schemaTypes.add(responseSchemaRef)
     }
     if (endpoint.requestBody) {
       if ('content' in endpoint.requestBody) {
@@ -144,7 +155,7 @@ function buildOpenApi(endpoints: ApiEndpoint[]): OpenApiDocument {
     pathParams: ReturnType<typeof extractPathParams>,
     registryParams: ApiEndpoint['parameters']
   ) => {
-    const merged: Array<ApiEndpoint['parameters'][number]> = []
+    const merged: Array<NonNullable<ApiEndpoint['parameters']>[number]> = []
     const seen = new Set<string>()
 
     for (const param of [...pathParams, ...(registryParams || [])]) {
@@ -166,7 +177,7 @@ function buildOpenApi(endpoints: ApiEndpoint[]): OpenApiDocument {
 
     const method = endpoint.method.toLowerCase()
     const status = (endpoint.response && endpoint.response.status) || 200
-    const schemaRef = endpoint.response && endpoint.response.schemaRef
+    const schemaRef = getResponseSchemaRef(endpoint)
 
     if (!paths[endpoint.path]) {
       paths[endpoint.path] = {}
@@ -241,8 +252,9 @@ function buildOpenApi(endpoints: ApiEndpoint[]): OpenApiDocument {
 }
 
 async function main() {
-  if (typeof fs.globSync !== 'function') {
-    fs.globSync = (pattern: string) => [pattern]
+  const fsWithOptionalGlobSync = fs as FsWithOptionalGlobSync
+  if (typeof fsWithOptionalGlobSync.globSync !== 'function') {
+    fsWithOptionalGlobSync.globSync = (pattern: string) => [pattern]
   }
 
   const endpoints = Object.values(apiRegistry)
