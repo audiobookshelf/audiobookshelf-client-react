@@ -1,31 +1,28 @@
-const { writeFile } = require('node:fs/promises')
-const path = require('node:path')
-const fs = require('node:fs')
-const registry = require('../src/lib/apiRegistry.json')
+import { writeFile } from 'node:fs/promises'
+import fs from 'node:fs'
+import path from 'node:path'
+import { createGenerator } from 'ts-json-schema-generator'
+import { apiRegistry } from '../src/lib/apiRegistry'
 
-if (typeof fs.globSync !== 'function') {
-  fs.globSync = (pattern) => [pattern]
-}
+type ApiEndpoint = (typeof apiRegistry)[keyof typeof apiRegistry]
 
-const { createGenerator } = require('ts-json-schema-generator')
+const schemaId = (typeName: string) => typeName.replace(/[^A-Za-z0-9_]/g, '_')
 
-const schemaId = (typeName) => typeName.replace(/[^A-Za-z0-9_]/g, '_')
-
-const normalizeTypeName = (typeName) => {
+const normalizeTypeName = (typeName: string) => {
   if (typeName.endsWith('[]')) {
     return typeName.slice(0, -2)
   }
   return typeName
 }
 
-const replaceRef = (ref) => ref.replace(/^#\/definitions\//, '#/components/schemas/')
+const replaceRef = (ref: string) => ref.replace(/^#\/definitions\//, '#/components/schemas/')
 
-const normalizeSchema = (schema) => {
+const normalizeSchema = (schema: unknown): unknown => {
   if (Array.isArray(schema)) {
     return schema.map(normalizeSchema)
   }
   if (schema && typeof schema === 'object') {
-    const next = {}
+    const next: Record<string, unknown> = {}
     for (const [key, value] of Object.entries(schema)) {
       if (key === '$ref' && typeof value === 'string') {
         next.$ref = replaceRef(value)
@@ -38,10 +35,22 @@ const normalizeSchema = (schema) => {
   return schema
 }
 
-function buildOpenApi(endpoints) {
-  const paths = {}
-  const schemas = {}
-  const schemaTypes = new Set()
+type OpenApiDocument = {
+  openapi: '3.1.0'
+  info: {
+    title: string
+    version: string
+  }
+  paths: Record<string, Record<string, unknown>>
+  components: {
+    schemas: Record<string, unknown>
+  }
+}
+
+function buildOpenApi(endpoints: ApiEndpoint[]): OpenApiDocument {
+  const paths: OpenApiDocument['paths'] = {}
+  const schemas: Record<string, unknown> = {}
+  const schemaTypes = new Set<string>()
 
   for (const endpoint of endpoints) {
     if (endpoint.response && endpoint.response.schemaRef) {
@@ -85,7 +94,7 @@ function buildOpenApi(endpoints) {
       const normalizedTop = normalizeSchema(topLevel)
       const topId = schemaId(typeName)
       const normalizedTopId = schemaId(normalizedType)
-      const topRef = normalizedTop && normalizedTop.$ref
+      const topRef = (normalizedTop as { $ref?: string }).$ref
       const topRefName = typeof topRef === 'string' ? topRef.replace('#/components/schemas/', '') : null
 
       if (topRefName && topRefName === topId && schemas[topRefName]) {
@@ -109,10 +118,16 @@ function buildOpenApi(endpoints) {
     }
   }
 
-  const extractPathParams = (pathTemplate) => {
-    const params = []
+  const extractPathParams = (pathTemplate: string) => {
+    const params: Array<{
+      name: string
+      in: 'path'
+      required: true
+      schema: { type: 'string' }
+      description: string
+    }> = []
     const regex = /{([^}]+)}/g
-    let match
+    let match: RegExpExecArray | null
     while ((match = regex.exec(pathTemplate)) !== null) {
       params.push({
         name: match[1],
@@ -125,9 +140,12 @@ function buildOpenApi(endpoints) {
     return params
   }
 
-  const mergeParameters = (pathParams, registryParams) => {
-    const merged = []
-    const seen = new Set()
+  const mergeParameters = (
+    pathParams: ReturnType<typeof extractPathParams>,
+    registryParams: ApiEndpoint['parameters']
+  ) => {
+    const merged: Array<ApiEndpoint['parameters'][number]> = []
+    const seen = new Set<string>()
 
     for (const param of [...pathParams, ...(registryParams || [])]) {
       const key = `${param.in}:${param.name}`
@@ -162,10 +180,10 @@ function buildOpenApi(endpoints) {
       }
 
       if ('content' in endpoint.requestBody) {
-        const content = {}
-        for (const [contentType, schemaRef] of Object.entries(endpoint.requestBody.content)) {
+        const content: Record<string, unknown> = {}
+        for (const [contentType, schemaName] of Object.entries(endpoint.requestBody.content)) {
           content[contentType] = {
-            schema: { $ref: `#/components/schemas/${schemaId(schemaRef)}` }
+            schema: { $ref: `#/components/schemas/${schemaId(schemaName)}` }
           }
         }
         return { required: true, content }
@@ -181,7 +199,7 @@ function buildOpenApi(endpoints) {
       }
     }
 
-    const operation = {
+    const operation: Record<string, unknown> = {
       operationId: endpoint.operationId,
       description: endpoint.description,
       parameters: parameters.length > 0 ? parameters : undefined,
@@ -223,7 +241,11 @@ function buildOpenApi(endpoints) {
 }
 
 async function main() {
-  const endpoints = Object.values(registry)
+  if (typeof fs.globSync !== 'function') {
+    fs.globSync = (pattern: string) => [pattern]
+  }
+
+  const endpoints = Object.values(apiRegistry)
   const openapi = buildOpenApi(endpoints)
   const outPath = path.resolve(process.cwd(), 'openapi.json')
   await writeFile(outPath, JSON.stringify(openapi, null, 2) + '\n', 'utf8')

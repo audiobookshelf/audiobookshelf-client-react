@@ -1,5 +1,3 @@
-import registry from './apiRegistry.json'
-
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
 
 export type ApiEndpoint = {
@@ -28,4 +26,550 @@ export type ApiEndpoint = {
   }
 }
 
-export const apiRegistry = registry as Record<string, ApiEndpoint>
+export const apiRegistry = {
+  getCurrentUser: {
+    method: 'POST',
+    path: '/api/authorize',
+    operationId: 'getCurrentUser',
+    description: 'Authorize and return the current user session.',
+    response: { status: 200, schemaRef: 'UserLoginResponse' }
+  },
+  getServerStatus: {
+    method: 'GET',
+    path: '/status',
+    operationId: 'getServerStatus',
+    description: 'Fetch public server status.',
+    response: { status: 200, schemaRef: 'ServerStatus' }
+  },
+  getLibraries: {
+    method: 'GET',
+    path: '/api/libraries',
+    operationId: 'getLibraries',
+    description: 'Fetch libraries available to the current user.',
+    response: { status: 200, schemaRef: 'GetLibrariesResponse' }
+  },
+  getLibrary: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}',
+    operationId: 'getLibrary',
+    description: 'Fetch a single library by id.',
+    response: { status: 200, schemaRef: 'Library' }
+  },
+  getLibraryPersonalized: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/personalized',
+    operationId: 'getLibraryPersonalized',
+    description: 'Fetch personalized shelves for a library.',
+    response: { status: 200, schemaRef: 'PersonalizedShelf[]' }
+  },
+  getLibraryItems: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/items',
+    operationId: 'getLibraryItems',
+    description: 'Fetch library items (supports query params).',
+    response: { status: 200, schemaRef: 'GetLibraryItemsResponse' }
+  },
+  getLibraryFilterData: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/filterdata',
+    operationId: 'getLibraryFilterData',
+    description: 'Fetch filter data for a library.',
+    response: { status: 200, schemaRef: 'LibraryFilterData' }
+  },
+  getLibraryItem: {
+    method: 'GET',
+    path: '/api/items/{itemId}',
+    operationId: 'getLibraryItem',
+    description: 'Fetch a library item by id.',
+    parameters: [
+      {
+        name: 'expanded',
+        in: 'query',
+        required: false,
+        schema: { type: 'string', enum: ['0', '1'] },
+        description: 'Include expanded data when set to 1.'
+      }
+    ],
+    response: { status: 200, schemaRef: 'LibraryItem' }
+  },
+  getAudioFileFFProbeData: {
+    method: 'GET',
+    path: '/api/items/{itemId}/ffprobe/{fileIno}',
+    operationId: 'getAudioFileFFProbeData',
+    description: 'Fetch FFProbe data for a library item file.',
+    response: { status: 200, schemaRef: 'FFProbeData' }
+  },
+  getUsers: {
+    method: 'GET',
+    path: '/api/users',
+    operationId: 'getUsers',
+    description: 'Fetch users (supports query params).',
+    response: { status: 200, schemaRef: 'GetUsersResponse' }
+  },
+  getUser: {
+    method: 'GET',
+    path: '/api/users/{userId}',
+    operationId: 'getUser',
+    description: 'Fetch a user by id.',
+    response: { status: 200, schemaRef: 'User' }
+  },
+  deleteUser: {
+    method: 'DELETE',
+    path: '/api/users/{userId}',
+    operationId: 'deleteUser',
+    description: 'Delete a user by id.',
+    response: { status: 204 }
+  },
+  uploadCover: {
+    method: 'POST',
+    path: '/api/items/{libraryItemId}/cover',
+    operationId: 'uploadCover',
+    description: 'Upload a cover image for a library item.',
+    requestBody: {
+      content: {
+        'multipart/form-data': 'UploadCoverMultipartPayload',
+        'application/json': 'UpdateCoverFromUrlPayload'
+      }
+    },
+    response: { status: 200, schemaRef: 'UploadCoverResponse' }
+  },
+  removeCover: {
+    method: 'DELETE',
+    path: '/api/items/{libraryItemId}/cover',
+    operationId: 'removeCover',
+    description: 'Remove the cover image from a library item.',
+    response: { status: 204 }
+  },
+  deleteLibraryFile: {
+    method: 'DELETE',
+    path: '/api/items/{libraryItemId}/file/{fileIno}',
+    operationId: 'deleteLibraryFile',
+    description: 'Delete a library file from a library item.',
+    response: { status: 204 }
+  },
+  setCoverFromLocalFile: {
+    method: 'PATCH',
+    path: '/api/items/{libraryItemId}/cover',
+    operationId: 'setCoverFromLocalFile',
+    description: 'Set the cover image using a local file path.',
+    requestBody: { contentType: 'application/json', schemaRef: 'SetCoverFromLocalFilePayload' },
+    response: { status: 200, schemaRef: 'UploadCoverResponse' }
+  },
+  getAuthor: {
+    method: 'GET',
+    path: '/api/authors/{authorId}',
+    operationId: 'getAuthor',
+    description: 'Fetch an author by id.',
+    response: { status: 200, schemaRef: 'Author' }
+  },
+  getPlaylist: {
+    method: 'GET',
+    path: '/api/playlists/{playlistId}',
+    operationId: 'getPlaylist',
+    description: 'Fetch a playlist by id.',
+    response: { status: 200, schemaRef: 'Playlist' }
+  },
+  getCollection: {
+    method: 'GET',
+    path: '/api/collections/{collectionId}',
+    operationId: 'getCollection',
+    description: 'Fetch a collection by id.',
+    parameters: [
+      {
+        name: 'include',
+        in: 'query',
+        required: false,
+        schema: { type: 'string' },
+        description: 'Optional includes (e.g., rssfeed).'
+      }
+    ],
+    response: { status: 200, schemaRef: 'Collection' }
+  },
+  getSeries: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/series/{seriesId}',
+    operationId: 'getSeries',
+    description: 'Fetch a series by id.',
+    response: { status: 200, schemaRef: 'Series' }
+  },
+  getSeriesList: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/series',
+    operationId: 'getSeriesList',
+    description: 'Fetch series for a library (supports query params).',
+    response: { status: 200, schemaRef: 'GetSeriesResponse' }
+  },
+  getAuthorsList: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/authors',
+    operationId: 'getAuthorsList',
+    description: 'Fetch authors for a library (supports query params).',
+    response: { status: 200, schemaRef: 'GetAuthorsResponse' }
+  },
+  getCollectionsList: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/collections',
+    operationId: 'getCollectionsList',
+    description: 'Fetch collections for a library (supports query params).',
+    response: { status: 200, schemaRef: 'GetCollectionsResponse' }
+  },
+  getPlaylistsList: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/playlists',
+    operationId: 'getPlaylistsList',
+    description: 'Fetch playlists for a library (supports query params).',
+    response: { status: 200, schemaRef: 'GetPlaylistsResponse' }
+  },
+  searchLibrary: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/search',
+    operationId: 'searchLibrary',
+    description: 'Search a library (supports query params).',
+    parameters: [
+      {
+        name: 'q',
+        in: 'query',
+        required: true,
+        schema: { type: 'string' },
+        description: 'Search query string.'
+      },
+      {
+        name: 'limit',
+        in: 'query',
+        required: false,
+        schema: { type: 'integer', minimum: 1 },
+        description: 'Maximum results per category.'
+      }
+    ],
+    response: { status: 200, schemaRef: 'SearchLibraryResponse' }
+  },
+  getMetadataProviders: {
+    method: 'GET',
+    path: '/api/search/providers',
+    operationId: 'getMetadataProviders',
+    description: 'Fetch metadata search providers.',
+    response: { status: 200, schemaRef: 'MetadataProvidersResponse' }
+  },
+  getTags: {
+    method: 'GET',
+    path: '/api/tags',
+    operationId: 'getTags',
+    description: 'Fetch tags.',
+    response: { status: 200, schemaRef: 'TagsResponse' }
+  },
+  getGenres: {
+    method: 'GET',
+    path: '/api/genres',
+    operationId: 'getGenres',
+    description: 'Fetch genres.',
+    response: { status: 200, schemaRef: 'GenresResponse' }
+  },
+  getNarrators: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/narrators',
+    operationId: 'getNarrators',
+    description: 'Fetch narrators for a library.',
+    response: { status: 200, schemaRef: 'GetNarratorsResponse' }
+  },
+  getApiKeys: {
+    method: 'GET',
+    path: '/api/api-keys',
+    operationId: 'getApiKeys',
+    description: 'Fetch API keys for the current user.',
+    response: { status: 200, schemaRef: 'GetApiKeysResponse' }
+  },
+  deleteApiKey: {
+    method: 'DELETE',
+    path: '/api/api-keys/{apiKeyId}',
+    operationId: 'deleteApiKey',
+    description: 'Delete an API key.',
+    response: { status: 204 }
+  },
+  createApiKey: {
+    method: 'POST',
+    path: '/api/api-keys',
+    operationId: 'createApiKey',
+    description: 'Create a new API key.',
+    requestBody: { contentType: 'application/json', schemaRef: 'CreateApiKeyPayload' },
+    response: { status: 200, schemaRef: 'CreateUpdateApiKeyResponse' }
+  },
+  updateApiKey: {
+    method: 'PATCH',
+    path: '/api/api-keys/{apiKeyId}',
+    operationId: 'updateApiKey',
+    description: 'Update an API key.',
+    requestBody: { contentType: 'application/json', schemaRef: 'CreateApiKeyPayload' },
+    response: { status: 200, schemaRef: 'CreateUpdateApiKeyResponse' }
+  },
+  getRssFeeds: {
+    method: 'GET',
+    path: '/api/feeds',
+    operationId: 'getRssFeeds',
+    description: 'Fetch RSS feeds.',
+    response: { status: 200, schemaRef: 'GetRssFeedsResponse' }
+  },
+  closeRssFeed: {
+    method: 'POST',
+    path: '/api/feeds/{feedId}/close',
+    operationId: 'closeRssFeed',
+    description: 'Close an RSS feed.',
+    response: { status: 204 }
+  },
+  getBackups: {
+    method: 'GET',
+    path: '/api/backups',
+    operationId: 'getBackups',
+    description: 'Fetch backups.',
+    response: { status: 200, schemaRef: 'GetBackupsResponse' }
+  },
+  getLoggerData: {
+    method: 'GET',
+    path: '/api/logger-data',
+    operationId: 'getLoggerData',
+    description: 'Fetch logger data.',
+    response: { status: 200, schemaRef: 'GetLoggerDataResponse' }
+  },
+  searchBooks: {
+    method: 'GET',
+    path: '/api/search/books',
+    operationId: 'searchBooks',
+    description: 'Search for books via metadata providers.',
+    parameters: [
+      { name: 'provider', in: 'query', required: true, schema: { type: 'string' } },
+      { name: 'fallbackTitleOnly', in: 'query', required: true, schema: { type: 'string', enum: ['1'] } },
+      { name: 'title', in: 'query', required: true, schema: { type: 'string' } },
+      { name: 'author', in: 'query', required: false, schema: { type: 'string' } },
+      { name: 'id', in: 'query', required: false, schema: { type: 'string' } }
+    ],
+    response: { status: 200, schemaRef: 'BookSearchResult[]' }
+  },
+  searchPodcasts: {
+    method: 'GET',
+    path: '/api/search/podcast',
+    operationId: 'searchPodcasts',
+    description: 'Search for podcasts via metadata providers.',
+    parameters: [{ name: 'term', in: 'query', required: true, schema: { type: 'string' } }],
+    response: { status: 200, schemaRef: 'PodcastSearchResult[]' }
+  },
+  updateLibraryItemMedia: {
+    method: 'PATCH',
+    path: '/api/items/{libraryItemId}/media',
+    operationId: 'updateLibraryItemMedia',
+    description: 'Update metadata for a library item.',
+    requestBody: { contentType: 'application/json', schemaRef: 'UpdateLibraryItemMediaPayload' },
+    response: { status: 200, schemaRef: 'UpdateLibraryItemMediaResponse' }
+  },
+  updateMediaFinished: {
+    method: 'PATCH',
+    path: '/api/me/progress/{libraryItemId}',
+    operationId: 'updateMediaFinished',
+    description: 'Update finished state for a library item.',
+    requestBody: { contentType: 'application/json', schemaRef: 'UpdateMediaFinishedPayload' },
+    response: { status: 204 }
+  },
+  updateMediaFinishedEpisode: {
+    method: 'PATCH',
+    path: '/api/me/progress/{libraryItemId}/{episodeId}',
+    operationId: 'updateMediaFinishedEpisode',
+    description: 'Update finished state for a library item episode.',
+    requestBody: { contentType: 'application/json', schemaRef: 'UpdateMediaFinishedPayload' },
+    response: { status: 204 }
+  },
+  rescanLibraryItem: {
+    method: 'POST',
+    path: '/api/items/{libraryItemId}/scan',
+    operationId: 'rescanLibraryItem',
+    description: 'Trigger a rescan for a library item.',
+    response: { status: 200, schemaRef: 'RescanLibraryItemResponse' }
+  },
+  sendEbookToDevice: {
+    method: 'POST',
+    path: '/api/emails/send-ebook-to-device',
+    operationId: 'sendEbookToDevice',
+    description: 'Send an ebook to an e-reader device.',
+    requestBody: { contentType: 'application/json', schemaRef: 'SendEbookToDevicePayload' },
+    response: { status: 204 }
+  },
+  removeSeriesFromContinueListening: {
+    method: 'GET',
+    path: '/api/me/series/{seriesId}/remove-from-continue-listening',
+    operationId: 'removeSeriesFromContinueListening',
+    description: 'Remove a series from continue listening.',
+    response: { status: 204 }
+  },
+  removeFromContinueListening: {
+    method: 'GET',
+    path: '/api/me/progress/{progressId}/remove-from-continue-listening',
+    operationId: 'removeFromContinueListening',
+    description: 'Remove a progress entry from continue listening.',
+    response: { status: 204 }
+  },
+  deleteLibraryItem: {
+    method: 'DELETE',
+    path: '/api/items/{libraryItemId}',
+    operationId: 'deleteLibraryItem',
+    description: 'Delete a library item (supports hard delete).',
+    parameters: [
+      {
+        name: 'hard',
+        in: 'query',
+        required: false,
+        schema: { type: 'string', enum: ['0', '1'] }
+      }
+    ],
+    response: { status: 204 }
+  },
+  embedMetadataQuick: {
+    method: 'POST',
+    path: '/api/tools/item/{libraryItemId}/embed-metadata',
+    operationId: 'embedMetadataQuick',
+    description: 'Quick embed metadata for a library item.',
+    response: { status: 204 }
+  },
+  getTasks: {
+    method: 'GET',
+    path: '/api/tasks',
+    operationId: 'getTasks',
+    description: 'Get tasks with optional queue data.',
+    parameters: [
+      {
+        name: 'include',
+        in: 'query',
+        required: false,
+        schema: { type: 'string', enum: ['queue'] }
+      }
+    ],
+    response: { status: 200, schemaRef: 'TasksResponse' }
+  },
+  createLibrary: {
+    method: 'POST',
+    path: '/api/libraries',
+    operationId: 'createLibrary',
+    description: 'Create a library.',
+    requestBody: { contentType: 'application/json', schemaRef: 'Library' },
+    response: { status: 200, schemaRef: 'Library' }
+  },
+  updateLibrary: {
+    method: 'PATCH',
+    path: '/api/libraries/{libraryId}',
+    operationId: 'updateLibrary',
+    description: 'Update a library.',
+    requestBody: { contentType: 'application/json', schemaRef: 'Library' },
+    response: { status: 200, schemaRef: 'Library' }
+  },
+  deleteLibrary: {
+    method: 'DELETE',
+    path: '/api/libraries/{libraryId}',
+    operationId: 'deleteLibrary',
+    description: 'Delete a library.',
+    response: { status: 200, schemaRef: 'Library' }
+  },
+  scanLibrary: {
+    method: 'POST',
+    path: '/api/libraries/{libraryId}/scan',
+    operationId: 'scanLibrary',
+    description: 'Scan a library.',
+    parameters: [
+      {
+        name: 'force',
+        in: 'query',
+        required: false,
+        schema: { type: 'string', enum: ['0', '1'] }
+      }
+    ],
+    response: { status: 204 }
+  },
+  saveLibraryOrder: {
+    method: 'POST',
+    path: '/api/libraries/order',
+    operationId: 'saveLibraryOrder',
+    description: 'Save library ordering.',
+    requestBody: { contentType: 'application/json', schemaRef: 'SaveLibraryOrderPayload' },
+    response: { status: 200, schemaRef: 'SaveLibraryOrderApiResponse' }
+  },
+  matchAll: {
+    method: 'GET',
+    path: '/api/libraries/{libraryId}/matchall',
+    operationId: 'matchAll',
+    description: 'Match all items in a library.',
+    response: { status: 204 }
+  },
+  updateCollection: {
+    method: 'PATCH',
+    path: '/api/collections/{collectionId}',
+    operationId: 'updateCollection',
+    description: 'Update a collection.',
+    requestBody: { contentType: 'application/json', schemaRef: 'UpdateCollectionPayload' },
+    response: { status: 200, schemaRef: 'Collection' }
+  },
+  deleteCollection: {
+    method: 'DELETE',
+    path: '/api/collections/{collectionId}',
+    operationId: 'deleteCollection',
+    description: 'Delete a collection.',
+    response: { status: 204 }
+  },
+  createPlaylistFromCollection: {
+    method: 'POST',
+    path: '/api/playlists/collection/{collectionId}',
+    operationId: 'createPlaylistFromCollection',
+    description: 'Create a playlist from a collection.',
+    response: { status: 200, schemaRef: 'CreatePlaylistFromCollectionResponse' }
+  },
+  deletePlaylist: {
+    method: 'DELETE',
+    path: '/api/playlists/{playlistId}',
+    operationId: 'deletePlaylist',
+    description: 'Delete a playlist.',
+    response: { status: 204 }
+  },
+  quickMatchAuthor: {
+    method: 'POST',
+    path: '/api/authors/{authorId}/match',
+    operationId: 'quickMatchAuthor',
+    description: 'Quick match an author.',
+    requestBody: { contentType: 'application/json', schemaRef: 'AuthorQuickMatchPayload' },
+    response: { status: 200, schemaRef: 'AuthorUpdateResponse' }
+  },
+  updateAuthor: {
+    method: 'PATCH',
+    path: '/api/authors/{authorId}',
+    operationId: 'updateAuthor',
+    description: 'Update an author.',
+    requestBody: { contentType: 'application/json', schemaRef: 'UpdateAuthorPayload' },
+    response: { status: 200, schemaRef: 'AuthorUpdateResponse' }
+  },
+  deleteAuthor: {
+    method: 'DELETE',
+    path: '/api/authors/{authorId}',
+    operationId: 'deleteAuthor',
+    description: 'Delete an author.',
+    response: { status: 204 }
+  },
+  getFilesystemPaths: {
+    method: 'GET',
+    path: '/api/filesystem',
+    operationId: 'getFilesystemPaths',
+    description: 'Get filesystem paths for folder browsing.',
+    parameters: [
+      { name: 'path', in: 'query', required: true, schema: { type: 'string' } },
+      { name: 'level', in: 'query', required: true, schema: { type: 'integer', minimum: 0 } }
+    ],
+    response: { status: 200, schemaRef: 'GetFilesystemPathsResponse' }
+  },
+  submitAuthorImage: {
+    method: 'POST',
+    path: '/api/authors/{authorId}/image',
+    operationId: 'submitAuthorImage',
+    description: "Upload a cover image for an author.",
+    requestBody: { contentType: 'application/json', schemaRef: 'AuthorImagePayload' },
+    response: { status: 200, schemaRef: 'AuthorResponse' }
+  },
+  removeAuthorImage: {
+    method: 'DELETE',
+    path: '/api/authors/{authorId}/image',
+    operationId: 'removeAuthorImage',
+    description: "Remove an author's image.",
+    response: { status: 200, schemaRef: 'AuthorResponse' }
+  }
+} as const satisfies Record<string, ApiEndpoint>
