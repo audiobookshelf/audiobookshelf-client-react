@@ -11,6 +11,7 @@ import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookshelfEntity, EntityType, MediaProgress, UserLoginResponse } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import LibraryEmptyState from '../LibraryEmptyState'
 import EntityCard from './EntityCard'
 import EntityCardSkeleton from './EntityCardSkeleton'
 
@@ -24,7 +25,7 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting } = useLibrary()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, filterBy } = useLibrary()
 
   const { query } = useBookshelfQuery(entityType)
 
@@ -410,9 +411,15 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
           {/* Empty State */}
           {!isLoading && totalEntities === 0 && (
-            <div className="flex h-full items-center justify-center p-10">
-              <p>{getEmptyMessage()}</p>
-            </div>
+            <>
+              {entityType === 'items' && filterBy === 'all' ? (
+                <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />
+              ) : (
+                <div className="flex h-full items-center justify-center p-10">
+                  <p className="text-xl">{getEmptyMessage()}</p>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
