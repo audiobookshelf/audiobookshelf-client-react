@@ -14,10 +14,14 @@ export type ApiEndpoint = {
     description?: string
     schema: Record<string, unknown>
   }>
-  requestBody?: {
-    contentType: 'application/json' | 'multipart/form-data'
-    schemaRef: string
-  }
+  requestBody?:
+    | {
+        contentType: 'application/json' | 'multipart/form-data'
+        schemaRef: string
+      }
+    | {
+        content: Record<string, string>
+      }
   response?: {
     status: number
     schemaRef?: string

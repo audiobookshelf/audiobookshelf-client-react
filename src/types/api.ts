@@ -207,6 +207,11 @@ export interface GetLibrariesResponse {
   libraries: Library[]
 }
 
+export type SaveLibraryOrderPayload = Array<{
+  id: string
+  newOrder: number
+}>
+
 export interface GetUsersResponse {
   users: User[]
 }
@@ -329,6 +334,11 @@ export interface Collection {
   updatedAt?: number
 }
 
+export interface UpdateCollectionPayload {
+  name?: string
+  description?: string
+}
+
 // ============================================================================
 // PLAYLISTS
 // ============================================================================
@@ -350,6 +360,10 @@ export interface Playlist {
   items?: PlaylistItem[]
   lastUpdate?: number
   createdAt?: number
+}
+
+export interface CreatePlaylistFromCollectionResponse {
+  id: string
 }
 
 // ============================================================================
@@ -691,6 +705,18 @@ export interface UploadCoverResponse {
   cover: string
 }
 
+export interface UploadCoverMultipartPayload {
+  cover: string
+}
+
+export interface UpdateCoverFromUrlPayload {
+  url: string
+}
+
+export interface SetCoverFromLocalFilePayload {
+  cover: string
+}
+
 // ============================================================================
 // PROGRESS & BOOKMARKS
 // ============================================================================
@@ -947,6 +973,14 @@ export interface SearchLibraryResponse {
   playlists?: Playlist[]
 }
 
+export interface TagsResponse {
+  tags: string[]
+}
+
+export interface GenresResponse {
+  genres: string[]
+}
+
 // ============================================================================
 // METADATA PROVIDERS
 // ============================================================================
@@ -1083,6 +1117,19 @@ export interface UpdateLibraryItemMediaPayload {
 export interface UpdateLibraryItemMediaResponse {
   updated: boolean
   libraryItem?: LibraryItem
+}
+
+export interface UpdateMediaFinishedPayload {
+  isFinished: boolean
+}
+
+export interface RescanLibraryItemResponse {
+  result: 'UPDATED' | 'UPTODATE' | 'REMOVED' | null
+}
+
+export interface SendEbookToDevicePayload {
+  libraryItemId: string
+  deviceName: string
 }
 
 // ============================================================================

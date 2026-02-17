@@ -47,8 +47,14 @@ function buildOpenApi(endpoints) {
     if (endpoint.response && endpoint.response.schemaRef) {
       schemaTypes.add(endpoint.response.schemaRef)
     }
-    if (endpoint.requestBody && endpoint.requestBody.schemaRef) {
-      schemaTypes.add(endpoint.requestBody.schemaRef)
+    if (endpoint.requestBody) {
+      if ('content' in endpoint.requestBody) {
+        for (const schemaRef of Object.values(endpoint.requestBody.content)) {
+          schemaTypes.add(schemaRef)
+        }
+      } else if (endpoint.requestBody.schemaRef) {
+        schemaTypes.add(endpoint.requestBody.schemaRef)
+      }
     }
   }
 
@@ -150,20 +156,36 @@ function buildOpenApi(endpoints) {
 
     const parameters = mergeParameters(extractPathParams(endpoint.path), endpoint.parameters)
 
+    const buildRequestBody = () => {
+      if (!endpoint.requestBody) {
+        return undefined
+      }
+
+      if ('content' in endpoint.requestBody) {
+        const content = {}
+        for (const [contentType, schemaRef] of Object.entries(endpoint.requestBody.content)) {
+          content[contentType] = {
+            schema: { $ref: `#/components/schemas/${schemaId(schemaRef)}` }
+          }
+        }
+        return { required: true, content }
+      }
+
+      return {
+        required: true,
+        content: {
+          [endpoint.requestBody.contentType]: {
+            schema: { $ref: `#/components/schemas/${schemaId(endpoint.requestBody.schemaRef)}` }
+          }
+        }
+      }
+    }
+
     const operation = {
       operationId: endpoint.operationId,
       description: endpoint.description,
       parameters: parameters.length > 0 ? parameters : undefined,
-      requestBody: endpoint.requestBody
-        ? {
-            required: true,
-            content: {
-              [endpoint.requestBody.contentType]: {
-                schema: { $ref: `#/components/schemas/${schemaId(endpoint.requestBody.schemaRef)}` }
-              }
-            }
-          }
-        : undefined,
+      requestBody: buildRequestBody(),
       responses: {
         [status]: schemaRef
           ? {

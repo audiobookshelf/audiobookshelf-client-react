@@ -10,9 +10,11 @@ import {
   AuthorUpdateResponse,
   BookSearchResult,
   Collection,
+  CreatePlaylistFromCollectionResponse,
   CreateApiKeyPayload,
   CreateUpdateApiKeyResponse,
   FFProbeData,
+  GenresResponse,
   GetApiKeysResponse,
   GetAuthorsResponse,
   GetBackupsResponse,
@@ -33,14 +35,22 @@ import {
   PersonalizedShelf,
   Playlist,
   PodcastSearchResult,
+  RescanLibraryItemResponse,
+  SaveLibraryOrderPayload,
   SaveLibraryOrderApiResponse,
   SearchLibraryResponse,
+  SendEbookToDevicePayload,
+  SetCoverFromLocalFilePayload,
   Series,
   ServerStatus,
+  TagsResponse,
   TasksResponse,
+  UpdateCollectionPayload,
   UpdateAuthorPayload,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
+  UpdateCoverFromUrlPayload,
+  UpdateMediaFinishedPayload,
   UploadCoverResponse,
   User,
   UserLoginResponse
@@ -342,8 +352,9 @@ export async function uploadCover(libraryItemId: string, file: File): Promise<Up
   const formData = new FormData()
   formData.append('cover', file, file.name)
 
-  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
-    method: 'POST',
+  const endpoint = apiRegistry.uploadCover
+  return apiRequest<UploadCoverResponse>(buildPath(endpoint.path, { libraryItemId }), {
+    method: endpoint.method,
     body: formData
   })
 }
@@ -353,8 +364,9 @@ export async function uploadCover(libraryItemId: string, file: File): Promise<Up
  * Returns: 200 status with no body
  */
 export async function removeCover(libraryItemId: string): Promise<void> {
-  return apiRequest<void>(`/api/items/${libraryItemId}/cover`, {
-    method: 'DELETE'
+  const endpoint = apiRegistry.removeCover
+  return apiRequest<void>(buildPath(endpoint.path, { libraryItemId }), {
+    method: endpoint.method
   })
 }
 
@@ -363,8 +375,9 @@ export async function removeCover(libraryItemId: string): Promise<void> {
  * Returns: 200 status with no body
  */
 export async function deleteLibraryFile(libraryItemId: string, fileIno: string): Promise<void> {
-  return apiRequest<void>(`/api/items/${libraryItemId}/file/${fileIno}`, {
-    method: 'DELETE'
+  const endpoint = apiRegistry.deleteLibraryFile
+  return apiRequest<void>(buildPath(endpoint.path, { libraryItemId, fileIno }), {
+    method: endpoint.method
   })
 }
 
@@ -377,9 +390,11 @@ export async function updateCoverFromUrl(libraryItemId: string, coverUrl: string
     throw new ApiError('Invalid URL', 400, 'Bad Request')
   }
 
-  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
-    method: 'POST',
-    body: JSON.stringify({ url: coverUrl })
+  const endpoint = apiRegistry.uploadCover
+  const payload: UpdateCoverFromUrlPayload = { url: coverUrl }
+  return apiRequest<UploadCoverResponse>(buildPath(endpoint.path, { libraryItemId }), {
+    method: endpoint.method,
+    body: JSON.stringify(payload)
   })
 }
 
@@ -388,9 +403,11 @@ export async function updateCoverFromUrl(libraryItemId: string, coverUrl: string
  * Returns: { success: true, cover: coverPath }
  */
 export async function setCoverFromLocalFile(libraryItemId: string, filePath: string): Promise<UploadCoverResponse> {
-  return apiRequest<UploadCoverResponse>(`/api/items/${libraryItemId}/cover`, {
-    method: 'PATCH',
-    body: JSON.stringify({ cover: filePath })
+  const endpoint = apiRegistry.setCoverFromLocalFile
+  const payload: SetCoverFromLocalFilePayload = { cover: filePath }
+  return apiRequest<UploadCoverResponse>(buildPath(endpoint.path, { libraryItemId }), {
+    method: endpoint.method,
+    body: JSON.stringify(payload)
   })
 }
 
@@ -425,19 +442,23 @@ export async function searchLibrary(libraryId: string, query: string, limit?: nu
  * Returns: Object with providers for books, book covers, and podcasts
  */
 export const getMetadataProviders = cache(async (): Promise<MetadataProvidersResponse> => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers', {})
+  const endpoint = apiRegistry.getMetadataProviders
+  return apiRequest<MetadataProvidersResponse>(endpoint.path, { method: endpoint.method })
 })
 
-export const getTags = cache(async () => {
-  return apiRequest<{ tags: string[] }>('/api/tags', {})
+export const getTags = cache(async (): Promise<TagsResponse> => {
+  const endpoint = apiRegistry.getTags
+  return apiRequest<TagsResponse>(endpoint.path, { method: endpoint.method })
 })
 
-export const getGenres = cache(async () => {
-  return apiRequest<{ genres: string[] }>('/api/genres', {})
+export const getGenres = cache(async (): Promise<GenresResponse> => {
+  const endpoint = apiRegistry.getGenres
+  return apiRequest<GenresResponse>(endpoint.path, { method: endpoint.method })
 })
 
 export const getNarrators = cache(async (libraryId: string) => {
-  return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
+  const endpoint = apiRegistry.getNarrators
+  return apiRequest<GetNarratorsResponse>(buildPath(endpoint.path, { libraryId }), { method: endpoint.method })
 })
 
 export const getAuthor = cache(async (authorId: string, queryParams?: string): Promise<Author> => {
@@ -498,9 +519,8 @@ export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
 })
 
 export const deleteApiKey = cache(async (apiKeyId: string): Promise<void> => {
-  return apiRequest<void>(`/api/api-keys/${apiKeyId}`, {
-    method: 'DELETE'
-  })
+  const endpoint = apiRegistry.deleteApiKey
+  return apiRequest<void>(buildPath(endpoint.path, { apiKeyId }), { method: endpoint.method })
 })
 
 export async function createApiKey(payload: CreateApiKeyPayload): Promise<CreateUpdateApiKeyResponse> {
@@ -520,21 +540,23 @@ export async function updateApiKey(apiKeyId: string, payload: CreateApiKeyPayloa
 }
 
 export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
-  return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
+  const endpoint = apiRegistry.getRssFeeds
+  return apiRequest<GetRssFeedsResponse>(endpoint.path, { method: endpoint.method })
 })
 
 export const closeRssFeed = cache(async (feedId: string): Promise<void> => {
-  return apiRequest<void>(`/api/feeds/${feedId}/close`, {
-    method: 'POST'
-  })
+  const endpoint = apiRegistry.closeRssFeed
+  return apiRequest<void>(buildPath(endpoint.path, { feedId }), { method: endpoint.method })
 })
 
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
-  return apiRequest<GetBackupsResponse>('/api/backups', {})
+  const endpoint = apiRegistry.getBackups
+  return apiRequest<GetBackupsResponse>(endpoint.path, { method: endpoint.method })
 })
 
 export const getLoggerData = cache(async (): Promise<GetLoggerDataResponse> => {
-  return apiRequest<GetLoggerDataResponse>('/api/logger-data', {})
+  const endpoint = apiRegistry.getLoggerData
+  return apiRequest<GetLoggerDataResponse>(endpoint.path, { method: endpoint.method })
 })
 
 /**
@@ -560,7 +582,8 @@ export async function searchBooks(provider: string, title: string, author?: stri
     params.set('id', libraryItemId)
   }
 
-  return apiRequest<BookSearchResult[]>(`/api/search/books?${params.toString()}`, {})
+  const endpoint = apiRegistry.searchBooks
+  return apiRequest<BookSearchResult[]>(`${endpoint.path}?${params.toString()}`, { method: endpoint.method })
 }
 
 /**
@@ -573,7 +596,8 @@ export async function searchPodcasts(term: string): Promise<PodcastSearchResult[
     term: term.trim()
   })
 
-  return apiRequest<PodcastSearchResult[]>(`/api/search/podcast?${params.toString()}`, {})
+  const endpoint = apiRegistry.searchPodcasts
+  return apiRequest<PodcastSearchResult[]>(`${endpoint.path}?${params.toString()}`, { method: endpoint.method })
 }
 
 /**
@@ -594,32 +618,33 @@ export async function updateLibraryItemMedia(libraryItemId: string, updatePayloa
  * Update media finished state for a library item (and optional episode)
  */
 export async function updateMediaFinished(libraryItemId: string, payload: { isFinished: boolean; episodeId?: string }): Promise<void> {
-  let endpoint = `/api/me/progress/${libraryItemId}`
-  if (payload.episodeId) {
-    endpoint += `/${payload.episodeId}`
-  }
+  const endpoint = payload.episodeId ? apiRegistry.updateMediaFinishedEpisode : apiRegistry.updateMediaFinished
+  const path = payload.episodeId
+    ? buildPath(endpoint.path, { libraryItemId, episodeId: payload.episodeId })
+    : buildPath(endpoint.path, { libraryItemId })
+  const body: UpdateMediaFinishedPayload = { isFinished: payload.isFinished }
 
-  return apiRequest<void>(endpoint, {
-    method: 'PATCH',
-    body: JSON.stringify({ isFinished: payload.isFinished })
+  return apiRequest<void>(path, {
+    method: endpoint.method,
+    body: JSON.stringify(body)
   })
 }
 
 /**
  * Trigger a rescan for a library item
  */
-export async function rescanLibraryItem(libraryItemId: string): Promise<{ result: 'UPDATED' | 'UPTODATE' | 'REMOVED' | null }> {
-  return apiRequest<{ result: 'UPDATED' | 'UPTODATE' | 'REMOVED' | null }>(`/api/items/${libraryItemId}/scan`, {
-    method: 'POST'
-  })
+export async function rescanLibraryItem(libraryItemId: string): Promise<RescanLibraryItemResponse> {
+  const endpoint = apiRegistry.rescanLibraryItem
+  return apiRequest<RescanLibraryItemResponse>(buildPath(endpoint.path, { libraryItemId }), { method: endpoint.method })
 }
 
 /**
  * Send an ebook to a configured e-reader device
  */
-export async function sendEbookToDevice(payload: { libraryItemId: string; deviceName: string }): Promise<void> {
-  return apiRequest<void>('/api/emails/send-ebook-to-device', {
-    method: 'POST',
+export async function sendEbookToDevice(payload: SendEbookToDevicePayload): Promise<void> {
+  const endpoint = apiRegistry.sendEbookToDevice
+  return apiRequest<void>(endpoint.path, {
+    method: endpoint.method,
     body: JSON.stringify(payload)
   })
 }
@@ -628,18 +653,16 @@ export async function sendEbookToDevice(payload: { libraryItemId: string; device
  * Remove a series from the "continue listening" shelf
  */
 export async function removeSeriesFromContinueListening(seriesId: string): Promise<void> {
-  return apiRequest<void>(`/api/me/series/${seriesId}/remove-from-continue-listening`, {
-    method: 'GET'
-  })
+  const endpoint = apiRegistry.removeSeriesFromContinueListening
+  return apiRequest<void>(buildPath(endpoint.path, { seriesId }), { method: endpoint.method })
 }
 
 /**
  * Remove a single progress entry from the continue listening/reading shelf
  */
 export async function removeFromContinueListening(progressId: string): Promise<void> {
-  return apiRequest<void>(`/api/me/progress/${progressId}/remove-from-continue-listening`, {
-    method: 'GET'
-  })
+  const endpoint = apiRegistry.removeFromContinueListening
+  return apiRequest<void>(buildPath(endpoint.path, { progressId }), { method: endpoint.method })
 }
 
 /**
@@ -647,9 +670,9 @@ export async function removeFromContinueListening(progressId: string): Promise<v
  */
 export async function deleteLibraryItem(libraryItemId: string, hardDelete: boolean): Promise<void> {
   const hard = hardDelete ? '1' : '0'
-  return apiRequest<void>(`/api/items/${libraryItemId}?hard=${hard}`, {
-    method: 'DELETE'
-  })
+  const endpoint = apiRegistry.deleteLibraryItem
+  const basePath = buildPath(endpoint.path, { libraryItemId })
+  return apiRequest<void>(`${basePath}?hard=${hard}`, { method: endpoint.method })
 }
 
 /**
@@ -658,9 +681,8 @@ export async function deleteLibraryItem(libraryItemId: string, hardDelete: boole
  * Returns: void (success) or throws error
  */
 export async function embedMetadataQuick(libraryItemId: string): Promise<void> {
-  return apiRequest<void>(`/api/tools/item/${libraryItemId}/embed-metadata`, {
-    method: 'POST'
-  })
+  const endpoint = apiRegistry.embedMetadataQuick
+  return apiRequest<void>(buildPath(endpoint.path, { libraryItemId }), { method: endpoint.method })
 }
 
 /**
@@ -668,7 +690,9 @@ export async function embedMetadataQuick(libraryItemId: string): Promise<void> {
  * Returns: Tasks array and queued task data
  */
 export async function getTasks(): Promise<TasksResponse> {
-  return apiRequest<TasksResponse>('/api/tasks?include=queue', {})
+  const endpoint = apiRegistry.getTasks
+  const params = new URLSearchParams({ include: 'queue' })
+  return apiRequest<TasksResponse>(`${endpoint.path}?${params.toString()}`, { method: endpoint.method })
 }
 
 //
@@ -681,8 +705,9 @@ export async function getTasks(): Promise<TasksResponse> {
  * Returns: Library object
  */
 export async function createLibrary(newLibrary: Library): Promise<Library> {
-  return apiRequest<Library>(`/api/libraries/`, {
-    method: 'POST',
+  const endpoint = apiRegistry.createLibrary
+  return apiRequest<Library>(endpoint.path, {
+    method: endpoint.method,
     body: JSON.stringify(newLibrary)
   })
 }
@@ -694,8 +719,9 @@ export async function createLibrary(newLibrary: Library): Promise<Library> {
  * Returns: Library object
  */
 export async function updateLibrary(libraryId: string, updatedLibrary: Library): Promise<Library> {
-  return apiRequest<Library>(`/api/libraries/${libraryId}`, {
-    method: 'PATCH',
+  const endpoint = apiRegistry.updateLibrary
+  return apiRequest<Library>(buildPath(endpoint.path, { libraryId }), {
+    method: endpoint.method,
     body: JSON.stringify(updatedLibrary)
   })
 }
@@ -707,9 +733,8 @@ export async function updateLibrary(libraryId: string, updatedLibrary: Library):
  * Returns: Library object
  */
 export async function deleteLibrary(libraryId: string): Promise<Library> {
-  return apiRequest<Library>(`/api/libraries/${libraryId}`, {
-    method: 'DELETE'
-  })
+  const endpoint = apiRegistry.deleteLibrary
+  return apiRequest<Library>(buildPath(endpoint.path, { libraryId }), { method: endpoint.method })
 }
 
 /**
@@ -719,9 +744,10 @@ export async function deleteLibrary(libraryId: string): Promise<Library> {
  * Returns: void (success) or throws error
  */
 export async function scanLibrary(libraryId: string, force: boolean = false): Promise<void> {
-  return apiRequest<void>(`/api/libraries/${libraryId}/scan?force=${force ? 1 : 0}`, {
-    method: 'POST'
-  })
+  const endpoint = apiRegistry.scanLibrary
+  const basePath = buildPath(endpoint.path, { libraryId })
+  const params = new URLSearchParams({ force: force ? '1' : '0' })
+  return apiRequest<void>(`${basePath}?${params.toString()}`, { method: endpoint.method })
 }
 
 /**
@@ -729,9 +755,10 @@ export async function scanLibrary(libraryId: string, force: boolean = false): Pr
  * @param libraryItemId - Library item ID
  * Returns: void (success) or throws error TODO
  */
-export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: number }[]): Promise<SaveLibraryOrderApiResponse> {
-  return apiRequest<SaveLibraryOrderApiResponse>('/api/libraries/order', {
-    method: 'POST',
+export async function saveLibraryOrder(reorderObjects: SaveLibraryOrderPayload): Promise<SaveLibraryOrderApiResponse> {
+  const endpoint = apiRegistry.saveLibraryOrder
+  return apiRequest<SaveLibraryOrderApiResponse>(endpoint.path, {
+    method: endpoint.method,
     body: JSON.stringify(reorderObjects)
   })
 }
@@ -742,9 +769,8 @@ export async function saveLibraryOrder(reorderObjects: { id: string; newOrder: n
  * Returns: void (success) or throws error
  */
 export async function matchAll(libraryId: string): Promise<void> {
-  return apiRequest<void>(`/api/libraries/${libraryId}/matchall`, {
-    method: 'GET'
-  })
+  const endpoint = apiRegistry.matchAll
+  return apiRequest<void>(buildPath(endpoint.path, { libraryId }), { method: endpoint.method })
 }
 
 //
@@ -757,9 +783,10 @@ export async function matchAll(libraryId: string): Promise<void> {
  * @param payload - Update payload with name and/or description
  * Returns: Updated collection
  */
-export async function updateCollection(collectionId: string, payload: { name?: string; description?: string }): Promise<Collection> {
-  return apiRequest<Collection>(`/api/collections/${collectionId}`, {
-    method: 'PATCH',
+export async function updateCollection(collectionId: string, payload: UpdateCollectionPayload): Promise<Collection> {
+  const endpoint = apiRegistry.updateCollection
+  return apiRequest<Collection>(buildPath(endpoint.path, { collectionId }), {
+    method: endpoint.method,
     body: JSON.stringify(payload)
   })
 }
@@ -770,9 +797,8 @@ export async function updateCollection(collectionId: string, payload: { name?: s
  * Returns: void (success) or throws error
  */
 export async function deleteCollection(collectionId: string): Promise<void> {
-  return apiRequest<void>(`/api/collections/${collectionId}`, {
-    method: 'DELETE'
-  })
+  const endpoint = apiRegistry.deleteCollection
+  return apiRequest<void>(buildPath(endpoint.path, { collectionId }), { method: endpoint.method })
 }
 
 /**
@@ -780,10 +806,9 @@ export async function deleteCollection(collectionId: string): Promise<void> {
  * @param collectionId - Collection ID to create playlist from
  * Returns: The created playlist with id
  */
-export async function createPlaylistFromCollection(collectionId: string): Promise<{ id: string }> {
-  return apiRequest<{ id: string }>(`/api/playlists/collection/${collectionId}`, {
-    method: 'POST'
-  })
+export async function createPlaylistFromCollection(collectionId: string): Promise<CreatePlaylistFromCollectionResponse> {
+  const endpoint = apiRegistry.createPlaylistFromCollection
+  return apiRequest<CreatePlaylistFromCollectionResponse>(buildPath(endpoint.path, { collectionId }), { method: endpoint.method })
 }
 
 /**
@@ -792,9 +817,8 @@ export async function createPlaylistFromCollection(collectionId: string): Promis
  * Returns: void (success) or throws error
  */
 export async function deletePlaylist(playlistId: string): Promise<void> {
-  return apiRequest<void>(`/api/playlists/${playlistId}`, {
-    method: 'DELETE'
-  })
+  const endpoint = apiRegistry.deletePlaylist
+  return apiRequest<void>(buildPath(endpoint.path, { playlistId }), { method: endpoint.method })
 }
 
 //
@@ -808,8 +832,9 @@ export async function deletePlaylist(playlistId: string): Promise<void> {
  * Returns: Updated author response
  */
 export async function quickMatchAuthor(authorId: string, payload: AuthorQuickMatchPayload): Promise<AuthorUpdateResponse> {
-  return apiRequest<AuthorUpdateResponse>(`/api/authors/${authorId}/match`, {
-    method: 'POST',
+  const endpoint = apiRegistry.quickMatchAuthor
+  return apiRequest<AuthorUpdateResponse>(buildPath(endpoint.path, { authorId }), {
+    method: endpoint.method,
     body: JSON.stringify(payload)
   })
 }
@@ -821,8 +846,9 @@ export async function quickMatchAuthor(authorId: string, payload: AuthorQuickMat
  * Returns: Updated author response
  */
 export async function updateAuthor(authorId: string, payload: UpdateAuthorPayload): Promise<AuthorUpdateResponse> {
-  return apiRequest<AuthorUpdateResponse>(`/api/authors/${authorId}`, {
-    method: 'PATCH',
+  const endpoint = apiRegistry.updateAuthor
+  return apiRequest<AuthorUpdateResponse>(buildPath(endpoint.path, { authorId }), {
+    method: endpoint.method,
     body: JSON.stringify(payload)
   })
 }
@@ -833,9 +859,8 @@ export async function updateAuthor(authorId: string, payload: UpdateAuthorPayloa
  * Returns: void (success) or throws error
  */
 export async function deleteAuthor(authorId: string): Promise<void> {
-  return apiRequest<void>(`/api/authors/${authorId}`, {
-    method: 'DELETE'
-  })
+  const endpoint = apiRegistry.deleteAuthor
+  return apiRequest<void>(buildPath(endpoint.path, { authorId }), { method: endpoint.method })
 }
 
 /**
@@ -846,7 +871,9 @@ export async function deleteAuthor(authorId: string): Promise<void> {
  * Returns: { directories: Array<{ path, dirname, level }>, posix: boolean }
  */
 export async function getFilesystemPaths(path: string, level: number): Promise<GetFilesystemPathsResponse> {
-  return apiRequest(`/api/filesystem?path=${encodeURIComponent(path)}&level=${level}`)
+  const endpoint = apiRegistry.getFilesystemPaths
+  const params = new URLSearchParams({ path, level: level.toString() })
+  return apiRequest<GetFilesystemPathsResponse>(`${endpoint.path}?${params.toString()}`, { method: endpoint.method })
 }
 
 /**
@@ -854,8 +881,9 @@ export async function getFilesystemPaths(path: string, level: number): Promise<G
  * Returns: @AuthorResponse
  */
 export async function submitAuthorImage(authorId: string, payload: AuthorImagePayload): Promise<AuthorResponse> {
-  return apiRequest<AuthorResponse>(`/api/authors/${authorId}/image`, {
-    method: 'POST',
+  const endpoint = apiRegistry.submitAuthorImage
+  return apiRequest<AuthorResponse>(buildPath(endpoint.path, { authorId }), {
+    method: endpoint.method,
     body: JSON.stringify(payload)
   })
 }
@@ -865,7 +893,6 @@ export async function submitAuthorImage(authorId: string, payload: AuthorImagePa
  * Returns: @AuthorResponse
  */
 export async function removeAuthorImage(authorId: string): Promise<AuthorResponse> {
-  return apiRequest<AuthorResponse>(`/api/authors/${authorId}/image`, {
-    method: 'DELETE'
-  })
+  const endpoint = apiRegistry.removeAuthorImage
+  return apiRequest<AuthorResponse>(buildPath(endpoint.path, { authorId }), { method: endpoint.method })
 }
