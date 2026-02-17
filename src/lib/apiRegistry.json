@@ -1,0 +1,205 @@
+{
+  "getCurrentUser": {
+    "method": "POST",
+    "path": "/api/authorize",
+    "operationId": "getCurrentUser",
+    "description": "Authorize and return the current user session.",
+    "response": { "status": 200, "schemaRef": "UserLoginResponse" }
+  },
+  "getServerStatus": {
+    "method": "GET",
+    "path": "/status",
+    "operationId": "getServerStatus",
+    "description": "Fetch public server status.",
+    "response": { "status": 200, "schemaRef": "ServerStatus" }
+  },
+  "getLibraries": {
+    "method": "GET",
+    "path": "/api/libraries",
+    "operationId": "getLibraries",
+    "description": "Fetch libraries available to the current user.",
+    "response": { "status": 200, "schemaRef": "GetLibrariesResponse" }
+  },
+  "getLibrary": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}",
+    "operationId": "getLibrary",
+    "description": "Fetch a single library by id.",
+    "response": { "status": 200, "schemaRef": "Library" }
+  },
+  "getLibraryPersonalized": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/personalized",
+    "operationId": "getLibraryPersonalized",
+    "description": "Fetch personalized shelves for a library.",
+    "response": { "status": 200, "schemaRef": "PersonalizedShelf[]" }
+  },
+  "getLibraryItems": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/items",
+    "operationId": "getLibraryItems",
+    "description": "Fetch library items (supports query params).",
+    "response": { "status": 200, "schemaRef": "GetLibraryItemsResponse" }
+  },
+  "getLibraryFilterData": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/filterdata",
+    "operationId": "getLibraryFilterData",
+    "description": "Fetch filter data for a library.",
+    "response": { "status": 200, "schemaRef": "LibraryFilterData" }
+  },
+  "getLibraryItem": {
+    "method": "GET",
+    "path": "/api/items/{itemId}",
+    "operationId": "getLibraryItem",
+    "description": "Fetch a library item by id.",
+    "parameters": [
+      {
+        "name": "expanded",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "enum": ["0", "1"] },
+        "description": "Include expanded data when set to 1."
+      }
+    ],
+    "response": { "status": 200, "schemaRef": "LibraryItem" }
+  },
+  "getAudioFileFFProbeData": {
+    "method": "GET",
+    "path": "/api/items/{itemId}/ffprobe/{fileIno}",
+    "operationId": "getAudioFileFFProbeData",
+    "description": "Fetch FFProbe data for a library item file.",
+    "response": { "status": 200, "schemaRef": "FFProbeData" }
+  },
+  "getUsers": {
+    "method": "GET",
+    "path": "/api/users",
+    "operationId": "getUsers",
+    "description": "Fetch users (supports query params).",
+    "response": { "status": 200, "schemaRef": "GetUsersResponse" }
+  },
+  "getUser": {
+    "method": "GET",
+    "path": "/api/users/{userId}",
+    "operationId": "getUser",
+    "description": "Fetch a user by id.",
+    "response": { "status": 200, "schemaRef": "User" }
+  },
+  "deleteUser": {
+    "method": "DELETE",
+    "path": "/api/users/{userId}",
+    "operationId": "deleteUser",
+    "description": "Delete a user by id.",
+    "response": { "status": 204 }
+  },
+  "getAuthor": {
+    "method": "GET",
+    "path": "/api/authors/{authorId}",
+    "operationId": "getAuthor",
+    "description": "Fetch an author by id.",
+    "response": { "status": 200, "schemaRef": "Author" }
+  },
+  "getPlaylist": {
+    "method": "GET",
+    "path": "/api/playlists/{playlistId}",
+    "operationId": "getPlaylist",
+    "description": "Fetch a playlist by id.",
+    "response": { "status": 200, "schemaRef": "Playlist" }
+  },
+  "getCollection": {
+    "method": "GET",
+    "path": "/api/collections/{collectionId}",
+    "operationId": "getCollection",
+    "description": "Fetch a collection by id.",
+    "response": { "status": 200, "schemaRef": "Collection" }
+  },
+  "getSeries": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/series/{seriesId}",
+    "operationId": "getSeries",
+    "description": "Fetch a series by id.",
+    "response": { "status": 200, "schemaRef": "Series" }
+  },
+  "getSeriesList": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/series",
+    "operationId": "getSeriesList",
+    "description": "Fetch series for a library (supports query params).",
+    "response": { "status": 200, "schemaRef": "GetSeriesResponse" }
+  },
+  "getAuthorsList": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/authors",
+    "operationId": "getAuthorsList",
+    "description": "Fetch authors for a library (supports query params).",
+    "response": { "status": 200, "schemaRef": "GetAuthorsResponse" }
+  },
+  "getCollectionsList": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/collections",
+    "operationId": "getCollectionsList",
+    "description": "Fetch collections for a library (supports query params).",
+    "response": { "status": 200, "schemaRef": "GetCollectionsResponse" }
+  },
+  "getPlaylistsList": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/playlists",
+    "operationId": "getPlaylistsList",
+    "description": "Fetch playlists for a library (supports query params).",
+    "response": { "status": 200, "schemaRef": "GetPlaylistsResponse" }
+  },
+  "searchLibrary": {
+    "method": "GET",
+    "path": "/api/libraries/{libraryId}/search",
+    "operationId": "searchLibrary",
+    "description": "Search a library (supports query params).",
+    "parameters": [
+      {
+        "name": "q",
+        "in": "query",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "Search query string."
+      },
+      {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "integer", "minimum": 1 },
+        "description": "Maximum results per category."
+      }
+    ],
+    "response": { "status": 200, "schemaRef": "SearchLibraryResponse" }
+  },
+  "getApiKeys": {
+    "method": "GET",
+    "path": "/api/api-keys",
+    "operationId": "getApiKeys",
+    "description": "Fetch API keys for the current user.",
+    "response": { "status": 200, "schemaRef": "GetApiKeysResponse" }
+  },
+  "createApiKey": {
+    "method": "POST",
+    "path": "/api/api-keys",
+    "operationId": "createApiKey",
+    "description": "Create a new API key.",
+    "requestBody": { "contentType": "application/json", "schemaRef": "CreateApiKeyPayload" },
+    "response": { "status": 200, "schemaRef": "CreateUpdateApiKeyResponse" }
+  },
+  "updateApiKey": {
+    "method": "PUT",
+    "path": "/api/api-keys/{apiKeyId}",
+    "operationId": "updateApiKey",
+    "description": "Update an API key.",
+    "requestBody": { "contentType": "application/json", "schemaRef": "CreateApiKeyPayload" },
+    "response": { "status": 200, "schemaRef": "CreateUpdateApiKeyResponse" }
+  },
+  "updateLibraryItemMedia": {
+    "method": "PATCH",
+    "path": "/api/items/{libraryItemId}/media",
+    "operationId": "updateLibraryItemMedia",
+    "description": "Update metadata for a library item.",
+    "requestBody": { "contentType": "application/json", "schemaRef": "UpdateLibraryItemMediaPayload" },
+    "response": { "status": 200, "schemaRef": "UpdateLibraryItemMediaResponse" }
+  }
+}

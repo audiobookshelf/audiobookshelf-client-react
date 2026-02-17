@@ -45,6 +45,7 @@ import {
   User,
   UserLoginResponse
 } from '../types/api'
+import { apiRegistry } from './apiRegistry'
 
 /**
  * Custom error classes for API error handling
@@ -243,18 +244,21 @@ export const getData = cache(async <T extends Promise<unknown>[]>(...promises: T
  * call revalidateTag('current-user') when server settings change or user is updated
  */
 export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
-  return apiRequest<UserLoginResponse>('/api/authorize', {
-    method: 'POST',
+  const endpoint = apiRegistry.getCurrentUser
+  return apiRequest<UserLoginResponse>(endpoint.path, {
+    method: endpoint.method,
     next: { tags: ['current-user'] }
   })
 })
 
 export const getServerStatus = cache(async (): Promise<ServerStatus> => {
-  return apiRequest<ServerStatus>('/status')
+  const endpoint = apiRegistry.getServerStatus
+  return apiRequest<ServerStatus>(endpoint.path, { method: endpoint.method })
 })
 
 export const getLibraries = cache(async (): Promise<GetLibrariesResponse> => {
-  return apiRequest<GetLibrariesResponse>('/api/libraries', {})
+  const endpoint = apiRegistry.getLibraries
+  return apiRequest<GetLibrariesResponse>(endpoint.path, { method: endpoint.method })
 })
 
 export const getLibrary = cache(async (libraryId: string): Promise<Library> => {
