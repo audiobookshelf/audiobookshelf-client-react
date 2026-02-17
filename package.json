@@ -11,7 +11,8 @@
     "cy:comp": "cypress open --component --browser chrome",
     "test": "cypress run --component --browser chrome",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "openapi:gen": "node scripts/gen-openapi.cjs"
   },
   "dependencies": {
     "@floating-ui/react-dom": "^2.1.6",
@@ -48,6 +49,7 @@
     "eslint-config-prettier": "^10.1.8",
     "prettier-plugin-sort-json": "^4.1.1",
     "tailwindcss": "^4",
+    "ts-json-schema-generator": "^2.4.0",
     "typescript": "^5"
   }
 }
