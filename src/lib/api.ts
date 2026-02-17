@@ -91,6 +91,16 @@ export function getServerBaseUrl() {
   return `http://${host}:${process.env.PORT || '3333'}`
 }
 
+function buildPath(template: string, params: Record<string, string | number>) {
+  return template.replace(/\{(\w+)\}/g, (_match, key: string) => {
+    const value = params[key]
+    if (value === undefined || value === null) {
+      throw new Error(`Missing path param: ${key}`)
+    }
+    return encodeURIComponent(String(value))
+  })
+}
+
 /**
  * User "Home" page is the default library page, or settings/account page if no libraries are set yet
  */
@@ -262,15 +272,20 @@ export const getLibraries = cache(async (): Promise<GetLibrariesResponse> => {
 })
 
 export const getLibrary = cache(async (libraryId: string): Promise<Library> => {
-  return apiRequest<Library>(`/api/libraries/${libraryId}`, {})
+  const endpoint = apiRegistry.getLibrary
+  return apiRequest<Library>(buildPath(endpoint.path, { libraryId }), { method: endpoint.method })
 })
 
 export const getLibraryPersonalized = cache(async (libraryId: string): Promise<PersonalizedShelf[]> => {
-  return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized`, {})
+  const endpoint = apiRegistry.getLibraryPersonalized
+  return apiRequest<PersonalizedShelf[]>(buildPath(endpoint.path, { libraryId }), { method: endpoint.method })
 })
 
 export const getLibraryItems = cache(async (libraryId: string, queryParams?: string): Promise<GetLibraryItemsResponse> => {
-  return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items${queryParams ? `?${queryParams}` : ''}`, {})
+  const endpoint = apiRegistry.getLibraryItems
+  const basePath = buildPath(endpoint.path, { libraryId })
+  const url = queryParams ? `${basePath}?${queryParams}` : basePath
+  return apiRequest<GetLibraryItemsResponse>(url, { method: endpoint.method })
 })
 
 /**
@@ -278,11 +293,15 @@ export const getLibraryItems = cache(async (libraryId: string, queryParams?: str
  * Used for populating filter dropdown menus
  */
 export async function getLibraryFilterData(libraryId: string): Promise<LibraryFilterData> {
-  return apiRequest<LibraryFilterData>(`/api/libraries/${libraryId}/filterdata`, {})
+  const endpoint = apiRegistry.getLibraryFilterData
+  return apiRequest<LibraryFilterData>(buildPath(endpoint.path, { libraryId }), { method: endpoint.method })
 }
 
 export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): Promise<LibraryItem> => {
-  return apiRequest<LibraryItem>(`/api/items/${itemId}?expanded=${expanded ? '1' : '0'}`, {})
+  const endpoint = apiRegistry.getLibraryItem
+  const basePath = buildPath(endpoint.path, { itemId })
+  const url = `${basePath}?expanded=${expanded ? '1' : '0'}`
+  return apiRequest<LibraryItem>(url, { method: endpoint.method })
 })
 
 /**
@@ -293,20 +312,25 @@ export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): 
  * Returns: FFProbe data object
  */
 export async function getAudioFileFFProbeData(itemId: string, fileIno: string): Promise<FFProbeData> {
-  return apiRequest<FFProbeData>(`/api/items/${itemId}/ffprobe/${fileIno}`, {})
+  const endpoint = apiRegistry.getAudioFileFFProbeData
+  return apiRequest<FFProbeData>(buildPath(endpoint.path, { itemId, fileIno }), { method: endpoint.method })
 }
 
 export const getUsers = cache(async (queryParams?: string): Promise<GetUsersResponse> => {
-  return apiRequest<GetUsersResponse>(`/api/users${queryParams ? `?${queryParams}` : ''}`, {})
+  const endpoint = apiRegistry.getUsers
+  const url = queryParams ? `${endpoint.path}?${queryParams}` : endpoint.path
+  return apiRequest<GetUsersResponse>(url, { method: endpoint.method })
 })
 
 export const getUser = cache(async (userId: string): Promise<User> => {
-  return apiRequest<User>(`/api/users/${userId}`, {})
+  const endpoint = apiRegistry.getUser
+  return apiRequest<User>(buildPath(endpoint.path, { userId }), { method: endpoint.method })
 })
 
 export const deleteUser = cache(async (userId: string): Promise<void> => {
-  return apiRequest<void>(`/api/users/${userId}`, {
-    method: 'DELETE'
+  const endpoint = apiRegistry.deleteUser
+  return apiRequest<void>(buildPath(endpoint.path, { userId }), {
+    method: endpoint.method
   })
 })
 
@@ -387,7 +411,9 @@ export async function searchLibrary(libraryId: string, query: string, limit?: nu
     params.set('limit', limit.toString())
   }
 
-  return apiRequest<SearchLibraryResponse>(`/api/libraries/${libraryId}/search?${params.toString()}`, {})
+  const endpoint = apiRegistry.searchLibrary
+  const basePath = buildPath(endpoint.path, { libraryId })
+  return apiRequest<SearchLibraryResponse>(`${basePath}?${params.toString()}`, { method: endpoint.method })
 }
 
 //
@@ -415,40 +441,60 @@ export const getNarrators = cache(async (libraryId: string) => {
 })
 
 export const getAuthor = cache(async (authorId: string, queryParams?: string): Promise<Author> => {
-  return apiRequest<Author>(`/api/authors/${authorId}${queryParams ? `?${queryParams}` : ''}`, {})
+  const endpoint = apiRegistry.getAuthor
+  const basePath = buildPath(endpoint.path, { authorId })
+  const url = queryParams ? `${basePath}?${queryParams}` : basePath
+  return apiRequest<Author>(url, { method: endpoint.method })
 })
 
 export const getPlaylist = cache(async (playlistId: string): Promise<Playlist> => {
-  return apiRequest<Playlist>(`/api/playlists/${playlistId}`, {})
+  const endpoint = apiRegistry.getPlaylist
+  return apiRequest<Playlist>(buildPath(endpoint.path, { playlistId }), { method: endpoint.method })
 })
 
 export const getCollection = cache(async (collectionId: string): Promise<Collection> => {
-  return apiRequest<Collection>(`/api/collections/${collectionId}?include=rssfeed`, {})
+  const endpoint = apiRegistry.getCollection
+  const basePath = buildPath(endpoint.path, { collectionId })
+  return apiRequest<Collection>(`${basePath}?include=rssfeed`, { method: endpoint.method })
 })
 
 export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
-  return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}`, {})
+  const endpoint = apiRegistry.getSeries
+  return apiRequest<Series>(buildPath(endpoint.path, { libraryId, seriesId }), { method: endpoint.method })
 })
 
 // Paginated entity list functions for bookshelf views
 export const getLibrarySeries = cache(async (libraryId: string, queryParams?: string): Promise<GetSeriesResponse> => {
-  return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series${queryParams ? `?${queryParams}` : ''}`, {})
+  const endpoint = apiRegistry.getSeriesList
+  const basePath = buildPath(endpoint.path, { libraryId })
+  const url = queryParams ? `${basePath}?${queryParams}` : basePath
+  return apiRequest<GetSeriesResponse>(url, { method: endpoint.method })
 })
 
 export const getLibraryAuthors = cache(async (libraryId: string, queryParams?: string): Promise<GetAuthorsResponse> => {
-  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors${queryParams ? `?${queryParams}` : ''}`, {})
+  const endpoint = apiRegistry.getAuthorsList
+  const basePath = buildPath(endpoint.path, { libraryId })
+  const url = queryParams ? `${basePath}?${queryParams}` : basePath
+  return apiRequest<GetAuthorsResponse>(url, { method: endpoint.method })
 })
 
 export const getLibraryCollections = cache(async (libraryId: string, queryParams?: string): Promise<GetCollectionsResponse> => {
-  return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections${queryParams ? `?${queryParams}` : ''}`, {})
+  const endpoint = apiRegistry.getCollectionsList
+  const basePath = buildPath(endpoint.path, { libraryId })
+  const url = queryParams ? `${basePath}?${queryParams}` : basePath
+  return apiRequest<GetCollectionsResponse>(url, { method: endpoint.method })
 })
 
 export const getLibraryPlaylists = cache(async (libraryId: string, queryParams?: string): Promise<GetPlaylistsResponse> => {
-  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists${queryParams ? `?${queryParams}` : ''}`, {})
+  const endpoint = apiRegistry.getPlaylistsList
+  const basePath = buildPath(endpoint.path, { libraryId })
+  const url = queryParams ? `${basePath}?${queryParams}` : basePath
+  return apiRequest<GetPlaylistsResponse>(url, { method: endpoint.method })
 })
 
 export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
-  return apiRequest<GetApiKeysResponse>('/api/api-keys', {})
+  const endpoint = apiRegistry.getApiKeys
+  return apiRequest<GetApiKeysResponse>(endpoint.path, { method: endpoint.method })
 })
 
 export const deleteApiKey = cache(async (apiKeyId: string): Promise<void> => {
@@ -458,15 +504,17 @@ export const deleteApiKey = cache(async (apiKeyId: string): Promise<void> => {
 })
 
 export async function createApiKey(payload: CreateApiKeyPayload): Promise<CreateUpdateApiKeyResponse> {
-  return apiRequest<CreateUpdateApiKeyResponse>('/api/api-keys', {
-    method: 'POST',
+  const endpoint = apiRegistry.createApiKey
+  return apiRequest<CreateUpdateApiKeyResponse>(endpoint.path, {
+    method: endpoint.method,
     body: JSON.stringify(payload)
   })
 }
 
 export async function updateApiKey(apiKeyId: string, payload: CreateApiKeyPayload): Promise<CreateUpdateApiKeyResponse> {
-  return apiRequest<CreateUpdateApiKeyResponse>(`/api/api-keys/${apiKeyId}`, {
-    method: 'PATCH',
+  const endpoint = apiRegistry.updateApiKey
+  return apiRequest<CreateUpdateApiKeyResponse>(buildPath(endpoint.path, { apiKeyId }), {
+    method: endpoint.method,
     body: JSON.stringify(payload)
   })
 }
@@ -535,8 +583,9 @@ export async function searchPodcasts(term: string): Promise<PodcastSearchResult[
  * Returns: { updated: boolean, libraryItem?: LibraryItem }
  */
 export async function updateLibraryItemMedia(libraryItemId: string, updatePayload: UpdateLibraryItemMediaPayload): Promise<UpdateLibraryItemMediaResponse> {
-  return apiRequest<UpdateLibraryItemMediaResponse>(`/api/items/${libraryItemId}/media`, {
-    method: 'PATCH',
+  const endpoint = apiRegistry.updateLibraryItemMedia
+  return apiRequest<UpdateLibraryItemMediaResponse>(buildPath(endpoint.path, { libraryItemId }), {
+    method: endpoint.method,
     body: JSON.stringify(updatePayload)
   })
 }
