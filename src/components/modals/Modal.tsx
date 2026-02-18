@@ -80,10 +80,6 @@ export default function Modal({
     }
   }, [isOpen])
 
-  // Handle keydown events (Escape and Tab)
-  // We attach this to the wrapper div so it respects React event propagation.
-  // This means that if a nested modal handles the event and stops propagation,
-  // this handler will never see it, solving the "close all modals" issue naturally.
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       // Escape key to close
@@ -114,8 +110,6 @@ export default function Modal({
 
         // Check if focus is within the modal
         const isFocusInModal = contentRef.current.contains(document.activeElement)
-
-        console.log('isFocusInModal', isFocusInModal)
 
         if (!isFocusInModal) {
           // If focus somehow got outside, bring it back
