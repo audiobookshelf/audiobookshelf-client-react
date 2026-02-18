@@ -244,10 +244,43 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
     })
   }, [isClient, readOnly, disabled, editor])
 
+  // Helper to normalize any string (html or plain) to the editor's canonical HTML output
+  const normalizeToHtml = useCallback((content: string) => {
+    if (!content) return '<p></p>'
+    try {
+      // Check if content is wrapped in HTML tags
+      const trimmedContent = content.trim()
+      const hasHtmlTags = trimmedContent.startsWith('<') && trimmedContent.endsWith('>')
+      const htmlContent = hasHtmlTags ? content : `<p>${content}</p>`
+      const document = new DOMParser().parseFromString(htmlContent, 'text/html')
+      let parsed = (deserialize(document.body) as Descendant[]) || initialValue
+
+      // If deserialization resulted in empty array (e.g. all empty paragraphs filtered out),
+      // we should treat it as empty content which in Slate is a single empty paragraph
+      if (Array.isArray(parsed) && parsed.length === 0) {
+        parsed = initialValue
+      }
+
+      // Serialize back to HTML string
+      return parsed.map(serialize).join('')
+    } catch {
+      return '<p></p>'
+    }
+  }, [])
+
+  // Memoize the normalized HTML of the initial (source) content
+  const normalizedSrcHtml = useMemo(() => normalizeToHtml(srcContent), [srcContent, normalizeToHtml])
+
   const handleChange = useCallback(
     (newValue: Descendant[]) => {
       // Skip processing during hot reload, invalid states, or when disabled
       if (!isClient || !isEditorValid() || disabled) {
+        return
+      }
+
+      // Check if the change resulted in an actual content change (ignore selection changes)
+      const hasContentChanged = editor.operations.some((op) => op.type !== 'set_selection')
+      if (!hasContentChanged) {
         return
       }
 
@@ -258,12 +291,18 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
             ? newValue.filter((node) => node && typeof node === 'object' && (Text.isText(node) || (node.children && Array.isArray(node.children))))
             : []
 
+          let currentHtml = '<p></p>'
           if (validValue.length > 0) {
-            const html = validValue.map(serialize).join('')
-            onUpdate(html)
+            currentHtml = validValue.map(serialize).join('')
+          }
+
+          // If the current HTML is semantically equivalent to the original source,
+          // pass back the ORIGINAL source string.
+          // This allows parent components to use simple strict equality checks.
+          if (currentHtml === normalizedSrcHtml) {
+            onUpdate(srcContent || '')
           } else {
-            // Fallback to empty content if no valid nodes
-            onUpdate('<p></p>')
+            onUpdate(currentHtml)
           }
         } catch (error) {
           console.warn('SlateEditor: Error serializing content during change:', error)
@@ -272,7 +311,7 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
         }
       }
     },
-    [onUpdate, isClient, isEditorValid, disabled]
+    [onUpdate, isClient, isEditorValid, disabled, editor, normalizedSrcHtml, srcContent]
   )
 
   const containerClass = useMemo(() => mergeClasses('w-full', className), [className])
