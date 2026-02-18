@@ -42,10 +42,21 @@ export default function Modal({
     onClose?.()
   }, [onClose])
 
-  const handleClickOutside = useCallback(() => {
-    if (!isOpen || processing || persistent) return
-    onClose?.()
-  }, [isOpen, processing, persistent, onClose])
+  const handleClickOutside = useCallback(
+    (e: MouseEvent) => {
+      if (!isOpen || processing || persistent) return
+
+      // Only close if the click occurred strictly within this modal's wrapper.
+      // If the click was on a nested modal (which is a sibling in the DOM due to portals),
+      // wrapperRef.current.contains(taget) will be false, so we ignore it.
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        return
+      }
+
+      onClose?.()
+    },
+    [isOpen, processing, persistent, onClose]
+  )
 
   // Use click outside hook
   useClickOutside(contentRef, null, handleClickOutside)
@@ -69,10 +80,12 @@ export default function Modal({
     }
   }, [isOpen])
 
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handleKeyDown = (e: KeyboardEvent) => {
+  // Handle keydown events (Escape and Tab)
+  // We attach this to the wrapper div so it respects React event propagation.
+  // This means that if a nested modal handles the event and stops propagation,
+  // this handler will never see it, solving the "close all modals" issue naturally.
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
       // Escape key to close
       if (e.key === 'Escape' && !processing && !persistent) {
         e.preventDefault()
@@ -86,7 +99,7 @@ export default function Modal({
         if (!contentRef.current) return
 
         const focusableElements = contentRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
         )
 
         // If no focusable elements, keep focus on content container
@@ -101,6 +114,8 @@ export default function Modal({
 
         // Check if focus is within the modal
         const isFocusInModal = contentRef.current.contains(document.activeElement)
+
+        console.log('isFocusInModal', isFocusInModal)
 
         if (!isFocusInModal) {
           // If focus somehow got outside, bring it back
@@ -122,13 +137,9 @@ export default function Modal({
           }
         }
       }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [isOpen, processing, persistent, onClose])
+    },
+    [processing, persistent, onClose]
+  )
 
   if (!isOpen) {
     return null
@@ -145,6 +156,7 @@ export default function Modal({
         bgOpacityClass
       )}
       cy-id="modal-wrapper"
+      onKeyDown={handleKeyDown}
     >
       {/* Background gradient */}
       <div className="absolute inset-x-0 top-0 w-full h-36 bg-gradient-to-t from-transparent via-gray-900/50 to-gray-800/70 opacity-90 pointer-events-none" />
@@ -175,6 +187,7 @@ export default function Modal({
           className
         )}
         cy-id="modal-content"
+        onClick={(e) => e.stopPropagation()}
       >
         <ModalProvider modalRef={wrapperRef as React.RefObject<HTMLDivElement>}>{children}</ModalProvider>
 
