@@ -29,7 +29,12 @@ export default function AuthorEditModal({ isOpen, user, author, onClose }: Autho
   const { handleQuickMatch, handleSave, handleDelete, handleSubmitImage, handleRemoveImage } = useAuthorActions()
 
   const saveDisabled = useMemo(() => {
-    return !!(editedAuthor?.name === author?.name && editedAuthor?.asin === author?.asin && editedAuthor?.description === author?.description)
+    if (!editedAuthor || !author) return true
+    return !!(
+      editedAuthor.name === author.name &&
+      (editedAuthor.asin || '') === (author.asin || '') &&
+      (editedAuthor.description || '') === (author.description || '')
+    )
   }, [editedAuthor, author])
 
   // Initialize editedAuthor when author changes
@@ -51,7 +56,11 @@ export default function AuthorEditModal({ isOpen, user, author, onClose }: Autho
   }
 
   const handleSaveClick = () => {
-    if (editedAuthor?.name === author?.name && editedAuthor.asin === author?.asin && editedAuthor?.description === author?.description) {
+    if (
+      editedAuthor.name === author.name &&
+      (editedAuthor.asin || '') === (author.asin || '') &&
+      (editedAuthor.description || '') === (author.description || '')
+    ) {
       showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
       return
     }
