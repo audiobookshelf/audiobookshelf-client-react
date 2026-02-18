@@ -48,9 +48,9 @@ export default function Toolbar() {
 
         <div className="flex-grow" />
 
-        {isBookshelfPage && <div className="flex items-center gap-4 mr-2">{toolbarExtras}</div>}
+        {isBookshelfPage && itemCount > 0 && <div className="flex items-center gap-4 mr-2">{toolbarExtras}</div>}
 
-        {contextMenuItems.length > 0 && (
+        {contextMenuItems.length > 0 && itemCount > 0 && (
           <ContextMenuDropdown items={contextMenuItems} borderless usePortal size="small" autoWidth onAction={(args) => handleAction(args.action)} />
         )}
       </div>
