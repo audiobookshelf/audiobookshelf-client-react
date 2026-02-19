@@ -50,7 +50,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   const seriesSequenceList = collapsedSeries?.seriesSequenceList || null
   const seriesName = collapsedSeries?.name || null
 
-  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1.6)
+  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1)
   const coverHeight = 192 * effectiveSizeMultiplier
   const coverWidth = coverHeight / coverAspect
   const placeholderUrl = getPlaceholderCoverUrl()

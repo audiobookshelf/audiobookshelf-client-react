@@ -11,6 +11,7 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { Author, BookshelfView, LibraryItem, MediaProgress, PersonalizedShelf, Series, UserLoginResponse } from '@/types/api'
 import { useEffect } from 'react'
+import LibraryEmptyState from './LibraryEmptyState'
 
 interface LibraryClientProps {
   personalized: PersonalizedShelf[]
@@ -18,14 +19,13 @@ interface LibraryClientProps {
 }
 
 export default function LibraryClient({ personalized, currentUser }: LibraryClientProps) {
-  const user = currentUser.user
   const { sizeMultiplier } = useCardSize()
   const { library, setContextMenuItems, setContextMenuActionHandler, bookshelfView, boundModal } = useLibrary()
 
   useEffect(() => {
     const items = []
 
-    if (user.permissions.update) {
+    if (currentUser.user.permissions.update) {
       items.push({
         text: 'Scan Library',
         action: 'scan'
@@ -51,10 +51,14 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
       setContextMenuItems([])
       setContextMenuActionHandler(() => {})
     }
-  }, [user.permissions.update, setContextMenuItems, setContextMenuActionHandler])
+  }, [currentUser.user.permissions.update, setContextMenuItems, setContextMenuActionHandler])
 
   return (
     <div style={{ fontSize: sizeMultiplier + 'rem' }}>
+      {/* empty state with scan button if user is admin or root */}
+      {personalized.length === 0 && <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />}
+
+      {/* bookshelf rows */}
       {personalized.map((shelf) => {
         const Wrapper = bookshelfView === BookshelfView.STANDARD ? BookShelfRow : ItemSlider
 
@@ -129,7 +133,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
                 const author = entity as Author
                 return (
                   <div key={author.id + '-' + shelf.id} className="shrink-0 mx-2e">
-                    <AuthorCard author={author} user={user} />
+                    <AuthorCard author={author} user={currentUser.user} />
                   </div>
                 )
               }

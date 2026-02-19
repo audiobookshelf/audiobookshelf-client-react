@@ -34,7 +34,7 @@ export interface MediaCardProps {
   /**
    * Cover configuration
    */
-  bookCoverAspectRatio?: number
+  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   dateFormat: string
   timeFormat: string

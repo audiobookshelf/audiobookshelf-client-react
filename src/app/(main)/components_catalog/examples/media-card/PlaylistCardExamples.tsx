@@ -82,7 +82,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 <PlaylistCard
                   playlist={playlistData}
                   bookshelfView={BookshelfView.STANDARD}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   userCanUpdate={true}
                   userCanDelete={true}
                 />
@@ -91,7 +91,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
               <div ref={playlistStandardSkeletonRef}>
-                <PlaylistCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                <PlaylistCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 <PlaylistCard
                   playlist={playlistData}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   userCanUpdate={true}
                   userCanDelete={true}
                 />
@@ -115,7 +115,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
             <div>
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
               <div ref={playlistDetailSkeletonRef}>
-                <PlaylistCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                <PlaylistCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
@@ -131,7 +131,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: [] } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -141,7 +141,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: [] } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -156,7 +156,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 1) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -166,7 +166,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 1) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -183,7 +183,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 2) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -193,7 +193,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 2) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -208,7 +208,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 3) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -218,7 +218,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 3) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -235,7 +235,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
                 isSelectionMode={true}
@@ -249,7 +249,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
                 isSelectionMode={true}
@@ -270,7 +270,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
                 userCanUpdate={true}
               />
@@ -280,7 +280,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
                 userCanUpdate={true}
               />
@@ -290,7 +290,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
                 userCanUpdate={true}
               />
@@ -300,7 +300,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1}
                 userCanUpdate={true}
               />
@@ -310,7 +310,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
                 userCanUpdate={true}
               />
@@ -327,7 +327,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
                 userCanUpdate={true}
               />
@@ -337,7 +337,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
                 userCanUpdate={true}
               />
@@ -347,7 +347,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
                 userCanUpdate={true}
               />
@@ -357,7 +357,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1}
                 userCanUpdate={true}
               />
@@ -367,7 +367,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
                 userCanUpdate={true}
               />

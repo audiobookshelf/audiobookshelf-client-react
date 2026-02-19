@@ -8,7 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 interface PreviewCoverProps {
   src: string
   width?: number
-  bookCoverAspectRatio: number
+  bookCoverAspectRatio: number // actual aspect ratio, not library settings coverAspectRatio
   showResolution?: boolean
   forceErrorState?: boolean // For testing purposes
   onClick?: () => void

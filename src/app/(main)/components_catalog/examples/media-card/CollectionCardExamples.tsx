@@ -85,7 +85,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 <CollectionCard
                   collection={collectionData}
                   bookshelfView={BookshelfView.STANDARD}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   userCanUpdate={true}
                   userCanDelete={true}
                   userIsAdmin={true}
@@ -95,7 +95,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
               <div ref={collectionStandardSkeletonRef}>
-                <CollectionCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                <CollectionCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
@@ -110,7 +110,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 <CollectionCard
                   collection={collectionData}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   userCanUpdate={true}
                   userCanDelete={true}
                   userIsAdmin={true}
@@ -120,7 +120,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
             <div>
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
               <div ref={collectionDetailSkeletonRef}>
-                <CollectionCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6} />
+                <CollectionCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
@@ -146,7 +146,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                   } as Collection
                 }
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userIsAdmin={true}
               />
@@ -166,7 +166,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                   } as Collection
                 }
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userIsAdmin={true}
               />
@@ -181,7 +181,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={{ ...collectionData, books: [] } as Collection}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -191,7 +191,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={{ ...collectionData, books: [] } as Collection}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -208,7 +208,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={{ ...collectionData, books: collectionData.books?.slice(0, 1) } as Collection}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -218,7 +218,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={{ ...collectionData, books: collectionData.books?.slice(0, 1) } as Collection}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
               />
@@ -235,7 +235,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
                 userIsAdmin={true}
@@ -250,7 +250,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 userCanUpdate={true}
                 userCanDelete={true}
                 userIsAdmin={true}
@@ -272,7 +272,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
                 userCanUpdate={true}
               />
@@ -282,7 +282,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
                 userCanUpdate={true}
               />
@@ -292,7 +292,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
                 userCanUpdate={true}
               />
@@ -302,7 +302,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1}
                 userCanUpdate={true}
               />
@@ -312,7 +312,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
                 userCanUpdate={true}
               />
@@ -329,7 +329,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
                 userCanUpdate={true}
               />
@@ -339,7 +339,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
                 userCanUpdate={true}
               />
@@ -349,7 +349,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
                 userCanUpdate={true}
               />
@@ -359,7 +359,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1}
                 userCanUpdate={true}
               />
@@ -369,7 +369,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1.6}
+                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
                 userCanUpdate={true}
               />

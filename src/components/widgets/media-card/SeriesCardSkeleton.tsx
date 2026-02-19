@@ -8,7 +8,7 @@ import { useId, useMemo } from 'react'
 
 interface SeriesCardSkeletonProps {
   bookshelfView: BookshelfView
-  bookCoverAspectRatio?: number
+  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   orderBy?: string
 }
@@ -17,7 +17,7 @@ interface SeriesCardSkeletonProps {
  * Skeleton loading state for SeriesCard.
  * Matches the exact dimensions of the actual series card (2x width of book cards).
  */
-export default function SeriesCardSkeleton({ bookshelfView, bookCoverAspectRatio = 1.6, sizeMultiplier, orderBy }: SeriesCardSkeletonProps) {
+export default function SeriesCardSkeleton({ bookshelfView, bookCoverAspectRatio = 0, sizeMultiplier, orderBy }: SeriesCardSkeletonProps) {
   const cardId = useId()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
 
