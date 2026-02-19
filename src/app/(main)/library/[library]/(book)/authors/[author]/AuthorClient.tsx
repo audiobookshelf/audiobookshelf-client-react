@@ -9,22 +9,62 @@ import ItemSlider from '@/components/widgets/ItemSlider'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useSocketEvent } from '@/contexts/SocketContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterEncode } from '@/lib/filterUtils'
 import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
+
+import AuthorEditModal from '@/components/modals/AuthorEditModal'
 
 interface AuthorClientProps {
   author: Author
   currentUser: UserLoginResponse
 }
 
-export default function AuthorClient({ author, currentUser }: AuthorClientProps) {
+export default function AuthorClient({ author: authorProp, currentUser }: AuthorClientProps) {
   const t = useTypeSafeTranslations()
   const { library, showSubtitles } = useLibrary()
   const { sizeMultiplier } = useCardSize()
+  const router = useRouter()
 
+  const [author, setAuthor] = useState<Author>(authorProp)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  // Use local state if available, otherwise fall back to prop
+  // This allows immediate UI updates after editing
   const libraryItems = author.libraryItems || []
   const series = author.series || []
+
+  // Sync prop updates to local state
+  // This allows the component to reflect new data if the parent (Server Component) re-fetches
+  useEffect(() => {
+    setAuthor(authorProp)
+  }, [authorProp])
+
+  const handleAuthorUpdated = useCallback(
+    (updatedAuthor: Author) => {
+      if (updatedAuthor.id === author.id) {
+        setAuthor((prev) => ({ ...prev, ...updatedAuthor }))
+      }
+    },
+    [author.id]
+  )
+
+  const handleAuthorRemoved = useCallback(
+    (data: Author | { id: string; libraryId: string }) => {
+      const id = 'id' in data ? data.id : (data as Author).id
+      if (id === author.id) {
+        // Redirect to authors list if current author is deleted
+        router.replace(`/library/${library.id}/authors`)
+      }
+    },
+    [author.id, library.id, router]
+  )
+
+  useSocketEvent<Author>('author_updated', handleAuthorUpdated)
+  useSocketEvent<Author | { id: string; libraryId: string }>('author_removed', handleAuthorRemoved)
 
   return (
     <div className="w-full" style={{ fontSize: sizeMultiplier + 'rem' }}>
@@ -42,7 +82,7 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
               size="small"
               // todo add this affect to icon btn?
               iconClass="hover:text-warning hover:scale-120 transition-colors transition-transform duration-100"
-              onClick={() => {}}
+              onClick={() => setIsEditModalOpen(true)}
             >
               edit
             </IconBtn>
@@ -117,6 +157,8 @@ export default function AuthorClient({ author, currentUser }: AuthorClientProps)
           </div>
         )
       })}
+
+      {isEditModalOpen && <AuthorEditModal isOpen={isEditModalOpen} user={currentUser.user} author={author} onClose={() => setIsEditModalOpen(false)} />}
     </div>
   )
 }
