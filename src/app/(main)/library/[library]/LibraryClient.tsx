@@ -20,7 +20,7 @@ interface LibraryClientProps {
 export default function LibraryClient({ personalized, currentUser }: LibraryClientProps) {
   const user = currentUser.user
   const { sizeMultiplier } = useCardSize()
-  const { library, setContextMenuItems, setContextMenuActionHandler, bookshelfView } = useLibrary()
+  const { library, setContextMenuItems, setContextMenuActionHandler, bookshelfView, boundModal } = useLibrary()
 
   useEffect(() => {
     const items = []
@@ -137,6 +137,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
           </Wrapper>
         )
       })}
+      {boundModal}
     </div>
   )
 }

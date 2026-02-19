@@ -75,6 +75,8 @@ interface LibraryContextType extends LibrarySettings {
   updateSetting: (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => void
   toolbarExtras: React.ReactNode
   setToolbarExtras: (node: React.ReactNode) => void
+  boundModal: React.ReactNode | null
+  setBoundModal: (node: React.ReactNode | null) => void
   // Filter data
   filterData: LibraryFilterData | null
   filterDataLoading: boolean
@@ -89,6 +91,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
   const [settings, setSettings] = useState<LibrarySettings>(DEFAULT_SETTINGS)
   const [toolbarExtras, setToolbarExtras] = useState<React.ReactNode>(null)
+  const [boundModal, setBoundModal] = useState<React.ReactNode | null>(null)
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false)
 
   // Filter data hook
@@ -210,6 +213,8 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       updateSetting,
       toolbarExtras,
       setToolbarExtras,
+      boundModal,
+      setBoundModal,
       filterData,
       filterDataLoading,
       isSettingsLoaded
@@ -224,6 +229,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       settings,
       updateSetting,
       toolbarExtras,
+      boundModal,
       filterData,
       filterDataLoading,
       isSettingsLoaded

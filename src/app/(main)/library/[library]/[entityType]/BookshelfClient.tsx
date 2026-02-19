@@ -24,7 +24,7 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting } = useLibrary()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, boundModal } = useLibrary()
 
   const { query } = useBookshelfQuery(entityType)
 
@@ -416,6 +416,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           )}
         </div>
       )}
+      {boundModal}
     </div>
   )
 }

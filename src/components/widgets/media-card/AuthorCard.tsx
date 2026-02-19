@@ -7,6 +7,7 @@ import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlayContainer from '@/components/widgets/media-card/MediaCardOverlayContainer'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Author, User } from '@/types/api'
@@ -40,13 +41,12 @@ function AuthorCard(props: AuthorCardProps) {
   const cardId = useId()
   const t = useTypeSafeTranslations()
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const { setBoundModal } = useLibrary()
+  const [isHovering, setIsHovering] = useState(false)
 
   const { quickMatchingAuthorIds, handleQuickMatch } = useAuthorActions()
 
   const isSearching = quickMatchingAuthorIds.has(author.id)
-
-  const [isHovering, setIsHovering] = useState(false)
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
@@ -67,11 +67,16 @@ function AuthorCard(props: AuthorCardProps) {
     }
   }, [author.id, author.libraryId, isSearching, router])
 
-  const handleEditClick = useCallback((event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setIsModalOpen(true)
-  }, [])
+  const handleEditClick = useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+      if (user) {
+        setBoundModal(<AuthorEditModal isOpen={true} user={user} onClose={() => setBoundModal(null)} author={author} />)
+      }
+    },
+    [user, author, setBoundModal]
+  )
 
   const handleQuickMatchClick = useCallback(
     (event: React.MouseEvent) => {
@@ -163,8 +168,6 @@ function AuthorCard(props: AuthorCardProps) {
           </>
         }
       />
-
-      {isModalOpen && user && <AuthorEditModal isOpen={isModalOpen} user={user} onClose={() => setIsModalOpen(false)} author={author} />}
     </>
   )
 }
