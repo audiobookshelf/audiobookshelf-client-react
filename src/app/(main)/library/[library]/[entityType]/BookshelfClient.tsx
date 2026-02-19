@@ -347,7 +347,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
       {/* Virtualized content */}
       {hasMeasuredCard && !error && (
-        <div className="relative w-full" style={{ height: `${totalShelves * shelfHeight}px` }}>
+        <div className="relative w-full" style={{ height: totalShelves === 0 ? 'unset' : `${totalShelves * shelfHeight}px` }}>
           {/* Render Visible Shelves */}
           {Array.from({ length: visibleShelfEnd - visibleShelfStart }).map((_, i) => {
             const shelfIndex = visibleShelfStart + i

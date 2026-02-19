@@ -56,7 +56,11 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
   return (
     <div style={{ fontSize: sizeMultiplier + 'rem' }}>
       {/* empty state with scan button if user is admin or root */}
-      {personalized.length === 0 && <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />}
+      {personalized.length === 0 && (
+        <div className="py-8">
+          <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />
+        </div>
+      )}
 
       {/* bookshelf rows */}
       {personalized.map((shelf) => {
