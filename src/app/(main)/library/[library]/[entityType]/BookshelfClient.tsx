@@ -284,11 +284,11 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const getEmptyMessage = () => {
     switch (entityType) {
       case 'series':
-        return t('MessageNoSeriesFound')
+        return filterBy === 'all' ? t('MessageBookshelfNoSeries') : t('MessageNoSeriesFound')
       case 'collections':
-        return t('MessageNoCollectionsFound')
+        return filterBy === 'all' ? t('MessageBookshelfNoCollections') : t('MessageNoCollectionsFound')
       case 'playlists':
-        return t('MessageNoPlaylistsFound')
+        return t('MessageNoUserPlaylists')
       case 'authors':
         return t('MessageNoAuthorsFound')
       default:
