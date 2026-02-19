@@ -25,7 +25,7 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, filterBy } = useLibrary()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, filterBy, boundModal } = useLibrary()
 
   const { query } = useBookshelfQuery(entityType)
 
@@ -284,11 +284,11 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const getEmptyMessage = () => {
     switch (entityType) {
       case 'series':
-        return t('MessageNoSeriesFound')
+        return filterBy === 'all' ? t('MessageBookshelfNoSeries') : t('MessageNoSeriesFound')
       case 'collections':
-        return t('MessageNoCollectionsFound')
+        return filterBy === 'all' ? t('MessageBookshelfNoCollections') : t('MessageNoCollectionsFound')
       case 'playlists':
-        return t('MessageNoPlaylistsFound')
+        return t('MessageNoUserPlaylists')
       case 'authors':
         return t('MessageNoAuthorsFound')
       default:
@@ -347,7 +347,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
       {/* Virtualized content */}
       {hasMeasuredCard && !error && (
-        <div className="relative w-full" style={{ height: `${totalShelves * shelfHeight}px` }}>
+        <div className="relative w-full" style={{ height: totalShelves === 0 ? 'unset' : `${totalShelves * shelfHeight}px` }}>
           {/* Render Visible Shelves */}
           {Array.from({ length: visibleShelfEnd - visibleShelfStart }).map((_, i) => {
             const shelfIndex = visibleShelfStart + i
@@ -423,6 +423,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           )}
         </div>
       )}
+      {boundModal}
     </div>
   )
 }

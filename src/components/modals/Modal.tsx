@@ -5,7 +5,7 @@ import { ModalProvider } from '@/contexts/ModalContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import React, { ReactNode, useCallback, useRef } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 export interface ModalProps {
@@ -42,13 +42,98 @@ export default function Modal({
     onClose?.()
   }, [onClose])
 
-  const handleClickOutside = useCallback(() => {
-    if (!isOpen || processing || persistent) return
-    onClose?.()
-  }, [isOpen, processing, persistent, onClose])
+  const handleClickOutside = useCallback(
+    (e: MouseEvent) => {
+      if (!isOpen || processing || persistent) return
+
+      // Only close if the click occurred strictly within this modal's wrapper.
+      // If the click was on a nested modal (which is a sibling in the DOM due to portals),
+      // wrapperRef.current.contains(taget) will be false, so we ignore it.
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        return
+      }
+
+      onClose?.()
+    },
+    [isOpen, processing, persistent, onClose]
+  )
 
   // Use click outside hook
   useClickOutside(contentRef, null, handleClickOutside)
+
+  const previousActiveElement = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (isOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement
+      // Focus the modal content when it opens
+      // We use requestAnimationFrame to ensure the element is ready to receive focus
+      requestAnimationFrame(() => {
+        contentRef.current?.focus()
+      })
+    }
+    return () => {
+      // Restore focus when modal closes or unmounts (if it was open)
+      if (isOpen && previousActiveElement.current) {
+        previousActiveElement.current.focus()
+      }
+    }
+  }, [isOpen])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      // Escape key to close
+      if (e.key === 'Escape' && !processing && !persistent) {
+        e.preventDefault()
+        e.stopPropagation()
+        onClose?.()
+        return
+      }
+
+      // Focus trap
+      if (e.key === 'Tab') {
+        if (!contentRef.current) return
+
+        const focusableElements = contentRef.current.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        )
+
+        // If no focusable elements, keep focus on content container
+        if (focusableElements.length === 0) {
+          e.preventDefault()
+          contentRef.current.focus()
+          return
+        }
+
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        // Check if focus is within the modal
+        const isFocusInModal = contentRef.current.contains(document.activeElement)
+
+        if (!isFocusInModal) {
+          // If focus somehow got outside, bring it back
+          e.preventDefault()
+          if (e.shiftKey) lastElement.focus()
+          else firstElement.focus()
+        } else {
+          // Normal trap logic
+          if (e.shiftKey) {
+            if (document.activeElement === firstElement || document.activeElement === contentRef.current) {
+              e.preventDefault()
+              lastElement.focus()
+            }
+          } else {
+            if (document.activeElement === lastElement) {
+              e.preventDefault()
+              firstElement.focus()
+            }
+          }
+        }
+      }
+    },
+    [processing, persistent, onClose]
+  )
 
   if (!isOpen) {
     return null
@@ -65,6 +150,7 @@ export default function Modal({
         bgOpacityClass
       )}
       cy-id="modal-wrapper"
+      onKeyDown={handleKeyDown}
     >
       {/* Background gradient */}
       <div className="absolute inset-x-0 top-0 w-full h-36 bg-gradient-to-t from-transparent via-gray-900/50 to-gray-800/70 opacity-90 pointer-events-none" />
@@ -95,6 +181,7 @@ export default function Modal({
           className
         )}
         cy-id="modal-content"
+        onClick={(e) => e.stopPropagation()}
       >
         <ModalProvider modalRef={wrapperRef as React.RefObject<HTMLDivElement>}>{children}</ModalProvider>
 

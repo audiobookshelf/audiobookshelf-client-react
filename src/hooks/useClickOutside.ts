@@ -3,7 +3,7 @@ import { RefObject, useCallback, useEffect, useRef } from 'react'
 export function useClickOutside(
   menuRef: RefObject<HTMLElement | null>,
   triggerRef: RefObject<HTMLElement | null> | null | undefined,
-  handler: () => void
+  handler: (event: MouseEvent) => void
 ): void {
   const mouseDownTargetRef = useRef<EventTarget | null>(null)
 
@@ -26,7 +26,7 @@ export function useClickOutside(
 
       // ONLY trigger handler if both the start and end of the click were truly outside
       if (!isInside && !startedInside) {
-        handler()
+        handler(event)
       }
 
       mouseDownTargetRef.current = null

@@ -7,6 +7,7 @@ import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlayContainer from '@/components/widgets/media-card/MediaCardOverlayContainer'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Author, User } from '@/types/api'
@@ -40,76 +41,12 @@ function AuthorCard(props: AuthorCardProps) {
   const cardId = useId()
   const t = useTypeSafeTranslations()
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
-  const [isProcessing, setIsProcessing] = useState(false)
+  const { setBoundModal } = useLibrary()
+  const [isHovering, setIsHovering] = useState(false)
 
-  const { quickMatchingAuthorIds, handleQuickMatch, handleSave, handleDelete, handleSubmitImage, handleRemoveImage } = useAuthorActions({
-    selectedAuthor,
-    setSelectedAuthor,
-    setIsModalOpen
-  })
-
-  // Wrap actions to handle processing state
-  const handleSaveWrapper = useCallback(
-    async (editedAuthor: Partial<Author>) => {
-      setIsProcessing(true)
-      try {
-        await handleSave(editedAuthor)
-      } finally {
-        setIsProcessing(false)
-      }
-    },
-    [handleSave]
-  )
-
-  const handleDeleteWrapper = useCallback(async () => {
-    setIsProcessing(true)
-    try {
-      await handleDelete()
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [handleDelete])
-
-  const handleQuickMatchWrapper = useCallback(
-    async (editedAuthor: Partial<Author>) => {
-      setIsProcessing(true)
-      try {
-        if (selectedAuthor) {
-          await handleQuickMatch(selectedAuthor, editedAuthor)
-        }
-      } finally {
-        setIsProcessing(false)
-      }
-    },
-    [handleQuickMatch, selectedAuthor]
-  )
-
-  const handleSubmitImageWrapper = useCallback(
-    async (url: string) => {
-      setIsProcessing(true)
-      try {
-        await handleSubmitImage(url)
-      } finally {
-        setIsProcessing(false)
-      }
-    },
-    [handleSubmitImage]
-  )
-
-  const handleRemoveImageWrapper = useCallback(async () => {
-    setIsProcessing(true)
-    try {
-      await handleRemoveImage()
-    } finally {
-      setIsProcessing(false)
-    }
-  }, [handleRemoveImage])
+  const { quickMatchingAuthorIds, handleQuickMatch } = useAuthorActions()
 
   const isSearching = quickMatchingAuthorIds.has(author.id)
-
-  const [isHovering, setIsHovering] = useState(false)
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
@@ -134,10 +71,11 @@ function AuthorCard(props: AuthorCardProps) {
     (event: React.MouseEvent) => {
       event.preventDefault()
       event.stopPropagation()
-      setSelectedAuthor(author)
-      setIsModalOpen(true)
+      if (user) {
+        setBoundModal(<AuthorEditModal isOpen={true} user={user} onClose={() => setBoundModal(null)} author={author} />)
+      }
     },
-    [author, setSelectedAuthor]
+    [user, author, setBoundModal]
   )
 
   const handleQuickMatchClick = useCallback(
@@ -230,21 +168,6 @@ function AuthorCard(props: AuthorCardProps) {
           </>
         }
       />
-
-      {isModalOpen && selectedAuthor && user && (
-        <AuthorEditModal
-          isOpen={isModalOpen}
-          user={user}
-          onClose={() => setIsModalOpen(false)}
-          author={selectedAuthor}
-          isProcessing={isProcessing}
-          onSave={handleSaveWrapper}
-          onDelete={handleDeleteWrapper}
-          onQuickMatch={handleQuickMatchWrapper}
-          onSubmitImage={handleSubmitImageWrapper}
-          onRemoveImage={handleRemoveImageWrapper}
-        />
-      )}
     </>
   )
 }

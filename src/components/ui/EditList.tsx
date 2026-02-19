@@ -136,7 +136,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
 
   // Empty state message
   if (!items.length) {
-    return <p className="text-foreground text-center py-4">{t(listTypeEmptyString)}</p>
+    return <p className="text-foreground text-center py-10 text-xl">{t(listTypeEmptyString)}</p>
   }
 
   return (

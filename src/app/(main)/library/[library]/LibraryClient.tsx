@@ -20,7 +20,7 @@ interface LibraryClientProps {
 
 export default function LibraryClient({ personalized, currentUser }: LibraryClientProps) {
   const { sizeMultiplier } = useCardSize()
-  const { library, setContextMenuItems, setContextMenuActionHandler, bookshelfView } = useLibrary()
+  const { library, setContextMenuItems, setContextMenuActionHandler, bookshelfView, boundModal } = useLibrary()
 
   useEffect(() => {
     const items = []
@@ -56,7 +56,11 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
   return (
     <div style={{ fontSize: sizeMultiplier + 'rem' }}>
       {/* empty state with scan button if user is admin or root */}
-      {personalized.length === 0 && <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />}
+      {personalized.length === 0 && (
+        <div className="py-8">
+          <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />
+        </div>
+      )}
 
       {/* bookshelf rows */}
       {personalized.map((shelf) => {
@@ -141,6 +145,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
           </Wrapper>
         )
       })}
+      {boundModal}
     </div>
   )
 }
