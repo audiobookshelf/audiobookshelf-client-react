@@ -10,11 +10,13 @@ const BOOKSHELF_PAGE_PATTERNS = ['/items', '/series', '/collections', '/playlist
 
 export default function Toolbar() {
   const pathname = usePathname()
-  const { library, itemCount, contextMenuItems, onContextMenuAction, toolbarExtras } = useLibrary()
+  const { library, itemCount, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
   const t = useTypeSafeTranslations()
 
   // Check if we're on any bookshelf-like page
   const isBookshelfPage = BOOKSHELF_PAGE_PATTERNS.some((pattern) => pathname.endsWith(pattern))
+
+  const isBookshelfEmpty = itemCount === 0 && filterBy === 'all'
 
   // Determine item name based on current page and library type
   let itemName = ''
@@ -48,9 +50,9 @@ export default function Toolbar() {
 
         <div className="flex-grow" />
 
-        {isBookshelfPage && itemCount > 0 && <div className="flex items-center gap-4 mr-2">{toolbarExtras}</div>}
+        {isBookshelfPage && !isBookshelfEmpty && <div className="flex items-center gap-4 mr-2">{toolbarExtras}</div>}
 
-        {contextMenuItems.length > 0 && itemCount > 0 && (
+        {contextMenuItems.length > 0 && !isBookshelfEmpty && (
           <ContextMenuDropdown items={contextMenuItems} borderless usePortal size="small" autoWidth onAction={(args) => handleAction(args.action)} />
         )}
       </div>
