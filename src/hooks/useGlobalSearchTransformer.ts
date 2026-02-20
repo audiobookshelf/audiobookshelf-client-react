@@ -164,7 +164,7 @@ export function useGlobalSearchTransformer({
       id: `tag-${tag.name}`,
       title: tag.name,
       subtitle: `${tag.numItems} items`,
-      link: `/library/${selectedLibraryId}/bookshelf?filter=tags.${encodeURIComponent(tag.name)}`
+      link: `/library/${selectedLibraryId}/items?filter=tags.${encodeURIComponent(tag.name)}`
     }))
 
     // Genres
@@ -173,7 +173,7 @@ export function useGlobalSearchTransformer({
       id: `genre-${genre.name}`,
       title: genre.name,
       subtitle: `${genre.numItems} items`,
-      link: `/library/${selectedLibraryId}/bookshelf?filter=genres.${encodeURIComponent(genre.name)}`
+      link: `/library/${selectedLibraryId}/items?filter=genres.${encodeURIComponent(genre.name)}`
     }))
 
     // Narrators
@@ -182,7 +182,7 @@ export function useGlobalSearchTransformer({
       id: `narrator-${narrator.name}`,
       title: narrator.name,
       subtitle: `${narrator.numBooks} books`,
-      link: `/library/${selectedLibraryId}/bookshelf?filter=narrators.${encodeURIComponent(narrator.name)}`
+      link: `/library/${selectedLibraryId}/items?filter=narrators.${encodeURIComponent(narrator.name)}`
     }))
 
     // Collections

@@ -164,7 +164,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         title={item.name}
                         // Only narrators can be clicked on, tags/genres don't have library info attached.
                         // href could be made an EditListItem prop that is passed in if other pages start using this
-                        href={`/library/${libraryId}/bookshelf?filter=narrators.${item.id}`}
+                        href={`/library/${libraryId}/items?filter=narrators.${item.id}`}
                       >
                         {item.name}
                       </a>
@@ -179,7 +179,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                       <div className="flex justify-center">
                         <a
                           className={mergeClasses('text-sm md:text-base text-foreground hover:underline')}
-                          href={`/library/${libraryId}/bookshelf?filter=narrators.${item.id}`}
+                          href={`/library/${libraryId}/items?filter=narrators.${item.id}`}
                         >
                           {item.numBooks}
                         </a>
