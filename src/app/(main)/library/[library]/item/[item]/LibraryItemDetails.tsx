@@ -4,6 +4,7 @@ import { bytesPretty } from '@/lib/string'
 import { elapsedPretty } from '@/lib/timeUtils'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { filterEncode } from '@/lib/filterUtils'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { useLocale } from 'next-intl'
 import { Fragment } from 'react'
@@ -19,8 +20,6 @@ interface DetailRowProps {
   libraryId?: string
 }
 
-const encode = (text: string) => encodeURIComponent(Buffer.from(text).toString('base64'))
-
 function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
   if (!value || (Array.isArray(value) && value.length === 0)) return null
 
@@ -30,7 +29,7 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
     if (Array.isArray(value)) {
       displayValue = (value as string[]).map((v, index) => (
         <Fragment key={v}>
-          <a href={`/library/${libraryId}/items?filter=${filterKey}.${encode(v)}`} className="text-foreground hover:underline">
+          <a href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(v)}`} className="text-foreground hover:underline">
             {v}
           </a>
           {index < (value as string[]).length - 1 && <span className="text-foreground">, </span>}
@@ -38,7 +37,7 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
       ))
     } else {
       displayValue = (
-        <a href={`/library/${libraryId}/items?filter=${filterKey}.${encode(value)}`} className="text-foreground hover:underline">
+        <a href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(value)}`} className="text-foreground hover:underline">
           {value}
         </a>
       )

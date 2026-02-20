@@ -1,5 +1,6 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { filterEncode } from '@/lib/filterUtils'
 import { SearchLibraryResponse } from '@/types/api'
 import { useMemo } from 'react'
 
@@ -164,7 +165,7 @@ export function useGlobalSearchTransformer({
       id: `tag-${tag.name}`,
       title: tag.name,
       subtitle: `${tag.numItems} items`,
-      link: `/library/${selectedLibraryId}/items?filter=tags.${encodeURIComponent(tag.name)}`
+      link: `/library/${selectedLibraryId}/items?filter=tags.${filterEncode(tag.name)}`
     }))
 
     // Genres
@@ -173,7 +174,7 @@ export function useGlobalSearchTransformer({
       id: `genre-${genre.name}`,
       title: genre.name,
       subtitle: `${genre.numItems} items`,
-      link: `/library/${selectedLibraryId}/items?filter=genres.${encodeURIComponent(genre.name)}`
+      link: `/library/${selectedLibraryId}/items?filter=genres.${filterEncode(genre.name)}`
     }))
 
     // Narrators
@@ -182,7 +183,7 @@ export function useGlobalSearchTransformer({
       id: `narrator-${narrator.name}`,
       title: narrator.name,
       subtitle: `${narrator.numBooks} books`,
-      link: `/library/${selectedLibraryId}/items?filter=narrators.${encodeURIComponent(narrator.name)}`
+      link: `/library/${selectedLibraryId}/items?filter=narrators.${filterEncode(narrator.name)}`
     }))
 
     // Collections

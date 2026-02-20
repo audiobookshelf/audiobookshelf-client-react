@@ -1155,6 +1155,7 @@ export interface GetNarratorsResponse {
 }
 
 export interface NarratorObject {
+  /** this is the name base64 encoded for use in filters */
   id: string
   name: string
   numBooks: number
