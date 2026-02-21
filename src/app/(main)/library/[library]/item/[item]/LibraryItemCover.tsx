@@ -20,14 +20,7 @@ interface LibraryItemCoverProps {
   className?: string
 }
 
-export default function LibraryItemCover({
-  libraryItem,
-  coverAspectRatio: coverAspectRatio,
-  canUpdate = false,
-  className,
-  mediaProgress,
-  onEdit
-}: LibraryItemCoverProps) {
+export default function LibraryItemCover({ libraryItem, coverAspectRatio, canUpdate = false, className, mediaProgress, onEdit }: LibraryItemCoverProps) {
   const t = useTypeSafeTranslations()
   const [isHovering, setIsHovering] = useState(false)
 
