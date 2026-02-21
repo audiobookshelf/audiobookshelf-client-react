@@ -11,16 +11,16 @@
 
 /* Subtract height of app bar */
 .page-wrapper {
-  height: calc(100vh - 4rem);
+  height: calc(100dvh - 4rem);
 }
 /* Subtract height of app bar and media player */
 .page-wrapper.streaming {
-  height: calc(100vh - 4rem - 165px);
+  height: calc(100dvh - 4rem - 165px);
 }
 @media (max-width: 1024px) {
   /* subtract height of app bar and mobile media player */
   .page-wrapper.streaming {
-    height: calc(100vh - 4rem - 192px);
+    height: calc(100dvh - 4rem - 192px);
   }
 }
 
