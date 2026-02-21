@@ -1,3 +1,4 @@
+import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -18,9 +19,11 @@ interface AuthorEditModalProps {
   onClose: () => void
 }
 
-export default function AuthorEditModal({ isOpen, user, author, onClose }: AuthorEditModalProps) {
+export default function AuthorEditModal({ isOpen, user, author: authorProp, onClose }: AuthorEditModalProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+
+  const [author, setAuthor] = useState<Author | null>(authorProp || null)
   const [editedAuthor, setEditedAuthor] = useState<Partial<Author> | null>(null)
   const [imgUrl, setImgUrl] = useState('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -28,26 +31,36 @@ export default function AuthorEditModal({ isOpen, user, author, onClose }: Autho
 
   const { handleQuickMatch, handleSave, handleDelete, handleSubmitImage, handleRemoveImage } = useAuthorActions()
 
-  const saveDisabled = useMemo(() => {
-    if (!editedAuthor || !author) return true
-    return !!(
-      editedAuthor.name === author.name &&
-      (editedAuthor.asin || '') === (author.asin || '') &&
-      (editedAuthor.description || '') === (author.description || '')
+  const isDirty = useMemo(() => {
+    if (!editedAuthor || !author) return false
+    return (
+      editedAuthor.name !== author.name || (editedAuthor.asin || '') !== (author.asin || '') || (editedAuthor.description || '') !== (author.description || '')
     )
   }, [editedAuthor, author])
 
-  // Initialize editedAuthor when author changes
+  const saveDisabled = !isDirty
+
+  const updateAuthorState = (author: Author) => {
+    setAuthor(author)
+    setEditedAuthor({
+      name: author.name,
+      asin: author.asin,
+      description: author.description
+    })
+  }
+  // Update author state when author prop changes
   useEffect(() => {
-    if (author) {
-      setEditedAuthor({
-        name: author.name,
-        asin: author.asin,
-        description: author.description
-      })
+    if (authorProp) {
+      updateAuthorState(authorProp)
       setShowConfirmDialog(false)
     }
-  }, [author])
+  }, [authorProp])
+
+  useSocketEvent<Author>('author_updated', (updatedAuthor) => {
+    if (author && updatedAuthor.id === author.id) {
+      updateAuthorState(updatedAuthor)
+    }
+  })
 
   if (!author || !editedAuthor) return
 
@@ -56,11 +69,7 @@ export default function AuthorEditModal({ isOpen, user, author, onClose }: Autho
   }
 
   const handleSaveClick = () => {
-    if (
-      editedAuthor.name === author.name &&
-      (editedAuthor.asin || '') === (author.asin || '') &&
-      (editedAuthor.description || '') === (author.description || '')
-    ) {
+    if (!isDirty) {
       showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
       return
     }
