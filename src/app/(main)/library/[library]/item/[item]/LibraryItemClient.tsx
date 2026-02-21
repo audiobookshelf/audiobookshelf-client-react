@@ -1,6 +1,5 @@
 'use client'
 
-import PreviewCover from '@/components/covers/PreviewCover'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
@@ -11,9 +10,9 @@ import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio, getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
 import { Fragment, useState } from 'react'
+import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
 
 interface LibraryItemClientProps {
@@ -38,6 +37,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
   const description = 'description' in metadata ? metadata.description : undefined
 
   const userProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+  const userCanUpdate = currentUser.user.permissions?.update || currentUser.user.type === 'admin' || currentUser.user.type === 'root'
 
   // TODO: Implement play logic
   const handlePlay = () => {
@@ -63,13 +63,16 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
   return (
     <div>
       <div className="w-full max-w-6xl mx-auto">
-        <div className="flex gap-8">
-          <div className="w-52 max-w-52">
-            <PreviewCover
-              src={getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt)}
-              bookCoverAspectRatio={getCoverAspectRatio(library.settings?.coverAspectRatio ?? 1)}
-              showResolution={false}
-              width={208}
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+          <div className="w-full md:w-52 md:max-w-52 flex-shrink-0 flex justify-center md:justify-start items-start">
+            <LibraryItemCover
+              libraryItem={libraryItem}
+              coverAspectRatio={library.settings?.coverAspectRatio ?? 1}
+              canUpdate={userCanUpdate}
+              mediaProgress={userProgress}
+              onEdit={() => {
+                console.log('edit cover')
+              }}
             />
           </div>
           <div className="flex-1">
