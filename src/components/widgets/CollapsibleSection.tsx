@@ -110,14 +110,14 @@ export default function CollapsibleSection({
     () =>
       mergeClasses(
         'h-8 w-8 md:h-10 md:w-10 rounded-full flex justify-center items-center',
-        'transition-transform duration-300 flex-shrink-0',
+        'transition-transform duration-100 flex-shrink-0',
         isExpanded ? 'rotate-180' : ''
       ),
     [isExpanded]
   )
 
   const contentClasses = useMemo(
-    () => mergeClasses('overflow-hidden transition-all duration-300 ease-in-out', isExpanded ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'),
+    () => mergeClasses('overflow-hidden transition-all duration-100 ease-in-out', isExpanded ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'),
     [isExpanded]
   )
 
