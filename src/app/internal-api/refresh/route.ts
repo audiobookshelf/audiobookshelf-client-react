@@ -80,6 +80,12 @@ async function handleRefresh(request: Request) {
       return NextResponse.json({ error: 'No new access token received' }, { status: 500 })
     }
 
+    if (request.headers.get('accept') === 'application/json') {
+      const response = NextResponse.json({ success: true })
+      setTokenCookies(response, newAccessToken, newRefreshToken)
+      return response
+    }
+
     // Get redirect URL from query parameters or default to user default path
     const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(data.userDefaultLibraryId, data.user.type)
     const redirectUrl = new URL(redirectUrlPath, clientBaseUrl)
