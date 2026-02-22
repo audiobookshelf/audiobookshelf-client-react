@@ -64,7 +64,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
     <div>
       <div className="w-full max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-          <div className="w-full md:w-52 md:max-w-52 flex-shrink-0 flex justify-center md:justify-start items-start">
+          <div className="w-full max-w-72 mx-auto md:w-52 md:max-w-52 flex-shrink-0 flex justify-center md:justify-start items-start">
             <LibraryItemCover
               libraryItem={libraryItem}
               coverAspectRatio={library.settings?.coverAspectRatio ?? 1}
@@ -127,7 +127,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
 
             {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
-            <div className="mt-20 flex flex-col gap-2">
+            <div className="mt-20 flex flex-col gap-4">
               {/* chapters table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.chapters?.length ?? 0) > 0 && (
                 <ChaptersTable libraryItem={libraryItem as BookLibraryItem} user={currentUser.user} />

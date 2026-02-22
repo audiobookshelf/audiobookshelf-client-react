@@ -66,7 +66,7 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false, exp
       {
         label: 'Id',
         accessor: 'id' as const,
-        headerClassName: 'text-start w-16 px-6',
+        headerClassName: 'text-start w-16 px-4',
         cellClassName: 'text-start px-2 px-4',
         minTableWidth: ID_MIN_TABLE_WIDTH,
         hiddenBelow: 'sm' as const
