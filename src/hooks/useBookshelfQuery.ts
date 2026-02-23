@@ -1,7 +1,7 @@
 import { LibrarySettingKey, useLibrary } from '@/contexts/LibraryContext'
 import { EntityType } from '@/types/api'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 export function useBookshelfQuery(entityType: EntityType) {
   const {
@@ -20,51 +20,65 @@ export function useBookshelfQuery(entityType: EntityType) {
   } = useLibrary()
 
   const searchParams = useSearchParams()
-
   const isPodcastLibrary = library.mediaType === 'podcast'
 
+  const currentParamsString = searchParams.toString()
+
+  const prevParamsRef = useRef(currentParamsString)
+
   // Sync Settings <-> URL
-  // 1. Initialize settings from URL on mount
+  // 1. Initialize settings from URL on mount & navigation
   useEffect(() => {
     if (!isSettingsLoaded) return
 
     const params = searchParams
     const hasParams = params.size > 0
 
-    // Only override if params are present. If empty, we keep localStorage settings.
-    if (!hasParams) return
+    const isNavigation = prevParamsRef.current !== currentParamsString
+
+    // Only override if params are present and it is a fresh mount or navigation
+    if (!hasParams && !isNavigation) return
 
     // Helper to safely set setting if param exists
-    const syncSetting = (paramKey: string, settingKey: LibrarySettingKey, isBool: boolean = false) => {
+    const syncSetting = (paramKey: string, settingKey: LibrarySettingKey, isBool: boolean = false, resetValue?: string | boolean) => {
       const val = params.get(paramKey)
-      if (val !== null) {
+      if (val !== null && val !== '') {
         // Convert '1'/'0' to boolean if needed
         const parsedVal = isBool ? val === '1' : val
         updateSetting(settingKey, parsedVal)
+      } else if (isNavigation && resetValue !== undefined) {
+        updateSetting(settingKey, resetValue)
       }
     }
 
     if (entityType === 'items') {
       syncSetting('sort', 'orderBy')
       syncSetting('desc', 'orderDesc', true)
-      syncSetting('filter', 'filterBy')
+      syncSetting('filter', 'filterBy', false, 'all')
       if (!isPodcastLibrary) {
         syncSetting('collapseseries', 'collapseSeries', true)
       }
     } else if (entityType === 'series') {
       syncSetting('sort', 'seriesSortBy')
       syncSetting('desc', 'seriesSortDesc', true)
-      syncSetting('filter', 'seriesFilterBy')
+      syncSetting('filter', 'seriesFilterBy', false, 'all')
     } else if (entityType === 'authors') {
       syncSetting('sort', 'authorSortBy')
       syncSetting('desc', 'authorSortDesc', true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSettingsLoaded]) // Run once when settings are loaded
+  }, [isSettingsLoaded, searchParams, currentParamsString]) // Run when settings are loaded or search params change
 
   // 2. Update URL when settings change
   useEffect(() => {
     if (!isSettingsLoaded) return
+
+    const isNavigation = prevParamsRef.current !== currentParamsString
+
+    if (isNavigation) {
+      prevParamsRef.current = currentParamsString
+      return
+    }
 
     const params = new URLSearchParams()
 
@@ -118,7 +132,8 @@ export function useBookshelfQuery(entityType: EntityType) {
     authorSortBy,
     authorSortDesc,
     isSettingsLoaded,
-    searchParams
+    searchParams,
+    currentParamsString
   ])
 
   // Build query string for API (separate from URL params, but often similar)

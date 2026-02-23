@@ -25,7 +25,8 @@ interface GlobalSearchInputProps {
 
 export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onItemSelect, onClear, usePortal = false }: GlobalSearchInputProps = {}) {
   const searchOptions = useMemo(() => ({ autoSelectFirst: false, libraryId }), [libraryId])
-  const { searchQuery, setSearchQuery, isSearching, searchResults, selectedLibraryId, handleSearch, searchError } = useLibrarySearch(searchOptions)
+  const { searchQuery, setSearchQuery, isSearching, searchResults, selectedLibraryId, handleSearch, searchError, clearSelection } =
+    useLibrarySearch(searchOptions)
   const t = useTypeSafeTranslations()
   const router = useRouter()
 
@@ -105,12 +106,14 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
         // If onItemSelect is provided, use it for selection
         if (onItemSelect) {
           onItemSelect(item)
+          clearSelection()
           setShowMenu(false)
           inputRef.current?.blur()
           onSubmit?.()
         } else if (item.link) {
           // Otherwise navigate to the item link
           router.push(item.link)
+          clearSelection()
           setShowMenu(false)
           inputRef.current?.blur()
           onSubmit?.()
@@ -118,6 +121,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
       } else if (searchQuery.trim() && !onItemSelect) {
         // Only navigate to search results if not in selection mode
         router.push(`/library/${selectedLibraryId}/search?q=${encodeURIComponent(searchQuery.trim())}`)
+        clearSelection()
         setShowMenu(false)
         inputRef.current?.blur()
         onSubmit?.()
@@ -130,14 +134,17 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
   }
 
   const handleClear = () => {
-    setSearchQuery('')
+    clearSelection()
     setFocusedIndex(-1)
     inputRef.current?.focus()
     onClear?.()
   }
 
   const handleResultClick = () => {
+    clearSelection()
     setShowMenu(false)
+    setFocusedIndex(-1)
+    inputRef.current?.blur()
     onSubmit?.()
   }
 

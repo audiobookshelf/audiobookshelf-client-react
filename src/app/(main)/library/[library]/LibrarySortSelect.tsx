@@ -154,10 +154,10 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
   }, [isSeries, isAuthors, isPodcast, isFilteredBySeries, seriesPageItems, authorPageItems, podcastItems, seriesItems, bookItems])
 
   // Auto-reset sort to a valid value when current sort doesn't exist in available items
-  // This handles switching between library types with incompatible sort keys
+  // This handles switching between library types with incompatible sort keys, or corrupted saved state
   useEffect(() => {
     const isValidSort = availableItems.some((item) => item.value === currentSortBy)
-    if (currentSortBy && !isValidSort) {
+    if (!currentSortBy || !isValidSort) {
       if (isSeries) updateSetting('seriesSortBy', 'name')
       else if (isAuthors) updateSetting('authorSortBy', 'name')
       else updateSetting('orderBy', DEFAULT_SORT)
