@@ -4,6 +4,7 @@ import { ServerSettings } from '@/types/api'
 import { updateServerSettings, updateSortingPrefixes } from './actions'
 import SettingsClient from './SettingsClient'
 import SettingsContent from './SettingsContent'
+import SettingsFooter from './SettingsFooter'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,12 +20,15 @@ export default async function SettingsPage() {
   }
 
   return (
-    <SettingsContent title={t('HeaderSettings')}>
-      <SettingsClient
-        serverSettings={serverSettings as ServerSettings}
-        updateServerSettings={updateServerSettings}
-        updateSortingPrefixes={updateSortingPrefixes}
-      />
-    </SettingsContent>
+    <>
+      <SettingsContent title={t('HeaderSettings')}>
+        <SettingsClient
+          serverSettings={serverSettings as ServerSettings}
+          updateServerSettings={updateServerSettings}
+          updateSortingPrefixes={updateSortingPrefixes}
+        />
+      </SettingsContent>
+      <SettingsFooter />
+    </>
   )
 }
