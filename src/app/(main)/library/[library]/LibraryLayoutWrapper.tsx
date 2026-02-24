@@ -29,7 +29,7 @@ export default function LibraryLayoutWrapper({ children, currentUser }: LibraryL
   }, [library, setLastCurrentLibraryId])
 
   return (
-    <div className={mergeClasses('flex page-wrapper overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
+    <div className={mergeClasses('relative flex page-wrapper overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
       <SideRail serverVersion={serverVersion} installSource={installSource} />
       <div className="flex-1 min-w-0 page-bg-gradient overflow-hidden">
         {!isLibraryItemPage && <Toolbar />}
@@ -37,7 +37,7 @@ export default function LibraryLayoutWrapper({ children, currentUser }: LibraryL
         <div className={mergeClasses('w-full overflow-x-hidden overflow-y-auto', isLibraryItemPage ? 'h-full' : 'h-[calc(100%-2.5rem)]')}>{children}</div>
       </div>
 
-      <CoverSizeWidget className={`absolute ${libraryItemIdStreaming ? 'lg:bottom-44 bottom-50' : 'bottom-4'} right-4 z-50`} />
+      {!isLibraryItemPage && <CoverSizeWidget className={`absolute ${libraryItemIdStreaming ? 'lg:bottom-44 bottom-50' : 'bottom-4'} right-4 z-50`} />}
     </div>
   )
 }

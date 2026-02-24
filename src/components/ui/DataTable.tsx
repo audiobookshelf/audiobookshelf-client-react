@@ -1,7 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
-import { ReactNode, useId, useMemo } from 'react'
+import { ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react'
 import Dropdown from './Dropdown'
 import IconBtn from './IconBtn'
 
@@ -17,6 +17,8 @@ export interface DataTableColumn<T> {
   headerClassName?: string
   /** Optional className for the data cell */
   cellClassName?: string
+  /** Optional minimum width of the table (in pixels) required to show this column */
+  minTableWidth?: number
   /** Hide column below this breakpoint (e.g., 'md' hides on sm screens) */
   hiddenBelow?: TailwindBreakpoint
 }
@@ -118,6 +120,41 @@ export default function DataTable<T>({
   onRowClick
 }: DataTableProps<T>) {
   const id = useId()
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [tableWidth, setTableWidth] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setTableWidth(containerRef.current.getBoundingClientRect().width)
+      }
+    }
+
+    updateWidth()
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateWidth()
+    })
+
+    resizeObserver.observe(containerRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [])
+
+  const visibleColumns = useMemo(() => {
+    return columns.filter((col) => {
+      if (col.minTableWidth === undefined) return true
+      // If tableWidth is not yet measured (null), default to showing all columns
+      // or specific logic. Here we show all to avoid hydration mismatch/flicker if wide enough.
+      // Alternatively, could hide if we want to be conservative.
+      if (tableWidth === null) return true
+      return tableWidth >= col.minTableWidth
+    })
+  }, [columns, tableWidth])
 
   const getRowClassName = (row: T, index: number): string => {
     const baseClassName = typeof rowClassName === 'function' ? rowClassName(row, index) : rowClassName || ''
@@ -155,7 +192,7 @@ export default function DataTable<T>({
       className={mergeClasses('border-b border-border even:bg-table-row-bg-even hover:bg-table-row-bg-hover', getRowClassName(row, index))}
       onClick={onRowClick ? () => onRowClick(row, index) : undefined}
     >
-      {columns.map((column, colIndex) => (
+      {visibleColumns.map((column, colIndex) => (
         <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('py-2 px-2', getResponsiveHiddenClass(column.hiddenBelow), column.cellClassName)}>
           {renderCellContent(row, column, index)}
         </td>
@@ -164,19 +201,19 @@ export default function DataTable<T>({
   )
 
   return (
-    <div className={mergeClasses('w-full', className)}>
+    <div ref={containerRef} className={mergeClasses('w-full', className)}>
       <div className="overflow-x-auto rounded-md border border-border">
         <table className={mergeClasses('text-sm w-full border-collapse', tableClassName)}>
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead className="bg-table-header-bg">
             <tr className="border-b border-border">
-              {columns.map((column, index) => (
+              {visibleColumns.map((column, index) => (
                 <th
                   key={`${id}-header-${index}`}
                   className={mergeClasses(
                     'text-start py-2 px-2 text-xs font-semibold text-foreground-muted',
-                    getResponsiveHiddenClass(column.hiddenBelow),
-                    column.headerClassName
+                    column.headerClassName,
+                    getResponsiveHiddenClass(column.hiddenBelow)
                   )}
                   scope="col"
                 >

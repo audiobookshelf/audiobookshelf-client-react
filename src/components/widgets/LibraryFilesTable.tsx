@@ -3,13 +3,15 @@
 import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import Btn from '@/components/ui/Btn'
-import CollapsibleTable from '@/components/ui/CollapsibleTable'
+import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import DataTable from '@/components/ui/DataTable'
+import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { bytesPretty } from '@/lib/string'
 import { AudioFile, BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import ConfirmDialog from './ConfirmDialog'
-import LibraryFilesTableRow from './LibraryFilesTableRow'
 
 interface LibraryFileWithAudio extends LibraryFile {
   audioFile?: AudioFile
@@ -100,80 +102,111 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
     setAudioFileToShow(audioFile)
   }, [])
 
-  const showActionsColumn = userCanDelete || userCanDownload || (userIsAdmin && audioFiles.length > 0 && !inModal)
-
-  // Measure table width to determine which columns can fit
-  const tableContainerRef = useRef<HTMLDivElement>(null)
-  const [tableWidth, setTableWidth] = useState<number | null>(null)
-  const isExpanded = keepOpen || expanded
-
-  useEffect(() => {
-    if (!isExpanded || !tableContainerRef.current) {
-      setTableWidth(null)
-      return
-    }
-
-    const updateWidth = () => {
-      const width = tableContainerRef.current!.getBoundingClientRect().width
-      setTableWidth(width)
-    }
-
-    // Set initial width
-    updateWidth()
-
-    // Use ResizeObserver on the container element
-    const resizeObserver = new ResizeObserver(() => {
-      updateWidth()
-    })
-
-    resizeObserver.observe(tableContainerRef.current)
-
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [isExpanded])
+  const handleDownload = useCallback(
+    (file: LibraryFileWithAudio) => {
+      const downloadUrl = `/internal-api/items/${libraryItem.id}/file/${file.ino}/download`
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = file.metadata.filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    },
+    [libraryItem.id]
+  )
 
   // Minimum widths for columns (in pixels)
   // Actions: min-w-10 = 40px (w-10 = 2.5rem = 40px)
   // Size: min-w-12 = 48px (w-12 = 3rem = 48px)
   // Type: min-w-12 = 48px (w-12 = 3rem = 48px)
   // Path: flexible, can wrap
-  const MIN_ACTIONS_WIDTH = 40 // min-w-10 = 2.5rem = 40px
-  const MIN_SIZE_WIDTH = 48 // min-w-12 = 3rem = 48px
-  const MIN_TYPE_WIDTH = 48 // min-w-12 = 3rem = 48px
-  const TABLE_BORDER = 2 // 1px border on each side
-  const PATH_MIN_WIDTH = 100 // Minimum width for path column to be readable
+  const MIN_ACTIONS_WIDTH = 40
+  const MIN_SIZE_WIDTH = 48
+  const MIN_TYPE_WIDTH = 48
+  const TABLE_BORDER = 2
+  const PATH_MIN_WIDTH = 100
 
-  // Calculate which columns can fit based on available width
-  const { showSize, showType } = useMemo(() => {
-    if (tableWidth === null) {
-      // Default to showing both on first render
-      return { showSize: true, showType: true }
-    }
+  // Calculate minTableWidth for columns
+  // Path is always shown (base)
+  const BASE_WIDTH = PATH_MIN_WIDTH + TABLE_BORDER + MIN_ACTIONS_WIDTH
 
-    // Always reserve space for Path (minimum) + Actions
-    const reservedWidth = PATH_MIN_WIDTH + MIN_ACTIONS_WIDTH + TABLE_BORDER
-    const availableWidth = tableWidth - reservedWidth
+  // Size requires base + size width
+  const SIZE_MIN_TABLE_WIDTH = BASE_WIDTH + MIN_SIZE_WIDTH
 
-    // Determine what fits
-    // If we have space for Size, add it
-    const canShowSize = availableWidth >= MIN_SIZE_WIDTH
-    // If we have space for both Size and Type, add Type
-    const canShowType = canShowSize && availableWidth >= MIN_SIZE_WIDTH + MIN_TYPE_WIDTH
-    return {
-      showSize: canShowSize,
-      showType: canShowType
-    }
-  }, [tableWidth])
+  // Type requires base + size width + type width
+  const TYPE_MIN_TABLE_WIDTH = SIZE_MIN_TABLE_WIDTH + MIN_TYPE_WIDTH
 
-  const tableHeaders = useMemo(
+  const columns = useMemo(
     () => [
-      { label: t('LabelPath'), className: 'px-2 md:px-4 min-w-[100px] max-w-[100px]' },
-      ...(showSize ? [{ label: t('LabelSize'), className: 'w-12 md:w-24 min-w-12 md:min-w-24' }] : []),
-      ...(showType ? [{ label: t('LabelType'), className: 'w-12 md:w-24 min-w-12 md:min-w-24' }] : []),
-      ...(showActionsColumn ? [{ label: '', className: 'w-10 md:w-16 min-w-10 md:min-w-16' }] : [])
+      {
+        label: t('LabelPath'),
+        accessor: (row: LibraryFileWithAudio) => <span className="break-words">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>,
+        headerClassName: 'text-start px-2 md:px-4 min-w-[100px]',
+        cellClassName: 'text-start px-2 md:px-4 py-1 align-middle'
+      },
+      {
+        label: t('LabelSize'),
+        accessor: (row: LibraryFileWithAudio) => bytesPretty(row.metadata.size),
+        headerClassName: 'text-start w-12 md:w-24 min-w-12 md:min-w-24 px-2',
+        cellClassName: 'text-start py-1 text-xs md:text-sm whitespace-nowrap px-2 align-middle',
+        minTableWidth: SIZE_MIN_TABLE_WIDTH,
+        hiddenBelow: 'sm' as const
+      },
+      {
+        label: t('LabelType'),
+        accessor: (row: LibraryFileWithAudio) => (
+          <div className="flex items-center">
+            <p className="truncate">{row.fileType}</p>
+          </div>
+        ),
+        headerClassName: 'text-start w-12 md:w-24 min-w-12 md:min-w-24 px-2',
+        cellClassName: 'text-start text-xs py-1 whitespace-nowrap px-2 align-middle',
+        minTableWidth: TYPE_MIN_TABLE_WIDTH,
+        hiddenBelow: 'sm' as const
+      },
+      {
+        label: '',
+        accessor: (row: LibraryFileWithAudio) => {
+          const items: ContextMenuDropdownItem[] = []
+          if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
+          if (userCanDelete) items.push({ text: t('ButtonDelete'), action: 'delete' })
+          if (userIsAdmin && row.audioFile && !inModal) items.push({ text: t('LabelMoreInfo'), action: 'more' })
+
+          if (items.length === 0) return null
+
+          return (
+            <ContextMenuDropdown
+              items={items}
+              autoWidth
+              size="small"
+              borderless
+              className="h-6 w-6 md:h-7 md:w-7"
+              onAction={({ action }) => {
+                if (action === 'delete') handleDeleteFile(row)
+                else if (action === 'download') handleDownload(row)
+                else if (action === 'more' && row.audioFile) handleShowMore(row.audioFile)
+              }}
+              usePortal
+            />
+          )
+        },
+        headerClassName: 'w-10 md:w-16 min-w-10 md:min-w-16',
+        cellClassName: 'text-center py-1 align-middle'
+      }
     ],
-    [t, showActionsColumn, showSize, showType]
+    [
+      t,
+      showFullPath,
+      userCanDownload,
+      userCanDelete,
+      userIsAdmin,
+      inModal,
+      handleDeleteFile,
+      handleDownload,
+      handleShowMore,
+      SIZE_MIN_TABLE_WIDTH,
+      TYPE_MIN_TABLE_WIDTH
+    ]
   )
 
   const headerActions = useMemo(
@@ -196,31 +229,16 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
 
   return (
     <>
-      <CollapsibleTable
+      <CollapsibleSection
         title={t('HeaderLibraryFiles')}
         count={files.length}
         expanded={expanded}
         onExpandedChange={setExpanded}
         keepOpen={keepOpen}
         headerActions={headerActions}
-        tableHeaders={tableHeaders}
-        containerRef={tableContainerRef}
       >
-        {filesWithAudioFile.map((file) => (
-          <LibraryFilesTableRow
-            key={file.ino}
-            file={file}
-            libraryItemId={libraryItem.id}
-            showFullPath={showFullPath}
-            showSize={showSize}
-            showType={showType}
-            user={user}
-            inModal={inModal}
-            onDelete={handleDeleteFile}
-            onShowMore={handleShowMore}
-          />
-        ))}
-      </CollapsibleTable>
+        <DataTable data={filesWithAudioFile} columns={columns} getRowKey={(row) => row.ino} />
+      </CollapsibleSection>
 
       {/* Single confirmation dialog for the table */}
       <ConfirmDialog isOpen={!!fileToDelete} message={t('MessageConfirmDeleteFile')} onClose={() => setFileToDelete(null)} onConfirm={handleConfirmDelete} />
