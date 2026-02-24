@@ -36,46 +36,13 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false, exp
     console.log('Go to timestamp:', time)
   }, [])
 
-  // Minimum widths for columns (in pixels)
-  // Duration: min-w-16 = 64px (w-16 = 4rem = 64px) for timestamp display
-  // Id: min-w-16 = 64px (w-16 = 4rem = 64px) for id display
-  // Title: flexible, can wrap
-  // Start: flexible, can wrap
-  const MIN_DURATION_WIDTH = 80 // min-w-20 = 5rem = 80px
-  const MIN_ID_WIDTH = 64 // min-w-16 = 4rem = 64px
-  const TABLE_BORDER = 2 // 1px border on each side
-  const TITLE_MIN_WIDTH = 100 // Minimum width for title column to be readable
-  const START_MIN_WIDTH = 80 // Minimum width for start column to be readable
-
-  // Calculate minTableWidth for each column
-  // Reserved space = Title + Start + Border
-  const RESERVED_WIDTH = TITLE_MIN_WIDTH + START_MIN_WIDTH + TABLE_BORDER
-
-  // Id requires RESERVED_WIDTH + ID_WIDTH
-  const ID_MIN_TABLE_WIDTH = RESERVED_WIDTH + MIN_ID_WIDTH
-
-  // Duration requires RESERVED_WIDTH + ID_WIDTH + DURATION_WIDTH (assuming Id is shown first)
-  // OR just RESERVED + DURATION depending on priority?
-  // Original logic:
-  // Show Id if width >= RESERVED + ID
-  // Show Duration if width >= RESERVED + ID + DURATION (implies Duration has lower priority than ID)
-  const DURATION_MIN_TABLE_WIDTH = ID_MIN_TABLE_WIDTH + MIN_DURATION_WIDTH
-
   const columns = useMemo(
     () => [
       {
-        label: 'Id',
-        accessor: 'id' as const,
-        headerClassName: 'text-start w-16 px-4',
-        cellClassName: 'text-start px-2 px-4',
-        minTableWidth: ID_MIN_TABLE_WIDTH,
-        hiddenBelow: 'sm' as const
-      },
-      {
         label: t('LabelTitle'),
         accessor: 'title' as const,
-        headerClassName: 'text-start px-2',
-        cellClassName: 'px-2'
+        headerClassName: 'text-start px-4',
+        cellClassName: 'px-4'
       },
       {
         label: t('LabelStart'),
@@ -108,11 +75,10 @@ export default function ChaptersTable({ libraryItem, user, keepOpen = false, exp
         headerClassName: 'text-center px-2 w-16 md:w-24 min-w-16 md:min-w-24',
         cellClassName: 'text-center px-2 font-mono',
         accessor: (row: Chapter) => secondsToTimestamp(Math.max(0, row.end - row.start)),
-        minTableWidth: DURATION_MIN_TABLE_WIDTH,
         hiddenBelow: 'md' as const
       }
     ],
-    [t, handleGoToTimestamp, ID_MIN_TABLE_WIDTH, DURATION_MIN_TABLE_WIDTH]
+    [t, handleGoToTimestamp]
   )
 
   const headerActions = useMemo(
