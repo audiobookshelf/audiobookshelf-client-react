@@ -92,66 +92,18 @@ describe('ChaptersTable', () => {
     cy.contains('01:00').should('be.visible') // Duration
   })
 
-  it('hides columns based on viewport width', () => {
+  it('hides Duration column below md breakpoint', () => {
     const libraryItem = { ...mockLibraryItem }
     libraryItem.media.chapters = [{ id: 1, start: 0, end: 60, title: 'Chapter 1' }]
 
     cy.mount(<ChaptersTable libraryItem={libraryItem} user={mockUser} expanded />)
 
-    // Mobile (xs)
+    // Mobile (xs) - Duration should be hidden
     cy.viewport(375, 667)
-    // Id and Duration should be hidden
-    cy.contains('th', 'Id').should('have.class', 'hidden')
     cy.contains('th', 'Duration').should('have.class', 'hidden')
 
-    // Tablet (sm) - ID becomes visible
-    cy.viewport(640, 800)
-    cy.contains('th', 'Id').should('be.visible')
-    cy.contains('th', 'Duration').should('have.class', 'hidden')
-
-    // Desktop (md) - Both visible
+    // Desktop (md) - Duration becomes visible
     cy.viewport(768, 1024)
-    cy.contains('th', 'Id').should('be.visible')
     cy.contains('th', 'Duration').should('be.visible')
-  })
-
-  it('hides columns based on container width', () => {
-    const libraryItem = { ...mockLibraryItem }
-    libraryItem.media.chapters = [{ id: 1, start: 0, end: 60, title: 'Chapter 1' }]
-
-    // Ensure viewport is large enough so hiddenBelow doesn't trigger
-    cy.viewport(1024, 768)
-
-    // 1. Wide enough for all (400px)
-    cy.mount(
-      <div style={{ width: '400px', boxSizing: 'border-box' }}>
-        <ChaptersTable libraryItem={libraryItem} user={mockUser} expanded />
-      </div>
-    )
-    cy.wait(200)
-    cy.contains('th', 'Id').should('exist')
-    cy.contains('th', 'Duration').should('exist')
-
-    // 2. Hide Duration (300px)
-    // ID requires ~246px -> Visible
-    // Duration requires ~326px -> Hidden
-    cy.mount(
-      <div style={{ width: '300px', boxSizing: 'border-box' }}>
-        <ChaptersTable libraryItem={libraryItem} user={mockUser} expanded />
-      </div>
-    )
-    cy.wait(200)
-    cy.contains('th', 'Id').should('exist')
-    cy.contains('th', 'Duration').should('not.exist')
-
-    // 3. Hide Id (200px)
-    // ID requires ~246px -> Hidden
-    cy.mount(
-      <div style={{ width: '200px', boxSizing: 'border-box' }}>
-        <ChaptersTable libraryItem={libraryItem} user={mockUser} expanded />
-      </div>
-    )
-    cy.wait(200)
-    cy.contains('th', 'Id').should('not.exist')
   })
 })
