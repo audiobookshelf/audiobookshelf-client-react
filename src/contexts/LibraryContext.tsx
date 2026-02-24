@@ -29,6 +29,8 @@ export interface LibrarySettings extends PerLibrarySettings, GlobalSettings {}
 
 export type LibrarySettingKey = keyof LibrarySettings
 
+export type UpdateSettingFn = (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => void
+
 const DEFAULT_PER_LIBRARY_SETTINGS: PerLibrarySettings = {
   orderBy: 'media.metadata.title',
   orderDesc: false,
@@ -72,7 +74,7 @@ interface LibraryContextType extends LibrarySettings {
   onContextMenuAction: ((action: string) => void) | undefined
   setContextMenuActionHandler: (handler: (action: string) => void) => void
   bookshelfView: BookshelfView
-  updateSetting: (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => void
+  updateSetting: UpdateSettingFn
   toolbarExtras: React.ReactNode
   setToolbarExtras: (node: React.ReactNode) => void
   boundModal: React.ReactNode | null

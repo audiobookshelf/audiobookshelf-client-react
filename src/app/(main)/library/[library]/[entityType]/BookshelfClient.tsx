@@ -1,7 +1,5 @@
 'use client'
 
-import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
-import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
@@ -12,8 +10,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookshelfEntity, EntityType, MediaProgress, UserLoginResponse } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import LibraryEmptyState from '../LibraryEmptyState'
-import EntityCard from './EntityCard'
-import EntityCardSkeleton from './EntityCardSkeleton'
+import { ENTITY_CONFIGS } from './entity-config'
 
 interface BookshelfClientProps {
   entityType: EntityType
@@ -30,7 +27,9 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const { query } = useBookshelfQuery(entityType)
 
   const isPodcastLibrary = library.mediaType === 'podcast'
-  const isBookLibrary = library.mediaType === 'book'
+
+  // VALIDATION CHECK
+  const validEntities = isPodcastLibrary ? ['items', 'playlists'] : ['items', 'series', 'collections', 'playlists', 'authors']
 
   // Scroll storage key
   const scrollKey = useMemo(() => `bookshelf-scroll-${library.id}-${entityType}-${query}`, [library.id, entityType, query])
@@ -191,75 +190,26 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   // Inject Toolbar Controls and Menu Items
   const { setToolbarExtras, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
 
+  // Get Entity Config
+  const config = validEntities.includes(entityType as string) ? ENTITY_CONFIGS[entityType] : null
+
   useEffect(() => {
-    // Set up toolbar extras based on entity type
-    switch (entityType) {
-      case 'items':
-        setToolbarExtras(
-          <>
-            <LibraryFilterSelect user={currentUser.user} entityType="items" />
-            <LibrarySortSelect entityType="items" libraryMediaType={library.mediaType} />
-          </>
-        )
-        break
-      case 'series':
-        setToolbarExtras(
-          <>
-            <LibraryFilterSelect user={currentUser.user} entityType="series" />
-            <LibrarySortSelect entityType="series" />
-          </>
-        )
-        break
-      case 'authors':
-        setToolbarExtras(
-          <>
-            <LibraryFilterSelect user={currentUser.user} entityType="authors" />
-            <LibrarySortSelect entityType="authors" libraryMediaType={library.mediaType} />
-          </>
-        )
-        break
-      default:
-        // collections and playlists have no sort/filter
-        setToolbarExtras(null)
-    }
+    if (!config) return
+    // Set up toolbar extras based on entity config
+    setToolbarExtras(config.getToolbarExtras(currentUser.user, library))
 
-    // Build context menu items based on entity type
-    const menuItems: { text: string; action: string }[] = []
-
-    if (entityType === 'items') {
-      menuItems.push({
-        text: showSubtitles ? t('LabelHideSubtitles') : t('LabelShowSubtitles'),
-        action: showSubtitles ? 'hide-subtitles' : 'show-subtitles'
-      })
-      if (isBookLibrary) {
-        menuItems.push({
-          text: collapseSeries ? t('LabelExpandSeries') : t('LabelCollapseSeries'),
-          action: collapseSeries ? 'expand-series' : 'collapse-series'
-        })
-      }
-    } else if (entityType === 'authors' && currentUser.user.permissions?.update) {
-      menuItems.push({
-        text: t('ButtonMatchAllAuthors'),
-        action: 'match-all-authors'
-      })
-    }
+    // Build context menu items based on entity config
+    const rawMenuItems = config.getContextMenuItems(currentUser.user, library, { showSubtitles, collapseSeries })
+    const menuItems = rawMenuItems.map((item) => ({
+      text: t(item.textKey),
+      action: item.action
+    }))
 
     setContextMenuItems(menuItems)
 
-    // Set up action handler
+    // Set up action handler (delegated to entity config)
     setContextMenuActionHandler((action: string) => {
-      if (action === 'show-subtitles') {
-        updateSetting('showSubtitles', true)
-      } else if (action === 'hide-subtitles') {
-        updateSetting('showSubtitles', false)
-      } else if (action === 'expand-series') {
-        updateSetting('collapseSeries', false)
-      } else if (action === 'collapse-series') {
-        updateSetting('collapseSeries', true)
-      } else if (action === 'match-all-authors') {
-        // TODO: Implement match all authors
-        console.log('Match all authors - to be implemented')
-      }
+      config.handleContextMenuAction(action, { updateSetting })
     })
 
     return () => {
@@ -268,42 +218,26 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     }
   }, [
     entityType,
+    config,
     setToolbarExtras,
     setContextMenuItems,
     setContextMenuActionHandler,
     updateSetting,
-    library.mediaType,
-    isBookLibrary,
+    library,
     showSubtitles,
     collapseSeries,
     currentUser.user,
     t
   ])
 
-  // Get empty state message based on entity type
+  // Get empty state message based on entity config
   const getEmptyMessage = () => {
-    switch (entityType) {
-      case 'series':
-        return filterBy === 'all' ? t('MessageBookshelfNoSeries') : t('MessageNoSeriesFound')
-      case 'collections':
-        return filterBy === 'all' ? t('MessageBookshelfNoCollections') : t('MessageNoCollectionsFound')
-      case 'playlists':
-        return t('MessageNoUserPlaylists')
-      case 'authors':
-        return t('MessageNoAuthorsFound')
-      default:
-        if (isPodcastLibrary) {
-          return t('MessageNoPodcastsFound')
-        } else {
-          return t('MessageNoBooksFound')
-        }
-    }
+    if (!config) return ''
+    const messageKey = config.getEmptyMessageKey(filterBy, isPodcastLibrary)
+    return messageKey ? t(messageKey) : ''
   }
 
-  // VALIDATION CHECK
-  const validEntities = isPodcastLibrary ? ['items', 'playlists'] : ['items', 'series', 'collections', 'playlists', 'authors']
-
-  if (!validEntities.includes(entityType as string)) {
+  if (!validEntities.includes(entityType as string) || !config) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-foreground-muted">
         <h2 className="text-2xl font-bold mb-2">{t('LabelPageNotFound')}</h2>
@@ -325,13 +259,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     >
       {/* Measurement Dummy - Hidden but rendered for sizing */}
       <div ref={dummyCardRef} style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
-        <EntityCardSkeleton
-          entityType={entityType}
-          coverAspectRatio={coverAspectRatio}
-          seriesSortBy={seriesSortBy}
-          showSubtitles={showSubtitles}
-          orderBy={orderBy}
-        />
+        <config.SkeletonComponent coverAspectRatio={coverAspectRatio} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
       </div>
 
       {/* Error State */}
@@ -377,8 +305,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                   if (!item) {
                     return (
                       <div key={`skeleton-wrapper-${startIndex + k}`} style={{ width: `${currentCardWidth}px`, flexShrink: 0 }}>
-                        <EntityCardSkeleton
-                          entityType={entityType}
+                        <config.SkeletonComponent
                           coverAspectRatio={coverAspectRatio}
                           seriesSortBy={seriesSortBy}
                           showSubtitles={showSubtitles}
@@ -389,10 +316,9 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                   }
 
                   return (
-                    <EntityCard
+                    <config.CardComponent
                       key={`card-wrapper-${item.id}`}
                       entity={item}
-                      entityType={entityType}
                       width={currentCardWidth}
                       libraryId={library.id}
                       isPodcastLibrary={isPodcastLibrary}
