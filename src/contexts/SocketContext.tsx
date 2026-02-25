@@ -34,6 +34,13 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
       socketInstance.emit('auth', accessToken)
     }
 
+    // @ts-expect-error Temporary testing function
+    window.testAuthFailed = () => {
+      console.log('Simulating auth failure')
+      // Force emit with an invalid token to trigger auth_failed
+      socketInstance.emit('auth', 'invalid_testing_token123')
+    }
+
     const handleDisconnect = () => {
       setIsConnected(false)
       console.log('Socket disconnected')
