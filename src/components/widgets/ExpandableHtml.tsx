@@ -61,6 +61,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
   }, [checkClamping])
 
   const handleContentClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isClamped) return
     const target = e.target as HTMLElement
     if (target.closest('a') || target.closest('button')) return
     setIsExpanded((prev) => !prev)
