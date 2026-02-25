@@ -77,7 +77,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
           WebkitBoxOrient: 'vertical',
           WebkitLineClamp: isExpanded ? 'unset' : lineClamp,
           overflow: isExpanded ? 'visible' : 'hidden',
-          cursor: isClamped ? 'pointer' : 'default'
+          cursor: isClamped ? 'pointer' : 'auto'
         }}
         onClick={handleContentClick}
         dangerouslySetInnerHTML={{ __html: html }}
