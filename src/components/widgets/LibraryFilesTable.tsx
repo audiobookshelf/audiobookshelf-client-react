@@ -120,11 +120,11 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
   // Size: min-w-12 = 48px (w-12 = 3rem = 48px)
   // Type: min-w-12 = 48px (w-12 = 3rem = 48px)
   // Path: flexible, can wrap
-  const MIN_ACTIONS_WIDTH = 40
-  const MIN_SIZE_WIDTH = 48
-  const MIN_TYPE_WIDTH = 48
+  const MIN_ACTIONS_WIDTH = 44
+  const MIN_SIZE_WIDTH = 80
+  const MIN_TYPE_WIDTH = 72
   const TABLE_BORDER = 2
-  const PATH_MIN_WIDTH = 100
+  const PATH_MIN_WIDTH = 300
 
   // Calculate minTableWidth for columns
   // Path is always shown (base)
@@ -141,16 +141,15 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
       {
         label: t('LabelPath'),
         accessor: (row: LibraryFileWithAudio) => <span className="break-all">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>,
-        headerClassName: 'text-start px-2 md:px-4 min-w-[100px]',
+        headerClassName: 'text-start px-2 md:px-4 min-w-[300px]',
         cellClassName: 'text-start px-2 md:px-4 py-1 align-middle'
       },
       {
         label: t('LabelSize'),
         accessor: (row: LibraryFileWithAudio) => bytesPretty(row.metadata.size),
-        headerClassName: 'text-start w-12 md:w-24 min-w-12 md:min-w-24 px-2',
+        headerClassName: 'text-start w-24 min-w-20 px-2',
         cellClassName: 'text-start py-1 text-xs md:text-sm whitespace-nowrap px-2 align-middle',
-        minTableWidth: SIZE_MIN_TABLE_WIDTH,
-        hiddenBelow: 'sm' as const
+        minTableWidth: SIZE_MIN_TABLE_WIDTH
       },
       {
         label: t('LabelType'),
@@ -159,10 +158,9 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
             <p className="truncate">{row.fileType}</p>
           </div>
         ),
-        headerClassName: 'text-start w-12 md:w-24 min-w-12 md:min-w-24 px-2',
+        headerClassName: 'text-start w-24 min-w-18 px-2',
         cellClassName: 'text-start text-xs py-1 whitespace-nowrap px-2 align-middle',
-        minTableWidth: TYPE_MIN_TABLE_WIDTH,
-        hiddenBelow: 'sm' as const
+        minTableWidth: TYPE_MIN_TABLE_WIDTH
       },
       {
         label: '',
@@ -190,7 +188,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
             />
           )
         },
-        headerClassName: 'w-10 md:w-16 min-w-10 md:min-w-16',
+        headerClassName: 'w-16 min-w-11',
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
