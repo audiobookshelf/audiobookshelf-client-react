@@ -140,7 +140,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
     () => [
       {
         label: t('LabelPath'),
-        accessor: (row: LibraryFileWithAudio) => <span className="break-words">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>,
+        accessor: (row: LibraryFileWithAudio) => <span className="break-all">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>,
         headerClassName: 'text-start px-2 md:px-4 min-w-[100px]',
         cellClassName: 'text-start px-2 md:px-4 py-1 align-middle'
       },
