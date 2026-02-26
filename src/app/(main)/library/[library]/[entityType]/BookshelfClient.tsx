@@ -158,8 +158,12 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
 
   // Sync total count to context/toolbar
   useEffect(() => {
-    setItemCount(totalEntities)
-  }, [totalEntities, setItemCount])
+    if (isInitialized) {
+      setItemCount(fetchedTotal)
+    } else {
+      setItemCount(null)
+    }
+  }, [fetchedTotal, isInitialized, setItemCount])
 
   // Data Fetching Trigger
   useEffect(() => {
@@ -245,6 +249,8 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       </div>
     )
   }
+
+  console.log('isInitialized', isInitialized, 'isLoading', isLoading, 'fetchedTotal', fetchedTotal, 'totalEntities', totalEntities)
 
   return (
     <div
@@ -336,7 +342,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           })}
 
           {/* Empty State */}
-          {!isLoading && totalEntities === 0 && (
+          {isInitialized && !isLoading && fetchedTotal === 0 && (
             <>
               {entityType === 'items' && filterBy === 'all' ? (
                 <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />

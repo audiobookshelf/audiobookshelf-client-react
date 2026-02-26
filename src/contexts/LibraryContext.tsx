@@ -67,8 +67,8 @@ const PER_LIBRARY_KEYS: (keyof PerLibrarySettings)[] = [
 
 interface LibraryContextType extends LibrarySettings {
   library: Library
-  itemCount: number
-  setItemCount: (count: number) => void
+  itemCount: number | null
+  setItemCount: (count: number | null) => void
   contextMenuItems: ContextMenuDropdownItem[]
   setContextMenuItems: (items: ContextMenuDropdownItem[]) => void
   onContextMenuAction: ((action: string) => void) | undefined
@@ -88,7 +88,7 @@ interface LibraryContextType extends LibrarySettings {
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
 export function LibraryProvider({ children, bookshelfView, library }: { children: React.ReactNode; bookshelfView: BookshelfView; library: Library }) {
-  const [itemCount, setItemCount] = useState(0)
+  const [itemCount, setItemCount] = useState<number | null>(null)
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
   const [settings, setSettings] = useState<LibrarySettings>(DEFAULT_SETTINGS)

@@ -57,7 +57,7 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
     items: [],
     totalEntities: 0,
     isInitialized: false,
-    isLoading: false,
+    isLoading: true,
     error: null
   })
 

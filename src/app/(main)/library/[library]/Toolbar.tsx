@@ -42,7 +42,7 @@ export default function Toolbar() {
   return (
     <div className="w-full h-10 bg-bg box-shadow-toolbar relative z-40" cy-id="library-toolbar">
       <div className="w-full h-full flex items-center justify-between px-4">
-        {isBookshelfPage && (
+        {isBookshelfPage && itemCount !== null && (
           <p className="text-base text-foreground hidden md:block">
             {itemCount} {itemName}
           </p>
