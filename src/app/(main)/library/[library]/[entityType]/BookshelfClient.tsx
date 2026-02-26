@@ -250,8 +250,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     )
   }
 
-  console.log('isInitialized', isInitialized, 'isLoading', isLoading, 'fetchedTotal', fetchedTotal, 'totalEntities', totalEntities)
-
   return (
     <div
       ref={containerRef}
