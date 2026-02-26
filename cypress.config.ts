@@ -15,6 +15,16 @@ export default defineConfig({
           }
         }
       }
+    },
+    setupNodeEvents(on) {
+      on('before:browser:launch', (browser, launchOptions) => {
+        if (browser.path?.includes('BraveSoftware')) {
+          launchOptions.args.push('--no-first-run')
+          launchOptions.args.push('--no-default-browser-check')
+          launchOptions.args.push('--profile-directory=Default')
+        }
+        return launchOptions
+      })
     }
   }
 })
