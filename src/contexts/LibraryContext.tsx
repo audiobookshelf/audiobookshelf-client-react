@@ -29,6 +29,8 @@ export interface LibrarySettings extends PerLibrarySettings, GlobalSettings {}
 
 export type LibrarySettingKey = keyof LibrarySettings
 
+export type UpdateSettingFn = (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => void
+
 const DEFAULT_PER_LIBRARY_SETTINGS: PerLibrarySettings = {
   orderBy: 'media.metadata.title',
   orderDesc: false,
@@ -65,14 +67,14 @@ const PER_LIBRARY_KEYS: (keyof PerLibrarySettings)[] = [
 
 interface LibraryContextType extends LibrarySettings {
   library: Library
-  itemCount: number
-  setItemCount: (count: number) => void
+  itemCount: number | null
+  setItemCount: (count: number | null) => void
   contextMenuItems: ContextMenuDropdownItem[]
   setContextMenuItems: (items: ContextMenuDropdownItem[]) => void
   onContextMenuAction: ((action: string) => void) | undefined
   setContextMenuActionHandler: (handler: (action: string) => void) => void
   bookshelfView: BookshelfView
-  updateSetting: (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => void
+  updateSetting: UpdateSettingFn
   toolbarExtras: React.ReactNode
   setToolbarExtras: (node: React.ReactNode) => void
   boundModal: React.ReactNode | null
@@ -86,7 +88,7 @@ interface LibraryContextType extends LibrarySettings {
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
 export function LibraryProvider({ children, bookshelfView, library }: { children: React.ReactNode; bookshelfView: BookshelfView; library: Library }) {
-  const [itemCount, setItemCount] = useState(0)
+  const [itemCount, setItemCount] = useState<number | null>(null)
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
   const [settings, setSettings] = useState<LibrarySettings>(DEFAULT_SETTINGS)
