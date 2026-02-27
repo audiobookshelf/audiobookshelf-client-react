@@ -30,7 +30,7 @@ export default async function AccountPage() {
 
   return (
     <div className="p-8 w-full max-w-xl mx-auto">
-      <h1 className="text-2xl">{t('HeaderAccount')}</h1>
+      <h1 className="text-xl">{t('HeaderAccount')}</h1>
 
       <div className="flex flex-col items-start gap-4 mt-8">
         <div className="flex items-center gap-2 w-full">
