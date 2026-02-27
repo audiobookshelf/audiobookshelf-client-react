@@ -1,10 +1,10 @@
-import { useTranslations } from 'next-intl'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import Link from 'next/link'
 import ChangePasswordClient from './ChangePasswordClient'
 import { changePassword } from './actions'
 
-export default function ChangePasswordPage() {
-  const t = useTranslations()
+export default async function ChangePasswordPage() {
+  const t = await getTypeSafeTranslations()
 
   return (
     <div className="p-8 w-full max-w-xl mx-auto">

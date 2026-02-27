@@ -3,6 +3,7 @@
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import { useSettingsDrawer } from '@/contexts/SettingsDrawerContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import Link from 'next/link'
 import SettingsMoreInfoIcon from './SettingsMoreInfoIcon'
 
@@ -19,17 +20,18 @@ export default function SettingsContent(props: {
   backLink?: string
   addButton?: AddButtonProps
 }) {
+  const t = useTypeSafeTranslations()
   const { toggle } = useSettingsDrawer()
 
   return (
     <div className="w-full max-w-4xl mx-auto p-2 md:p-6">
-      <IconBtn className="md:hidden mb-2" ariaLabel="Menu" size="large" borderless onClick={toggle}>
+      <IconBtn className="md:hidden mb-2" ariaLabel={t('ButtonMenu')} size="large" borderless onClick={toggle}>
         menu
       </IconBtn>
       <div className="bg-bg rounded-md shadow-lg border border-border p-2 sm:p-4 mb-8">
         <div className="flex items-center gap-2 mb-2">
           {props.backLink && (
-            <Link aria-label="Back" href={props.backLink} className="text-foreground-muted hover:text-foreground">
+            <Link aria-label={t('ButtonBack')} href={props.backLink} className="text-foreground-muted hover:text-foreground">
               <span className="material-symbols text-xl">arrow_back</span>
             </Link>
           )}
