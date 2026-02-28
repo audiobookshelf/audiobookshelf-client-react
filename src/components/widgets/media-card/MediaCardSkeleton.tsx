@@ -2,7 +2,6 @@
 
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useLocale } from 'next-intl'
@@ -74,12 +73,12 @@ export default function MediaCardSkeleton({
       tabIndex={0}
       aria-busy="true"
       aria-live="polite"
-      className={mergeClasses('relative rounded-xs z-10 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
+      className="relative rounded-xs z-10 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8"
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton */}
       <div
-        className={mergeClasses('relative w-full rounded-sm overflow-hidden z-10 bg-primary box-shadow-book', 'animate-pulse')}
+        className="relative w-full rounded-sm overflow-hidden z-10 bg-primary box-shadow-book animate-pulse"
         style={{ height: `${coverHeight}px` }}
         aria-hidden="true"
       >

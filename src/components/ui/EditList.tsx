@@ -1,7 +1,6 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { mergeClasses } from '@/lib/merge-classes'
 import { TranslationKey } from '@/types/translations'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import Modal from '../modals/Modal'
@@ -140,14 +139,14 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
   }
 
   return (
-    <div role="list" className={mergeClasses('border border-border max-w-2xl mx-auto overflow-x-scroll')}>
+    <div role="list" className="border border-border max-w-2xl mx-auto overflow-x-scroll">
       <table className="table-auto w-full">
-        <thead className={mergeClasses('w-full bg-primary/50')}>
+        <thead className="w-full bg-primary/50">
           <tr>
             <th className="text-left py-2 px-3" title="Name">
               {t('LabelName')}
             </th>
-            {showNumBooks && <th className={mergeClasses('hidden md:table-cell')}>{t('LabelBooks')}</th>}
+            {showNumBooks && <th className="hidden md:table-cell">{t('LabelBooks')}</th>}
             {/* Empty header for action col to allow background to match with of rows correctly */}
             <th></th>
           </tr>
@@ -156,11 +155,11 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
           {items.map((item) => (
             <Fragment key={item.id}>
               {item !== editedItem && (
-                <tr key={item.id} className={mergeClasses('p-2 group even:bg-primary/20')}>
+                <tr key={item.id} className="p-2 group even:bg-primary/20">
                   <td className="p-3.5">
                     {showNumBooks ? (
                       <a
-                        className={mergeClasses('text-sm md:text-base text-foreground hover:underline')}
+                        className="text-sm md:text-base text-foreground hover:underline"
                         title={item.name}
                         // Only narrators can be clicked on, tags/genres don't have library info attached.
                         // href could be made an EditListItem prop that is passed in if other pages start using this
@@ -169,18 +168,15 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         {item.name}
                       </a>
                     ) : (
-                      <span className={mergeClasses('text-sm md:text-base text-foreground')} title={item.name}>
+                      <span className="text-sm md:text-base text-foreground" title={item.name}>
                         {item.name}
                       </span>
                     )}
                   </td>
                   {showNumBooks && (
-                    <td className={mergeClasses('hidden md:table-cell w-1/6')}>
+                    <td className="hidden md:table-cell w-1/6">
                       <div className="flex justify-center">
-                        <a
-                          className={mergeClasses('text-sm md:text-base text-foreground hover:underline')}
-                          href={`/library/${libraryId}/items?filter=narrators.${item.id}`}
-                        >
+                        <a className="text-sm md:text-base text-foreground hover:underline" href={`/library/${libraryId}/items?filter=narrators.${item.id}`}>
                           {item.numBooks}
                         </a>
                       </div>
@@ -192,7 +188,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         size="small"
                         borderless={true}
                         onClick={() => handleEditItemClick(item)}
-                        className={mergeClasses('text-foreground-muted group-hover:text-foreground')}
+                        className="text-foreground-muted group-hover:text-foreground"
                         ariaLabel={t('ButtonEdit')}
                       >
                         {t('ButtonEdit')}
@@ -201,7 +197,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         size="small"
                         borderless={true}
                         onClick={() => handleDeleteClick(item)}
-                        className={mergeClasses('text-foreground-muted group-hover:text-foreground')}
+                        className="text-foreground-muted group-hover:text-foreground"
                         ariaLabel={t('ButtonDelete')}
                       >
                         {t('ButtonDelete')}
@@ -211,14 +207,14 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                 </tr>
               )}
               {item === editedItem && (
-                <tr key={item.id} className={mergeClasses('p-2 group even:bg-primary/20')}>
+                <tr key={item.id} className="p-2 group even:bg-primary/20">
                   <td className="p-0.5">
                     <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5"></TextInput>
                   </td>
                   {showNumBooks && (
-                    <td className={mergeClasses('hidden md:table-cell w-1/6')}>
+                    <td className="hidden md:table-cell w-1/6">
                       <div className="flex justify-center">
-                        <a className={mergeClasses('text-sm md:text-base hover:underline')}>{item.numBooks}</a>
+                        <a className="text-sm md:text-base hover:underline">{item.numBooks}</a>
                       </div>
                     </td>
                   )}

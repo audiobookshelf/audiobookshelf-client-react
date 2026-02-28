@@ -216,7 +216,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
   // Render a placeholder during SSR to prevent hydration mismatches
   if (!isMounted) {
     return (
-      <InputWrapper size="auto" className={mergeClasses('px-1 py-1')} readOnly={readOnly} disabled={disabled}>
+      <InputWrapper size="auto" className="px-1 py-1" readOnly={readOnly} disabled={disabled}>
         <div
           className={editableClass}
           style={{ minHeight: '104px' }} // Match the min-h-26 (26 * 4px = 104px)
@@ -226,7 +226,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
   }
 
   return (
-    <InputWrapper size="auto" className={mergeClasses('px-1 py-1')} readOnly={readOnly} disabled={disabled} inputRef={editableRef}>
+    <InputWrapper size="auto" className="px-1 py-1" readOnly={readOnly} disabled={disabled} inputRef={editableRef}>
       <SlateEditable
         ref={editableRef}
         className={editableClass}

@@ -2,7 +2,6 @@
 
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
-import { mergeClasses } from '@/lib/merge-classes'
 import { BookshelfView } from '@/types/api'
 import { useId, useMemo } from 'react'
 
@@ -39,12 +38,12 @@ export default function CollectionCardSkeleton({ bookshelfView, bookCoverAspectR
       tabIndex={0}
       aria-busy="true"
       aria-live="polite"
-      className={mergeClasses('relative rounded-xs z-30', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
+      className="relative rounded-xs z-30 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8"
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton with two book cover effect */}
       <div
-        className={mergeClasses('relative w-full rounded-sm overflow-hidden z-10 bg-primary box-shadow-book', 'animate-pulse')}
+        className="relative w-full rounded-sm overflow-hidden z-10 bg-primary box-shadow-book animate-pulse"
         style={{ height: `${coverHeight}px` }}
         aria-hidden="true"
       >
@@ -69,13 +68,10 @@ export default function CollectionCardSkeleton({ bookshelfView, bookCoverAspectR
       ) : (
         // Standard view footer skeleton (shiny black placard)
         <div
-          className={mergeClasses('categoryPlacard absolute z-30 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center')}
+          className="categoryPlacard absolute z-30 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center"
           style={{ width: `${Math.min(200, coverWidth)}px` }}
         >
-          <div
-            className={mergeClasses('w-full h-full flex items-center justify-center rounded-xs', 'animate-pulse bg-gray-700')}
-            style={{ padding: '0em 0.5em' }}
-          >
+          <div className="w-full h-full flex items-center justify-center rounded-xs animate-pulse bg-gray-700" style={{ padding: '0em 0.5em' }}>
             {/* Title text skeleton */}
             <p className="truncate rounded bg-gray-600" style={{ fontSize: `${labelFontSize}em`, width: '60%' }}>
               &nbsp;

@@ -2,7 +2,6 @@
 
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
 import { useMemo } from 'react'
 
@@ -65,13 +64,13 @@ export default function CollectionGroupCover({ books, width, height, bookCoverAs
         {/* First book cover */}
         <div className="relative h-full" style={{ width: `${width / 2}px` }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={getLibraryItemCoverSrc(books[0], placeholderUrl)} alt="" aria-hidden="true" className={mergeClasses('w-full h-full object-cover')} />
+          <img src={getLibraryItemCoverSrc(books[0], placeholderUrl)} alt="" aria-hidden="true" className="w-full h-full object-cover" />
         </div>
 
         {/* Second book cover */}
         <div className="relative h-full" style={{ width: `${width / 2}px` }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={getLibraryItemCoverSrc(books[1], placeholderUrl)} alt="" aria-hidden="true" className={mergeClasses('w-full h-full object-cover')} />
+          <img src={getLibraryItemCoverSrc(books[1], placeholderUrl)} alt="" aria-hidden="true" className="w-full h-full object-cover" />
         </div>
       </div>
     </div>
