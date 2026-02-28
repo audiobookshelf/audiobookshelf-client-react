@@ -39,7 +39,7 @@ export default function MediaCardFrame({
       tabIndex={0}
       onKeyDown={onKeyDown}
       className={mergeClasses(
-        'relative rounded-xs z-10',
+        'relative rounded-xs z-30',
         'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-[0.5em]',
         className
       )}

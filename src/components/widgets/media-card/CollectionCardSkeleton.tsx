@@ -39,7 +39,7 @@ export default function CollectionCardSkeleton({ bookshelfView, bookCoverAspectR
       tabIndex={0}
       aria-busy="true"
       aria-live="polite"
-      className={mergeClasses('relative rounded-xs z-10', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
+      className={mergeClasses('relative rounded-xs z-30', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton with two book cover effect */}
@@ -69,7 +69,7 @@ export default function CollectionCardSkeleton({ bookshelfView, bookCoverAspectR
       ) : (
         // Standard view footer skeleton (shiny black placard)
         <div
-          className={mergeClasses('categoryPlacard absolute z-10 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center')}
+          className={mergeClasses('categoryPlacard absolute z-30 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center')}
           style={{ width: `${Math.min(200, coverWidth)}px` }}
         >
           <div

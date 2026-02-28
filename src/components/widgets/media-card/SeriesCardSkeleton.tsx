@@ -40,7 +40,7 @@ export default function SeriesCardSkeleton({ bookshelfView, bookCoverAspectRatio
       tabIndex={0}
       aria-busy="true"
       aria-live="polite"
-      className={mergeClasses('relative rounded-xs z-10', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
+      className={mergeClasses('relative rounded-xs z-30', 'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8')}
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton with stacked book effect */}
@@ -112,7 +112,7 @@ export default function SeriesCardSkeleton({ bookshelfView, bookCoverAspectRatio
         </div>
       ) : (
         // Standard view footer skeleton (shiny black placard)
-        <div className="categoryPlacard absolute z-10 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] w-[12em] rounded-md text-center">
+        <div className="categoryPlacard absolute z-30 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] w-[12em] rounded-md text-center">
           <div
             className={mergeClasses('w-full h-full flex items-center justify-center rounded-xs', 'animate-pulse bg-gray-700')}
             style={{ padding: '0em 0.5em' }}
