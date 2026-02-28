@@ -31,6 +31,7 @@ import { TranslationKey } from '@/types/translations'
 import React, { ReactNode } from 'react'
 
 export interface SkeletonComponentProps {
+  bookshelfView: BookshelfView
   coverAspectRatio: 0 | 1
   seriesSortBy?: string
   showSubtitles?: boolean
@@ -39,6 +40,7 @@ export interface SkeletonComponentProps {
 
 export interface CardComponentProps {
   entity: BookshelfEntity
+  bookshelfView: BookshelfView
   width: number
   libraryId?: string
   isPodcastLibrary?: boolean
@@ -109,10 +111,10 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       }
       return isPodcastLibrary ? 'MessageNoPodcastsFound' : 'MessageNoBooksFound'
     },
-    SkeletonComponent: ({ coverAspectRatio, showSubtitles, orderBy }) => (
-      <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} showSubtitles={showSubtitles} orderBy={orderBy} />
+    SkeletonComponent: ({ bookshelfView, coverAspectRatio, showSubtitles, orderBy }) => (
+      <MediaCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} showSubtitles={showSubtitles} orderBy={orderBy} />
     ),
-    CardComponent: ({ entity, width, isPodcastLibrary, coverAspectRatio, showSubtitles, currentUser, orderBy, bookProgressMap }) => {
+    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, coverAspectRatio, showSubtitles, currentUser, orderBy, bookProgressMap }) => {
       const item = entity as LibraryItem
       const isCollapsedSeries = !!item.collapsedSeries
       const entityProgress = isPodcastLibrary ? null : bookProgressMap.get(item.id)
@@ -123,7 +125,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
           <div style={{ width: `${width}px`, flexShrink: 0 }}>
             <CollapsedSeriesCard
               libraryItem={item}
-              bookshelfView={BookshelfView.DETAIL}
+              bookshelfView={bookshelfView}
               bookCoverAspectRatio={coverAspectRatio}
               mediaProgress={entityProgress}
               isSelectionMode={false}
@@ -142,7 +144,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
           <EntityMediaCard
             libraryItem={item}
-            bookshelfView={BookshelfView.DETAIL}
+            bookshelfView={bookshelfView}
             bookCoverAspectRatio={coverAspectRatio}
             mediaProgress={entityProgress}
             isSelectionMode={false}
@@ -169,17 +171,17 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     getContextMenuItems: () => [],
     handleContextMenuAction: () => {},
     getEmptyMessageKey: (filterBy) => (filterBy === 'all' ? 'MessageBookshelfNoSeries' : 'MessageNoSeriesFound'),
-    SkeletonComponent: ({ coverAspectRatio, seriesSortBy }) => (
-      <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} orderBy={seriesSortBy} />
+    SkeletonComponent: ({ bookshelfView, coverAspectRatio, seriesSortBy }) => (
+      <SeriesCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} orderBy={seriesSortBy} />
     ),
-    CardComponent: ({ entity, width, libraryId, coverAspectRatio, currentUser, seriesSortBy, bookProgressMap }) => {
+    CardComponent: ({ entity, bookshelfView, width, libraryId, coverAspectRatio, currentUser, seriesSortBy, bookProgressMap }) => {
       const series = entity as Series
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
           <SeriesCard
             series={series}
             libraryId={libraryId ?? ''}
-            bookshelfView={BookshelfView.DETAIL}
+            bookshelfView={bookshelfView}
             bookCoverAspectRatio={coverAspectRatio}
             dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
             orderBy={seriesSortBy}
@@ -224,14 +226,16 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     getContextMenuItems: () => [],
     handleContextMenuAction: () => {},
     getEmptyMessageKey: (filterBy) => (filterBy === 'all' ? 'MessageBookshelfNoCollections' : 'MessageNoCollectionsFound'),
-    SkeletonComponent: ({ coverAspectRatio }) => <CollectionCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} />,
-    CardComponent: ({ entity, width, coverAspectRatio, currentUser }) => {
+    SkeletonComponent: ({ bookshelfView, coverAspectRatio }) => (
+      <CollectionCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />
+    ),
+    CardComponent: ({ entity, bookshelfView, width, coverAspectRatio, currentUser }) => {
       const collection = entity as Collection
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
           <CollectionCard
             collection={collection}
-            bookshelfView={BookshelfView.DETAIL}
+            bookshelfView={bookshelfView}
             bookCoverAspectRatio={coverAspectRatio}
             userCanUpdate={currentUser.user.permissions?.update}
             userCanDelete={currentUser.user.permissions?.delete}
@@ -246,14 +250,14 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     getContextMenuItems: () => [],
     handleContextMenuAction: () => {},
     getEmptyMessageKey: () => 'MessageNoUserPlaylists',
-    SkeletonComponent: ({ coverAspectRatio }) => <PlaylistCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={coverAspectRatio} />,
-    CardComponent: ({ entity, width, coverAspectRatio, currentUser }) => {
+    SkeletonComponent: ({ bookshelfView, coverAspectRatio }) => <PlaylistCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />,
+    CardComponent: ({ entity, bookshelfView, width, coverAspectRatio, currentUser }) => {
       const playlist = entity as Playlist
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
           <PlaylistCard
             playlist={playlist}
-            bookshelfView={BookshelfView.DETAIL}
+            bookshelfView={bookshelfView}
             bookCoverAspectRatio={coverAspectRatio}
             userCanUpdate={currentUser.user.permissions?.update}
             userCanDelete={currentUser.user.permissions?.delete}
