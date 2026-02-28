@@ -35,9 +35,10 @@ export default async function LibraryLayout({
   }
 
   const homeBookshelfView = currentUser?.serverSettings?.homeBookshelfView || 0 // Default to STANDARD if undefined
+  const bookshelfView = currentUser?.serverSettings?.bookshelfView || 0 // Default to STANDARD if undefined
 
   return (
-    <LibraryProvider bookshelfView={homeBookshelfView} library={currentLibrary}>
+    <LibraryProvider homeBookshelfView={homeBookshelfView} bookshelfView={bookshelfView} library={currentLibrary}>
       <AppBar currentUser={currentUser} libraries={libraries} currentLibraryId={currentLibraryId} />
       <LibraryLayoutWrapper currentUser={currentUser}>{children}</LibraryLayoutWrapper>
     </LibraryProvider>

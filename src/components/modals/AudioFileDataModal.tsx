@@ -208,7 +208,7 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
                 value={prettyFfprobeData}
                 readOnly
                 fillHeight
-                className={mergeClasses('text-xs font-mono flex flex-col flex-1 min-h-0')}
+                className="text-xs font-mono flex flex-col flex-1 min-h-0"
                 label={t('LabelMetaTags')}
               />
               <IconBtn

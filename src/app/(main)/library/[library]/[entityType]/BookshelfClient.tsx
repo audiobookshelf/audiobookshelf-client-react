@@ -7,7 +7,7 @@ import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { BookshelfEntity, EntityType, MediaProgress, UserLoginResponse } from '@/types/api'
+import { BookshelfEntity, BookshelfView, EntityType, MediaProgress, UserLoginResponse } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import LibraryEmptyState from '../LibraryEmptyState'
 import { ENTITY_CONFIGS } from './entity-config'
@@ -22,7 +22,7 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, filterBy, boundModal } = useLibrary()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, filterBy, boundModal, bookshelfView } = useLibrary()
 
   const { query } = useBookshelfQuery(entityType)
 
@@ -85,7 +85,12 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   const shelfPadding = (dimensions.width < 640 ? 32 : 64) * sizeMultiplier
   const cardMargin = 24 * sizeMultiplier
   const totalEntityCardWidth = cardSize.width + cardMargin
-  const shelfRowHeight = cardSize.height + 16 * sizeMultiplier
+
+  const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
+  // A standard bookshelf divider is 1.5rem (24px).
+  // In alternative view there is no divider.
+  const dividerHeight = isAlternativeBookshelfView ? 0 : 24
+  const shelfRowHeight = cardSize.height + (16 + dividerHeight) * sizeMultiplier
 
   // Resize Observer for Container
   useEffect(() => {
@@ -253,7 +258,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   return (
     <div
       ref={containerRef}
-      className="h-full overflow-y-auto relative py-8"
+      className={isAlternativeBookshelfView ? 'h-full overflow-y-auto relative py-8' : 'h-full overflow-y-auto relative'}
       style={{ fontSize: sizeMultiplier + 'rem' }}
       onScroll={(e) => {
         const scrollTop = e.currentTarget.scrollTop
@@ -263,7 +268,13 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     >
       {/* Measurement Dummy - Hidden but rendered for sizing */}
       <div ref={dummyCardRef} style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
-        <config.SkeletonComponent coverAspectRatio={coverAspectRatio} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
+        <config.SkeletonComponent
+          bookshelfView={bookshelfView}
+          coverAspectRatio={coverAspectRatio}
+          seriesSortBy={seriesSortBy}
+          showSubtitles={showSubtitles}
+          orderBy={orderBy}
+        />
       </div>
 
       {/* Error State */}
@@ -295,11 +306,14 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
             return (
               <div
                 key={shelfIndex}
-                className="absolute left-0 w-full flex"
+                className={`absolute left-0 w-full flex ${!isAlternativeBookshelfView ? 'bookshelfRow' : ''}`}
                 style={{
                   top: `${shelfIndex * shelfHeight}px`,
                   height: `${shelfHeight}px`,
                   paddingLeft: `${bookshelfMarginLeft}px`,
+                  // To push the cards to the bottom of the flex container (and touch the divider), we align items to center and add some pt-6e equivalent to the cards or use items-end with padding-bottom for the divider.
+                  // BookShelfRow uses pt-6e (24px) to push the content down. Then the divider is positioned exactly under it.
+                  paddingTop: !isAlternativeBookshelfView ? `${16 * sizeMultiplier}px` : undefined,
                   gap: `${cardMargin}px`
                 }}
               >
@@ -310,6 +324,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                     return (
                       <div key={`skeleton-wrapper-${startIndex + k}`} style={{ width: `${currentCardWidth}px`, flexShrink: 0 }}>
                         <config.SkeletonComponent
+                          bookshelfView={bookshelfView}
                           coverAspectRatio={coverAspectRatio}
                           seriesSortBy={seriesSortBy}
                           showSubtitles={showSubtitles}
@@ -323,6 +338,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                     <config.CardComponent
                       key={`card-wrapper-${item.id}`}
                       entity={item}
+                      bookshelfView={bookshelfView}
                       width={currentCardWidth}
                       libraryId={library.id}
                       isPodcastLibrary={isPodcastLibrary}
@@ -335,6 +351,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                     />
                   )
                 })}
+                {!isAlternativeBookshelfView && <div className="bookshelfDivider w-full absolute bottom-0 left-0 right-0 z-20 h-6e" />}
               </div>
             )
           })}

@@ -122,7 +122,7 @@ function DropdownSubmenu({
     <ul
       ref={submenuRef}
       role="menu"
-      className={mergeClasses('absolute bg-primary border border-dropdown-menu-border shadow-lg z-[9999] py-1 rounded-md overflow-y-auto')}
+      className="absolute bg-primary border border-dropdown-menu-border shadow-lg z-[9999] py-1 rounded-md overflow-y-auto"
       style={{
         ...floatingStyles,
         width: '192px',

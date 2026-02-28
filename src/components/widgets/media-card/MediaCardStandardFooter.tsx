@@ -27,7 +27,7 @@ function MediaCardStandardFooter({ displayTitle, fontSize = 0.9, width, classNam
   return (
     <div
       cy-id="standardBottomText"
-      className={mergeClasses('categoryPlacard absolute z-10 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center', className)}
+      className={mergeClasses('categoryPlacard absolute z-30 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center', className)}
       style={style}
     >
       <div className="w-full h-full shinyBlack flex items-center justify-center rounded-xs border" style={{ padding: '0em 0.5em' }}>

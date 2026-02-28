@@ -20,7 +20,7 @@ interface LibraryClientProps {
 
 export default function LibraryClient({ personalized, currentUser }: LibraryClientProps) {
   const { sizeMultiplier } = useCardSize()
-  const { library, setContextMenuItems, setContextMenuActionHandler, bookshelfView, boundModal } = useLibrary()
+  const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView, boundModal } = useLibrary()
 
   useEffect(() => {
     const items = []
@@ -64,7 +64,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
 
       {/* bookshelf rows */}
       {personalized.map((shelf) => {
-        const Wrapper = bookshelfView === BookshelfView.STANDARD ? BookShelfRow : ItemSlider
+        const Wrapper = homeBookshelfView === BookshelfView.STANDARD ? BookShelfRow : ItemSlider
 
         return (
           <Wrapper key={shelf.id} title={shelf.label}>
@@ -78,7 +78,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
                   <div key={entity.id + '-' + shelf.id} className="shrink-0 mx-2e">
                     <EntityMediaCard
                       libraryItem={libraryItem}
-                      bookshelfView={bookshelfView}
+                      bookshelfView={homeBookshelfView}
                       dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                       timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
                       userPermissions={currentUser.user.permissions}
@@ -104,7 +104,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
                     <SeriesCard
                       series={series}
                       libraryId={library.id}
-                      bookshelfView={bookshelfView}
+                      bookshelfView={homeBookshelfView}
                       dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                       bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
                       bookProgressMap={bookProgressMap}
@@ -122,7 +122,7 @@ export default function LibraryClient({ personalized, currentUser }: LibraryClie
                   <div key={episode.id + '-' + shelf.id} className="shrink-0 mx-2e">
                     <PodcastEpisodeCard
                       libraryItem={libraryItem}
-                      bookshelfView={bookshelfView}
+                      bookshelfView={homeBookshelfView}
                       dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                       timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
                       userPermissions={currentUser.user.permissions}
