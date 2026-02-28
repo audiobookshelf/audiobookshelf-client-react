@@ -300,3 +300,13 @@ Bookshelf Label
     rgba(0, 0, 0, 0.7) 100%
   );
 }
+
+.bookshelfRow {
+  background-image: var(--bookshelf-texture-img);
+}
+
+.bookshelfDivider {
+  background: rgb(149, 119, 90);
+  background: var(--bookshelf-divider-bg);
+  box-shadow: 0.125em 0.875em 0.5em #111111aa;
+}
