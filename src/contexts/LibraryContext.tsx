@@ -73,6 +73,7 @@ interface LibraryContextType extends LibrarySettings {
   setContextMenuItems: (items: ContextMenuDropdownItem[]) => void
   onContextMenuAction: ((action: string) => void) | undefined
   setContextMenuActionHandler: (handler: (action: string) => void) => void
+  homeBookshelfView: BookshelfView
   bookshelfView: BookshelfView
   updateSetting: UpdateSettingFn
   toolbarExtras: React.ReactNode
@@ -87,7 +88,17 @@ interface LibraryContextType extends LibrarySettings {
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
-export function LibraryProvider({ children, bookshelfView, library }: { children: React.ReactNode; bookshelfView: BookshelfView; library: Library }) {
+export function LibraryProvider({
+  children,
+  homeBookshelfView,
+  bookshelfView,
+  library
+}: {
+  children: React.ReactNode
+  homeBookshelfView: BookshelfView
+  bookshelfView: BookshelfView
+  library: Library
+}) {
   const [itemCount, setItemCount] = useState<number | null>(null)
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
@@ -210,6 +221,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       setContextMenuItems,
       onContextMenuAction,
       setContextMenuActionHandler,
+      homeBookshelfView,
       bookshelfView,
       ...settings,
       updateSetting,
@@ -227,6 +239,7 @@ export function LibraryProvider({ children, bookshelfView, library }: { children
       contextMenuItems,
       onContextMenuAction,
       setContextMenuActionHandler,
+      homeBookshelfView,
       bookshelfView,
       settings,
       updateSetting,
