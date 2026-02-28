@@ -37,9 +37,13 @@ export default function MediaCardFrame({
       cy-id={cyId}
       id={cardId}
       tabIndex={0}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       onKeyDown={onKeyDown}
       className={mergeClasses(
         'relative rounded-xs z-10',
+        onClick && 'cursor-pointer',
         'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-[0.5em]',
         className
       )}
@@ -49,14 +53,11 @@ export default function MediaCardFrame({
       }}
     >
       <div
-        className="relative w-full top-0 start-0 rounded-sm overflow-hidden z-10 bg-primary box-shadow-book cursor-pointer"
+        className="relative w-full top-0 start-0 rounded-sm overflow-hidden z-10 bg-primary box-shadow-book"
         style={{
           height: typeof height === 'number' ? `${height}px` : height,
           aspectRatio: aspectRatio ? `${aspectRatio}` : undefined
         }}
-        onClick={onClick}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
       >
         <div className="absolute w-full h-full top-0 start-0 rounded-sm overflow-hidden z-10">
           {cover}
