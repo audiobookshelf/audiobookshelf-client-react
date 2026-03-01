@@ -141,8 +141,12 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
               className="h-6 w-6 md:h-7 md:w-7"
               onAction={({ action }) => {
                 if (action === 'download') {
-                  const url = `/api/items/${libraryItem.id}/file/${row.audioFile?.ino}/download`
-                  window.open(url, '_blank')
+                  const link = document.createElement('a')
+                  link.href = `/internal-api/items/${libraryItem.id}/file/${row.audioFile?.ino}/download`
+                  link.download = row.metadata.filename
+                  document.body.appendChild(link)
+                  link.click()
+                  document.body.removeChild(link)
                 } else if (action === 'delete') {
                   console.log('Delete track:', row.audioFile?.ino)
                 } else if (action === 'more' && row.audioFile) {
