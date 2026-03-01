@@ -188,7 +188,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
             />
           )
         },
-        headerClassName: 'w-16 min-w-11',
+        headerClassName: 'w-12 min-w-11',
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
