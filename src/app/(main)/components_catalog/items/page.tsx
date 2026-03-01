@@ -85,7 +85,7 @@ export default function ItemDetailsExamplesPage() {
   }
 
   return (
-    <LibraryProvider bookshelfView={0} library={activeLibrary}>
+    <LibraryProvider homeBookshelfView={0} bookshelfView={0} library={activeLibrary}>
       <div className="p-8 w-full max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">Item Details & Cover Examples</h1>
