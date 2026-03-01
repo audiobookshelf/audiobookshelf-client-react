@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react'
 import { Socket, io } from 'socket.io-client'
 
@@ -17,6 +18,7 @@ interface SocketProviderProps {
 }
 
 export function SocketProvider({ children, accessToken }: SocketProviderProps) {
+  const router = useRouter()
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState<string | null>(null)
@@ -47,8 +49,25 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
       console.log('Socket initialized successfully')
     }
 
-    const handleAuthFailed = () => {
-      console.error('Socket auth failed')
+    const handleAuthFailed = async () => {
+      console.log('Socket auth failed. Attempting silent token refresh.')
+      try {
+        const res = await fetch('/internal-api/refresh', {
+          headers: {
+            Accept: 'application/json'
+          }
+        })
+        if (res.ok) {
+          console.log('Silent token refresh successful. Refreshing router to get new token.')
+          router.refresh()
+        } else {
+          console.error('Silent token refresh failed.')
+          window.location.reload() // Reload to let middleware trigger redirect to login
+        }
+      } catch (err) {
+        console.error('Error during token refresh:', err)
+        window.location.reload()
+      }
     }
 
     socketInstance.on('connect', handleConnect)
@@ -65,7 +84,7 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
       socketInstance.off('auth_failed', handleAuthFailed)
       socketInstance.disconnect()
     }
-  }, [accessToken])
+  }, [accessToken, router])
 
   const value: SocketContextType = {
     socket,
