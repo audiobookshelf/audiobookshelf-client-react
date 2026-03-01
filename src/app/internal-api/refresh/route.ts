@@ -80,6 +80,7 @@ async function handleRefresh(request: Request) {
       return NextResponse.json({ error: 'No new access token received' }, { status: 500 })
     }
 
+    // If the request is an API request, dont redirect (used in socket auth_failed handler)
     if (request.headers.get('accept') === 'application/json') {
       const response = NextResponse.json({ success: true })
       setTokenCookies(response, newAccessToken, newRefreshToken)
