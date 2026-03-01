@@ -101,7 +101,7 @@ export default function CollapsibleSection({
       mergeClasses(
         'w-full bg-primary py-2 pl-4 pr-2 md:pl-6 md:pr-3 flex items-center',
         'transition-colors duration-150',
-        keepOpen ? '' : 'cursor-pointer focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0'
+        keepOpen ? '' : 'cursor-pointer focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
       ),
     [keepOpen]
   )
@@ -152,7 +152,10 @@ export default function CollapsibleSection({
           <IconBtn
             borderless
             size="custom"
-            className={mergeClasses(iconClasses, 'cursor-pointer focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0')}
+            className={mergeClasses(
+              iconClasses,
+              'cursor-pointer focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
+            )}
             iconClass="text-2xl md:text-3xl"
             onClick={handleToggle}
             onKeyDown={handleKeyDown}
