@@ -213,7 +213,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
         <Btn
           color={showFullPath ? 'bg-button-selected-bg' : ''}
           size="small"
-          className="mr-2"
+          className="mr-2 hidden md:inline-flex"
           onClick={(e) => {
             e.stopPropagation()
             toggleFullPath()
