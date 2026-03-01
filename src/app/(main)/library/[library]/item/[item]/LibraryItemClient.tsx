@@ -4,6 +4,7 @@ import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
+import AudioTracksTable from '@/components/widgets/AudioTracksTable'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
@@ -131,6 +132,11 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
               {/* chapters table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.chapters?.length ?? 0) > 0 && (
                 <ChaptersTable libraryItem={libraryItem as BookLibraryItem} user={currentUser.user} />
+              )}
+
+              {/* audio tracks table */}
+              {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
+                <AudioTracksTable libraryItem={libraryItem as BookLibraryItem} user={currentUser.user} />
               )}
 
               {/* library files table */}
