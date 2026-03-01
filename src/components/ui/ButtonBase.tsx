@@ -43,7 +43,7 @@ const ButtonBase = ({
     'relative shadow-md border border-border rounded-md bg-primary flex items-center justify-center overflow-hidden',
 
     // Focus styles
-    'focus-visible:outline-1 focus-visible:outline-white/80 focus-visible:outline-offset-0',
+    'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0',
 
     // Size-based height (identical to InputWrapper)
     size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'min-h-10 h-auto' : size === 'custom' ? '' : 'h-10',
