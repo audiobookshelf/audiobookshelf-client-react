@@ -13,6 +13,27 @@ import { AudioFile, BookLibraryItem, LibraryFile, PodcastLibraryItem, User } fro
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import ConfirmDialog from './ConfirmDialog'
 
+// Minimum widths for columns (in pixels)
+// Actions: min-w-10 = 40px (w-10 = 2.5rem = 40px)
+// Size: min-w-12 = 48px (w-12 = 3rem = 48px)
+// Type: min-w-12 = 48px (w-12 = 3rem = 48px)
+// Path: flexible, can wrap
+const MIN_ACTIONS_WIDTH = 44
+const MIN_SIZE_WIDTH = 80
+const MIN_TYPE_WIDTH = 72
+const TABLE_BORDER = 2
+const PATH_MIN_WIDTH = 300
+
+// Calculate minTableWidth for columns
+// Path is always shown (base)
+const BASE_WIDTH = PATH_MIN_WIDTH + TABLE_BORDER + MIN_ACTIONS_WIDTH
+
+// Size requires base + size width
+const SIZE_MIN_TABLE_WIDTH = BASE_WIDTH + MIN_SIZE_WIDTH
+
+// Type requires base + size width + type width
+const TYPE_MIN_TABLE_WIDTH = SIZE_MIN_TABLE_WIDTH + MIN_TYPE_WIDTH
+
 interface LibraryFileWithAudio extends LibraryFile {
   audioFile?: AudioFile
 }
@@ -115,27 +136,6 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
     [libraryItem.id]
   )
 
-  // Minimum widths for columns (in pixels)
-  // Actions: min-w-10 = 40px (w-10 = 2.5rem = 40px)
-  // Size: min-w-12 = 48px (w-12 = 3rem = 48px)
-  // Type: min-w-12 = 48px (w-12 = 3rem = 48px)
-  // Path: flexible, can wrap
-  const MIN_ACTIONS_WIDTH = 44
-  const MIN_SIZE_WIDTH = 80
-  const MIN_TYPE_WIDTH = 72
-  const TABLE_BORDER = 2
-  const PATH_MIN_WIDTH = 300
-
-  // Calculate minTableWidth for columns
-  // Path is always shown (base)
-  const BASE_WIDTH = PATH_MIN_WIDTH + TABLE_BORDER + MIN_ACTIONS_WIDTH
-
-  // Size requires base + size width
-  const SIZE_MIN_TABLE_WIDTH = BASE_WIDTH + MIN_SIZE_WIDTH
-
-  // Type requires base + size width + type width
-  const TYPE_MIN_TABLE_WIDTH = SIZE_MIN_TABLE_WIDTH + MIN_TYPE_WIDTH
-
   const columns = useMemo(
     () => [
       {
@@ -147,7 +147,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
       {
         label: t('LabelSize'),
         accessor: (row: LibraryFileWithAudio) => bytesPretty(row.metadata.size),
-        headerClassName: 'text-start w-24 min-w-20 px-2',
+        headerClassName: 'text-start w-22 min-w-20 px-2',
         cellClassName: 'text-start py-1 text-xs md:text-sm whitespace-nowrap px-2 align-middle',
         minTableWidth: SIZE_MIN_TABLE_WIDTH
       },
@@ -158,7 +158,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
             <p className="truncate">{row.fileType}</p>
           </div>
         ),
-        headerClassName: 'text-start w-24 min-w-18 px-2',
+        headerClassName: 'text-start w-22 min-w-18 px-2',
         cellClassName: 'text-start text-xs py-1 whitespace-nowrap px-2 align-middle',
         minTableWidth: TYPE_MIN_TABLE_WIDTH
       },
@@ -192,19 +192,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
-    [
-      t,
-      showFullPath,
-      userCanDownload,
-      userCanDelete,
-      userIsAdmin,
-      inModal,
-      handleDeleteFile,
-      handleDownload,
-      handleShowMore,
-      SIZE_MIN_TABLE_WIDTH,
-      TYPE_MIN_TABLE_WIDTH
-    ]
+    [t, showFullPath, userCanDownload, userCanDelete, userIsAdmin, inModal, handleDeleteFile, handleDownload, handleShowMore]
   )
 
   const headerActions = useMemo(

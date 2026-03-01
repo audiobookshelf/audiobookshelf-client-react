@@ -10,6 +10,19 @@ import { bytesPretty } from '@/lib/string'
 import { AudioFile, AudioTrack, BookLibraryItem, User } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+const MIN_INDEX_WIDTH = 40
+const MIN_ACTIONS_WIDTH = 44
+const MIN_HIDEABLE_COLUMN_WIDTH = 80
+const TABLE_BORDER = 2
+const PATH_MIN_WIDTH = 300
+
+// Calculate minTableWidth for columns
+const BASE_WIDTH = PATH_MIN_WIDTH + TABLE_BORDER + MIN_ACTIONS_WIDTH + MIN_INDEX_WIDTH
+const DURATION_MIN_TABLE_WIDTH = BASE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
+const SIZE_MIN_TABLE_WIDTH = DURATION_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
+const BITRATE_MIN_TABLE_WIDTH = SIZE_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
+const CODEC_MIN_TABLE_WIDTH = BITRATE_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
+
 interface AudioTracksTableProps {
   libraryItem: BookLibraryItem
   user: User
@@ -78,7 +91,7 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
       {
         label: t('LabelFilename'),
         accessor: (row: TrackWithAudioFile) => <span className="break-all font-sans text-sm">{showFullPath ? row.metadata.path : row.metadata.filename}</span>,
-        headerClassName: 'text-start px-2 min-w-[200px]',
+        headerClassName: 'text-start px-2 min-w-[300px]',
         cellClassName: 'text-start px-2 py-1 align-middle'
       },
       {
@@ -86,28 +99,28 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
         accessor: (row: TrackWithAudioFile) => row.audioFile?.codec || '',
         headerClassName: 'text-start w-20 px-2 min-w-20',
         cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        hiddenBelow: 'lg' as const
+        minTableWidth: CODEC_MIN_TABLE_WIDTH
       },
       {
         label: t('LabelBitrate'),
         accessor: (row: TrackWithAudioFile) => (row.audioFile?.bitRate ? bytesPretty(row.audioFile.bitRate, 0) : ''),
-        headerClassName: 'text-start w-24 px-2 min-w-24',
+        headerClassName: 'text-start w-22 px-2 min-w-20',
         cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        hiddenBelow: 'lg' as const
+        minTableWidth: BITRATE_MIN_TABLE_WIDTH
       },
       {
         label: t('LabelSize'),
         accessor: (row: TrackWithAudioFile) => bytesPretty(row.metadata.size),
-        headerClassName: 'text-start w-24 px-2 min-w-20',
+        headerClassName: 'text-start w-22 px-2 min-w-20',
         cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        hiddenBelow: 'md' as const
+        minTableWidth: SIZE_MIN_TABLE_WIDTH
       },
       {
         label: t('LabelDuration'),
         accessor: (row: TrackWithAudioFile) => secondsToTimestamp(row.duration),
-        headerClassName: 'text-start w-24 px-2 min-w-20',
+        headerClassName: 'text-start w-22 px-2 min-w-20',
         cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        hiddenBelow: 'sm' as const
+        minTableWidth: DURATION_MIN_TABLE_WIDTH
       },
       {
         label: '',
