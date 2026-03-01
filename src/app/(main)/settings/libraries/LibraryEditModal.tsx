@@ -17,7 +17,7 @@ export interface LibraryFormData {
   mediaType: 'book' | 'podcast'
   icon: string
   provider: string
-  folders: { fullPath: string }[]
+  folders: { id?: string; fullPath: string }[]
   settings: LibrarySettings
 }
 
@@ -41,7 +41,7 @@ const getInitialFormData = (library: Library | null): LibraryFormData => {
       mediaType: library.mediaType,
       icon: library.icon || 'database',
       provider: library.provider || '',
-      folders: library.folders?.map((f) => ({ fullPath: f.fullPath })) || [],
+      folders: library.folders?.map((f) => ({ id: f.id, fullPath: f.fullPath })) || [],
       settings: { ...defaultLibrarySettings, ...library.settings }
     }
   }
