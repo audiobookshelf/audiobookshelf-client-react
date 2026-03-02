@@ -72,14 +72,16 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   const [showFolderChooser, setShowFolderChooser] = useState(false)
   const [selectedTab, setSelectedTab] = useState('details')
 
-  const tabs = [
-    { id: 'details', label: t('HeaderDetails') },
-    { id: 'settings', label: t('HeaderSettings') },
-    { id: 'scanner', label: t('HeaderSettingsScanner') },
-    { id: 'schedule', label: t('HeaderSchedule') }
-  ]
-
   const isEditing = !!library
+
+  const tabs = useMemo(() => {
+    return [
+      { id: 'details', label: t('HeaderDetails') },
+      { id: 'settings', label: t('HeaderSettings') },
+      ...(library?.mediaType === 'book' ? [{ id: 'scanner', label: t('HeaderSettingsScanner') }] : []),
+      { id: 'schedule', label: t('HeaderSchedule') }
+    ]
+  }, [library?.mediaType, t])
 
   // Load metadata providers when modal opens
   useEffect(() => {
