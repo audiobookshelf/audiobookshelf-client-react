@@ -259,7 +259,12 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
           onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
         />
       )}
-      {selectedTab === 'scanner' && <LibraryScannerTab />}
+      {selectedTab === 'scanner' && (
+        <LibraryScannerTab
+          settings={formData.settings}
+          onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
+        />
+      )}
       {selectedTab === 'schedule' && <LibraryScheduleTab />}
     </TabbedModal>
   )
