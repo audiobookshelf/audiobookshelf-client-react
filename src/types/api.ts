@@ -177,7 +177,7 @@ export interface LibrarySettings {
   disableWatcher: boolean
   skipMatchingMediaWithAsin?: boolean
   skipMatchingMediaWithIsbn?: boolean
-  autoScanCronExpression?: string
+  autoScanCronExpression?: string | null
   audiobooksOnly?: boolean
   hideSingleBookSeries?: boolean
   onlyShowLaterBooksInContinueSeries?: boolean

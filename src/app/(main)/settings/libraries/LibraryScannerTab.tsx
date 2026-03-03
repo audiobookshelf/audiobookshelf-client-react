@@ -5,7 +5,7 @@ import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import SortableList from '@/components/widgets/SortableList'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { LibrarySettings } from '@/types/api'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import SettingsMoreInfoIcon from '../SettingsMoreInfoIcon'
 
 interface MetadataSource {
@@ -59,39 +59,30 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
   const [sources, setSources] = useState<MetadataSource[]>(() => buildSourceList(settings.metadataPrecedence || defaultMetadataSources.map((s) => s.id)))
   const [listKey, setListKey] = useState(0)
 
-  const emitChange = useCallback(
-    (newSources: MetadataSource[]) => {
-      onSettingsChange((prev) => ({
-        ...prev,
-        metadataPrecedence: deriveMetadataPrecedence(newSources)
-      }))
-    },
-    [onSettingsChange]
-  )
+  const emitChange = (newSources: MetadataSource[]) => {
+    onSettingsChange((prev) => ({
+      ...prev,
+      metadataPrecedence: deriveMetadataPrecedence(newSources)
+    }))
+  }
 
-  const handleSortEnd = useCallback(
-    (sortedItems: MetadataSource[]) => {
-      setSources(sortedItems)
-      emitChange(sortedItems)
-    },
-    [emitChange]
-  )
+  const handleSortEnd = (sortedItems: MetadataSource[]) => {
+    setSources(sortedItems)
+    emitChange(sortedItems)
+  }
 
-  const handleToggle = useCallback(
-    (sourceId: string, include: boolean) => {
-      const updated = sources.map((s) => (s.id === sourceId ? { ...s, include } : s))
-      setSources(updated)
-      emitChange(updated)
-    },
-    [sources, emitChange]
-  )
+  const handleToggle = (sourceId: string, include: boolean) => {
+    const updated = sources.map((s) => (s.id === sourceId ? { ...s, include } : s))
+    setSources(updated)
+    emitChange(updated)
+  }
 
-  const handleReset = useCallback(() => {
+  const handleReset = () => {
     const resetSources = [...defaultMetadataSources].reverse()
     setSources(resetSources)
     setListKey((k) => k + 1)
     emitChange(resetSources)
-  }, [emitChange])
+  }
 
   const defaultPrecedenceKey = defaultMetadataSources.map((s) => s.id).join(',')
   const isDefault = useMemo(() => deriveMetadataPrecedence(sources).join(',') === defaultPrecedenceKey, [sources, defaultPrecedenceKey])
@@ -99,31 +90,25 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
   const firstActiveIndex = useMemo(() => sources.findIndex((s) => s.include), [sources])
   const lastActiveIndex = useMemo(() => sources.findLastIndex((s) => s.include), [sources])
 
-  const getSourcePriority = useCallback(
-    (sourceId: string) => {
-      const activeSources = sources.filter((s) => s.include)
-      return activeSources.findIndex((s) => s.id === sourceId) + 1
-    },
-    [sources]
-  )
+  const getSourcePriority = (sourceId: string) => {
+    const activeSources = sources.filter((s) => s.include)
+    return activeSources.findIndex((s) => s.id === sourceId) + 1
+  }
 
-  const renderItem = useCallback(
-    (source: MetadataSource, index: number) => (
-      <div className={`w-full px-2 flex items-center border border-border ${!source.include ? 'opacity-50' : ''}`}>
-        <span className="material-symbols drag-handle text-xl text-foreground-subdued hover:text-foreground mr-2 md:mr-4 cursor-grab">reorder</span>
-        <div className="text-center py-1 w-8 min-w-8">{source.include ? getSourcePriority(source.id) : ''}</div>
-        <div className="text-sm sm:text-base grow inline-flex justify-between items-center px-2 sm:px-4 py-3">
-          {source.name}
-          {source.include && (index === firstActiveIndex || index === lastActiveIndex) && (
-            <span className="hidden sm:inline-block px-2 italic font-semibold text-xs text-foreground-subdued">
-              {index === firstActiveIndex ? t('LabelHighestPriority') : t('LabelLowestPriority')}
-            </span>
-          )}
-        </div>
-        <ToggleSwitch value={source.include} offColor="error" onChange={(value) => handleToggle(source.id, value)} />
+  const renderItem = (source: MetadataSource, index: number) => (
+    <div className={`w-full px-2 flex items-center border border-border ${!source.include ? 'opacity-50' : ''}`}>
+      <span className="material-symbols drag-handle text-xl text-foreground-subdued hover:text-foreground mr-2 md:mr-4 cursor-grab">reorder</span>
+      <div className="text-center py-1 w-8 min-w-8">{source.include ? getSourcePriority(source.id) : ''}</div>
+      <div className="text-sm sm:text-base grow inline-flex justify-between items-center px-2 sm:px-4 py-3">
+        {source.name}
+        {source.include && (index === firstActiveIndex || index === lastActiveIndex) && (
+          <span className="hidden sm:inline-block px-2 italic font-semibold text-xs text-foreground-subdued">
+            {index === firstActiveIndex ? t('LabelHighestPriority') : t('LabelLowestPriority')}
+          </span>
+        )}
       </div>
-    ),
-    [firstActiveIndex, lastActiveIndex, getSourcePriority, handleToggle, t]
+      <ToggleSwitch value={source.include} offColor="error" onChange={(value) => handleToggle(source.id, value)} />
+    </div>
   )
 
   return (

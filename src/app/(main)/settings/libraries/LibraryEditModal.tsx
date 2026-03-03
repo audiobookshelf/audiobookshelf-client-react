@@ -6,7 +6,7 @@ import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library, LibrarySettings } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import LibraryDetailsTab from './LibraryDetailsTab'
 import LibraryScannerTab from './LibraryScannerTab'
 import LibraryScheduleTab from './LibraryScheduleTab'
@@ -124,30 +124,24 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     }
   }, [providers, formData.provider, isEditing])
 
-  // Handle media type change - also reset provider
-  const handleMediaTypeChange = useCallback(
-    (value: string | number) => {
-      const mediaType = value as 'book' | 'podcast'
-      const newProviders = mediaType === 'book' ? bookProviders : podcastProviders
-      setFormData((prev) => ({
-        ...prev,
-        mediaType,
-        provider: newProviders.length > 0 ? newProviders[0].value : ''
-      }))
-    },
-    [bookProviders, podcastProviders]
-  )
+  const handleMediaTypeChange = (value: string | number) => {
+    const mediaType = value as 'book' | 'podcast'
+    const newProviders = mediaType === 'book' ? bookProviders : podcastProviders
+    setFormData((prev) => ({
+      ...prev,
+      mediaType,
+      provider: newProviders.length > 0 ? newProviders[0].value : ''
+    }))
+  }
 
-  // Remove a folder entry
-  const handleRemoveFolder = useCallback((index: number) => {
+  const handleRemoveFolder = (index: number) => {
     setFormData((prev) => ({
       ...prev,
       folders: prev.folders.filter((_, i) => i !== index)
     }))
-  }, [])
+  }
 
-  // Commit the new folder path to the folders list
-  const commitNewFolder = useCallback(() => {
+  const commitNewFolder = () => {
     const trimmed = newFolderPath.trim()
     if (trimmed) {
       const existingFolder = formData.folders.find((f) => f.fullPath.trim() === trimmed)
@@ -159,33 +153,25 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
         setNewFolderPath('')
       }
     }
-  }, [newFolderPath, formData.folders])
+  }
 
-  // Handle Enter key in new folder input
-  const handleNewFolderKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        e.preventDefault()
-        commitNewFolder()
-      }
-    },
-    [commitNewFolder]
-  )
+  const handleNewFolderKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      commitNewFolder()
+    }
+  }
 
-  // Handle folder selection from FolderChooser
-  const handleFolderSelected = useCallback(
-    (folderPath: string) => {
-      const trimmed = folderPath.trim()
-      if (trimmed && !formData.folders.some((f) => f.fullPath.trim() === trimmed)) {
-        setFormData((prev) => ({
-          ...prev,
-          folders: [...prev.folders, { fullPath: trimmed }]
-        }))
-      }
-      setShowFolderChooser(false)
-    },
-    [formData.folders]
-  )
+  const handleFolderSelected = (folderPath: string) => {
+    const trimmed = folderPath.trim()
+    if (trimmed && !formData.folders.some((f) => f.fullPath.trim() === trimmed)) {
+      setFormData((prev) => ({
+        ...prev,
+        folders: [...prev.folders, { fullPath: trimmed }]
+      }))
+    }
+    setShowFolderChooser(false)
+  }
 
   // Check if form is valid
   const isValid = useMemo(() => {
@@ -194,11 +180,9 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     return hasName && hasFolders
   }, [formData.name, formData.folders, newFolderPath])
 
-  // Handle submit
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = () => {
     if (!isValid || processing) return
 
-    // Include any pending new folder path that hasn't been committed yet (and is not already in the list)
     const trimmedNew = newFolderPath.trim()
     if (trimmedNew && !formData.folders.some((f) => f.fullPath.trim() === trimmedNew)) {
       onSubmit({
@@ -208,7 +192,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     } else {
       onSubmit(formData)
     }
-  }, [isValid, processing, formData, newFolderPath, onSubmit])
+  }
 
   const outerContentTitle = (
     <div className="absolute top-0 start-0 p-4">
@@ -265,7 +249,12 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
           onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
         />
       )}
-      {selectedTab === 'schedule' && <LibraryScheduleTab />}
+      {selectedTab === 'schedule' && (
+        <LibraryScheduleTab
+          settings={formData.settings}
+          onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
+        />
+      )}
     </TabbedModal>
   )
 }
