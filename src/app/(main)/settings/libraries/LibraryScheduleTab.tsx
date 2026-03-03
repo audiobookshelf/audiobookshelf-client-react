@@ -50,7 +50,7 @@ export default function LibraryScheduleTab({ settings, onSettingsChange }: Libra
   return (
     <div className="w-full h-full px-1 md:px-4 py-1 mb-4">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-base md:text-xl font-semibold text-foreground">{t('HeaderScheduleLibraryScans')}</p>
+        <h2 className="text-base md:text-lg text-foreground">{t('HeaderScheduleLibraryScans')}</h2>
         <Checkbox value={enableAutoScan} onChange={handleToggleEnable} label={t('LabelEnable')} size="medium" />
       </div>
 
