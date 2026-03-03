@@ -6,7 +6,7 @@ import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library, LibrarySettings } from '@/types/api'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import LibraryDetailsTab from './LibraryDetailsTab'
 import LibraryScannerTab from './LibraryScannerTab'
 import LibraryScheduleTab from './LibraryScheduleTab'
@@ -71,6 +71,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   const [newFolderPath, setNewFolderPath] = useState('')
   const [showFolderChooser, setShowFolderChooser] = useState(false)
   const [selectedTab, setSelectedTab] = useState('details')
+  const initialFormDataRef = useRef<string>('')
 
   const isEditing = !!library
 
@@ -93,7 +94,9 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   // Reset form when modal opens or library changes
   useEffect(() => {
     if (isOpen) {
-      setFormData(getInitialFormData(library))
+      const initial = getInitialFormData(library)
+      initialFormDataRef.current = JSON.stringify(initial)
+      setFormData(initial)
       setNewFolderPath('')
       setShowFolderChooser(false)
       setSelectedTab('details')
@@ -180,8 +183,15 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     return hasName && hasFolders
   }, [formData.name, formData.folders, newFolderPath])
 
+  const hasChanges = useMemo(() => {
+    if (!isEditing) return true
+    const trimmedNew = newFolderPath.trim()
+    if (trimmedNew && !formData.folders.some((f) => f.fullPath.trim() === trimmedNew)) return true
+    return JSON.stringify(formData) !== initialFormDataRef.current
+  }, [formData, isEditing, newFolderPath])
+
   const handleSubmit = () => {
-    if (!isValid || processing) return
+    if (!isValid || !hasChanges || processing) return
 
     const trimmedNew = newFolderPath.trim()
     if (trimmedNew && !formData.folders.some((f) => f.fullPath.trim() === trimmedNew)) {
@@ -212,7 +222,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       contentClassName="relative px-4 sm:px-6 py-6 max-h-[70vh] min-h-[400px] overflow-y-auto"
       footer={
         <div className="flex items-center justify-end">
-          <Btn disabled={!isValid} loading={processing} onClick={handleSubmit}>
+          <Btn disabled={!isValid || !hasChanges} loading={processing} onClick={handleSubmit}>
             {isEditing ? t('ButtonSave') : t('ButtonCreate')}
           </Btn>
         </div>
