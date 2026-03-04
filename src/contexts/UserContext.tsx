@@ -19,13 +19,15 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
   const [currentUserData, setCurrentUserData] = useState<UserLoginResponse>(initialUser)
 
   useSocketEvent<User>('user_updated', (updatedUser) => {
-    setCurrentUserData((prev) => ({
-      ...prev,
-      user: updatedUser
-    }))
+    if (updatedUser.id === currentUserData.user.id) {
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: updatedUser
+      }))
+    }
   })
 
-  // To capture if initialUser changes from server refresh (optional, but good practice in Next.js)
+  // To capture if initialUser changes from server refresh
   useEffect(() => {
     setCurrentUserData(initialUser)
   }, [initialUser])
