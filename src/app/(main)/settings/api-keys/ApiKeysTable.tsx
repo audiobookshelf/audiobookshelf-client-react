@@ -4,25 +4,25 @@ import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
-import { ApiKey, UserLoginResponse } from '@/types/api'
+import { ApiKey } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useRef, useState } from 'react'
 import { deleteApiKey } from './actions'
 
 interface ApiKeysTableProps {
   apiKeys: ApiKey[]
-  currentUser: UserLoginResponse
   onEditClick: (apiKey: ApiKey) => void
 }
 
-export default function ApiKeysTable({ apiKeys, currentUser, onEditClick }: ApiKeysTableProps) {
+export default function ApiKeysTable({ apiKeys, onEditClick }: ApiKeysTableProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [deletingApiKeyId, setDeletingApiKeyId] = useState<string | null>(null)
   const deletingApiKeyRef = useRef<ApiKey | null>(null)
-  const serverSettings = currentUser.serverSettings
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
 

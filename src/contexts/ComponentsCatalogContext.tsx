@@ -1,7 +1,8 @@
 'use client'
 
-import { Library, User, UserLoginResponse } from '@/types/api'
-import React, { createContext, ReactNode, useContext } from 'react'
+import { useUser } from '@/contexts/UserContext'
+import { Library, User } from '@/types/api'
+import { createContext, ReactNode, useContext } from 'react'
 
 interface ComponentsCatalogContextType {
   user: User
@@ -13,13 +14,14 @@ const ComponentsCatalogContext = createContext<ComponentsCatalogContextType | un
 
 interface ComponentsCatalogProviderProps {
   children: ReactNode
-  currentUser: UserLoginResponse
   libraries: Library[]
 }
 
-export const ComponentsCatalogProvider: React.FC<ComponentsCatalogProviderProps> = ({ children, currentUser, libraries }) => {
+export function ComponentsCatalogProvider({ children, libraries }: ComponentsCatalogProviderProps) {
+  const { user } = useUser()
+
   const value: ComponentsCatalogContextType = {
-    user: currentUser.user,
+    user,
     libraries,
     bookCoverAspectRatio: 1
   }

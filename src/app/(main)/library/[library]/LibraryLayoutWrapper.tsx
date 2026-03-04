@@ -3,8 +3,8 @@
 import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useUser } from '@/contexts/UserContext'
 import { mergeClasses } from '@/lib/merge-classes'
-import { UserLoginResponse } from '@/types/api'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import SideRail from '../../SideRail'
@@ -12,14 +12,14 @@ import Toolbar from './Toolbar'
 
 interface LibraryLayoutWrapperProps {
   children: React.ReactNode
-  currentUser: UserLoginResponse
 }
 
-export default function LibraryLayoutWrapper({ children, currentUser }: LibraryLayoutWrapperProps) {
+export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperProps) {
   const { libraryItemIdStreaming, setLastCurrentLibraryId } = useMediaContext()
+  const { Source, serverSettings } = useUser()
   const { library } = useLibrary()
-  const serverVersion = currentUser?.serverSettings?.version || 'Error'
-  const installSource = currentUser?.Source || 'Unknown'
+  const serverVersion = serverSettings?.version || 'Error'
+  const installSource = Source || 'Unknown'
   const isLibraryItemPage = usePathname().includes('/item/')
 
   useEffect(() => {

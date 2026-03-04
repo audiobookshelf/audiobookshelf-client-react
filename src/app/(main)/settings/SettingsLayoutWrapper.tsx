@@ -1,20 +1,20 @@
 'use client'
 
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useUser } from '@/contexts/UserContext'
 import { mergeClasses } from '@/lib/merge-classes'
-import { UserLoginResponse } from '@/types/api'
 import SideNav from './SideNav'
 import SideNavMobileDrawer from './SideNavMobileDrawer'
 
 interface SettingsLayoutWrapperProps {
   children: React.ReactNode
-  currentUser: UserLoginResponse
 }
 
-export default function SettingsLayoutWrapper({ children, currentUser }: SettingsLayoutWrapperProps) {
+export default function SettingsLayoutWrapper({ children }: SettingsLayoutWrapperProps) {
   const { libraryItemIdStreaming } = useMediaContext()
-  const installSource = currentUser?.Source || 'Unknown'
-  const serverVersion = currentUser?.serverSettings?.version || 'Error'
+  const { Source, serverSettings } = useUser()
+  const installSource = Source || 'Unknown'
+  const serverVersion = serverSettings?.version || 'Error'
 
   return (
     <div className={mergeClasses('flex page-wrapper overflow-x-hidden', libraryItemIdStreaming ? 'streaming' : '')}>

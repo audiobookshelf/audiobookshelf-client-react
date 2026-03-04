@@ -1,20 +1,20 @@
 'use client'
 
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { ServerSettings, User, UserLoginResponse } from '@/types/api'
+import { User } from '@/types/api'
 import { useState } from 'react'
 import SettingsContent from '../SettingsContent'
 import UserAccountModal, { UserFormData } from './UserAccountModal'
 import UsersTable from './UsersTable'
 
 interface UsersClientProps {
-  currentUser: UserLoginResponse
   users: User[]
-  serverSettings: ServerSettings
 }
 
-export default function UsersClient({ currentUser, users, serverSettings }: UsersClientProps) {
+export default function UsersClient({ users }: UsersClientProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
 
@@ -54,13 +54,7 @@ export default function UsersClient({ currentUser, users, serverSettings }: User
           onClick: handleAddUser
         }}
       >
-        <UsersTable
-          currentUser={currentUser}
-          users={users}
-          dateFormat={serverSettings.dateFormat}
-          timeFormat={serverSettings.timeFormat}
-          onEditUser={handleEditUser}
-        />
+        <UsersTable users={users} dateFormat={serverSettings.dateFormat} timeFormat={serverSettings.timeFormat} onEditUser={handleEditUser} />
       </SettingsContent>
 
       <UserAccountModal isOpen={isModalOpen} user={editingUser} onClose={handleCloseModal} onSubmit={handleSubmit} onUnlinkOpenId={handleUnlinkOpenId} />

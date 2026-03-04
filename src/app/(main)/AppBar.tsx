@@ -3,8 +3,9 @@
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { Library, UserLoginResponse } from '@/types/api'
+import { Library } from '@/types/api'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
@@ -15,12 +16,11 @@ import LibrariesDropdown from './LibrariesDropdown'
 interface AppBarProps {
   libraries?: Library[]
   currentLibraryId?: string
-  currentUser: UserLoginResponse
 }
 
-export default function AppBar({ libraries, currentLibraryId, currentUser }: AppBarProps) {
+export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const t = useTypeSafeTranslations()
-  const user = currentUser.user
+  const { user, userDefaultLibraryId } = useUser()
   const userCanUpload = user.permissions.upload
   const [isSearchMode, setIsSearchMode] = useState(false)
   // When not on a library page, use the last current library id when navigating home
@@ -37,7 +37,7 @@ export default function AppBar({ libraries, currentLibraryId, currentUser }: App
   const isAdmin = ['admin', 'root'].includes(user.type)
 
   const currentLibrary = libraries?.find((lib) => lib.id === currentLibraryId)
-  const redirectLibraryId = currentLibraryId || lastCurrentLibraryId || currentUser.userDefaultLibraryId
+  const redirectLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
   // New installs have no libraries, so redirect to settings
   const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/settings'
 

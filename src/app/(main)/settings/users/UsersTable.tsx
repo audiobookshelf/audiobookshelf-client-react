@@ -6,30 +6,31 @@ import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import OnlineIndicator from '@/components/widgets/OnlineIndicator'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
-import { DeviceInfo, User, UserLoginResponse } from '@/types/api'
+import { DeviceInfo, User } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { useCallback, useRef, useState } from 'react'
 import { deleteUser } from './actions'
 
 interface UsersTableProps {
-  currentUser: UserLoginResponse
   users: User[]
   dateFormat: string
   timeFormat: string
   onEditUser: (user: User) => void
 }
 
-export default function UsersTable({ currentUser, users, dateFormat, timeFormat, onEditUser }: UsersTableProps) {
+export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }: UsersTableProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const { showToast } = useGlobalToast()
+  const { user } = useUser()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const deletingUserRef = useRef<User | null>(null)
-  const currentUserId = currentUser.user.id
+  const currentUserId = user.id
 
   const handleDeleteClick = useCallback((user: User) => {
     deletingUserRef.current = user
