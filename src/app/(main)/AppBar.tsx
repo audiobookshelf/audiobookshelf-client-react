@@ -78,17 +78,21 @@ export default function AppBar({ libraries, currentLibraryId, currentUser }: App
         )}
 
         {/* Search Input mobile and desktop */}
-        <div className="flex-1 min-w-0 max-w-70">
-          {isSearchMode ? (
-            <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
-          ) : (
-            <div className="hidden md:block">
-              <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
-            </div>
-          )}
-        </div>
+        {currentLibrary && (
+          <div className="flex-1 min-w-0 max-w-70">
+            {isSearchMode ? (
+              <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
+            ) : (
+              <div className="hidden md:block">
+                <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
+              </div>
+            )}
+          </div>
+        )}
 
-        {!isSearchMode && (
+        {!currentLibrary && <div className="flex-grow" />}
+
+        {!isSearchMode && currentLibrary && (
           <>
             <div className="flex-grow" />
 
