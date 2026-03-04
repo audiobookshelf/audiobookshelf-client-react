@@ -79,10 +79,10 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     return [
       { id: 'details', label: t('HeaderDetails') },
       { id: 'settings', label: t('HeaderSettings') },
-      ...(library?.mediaType === 'book' ? [{ id: 'scanner', label: t('HeaderSettingsScanner') }] : []),
+      ...(formData.mediaType === 'book' ? [{ id: 'scanner', label: t('HeaderSettingsScanner') }] : []),
       { id: 'schedule', label: t('HeaderSchedule') }
     ]
-  }, [library?.mediaType, t])
+  }, [formData.mediaType, t])
 
   // Load metadata providers when modal opens
   useEffect(() => {
