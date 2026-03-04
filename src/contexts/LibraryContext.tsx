@@ -2,6 +2,7 @@
 
 import { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import { useSocketEvent } from '@/contexts/SocketContext'
+import { useUser } from '@/contexts/UserContext'
 import { useFilterData } from '@/hooks/useFilterData'
 import { BookshelfView, Library, LibraryFilterData, LibraryItem } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -88,17 +89,7 @@ interface LibraryContextType extends LibrarySettings {
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
-export function LibraryProvider({
-  children,
-  homeBookshelfView,
-  bookshelfView,
-  library
-}: {
-  children: React.ReactNode
-  homeBookshelfView: BookshelfView
-  bookshelfView: BookshelfView
-  library: Library
-}) {
+export function LibraryProvider({ children, library }: { children: React.ReactNode; library: Library }) {
   const [itemCount, setItemCount] = useState<number | null>(null)
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
@@ -106,6 +97,10 @@ export function LibraryProvider({
   const [toolbarExtras, setToolbarExtras] = useState<React.ReactNode>(null)
   const [boundModal, setBoundModal] = useState<React.ReactNode | null>(null)
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false)
+
+  const { serverSettings } = useUser()
+  const homeBookshelfView = serverSettings?.homeBookshelfView || 0
+  const bookshelfView = serverSettings?.bookshelfView || 0
 
   // Filter data hook
   const { filterData, isLoading: filterDataLoading, updateFilterDataWithItem, removeSeriesFromFilterData } = useFilterData(library.id)

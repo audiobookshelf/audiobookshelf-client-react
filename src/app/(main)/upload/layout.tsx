@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
-import { getCurrentUser, getData } from '../../../lib/api'
 import AppBar from '../AppBar'
 import UploadLayoutWrapper from './UploadLayoutWrapper'
 
@@ -15,16 +13,9 @@ export default async function UploadLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const [currentUser] = await getData(getCurrentUser())
-
-  if (!currentUser?.user) {
-    console.error('Error getting user data')
-    redirect(`/login`)
-  }
-
   return (
     <>
-      <AppBar currentUser={currentUser} />
+      <AppBar />
       <UploadLayoutWrapper>{children}</UploadLayoutWrapper>
     </>
   )

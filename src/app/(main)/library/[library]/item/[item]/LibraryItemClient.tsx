@@ -10,19 +10,20 @@ import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata, UserLoginResponse } from '@/types/api'
+import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useState } from 'react'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
 
 interface LibraryItemClientProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
-  currentUser: UserLoginResponse
 }
 
-export default function LibraryItemClient({ libraryItem: initialLibraryItem, currentUser }: LibraryItemClientProps) {
+export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
+  const { user } = useUser()
   const { playItem } = useMediaContext()
   const t = useTypeSafeTranslations()
 
@@ -37,8 +38,8 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
   const bookSeries = 'series' in metadata ? metadata.series || [] : []
   const description = 'description' in metadata ? metadata.description : undefined
 
-  const userProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
-  const userCanUpdate = currentUser.user.permissions?.update || currentUser.user.type === 'admin' || currentUser.user.type === 'root'
+  const userProgress = user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+  const userCanUpdate = user.permissions?.update || user.type === 'admin' || user.type === 'root'
 
   // TODO: Implement play logic
   const handlePlay = () => {
@@ -131,16 +132,16 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem, cur
             <div className="mt-20 flex flex-col gap-4">
               {/* chapters table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.chapters?.length ?? 0) > 0 && (
-                <ChaptersTable libraryItem={libraryItem as BookLibraryItem} user={currentUser.user} />
+                <ChaptersTable libraryItem={libraryItem as BookLibraryItem} user={user} />
               )}
 
               {/* audio tracks table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
-                <AudioTracksTable libraryItem={libraryItem as BookLibraryItem} user={currentUser.user} />
+                <AudioTracksTable libraryItem={libraryItem as BookLibraryItem} user={user} />
               )}
 
               {/* library files table */}
-              {(libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} user={currentUser.user} />}
+              {(libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} user={user} />}
             </div>
           </div>
         </div>

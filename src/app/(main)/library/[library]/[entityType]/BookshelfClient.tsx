@@ -2,12 +2,13 @@
 
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useUser } from '@/contexts/UserContext'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { BookshelfEntity, BookshelfView, EntityType, MediaProgress, UserLoginResponse } from '@/types/api'
+import { BookshelfEntity, BookshelfView, EntityType, MediaProgress } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import LibraryEmptyState from '../LibraryEmptyState'
 import { ENTITY_CONFIGS } from './entity-config'
@@ -17,12 +18,12 @@ interface BookshelfClientProps {
   // Different APIs return different structures:
   // - items/series/collections/playlists: { results: T[], total?: number }
   // - authors: { authors: Author[], total?: number }
-  currentUser: UserLoginResponse
 }
 
-export default function BookshelfClient({ entityType, currentUser }: BookshelfClientProps) {
+export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
   const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, filterBy, boundModal, bookshelfView } = useLibrary()
+  const { user } = useUser()
 
   const { query } = useBookshelfQuery(entityType)
 
@@ -186,7 +187,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
     }
   }, [hasMeasuredCard, visibleShelfStart, visibleShelfEnd, columns, totalEntities, itemsPerPage, loadPage])
 
-  const userMediaProgress = currentUser.user.mediaProgress
+  const userMediaProgress = user.mediaProgress
 
   const bookProgressMap = useMemo(() => {
     const map = new Map<string, MediaProgress>()
@@ -205,10 +206,10 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
   useEffect(() => {
     if (!config) return
     // Set up toolbar extras based on entity config
-    setToolbarExtras(config.getToolbarExtras(currentUser.user, library))
+    setToolbarExtras(config.getToolbarExtras(user, library))
 
     // Build context menu items based on entity config
-    const rawMenuItems = config.getContextMenuItems(currentUser.user, library, { showSubtitles, collapseSeries })
+    const rawMenuItems = config.getContextMenuItems(user, library, { showSubtitles, collapseSeries })
     const menuItems = rawMenuItems.map((item) => ({
       text: t(item.textKey),
       action: item.action
@@ -225,19 +226,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
       setToolbarExtras(null)
       setContextMenuItems([])
     }
-  }, [
-    entityType,
-    config,
-    setToolbarExtras,
-    setContextMenuItems,
-    setContextMenuActionHandler,
-    updateSetting,
-    library,
-    showSubtitles,
-    collapseSeries,
-    currentUser.user,
-    t
-  ])
+  }, [entityType, config, setToolbarExtras, setContextMenuItems, setContextMenuActionHandler, updateSetting, library, showSubtitles, collapseSeries, user, t])
 
   // Get empty state message based on entity config
   const getEmptyMessage = () => {
@@ -344,7 +333,6 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
                       isPodcastLibrary={isPodcastLibrary}
                       coverAspectRatio={coverAspectRatio}
                       showSubtitles={showSubtitles}
-                      currentUser={currentUser}
                       orderBy={orderBy}
                       seriesSortBy={seriesSortBy}
                       bookProgressMap={bookProgressMap}
@@ -360,7 +348,7 @@ export default function BookshelfClient({ entityType, currentUser }: BookshelfCl
           {isInitialized && !isLoading && fetchedTotal === 0 && (
             <>
               {entityType === 'items' && filterBy === 'all' ? (
-                <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(currentUser.user.type)} />
+                <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
               ) : (
                 <div className="flex h-full items-center justify-center p-10">
                   <p className="text-xl">{getEmptyMessage()}</p>

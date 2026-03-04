@@ -7,10 +7,11 @@ import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime } from '@/lib/datefns'
 import { bytesPretty } from '@/lib/string'
-import { Backup, GetBackupsResponse, ServerSettings, UserLoginResponse } from '@/types/api'
+import { Backup, GetBackupsResponse, ServerSettings } from '@/types/api'
 import { useMemo, useState, useTransition } from 'react'
 import { UpdateServerSettingsApiResponse } from '../actions'
 import SettingsContent from '../SettingsContent'
@@ -20,19 +21,18 @@ import BackupScheduleModal from './BackupScheduleModal'
 
 interface BackupsClientProps {
   backupResponse: GetBackupsResponse
-  currentUser: UserLoginResponse
   updateServerSettings: (settingsUpdatePayload: Partial<ServerSettings>) => Promise<UpdateServerSettingsApiResponse>
 }
 
-export default function BackupsClient({ backupResponse, currentUser, updateServerSettings }: BackupsClientProps) {
+export default function BackupsClient({ backupResponse, updateServerSettings }: BackupsClientProps) {
   const t = useTypeSafeTranslations()
   const [isPending, startTransition] = useTransition()
   const [previousCronExpress, setPreviousCronExpress] = useState<string | false>()
   const [isBackupScheduleModalOpen, setIsBackupScheduleModalOpen] = useState(false)
   const { showToast } = useGlobalToast()
+  const { serverSettings } = useUser()
 
   const backups = backupResponse.backups
-  const serverSettings = currentUser.serverSettings
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
 
@@ -171,12 +171,8 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
         </div>
 
         <div className="mb-4 mt-8 flex justify-between">
-          <Btn onClick={() => {}}>
-            {t('ButtonUploadBackup')}
-          </Btn>
-          <Btn onClick={() => {}}>
-            {t('ButtonCreateBackup')}
-          </Btn>
+          <Btn onClick={() => {}}>{t('ButtonUploadBackup')}</Btn>
+          <Btn onClick={() => {}}>{t('ButtonCreateBackup')}</Btn>
         </div>
 
         {/* backups table */}
@@ -185,7 +181,6 @@ export default function BackupsClient({ backupResponse, currentUser, updateServe
         ) : (
           <p className="text-center text-lg text-foreground py-4">{t('MessageNoBackups')}</p>
         )}
-
       </div>
       <BackupScheduleModal
         isOpen={isBackupScheduleModalOpen}

@@ -5,30 +5,30 @@ import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
-import { RssFeed, UserLoginResponse } from '@/types/api'
+import { RssFeed } from '@/types/api'
 import { useCallback, useRef, useState } from 'react'
 import { closeRssFeed } from './actions'
 import RssFeedModal from './RssFeedModal'
 
 interface RssFeedsTableProps {
   rssFeeds: RssFeed[]
-  currentUser: UserLoginResponse
 }
 
-export default function RssFeedsTable({ rssFeeds: initialFeeds, currentUser }: RssFeedsTableProps) {
+export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [rssFeeds, setRssFeeds] = useState(initialFeeds)
   const [selectedFeed, setSelectedFeed] = useState<RssFeed | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const { serverSettings } = useUser()
   const [closingFeedId, setClosingFeedId] = useState<string | null>(null)
   const closingFeedRef = useRef<RssFeed | null>(null)
-  const serverSettings = currentUser.serverSettings
-  const dateFormat = serverSettings.dateFormat
-  const timeFormat = serverSettings.timeFormat
+  const dateFormat = serverSettings?.dateFormat
+  const timeFormat = serverSettings?.timeFormat
 
   const handleCloseClick = useCallback((rssFeed: RssFeed) => {
     closingFeedRef.current = rssFeed

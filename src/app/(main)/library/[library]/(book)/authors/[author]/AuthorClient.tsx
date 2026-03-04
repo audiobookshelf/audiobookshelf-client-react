@@ -10,9 +10,10 @@ import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterEncode } from '@/lib/filterUtils'
-import { Author, BookshelfView, UserLoginResponse } from '@/types/api'
+import { Author, BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -20,12 +21,12 @@ import AuthorEditModal from '@/components/modals/AuthorEditModal'
 
 interface AuthorClientProps {
   author: Author
-  currentUser: UserLoginResponse
 }
 
-export default function AuthorClient({ author: authorProp, currentUser }: AuthorClientProps) {
+export default function AuthorClient({ author: authorProp }: AuthorClientProps) {
   const t = useTypeSafeTranslations()
   const { library, showSubtitles } = useLibrary()
+  const { user, serverSettings, ereaderDevices } = useUser()
   const { sizeMultiplier } = useCardSize()
   const router = useRouter()
 
@@ -102,16 +103,16 @@ export default function AuthorClient({ author: authorProp, currentUser }: Author
             className="!ps-0"
           >
             {libraryItems.map((libraryItem) => {
-              const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+              const mediaProgress = user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
               return (
                 <div key={libraryItem.id} className="shrink-0 mx-2e">
                   <BookMediaCard
                     libraryItem={libraryItem}
                     bookshelfView={BookshelfView.DETAIL}
-                    dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-                    timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-                    userPermissions={currentUser.user.permissions}
-                    ereaderDevices={currentUser.ereaderDevices}
+                    dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                    timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
+                    userPermissions={user.permissions}
+                    ereaderDevices={ereaderDevices}
                     showSubtitles={showSubtitles}
                     bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
                     mediaProgress={mediaProgress}
@@ -136,16 +137,16 @@ export default function AuthorClient({ author: authorProp, currentUser }: Author
           <div key={bookSeries.id} className="shrink-0 -ms-2e">
             <ItemSlider title={seriesTitle} className="!ps-0">
               {bookSeries.items?.map((libraryItem) => {
-                const mediaProgress = currentUser.user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+                const mediaProgress = user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
                 return (
                   <div key={libraryItem.id} className="shrink-0 mx-2e">
                     <BookMediaCard
                       libraryItem={libraryItem}
                       bookshelfView={BookshelfView.DETAIL}
-                      dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-                      timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-                      userPermissions={currentUser.user.permissions}
-                      ereaderDevices={currentUser.ereaderDevices}
+                      dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                      timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
+                      userPermissions={user.permissions}
+                      ereaderDevices={ereaderDevices}
                       showSubtitles={showSubtitles}
                       bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
                       mediaProgress={mediaProgress}
@@ -158,7 +159,7 @@ export default function AuthorClient({ author: authorProp, currentUser }: Author
         )
       })}
 
-      {isEditModalOpen && <AuthorEditModal isOpen={isEditModalOpen} user={currentUser.user} author={author} onClose={() => setIsEditModalOpen(false)} />}
+      {isEditModalOpen && <AuthorEditModal isOpen={isEditModalOpen} user={user} author={author} onClose={() => setIsEditModalOpen(false)} />}
     </div>
   )
 }

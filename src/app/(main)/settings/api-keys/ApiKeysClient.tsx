@@ -1,7 +1,7 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { ApiKey, User, UserLoginResponse } from '@/types/api'
+import { ApiKey, User } from '@/types/api'
 import { useCallback, useState } from 'react'
 import SettingsContent from '../SettingsContent'
 import { createApiKey, updateApiKey } from './actions'
@@ -11,11 +11,10 @@ import NewApiKeyModal from './NewApiKeyModal'
 
 interface ApiKeysClientProps {
   apiKeys: ApiKey[]
-  currentUser: UserLoginResponse
   users: User[]
 }
 
-export default function ApiKeysClient({ apiKeys, currentUser, users }: ApiKeysClientProps) {
+export default function ApiKeysClient({ apiKeys, users }: ApiKeysClientProps) {
   const t = useTypeSafeTranslations()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingApiKey, setEditingApiKey] = useState<ApiKey | null>(null)
@@ -72,7 +71,7 @@ export default function ApiKeysClient({ apiKeys, currentUser, users }: ApiKeysCl
         onClick: handleAddClick
       }}
     >
-      <ApiKeysTable apiKeys={apiKeys} currentUser={currentUser} onEditClick={handleEditClick} />
+      <ApiKeysTable apiKeys={apiKeys} onEditClick={handleEditClick} />
 
       <EditApiKeyModal isOpen={isModalOpen} apiKey={editingApiKey} users={users} onClose={handleCloseModal} onSubmit={handleSubmit} />
 

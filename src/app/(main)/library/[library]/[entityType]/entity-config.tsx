@@ -13,20 +13,8 @@ import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
 import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import { UpdateSettingFn } from '@/contexts/LibraryContext'
-import {
-  Author,
-  BookshelfEntity,
-  BookshelfView,
-  Collection,
-  EntityType,
-  Library,
-  LibraryItem,
-  MediaProgress,
-  Playlist,
-  Series,
-  User,
-  UserLoginResponse
-} from '@/types/api'
+import { useUser } from '@/contexts/UserContext'
+import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, Library, LibraryItem, MediaProgress, Playlist, Series, User } from '@/types/api'
 import { TranslationKey } from '@/types/translations'
 import React, { ReactNode } from 'react'
 
@@ -46,7 +34,6 @@ export interface CardComponentProps {
   isPodcastLibrary?: boolean
   coverAspectRatio: 0 | 1
   showSubtitles?: boolean
-  currentUser: UserLoginResponse
   orderBy?: string
   seriesSortBy?: string
   bookProgressMap: Map<string, MediaProgress>
@@ -114,7 +101,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     SkeletonComponent: ({ bookshelfView, coverAspectRatio, showSubtitles, orderBy }) => (
       <MediaCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} showSubtitles={showSubtitles} orderBy={orderBy} />
     ),
-    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, coverAspectRatio, showSubtitles, currentUser, orderBy, bookProgressMap }) => {
+    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, coverAspectRatio, showSubtitles, orderBy, bookProgressMap }) => {
+      const { user, serverSettings, ereaderDevices } = useUser()
       const item = entity as LibraryItem
       const isCollapsedSeries = !!item.collapsedSeries
       const entityProgress = isPodcastLibrary ? null : bookProgressMap.get(item.id)
@@ -131,8 +119,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
               isSelectionMode={false}
               selected={false}
               onSelect={() => {}}
-              dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-              timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
+              dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+              timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
               showSubtitles={showSubtitles ?? false}
               orderBy={orderBy ?? ''}
             />
@@ -150,10 +138,10 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             isSelectionMode={false}
             selected={false}
             onSelect={() => {}}
-            dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-            timeFormat={currentUser.serverSettings?.timeFormat ?? 'HH:mm'}
-            userPermissions={currentUser.user.permissions}
-            ereaderDevices={currentUser.ereaderDevices}
+            dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+            timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
+            userPermissions={user.permissions}
+            ereaderDevices={ereaderDevices}
             showSubtitles={showSubtitles ?? false}
             orderBy={orderBy ?? ''}
           />
@@ -174,7 +162,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     SkeletonComponent: ({ bookshelfView, coverAspectRatio, seriesSortBy }) => (
       <SeriesCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} orderBy={seriesSortBy} />
     ),
-    CardComponent: ({ entity, bookshelfView, width, libraryId, coverAspectRatio, currentUser, seriesSortBy, bookProgressMap }) => {
+    CardComponent: ({ entity, bookshelfView, width, libraryId, coverAspectRatio, seriesSortBy, bookProgressMap }) => {
+      const { serverSettings } = useUser()
       const series = entity as Series
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
@@ -183,7 +172,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             libraryId={libraryId ?? ''}
             bookshelfView={bookshelfView}
             bookCoverAspectRatio={coverAspectRatio}
-            dateFormat={currentUser.serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+            dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
             orderBy={seriesSortBy}
             bookProgressMap={bookProgressMap}
           />
@@ -212,11 +201,12 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     },
     getEmptyMessageKey: () => 'MessageNoAuthorsFound',
     SkeletonComponent: () => <AuthorCardSkeleton />,
-    CardComponent: ({ entity, width, currentUser }) => {
+    CardComponent: ({ entity, width }) => {
+      const { user } = useUser()
       const author = entity as Author
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
-          <AuthorCard author={author} user={currentUser.user} />
+          <AuthorCard author={author} user={user} />
         </div>
       )
     }
@@ -229,7 +219,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     SkeletonComponent: ({ bookshelfView, coverAspectRatio }) => (
       <CollectionCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />
     ),
-    CardComponent: ({ entity, bookshelfView, width, coverAspectRatio, currentUser }) => {
+    CardComponent: ({ entity, bookshelfView, width, coverAspectRatio }) => {
+      const { user } = useUser()
       const collection = entity as Collection
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
@@ -237,9 +228,9 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             collection={collection}
             bookshelfView={bookshelfView}
             bookCoverAspectRatio={coverAspectRatio}
-            userCanUpdate={currentUser.user.permissions?.update}
-            userCanDelete={currentUser.user.permissions?.delete}
-            userIsAdmin={currentUser.user.type === 'admin' || currentUser.user.type === 'root'}
+            userCanUpdate={user.permissions?.update}
+            userCanDelete={user.permissions?.delete}
+            userIsAdmin={user.type === 'admin' || user.type === 'root'}
           />
         </div>
       )
@@ -251,7 +242,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     handleContextMenuAction: () => {},
     getEmptyMessageKey: () => 'MessageNoUserPlaylists',
     SkeletonComponent: ({ bookshelfView, coverAspectRatio }) => <PlaylistCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />,
-    CardComponent: ({ entity, bookshelfView, width, coverAspectRatio, currentUser }) => {
+    CardComponent: ({ entity, bookshelfView, width, coverAspectRatio }) => {
+      const { user } = useUser()
       const playlist = entity as Playlist
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
@@ -259,8 +251,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             playlist={playlist}
             bookshelfView={bookshelfView}
             bookCoverAspectRatio={coverAspectRatio}
-            userCanUpdate={currentUser.user.permissions?.update}
-            userCanDelete={currentUser.user.permissions?.delete}
+            userCanUpdate={user.permissions?.update}
+            userCanDelete={user.permissions?.delete}
           />
         </div>
       )

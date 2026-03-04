@@ -1,20 +1,20 @@
-import { getCurrentUser, getData, getLibraryItem } from '@/lib/api'
+import { getData, getLibraryItem } from '@/lib/api'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import LibraryItemClient from './LibraryItemClient'
 
 export default async function ItemPage({ params }: { params: Promise<{ item: string; library: string }> }) {
   const { item: itemId } = await params
-  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId, true), getCurrentUser())
+  const [libraryItem] = await getData(getLibraryItem(itemId, true))
 
   // TODO: Handle loading data error?
-  if (!libraryItem || !currentUser) {
-    console.error('Error getting library item or user data')
+  if (!libraryItem) {
+    console.error('Error getting library item')
     return null
   }
 
   return (
     <div className="p-8 w-full">
-      <LibraryItemClient libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem} currentUser={currentUser} />
+      <LibraryItemClient libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem} />
     </div>
   )
 }
