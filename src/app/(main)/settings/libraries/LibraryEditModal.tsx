@@ -219,7 +219,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       selectedTab={selectedTab}
       onTabChange={setSelectedTab}
       className="w-[800px]"
-      contentClassName="relative px-4 sm:px-6 py-6 max-h-[70vh] min-h-[400px] overflow-y-auto"
+      contentClassName="relative px-4 sm:px-6 py-6 max-h-[70vh] min-h-[440px] overflow-y-auto"
       footer={
         <div className="flex items-center justify-end">
           <Btn disabled={!isValid || !hasChanges} loading={processing} onClick={handleSubmit}>

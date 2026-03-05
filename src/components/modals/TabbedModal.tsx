@@ -57,7 +57,7 @@ export default function TabbedModal({
       style={style}
     >
       {/* Tabs bar */}
-      <div className="flex gap-1" role="tablist">
+      <div className="flex gap-1 pr-2" role="tablist">
         {tabs.map((tab) => {
           const isActive = tab.id === selectedTab
           return (

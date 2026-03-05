@@ -131,7 +131,7 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
       {/* TODO: Podcast search region */}
 
       {/* Mark media item as finished when */}
-      <div className="flex items-end gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-end gap-2">
         <Dropdown
           label={t('LabelSettingsLibraryMarkAsFinishedWhen')}
           items={markAsFinishedItems}
