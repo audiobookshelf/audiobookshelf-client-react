@@ -234,7 +234,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle}>
-      <div className="px-4 sm:px-8 py-8 max-h-[90vh] overflow-y-auto">
+      <div className="px-4 sm:px-6 py-6 max-h-[90vh] overflow-y-auto">
         {/* Basic Info Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* Username */}
@@ -342,7 +342,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
                 {/* Tags Accessible to User (shown when accessAllTags is false) */}
                 {!formData.permissions.accessAllTags && (
                   <div className="mt-3 mb-4 ml-4">
-                    <div className="flex items-end gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:gap-4">
                       <div className="flex-1">
                         <MultiSelect
                           label={formData.permissions.selectedTagsNotAccessible ? t('LabelTagsNotAccessibleToUser') : t('LabelTagsAccessibleToUser')}
@@ -386,9 +386,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
             </Btn>
           )}
 
-          <Btn color="bg-success" onClick={handleSubmit}>
-            {t('ButtonSubmit')}
-          </Btn>
+          <Btn onClick={handleSubmit}>{isEditing ? t('ButtonSave') : t('ButtonCreate')}</Btn>
         </div>
       </div>
 
