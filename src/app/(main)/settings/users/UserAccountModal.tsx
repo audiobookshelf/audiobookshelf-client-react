@@ -234,159 +234,163 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle}>
-      <div className="px-4 sm:px-6 py-6 max-h-[90vh] overflow-y-auto">
-        {/* Basic Info Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {/* Username */}
-          <TextInput
-            label={t('LabelUsername')}
-            value={formData.username}
-            placeholder={t('LabelUsername')}
-            onChange={(value) => setFormData((prev) => ({ ...prev, username: value }))}
-          />
-
-          {/* Change Password */}
-          {!isRootUser && (
+      <div className="flex flex-col max-h-[90vh]">
+        <div className="px-4 sm:px-6 py-6 overflow-y-auto">
+          {/* Basic Info Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {/* Username */}
             <TextInput
-              label={isEditing ? t('LabelChangePassword') : t('LabelPassword')}
-              type="password"
-              value={formData.password}
-              placeholder={isEditing ? t('LabelChangePassword') : t('LabelPassword')}
-              onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
+              label={t('LabelUsername')}
+              value={formData.username}
+              placeholder={t('LabelUsername')}
+              onChange={(value) => setFormData((prev) => ({ ...prev, username: value }))}
             />
-          )}
 
-          {/* Email */}
-          <TextInput
-            label={t('LabelEmail')}
-            type="email"
-            value={formData.email}
-            placeholder={t('LabelEmail')}
-            onChange={(value) => setFormData((prev) => ({ ...prev, email: value }))}
-          />
-
-          {/* Account Type & Enable */}
-          {!isRootUser && (
-            <div className="flex items-end gap-4">
-              <Dropdown
-                label={t('LabelAccountType')}
-                value={formData.type}
-                items={accountTypeItems}
-                highlightSelected
-                onChange={(value) => handleAccountTypeChange(value as AccountType)}
-                className="flex-1"
+            {/* Change Password */}
+            {!isRootUser && (
+              <TextInput
+                label={isEditing ? t('LabelChangePassword') : t('LabelPassword')}
+                type="password"
+                value={formData.password}
+                placeholder={isEditing ? t('LabelChangePassword') : t('LabelPassword')}
+                onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
               />
+            )}
 
-              <ToggleSwitch value={formData.isActive} label={t('LabelEnable')} onChange={(value) => setFormData((prev) => ({ ...prev, isActive: value }))} />
-            </div>
+            {/* Email */}
+            <TextInput
+              label={t('LabelEmail')}
+              type="email"
+              value={formData.email}
+              placeholder={t('LabelEmail')}
+              onChange={(value) => setFormData((prev) => ({ ...prev, email: value }))}
+            />
+
+            {/* Account Type & Enable */}
+            {!isRootUser && (
+              <div className="flex items-end gap-4">
+                <Dropdown
+                  label={t('LabelAccountType')}
+                  value={formData.type}
+                  items={accountTypeItems}
+                  highlightSelected
+                  onChange={(value) => handleAccountTypeChange(value as AccountType)}
+                  className="flex-1"
+                />
+
+                <ToggleSwitch value={formData.isActive} label={t('LabelEnable')} onChange={(value) => setFormData((prev) => ({ ...prev, isActive: value }))} />
+              </div>
+            )}
+          </div>
+
+          {/* Permissions Section */}
+          {!isRootUser && (
+            <>
+              <div className="border-t border-border mt-6 pt-6">
+                <h3 className="text-lg font-semibold mb-4">{t('HeaderPermissions')}</h3>
+                <div>
+                  {basicPermissionsList.map(({ key, label }) => (
+                    <ToggleSwitch
+                      key={key}
+                      value={formData.permissions[key]}
+                      label={label}
+                      className="h-fit"
+                      onChange={(value) => updatePermission(key, value)}
+                    />
+                  ))}
+
+                  {/* Can Access All Libraries */}
+                  <ToggleSwitch
+                    value={formData.permissions.accessAllLibraries}
+                    label={t('LabelPermissionsAccessAllLibraries')}
+                    className="h-fit"
+                    onChange={(value) => updatePermission('accessAllLibraries', value)}
+                  />
+
+                  {/* Libraries Accessible to User (shown when accessAllLibraries is false) */}
+                  {!formData.permissions.accessAllLibraries && (
+                    <div className="mt-3 mb-4 ml-4">
+                      <MultiSelect
+                        label={t('LabelLibrariesAccessibleToUser')}
+                        items={libraryItems}
+                        selectedItems={selectedLibraryItems}
+                        allowNew={false}
+                        showEdit={false}
+                        onItemAdded={(item) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            librariesAccessible: [...prev.librariesAccessible, item.value]
+                          }))
+                        }}
+                        onItemRemoved={(item) => {
+                          setFormData((prev) => ({
+                            ...prev,
+                            librariesAccessible: prev.librariesAccessible.filter((id) => id !== item.value)
+                          }))
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Can Access All Tags */}
+                  <ToggleSwitch
+                    value={formData.permissions.accessAllTags}
+                    label={t('LabelPermissionsAccessAllTags')}
+                    className="h-fit"
+                    onChange={(value) => updatePermission('accessAllTags', value)}
+                  />
+
+                  {/* Tags Accessible to User (shown when accessAllTags is false) */}
+                  {!formData.permissions.accessAllTags && (
+                    <div className="mt-3 mb-4 ml-4">
+                      <div className="flex flex-col sm:flex-row sm:items-end sm:gap-4">
+                        <div className="flex-1">
+                          <MultiSelect
+                            label={formData.permissions.selectedTagsNotAccessible ? t('LabelTagsNotAccessibleToUser') : t('LabelTagsAccessibleToUser')}
+                            items={tagItems}
+                            selectedItems={selectedTagItems}
+                            allowNew={false}
+                            showEdit={false}
+                            onItemAdded={(item) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                itemTagsSelected: [...prev.itemTagsSelected, item.value]
+                              }))
+                            }}
+                            onItemRemoved={(item) => {
+                              setFormData((prev) => ({
+                                ...prev,
+                                itemTagsSelected: prev.itemTagsSelected.filter((tag) => tag !== item.value)
+                              }))
+                            }}
+                          />
+                        </div>
+                        <ToggleSwitch
+                          value={formData.permissions.selectedTagsNotAccessible}
+                          label={t('LabelInvert')}
+                          onChange={(value) => updatePermission('selectedTagsNotAccessible', value)}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
           )}
         </div>
 
-        {/* Permissions Section */}
-        {!isRootUser && (
-          <>
-            <div className="border-t border-border mt-6 pt-6">
-              <h3 className="text-lg font-semibold mb-4">{t('HeaderPermissions')}</h3>
-              <div>
-                {basicPermissionsList.map(({ key, label }) => (
-                  <ToggleSwitch
-                    key={key}
-                    value={formData.permissions[key]}
-                    label={label}
-                    className="h-fit"
-                    onChange={(value) => updatePermission(key, value)}
-                  />
-                ))}
-
-                {/* Can Access All Libraries */}
-                <ToggleSwitch
-                  value={formData.permissions.accessAllLibraries}
-                  label={t('LabelPermissionsAccessAllLibraries')}
-                  className="h-fit"
-                  onChange={(value) => updatePermission('accessAllLibraries', value)}
-                />
-
-                {/* Libraries Accessible to User (shown when accessAllLibraries is false) */}
-                {!formData.permissions.accessAllLibraries && (
-                  <div className="mt-3 mb-4 ml-4">
-                    <MultiSelect
-                      label={t('LabelLibrariesAccessibleToUser')}
-                      items={libraryItems}
-                      selectedItems={selectedLibraryItems}
-                      allowNew={false}
-                      showEdit={false}
-                      onItemAdded={(item) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          librariesAccessible: [...prev.librariesAccessible, item.value]
-                        }))
-                      }}
-                      onItemRemoved={(item) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          librariesAccessible: prev.librariesAccessible.filter((id) => id !== item.value)
-                        }))
-                      }}
-                    />
-                  </div>
-                )}
-
-                {/* Can Access All Tags */}
-                <ToggleSwitch
-                  value={formData.permissions.accessAllTags}
-                  label={t('LabelPermissionsAccessAllTags')}
-                  className="h-fit"
-                  onChange={(value) => updatePermission('accessAllTags', value)}
-                />
-
-                {/* Tags Accessible to User (shown when accessAllTags is false) */}
-                {!formData.permissions.accessAllTags && (
-                  <div className="mt-3 mb-4 ml-4">
-                    <div className="flex flex-col sm:flex-row sm:items-end sm:gap-4">
-                      <div className="flex-1">
-                        <MultiSelect
-                          label={formData.permissions.selectedTagsNotAccessible ? t('LabelTagsNotAccessibleToUser') : t('LabelTagsAccessibleToUser')}
-                          items={tagItems}
-                          selectedItems={selectedTagItems}
-                          allowNew={false}
-                          showEdit={false}
-                          onItemAdded={(item) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              itemTagsSelected: [...prev.itemTagsSelected, item.value]
-                            }))
-                          }}
-                          onItemRemoved={(item) => {
-                            setFormData((prev) => ({
-                              ...prev,
-                              itemTagsSelected: prev.itemTagsSelected.filter((tag) => tag !== item.value)
-                            }))
-                          }}
-                        />
-                      </div>
-                      <ToggleSwitch
-                        value={formData.permissions.selectedTagsNotAccessible}
-                        label={t('LabelInvert')}
-                        onChange={(value) => updatePermission('selectedTagsNotAccessible', value)}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-
         {/* Footer Actions */}
-        <div className="border-t border-border mt-6 pt-6 flex items-center justify-end gap-4">
-          {/* Unlink OpenID button */}
-          {isEditing && user?.hasOpenIDLink && (
-            <Btn onClick={handleUnlinkOpenIdClick} className="mr-auto">
-              {t('ButtonUnlinkOpenId')}
-            </Btn>
-          )}
+        <div className="border-t border-border px-4 py-3">
+          <div className="flex items-center justify-end gap-4">
+            {/* Unlink OpenID button */}
+            {isEditing && user?.hasOpenIDLink && (
+              <Btn onClick={handleUnlinkOpenIdClick} className="mr-auto">
+                {t('ButtonUnlinkOpenId')}
+              </Btn>
+            )}
 
-          <Btn onClick={handleSubmit}>{isEditing ? t('ButtonSave') : t('ButtonCreate')}</Btn>
+            <Btn onClick={handleSubmit}>{isEditing ? t('ButtonSave') : t('ButtonCreate')}</Btn>
+          </div>
         </div>
       </div>
 
