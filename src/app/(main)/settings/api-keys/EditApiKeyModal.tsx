@@ -103,62 +103,66 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">
-      <div className="px-4 sm:px-8 py-8 max-h-[90vh] overflow-y-auto">
-        {/* Name and Expires In Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-          {/* Name */}
-          <TextInput
-            label={t('LabelName')}
-            value={formData.name}
-            placeholder={t('LabelName')}
-            readOnly={isEditing}
-            onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
-          />
-
-          {/* Expires In (seconds) - Hidden when editing */}
-          {!isEditing && (
+      <div className="flex flex-col max-h-[90vh]">
+        <div className="px-4 sm:px-6 py-6 overflow-y-auto">
+          {/* Name and Expires In Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            {/* Name */}
             <TextInput
-              label={t('LabelExpiresInSeconds')}
-              value={expiresInSeconds}
-              placeholder={t('LabelExpiresInSeconds')}
-              type="number"
-              min="0"
-              onChange={(value) => setExpiresInSeconds(value)}
+              label={t('LabelName')}
+              value={formData.name}
+              placeholder={t('LabelName')}
+              readOnly={isEditing}
+              onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
             />
-          )}
-        </div>
 
-        {/* Enable Toggle */}
-        <div className="flex items-center gap-4 mt-4">
-          <ToggleSwitch
-            value={formData.isActive}
-            label={t('LabelEnable')}
-            disabled={isExpired}
-            onChange={(value) => setFormData((prev) => ({ ...prev, isActive: value }))}
-          />
-          {isExpired && <span className="text-error text-sm">{t('LabelExpired')}</span>}
-        </div>
+            {/* Expires In (seconds) - Hidden when editing */}
+            {!isEditing && (
+              <TextInput
+                label={t('LabelExpiresInSeconds')}
+                value={expiresInSeconds}
+                placeholder={t('LabelExpiresInSeconds')}
+                type="number"
+                min="0"
+                onChange={(value) => setExpiresInSeconds(value)}
+              />
+            )}
+          </div>
 
-        {/* Act on behalf of user Section */}
-        <div className="border-t border-border mt-4 pt-4">
-          <h3 className="text-lg font-semibold mb-2">{t('LabelApiKeyUser')}</h3>
-          <p className="text-foreground-muted text-sm mb-4">{t('LabelApiKeyUserDescription')}</p>
+          {/* Enable Toggle */}
+          <div className="flex items-center gap-4 mt-4">
+            <ToggleSwitch
+              value={formData.isActive}
+              label={t('LabelEnable')}
+              disabled={isExpired}
+              onChange={(value) => setFormData((prev) => ({ ...prev, isActive: value }))}
+            />
+            {isExpired && <span className="text-error text-sm">{t('LabelExpired')}</span>}
+          </div>
 
-          <Dropdown
-            value={formData.userId}
-            items={userItems}
-            disabled={isExpired}
-            highlightSelected
-            displayText={formData.userId ? undefined : t('LabelSelectUser')}
-            onChange={(value) => setFormData((prev) => ({ ...prev, userId: String(value) }))}
-          />
+          {/* Act on behalf of user Section */}
+          <div className="border-t border-border mt-4 pt-4">
+            <h3 className="text-lg font-semibold mb-2">{t('LabelApiKeyUser')}</h3>
+            <p className="text-foreground-muted text-sm mb-4">{t('LabelApiKeyUserDescription')}</p>
+
+            <Dropdown
+              value={formData.userId}
+              items={userItems}
+              disabled={isExpired}
+              highlightSelected
+              displayText={formData.userId ? undefined : t('LabelSelectUser')}
+              onChange={(value) => setFormData((prev) => ({ ...prev, userId: String(value) }))}
+            />
+          </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-border mt-4 pt-4 flex items-center justify-end">
-          <Btn color="bg-success" disabled={!isValid} onClick={handleSubmit}>
-            {t('ButtonSubmit')}
-          </Btn>
+        <div className="border-t border-border px-4 py-3">
+          <div className="flex items-center justify-end">
+            <Btn disabled={!isValid} onClick={handleSubmit}>
+              {isEditing ? t('ButtonSave') : t('ButtonCreate')}
+            </Btn>
+          </div>
         </div>
       </div>
     </Modal>
