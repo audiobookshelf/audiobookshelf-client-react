@@ -10,7 +10,7 @@ ghcr.io/audiobookshelf/audiobookshelf-react:latest
 
 For testing, it is recommended that you use a separate config & libraries from your production server.
 
-### How to
+### How to run locally
 
 This assumes that you have [audiobookshelf](https://github.com/advplyr/audiobookshelf) locally.
 
