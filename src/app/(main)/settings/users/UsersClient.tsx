@@ -53,6 +53,7 @@ export default function UsersClient({ users }: UsersClientProps) {
           label: t('ButtonAddUser'),
           onClick: handleAddUser
         }}
+        entityCount={users.length}
       >
         <UsersTable users={users} dateFormat={serverSettings.dateFormat} timeFormat={serverSettings.timeFormat} onEditUser={handleEditUser} />
       </SettingsContent>

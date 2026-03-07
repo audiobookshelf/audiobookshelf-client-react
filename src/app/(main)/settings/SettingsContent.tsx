@@ -19,6 +19,7 @@ export default function SettingsContent(props: {
   moreInfoUrl?: string
   backLink?: string
   addButton?: AddButtonProps
+  entityCount?: number
 }) {
   const t = useTypeSafeTranslations()
   const { toggle } = useSettingsDrawer()
@@ -36,6 +37,9 @@ export default function SettingsContent(props: {
             </Link>
           )}
           <h1 className="text-xl">{props.title}</h1>
+          {props.entityCount && (
+            <div className="px-1.5 rounded-lg bg-primary/50 text-foreground-muted text-sm inline-flex items-center justify-center">{props.entityCount}</div>
+          )}
           {props.moreInfoUrl && <SettingsMoreInfoIcon moreInfoUrl={props.moreInfoUrl} />}
           <div className="grow" />
           {props.addButton && (
