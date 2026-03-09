@@ -21,6 +21,19 @@ interface ConfirmDialogProps {
 }
 
 /**
+ * The shape of state needed to drive a ConfirmDialog.
+ * Import this instead of defining your own local interface.
+ */
+export interface ConfirmState {
+  isOpen: boolean
+  message: string | ReactNode
+  checkboxLabel?: string
+  yesButtonText?: string
+  yesButtonClassName?: string
+  onConfirm: (checkboxValue?: boolean) => void
+}
+
+/**
  * Reusable confirmation dialog component
  *
  * Used for confirming destructive or important actions.
