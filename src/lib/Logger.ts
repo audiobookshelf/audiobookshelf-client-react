@@ -1,14 +1,5 @@
+import { LogLevel } from '@/types/api'
 import { format } from 'date-fns'
-
-enum LogLevel {
-  TRACE = 0,
-  DEBUG = 1,
-  INFO = 2,
-  WARN = 3,
-  ERROR = 4,
-  FATAL = 5,
-  NOTE = 6
-}
 
 class Logger {
   private logLevel: LogLevel

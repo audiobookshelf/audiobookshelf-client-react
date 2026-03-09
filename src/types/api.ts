@@ -5,11 +5,13 @@
 import { AudibleRegion } from '@/lib/providerUtils'
 
 export enum LogLevel {
-  ERROR = 'error',
-  WARN = 'warn',
-  INFO = 'info',
-  DEBUG = 'debug',
-  TRACE = 'trace'
+  TRACE = 0,
+  DEBUG = 1,
+  INFO = 2,
+  WARN = 3,
+  ERROR = 4,
+  FATAL = 5,
+  NOTE = 6
 }
 
 export enum AuthMethod {
