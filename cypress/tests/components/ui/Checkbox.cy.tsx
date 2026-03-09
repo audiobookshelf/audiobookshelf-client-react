@@ -1,4 +1,3 @@
-import React from 'react'
 import Checkbox from '@/components/ui/Checkbox'
 
 describe('<Checkbox />', () => {
@@ -107,7 +106,7 @@ describe('<Checkbox />', () => {
 
     it('handles focus-within outline styling', () => {
       cy.mount(<Checkbox label="Focusable Checkbox" />)
-      cy.get('[cy-id="control-wrapper"]').should('have.class', 'focus-within:outline')
+      cy.get('[cy-id="control-wrapper"]').should('have.class', 'has-[:focus-visible]:outline')
     })
   })
 
@@ -122,7 +121,9 @@ describe('<Checkbox />', () => {
     it('calls onChange when label is clicked', () => {
       const onChangeSpy = cy.spy().as('onChangeSpy')
       cy.mount(<Checkbox label="Clickable Label" onChange={onChangeSpy} />)
-      cy.get('[cy-id="checkbox-label"]').click()
+      // realClick simulates a real pointer event at the label's coordinates,
+      // which hits the input overlay on top and triggers onChange.
+      cy.get('[cy-id="checkbox-label"]').realClick()
       cy.get('@onChangeSpy').should('have.been.calledWith', true)
     })
 
