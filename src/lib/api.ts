@@ -553,6 +553,16 @@ export async function updateMediaFinished(libraryItemId: string, payload: { isFi
 }
 
 /**
+ * Batch update media finished state for multiple items or episodes
+ */
+export async function batchUpdateMediaFinished(payload: { libraryItemId: string; episodeId?: string; isFinished: boolean }[]): Promise<void> {
+  return apiRequest<void>('/api/me/progress/batch/update', {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
  * Trigger a rescan for a library item
  */
 export async function rescanLibraryItem(libraryItemId: string): Promise<{ result: 'UPDATED' | 'UPTODATE' | 'REMOVED' | null }> {
@@ -595,6 +605,17 @@ export async function removeFromContinueListening(progressId: string): Promise<v
 export async function deleteLibraryItem(libraryItemId: string, hardDelete: boolean): Promise<void> {
   const hard = hardDelete ? '1' : '0'
   return apiRequest<void>(`/api/items/${libraryItemId}?hard=${hard}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
+ * Delete an episode from a podcast library item.
+ * @param hardDelete - If true, also deletes the audio file from the file system
+ */
+export async function deleteLibraryItemMediaEpisode(libraryItemId: string, episodeId: string, hardDelete = false): Promise<void> {
+  const hard = hardDelete ? '?hard=1' : ''
+  return apiRequest<void>(`/api/podcasts/${libraryItemId}/episode/${episodeId}${hard}`, {
     method: 'DELETE'
   })
 }
