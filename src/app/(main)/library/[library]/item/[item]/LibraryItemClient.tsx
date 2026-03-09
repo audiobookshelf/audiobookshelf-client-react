@@ -6,11 +6,13 @@ import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
+import EpisodeTable from '@/components/widgets/EpisodeTable'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
+import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useState } from 'react'
@@ -23,7 +25,7 @@ interface LibraryItemClientProps {
 
 export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
-  const { user } = useUser()
+  const { user, serverSettings, getLibraryItemProgress } = useUser()
   const { playItem } = useMediaContext()
   const t = useTypeSafeTranslations()
 
@@ -38,7 +40,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const bookSeries = 'series' in metadata ? metadata.series || [] : []
   const description = 'description' in metadata ? metadata.description : undefined
 
-  const userProgress = user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+  const userProgress = getLibraryItemProgress(libraryItem.id)
   const userCanUpdate = user.permissions?.update || user.type === 'admin' || user.type === 'root'
 
   // TODO: Implement play logic
@@ -61,6 +63,13 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const handleItemSaved = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
     setLibraryItem(updatedItem)
   }
+
+  const { episodesDownloading, episodeDownloadsQueued } = useItemPageSocket({
+    libraryItemId: libraryItem.id,
+    mediaId: libraryItem.media?.id,
+    isPodcast,
+    onItemUpdated: handleItemSaved
+  })
 
   return (
     <div>
@@ -124,7 +133,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               </Btn>
               <IconBtn onClick={handleOpenEditModal}>edit</IconBtn>
               {!isPodcast && <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />}
-              {isPodcast && <IconBtn onClick={() => {}}>search</IconBtn>}
             </div>
 
             {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
@@ -138,6 +146,17 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               {/* audio tracks table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
                 <AudioTracksTable libraryItem={libraryItem as BookLibraryItem} user={user} />
+              )}
+
+              {/* podcast episodes table */}
+              {isPodcast && (
+                <EpisodeTable
+                  libraryItem={libraryItem as PodcastLibraryItem}
+                  keepOpen={true}
+                  dateFormat={serverSettings?.dateFormat}
+                  episodesDownloading={episodesDownloading}
+                  episodeDownloadsQueued={episodeDownloadsQueued}
+                />
               )}
 
               {/* library files table */}
