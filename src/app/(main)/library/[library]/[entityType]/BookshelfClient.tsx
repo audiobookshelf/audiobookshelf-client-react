@@ -187,15 +187,15 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     }
   }, [hasMeasuredCard, visibleShelfStart, visibleShelfEnd, columns, totalEntities, itemsPerPage, loadPage])
 
-  const userMediaProgress = user.mediaProgress
-
   const bookProgressMap = useMemo(() => {
     const map = new Map<string, MediaProgress>()
-    userMediaProgress.forEach((p) => {
-      map.set(p.libraryItemId, p)
+    user.mediaProgress.forEach((p) => {
+      if (!p.episodeId) {
+        map.set(p.libraryItemId, p)
+      }
     })
     return map
-  }, [userMediaProgress])
+  }, [user.mediaProgress])
 
   // Inject Toolbar Controls and Menu Items
   const { setToolbarExtras, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
