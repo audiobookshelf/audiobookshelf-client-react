@@ -25,7 +25,7 @@ const InputWrapper = ({
 }: InputWrapperProps) => {
   const wrapperClass = mergeClasses(
     // Base styles
-    'relative flex items-stretch rounded-md px-2 focus-within:outline',
+    'relative flex items-stretch rounded-md px-2 has-[:focus-visible]:outline',
 
     // Size-based padding
     size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'h-full' : 'h-10',
