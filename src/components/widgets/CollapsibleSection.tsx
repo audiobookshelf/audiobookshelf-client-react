@@ -116,8 +116,13 @@ export default function CollapsibleSection({
     [isExpanded]
   )
 
+  const gridWrapperClasses = useMemo(
+    () => mergeClasses('grid transition-[grid-template-rows] duration-100 ease-in-out', isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'),
+    [isExpanded]
+  )
+
   const contentClasses = useMemo(
-    () => mergeClasses('overflow-hidden transition-all duration-100 ease-in-out', isExpanded ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'),
+    () => mergeClasses('overflow-hidden transition-opacity duration-100 ease-in-out', isExpanded ? 'opacity-100' : 'opacity-0'),
     [isExpanded]
   )
 
@@ -169,8 +174,8 @@ export default function CollapsibleSection({
       </div>
 
       {/* Collapsible content */}
-      <div id={contentId} className={contentClasses} role="region" aria-labelledby={headerId} inert={!keepOpen && !isExpanded ? true : undefined}>
-        {children}
+      <div className={gridWrapperClasses} role="region" aria-labelledby={headerId} id={contentId} inert={!keepOpen && !isExpanded ? true : undefined}>
+        <div className={contentClasses}>{children}</div>
       </div>
     </div>
   )
