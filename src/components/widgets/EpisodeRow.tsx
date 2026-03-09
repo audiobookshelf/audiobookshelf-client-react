@@ -243,8 +243,6 @@ export default function EpisodeRow({
                   delete
                 </IconBtn>
               )}
-
-              <p className="text-sm text-gray-300 whitespace-nowrap">{rowIndex + 1}</p>
             </div>
           </div>
         </div>
