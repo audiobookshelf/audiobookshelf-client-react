@@ -20,7 +20,7 @@ interface LibraryClientProps {
 
 export default function LibraryClient({ personalized }: LibraryClientProps) {
   const { sizeMultiplier } = useCardSize()
-  const { user, serverSettings, ereaderDevices } = useUser()
+  const { user, serverSettings, ereaderDevices, getLibraryItemProgress, getEpisodeProgress } = useUser()
   const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView, boundModal } = useLibrary()
 
   useEffect(() => {
@@ -73,7 +73,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
               if (shelf.type === 'book' || shelf.type === 'podcast') {
                 const EntityMediaCard = shelf.type === 'book' ? BookMediaCard : PodcastMediaCard
                 const libraryItem = entity as LibraryItem
-                const mediaProgress = user.mediaProgress.find((mediaProgress) => mediaProgress.libraryItemId === libraryItem.id)
+                const mediaProgress = getLibraryItemProgress(libraryItem.id)
 
                 return (
                   <div key={entity.id + '-' + shelf.id} className="shrink-0 mx-2e">
@@ -95,7 +95,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                 const libraryItems = series.books || []
                 const bookProgressMap = new Map<string, MediaProgress>()
                 libraryItems.forEach((libraryItem) => {
-                  const mediaProgress = user.mediaProgress.find((mediaProgress) => mediaProgress.libraryItemId === libraryItem.id)
+                  const mediaProgress = getLibraryItemProgress(libraryItem.id)
                   if (mediaProgress) {
                     bookProgressMap.set(libraryItem.id, mediaProgress)
                   }
@@ -118,7 +118,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                 if (!episode) {
                   return null
                 }
-                const mediaProgress = user.mediaProgress.find((mediaProgress) => mediaProgress.mediaItemId === episode.id)
+                const mediaProgress = getEpisodeProgress(episode.id)
                 return (
                   <div key={episode.id + '-' + shelf.id} className="shrink-0 mx-2e">
                     <PodcastEpisodeCard

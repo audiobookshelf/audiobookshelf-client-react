@@ -26,7 +26,7 @@ interface AuthorClientProps {
 export default function AuthorClient({ author: authorProp }: AuthorClientProps) {
   const t = useTypeSafeTranslations()
   const { library, showSubtitles } = useLibrary()
-  const { user, serverSettings, ereaderDevices } = useUser()
+  const { user, serverSettings, ereaderDevices, getLibraryItemProgress } = useUser()
   const { sizeMultiplier } = useCardSize()
   const router = useRouter()
 
@@ -103,7 +103,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
             className="!ps-0"
           >
             {libraryItems.map((libraryItem) => {
-              const mediaProgress = user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+              const mediaProgress = getLibraryItemProgress(libraryItem.id)
               return (
                 <div key={libraryItem.id} className="shrink-0 mx-2e">
                   <BookMediaCard
@@ -137,7 +137,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
           <div key={bookSeries.id} className="shrink-0 -ms-2e">
             <ItemSlider title={seriesTitle} className="!ps-0">
               {bookSeries.items?.map((libraryItem) => {
-                const mediaProgress = user.mediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+                const mediaProgress = getLibraryItemProgress(libraryItem.id)
                 return (
                   <div key={libraryItem.id} className="shrink-0 mx-2e">
                     <BookMediaCard

@@ -11,13 +11,12 @@ interface SeriesClientProps {
 
 export default function SeriesClient({ libraryItems }: SeriesClientProps) {
   const { library } = useLibrary()
-  const { user, serverSettings, ereaderDevices } = useUser()
-  const userMediaProgress = user.mediaProgress
+  const { user, serverSettings, ereaderDevices, getLibraryItemProgress } = useUser()
   return (
     <div>
       <div className="flex flex-wrap gap-4">
         {libraryItems.results.map((libraryItem) => {
-          const entityProgress = userMediaProgress.find((progress) => progress.libraryItemId === libraryItem.id)
+          const entityProgress = getLibraryItemProgress(libraryItem.id)
           return (
             <BookMediaCard
               key={libraryItem.id}
