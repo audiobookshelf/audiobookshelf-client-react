@@ -60,6 +60,7 @@ export default function EpisodeRow({
   onRemove,
   onDownload,
   onAddToPlaylist,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rowIndex
 }: EpisodeRowProps) {
   const t = useTypeSafeTranslations()
@@ -72,7 +73,7 @@ export default function EpisodeRow({
     e.stopPropagation()
     setConfirmState({
       isOpen: true,
-      message: t('MessageConfirmDeleteEpisode'),
+      message: t('MessageConfirmDeleteEpisode', { 0: episode.title }),
       checkboxLabel: t('LabelDeleteFromFileSystemCheckbox'),
       yesButtonText: t('ButtonDelete'),
       yesButtonClassName: 'bg-error',
@@ -116,7 +117,7 @@ export default function EpisodeRow({
       >
         {/* Main content — keep onClick for mouse users, but let children dictate keyboard tab index */}
         <div className="flex h-full rounded-sm" onClick={handleRowClick}>
-          <div className="grow min-w-0 pe-2 flex flex-col justify-start">
+          <div className="grow min-w-0 flex flex-col justify-start">
             {/* Title - serves as the primary keyboard target for opening the row */}
             <div dir="auto" className="flex items-center break-words whitespace-normal relative pe-2 flex-shrink-0 w-full">
               <button
@@ -148,7 +149,7 @@ export default function EpisodeRow({
             </div>
 
             {/* Metadata row */}
-            <div className="flex items-center justify-between h-7 w-full flex-shrink-0">
+            <div className="flex items-center h-7 w-full flex-shrink-0">
               {sortKey === 'audioFile.metadata.filename' ? (
                 <p className="text-sm text-gray-300 truncate font-light">
                   <strong className="font-bold">{t('LabelFilename')}</strong>: {episode.audioFile?.metadata?.filename}
@@ -160,19 +161,6 @@ export default function EpisodeRow({
                   {publishedDate && <p className="text-sm text-gray-300 whitespace-nowrap">{t('LabelPublishedDate', { 0: publishedDate })}</p>}
                 </div>
               )}
-
-              {/* Selection checkbox area */}
-              <div
-                className={`flex items-center justify-end transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 md:opacity-0 has-[:focus-visible]:opacity-100 md:has-[:focus-visible]:opacity-100'}`}
-                onKeyDown={(e) => {
-                  if (e.key === ' ') {
-                    e.stopPropagation()
-                  }
-                }}
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Checkbox value={isSelected} onChange={(checked) => onSelect(episode, checked)} />
-              </div>
             </div>
 
             {/* Action buttons */}
@@ -244,6 +232,19 @@ export default function EpisodeRow({
                 </IconBtn>
               )}
             </div>
+          </div>
+
+          {/* Selection checkbox area */}
+          <div
+            className={`flex items-center justify-center flex-shrink-0 transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 md:opacity-0 has-[:focus-visible]:opacity-100 md:has-[:focus-visible]:opacity-100'}`}
+            onKeyDown={(e) => {
+              if (e.key === ' ') {
+                e.stopPropagation()
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox value={isSelected} onChange={(checked) => onSelect(episode, checked)} />
           </div>
         </div>
 
