@@ -1,6 +1,7 @@
 'use client'
 
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { BookMedia } from '@/types/api'
@@ -13,6 +14,8 @@ import PlayerTrackBar from './PlayerTrackBar'
 
 export default function MediaPlayerContainer() {
   const { streamLibraryItem, clearStreamMedia, playerHandler } = useMediaContext()
+
+  useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
 
   // TODO: Set library in media context for streaming library item
   const coverAspectRatio = 1
