@@ -91,10 +91,10 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
       onClose={onClose}
       outerContent={
         <div className="absolute top-0 left-0 p-5 w-2/3 overflow-hidden pointer-events-none">
-          <p className="text-3xl text-white truncate">{t('LabelEpisode')}</p>
+          <p className="text-3xl text-foreground truncate">{t('LabelEpisode')}</p>
         </div>
       }
-      className="p-4 w-full text-sm rounded-lg bg-bg shadow-lg border border-black-300 relative overflow-y-auto max-h-[80vh]"
+      className="p-4 w-full text-sm rounded-lg bg-bg shadow-lg relative overflow-y-auto max-h-[80vh]"
     >
       <div className="flex mb-4">
         <div className="w-12 h-12 relative flex-shrink-0">
@@ -102,7 +102,7 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
         </div>
         <div className="grow px-2 overflow-hidden">
           <p className="text-base mb-1 truncate">{podcastTitle}</p>
-          <p className="text-xs text-gray-300 truncate">{podcastAuthor}</p>
+          <p className="text-xs text-foreground-muted truncate">{podcastAuthor}</p>
         </div>
       </div>
 
@@ -121,7 +121,7 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
         <p className="mb-2">{t('MessageNoDescription')}</p>
       )}
 
-      <div className="w-full h-px bg-white/5 my-4" />
+      <div className="w-full h-px bg-border my-4" />
 
       <div className="flex flex-wrap items-center gap-y-4">
         <div className="grow w-full sm:w-auto">
