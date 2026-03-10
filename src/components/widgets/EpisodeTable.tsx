@@ -242,7 +242,7 @@ export default function EpisodeTable({
   const badge = isFiltered ? `${filteredEpisodes.length} / ${episodes.length}` : undefined
 
   const headerNode = (
-    <div className="flex items-center w-full ps-1 mb-4 pt-1">
+    <div className="flex items-center w-full px-1 mb-4 pt-1">
       <div className="flex items-center flex-1 min-w-0 gap-3">
         <p className="text-xl font-medium">{t('HeaderEpisodes')}</p>
         {count !== undefined && (

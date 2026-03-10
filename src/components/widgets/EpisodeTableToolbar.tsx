@@ -35,7 +35,7 @@ export default function EpisodeTableToolbar({
   return (
     <div
       className={mergeClasses(
-        'flex flex-wrap items-center gap-2 py-2 border-b border-border bg-bg-elevated transition-opacity',
+        'flex flex-wrap items-center gap-2 px-1 py-2 border-b border-border bg-bg-elevated transition-opacity',
         isSelectionMode ? 'opacity-50 pointer-events-none' : ''
       )}
     >
