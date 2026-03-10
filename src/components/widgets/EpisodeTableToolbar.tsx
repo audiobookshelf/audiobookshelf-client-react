@@ -35,7 +35,7 @@ export default function EpisodeTableToolbar({
   return (
     <div
       className={mergeClasses(
-        'flex flex-wrap items-center gap-2 py-2 px-1 border-b border-border bg-bg-elevated transition-opacity',
+        'flex flex-wrap items-center gap-2 py-2 border-b border-border bg-bg-elevated transition-opacity',
         isSelectionMode ? 'opacity-50 pointer-events-none' : ''
       )}
     >
@@ -44,7 +44,7 @@ export default function EpisodeTableToolbar({
       <EpisodesFilterSelect value={filterKey} onChange={onFilterChange} className="w-32" />
       <EpisodesSortSelect sortBy={sortKey} sortDesc={sortDesc} onChange={onSortChange} className="w-38" />
 
-      <ContextMenuDropdown size="small" items={contextMenuItems} onAction={({ action }) => onContextMenuAction(action)} autoWidth />
+      <ContextMenuDropdown size="small" items={contextMenuItems} onAction={({ action }) => onContextMenuAction(action)} autoWidth className="ms-auto md:ms-0" />
     </div>
   )
 }
