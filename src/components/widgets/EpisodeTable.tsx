@@ -2,7 +2,6 @@
 
 import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, toggleFinishedAction } from '@/app/actions/mediaActions'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
-import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
 import EpisodeTableHeaderActions from '@/components/widgets/EpisodeTableHeaderActions'
 import EpisodeTableToolbar from '@/components/widgets/EpisodeTableToolbar'
@@ -14,10 +13,9 @@ import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
 import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { EpisodeDownload } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { mergeClasses } from '@/lib/merge-classes'
 import { MediaProgress, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
 import { useLocale } from 'next-intl'
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import { useCallback, useMemo, useState, useTransition } from 'react'
 
 interface EpisodeTableProps {
   libraryItem: PodcastLibraryItem
@@ -27,9 +25,6 @@ interface EpisodeTableProps {
   episodeDownloadsQueued?: EpisodeDownload[]
   onDownloadEpisode?: (episode: PodcastEpisode) => void
   onFindEpisodes?: () => void
-  keepOpen?: boolean
-  expanded?: boolean
-  className?: string
 }
 
 /**
@@ -41,10 +36,7 @@ export default function EpisodeTable({
   episodesDownloading = [],
   episodeDownloadsQueued = [],
   onDownloadEpisode,
-  onFindEpisodes,
-  keepOpen = false,
-  expanded: expandedProp = false,
-  className
+  onFindEpisodes
 }: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
@@ -76,7 +68,6 @@ export default function EpisodeTable({
   const userCanDownload = user.permissions?.download || user.type === 'admin' || user.type === 'root'
   const userIsAdminOrUp = user.type === 'admin' || user.type === 'root'
 
-  const [expanded, setExpanded] = useState(expandedProp)
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
 
@@ -97,11 +88,6 @@ export default function EpisodeTable({
   }, [viewedEpisode])
 
   const isViewEpisodeModalOpen = viewedEpisode !== null
-
-  // Sync expanded state
-  useEffect(() => {
-    setExpanded(keepOpen || expandedProp)
-  }, [keepOpen, expandedProp])
 
   // Virtualizer — lazy render only visible rows
   const { visibleStart, visibleEnd, totalHeight, listContainerRef } = useEpisodeTableVirtualizer(filteredEpisodes.length, EPISODE_ROW_HEIGHT_PX)
@@ -251,38 +237,48 @@ export default function EpisodeTable({
     [isSelectionMode, selectedEpisodes, allSelectedEpisodesFinished, libraryItem.id, handleClearSelection, onFindEpisodes]
   )
 
+  const isFiltered = hasMounted && filteredEpisodes.length !== episodes.length
+  const count = !isFiltered && hasMounted ? episodes.length : undefined
+  const badge = isFiltered ? `${filteredEpisodes.length} / ${episodes.length}` : undefined
+
+  const headerNode = (
+    <div className="flex items-center w-full ps-1 mb-4 pt-1">
+      <div className="flex items-center flex-1 min-w-0 gap-3">
+        <p className="text-xl font-medium">{t('HeaderEpisodes')}</p>
+        {count !== undefined && (
+          <div className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+            <span className="text-sm font-mono">{count}</span>
+          </div>
+        )}
+        {badge && (
+          <div className="h-6 px-3 rounded-full bg-white/10 flex items-center justify-center text-sm">
+            <span className="font-mono">{badge}</span>
+          </div>
+        )}
+      </div>
+      {headerActions && <div className="flex items-center gap-2 m-0">{headerActions}</div>}
+    </div>
+  )
+
   if (episodes.length === 0) {
     return null
   }
 
   if (!hasMounted) {
     return (
-      <CollapsibleSection
-        title={t('HeaderEpisodes')}
-        expanded={expanded}
-        onExpandedChange={setExpanded}
-        keepOpen={keepOpen}
-        headerActions={headerActions}
-        className={mergeClasses(className)}
-      >
+      <div className="w-full">
+        {headerNode}
         <div className="flex justify-center items-center py-8">
           <LoadingSpinner size="la-lg" />
         </div>
-      </CollapsibleSection>
+      </div>
     )
   }
 
   return (
-    <CollapsibleSection
-      title={t('HeaderEpisodes')}
-      count={filteredEpisodes.length === episodes.length ? episodes.length : undefined}
-      badge={filteredEpisodes.length !== episodes.length ? `${filteredEpisodes.length} / ${episodes.length}` : undefined}
-      expanded={expanded}
-      onExpandedChange={setExpanded}
-      keepOpen={keepOpen}
-      headerActions={headerActions}
-      className={mergeClasses(className)}
-    >
+    <div className="w-full">
+      {headerNode}
+
       <div className="w-full">
         {/* Toolbar: Filter, Sort, Actions */}
         <EpisodeTableToolbar
@@ -357,6 +353,6 @@ export default function EpisodeTable({
       </div>
 
       <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
-    </CollapsibleSection>
+    </div>
   )
 }

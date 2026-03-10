@@ -152,7 +152,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               {isPodcast && (
                 <EpisodeTable
                   libraryItem={libraryItem as PodcastLibraryItem}
-                  keepOpen={true}
                   dateFormat={serverSettings?.dateFormat}
                   episodesDownloading={episodesDownloading}
                   episodeDownloadsQueued={episodeDownloadsQueued}
