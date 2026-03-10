@@ -111,7 +111,7 @@ export default function EpisodeRow({
   return (
     <>
       <div
-        className="w-full h-44 overflow-hidden px-2 py-2 border-b border-white/10 relative hover:bg-white/5 transition-colors"
+        className="w-full h-44 overflow-hidden px-2 py-2 border-b border-foreground/10 relative hover:bg-foreground/5 transition-colors"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
@@ -151,14 +151,14 @@ export default function EpisodeRow({
             {/* Metadata row */}
             <div className="flex items-center h-7 w-full flex-shrink-0">
               {sortKey === 'audioFile.metadata.filename' ? (
-                <p className="text-sm text-gray-300 truncate font-light">
+                <p className="text-sm text-foreground-muted truncate font-light">
                   <strong className="font-bold">{t('LabelFilename')}</strong>: {episode.audioFile?.metadata?.filename}
                 </p>
               ) : (
                 <div className="inline-flex justify-start overflow-hidden gap-x-4">
-                  {episode.season && <p className="text-sm text-gray-300 whitespace-nowrap">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
-                  {episode.episode && <p className="text-sm text-gray-300 whitespace-nowrap">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
-                  {publishedDate && <p className="text-sm text-gray-300 whitespace-nowrap">{t('LabelPublishedDate', { 0: publishedDate })}</p>}
+                  {episode.season && <p className="text-sm text-foreground-muted whitespace-nowrap">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
+                  {episode.episode && <p className="text-sm text-foreground-muted whitespace-nowrap">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
+                  {publishedDate && <p className="text-sm text-foreground-muted whitespace-nowrap">{t('LabelPublishedDate', { 0: publishedDate })}</p>}
                 </div>
               )}
             </div>
@@ -171,7 +171,7 @@ export default function EpisodeRow({
                   e.stopPropagation()
                   onPlay(episode)
                 }}
-                className={`h-8 px-4 border border-white/20 hover:bg-white/10 rounded-full flex items-center justify-center cursor-pointer flex-shrink-0 ${userIsFinished ? 'text-white/40' : ''}`}
+                className={`h-8 px-4 border border-foreground/20 hover:bg-foreground/10 rounded-full flex items-center justify-center cursor-pointer flex-shrink-0 ${userIsFinished ? 'text-foreground/40' : ''}`}
               >
                 <span className={`material-symbols fill text-2xl ${streamIsPlaying ? '' : 'text-success'}`}>{streamIsPlaying ? 'pause' : 'play_arrow'}</span>
                 <span className="pl-2 pr-1 text-sm font-semibold whitespace-nowrap" suppressHydrationWarning>
