@@ -129,7 +129,7 @@ export default function EpisodeTableHeaderActions({
 
   return (
     <Btn size="small" onClick={onFindEpisodes}>
-      {t('LabelDownloadEpisodes')}
+      {t('LabelFindEpisodes')}&nbsp;<span className="material-symbols">podcasts</span>
     </Btn>
   )
 }
