@@ -1,6 +1,7 @@
 'use client'
 
 import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, toggleFinishedAction } from '@/app/actions/mediaActions'
+import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
 import EpisodeTableHeaderActions from '@/components/widgets/EpisodeTableHeaderActions'
@@ -12,6 +13,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
 import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { EpisodeDownload } from '@/hooks/useItemPageSocket'
+import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { MediaProgress, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
 import { useLocale } from 'next-intl'
@@ -23,7 +25,6 @@ interface EpisodeTableProps {
   dateFormat?: string
   episodesDownloading?: EpisodeDownload[]
   episodeDownloadsQueued?: EpisodeDownload[]
-  onDownloadEpisode?: (episode: PodcastEpisode) => void
   onFindEpisodes?: () => void
 }
 
@@ -33,9 +34,10 @@ interface EpisodeTableProps {
 export default function EpisodeTable({
   libraryItem,
   dateFormat = 'MM/dd/yyyy',
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   episodesDownloading = [],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   episodeDownloadsQueued = [],
-  onDownloadEpisode,
   onFindEpisodes
 }: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
@@ -70,6 +72,8 @@ export default function EpisodeTable({
 
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
+
+  const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
 
   const episodes = useMemo(() => libraryItem.media.episodes || [], [libraryItem.media.episodes])
 
@@ -157,6 +161,24 @@ export default function EpisodeTable({
     // TODO: Open episode edit modal
     console.log('Edit episode:', episode.id)
   }, [])
+
+  const handleDownloadFile = useCallback(
+    (episode: PodcastEpisode) => {
+      if (episode.audioFile) {
+        downloadFile(episode.audioFile.ino, episode.audioFile.metadata.filename)
+      }
+    },
+    [downloadFile]
+  )
+
+  const handleShowMoreInfo = useCallback(
+    (episode: PodcastEpisode) => {
+      if (episode.audioFile) {
+        showMoreInfo(episode.audioFile)
+      }
+    },
+    [showMoreInfo]
+  )
 
   const handleRemoveEpisode = useCallback(
     (episode: PodcastEpisode, hardDelete: boolean) => {
@@ -338,11 +360,11 @@ export default function EpisodeTable({
                     onSelect={handleSelectEpisode}
                     onEdit={handleEditEpisode}
                     onRemove={handleRemoveEpisode}
-                    onDownload={onDownloadEpisode}
+                    onDownloadFile={handleDownloadFile}
+                    onShowMoreInfo={handleShowMoreInfo}
+                    userIsAdmin={userIsAdminOrUp}
                     onAddToPlaylist={handleAddToPlaylist}
                     isStreamingThisEpisode={isStreaming(libraryItem.id, episode.id)}
-                    isDownloading={episodesDownloading.some((e) => e.episodeId === episode.id)}
-                    isQueued={episodeDownloadsQueued.some((e) => e.episodeId === episode.id)}
                     rowIndex={rowIndex}
                   />
                 </div>
@@ -353,6 +375,7 @@ export default function EpisodeTable({
       </div>
 
       <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
+      <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
     </div>
   )
 }
