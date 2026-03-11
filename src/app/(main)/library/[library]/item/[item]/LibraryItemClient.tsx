@@ -159,7 +159,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               )}
 
               {/* library files table */}
-              {(libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} user={user} />}
+              {!isPodcast && (libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} user={user} />}
             </div>
           </div>
         </div>
