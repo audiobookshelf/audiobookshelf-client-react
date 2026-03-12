@@ -1306,3 +1306,56 @@ export interface LoggerDataLog {
 export interface GetLoggerDataResponse {
   currentDailyLogs: LoggerDataLog[]
 }
+
+export interface RssPodcastChapter {
+  id: number
+  title: string
+  start: number
+  end: number
+}
+
+export interface RssPodcastEpisode {
+  title: string
+  subtitle: string
+  description: string
+  descriptionPlain: string
+  pubDate: string
+  episodeType: string
+  season: string
+  episode: string
+  author: string
+  duration: string
+  durationSeconds: number | null
+  explicit: string
+  publishedAt: number | null
+  enclosure: { url: string; type?: string; length?: string }
+  guid: string
+  chaptersUrl: string
+  chaptersType: string
+  chapters: RssPodcastChapter[]
+}
+
+export interface RssPodcastMetadata {
+  title: string
+  language: string
+  explicit: string
+  author: string
+  pubDate: string
+  link: string
+  image: string
+  categories: string[]
+  feedUrl: string
+  description: string
+  descriptionPlain: string
+  type: string
+}
+
+export interface RssPodcast {
+  metadata: RssPodcastMetadata
+  episodes: RssPodcastEpisode[]
+  numEpisodes?: number
+}
+
+export interface FetchPodcastFeedResponse {
+  podcast: RssPodcast
+}
