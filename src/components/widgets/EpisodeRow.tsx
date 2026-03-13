@@ -147,7 +147,7 @@ export default function EpisodeRow({
               <div className="h-10 flex items-start mt-1.5 mb-0.5 overflow-hidden relative min-h-0 pe-12">
                 <div
                   dir="auto"
-                  className="text-sm text-gray-200 line-clamp-2 leading-snug break-words whitespace-normal w-full"
+                  className="text-sm text-foreground-muted line-clamp-2 leading-snug break-words whitespace-normal w-full"
                   dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                   onClick={(e) => {
                     // If a link within the description was clicked, don't open the modal

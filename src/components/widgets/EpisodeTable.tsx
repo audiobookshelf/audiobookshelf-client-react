@@ -268,12 +268,12 @@ export default function EpisodeTable({
       <div className="flex items-center flex-1 min-w-0 gap-3">
         <p className="text-xl font-medium">{t('HeaderEpisodes')}</p>
         {count !== undefined && (
-          <div className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+          <div className="h-7 w-7 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
             <span className="text-sm font-mono">{count}</span>
           </div>
         )}
         {badge && (
-          <div className="h-6 px-3 rounded-full bg-white/10 flex items-center justify-center text-sm">
+          <div className="h-6 px-3 rounded-full bg-foreground/10 flex items-center justify-center text-sm">
             <span className="font-mono">{badge}</span>
           </div>
         )}
