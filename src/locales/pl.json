@@ -805,7 +805,7 @@
   "MessageEmbedFailed": "Niepowodzenie wstawiania!",
   "MessageEmbedFinished": "Osadzanie zakończone!",
   "MessageEmbedQueue": "W kolejce do osadzenia metadanych ({0} w kolejce)",
-  "MessageEpisodesQueuedForDownload": "{0} odcinki w kolejce do pobrania",
+  "MessageEpisodesQueuedForDownload": "{count, plural, one {# odcinek w kolejce do pobrania} few {# odcinki w kolejce do pobrania} many {# odcinków w kolejce do pobrania} other {# odcinka w kolejce do pobrania}}",
   "MessageEreaderDevices": "Aby zagwarantować dostawę e-booków, konieczne może być dodanie powyższego adresu e-mail jako prawidłowego nadawcy dla każdego z urządzeń wymienionych poniżej.",
   "MessageFeedURLWillBe": "URL kanału: {0}",
   "MessageFetching": "Pobieranie...",

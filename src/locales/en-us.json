@@ -899,7 +899,7 @@
   "MessageEmbedFailed": "Embed Failed!",
   "MessageEmbedFinished": "Embed Finished!",
   "MessageEmbedQueue": "Queued for metadata embed ({0} in queue)",
-  "MessageEpisodesQueuedForDownload": "{0} Episode(s) queued for download",
+  "MessageEpisodesQueuedForDownload": "{count, plural, one {# episode queued for download} other {# episodes queued for download}}",
   "MessageEreaderDevices": "To ensure delivery of ebooks, you may need to add the above email address as a valid sender for each device listed below.",
   "MessageFailedToLoadData": "Failed to load data",
   "MessageFeedURLWillBe": "Feed URL will be {0}",
