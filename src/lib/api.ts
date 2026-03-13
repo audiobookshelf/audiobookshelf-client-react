@@ -646,6 +646,16 @@ export async function downloadPodcastEpisodes(libraryItemId: string, episodes: R
 }
 
 /**
+ * Clear queued podcast episode downloads for a library item.
+ * @param libraryItemId - Library item ID
+ */
+export async function clearPodcastDownloadQueue(libraryItemId: string): Promise<void> {
+  return apiRequest<void>(`/api/podcasts/${libraryItemId}/clear-queue`, {
+    method: 'GET'
+  })
+}
+
+/**
  * Quick embed metadata into audio files for a library item
  * @param libraryItemId - Library item ID
  * Returns: void (success) or throws error

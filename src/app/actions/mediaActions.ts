@@ -50,3 +50,7 @@ export async function fetchPodcastFeedAction(rssFeed: string) {
 export async function downloadPodcastEpisodesAction(libraryItemId: string, episodes: RssPodcastEpisode[]) {
   return api.downloadPodcastEpisodes(libraryItemId, episodes)
 }
+
+export async function clearPodcastDownloadQueueAction(libraryItemId: string) {
+  return api.clearPodcastDownloadQueue(libraryItemId)
+}
