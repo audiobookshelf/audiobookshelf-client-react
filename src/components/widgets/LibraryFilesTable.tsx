@@ -7,6 +7,7 @@ import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/Co
 import DataTable from '@/components/ui/DataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
 import { AudioFile, BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
@@ -53,7 +54,8 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
   const [expanded, setExpanded] = useState(expandedProp)
   const [showFullPath, setShowFullPath] = useState(false)
   const [fileToDelete, setFileToDelete] = useState<LibraryFileWithAudio | null>(null)
-  const [audioFileToShow, setAudioFileToShow] = useState<AudioFile | null>(null)
+
+  const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
 
   const userCanDownload = useMemo(() => user.permissions?.download || false, [user.permissions])
   const userCanDelete = useMemo(() => user.permissions?.delete || false, [user.permissions])
@@ -119,23 +121,6 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
     })
   }, [fileToDelete, libraryItem.id, startDeleteTransition, showToast, t])
 
-  const handleShowMore = useCallback((audioFile: AudioFile) => {
-    setAudioFileToShow(audioFile)
-  }, [])
-
-  const handleDownload = useCallback(
-    (file: LibraryFileWithAudio) => {
-      const downloadUrl = `/internal-api/items/${libraryItem.id}/file/${file.ino}/download`
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.download = file.metadata.filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    },
-    [libraryItem.id]
-  )
-
   const columns = useMemo(
     () => [
       {
@@ -181,8 +166,8 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
               className="h-6 w-6 md:h-7 md:w-7"
               onAction={({ action }) => {
                 if (action === 'delete') handleDeleteFile(row)
-                else if (action === 'download') handleDownload(row)
-                else if (action === 'more' && row.audioFile) handleShowMore(row.audioFile)
+                else if (action === 'download') downloadFile(row.ino, row.metadata.filename)
+                else if (action === 'more' && row.audioFile) showMoreInfo(row.audioFile)
               }}
               usePortal
             />
@@ -192,7 +177,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
-    [t, showFullPath, userCanDownload, userCanDelete, userIsAdmin, inModal, handleDeleteFile, handleDownload, handleShowMore]
+    [t, showFullPath, userCanDownload, userCanDelete, userIsAdmin, inModal, handleDeleteFile, downloadFile, showMoreInfo]
   )
 
   const headerActions = useMemo(
@@ -230,7 +215,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
       <ConfirmDialog isOpen={!!fileToDelete} message={t('MessageConfirmDeleteFile')} onClose={() => setFileToDelete(null)} onConfirm={handleConfirmDelete} />
 
       {/* Single audio file data modal for the table */}
-      <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={() => setAudioFileToShow(null)} />
+      <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
     </>
   )
 }

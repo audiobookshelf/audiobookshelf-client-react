@@ -7,6 +7,10 @@ export async function toggleFinishedAction(libraryItemId: string, params: { isFi
   return api.updateMediaFinished(libraryItemId, params)
 }
 
+export async function batchUpdateMediaFinishedAction(payload: { libraryItemId: string; episodeId?: string; isFinished: boolean }[]) {
+  return api.batchUpdateMediaFinished(payload)
+}
+
 export async function updateLibraryItemMediaAction(libraryItemId: string, payload: UpdateLibraryItemMediaPayload) {
   return api.updateLibraryItemMedia(libraryItemId, payload)
 }
@@ -33,4 +37,8 @@ export async function deleteLibraryItemAction(libraryItemId: string, hardDelete:
 
 export async function getExpandedLibraryItemAction(libraryItemId: string) {
   return api.getLibraryItem(libraryItemId, true)
+}
+
+export async function deleteLibraryItemMediaEpisodeAction(libraryItemId: string, episodeId: string, hardDelete = false) {
+  return api.deleteLibraryItemMediaEpisode(libraryItemId, episodeId, hardDelete)
 }

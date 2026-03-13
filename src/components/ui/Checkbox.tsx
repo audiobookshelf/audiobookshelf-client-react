@@ -33,7 +33,6 @@ export default function Checkbox({
   onChange,
   className = ''
 }: CheckboxProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const checkboxId = useId()
@@ -67,41 +66,10 @@ export default function Checkbox({
     }
   }
 
-  const handleLabelClick = (e: React.MouseEvent<HTMLLabelElement>) => {
-    e.preventDefault()
-    if (!disabled) {
-      inputRef.current?.click()
-    }
-  }
-
-  const handleWrapperClick = () => {
-    if (inputRef.current && !disabled) {
-      inputRef.current.focus()
-    }
-  }
-
   return (
     <InputWrapper disabled={disabled} borderless size={size} className={mergeClasses('bg-transparent', className)} inputRef={inputRef}>
-      <div
-        cy-id="checkbox-and-label-wrapper"
-        ref={wrapperRef}
-        className="flex justify-start items-center px-1 py-1"
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={handleWrapperClick}
-      >
+      <div cy-id="checkbox-and-label-wrapper" className="flex justify-start items-center px-1 py-1">
         <div cy-id="checkbox-wrapper" className={checkboxWrapperClassName}>
-          <input
-            ref={inputRef}
-            id={checkboxId}
-            type="checkbox"
-            checked={value}
-            disabled={disabled}
-            aria-label={ariaLabel}
-            onMouseDown={(e) => e.preventDefault()}
-            onChange={handleChange}
-            onKeyDown={handleInputKeyDown}
-            className="opacity-0 absolute cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
-          />
           <div
             cy-id="checkbox-div"
             className={mergeClasses('rounded-sm w-full h-full flex justify-center items-center', disabled ? 'bg-checkbox-bg-disabled' : '')}
@@ -116,16 +84,24 @@ export default function Checkbox({
           </div>
         </div>
         {label && (
-          <label
-            cy-id="checkbox-label"
-            className={checkboxLabelClassName}
-            htmlFor={checkboxId}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={handleLabelClick}
-          >
+          <span cy-id="checkbox-label" className={checkboxLabelClassName}>
             {label}
-          </label>
+          </span>
         )}
+        {/* Input is last in DOM so it sits on top of the visual elements in stacking order.
+            Clicks land directly on the native input, so the browser's :focus-visible
+            heuristic works correctly — no outline on mouse click, outline on keyboard focus. */}
+        <input
+          ref={inputRef}
+          id={checkboxId}
+          type="checkbox"
+          checked={value}
+          disabled={disabled}
+          aria-label={ariaLabel}
+          onChange={handleChange}
+          onKeyDown={handleInputKeyDown}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
+        />
       </div>
     </InputWrapper>
   )

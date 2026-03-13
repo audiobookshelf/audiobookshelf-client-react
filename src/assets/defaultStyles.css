@@ -7,8 +7,8 @@
 
 .default-style p {
   display: block;
-  margin-block-start: 1em;
-  margin-block-end: 1em;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
   margin-inline-start: 0px;
   margin-inline-end: 0px;
 }
@@ -22,8 +22,8 @@
   display: block;
   list-style: circle;
   list-style-type: disc;
-  margin-block-start: 1em;
-  margin-block-end: 1em;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   padding-inline-start: 40px;
@@ -33,8 +33,8 @@
   display: block;
   list-style: decimal;
   list-style-type: decimal;
-  margin-block-start: 1em;
-  margin-block-end: 1em;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
   margin-inline-start: 0px;
   margin-inline-end: 0px;
   padding-inline-start: 40px;
@@ -56,15 +56,15 @@
 
 .default-style.less-spacing p {
   margin-block-start: 0;
-  margin-block-end: 0.25em;
+  margin-block-end: 0.5rem;
 }
 
 .default-style.less-spacing ul {
   margin-block-start: 0;
-  margin-block-end: 0.25em;
+  margin-block-end: 0.5rem;
 }
 
 .default-style.less-spacing ol {
   margin-block-start: 0;
-  margin-block-end: 0.25em;
+  margin-block-end: 0.5rem;
 }

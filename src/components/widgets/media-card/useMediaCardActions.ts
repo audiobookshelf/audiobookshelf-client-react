@@ -8,21 +8,13 @@ import {
   sendEbookToDeviceAction,
   toggleFinishedAction
 } from '@/app/actions/mediaActions'
+import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, UserPermissions } from '@/types/api'
-import { useCallback, useMemo, useState, useTransition, type ReactNode } from 'react'
+import { useCallback, useMemo, useState, useTransition } from 'react'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
-
-interface ConfirmState {
-  isOpen: boolean
-  message: string | ReactNode
-  checkboxLabel?: string
-  yesButtonText?: string
-  yesButtonClassName?: string
-  onConfirm: (checkboxValue?: boolean) => void
-}
 
 interface UseMediaCardActionsProps {
   libraryItem: LibraryItem
