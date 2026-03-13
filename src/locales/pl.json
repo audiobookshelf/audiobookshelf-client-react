@@ -317,7 +317,7 @@
   "LabelDiscFromMetadata": "Oznaczenie dysku z metadanych",
   "LabelDiscover": "Odkrywaj",
   "LabelDownload": "Pobierz",
-  "LabelDownloadNEpisodes": "Ściąganie {0} odcinków",
+  "LabelDownloadNEpisodes": "{count, plural, one {Ściąganie odcinka} few {Ściąganie # odcinków} other {Ściąganie # odcinków}}",
   "LabelDownloadable": "Do pobrania",
   "LabelDuration": "Czas trwania",
   "LabelDurationComparisonExactMatch": "(dokładne dopasowanie)",

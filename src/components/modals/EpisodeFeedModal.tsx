@@ -8,7 +8,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
 import { elapsedPretty } from '@/lib/timeUtils'
 import { PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
-import { useLocale } from 'next-intl'
+import { useFormatter, useLocale } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 export interface EpisodeFeedModalProps {
@@ -44,6 +44,7 @@ const getCleanEpisodeUrl = (url: string) => {
 export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episodes, downloadQueue, episodesDownloading }: EpisodeFeedModalProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
+  const format = useFormatter()
   const { showToast } = useGlobalToast()
   const [isPending, startTransition] = useTransition()
 
@@ -228,8 +229,7 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
 
   const buttonText = useMemo(() => {
     if (selectedEpisodes.size === 0) return t('LabelNoEpisodesSelected')
-    if (selectedEpisodes.size === 1) return `${t('LabelDownload')} ${t('LabelEpisode').toLowerCase()}`
-    return t('LabelDownloadNEpisodes', { 0: selectedEpisodes.size })
+    return t('LabelDownloadNEpisodes', { count: selectedEpisodes.size })
   }, [selectedEpisodes.size, t])
 
   if (!isOpen) return null
@@ -283,12 +283,7 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
               bgClass = 'bg-success/10'
             }
 
-            const elapsedMs = Date.now() - (episode.publishedAt ?? 0)
-            const publishedLabel = episode.publishedAt
-              ? elapsedMs < 1000
-                ? t('LabelJustNow')
-                : t('LabelPublishedAgo', { 0: elapsedPretty(elapsedMs / 1000, locale || 'en-us', false, false, true) })
-              : t('LabelUnknown')
+            const publishedLabel = episode.publishedAt ? format.relativeTime(new Date(episode.publishedAt), { now: new Date() }) : t('LabelUnknown')
 
             return (
               <div
