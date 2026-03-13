@@ -36,7 +36,7 @@ export interface EpisodeRowProps {
   onDownloadFile?: (episode: PodcastEpisode) => void
   onShowMoreInfo?: (episode: PodcastEpisode) => void
   onAddToPlaylist?: (episode: PodcastEpisode) => void
-  isStreamingThisEpisode: boolean
+  isPlayingThisEpisode: boolean
   rowIndex: number
 }
 
@@ -52,7 +52,7 @@ export default function EpisodeRow({
   userIsAdmin,
   dateFormat,
   locale,
-  isStreamingThisEpisode,
+  isPlayingThisEpisode,
   onPlay,
   onView,
   onToggleFinished,
@@ -95,7 +95,7 @@ export default function EpisodeRow({
 
   const userIsFinished = progress?.isFinished || false
   const progressPercent = progress?.progress || 0
-  const streamIsPlaying = isStreamingThisEpisode
+  const streamIsPlaying = isPlayingThisEpisode
 
   const timeRemaining = useMemo(() => {
     if (streamIsPlaying) return t('ButtonPlaying')
