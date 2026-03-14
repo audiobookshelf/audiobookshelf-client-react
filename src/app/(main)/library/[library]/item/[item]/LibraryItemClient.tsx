@@ -14,7 +14,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
+import { BookLibraryItem, BookMetadata, PlayerState, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useState } from 'react'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
@@ -26,7 +26,7 @@ interface LibraryItemClientProps {
 export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
   const { user, serverSettings, getLibraryItemProgress } = useUser()
-  const { playItem } = useMediaContext()
+  const { playItem, isStreaming, playerHandler } = useMediaContext()
   const t = useTypeSafeTranslations()
 
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
@@ -43,8 +43,15 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const userProgress = getLibraryItemProgress(libraryItem.id)
   const userCanUpdate = user.permissions?.update || user.type === 'admin' || user.type === 'root'
 
-  // TODO: Implement play logic
+  const isItemPlaying = isStreaming(libraryItem.id) && playerHandler.state.playerState === PlayerState.PLAYING
+
+  // TODO: Handle episodes and player queue
   const handlePlay = () => {
+    if (isStreaming(libraryItem.id)) {
+      playerHandler.controls.playPause()
+      return
+    }
+
     playItem({
       libraryItem,
       episodeId: null,
@@ -128,8 +135,8 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
             <div className="flex items-center gap-2 mt-6">
               <Btn onClick={handlePlay} color="bg-success" className="px-6">
-                <span className="material-symbols fill text-xl mr-1">play_arrow</span>
-                Play
+                <span className="material-symbols fill text-xl mr-1">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
+                {isItemPlaying ? t('ButtonPlaying') : t('ButtonPlay')}
               </Btn>
               <IconBtn onClick={handleOpenEditModal}>edit</IconBtn>
               {!isPodcast && <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />}
