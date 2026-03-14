@@ -15,7 +15,7 @@ import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { EpisodeDownload } from '@/hooks/useItemPageSocket'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { MediaProgress, PlayerState, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
+import { MediaProgress, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
 import { useLocale } from 'next-intl'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -42,7 +42,7 @@ export default function EpisodeTable({
 }: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
-  const { playItem, isStreaming, playerHandler } = useMediaContext()
+  const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
   const { user } = useUser()
   const [, startTransition] = useTransition()
@@ -370,7 +370,7 @@ export default function EpisodeTable({
                     onShowMoreInfo={handleShowMoreInfo}
                     userIsAdmin={userIsAdminOrUp}
                     onAddToPlaylist={handleAddToPlaylist}
-                    isPlayingThisEpisode={playerHandler.state.playerState === PlayerState.PLAYING && isStreaming(libraryItem.id, episode.id)}
+                    isPlayingThisEpisode={isPlaying(libraryItem.id, episode.id)}
                     rowIndex={rowIndex}
                   />
                 </div>

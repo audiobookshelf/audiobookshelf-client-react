@@ -14,7 +14,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { BookLibraryItem, BookMetadata, PlayerState, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
+import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useState } from 'react'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
@@ -26,7 +26,7 @@ interface LibraryItemClientProps {
 export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
   const { user, serverSettings, getLibraryItemProgress } = useUser()
-  const { playItem, isStreaming, playerHandler } = useMediaContext()
+  const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const t = useTypeSafeTranslations()
 
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
@@ -43,7 +43,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const userProgress = getLibraryItemProgress(libraryItem.id)
   const userCanUpdate = user.permissions?.update || user.type === 'admin' || user.type === 'root'
 
-  const isItemPlaying = isStreaming(libraryItem.id) && playerHandler.state.playerState === PlayerState.PLAYING
+  const isItemPlaying = isPlaying(libraryItem.id)
 
   // TODO: Handle episodes and player queue
   const handlePlay = () => {
