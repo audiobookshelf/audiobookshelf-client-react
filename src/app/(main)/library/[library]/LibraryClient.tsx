@@ -138,7 +138,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                 const author = entity as Author
                 return (
                   <div key={author.id + '-' + shelf.id} className="shrink-0 mx-2e">
-                    <AuthorCard author={author} user={user} />
+                    <AuthorCard author={author} />
                   </div>
                 )
               }

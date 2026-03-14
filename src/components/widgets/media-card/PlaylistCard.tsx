@@ -9,6 +9,7 @@ import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIco
 import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCover'
 import { usePlaylistCardActions } from '@/components/widgets/media-card/usePlaylistCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Playlist } from '@/types/api'
@@ -25,9 +26,6 @@ export interface PlaylistCardProps {
   /** Cover configuration */
   bookCoverAspectRatio?: number
   sizeMultiplier?: number
-  /** User permissions */
-  userCanUpdate?: boolean
-  userCanDelete?: boolean
   /** Whether the card is in selection mode */
   isSelectionMode?: boolean
   /** Whether the card is currently selected */
@@ -46,8 +44,6 @@ function PlaylistCard(props: PlaylistCardProps) {
     bookshelfView,
     bookCoverAspectRatio = 1,
     sizeMultiplier,
-    userCanUpdate = false,
-    userCanDelete = false,
     isSelectionMode = false,
     selected = false,
     onSelect,
@@ -56,6 +52,7 @@ function PlaylistCard(props: PlaylistCardProps) {
   } = props
 
   const router = useRouter()
+  const { userCanUpdate } = useUser()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
@@ -113,11 +110,7 @@ function PlaylistCard(props: PlaylistCardProps) {
     }
   }, [])
 
-  const { processing, confirmState, closeConfirm, handleMoreAction, moreMenuItems } = usePlaylistCardActions({
-    playlist,
-    userCanUpdate,
-    userCanDelete
-  })
+  const { processing, confirmState, closeConfirm, handleMoreAction, moreMenuItems } = usePlaylistCardActions({ playlist })
 
   return (
     <>

@@ -1,7 +1,6 @@
 'use client'
 
 import Files from '@/components/widgets/Files'
-import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
@@ -11,7 +10,6 @@ interface FilesExamplesProps {
 }
 
 export function FilesExamples({ selectedBook, selectedPodcast }: FilesExamplesProps) {
-  const { user } = useComponentsCatalog()
   const selectedLibraryItem = selectedBook || selectedPodcast
 
   return (
@@ -26,16 +24,13 @@ export function FilesExamples({ selectedBook, selectedPodcast }: FilesExamplesPr
             <li>
               <Code>libraryItem</Code>: The library item (BookLibraryItem or PodcastLibraryItem).
             </li>
-            <li>
-              <Code>user</Code>: The current user object.
-            </li>
           </ul>
         </div>
       </ComponentInfo>
 
       {selectedLibraryItem ? (
         <Example title={`Files for: ${selectedLibraryItem.media.metadata.title}`} className="mb-6">
-          <Files libraryItem={selectedLibraryItem} user={user} />
+          <Files libraryItem={selectedLibraryItem} />
         </Example>
       ) : (
         <div className="p-8 border-2 border-dashed border-gray-600 rounded-lg">

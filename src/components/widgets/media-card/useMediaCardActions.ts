@@ -11,8 +11,9 @@ import {
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, UserPermissions } from '@/types/api'
+import type { EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
 
@@ -26,7 +27,6 @@ interface UseMediaCardActionsProps {
   itemIsFinished: boolean
   userProgressPercent: number
   isPodcast: boolean
-  userPermissions: UserPermissions
   ereaderDevices: EReaderDevice[]
   continueListeningShelf: boolean
   libraryItemIdStreaming: string | null
@@ -45,7 +45,6 @@ export function useMediaCardActions({
   itemIsFinished,
   userProgressPercent,
   isPodcast,
-  userPermissions,
   ereaderDevices,
   continueListeningShelf,
   libraryItemIdStreaming,
@@ -54,15 +53,12 @@ export function useMediaCardActions({
   isQueued
 }: UseMediaCardActionsProps) {
   const t = useTypeSafeTranslations()
+  const { userCanUpdate, userCanDelete, userIsAdminOrUp } = useUser()
   const { showToast } = useGlobalToast()
   const { addItemToQueue, removeItemFromQueue, playItem } = useMediaContext()
   const [processing, setProcessing] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
-
-  const userCanUpdate = userPermissions.update
-  const userCanDelete = userPermissions.delete
-  const userIsAdminOrUp = userPermissions.accessAllLibraries
 
   const handlePlay = useCallback(() => {
     startTransition(async () => {

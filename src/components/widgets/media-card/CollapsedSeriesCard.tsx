@@ -189,7 +189,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
           isMoreMenuOpen={false}
           showPlayButton={false}
           showReadButton={false}
-          userCanUpdate={false}
+          showEditButton={false}
           playIconFontSize={0}
           moreMenuItems={[]}
           rssFeed={null}

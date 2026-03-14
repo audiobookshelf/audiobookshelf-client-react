@@ -5,6 +5,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog, { type ConfirmState } from '@/components/widgets/ConfirmDialog'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
 import { elapsedPretty } from '@/lib/timeUtils'
@@ -21,10 +22,6 @@ export interface EpisodeRowProps {
   progress: MediaProgress | null
   isSelected: boolean
   isSelectionMode: boolean
-  userCanUpdate: boolean
-  userCanDelete: boolean
-  userCanDownload: boolean
-  userIsAdmin: boolean
   dateFormat: string
   locale: string
   onPlay: (episode: PodcastEpisode) => void
@@ -46,10 +43,6 @@ export default function EpisodeRow({
   progress,
   isSelected,
   isSelectionMode,
-  userCanUpdate,
-  userCanDelete,
-  userCanDownload,
-  userIsAdmin,
   dateFormat,
   locale,
   isPlayingThisEpisode,
@@ -66,15 +59,16 @@ export default function EpisodeRow({
   rowIndex
 }: EpisodeRowProps) {
   const t = useTypeSafeTranslations()
+  const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const [isHovering, setIsHovering] = useState(false)
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
 
   const contextMenuItems = useMemo(() => {
     const items: ContextMenuDropdownItem[] = []
     if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
-    if (userIsAdmin && episode.audioFile) items.push({ text: t('LabelMoreInfo'), action: 'more' })
+    if (userIsAdminOrUp && episode.audioFile) items.push({ text: t('LabelMoreInfo'), action: 'more' })
     return items
-  }, [userCanDownload, userIsAdmin, episode.audioFile, t])
+  }, [userCanDownload, userIsAdminOrUp, episode.audioFile, t])
 
   const closeConfirm = () => setConfirmState(null)
 

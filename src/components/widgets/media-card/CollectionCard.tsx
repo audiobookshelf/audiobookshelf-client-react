@@ -9,6 +9,7 @@ import MediaCardStandardFooter from '@/components/widgets/media-card/MediaCardSt
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -26,10 +27,6 @@ export interface CollectionCardProps {
   /** Cover configuration */
   bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
-  /** User permissions */
-  userCanUpdate?: boolean
-  userCanDelete?: boolean
-  userIsAdmin?: boolean
   /** Whether the card is in selection mode */
   isSelectionMode?: boolean
   /** Whether the card is currently selected */
@@ -50,9 +47,6 @@ function CollectionCard(props: CollectionCardProps) {
     bookshelfView,
     bookCoverAspectRatio,
     sizeMultiplier,
-    userCanUpdate = false,
-    userCanDelete = false,
-    userIsAdmin = false,
     isSelectionMode = false,
     selected = false,
     onSelect,
@@ -62,6 +56,7 @@ function CollectionCard(props: CollectionCardProps) {
   } = props
 
   const router = useRouter()
+  const { userCanUpdate } = useUser()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
@@ -128,9 +123,6 @@ function CollectionCard(props: CollectionCardProps) {
   const { processing, confirmState, closeConfirm, handleMoreAction, moreMenuItems } = useCollectionCardActions({
     collection,
     rssFeed,
-    userCanUpdate,
-    userCanDelete,
-    userIsAdmin,
     onOpenRssFeedModal: handleOpenRssFeedModal
   })
 

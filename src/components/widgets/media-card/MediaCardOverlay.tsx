@@ -5,6 +5,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { MediaItemShare, RssFeed } from '@/types/api'
@@ -46,7 +47,7 @@ interface MediaCardOverlayProps {
   isMoreMenuOpen: boolean
   showPlayButton: boolean
   showReadButton: boolean
-  userCanUpdate: boolean
+  showEditButton?: boolean
   playIconFontSize: number
   moreMenuItems: MediaCardMoreMenuItem[]
   rssFeed: RssFeed | null
@@ -74,7 +75,7 @@ export default function MediaCardOverlay({
   isMoreMenuOpen,
   showPlayButton,
   showReadButton,
-  userCanUpdate,
+  showEditButton = true,
   playIconFontSize,
   moreMenuItems,
   rssFeed,
@@ -92,6 +93,7 @@ export default function MediaCardOverlay({
   onMoreMenuOpenChange,
   onSelect
 }: MediaCardOverlayProps) {
+  const { userCanUpdate } = useUser()
   const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !processing
 
   const t = useTypeSafeTranslations()
@@ -207,7 +209,7 @@ export default function MediaCardOverlay({
           )}
 
           {/* Edit button */}
-          {userCanUpdate && !isSelectionMode && (
+          {showEditButton && userCanUpdate && !isSelectionMode && (
             <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
           )}
 

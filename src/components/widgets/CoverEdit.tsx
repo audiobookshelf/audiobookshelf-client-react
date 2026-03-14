@@ -10,11 +10,12 @@ import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import { useBookCoverProviders, useMetadata, usePodcastCoverProviders } from '@/contexts/MetadataContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useCoverSearch } from '@/hooks/useCoverSearch'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
-import { BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
+import { BookLibraryItem, LibraryFile, PodcastLibraryItem } from '@/types/api'
 import React, { useEffect, useMemo, useState, useTransition } from 'react'
 
 interface LocalCover extends LibraryFile {
@@ -23,12 +24,12 @@ interface LocalCover extends LibraryFile {
 
 interface CoverEditProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
-  user: User
   bookCoverAspectRatio: number
 }
 
-export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: CoverEditProps) {
+export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEditProps) {
   const t = useTypeSafeTranslations()
+  const { user, userCanDelete } = useUser()
   const { showToast } = useGlobalToast()
 
   // Transitions for server actions
@@ -85,7 +86,6 @@ export default function CoverEdit({ libraryItem, user, bookCoverAspectRatio }: C
   }, [libraryItem.libraryFiles, libraryItem.id])
 
   const userCanUpload = user.permissions?.upload || false
-  const userCanDelete = user.permissions?.delete || false
 
   const searchTitleLabel = provider.startsWith('audible') ? t('LabelSearchTitleOrASIN') : provider === 'itunes' ? t('LabelSearchTerm') : t('LabelSearchTitle')
 

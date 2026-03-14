@@ -202,11 +202,10 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     getEmptyMessageKey: () => 'MessageNoAuthorsFound',
     SkeletonComponent: () => <AuthorCardSkeleton />,
     CardComponent: ({ entity, width }) => {
-      const { user } = useUser()
       const author = entity as Author
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
-          <AuthorCard author={author} user={user} />
+          <AuthorCard author={author} />
         </div>
       )
     }
@@ -220,18 +219,10 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       <CollectionCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />
     ),
     CardComponent: ({ entity, bookshelfView, width, coverAspectRatio }) => {
-      const { user } = useUser()
       const collection = entity as Collection
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
-          <CollectionCard
-            collection={collection}
-            bookshelfView={bookshelfView}
-            bookCoverAspectRatio={coverAspectRatio}
-            userCanUpdate={user.permissions?.update}
-            userCanDelete={user.permissions?.delete}
-            userIsAdmin={user.type === 'admin' || user.type === 'root'}
-          />
+          <CollectionCard collection={collection} bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />
         </div>
       )
     }
@@ -243,17 +234,10 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     getEmptyMessageKey: () => 'MessageNoUserPlaylists',
     SkeletonComponent: ({ bookshelfView, coverAspectRatio }) => <PlaylistCardSkeleton bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />,
     CardComponent: ({ entity, bookshelfView, width, coverAspectRatio }) => {
-      const { user } = useUser()
       const playlist = entity as Playlist
       return (
         <div style={{ width: `${width}px`, flexShrink: 0 }}>
-          <PlaylistCard
-            playlist={playlist}
-            bookshelfView={bookshelfView}
-            bookCoverAspectRatio={coverAspectRatio}
-            userCanUpdate={user.permissions?.update}
-            userCanDelete={user.permissions?.delete}
-          />
+          <PlaylistCard playlist={playlist} bookshelfView={bookshelfView} bookCoverAspectRatio={coverAspectRatio} />
         </div>
       )
     }

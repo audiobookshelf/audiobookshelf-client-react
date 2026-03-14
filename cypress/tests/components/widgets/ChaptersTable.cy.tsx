@@ -1,4 +1,5 @@
 import ChaptersTable from '@/components/widgets/ChaptersTable'
+import { UserContext, type UserContextType } from '@/contexts/UserContext'
 import { BookLibraryItem, User } from '@/types/api'
 
 // Inline mocks since fixtures are not found
@@ -27,6 +28,21 @@ const mockUser: User = {
   librariesAccessible: [],
   itemTagsSelected: [],
   hasOpenIDLink: false
+}
+
+const mockUserContextValue: UserContextType = {
+  user: mockUser,
+  userCanUpdate: true,
+  userCanDelete: true,
+  userCanDownload: true,
+  userIsAdminOrUp: true,
+  token: mockUser.token,
+  serverSettings: {} as UserContextType['serverSettings'],
+  userDefaultLibraryId: 'test-library-id',
+  ereaderDevices: [],
+  Source: 'test',
+  getLibraryItemProgress: () => undefined,
+  getEpisodeProgress: () => undefined
 }
 
 const mockLibraryItem: BookLibraryItem = {
@@ -83,7 +99,11 @@ describe('ChaptersTable', () => {
       { id: 2, start: 60, end: 120, title: 'Chapter 2' }
     ]
 
-    cy.mount(<ChaptersTable libraryItem={libraryItem} user={mockUser} expanded />)
+    cy.mount(
+      <UserContext.Provider value={mockUserContextValue}>
+        <ChaptersTable libraryItem={libraryItem} expanded />
+      </UserContext.Provider>
+    )
 
     cy.get('table').should('exist')
     cy.contains('Chapter 1').should('be.visible')
@@ -96,7 +116,11 @@ describe('ChaptersTable', () => {
     const libraryItem = { ...mockLibraryItem }
     libraryItem.media.chapters = [{ id: 1, start: 0, end: 60, title: 'Chapter 1' }]
 
-    cy.mount(<ChaptersTable libraryItem={libraryItem} user={mockUser} expanded />)
+    cy.mount(
+      <UserContext.Provider value={mockUserContextValue}>
+        <ChaptersTable libraryItem={libraryItem} expanded />
+      </UserContext.Provider>
+    )
 
     // Mobile (xs) - Duration should be hidden
     cy.viewport(375, 667)

@@ -7,11 +7,11 @@ import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import EpisodeTable from '@/components/widgets/EpisodeTable'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -29,7 +29,7 @@ interface LibraryItemClientProps {
 
 export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
-  const { user, serverSettings, getLibraryItemProgress } = useUser()
+  const { serverSettings, getLibraryItemProgress, userCanUpdate, userIsAdminOrUp } = useUser()
   const { playItem } = useMediaContext()
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
@@ -47,9 +47,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const description = 'description' in metadata ? metadata.description : undefined
 
   const userProgress = getLibraryItemProgress(libraryItem.id)
-  const userCanUpdate = user.permissions?.update || user.type === 'admin' || user.type === 'root'
-  const userIsAdminOrUp = user.type === 'admin' || user.type === 'root'
-
   // TODO: Implement play logic
   const handlePlay = () => {
     playItem({
@@ -178,9 +175,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 {episodesDownloading.map((episode) => (
                   <div key={episode.id} className="flex items-center">
                     <LoadingSpinner />
-                    <p className="text-sm py-1 pl-4">
-                      {`${t('MessageDownloadingEpisode')} "${episode.episodeDisplayTitle ?? ''}"`}
-                    </p>
+                    <p className="text-sm py-1 pl-4">{`${t('MessageDownloadingEpisode')} "${episode.episodeDisplayTitle ?? ''}"`}</p>
                   </div>
                 ))}
               </div>
@@ -191,12 +186,12 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
             <div className="mt-20 flex flex-col gap-4">
               {/* chapters table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.chapters?.length ?? 0) > 0 && (
-                <ChaptersTable libraryItem={libraryItem as BookLibraryItem} user={user} />
+                <ChaptersTable libraryItem={libraryItem as BookLibraryItem} />
               )}
 
               {/* audio tracks table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
-                <AudioTracksTable libraryItem={libraryItem as BookLibraryItem} user={user} />
+                <AudioTracksTable libraryItem={libraryItem as BookLibraryItem} />
               )}
 
               {/* podcast episodes table */}
@@ -210,7 +205,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               )}
 
               {/* library files table */}
-              {!isPodcast && (libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} user={user} />}
+              {!isPodcast && (libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} />}
             </div>
           </div>
         </div>

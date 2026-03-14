@@ -35,7 +35,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const locale = useLocale()
   const { playItem, isStreaming, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
-  const { user } = useUser()
+  const { user, userIsAdminOrUp } = useUser()
   const [, startTransition] = useTransition()
 
   const [isEpisodeFeedModalOpen, setIsEpisodeFeedModalOpen] = useState(false)
@@ -59,11 +59,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     },
     [episodeProgressMap]
   )
-
-  const userCanUpdate = user.permissions?.update || user.type === 'admin' || user.type === 'root'
-  const userCanDelete = user.permissions?.delete || user.type === 'admin' || user.type === 'root'
-  const userCanDownload = user.permissions?.download || user.type === 'admin' || user.type === 'root'
-  const userIsAdminOrUp = user.type === 'admin' || user.type === 'root'
 
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
@@ -374,9 +369,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     progress={getEpisodeProgress?.(episode.id) || null}
                     isSelected={selectedEpisodes.has(episode.id)}
                     isSelectionMode={isSelectionMode}
-                    userCanUpdate={userCanUpdate}
-                    userCanDelete={userCanDelete}
-                    userCanDownload={userCanDownload}
                     dateFormat={dateFormat}
                     locale={locale}
                     onPlay={handlePlayEpisode}
@@ -387,7 +379,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     onRemove={handleRemoveEpisode}
                     onDownloadFile={handleDownloadFile}
                     onShowMoreInfo={handleShowMoreInfo}
-                    userIsAdmin={userIsAdminOrUp}
                     onAddToPlaylist={handleAddToPlaylist}
                     isPlayingThisEpisode={playerHandler.state.playerState === PlayerState.PLAYING && isStreaming(libraryItem.id, episode.id)}
                     rowIndex={rowIndex}
