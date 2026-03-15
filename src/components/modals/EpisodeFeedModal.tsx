@@ -240,7 +240,7 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
       onClose={onClose}
       outerContent={
         <div className="absolute top-0 left-0 p-5 w-2/3 overflow-hidden pointer-events-none">
-          <p className="text-3xl text-white truncate drop-shadow-md">{libraryItem.media.metadata.title}</p>
+          <p className="text-3xl text-foreground truncate drop-shadow-md">{libraryItem.media.metadata.title}</p>
         </div>
       }
       style={{ maxWidth: 1200 }}
@@ -272,8 +272,8 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
           {episodesList.map((episode) => {
             const isSelected = selectedEpisodes.has(episode.cleanUrl)
             let bgClass = 'even:bg-table-row-bg-even hover:bg-table-row-bg-hover'
-            let textClass = 'text-gray-200'
-            let subTextClass = 'text-gray-300'
+            let textClass = 'text-foreground'
+            let subTextClass = 'text-foreground-muted'
 
             if (episode.isDownloaded || episode.isDownloading) {
               bgClass = 'bg-primary/40'
