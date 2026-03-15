@@ -272,11 +272,11 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
         allSelectedEpisodesFinished={allSelectedEpisodesFinished}
         libraryItemId={libraryItem.id}
         onClearSelection={handleClearSelection}
-        onFindEpisodes={handleFindEpisodes}
+        onFindEpisodes={userIsAdminOrUp ? handleFindEpisodes : undefined}
         isFetchingRSSFeed={fetchingRSSFeed}
       />
     ),
-    [isSelectionMode, selectedEpisodes, allSelectedEpisodesFinished, libraryItem.id, handleClearSelection, handleFindEpisodes, fetchingRSSFeed]
+    [isSelectionMode, selectedEpisodes, allSelectedEpisodesFinished, libraryItem.id, handleClearSelection, handleFindEpisodes, fetchingRSSFeed, userIsAdminOrUp]
   )
 
   const isFiltered = hasMounted && filteredEpisodes.length !== episodes.length

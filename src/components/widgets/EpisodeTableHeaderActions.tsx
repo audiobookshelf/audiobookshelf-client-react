@@ -129,6 +129,8 @@ export default function EpisodeTableHeaderActions({
     )
   }
 
+  if (!onFindEpisodes) return null
+
   return (
     <Btn size="small" onClick={onFindEpisodes} loading={isFetchingRSSFeed}>
       {t('LabelFindEpisodes')}&nbsp;<span className="material-symbols">podcasts</span>
