@@ -2,7 +2,7 @@
 
 import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
 import { usePlayerHandler, type PlayerHandlerControls, type PlayerHandlerState } from '@/hooks/usePlayerHandler'
-import type { LibraryItem } from '@/types/api'
+import { LibraryItem, PlayerState } from '@/types/api'
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
 export interface PlayerQueueItem {
@@ -31,6 +31,7 @@ interface MediaContextValue {
   // Stream utilities
   isStreaming: (libraryItemId: string, episodeId?: string | null) => boolean
   isStreamingFromDifferentLibrary: (libraryId?: string) => boolean
+  isPlaying: (libraryItemId: string, episodeId?: string | null) => boolean
   getIsMediaQueued: (libraryItemId: string, episodeId?: string | null) => boolean
 
   // Stream actions
@@ -98,6 +99,14 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       return streamLibraryItem.libraryId !== libraryId
     },
     [streamLibraryItem]
+  )
+
+  const isPlaying = useCallback(
+    (libraryItemId: string, episodeId?: string | null) => {
+      if (!isStreaming(libraryItemId, episodeId)) return false
+      return playerState.playerState === PlayerState.PLAYING
+    },
+    [isStreaming, playerState.playerState]
   )
 
   const getIsMediaQueued = useCallback(
@@ -181,6 +190,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       // Stream utilities
       isStreaming,
       isStreamingFromDifferentLibrary,
+      isPlaying,
       getIsMediaQueued,
 
       // Stream actions
@@ -207,6 +217,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       libraryItemIdStreaming,
       isStreaming,
       isStreamingFromDifferentLibrary,
+      isPlaying,
       getIsMediaQueued,
       clearStreamMedia,
       addItemToQueue,

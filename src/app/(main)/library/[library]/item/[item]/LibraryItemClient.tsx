@@ -30,7 +30,7 @@ interface LibraryItemClientProps {
 export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
   const { serverSettings, getLibraryItemProgress, userCanUpdate, userIsAdminOrUp } = useUser()
-  const { playItem } = useMediaContext()
+  const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
@@ -47,8 +47,16 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const description = 'description' in metadata ? metadata.description : undefined
 
   const userProgress = getLibraryItemProgress(libraryItem.id)
-  // TODO: Implement play logic
+
+  const isItemPlaying = isPlaying(libraryItem.id)
+
+  // TODO: Handle episodes and player queue
   const handlePlay = () => {
+    if (isStreaming(libraryItem.id)) {
+      playerHandler.controls.playPause()
+      return
+    }
+
     playItem({
       libraryItem,
       episodeId: null,
@@ -143,8 +151,8 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
             <div className="flex items-center gap-2 mt-6">
               <Btn onClick={handlePlay} color="bg-success" className="px-6">
-                <span className="material-symbols fill text-xl mr-1">play_arrow</span>
-                Play
+                <span className="material-symbols fill text-xl mr-1">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
+                {isItemPlaying ? t('ButtonPlaying') : t('ButtonPlay')}
               </Btn>
               <IconBtn onClick={handleOpenEditModal}>edit</IconBtn>
               {!isPodcast && <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />}

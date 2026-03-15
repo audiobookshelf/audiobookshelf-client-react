@@ -15,7 +15,7 @@ import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
 import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { MediaProgress, PlayerState, PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
+import { MediaProgress, PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
 import { useLocale } from 'next-intl'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -33,7 +33,7 @@ interface EpisodeTableProps {
 export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', episodesDownloading = [], episodeDownloadsQueued = [] }: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
-  const { playItem, isStreaming, playerHandler } = useMediaContext()
+  const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
   const { user, userIsAdminOrUp } = useUser()
   const [, startTransition] = useTransition()
@@ -380,7 +380,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     onDownloadFile={handleDownloadFile}
                     onShowMoreInfo={handleShowMoreInfo}
                     onAddToPlaylist={handleAddToPlaylist}
-                    isPlayingThisEpisode={playerHandler.state.playerState === PlayerState.PLAYING && isStreaming(libraryItem.id, episode.id)}
+                    isPlayingThisEpisode={isPlaying(libraryItem.id, episode.id)}
                     rowIndex={rowIndex}
                   />
                 </div>
