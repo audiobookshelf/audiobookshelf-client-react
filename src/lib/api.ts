@@ -12,6 +12,7 @@ import {
   Collection,
   CreateApiKeyPayload,
   CreateUpdateApiKeyResponse,
+  FetchPodcastFeedResponse,
   FFProbeData,
   GetApiKeysResponse,
   GetAuthorsResponse,
@@ -33,6 +34,7 @@ import {
   PersonalizedShelf,
   Playlist,
   PodcastSearchResult,
+  RssPodcastEpisode,
   SaveLibraryOrderApiResponse,
   SearchLibraryResponse,
   Series,
@@ -617,6 +619,39 @@ export async function deleteLibraryItemMediaEpisode(libraryItemId: string, episo
   const hard = hardDelete ? '?hard=1' : ''
   return apiRequest<void>(`/api/podcasts/${libraryItemId}/episode/${episodeId}${hard}`, {
     method: 'DELETE'
+  })
+}
+
+/**
+ * Fetch podcast feed using an RSS URL
+ * @param rssFeed - RSS Feed URL
+ */
+export async function fetchPodcastFeed(rssFeed: string): Promise<FetchPodcastFeedResponse> {
+  return apiRequest<FetchPodcastFeedResponse>(`/api/podcasts/feed`, {
+    method: 'POST',
+    body: JSON.stringify({ rssFeed })
+  })
+}
+
+/**
+ * Download selected podcast episodes
+ * @param libraryItemId - Library item ID
+ * @param episodes - Array of episodes to download
+ */
+export async function downloadPodcastEpisodes(libraryItemId: string, episodes: RssPodcastEpisode[]): Promise<void> {
+  return apiRequest<void>(`/api/podcasts/${libraryItemId}/download-episodes`, {
+    method: 'POST',
+    body: JSON.stringify(episodes)
+  })
+}
+
+/**
+ * Clear queued podcast episode downloads for a library item.
+ * @param libraryItemId - Library item ID
+ */
+export async function clearPodcastDownloadQueue(libraryItemId: string): Promise<void> {
+  return apiRequest<void>(`/api/podcasts/${libraryItemId}/clear-queue`, {
+    method: 'GET'
   })
 }
 

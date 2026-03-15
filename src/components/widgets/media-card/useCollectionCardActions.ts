@@ -2,6 +2,7 @@
 
 import { createPlaylistFromCollectionAction, deleteCollectionAction } from '@/app/actions/collectionActions'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Collection, RssFeed } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -20,21 +21,16 @@ interface ConfirmState {
 interface UseCollectionCardActionsProps {
   collection: Collection
   rssFeed: RssFeed | null
-  userCanUpdate: boolean
-  userCanDelete: boolean
-  userIsAdmin: boolean
   onOpenRssFeedModal?: () => void
 }
 
 export function useCollectionCardActions({
   collection,
   rssFeed,
-  userCanUpdate,
-  userCanDelete,
-  userIsAdmin,
   onOpenRssFeedModal
 }: UseCollectionCardActionsProps) {
   const t = useTypeSafeTranslations()
+  const { userCanUpdate, userCanDelete, userIsAdminOrUp } = useUser()
   const router = useRouter()
   const { showToast } = useGlobalToast()
   const [processing, setProcessing] = useState(false)
@@ -100,7 +96,7 @@ export function useCollectionCardActions({
     }
 
     // Open RSS Feed - show if admin or if collection has an RSS feed
-    if (userIsAdmin || rssFeed) {
+    if (userIsAdminOrUp || rssFeed) {
       items.push({
         text: t('LabelOpenRSSFeed'),
         func: 'openRssFeed'
@@ -116,7 +112,7 @@ export function useCollectionCardActions({
     }
 
     return items
-  }, [rssFeed, t, userCanDelete, userCanUpdate, userIsAdmin])
+  }, [rssFeed, t, userCanDelete, userCanUpdate, userIsAdminOrUp])
 
   const closeConfirm = useCallback(() => {
     setConfirmState(null)

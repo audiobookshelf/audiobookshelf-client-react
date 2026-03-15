@@ -7,10 +7,11 @@ import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/Co
 import DataTable from '@/components/ui/DataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
-import { AudioFile, BookLibraryItem, LibraryFile, PodcastLibraryItem, User } from '@/types/api'
+import { AudioFile, BookLibraryItem, LibraryFile, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import ConfirmDialog from './ConfirmDialog'
 
@@ -41,14 +42,14 @@ interface LibraryFileWithAudio extends LibraryFile {
 
 interface LibraryFilesTableProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
-  user: User
   keepOpen?: boolean
   inModal?: boolean
   expanded?: boolean
 }
 
-export default function LibraryFilesTable({ libraryItem, user, keepOpen = false, inModal = false, expanded: expandedProp = false }: LibraryFilesTableProps) {
+export default function LibraryFilesTable({ libraryItem, keepOpen = false, inModal = false, expanded: expandedProp = false }: LibraryFilesTableProps) {
   const t = useTypeSafeTranslations()
+  const { userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const { showToast } = useGlobalToast()
   const [, startDeleteTransition] = useTransition()
   const [expanded, setExpanded] = useState(expandedProp)
@@ -56,10 +57,6 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
   const [fileToDelete, setFileToDelete] = useState<LibraryFileWithAudio | null>(null)
 
   const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
-
-  const userCanDownload = useMemo(() => user.permissions?.download || false, [user.permissions])
-  const userCanDelete = useMemo(() => user.permissions?.delete || false, [user.permissions])
-  const userIsAdmin = useMemo(() => user.type === 'root' || user.type === 'admin', [user.type])
 
   const files = useMemo<LibraryFile[]>(() => libraryItem.libraryFiles || [], [libraryItem.libraryFiles])
 
@@ -82,11 +79,11 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
 
   // Load showFullPath preference from localStorage on mount
   useEffect(() => {
-    if (userIsAdmin) {
+    if (userIsAdminOrUp) {
       const stored = localStorage.getItem('showFullPath')
       setShowFullPath(stored === '1')
     }
-  }, [userIsAdmin])
+  }, [userIsAdminOrUp])
 
   // Sync expanded state with props (keepOpen takes precedence)
   useEffect(() => {
@@ -153,7 +150,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
           const items: ContextMenuDropdownItem[] = []
           if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
           if (userCanDelete) items.push({ text: t('ButtonDelete'), action: 'delete' })
-          if (userIsAdmin && row.audioFile && !inModal) items.push({ text: t('LabelMoreInfo'), action: 'more' })
+          if (userIsAdminOrUp && row.audioFile && !inModal) items.push({ text: t('LabelMoreInfo'), action: 'more' })
 
           if (items.length === 0) return null
 
@@ -177,12 +174,12 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
-    [t, showFullPath, userCanDownload, userCanDelete, userIsAdmin, inModal, handleDeleteFile, downloadFile, showMoreInfo]
+    [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, inModal, handleDeleteFile, downloadFile, showMoreInfo]
   )
 
   const headerActions = useMemo(
     () =>
-      userIsAdmin ? (
+      userIsAdminOrUp ? (
         <Btn
           color={showFullPath ? 'bg-button-selected-bg' : ''}
           size="small"
@@ -195,7 +192,7 @@ export default function LibraryFilesTable({ libraryItem, user, keepOpen = false,
           {t('ButtonFullPath')}
         </Btn>
       ) : null,
-    [userIsAdmin, showFullPath, toggleFullPath, t]
+    [userIsAdminOrUp, showFullPath, toggleFullPath, t]
   )
 
   return (

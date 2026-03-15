@@ -1,7 +1,6 @@
 'use client'
 
 import Chapters from '@/components/widgets/Chapters'
-import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
 import { BookLibraryItem } from '@/types/api'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
@@ -51,8 +50,6 @@ const mockBookWithoutChapters: BookLibraryItem = {
 }
 
 export function ChaptersExamples({ selectedBook }: ChaptersExamplesProps) {
-  const { user } = useComponentsCatalog()
-
   return (
     <ComponentExamples title="Chapters">
       <ComponentInfo component="Chapters" description="Component that displays chapters information including ID, title, start time, and duration.">
@@ -65,9 +62,6 @@ export function ChaptersExamples({ selectedBook }: ChaptersExamplesProps) {
             <li>
               <Code>libraryItem</Code>: The book library item with chapters (BookLibraryItem).
             </li>
-            <li>
-              <Code>user</Code>: The current user object.
-            </li>
           </ul>
         </div>
       </ComponentInfo>
@@ -75,11 +69,11 @@ export function ChaptersExamples({ selectedBook }: ChaptersExamplesProps) {
       {selectedBook ? (
         <>
           <Example title={`Chapters for: ${selectedBook.media.metadata.title}`} className="mb-6">
-            <Chapters libraryItem={selectedBook} user={user} />
+            <Chapters libraryItem={selectedBook} />
           </Example>
 
           <Example title="Book Without Chapters (Mock Data)" className="mb-6">
-            <Chapters libraryItem={mockBookWithoutChapters} user={user} />
+            <Chapters libraryItem={mockBookWithoutChapters} />
           </Example>
         </>
       ) : (

@@ -10,7 +10,7 @@ interface CoverEditExamplesProps {
 }
 
 export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProps) {
-  const { user, bookCoverAspectRatio } = useComponentsCatalog()
+  const { bookCoverAspectRatio } = useComponentsCatalog()
   return (
     <ComponentExamples title="Cover Edit">
       <ComponentInfo
@@ -27,9 +27,6 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
               <Code>libraryItem</Code>: The library item to manage covers for.
             </li>
             <li>
-              <Code>user</Code>: Current user with permissions.
-            </li>
-            <li>
               <Code>bookCoverAspectRatio</Code>: Aspect ratio for book covers.
             </li>
           </ul>
@@ -40,7 +37,7 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
         {/* Cover Component Display */}
         {selectedLibraryItem ? (
           <div style={{ height: '600px' }}>
-            <CoverEdit libraryItem={selectedLibraryItem} user={user} bookCoverAspectRatio={bookCoverAspectRatio} />
+            <CoverEdit libraryItem={selectedLibraryItem} bookCoverAspectRatio={bookCoverAspectRatio} />
           </div>
         ) : (
           <div className="p-8 text-center border-2 border-dashed border-primary/20 rounded-lg">

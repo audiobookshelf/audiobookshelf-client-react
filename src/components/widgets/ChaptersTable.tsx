@@ -3,24 +3,24 @@
 import Btn from '@/components/ui/Btn'
 import DataTable from '@/components/ui/DataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
-import { BookLibraryItem, Chapter, User } from '@/types/api'
+import { BookLibraryItem, Chapter } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface ChaptersTableProps {
   libraryItem: BookLibraryItem
-  user: User
   keepOpen?: boolean
   expanded?: boolean
 }
 
-export default function ChaptersTable({ libraryItem, user, keepOpen = false, expanded: expandedProp = false }: ChaptersTableProps) {
+export default function ChaptersTable({ libraryItem, keepOpen = false, expanded: expandedProp = false }: ChaptersTableProps) {
   const t = useTypeSafeTranslations()
+  const { userCanUpdate } = useUser()
   const [expanded, setExpanded] = useState(expandedProp)
 
   const chapters = useMemo<Chapter[]>(() => libraryItem.media.chapters || [], [libraryItem.media.chapters])
-  const userCanUpdate = useMemo(() => user.permissions?.update || false, [user.permissions])
 
   // Sync expanded state with props (keepOpen takes precedence)
   useEffect(() => {

@@ -84,7 +84,6 @@ function MediaCard(props: MediaCardProps) {
     sizeMultiplier,
     dateFormat,
     timeFormat,
-    userPermissions,
     ereaderDevices,
     showSubtitles,
     renderBadges,
@@ -240,7 +239,6 @@ function MediaCard(props: MediaCardProps) {
     itemIsFinished,
     userProgressPercent,
     isPodcast,
-    userPermissions,
     ereaderDevices,
     continueListeningShelf,
     libraryItemIdStreaming,
@@ -312,7 +310,6 @@ function MediaCard(props: MediaCardProps) {
             isMoreMenuOpen={isMoreMenuOpen}
             showPlayButton={showPlayButton}
             showReadButton={showReadButton}
-            userCanUpdate={userPermissions.update}
             playIconFontSize={playIconFontSize}
             moreMenuItems={moreMenuItems}
             rssFeed={rssFeed}

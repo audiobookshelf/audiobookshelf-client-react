@@ -4,10 +4,11 @@ import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import DataTable from '@/components/ui/DataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { bytesPretty } from '@/lib/string'
-import { AudioFile, AudioTrack, BookLibraryItem, User } from '@/types/api'
+import { AudioFile, AudioTrack, BookLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 const MIN_INDEX_WIDTH = 40
@@ -25,7 +26,6 @@ const CODEC_MIN_TABLE_WIDTH = BITRATE_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDT
 
 interface AudioTracksTableProps {
   libraryItem: BookLibraryItem
-  user: User
   keepOpen?: boolean
   expanded?: boolean
   className?: string
@@ -35,14 +35,11 @@ interface TrackWithAudioFile extends AudioTrack {
   audioFile?: AudioFile
 }
 
-export default function AudioTracksTable({ libraryItem, user, keepOpen = false, expanded: expandedProp = false, className }: AudioTracksTableProps) {
+export default function AudioTracksTable({ libraryItem, keepOpen = false, expanded: expandedProp = false, className }: AudioTracksTableProps) {
   const t = useTypeSafeTranslations()
+  const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const [expanded, setExpanded] = useState(expandedProp)
   const [showFullPath, setShowFullPath] = useState(false)
-
-  const userCanDownload = user.permissions?.download || false
-  const userCanDelete = user.permissions?.delete || false
-  const userIsAdmin = user.type === 'admin' || user.type === 'root'
 
   // Sync expanded state with props
   useEffect(() => {
@@ -51,11 +48,11 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
 
   // Load showFullPath from localStorage (admin only)
   useEffect(() => {
-    if (userIsAdmin) {
+    if (userIsAdminOrUp) {
       const saved = localStorage.getItem('showFullPath')
       setShowFullPath(saved === '1')
     }
-  }, [userIsAdmin])
+  }, [userIsAdminOrUp])
 
   const handleToggleFullPath = useCallback(() => {
     setShowFullPath((prev) => {
@@ -128,7 +125,7 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
           const items: ContextMenuDropdownItem[] = []
           if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
           if (userCanDelete) items.push({ text: t('ButtonDelete'), action: 'delete' })
-          if (userIsAdmin && row.audioFile) items.push({ text: t('LabelMoreInfo'), action: 'more' })
+          if (userIsAdminOrUp && row.audioFile) items.push({ text: t('LabelMoreInfo'), action: 'more' })
 
           if (items.length === 0) return null
 
@@ -161,11 +158,11 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
-    [t, showFullPath, userCanDownload, userCanDelete, userIsAdmin, libraryItem.id, handleShowMore]
+    [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, libraryItem.id, handleShowMore]
   )
 
   const headerActions = useMemo(() => {
-    const manageTracksBtn = user.permissions?.update ? (
+    const manageTracksBtn = userCanUpdate ? (
       <Btn
         key="manage-tracks"
         to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`}
@@ -180,7 +177,7 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
       </Btn>
     ) : null
 
-    const fullPathBtn = userIsAdmin ? (
+    const fullPathBtn = userIsAdminOrUp ? (
       <Btn
         key="full-path"
         color={showFullPath ? 'bg-button-selected-bg' : ''}
@@ -201,7 +198,7 @@ export default function AudioTracksTable({ libraryItem, user, keepOpen = false, 
         {fullPathBtn}
       </div>
     )
-  }, [userIsAdmin, showFullPath, handleToggleFullPath, t, user.permissions?.update, libraryItem.id, libraryItem.libraryId])
+  }, [userCanUpdate, userIsAdminOrUp, showFullPath, handleToggleFullPath, t, libraryItem.id, libraryItem.libraryId])
 
   if (tracksWithAudioFile.length === 0) {
     return null

@@ -1,7 +1,8 @@
 'use client'
 
-import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, toggleFinishedAction } from '@/app/actions/mediaActions'
+import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fetchPodcastFeedAction, toggleFinishedAction } from '@/app/actions/mediaActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
+import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
 import EpisodeTableHeaderActions from '@/components/widgets/EpisodeTableHeaderActions'
@@ -12,10 +13,9 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
 import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
-import { EpisodeDownload } from '@/hooks/useItemPageSocket'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { MediaProgress, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
+import { MediaProgress, PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
 import { useLocale } from 'next-intl'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -23,29 +23,24 @@ interface EpisodeTableProps {
   libraryItem: PodcastLibraryItem
   /** Date format from server settings */
   dateFormat?: string
-  episodesDownloading?: EpisodeDownload[]
-  episodeDownloadsQueued?: EpisodeDownload[]
-  onFindEpisodes?: () => void
+  episodesDownloading?: PodcastEpisodeDownload[]
+  episodeDownloadsQueued?: PodcastEpisodeDownload[]
 }
 
 /**
  * Table for podcast episodes with advanced filtering, sorting, and management controls.
  */
-export default function EpisodeTable({
-  libraryItem,
-  dateFormat = 'MM/dd/yyyy',
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  episodesDownloading = [],
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  episodeDownloadsQueued = [],
-  onFindEpisodes
-}: EpisodeTableProps) {
+export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', episodesDownloading = [], episodeDownloadsQueued = [] }: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
   const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
-  const { user } = useUser()
+  const { user, userIsAdminOrUp } = useUser()
   const [, startTransition] = useTransition()
+
+  const [isEpisodeFeedModalOpen, setIsEpisodeFeedModalOpen] = useState(false)
+  const [podcastFeedEpisodes, setPodcastFeedEpisodes] = useState<RssPodcastEpisode[]>([])
+  const [fetchingRSSFeed, startFetchingRSSTransition] = useTransition()
 
   // Create a dictionary of progress entries for this library item for O(1) lookup
   const episodeProgressMap = useMemo(() => {
@@ -64,11 +59,6 @@ export default function EpisodeTable({
     },
     [episodeProgressMap]
   )
-
-  const userCanUpdate = user.permissions?.update || user.type === 'admin' || user.type === 'root'
-  const userCanDelete = user.permissions?.delete || user.type === 'admin' || user.type === 'root'
-  const userCanDownload = user.permissions?.download || user.type === 'admin' || user.type === 'root'
-  const userIsAdminOrUp = user.type === 'admin' || user.type === 'root'
 
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
@@ -168,6 +158,29 @@ export default function EpisodeTable({
     console.log('Edit episode:', episode.id)
   }, [])
 
+  const handleFindEpisodes = useCallback(() => {
+    const feedUrl = libraryItem.media.metadata.feedUrl
+    if (!feedUrl) {
+      showToast(t('ToastNoRSSFeed'), { type: 'error' })
+      return
+    }
+
+    startFetchingRSSTransition(async () => {
+      try {
+        const payload = await fetchPodcastFeedAction(feedUrl)
+        if (!payload || !payload.podcast?.episodes?.length) {
+          showToast(t('ToastPodcastNoEpisodesInFeed'), { type: 'info' })
+          return
+        }
+        setPodcastFeedEpisodes(payload.podcast.episodes)
+        setIsEpisodeFeedModalOpen(true)
+      } catch (error) {
+        console.error('Failed to get feed', error)
+        showToast(t('ToastPodcastGetFeedFailed'), { type: 'error' })
+      }
+    })
+  }, [libraryItem.media.metadata.feedUrl, t, showToast])
+
   const handleDownloadFile = useCallback(
     (episode: PodcastEpisode) => {
       if (episode.audioFile) {
@@ -259,10 +272,11 @@ export default function EpisodeTable({
         allSelectedEpisodesFinished={allSelectedEpisodesFinished}
         libraryItemId={libraryItem.id}
         onClearSelection={handleClearSelection}
-        onFindEpisodes={onFindEpisodes}
+        onFindEpisodes={userIsAdminOrUp ? handleFindEpisodes : undefined}
+        isFetchingRSSFeed={fetchingRSSFeed}
       />
     ),
-    [isSelectionMode, selectedEpisodes, allSelectedEpisodesFinished, libraryItem.id, handleClearSelection, onFindEpisodes]
+    [isSelectionMode, selectedEpisodes, allSelectedEpisodesFinished, libraryItem.id, handleClearSelection, handleFindEpisodes, fetchingRSSFeed, userIsAdminOrUp]
   )
 
   const isFiltered = hasMounted && filteredEpisodes.length !== episodes.length
@@ -355,9 +369,6 @@ export default function EpisodeTable({
                     progress={getEpisodeProgress?.(episode.id) || null}
                     isSelected={selectedEpisodes.has(episode.id)}
                     isSelectionMode={isSelectionMode}
-                    userCanUpdate={userCanUpdate}
-                    userCanDelete={userCanDelete}
-                    userCanDownload={userCanDownload}
                     dateFormat={dateFormat}
                     locale={locale}
                     onPlay={handlePlayEpisode}
@@ -368,7 +379,6 @@ export default function EpisodeTable({
                     onRemove={handleRemoveEpisode}
                     onDownloadFile={handleDownloadFile}
                     onShowMoreInfo={handleShowMoreInfo}
-                    userIsAdmin={userIsAdminOrUp}
                     onAddToPlaylist={handleAddToPlaylist}
                     isPlayingThisEpisode={isPlaying(libraryItem.id, episode.id)}
                     rowIndex={rowIndex}
@@ -382,6 +392,14 @@ export default function EpisodeTable({
 
       <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
+      <EpisodeFeedModal
+        isOpen={isEpisodeFeedModalOpen}
+        onClose={() => setIsEpisodeFeedModalOpen(false)}
+        libraryItem={libraryItem}
+        episodes={podcastFeedEpisodes}
+        downloadQueue={episodeDownloadsQueued}
+        episodesDownloading={episodesDownloading}
+      />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 
 import { useSocketEvent } from '@/contexts/SocketContext'
-import type { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
+import type { BookLibraryItem, PodcastEpisodeDownload, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useState } from 'react'
 
 // Types for socket events
@@ -18,12 +18,6 @@ export interface MediaItemShare {
   slug: string
 }
 
-export interface EpisodeDownload {
-  id: string
-  libraryItemId: string
-  episodeId: string
-  episodeDisplayTitle?: string
-}
 
 interface UseItemPageSocketOptions {
   libraryItemId: string
@@ -35,8 +29,8 @@ interface UseItemPageSocketOptions {
 interface UseItemPageSocketReturn {
   rssFeed: RssFeed | null
   mediaItemShare: MediaItemShare | null
-  episodesDownloading: EpisodeDownload[]
-  episodeDownloadsQueued: EpisodeDownload[]
+  episodesDownloading: PodcastEpisodeDownload[]
+  episodeDownloadsQueued: PodcastEpisodeDownload[]
 }
 
 /**
@@ -51,8 +45,8 @@ interface UseItemPageSocketReturn {
 export function useItemPageSocket({ libraryItemId, mediaId, isPodcast, onItemUpdated }: UseItemPageSocketOptions): UseItemPageSocketReturn {
   const [rssFeed, setRssFeed] = useState<RssFeed | null>(null)
   const [mediaItemShare, setMediaItemShare] = useState<MediaItemShare | null>(null)
-  const [episodesDownloading, setEpisodesDownloading] = useState<EpisodeDownload[]>([])
-  const [episodeDownloadsQueued, setEpisodeDownloadsQueued] = useState<EpisodeDownload[]>([])
+  const [episodesDownloading, setEpisodesDownloading] = useState<PodcastEpisodeDownload[]>([])
+  const [episodeDownloadsQueued, setEpisodeDownloadsQueued] = useState<PodcastEpisodeDownload[]>([])
 
   // Item updated event
   const handleItemUpdated = useCallback(
@@ -105,7 +99,7 @@ export function useItemPageSocket({ libraryItemId, mediaId, isPodcast, onItemUpd
 
   // Episode download events (podcasts only)
   const handleEpisodeDownloadQueued = useCallback(
-    (data: EpisodeDownload) => {
+    (data: PodcastEpisodeDownload) => {
       if (data.libraryItemId === libraryItemId) {
         setEpisodeDownloadsQueued((prev) => [...prev, data])
       }
@@ -114,7 +108,7 @@ export function useItemPageSocket({ libraryItemId, mediaId, isPodcast, onItemUpd
   )
 
   const handleEpisodeDownloadStarted = useCallback(
-    (data: EpisodeDownload) => {
+    (data: PodcastEpisodeDownload) => {
       if (data.libraryItemId === libraryItemId) {
         setEpisodeDownloadsQueued((prev) => prev.filter((d) => d.id !== data.id))
         setEpisodesDownloading((prev) => [...prev, data])
@@ -124,7 +118,7 @@ export function useItemPageSocket({ libraryItemId, mediaId, isPodcast, onItemUpd
   )
 
   const handleEpisodeDownloadFinished = useCallback(
-    (data: EpisodeDownload) => {
+    (data: PodcastEpisodeDownload) => {
       if (data.libraryItemId === libraryItemId) {
         setEpisodeDownloadsQueued((prev) => prev.filter((d) => d.id !== data.id))
         setEpisodesDownloading((prev) => prev.filter((d) => d.id !== data.id))
@@ -150,9 +144,9 @@ export function useItemPageSocket({ libraryItemId, mediaId, isPodcast, onItemUpd
   useSocketEvent<MediaItemShare>('share_closed', handleShareClosed, [mediaId])
 
   // Episode download events - always register but callbacks filter by isPodcast and libraryItemId
-  useSocketEvent<EpisodeDownload>('episode_download_queued', handleEpisodeDownloadQueued, [libraryItemId, isPodcast])
-  useSocketEvent<EpisodeDownload>('episode_download_started', handleEpisodeDownloadStarted, [libraryItemId, isPodcast])
-  useSocketEvent<EpisodeDownload>('episode_download_finished', handleEpisodeDownloadFinished, [libraryItemId, isPodcast])
+  useSocketEvent<PodcastEpisodeDownload>('episode_download_queued', handleEpisodeDownloadQueued, [libraryItemId, isPodcast])
+  useSocketEvent<PodcastEpisodeDownload>('episode_download_started', handleEpisodeDownloadStarted, [libraryItemId, isPodcast])
+  useSocketEvent<PodcastEpisodeDownload>('episode_download_finished', handleEpisodeDownloadFinished, [libraryItemId, isPodcast])
   useSocketEvent<string>('episode_download_queue_cleared', handleEpisodeDownloadQueueCleared, [libraryItemId, isPodcast])
 
   return {

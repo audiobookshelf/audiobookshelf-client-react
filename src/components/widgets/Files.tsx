@@ -2,12 +2,11 @@
 
 import { useModalRef } from '@/contexts/ModalContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { BookLibraryItem, PodcastLibraryItem, User } from '@/types/api'
+import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import LibraryFilesTable from './LibraryFilesTable'
 
 interface FilesProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
-  user: User
 }
 
 /**
@@ -16,7 +15,7 @@ interface FilesProps {
  * Displays the library files table for a library item.
  * Detects if rendered within a modal using ModalContext and adjusts behavior accordingly.
  */
-export default function Files({ libraryItem, user }: FilesProps) {
+export default function Files({ libraryItem }: FilesProps) {
   const t = useTypeSafeTranslations()
   const modalRef = useModalRef()
   const inModal = !!modalRef
@@ -24,7 +23,7 @@ export default function Files({ libraryItem, user }: FilesProps) {
   return (
     <div className="w-full h-full overflow-y-auto overflow-x-hidden px-4 py-6" role="region" aria-label={t('HeaderLibraryFiles')}>
       <div className="w-full">
-        <LibraryFilesTable libraryItem={libraryItem} user={user} keepOpen={inModal} inModal={inModal} expanded />
+        <LibraryFilesTable libraryItem={libraryItem} keepOpen={inModal} inModal={inModal} expanded />
       </div>
     </div>
   )

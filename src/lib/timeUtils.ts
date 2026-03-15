@@ -8,7 +8,13 @@
  * @param useMilliseconds
  * @returns
  */
-export const elapsedPretty = (seconds: number, locale: string, useFullNames: boolean = false, useMilliseconds: boolean = false): string => {
+export const elapsedPretty = (
+  seconds: number,
+  locale: string,
+  useFullNames: boolean = false,
+  useMilliseconds: boolean = false,
+  useLargestUnitOnly: boolean = false
+): string => {
   if (isNaN(seconds) || seconds === null) return ''
 
   try {
@@ -17,7 +23,7 @@ export const elapsedPretty = (seconds: number, locale: string, useFullNames: boo
       style: useFullNames ? 'long' : 'short'
     })
 
-    const duration: { milliseconds?: number; seconds?: number; minutes?: number; hours?: number; days?: number } = {}
+    let duration: { milliseconds?: number; seconds?: number; minutes?: number; hours?: number; days?: number } = {}
 
     if (seconds < 60) {
       if (useMilliseconds && seconds < 1) {
@@ -43,6 +49,20 @@ export const elapsedPretty = (seconds: number, locale: string, useFullNames: boo
       }
     }
 
+    if (useLargestUnitOnly) {
+      if (duration.days) {
+        duration = { days: duration.days }
+      } else if (duration.hours) {
+        duration = { hours: duration.hours }
+      } else if (duration.minutes) {
+        duration = { minutes: duration.minutes }
+      } else if (duration.seconds) {
+        duration = { seconds: duration.seconds }
+      } else if (duration.milliseconds) {
+        duration = { milliseconds: duration.milliseconds }
+      }
+    }
+
     return df.format(duration)
   } catch (error) {
     // Handle not supported
@@ -60,6 +80,17 @@ export const elapsedPretty = (seconds: number, locale: string, useFullNames: boo
     }
     const hours = Math.floor(minutes / 60)
     minutes -= hours * 60
+    
+    if (useLargestUnitOnly) {
+      if (hours > 24) {
+        const days = Math.floor(hours / 24)
+        return `${days} ${useFullNames ? `day${days === 1 ? '' : 's'}` : 'd'}`
+      }
+      if (hours > 0) return `${hours} ${useFullNames ? `hour${hours === 1 ? '' : 's'}` : 'hr'}`
+      if (minutes > 0) return `${minutes} min${useFullNames ? `ute${minutes === 1 ? '' : 's'}` : ''}`
+      return `${Math.floor(seconds)} sec${useFullNames ? 'onds' : ''}`
+    }
+
     if (!minutes) {
       return `${hours} ${useFullNames ? 'hours' : 'hr'}`
     }

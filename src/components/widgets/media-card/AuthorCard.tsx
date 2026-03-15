@@ -8,21 +8,18 @@ import MediaCardOverlayContainer from '@/components/widgets/media-card/MediaCard
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useUser } from '@/contexts/UserContext'
 import { useAuthorActions } from '@/hooks/useAuthorActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { Author, User } from '@/types/api'
+import type { Author } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useId, useState } from 'react'
 
 export interface AuthorCardProps {
   /** The author to display */
   author: Author
-  /** Current user - required for editing */
-  user?: User
   /** Cover configuration */
   sizeMultiplier?: number
-  /** User permissions */
-  userCanUpdate?: boolean
   /** Whether the card is in selection mode */
   isSelectionMode?: boolean
   /** Whether the card is currently selected */
@@ -32,11 +29,10 @@ export interface AuthorCardProps {
 }
 
 function AuthorCard(props: AuthorCardProps) {
-  const { author, user, sizeMultiplier, userCanUpdate: userCanUpdateProp, isSelectionMode = false, selected = false, onSelect } = props
-
-  const userCanUpdate = userCanUpdateProp ?? user?.permissions?.update ?? false
+  const { author, sizeMultiplier, isSelectionMode = false, selected = false, onSelect } = props
 
   const router = useRouter()
+  const { user, userCanUpdate } = useUser()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()

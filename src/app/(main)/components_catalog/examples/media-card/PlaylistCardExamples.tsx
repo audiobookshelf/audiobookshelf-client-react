@@ -14,26 +14,21 @@ interface PlaylistCardExamplesProps {
 
 export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps) {
   const { bookCoverAspectRatio } = useComponentsCatalog()
+  const standardCardRef = useRef<HTMLDivElement>(null)
+  const standardSkeletonRef = useRef<HTMLDivElement>(null)
+  const detailCardRef = useRef<HTMLDivElement>(null)
+  const detailSkeletonRef = useRef<HTMLDivElement>(null)
+  const [standardCardDims, setStandardCardDims] = useState<Dimensions | null>(null)
+  const [standardSkeletonDims, setStandardSkeletonDims] = useState<Dimensions | null>(null)
+  const [detailCardDims, setDetailCardDims] = useState<Dimensions | null>(null)
+  const [detailSkeletonDims, setDetailSkeletonDims] = useState<Dimensions | null>(null)
 
-  // Refs for dimension checking
-  const playlistStandardCardRef = useRef<HTMLDivElement>(null)
-  const playlistStandardSkeletonRef = useRef<HTMLDivElement>(null)
-  const playlistDetailCardRef = useRef<HTMLDivElement>(null)
-  const playlistDetailSkeletonRef = useRef<HTMLDivElement>(null)
-
-  // State for dimensions
-  const [playlistStandardCardDims, setPlaylistStandardCardDims] = useState<Dimensions | null>(null)
-  const [playlistStandardSkeletonDims, setPlaylistStandardSkeletonDims] = useState<Dimensions | null>(null)
-  const [playlistDetailCardDims, setPlaylistDetailCardDims] = useState<Dimensions | null>(null)
-  const [playlistDetailSkeletonDims, setPlaylistDetailSkeletonDims] = useState<Dimensions | null>(null)
-
-  // Measure dimensions
   useDimensionMeasurement(
     [
-      { ref: playlistStandardCardRef, setDims: setPlaylistStandardCardDims },
-      { ref: playlistStandardSkeletonRef, setDims: setPlaylistStandardSkeletonDims },
-      { ref: playlistDetailCardRef, setDims: setPlaylistDetailCardDims },
-      { ref: playlistDetailSkeletonRef, setDims: setPlaylistDetailSkeletonDims }
+      { ref: standardCardRef, setDims: setStandardCardDims },
+      { ref: standardSkeletonRef, setDims: setStandardSkeletonDims },
+      { ref: detailCardRef, setDims: setDetailCardDims },
+      { ref: detailSkeletonRef, setDims: setDetailSkeletonDims }
     ],
     [playlistData]
   )
@@ -42,7 +37,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
     <ComponentExamples title="Playlist Cards">
       <ComponentInfo
         component="PlaylistCard / PlaylistCardSkeleton"
-        description="Card component for displaying playlists. Shows item covers in a 2x2 grid layout (up to 4 covers), edit button, and more menu with delete action. Playlists are user-owned and private."
+        description="Card component for displaying playlists with a 2x2 cover grid, edit button, and more-menu actions."
       >
         <p className="mb-2">
           <span className="font-bold">Import:</span> <Code overflow>import PlaylistCard from &apos;@/components/widgets/media-card/PlaylistCard&apos;</Code>
@@ -60,10 +55,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               <Code>bookCoverAspectRatio</Code>?: number - Cover aspect ratio
             </li>
             <li>
-              <Code>userCanUpdate</Code>?: boolean - Show edit button
-            </li>
-            <li>
-              <Code>userCanDelete</Code>?: boolean - Show delete option in more menu
+              <Code>sizeMultiplier</Code>?: number - Size multiplier for responsive sizing
             </li>
           </ul>
         </div>
@@ -74,57 +66,45 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
       </h3>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Example title={`Standard View`}>
+        <Example title="Standard View">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">With Data</p>
-              <div ref={playlistStandardCardRef}>
-                <PlaylistCard
-                  playlist={playlistData}
-                  bookshelfView={BookshelfView.STANDARD}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                  userCanUpdate={true}
-                  userCanDelete={true}
-                />
+              <div ref={standardCardRef}>
+                <PlaylistCard playlist={playlistData} bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
-              <div ref={playlistStandardSkeletonRef}>
+              <div ref={standardSkeletonRef}>
                 <PlaylistCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
-          <DimensionComparison cardDimensions={playlistStandardCardDims} skeletonDimensions={playlistStandardSkeletonDims} />
+          <DimensionComparison cardDimensions={standardCardDims} skeletonDimensions={standardSkeletonDims} />
         </Example>
 
-        <Example title={`Detail View`}>
+        <Example title="Detail View">
           <div className="flex gap-4 flex-wrap">
             <div>
               <p className="text-sm text-gray-400 mb-2">With Data</p>
-              <div ref={playlistDetailCardRef}>
-                <PlaylistCard
-                  playlist={playlistData}
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                  userCanUpdate={true}
-                  userCanDelete={true}
-                />
+              <div ref={detailCardRef}>
+                <PlaylistCard playlist={playlistData} bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
             <div>
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
-              <div ref={playlistDetailSkeletonRef}>
+              <div ref={detailSkeletonRef}>
                 <PlaylistCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
-          <DimensionComparison cardDimensions={playlistDetailCardDims} skeletonDimensions={playlistDetailSkeletonDims} />
+          <DimensionComparison cardDimensions={detailCardDims} skeletonDimensions={detailSkeletonDims} />
         </Example>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Example title={`Empty Playlist`}>
+        <Example title="Empty Playlist">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Standard View</p>
@@ -132,8 +112,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: [] } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
             <div className="mb-6">
@@ -142,14 +120,12 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: [] } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
           </div>
         </Example>
 
-        <Example title={`Single Item Playlist`}>
+        <Example title="Single Item Playlist">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Standard View</p>
@@ -157,8 +133,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 1) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
             <div className="mb-6">
@@ -167,8 +141,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 1) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
           </div>
@@ -176,7 +148,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Example title={`Two Items (Checker Pattern)`}>
+        <Example title="Two Items (Checker Pattern)">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Standard View</p>
@@ -184,8 +156,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 2) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
             <div className="mb-6">
@@ -194,14 +164,12 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 2) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
           </div>
         </Example>
 
-        <Example title={`Three Items`}>
+        <Example title="Three Items">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Standard View</p>
@@ -209,8 +177,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 3) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
             <div className="mb-6">
@@ -219,51 +185,37 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 3) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
           </div>
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Example title="Selection Mode">
-          <div className="flex gap-4 flex-wrap">
-            <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
-              <PlaylistCard
-                playlist={playlistData}
-                bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
-                isSelectionMode={true}
-                selected={false}
-                showSelectedButton={true}
-                onSelect={(e) => console.log('Toggle selection', e)}
-              />
-            </div>
-            <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
-              <PlaylistCard
-                playlist={playlistData}
-                bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
-                isSelectionMode={true}
-                selected={true}
-                showSelectedButton={true}
-                onSelect={(e) => console.log('Toggle selection', e)}
-              />
-            </div>
-          </div>
-        </Example>
-      </div>
+      <Example title="Selection Mode">
+        <div className="flex gap-4 flex-wrap">
+          <PlaylistCard
+            playlist={playlistData}
+            bookshelfView={BookshelfView.STANDARD}
+            bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
+            isSelectionMode
+            selected={false}
+            showSelectedButton
+            onSelect={(e) => console.log('Toggle selection', e)}
+          />
+          <PlaylistCard
+            playlist={playlistData}
+            bookshelfView={BookshelfView.STANDARD}
+            bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
+            isSelectionMode
+            selected
+            showSelectedButton
+            onSelect={(e) => console.log('Toggle selection', e)}
+          />
+        </div>
+      </Example>
 
       <div className="mb-6">
-        <Example title={`Size Multipliers (Standard View)`}>
+        <Example title="Size Multipliers (Standard View)">
           <div className="flex gap-8 flex-wrap items-start pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
@@ -272,7 +224,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
@@ -282,7 +233,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
@@ -292,7 +242,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
@@ -302,7 +251,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1}
-                userCanUpdate={true}
               />
             </div>
             <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
@@ -312,7 +260,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
-                userCanUpdate={true}
               />
             </div>
           </div>
@@ -320,7 +267,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
       </div>
 
       <div className="mb-6">
-        <Example title={`Size Multipliers (Detail View)`}>
+        <Example title="Size Multipliers (Detail View)">
           <div className="flex gap-8 flex-wrap items-start pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
@@ -329,7 +276,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
@@ -339,7 +285,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
@@ -349,18 +294,11 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
               <p className="text-sm text-gray-400 mb-2">Size: 1</p>
-              <PlaylistCard
-                playlist={playlistData}
-                bookshelfView={BookshelfView.DETAIL}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                sizeMultiplier={1}
-                userCanUpdate={true}
-              />
+              <PlaylistCard playlist={playlistData} bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} sizeMultiplier={1} />
             </div>
             <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
               <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
@@ -369,7 +307,6 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
-                userCanUpdate={true}
               />
             </div>
           </div>

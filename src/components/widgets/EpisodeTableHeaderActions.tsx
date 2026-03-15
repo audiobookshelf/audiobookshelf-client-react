@@ -15,6 +15,7 @@ interface EpisodeTableHeaderActionsProps {
   libraryItemId: string
   onClearSelection: () => void
   onFindEpisodes?: () => void
+  isFetchingRSSFeed?: boolean
 }
 
 export default function EpisodeTableHeaderActions({
@@ -23,7 +24,8 @@ export default function EpisodeTableHeaderActions({
   allSelectedEpisodesFinished,
   libraryItemId,
   onClearSelection,
-  onFindEpisodes
+  onFindEpisodes,
+  isFetchingRSSFeed
 }: EpisodeTableHeaderActionsProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
@@ -127,8 +129,10 @@ export default function EpisodeTableHeaderActions({
     )
   }
 
+  if (!onFindEpisodes) return null
+
   return (
-    <Btn size="small" onClick={onFindEpisodes}>
+    <Btn size="small" onClick={onFindEpisodes} loading={isFetchingRSSFeed}>
       {t('LabelFindEpisodes')}&nbsp;<span className="material-symbols">podcasts</span>
     </Btn>
   )

@@ -14,26 +14,21 @@ interface CollectionCardExamplesProps {
 
 export function CollectionCardExamples({ collectionData }: CollectionCardExamplesProps) {
   const { bookCoverAspectRatio } = useComponentsCatalog()
+  const standardCardRef = useRef<HTMLDivElement>(null)
+  const standardSkeletonRef = useRef<HTMLDivElement>(null)
+  const detailCardRef = useRef<HTMLDivElement>(null)
+  const detailSkeletonRef = useRef<HTMLDivElement>(null)
+  const [standardCardDims, setStandardCardDims] = useState<Dimensions | null>(null)
+  const [standardSkeletonDims, setStandardSkeletonDims] = useState<Dimensions | null>(null)
+  const [detailCardDims, setDetailCardDims] = useState<Dimensions | null>(null)
+  const [detailSkeletonDims, setDetailSkeletonDims] = useState<Dimensions | null>(null)
 
-  // Refs for dimension checking
-  const collectionStandardCardRef = useRef<HTMLDivElement>(null)
-  const collectionStandardSkeletonRef = useRef<HTMLDivElement>(null)
-  const collectionDetailCardRef = useRef<HTMLDivElement>(null)
-  const collectionDetailSkeletonRef = useRef<HTMLDivElement>(null)
-
-  // State for dimensions
-  const [collectionStandardCardDims, setCollectionStandardCardDims] = useState<Dimensions | null>(null)
-  const [collectionStandardSkeletonDims, setCollectionStandardSkeletonDims] = useState<Dimensions | null>(null)
-  const [collectionDetailCardDims, setCollectionDetailCardDims] = useState<Dimensions | null>(null)
-  const [collectionDetailSkeletonDims, setCollectionDetailSkeletonDims] = useState<Dimensions | null>(null)
-
-  // Measure dimensions
   useDimensionMeasurement(
     [
-      { ref: collectionStandardCardRef, setDims: setCollectionStandardCardDims },
-      { ref: collectionStandardSkeletonRef, setDims: setCollectionStandardSkeletonDims },
-      { ref: collectionDetailCardRef, setDims: setCollectionDetailCardDims },
-      { ref: collectionDetailSkeletonRef, setDims: setCollectionDetailSkeletonDims }
+      { ref: standardCardRef, setDims: setStandardCardDims },
+      { ref: standardSkeletonRef, setDims: setStandardSkeletonDims },
+      { ref: detailCardRef, setDims: setDetailCardDims },
+      { ref: detailSkeletonRef, setDims: setDetailSkeletonDims }
     ],
     [collectionData]
   )
@@ -42,7 +37,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
     <ComponentExamples title="Collection Cards">
       <ComponentInfo
         component="CollectionCard / CollectionCardSkeleton"
-        description="Card component for displaying collections in a Collection bookshelf view. Shows book covers side by side (up to 2), RSS feed indicator, edit button, and more menu with actions (create playlist, open RSS feed, delete). Different from Series cards as collections are user-created groupings."
+        description="Card component for displaying collections with side-by-side book covers, RSS indicator, and menu actions."
       >
         <p className="mb-2">
           <span className="font-bold">Import:</span> <Code overflow>import CollectionCard from &apos;@/components/widgets/media-card/CollectionCard&apos;</Code>
@@ -60,13 +55,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               <Code>bookCoverAspectRatio</Code>?: number - Cover aspect ratio
             </li>
             <li>
-              <Code>userCanUpdate</Code>?: boolean - Show edit button
-            </li>
-            <li>
-              <Code>userCanDelete</Code>?: boolean - Show delete option in more menu
-            </li>
-            <li>
-              <Code>userIsAdmin</Code>?: boolean - Show RSS feed option in more menu
+              <Code>sizeMultiplier</Code>?: number - Size multiplier for responsive sizing
             </li>
           </ul>
         </div>
@@ -77,59 +66,45 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
       </h3>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Example title={`Standard View`}>
+        <Example title="Standard View">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">With Data</p>
-              <div ref={collectionStandardCardRef}>
-                <CollectionCard
-                  collection={collectionData}
-                  bookshelfView={BookshelfView.STANDARD}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                  userCanUpdate={true}
-                  userCanDelete={true}
-                  userIsAdmin={true}
-                />
+              <div ref={standardCardRef}>
+                <CollectionCard collection={collectionData} bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
-              <div ref={collectionStandardSkeletonRef}>
+              <div ref={standardSkeletonRef}>
                 <CollectionCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
-          <DimensionComparison cardDimensions={collectionStandardCardDims} skeletonDimensions={collectionStandardSkeletonDims} />
+          <DimensionComparison cardDimensions={standardCardDims} skeletonDimensions={standardSkeletonDims} />
         </Example>
 
-        <Example title={`Detail View`}>
+        <Example title="Detail View">
           <div className="flex gap-4 flex-wrap">
-            <div>
+            <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">With Data</p>
-              <div ref={collectionDetailCardRef}>
-                <CollectionCard
-                  collection={collectionData}
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                  userCanUpdate={true}
-                  userCanDelete={true}
-                  userIsAdmin={true}
-                />
+              <div ref={detailCardRef}>
+                <CollectionCard collection={collectionData} bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
-            <div>
+            <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
-              <div ref={collectionDetailSkeletonRef}>
+              <div ref={detailSkeletonRef}>
                 <CollectionCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
           </div>
-          <DimensionComparison cardDimensions={collectionDetailCardDims} skeletonDimensions={collectionDetailSkeletonDims} />
+          <DimensionComparison cardDimensions={detailCardDims} skeletonDimensions={detailSkeletonDims} />
         </Example>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Example title={`With RSS Feed`}>
+        <Example title="With RSS Feed">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Standard View</p>
@@ -141,14 +116,33 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                       id: 'feed-demo',
                       slug: 'collection-feed',
                       entityId: collectionData.id,
-                      feedUrl: 'https://example.com/feed'
+                      entityType: 'collection',
+                      entityUpdatedAt: Date.now(),
+                      coverPath: '/placeholder.png',
+                      feedUrl: 'https://example.com/feed',
+                      serverAddress: 'https://example.com',
+                      userId: 'demo-user',
+                      meta: {
+                        author: 'Demo',
+                        description: 'Demo feed',
+                        explicit: false,
+                        feedUrl: 'https://example.com/feed',
+                        imageUrl: 'https://example.com/image.png',
+                        language: 'en',
+                        link: 'https://example.com',
+                        ownerEmail: null,
+                        ownerName: null,
+                        preventIndexing: false,
+                        title: 'Collection Feed',
+                        type: 'episodic'
+                      },
+                      createdAt: Date.now(),
+                      updatedAt: Date.now()
                     }
                   } as Collection
                 }
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userIsAdmin={true}
               />
             </div>
             <div className="mb-6">
@@ -161,20 +155,39 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                       id: 'feed-demo-2',
                       slug: 'collection-feed-2',
                       entityId: collectionData.id,
-                      feedUrl: 'https://example.com/feed2'
+                      entityType: 'collection',
+                      entityUpdatedAt: Date.now(),
+                      coverPath: '/placeholder.png',
+                      feedUrl: 'https://example.com/feed2',
+                      serverAddress: 'https://example.com',
+                      userId: 'demo-user',
+                      meta: {
+                        author: 'Demo',
+                        description: 'Demo feed',
+                        explicit: false,
+                        feedUrl: 'https://example.com/feed2',
+                        imageUrl: 'https://example.com/image2.png',
+                        language: 'en',
+                        link: 'https://example.com',
+                        ownerEmail: null,
+                        ownerName: null,
+                        preventIndexing: false,
+                        title: 'Collection Feed 2',
+                        type: 'episodic'
+                      },
+                      createdAt: Date.now(),
+                      updatedAt: Date.now()
                     }
                   } as Collection
                 }
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userIsAdmin={true}
               />
             </div>
           </div>
         </Example>
 
-        <Example title={`Empty Collection`}>
+        <Example title="Empty Collection">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Standard View</p>
@@ -182,8 +195,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 collection={{ ...collectionData, books: [] } as Collection}
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
             <div className="mb-6">
@@ -192,8 +203,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 collection={{ ...collectionData, books: [] } as Collection}
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
           </div>
@@ -201,7 +210,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
       </div>
 
       <div className="mb-6">
-        <Example title={`Single Book Collection`}>
+        <Example title="Single Book Collection">
           <div className="flex gap-4 flex-wrap">
             <div className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Standard View</p>
@@ -209,8 +218,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 collection={{ ...collectionData, books: collectionData.books?.slice(0, 1) } as Collection}
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
             <div className="mb-6">
@@ -219,53 +226,37 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 collection={{ ...collectionData, books: collectionData.books?.slice(0, 1) } as Collection}
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
               />
             </div>
           </div>
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Example title="Selection Mode">
-          <div className="flex gap-4 flex-wrap">
-            <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
-              <CollectionCard
-                collection={collectionData}
-                bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
-                userIsAdmin={true}
-                isSelectionMode={true}
-                selected={false}
-                showSelectedButton={true}
-                onSelect={(e) => console.log('Toggle selection', e)}
-              />
-            </div>
-            <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
-              <CollectionCard
-                collection={collectionData}
-                bookshelfView={BookshelfView.STANDARD}
-                bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-                userCanUpdate={true}
-                userCanDelete={true}
-                userIsAdmin={true}
-                isSelectionMode={true}
-                selected={true}
-                showSelectedButton={true}
-                onSelect={(e) => console.log('Toggle selection', e)}
-              />
-            </div>
-          </div>
-        </Example>
-      </div>
+      <Example title="Selection Mode">
+        <div className="flex gap-4 flex-wrap">
+          <CollectionCard
+            collection={collectionData}
+            bookshelfView={BookshelfView.STANDARD}
+            bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
+            isSelectionMode
+            selected={false}
+            showSelectedButton
+            onSelect={(e) => console.log('Toggle selection', e)}
+          />
+          <CollectionCard
+            collection={collectionData}
+            bookshelfView={BookshelfView.STANDARD}
+            bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
+            isSelectionMode
+            selected
+            showSelectedButton
+            onSelect={(e) => console.log('Toggle selection', e)}
+          />
+        </div>
+      </Example>
 
       <div className="mb-6">
-        <Example title={`Size Multipliers (Standard View)`}>
+        <Example title="Size Multipliers (Standard View)">
           <div className="flex gap-8 flex-wrap items-start pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
@@ -274,7 +265,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
@@ -284,7 +274,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
@@ -294,7 +283,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
@@ -304,7 +292,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1}
-                userCanUpdate={true}
               />
             </div>
             <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
@@ -314,7 +301,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.STANDARD}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
-                userCanUpdate={true}
               />
             </div>
           </div>
@@ -322,7 +308,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
       </div>
 
       <div className="mb-6">
-        <Example title={`Size Multipliers (Detail View)`}>
+        <Example title="Size Multipliers (Detail View)">
           <div className="flex gap-8 flex-wrap items-start pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
               <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
@@ -331,7 +317,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1 / 2}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
@@ -341,7 +326,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={3 / 4}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
@@ -351,7 +335,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={5 / 6}
-                userCanUpdate={true}
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
@@ -361,7 +344,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={1}
-                userCanUpdate={true}
               />
             </div>
             <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
@@ -371,7 +353,6 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 bookshelfView={BookshelfView.DETAIL}
                 bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                 sizeMultiplier={4 / 3}
-                userCanUpdate={true}
               />
             </div>
           </div>

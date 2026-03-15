@@ -2,6 +2,7 @@
 
 import { deletePlaylistAction } from '@/app/actions/playlistActions'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Playlist } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition, type ReactNode } from 'react'
@@ -18,16 +19,11 @@ interface ConfirmState {
 
 interface UsePlaylistCardActionsProps {
   playlist: Playlist
-  userCanUpdate: boolean
-  userCanDelete: boolean
 }
 
-export function usePlaylistCardActions({
-  playlist,
-  userCanUpdate,
-  userCanDelete
-}: UsePlaylistCardActionsProps) {
+export function usePlaylistCardActions({ playlist }: UsePlaylistCardActionsProps) {
   const t = useTypeSafeTranslations()
+  const { userCanUpdate, userCanDelete } = useUser()
   const { showToast } = useGlobalToast()
   const [processing, setProcessing] = useState(false)
   const [isPending, startTransition] = useTransition()
