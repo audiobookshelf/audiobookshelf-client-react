@@ -207,7 +207,7 @@ export default function EpisodeRow({
                 </div>
               </Tooltip>
 
-              <Tooltip position="top" text="Add to Playlist" className="flex-shrink-0">
+              <Tooltip position="top" text={t('LabelAddToPlaylist')} className="flex-shrink-0">
                 <IconBtn
                   borderless
                   className="flex-shrink-0"
