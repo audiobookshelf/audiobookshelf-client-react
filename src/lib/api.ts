@@ -281,8 +281,17 @@ export async function getLibraryFilterData(libraryId: string): Promise<LibraryFi
   return apiRequest<LibraryFilterData>(`/api/libraries/${libraryId}/filterdata`, {})
 }
 
-export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): Promise<LibraryItem> => {
-  return apiRequest<LibraryItem>(`/api/items/${itemId}?expanded=${expanded ? '1' : '0'}`, {})
+/**
+ * Get a single library item by ID.
+ * @param itemId - Library item ID
+ * @param expanded - If true, returns expanded item with full media/chapters etc.
+ * @param include - Optional comma-separated includes: rssfeed, share, downloads
+ */
+export const getLibraryItem = cache(async (itemId: string, expanded?: boolean, include?: string): Promise<LibraryItem> => {
+  const params = new URLSearchParams()
+  params.set('expanded', expanded ? '1' : '0')
+  if (include) params.set('include', include)
+  return apiRequest<LibraryItem>(`/api/items/${itemId}?${params.toString()}`, {})
 })
 
 /**
