@@ -1,16 +1,8 @@
 'use client'
 
 import { useSocketEvent } from '@/contexts/SocketContext'
-import type { BookLibraryItem, PodcastEpisodeDownload, PodcastLibraryItem } from '@/types/api'
+import type { BookLibraryItem, PodcastEpisodeDownload, PodcastLibraryItem, RssFeed } from '@/types/api'
 import { useCallback, useState } from 'react'
-
-// Types for socket events
-export interface RssFeed {
-  id: string
-  entityId: string
-  slug: string
-  feedUrl: string
-}
 
 export interface MediaItemShare {
   id: string
@@ -18,12 +10,12 @@ export interface MediaItemShare {
   slug: string
 }
 
-
 interface UseItemPageSocketOptions {
   libraryItemId: string
   mediaId?: string
   isPodcast: boolean
   onItemUpdated?: (libraryItem: BookLibraryItem | PodcastLibraryItem) => void
+  initialRssFeed?: RssFeed | null
 }
 
 interface UseItemPageSocketReturn {
@@ -42,8 +34,14 @@ interface UseItemPageSocketReturn {
  * - share_open/closed: when share status changes
  * - episode_download_queued/started/finished/queue_cleared: podcast episode downloads
  */
-export function useItemPageSocket({ libraryItemId, mediaId, isPodcast, onItemUpdated }: UseItemPageSocketOptions): UseItemPageSocketReturn {
-  const [rssFeed, setRssFeed] = useState<RssFeed | null>(null)
+export function useItemPageSocket({
+  libraryItemId,
+  mediaId,
+  isPodcast,
+  onItemUpdated,
+  initialRssFeed = null
+}: UseItemPageSocketOptions): UseItemPageSocketReturn {
+  const [rssFeed, setRssFeed] = useState<RssFeed | null>(initialRssFeed ?? null)
   const [mediaItemShare, setMediaItemShare] = useState<MediaItemShare | null>(null)
   const [episodesDownloading, setEpisodesDownloading] = useState<PodcastEpisodeDownload[]>([])
   const [episodeDownloadsQueued, setEpisodeDownloadsQueued] = useState<PodcastEpisodeDownload[]>([])
