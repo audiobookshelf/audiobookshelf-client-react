@@ -4,7 +4,7 @@ import LibraryItemClient from './LibraryItemClient'
 
 export default async function ItemPage({ params }: { params: Promise<{ item: string; library: string }> }) {
   const { item: itemId } = await params
-  const [libraryItem] = await getData(getLibraryItem(itemId, true))
+  const [libraryItem] = await getData(getLibraryItem(itemId, true, 'rssfeed,share'))
 
   // TODO: Handle loading data error?
   if (!libraryItem) {
