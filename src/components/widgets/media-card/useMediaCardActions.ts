@@ -13,6 +13,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import type { EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
@@ -33,6 +34,7 @@ interface UseMediaCardActionsProps {
   isStreaming: (libraryItemId: string, episodeId: string | null) => boolean
   isStreamingFromDifferentLib: boolean
   isQueued: boolean
+  playerControls: PlayerHandlerControls
 }
 
 export function useMediaCardActions({
@@ -50,7 +52,8 @@ export function useMediaCardActions({
   libraryItemIdStreaming,
   isStreaming,
   isStreamingFromDifferentLib,
-  isQueued
+  isQueued,
+  playerControls
 }: UseMediaCardActionsProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userIsAdminOrUp } = useUser()
@@ -61,6 +64,11 @@ export function useMediaCardActions({
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
 
   const handlePlay = useCallback(() => {
+    if (isStreaming(libraryItem.id, episodeForQueue?.id ?? null)) {
+      playerControls.playPause()
+      return
+    }
+
     startTransition(async () => {
       try {
         setProcessing(true)
@@ -111,7 +119,7 @@ export function useMediaCardActions({
         setProcessing(false)
       }
     })
-  }, [author, episodeForQueue, libraryItem, media, playItem, showToast, t, title])
+  }, [author, episodeForQueue, isStreaming, libraryItem, media, playItem, playerControls, showToast, t, title])
 
   const handleReadEBook = useCallback(() => {
     startTransition(async () => {
