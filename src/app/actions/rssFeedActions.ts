@@ -7,6 +7,6 @@ export async function closeRssFeed(feedId: string): Promise<void> {
   return api.closeRssFeed(feedId)
 }
 
-export async function openRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
-  return api.openRssFeed(itemId, payload)
+export async function openItemRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
+  return api.openItemRssFeed(itemId, payload)
 }

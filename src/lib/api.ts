@@ -490,7 +490,7 @@ export const closeRssFeed = cache(async (feedId: string): Promise<void> => {
   })
 })
 
-export async function openRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
+export async function openItemRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
   return apiRequest<OpenRssFeedResponse>(`/api/feeds/item/${itemId}/open`, {
     method: 'POST',
     body: JSON.stringify(payload)
