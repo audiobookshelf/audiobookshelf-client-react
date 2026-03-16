@@ -309,7 +309,7 @@ export default function ContextMenuDropdown<T = string>({
   const buttonClass = mergeClasses(size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
 
   return (
-    <div cy-id="wrapper" className={mergeClasses('relative', className)}>
+    <div cy-id="wrapper" className="relative">
       {!processing ? (
         <IconBtn
           ref={buttonRef}
