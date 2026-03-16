@@ -10,7 +10,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { RssFeed } from '@/types/api'
 import { useCallback, useRef, useState } from 'react'
-import { closeRssFeed } from './actions'
+import { closeRssFeed } from '@/app/actions/rssFeedActions'
 import RssFeedModal from './RssFeedModal'
 
 interface RssFeedsTableProps {
