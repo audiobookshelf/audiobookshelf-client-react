@@ -31,6 +31,8 @@ import {
   LibraryFilterData,
   LibraryItem,
   MetadataProvidersResponse,
+  OpenRssFeedPayload,
+  OpenRssFeedResponse,
   PersonalizedShelf,
   Playlist,
   PodcastSearchResult,
@@ -478,6 +480,13 @@ export const closeRssFeed = cache(async (feedId: string): Promise<void> => {
     method: 'POST'
   })
 })
+
+export async function openRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
+  return apiRequest<OpenRssFeedResponse>(`/api/feeds/item/${itemId}/open`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
 
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
   return apiRequest<GetBackupsResponse>('/api/backups', {})
