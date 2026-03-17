@@ -1,4 +1,5 @@
 import { AudioFile } from '@/types/api'
+import { downloadLibraryItemFile } from '@/lib/download'
 import { useCallback, useState } from 'react'
 
 export function useLibraryFileActions(libraryItemId: string) {
@@ -6,13 +7,7 @@ export function useLibraryFileActions(libraryItemId: string) {
 
   const downloadFile = useCallback(
     (ino: string, filename: string) => {
-      const downloadUrl = `/internal-api/items/${libraryItemId}/file/${ino}/download`
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.download = filename
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
+      downloadLibraryItemFile(libraryItemId, ino, filename)
     },
     [libraryItemId]
   )
