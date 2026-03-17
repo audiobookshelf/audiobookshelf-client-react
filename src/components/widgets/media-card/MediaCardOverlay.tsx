@@ -47,6 +47,7 @@ interface MediaCardOverlayProps {
   isMoreMenuOpen: boolean
   showPlayButton: boolean
   showReadButton: boolean
+  isItemPlaying?: boolean
   showEditButton?: boolean
   playIconFontSize: number
   moreMenuItems: MediaCardMoreMenuItem[]
@@ -75,6 +76,7 @@ export default function MediaCardOverlay({
   isMoreMenuOpen,
   showPlayButton,
   showReadButton,
+  isItemPlaying = false,
   showEditButton = true,
   playIconFontSize,
   moreMenuItems,
@@ -173,10 +175,10 @@ export default function MediaCardOverlay({
                 outlined={false}
                 className={mergeClasses('hover:text-white text-gray-200 hover:scale-110', 'transform duration-200 pointer-events-auto w-auto h-auto')}
                 onClick={handlePlayClick}
-                ariaLabel={t('ButtonPlay')}
+                ariaLabel={isItemPlaying ? t('ButtonPlaying') : t('ButtonPlay')}
                 style={playButtonStyle}
               >
-                play_arrow
+                {isItemPlaying ? 'pause' : 'play_arrow'}
               </IconBtn>
             </div>
           )}

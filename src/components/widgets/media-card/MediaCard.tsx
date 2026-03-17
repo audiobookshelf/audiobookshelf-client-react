@@ -97,7 +97,7 @@ function MediaCard(props: MediaCardProps) {
   } = props
 
   const router = useRouter()
-  const { libraryItemIdStreaming, isStreaming, isStreamingFromDifferentLibrary, getIsMediaQueued } = useMediaContext()
+  const { libraryItemIdStreaming, isStreaming, isPlaying, isStreamingFromDifferentLibrary, getIsMediaQueued, playerHandler } = useMediaContext()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
@@ -225,11 +225,12 @@ function MediaCard(props: MediaCardProps) {
 
   const numTracks = isBookMedia(media) ? (media.tracks ? media.tracks.length : media.numTracks || 0) : 0
 
+  const isItemPlaying = isPlaying(libraryItem.id, episode?.id ?? null)
+
   const showPlayButton =
     !isSelectionMode &&
     !isMissing &&
     !isInvalid &&
-    !isStreaming(libraryItem.id, episode?.id ?? null) &&
     (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
 
   const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!media.ebookFormat
@@ -250,8 +251,9 @@ function MediaCard(props: MediaCardProps) {
     libraryItemIdStreaming,
     isStreaming,
     isStreamingFromDifferentLib,
-      isQueued
-    })
+    isQueued,
+    playerControls: playerHandler.controls
+  })
 
   const handleCardClick = () => {
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
@@ -316,6 +318,7 @@ function MediaCard(props: MediaCardProps) {
             isMoreMenuOpen={isMoreMenuOpen}
             showPlayButton={showPlayButton}
             showReadButton={showReadButton}
+            isItemPlaying={isItemPlaying}
             playIconFontSize={playIconFontSize}
             moreMenuItems={moreMenuItems}
             rssFeed={rssFeed}
