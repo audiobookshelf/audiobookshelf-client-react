@@ -116,7 +116,7 @@ function AuthorCard(props: AuthorCardProps) {
             {/* Permanent author name & num books overlay */}
             {!isSearching && (
               <div cy-id="textInline" className="absolute bottom-0 start-0 w-full bg-black/60 z-10 px-2 py-1">
-                <p className="text-center font-semibold truncate text-[0.75em]">{displayName}</p>
+                <p className="text-center text-white font-semibold truncate text-[0.75em]">{displayName}</p>
                 <p className="text-center text-gray-200 text-[0.65em]">
                   {numBooks} {t('LabelBooks')}
                 </p>
