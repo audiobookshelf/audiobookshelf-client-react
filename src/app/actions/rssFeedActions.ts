@@ -2,11 +2,16 @@
 
 import * as api from '@/lib/api'
 import type { OpenRssFeedPayload, OpenRssFeedResponse } from '@/types/api'
+import { revalidatePath } from 'next/cache'
 
 export async function closeRssFeed(feedId: string): Promise<void> {
-  return api.closeRssFeed(feedId)
+  const result = await api.closeRssFeed(feedId)
+  revalidatePath('/library', 'layout')
+  return result
 }
 
 export async function openItemRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
-  return api.openItemRssFeed(itemId, payload)
+  const result = await api.openItemRssFeed(itemId, payload)
+  revalidatePath('/library', 'layout')
+  return result
 }
