@@ -35,7 +35,8 @@ export default function LibraryItemActionButtons({
     isStreamingFromDifferentLibrary,
     getIsMediaQueued,
     addItemToQueue,
-    removeItemFromQueue
+    removeItemFromQueue,
+    playerHandler
   } = useMediaContext()
   const t = useTypeSafeTranslations()
 
@@ -84,7 +85,8 @@ export default function LibraryItemActionButtons({
     isQueued,
     onDeleteSuccess: () => {
       window.location.href = `/library/${libraryItem.libraryId}`
-    }
+    },
+    playerControls: playerHandler.controls
   })
 
   const handlePlay = useCallback(() => {
