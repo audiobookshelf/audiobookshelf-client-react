@@ -21,6 +21,7 @@ interface TooltipProps {
   tooltipClassName?: string
   disabled?: boolean
   addTabIndex?: boolean
+  openOnClick?: boolean
 }
 
 const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
@@ -43,7 +44,8 @@ const Tooltip = ({
   closeOnClick = false,
   tooltipClassName,
   disabled = false,
-  addTabIndex = false
+  addTabIndex = false,
+  openOnClick = false
 }: TooltipProps) => {
   const tooltipId = useId()
   const [open, setOpen] = useState(false)
@@ -152,6 +154,12 @@ const Tooltip = ({
           activeElement.blur()
         }
       }
+      return
+    }
+
+    if (!disabled && openOnClick) {
+      clearHideTimeout()
+      setOpen((prev) => !prev)
     }
   }
 
