@@ -88,6 +88,11 @@ export default async function middleware(request: NextRequest) {
     return setLanguageCookie(NextResponse.next())
   }
 
+  const isShareRoute = pathname.startsWith('/share/')
+  if (isShareRoute) {
+    return next()
+  }
+
   const isLoginRoute = pathname === '/login'
   if (isLoginRoute) {
     if (hasValidAccessToken) {
