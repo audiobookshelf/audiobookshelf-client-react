@@ -12,10 +12,10 @@ export class AudioTrack {
   readonly mimeType: string
   readonly metadata: Record<string, unknown>
 
-  private readonly sessionId: string
+  private readonly sessionId: string | undefined
   private readonly sessionTrackUrl: string
 
-  constructor(track: AudioTrackData, sessionId: string) {
+  constructor(track: AudioTrackData, sessionId?: string) {
     this.index = track.index ?? 0
     this.startOffset = track.startOffset ?? 0
     this.duration = track.duration ?? 0
@@ -26,8 +26,7 @@ export class AudioTrack {
 
     this.sessionId = sessionId
 
-    // HLS streams use the content URL directly, direct play uses session track URL
-    if (this.contentUrl?.startsWith('/hls')) {
+    if (this.contentUrl?.startsWith('/hls') || !sessionId) {
       this.sessionTrackUrl = this.contentUrl
     } else {
       this.sessionTrackUrl = `/public/session/${sessionId}/track/${this.index}`
