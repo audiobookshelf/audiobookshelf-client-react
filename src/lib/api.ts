@@ -33,7 +33,9 @@ import {
   Library,
   LibraryFilterData,
   LibraryItem,
+  MediaItemShare,
   MetadataProvidersResponse,
+  OpenMediaItemSharePayload,
   OpenRssFeedPayload,
   OpenRssFeedResponse,
   PersonalizedShelf,
@@ -514,6 +516,19 @@ export async function openItemRssFeed(itemId: string, payload: OpenRssFeedPayloa
   return apiRequest<OpenRssFeedResponse>(`/api/feeds/item/${itemId}/open`, {
     method: 'POST',
     body: JSON.stringify(payload)
+  })
+}
+
+export async function openMediaItemShare(payload: OpenMediaItemSharePayload): Promise<MediaItemShare> {
+  return apiRequest<MediaItemShare>('/api/share/mediaitem', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function closeMediaItemShare(shareId: string): Promise<void> {
+  return apiRequest<void>(`/api/share/mediaitem/${shareId}`, {
+    method: 'DELETE'
   })
 }
 
