@@ -771,13 +771,29 @@ export interface MediaItemShare {
   id: string
   mediaItemId: string
   mediaItemType: 'book' | 'podcastEpisode'
-  userId: string
   slug: string
-  playbackSessionId?: string
   /** null for no expiration */
-  expiresAt?: number
-  createdAt: number
-  updatedAt: number
+  expiresAt: string | null
+  createdAt: string
+  updatedAt: string
+  isDownloadable: boolean
+}
+
+/**
+ * Response from the public share endpoint GET /public/share/:slug
+ * Includes the playback session with audio tracks for the shared item
+ */
+export interface MediaItemShareResponse extends MediaItemShare {
+  playbackSession: PlaybackSession
+}
+
+export interface OpenMediaItemSharePayload {
+  slug: string
+  mediaItemType: 'book' | 'podcastEpisode'
+  mediaItemId: string
+  /** 0 for no expiration */
+  expiresAt: number
+  isDownloadable?: boolean
 }
 
 // ============================================================================
@@ -1299,6 +1315,8 @@ export interface PlaybackSession {
   updatedAt: number
   audioTracks: AudioTrackData[]
   libraryItem: LibraryItem | null
+  /** Cover aspect ratio from library settings (included in share sessions) */
+  coverAspectRatio?: 0 | 1
 }
 
 /**
