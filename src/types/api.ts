@@ -948,6 +948,8 @@ export interface GetBackupsResponse {
 // SHELVES
 // ============================================================================
 
+export type PersonalizedShelfType = 'book' | 'podcast' | 'episode' | 'series' | 'authors'
+
 export interface PersonalizedShelf {
   id:
     | 'continue-listening'
@@ -962,7 +964,7 @@ export interface PersonalizedShelf {
     | 'newest-authors'
   label: string
   labelStringKey: string
-  type: 'book' | 'podcast' | 'episode' | 'series' | 'authors'
+  type: PersonalizedShelfType
   /** type depends on shelf type */
   entities: LibraryItem[] | Series[] | Author[]
   total: number
