@@ -321,18 +321,37 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                         slug: 'example-podcast-feed',
                         entityId: selectedPodcast.id,
                         entityType: 'podcast',
+                        entityUpdatedAt: Date.now(),
+                        coverPath: selectedPodcast.media.coverPath ?? '',
                         feedUrl: 'https://example.com/feed.xml',
+                        serverAddress: 'https://example.com',
+                        userId: user.id,
+                        meta: {
+                          author: selectedPodcast.media.metadata.author ?? 'Unknown Author',
+                          description: selectedPodcast.media.metadata.description ?? '',
+                          explicit: false,
+                          feedUrl: 'https://example.com/feed.xml',
+                          imageUrl: '',
+                          language: selectedPodcast.media.metadata.language ?? 'en',
+                          link: 'https://example.com',
+                          ownerEmail: null,
+                          ownerName: null,
+                          preventIndexing: false,
+                          title: selectedPodcast.media.metadata.title,
+                          type: 'episodic'
+                        },
                         createdAt: Date.now(),
                         updatedAt: Date.now()
                       },
                       mediaItemShare: {
                         id: 'share-123',
-                        mediaItemId: selectedPodcast.id,
-                        mediaItemType: 'book',
-                        userId: user.id,
+                        mediaItemId: 'episode-123',
+                        mediaItemType: 'podcastEpisode',
                         slug: 'example-podcast-share',
-                        createdAt: Date.now(),
-                        updatedAt: Date.now()
+                        expiresAt: null,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        isDownloadable: true
                       }
                     } as PodcastLibraryItem
                   }
