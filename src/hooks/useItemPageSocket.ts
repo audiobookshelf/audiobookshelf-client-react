@@ -1,14 +1,8 @@
 'use client'
 
 import { useSocketEvent } from '@/contexts/SocketContext'
-import type { BookLibraryItem, PodcastEpisodeDownload, PodcastLibraryItem, RssFeed } from '@/types/api'
+import type { BookLibraryItem, MediaItemShare, PodcastEpisodeDownload, PodcastLibraryItem, RssFeed } from '@/types/api'
 import { useCallback, useState } from 'react'
-
-export interface MediaItemShare {
-  id: string
-  mediaItemId: string
-  slug: string
-}
 
 interface UseItemPageSocketOptions {
   libraryItemId: string
