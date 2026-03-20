@@ -209,6 +209,10 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
   }
 
   function handleRemoveStagedItem(itemIndex: number): void {
+    if (uploadProcessing || uploadItems[itemIndex]?.isUploading) {
+      return
+    }
+
     if (uploadItems.length === 1) {
       resetUpload()
       return
@@ -401,9 +405,14 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                       <p className="text-base">{'#' + (index + 1)}</p>
                     </div>
                     {/* floating x on right */}
-                    <IconBtn className="absolute -top-3 -right-3 w-8 h-8 bg-bg border border-border rounded-full" onClick={() => handleRemoveStagedItem(index)}>
-                      close
-                    </IconBtn>
+                    {!uploadProcessing && !item.isUploading && (
+                      <IconBtn
+                        className="absolute -top-3 -right-3 w-8 h-8 bg-bg border border-border rounded-full"
+                        onClick={() => handleRemoveStagedItem(index)}
+                      >
+                        close
+                      </IconBtn>
+                    )}
                     {item.metadataError && (
                       <Alert type="error" autoFocus={false}>
                         <p>{item.metadataError}</p>
