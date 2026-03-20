@@ -11,6 +11,8 @@ import {
   BookSearchResult,
   Collection,
   CreateApiKeyPayload,
+  CreateCustomMetadataProviderPayload,
+  CreateCustomMetadataProviderResponse,
   CreateUpdateApiKeyResponse,
   FetchPodcastFeedResponse,
   FFProbeData,
@@ -18,6 +20,7 @@ import {
   GetAuthorsResponse,
   GetBackupsResponse,
   GetCollectionsResponse,
+  GetCustomMetadataProvidersResponse,
   GetFilesystemPathsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
@@ -472,6 +475,23 @@ export async function updateApiKey(apiKeyId: string, payload: CreateApiKeyPayloa
 export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
   return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
 })
+
+export const getCustomMetadataProviders = cache(async (): Promise<GetCustomMetadataProvidersResponse> => {
+  return apiRequest<GetCustomMetadataProvidersResponse>('/api/custom-metadata-providers', {})
+})
+
+export const deleteCustomMetadataProvider = cache(async (providerId: string): Promise<void> => {
+  return apiRequest<void>(`/api/custom-metadata-providers/${providerId}`, {
+    method: 'DELETE'
+  })
+})
+
+export async function createCustomMetadataProvider(payload: CreateCustomMetadataProviderPayload): Promise<CreateCustomMetadataProviderResponse> {
+  return apiRequest<CreateCustomMetadataProviderResponse>('/api/custom-metadata-providers', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
 
 export const closeRssFeed = cache(async (feedId: string): Promise<void> => {
   return apiRequest<void>(`/api/feeds/${feedId}/close`, {

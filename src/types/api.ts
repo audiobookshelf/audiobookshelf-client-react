@@ -880,6 +880,31 @@ export interface CreateUpdateApiKeyResponse {
   apiKey: ApiKey
 }
 
+export interface CustomMetadataProvider {
+  id: string
+  name: string
+  mediaType: 'book' | 'podcast'
+  url: string
+  authHeaderValue: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface GetCustomMetadataProvidersResponse {
+  providers: CustomMetadataProvider[]
+}
+
+export interface CreateCustomMetadataProviderPayload {
+  name: string
+  url: string
+  mediaType: 'book' | 'podcast'
+  authHeaderValue?: string
+}
+
+export interface CreateCustomMetadataProviderResponse {
+  provider: CustomMetadataProvider
+}
+
 // ============================================================================
 // BACKUPS
 // ============================================================================
