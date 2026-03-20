@@ -21,7 +21,7 @@ import { sanitizeFileName, SupportedFileTypes } from '@/lib/fileUtils'
 import { bytesPretty } from '@/lib/string'
 import { Library } from '@/types/api'
 import path from 'path'
-import { CleanedItem, FileWithMetadata, getItemsFromFilelist, upload } from './UploadHelper'
+import { CleanedItem, FileWithMetadata, getItemsFromFilelist, upload, UploadProgressInfo } from './UploadHelper'
 import { fetchBookMetadata, fetchPodcastMetadata, getCookie } from './actions'
 
 export interface ItemToUpload extends CleanedItem {
@@ -29,6 +29,8 @@ export interface ItemToUpload extends CleanedItem {
   isFetchingMetadata?: boolean
   isUploading?: boolean
   uploadProgress?: number
+  uploadBytesLoaded?: number
+  uploadBytesTotal?: number
   uploadError?: string
   uploadComplete?: boolean
   uploadFailed?: boolean
@@ -223,10 +225,14 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     for (const item of uploadItems) {
       item.isUploading = true
       item.uploadProgress = 0
+      item.uploadBytesLoaded = 0
+      item.uploadBytesTotal = item.itemFiles.reduce((sum, file) => sum + file.size, 0)
 
       try {
-        await upload(item, selectedLibrary!, selectedFolder!, currentLibraryMediaType!, cookie, (progress) => {
-          item.uploadProgress = progress
+        await upload(item, selectedLibrary!, selectedFolder!, currentLibraryMediaType!, cookie, (progress: UploadProgressInfo) => {
+          item.uploadProgress = progress.percent
+          item.uploadBytesLoaded = progress.loaded
+          item.uploadBytesTotal = progress.total
           const updatedItemsForProgress = [...uploadItems]
           setUploadItems(updatedItemsForProgress)
         })
@@ -384,6 +390,9 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                     {item.isUploading && (
                       <LoadingIndicator label={'MessageUploading'}>
                         <ProgressIndicator progress={item.uploadProgress || 0} />
+                        <p className="text-xs text-foreground-muted mt-2 text-center">
+                          ({bytesPretty(item.uploadBytesLoaded || 0)}/{bytesPretty(item.uploadBytesTotal || 0)})
+                        </p>
                       </LoadingIndicator>
                     )}
                     {item.isFetchingMetadata && <LoadingIndicator label="LabelFetchingMetadata" />}
