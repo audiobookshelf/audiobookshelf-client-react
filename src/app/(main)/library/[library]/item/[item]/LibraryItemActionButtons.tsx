@@ -11,7 +11,7 @@ import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCar
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
+import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
 import { useCallback, useMemo } from 'react'
 
 interface LibraryItemActionButtonsProps {
@@ -143,7 +143,13 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
     <>
       <div className="flex items-center justify-start pt-4 gap-1 flex-wrap">
         {showPlayButton && (
-          <Btn onClick={handlePlay} color="bg-success" size="small" className="flex items-center h-9 px-4 mr-2">
+          <Btn
+            onClick={handlePlay}
+            loading={playerHandler.state.playerState === PlayerState.LOADING}
+            color="bg-success"
+            size="small"
+            className="flex items-center h-9 px-4 mr-2"
+          >
             <span className="material-symbols fill text-2xl -ml-2 pr-1 text-white">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
             {isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
           </Btn>
