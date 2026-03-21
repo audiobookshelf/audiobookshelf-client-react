@@ -21,17 +21,14 @@ interface LibraryItemActionButtonsProps {
   rssFeed?: RssFeed | null
 }
 
-export default function LibraryItemActionButtons({
-  libraryItem,
-  onEdit,
-  rssFeed = null
-}: LibraryItemActionButtonsProps) {
+export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed = null }: LibraryItemActionButtonsProps) {
   const { userCanUpdate, getLibraryItemProgress, ereaderDevices } = useUser()
   const {
     playItem,
     libraryItemIdStreaming,
     streamLibraryItem,
     isStreaming: isStreamingFn,
+    isPlaying: isPlayingFn,
     isStreamingFromDifferentLibrary,
     getIsMediaQueued,
     addItemToQueue,
@@ -53,49 +50,47 @@ export default function LibraryItemActionButtons({
 
   const showPlayButton = !libraryItem.isMissing && !libraryItem.isInvalid && (isPodcast ? podcastEpisodes.length > 0 : tracks.length > 0)
   const isStreaming = isStreamingFn(libraryItem.id, null)
+  const isItemPlaying = isPlayingFn(libraryItem.id, null)
   const showQueueBtn = isBook && !!streamLibraryItem && !isStreamingFromDifferentLibrary(libraryItem.libraryId)
   const isQueued = getIsMediaQueued(libraryItem.id, null)
   const showReadButton = isBook && !!ebookFile
   const isStreamingFromDifferentLib = isStreamingFromDifferentLibrary(libraryItem.libraryId)
 
-  const {
-    processing,
-    confirmState,
-    rssFeedModalOpen,
-    closeConfirm,
-    closeRssFeedModal,
-    handleReadEBook,
-    handleMoreAction,
-    moreMenuItems
-  } = useMediaCardActions({
-    libraryItem,
-    media: libraryItem.media,
-    title: libraryItem.media.metadata.title ?? '',
-    author: 'authors' in libraryItem.media.metadata ? (libraryItem.media.metadata.authors ?? []).map((a) => a.name).join(', ') : null,
-    episodeForQueue: null,
-    mediaProgress,
-    itemIsFinished: isRead,
-    userProgressPercent: mediaProgress?.progress ?? 0,
-    isPodcast,
-    ereaderDevices,
-    continueListeningShelf: false,
-    libraryItemIdStreaming,
-    isStreaming: isStreamingFn,
-    isStreamingFromDifferentLib,
-    isQueued,
-    onDeleteSuccess: () => {
-      window.location.href = `/library/${libraryItem.libraryId}`
-    },
-    playerControls: playerHandler.controls
-  })
+  const { processing, confirmState, rssFeedModalOpen, closeConfirm, closeRssFeedModal, handleReadEBook, handleMoreAction, moreMenuItems } = useMediaCardActions(
+    {
+      libraryItem,
+      media: libraryItem.media,
+      title: libraryItem.media.metadata.title ?? '',
+      author: 'authors' in libraryItem.media.metadata ? (libraryItem.media.metadata.authors ?? []).map((a) => a.name).join(', ') : null,
+      episodeForQueue: null,
+      mediaProgress,
+      itemIsFinished: isRead,
+      userProgressPercent: mediaProgress?.progress ?? 0,
+      isPodcast,
+      ereaderDevices,
+      continueListeningShelf: false,
+      libraryItemIdStreaming,
+      isStreaming: isStreamingFn,
+      isStreamingFromDifferentLib,
+      isQueued,
+      onDeleteSuccess: () => {
+        window.location.href = `/library/${libraryItem.libraryId}`
+      },
+      playerControls: playerHandler.controls
+    }
+  )
 
   const handlePlay = useCallback(() => {
+    if (isStreaming) {
+      playerHandler.controls.playPause()
+      return
+    }
     void playItem({
       libraryItem,
       episodeId: null,
       queueItems: []
     })
-  }, [libraryItem, playItem])
+  }, [isStreaming, libraryItem, playItem, playerHandler.controls])
 
   const handleQueueClick = useCallback(() => {
     if (isQueued) {
@@ -148,9 +143,9 @@ export default function LibraryItemActionButtons({
     <>
       <div className="flex items-center justify-start pt-4 gap-1 flex-wrap">
         {showPlayButton && (
-          <Btn onClick={handlePlay} disabled={isStreaming} color="bg-success" size="small" className="flex items-center h-9 px-4 mr-2">
-            {!isStreaming && <span className="material-symbols fill text-2xl -ml-2 pr-1 text-white">play_arrow</span>}
-            {isStreaming ? t('ButtonPlaying') : t('ButtonPlay')}
+          <Btn onClick={handlePlay} color="bg-success" size="small" className="flex items-center h-9 px-4 mr-2">
+            <span className="material-symbols fill text-2xl -ml-2 pr-1 text-white">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
+            {isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
           </Btn>
         )}
 
@@ -236,9 +231,7 @@ export default function LibraryItemActionButtons({
           name: libraryItem.media.metadata.title ?? '',
           type: 'item',
           feed: rssFeed ?? null,
-          hasEpisodesWithoutPubDate:
-            isPodcast &&
-            podcastEpisodes.some((ep) => !ep.pubDate)
+          hasEpisodesWithoutPubDate: isPodcast && podcastEpisodes.some((ep) => !ep.pubDate)
         }}
       />
     </>
