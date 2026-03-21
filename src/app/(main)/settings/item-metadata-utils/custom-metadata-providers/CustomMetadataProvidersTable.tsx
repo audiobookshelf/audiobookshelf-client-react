@@ -86,7 +86,7 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
               borderless
               size="small"
               className="text-foreground-muted hover:not-disabled:text-error"
-              loading={deletingProviderId === provider.id || processing}
+              loading={deletingProviderId === provider.id && processing}
               onClick={() => handleDeleteClick(provider)}
             >
               delete
