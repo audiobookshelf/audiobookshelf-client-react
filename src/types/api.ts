@@ -1250,6 +1250,10 @@ export interface DeviceInfo {
 export interface PlaybackSession {
   id: string
   userId: string
+  user?: {
+    id: string
+    username: string
+  } | null
   libraryId: string
   libraryItemId: string
   bookId?: string
@@ -1274,6 +1278,21 @@ export interface PlaybackSession {
   updatedAt: number
   audioTracks: AudioTrackData[]
   libraryItem: LibraryItem | null
+  open?: boolean
+}
+
+export interface GetListeningSessionsResponse {
+  total: number
+  numPages: number
+  page: number
+  itemsPerPage: number
+  sessions: PlaybackSession[]
+  userId?: string
+}
+
+export interface GetOpenListeningSessionsResponse {
+  sessions: PlaybackSession[]
+  shareSessions: PlaybackSession[]
 }
 
 /**
