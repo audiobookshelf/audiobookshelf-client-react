@@ -13,6 +13,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { downloadLibraryItem } from '@/lib/download'
 import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import type { EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
@@ -34,6 +35,7 @@ interface UseMediaCardActionsProps {
   isStreaming: (libraryItemId: string, episodeId: string | null) => boolean
   isStreamingFromDifferentLib: boolean
   isQueued: boolean
+  onDeleteSuccess?: () => void
   playerControls: PlayerHandlerControls
 }
 
@@ -53,15 +55,19 @@ export function useMediaCardActions({
   isStreaming,
   isStreamingFromDifferentLib,
   isQueued,
+  onDeleteSuccess,
   playerControls
 }: UseMediaCardActionsProps) {
   const t = useTypeSafeTranslations()
-  const { userCanUpdate, userCanDelete, userIsAdminOrUp } = useUser()
+  const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const { showToast } = useGlobalToast()
   const { addItemToQueue, removeItemFromQueue, playItem } = useMediaContext()
   const [processing, setProcessing] = useState(false)
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
+  const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
+  const rssFeed = libraryItem.rssFeed ?? null
+  const showRssFeedButton = userIsAdminOrUp || rssFeed != null
 
   const handlePlay = useCallback(() => {
     if (isStreaming(libraryItem.id, episodeForQueue?.id ?? null)) {
@@ -191,6 +197,10 @@ export function useMediaCardActions({
         removeItemFromQueue({ libraryItemId: libraryItem.id, episodeId })
       } else if (action === 'openCollections' || action === 'openPlaylists' || action === 'openShare') {
         showToast('This action is not implemented yet.', { type: 'info' })
+      } else if (action === 'openRssFeed') {
+        setRssFeedModalOpen(true)
+      } else if (action === 'download') {
+        downloadLibraryItem(libraryItem.id)
       } else if (action === 'sendToDevice') {
         const deviceName = data?.deviceName
         if (!deviceName) return
@@ -282,6 +292,7 @@ export function useMediaCardActions({
                 setProcessing(true)
                 await deleteLibraryItemAction(libraryItem.id, hardDelete)
                 showToast(t('ToastItemDeletedSuccess'), { type: 'success' })
+                onDeleteSuccess?.()
               } catch (error) {
                 console.error('Failed to delete item', error)
                 showToast(t('ToastItemDeletedFailed'), { type: 'error' })
@@ -305,7 +316,8 @@ export function useMediaCardActions({
       showToast,
       t,
       title,
-      toggleFinished
+      toggleFinished,
+      onDeleteSuccess
     ]
   )
 
@@ -378,6 +390,20 @@ export function useMediaCardActions({
       })
     }
 
+    if (showRssFeedButton) {
+      items.push({
+        text: t('LabelOpenRSSFeed'),
+        func: 'openRssFeed'
+      })
+    }
+
+    if (userCanDownload) {
+      items.push({
+        text: t('LabelDownload'),
+        func: 'download'
+      })
+    }
+
     if (!isPodcast && libraryItemIdStreaming && !isStreamingFromDifferentLib) {
       if (!isQueued) {
         items.push({
@@ -413,8 +439,10 @@ export function useMediaCardActions({
     libraryItem.isFile,
     libraryItemIdStreaming,
     media,
+    showRssFeedButton,
     t,
     userCanDelete,
+    userCanDownload,
     userCanUpdate,
     userIsAdminOrUp
   ])
@@ -423,11 +451,17 @@ export function useMediaCardActions({
     setConfirmState(null)
   }, [])
 
+  const closeRssFeedModal = useCallback(() => {
+    setRssFeedModalOpen(false)
+  }, [])
+
   return {
     processing: processing || isPending,
     isPending,
     confirmState,
+    rssFeedModalOpen,
     closeConfirm,
+    closeRssFeedModal,
     handlePlay,
     handleReadEBook,
     handleMoreAction,

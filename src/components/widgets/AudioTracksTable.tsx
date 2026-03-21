@@ -7,6 +7,7 @@ import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
+import { downloadLibraryItemFile } from '@/lib/download'
 import { bytesPretty } from '@/lib/string'
 import { AudioFile, AudioTrack, BookLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -138,12 +139,9 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
               className="h-6 w-6 md:h-7 md:w-7"
               onAction={({ action }) => {
                 if (action === 'download') {
-                  const link = document.createElement('a')
-                  link.href = `/internal-api/items/${libraryItem.id}/file/${row.audioFile?.ino}/download`
-                  link.download = row.metadata.filename
-                  document.body.appendChild(link)
-                  link.click()
-                  document.body.removeChild(link)
+                  const fileIno = row.audioFile?.ino
+                  if (!fileIno) return
+                  downloadLibraryItemFile(libraryItem.id, fileIno, row.metadata.filename)
                 } else if (action === 'delete') {
                   console.log('Delete track:', row.audioFile?.ino)
                 } else if (action === 'more' && row.audioFile) {

@@ -880,6 +880,31 @@ export interface CreateUpdateApiKeyResponse {
   apiKey: ApiKey
 }
 
+export interface CustomMetadataProvider {
+  id: string
+  name: string
+  mediaType: 'book' | 'podcast'
+  url: string
+  authHeaderValue: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface GetCustomMetadataProvidersResponse {
+  providers: CustomMetadataProvider[]
+}
+
+export interface CreateCustomMetadataProviderPayload {
+  name: string
+  url: string
+  mediaType: 'book' | 'podcast'
+  authHeaderValue?: string
+}
+
+export interface CreateCustomMetadataProviderResponse {
+  provider: CustomMetadataProvider
+}
+
 // ============================================================================
 // BACKUPS
 // ============================================================================
@@ -1381,4 +1406,22 @@ export interface RssPodcast {
 
 export interface FetchPodcastFeedResponse {
   podcast: RssPodcast
+}
+
+// ============================================================================
+// OPEN RSS FEED
+// ============================================================================
+
+export interface OpenRssFeedPayload {
+  serverAddress: string
+  slug: string
+  metadataDetails: {
+    preventIndexing: boolean
+    ownerName: string
+    ownerEmail: string
+  }
+}
+
+export interface OpenRssFeedResponse {
+  feed: RssFeed
 }

@@ -2,9 +2,6 @@
 
 import { clearPodcastDownloadQueueAction } from '@/app/actions/mediaActions'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
-import Btn from '@/components/ui/Btn'
-import IconBtn from '@/components/ui/IconBtn'
-import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
@@ -13,13 +10,13 @@ import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useCallback, useState } from 'react'
+import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
 
@@ -30,7 +27,6 @@ interface LibraryItemClientProps {
 export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
   const { serverSettings, getLibraryItemProgress, userCanUpdate, userIsAdminOrUp } = useUser()
-  const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
@@ -48,22 +44,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
   const userProgress = getLibraryItemProgress(libraryItem.id)
 
-  const isItemPlaying = isPlaying(libraryItem.id)
-
-  // TODO: Handle episodes and player queue
-  const handlePlay = () => {
-    if (isStreaming(libraryItem.id)) {
-      playerHandler.controls.playPause()
-      return
-    }
-
-    playItem({
-      libraryItem,
-      episodeId: null,
-      queueItems: []
-    })
-  }
-
   const handleOpenEditModal = () => {
     setIsEditModalOpen(true)
   }
@@ -76,11 +56,12 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     setLibraryItem(updatedItem)
   }
 
-  const { episodesDownloading, episodeDownloadsQueued } = useItemPageSocket({
+  const { rssFeed, episodesDownloading, episodeDownloadsQueued } = useItemPageSocket({
     libraryItemId: libraryItem.id,
     mediaId: libraryItem.media?.id,
     isPodcast,
-    onItemUpdated: handleItemSaved
+    onItemUpdated: handleItemSaved,
+    initialRssFeed: initialLibraryItem.rssFeed ?? null
   })
 
   const handleClearDownloadQueue = useCallback(async () => {
@@ -149,14 +130,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
             <LibraryItemDetails libraryItem={libraryItem} />
 
-            <div className="flex items-center gap-2 mt-6">
-              <Btn onClick={handlePlay} color="bg-success" className="px-6">
-                <span className="material-symbols fill text-xl mr-1">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
-                {isItemPlaying ? t('ButtonPlaying') : t('ButtonPlay')}
-              </Btn>
-              <IconBtn onClick={handleOpenEditModal}>edit</IconBtn>
-              {!isPodcast && <ReadIconBtn isRead={userProgress?.isFinished ?? false} onClick={() => {}} />}
-            </div>
+            <LibraryItemActionButtons libraryItem={libraryItem} onEdit={handleOpenEditModal} rssFeed={rssFeed ?? null} />
 
             {/* Podcast episode downloads queue */}
             {episodeDownloadsQueued.length > 0 && (
@@ -191,7 +165,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
             {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
-            <div className="mt-20 flex flex-col gap-4">
+            <div className="mt-6 flex flex-col gap-4">
               {/* chapters table */}
               {libraryItem.mediaType === 'book' && (libraryItem.media.chapters?.length ?? 0) > 0 && (
                 <ChaptersTable libraryItem={libraryItem as BookLibraryItem} />

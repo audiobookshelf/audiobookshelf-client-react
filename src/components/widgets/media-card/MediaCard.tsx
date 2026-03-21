@@ -1,6 +1,7 @@
 'use client'
 
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
@@ -15,7 +16,7 @@ import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpiso
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
-import { memo, useId, useMemo, useState, type ReactNode } from 'react'
+import { memo, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 
 export interface MediaCardProps {
   libraryItem: LibraryItem
@@ -157,8 +158,12 @@ function MediaCard(props: MediaCardProps) {
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
   const isAuthorBookshelfView = bookshelfView === BookshelfView.AUTHOR
 
-  const rssFeed = libraryItem.rssFeed ?? null
+  const [rssFeed, setRssFeed] = useState(libraryItem.rssFeed ?? null)
   const mediaItemShare = libraryItem.mediaItemShare ?? null
+
+  useEffect(() => {
+    setRssFeed(libraryItem.rssFeed ?? null)
+  }, [libraryItem.rssFeed])
 
   const isMissing = libraryItem.isMissing
   const isInvalid = libraryItem.isInvalid
@@ -230,7 +235,8 @@ function MediaCard(props: MediaCardProps) {
 
   const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!media.ebookFormat
 
-  const { processing, isPending, confirmState, closeConfirm, handlePlay, handleReadEBook, handleMoreAction, moreMenuItems } = useMediaCardActions({
+  const { processing, isPending, confirmState, rssFeedModalOpen, closeConfirm, closeRssFeedModal, handlePlay, handleReadEBook, handleMoreAction, moreMenuItems } =
+    useMediaCardActions({
     libraryItem,
     media,
     title,
@@ -343,6 +349,20 @@ function MediaCard(props: MediaCardProps) {
           onClose={closeConfirm}
           onConfirm={(value) => {
             confirmState.onConfirm(value)
+          }}
+        />
+      )}
+      {rssFeedModalOpen && (
+        <RssFeedOpenCloseModal
+          isOpen={rssFeedModalOpen}
+          onClose={closeRssFeedModal}
+          onFeedChange={setRssFeed}
+          entity={{
+            id: libraryItem.id,
+            name: title,
+            type: 'item',
+            feed: rssFeed ?? null,
+            hasEpisodesWithoutPubDate: isPodcast && ((media as PodcastMedia).episodes ?? []).some((ep) => !ep.pubDate)
           }}
         />
       )}
