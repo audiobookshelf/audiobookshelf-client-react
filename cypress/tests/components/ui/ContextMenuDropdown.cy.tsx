@@ -159,13 +159,13 @@ describe('<ContextMenuDropdown />', () => {
     cy.get('[role="menu"]').should('have.css', 'width', `${customWidth}px`)
   })
 
-  it('applies custom class', () => {
+  it('applies custom class to trigger button', () => {
     cy.mount(
       <div className="absolute end-0">
         <ContextMenuDropdown items={mockItems} className="custom-class" />
       </div>
     )
-    cy.get('&wrapper').should('have.class', 'custom-class')
+    cy.get('button').should('have.class', 'custom-class')
   })
 
   it('applies custom menu align', () => {

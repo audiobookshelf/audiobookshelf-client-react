@@ -1,5 +1,7 @@
 'use client'
 
+import { closeRssFeed } from '@/app/actions/rssFeedActions'
+import RssFeedOpenCloseModal, { RssFeedEntity } from '@/components/modals/RssFeedOpenCloseModal'
 import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
@@ -9,9 +11,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { RssFeed } from '@/types/api'
-import { useCallback, useRef, useState } from 'react'
-import { closeRssFeed } from './actions'
-import RssFeedModal from './RssFeedModal'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 interface RssFeedsTableProps {
   rssFeeds: RssFeed[]
@@ -29,6 +29,32 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
   const closingFeedRef = useRef<RssFeed | null>(null)
   const dateFormat = serverSettings?.dateFormat
   const timeFormat = serverSettings?.timeFormat
+
+  const selectedEntity = useMemo<RssFeedEntity | null>(() => {
+    if (!selectedFeed) return null
+
+    let type: RssFeedEntity['type']
+    switch (selectedFeed.entityType) {
+      case 'libraryItem':
+        type = 'item'
+        break
+      case 'series':
+        type = 'series'
+        break
+      case 'collection':
+        type = 'collection'
+        break
+      default:
+        type = 'item'
+    }
+
+    return {
+      id: selectedFeed.entityId,
+      name: selectedFeed.meta.title,
+      type,
+      feed: selectedFeed
+    }
+  }, [selectedFeed])
 
   const handleCloseClick = useCallback((rssFeed: RssFeed) => {
     closingFeedRef.current = rssFeed
@@ -122,7 +148,7 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
       headerClassName: 'text-center'
     },
     {
-      label: t('LabelRSSFeedPreventIndexing'),
+      label: t('LabelPreventIndexingShort'),
       accessor: (rssFeed) =>
         rssFeed.meta.preventIndexing && (
           <div className="flex items-center justify-center">
@@ -176,7 +202,7 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
   return (
     <>
       <DataTable data={rssFeeds} columns={columns} getRowKey={(rssFeed) => rssFeed.id} onRowClick={handleRowClick} />
-      <RssFeedModal isOpen={isModalOpen} onClose={handleCloseModal} rssFeed={selectedFeed} />
+      <RssFeedOpenCloseModal isOpen={isModalOpen} onClose={handleCloseModal} entity={selectedEntity} viewMode />
       <ConfirmDialog
         isOpen={showConfirmDialog}
         message={t('MessageConfirmCloseFeed')}

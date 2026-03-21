@@ -1363,3 +1363,21 @@ export interface RssPodcast {
 export interface FetchPodcastFeedResponse {
   podcast: RssPodcast
 }
+
+// ============================================================================
+// OPEN RSS FEED
+// ============================================================================
+
+export interface OpenRssFeedPayload {
+  serverAddress: string
+  slug: string
+  metadataDetails: {
+    preventIndexing: boolean
+    ownerName: string
+    ownerEmail: string
+  }
+}
+
+export interface OpenRssFeedResponse {
+  feed: RssFeed
+}

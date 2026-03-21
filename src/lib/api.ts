@@ -31,6 +31,8 @@ import {
   LibraryFilterData,
   LibraryItem,
   MetadataProvidersResponse,
+  OpenRssFeedPayload,
+  OpenRssFeedResponse,
   PersonalizedShelf,
   Playlist,
   PodcastSearchResult,
@@ -264,7 +266,7 @@ export const getLibrary = cache(async (libraryId: string): Promise<Library> => {
 })
 
 export const getLibraryPersonalized = cache(async (libraryId: string): Promise<PersonalizedShelf[]> => {
-  return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized`, {})
+  return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized?include=rssfeed,share`, {})
 })
 
 export const getLibraryItems = cache(async (libraryId: string, queryParams?: string): Promise<GetLibraryItemsResponse> => {
@@ -279,8 +281,17 @@ export async function getLibraryFilterData(libraryId: string): Promise<LibraryFi
   return apiRequest<LibraryFilterData>(`/api/libraries/${libraryId}/filterdata`, {})
 }
 
-export const getLibraryItem = cache(async (itemId: string, expanded?: boolean): Promise<LibraryItem> => {
-  return apiRequest<LibraryItem>(`/api/items/${itemId}?expanded=${expanded ? '1' : '0'}`, {})
+/**
+ * Get a single library item by ID.
+ * @param itemId - Library item ID
+ * @param expanded - If true, returns expanded item with full media/chapters etc.
+ * @param include - Optional comma-separated includes: rssfeed, share, downloads
+ */
+export const getLibraryItem = cache(async (itemId: string, expanded?: boolean, include?: string): Promise<LibraryItem> => {
+  const params = new URLSearchParams()
+  params.set('expanded', expanded ? '1' : '0')
+  if (include) params.set('include', include)
+  return apiRequest<LibraryItem>(`/api/items/${itemId}?${params.toString()}`, {})
 })
 
 /**
@@ -478,6 +489,13 @@ export const closeRssFeed = cache(async (feedId: string): Promise<void> => {
     method: 'POST'
   })
 })
+
+export async function openItemRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
+  return apiRequest<OpenRssFeedResponse>(`/api/feeds/item/${itemId}/open`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
 
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
   return apiRequest<GetBackupsResponse>('/api/backups', {})
