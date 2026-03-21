@@ -475,13 +475,23 @@ function SessionListTable({
         <table className="w-full border-collapse text-sm table-fixed">
           <thead className="bg-table-header-bg border-b border-border">
             <tr>
-              <th className="w-48 min-w-48 text-left text-xs font-semibold text-foreground-muted px-2">{t('LabelItem')}</th>
-              <th className="w-20 min-w-20 text-left hidden md:table-cell text-xs font-semibold text-foreground-muted px-2">{t('LabelUser')}</th>
-              <th className="w-32 min-w-32 text-left hidden md:table-cell text-xs font-semibold text-foreground-muted px-2">{t('LabelPlayMethod')}</th>
-              <th className="w-32 min-w-32 text-left hidden sm:table-cell text-xs font-semibold text-foreground-muted px-2">{t('LabelDeviceInfo')}</th>
-              {!isShareSessions && <th className="w-24 min-w-24 text-center text-xs font-semibold text-foreground-muted px-2">{t('LabelTimeListened')}</th>}
-              <th className="w-16 min-w-16 text-center text-xs font-semibold text-foreground-muted px-2">{t('LabelLastTime')}</th>
-              <th className="grow hidden sm:table-cell text-left text-xs font-semibold text-foreground-muted px-2">{t('LabelLastUpdate')}</th>
+              <th className="w-48 min-w-48 text-left text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">{t('LabelItem')}</th>
+              <th className="w-20 min-w-20 text-left hidden md:table-cell text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
+                {t('LabelUser')}
+              </th>
+              <th className="w-32 min-w-32 text-left hidden md:table-cell text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
+                {t('LabelPlayMethod')}
+              </th>
+              <th className="w-32 min-w-32 text-left hidden sm:table-cell text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
+                {t('LabelDeviceInfo')}
+              </th>
+              {!isShareSessions && (
+                <th className="w-32 min-w-32 text-center text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">{t('LabelTimeListened')}</th>
+              )}
+              <th className="w-16 min-w-16 text-center text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">{t('LabelLastTime')}</th>
+              <th className="w-32 min-w-32 hidden sm:table-cell text-left text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
+                {t('LabelLastUpdate')}
+              </th>
             </tr>
           </thead>
 
@@ -506,14 +516,14 @@ function SessionListTable({
                   <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
                 </td>
                 {!isShareSessions && (
-                  <td className="text-center w-24 min-w-24 px-2">
+                  <td className="text-center w-32 min-w-32 px-2">
                     <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>
                   </td>
                 )}
                 <td className="text-center w-16 min-w-16 px-2">
                   <p className="text-xs font-mono">{secondsToTimestamp(session.currentTime)}</p>
                 </td>
-                <td className="text-center hidden sm:table-cell px-2">
+                <td className="text-left hidden sm:table-cell w-32 min-w-32 px-2">
                   <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
                     <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
                   </Tooltip>

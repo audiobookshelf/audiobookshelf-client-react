@@ -16,6 +16,7 @@ export const elapsedPretty = (
   useLargestUnitOnly: boolean = false
 ): string => {
   if (isNaN(seconds) || seconds === null) return ''
+  if (seconds === 0) return `${0} ${useFullNames ? 'seconds' : 'sec'}`
 
   try {
     // @ts-expect-error Intl.DurationFormat is not supported in TypeScript
@@ -80,7 +81,7 @@ export const elapsedPretty = (
     }
     const hours = Math.floor(minutes / 60)
     minutes -= hours * 60
-    
+
     if (useLargestUnitOnly) {
       if (hours > 24) {
         const days = Math.floor(hours / 24)
