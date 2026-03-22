@@ -1,20 +1,8 @@
-import { getServerBaseUrl, getUserDefaultUrlPath, setTokenCookies } from '@/lib/api'
+import { getClientBaseUrlFromRequest, getUserDefaultUrlPath, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 const rscMap = new Map<string, boolean>()
-
-/**
- * Get the client-facing base URL from request headers.
- * This is needed for redirects since the server's internal URL (localhost)
- * differs from the URL the client used to reach the server.
- */
-function getClientBaseUrl(request: Request): string {
-  const headers = new Headers(request.headers)
-  const host = headers.get('x-forwarded-host') || headers.get('host') || 'localhost'
-  const protocol = headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
-  return `${protocol}://${host}`
-}
 
 export async function GET(request: Request) {
   return handleRefresh(request)
@@ -25,10 +13,8 @@ export async function POST(request: Request) {
 }
 
 async function handleRefresh(request: Request) {
-  // Server URL for backend API calls (internal network)
-  const audiobookshelfServerUrl = getServerBaseUrl()
   // Client URL for browser redirects (what the user sees)
-  const clientBaseUrl = getClientBaseUrl(request)
+  const clientBaseUrl = getClientBaseUrlFromRequest(request)
 
   try {
     const cookieStore = await cookies()
@@ -53,17 +39,9 @@ async function handleRefresh(request: Request) {
       }
     }
 
-    // Make refresh request to the Audiobookshelf server
-    const refreshResponse = await fetch(`${audiobookshelfServerUrl}/auth/refresh`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        // Passing the refresh token in header is an alternative to using the Abs server cookie
-        'x-refresh-token': refreshToken
-      }
-    })
+    const session = await refreshSessionWithToken(refreshToken)
 
-    if (!refreshResponse.ok) {
+    if (!session) {
       // Refresh failed, redirect to login page and delete refresh token cookie
       const redirectUrl = new URL('/login', clientBaseUrl)
       redirectUrl.searchParams.set('error', 'Token refresh failed')
@@ -72,13 +50,7 @@ async function handleRefresh(request: Request) {
       return response
     }
 
-    const data = await refreshResponse.json()
-    const newAccessToken = data.user.accessToken
-    const newRefreshToken = data.user.refreshToken
-
-    if (!newAccessToken) {
-      return NextResponse.json({ error: 'No new access token received' }, { status: 500 })
-    }
+    const { accessToken: newAccessToken, refreshToken: newRefreshToken } = session
 
     // If the request is an API request, dont redirect (used in socket auth_failed handler)
     if (request.headers.get('accept') === 'application/json') {
@@ -88,7 +60,7 @@ async function handleRefresh(request: Request) {
     }
 
     // Get redirect URL from query parameters or default to user default path
-    const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(data.userDefaultLibraryId, data.user.type)
+    const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(session.userDefaultLibraryId, session.userType)
     const redirectUrl = new URL(redirectUrlPath, clientBaseUrl)
 
     const response = NextResponse.redirect(redirectUrl)

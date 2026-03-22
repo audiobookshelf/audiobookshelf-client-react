@@ -1,4 +1,5 @@
 import { getServerBaseUrl } from '@/lib/api'
+import { attachRefreshedSessionCookies, fetchBackendDownloadWithCookieRefresh, respondDownloadProxyFailure } from '@/lib/serverDownloadProxy'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -7,50 +8,44 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * This forwards requests to the backend `/api/items/:id/download` endpoint
  * and authenticates using the httpOnly `access_token` cookie.
+ * If the access token is expired, refreshes using `refresh_token` and retries
+ * so plain `<a href>` downloads keep working.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const cookieStore = await cookies()
-  const accessToken = cookieStore.get('access_token')?.value
-
-  if (!accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
 
   try {
     const baseUrl = getServerBaseUrl()
     const backendUrl = `${baseUrl}/api/items/${id}/download`
 
-    const response = await fetch(backendUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        return NextResponse.json({ error: 'Unauthorized - token may be expired' }, { status: 401 })
-      }
-      return NextResponse.json({ error: `Backend error: ${response.statusText}` }, { status: response.status })
+    const result = await fetchBackendDownloadWithCookieRefresh(backendUrl, cookieStore)
+    if (!result.ok) {
+      return respondDownloadProxyFailure(request, result)
     }
 
+    const { upstream: response, refreshedTokens } = result
+
     if (!response.body) {
-      return NextResponse.json({ error: 'Backend returned empty download stream' }, { status: 502 })
+      return attachRefreshedSessionCookies(NextResponse.json({ error: 'Backend returned empty download stream' }, { status: 502 }), refreshedTokens)
     }
 
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
     const contentDisposition = response.headers.get('content-disposition') || 'attachment'
     const contentLength = response.headers.get('content-length')
 
-    return new NextResponse(response.body, {
-      status: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Content-Disposition': contentDisposition,
-        ...(contentLength ? { 'Content-Length': contentLength } : {}),
-        'Cache-Control': 'no-cache'
-      }
-    })
+    return attachRefreshedSessionCookies(
+      new NextResponse(response.body, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          'Content-Disposition': contentDisposition,
+          ...(contentLength ? { 'Content-Length': contentLength } : {}),
+          'Cache-Control': 'no-cache'
+        }
+      }),
+      refreshedTokens
+    )
   } catch (error) {
     console.error('[LibraryItemDownload] Error fetching item download:', error)
     return NextResponse.json({ error: 'Failed to fetch library item download' }, { status: 500 })
