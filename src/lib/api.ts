@@ -104,9 +104,19 @@ export function getServerBaseUrl() {
 export function getClientBaseUrlFromRequest(request: Request): string {
   const headers = new Headers(request.headers)
   const host = headers.get('x-forwarded-host') || headers.get('host') || 'localhost'
-  const protocol =
-    headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
+  const protocol = headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
   return `${protocol}://${host}`
+}
+
+/**
+ * Send the browser to /login with an error hint and drop refresh cookie (session cannot continue).
+ */
+export function redirectToLogin(request: Request, errorMessage: string): NextResponse {
+  const login = new URL('/login', getClientBaseUrlFromRequest(request))
+  login.searchParams.set('error', errorMessage)
+  const response = NextResponse.redirect(login)
+  response.cookies.delete('refresh_token')
+  return response
 }
 
 /**

@@ -1,4 +1,4 @@
-import { getClientBaseUrlFromRequest, refreshSessionWithToken, SessionRefreshResult, SessionRefreshTokens, setTokenCookies } from '@/lib/api'
+import { redirectToLogin, refreshSessionWithToken, SessionRefreshResult, SessionRefreshTokens, setTokenCookies } from '@/lib/api'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import Logger from './Logger'
@@ -30,11 +30,7 @@ export type BackendDownloadFetchResult =
  */
 export function respondDownloadProxyFailure(request: NextRequest, result: Extract<BackendDownloadFetchResult, { ok: false }>): NextResponse {
   if (result.status === 401 && request.headers.get('accept') !== 'application/json') {
-    const login = new URL('/login', getClientBaseUrlFromRequest(request))
-    login.searchParams.set('error', 'Session expired')
-    const response = NextResponse.redirect(login)
-    response.cookies.delete('refresh_token')
-    return response
+    return redirectToLogin(request, 'Session expired')
   }
   return attachRefreshedSessionCookies(NextResponse.json({ error: result.error }, { status: result.status }), result.refreshedTokens)
 }

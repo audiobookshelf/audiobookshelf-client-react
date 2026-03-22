@@ -1,4 +1,4 @@
-import { getClientBaseUrlFromRequest, getUserDefaultUrlPath, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
+import { getClientBaseUrlFromRequest, getUserDefaultUrlPath, redirectToLogin, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
@@ -42,12 +42,7 @@ async function handleRefresh(request: Request) {
     const session = await refreshSessionWithToken(refreshToken)
 
     if (!session) {
-      // Refresh failed, redirect to login page and delete refresh token cookie
-      const redirectUrl = new URL('/login', clientBaseUrl)
-      redirectUrl.searchParams.set('error', 'Token refresh failed')
-      const response = NextResponse.redirect(redirectUrl)
-      response.cookies.delete('refresh_token')
-      return response
+      return redirectToLogin(request, 'Token refresh failed')
     }
 
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } = session
@@ -69,11 +64,6 @@ async function handleRefresh(request: Request) {
     return response
   } catch (error) {
     console.error('Token refresh error:', error)
-    // Redirect to login page and delete refresh token cookie
-    const redirectUrl = new URL('/login', clientBaseUrl)
-    redirectUrl.searchParams.set('error', 'Internal server error')
-    const response = NextResponse.redirect(redirectUrl)
-    response.cookies.delete('refresh_token')
-    return response
+    return redirectToLogin(request, 'Internal server error')
   }
 }
