@@ -27,6 +27,12 @@ export interface ProcessedItems {
   error?: string
 }
 
+export interface UploadProgressInfo {
+  percent: number
+  loaded: number
+  total: number
+}
+
 /**
  * Check file type based on extension
  */
@@ -188,7 +194,7 @@ export async function upload(
   folderId: string,
   mediaType: Library['mediaType'],
   cookie: string,
-  onProgress?: (progress: number) => void
+  onProgress?: (progress: UploadProgressInfo) => void
 ): Promise<void> {
   const form = new FormData()
   form.set('title', item.title)
@@ -213,14 +219,24 @@ export async function upload(
     // Track upload progress
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && onProgress) {
-        const progress = Math.round((event.loaded / event.total) * 100)
-        onProgress(progress)
+        onProgress({
+          percent: Math.round((event.loaded / event.total) * 100),
+          loaded: event.loaded,
+          total: event.total
+        })
       }
     }
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        if (onProgress) onProgress(100)
+        if (onProgress) {
+          const totalSize = item.itemFiles.reduce((sum, file) => sum + file.size, 0)
+          onProgress({
+            percent: 100,
+            loaded: totalSize,
+            total: totalSize
+          })
+        }
         resolve()
       } else {
         reject(new Error(`Upload failed with status ${xhr.status}`))
