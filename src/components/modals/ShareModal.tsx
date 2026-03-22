@@ -227,7 +227,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
               <ToggleSwitch size="medium" value={isDownloadable} onChange={setIsDownloadable} />
               <Tooltip text={t('LabelShareDownloadableHelp')} position="right" maxWidth={160} openOnClick addTabIndex>
                 <span className="text-foreground-muted inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto cursor-pointer">
-                  <span className="material-symbols icon-text text-lg sm:text-base">info</span>
+                  <span className="material-symbols icon-text text-lg">info</span>
                 </span>
               </Tooltip>
             </div>
