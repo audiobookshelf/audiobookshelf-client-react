@@ -100,6 +100,28 @@ export function getServerBaseUrl() {
 }
 
 /**
+ * Client-facing origin from request headers (for redirects out of internal API routes).
+ * The server may use an internal hostname; the browser must be sent to the URL it used.
+ */
+export function getClientBaseUrlFromRequest(request: Request): string {
+  const headers = new Headers(request.headers)
+  const host = headers.get('x-forwarded-host') || headers.get('host') || 'localhost'
+  const protocol = headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
+  return `${protocol}://${host}`
+}
+
+/**
+ * Send the browser to /login with an error hint and drop refresh cookie (session cannot continue).
+ */
+export function redirectToLogin(request: Request, errorMessage: string): NextResponse {
+  const login = new URL('/login', getClientBaseUrlFromRequest(request))
+  login.searchParams.set('error', errorMessage)
+  const response = NextResponse.redirect(login)
+  response.cookies.delete('refresh_token')
+  return response
+}
+
+/**
  * User "Home" page is the default library page, or settings/account page if no libraries are set yet
  */
 export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userType: string) {
@@ -130,6 +152,54 @@ export function setTokenCookies(response: NextResponse, accessToken: string, ref
       // Ensure the cookie is not expired before the refresh token expires (5 second buffer)
       maxAge: Math.max(RefreshTokenExpiry - 5, 5)
     })
+  }
+}
+
+/** New tokens from POST /auth/refresh (same shape as internal-api/refresh). */
+export type SessionRefreshTokens = {
+  accessToken: string
+  refreshToken: string | null
+}
+
+/** Full `/auth/refresh` payload used by internal-api/refresh for redirects. */
+export type SessionRefreshResult = SessionRefreshTokens & {
+  userDefaultLibraryId: string | null
+  userType: string
+}
+
+/**
+ * Exchange a refresh token for new session tokens (server-side).
+ * Used by internal-api/refresh and download proxies that cannot rely on a redirect.
+ */
+export async function refreshSessionWithToken(refreshToken: string): Promise<SessionRefreshResult | null> {
+  const baseUrl = getServerBaseUrl()
+  const refreshResponse = await fetch(`${baseUrl}/auth/refresh`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-refresh-token': refreshToken
+    }
+  })
+
+  if (!refreshResponse.ok) {
+    return null
+  }
+
+  const data = (await refreshResponse.json()) as {
+    userDefaultLibraryId?: string | null
+    user?: { accessToken?: string; refreshToken?: string; type?: string }
+  }
+
+  const accessToken = data.user?.accessToken
+  if (!accessToken) {
+    return null
+  }
+
+  return {
+    accessToken,
+    refreshToken: data.user?.refreshToken ?? null,
+    userDefaultLibraryId: data.userDefaultLibraryId ?? null,
+    userType: data.user?.type ?? 'user'
   }
 }
 
