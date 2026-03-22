@@ -9,9 +9,10 @@ import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
 import { SeriesCard } from '@/components/widgets/media-card/SeriesCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useSocketEvent } from '@/contexts/SocketContext'
 import { useUser } from '@/contexts/UserContext'
-import { Author, BookshelfView, LibraryItem, MediaProgress, PersonalizedShelf, Series } from '@/types/api'
-import { useEffect } from 'react'
+import { Author, BookshelfView, LibraryItem, MediaItemShare, MediaProgress, PersonalizedShelf, PersonalizedShelfType, RssFeed, Series } from '@/types/api'
+import { useCallback, useEffect, useState } from 'react'
 import LibraryEmptyState from './LibraryEmptyState'
 
 interface LibraryClientProps {
@@ -22,6 +23,103 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   const { sizeMultiplier } = useCardSize()
   const { user, serverSettings, ereaderDevices, getLibraryItemProgress, getEpisodeProgress } = useUser()
   const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView, boundModal } = useLibrary()
+
+  const [shelves, setShelves] = useState(personalized)
+
+  useEffect(() => {
+    setShelves(personalized)
+  }, [personalized])
+
+  /**
+   * Updates entities within shelves of matching types.
+   * Only triggers a re-render if the updater returns a new reference for at least one entity.
+   * @param shelfTypes - Shelf types to apply the update to.
+   * @param updater - Called for each entity; must return the same reference if unchanged.
+   */
+  const updateShelfEntities = useCallback(
+    (shelfTypes: PersonalizedShelfType[], updater: (entity: LibraryItem | Series | Author) => LibraryItem | Series | Author) => {
+      setShelves((prev) => {
+        let shelvesChanged = false
+        const nextShelves = prev.map((shelf) => {
+          if (!shelfTypes.includes(shelf.type)) return shelf
+
+          let changed = false
+          const nextEntities = (shelf.entities as (LibraryItem | Series | Author)[]).map((entity) => {
+            const next = updater(entity)
+            if (next !== entity) changed = true
+            return next
+          })
+
+          if (!changed) return shelf
+          shelvesChanged = true
+          return { ...shelf, entities: nextEntities } as PersonalizedShelf
+        })
+        return shelvesChanged ? nextShelves : prev
+      })
+    },
+    []
+  )
+
+  // Shares only apply to book libraries
+  const handleShareOpen = useCallback(
+    (mediaItemShare: MediaItemShare) => {
+      if (library.mediaType !== 'book') return
+
+      updateShelfEntities(['book'], (entity) => {
+        const li = entity as LibraryItem
+        if (li.media?.id !== mediaItemShare.mediaItemId) return entity
+        return { ...li, mediaItemShare }
+      })
+    },
+    [library.mediaType, updateShelfEntities]
+  )
+
+  const handleShareClosed = useCallback(
+    (mediaItemShare: MediaItemShare) => {
+      if (library.mediaType !== 'book') return
+
+      updateShelfEntities(['book'], (entity) => {
+        const li = entity as LibraryItem
+        if (li.media?.id !== mediaItemShare.mediaItemId) return entity
+        return { ...li, mediaItemShare: undefined }
+      })
+    },
+    [library.mediaType, updateShelfEntities]
+  )
+
+  // RSS feeds on home shelves are relevant for books and series
+  const handleRssFeedOpen = useCallback(
+    (rssFeed: RssFeed) => {
+      if (library.mediaType !== 'book') return
+
+      const shelfTypes: PersonalizedShelfType[] = rssFeed.entityType === 'libraryItem' ? ['book'] : rssFeed.entityType === 'series' ? ['series'] : []
+
+      updateShelfEntities(shelfTypes, (entity) => {
+        if (entity.id !== rssFeed.entityId) return entity
+        return { ...entity, rssFeed }
+      })
+    },
+    [library.mediaType, updateShelfEntities]
+  )
+
+  const handleRssFeedClosed = useCallback(
+    (rssFeed: RssFeed) => {
+      if (library.mediaType !== 'book') return
+
+      const shelfTypes: PersonalizedShelfType[] = rssFeed.entityType === 'libraryItem' ? ['book'] : rssFeed.entityType === 'series' ? ['series'] : []
+
+      updateShelfEntities(shelfTypes, (entity) => {
+        if (entity.id !== rssFeed.entityId) return entity
+        return { ...entity, rssFeed: undefined }
+      })
+    },
+    [library.mediaType, updateShelfEntities]
+  )
+
+  useSocketEvent<MediaItemShare>('share_open', handleShareOpen)
+  useSocketEvent<MediaItemShare>('share_closed', handleShareClosed)
+  useSocketEvent<RssFeed>('rss_feed_open', handleRssFeedOpen)
+  useSocketEvent<RssFeed>('rss_feed_closed', handleRssFeedClosed)
 
   useEffect(() => {
     const items = []
@@ -57,14 +155,14 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   return (
     <div style={{ fontSize: sizeMultiplier + 'rem' }}>
       {/* empty state with scan button if user is admin or root */}
-      {personalized.length === 0 && (
+      {shelves.length === 0 && (
         <div className="py-8">
           <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
         </div>
       )}
 
       {/* bookshelf rows */}
-      {personalized.map((shelf) => {
+      {shelves.map((shelf) => {
         const Wrapper = homeBookshelfView === BookshelfView.STANDARD ? BookShelfRow : ItemSlider
 
         return (

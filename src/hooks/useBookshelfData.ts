@@ -1,10 +1,10 @@
 import { fetchAuthorsAction, fetchCollectionsAction, fetchLibraryItemsAction, fetchPlaylistsAction, fetchSeriesAction } from '@/app/actions/libraryActions'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
-import { Author, BookshelfEntity, Collection, EntityType, LibraryItem, Playlist, Series } from '@/types/api'
+import { Author, BookshelfEntity, Collection, EntityType, LibraryItem, MediaItemShare, Playlist, RssFeed, Series } from '@/types/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface UseBookshelfDataProps {
-  libraryId: string
   entityType: EntityType
   query: string // URLSearchParams string
   itemsPerPage: number
@@ -52,7 +52,9 @@ function getResultsFromResponse(entityType: EntityType, data: unknown): Bookshel
   }
 }
 
-export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }: UseBookshelfDataProps) {
+export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshelfDataProps) {
+  const { library } = useLibrary()
+  const libraryId = library.id
   const [state, setState] = useState<BookshelfDataState>({
     items: [],
     totalEntities: 0,
@@ -94,14 +96,6 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
       itemsPerPageRef.current = itemsPerPage
     }
   }, [itemsPerPage, state.isInitialized])
-
-  // Update a single item in the items array by ID
-  const updateItem = useCallback((id: string, updatedItem: BookshelfEntity) => {
-    setState((prev) => ({
-      ...prev,
-      items: prev.items.map((item) => (item?.id === id ? updatedItem : item))
-    }))
-  }, [])
 
   // Remove a single item from the items array by ID
   // Clears page tracking since indices shift after removal
@@ -185,11 +179,36 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
     [libraryId, entityType, query]
   )
 
+  /**
+   * Maps over loaded items, applying the updater to each non-null entry.
+   * Only triggers a re-render if the updater returns a new reference for at least one item.
+   */
+  const updateItems = useCallback((updater: (item: BookshelfEntity) => BookshelfEntity) => {
+    setState((prev) => {
+      let changed = false
+      const nextItems = prev.items.map((item) => {
+        if (!item) return item
+
+        const nextItem = updater(item)
+        if (nextItem !== item) {
+          changed = true
+        }
+        return nextItem
+      })
+
+      if (!changed) return prev
+      return {
+        ...prev,
+        items: nextItems
+      }
+    })
+  }, [])
+
   // Socket listeners for Author updates
   // Only active when viewing authors
   const handleAuthorAdded = useCallback(
     (author: Author) => {
-      if (entityType !== 'authors' || author.libraryId !== libraryId) return
+      if (author.libraryId !== libraryId || entityType !== 'authors') return
 
       // Since an author was added, the sort order might change completely
       // We must invalidate the current data and refetch
@@ -210,10 +229,14 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
 
   const handleAuthorUpdated = useCallback(
     (author: Author) => {
-      if (entityType !== 'authors' || author.libraryId !== libraryId) return
-      updateItem(author.id, author)
+      if (author.libraryId !== libraryId || entityType !== 'authors') return
+
+      updateItems((item) => {
+        if (item.id !== author.id) return item
+        return author
+      })
     },
-    [entityType, libraryId, updateItem]
+    [entityType, libraryId, updateItems]
   )
 
   const handleAuthorRemoved = useCallback(
@@ -222,7 +245,9 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
       const libId = 'libraryId' in data ? data.libraryId : (data as Author).libraryId
       const id = 'id' in data ? data.id : (data as Author).id
 
-      if (entityType !== 'authors' || libId !== libraryId) return
+      if (libId !== libraryId) return
+
+      if (entityType !== 'authors') return
       removeItem(id)
     },
     [entityType, libraryId, removeItem]
@@ -231,6 +256,66 @@ export function useBookshelfData({ libraryId, entityType, query, itemsPerPage }:
   useSocketEvent<Author>('author_added', handleAuthorAdded)
   useSocketEvent<Author>('author_updated', handleAuthorUpdated)
   useSocketEvent<Author | { id: string; libraryId: string }>('author_removed', handleAuthorRemoved)
+
+  // Socket listeners for share updates
+  // Shares only apply to book library items
+  const handleShareOpen = useCallback(
+    (mediaItemShare: MediaItemShare) => {
+      if (library.mediaType !== 'book' || entityType !== 'items') return
+
+      updateItems((item) => {
+        const li = item as LibraryItem
+        if (li.media.id !== mediaItemShare.mediaItemId) return item
+        return { ...li, mediaItemShare }
+      })
+    },
+    [entityType, library.mediaType, updateItems]
+  )
+
+  const handleShareClosed = useCallback(
+    (mediaItemShare: MediaItemShare) => {
+      if (library.mediaType !== 'book' || entityType !== 'items') return
+
+      updateItems((item) => {
+        const li = item as LibraryItem
+        if (li.media.id !== mediaItemShare.mediaItemId) return item
+        return { ...li, mediaItemShare: undefined }
+      })
+    },
+    [entityType, library.mediaType, updateItems]
+  )
+
+  useSocketEvent<MediaItemShare>('share_open', handleShareOpen)
+  useSocketEvent<MediaItemShare>('share_closed', handleShareClosed)
+
+  // Socket listeners for RSS feed updates
+  // Relevant for entity types that can be published via RSS
+  const handleRssFeedOpen = useCallback(
+    (rssFeed: RssFeed) => {
+      if (entityType !== 'items' && entityType !== 'series' && entityType !== 'collections') return
+
+      updateItems((item) => {
+        if (item.id !== rssFeed.entityId) return item
+        return { ...item, rssFeed } as BookshelfEntity
+      })
+    },
+    [entityType, updateItems]
+  )
+
+  const handleRssFeedClosed = useCallback(
+    (rssFeed: RssFeed) => {
+      if (entityType !== 'items' && entityType !== 'series' && entityType !== 'collections') return
+
+      updateItems((item) => {
+        if (item.id !== rssFeed.entityId) return item
+        return { ...item, rssFeed: undefined } as BookshelfEntity
+      })
+    },
+    [entityType, updateItems]
+  )
+
+  useSocketEvent<RssFeed>('rss_feed_open', handleRssFeedOpen)
+  useSocketEvent<RssFeed>('rss_feed_closed', handleRssFeedClosed)
 
   return {
     ...state,

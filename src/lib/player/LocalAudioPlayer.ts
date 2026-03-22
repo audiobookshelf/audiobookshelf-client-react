@@ -29,7 +29,7 @@ export class LocalAudioPlayer {
   private listeners: EventListeners = {}
 
   // Track state
-  private libraryItem: LibraryItem | null = null
+  private libraryItem: LibraryItem | null = null // null for public share pages
   private audioTracks: AudioTrack[] = []
   private currentTrackIndex = 0
   private isHlsTranscode = false
@@ -164,7 +164,7 @@ export class LocalAudioPlayer {
   /**
    * Set up the player with tracks and start time
    */
-  set(libraryItem: LibraryItem, tracks: AudioTrack[], isHlsTranscode: boolean, startTime: number, playWhenReady = false): void {
+  set(libraryItem: LibraryItem | null, tracks: AudioTrack[], isHlsTranscode: boolean, startTime: number, playWhenReady = false): void {
     this.libraryItem = libraryItem
     this.audioTracks = tracks
     this.isHlsTranscode = isHlsTranscode

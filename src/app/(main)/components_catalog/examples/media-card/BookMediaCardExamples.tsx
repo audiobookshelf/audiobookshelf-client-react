@@ -515,7 +515,25 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                         slug: 'example-book-feed',
                         entityId: selectedBook.id,
                         entityType: 'book',
+                        entityUpdatedAt: Date.now(),
+                        coverPath: selectedBook.media.coverPath ?? '',
                         feedUrl: 'https://example.com/book-feed.xml',
+                        serverAddress: 'https://example.com',
+                        userId: user.id,
+                        meta: {
+                          author: selectedBook.media.metadata.authorName ?? 'Unknown Author',
+                          description: selectedBook.media.metadata.description ?? '',
+                          explicit: false,
+                          feedUrl: 'https://example.com/book-feed.xml',
+                          imageUrl: '',
+                          language: selectedBook.media.metadata.language ?? 'en',
+                          link: 'https://example.com',
+                          ownerEmail: null,
+                          ownerName: null,
+                          preventIndexing: false,
+                          title: selectedBook.media.metadata.title,
+                          type: 'serial'
+                        },
                         createdAt: Date.now(),
                         updatedAt: Date.now()
                       },
@@ -523,10 +541,11 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                         id: 'share-book-123',
                         mediaItemId: selectedBook.id,
                         mediaItemType: 'book',
-                        userId: user.id,
                         slug: 'example-book-share',
-                        createdAt: Date.now(),
-                        updatedAt: Date.now()
+                        expiresAt: null,
+                        createdAt: new Date().toISOString(),
+                        updatedAt: new Date().toISOString(),
+                        isDownloadable: true
                       }
                     } as BookLibraryItem
                   }
