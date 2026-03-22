@@ -9,6 +9,7 @@ import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import Tooltip from '@/components/ui/Tooltip'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { ApiError } from '@/lib/api'
 import { elapsedPretty } from '@/lib/timeUtils'
 import type { MediaItemShare } from '@/types/api'
 import { useLocale } from 'next-intl'
@@ -156,7 +157,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
       onShareChange?.(share)
     } catch (error) {
       console.error('openShare', error)
-      showToast('Failed to share item', { type: 'error' })
+      showToast((error as ApiError).message || 'Failed to share item', { type: 'error' })
     } finally {
       setProcessing(false)
     }
@@ -223,9 +224,9 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
 
             <div className="flex items-center w-full md:w-1/2 mb-4">
               <p className="text-sm text-foreground-muted py-1 px-1">{t('LabelDownloadable')}</p>
-              <ToggleSwitch size="small" value={isDownloadable} onChange={setIsDownloadable} />
+              <ToggleSwitch size="medium" value={isDownloadable} onChange={setIsDownloadable} />
               <Tooltip text={t('LabelShareDownloadableHelp')} position="right" maxWidth={160} openOnClick addTabIndex>
-                <span className="pl-3 sm:pl-4 text-foreground-muted inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto cursor-pointer">
+                <span className="text-foreground-muted inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto cursor-pointer">
                   <span className="material-symbols icon-text text-lg sm:text-base">info</span>
                 </span>
               </Tooltip>
