@@ -1,5 +1,6 @@
 'use client'
 
+import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown from '@/components/ui/Dropdown'
@@ -7,6 +8,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -37,6 +39,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const t = useTypeSafeTranslations()
   const locale = useLocale()
   const { serverSettings } = useUser()
+  const { playItem } = useMediaContext()
   const { showToast } = useGlobalToast()
 
   const [loading, setLoading] = useState(false)
@@ -46,6 +49,9 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const [selectedSession, setSelectedSession] = useState<PlaybackSession | null>(null)
 
   const [showRemoveConfirmDialog, setShowRemoveConfirmDialog] = useState(false)
+  const [showResumePlaybackPrompt, setShowResumePlaybackPrompt] = useState(false)
+  const [resumePlaybackSession, setResumePlaybackSession] = useState<PlaybackSession | null>(null)
+  const [startingPlayback, setStartingPlayback] = useState(false)
 
   const [listeningSessions, setListeningSessions] = useState<SelectableSession[]>(
     (sessionsResponse.sessions || []).map((session) => ({
@@ -223,6 +229,36 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
     await loadOpenSessions()
   }
 
+  const handlePromptResumePlayback = (session: PlaybackSession) => {
+    setResumePlaybackSession(session)
+    setShowResumePlaybackPrompt(true)
+  }
+
+  const handleStartPlaybackAtTime = async () => {
+    if (!resumePlaybackSession) return
+
+    setStartingPlayback(true)
+
+    try {
+      const libraryItem = await getExpandedLibraryItemAction(resumePlaybackSession.libraryItemId)
+
+      await playItem({
+        libraryItem,
+        episodeId: resumePlaybackSession.episodeId || null,
+        startTime: Math.max(0, resumePlaybackSession.currentTime || 0),
+        queueItems: []
+      })
+
+      setShowResumePlaybackPrompt(false)
+      setResumePlaybackSession(null)
+    } catch (error) {
+      console.error('Failed to start playback from listening session', error)
+      showToast(t('ToastFailedToLoadData'), { type: 'error' })
+    } finally {
+      setStartingPlayback(false)
+    }
+  }
+
   const pageLabel = t('LabelPaginationPageXOfY', { 0: currentPage + 1, 1: Math.max(numPages, 1) })
 
   return (
@@ -346,7 +382,13 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
                         <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>
                       </td>
 
-                      <td className="text-center hover:underline w-24 min-w-24 px-2">
+                      <td
+                        className="text-center hover:underline w-24 min-w-24 px-2 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handlePromptResumePlayback(session)
+                        }}
+                      >
                         <p className="text-xs font-mono">{secondsToTimestamp(session.currentTime)}</p>
                       </td>
 
@@ -396,14 +438,24 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
 
       {openListeningSessions.length > 0 && <p className="text-lg my-4">{t('HeaderOpenListeningSessions')}</p>}
       {openListeningSessions.length > 0 && (
-        <SessionListTable sessions={openListeningSessions} onSelectSession={handleSelectSession} filteredUserUsername={filteredUserUsername} />
+        <SessionListTable
+          sessions={openListeningSessions}
+          onSelectSession={handleSelectSession}
+          onPromptResumePlayback={handlePromptResumePlayback}
+          filteredUserUsername={filteredUserUsername}
+        />
       )}
 
       {openShareListeningSessions.length > 0 && <div className="w-full my-8 h-px bg-border" />}
 
       {openShareListeningSessions.length > 0 && <p className="text-lg my-4">Open Share Listening Sessions</p>}
       {openShareListeningSessions.length > 0 && (
-        <SessionListTable sessions={openShareListeningSessions} onSelectSession={handleSelectSession} isShareSessions />
+        <SessionListTable
+          sessions={openShareListeningSessions}
+          onSelectSession={handleSelectSession}
+          onPromptResumePlayback={handlePromptResumePlayback}
+          isShareSessions
+        />
       )}
 
       <ListeningSessionModal
@@ -421,6 +473,25 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         yesButtonClassName="bg-error text-white"
         onClose={() => setShowRemoveConfirmDialog(false)}
         onConfirm={handleRemoveSelectedSessions}
+      />
+
+      <ConfirmDialog
+        isOpen={showResumePlaybackPrompt}
+        message={
+          resumePlaybackSession
+            ? t('MessageStartPlaybackAtTime', {
+                0: resumePlaybackSession.displayTitle,
+                1: secondsToTimestamp(Math.max(0, resumePlaybackSession.currentTime || 0))
+              })
+            : ''
+        }
+        yesButtonText={t('ButtonPlay')}
+        onClose={() => {
+          if (startingPlayback) return
+          setShowResumePlaybackPrompt(false)
+          setResumePlaybackSession(null)
+        }}
+        onConfirm={handleStartPlaybackAtTime}
       />
     </>
   )
@@ -454,11 +525,13 @@ function SortableHeader({
 function SessionListTable({
   sessions,
   onSelectSession,
+  onPromptResumePlayback,
   filteredUserUsername,
   isShareSessions = false
 }: {
   sessions: PlaybackSession[]
   onSelectSession: (session: PlaybackSession) => void
+  onPromptResumePlayback: (session: PlaybackSession) => void
   filteredUserUsername?: string | null
   isShareSessions?: boolean
 }) {
@@ -520,7 +593,13 @@ function SessionListTable({
                     <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>
                   </td>
                 )}
-                <td className="text-center w-16 min-w-16 px-2">
+                <td
+                  className="text-center w-16 min-w-16 px-2 hover:underline cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onPromptResumePlayback(session)
+                  }}
+                >
                   <p className="text-xs font-mono">{secondsToTimestamp(session.currentTime)}</p>
                 </td>
                 <td className="text-left hidden sm:table-cell w-32 min-w-32 px-2">
