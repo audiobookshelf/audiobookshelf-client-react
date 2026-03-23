@@ -90,7 +90,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               }}
             />
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1">
             <div className="flex flex-col gap-1">
               <h1 className="text-2xl md:text-3xl font-semibold">{libraryItem.media.metadata.title}</h1>
               {subtitle && <h2 className="text-xl md:text-2xl font-medium text-foreground-muted">{subtitle}</h2>}
