@@ -321,7 +321,7 @@ export default function Match({
   }, [searchResults])
 
   return (
-    <div className="w-full h-full overflow-hidden px-2 md:px-4 py-4 md:py-6 relative flex flex-col">
+    <div className="w-full h-full overflow-hidden px-2 md:px-4 py-4 relative flex flex-col">
       {!selectedMatchOrig ? (
         <>
           <form onSubmit={handleSubmitSearch} className="flex-shrink-0">

@@ -136,15 +136,15 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
   }, [checkScroll])
 
   return (
-    <div className="absolute top-0 left-0 w-full bg-bg h-full py-6 md:py-8 max-h-full flex flex-col overflow-hidden">
-      <div className="flex items-center mb-4 flex-shrink-0">
+    <div className="relative top-0 left-0 w-full bg-bg h-full max-h-full flex flex-col overflow-hidden">
+      <div className="flex items-center p-2 mb-6 flex-shrink-0">
         <IconBtn borderless size="large" iconClass="text-3xl" onClick={onDone} ariaLabel={t('ButtonBack')}>
           arrow_back
         </IconBtn>
         <p className="text-xl pl-3">{t('HeaderUpdateDetails')}</p>
       </div>
 
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden pr-2 pl-1 pt-1">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden p-2">
         <Checkbox value={selectAll} onChange={handleSelectAllToggle} label={t('LabelSelectAll')} checkboxBgClass="bg-bg" className="w-fit" />
 
         <form onSubmit={handleSubmitMatchUpdate}>
@@ -157,7 +157,7 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
         </form>
       </div>
 
-      <div className={`flex items-center justify-end py-2 mt-4 flex-shrink-0 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}>
+      <div className={`flex items-center justify-end p-4 mt-6 flex-shrink-0 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}>
         <Btn color="bg-success" type="submit" disabled={isPendingApply} loading={isPendingApply} onClick={handleSubmitMatchUpdate}>
           {t('ButtonSubmit')}
         </Btn>
