@@ -12,9 +12,9 @@ import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
+import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { downloadLibraryItem } from '@/lib/download'
-import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
@@ -71,6 +71,7 @@ export function useMediaCardActions({
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [matchModalOpen, setMatchModalOpen] = useState(false)
   const [mediaItemShare, setMediaItemShare] = useState<MediaItemShare | null>(initialShare)
   const rssFeed = libraryItem.rssFeed ?? null
   const showRssFeedButton = userIsAdminOrUp || rssFeed != null
@@ -211,6 +212,8 @@ export function useMediaCardActions({
         setShareModalOpen(true)
       } else if (action === 'openRssFeed') {
         setRssFeedModalOpen(true)
+      } else if (action === 'showMatchModal') {
+        setMatchModalOpen(true)
       } else if (action === 'download') {
         downloadLibraryItem(libraryItem.id)
       } else if (action === 'sendToDevice') {
@@ -376,16 +379,10 @@ export function useMediaCardActions({
     }
 
     if (userCanUpdate) {
-      items.push(
-        {
-          text: t('HeaderFiles'),
-          func: 'showEditModalFiles'
-        },
-        {
-          text: t('HeaderMatch'),
-          func: 'showEditModalMatch'
-        }
-      )
+      items.push({
+        text: t('HeaderMatch'),
+        func: 'showEditModalMatch'
+      })
     }
 
     if (userIsAdminOrUp && !libraryItem.isFile) {
@@ -471,6 +468,10 @@ export function useMediaCardActions({
     setShareModalOpen(false)
   }, [])
 
+  const closeMatchModal = useCallback(() => {
+    setMatchModalOpen(false)
+  }, [])
+
   const handleShareChange = useCallback(
     (share: MediaItemShare | null) => {
       setMediaItemShare(share)
@@ -485,10 +486,12 @@ export function useMediaCardActions({
     confirmState,
     rssFeedModalOpen,
     shareModalOpen,
+    matchModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
     closeShareModal,
+    closeMatchModal,
     handleShareChange,
     handlePlay,
     handleReadEBook,
