@@ -15,8 +15,8 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { downloadLibraryItem } from '@/lib/download'
 import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
-import type { EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode } from '@/types/api'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode } from '@/types/api'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
 
 interface UseMediaCardActionsProps {
@@ -35,6 +35,8 @@ interface UseMediaCardActionsProps {
   isStreaming: (libraryItemId: string, episodeId: string | null) => boolean
   isStreamingFromDifferentLib: boolean
   isQueued: boolean
+  initialShare?: MediaItemShare | null
+  onShareChange?: (share: MediaItemShare | null) => void
   onDeleteSuccess?: () => void
   playerControls: PlayerHandlerControls
 }
@@ -55,6 +57,8 @@ export function useMediaCardActions({
   isStreaming,
   isStreamingFromDifferentLib,
   isQueued,
+  initialShare = null,
+  onShareChange,
   onDeleteSuccess,
   playerControls
 }: UseMediaCardActionsProps) {
@@ -66,8 +70,14 @@ export function useMediaCardActions({
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
+  const [shareModalOpen, setShareModalOpen] = useState(false)
+  const [mediaItemShare, setMediaItemShare] = useState<MediaItemShare | null>(initialShare)
   const rssFeed = libraryItem.rssFeed ?? null
   const showRssFeedButton = userIsAdminOrUp || rssFeed != null
+
+  useEffect(() => {
+    setMediaItemShare(initialShare)
+  }, [initialShare])
 
   const handlePlay = useCallback(() => {
     if (isStreaming(libraryItem.id, episodeForQueue?.id ?? null)) {
@@ -195,8 +205,10 @@ export function useMediaCardActions({
       } else if (action === 'removeFromQueue') {
         const episodeId = episodeForQueue ? episodeForQueue.id : null
         removeItemFromQueue({ libraryItemId: libraryItem.id, episodeId })
-      } else if (action === 'openCollections' || action === 'openPlaylists' || action === 'openShare') {
+      } else if (action === 'openCollections' || action === 'openPlaylists') {
         showToast('This action is not implemented yet.', { type: 'info' })
+      } else if (action === 'openShare') {
+        setShareModalOpen(true)
       } else if (action === 'openRssFeed') {
         setRssFeedModalOpen(true)
       } else if (action === 'download') {
@@ -455,13 +467,29 @@ export function useMediaCardActions({
     setRssFeedModalOpen(false)
   }, [])
 
+  const closeShareModal = useCallback(() => {
+    setShareModalOpen(false)
+  }, [])
+
+  const handleShareChange = useCallback(
+    (share: MediaItemShare | null) => {
+      setMediaItemShare(share)
+      onShareChange?.(share)
+    },
+    [onShareChange]
+  )
+
   return {
     processing: processing || isPending,
     isPending,
     confirmState,
     rssFeedModalOpen,
+    shareModalOpen,
+    mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
+    closeShareModal,
+    handleShareChange,
     handlePlay,
     handleReadEBook,
     handleMoreAction,

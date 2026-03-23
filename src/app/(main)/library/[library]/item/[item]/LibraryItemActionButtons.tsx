@@ -1,6 +1,7 @@
 'use client'
 
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
+import ShareModal from '@/components/modals/ShareModal'
 import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { type ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
@@ -56,29 +57,41 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
   const showReadButton = isBook && !!ebookFile
   const isStreamingFromDifferentLib = isStreamingFromDifferentLibrary(libraryItem.libraryId)
 
-  const { processing, confirmState, rssFeedModalOpen, closeConfirm, closeRssFeedModal, handleReadEBook, handleMoreAction, moreMenuItems } = useMediaCardActions(
-    {
-      libraryItem,
-      media: libraryItem.media,
-      title: libraryItem.media.metadata.title ?? '',
-      author: 'authors' in libraryItem.media.metadata ? (libraryItem.media.metadata.authors ?? []).map((a) => a.name).join(', ') : null,
-      episodeForQueue: null,
-      mediaProgress,
-      itemIsFinished: isRead,
-      userProgressPercent: mediaProgress?.progress ?? 0,
-      isPodcast,
-      ereaderDevices,
-      continueListeningShelf: false,
-      libraryItemIdStreaming,
-      isStreaming: isStreamingFn,
-      isStreamingFromDifferentLib,
-      isQueued,
-      onDeleteSuccess: () => {
-        window.location.href = `/library/${libraryItem.libraryId}`
-      },
-      playerControls: playerHandler.controls
-    }
-  )
+  const {
+    processing,
+    confirmState,
+    rssFeedModalOpen,
+    shareModalOpen,
+    mediaItemShare,
+    closeConfirm,
+    closeRssFeedModal,
+    closeShareModal,
+    handleShareChange,
+    handleReadEBook,
+    handleMoreAction,
+    moreMenuItems
+  } = useMediaCardActions({
+    libraryItem,
+    media: libraryItem.media,
+    title: libraryItem.media.metadata.title ?? '',
+    author: 'authors' in libraryItem.media.metadata ? (libraryItem.media.metadata.authors ?? []).map((a) => a.name).join(', ') : null,
+    episodeForQueue: null,
+    mediaProgress,
+    itemIsFinished: isRead,
+    userProgressPercent: mediaProgress?.progress ?? 0,
+    isPodcast,
+    ereaderDevices,
+    continueListeningShelf: false,
+    libraryItemIdStreaming,
+    isStreaming: isStreamingFn,
+    isStreamingFromDifferentLib,
+    isQueued,
+    initialShare: libraryItem.mediaItemShare ?? null,
+    onDeleteSuccess: () => {
+      window.location.href = `/library/${libraryItem.libraryId}`
+    },
+    playerControls: playerHandler.controls
+  })
 
   const handlePlay = useCallback(() => {
     if (isStreaming) {
@@ -239,6 +252,13 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
           feed: rssFeed ?? null,
           hasEpisodesWithoutPubDate: isPodcast && podcastEpisodes.some((ep) => !ep.pubDate)
         }}
+      />
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={closeShareModal}
+        mediaItemId={libraryItem.media.id ?? ''}
+        mediaItemShare={mediaItemShare}
+        onShareChange={handleShareChange}
       />
     </>
   )

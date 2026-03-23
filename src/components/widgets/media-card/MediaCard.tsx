@@ -2,6 +2,7 @@
 
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
+import ShareModal from '@/components/modals/ShareModal'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
@@ -159,7 +160,6 @@ function MediaCard(props: MediaCardProps) {
   const isAuthorBookshelfView = bookshelfView === BookshelfView.AUTHOR
 
   const [rssFeed, setRssFeed] = useState(libraryItem.rssFeed ?? null)
-  const mediaItemShare = libraryItem.mediaItemShare ?? null
 
   useEffect(() => {
     setRssFeed(libraryItem.rssFeed ?? null)
@@ -235,8 +235,22 @@ function MediaCard(props: MediaCardProps) {
 
   const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!media.ebookFormat
 
-  const { processing, isPending, confirmState, rssFeedModalOpen, closeConfirm, closeRssFeedModal, handlePlay, handleReadEBook, handleMoreAction, moreMenuItems } =
-    useMediaCardActions({
+  const {
+    processing,
+    isPending,
+    confirmState,
+    rssFeedModalOpen,
+    shareModalOpen,
+    mediaItemShare,
+    closeConfirm,
+    closeRssFeedModal,
+    closeShareModal,
+    handleShareChange,
+    handlePlay,
+    handleReadEBook,
+    handleMoreAction,
+    moreMenuItems
+  } = useMediaCardActions({
     libraryItem,
     media,
     title,
@@ -252,6 +266,7 @@ function MediaCard(props: MediaCardProps) {
     isStreaming,
     isStreamingFromDifferentLib,
     isQueued,
+    initialShare: libraryItem.mediaItemShare ?? null,
     playerControls: playerHandler.controls
   })
 
@@ -364,6 +379,15 @@ function MediaCard(props: MediaCardProps) {
             feed: rssFeed ?? null,
             hasEpisodesWithoutPubDate: isPodcast && ((media as PodcastMedia).episodes ?? []).some((ep) => !ep.pubDate)
           }}
+        />
+      )}
+      {shareModalOpen && (
+        <ShareModal
+          isOpen={shareModalOpen}
+          onClose={closeShareModal}
+          mediaItemId={libraryItem.media.id ?? ''}
+          mediaItemShare={mediaItemShare}
+          onShareChange={handleShareChange}
         />
       )}
     </>

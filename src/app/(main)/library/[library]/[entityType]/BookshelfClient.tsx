@@ -149,7 +149,6 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     isInitialized,
     error
   } = useBookshelfData({
-    libraryId: library.id,
     entityType,
     query,
     itemsPerPage
