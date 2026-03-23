@@ -1,6 +1,5 @@
 'use client'
 
-import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import Btn from '@/components/ui/Btn'
 import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import Dropdown from '@/components/ui/Dropdown'
@@ -8,7 +7,6 @@ import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -35,7 +33,6 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const t = useTypeSafeTranslations()
   const locale = useLocale()
   const { serverSettings } = useUser()
-  const { playItem } = useMediaContext()
   const { showToast } = useGlobalToast()
 
   const [loading, setLoading] = useState(false)
@@ -222,27 +219,6 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
 
   const handleStartPlaybackAtTime = async () => {
     if (!resumePlaybackSession) return
-
-    setStartingPlayback(true)
-
-    try {
-      const libraryItem = await getExpandedLibraryItemAction(resumePlaybackSession.libraryItemId)
-
-      await playItem({
-        libraryItem,
-        episodeId: resumePlaybackSession.episodeId || null,
-        startTime: Math.max(0, resumePlaybackSession.currentTime || 0),
-        queueItems: []
-      })
-
-      setShowResumePlaybackPrompt(false)
-      setResumePlaybackSession(null)
-    } catch (error) {
-      console.error('Failed to start playback from listening session', error)
-      showToast(t('ToastFailedToLoadData'), { type: 'error' })
-    } finally {
-      setStartingPlayback(false)
-    }
   }
 
   const listeningSessionColumns = useMemo<DataTableColumn<PlaybackSession>[]>(
