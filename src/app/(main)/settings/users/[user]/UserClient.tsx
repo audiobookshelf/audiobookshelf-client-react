@@ -1,6 +1,6 @@
 'use client'
 
-import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
+import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { MediaProgress, User } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
@@ -17,15 +17,15 @@ export default function UserClient({ user }: { user: User }) {
       label: t('LabelProgress'),
       accessor: (mediaProgress) => `${Math.round(mediaProgress.progress * 100)}%`,
       cellClassName: 'text-center',
-      headerClassName: 'text-center',
+      headerClassName: 'text-center'
     },
     {
       label: t('LabelStartedAt'),
-      accessor: (mediaProgress) => mediaProgress.startedAt ? formatDistanceToNow(new Date(mediaProgress.startedAt), { addSuffix: true }) : ''
+      accessor: (mediaProgress) => (mediaProgress.startedAt ? formatDistanceToNow(new Date(mediaProgress.startedAt), { addSuffix: true }) : '')
     },
     {
       label: t('LabelLastUpdate'),
-      accessor: (mediaProgress) => mediaProgress.lastUpdate ? formatDistanceToNow(new Date(mediaProgress.lastUpdate), { addSuffix: true }) : ''
+      accessor: (mediaProgress) => (mediaProgress.lastUpdate ? formatDistanceToNow(new Date(mediaProgress.lastUpdate), { addSuffix: true }) : '')
     }
   ]
 
@@ -36,9 +36,9 @@ export default function UserClient({ user }: { user: User }) {
       </div>
 
       <div className="w-full h-px bg-border my-4" />
-      
+
       <h2 className="text-lg font-medium">{t('HeaderSavedMediaProgress')}</h2>
-      <DataTable data={user.mediaProgress} columns={columns} getRowKey={(mediaProgress) => mediaProgress.id} />
+      <SimpleDataTable data={user.mediaProgress} columns={columns} getRowKey={(mediaProgress) => mediaProgress.id} />
     </div>
   )
 }

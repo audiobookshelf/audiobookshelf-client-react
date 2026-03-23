@@ -1,7 +1,7 @@
 'use client'
 
-import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
+import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -108,7 +108,7 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
 
   return (
     <>
-      <DataTable
+      <SimpleDataTable
         data={providers}
         columns={columns}
         getRowKey={(provider) => provider.id}

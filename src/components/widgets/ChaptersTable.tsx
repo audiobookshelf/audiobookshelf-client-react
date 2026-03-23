@@ -1,7 +1,7 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import DataTable from '@/components/ui/DataTable'
+import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -108,7 +108,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
       keepOpen={keepOpen}
       headerActions={headerActions}
     >
-      <DataTable data={chapters} columns={columns} getRowKey={(row) => row.id} />
+      <SimpleDataTable data={chapters} columns={columns} getRowKey={(row) => row.id} />
     </CollapsibleSection>
   )
 }

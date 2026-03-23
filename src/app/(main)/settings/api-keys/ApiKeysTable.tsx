@@ -1,7 +1,7 @@
 'use client'
 
-import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
+import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useUser } from '@/contexts/UserContext'
@@ -111,7 +111,7 @@ export default function ApiKeysTable({ apiKeys, onEditClick }: ApiKeysTableProps
 
   return (
     <>
-      <DataTable
+      <SimpleDataTable
         data={apiKeys}
         columns={columns}
         getRowKey={(apiKey) => apiKey.id}

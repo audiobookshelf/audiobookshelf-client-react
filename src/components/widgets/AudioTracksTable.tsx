@@ -2,7 +2,7 @@
 
 import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
-import DataTable from '@/components/ui/DataTable'
+import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -212,7 +212,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
       headerActions={headerActions}
       className={className}
     >
-      <DataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} />
+      <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} />
     </CollapsibleSection>
   )
 }
