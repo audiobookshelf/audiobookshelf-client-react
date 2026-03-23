@@ -2,10 +2,10 @@
 
 import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import Btn from '@/components/ui/Btn'
-import Checkbox from '@/components/ui/Checkbox'
+import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import Dropdown from '@/components/ui/Dropdown'
-import IconBtn from '@/components/ui/IconBtn'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
+import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useMediaContext } from '@/contexts/MediaContext'
@@ -25,10 +25,6 @@ interface ListeningSessionsTableProps {
   users: User[]
   sessionsResponse: GetListeningSessionsResponse
   openSessionsResponse: GetOpenListeningSessionsResponse
-}
-
-interface SelectableSession extends PlaybackSession {
-  selected?: boolean
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100]
@@ -53,12 +49,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const [resumePlaybackSession, setResumePlaybackSession] = useState<PlaybackSession | null>(null)
   const [startingPlayback, setStartingPlayback] = useState(false)
 
-  const [listeningSessions, setListeningSessions] = useState<SelectableSession[]>(
-    (sessionsResponse.sessions || []).map((session) => ({
-      ...session,
-      selected: false
-    }))
-  )
+  const [listeningSessions, setListeningSessions] = useState<PlaybackSession[]>(sessionsResponse.sessions || [])
+  const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([])
   const [openListeningSessions, setOpenListeningSessions] = useState<PlaybackSession[]>(
     (openSessionsResponse.sessions || []).map((session) => ({
       ...session,
@@ -79,7 +71,6 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
 
-  const selectedSessionIds = useMemo(() => listeningSessions.filter((session) => session.selected).map((session) => session.id), [listeningSessions])
   const numSelected = selectedSessionIds.length
   const isAllSelected = listeningSessions.length > 0 && numSelected === listeningSessions.length
 
@@ -110,12 +101,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
       setNumPages(response.numPages)
       setTotal(response.total)
       setCurrentPage(response.page)
-      setListeningSessions(
-        (response.sessions || []).map((session) => ({
-          ...session,
-          selected: false
-        }))
-      )
+      setListeningSessions(response.sessions || [])
+      setSelectedSessionIds([])
     } catch (error) {
       console.error('Failed to load listening sessions', error)
       showToast(t('ToastFailedToLoadData'), { type: 'error' })
@@ -140,9 +127,9 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
     }
   }
 
-  const handleSortColumn = (column: SortColumn) => {
+  const handleSortColumn = (column: SortColumn, nextSortDescOverride?: boolean) => {
     const nextSortBy = column
-    const nextSortDesc = sortBy === column ? !sortDesc : true
+    const nextSortDesc = nextSortDescOverride ?? (sortBy === column ? !sortDesc : true)
 
     setSortBy(nextSortBy)
     setSortDesc(nextSortDesc)
@@ -151,19 +138,17 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   }
 
   const handleSetSelectionForAll = (selected: boolean) => {
-    setListeningSessions((currentSessions) => currentSessions.map((session) => ({ ...session, selected })))
+    setSelectedSessionIds(selected ? listeningSessions.map((session) => session.id) : [])
   }
 
-  const handleToggleSessionSelection = (sessionId: string) => {
-    setListeningSessions((currentSessions) =>
-      currentSessions.map((session) => {
-        if (session.id !== sessionId) return session
-        return {
-          ...session,
-          selected: !session.selected
-        }
-      })
-    )
+  const handleToggleSessionSelection = (sessionId: string, selected: boolean) => {
+    setSelectedSessionIds((currentIds) => {
+      if (selected) {
+        if (currentIds.includes(sessionId)) return currentIds
+        return [...currentIds, sessionId]
+      }
+      return currentIds.filter((id) => id !== sessionId)
+    })
   }
 
   const handleUpdateUserFilter = async (userId: string | number) => {
@@ -195,6 +180,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         await loadSessions(newPage)
       } else {
         setListeningSessions((sessions) => sessions.filter((session) => !selectedIds.includes(session.id)))
+        setSelectedSessionIds([])
       }
 
       await loadOpenSessions()
@@ -259,6 +245,86 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
     }
   }
 
+  const listeningSessionColumns = useMemo<DataTableColumn<PlaybackSession>[]>(
+    () => [
+      {
+        label: t('LabelItem'),
+        sortKey: 'displayTitle',
+        sortable: true,
+        accessor: (session) => (
+          <div className="py-1">
+            <p className="text-xs text-foreground truncate">{session.displayTitle}</p>
+            <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
+          </div>
+        ),
+        headerClassName: 'px-2',
+        cellClassName: 'px-2 grow sm:grow-0 sm:w-48 sm:max-w-48 py-1'
+      },
+      {
+        label: t('LabelUser'),
+        accessor: (session) => <p className="text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
+        headerClassName: 'w-20 min-w-20 text-left hidden md:table-cell',
+        cellClassName: 'hidden md:table-cell w-20 min-w-20 px-2 py-1'
+      },
+      {
+        label: t('LabelPlayMethod'),
+        sortKey: 'playMethod',
+        sortable: true,
+        accessor: (session) => <p className="text-xs">{getPlayMethodName(session.playMethod, t)}</p>,
+        headerClassName: 'w-28 min-w-28 text-left hidden md:table-cell',
+        cellClassName: 'hidden md:table-cell w-28 min-w-28 px-2 py-1'
+      },
+      {
+        label: t('LabelDeviceInfo'),
+        accessor: (session) => (
+          <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
+        ),
+        headerClassName: 'w-32 min-w-32 text-left hidden sm:table-cell',
+        cellClassName: 'hidden sm:table-cell max-w-32 min-w-32 px-2 py-1'
+      },
+      {
+        label: t('LabelTimeListened'),
+        sortKey: 'timeListening',
+        sortable: true,
+        accessor: (session) => <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>,
+        headerClassName: 'w-24 min-w-24 sm:w-32 sm:min-w-32 text-center',
+        cellClassName: 'text-center w-24 min-w-24 sm:w-32 sm:min-w-32 px-2 py-1'
+      },
+      {
+        label: t('LabelLastTime'),
+        sortKey: 'currentTime',
+        sortable: true,
+        accessor: (session) => (
+          <button
+            type="button"
+            className="w-full text-center hover:underline cursor-pointer text-xs font-mono"
+            onClick={(e) => {
+              e.stopPropagation()
+              handlePromptResumePlayback(session)
+            }}
+          >
+            {secondsToTimestamp(session.currentTime)}
+          </button>
+        ),
+        headerClassName: 'w-24 min-w-24 text-center',
+        cellClassName: 'text-center w-24 min-w-24 px-2 py-1'
+      },
+      {
+        label: t('LabelLastUpdate'),
+        sortKey: 'updatedAt',
+        sortable: true,
+        accessor: (session) => (
+          <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
+            <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
+          </Tooltip>
+        ),
+        headerClassName: 'grow hidden sm:table-cell text-left',
+        cellClassName: 'text-center hidden sm:table-cell px-2 py-1'
+      }
+    ],
+    [t, filteredUserUsername, locale, dateFormat, timeFormat]
+  )
+
   const pageLabel = t('LabelPaginationPageXOfY', { 0: currentPage + 1, 1: Math.max(numPages, 1) })
 
   return (
@@ -269,164 +335,49 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
 
       <div className="block max-w-full relative">
         {listeningSessions.length > 0 ? (
-          <>
-            {numSelected > 0 && (
-              <div className="flex items-center px-3 py-2 bg-table-header-bg border border-border border-b-0 rounded-t-md">
-                <p>{t('MessageSelected', { 0: numSelected })}</p>
-                <div className="grow" />
-                <Btn size="small" color="bg-error" loading={deletingSessions} onClick={() => setShowRemoveConfirmDialog(true)}>
+          <DataTable
+            data={listeningSessions}
+            columns={listeningSessionColumns}
+            getRowKey={(session) => session.id}
+            tableClassName="table-fixed"
+            selection={{
+              selectedRowKeys: selectedSessionIds,
+              hideCheckboxBelow: 'md',
+              onToggleAllRows: handleSetSelectionForAll,
+              onToggleRow: (session, _index, selected) => handleToggleSessionSelection(session.id, selected)
+            }}
+            bulkActions={{
+              selectedLabel: t('MessageSelected', { 0: numSelected }),
+              actions: (
+                <Btn className="h-7" size="small" color="bg-error" loading={deletingSessions} onClick={() => setShowRemoveConfirmDialog(true)}>
                   {t('ButtonRemove')}
                 </Btn>
-              </div>
-            )}
-
-            <div className={`overflow-x-hidden border border-border ${numSelected > 0 ? 'rounded-b-md' : 'rounded-md'}`}>
-              <table className="w-full border-collapse text-sm table-fixed">
-                <thead className="bg-table-header-bg border-b border-border">
-                  <tr>
-                    <th className="w-12 min-w-12 hidden md:table-cell h-11 px-0 text-center align-middle" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-center">
-                        <Checkbox
-                          value={isAllSelected}
-                          partial={numSelected > 0 && !isAllSelected}
-                          size="small"
-                          checkboxBgClass="bg-bg"
-                          onChange={handleSetSelectionForAll}
-                          ariaLabel={t('LabelSelectAll')}
-                        />
-                      </div>
-                    </th>
-
-                    <SortableHeader
-                      label={t('LabelItem')}
-                      active={sortBy === 'displayTitle'}
-                      descending={sortDesc}
-                      onClick={() => handleSortColumn('displayTitle')}
-                    />
-                    <th className="w-20 min-w-20 text-left hidden md:table-cell text-xs font-semibold text-foreground-muted">{t('LabelUser')}</th>
-                    <SortableHeader
-                      label={t('LabelPlayMethod')}
-                      active={sortBy === 'playMethod'}
-                      descending={sortDesc}
-                      onClick={() => handleSortColumn('playMethod')}
-                      className="w-28 min-w-28 text-left hidden md:table-cell"
-                    />
-                    <th className="w-32 min-w-32 text-left hidden sm:table-cell text-xs font-semibold text-foreground-muted">{t('LabelDeviceInfo')}</th>
-                    <SortableHeader
-                      label={t('LabelTimeListened')}
-                      active={sortBy === 'timeListening'}
-                      descending={sortDesc}
-                      onClick={() => handleSortColumn('timeListening')}
-                      className="w-24 min-w-24 sm:w-32 sm:min-w-32 text-center"
-                    />
-                    <SortableHeader
-                      label={t('LabelLastTime')}
-                      active={sortBy === 'currentTime'}
-                      descending={sortDesc}
-                      onClick={() => handleSortColumn('currentTime')}
-                      className="w-24 min-w-24 text-center"
-                    />
-                    <SortableHeader
-                      label={t('LabelLastUpdate')}
-                      active={sortBy === 'updatedAt'}
-                      descending={sortDesc}
-                      onClick={() => handleSortColumn('updatedAt')}
-                      className="grow hidden sm:table-cell text-left"
-                    />
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {listeningSessions.map((session, index) => (
-                    <tr
-                      key={session.id}
-                      className={`border-b border-border ${index % 2 === 1 ? 'bg-table-row-bg-even' : ''} hover:bg-table-row-bg-hover cursor-pointer ${session.selected ? 'bg-table-row-bg-hover' : ''}`}
-                      onClick={() => {
-                        if (numSelected > 0) {
-                          handleToggleSessionSelection(session.id)
-                        } else {
-                          handleSelectSession(session)
-                        }
-                      }}
-                    >
-                      <td className="hidden md:table-cell py-1 w-12 min-w-12 px-0 text-center align-middle" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-center">
-                          <Checkbox
-                            value={!!session.selected}
-                            size="small"
-                            checkboxBgClass="bg-bg"
-                            onChange={() => handleToggleSessionSelection(session.id)}
-                            ariaLabel="Select row"
-                          />
-                        </div>
-                      </td>
-
-                      <td className="py-1 px-2 grow sm:grow-0 sm:w-48 sm:max-w-48">
-                        <p className="text-xs text-foreground truncate">{session.displayTitle}</p>
-                        <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
-                      </td>
-
-                      <td className="hidden md:table-cell w-20 min-w-20 px-2">
-                        <p className="text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>
-                      </td>
-
-                      <td className="hidden md:table-cell w-28 min-w-28 px-2">
-                        <p className="text-xs">{getPlayMethodName(session.playMethod, t)}</p>
-                      </td>
-
-                      <td className="hidden sm:table-cell max-w-32 min-w-32 px-2">
-                        <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
-                      </td>
-
-                      <td className="text-center w-24 min-w-24 sm:w-32 sm:min-w-32 px-2">
-                        <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>
-                      </td>
-
-                      <td
-                        className="text-center hover:underline w-24 min-w-24 px-2 cursor-pointer"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handlePromptResumePlayback(session)
-                        }}
-                      >
-                        <p className="text-xs font-mono">{secondsToTimestamp(session.currentTime)}</p>
-                      </td>
-
-                      <td className="text-center hidden sm:table-cell px-2">
-                        <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
-                          <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
-                        </Tooltip>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="flex items-center my-2">
-              <div className="grow" />
-              <div className="hidden sm:inline-flex items-center">
-                <p className="text-sm whitespace-nowrap">{t('LabelRowsPerPage')}</p>
-                <Dropdown
-                  value={itemsPerPage}
-                  items={ITEMS_PER_PAGE_OPTIONS.map((option) => ({ text: String(option), value: option }))}
-                  size="small"
-                  className="w-24 mx-2"
-                  onChange={handleUpdateItemsPerPage}
-                />
-              </div>
-              <div className="inline-flex items-center">
-                <p className="text-sm mx-2">{pageLabel}</p>
-                <IconBtn ariaLabel={t('ButtonPrevious')} size="small" disabled={currentPage === 0} onClick={() => loadSessions(currentPage - 1)}>
-                  arrow_back_ios_new
-                </IconBtn>
-                <div className="w-1" />
-                <IconBtn ariaLabel={t('ButtonNext')} size="small" disabled={currentPage >= numPages - 1} onClick={() => loadSessions(currentPage + 1)}>
-                  arrow_forward_ios
-                </IconBtn>
-              </div>
-            </div>
-          </>
+              )
+            }}
+            sorting={{
+              sortBy,
+              sortDesc,
+              onSortChange: (nextSortBy, nextSortDesc) => handleSortColumn(nextSortBy as SortColumn, nextSortDesc)
+            }}
+            onRowClick={(session) => {
+              if (numSelected > 0) {
+                const isSelected = selectedSessionIds.includes(session.id)
+                handleToggleSessionSelection(session.id, !isSelected)
+              } else {
+                handleSelectSession(session)
+              }
+            }}
+            pagination={{
+              currentPage: currentPage + 1,
+              totalPages: Math.max(numPages, 1),
+              rowsPerPage: itemsPerPage,
+              rowsPerPageOptions: ITEMS_PER_PAGE_OPTIONS,
+              onPageChange: (page) => loadSessions(page - 1),
+              onRowsPerPageChange: handleUpdateItemsPerPage,
+              rowsPerPageLabel: t('LabelRowsPerPage'),
+              pageLabel
+            }}
+          />
         ) : (
           <p className="text-foreground-muted">{t('MessageNoListeningSessions')}</p>
         )}
@@ -497,31 +448,6 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   )
 }
 
-function SortableHeader({
-  label,
-  active,
-  descending,
-  onClick,
-  className = ''
-}: {
-  label: string
-  active: boolean
-  descending: boolean
-  onClick: () => void
-  className?: string
-}) {
-  return (
-    <th className={`text-left group cursor-pointer text-xs font-semibold text-foreground-muted ${className}`} onClick={onClick}>
-      <div className="inline-flex items-center px-2">
-        {label}
-        <span className={`material-symbols text-base pl-px ${active ? '' : 'opacity-0 group-hover:opacity-30'}`}>
-          {descending ? 'arrow_drop_down' : 'arrow_drop_up'}
-        </span>
-      </div>
-    </th>
-  )
-}
-
 function SessionListTable({
   sessions,
   onSelectSession,
@@ -542,77 +468,88 @@ function SessionListTable({
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
 
-  return (
-    <div className="block max-w-full">
-      <div className="overflow-x-hidden rounded-md border border-border">
-        <table className="w-full border-collapse text-sm table-fixed">
-          <thead className="bg-table-header-bg border-b border-border">
-            <tr>
-              <th className="w-48 min-w-48 text-left text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">{t('LabelItem')}</th>
-              <th className="w-20 min-w-20 text-left hidden md:table-cell text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
-                {t('LabelUser')}
-              </th>
-              <th className="w-32 min-w-32 text-left hidden md:table-cell text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
-                {t('LabelPlayMethod')}
-              </th>
-              <th className="w-32 min-w-32 text-left hidden sm:table-cell text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
-                {t('LabelDeviceInfo')}
-              </th>
-              {!isShareSessions && (
-                <th className="w-32 min-w-32 text-center text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">{t('LabelTimeListened')}</th>
-              )}
-              <th className="w-16 min-w-16 text-center text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">{t('LabelLastTime')}</th>
-              <th className="w-32 min-w-32 hidden sm:table-cell text-left text-xs font-semibold text-foreground-muted px-2 h-11 align-middle">
-                {t('LabelLastUpdate')}
-              </th>
-            </tr>
-          </thead>
+  const columns = useMemo<DataTableColumn<PlaybackSession>[]>(
+    () => [
+      {
+        label: t('LabelItem'),
+        accessor: (session) => (
+          <div className="py-1">
+            <p className="text-xs text-foreground truncate">{session.displayTitle}</p>
+            <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
+          </div>
+        ),
+        headerClassName: 'w-48 min-w-48 text-left px-2',
+        cellClassName: 'py-1 max-w-48 px-2'
+      },
+      {
+        label: t('LabelUser'),
+        accessor: (session) => <p className="text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
+        headerClassName: 'w-20 min-w-20 text-left hidden md:table-cell px-2',
+        cellClassName: 'hidden md:table-cell px-2 py-1'
+      },
+      {
+        label: t('LabelPlayMethod'),
+        accessor: (session) => <p className="text-xs">{getPlayMethodName(session.playMethod, t)}</p>,
+        headerClassName: 'w-32 min-w-32 text-left hidden md:table-cell px-2',
+        cellClassName: 'hidden md:table-cell px-2 py-1'
+      },
+      {
+        label: t('LabelDeviceInfo'),
+        accessor: (session) => (
+          <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
+        ),
+        headerClassName: 'w-32 min-w-32 text-left hidden sm:table-cell px-2',
+        cellClassName: 'hidden sm:table-cell max-w-32 min-w-32 px-2 py-1'
+      },
+      ...(!isShareSessions
+        ? [
+            {
+              label: t('LabelTimeListened'),
+              accessor: (session: PlaybackSession) => <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>,
+              headerClassName: 'w-32 min-w-32 text-center px-2',
+              cellClassName: 'text-center w-32 min-w-32 px-2 py-1'
+            }
+          ]
+        : []),
+      {
+        label: t('LabelLastTime'),
+        accessor: (session) => (
+          <button
+            type="button"
+            className="w-full text-center hover:underline cursor-pointer text-xs font-mono"
+            onClick={(e) => {
+              e.stopPropagation()
+              onPromptResumePlayback(session)
+            }}
+          >
+            {secondsToTimestamp(session.currentTime)}
+          </button>
+        ),
+        headerClassName: 'w-16 min-w-16 text-center px-2',
+        cellClassName: 'text-center w-16 min-w-16 px-2 py-1'
+      },
+      {
+        label: t('LabelLastUpdate'),
+        accessor: (session) => (
+          <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
+            <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
+          </Tooltip>
+        ),
+        headerClassName: 'w-32 min-w-32 hidden sm:table-cell text-left px-2',
+        cellClassName: 'text-left hidden sm:table-cell w-32 min-w-32 px-2 py-1'
+      }
+    ],
+    [t, filteredUserUsername, isShareSessions, locale, dateFormat, timeFormat, onPromptResumePlayback]
+  )
 
-          <tbody>
-            {sessions.map((session, index) => (
-              <tr
-                key={`open-${session.id}`}
-                className={`border-b border-border ${index % 2 === 1 ? 'bg-table-row-bg-even' : ''} hover:bg-table-row-bg-hover cursor-pointer`}
-                onClick={() => onSelectSession(session)}
-              >
-                <td className="py-1 max-w-48 px-2">
-                  <p className="text-xs text-foreground truncate">{session.displayTitle}</p>
-                  <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
-                </td>
-                <td className="hidden md:table-cell px-2">
-                  <p className="text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>
-                </td>
-                <td className="hidden md:table-cell px-2">
-                  <p className="text-xs">{getPlayMethodName(session.playMethod, t)}</p>
-                </td>
-                <td className="hidden sm:table-cell max-w-32 min-w-32 px-2">
-                  <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
-                </td>
-                {!isShareSessions && (
-                  <td className="text-center w-32 min-w-32 px-2">
-                    <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>
-                  </td>
-                )}
-                <td
-                  className="text-center w-16 min-w-16 px-2 hover:underline cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    onPromptResumePlayback(session)
-                  }}
-                >
-                  <p className="text-xs font-mono">{secondsToTimestamp(session.currentTime)}</p>
-                </td>
-                <td className="text-left hidden sm:table-cell w-32 min-w-32 px-2">
-                  <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
-                    <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
-                  </Tooltip>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+  return (
+    <SimpleDataTable
+      data={sessions}
+      columns={columns}
+      getRowKey={(session) => session.id}
+      tableClassName="table-fixed"
+      onRowClick={(session) => onSelectSession(session)}
+    />
   )
 }
 
