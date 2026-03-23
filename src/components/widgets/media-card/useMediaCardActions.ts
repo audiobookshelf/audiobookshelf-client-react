@@ -381,7 +381,7 @@ export function useMediaCardActions({
     if (userCanUpdate) {
       items.push({
         text: t('HeaderMatch'),
-        func: 'showEditModalMatch'
+        func: 'showMatchModal'
       })
     }
 
