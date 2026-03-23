@@ -1,7 +1,7 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { secondsToTimestamp } from '@/lib/datefns'
+import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
 import { MatchResult } from '@/types/api'
 import Image from 'next/image'
@@ -48,12 +48,11 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
     const currentBookDurationMinutes = Math.floor(currentBookDuration / 60)
     const differenceInMinutes = currentBookDurationMinutes - book.duration
 
+    const durationDiffString = formatDuration(Math.abs(differenceInMinutes) * 60, t)
     if (differenceInMinutes < 0) {
-      const diffSeconds = Math.abs(differenceInMinutes) * 60
-      return t('LabelDurationComparisonLonger', { 0: secondsToTimestamp(diffSeconds) })
+      return t('LabelDurationComparisonLonger', { 0: durationDiffString })
     } else if (differenceInMinutes > 0) {
-      const diffSeconds = differenceInMinutes * 60
-      return t('LabelDurationComparisonShorter', { 0: secondsToTimestamp(diffSeconds) })
+      return t('LabelDurationComparisonShorter', { 0: durationDiffString })
     }
     return t('LabelDurationComparisonExactMatch')
   }, [book.duration, currentBookDuration, t])
@@ -178,7 +177,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
                 )}
                 {bookDurationSeconds > 0 && (
                   <p className="text-foreground-subdued text-xs">
-                    {t('LabelDuration')}: {secondsToTimestamp(bookDurationSeconds)} {durationComparison}
+                    {t('LabelDuration')}: {formatDuration(bookDurationSeconds, t)} {durationComparison}
                   </p>
                 )}
               </div>

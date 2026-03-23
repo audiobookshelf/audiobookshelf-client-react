@@ -5,10 +5,10 @@ import Checkbox from '@/components/ui/Checkbox'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { formatDuration } from '@/lib/formatDuration'
 import { bytesPretty } from '@/lib/string'
-import { elapsedPretty } from '@/lib/timeUtils'
 import { PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
-import { useFormatter, useLocale } from 'next-intl'
+import { useFormatter } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 export interface EpisodeFeedModalProps {
@@ -43,7 +43,6 @@ const getCleanEpisodeUrl = (url: string) => {
 
 export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episodes, downloadQueue, episodesDownloading }: EpisodeFeedModalProps) {
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
   const format = useFormatter()
   const { showToast } = useGlobalToast()
   const [isPending, startTransition] = useTransition()
@@ -283,7 +282,8 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
               bgClass = 'bg-success/10'
             }
 
-            const publishedLabel = episode.publishedAt ? format.relativeTime(new Date(episode.publishedAt), { now: new Date() }) : t('LabelUnknown')
+            const publishedString = episode.publishedAt ? format.relativeTime(new Date(episode.publishedAt), { now: new Date() }) : t('LabelUnknown')
+            const publishedLabel = t('LabelPublished', { 0: publishedString })
 
             return (
               <div
@@ -325,13 +325,9 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
 
                   <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 ${subTextClass}`}>
                     <p className="text-xs w-40">{publishedLabel}</p>
-                    {episode.durationSeconds && !isNaN(Number(episode.durationSeconds)) && (
+                    {episode.durationSeconds != null && episode.durationSeconds > 0 && (
                       <p className="text-xs min-w-28">
-                        {t('LabelDuration')}:{' '}
-                        {elapsedPretty(
-                          typeof episode.durationSeconds === 'string' ? parseFloat(episode.durationSeconds) : (episode.durationSeconds as number),
-                          locale || 'en-us'
-                        )}
+                        {t('LabelDuration')}: {formatDuration(episode.durationSeconds, t)}
                       </p>
                     )}
                     {episode.enclosure?.length && !isNaN(Number(episode.enclosure.length)) && Number(episode.enclosure.length) > 0 && (
