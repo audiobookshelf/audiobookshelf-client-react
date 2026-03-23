@@ -107,19 +107,16 @@ export default function Match({
       setHasSearched(false)
       setSelectedMatchOrig(null)
 
-      if (mediaMetadata.title) {
-        setSearchTitle(mediaMetadata.title)
-        if (!isPodcast && isBookMedia(media)) {
-          const bookMetadata = media.metadata
-          const authorName = bookMetadata.authors && bookMetadata.authors.length > 0 ? bookMetadata.authors.map((a) => a.name).join(', ') : ''
-          setSearchAuthor(authorName)
-        } else if (isPodcast && isPodcastMedia(media)) {
-          setSearchAuthor(media.metadata.author || '')
-        } else {
-          setSearchAuthor('')
-        }
+      setSearchTitle(mediaMetadata.title || '')
+
+      if (!isPodcast && isBookMedia(media)) {
+        const bookMetadata = media.metadata
+        const fromAuthors =
+          bookMetadata.authors?.length ? bookMetadata.authors.map((a) => a.name).filter(Boolean).join(', ') : ''
+        setSearchAuthor(fromAuthors || bookMetadata.authorName || bookMetadata.author || '')
+      } else if (isPodcast && isPodcastMedia(media)) {
+        setSearchAuthor(media.metadata.author || '')
       } else {
-        setSearchTitle('')
         setSearchAuthor('')
       }
     }
