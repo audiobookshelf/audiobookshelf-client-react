@@ -194,9 +194,7 @@ export default function EpisodeRow({
                 <span className={`material-symbols fill text-xl sm:text-2xl ${streamIsPlaying ? '' : 'text-success'}`}>
                   {streamIsPlaying ? 'pause' : 'play_arrow'}
                 </span>
-                <span className="text-xs sm:text-sm pe-1 font-semibold whitespace-nowrap" suppressHydrationWarning>
-                  {timeRemaining}
-                </span>
+                <span className="text-xs sm:text-sm pe-1 font-semibold whitespace-nowrap">{timeRemaining}</span>
               </Btn>
 
               <Tooltip position="top" text={userIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} className="flex-shrink-0">
