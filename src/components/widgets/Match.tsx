@@ -111,8 +111,12 @@ export default function Match({
 
       if (!isPodcast && isBookMedia(media)) {
         const bookMetadata = media.metadata
-        const fromAuthors =
-          bookMetadata.authors?.length ? bookMetadata.authors.map((a) => a.name).filter(Boolean).join(', ') : ''
+        const fromAuthors = bookMetadata.authors?.length
+          ? bookMetadata.authors
+              .map((a) => a.name)
+              .filter(Boolean)
+              .join(', ')
+          : ''
         setSearchAuthor(fromAuthors || bookMetadata.authorName || bookMetadata.author || '')
       } else if (isPodcast && isPodcastMedia(media)) {
         setSearchAuthor(media.metadata.author || '')
@@ -318,9 +322,9 @@ export default function Match({
   }, [searchResults])
 
   return (
-    <div className="w-full h-full overflow-hidden px-2 md:px-4 py-4 relative flex flex-col">
+    <>
       {!selectedMatchOrig ? (
-        <>
+        <div className="flex flex-col flex-1 overflow-hidden px-2 md:px-4 py-4">
           <form onSubmit={handleSubmitSearch} className="flex-shrink-0">
             <div className="flex flex-wrap md:flex-nowrap items-center justify-start -mx-1">
               {providersLoaded && providers.length > 0 && (
@@ -400,7 +404,7 @@ export default function Match({
               ))}
             </div>
           )}
-        </>
+        </div>
       ) : selectedMatchOrig ? (
         isPodcast ? (
           <PodcastMatchView
@@ -430,6 +434,6 @@ export default function Match({
           />
         )
       ) : null}
-    </div>
+    </>
   )
 }

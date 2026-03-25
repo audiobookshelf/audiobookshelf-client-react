@@ -136,15 +136,15 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
   }, [checkScroll])
 
   return (
-    <div className="relative top-0 left-0 w-full bg-bg h-full max-h-full flex flex-col overflow-hidden">
-      <div className="flex items-center p-2 mb-6 flex-shrink-0">
+    <div className="w-full h-full max-h-full flex flex-col">
+      <div className="flex items-center px-4 pt-4 pb-2 mb-2 flex-shrink-0">
         <IconBtn borderless size="large" iconClass="text-3xl" onClick={onDone} ariaLabel={t('ButtonBack')}>
           arrow_back
         </IconBtn>
         <p className="text-xl pl-3">{t('HeaderUpdateDetails')}</p>
       </div>
 
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden p-2">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-2">
         <Checkbox value={selectAll} onChange={handleSelectAllToggle} label={t('LabelSelectAll')} checkboxBgClass="bg-bg" className="w-fit" />
 
         <form onSubmit={handleSubmitMatchUpdate}>
@@ -156,9 +156,10 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
           })}
         </form>
       </div>
-
-      <div className={`flex items-center justify-end p-4 mt-6 flex-shrink-0 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}>
-        <Btn color="bg-success" type="submit" disabled={isPendingApply} loading={isPendingApply} onClick={handleSubmitMatchUpdate}>
+      <div
+        className={`border-t border-border flex items-center justify-end px-4 py-3 flex-shrink-0 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}
+      >
+        <Btn type="submit" disabled={isPendingApply} loading={isPendingApply} onClick={handleSubmitMatchUpdate}>
           {t('ButtonSubmit')}
         </Btn>
       </div>

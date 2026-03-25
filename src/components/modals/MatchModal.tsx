@@ -16,7 +16,7 @@ export default function MatchModal({ isOpen, onClose, libraryItem, bookCoverAspe
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="flex flex-col h-[80vh]">
+      <div className="flex flex-col h-[80vh] overflow-hidden">
         <Match libraryItem={libraryItem} bookCoverAspectRatio={bookCoverAspectRatio} />
       </div>
     </Modal>
