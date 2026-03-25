@@ -8,7 +8,7 @@ import ConfirmDialog, { type ConfirmState } from '@/components/widgets/ConfirmDi
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
-import { elapsedPretty } from '@/lib/timeUtils'
+import { formatDuration } from '@/lib/formatDuration'
 import { MediaProgress, PodcastEpisode } from '@/types/api'
 import { useMemo, useState } from 'react'
 
@@ -23,7 +23,6 @@ export interface EpisodeRowProps {
   isSelected: boolean
   isSelectionMode: boolean
   dateFormat: string
-  locale: string
   onPlay: (episode: PodcastEpisode) => void
   onView: (episode: PodcastEpisode) => void
   onToggleFinished: (episode: PodcastEpisode) => void
@@ -44,7 +43,6 @@ export default function EpisodeRow({
   isSelected,
   isSelectionMode,
   dateFormat,
-  locale,
   isPlayingThisEpisode,
   onPlay,
   onView,
@@ -93,13 +91,13 @@ export default function EpisodeRow({
 
   const timeRemaining = useMemo(() => {
     if (streamIsPlaying) return t('ButtonPlaying')
-    if (!progress) return elapsedPretty(episode.audioTrack?.duration || 0, locale)
+    if (!progress) return formatDuration(episode.audioTrack?.duration || 0, t)
     if (userIsFinished) return t('LabelFinished')
 
     const duration = progress.duration || episode.audioTrack?.duration || 0
     const remaining = Math.floor(duration - (progress.currentTime || 0))
-    return t('LabelTimeLeft', { 0: elapsedPretty(remaining, locale) })
-  }, [streamIsPlaying, progress, userIsFinished, episode.audioTrack?.duration, t, locale])
+    return t('LabelTimeLeft', { 0: formatDuration(remaining, t) })
+  }, [streamIsPlaying, progress, userIsFinished, episode.audioTrack?.duration, t])
 
   const publishedDate = episode.publishedAt ? formatJsDate(new Date(episode.publishedAt), dateFormat) : ''
 
@@ -196,9 +194,7 @@ export default function EpisodeRow({
                 <span className={`material-symbols fill text-xl sm:text-2xl ${streamIsPlaying ? '' : 'text-success'}`}>
                   {streamIsPlaying ? 'pause' : 'play_arrow'}
                 </span>
-                <span className="text-xs sm:text-sm pe-1 font-semibold whitespace-nowrap" suppressHydrationWarning>
-                  {timeRemaining}
-                </span>
+                <span className="text-xs sm:text-sm pe-1 font-semibold whitespace-nowrap">{timeRemaining}</span>
               </Btn>
 
               <Tooltip position="top" text={userIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} className="flex-shrink-0">

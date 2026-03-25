@@ -46,11 +46,13 @@ export default function MediaCardCover({
 
   const [prevSrc, setPrevSrc] = useState(bookCoverSrc)
 
-  // Reset image ready state when cover source changes
+  // Reset image ready state when cover source changes (e.g. libraryItem.updatedAt cache-bust).
+  // Must clear hasHandledLoad too — otherwise onLoad bails out and the cover stays at opacity 0.
   useEffect(() => {
     if (bookCoverSrc !== prevSrc) {
       setPrevSrc(bookCoverSrc)
       setImageReady(false)
+      hasHandledLoad.current = false
     }
   }, [bookCoverSrc, prevSrc])
 

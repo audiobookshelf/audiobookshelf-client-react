@@ -10,7 +10,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/api'
-import { elapsedPretty } from '@/lib/timeUtils'
+import { formatDuration } from '@/lib/formatDuration'
 import type { MediaItemShare } from '@/types/api'
 import { useLocale } from 'next-intl'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -109,8 +109,8 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
     if (!expiresAtMs) return t('LabelPermanent')
     const remainingMs = expiresAtMs - Date.now()
     if (remainingMs <= 0) return 'Expired'
-    return elapsedPretty(remainingMs / 1000, locale, true, false, true)
-  }, [currentShare, locale, t])
+    return formatDuration(remainingMs / 1000, t, { showDays: true })
+  }, [currentShare, t])
 
   const expirationDateString = useMemo(() => {
     if (!expireDurationSeconds) return t('LabelPermanent')

@@ -163,7 +163,7 @@ export default function BookMatchView({
 
   // Computed current values
   const authorCurrentValue = useMemo(() => {
-    return isBookMedia(media) && media.metadata.authors.length > 0 ? media.metadata.authors.map((a) => a.name).join(', ') : undefined
+    return isBookMedia(media) && media.metadata.authors && media.metadata.authors.length > 0 ? media.metadata.authors.map((a) => a.name).join(', ') : undefined
   }, [media])
 
   const seriesCurrentValue = useMemo(() => {

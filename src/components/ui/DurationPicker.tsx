@@ -2,6 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useUpdateEffect } from '@/hooks/useUpdateEffect'
+import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useId, useMemo, useRef, useState } from 'react'
 import InputWrapper from './InputWrapper'
@@ -245,11 +246,7 @@ export default function DurationPicker({
     const h = clamp(parseInt(hText || '0', 10) || 0, 0, hoursMax)
     const m = clamp(parseInt(mText || '0', 10) || 0, 0, 59)
     const s = clamp(parseInt(sText || '0', 10) || 0, 0, 59)
-    const parts: string[] = []
-    if (h > 0) parts.push(t('LabelHoursPlural', { count: h }))
-    if (m > 0) parts.push(t('LabelMinutesPlural', { count: m }))
-    if (s > 0 || parts.length === 0) parts.push(t('LabelSecondsPlural', { count: s }))
-    return parts.join(' ')
+    return formatDuration(fromHMS(h, m, s), t, { style: 'long' })
   }, [hText, mText, sText, hoursMax, t])
 
   const wrapperClass = mergeClasses('flex items-center gap-0 h-full px-1', disabled ? 'cursor-not-allowed' : 'cursor-text')

@@ -9,8 +9,8 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { formatJsDate } from '@/lib/datefns'
+import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
-import { elapsedPretty } from '@/lib/timeUtils'
 import type { MediaProgress, Series } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -32,8 +32,6 @@ export interface SeriesCardProps {
   sizeMultiplier?: number
   /** Date format from server settings */
   dateFormat: string
-  /** Locale for formatting */
-  locale?: string
   /**
    * Map of book progress by library item ID
    * Used to calculate series progress
@@ -59,7 +57,6 @@ function SeriesCard(props: SeriesCardProps) {
     bookCoverAspectRatio,
     sizeMultiplier,
     dateFormat,
-    locale = 'en-us',
     bookProgressMap,
     isSelectionMode = false,
     selected = false,
@@ -144,7 +141,7 @@ function SeriesCard(props: SeriesCardProps) {
           const duration = (book.media as { duration?: number })?.duration || 0
           return acc + duration
         }, 0)
-        return `${t('LabelDuration')} ${elapsedPretty(totalDuration, locale, true)}`
+        return `${t('LabelDuration')} ${formatDuration(totalDuration, t, { showDays: true })}`
       }
       case 'lastBookUpdated': {
         const lastUpdated = Math.max(...seriesBooks.map((book) => book.updatedAt || 0), 0)
@@ -159,7 +156,7 @@ function SeriesCard(props: SeriesCardProps) {
       default:
         return null
     }
-  }, [orderBy, series.addedAt, series.books, dateFormat, locale, t])
+  }, [orderBy, series.addedAt, series.books, dateFormat, t])
 
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
 

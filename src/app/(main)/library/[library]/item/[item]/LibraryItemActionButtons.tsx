@@ -1,5 +1,6 @@
 'use client'
 
+import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import Btn from '@/components/ui/Btn'
@@ -9,6 +10,7 @@ import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -36,6 +38,7 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
     removeItemFromQueue,
     playerHandler
   } = useMediaContext()
+  const { library } = useLibrary()
   const t = useTypeSafeTranslations()
 
   const mediaProgress = getLibraryItemProgress(libraryItem.id)
@@ -62,10 +65,12 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
     confirmState,
     rssFeedModalOpen,
     shareModalOpen,
+    matchModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
     closeShareModal,
+    closeMatchModal,
     handleShareChange,
     handleReadEBook,
     handleMoreAction,
@@ -260,6 +265,7 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
         mediaItemShare={mediaItemShare}
         onShareChange={handleShareChange}
       />
+      <MatchModal isOpen={matchModalOpen} onClose={closeMatchModal} libraryItem={libraryItem} bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1} />
     </>
   )
 }

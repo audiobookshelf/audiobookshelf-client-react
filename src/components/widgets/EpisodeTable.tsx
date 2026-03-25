@@ -16,7 +16,6 @@ import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { MediaProgress, PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
-import { useLocale } from 'next-intl'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
 interface EpisodeTableProps {
@@ -32,7 +31,6 @@ interface EpisodeTableProps {
  */
 export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', episodesDownloading = [], episodeDownloadsQueued = [] }: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
   const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
   const { user, userIsAdminOrUp } = useUser()
@@ -370,7 +368,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     isSelected={selectedEpisodes.has(episode.id)}
                     isSelectionMode={isSelectionMode}
                     dateFormat={dateFormat}
-                    locale={locale}
                     onPlay={handlePlayEpisode}
                     onView={handleViewEpisode}
                     onToggleFinished={handleToggleFinished}

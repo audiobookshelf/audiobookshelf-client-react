@@ -3,10 +3,9 @@ import Modal from '@/components/modals/Modal'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { formatDuration } from '@/lib/formatDuration'
 import { bytesPretty } from '@/lib/string'
-import { elapsedPretty } from '@/lib/timeUtils'
 import { PodcastEpisode, PodcastLibraryItem } from '@/types/api'
-import { useLocale } from 'next-intl'
 import React, { useCallback, useMemo } from 'react'
 
 export interface ViewEpisodeModalProps {
@@ -18,7 +17,6 @@ export interface ViewEpisodeModalProps {
 
 export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem }: ViewEpisodeModalProps) {
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
   const { playItem } = useMediaContext()
 
   const coverUrl = libraryItem ? getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt) : ''
@@ -29,8 +27,8 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
   const audioFileFilename = episode?.audioFile?.metadata?.filename || ''
   const audioFileSize = useMemo(() => bytesPretty(episode?.audioFile?.metadata?.size || 0), [episode?.audioFile?.metadata?.size])
   const audioFileDuration = useMemo(
-    () => elapsedPretty(episode?.audioFile?.duration || episode?.audioTrack?.duration || 0, locale),
-    [episode?.audioFile?.duration, episode?.audioTrack?.duration, locale]
+    () => formatDuration(episode?.audioFile?.duration || episode?.audioTrack?.duration || 0, t),
+    [episode?.audioFile?.duration, episode?.audioTrack?.duration, t]
   )
 
   const parsedDescription = useMemo(() => {

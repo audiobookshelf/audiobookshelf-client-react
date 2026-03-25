@@ -15,7 +15,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
-import { Fragment, useCallback, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
@@ -33,6 +33,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isClearQueueDialogOpen, setIsClearQueueDialogOpen] = useState(false)
+
+  useEffect(() => {
+    setLibraryItem(initialLibraryItem)
+  }, [initialLibraryItem])
 
   const isPodcast = libraryItem.mediaType === 'podcast'
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata

@@ -393,7 +393,6 @@ export function MultiSelect<T = string>({
 
   const handleTab = () => {
     closeMenu()
-    inputRef.current?.blur()
   }
 
   const handleArrowLeft = (e: React.KeyboardEvent<HTMLInputElement>) => {
