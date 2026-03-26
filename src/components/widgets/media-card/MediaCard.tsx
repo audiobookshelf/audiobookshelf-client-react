@@ -1,8 +1,9 @@
 'use client'
 
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
@@ -13,9 +14,18 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
-import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
+import type {
+  BookLibraryItem,
+  BookMedia,
+  EReaderDevice,
+  LibraryItem,
+  MediaProgress,
+  PodcastEpisode,
+  PodcastLibraryItem,
+  PodcastMedia,
+  UserPermissions
+} from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
-import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { memo, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 
@@ -102,7 +112,6 @@ function MediaCard(props: MediaCardProps) {
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
@@ -227,11 +236,7 @@ function MediaCard(props: MediaCardProps) {
 
   const isItemPlaying = isPlaying(libraryItem.id, episode?.id ?? null)
 
-  const showPlayButton =
-    !isSelectionMode &&
-    !isMissing &&
-    !isInvalid &&
-    (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
+  const showPlayButton = !isSelectionMode && !isMissing && !isInvalid && (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
 
   const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!media.ebookFormat
 
@@ -241,10 +246,12 @@ function MediaCard(props: MediaCardProps) {
     confirmState,
     rssFeedModalOpen,
     shareModalOpen,
+    matchModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
     closeShareModal,
+    closeMatchModal,
     handleShareChange,
     handlePlay,
     handleReadEBook,
@@ -302,7 +309,6 @@ function MediaCard(props: MediaCardProps) {
               media={media}
               dateFormat={dateFormat}
               timeFormat={timeFormat}
-              locale={locale}
               lastUpdated={lastUpdated}
               startedAt={startedAt}
               finishedAt={finishedAt}
@@ -390,6 +396,12 @@ function MediaCard(props: MediaCardProps) {
           onShareChange={handleShareChange}
         />
       )}
+      <MatchModal
+        isOpen={matchModalOpen}
+        onClose={closeMatchModal}
+        libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem}
+        bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
+      />
     </>
   )
 }

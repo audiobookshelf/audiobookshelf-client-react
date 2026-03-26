@@ -15,7 +15,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
-import { Fragment, useCallback, useState } from 'react'
+import { Fragment, useCallback, useEffect, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
@@ -33,6 +33,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isClearQueueDialogOpen, setIsClearQueueDialogOpen] = useState(false)
+
+  useEffect(() => {
+    setLibraryItem(initialLibraryItem)
+  }, [initialLibraryItem])
 
   const isPodcast = libraryItem.mediaType === 'podcast'
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
@@ -90,7 +94,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               }}
             />
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1">
             <div className="flex flex-col gap-1">
               <h1 className="text-2xl md:text-3xl font-semibold">{libraryItem.media.metadata.title}</h1>
               {subtitle && <h2 className="text-xl md:text-2xl font-medium text-foreground-muted">{subtitle}</h2>}

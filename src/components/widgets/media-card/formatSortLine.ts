@@ -1,7 +1,7 @@
 import type { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
+import { formatDuration } from '@/lib/formatDuration'
 import { bytesPretty } from '@/lib/string'
-import { durationPrettyShort } from '@/lib/timeUtils'
 import type { LibraryItem } from '@/types/api'
 
 export interface SortLineContext {
@@ -9,7 +9,6 @@ export interface SortLineContext {
   media: LibraryItem['media']
   dateFormat: string
   timeFormat: string
-  locale: string
   lastUpdated: number | null
   startedAt: number | null
   finishedAt: number | null
@@ -17,7 +16,7 @@ export interface SortLineContext {
 }
 
 export function formatSortLine(orderBy: string, context: SortLineContext): string | null {
-  const { libraryItem, media, dateFormat, timeFormat, locale, lastUpdated, startedAt, finishedAt, t } = context
+  const { libraryItem, media, dateFormat, timeFormat, lastUpdated, startedAt, finishedAt, t } = context
 
   if (orderBy === 'mtimeMs') {
     return t('LabelFileModifiedDate', { 0: formatJsDate(new Date(libraryItem.mtimeMs), dateFormat) })
@@ -30,7 +29,7 @@ export function formatSortLine(orderBy: string, context: SortLineContext): strin
   }
   if (orderBy === 'media.duration') {
     const duration = (media as { duration?: number }).duration ?? 0
-    return `${t('LabelDuration')}: ${durationPrettyShort(duration, locale)}`
+    return `${t('LabelDuration')}: ${formatDuration(duration, t)}`
   }
   if (orderBy === 'media.numTracks') {
     // For podcasts, the sort key is 'media.numTracks' but the actual field is 'numEpisodes'

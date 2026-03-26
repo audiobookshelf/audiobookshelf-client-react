@@ -19,7 +19,6 @@ interface MediaCardDetailViewProps {
   media: LibraryItem['media']
   dateFormat: string
   timeFormat: string
-  locale: string
   lastUpdated: number | null
   startedAt: number | null
   finishedAt: number | null
@@ -37,7 +36,6 @@ export default function MediaCardDetailView({
   media,
   dateFormat,
   timeFormat,
-  locale,
   lastUpdated,
   startedAt,
   finishedAt,
@@ -116,7 +114,6 @@ export default function MediaCardDetailView({
             media,
             dateFormat,
             timeFormat,
-            locale,
             lastUpdated,
             startedAt,
             finishedAt,

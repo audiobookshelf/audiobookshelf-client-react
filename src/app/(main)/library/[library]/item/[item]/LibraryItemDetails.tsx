@@ -1,12 +1,10 @@
 'use client'
 
-import { bytesPretty } from '@/lib/string'
-import { elapsedPretty } from '@/lib/timeUtils'
-
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterEncode } from '@/lib/filterUtils'
+import { formatDuration } from '@/lib/formatDuration'
+import { bytesPretty } from '@/lib/string'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
-import { useLocale } from 'next-intl'
 import { Fragment } from 'react'
 
 interface LibraryItemDetailsProps {
@@ -49,9 +47,7 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
   return (
     <div className="flex">
       <div className="w-32 text-sm font-medium text-foreground-subdued uppercase">{label}</div>
-      <div className="flex-1 text-base" suppressHydrationWarning>
-        {displayValue}
-      </div>
+      <div className="flex-1 text-base">{displayValue}</div>
     </div>
   )
 }
@@ -67,7 +63,6 @@ function getLibraryItemDuration(libraryItem: BookLibraryItem | PodcastLibraryIte
 
 export default function LibraryItemDetails({ libraryItem }: LibraryItemDetailsProps) {
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
 
   const metadata = libraryItem.media.metadata
   const isBook = libraryItem.mediaType === 'book'
@@ -97,7 +92,7 @@ export default function LibraryItemDetails({ libraryItem }: LibraryItemDetailsPr
       <DetailRow label={t('LabelGenres')} value={metadata.genres} filterKey="genres" libraryId={libraryItem.libraryId} />
       <DetailRow label={t('LabelTags')} value={libraryItem.media.tags} filterKey="tags" libraryId={libraryItem.libraryId} />
       <DetailRow label={t('LabelLanguage')} value={metadata.language} filterKey="languages" libraryId={libraryItem.libraryId} />
-      <DetailRow label={t('LabelDuration')} value={elapsedPretty(duration || 0, locale || 'en-us')} />
+      <DetailRow label={t('LabelDuration')} value={formatDuration(duration || 0, t)} />
       <DetailRow label={t('LabelSize')} value={bytesPretty(size)} />
     </div>
   )

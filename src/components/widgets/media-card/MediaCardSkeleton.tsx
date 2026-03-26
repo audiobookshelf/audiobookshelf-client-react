@@ -4,7 +4,6 @@ import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetail
 import { useCardSize } from '@/contexts/CardSizeContext'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
-import { useLocale } from 'next-intl'
 import { useId, useMemo } from 'react'
 
 interface MediaCardSkeletonProps {
@@ -31,7 +30,6 @@ export default function MediaCardSkeleton({
   timeFormat = 'h:mm a'
 }: MediaCardSkeletonProps) {
   const cardId = useId()
-  const locale = useLocale()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
 
   // Use prop to override context value if provided
@@ -98,7 +96,6 @@ export default function MediaCardSkeleton({
           media={mockLibraryItem.media}
           dateFormat={dateFormat}
           timeFormat={timeFormat}
-          locale={locale}
           // Provide mock timestamps for progress sorts so skeleton renders line 3
           lastUpdated={orderBy === 'progress' ? 1 : null}
           startedAt={orderBy === 'progress.createdAt' ? 1 : null}

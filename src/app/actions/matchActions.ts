@@ -2,6 +2,7 @@
 
 import * as api from '@/lib/api'
 import { BookSearchResult, PodcastSearchResult, UpdateLibraryItemMediaPayload, UpdateLibraryItemMediaResponse } from '@/types/api'
+import { revalidatePath } from 'next/cache'
 
 /**
  * Server Action: Search for books using a metadata provider
@@ -21,5 +22,7 @@ export async function searchPodcastsAction(term: string): Promise<PodcastSearchR
  * Server Action: Apply match updates to a library item
  */
 export async function applyMatchAction(libraryItemId: string, updatePayload: UpdateLibraryItemMediaPayload): Promise<UpdateLibraryItemMediaResponse> {
-  return api.updateLibraryItemMedia(libraryItemId, updatePayload)
+  const result = await api.updateLibraryItemMedia(libraryItemId, updatePayload)
+  revalidatePath('/library', 'layout')
+  return result
 }
