@@ -117,7 +117,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
 
   const outerContent = (
     <div className="absolute top-0 start-0 p-4">
-      <p className="text-xl font-semibold text-foreground truncate max-w-[calc(100vw-4rem)]" title={entityName}>
+      <p className="text-xl font-semibold text-white truncate max-w-[calc(100vw-4rem)]" title={entityName}>
         {entityName}
       </p>
     </div>

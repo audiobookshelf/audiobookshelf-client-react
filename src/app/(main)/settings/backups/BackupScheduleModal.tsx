@@ -32,7 +32,7 @@ export default function BackupScheduleModal({ isOpen, onClose, isPending, cronEx
 
   const outerContentTitle = (
     <div className="absolute top-0 start-0 p-4">
-      <h2 className="text-xl text-foreground">{t('HeaderSetBackupSchedule')}</h2>
+      <h2 className="text-xl text-white">{t('HeaderSetBackupSchedule')}</h2>
     </div>
   )
 

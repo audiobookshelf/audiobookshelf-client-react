@@ -239,7 +239,7 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
       onClose={onClose}
       outerContent={
         <div className="absolute top-0 left-0 p-5 w-2/3 overflow-hidden pointer-events-none">
-          <p className="text-3xl text-foreground truncate drop-shadow-md">{libraryItem.media.metadata.title}</p>
+          <p className="text-3xl text-white truncate drop-shadow-md">{libraryItem.media.metadata.title}</p>
         </div>
       }
       style={{ maxWidth: 1200 }}

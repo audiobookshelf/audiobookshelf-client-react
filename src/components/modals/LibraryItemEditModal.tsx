@@ -97,7 +97,7 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
 
   const outerContentTitle = (
     <div className="absolute top-0 start-0 p-4">
-      <h2 className="text-lg text-foreground">{libraryItem.media.metadata.title}</h2>
+      <h2 className="text-lg text-white">{libraryItem.media.metadata.title}</h2>
     </div>
   )
 

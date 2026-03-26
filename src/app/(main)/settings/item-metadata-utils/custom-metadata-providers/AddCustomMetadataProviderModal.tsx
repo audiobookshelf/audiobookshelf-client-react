@@ -65,7 +65,7 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
 
   const outerContentTitle = (
     <div className="absolute top-0 start-0 p-4">
-      <h2 className="text-xl text-foreground">{t('HeaderAddCustomMetadataProvider')}</h2>
+      <h2 className="text-xl text-white">{t('HeaderAddCustomMetadataProvider')}</h2>
     </div>
   )
 

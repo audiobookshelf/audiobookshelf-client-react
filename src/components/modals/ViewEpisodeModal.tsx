@@ -89,7 +89,7 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
       onClose={onClose}
       outerContent={
         <div className="absolute top-0 left-0 p-5 w-2/3 overflow-hidden pointer-events-none">
-          <p className="text-3xl text-foreground truncate">{t('LabelEpisode')}</p>
+          <p className="text-3xl text-white truncate">{t('LabelEpisode')}</p>
         </div>
       }
       className="p-4 w-full text-sm rounded-lg bg-bg shadow-lg relative overflow-y-auto max-h-[80vh]"

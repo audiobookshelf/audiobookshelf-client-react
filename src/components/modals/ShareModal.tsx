@@ -165,7 +165,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
 
   const outerContent = (
     <div className="absolute top-0 start-0 p-4">
-      <p className="text-xl font-semibold text-foreground truncate max-w-[calc(100vw-4rem)]">{t('LabelShare')}</p>
+      <p className="text-xl font-semibold text-white truncate max-w-[calc(100vw-4rem)]">{t('LabelShare')}</p>
     </div>
   )
 

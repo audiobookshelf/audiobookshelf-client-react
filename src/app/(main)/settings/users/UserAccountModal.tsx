@@ -228,7 +228,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
 
   const outerContentTitle = (
     <div className="absolute top-0 start-0 p-4">
-      <h2 className="text-xl text-foreground">{isEditing ? t('HeaderUpdateAccount') : t('HeaderNewAccount')}</h2>
+      <h2 className="text-xl text-white">{isEditing ? t('HeaderUpdateAccount') : t('HeaderNewAccount')}</h2>
     </div>
   )
 

@@ -206,7 +206,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
 
   const outerContentTitle = (
     <div className="absolute top-0 start-0 p-4">
-      <h2 className="text-xl text-foreground">{isEditing ? t('HeaderUpdateLibrary') : t('HeaderNewLibrary')}</h2>
+      <h2 className="text-xl text-white">{isEditing ? t('HeaderUpdateLibrary') : t('HeaderNewLibrary')}</h2>
     </div>
   )
 
