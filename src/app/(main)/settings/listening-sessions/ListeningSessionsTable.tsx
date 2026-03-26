@@ -11,10 +11,9 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime, secondsToTimestamp } from '@/lib/datefns'
-import { elapsedPretty } from '@/lib/timeUtils'
+import { formatDuration } from '@/lib/formatDuration'
 import { GetListeningSessionsResponse, GetOpenListeningSessionsResponse, PlaybackSession, PlayMethod, User } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
-import { useLocale } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { batchDeleteListeningSessions, getListeningSessionsData, getOpenListeningSessionsData } from './actions'
 import ListeningSessionModal from './ListeningSessionModal'
@@ -31,7 +30,6 @@ type SortColumn = 'displayTitle' | 'playMethod' | 'timeListening' | 'currentTime
 
 export default function ListeningSessionsTable({ users, sessionsResponse, openSessionsResponse }: ListeningSessionsTableProps) {
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
   const { serverSettings } = useUser()
   const { showToast } = useGlobalToast()
 
@@ -262,7 +260,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         label: t('LabelTimeListened'),
         sortKey: 'timeListening',
         sortable: true,
-        accessor: (session) => <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>,
+        accessor: (session) => <p className="text-xs font-mono">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
         headerClassName: 'w-24 min-w-24 sm:w-32 sm:min-w-32 text-center',
         cellClassName: 'text-center w-24 min-w-24 sm:w-32 sm:min-w-32 px-2 py-1'
       },
@@ -298,7 +296,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         cellClassName: 'text-center hidden sm:table-cell px-2 py-1'
       }
     ],
-    [t, filteredUserUsername, locale, dateFormat, timeFormat]
+    [t, filteredUserUsername, dateFormat, timeFormat]
   )
 
   const pageLabel = t('LabelPaginationPageXOfY', { 0: currentPage + 1, 1: Math.max(numPages, 1) })
@@ -438,7 +436,6 @@ function SessionListTable({
   isShareSessions?: boolean
 }) {
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
   const { serverSettings } = useUser()
 
   const dateFormat = serverSettings.dateFormat
@@ -481,7 +478,7 @@ function SessionListTable({
         ? [
             {
               label: t('LabelTimeListened'),
-              accessor: (session: PlaybackSession) => <p className="text-xs font-mono">{elapsedPretty(session.timeListening, locale)}</p>,
+              accessor: (session: PlaybackSession) => <p className="text-xs font-mono">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
               headerClassName: 'w-32 min-w-32 text-center px-2',
               cellClassName: 'text-center w-32 min-w-32 px-2 py-1'
             }
@@ -515,7 +512,7 @@ function SessionListTable({
         cellClassName: 'text-left hidden sm:table-cell w-32 min-w-32 px-2 py-1'
       }
     ],
-    [t, filteredUserUsername, isShareSessions, locale, dateFormat, timeFormat, onPromptResumePlayback]
+    [t, filteredUserUsername, isShareSessions, dateFormat, timeFormat, onPromptResumePlayback]
   )
 
   return (

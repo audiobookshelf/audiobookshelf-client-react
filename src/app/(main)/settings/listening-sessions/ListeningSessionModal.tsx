@@ -7,9 +7,8 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime, secondsToTimestamp } from '@/lib/datefns'
-import { elapsedPretty } from '@/lib/timeUtils'
+import { formatDuration } from '@/lib/formatDuration'
 import { PlaybackSession, PlayMethod } from '@/types/api'
-import { useLocale } from 'next-intl'
 import { useMemo, useState } from 'react'
 import { closeListeningSession, deleteListeningSession } from './actions'
 
@@ -23,7 +22,6 @@ interface ListeningSessionModalProps {
 
 export default function ListeningSessionModal({ isOpen, session, onClose, onRemovedSession, onClosedSession }: ListeningSessionModalProps) {
   const t = useTypeSafeTranslations()
-  const locale = useLocale()
   const { serverSettings } = useUser()
   const { showToast } = useGlobalToast()
   const [isProcessing, setIsProcessing] = useState(false)
@@ -130,7 +128,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onRemo
 
                 <DetailsRow label={t('LabelStartedAt')} value={formatJsDatetime(new Date(currentSession.startedAt), dateFormat, timeFormat)} />
                 <DetailsRow label={t('LabelUpdatedAt')} value={formatJsDatetime(new Date(currentSession.updatedAt), dateFormat, timeFormat)} />
-                <DetailsRow label={t('LabelTimeListened')} value={elapsedPretty(currentSession.timeListening, locale, true)} />
+                <DetailsRow label={t('LabelTimeListened')} value={formatDuration(currentSession.timeListening, t, { showSeconds: true })} />
                 <DetailsRow label={t('LabelStartTime')} value={secondsToTimestamp(currentSession.startTime)} />
                 <DetailsRow label={t('LabelLastTime')} value={secondsToTimestamp(currentSession.currentTime)} />
 
@@ -139,7 +137,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onRemo
                 <DetailsRow label={`${t('LabelLibraryItem')} Id`} value={currentSession.libraryItemId} valueClassName="text-xs" />
                 {currentSession.episodeId && <DetailsRow label={`${t('LabelEpisode')} Id`} value={currentSession.episodeId} valueClassName="text-xs" />}
                 <DetailsRow label={t('LabelMediaType')} value={currentSession.mediaType} />
-                <DetailsRow label={t('LabelDuration')} value={elapsedPretty(currentSession.duration, locale)} />
+                <DetailsRow label={t('LabelDuration')} value={formatDuration(currentSession.duration, t, { showSeconds: true })} />
               </div>
 
               <div className="w-full md:w-1/3">
