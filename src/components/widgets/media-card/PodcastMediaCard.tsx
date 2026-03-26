@@ -33,7 +33,7 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
         return (
           <div
             cy-id="podcastEpisodeNumber"
-            className="absolute rounded-lg bg-black/90 shadow-modal-content z-10 top-[0.375em] end-[0.375em]"
+            className="absolute rounded-lg bg-black/90 text-white shadow-modal-content z-10 top-[0.375em] end-[0.375em]"
             style={{ padding: '0.1em 0.25em' }}
           >
             <p style={{ fontSize: '0.8em' }}>
@@ -64,7 +64,7 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
         return (
           <div
             cy-id="numEpisodes"
-            className="absolute rounded-full bg-black/90 shadow-modal-content z-10 flex items-center justify-center top-[0.375em] end-[0.375em]"
+            className="absolute rounded-full bg-black/90 text-white shadow-modal-content z-10 flex items-center justify-center top-[0.375em] end-[0.375em]"
             style={{ width: '1.25em', height: '1.25em' }}
           >
             <p style={{ fontSize: '0.8em' }} role="status" aria-label="Number of episodes">
