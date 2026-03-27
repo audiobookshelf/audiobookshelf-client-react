@@ -57,7 +57,10 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => {
       const removed = prev.find((t) => t.id === id)
-      removed?.onDismiss?.()
+      if (removed?.onDismiss) {
+        // Defer so consumers are not setState'd during ToastProvider's setState (React warning)
+        queueMicrotask(removed.onDismiss)
+      }
       return prev.filter((toast) => toast.id !== id)
     })
   }, [])

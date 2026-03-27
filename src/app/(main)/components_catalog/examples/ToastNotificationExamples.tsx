@@ -1,12 +1,14 @@
 'use client'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 // ToastNotification Examples
 
 export function ToastNotificationExamples() {
-  const { showToast } = useGlobalToast()
+  const { showToast, removeToast } = useGlobalToast()
+  const [togglePersistentId, setTogglePersistentId] = useState<string | null>(null)
 
   return (
     <ComponentExamples title="Toasts">
@@ -55,6 +57,26 @@ export function ToastNotificationExamples() {
 
         <Example title="No Auto-Dismiss Toast">
           <Btn onClick={() => showToast('This toast will not auto-dismiss.', { type: 'warning', title: 'Persistent', duration: 0 })}>Show Persistent</Btn>
+        </Example>
+
+        <Example title="Toggle Persistent Toast">
+          <Btn
+            onClick={() => {
+              if (togglePersistentId) {
+                removeToast(togglePersistentId)
+              } else {
+                const id = showToast('Stays until you close it or click the button again.', {
+                  type: 'info',
+                  title: 'Persistent',
+                  duration: 0,
+                  onDismiss: () => setTogglePersistentId(null)
+                })
+                setTogglePersistentId(id)
+              }
+            }}
+          >
+            {togglePersistentId ? 'Dismiss Toast' : 'Show Toast'}
+          </Btn>
         </Example>
 
         <Example title="Toast with Title Only">
