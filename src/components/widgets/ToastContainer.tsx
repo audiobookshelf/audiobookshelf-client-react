@@ -10,6 +10,8 @@ export interface ToastMessage {
   title?: string
   message: string
   duration?: number
+  /** Called when the toast is removed (auto-dismiss, close button, or programmatic remove) */
+  onDismiss?: () => void
 }
 
 interface ToastContainerProps {

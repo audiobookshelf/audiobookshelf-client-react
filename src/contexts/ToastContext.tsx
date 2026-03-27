@@ -11,8 +11,9 @@ interface ToastContextType {
       type?: 'success' | 'error' | 'warning' | 'info'
       title?: string
       duration?: number
+      onDismiss?: () => void
     }
-  ) => void
+  ) => string
   removeToast: (id: string) => void
 }
 
@@ -34,6 +35,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         type?: 'success' | 'error' | 'warning' | 'info'
         title?: string
         duration?: number
+        onDismiss?: () => void
       }
     ) => {
       const id = `toast-${++toastIdCounter}`
@@ -42,16 +44,22 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
         message,
         type: options?.type || 'info',
         title: options?.title,
-        duration: options?.duration ?? 5000
+        duration: options?.duration ?? 5000,
+        onDismiss: options?.onDismiss
       }
 
       setToasts((prev) => [...prev, newToast])
+      return id
     },
     []
   )
 
   const removeToast = useCallback((id: string) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id))
+    setToasts((prev) => {
+      const removed = prev.find((t) => t.id === id)
+      removed?.onDismiss?.()
+      return prev.filter((toast) => toast.id !== id)
+    })
   }, [])
 
   const value: ToastContextType = {

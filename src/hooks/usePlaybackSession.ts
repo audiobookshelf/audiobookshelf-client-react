@@ -1,4 +1,6 @@
 import { closePlaybackSession, startPlaybackSession, syncPlaybackSession } from '@/app/actions/playbackActions'
+import { useGlobalToast } from '@/contexts/ToastContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { generateUUID } from '@/lib/cryptoUtils'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { FIRST_SYNC_DELAY, SUBSEQUENT_SYNC_INTERVAL } from '@/lib/player/constants'
@@ -48,14 +50,24 @@ interface UsePlaybackSessionReturn {
  */
 export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): UsePlaybackSessionReturn {
   const { onSessionReady, onError } = options
+  const { showToast, removeToast } = useGlobalToast()
+  const t = useTypeSafeTranslations()
 
   // Session state (using refs to avoid re-renders on internal state changes)
   const sessionRef = useRef<PlaybackSession | null>(null)
   const lastSyncTimeRef = useRef(0)
   const listeningTimeSinceSync = useRef(0)
   const failedSyncsRef = useRef(0)
+  const syncFailureToastIdRef = useRef<string | null>(null)
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const lastTickRef = useRef(Date.now())
+
+  const dismissSyncFailureToast = useCallback(() => {
+    if (syncFailureToastIdRef.current) {
+      removeToast(syncFailureToastIdRef.current)
+      syncFailureToastIdRef.current = null
+    }
+  }, [removeToast])
 
   const getSessionId = useCallback(() => {
     return sessionRef.current?.id ?? null
@@ -88,6 +100,7 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
         lastSyncTimeRef.current = 0
         listeningTimeSinceSync.current = 0
         failedSyncsRef.current = 0
+        dismissSyncFailureToast()
 
         // Determine if this is an HLS transcode or direct play
         const isHlsTranscode = session.playMethod !== PlayMethod.DIRECT_PLAY
@@ -115,7 +128,7 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
         return null
       }
     },
-    [onSessionReady, onError]
+    [dismissSyncFailureToast, onSessionReady, onError]
   )
 
   /**
@@ -139,19 +152,25 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
           currentTime,
           timeListened
         })
+
         failedSyncsRef.current = 0
+        dismissSyncFailureToast()
       } catch (error) {
         console.error('[usePlaybackSession] Sync failed:', error)
         failedSyncsRef.current++
 
-        // After 4 failed syncs, notify the user
-        if (failedSyncsRef.current >= 4) {
-          onError?.(new Error('Failed to sync playback progress'))
-          failedSyncsRef.current = 0
+        if (failedSyncsRef.current >= 4 && !syncFailureToastIdRef.current) {
+          syncFailureToastIdRef.current = showToast(t('ToastProgressIsNotBeingSynced'), {
+            type: 'warning',
+            duration: 0,
+            onDismiss: () => {
+              syncFailureToastIdRef.current = null
+            }
+          })
         }
       }
     },
-    [onError]
+    [dismissSyncFailureToast, showToast, t]
   )
 
   /**
@@ -228,9 +247,10 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
         sessionRef.current = null
         lastSyncTimeRef.current = 0
         listeningTimeSinceSync.current = 0
+        dismissSyncFailureToast()
       }
     },
-    [stopSyncInterval]
+    [dismissSyncFailureToast, stopSyncInterval]
   )
 
   return {
