@@ -168,7 +168,9 @@ export default function DataTable<T>({
 }: DataTableProps<T>) {
   const id = useId()
   const containerRef = useRef<HTMLDivElement>(null)
+  const headerRowRef = useRef<HTMLTableRowElement>(null)
   const [tableWidth, setTableWidth] = useState<number | null>(null)
+  const [headerHeight, setHeaderHeight] = useState(44)
 
   useEffect(() => {
     if (!containerRef.current) return
@@ -243,6 +245,28 @@ export default function DataTable<T>({
   const isAllRowsSelected = data.length > 0 && numSelectedRows === data.length
   const isPartiallySelected = numSelectedRows > 0 && !isAllRowsSelected
   const showBulkHeader = !!selection && !!bulkActions && numSelectedRows > 0
+
+  useEffect(() => {
+    if (!headerRowRef.current) return
+
+    const updateHeaderHeight = () => {
+      if (headerRowRef.current) {
+        setHeaderHeight(headerRowRef.current.getBoundingClientRect().height)
+      }
+    }
+
+    updateHeaderHeight()
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateHeaderHeight()
+    })
+
+    resizeObserver.observe(headerRowRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [visibleColumns.length, showBulkHeader])
 
   const renderCellContent = (row: T, column: DataTableColumn<T>, index: number): ReactNode => {
     if (!column.accessor) {
@@ -366,46 +390,47 @@ export default function DataTable<T>({
 
   return (
     <div ref={containerRef} className={mergeClasses('w-full', className)}>
-      <div className="overflow-x-auto rounded-md border border-border">
+      <div className="overflow-x-auto rounded-md border border-border relative">
         <table className={mergeClasses('text-sm w-full border-collapse', tableClassName)}>
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead className="bg-table-header-bg">
-            {showBulkHeader ? (
-              <tr className="border-b border-border">
-                {renderSelectionHeaderCell()}
-                {visibleColumns.map((column, index) => {
-                  const isFirst = index === 0
-                  const isLast = index === visibleColumns.length - 1
-
-                  return (
-                    <th
-                      key={`${id}-bulk-header-${index}`}
-                      className={mergeClasses(
-                        'text-start py-2 px-2 text-xs font-semibold text-foreground-muted align-middle',
-                        column.headerClassName,
-                        getResponsiveHiddenClass(column.hiddenBelow),
-                        isLast ? bulkActions?.className : ''
-                      )}
-                      scope="col"
-                    >
-                      {isFirst ? (
-                        <span className="text-sm text-foreground">{bulkSelectedLabel}</span>
-                      ) : isLast ? (
-                        <div className="flex justify-end">{bulkActions?.actions}</div>
-                      ) : null}
-                    </th>
-                  )
-                })}
-              </tr>
-            ) : (
-              <tr className="border-b border-border">
-                {renderSelectionHeaderCell()}
-                {visibleColumns.map((column, index) => renderHeaderCell(column, index))}
-              </tr>
-            )}
+            <tr ref={headerRowRef} className="border-b border-border">
+              {renderSelectionHeaderCell()}
+              {visibleColumns.map((column, index) => renderHeaderCell(column, index))}
+            </tr>
           </thead>
           <tbody>{data.map((row, index) => (renderRow ? renderRow(row, index) : renderDefaultRow(row, index)))}</tbody>
         </table>
+        {showBulkHeader && (
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 border-b border-border bg-table-header-bg" style={{ height: `${headerHeight}px` }}>
+            <div className={mergeClasses('flex h-full items-center', bulkActions?.className)}>
+              {selection && (
+                <div
+                  className={mergeClasses(
+                    'pointer-events-auto h-full w-12 min-w-12 px-0 text-center align-middle',
+                    getResponsiveHiddenClass(selection.hideCheckboxBelow),
+                    selection.checkboxColumnClassName
+                  )}
+                >
+                  <div className="flex h-full items-center justify-center">
+                    <Checkbox
+                      value={isAllRowsSelected}
+                      partial={isPartiallySelected}
+                      size="small"
+                      checkboxBgClass="bg-bg"
+                      ariaLabel={'Select all rows'}
+                      onChange={(selected) => selection.onToggleAllRows(selected, data)}
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="pointer-events-auto flex min-w-0 flex-1 items-center justify-between gap-2 px-2">
+                <span className="text-sm text-foreground whitespace-nowrap">{bulkSelectedLabel}</span>
+                <div className="shrink-0">{bulkActions?.actions}</div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       {pagination && <DataTablePagination {...pagination} />}
     </div>
