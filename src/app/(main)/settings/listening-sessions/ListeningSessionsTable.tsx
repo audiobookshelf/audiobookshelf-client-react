@@ -231,22 +231,22 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
           </div>
         ),
-        headerClassName: 'min-w-32 text-start px-2',
-        cellClassName: 'px-2 grow py-1'
+        headerClassName: 'w-32  text-start px-2',
+        cellClassName: 'px-2 grow py-1 '
       },
       {
         label: t('LabelUser'),
-        accessor: (session) => <p className="text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
-        headerClassName: 'w-16 text-left hidden md:table-cell',
-        cellClassName: 'hidden md:table-cell py-1'
+        accessor: (session) => <p className="text-xs truncate">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
+        headerClassName: 'w-16  text-left hidden md:table-cell',
+        cellClassName: 'hidden md:table-cell py-1 w-16  '
       },
       {
         label: t('LabelPlayMethod'),
         sortKey: 'playMethod',
         sortable: true,
         accessor: (session) => <p className="text-xs">{getPlayMethodName(session.playMethod, t)}</p>,
-        headerClassName: 'w-26 text-left hidden md:table-cell',
-        cellClassName: 'hidden md:table-cell py-1'
+        headerClassName: 'w-26  text-left hidden md:table-cell',
+        cellClassName: 'hidden md:table-cell py-1 w-26  '
       },
       {
         label: t('LabelDeviceInfo'),
@@ -254,15 +254,15 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
           <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
         ),
         headerClassName: 'w-32 text-left hidden sm:table-cell',
-        cellClassName: 'hidden sm:table-cell py-1'
+        cellClassName: 'hidden sm:table-cell py-1 w-32  '
       },
       {
         label: t('LabelTimeListened'),
         sortKey: 'timeListening',
         sortable: true,
         accessor: (session) => <p className="text-xs font-mono">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
-        headerClassName: 'w-20 text-center',
-        cellClassName: 'text-center  py-1'
+        headerClassName: 'w-20  text-center',
+        cellClassName: 'text-center w-20  py-1 '
       },
       {
         label: t('LabelLastTime'),
@@ -280,8 +280,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             {secondsToTimestamp(session.currentTime)}
           </button>
         ),
-        headerClassName: 'w-20 text-center',
-        cellClassName: 'text-center py-1'
+        headerClassName: 'w-20  text-center',
+        cellClassName: 'text-center w-20  py-1 '
       },
       {
         label: t('LabelLastUpdate'),
@@ -292,8 +292,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
           </Tooltip>
         ),
-        headerClassName: 'w-24 hidden sm:table-cell text-left',
-        cellClassName: 'text-left hidden sm:table-cell py-1'
+        headerClassName: 'w-24  hidden sm:table-cell text-left',
+        cellClassName: 'text-left hidden sm:table-cell w-24  py-1 '
       }
     ],
     [t, filteredUserUsername, dateFormat, timeFormat]
@@ -316,7 +316,6 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             tableClassName="table-fixed"
             selection={{
               selectedRowKeys: selectedSessionIds,
-              hideCheckboxBelow: 'md',
               onToggleAllRows: handleSetSelectionForAll,
               onToggleRow: (session, _index, selected) => handleToggleSessionSelection(session.id, selected)
             }}
@@ -451,36 +450,36 @@ function SessionListTable({
             <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
           </div>
         ),
-        headerClassName: 'min-w-32 text-left px-2',
-        cellClassName: 'py-1'
+        headerClassName: 'w-32  text-left px-2',
+        cellClassName: 'py-1 '
       },
       {
         label: t('LabelUser'),
         accessor: (session) => <p className="text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
-        headerClassName: 'w-20 text-left hidden md:table-cell px-2',
-        cellClassName: 'hidden md:table-cell py-1'
+        headerClassName: 'w-20  text-left hidden md:table-cell px-2',
+        cellClassName: 'hidden md:table-cell py-1 w-20  '
       },
       {
         label: t('LabelPlayMethod'),
         accessor: (session) => <p className="text-xs">{getPlayMethodName(session.playMethod, t)}</p>,
-        headerClassName: 'w-20 text-left hidden md:table-cell px-2',
-        cellClassName: 'hidden md:table-cell py-1'
+        headerClassName: 'w-20  text-left hidden md:table-cell px-2',
+        cellClassName: 'hidden md:table-cell py-1 w-20  '
       },
       {
         label: t('LabelDeviceInfo'),
         accessor: (session) => (
           <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
         ),
-        headerClassName: 'w-32 text-left hidden sm:table-cell px-2',
-        cellClassName: 'hidden sm:table-cell max-w-48 min-w-40 py-1'
+        headerClassName: 'w-32  text-left hidden sm:table-cell px-2',
+        cellClassName: 'hidden sm:table-cell w-32  py-1 '
       },
       ...(!isShareSessions
         ? [
             {
               label: t('LabelTimeListened'),
               accessor: (session: PlaybackSession) => <p className="text-xs font-mono">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
-              headerClassName: 'w-20 text-center px-2',
-              cellClassName: 'text-center w-20 py-1'
+              headerClassName: 'w-20  text-center px-2',
+              cellClassName: 'text-center w-20  py-1 '
             }
           ]
         : []),
@@ -498,8 +497,8 @@ function SessionListTable({
             {secondsToTimestamp(session.currentTime)}
           </button>
         ),
-        headerClassName: 'w-16 text-center px-2',
-        cellClassName: 'text-center w-16 py-1'
+        headerClassName: 'w-16  text-center px-2',
+        cellClassName: 'text-center w-16  py-1 '
       },
       {
         label: t('LabelLastUpdate'),
@@ -508,8 +507,8 @@ function SessionListTable({
             <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
           </Tooltip>
         ),
-        headerClassName: 'w-24 hidden sm:table-cell text-left px-2',
-        cellClassName: 'text-left hidden sm:table-cell w-24 py-1'
+        headerClassName: 'w-24  hidden sm:table-cell text-left px-2',
+        cellClassName: 'text-left hidden sm:table-cell w-24  py-1 '
       }
     ],
     [t, filteredUserUsername, isShareSessions, dateFormat, timeFormat, onPromptResumePlayback]
