@@ -16,6 +16,7 @@ import { GetListeningSessionsResponse, GetOpenListeningSessionsResponse, Playbac
 import { formatDistanceToNow } from 'date-fns'
 import { useMemo, useState } from 'react'
 import { batchDeleteListeningSessions, getListeningSessionsData, getOpenListeningSessionsData } from './actions'
+import DeviceInfoCell from './DeviceInfoCell'
 import ListeningSessionModal from './ListeningSessionModal'
 
 interface ListeningSessionsTableProps {
@@ -250,9 +251,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
       },
       {
         label: t('LabelDeviceInfo'),
-        accessor: (session) => (
-          <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
-        ),
+        accessor: (session) => <DeviceInfoCell session={session} />,
         headerClassName: 'w-32 text-left hidden sm:table-cell',
         cellClassName: 'hidden sm:table-cell py-1 w-32'
       },
@@ -467,9 +466,7 @@ function SessionListTable({
       },
       {
         label: t('LabelDeviceInfo'),
-        accessor: (session) => (
-          <p className="text-xs truncate">{getDeviceInfoLines(session).map((line, lineIndex) => (lineIndex === 0 ? line : ` | ${line}`))}</p>
-        ),
+        accessor: (session) => <DeviceInfoCell session={session} />,
         headerClassName: 'w-32 text-left hidden sm:table-cell px-2',
         cellClassName: 'hidden sm:table-cell w-32 py-1'
       },
@@ -531,19 +528,6 @@ function getPlayMethodName(playMethod: PlayMethod, t: ReturnType<typeof useTypeS
   if (playMethod === PlayMethod.DIRECT_STREAM) return 'Direct Stream'
   if (playMethod === PlayMethod.LOCAL) return 'Local'
   return t('LabelUnknown')
-}
-
-function getDeviceInfoLines(session: PlaybackSession): string[] {
-  if (!session.deviceInfo) return []
-
-  const lines: string[] = []
-  if (session.deviceInfo.clientName) lines.push(`${session.deviceInfo.clientName} ${session.deviceInfo.clientVersion || ''}`.trim())
-  if (session.deviceInfo.osName) lines.push(`${session.deviceInfo.osName} ${session.deviceInfo.osVersion || ''}`.trim())
-  if (session.deviceInfo.browserName) lines.push(session.deviceInfo.browserName)
-  if (session.deviceInfo.manufacturer && session.deviceInfo.model) lines.push(`${session.deviceInfo.manufacturer} ${session.deviceInfo.model}`)
-  if (session.deviceInfo.sdkVersion) lines.push(`SDK Version: ${session.deviceInfo.sdkVersion}`)
-
-  return lines
 }
 
 function getRelativeTime(timestamp: number): string {
