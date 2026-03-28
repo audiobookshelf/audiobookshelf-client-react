@@ -402,12 +402,12 @@ export default function DataTable<T>({
           <tbody>{data.map((row, index) => (renderRow ? renderRow(row, index) : renderDefaultRow(row, index)))}</tbody>
         </table>
         {showBulkHeader && (
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-20 border-b border-border bg-table-header-bg" style={{ height: `${headerHeight}px` }}>
+          <div className="absolute inset-x-0 top-0 z-20 border-b border-border bg-table-header-bg" style={{ height: `${headerHeight}px` }}>
             <div className={mergeClasses('flex h-full items-center', bulkActions?.className)}>
               {selection && (
                 <div
                   className={mergeClasses(
-                    'pointer-events-auto h-full w-12 min-w-12 px-0 text-center align-middle',
+                    'h-full w-12 min-w-12 px-0 text-center align-middle',
                     getResponsiveHiddenClass(selection.hideCheckboxBelow),
                     selection.checkboxColumnClassName
                   )}
@@ -424,7 +424,7 @@ export default function DataTable<T>({
                   </div>
                 </div>
               )}
-              <div className="pointer-events-auto flex min-w-0 flex-1 items-center justify-between gap-2 px-2">
+              <div className="flex min-h-0 min-w-0 flex-1 items-center justify-between gap-2 px-2">
                 <span className="text-sm text-foreground whitespace-nowrap">{bulkSelectedLabel}</span>
                 <div className="shrink-0">{bulkActions?.actions}</div>
               </div>
