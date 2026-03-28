@@ -794,7 +794,6 @@
   "MessageConfirmRemoveEpisode": "Czy na pewno chcesz usunąć odcinek \"{0}\"?",
   "MessageConfirmRemoveEpisodeNote": "Uwaga: Plik audio nie zostanie usunięty, chyba że przełączysz opcję „Twarde usunięcie pliku”",
   "MessageConfirmRemoveEpisodes": "Czy na pewno chcesz usunąć {0} odcinki?",
-  "MessageConfirmRemoveListeningSessions": "Czy na pewno chcesz usunąć {0} sesji słuchania?",
   "MessageConfirmRemoveMetadataFiles": "Czy na pewno chcesz usunąć wszystkie metadane.{0} plików w folderach elementów biblioteki?",
   "MessageConfirmRemoveNarrator": "Czy na pewno chcesz usunąć lektora \"{0}\"?",
   "MessageConfirmRemovePlaylist": "Czy jesteś pewien, że chcesz usunąć twoją playlistę \"{0}\"?",

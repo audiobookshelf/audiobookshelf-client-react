@@ -24,8 +24,10 @@ import {
   GetFilesystemPathsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
+  GetListeningSessionsResponse,
   GetLoggerDataResponse,
   GetNarratorsResponse,
+  GetOpenListeningSessionsResponse,
   GetPlaylistsResponse,
   GetRssFeedsResponse,
   GetSeriesResponse,
@@ -605,6 +607,33 @@ export async function closeMediaItemShare(shareId: string): Promise<void> {
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
   return apiRequest<GetBackupsResponse>('/api/backups', {})
 })
+
+export const getListeningSessions = cache(async (queryParams?: string): Promise<GetListeningSessionsResponse> => {
+  return apiRequest<GetListeningSessionsResponse>(`/api/sessions${queryParams ? `?${queryParams}` : ''}`, {})
+})
+
+export const getOpenListeningSessions = cache(async (): Promise<GetOpenListeningSessionsResponse> => {
+  return apiRequest<GetOpenListeningSessionsResponse>('/api/sessions/open', {})
+})
+
+export async function deleteListeningSession(sessionId: string): Promise<void> {
+  return apiRequest<void>(`/api/sessions/${sessionId}`, {
+    method: 'DELETE'
+  })
+}
+
+export async function closeListeningSession(sessionId: string): Promise<void> {
+  return apiRequest<void>(`/api/session/${sessionId}/close`, {
+    method: 'POST'
+  })
+}
+
+export async function batchDeleteListeningSessions(sessionIds: string[]): Promise<void> {
+  return apiRequest<void>('/api/sessions/batch/delete', {
+    method: 'POST',
+    body: JSON.stringify({ sessions: sessionIds })
+  })
+}
 
 export const getLoggerData = cache(async (): Promise<GetLoggerDataResponse> => {
   return apiRequest<GetLoggerDataResponse>('/api/logger-data', {})

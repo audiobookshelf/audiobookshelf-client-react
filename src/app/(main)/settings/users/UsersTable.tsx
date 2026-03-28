@@ -1,7 +1,7 @@
 'use client'
 
-import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
+import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import OnlineIndicator from '@/components/widgets/OnlineIndicator'
@@ -146,7 +146,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
 
   return (
     <>
-      <DataTable
+      <SimpleDataTable
         data={users}
         columns={columns}
         getRowKey={(user) => user.id}

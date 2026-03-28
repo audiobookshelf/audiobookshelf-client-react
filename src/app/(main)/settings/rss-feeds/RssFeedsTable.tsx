@@ -2,8 +2,8 @@
 
 import { closeRssFeed } from '@/app/actions/rssFeedActions'
 import RssFeedOpenCloseModal, { RssFeedEntity } from '@/components/modals/RssFeedOpenCloseModal'
-import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
+import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -201,7 +201,7 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
 
   return (
     <>
-      <DataTable data={rssFeeds} columns={columns} getRowKey={(rssFeed) => rssFeed.id} onRowClick={handleRowClick} />
+      <SimpleDataTable data={rssFeeds} columns={columns} getRowKey={(rssFeed) => rssFeed.id} onRowClick={handleRowClick} />
       <RssFeedOpenCloseModal isOpen={isModalOpen} onClose={handleCloseModal} entity={selectedEntity} viewMode />
       <ConfirmDialog
         isOpen={showConfirmDialog}

@@ -1,8 +1,8 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
+import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
@@ -242,5 +242,5 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
     [t, onRestore, onDownload, onDelete, dateFormat, timeFormat]
   )
 
-  return <DataTable data={backups} columns={columns} getRowKey={(backup) => backup.id} caption={t('HeaderBackups')} />
+  return <SimpleDataTable data={backups} columns={columns} getRowKey={(backup) => backup.id} caption={t('HeaderBackups')} />
 }

@@ -4,7 +4,7 @@ import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
-import DataTable from '@/components/ui/DataTable'
+import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
@@ -205,7 +205,7 @@ export default function LibraryFilesTable({ libraryItem, keepOpen = false, inMod
         keepOpen={keepOpen}
         headerActions={headerActions}
       >
-        <DataTable data={filesWithAudioFile} columns={columns} getRowKey={(row) => row.ino} />
+        <SimpleDataTable data={filesWithAudioFile} columns={columns} getRowKey={(row) => row.ino} />
       </CollapsibleSection>
 
       {/* Single confirmation dialog for the table */}
