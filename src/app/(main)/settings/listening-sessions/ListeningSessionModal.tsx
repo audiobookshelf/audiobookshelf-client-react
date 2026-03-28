@@ -16,11 +16,11 @@ interface ListeningSessionModalProps {
   isOpen: boolean
   session: PlaybackSession | null
   onClose: () => void
-  onRemovedSession: () => void
+  onSessionDeleted: () => void
   onClosedSession: () => void
 }
 
-export default function ListeningSessionModal({ isOpen, session, onClose, onRemovedSession, onClosedSession }: ListeningSessionModalProps) {
+export default function ListeningSessionModal({ isOpen, session, onClose, onSessionDeleted, onClosedSession }: ListeningSessionModalProps) {
   const t = useTypeSafeTranslations()
   const { serverSettings } = useUser()
   const { showToast } = useGlobalToast()
@@ -74,7 +74,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onRemo
       await deleteListeningSession(currentSession.id)
       showToast(t('ToastSessionDeleteSuccess'), { type: 'success' })
       onClose()
-      onRemovedSession()
+      onSessionDeleted()
     } catch (error) {
       console.error('Failed to delete session', error)
       showToast(t('ToastSessionDeleteFailed'), { type: 'error' })

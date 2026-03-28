@@ -41,7 +41,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const [showSessionModal, setShowSessionModal] = useState(false)
   const [selectedSession, setSelectedSession] = useState<PlaybackSession | null>(null)
 
-  const [showRemoveConfirmDialog, setShowRemoveConfirmDialog] = useState(false)
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
   const [showResumePlaybackPrompt, setShowResumePlaybackPrompt] = useState(false)
   const [resumePlaybackSession, setResumePlaybackSession] = useState<PlaybackSession | null>(null)
   const [startingPlayback, setStartingPlayback] = useState(false)
@@ -160,10 +160,10 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
     await loadSessions(0, { itemsPerPage: nextItemsPerPage })
   }
 
-  const handleRemoveSelectedSessions = async () => {
+  const handleDeleteSelectedSessions = async () => {
     if (!numSelected) return
 
-    setShowRemoveConfirmDialog(false)
+    setShowDeleteConfirmDialog(false)
     setDeletingSessions(true)
 
     try {
@@ -182,8 +182,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
 
       await loadOpenSessions()
     } catch (error) {
-      console.error('Failed to remove listening sessions', error)
-      showToast(t('ToastRemoveFailed'), { type: 'error' })
+      console.error('Failed to delete listening sessions', error)
+      showToast(t('ToastDeleteFailed'), { type: 'error' })
     } finally {
       setDeletingSessions(false)
     }
@@ -194,7 +194,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
     setShowSessionModal(true)
   }
 
-  const handleSessionRemoved = async () => {
+  const handleSessionDeleted = async () => {
     if (currentPage === numPages - 1) {
       const newTotal = total - 1
       const newNumPages = Math.ceil(newTotal / itemsPerPage)
@@ -322,8 +322,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             bulkActions={{
               selectedLabel: t('MessageSelected', { 0: numSelected }),
               actions: (
-                <Btn className="h-7" size="small" color="bg-error" loading={deletingSessions} onClick={() => setShowRemoveConfirmDialog(true)}>
-                  {t('ButtonRemove')}
+                <Btn className="h-7" size="small" color="bg-error" loading={deletingSessions} onClick={() => setShowDeleteConfirmDialog(true)}>
+                  {t('ButtonDelete')}
                 </Btn>
               )
             }}
@@ -386,17 +386,17 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         isOpen={showSessionModal}
         session={selectedSession}
         onClose={() => setShowSessionModal(false)}
-        onRemovedSession={handleSessionRemoved}
+        onSessionDeleted={handleSessionDeleted}
         onClosedSession={handleSessionClosed}
       />
 
       <ConfirmDialog
-        isOpen={showRemoveConfirmDialog}
-        message={t('MessageConfirmRemoveListeningSessions', { 0: numSelected })}
-        yesButtonText={t('ButtonRemove')}
+        isOpen={showDeleteConfirmDialog}
+        message={t('MessageConfirmDeleteListeningSessions', { count: numSelected })}
+        yesButtonText={t('ButtonDelete')}
         yesButtonClassName="bg-error text-white"
-        onClose={() => setShowRemoveConfirmDialog(false)}
-        onConfirm={handleRemoveSelectedSessions}
+        onClose={() => setShowDeleteConfirmDialog(false)}
+        onConfirm={handleDeleteSelectedSessions}
       />
 
       <ConfirmDialog
