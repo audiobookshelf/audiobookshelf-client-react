@@ -6,6 +6,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
@@ -227,9 +228,9 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         sortKey: 'displayTitle',
         sortable: true,
         accessor: (session) => (
-          <div className="py-1">
-            <p className="text-xs text-foreground truncate">{session.displayTitle}</p>
-            <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
+          <div className="py-1 min-w-0">
+            <TruncatingTooltipText text={session.displayTitle} className="text-xs text-foreground" />
+            <TruncatingTooltipText text={session.displayAuthor} className="text-xs text-foreground-muted" />
           </div>
         ),
         headerClassName: 'w-32 text-start px-2',
@@ -444,9 +445,9 @@ function SessionListTable({
       {
         label: t('LabelItem'),
         accessor: (session) => (
-          <div className="py-1">
-            <p className="text-xs text-foreground truncate">{session.displayTitle}</p>
-            <p className="text-xs text-foreground-muted truncate">{session.displayAuthor}</p>
+          <div className="py-1 min-w-0">
+            <TruncatingTooltipText text={session.displayTitle} className="text-xs text-foreground" />
+            <TruncatingTooltipText text={session.displayAuthor} className="text-xs text-foreground-muted" />
           </div>
         ),
         headerClassName: 'w-32 text-left px-2',
