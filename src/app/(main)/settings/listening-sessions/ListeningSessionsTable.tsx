@@ -233,14 +233,14 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             <TruncatingTooltipText text={session.displayAuthor} className="text-xs text-foreground-muted" />
           </div>
         ),
-        headerClassName: 'w-32 text-start px-2',
-        cellClassName: 'px-2 grow py-1'
+        headerClassName: 'w-auto text-start px-2',
+        cellClassName: 'px-2 py-1'
       },
       {
         label: t('LabelUser'),
         accessor: (session) => <p className="text-xs truncate">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
         headerClassName: 'w-16 text-left hidden md:table-cell',
-        cellClassName: 'hidden md:table-cell py-1 w-16'
+        cellClassName: 'hidden md:table-cell py-1'
       },
       {
         label: t('LabelPlayMethod'),
@@ -248,13 +248,13 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         sortable: true,
         accessor: (session) => <p className="text-xs">{getPlayMethodName(session.playMethod, t)}</p>,
         headerClassName: 'w-26 text-left hidden md:table-cell',
-        cellClassName: 'hidden md:table-cell py-1 w-26'
+        cellClassName: 'hidden md:table-cell py-1'
       },
       {
         label: t('LabelDeviceInfo'),
         accessor: (session) => <DeviceInfoCell session={session} />,
-        headerClassName: 'w-32 text-left hidden sm:table-cell',
-        cellClassName: 'hidden sm:table-cell py-1 w-32'
+        headerClassName: 'w-auto text-left hidden sm:table-cell',
+        cellClassName: 'hidden sm:table-cell py-1'
       },
       {
         label: t('LabelTimeListened'),
@@ -262,7 +262,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         sortable: true,
         accessor: (session) => <p className="text-xs font-mono">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
         headerClassName: 'w-20 text-center',
-        cellClassName: 'text-center w-20 py-1'
+        cellClassName: 'text-center py-1'
       },
       {
         label: t('LabelLastTime'),
@@ -281,7 +281,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
           </button>
         ),
         headerClassName: 'w-20 text-center',
-        cellClassName: 'text-center w-20 py-1'
+        cellClassName: 'text-center py-1'
       },
       {
         label: t('LabelLastUpdate'),
@@ -293,7 +293,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
           </Tooltip>
         ),
         headerClassName: 'w-24 hidden sm:table-cell text-left',
-        cellClassName: 'text-left hidden sm:table-cell w-24 py-1'
+        cellClassName: 'text-left hidden sm:table-cell py-1'
       }
     ],
     [t, filteredUserUsername, dateFormat, timeFormat]
