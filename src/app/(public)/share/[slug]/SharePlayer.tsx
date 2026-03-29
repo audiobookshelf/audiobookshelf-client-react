@@ -99,7 +99,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
   const chapters = useMemo<Chapter[]>(() => playbackSession?.chapters ?? [], [playbackSession?.chapters])
   const isPlaying = playerState === PlayerState.PLAYING
   const hasLoaded = playerState !== PlayerState.IDLE && playerState !== PlayerState.LOADING
-  const coverAspectRatio = getCoverAspectRatio(playbackSession?.coverAspectRatio as 0 | 1 | undefined)
+  const coverAspectRatio = getCoverAspectRatio(playbackSession?.coverAspectRatio)
 
   const coverUrl = playbackSession?.coverPath ? `/public/share/${slug}/cover` : '/images/book_placeholder.jpg'
 

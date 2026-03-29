@@ -1322,6 +1322,8 @@ export interface PlaybackSession {
   audioTracks: AudioTrackData[]
   libraryItem: LibraryItem | null
   open?: boolean
+  /** Only for share sessions - it's the only way the share player can know the library cover aspect ratio */
+  coverAspectRatio?: 0 | 1
 }
 
 export interface GetListeningSessionsResponse {
