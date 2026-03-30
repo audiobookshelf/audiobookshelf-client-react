@@ -160,7 +160,7 @@ export default function MediaCardCover({
       )}
 
       {/* Progress bar */}
-      {!isPodcast && (
+      {!isPodcast && userProgressPercent > 0 && (
         <div
           cy-id="progressBar"
           className={mergeClasses(
