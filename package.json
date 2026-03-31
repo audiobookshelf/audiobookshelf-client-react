@@ -52,5 +52,20 @@
     "prettier-plugin-sort-json": "^4.1.1",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "10.33.0",
+      "onFail": "error"
+    }
+  },
+  "engines": {
+    "node": ">=22.15.0",
+    "pnpm": ">=10.33.0"
   }
 }
