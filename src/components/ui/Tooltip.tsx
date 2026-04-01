@@ -2,8 +2,7 @@
 
 import { useModalRef } from '@/contexts/ModalContext'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { Placement } from '@floating-ui/dom'
-import { arrow as arrowMw, autoUpdate, flip, offset, shift, size, useFloating } from '@floating-ui/react-dom'
+import { type Placement, arrow as arrowMw, autoUpdate, flip, offset, shift, size, useFloating } from '@floating-ui/react-dom'
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 

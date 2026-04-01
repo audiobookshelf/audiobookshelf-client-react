@@ -3,8 +3,7 @@
 import { useModalRef } from '@/contexts/ModalContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { Placement } from '@floating-ui/dom'
-import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
+import { type Placement, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
