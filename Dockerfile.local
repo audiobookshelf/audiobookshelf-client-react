@@ -1,3 +1,6 @@
+# Used by docker-compose.yml for local build with the server repo passed as an additional context
+# This Dockerfile is not used by the CI/CD pipeline
+
 ARG NUSQLITE3_DIR="/usr/local/lib/nusqlite3"
 ARG NUSQLITE3_PATH="${NUSQLITE3_DIR}/libnusqlite3.so"
 
@@ -8,11 +11,11 @@ RUN corepack enable pnpm
 
 WORKDIR /client-react
 
-COPY ./client-react/package.json ./client-react/pnpm-lock.yaml ./client-react/.npmrc ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 
 RUN pnpm install --frozen-lockfile
 
-COPY ./client-react .
+COPY . .
 
 RUN pnpm run build
 
@@ -34,8 +37,8 @@ RUN apk add --no-cache --update \
   unzip
 
 WORKDIR /server
-COPY index.js package* /server
-COPY /server /server/server
+COPY --from=abs-server index.js package* ./
+COPY --from=abs-server server ./server
 
 RUN case "$TARGETPLATFORM" in \
   "linux/amd64") \
@@ -55,7 +58,6 @@ FROM node:20-alpine
 ARG NUSQLITE3_DIR
 ARG NUSQLITE3_PATH
 
-# Install only runtime dependencies
 RUN apk add --no-cache --update \
   tzdata \
   ffmpeg \
@@ -63,13 +65,11 @@ RUN apk add --no-cache --update \
 
 WORKDIR /app
 
-# Copy compiled React frontend from build stage
 COPY --from=build-client /client-react/.next /app/client-react/.next
 COPY --from=build-client /client-react/public /app/client-react/public
 COPY --from=build-client /client-react/package.json /app/client-react/package.json
 COPY --from=build-client /client-react/node_modules /app/client-react/node_modules
 
-# Copy server from build stage
 COPY --from=build-server /server /app
 COPY --from=build-server /usr/local/lib/nusqlite3 /usr/local/lib/nusqlite3
 

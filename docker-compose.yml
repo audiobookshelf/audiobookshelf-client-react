@@ -1,0 +1,29 @@
+# Local Docker build for audiobookshelf with the React client.
+#
+# Setup:
+#   1. Update the abs-server path below to point to the audiobookshelf server repo
+#   2. Run: docker compose up --build
+#
+# Dockerfile.local uses "additional_contexts" so the client (this repo) and
+# the server repo are passed as separate build contexts
+
+services:
+  audiobookshelf:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+      additional_contexts:
+        # Path to the audiobookshelf server repo
+        abs-server: ../audiobookshelf
+    ports:
+      - '13378:80'
+    volumes:
+      - abs-config:/config
+      - abs-metadata:/metadata
+      # To test with local audiobooks, add a bind mount:
+      # - C:/path/to/audiobooks:/audiobooks
+    restart: unless-stopped
+
+volumes:
+  abs-config:
+  abs-metadata:
