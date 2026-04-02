@@ -22,12 +22,15 @@ interface UseCollectionCardActionsProps {
   collection: Collection
   rssFeed: RssFeed | null
   onOpenRssFeedModal?: () => void
+  /** Called after the collection is deleted successfully (e.g. navigate away from the detail page). */
+  onCollectionDeleted?: () => void
 }
 
 export function useCollectionCardActions({
   collection,
   rssFeed,
-  onOpenRssFeedModal
+  onOpenRssFeedModal,
+  onCollectionDeleted
 }: UseCollectionCardActionsProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userIsAdminOrUp } = useUser()
@@ -70,6 +73,7 @@ export function useCollectionCardActions({
                 setProcessing(true)
                 await deleteCollectionAction(collection.id)
                 showToast(t('ToastCollectionRemoveSuccess'), { type: 'success' })
+                onCollectionDeleted?.()
               } catch (error) {
                 console.error('Failed to delete collection', error)
                 showToast(t('ToastRemoveFailed'), { type: 'error' })
@@ -81,7 +85,7 @@ export function useCollectionCardActions({
         })
       }
     },
-    [collection.id, collection.name, onOpenRssFeedModal, router, showToast, t]
+    [collection.id, collection.name, onCollectionDeleted, onOpenRssFeedModal, router, showToast, t]
   )
 
   const moreMenuItems = useMemo<MediaCardMoreMenuItem[]>(() => {
