@@ -52,7 +52,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
 
   return (
     <div>
-      <div className="flex flex-col items-center gap-6 md:flex-row md:items-start">
+      <div className="flex flex-col items-center gap-6 md:flex-row md:items-start max-w-6xl mx-auto">
         <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} bookCoverAspectRatio={coverAspectRatio} />
         <div className="flex min-w-0 flex-1 flex-col gap-2 w-full">
           <div className="flex min-w-0 items-center gap-4">
