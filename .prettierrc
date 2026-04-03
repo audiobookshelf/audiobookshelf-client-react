@@ -4,6 +4,7 @@
   "printWidth": 160,
   "proseWrap": "never",
   "trailingComma": "none",
+  "plugins": ["prettier-plugin-tailwindcss"],
   "overrides": [
     {
       "files": ["*.html"],

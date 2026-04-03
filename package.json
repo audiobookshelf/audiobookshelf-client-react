@@ -51,6 +51,7 @@
     "eslint-config-next": "^15.5.4",
     "eslint-config-prettier": "^10.1.8",
     "prettier-plugin-sort-json": "^4.1.1",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4",
     "typescript": "^5"
   },

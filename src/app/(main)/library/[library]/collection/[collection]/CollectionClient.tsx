@@ -52,11 +52,11 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
 
   return (
     <div>
-      <div className="flex flex-col items-center gap-6 md:flex-row md:items-start max-w-6xl mx-auto">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 md:flex-row md:items-start">
         <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} bookCoverAspectRatio={coverAspectRatio} />
-        <div className="flex min-w-0 flex-1 flex-col gap-2 w-full">
+        <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex min-w-0 items-center gap-4">
-            <h1 className="min-w-0 flex-1 truncate text-2xl font-bold text-foreground">{collection.name}</h1>
+            <h1 className="text-foreground min-w-0 flex-1 truncate text-2xl font-bold">{collection.name}</h1>
             {showHeaderActions && (
               <div className="flex shrink-0 items-center gap-1">
                 {userCanUpdate && (
@@ -73,7 +73,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
                     items={moreMenuItems}
                     processing={processing}
                     onAction={handleMoreAction}
-                    className="mx-0.5 h-9 w-9 border border-border bg-primary"
+                    className="border-border bg-primary mx-0.5 h-9 w-9 border"
                   />
                 )}
               </div>
