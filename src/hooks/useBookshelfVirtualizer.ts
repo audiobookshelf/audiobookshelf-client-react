@@ -9,6 +9,45 @@ export interface UseBookshelfVirtualizerProps {
   padding?: number
 }
 
+/**
+ * Full layout record for {@link getVisibleBookshelfPageRange}. Shelf callers can use
+ * {@link useBookshelfVirtualizer}'s `getVisiblePageRange(itemsPerPage, totalEntities)` instead.
+ */
+export type VisibleBookshelfPageRangeInput = {
+  visibleShelfStart: number
+  visibleShelfEnd: number
+  columns: number
+  itemsPerPage: number
+  totalEntities: number
+}
+
+/**
+ * Inclusive API page indices `[startPage, endPage]` for the visible virtual shelf window.
+ * `itemsPerPage` is typically `columns * shelvesPerPage` from the same layout as the virtualizer.
+ */
+export function getVisibleBookshelfPageRange({
+  visibleShelfStart,
+  visibleShelfEnd,
+  columns,
+  itemsPerPage,
+  totalEntities
+}: VisibleBookshelfPageRangeInput): { startPage: number; endPage: number } {
+  const itemsPerShelf = columns
+  const startItem = visibleShelfStart * itemsPerShelf
+  const endItem = Math.min(totalEntities, visibleShelfEnd * itemsPerShelf)
+
+  let startPage = Math.floor(startItem / itemsPerPage)
+  let endPage = Math.floor(endItem / itemsPerPage)
+
+  // After refetch, totalEntities is 0 until the first page loads; stale visible indices can make startPage > endPage.
+  if (totalEntities === 0) {
+    startPage = 0
+    endPage = 0
+  }
+
+  return { startPage, endPage }
+}
+
 // Buffer of shelves to render above/below viewport
 const VISIBILITY_BUFFER = 2
 
@@ -71,6 +110,11 @@ export function useBookshelfVirtualizer({ totalEntities, itemWidth, itemHeight, 
       if (layout.shelfHeight === 0) {
         lastScrollTopRef.current = 0
       }
+      // While there are no shelves (e.g. bookshelf refetch reset total to 0), clear stale visible
+      // indices. Otherwise data-loading may compute startPage > endPage and never call loadPage(0).
+      if (layout.totalShelves === 0) {
+        setVisibleRange({ visibleShelfStart: 0, visibleShelfEnd: 0 })
+      }
       return
     }
 
@@ -100,9 +144,25 @@ export function useBookshelfVirtualizer({ totalEntities, itemWidth, itemHeight, 
     [layout.shelfHeight, calculateVisibleRange]
   )
 
+  const { visibleShelfStart, visibleShelfEnd } = visibleRange
+
+  /** Maps the current visible shelf window to API list page indices (see {@link getVisibleBookshelfPageRange}). */
+  const getVisiblePageRange = useCallback(
+    (itemsPerPage: number, totalEntities: number) =>
+      getVisibleBookshelfPageRange({
+        visibleShelfStart,
+        visibleShelfEnd,
+        columns: layout.columns,
+        itemsPerPage,
+        totalEntities
+      }),
+    [visibleShelfStart, visibleShelfEnd, layout.columns]
+  )
+
   return {
     ...layout,
     ...visibleRange,
-    handleScroll
+    handleScroll,
+    getVisiblePageRange
   }
 }

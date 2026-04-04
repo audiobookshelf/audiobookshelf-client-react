@@ -16,7 +16,11 @@ import { UpdateSettingFn } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, Library, LibraryItem, MediaProgress, Playlist, Series, User } from '@/types/api'
 import { TranslationKey } from '@/types/translations'
-import React, { ReactNode } from 'react'
+import React, { type MouseEvent, type ReactNode } from 'react'
+
+/** Selection is unused on the bookshelf; stable identity so memo(MediaCard) can skip unchanged cards. */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function bookshelfCardNoopSelect(_event: MouseEvent) {}
 
 export interface SkeletonComponentProps {
   bookshelfView: BookshelfView
@@ -118,7 +122,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
               mediaProgress={entityProgress}
               isSelectionMode={false}
               selected={false}
-              onSelect={() => {}}
+              onSelect={bookshelfCardNoopSelect}
               dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
               timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
               showSubtitles={showSubtitles ?? false}
@@ -137,7 +141,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             mediaProgress={entityProgress}
             isSelectionMode={false}
             selected={false}
-            onSelect={() => {}}
+            onSelect={bookshelfCardNoopSelect}
             dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
             timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
             userPermissions={user.permissions}
