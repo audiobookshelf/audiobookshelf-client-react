@@ -52,6 +52,25 @@ function getResultsFromResponse(entityType: EntityType, data: unknown): Bookshel
   }
 }
 
+function buildPageQueryParams(entityType: EntityType, query: string, page: number, limit: number): string {
+  const fullQuery = query ? `${query}&` : ''
+  let queryParams = `${fullQuery}limit=${limit}&page=${page}&minified=1`
+  if (entityType === 'items') {
+    queryParams += '&include=rssfeed,numEpisodesIncomplete,share'
+  }
+  return queryParams
+}
+
+type BookshelfPageResults = { results: BookshelfEntity[]; total: number }
+
+/** One bookshelf list API page: shared by `loadPage` and `reconcilePagesAfterUpdate`. */
+async function fetchBookshelfPageData(entityType: EntityType, libraryId: string, query: string, page: number, limit: number): Promise<BookshelfPageResults> {
+  const data = await fetchEntityData(entityType, libraryId, buildPageQueryParams(entityType, query, page, limit))
+  const results = getResultsFromResponse(entityType, data)
+  const total = (data as { total?: number }).total ?? results.length
+  return { results, total }
+}
+
 export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshelfDataProps) {
   const { library } = useLibrary()
   const libraryId = library.id
@@ -68,9 +87,9 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
   const itemsPerPageRef = useRef(itemsPerPage)
   const activeQueryRef = useRef(query)
 
-  // Reset when query or entityType changes
-  useEffect(() => {
-    activeQueryRef.current = query
+  const invalidate = useCallback(() => {
+    pagesLoadedRef.current.clear()
+    loadingPagesRef.current.clear()
     setState({
       items: [],
       totalEntities: 0,
@@ -78,9 +97,13 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
       isLoading: true,
       error: null
     })
-    pagesLoadedRef.current.clear()
-    loadingPagesRef.current.clear()
-  }, [libraryId, entityType, query])
+  }, [])
+
+  // Reset when query or entityType changes
+  useEffect(() => {
+    activeQueryRef.current = query
+    invalidate()
+  }, [libraryId, entityType, query, invalidate])
 
   // Handle itemsPerPage changes - invalidate cache but keep items
   // Only clear cache when itemsPerPage changes AFTER initial data load is complete
@@ -97,20 +120,119 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
     }
   }, [itemsPerPage, state.isInitialized])
 
-  // Remove a single item from the items array by ID
-  // Clears page tracking since indices shift after removal
-  const removeItem = useCallback((id: string) => {
-    // Clear page tracking - indices shift after filter, so we need to
-    // allow re-fetching if user scrolls to areas that had loaded data
-    pagesLoadedRef.current.clear()
-    loadingPagesRef.current.clear()
+  /**
+   * Side-fetch pages and merge into the existing sparse array without clearing the shelf.
+   * After a reorder/filter shift or total change, `pagesLoadedRef` is replaced with only these pages
+   * so other regions refetch. If every reconciled slot keeps the same id (metadata-only touch),
+   * other loaded pages stay marked valid — only ids in `changedIds` get new object references.
+   * Omit `changedIds` when every reconciled cell is filled or replaced by id (e.g. add/remove).
+   */
+  const reconcilePagesAfterUpdate = useCallback(
+    async (pageNumbers: number[], changedIds?: Set<string>): Promise<{ total: number } | null> => {
+      const limit = itemsPerPageRef.current
+      if (limit <= 0 || pageNumbers.length === 0) return null
 
-    setState((prev) => ({
-      ...prev,
-      items: prev.items.filter((item) => item?.id !== id),
-      totalEntities: Math.max(0, prev.totalEntities - 1)
-    }))
-  }, [])
+      const sortedPages = [...new Set(pageNumbers)].filter((p) => p >= 0).sort((a, b) => a - b)
+
+      let newPageResults: BookshelfPageResults[]
+      try {
+        newPageResults = []
+        for (const page of sortedPages) {
+          newPageResults.push(await fetchBookshelfPageData(entityType, libraryId, query, page, limit))
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error('Failed to reconcile bookshelf')
+        console.error('reconcilePagesAfterUpdate', error)
+        setState((prev) => ({ ...prev, error }))
+        return null
+      }
+
+      if (query !== activeQueryRef.current) return null
+
+      const total = newPageResults[0]?.total ?? 0
+
+      let pagesToMark: number[] | null = null
+
+      setState((prev) => {
+        let nextItems: (BookshelfEntity | null)[]
+        const structureChanged = total !== prev.totalEntities
+
+        if (structureChanged) {
+          nextItems = new Array(total).fill(null)
+          for (let i = 0; i < Math.min(prev.items.length, total); i++) {
+            nextItems[i] = prev.items[i] ?? null
+          }
+        } else {
+          nextItems = [...prev.items]
+        }
+
+        // When true, list order/membership for reconciled pages matches what we already had (same id
+        // per slot, same total, no holes cleared). Only touched items need new references — safe to
+        // keep other pages in `pagesLoadedRef` instead of invalidating the whole cache.
+        let keepOtherPagesLoaded = !structureChanged
+
+        let cellChanged = false
+
+        for (let pi = 0; pi < sortedPages.length; pi++) {
+          const page = sortedPages[pi]
+          const { results } = newPageResults[pi]
+          const startIndex = page * limit
+          const endIndex = Math.min(startIndex + limit, total)
+
+          for (let i = startIndex; i < endIndex; i++) {
+            const j = i - startIndex
+            if (j < results.length) {
+              const newItem = results[j]
+              const old = nextItems[i]
+
+              let assigned: BookshelfEntity
+              if (!old) {
+                assigned = newItem
+                keepOtherPagesLoaded = false
+              } else if (old.id !== newItem.id) {
+                assigned = newItem
+                keepOtherPagesLoaded = false
+              } else if (changedIds?.has(old.id)) {
+                assigned = newItem
+              } else {
+                assigned = old
+              }
+
+              if (assigned !== old) {
+                nextItems[i] = assigned
+                cellChanged = true
+              }
+            } else if (nextItems[i] != null) {
+              console.log('This should not happen: index', i, 'item', nextItems[i])
+              nextItems[i] = null
+              cellChanged = true
+              keepOtherPagesLoaded = false
+            }
+          }
+        }
+
+        if (!structureChanged && !cellChanged) return prev
+
+        pagesToMark = keepOtherPagesLoaded ? null : sortedPages
+
+        return {
+          ...prev,
+          items: nextItems,
+          totalEntities: total,
+          isInitialized: true,
+          isLoading: false,
+          error: null
+        }
+      })
+
+      if (pagesToMark) {
+        pagesLoadedRef.current = new Set(pagesToMark)
+      }
+
+      return { total }
+    },
+    [entityType, libraryId, query]
+  )
 
   const loadPage = useCallback(
     async (page: number) => {
@@ -128,22 +250,9 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
       loadingPagesRef.current.add(page)
 
       try {
-        const fullQuery = query ? `${query}&` : ''
-        // Build query params - include common params and entity-specific ones
-        let queryParams = `${fullQuery}limit=${currentItemsPerPage}&page=${page}&minified=1`
+        const { results, total } = await fetchBookshelfPageData(entityType, libraryId, query, page, currentItemsPerPage)
 
-        // Add entity-specific includes
-        if (entityType === 'items') {
-          queryParams += '&include=rssfeed,numEpisodesIncomplete,share'
-        }
-
-        const data = await fetchEntityData(entityType, libraryId, queryParams)
-
-        // Check if query changed while fetching
         if (query !== activeQueryRef.current) return
-
-        const results = getResultsFromResponse(entityType, data)
-        const total = (data as { total?: number }).total ?? results.length
 
         setState((prev) => {
           let newItems = [...prev.items]
@@ -203,59 +312,6 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
       }
     })
   }, [])
-
-  // Socket listeners for Author updates
-  // Only active when viewing authors
-  const handleAuthorAdded = useCallback(
-    (author: Author) => {
-      if (author.libraryId !== libraryId || entityType !== 'authors') return
-
-      // Since an author was added, the sort order might change completely
-      // We must invalidate the current data and refetch
-      pagesLoadedRef.current.clear()
-      loadingPagesRef.current.clear()
-
-      setState((prev) => ({
-        ...prev,
-        items: [],
-        totalEntities: 0,
-        isInitialized: false,
-        isLoading: true,
-        error: null
-      }))
-    },
-    [entityType, libraryId]
-  )
-
-  const handleAuthorUpdated = useCallback(
-    (author: Author) => {
-      if (author.libraryId !== libraryId || entityType !== 'authors') return
-
-      updateItems((item) => {
-        if (item.id !== author.id) return item
-        return author
-      })
-    },
-    [entityType, libraryId, updateItems]
-  )
-
-  const handleAuthorRemoved = useCallback(
-    (data: { id: string; libraryId: string } | Author) => {
-      // data might be the author object or { id, libraryId } depending on server event
-      const libId = 'libraryId' in data ? data.libraryId : (data as Author).libraryId
-      const id = 'id' in data ? data.id : (data as Author).id
-
-      if (libId !== libraryId) return
-
-      if (entityType !== 'authors') return
-      removeItem(id)
-    },
-    [entityType, libraryId, removeItem]
-  )
-
-  useSocketEvent<Author>('author_added', handleAuthorAdded)
-  useSocketEvent<Author>('author_updated', handleAuthorUpdated)
-  useSocketEvent<Author | { id: string; libraryId: string }>('author_removed', handleAuthorRemoved)
 
   // Socket listeners for share updates
   // Shares only apply to book library items
@@ -319,6 +375,7 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
 
   return {
     ...state,
-    loadPage
+    loadPage,
+    reconcilePagesAfterUpdate
   }
 }
