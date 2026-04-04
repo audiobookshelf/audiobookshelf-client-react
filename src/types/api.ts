@@ -253,6 +253,18 @@ export interface Author {
   series?: Series[]
 }
 
+/** Payload for the `author_removed` socket event (full author JSON or `{ id, libraryId }`). */
+export interface AuthorRemovedPayload {
+  id: string
+  libraryId: string
+}
+
+/** Payload for the `item_removed` socket event. */
+export interface LibraryItemRemovedPayload {
+  id: string
+  libraryId: string
+}
+
 export interface AuthorQuickMatchPayload {
   asin?: string
   q?: string
