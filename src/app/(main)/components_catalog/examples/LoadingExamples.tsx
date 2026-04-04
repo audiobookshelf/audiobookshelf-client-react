@@ -60,7 +60,7 @@ export function LoadingExamples() {
         </Example>
 
         <Example title="Loading Spinner (Dark - Large)">
-          <div className="bg-gray-500 p-6 rounded-lg">
+          <div className="rounded-lg bg-gray-500 p-6">
             <LoadingSpinner size="la-lg" dark />
           </div>
         </Example>

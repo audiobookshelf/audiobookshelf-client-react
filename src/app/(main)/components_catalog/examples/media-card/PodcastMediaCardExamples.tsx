@@ -111,7 +111,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>libraryItem</Code>: The library item to display (PodcastLibraryItem).
             </li>
@@ -128,12 +128,12 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </div>
       </ComponentInfo>
 
-      <h3 className="text-lg font-bold mb-4">Podcast Media Card: {selectedPodcast.media.metadata.title}</h3>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <h3 className="mb-4 text-lg font-bold">Podcast Media Card: {selectedPodcast.media.metadata.title}</h3>
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Standard View`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastStandardCardRef}>
                 <PodcastMediaCard
                   {...defaultProps}
@@ -146,7 +146,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastStandardSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={defaultProps.bookshelfView}
@@ -161,9 +161,9 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </Example>
 
         <Example title={`Detail View`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastDetailCardRef}>
                 <PodcastMediaCard
                   {...defaultProps}
@@ -177,7 +177,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastDetailSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -192,11 +192,11 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Detail View Without Subtitles`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastDetailNoSubCardRef}>
                 <PodcastMediaCard
                   {...defaultProps}
@@ -210,7 +210,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastDetailNoSubSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -225,9 +225,9 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </Example>
 
         <Example title={`Detail View Ordered by AddedAt`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastDetailOrderByCardRef}>
                 <PodcastMediaCard
                   {...defaultProps}
@@ -242,7 +242,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastDetailOrderBySkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -258,11 +258,11 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Recent Episode`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastRecentEpisodeCardRef}>
                 <PodcastEpisodeCard
                   {...defaultProps}
@@ -292,7 +292,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastRecentEpisodeSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -307,9 +307,9 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </Example>
 
         <Example title={`Detail View with RSS Feed & Share`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastRssFeedCardRef}>
                 <PodcastMediaCard
                   {...defaultProps}
@@ -364,7 +364,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastRssFeedSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -379,11 +379,11 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`With numEpisodes`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastNumEpisodesCardRef}>
                 <PodcastMediaCard
                   {...defaultProps}
@@ -405,7 +405,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastNumEpisodesSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -420,9 +420,9 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
         </Example>
 
         <Example title={`With numEpisodesIncomplete`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={podcastNumEpisodesIncompleteCardRef}>
                 <PodcastMediaCard
                   {...defaultProps}
@@ -441,7 +441,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastNumEpisodesIncompleteSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -457,9 +457,9 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
       </div>
 
       <Example title={`Size Multipliers`}>
-        <div className="flex gap-4 flex-wrap items-start">
+        <div className="flex flex-wrap items-start gap-4">
           <div style={{ fontSize: `${2 / 3}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 2/3</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 2/3</p>
             <PodcastMediaCard
               {...defaultProps}
               libraryItem={selectedPodcast}
@@ -472,7 +472,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             />
           </div>
           <div style={{ fontSize: `${1}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 1</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 1</p>
             <PodcastMediaCard
               {...defaultProps}
               libraryItem={selectedPodcast}
@@ -485,7 +485,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             />
           </div>
           <div className="hidden sm:block" style={{ fontSize: `${4 / 3}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 4/3</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 4/3</p>
             <PodcastMediaCard
               {...defaultProps}
               libraryItem={selectedPodcast}
@@ -498,7 +498,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             />
           </div>
           <div className="hidden lg:block" style={{ fontSize: `${11 / 6}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 11/6</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 11/6</p>
             <PodcastMediaCard
               {...defaultProps}
               libraryItem={selectedPodcast}

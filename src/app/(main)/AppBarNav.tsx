@@ -52,10 +52,10 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
           size="small"
           ariaDescription={t('ButtonMenu')}
           ariaExpanded={mobileMenuOpen}
-          className="hidden md:flex ps-3 pe-2 min-w-24 justify-between"
+          className="hidden min-w-24 justify-between ps-3 pe-2 md:flex"
           onClick={toggleMenu}
         >
-          <span className="text-sm block truncate">{username}</span>
+          <span className="block truncate text-sm">{username}</span>
           <span className="material-symbols text-xl" aria-hidden="true">
             person
           </span>
@@ -73,15 +73,15 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
             <div className="fixed inset-0 z-40" onClick={closeMenu} />
 
             {/* Menu */}
-            <div className="absolute right-0 top-full mt-2 bg-primary border border-border rounded-md shadow-lg z-50 min-w-[200px]">
+            <div className="bg-primary border-border absolute top-full right-0 z-50 mt-2 min-w-[200px] rounded-md border shadow-lg">
               <nav className="flex flex-col py-1">
                 <Link
                   href="/account"
-                  className="flex items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors border-b border-border"
+                  className="hover:bg-primary-hover text-foreground border-border flex items-center justify-start border-b px-4 py-3 transition-colors"
                   aria-label={t('HeaderAccount')}
                   onClick={closeMenu}
                 >
-                  <span className="material-symbols text-xl mr-3">person</span>
+                  <span className="material-symbols mr-3 text-xl">person</span>
                   <span className="text-sm font-semibold">{username}</span>
                 </Link>
 
@@ -89,11 +89,11 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
                 {isAdmin && (
                   <Link
                     href="/settings"
-                    className="flex md:hidden items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
+                    className="hover:bg-primary-hover text-foreground flex items-center justify-start px-4 py-3 transition-colors md:hidden"
                     aria-label={t('HeaderSettings')}
                     onClick={closeMenu}
                   >
-                    <span className="material-symbols text-xl mr-3">settings</span>
+                    <span className="material-symbols mr-3 text-xl">settings</span>
                     <span className="text-sm">{t('HeaderSettings')}</span>
                   </Link>
                 )}
@@ -101,41 +101,41 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
                 {userCanUpload && (
                   <Link
                     href="/upload"
-                    className="flex md:hidden items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
+                    className="hover:bg-primary-hover text-foreground flex items-center justify-start px-4 py-3 transition-colors md:hidden"
                     aria-label={t('ButtonUpload')}
                     onClick={closeMenu}
                   >
-                    <span className="material-symbols text-xl mr-3">upload</span>
+                    <span className="material-symbols mr-3 text-xl">upload</span>
                     <span className="text-sm">{t('ButtonUpload')}</span>
                   </Link>
                 )}
 
                 <Link
                   href="/account/stats"
-                  className="flex items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
+                  className="hover:bg-primary-hover text-foreground flex items-center justify-start px-4 py-3 transition-colors"
                   aria-label={t('ButtonStats')}
                   onClick={closeMenu}
                 >
-                  <span className="material-symbols text-xl mr-3">equalizer</span>
+                  <span className="material-symbols mr-3 text-xl">equalizer</span>
                   <span className="text-sm">{t('ButtonStats')}</span>
                 </Link>
 
                 <Link
                   href="/components_catalog"
-                  className="flex items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors"
+                  className="hover:bg-primary-hover text-foreground flex items-center justify-start px-4 py-3 transition-colors"
                   aria-label={t('ButtonComponentsCatalog')}
                   onClick={closeMenu}
                 >
-                  <span className="material-symbols text-xl mr-3">widgets</span>
+                  <span className="material-symbols mr-3 text-xl">widgets</span>
                   <span className="text-sm">{t('ButtonComponentsCatalog')}</span>
                 </Link>
 
                 <button
                   onClick={handleLogout}
-                  className="flex items-center justify-start px-4 py-3 hover:bg-primary-hover text-foreground transition-colors w-full text-left"
+                  className="hover:bg-primary-hover text-foreground flex w-full items-center justify-start px-4 py-3 text-left transition-colors"
                   aria-label={t('ButtonLogout')}
                 >
-                  <span className="material-symbols text-xl mr-3">logout</span>
+                  <span className="material-symbols mr-3 text-xl">logout</span>
                   <span className="text-sm">{t('ButtonLogout')}</span>
                 </button>
               </nav>

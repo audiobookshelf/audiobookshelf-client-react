@@ -33,7 +33,7 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
   return (
     <div className="flex gap-4">
       {/* Controls */}
-      <div className="w-64 flex flex-col gap-2 p-2 border-r bg-gray-50">
+      <div className="flex w-64 flex-col gap-2 border-r bg-gray-50 p-2">
         <label>
           Total Entities:
           <input
@@ -41,7 +41,7 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
             type="number"
             value={inputState.totalEntities}
             onChange={(e) => handleChange('totalEntities', e.target.value)}
-            className="border p-1 w-full"
+            className="w-full border p-1"
           />
         </label>
         <label>
@@ -51,7 +51,7 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
             type="number"
             value={inputState.containerWidth}
             onChange={(e) => handleChange('containerWidth', e.target.value)}
-            className="border p-1 w-full"
+            className="w-full border p-1"
           />
         </label>
         <label>
@@ -61,7 +61,7 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
             type="number"
             value={inputState.itemWidth}
             onChange={(e) => handleChange('itemWidth', e.target.value)}
-            className="border p-1 w-full"
+            className="w-full border p-1"
           />
         </label>
         <label>
@@ -71,7 +71,7 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
             type="number"
             value={inputState.itemHeight}
             onChange={(e) => handleChange('itemHeight', e.target.value)}
-            className="border p-1 w-full"
+            className="w-full border p-1"
           />
         </label>
         <label>
@@ -81,26 +81,26 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
             type="number"
             value={inputState.padding}
             onChange={(e) => handleChange('padding', e.target.value)}
-            className="border p-1 w-full"
+            className="w-full border p-1"
           />
         </label>
-        <button data-cy="btn-scroll-1000" onClick={() => virtualizer.handleScroll(1000)} className="bg-blue-500 text-white p-2 rounded">
+        <button data-cy="btn-scroll-1000" onClick={() => virtualizer.handleScroll(1000)} className="rounded bg-blue-500 p-2 text-white">
           Scroll to 1000
         </button>
-        <button data-cy="btn-scroll-0" onClick={() => virtualizer.handleScroll(0)} className="bg-gray-500 text-white p-2 rounded">
+        <button data-cy="btn-scroll-0" onClick={() => virtualizer.handleScroll(0)} className="rounded bg-gray-500 p-2 text-white">
           Scroll to 0
         </button>
         <button
           data-cy="btn-collapse"
           onClick={() => setInputState((p) => ({ ...p, itemHeight: '0', itemWidth: '0' }))}
-          className="bg-red-500 text-white p-2 rounded"
+          className="rounded bg-red-500 p-2 text-white"
         >
           Collapse
         </button>
         <button
           data-cy="btn-restore"
           onClick={() => setInputState((p) => ({ ...p, itemHeight: '100', itemWidth: '100' }))}
-          className="bg-green-500 text-white p-2 rounded"
+          className="rounded bg-green-500 p-2 text-white"
         >
           Restore
         </button>

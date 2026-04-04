@@ -58,7 +58,7 @@ export function ChaptersExamples({ selectedBook }: ChaptersExamplesProps) {
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>libraryItem</Code>: The book library item with chapters (BookLibraryItem).
             </li>
@@ -77,7 +77,7 @@ export function ChaptersExamples({ selectedBook }: ChaptersExamplesProps) {
           </Example>
         </>
       ) : (
-        <div className="p-8 border-2 border-dashed border-gray-600 rounded-lg">
+        <div className="rounded-lg border-2 border-dashed border-gray-600 p-8">
           <p className="text-gray-400">Select a book from the search box above to see the Chapters components with real data.</p>
         </div>
       )}

@@ -124,32 +124,32 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
       role="option"
       aria-selected={isFocused}
       aria-label={`Select ${book.title}`}
-      className={mergeClasses('w-full border rounded p-3 cursor-pointer hover:bg-bg-hover/50', 'border-border', 'focus:border-foreground', 'outline-none')}
+      className={mergeClasses('hover:bg-bg-hover/50 w-full cursor-pointer rounded border p-3', 'border-border', 'focus:border-foreground', 'outline-none')}
       onClick={handleSelect}
       onKeyDown={handleKeyDown}
     >
-      <div className="flex flex-col md:flex-row py-1">
+      <div className="flex flex-col py-1 md:flex-row">
         {/* Mobile: cover image with published year and confidence on the right */}
         {/* Desktop: cover image on the left */}
         <div className="flex justify-between md:block">
-          <div className="min-w-12 max-w-12 md:min-w-20 md:max-w-20 shrink-0 md:pt-1 md:pl-2">
-            <div className="w-full bg-primary" style={{ aspectRatio: '1' }}>
+          <div className="max-w-12 min-w-12 shrink-0 md:max-w-20 md:min-w-20 md:pt-1 md:pl-2">
+            <div className="bg-primary w-full" style={{ aspectRatio: '1' }}>
               {finalSelectedCover ? (
-                <div className="relative w-full h-full">
+                <div className="relative h-full w-full">
                   <Image src={finalSelectedCover} alt="" fill className="object-contain" unoptimized />
                 </div>
               ) : (
-                <div className="w-12 h-12 md:w-20 md:h-20 bg-primary" />
+                <div className="bg-primary h-12 w-12 md:h-20 md:w-20" />
               )}
             </div>
           </div>
           {/* Mobile: published year and confidence right-aligned on the card */}
           <div className="flex flex-col items-end justify-start gap-1 px-2 md:hidden">
-            {'publishedYear' in book && book.publishedYear && <p className="text-sm font-medium text-right">{book.publishedYear}</p>}
+            {'publishedYear' in book && book.publishedYear && <p className="text-right text-sm font-medium">{book.publishedYear}</p>}
             {matchConfidencePercentage && (
               <div
                 className={mergeClasses(
-                  'rounded-full px-2 py-1 text-xs whitespace-nowrap text-foreground',
+                  'text-foreground rounded-full px-2 py-1 text-xs whitespace-nowrap',
                   book.matchConfidence! > 0.95 ? 'bg-success/80' : 'bg-info/80'
                 )}
               >
@@ -159,12 +159,12 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
           </div>
         </div>
         {!isPodcast ? (
-          <div className="pl-0 pr-2 md:px-4 grow mt-2 md:mt-0">
+          <div className="mt-2 grow pr-2 pl-0 md:mt-0 md:px-4">
             <div className="flex items-center">
               <h1 className="text-sm md:text-base">{book.title}</h1>
               <div className="grow" />
               {/* Desktop: published year */}
-              {'publishedYear' in book && book.publishedYear && <p className="hidden md:block text-sm md:text-base">{book.publishedYear}</p>}
+              {'publishedYear' in book && book.publishedYear && <p className="hidden text-sm md:block md:text-base">{book.publishedYear}</p>}
             </div>
 
             <div className="flex items-center">
@@ -186,7 +186,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
               {matchConfidencePercentage && (
                 <div
                   className={mergeClasses(
-                    'hidden md:flex rounded-full px-2 py-1 text-xs whitespace-nowrap text-foreground',
+                    'text-foreground hidden rounded-full px-2 py-1 text-xs whitespace-nowrap md:flex',
                     book.matchConfidence! > 0.95 ? 'bg-success/80' : 'bg-info/80'
                   )}
                 >
@@ -196,10 +196,10 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
             </div>
 
             {'series' in book && book.series && book.series.length > 0 && (
-              <div className="flex py-1 -mx-1">
+              <div className="-mx-1 flex py-1">
                 {book.series.map((series, index) => (
-                  <div key={index} className="bg-white/10 rounded-full px-1 py-0.5 mx-1">
-                    <p className="leading-3 text-xs text-foreground-subdued">
+                  <div key={index} className="mx-1 rounded-full bg-white/10 px-1 py-0.5">
+                    <p className="text-foreground-subdued text-xs leading-3">
                       {series.series}
                       {series.sequence && <>&nbsp;#{series.sequence}</>}
                     </p>
@@ -208,23 +208,23 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
               </div>
             )}
             {book.descriptionPlain && (
-              <div className="w-full max-h-12 overflow-hidden">
+              <div className="max-h-12 w-full overflow-hidden">
                 <p className="text-foreground-subdued text-xs">{book.descriptionPlain}</p>
               </div>
             )}
           </div>
         ) : (
-          <div className="pl-0 pr-2 md:px-4 grow mt-2 md:mt-0">
+          <div className="mt-2 grow pr-2 pl-0 md:mt-0 md:px-4">
             <h1>
               <div className="flex items-center">
                 {book.title}
-                {book.explicit && <span className="material-symbols text-sm ms-1 text-error">explicit</span>}
+                {book.explicit && <span className="material-symbols text-error ms-1 text-sm">explicit</span>}
               </div>
             </h1>
-            {book.author && <p className="text-base text-foreground-muted whitespace-nowrap truncate">{t('LabelByAuthor', { 0: book.author })}</p>}
-            {genresText && <p className="text-xs text-foreground-subdued leading-5">{genresText}</p>}
+            {book.author && <p className="text-foreground-muted truncate text-base whitespace-nowrap">{t('LabelByAuthor', { 0: book.author })}</p>}
+            {genresText && <p className="text-foreground-subdued text-xs leading-5">{genresText}</p>}
             {'trackCount' in book && book.trackCount !== undefined && (
-              <p className="text-xs text-foreground-subdued leading-5">
+              <p className="text-foreground-subdued text-xs leading-5">
                 {book.trackCount} {t('LabelEpisodes')}
               </p>
             )}
@@ -237,12 +237,12 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
             <div
               key={index}
               className={mergeClasses(
-                'border-2 hover:border-yellow-300 border-transparent cursor-pointer',
+                'cursor-pointer border-2 border-transparent hover:border-yellow-300',
                 cover === finalSelectedCover ? 'border-yellow-200' : ''
               )}
               onClick={(e) => handleCoverClick(e, cover)}
             >
-              <div className="relative h-20 w-12 mr-1">
+              <div className="relative mr-1 h-20 w-12">
                 <Image src={cover} alt="" fill className="object-cover" unoptimized />
               </div>
             </div>

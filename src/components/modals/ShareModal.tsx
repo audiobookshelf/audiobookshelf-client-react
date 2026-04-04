@@ -164,21 +164,21 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
   }, [expireDurationSeconds, isDownloadable, mediaItemId, newShareSlug, onShareChange, showToast, t])
 
   const outerContent = (
-    <div className="absolute top-0 start-0 p-4">
-      <p className="text-xl font-semibold text-white truncate max-w-[calc(100vw-4rem)]">{t('LabelShare')}</p>
+    <div className="absolute start-0 top-0 p-4">
+      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white">{t('LabelShare')}</p>
     </div>
   )
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} processing={processing} className="sm:max-w-[520px] md:max-w-[560px] lg:max-w-[560px]">
-      <div className="px-4 sm:px-6 py-6 text-sm max-h-[80vh] overflow-y-auto overflow-x-hidden">
-        <div className="absolute top-0 end-0 p-4">
+      <div className="max-h-[80vh] overflow-x-hidden overflow-y-auto px-4 py-6 text-sm sm:px-6">
+        <div className="absolute end-0 top-0 p-4">
           <Tooltip text={t('LabelClickForMoreInfo')} className="inline-flex">
             <a
               href="https://www.audiobookshelf.org/guides/media-item-shares"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex text-foreground-muted hover:text-foreground"
+              className="text-foreground-muted hover:text-foreground inline-flex"
             >
               <span className="material-symbols text-xl">help_outline</span>
             </a>
@@ -188,23 +188,23 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
         {currentShare ? (
           <>
             <div className="w-full py-2">
-              <label className="px-1 text-sm font-semibold block">{t('LabelShareURL')}</label>
+              <label className="block px-1 text-sm font-semibold">{t('LabelShareURL')}</label>
               <TextInput value={currentShareUrl} showCopy readOnly />
             </div>
-            <div className="w-full py-2 px-1 space-y-1">
+            <div className="w-full space-y-1 px-1 py-2">
               {currentShare.isDownloadable && <p className="text-sm">{t('LabelDownloadable')}</p>}
               {currentShare.expiresAt ? <p>{t('MessageShareExpiresIn', { 0: currentShareTimeRemaining })}</p> : <p>{t('LabelPermanent')}</p>}
             </div>
           </>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-[12rem_auto] sm:items-end gap-y-3 sm:gap-x-4 mb-2">
+            <div className="mb-2 grid grid-cols-1 gap-y-3 sm:grid-cols-[12rem_auto] sm:items-end sm:gap-x-4">
               <div className="w-full sm:w-48">
-                <label className="px-1 text-sm font-semibold block">{t('LabelSlug')}</label>
-                <TextInput value={newShareSlug} onChange={setNewShareSlug} className="text-base h-10" />
+                <label className="block px-1 text-sm font-semibold">{t('LabelSlug')}</label>
+                <TextInput value={newShareSlug} onChange={setNewShareSlug} className="h-10 text-base" />
               </div>
               <div className="w-full sm:w-auto">
-                <label className="px-1 text-sm font-semibold block">{t('LabelDuration')}</label>
+                <label className="block px-1 text-sm font-semibold">{t('LabelDuration')}</label>
                 <div className="inline-flex items-center gap-2">
                   <TextInput
                     value={newShareDuration}
@@ -212,7 +212,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
                     type="number"
                     step={1}
                     min={0}
-                    className="max-w-20 min-w-20 sm:max-w-16 sm:min-w-16 h-10 text-base text-center"
+                    className="h-10 max-w-20 min-w-20 text-center text-base sm:max-w-16 sm:min-w-16"
                     customInputClass="text-center"
                   />
                   <div className="w-28">
@@ -222,23 +222,23 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
               </div>
             </div>
 
-            <div className="flex items-center w-full md:w-1/2 mb-4">
-              <p className="text-sm text-foreground-muted py-1 px-1">{t('LabelDownloadable')}</p>
+            <div className="mb-4 flex w-full items-center md:w-1/2">
+              <p className="text-foreground-muted px-1 py-1 text-sm">{t('LabelDownloadable')}</p>
               <ToggleSwitch size="medium" value={isDownloadable} onChange={setIsDownloadable} />
               <Tooltip text={t('LabelShareDownloadableHelp')} position="right" maxWidth={160} openOnClick addTabIndex>
-                <span className="text-foreground-muted inline-flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto cursor-pointer">
+                <span className="text-foreground-muted inline-flex h-8 w-8 cursor-pointer items-center justify-center sm:h-auto sm:w-auto">
                   <span className="material-symbols icon-text text-lg">info</span>
                 </span>
               </Tooltip>
             </div>
 
-            <p className="text-sm text-foreground-muted py-1 px-1">
+            <p className="text-foreground-muted px-1 py-1 text-sm">
               {t.rich('MessageShareURLWillBe', {
                 0: demoShareUrl,
                 strong: (chunks) => <strong>{chunks}</strong>
               })}
             </p>
-            <p className="text-sm text-foreground-muted py-1 px-1">
+            <p className="text-foreground-muted px-1 py-1 text-sm">
               {t.rich('MessageShareExpirationWillBe', {
                 0: expirationDateString,
                 strong: (chunks) => <strong>{chunks}</strong>

@@ -37,9 +37,9 @@ export default function DeviceInfoCell({ session }: { session: PlaybackSession }
   if (!parts) return null
 
   return (
-    <div className="py-1 min-w-0">
+    <div className="min-w-0 py-1">
       {parts.line1 ? <TruncatingTooltipText text={parts.line1} className="text-xs" /> : null}
-      {parts.line2 ? <TruncatingTooltipText text={parts.line2} className={parts.line1 ? 'text-xs text-foreground-muted' : 'text-xs'} /> : null}
+      {parts.line2 ? <TruncatingTooltipText text={parts.line2} className={parts.line1 ? 'text-foreground-muted text-xs' : 'text-xs'} /> : null}
     </div>
   )
 }

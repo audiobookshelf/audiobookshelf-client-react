@@ -192,7 +192,7 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
   }, [currentSortDesc, t])
 
   return (
-    <div className="w-36 sm:w-44 md:w-48 h-9">
+    <div className="h-9 w-36 sm:w-44 md:w-48">
       <Dropdown
         value={currentSortBy}
         items={sortItems}

@@ -25,13 +25,10 @@ export type VisibleBookshelfPageRangeInput = {
  * Inclusive API page indices `[startPage, endPage]` for the visible virtual shelf window.
  * `itemsPerPage` is typically `columns * shelvesPerPage` from the same layout as the virtualizer.
  */
-export function getVisibleBookshelfPageRange({
-  visibleShelfStart,
-  visibleShelfEnd,
-  columns,
-  itemsPerPage,
-  totalEntities
-}: VisibleBookshelfPageRangeInput): { startPage: number; endPage: number } {
+export function getVisibleBookshelfPageRange({ visibleShelfStart, visibleShelfEnd, columns, itemsPerPage, totalEntities }: VisibleBookshelfPageRangeInput): {
+  startPage: number
+  endPage: number
+} {
   const itemsPerShelf = columns
   const startItem = visibleShelfStart * itemsPerShelf
   const endItem = Math.min(totalEntities, visibleShelfEnd * itemsPerShelf)

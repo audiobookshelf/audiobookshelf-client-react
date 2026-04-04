@@ -7,8 +7,8 @@ export default async function ChangePasswordPage() {
   const t = await getTypeSafeTranslations()
 
   return (
-    <div className="p-8 w-full max-w-xl mx-auto">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="mx-auto w-full max-w-xl p-8">
+      <div className="mb-2 flex items-center gap-2">
         <Link aria-label={t('ButtonBack')} href="/account" className="text-foreground-muted hover:text-foreground">
           <span className="material-symbols text-xl">arrow_back</span>
         </Link>

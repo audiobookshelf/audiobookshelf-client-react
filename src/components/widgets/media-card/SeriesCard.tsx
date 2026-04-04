@@ -185,7 +185,7 @@ function SeriesCard(props: SeriesCardProps) {
           {/* Books count badge */}
           <div
             cy-id="seriesLengthMarker"
-            className="absolute rounded-lg shadow-modal-content z-20"
+            className="shadow-modal-content absolute z-20 rounded-lg"
             style={{
               top: '0.375em',
               right: '0.375em',
@@ -203,7 +203,7 @@ function SeriesCard(props: SeriesCardProps) {
             <div
               cy-id="seriesProgressBar"
               className={mergeClasses(
-                'absolute bottom-0 start-0 h-1 max-w-full z-10 rounded-b box-shadow-progressbar',
+                'box-shadow-progressbar absolute start-0 bottom-0 z-10 h-1 max-w-full rounded-b',
                 isSeriesFinished ? 'bg-success' : 'bg-yellow-400'
               )}
               style={{ width: `${seriesProgressPercent * 100}%` }}
@@ -216,7 +216,7 @@ function SeriesCard(props: SeriesCardProps) {
             selected={selected}
             cyId="hoveringDisplayTitle"
             className={mergeClasses(
-              'bg-black/60 flex items-center justify-center text-center transition-opacity z-20',
+              'z-20 flex items-center justify-center bg-black/60 text-center transition-opacity',
               isHovering || isSelectionMode ? 'opacity-100' : 'opacity-0'
             )}
           >
@@ -239,7 +239,7 @@ function SeriesCard(props: SeriesCardProps) {
           {series.rssFeed && !isSelectionMode && !isHovering && (
             <div
               cy-id="rssFeed"
-              className={mergeClasses('absolute top-[0.375em] start-[0.375em] z-10', 'bg-black/40 rounded-full flex items-center justify-center shadow-sm')}
+              className={mergeClasses('absolute start-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
               style={{ width: '1.5em', height: '1.5em' }}
             >
               <span className="material-symbols text-orange-500" aria-hidden="true" style={{ fontSize: '1em' }}>
@@ -252,7 +252,7 @@ function SeriesCard(props: SeriesCardProps) {
       footer={
         isAlternativeBookshelfView ? (
           // Detail view footer
-          <div cy-id="detailBottomText" className="relative z-30 start-0 end-0 mx-auto py-[0.25em] rounded-md text-center">
+          <div cy-id="detailBottomText" className="relative start-0 end-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
             <p cy-id="detailBottomDisplayTitle" className="truncate" style={{ fontSize: `${labelFontSize}em` }}>
               {displayTitle}
             </p>

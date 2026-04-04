@@ -69,14 +69,14 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
 
   return (
     <div className="w-full" style={{ fontSize: sizeMultiplier + 'rem' }}>
-      <div className="flex flex-col md:flex-row gap-8e">
+      <div className="gap-8e flex flex-col md:flex-row">
         <div className="w-48e max-w-48e mx-auto">
-          <div className="w-full h-60e">
-            <AuthorImage author={author} className="w-full h-full" />
+          <div className="h-60e w-full">
+            <AuthorImage author={author} className="h-full w-full" />
           </div>
         </div>
         <div className="flex-1">
-          <div className="flex items-center gap-2e mb-2e">
+          <div className="gap-2e mb-2e flex items-center">
             <h1 className="text-[1.5em]">{author.name}</h1>
             <IconBtn
               borderless
@@ -96,7 +96,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
         <div className="mt-8e -ms-2e">
           <ItemSlider
             title={
-              <Link href={`/library/${library.id}/items?filter=authors.${filterEncode(author.id)}`} className="hover:underline transition-colors">
+              <Link href={`/library/${library.id}/items?filter=authors.${filterEncode(author.id)}`} className="transition-colors hover:underline">
                 {t('LabelXBooks', { count: libraryItems.length })}
               </Link>
             }
@@ -105,7 +105,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
             {libraryItems.map((libraryItem) => {
               const mediaProgress = getLibraryItemProgress(libraryItem.id)
               return (
-                <div key={libraryItem.id} className="shrink-0 mx-2e">
+                <div key={libraryItem.id} className="mx-2e shrink-0">
                   <BookMediaCard
                     libraryItem={libraryItem}
                     bookshelfView={BookshelfView.DETAIL}
@@ -127,19 +127,19 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
       {series.map((bookSeries) => {
         const seriesTitle = (
           <>
-            <Link href={`/library/${library.id}/series/${bookSeries.id}`} className="hover:underline transition-colors">
+            <Link href={`/library/${library.id}/series/${bookSeries.id}`} className="transition-colors hover:underline">
               {bookSeries.name}
             </Link>
             <span className="text-foreground-subdued ps-2e">{t('LabelSeries')}</span>
           </>
         )
         return (
-          <div key={bookSeries.id} className="shrink-0 -ms-2e">
+          <div key={bookSeries.id} className="-ms-2e shrink-0">
             <ItemSlider title={seriesTitle} className="!ps-0">
               {bookSeries.items?.map((libraryItem) => {
                 const mediaProgress = getLibraryItemProgress(libraryItem.id)
                 return (
-                  <div key={libraryItem.id} className="shrink-0 mx-2e">
+                  <div key={libraryItem.id} className="mx-2e shrink-0">
                     <BookMediaCard
                       libraryItem={libraryItem}
                       bookshelfView={BookshelfView.DETAIL}

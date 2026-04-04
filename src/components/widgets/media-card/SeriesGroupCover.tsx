@@ -113,7 +113,7 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
   if (noValidCovers) {
     return (
       <div
-        className="absolute top-0 start-0 w-full h-full flex items-center justify-center box-shadow-book bg-gray-400/5"
+        className="box-shadow-book absolute start-0 top-0 flex h-full w-full items-center justify-center bg-gray-400/5"
         style={{ padding: `${sizeMultiplier}em` }}
       >
         <p style={{ fontSize: `${sizeMultiplier}em` }} className="text-center text-white/60">
@@ -124,7 +124,7 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
   }
 
   return (
-    <div className="w-full h-full relative box-shadow-book">
+    <div className="box-shadow-book relative h-full w-full">
       {coverData.map((cover, index) => {
         const offsetLeft = coverData.length === 1 ? 0 : offsetIncrement * index
         const zIndex = coverData.length - index
@@ -145,9 +145,9 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
           >
             {/* Cover background for aspect ratio mismatches */}
             {cover.showCoverBg && (
-              <div className="absolute top-0 start-0 w-full h-full overflow-hidden rounded-xs bg-primary">
+              <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs">
                 <div
-                  className="absolute cover-bg"
+                  className="cover-bg absolute"
                   style={{
                     backgroundImage: `url("${cover.coverUrl}")`
                   }}
@@ -161,7 +161,7 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
               src={cover.coverUrl}
               alt=""
               aria-hidden="true"
-              className={mergeClasses('absolute top-0 start-0 w-full h-full', cover.showCoverBg ? 'object-contain' : 'object-cover')}
+              className={mergeClasses('absolute start-0 top-0 h-full w-full', cover.showCoverBg ? 'object-contain' : 'object-cover')}
             />
           </div>
         )

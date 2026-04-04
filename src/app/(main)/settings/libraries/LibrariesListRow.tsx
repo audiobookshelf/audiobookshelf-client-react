@@ -74,9 +74,9 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
   )
 
   return (
-    <div className="flex items-center gap-4 py-1 px-4 hover:bg-primary/20 text-foreground/50 hover:text-foreground">
+    <div className="hover:bg-primary/20 text-foreground/50 hover:text-foreground flex items-center gap-4 px-4 py-1">
       {isLibraryTaskRunning ? <LoadingSpinner /> : <LibraryIcon icon={item.icon} />}
-      <Link className="py-2 text-foreground hover:underline" href={`/library/${item.id}`}>
+      <Link className="text-foreground py-2 hover:underline" href={`/library/${item.id}`}>
         {item.name}
       </Link>
       <div className="grow" />
@@ -89,7 +89,7 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
         </>
       )}
       <div className="drag-handle cursor-n-resize">
-        <span className="material-symbols text-xl text-foreground/50 hover:text-foreground">reorder</span>
+        <span className="material-symbols text-foreground/50 hover:text-foreground text-xl">reorder</span>
       </div>
     </div>
   )

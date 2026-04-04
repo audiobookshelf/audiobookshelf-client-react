@@ -227,17 +227,17 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
   ]
 
   const outerContentTitle = (
-    <div className="absolute top-0 start-0 p-4">
+    <div className="absolute start-0 top-0 p-4">
       <h2 className="text-xl text-white">{isEditing ? t('HeaderUpdateAccount') : t('HeaderNewAccount')}</h2>
     </div>
   )
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle}>
-      <div className="flex flex-col max-h-[90vh]">
-        <div className="px-4 sm:px-6 py-6 overflow-y-auto">
+      <div className="flex max-h-[90vh] flex-col">
+        <div className="overflow-y-auto px-4 py-6 sm:px-6">
           {/* Basic Info Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
             {/* Username */}
             <TextInput
               label={t('LabelUsername')}
@@ -286,8 +286,8 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
           {/* Permissions Section */}
           {!isRootUser && (
             <>
-              <div className="border-t border-border mt-6 pt-6">
-                <h3 className="text-lg font-semibold mb-4">{t('HeaderPermissions')}</h3>
+              <div className="border-border mt-6 border-t pt-6">
+                <h3 className="mb-4 text-lg font-semibold">{t('HeaderPermissions')}</h3>
                 <div>
                   {basicPermissionsList.map(({ key, label }) => (
                     <ToggleSwitch
@@ -380,7 +380,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-border px-4 py-3">
+        <div className="border-border border-t px-4 py-3">
           <div className="flex items-center justify-end gap-4">
             {/* Unlink OpenID button */}
             {isEditing && user?.hasOpenIDLink && (

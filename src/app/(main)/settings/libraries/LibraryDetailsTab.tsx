@@ -60,7 +60,7 @@ export default function LibraryDetailsTab({
           disabled={isEditing}
           highlightSelected
           onChange={onMediaTypeChange}
-          className="w-full sm:w-36 shrink-0"
+          className="w-full shrink-0 sm:w-36"
         />
 
         {/* Library Name */}
@@ -88,18 +88,18 @@ export default function LibraryDetailsTab({
 
       {/* Folders Section */}
       <div className="mt-6">
-        <h3 className="text-sm font-semibold text-foreground-muted mb-2">{t('LabelFolders')}</h3>
+        <h3 className="text-foreground-muted mb-2 text-sm font-semibold">{t('LabelFolders')}</h3>
 
         <div className="space-y-2">
           {/* Committed folder paths */}
           {formData.folders.map((folder, index) => (
             <div key={index} className="flex items-center gap-2">
-              <span className="material-symbols fill text-yellow-200 text-xl">folder</span>
+              <span className="material-symbols fill text-xl text-yellow-200">folder</span>
               <TextInput value={folder.fullPath} readOnly className="flex-1 text-sm" />
               <div className="w-5">
                 <button
                   type="button"
-                  className="material-symbols text-foreground-muted hover:text-error text-xl cursor-pointer"
+                  className="material-symbols text-foreground-muted hover:text-error cursor-pointer text-xl"
                   onClick={() => onRemoveFolder(index)}
                   aria-label={t('ButtonRemove')}
                 >
@@ -111,7 +111,7 @@ export default function LibraryDetailsTab({
 
           {/* Always-visible new folder input */}
           <div className="flex items-center gap-2">
-            <span className="material-symbols fill text-yellow-200/50 text-xl">create_new_folder</span>
+            <span className="material-symbols fill text-xl text-yellow-200/50">create_new_folder</span>
             <TextInput
               value={newFolderPath}
               placeholder={t('PlaceholderNewFolderPath')}
@@ -125,7 +125,7 @@ export default function LibraryDetailsTab({
         </div>
 
         {/* Browse for Folder button */}
-        <Btn color="bg-primary" className="w-full mt-3" onClick={onShowFolderChooser}>
+        <Btn color="bg-primary" className="mt-3 w-full" onClick={onShowFolderChooser}>
           {t('ButtonBrowseForFolder')}
         </Btn>
       </div>

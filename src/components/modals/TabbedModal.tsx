@@ -53,7 +53,7 @@ export default function TabbedModal({
       bgOpacityClass={bgOpacityClass}
       outerContent={outerContent}
       onClose={onClose}
-      className={mergeClasses('bg-transparent shadow-none rounded-none overflow-visible', className)}
+      className={mergeClasses('overflow-visible rounded-none bg-transparent shadow-none', className)}
       style={style}
     >
       {/* Tabs bar */}
@@ -67,8 +67,8 @@ export default function TabbedModal({
               aria-selected={isActive}
               aria-controls={`tabpanel-${tab.id}`}
               className={mergeClasses(
-                'max-w-28 flex-1 px-2 sm:px-4 py-2 text-sm sm:text-base font-medium transition-colors cursor-pointer select-none',
-                'rounded-t-lg border border-border mb-[-1px]',
+                'max-w-28 flex-1 cursor-pointer px-2 py-2 text-sm font-medium transition-colors select-none sm:px-4 sm:text-base',
+                'border-border mb-[-1px] rounded-t-lg border',
                 isActive ? 'bg-bg text-foreground border-b-bg relative z-[1]' : 'bg-primary text-foreground-muted hover:text-foreground'
               )}
               onClick={() => onTabChange(tab.id)}
@@ -80,14 +80,14 @@ export default function TabbedModal({
       </div>
 
       {/* Modal content */}
-      <div className="bg-bg rounded-b-lg rounded-tr-lg shadow-modal-content border-t border-border flex flex-col">
+      <div className="bg-bg shadow-modal-content border-border flex flex-col rounded-tr-lg rounded-b-lg border-t">
         {/* Tab content */}
         <div id={`tabpanel-${selectedTab}`} role="tabpanel" className={contentClassName} onClick={(e) => e.stopPropagation()}>
           {children}
         </div>
 
         {/* Footer */}
-        {footer && <div className="border-t border-border px-4 py-3">{footer}</div>}
+        {footer && <div className="border-border border-t px-4 py-3">{footer}</div>}
       </div>
     </Modal>
   )

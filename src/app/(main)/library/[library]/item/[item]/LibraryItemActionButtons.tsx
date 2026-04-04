@@ -159,30 +159,30 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
 
   return (
     <>
-      <div className="flex items-center justify-start pt-4 gap-1 flex-wrap">
+      <div className="flex flex-wrap items-center justify-start gap-1 pt-4">
         {showPlayButton && (
           <Btn
             onClick={handlePlay}
             loading={playerHandler.state.playerState === PlayerState.LOADING}
             color="bg-success"
             size="small"
-            className="flex items-center h-9 px-4 mr-2"
+            className="mr-2 flex h-9 items-center px-4"
           >
-            <span className="material-symbols fill text-2xl -ml-2 pr-1 text-white">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
+            <span className="material-symbols fill -ml-2 pr-1 text-2xl text-white">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
             {isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
           </Btn>
         )}
 
         {!showPlayButton && (libraryItem.isMissing || libraryItem.isInvalid) && (
-          <Btn color="bg-error" size="small" className="flex items-center h-9 px-4 mr-2" disabled>
-            <span className="material-symbols text-2xl -ml-2 pr-1 text-white">error</span>
+          <Btn color="bg-error" size="small" className="mr-2 flex h-9 items-center px-4" disabled>
+            <span className="material-symbols -ml-2 pr-1 text-2xl text-white">error</span>
             {libraryItem.isMissing ? t('LabelMissing') : t('LabelIncomplete')}
           </Btn>
         )}
 
         {showReadButton && (
-          <Btn onClick={handleReadEBook} color="bg-info" size="small" className="flex items-center h-9 px-4 mr-2">
-            <span className="material-symbols text-2xl -ml-2 pr-2 text-white" aria-hidden>
+          <Btn onClick={handleReadEBook} color="bg-info" size="small" className="mr-2 flex h-9 items-center px-4">
+            <span className="material-symbols -ml-2 pr-2 text-2xl text-white" aria-hidden>
               auto_stories
             </span>
             {t('ButtonRead')}
@@ -196,7 +196,7 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
                 ariaLabel={isQueued ? t('ButtonQueueRemoveItem') : t('ButtonQueueAddItem')}
                 onClick={handleQueueClick}
                 outlined={!isQueued}
-                className={isQueued ? 'mx-0.5 bg-primary text-success' : 'mx-0.5 bg-success/60'}
+                className={isQueued ? 'bg-primary text-success mx-0.5' : 'bg-success/60 mx-0.5'}
                 size="small"
               >
                 {isQueued ? 'playlist_add_check' : 'playlist_play'}
@@ -229,7 +229,7 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
             menuWidth={148}
             onAction={handleContextMenuAction}
             size="small"
-            className="mx-0.5 w-9 h-9 bg-primary border border-gray-600"
+            className="bg-primary mx-0.5 h-9 w-9 border border-gray-600"
           />
         )}
       </div>

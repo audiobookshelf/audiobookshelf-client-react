@@ -47,12 +47,12 @@ export default function MediaCardDetailView({
   const { ref: subtitleRef, isTruncated: displaySubtitleTruncated } = useTruncation(displaySubtitle, isSkeleton)
 
   return (
-    <div cy-id="detailBottom" id={descriptionId} dir="auto" className="relative mt-2 mb-2 start-0 z-50 w-full">
+    <div cy-id="detailBottom" id={descriptionId} dir="auto" className="relative start-0 z-50 mt-2 mb-2 w-full">
       <div style={{ fontSize: `${0.9}em` }}>
         {isSkeleton ? (
           <div className="flex items-center" aria-busy="true" aria-live="polite">
             <div
-              className="h-[1em] w-3/4 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
+              className="h-[1em] w-3/4 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
               style={{
                 animationDelay: '0s',
                 animationDuration: '1.5s'
@@ -74,7 +74,7 @@ export default function MediaCardDetailView({
         (isSkeleton ? (
           <p className="truncate" style={{ fontSize: `${0.6}em` }} aria-busy="true" aria-live="polite">
             <span
-              className="inline-block h-[1em] w-1/2 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
+              className="inline-block h-[1em] w-1/2 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
               style={{
                 animationDelay: '0.1s',
                 animationDuration: '1.5s'
@@ -93,7 +93,7 @@ export default function MediaCardDetailView({
       {isSkeleton ? (
         <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
           <span
-            className="inline-block h-[1em] w-2/3 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
+            className="inline-block h-[1em] w-2/3 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
             style={{
               animationDelay: '0.2s',
               animationDuration: '1.5s'
@@ -124,7 +124,7 @@ export default function MediaCardDetailView({
             return sortLine !== null ? (
               <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
                 <span
-                  className="inline-block h-[1em] w-1/2 rounded animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
+                  className="inline-block h-[1em] w-1/2 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
                   style={{
                     animationDelay: '0.3s',
                     animationDuration: '1.5s'

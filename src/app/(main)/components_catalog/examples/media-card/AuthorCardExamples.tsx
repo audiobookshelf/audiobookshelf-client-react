@@ -37,7 +37,7 @@ export function AuthorCardExamples({ authorData }: AuthorCardExamplesProps) {
           </p>
           <div>
             <span className="font-bold">Props:</span>
-            <ul className="list-disc list-inside">
+            <ul className="list-inside list-disc">
               <li>
                 <Code>author</Code>: Author - The author to display
               </li>
@@ -48,20 +48,20 @@ export function AuthorCardExamples({ authorData }: AuthorCardExamplesProps) {
           </div>
         </ComponentInfo>
 
-        <h3 id="author-card-examples" className="text-lg font-bold mb-4">
+        <h3 id="author-card-examples" className="mb-4 text-lg font-bold">
           Author: {authorData.name}
         </h3>
 
         <Example title="Default View">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={authorCardRef}>
                 <AuthorCard author={authorData} />
               </div>
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={authorSkeletonRef}>
                 <AuthorCardSkeleton />
               </div>
@@ -70,26 +70,26 @@ export function AuthorCardExamples({ authorData }: AuthorCardExamplesProps) {
           <DimensionComparison cardDimensions={authorCardDims} skeletonDimensions={authorSkeletonDims} />
         </Example>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Example title="No Image (Placeholder)">
-            <div className="flex gap-4 flex-wrap">
+            <div className="flex flex-wrap gap-4">
               <div className="mb-6">
-                <p className="text-sm text-gray-400 mb-2">With placeholder SVG</p>
+                <p className="mb-2 text-sm text-gray-400">With placeholder SVG</p>
                 <AuthorCard author={{ ...authorData, imagePath: undefined }} />
               </div>
             </div>
           </Example>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Example title="Selection Mode">
-            <div className="flex gap-4 flex-wrap">
+            <div className="flex flex-wrap gap-4">
               <div className="mb-6">
-                <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
+                <p className="mb-2 text-sm text-gray-400">Selection Mode (Unselected)</p>
                 <AuthorCard author={authorData} isSelectionMode={true} selected={false} onSelect={(e) => console.log('Toggle selection', e)} />
               </div>
               <div className="mb-6">
-                <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
+                <p className="mb-2 text-sm text-gray-400">Selection Mode (Selected)</p>
                 <AuthorCard author={authorData} isSelectionMode={true} selected={true} onSelect={(e) => console.log('Toggle selection', e)} />
               </div>
             </div>
@@ -98,25 +98,25 @@ export function AuthorCardExamples({ authorData }: AuthorCardExamplesProps) {
 
         <div className="mb-6">
           <Example title="Size Multipliers">
-            <div className="flex gap-8 flex-wrap items-start pb-6">
+            <div className="flex flex-wrap items-start gap-8 pb-6">
               <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
-                <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+                <p className="mb-2 text-sm text-gray-400">Size: 1/2</p>
                 <AuthorCard author={authorData} sizeMultiplier={1 / 2} />
               </div>
               <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
-                <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+                <p className="mb-2 text-sm text-gray-400">Size: 3/4</p>
                 <AuthorCard author={authorData} sizeMultiplier={3 / 4} />
               </div>
               <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
-                <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+                <p className="mb-2 text-sm text-gray-400">Size: 5/6</p>
                 <AuthorCard author={authorData} sizeMultiplier={5 / 6} />
               </div>
               <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
-                <p className="text-sm text-gray-400 mb-2">Size: 1</p>
+                <p className="mb-2 text-sm text-gray-400">Size: 1</p>
                 <AuthorCard author={authorData} sizeMultiplier={1} />
               </div>
-              <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
-                <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+              <div className="mb-6 hidden lg:block" style={{ fontSize: `${4 / 3}em` }}>
+                <p className="mb-2 text-sm text-gray-400">Size: 4/3</p>
                 <AuthorCard author={authorData} sizeMultiplier={4 / 3} />
               </div>
             </div>

@@ -102,12 +102,12 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
           {rssFeed.coverPath ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/feed/${rssFeed.slug}/cover`} alt={t('LabelCover')} className="w-full h-auto" />
+              <img src={`/feed/${rssFeed.slug}/cover`} alt={t('LabelCover')} className="h-auto w-full" />
             </>
           ) : (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/Logo.png" alt={t('LabelLogo')} className="w-full h-auto" />
+              <img src="/images/Logo.png" alt={t('LabelLogo')} className="h-auto w-full" />
             </>
           )}
         </>
@@ -119,7 +119,7 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
       label: t('LabelTitle'),
       accessor: (rssFeed) => (
         <div className="max-w-40 sm:max-w-64">
-          <p className="text-xs truncate" title={rssFeed.meta.title}>
+          <p className="truncate text-xs" title={rssFeed.meta.title}>
             {rssFeed.meta.title}
           </p>
         </div>

@@ -98,23 +98,23 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className={modalClassName} style={modalStyle}>
-      <div className="h-full w-full flex flex-col overflow-hidden">
+      <div className="flex h-full w-full flex-col overflow-hidden">
         {/* Header */}
         <div className="flex-shrink-0 p-3 text-center">
           <p className="text-base font-semibold">{t('HeaderPreviewCover')}</p>
         </div>
 
         {/* Image area - takes remaining space */}
-        <div className="flex-1 flex justify-center items-center px-6 min-h-0">
+        <div className="flex min-h-0 flex-1 items-center justify-center px-6">
           {selectedCover && <PreviewCover src={selectedCover} width={previewCoverWidth} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />}
         </div>
 
         {/* Buttons */}
-        <div className="flex-shrink-0 flex gap-3 sm:gap-4 justify-center py-3 px-6">
-          <Btn onClick={onClose} className="flex-1 sm:flex-none sm:min-w-24">
+        <div className="flex flex-shrink-0 justify-center gap-3 px-6 py-3 sm:gap-4">
+          <Btn onClick={onClose} className="flex-1 sm:min-w-24 sm:flex-none">
             {t('ButtonCancel')}
           </Btn>
-          <Btn color="bg-success" onClick={onApply} className="flex-1 sm:flex-none sm:min-w-24">
+          <Btn color="bg-success" onClick={onApply} className="flex-1 sm:min-w-24 sm:flex-none">
             {t('ButtonApply')}
           </Btn>
         </div>

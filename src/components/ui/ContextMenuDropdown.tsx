@@ -335,7 +335,7 @@ export default function ContextMenuDropdown<T = string>({
           more_vert
         </IconBtn>
       ) : (
-        <div className="h-full w-full flex items-center justify-center">
+        <div className="flex h-full w-full items-center justify-center">
           <LoadingSpinner />
         </div>
       )}

@@ -133,25 +133,25 @@ export default function CollapsibleSection({
     <div className={mergeClasses('w-full', className)}>
       {/* Header - clickable to toggle */}
       <div id={headerId} className={headerClasses} onClick={handleHeaderClick}>
-        <div className="flex items-center flex-1 min-w-0 flex-wrap gap-1 md:gap-2 text-left bg-transparent border-none p-0 text-inherit">
-          <div className="flex items-center flex-shrink-0 min-w-0 gap-2">
-            <p className="font-medium whitespace-nowrap overflow-hidden text-ellipsis">{title}</p>
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 border-none bg-transparent p-0 text-left text-inherit md:gap-2">
+          <div className="flex min-w-0 flex-shrink-0 items-center gap-2">
+            <p className="overflow-hidden font-medium text-ellipsis whitespace-nowrap">{title}</p>
             {count !== undefined && (
               <div className={countBadgeClasses} aria-label={countAriaLabel} role="status">
-                <span className="text-sm font-mono" aria-hidden="true">
+                <span className="font-mono text-sm" aria-hidden="true">
                   {count}
                 </span>
               </div>
             )}
             {badge && (
-              <div className="h-6 px-2 rounded-full bg-white/10 flex items-center justify-center text-sm" aria-hidden="true">
+              <div className="flex h-6 items-center justify-center rounded-full bg-white/10 px-2 text-sm" aria-hidden="true">
                 {badge}
               </div>
             )}
           </div>
         </div>
 
-        {headerActions && <div className="flex items-center gap-1 md:gap-2 flex-shrink-0 ml-2">{headerActions}</div>}
+        {headerActions && <div className="ml-2 flex flex-shrink-0 items-center gap-1 md:gap-2">{headerActions}</div>}
 
         {!keepOpen && (
           <IconBtn
@@ -159,7 +159,7 @@ export default function CollapsibleSection({
             size="custom"
             className={mergeClasses(
               iconClasses,
-              'cursor-pointer focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
+              'focus-visible:outline-foreground-muted cursor-pointer focus-visible:outline-1 focus-visible:outline-offset-0'
             )}
             iconClass="text-2xl md:text-3xl"
             onClick={handleToggle}

@@ -12,7 +12,7 @@ export default async function AccountStatsPage() {
   }
 
   return (
-    <div className="p-8 w-full max-w-xl mx-auto">
+    <div className="mx-auto w-full max-w-xl p-8">
       <h1 className="text-2xl">{t('HeaderStats')}</h1>
     </div>
   )

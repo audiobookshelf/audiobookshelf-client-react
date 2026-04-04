@@ -66,7 +66,7 @@ export default function MediaCardMoreMenu({ items, processing = false, onAction,
       processing={processing}
       onAction={handleContextMenuAction}
       onOpenChange={handleOpenChange}
-      className={mergeClasses('w-auto h-auto text-[1em]', className)}
+      className={mergeClasses('h-auto w-auto text-[1em]', className)}
       usePortal
     />
   )

@@ -265,7 +265,7 @@ export default function DurationPicker({
       <fieldset cy-id="duration-picker-wrapper" className={wrapperClass} onClick={handleWrapperClick}>
         <legend className="sr-only">{t('LabelDuration')}</legend>
         {/* HOURS */}
-        <div className="flex-shrink min-w-0">
+        <div className="min-w-0 flex-shrink">
           <label htmlFor={hoursId} className="sr-only">
             {t('LabelHours')}
           </label>
@@ -297,7 +297,7 @@ export default function DurationPicker({
         </div>
 
         {/* MINUTES */}
-        <div className="flex-shrink min-w-0">
+        <div className="min-w-0 flex-shrink">
           <label htmlFor={minutesId} className="sr-only">
             {t('LabelMinutes')}
           </label>
@@ -329,7 +329,7 @@ export default function DurationPicker({
         </div>
 
         {/* SECONDS */}
-        <div className="flex-shrink min-w-0">
+        <div className="min-w-0 flex-shrink">
           <label htmlFor={secondsId} className="sr-only">
             {t('LabelSeconds')}
           </label>

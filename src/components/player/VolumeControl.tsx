@@ -157,7 +157,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
       onMouseLeave={closePopoverSoon}
     >
       {/* Main popover content with background */}
-      <div className="bg-background rounded-lg shadow-lg py-3 px-1 flex flex-col items-center" style={{ marginBottom: -8 }}>
+      <div className="bg-background flex flex-col items-center rounded-lg px-1 py-3 shadow-lg" style={{ marginBottom: -8 }}>
         {/* Custom volume slider using div-based track */}
         <div
           ref={trackRef}
@@ -168,13 +168,13 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
           aria-valuemax={100}
           aria-valuenow={volumePercentage}
           aria-valuetext={`${volumePercentage}%`}
-          className="relative flex items-center justify-center cursor-pointer select-none"
+          className="relative flex cursor-pointer items-center justify-center select-none"
           style={{ height: trackHeight, width: 24 }}
           onMouseDown={handleMouseDown}
         >
           {/* Track background */}
           <div
-            className="absolute rounded-full bg-foreground-muted pointer-events-none"
+            className="bg-foreground-muted pointer-events-none absolute rounded-full"
             style={{
               width: 6,
               height: trackHeight,
@@ -183,7 +183,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
           />
           {/* Track filled portion (from bottom) */}
           <div
-            className="absolute rounded-full bg-foreground pointer-events-none"
+            className="bg-foreground pointer-events-none absolute rounded-full"
             style={{
               width: 6,
               height: filledHeight,
@@ -192,7 +192,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
           />
           {/* Thumb */}
           <div
-            className="absolute rounded-full pointer-events-none bg-foreground"
+            className="bg-foreground pointer-events-none absolute rounded-full"
             style={{
               width: 14,
               height: 14,
@@ -217,7 +217,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
         aria-label={t('LabelVolume')}
         aria-expanded={isOpen}
         aria-controls={`${widgetId}-popover`}
-        className="w-10 h-10 flex items-center justify-center text-2xl text-foreground-muted hover:text-foreground transition-colors cursor-pointer"
+        className="text-foreground-muted hover:text-foreground flex h-10 w-10 cursor-pointer items-center justify-center text-2xl transition-colors"
       >
         <span className="material-symbols" aria-hidden="true">
           {getVolumeIcon()}

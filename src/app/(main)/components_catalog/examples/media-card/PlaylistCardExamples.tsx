@@ -44,7 +44,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>playlist</Code>: Playlist - The playlist to display
             </li>
@@ -61,21 +61,21 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
         </div>
       </ComponentInfo>
 
-      <h3 id="playlist-card-examples" className="text-lg font-bold mb-4">
+      <h3 id="playlist-card-examples" className="mb-4 text-lg font-bold">
         Playlist: {playlistData.name}
       </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title="Standard View">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={standardCardRef}>
                 <PlaylistCard playlist={playlistData} bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={standardSkeletonRef}>
                 <PlaylistCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
@@ -85,15 +85,15 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
         </Example>
 
         <Example title="Detail View">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={detailCardRef}>
                 <PlaylistCard playlist={playlistData} bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={detailSkeletonRef}>
                 <PlaylistCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
@@ -103,11 +103,11 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title="Empty Playlist">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: [] } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
@@ -115,7 +115,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: [] } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
@@ -126,9 +126,9 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
         </Example>
 
         <Example title="Single Item Playlist">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 1) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
@@ -136,7 +136,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 1) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
@@ -147,11 +147,11 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title="Two Items (Checker Pattern)">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 2) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
@@ -159,7 +159,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 2) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
@@ -170,9 +170,9 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
         </Example>
 
         <Example title="Three Items">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 3) } as Playlist}
                 bookshelfView={BookshelfView.STANDARD}
@@ -180,7 +180,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <PlaylistCard
                 playlist={{ ...playlistData, items: playlistData.items?.slice(0, 3) } as Playlist}
                 bookshelfView={BookshelfView.DETAIL}
@@ -192,7 +192,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
       </div>
 
       <Example title="Selection Mode">
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-wrap gap-4">
           <PlaylistCard
             playlist={playlistData}
             bookshelfView={BookshelfView.STANDARD}
@@ -216,9 +216,9 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
 
       <div className="mb-6">
         <Example title="Size Multipliers (Standard View)">
-          <div className="flex gap-8 flex-wrap items-start pb-6">
+          <div className="flex flex-wrap items-start gap-8 pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1/2</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -227,7 +227,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 3/4</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -236,7 +236,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 5/6</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -245,7 +245,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
-              <p className="text-sm text-gray-400 mb-2">Size: 1</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -253,8 +253,8 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
                 sizeMultiplier={1}
               />
             </div>
-            <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
-              <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+            <div className="mb-6 hidden lg:block" style={{ fontSize: `${4 / 3}em` }}>
+              <p className="mb-2 text-sm text-gray-400">Size: 4/3</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -268,9 +268,9 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
 
       <div className="mb-6">
         <Example title="Size Multipliers (Detail View)">
-          <div className="flex gap-8 flex-wrap items-start pb-6">
+          <div className="flex flex-wrap items-start gap-8 pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1/2</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
@@ -279,7 +279,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 3/4</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
@@ -288,7 +288,7 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 5/6</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}
@@ -297,11 +297,11 @@ export function PlaylistCardExamples({ playlistData }: PlaylistCardExamplesProps
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
-              <p className="text-sm text-gray-400 mb-2">Size: 1</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1</p>
               <PlaylistCard playlist={playlistData} bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} sizeMultiplier={1} />
             </div>
-            <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
-              <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+            <div className="mb-6 hidden lg:block" style={{ fontSize: `${4 / 3}em` }}>
+              <p className="mb-2 text-sm text-gray-400">Size: 4/3</p>
               <PlaylistCard
                 playlist={playlistData}
                 bookshelfView={BookshelfView.DETAIL}

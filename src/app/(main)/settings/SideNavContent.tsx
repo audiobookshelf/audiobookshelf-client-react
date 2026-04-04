@@ -64,7 +64,7 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
 
   return (
     <>
-      <nav className="w-full h-full max-h-[calc(100%-2rem)] overflow-y-auto">
+      <nav className="h-full max-h-[calc(100%-2rem)] w-full overflow-y-auto">
         {items.map((item) => (
           <Link
             key={item.label}
@@ -72,16 +72,16 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
             onClick={handleItemClick ?? undefined}
             className={mergeClasses(
               pathname === item.href && 'bg-nav-item-selected',
-              'w-full h-12 text-foreground border-b border-primary/30 hover:bg-nav-item-hover cursor-pointer relative flex items-center px-3'
+              'text-foreground border-primary/30 hover:bg-nav-item-hover relative flex h-12 w-full cursor-pointer items-center border-b px-3'
             )}
           >
             {item.label}
           </Link>
         ))}
       </nav>
-      <div className="w-full h-8 px-4 py-2 border-t border-primary/30 flex items-center justify-between">
-        <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
-        <p className="text-xxs text-center text-foreground-subdued italic">{installSource}</p>
+      <div className="border-primary/30 flex h-8 w-full items-center justify-between border-t px-4 py-2">
+        <p className="text-foreground-muted text-center font-mono text-xs">v{serverVersion}</p>
+        <p className="text-xxs text-foreground-subdued text-center italic">{installSource}</p>
       </div>
     </>
   )

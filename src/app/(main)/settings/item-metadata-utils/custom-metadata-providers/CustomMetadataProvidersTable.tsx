@@ -22,7 +22,7 @@ function MaskedAuthValue({ authHeaderValue }: { authHeaderValue: string | null }
     <span
       className={mergeClasses(
         'inline-block rounded px-1 py-[1px] transition-all duration-300',
-        'bg-table-header-bg text-transparent hover:text-foreground hover:bg-transparent'
+        'bg-table-header-bg hover:text-foreground text-transparent hover:bg-transparent'
       )}
     >
       {authHeaderValue}
@@ -100,7 +100,7 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
 
   if (!providers.length) {
     return (
-      <div className="text-center py-8">
+      <div className="py-8 text-center">
         <p className="text-lg">{t('LabelNoCustomMetadataProviders')}</p>
       </div>
     )

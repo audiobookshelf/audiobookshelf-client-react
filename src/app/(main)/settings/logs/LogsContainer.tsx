@@ -139,7 +139,7 @@ export default function LogsContainer({ currentDailyLogs, logLevel: initialLogLe
           />
         </div>
       </div>
-      <div ref={containerRef} className="w-full h-full max-h-[calc(100vh-20rem)] overflow-y-auto overflow-x-hidden border border-border rounded-md">
+      <div ref={containerRef} className="border-border h-full max-h-[calc(100vh-20rem)] w-full overflow-x-hidden overflow-y-auto rounded-md border">
         <div className="flex flex-col">
           {logs.map((log, index) => (
             <LogsRow key={index} log={log} isEven={index % 2 === 0} />
@@ -153,8 +153,8 @@ export default function LogsContainer({ currentDailyLogs, logLevel: initialLogLe
 function LogsRow({ log, isEven }: { log: LoggerDataLog; isEven: boolean }) {
   const logLevelColor = getLogLevelColor(log.levelName)
   return (
-    <div className={`flex gap-2 items-start p-2 ${isEven ? 'bg-table-row-bg-even' : ''}`}>
-      <div className="text-xs text-foreground-subdued w-36">{log.timestamp}</div>
+    <div className={`flex items-start gap-2 p-2 ${isEven ? 'bg-table-row-bg-even' : ''}`}>
+      <div className="text-foreground-subdued w-36 text-xs">{log.timestamp}</div>
       <div className={`w-12 text-xs ${logLevelColor}`}>{log.levelName}</div>
       <div className={`text-sm ${log.level < 2 ? 'text-foreground-subdued' : 'text-foreground'} w-[calc(100%-13rem)]`}>{log.message}</div>
     </div>

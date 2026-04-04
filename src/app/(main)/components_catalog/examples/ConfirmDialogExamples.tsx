@@ -67,7 +67,7 @@ export function ConfirmDialogExamples() {
       <ExamplesBlock>
         <Example title="Basic Confirm Dialog">
           <div>
-            <p className="text-gray-400 text-sm mb-4">A simple confirmation dialog with default styling.</p>
+            <p className="mb-4 text-sm text-gray-400">A simple confirmation dialog with default styling.</p>
             <Btn onClick={() => setBasicDialogOpen(true)}>Open Basic Confirm Dialog</Btn>
 
             <ConfirmDialog
@@ -81,7 +81,7 @@ export function ConfirmDialogExamples() {
 
         <Example title="With Checkbox">
           <div>
-            <p className="text-gray-400 text-sm mb-4">A confirmation dialog with an optional checkbox for &quot;don&apos;t ask again&quot; functionality.</p>
+            <p className="mb-4 text-sm text-gray-400">A confirmation dialog with an optional checkbox for &quot;don&apos;t ask again&quot; functionality.</p>
             <Btn onClick={() => setWithCheckboxOpen(true)}>Open Dialog with Checkbox</Btn>
 
             <ConfirmDialog
@@ -96,7 +96,7 @@ export function ConfirmDialogExamples() {
 
         <Example title="Custom Button Text">
           <div>
-            <p className="text-gray-400 text-sm mb-4">A confirmation dialog with custom button text.</p>
+            <p className="mb-4 text-sm text-gray-400">A confirmation dialog with custom button text.</p>
             <Btn onClick={() => setCustomButtonTextOpen(true)}>Open Custom Button Dialog</Btn>
 
             <ConfirmDialog
@@ -111,7 +111,7 @@ export function ConfirmDialogExamples() {
 
         <Example title="Destructive Action">
           <div>
-            <p className="text-gray-400 text-sm mb-4">A confirmation dialog for destructive actions with a warning-style button.</p>
+            <p className="mb-4 text-sm text-gray-400">A confirmation dialog for destructive actions with a warning-style button.</p>
             <Btn onClick={() => setDestructiveOpen(true)}>Open Destructive Dialog</Btn>
 
             <ConfirmDialog
@@ -127,7 +127,7 @@ export function ConfirmDialogExamples() {
 
         <Example title="Long Message">
           <div>
-            <p className="text-gray-400 text-sm mb-4">A confirmation dialog with a longer message that demonstrates text wrapping.</p>
+            <p className="mb-4 text-sm text-gray-400">A confirmation dialog with a longer message that demonstrates text wrapping.</p>
             <Btn onClick={() => setLongMessageOpen(true)}>Open Long Message Dialog</Btn>
 
             <ConfirmDialog
@@ -143,7 +143,7 @@ export function ConfirmDialogExamples() {
 
         <Example title="With Checkbox and Custom Button">
           <div>
-            <p className="text-gray-400 text-sm mb-4">A confirmation dialog combining checkbox and custom button styling.</p>
+            <p className="mb-4 text-sm text-gray-400">A confirmation dialog combining checkbox and custom button styling.</p>
             <Btn onClick={() => setCombinedDialogOpen(true)}>Open Combined Dialog</Btn>
 
             <ConfirmDialog

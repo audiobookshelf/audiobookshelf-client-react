@@ -105,110 +105,110 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div
-        className={mergeClasses('w-full overflow-x-hidden p-4 sm:p-6', ffprobeData ? 'overflow-hidden flex flex-col' : 'overflow-y-auto')}
+        className={mergeClasses('w-full overflow-x-hidden p-4 sm:p-6', ffprobeData ? 'flex flex-col overflow-hidden' : 'overflow-y-auto')}
         style={ffprobeData ? { height: '80vh' } : { maxHeight: '80vh' }}
       >
-        <div className={mergeClasses('flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0', ffprobeData && 'shrink-0')}>
-          <h2 className="text-base text-foreground truncate" title={metadata?.filename}>
+        <div className={mergeClasses('flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-0', ffprobeData && 'shrink-0')}>
+          <h2 className="text-foreground truncate text-base" title={metadata?.filename}>
             {metadata?.filename}
           </h2>
           {ffprobeData ? (
-            <Btn size="small" className="sm:ml-2 shrink-0" onClick={handleReset}>
+            <Btn size="small" className="shrink-0 sm:ml-2" onClick={handleReset}>
               {t('ButtonReset')}
             </Btn>
           ) : (
-            <Btn size="small" loading={isPending} className="sm:ml-2 shrink-0" onClick={handleGetFFProbeData}>
+            <Btn size="small" loading={isPending} className="shrink-0 sm:ml-2" onClick={handleGetFFProbeData}>
               {t('ButtonProbeAudioFile')}
             </Btn>
           )}
         </div>
 
-        <div className={mergeClasses('w-full h-px bg-border my-4', ffprobeData && 'shrink-0')} />
+        <div className={mergeClasses('bg-border my-4 h-px w-full', ffprobeData && 'shrink-0')} />
 
         {!ffprobeData ? (
           <>
             <TextInput value={metadata?.path || ''} readOnly label={t('LabelPath')} className="mb-4 text-sm" />
 
-            <dl className="flex flex-col sm:flex-row text-sm gap-4">
+            <dl className="flex flex-col gap-4 text-sm sm:flex-row">
               <div className="w-full sm:w-1/2">
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelSize')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelSize')}</dt>
                   <dd className="break-words">{bytesPretty(metadata?.size || 0)}</dd>
                 </div>
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelDuration')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelDuration')}</dt>
                   <dd className="break-words">{secondsToTimestamp(audioFile.duration)}</dd>
                 </div>
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelFormat')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelFormat')}</dt>
                   <dd className="break-words">{audioFile.codec}</dd>
                 </div>
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('HeaderChapters')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('HeaderChapters')}</dt>
                   <dd className="break-words">{audioFile.chapters?.length || 0}</dd>
                 </div>
                 {audioFile.embeddedCoverArt && (
-                  <div className="flex flex-row mb-1 gap-0">
-                    <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelEmbeddedCover')}</dt>
+                  <div className="mb-1 flex flex-row gap-0">
+                    <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelEmbeddedCover')}</dt>
                     <dd className="break-words">{audioFile.embeddedCoverArt}</dd>
                   </div>
                 )}
               </div>
               <div className="w-full sm:w-1/2">
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelCodec')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelCodec')}</dt>
                   <dd className="break-words">{audioFile.codec}</dd>
                 </div>
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelChannels')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelChannels')}</dt>
                   <dd className="break-words">
                     {audioFile.channels} ({audioFile.channelLayout})
                   </dd>
                 </div>
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelBitrate')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelBitrate')}</dt>
                   <dd className="break-words">{bytesPretty(audioFile.bitRate || 0, 0)}</dd>
                 </div>
-                <div className="flex flex-row mb-1 gap-0">
-                  <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelTimeBase')}</dt>
+                <div className="mb-1 flex flex-row gap-0">
+                  <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelTimeBase')}</dt>
                   <dd className="break-words">{audioFile.timeBase}</dd>
                 </div>
                 {audioFile.language && (
-                  <div className="flex flex-row mb-1 gap-0">
-                    <dt className="w-32 min-w-24 text-foreground-subdued shrink-0">{t('LabelLanguage')}</dt>
+                  <div className="mb-1 flex flex-row gap-0">
+                    <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelLanguage')}</dt>
                     <dd className="break-words">{audioFile.language}</dd>
                   </div>
                 )}
               </div>
             </dl>
 
-            <div className="w-full h-px bg-white/10 my-4" role="separator" aria-orientation="horizontal" />
+            <div className="my-4 h-px w-full bg-white/10" role="separator" aria-orientation="horizontal" />
 
-            <h3 className="font-bold mb-2">{t('LabelMetaTags')}</h3>
+            <h3 className="mb-2 font-bold">{t('LabelMetaTags')}</h3>
 
             {Object.entries(metaTags).length > 0 ? (
               <dl className="text-sm">
                 {Object.entries(metaTags).map(([key, value]) => (
-                  <div key={key} className="flex flex-col sm:flex-row mb-1 gap-1 sm:gap-2">
-                    <dt className="w-32 min-w-24 sm:min-w-32 text-foreground-subdued shrink-0 sm:break-words">{key.replace('tag', '')}</dt>
-                    <dd className="break-words flex-1 min-w-0">{value}</dd>
+                  <div key={key} className="mb-1 flex flex-col gap-1 sm:flex-row sm:gap-2">
+                    <dt className="text-foreground-subdued w-32 min-w-24 shrink-0 sm:min-w-32 sm:break-words">{key.replace('tag', '')}</dt>
+                    <dd className="min-w-0 flex-1 break-words">{value}</dd>
                   </div>
                 ))}
               </dl>
             ) : (
-              <p className="text-sm text-foreground-subdued" role="status">
+              <p className="text-foreground-subdued text-sm" role="status">
                 {t('MessageNoItems')}
               </p>
             )}
           </>
         ) : (
-          <div className="w-full flex flex-col flex-1 min-h-0">
-            <div className="flex-1 flex flex-col min-h-0 relative">
+          <div className="flex min-h-0 w-full flex-1 flex-col">
+            <div className="relative flex min-h-0 flex-1 flex-col">
               <TextareaInput
                 value={prettyFfprobeData}
                 readOnly
                 fillHeight
-                className="text-xs font-mono flex flex-col flex-1 min-h-0"
+                className="flex min-h-0 flex-1 flex-col font-mono text-xs"
                 label={t('LabelMetaTags')}
               />
               <IconBtn
@@ -216,7 +216,7 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
                 borderless
                 className={mergeClasses(
                   'absolute top-7 right-4',
-                  'p-2 rounded z-10',
+                  'z-10 rounded p-2',
                   hasCopied ? 'text-success' : 'text-foreground-subdued hover:text-foreground'
                 )}
                 onClick={handleCopyToClipboard}

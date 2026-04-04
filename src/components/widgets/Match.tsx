@@ -324,9 +324,9 @@ export default function Match({
   return (
     <>
       {!selectedMatchOrig ? (
-        <div className="flex flex-col flex-1 overflow-hidden px-2 md:px-4 py-4">
+        <div className="flex flex-1 flex-col overflow-hidden px-2 py-4 md:px-4">
           <form onSubmit={handleSubmitSearch} className="flex-shrink-0">
-            <div className="flex flex-wrap md:flex-nowrap items-center justify-start -mx-1">
+            <div className="-mx-1 flex flex-wrap items-center justify-start md:flex-nowrap">
               {providersLoaded && providers.length > 0 && (
                 <div className="w-40 px-1">
                   <Dropdown
@@ -349,7 +349,7 @@ export default function Match({
                   />
                 </div>
               )}
-              <div className="grow md:w-72 px-1">
+              <div className="grow px-1 md:w-72">
                 <TextInput
                   value={searchTitle}
                   onChange={setSearchTitle}
@@ -359,7 +359,7 @@ export default function Match({
                 />
               </div>
               {validProvider !== 'itunes' && !isPodcast && (
-                <div className="w-60 md:w-72 px-1">
+                <div className="w-60 px-1 md:w-72">
                   <TextInput value={searchAuthor} onChange={setSearchAuthor} disabled={isPendingSearch} label={t('LabelAuthor')} />
                 </div>
               )}
@@ -384,7 +384,7 @@ export default function Match({
           {!isPendingSearch && (
             <div
               ref={scrollContainerRef}
-              className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden mt-4 px-1 md:mx-0 md:px-0 min-h-0 gap-2"
+              className="mt-4 flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto px-1 md:mx-0 md:px-0"
               style={{ paddingRight: hasScrollbar ? '1rem' : '0' }}
               onKeyDown={handleContainerKeyDown}
               role="listbox"

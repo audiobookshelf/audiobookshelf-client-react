@@ -51,10 +51,10 @@ export default function BackupLocation({ backupLocation, backupPathEnvSet }: Bac
   return (
     <div className="mb-4">
       <div className="flex items-center gap-2">
-        <span className="material-symbols text-xl text-foreground-subdued" aria-hidden="true">
+        <span className="material-symbols text-foreground-subdued text-xl" aria-hidden="true">
           folder
         </span>
-        <p className="text-foreground-subdued uppercase text-sm">{t('LabelBackupLocation')}</p>
+        <p className="text-foreground-subdued text-sm uppercase">{t('LabelBackupLocation')}</p>
       </div>
       {isEditing ? (
         <div>
@@ -70,11 +70,11 @@ export default function BackupLocation({ backupLocation, backupPathEnvSet }: Bac
               {t('ButtonCancel')}
             </Btn>
           </div>
-          <p className="text-sm text-foreground-subdued">{backupPathEnvSet ? t('MessageBackupsLocationNoEditNote') : t('MessageBackupsLocationEditNote')}</p>
+          <p className="text-foreground-subdued text-sm">{backupPathEnvSet ? t('MessageBackupsLocationNoEditNote') : t('MessageBackupsLocationEditNote')}</p>
         </div>
       ) : (
         <div className="flex items-center gap-2">
-          <p className="text-base text-foreground break-all">{backupLocation}</p>
+          <p className="text-foreground text-base break-all">{backupLocation}</p>
           <IconBtn
             ariaLabel={t('LabelEdit')}
             borderless

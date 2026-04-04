@@ -230,15 +230,15 @@ export const Pill = <T,>({
         role="listitem"
         aria-label={t('LabelEditingItem', { item: readOnlyPrefix ? readOnlyPrefix + itemText : itemText })}
         className={mergeClasses(
-          'rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
-          'ring z-10',
-          hasValidationError && 'ring-red-500 ring-2'
+          'bg-bg relative mx-0.5 my-0.5 flex flex-nowrap items-center justify-center rounded-full px-2 py-1 text-xs break-all',
+          'z-10 ring',
+          hasValidationError && 'ring-2 ring-red-500'
         )}
         tabIndex={-1}
         onMouseDown={(e) => e.preventDefault()}
         onKeyDown={handlePillKeyDown}
       >
-        <span ref={sizerRef} className="absolute invisible whitespace-pre px-1 text-xs">
+        <span ref={sizerRef} className="invisible absolute px-1 text-xs whitespace-pre">
           {inputValue}
         </span>
         <div className="inline" style={{ maxWidth: '85%' }}>
@@ -255,7 +255,7 @@ export const Pill = <T,>({
               onChange={handleEditInputChange}
               onKeyDown={handleEditInputKeyDown}
               onBlur={handleInputBlur}
-              className="bg-transparent border-none outline-none text-xs text-center"
+              className="border-none bg-transparent text-center text-xs outline-none"
               style={{ minWidth: '0px', width: `${inputWidthRef.current}px`, maxWidth: '100%', marginLeft: '-3px' }}
               autoComplete="off"
               aria-label={t('LabelEditItem', { item: readOnlyPrefix ? readOnlyPrefix + itemText : itemText })}
@@ -263,7 +263,7 @@ export const Pill = <T,>({
             />
           )}
         </div>
-        <div className="flex items-center gap-1 ms-1" role="group" aria-label={t('LabelEditActions')}>
+        <div className="ms-1 flex items-center gap-1" role="group" aria-label={t('LabelEditActions')}>
           <button
             type="button"
             aria-label={t('ButtonCancelEdit')}
@@ -300,8 +300,8 @@ export const Pill = <T,>({
       cy-id={id}
       role="listitem"
       className={mergeClasses(
-        'group rounded-full px-2 py-1 mx-0.5 my-0.5 text-xs bg-bg flex flex-nowrap break-all items-center justify-center relative',
-        !disabled && isFocused ? 'ring z-10' : '',
+        'group bg-bg relative mx-0.5 my-0.5 flex flex-nowrap items-center justify-center rounded-full px-2 py-1 text-xs break-all',
+        !disabled && isFocused ? 'z-10 ring' : '',
         hasValidationError && 'ring-error ring-2'
       )}
       style={{ minWidth: showEditButton ? 44 : 22 }}
@@ -314,12 +314,12 @@ export const Pill = <T,>({
       }}
     >
       {!disabled && (
-        <div className="absolute top-0 -end-1 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20">
+        <div className="absolute -end-1 top-0 z-20 flex -translate-y-1/2 items-center gap-0.5 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
           {showEditButton && (
             <button
               type="button"
               aria-label={t('ButtonEdit')}
-              className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-foreground hover:text-warning cursor-pointer"
+              className="material-symbols bg-bg-alt text-foreground hover:text-warning flex h-3 w-3 cursor-pointer items-center justify-center rounded-full text-sm"
               onMouseDown={(e) => e.preventDefault()}
               onClick={handleEditButtonClick}
               tabIndex={-1}
@@ -330,7 +330,7 @@ export const Pill = <T,>({
           <button
             type="button"
             aria-label={t('ButtonRemove')}
-            className="material-symbols flex h-3 w-3 items-center justify-center rounded-full bg-bg-alt text-sm text-foreground hover:text-error focus:text-error cursor-pointer"
+            className="material-symbols bg-bg-alt text-foreground hover:text-error focus:text-error flex h-3 w-3 cursor-pointer items-center justify-center rounded-full text-sm"
             onMouseDown={(e) => e.preventDefault()}
             onClick={(e) => {
               e.stopPropagation()
@@ -342,7 +342,7 @@ export const Pill = <T,>({
           </button>
         </div>
       )}
-      <span className="relative group-hover:opacity-75 transition-opacity duration-300">{fullText}</span>
+      <span className="relative transition-opacity duration-300 group-hover:opacity-75">{fullText}</span>
     </div>
   )
 }

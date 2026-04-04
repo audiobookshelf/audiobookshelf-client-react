@@ -35,8 +35,8 @@ export default function EpisodeTableToolbar({
   return (
     <div
       className={mergeClasses(
-        'flex flex-wrap items-center gap-2 px-1 py-2 border-b border-border bg-bg-elevated transition-opacity',
-        isSelectionMode ? 'opacity-50 pointer-events-none' : ''
+        'border-border bg-bg-elevated flex flex-wrap items-center gap-2 border-b px-1 py-2 transition-opacity',
+        isSelectionMode ? 'pointer-events-none opacity-50' : ''
       )}
     >
       <TextInput value={search} onChange={onSearchChange} type="search" placeholder={t('PlaceholderSearchEpisode')} className="w-full md:w-auto md:grow" />

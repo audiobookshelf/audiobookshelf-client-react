@@ -42,9 +42,9 @@ export default function MediaCardFrame({
       onMouseLeave={onMouseLeave}
       onKeyDown={onKeyDown}
       className={mergeClasses(
-        'relative rounded-xs z-30',
+        'relative z-30 rounded-xs',
         onClick && 'cursor-pointer',
-        'focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-[0.5em]',
+        'focus-visible:outline-foreground-muted focus-visible:outline-1 focus-visible:outline-offset-[0.5em]',
         className
       )}
       style={{
@@ -53,13 +53,13 @@ export default function MediaCardFrame({
       }}
     >
       <div
-        className="relative w-full top-0 start-0 rounded-sm overflow-hidden z-10 bg-primary box-shadow-book"
+        className="bg-primary box-shadow-book relative start-0 top-0 z-10 w-full overflow-hidden rounded-sm"
         style={{
           height: typeof height === 'number' ? `${height}px` : height,
           aspectRatio: aspectRatio ? `${aspectRatio}` : undefined
         }}
       >
-        <div className="absolute w-full h-full top-0 start-0 rounded-sm overflow-hidden z-10">
+        <div className="absolute start-0 top-0 z-10 h-full w-full overflow-hidden rounded-sm">
           {cover}
           {overlay}
         </div>

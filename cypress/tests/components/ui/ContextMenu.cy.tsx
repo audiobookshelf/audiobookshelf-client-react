@@ -38,7 +38,7 @@ const TestWrapper = ({
 
   return (
     <div className="relative h-64 w-64 bg-gray-800 p-4">
-      <button cy-id="trigger-button" onClick={() => setIsOpen(!isOpen)} className="px-4 py-2 bg-blue-500 text-white rounded">
+      <button cy-id="trigger-button" onClick={() => setIsOpen(!isOpen)} className="rounded bg-blue-500 px-4 py-2 text-white">
         Toggle Menu
       </button>
       <ContextMenu

@@ -96,7 +96,7 @@ export default function ToggleSwitch({
       <div
         cy-id="toggle-and-label-wrapper"
         ref={wrapperRef}
-        className="flex justify-start items-center px-1 py-1"
+        className="flex items-center justify-start px-1 py-1"
         onMouseDown={(e) => e.preventDefault()}
         onClick={handleWrapperClick}
       >

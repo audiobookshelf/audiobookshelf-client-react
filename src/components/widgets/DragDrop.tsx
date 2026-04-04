@@ -120,7 +120,7 @@ export default function DragDrop({ onFilesDropped, children, className = '', dra
       onDragEnter={handleDragIn}
       onDragLeave={handleDragOut}
       onDrop={handleDrop}
-      className={mergeClasses('border-2 border-dashed border-border rounded-lg p-8 transition-colors', isDragActive ? dragActiveClassName : '', className)}
+      className={mergeClasses('border-border rounded-lg border-2 border-dashed p-8 transition-colors', isDragActive ? dragActiveClassName : '', className)}
       role="region"
       aria-label="File drop zone"
     >

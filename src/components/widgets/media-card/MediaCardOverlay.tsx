@@ -166,14 +166,14 @@ export default function MediaCardOverlay({
     <>
       {/* Overlay */}
       {showOverlay && (
-        <div cy-id="overlay" className={mergeClasses('w-full h-full absolute top-0 start-0 z-10 bg-black rounded-sm md:block', overlayWrapperClasslist)}>
+        <div cy-id="overlay" className={mergeClasses('absolute start-0 top-0 z-10 h-full w-full rounded-sm bg-black md:block', overlayWrapperClasslist)}>
           {/* Play button */}
           {showPlayButton && (
-            <div cy-id="playButton" className="h-full flex items-center justify-center pointer-events-none">
+            <div cy-id="playButton" className="pointer-events-none flex h-full items-center justify-center">
               <IconBtn
                 borderless
                 outlined={false}
-                className={mergeClasses('hover:text-white text-gray-200 hover:scale-110', 'transform duration-200 pointer-events-auto w-auto h-auto')}
+                className={mergeClasses('text-gray-200 hover:scale-110 hover:text-white', 'pointer-events-auto h-auto w-auto transform duration-200')}
                 onClick={handlePlayClick}
                 ariaLabel={isItemPlaying ? t('ButtonPlaying') : t('ButtonPlay')}
                 style={playButtonStyle}
@@ -185,10 +185,10 @@ export default function MediaCardOverlay({
 
           {/* Read button */}
           {showReadButton && (
-            <div cy-id="readButton" className="h-full flex items-center justify-center pointer-events-none">
+            <div cy-id="readButton" className="pointer-events-none flex h-full items-center justify-center">
               <IconBtn
                 borderless
-                className={mergeClasses('hover:text-white text-gray-200 hover:scale-110', 'transform duration-200 pointer-events-auto w-auto h-auto')}
+                className={mergeClasses('text-gray-200 hover:scale-110 hover:text-white', 'pointer-events-auto h-auto w-auto transform duration-200')}
                 onClick={handleReadClick}
                 ariaLabel={t('ButtonRead')}
                 style={playButtonStyle}
@@ -220,8 +220,8 @@ export default function MediaCardOverlay({
             <div
               cy-id="moreButton"
               className={mergeClasses(
-                'md:block absolute cursor-pointer bottom-[0.375em] end-[0.375em]',
-                'hover:[&_.material-symbols]:!text-yellow-300 hover:scale-125'
+                'absolute end-[0.375em] bottom-[0.375em] cursor-pointer md:block',
+                'hover:scale-125 hover:[&_.material-symbols]:!text-yellow-300'
               )}
             >
               <MediaCardMoreMenu items={moreMenuItems} processing={isProcessingOrPending} onAction={onMoreAction} onOpenChange={onMoreMenuOpenChange} />
@@ -235,19 +235,19 @@ export default function MediaCardOverlay({
 
       {/* Processing overlay */}
       {processing && (
-        <div cy-id="loadingSpinner" className="w-full h-full absolute top-0 start-0 z-10 bg-black/40 rounded-sm flex items-center justify-center">
+        <div cy-id="loadingSpinner" className="absolute start-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-sm bg-black/40">
           <LoadingSpinner size="la-lg" />
         </div>
       )}
 
       {/* Error tooltip */}
       {showError && (
-        <Tooltip text={errorText} position="right" usePortal className="absolute bottom-4 start-0 z-10" tooltipClassName="whitespace-nowrap">
+        <Tooltip text={errorText} position="right" usePortal className="absolute start-0 bottom-4 z-10" tooltipClassName="whitespace-nowrap">
           <div
-            className={mergeClasses('bg-error rounded-r-full shadow-md flex items-center justify-end', 'border-r border-b border-red-300')}
+            className={mergeClasses('bg-error flex items-center justify-end rounded-r-full shadow-md', 'border-r border-b border-red-300')}
             style={errorBadgeStyle}
           >
-            <span className="material-symbols text-red-100 pr-1" style={errorIconStyle}>
+            <span className="material-symbols pr-1 text-red-100" style={errorIconStyle}>
               priority_high
             </span>
           </div>
@@ -258,7 +258,7 @@ export default function MediaCardOverlay({
       {rssFeed && !isSelectionMode && !isHovering && (
         <div
           cy-id="rssFeed"
-          className={mergeClasses('absolute top-[0.375em] start-[0.375em] z-10', 'bg-black/40 rounded-full flex items-center justify-center shadow-sm')}
+          className={mergeClasses('absolute start-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
           style={iconBadgeStyle}
         >
           <span className="material-symbols text-orange-500" aria-hidden="true" style={iconStyle}>
@@ -269,7 +269,7 @@ export default function MediaCardOverlay({
       {mediaItemShare && !isSelectionMode && !isHovering && (
         <div
           cy-id="mediaItemShare"
-          className={mergeClasses('absolute start-[0.375em] z-10', 'bg-black/40 rounded-full flex items-center justify-center shadow-sm')}
+          className={mergeClasses('absolute start-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
           style={shareIconStyle}
         >
           <span className="material-symbols text-green-500" aria-hidden="true" style={iconStyle}>

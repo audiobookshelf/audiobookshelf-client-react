@@ -68,11 +68,11 @@ export default function Checkbox({
 
   return (
     <InputWrapper disabled={disabled} borderless size={size} className={mergeClasses('bg-transparent', className)} inputRef={inputRef}>
-      <div cy-id="checkbox-and-label-wrapper" className="flex justify-start items-center px-1 py-1">
+      <div cy-id="checkbox-and-label-wrapper" className="flex items-center justify-start px-1 py-1">
         <div cy-id="checkbox-wrapper" className={checkboxWrapperClassName}>
           <div
             cy-id="checkbox-div"
-            className={mergeClasses('rounded-sm w-full h-full flex justify-center items-center', disabled ? 'bg-checkbox-bg-disabled' : '')}
+            className={mergeClasses('flex h-full w-full items-center justify-center rounded-sm', disabled ? 'bg-checkbox-bg-disabled' : '')}
           >
             {partial ? (
               <span className="material-symbols text-base leading-none text-gray-400">remove</span>
@@ -100,7 +100,7 @@ export default function Checkbox({
           aria-label={ariaLabel}
           onChange={handleChange}
           onKeyDown={handleInputKeyDown}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed disabled:pointer-events-none"
+          className="absolute inset-0 h-full w-full cursor-pointer opacity-0 disabled:pointer-events-none disabled:cursor-not-allowed"
         />
       </div>
     </InputWrapper>

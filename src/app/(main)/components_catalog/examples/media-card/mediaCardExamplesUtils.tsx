@@ -14,7 +14,7 @@ export interface DimensionRef {
 
 export function DimensionComparison({ cardDimensions, skeletonDimensions }: { cardDimensions: Dimensions | null; skeletonDimensions: Dimensions | null }) {
   if (!cardDimensions || !skeletonDimensions) {
-    return <p className="text-xs text-gray-500 mt-2">Measuring dimensions...</p>
+    return <p className="mt-2 text-xs text-gray-500">Measuring dimensions...</p>
   }
 
   const widthMatch = Math.abs(cardDimensions.width - skeletonDimensions.width) < 1
@@ -22,8 +22,8 @@ export function DimensionComparison({ cardDimensions, skeletonDimensions }: { ca
   const allMatch = widthMatch && heightMatch
 
   return (
-    <div className="mt-4 p-3 bg-gray-800 rounded-lg text-xs">
-      <p className="font-bold mb-2 text-white">Dimension Check:</p>
+    <div className="mt-4 rounded-lg bg-gray-800 p-3 text-xs">
+      <p className="mb-2 font-bold text-white">Dimension Check:</p>
       <div className="space-y-1">
         <p className={widthMatch ? 'text-green-400' : 'text-red-400'}>
           Width: Card {cardDimensions.width.toFixed(2)}px | Skeleton {skeletonDimensions.width.toFixed(2)}px {widthMatch ? '✓' : '✗'}

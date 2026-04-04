@@ -122,7 +122,7 @@ function PlaylistCard(props: PlaylistCardProps) {
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
         cy-id="playlistCard"
-      cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} bookCoverAspectRatio={bookCoverAspectRatio} />}
+        cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} bookCoverAspectRatio={bookCoverAspectRatio} />}
         overlay={
           <>
             {/* Hover overlay */}
@@ -142,13 +142,7 @@ function PlaylistCard(props: PlaylistCardProps) {
 
                 {/* Edit button */}
                 {userCanUpdate && !isSelectionMode && (
-                  <MediaOverlayIconBtn
-                    cyId="editButton"
-                    position="top-end"
-                    icon="edit"
-                    onClick={handleEditClick}
-                    ariaLabel={t('ButtonEdit')}
-                  />
+                  <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
                 )}
 
                 {/* More menu button */}
@@ -156,8 +150,8 @@ function PlaylistCard(props: PlaylistCardProps) {
                   <div
                     cy-id="moreButton"
                     className={mergeClasses(
-                      'md:block absolute cursor-pointer bottom-[0.375em] end-[0.375em]',
-                      'hover:[&_.material-symbols]:!text-yellow-300 hover:scale-125'
+                      'absolute end-[0.375em] bottom-[0.375em] cursor-pointer md:block',
+                      'hover:scale-125 hover:[&_.material-symbols]:!text-yellow-300'
                     )}
                   >
                     <MediaCardMoreMenu items={moreMenuItems} processing={processing} onAction={handleMoreAction} onOpenChange={handleMoreMenuOpenChange} />
@@ -168,7 +162,7 @@ function PlaylistCard(props: PlaylistCardProps) {
 
             {/* Processing overlay */}
             {processing && (
-              <div cy-id="loadingSpinner" className="w-full h-full absolute top-0 start-0 z-10 bg-black/40 rounded-sm flex items-center justify-center">
+              <div cy-id="loadingSpinner" className="absolute start-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-sm bg-black/40">
                 <LoadingSpinner size="la-lg" />
               </div>
             )}
@@ -177,7 +171,7 @@ function PlaylistCard(props: PlaylistCardProps) {
         footer={
           isAlternativeBookshelfView ? (
             // Detail view footer
-            <div cy-id="detailBottomText" className="relative z-30 start-0 end-0 mx-auto py-[0.25em] rounded-md text-center">
+            <div cy-id="detailBottomText" className="relative start-0 end-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
               <p cy-id="detailBottomDisplayTitle" className="truncate" style={{ fontSize: `${labelFontSize}em` }}>
                 {displayTitle}
               </p>

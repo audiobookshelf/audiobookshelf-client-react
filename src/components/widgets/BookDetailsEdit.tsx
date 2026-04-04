@@ -184,25 +184,25 @@ const BookDetailsEdit = ({
   )
 
   return (
-    <div className="w-full h-full relative">
+    <div className="relative h-full w-full">
       <form
-        className="w-full h-full px-2 md:px-4 py-6"
+        className="h-full w-full px-2 py-6 md:px-4"
         onSubmit={(e) => {
           e.preventDefault()
           submitForm()
         }}
       >
-        <div className="flex flex-wrap -mx-1">
-          <div className="w-full md:w-1/2 px-1">
+        <div className="-mx-1 flex flex-wrap">
+          <div className="w-full px-1 md:w-1/2">
             <TextInput value={details.title || ''} onChange={handleFieldUpdate('title')} label={t('LabelTitle')} />
           </div>
-          <div className="grow px-1 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 md:mt-0">
             <TextInput value={details.subtitle || ''} onChange={handleFieldUpdate('subtitle')} label={t('LabelSubtitle')} />
           </div>
         </div>
 
-        <div className="flex flex-wrap mt-2 -mx-1">
-          <div className="w-full md:w-3/4 px-1">
+        <div className="-mx-1 mt-2 flex flex-wrap">
+          <div className="w-full px-1 md:w-3/4">
             <MultiSelect
               selectedItems={authorItems}
               onItemAdded={handleAddAuthor}
@@ -212,12 +212,12 @@ const BookDetailsEdit = ({
               allowNew
             />
           </div>
-          <div className="grow md:w-28 px-1 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 md:mt-0 md:w-28">
             <TextInput value={details.publishedYear || ''} onChange={handleFieldUpdate('publishedYear')} type="number" label={t('LabelPublishYear')} />
           </div>
         </div>
 
-        <div className="flex mt-2 -mx-1">
+        <div className="-mx-1 mt-2 flex">
           <div className="grow px-1">
             <TwoStageMultiSelect
               label={t('LabelSeries')}
@@ -232,8 +232,8 @@ const BookDetailsEdit = ({
 
         <SlateEditor srcContent={initialDetails.description || ''} onUpdate={handleFieldUpdate('description')} label={t('LabelDescription')} className="mt-2" />
 
-        <div className="flex flex-wrap mt-2 -mx-1">
-          <div className="w-full md:w-1/2 px-1">
+        <div className="-mx-1 mt-2 flex flex-wrap">
+          <div className="w-full px-1 md:w-1/2">
             <MultiSelect
               selectedItems={genreItems}
               onItemAdded={handleAddGenre}
@@ -243,7 +243,7 @@ const BookDetailsEdit = ({
               allowNew
             />
           </div>
-          <div className="grow px-1 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 md:mt-0">
             <MultiSelect
               selectedItems={tagItems}
               onItemAdded={handleAddTag}
@@ -255,8 +255,8 @@ const BookDetailsEdit = ({
           </div>
         </div>
 
-        <div className="flex flex-wrap mt-2 -mx-1">
-          <div className="w-full md:w-1/2 px-1">
+        <div className="-mx-1 mt-2 flex flex-wrap">
+          <div className="w-full px-1 md:w-1/2">
             <MultiSelect
               selectedItems={narratorItems}
               onItemAdded={handleAddNarrator}
@@ -266,22 +266,22 @@ const BookDetailsEdit = ({
               allowNew
             />
           </div>
-          <div className="w-1/2 md:w-1/4 px-1 mt-2 md:mt-0">
+          <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
             <TextInput value={details.isbn || ''} onChange={handleFieldUpdate('isbn')} label="ISBN" />
           </div>
-          <div className="w-1/2 md:w-1/4 px-1 mt-2 md:mt-0">
+          <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
             <TextInput value={details.asin || ''} onChange={handleFieldUpdate('asin')} label="ASIN" />
           </div>
         </div>
 
-        <div className="flex flex-wrap mt-2 -mx-1">
-          <div className="w-full md:w-1/4 px-1">
+        <div className="-mx-1 mt-2 flex flex-wrap">
+          <div className="w-full px-1 md:w-1/4">
             <TextInput value={details.publisher || ''} onChange={handleFieldUpdate('publisher')} label={t('LabelPublisher')} />
           </div>
-          <div className="w-1/2 md:w-1/4 px-1 mt-2 md:mt-0">
+          <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
             <TextInput value={details.language || ''} onChange={handleFieldUpdate('language')} label={t('LabelLanguage')} />
           </div>
-          <div className="grow px-1 pt-6 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 pt-6 md:mt-0">
             <div className="flex justify-center">
               <Checkbox
                 value={details.explicit}
@@ -293,7 +293,7 @@ const BookDetailsEdit = ({
               />
             </div>
           </div>
-          <div className="grow px-1 pt-6 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 pt-6 md:mt-0">
             <div className="flex justify-center">
               <Checkbox
                 value={details.abridged}

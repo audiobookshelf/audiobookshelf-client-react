@@ -16,15 +16,15 @@ export default function ProgressIndicator({ progress: rawProgress, label = 'Labe
   return (
     <div className={mergeClasses('w-full pt-4', className)}>
       {/* Progress percentage and label */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <div className="flex-1">{typeof label === 'string' ? <p className="text-sm font-medium">{t(label)}</p> : label}</div>
-        <p className="text-sm font-semibold min-w-[3rem] text-right">{progress.toFixed(0)}%</p>
+        <p className="min-w-[3rem] text-right text-sm font-semibold">{progress.toFixed(0)}%</p>
       </div>
 
       {/* Progress bar container */}
-      <div className="w-full bg-disabled rounded-full h-2 overflow-hidden">
+      <div className="bg-disabled h-2 w-full overflow-hidden rounded-full">
         {/* Progress bar fill */}
-        <div className="h-full bg-accent rounded-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
+        <div className="bg-accent h-full rounded-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
       </div>
     </div>
   )

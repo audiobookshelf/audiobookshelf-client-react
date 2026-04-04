@@ -59,19 +59,19 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
   }, [collection.id, description, hasChanges, name, onClose, onSaved, showToast, t])
 
   const outerContent = (
-    <div className="absolute top-0 start-0 p-4">
+    <div className="absolute start-0 top-0 p-4">
       <h2 className="text-xl text-white">{t('HeaderCollection')}</h2>
     </div>
   )
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
-      <div className="flex flex-col max-h-[90vh]">
-        <div className="px-4 sm:px-6 py-6 overflow-y-auto space-y-4">
+      <div className="flex max-h-[90vh] flex-col">
+        <div className="space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
           <TextInput label={t('LabelName')} value={name} placeholder={t('PlaceholderNewCollection')} onChange={setName} />
           <TextareaInput label={t('LabelDescription')} value={description} rows={4} onChange={setDescription} />
         </div>
-        <div className="flex justify-end gap-2 px-4 sm:px-6 py-4 border-t border-border">
+        <div className="border-border flex justify-end gap-2 border-t px-4 py-4 sm:px-6">
           <Btn size="small" onClick={handleSave} disabled={isPending || !name.trim()}>
             {t('ButtonSave')}
           </Btn>

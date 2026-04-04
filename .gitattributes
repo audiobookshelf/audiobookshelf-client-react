@@ -1,0 +1,2 @@
+# Store text files as LF in the repo so Windows/Git stop warning about CRLF conversion.
+* text=auto eol=lf

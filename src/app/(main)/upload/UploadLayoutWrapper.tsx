@@ -11,9 +11,9 @@ export default function UploadLayoutWrapper({ children }: UploadLayoutWrapperPro
   const { libraryItemIdStreaming } = useMediaContext()
 
   return (
-    <div className={mergeClasses('flex page-wrapper overflow-x-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
-      <div className="flex-1 min-w-0 page-bg-gradient">
-        <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
+    <div className={mergeClasses('page-wrapper flex overflow-x-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
+      <div className="page-bg-gradient min-w-0 flex-1">
+        <div className="h-full w-full overflow-x-hidden overflow-y-auto">{children}</div>
       </div>
     </div>
   )

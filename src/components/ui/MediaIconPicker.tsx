@@ -243,16 +243,16 @@ export default function MediaIconPicker({ value, disabled = false, label, onChan
             id={listboxId}
             role="listbox"
             aria-label={t('LabelIconOptions', { label: defaultLabel })}
-            className={`absolute z-10 mt-0.5 bg-primary border border-dropdown-menu-border shadow-lg max-h-56 w-48 rounded-md py-1 overflow-auto focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
+            className={`bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 max-h-56 w-48 overflow-auto rounded-md border py-1 shadow-lg focus:outline-hidden sm:text-sm ${getMenuAlignmentClasses()}`}
             onKeyDown={handleKeyDown}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex justify-center items-center flex-wrap">
+            <div className="flex flex-wrap items-center justify-center">
               {AVAILABLE_ICONS.map((icon, index) => (
                 <div
                   key={icon}
                   id={`${mediaIconPickerId}-option-${index}`}
-                  className={`p-2 cursor-pointer rounded ${
+                  className={`cursor-pointer rounded p-2 ${
                     focusedIndex === index ? 'text-foreground/100 hover:text-foreground/75' : 'text-foreground/50 hover:text-foreground/75'
                   }`}
                   role="option"

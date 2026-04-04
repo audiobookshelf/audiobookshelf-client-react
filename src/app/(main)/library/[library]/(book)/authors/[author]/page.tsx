@@ -12,7 +12,7 @@ export default async function AuthorPage({ params }: { params: Promise<{ author:
   }
 
   return (
-    <div className="p-8 w-full">
+    <div className="w-full p-8">
       <AuthorClient author={author} />
     </div>
   )

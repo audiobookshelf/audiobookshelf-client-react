@@ -40,17 +40,17 @@ export default function Toolbar() {
   }
 
   return (
-    <div className="w-full h-10 bg-bg box-shadow-toolbar relative z-40" cy-id="library-toolbar">
-      <div className="w-full h-full flex items-center justify-between px-4">
+    <div className="bg-bg box-shadow-toolbar relative z-40 h-10 w-full" cy-id="library-toolbar">
+      <div className="flex h-full w-full items-center justify-between px-4">
         {isBookshelfPage && itemCount !== null && (
-          <p className="text-base text-foreground hidden md:block">
+          <p className="text-foreground hidden text-base md:block">
             {itemCount} {itemName}
           </p>
         )}
 
         <div className="flex-grow" />
 
-        {isBookshelfPage && !isBookshelfEmpty && <div className="flex items-center gap-4 mr-2">{toolbarExtras}</div>}
+        {isBookshelfPage && !isBookshelfEmpty && <div className="mr-2 flex items-center gap-4">{toolbarExtras}</div>}
 
         {contextMenuItems.length > 0 && !isBookshelfEmpty && (
           <ContextMenuDropdown items={contextMenuItems} borderless usePortal size="small" autoWidth onAction={(args) => handleAction(args.action)} />

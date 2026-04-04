@@ -31,21 +31,21 @@ export default function BackupScheduleModal({ isOpen, onClose, isPending, cronEx
   const hasChanges = cronExpressionValue !== cronExpression
 
   const outerContentTitle = (
-    <div className="absolute top-0 start-0 p-4">
+    <div className="absolute start-0 top-0 p-4">
       <h2 className="text-xl text-white">{t('HeaderSetBackupSchedule')}</h2>
     </div>
   )
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-full md:max-w-[700px] lg:max-w-[700px]">
-      <div className="flex flex-col max-h-[90vh]">
-        <div className="px-4 sm:px-6 py-6 overflow-y-auto">
+      <div className="flex max-h-[90vh] flex-col">
+        <div className="overflow-y-auto px-4 py-6 sm:px-6">
           <CronExpressionBuilder value={cronExpressionValue} onChange={setCronExpressionValue} />
           <CronExpressionPreview cronExpression={cronExpressionValue} />
         </div>
 
         {/* Footer */}
-        <div className="border-t border-border px-4 py-3">
+        <div className="border-border border-t px-4 py-3">
           <div className="flex items-center justify-end">
             <Btn onClick={handleSave} disabled={!hasChanges} loading={isPending}>
               {t('ButtonSave')}

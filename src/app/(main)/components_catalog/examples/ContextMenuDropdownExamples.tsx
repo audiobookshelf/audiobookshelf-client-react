@@ -187,8 +187,8 @@ export function ContextMenuDropdownExamples() {
         </Example>
 
         <Example title="Context Menu with Portal">
-          <div className="border border-gray-300 rounded p-4 overflow-y-auto max-h-32">
-            <p className="text-xs text-gray-500 mb-2">Scrollable container (portal menu won&apos;t be clipped)</p>
+          <div className="max-h-32 overflow-y-auto rounded border border-gray-300 p-4">
+            <p className="mb-2 text-xs text-gray-500">Scrollable container (portal menu won&apos;t be clipped)</p>
             <div className="flex items-center gap-4">
               <ContextMenuDropdown
                 items={contextMenuItems}

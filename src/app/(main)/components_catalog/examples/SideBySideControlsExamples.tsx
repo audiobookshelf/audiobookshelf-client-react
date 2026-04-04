@@ -32,7 +32,7 @@ export function SideBySideControlsExamples() {
 
       <ExamplesBlock>
         <Example title="Side By Side Controls" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <div className="flex flex-wrap gap-2 items-start">
+          <div className="flex flex-wrap items-start gap-2">
             <Btn className="mt-6" onClick={() => showToast('Button clicked', { type: 'info', title: 'Button' })}>
               Button
             </Btn>
@@ -40,7 +40,7 @@ export function SideBySideControlsExamples() {
               Edit
             </IconBtn>
             <TextInput label="Text Input" value={textInputValue} onChange={setTextInputValue} />
-            <Checkbox className="mt-6 grow-0 shrink" labelClass="w-fit" label="Checkbox" value={checkboxValue} onChange={setCheckboxValue} />
+            <Checkbox className="mt-6 shrink grow-0" labelClass="w-fit" label="Checkbox" value={checkboxValue} onChange={setCheckboxValue} />
             <Dropdown
               label="Dropdown"
               items={[
@@ -75,7 +75,7 @@ export function SideBySideControlsExamples() {
                 setMultiSelectValue(newItems)
               }}
             />
-            <Checkbox className="mt-6 grow-0 shrink" labelClass="w-fit" value={checkboxValue2} onChange={setCheckboxValue2} />
+            <Checkbox className="mt-6 shrink grow-0" labelClass="w-fit" value={checkboxValue2} onChange={setCheckboxValue2} />
           </div>
         </Example>
       </ExamplesBlock>

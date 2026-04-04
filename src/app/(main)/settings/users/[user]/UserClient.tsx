@@ -31,11 +31,11 @@ export default function UserClient({ user }: { user: User }) {
 
   return (
     <div className="flex flex-col gap-2 py-4">
-      <div className="flex items-center gap-2 mb-2">
+      <div className="mb-2 flex items-center gap-2">
         <h1 className="text-xl">{user.username}</h1>
       </div>
 
-      <div className="w-full h-px bg-border my-4" />
+      <div className="bg-border my-4 h-px w-full" />
 
       <h2 className="text-lg font-medium">{t('HeaderSavedMediaProgress')}</h2>
       <SimpleDataTable data={user.mediaProgress} columns={columns} getRowKey={(mediaProgress) => mediaProgress.id} />

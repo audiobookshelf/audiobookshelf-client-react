@@ -1,3 +1,3 @@
 export default function SearchPage() {
-  return <div className="p-8 w-full">Search</div>
+  return <div className="w-full p-8">Search</div>
 }

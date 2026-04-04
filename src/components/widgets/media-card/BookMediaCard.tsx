@@ -27,7 +27,7 @@ export default function BookMediaCard(props: BookMediaCardProps) {
         return (
           <div
             cy-id="seriesSequence"
-            className="absolute rounded-lg bg-black/90 shadow-modal-content z-10 top-[0.375em] end-[0.375em]"
+            className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-10 rounded-lg bg-black/90"
             style={{ padding: '0.1em 0.25em' }}
           >
             <p style={{ fontSize: '0.8em' }}>#{seriesSequence}</p>
@@ -46,7 +46,7 @@ export default function BookMediaCard(props: BookMediaCardProps) {
       // Ebook format badge at bottom-left of overlay
       if (ebookFormat) {
         return (
-          <div cy-id="ebookFormat" className="absolute bottom-[0.375em] start-[0.375em]">
+          <div cy-id="ebookFormat" className="absolute start-[0.375em] bottom-[0.375em]">
             <span className="text-white/80" style={{ fontSize: '0.8em' }}>
               {ebookFormat}
             </span>

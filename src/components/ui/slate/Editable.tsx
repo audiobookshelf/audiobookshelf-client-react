@@ -117,7 +117,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
 
   const renderPlaceholder = useCallback(
     ({ children, attributes }: RenderPlaceholderProps) => (
-      <span {...attributes} className="absolute top-1 start-1 pointer-events-none opacity-33">
+      <span {...attributes} className="pointer-events-none absolute start-1 top-1 opacity-33">
         {children}
       </span>
     ),

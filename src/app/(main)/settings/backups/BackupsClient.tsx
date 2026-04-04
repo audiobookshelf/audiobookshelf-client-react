@@ -94,8 +94,8 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
     <SettingsContent
       title={t('HeaderBackups')}
       description={t.rich('MessageBackupsDescription', {
-        code: (chunks) => <code className="bg-foreground/10 text-foreground px-1 py-0.5 rounded-md">{chunks}</code>,
-        strong: (chunks) => <strong className="font-bold text-foreground">{chunks}</strong>
+        code: (chunks) => <code className="bg-foreground/10 text-foreground rounded-md px-1 py-0.5">{chunks}</code>,
+        strong: (chunks) => <strong className="text-foreground font-bold">{chunks}</strong>
       })}
     >
       <div>
@@ -170,7 +170,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
           </div>
         </div>
 
-        <div className="mb-4 mt-8 flex justify-between">
+        <div className="mt-8 mb-4 flex justify-between">
           <Btn onClick={() => {}}>{t('ButtonUploadBackup')}</Btn>
           <Btn onClick={() => {}}>{t('ButtonCreateBackup')}</Btn>
         </div>
@@ -179,7 +179,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
         {backups.length > 0 ? (
           <BackupsTable backups={backups} dateFormat={dateFormat} timeFormat={timeFormat} />
         ) : (
-          <p className="text-center text-lg text-foreground py-4">{t('MessageNoBackups')}</p>
+          <p className="text-foreground py-4 text-center text-lg">{t('MessageNoBackups')}</p>
         )}
       </div>
       <BackupScheduleModal

@@ -48,7 +48,7 @@ export function FileInputExamples() {
           <FileInput
             accept=".png, .jpg, .jpeg"
             onChange={(file) => showToast(`Selected image: ${file.name}`, { type: 'success', title: 'Image Selected' })}
-            className="border-2 border-dashed border-blue-400 rounded-lg bg-blue-50"
+            className="rounded-lg border-2 border-dashed border-blue-400 bg-blue-50"
             ariaLabel="Upload Image"
           >
             Drop Image Here

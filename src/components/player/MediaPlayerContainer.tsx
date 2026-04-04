@@ -30,8 +30,8 @@ export default function MediaPlayerContainer() {
   const bookAuthors = 'authors' in streamLibraryItem.media.metadata ? streamLibraryItem.media.metadata.authors || [] : []
 
   return (
-    <div className="w-full fixed bottom-0 left-0 right-0 h-48 lg:h-40 z-50 bg-primary px-2 lg:px-4 pb-1 lg:pb-4 pt-2 shadow-media-player">
-      <div className="absolute left-2 top-2 lg:left-4 flex gap-4">
+    <div className="bg-primary shadow-media-player fixed right-0 bottom-0 left-0 z-50 h-48 w-full px-2 pt-2 pb-1 lg:h-40 lg:px-4 lg:pb-4">
+      <div className="absolute top-2 left-2 flex gap-4 lg:left-4">
         <PreviewCover
           src={getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt)}
           bookCoverAspectRatio={coverAspectRatio}
@@ -39,7 +39,7 @@ export default function MediaPlayerContainer() {
           width={77}
         />
         <div className="flex flex-col gap-0.5">
-          <Link href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`} className="text-lg font-medium hover:underline text-foreground">
+          <Link href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`} className="text-foreground text-lg font-medium hover:underline">
             {streamLibraryItem.media.metadata.title}
           </Link>
           {bookAuthors.length > 0 && (
@@ -55,7 +55,7 @@ export default function MediaPlayerContainer() {
             </div>
           )}
           {bookDuration && (
-            <div className="text-foreground-muted text-sm flex items-center gap-1">
+            <div className="text-foreground-muted flex items-center gap-1 text-sm">
               <span className="material-symbols text-foreground-muted text-sm">schedule</span>
               {secondsToTimestamp(bookDuration)}
             </div>
@@ -68,7 +68,7 @@ export default function MediaPlayerContainer() {
         <PlayerTrackBar playerHandler={playerHandler} />
       </div>
 
-      <div className="absolute right-2 top-2 lg:right-4 flex items-center gap-1">
+      <div className="absolute top-2 right-2 flex items-center gap-1 lg:right-4">
         <IconBtn size="small" borderless onClick={clearStreamMedia}>
           close
         </IconBtn>

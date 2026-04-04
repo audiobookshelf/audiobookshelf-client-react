@@ -42,17 +42,17 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/settings'
 
   return (
-    <div className="w-full h-16 bg-primary relative">
+    <div className="bg-primary relative h-16 w-full">
       <header
         cy-id="appbar"
-        className="absolute top-0 bottom-0 start-0 w-full h-full px-2 md:px-6 py-1 z-60 flex items-center justify-start gap-2 md:gap-4 box-shadow-appbar"
+        className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full items-center justify-start gap-2 px-2 py-1 md:gap-4 md:px-6"
       >
         <Link
           href={redirectUrl}
           aria-label={`audiobookshelf - ${t('ButtonHome')}`}
-          className="text-sm text-foreground hover:text-foreground/80 flex items-center justify-start gap-2 md:gap-4"
+          className="text-foreground hover:text-foreground/80 flex items-center justify-start gap-2 text-sm md:gap-4"
         >
-          <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="w-8 min-w-8 h-8 sm:w-10 sm:min-w-10 sm:h-10" />
+          <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10" />
           <span className="text-xl hover:underline">audiobookshelf</span>
         </Link>
 
@@ -79,7 +79,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
         {/* Search Input mobile and desktop */}
         {currentLibrary && (
-          <div className="flex-1 min-w-0 max-w-70">
+          <div className="max-w-70 min-w-0 flex-1">
             {isSearchMode ? (
               <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
             ) : (
@@ -105,7 +105,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
         {/* Desktop only - Settings and Upload Buttons */}
         {isAdmin && (
-          <div className="hidden md:flex items-center">
+          <div className="hidden items-center md:flex">
             <Tooltip text={t('ButtonUpload')} position="bottom">
               <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
                 upload

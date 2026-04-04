@@ -91,12 +91,12 @@ export default function MediaCardCover({
       {/* Cover background when image does not fill */}
       <div
         cy-id="coverBg"
-        className="absolute top-0 start-0 w-full h-full overflow-hidden rounded-xs bg-primary"
+        className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs"
         style={{ display: showCoverBg ? 'block' : 'none' }}
       >
         {showCoverBg && (
           <div
-            className="absolute cover-bg"
+            className="cover-bg absolute"
             style={{
               backgroundImage: `url("${bookCoverSrc}")`
             }}
@@ -109,10 +109,10 @@ export default function MediaCardCover({
         <div
           cy-id="titleImageNotReady"
           aria-hidden="true"
-          className="absolute top-0 start-0 w-full h-full flex items-center justify-center"
+          className="absolute start-0 top-0 flex h-full w-full items-center justify-center"
           style={{ padding: `${0.5}em` }}
         >
-          <p style={{ fontSize: `${0.8}em` }} className="text-gray-300 text-center">
+          <p style={{ fontSize: `${0.8}em` }} className="text-center text-gray-300">
             {title}
           </p>
         </div>
@@ -128,7 +128,7 @@ export default function MediaCardCover({
           aria-hidden="true"
           src={bookCoverSrc}
           onLoad={handleImageLoaded}
-          className={mergeClasses('absolute inset-0 w-full h-full transition-opacity duration-300', showCoverBg ? 'object-contain' : 'object-fill')}
+          className={mergeClasses('absolute inset-0 h-full w-full transition-opacity duration-300', showCoverBg ? 'object-contain' : 'object-fill')}
           style={{ opacity: imageReady ? 1 : 0 }}
         />
       )}
@@ -138,7 +138,7 @@ export default function MediaCardCover({
         <>
           <div
             cy-id="placeholderTitle"
-            className="absolute top-0 start-0 end-0 bottom-0 w-full h-full flex items-center justify-center"
+            className="absolute start-0 end-0 top-0 bottom-0 flex h-full w-full items-center justify-center"
             style={{ padding: `${PLACEHOLDER_COVER_PADDING}em` }}
           >
             <div>
@@ -149,7 +149,7 @@ export default function MediaCardCover({
           </div>
           <div
             cy-id="placeholderAuthor"
-            className="absolute start-0 end-0 w-full flex items-center justify-center"
+            className="absolute start-0 end-0 flex w-full items-center justify-center"
             style={{ padding: `${PLACEHOLDER_COVER_PADDING}em`, bottom: `${AUTHOR_BOTTOM}em` }}
           >
             <p cy-id="placeholderAuthorText" aria-hidden="true" className="text-center text-amber-100 opacity-75" style={{ fontSize: `${AUTHOR_FONT_SIZE}em` }}>
@@ -164,7 +164,7 @@ export default function MediaCardCover({
         <div
           cy-id="progressBar"
           className={mergeClasses(
-            'absolute bottom-0 start-0 h-1 max-w-full z-20 rounded-b box-shadow-progressbar',
+            'box-shadow-progressbar absolute start-0 bottom-0 z-20 h-1 max-w-full rounded-b',
             itemIsFinished ? 'bg-success' : 'bg-yellow-400'
           )}
           style={{ width: `${userProgressPercent * 100}%` }}

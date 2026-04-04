@@ -197,24 +197,24 @@ export const Toolbar = () => {
   return (
     <div
       ref={toolbarRef}
-      className="pb-2 border-b border-border bg-transparent flex flex-wrap gap-2"
+      className="border-border flex flex-wrap gap-2 border-b bg-transparent pb-2"
       role="toolbar"
       aria-label="Text formatting toolbar"
       aria-orientation="horizontal"
       onKeyDown={handleToolbarKeyDown}
     >
-      <div role="group" aria-label="Text" className="flex border border-border rounded-sm overflow-hidden">
+      <div role="group" aria-label="Text" className="border-border flex overflow-hidden rounded-sm border">
         <MarkButton {...getButtonProps('bold')}>format_bold</MarkButton>
         <MarkButton {...getButtonProps('italic')}>format_italic</MarkButton>
         <MarkButton {...getButtonProps('strike')}>format_strikethrough</MarkButton>
         <LinkButton onOpenModal={openModal} {...getButtonProps('link')} />
       </div>
-      <div role="group" aria-label="Lists" className="flex border border-border rounded-sm overflow-hidden">
+      <div role="group" aria-label="Lists" className="border-border flex overflow-hidden rounded-sm border">
         <BlockButton {...getButtonProps('bulleted-list')}>format_list_bulleted</BlockButton>
         <BlockButton {...getButtonProps('numbered-list')}>format_list_numbered</BlockButton>
       </div>
       <div className="flex-grow" />
-      <div role="group" aria-label="History" className="flex border border-border rounded-sm overflow-hidden">
+      <div role="group" aria-label="History" className="border-border flex overflow-hidden rounded-sm border">
         <UndoButton {...getButtonProps('undo')} isUndoAvailable={isUndoAvailable} />
         <RedoButton {...getButtonProps('redo')} isRedoAvailable={isRedoAvailable} />
       </div>

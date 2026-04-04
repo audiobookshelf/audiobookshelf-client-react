@@ -81,9 +81,9 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
   return (
     <div>
-      <div className="w-full max-w-6xl mx-auto">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-          <div className="w-full max-w-72 mx-auto md:w-52 md:max-w-52 flex-shrink-0 flex justify-center md:justify-start items-start">
+      <div className="mx-auto w-full max-w-6xl">
+        <div className="flex flex-col gap-6 md:flex-row md:gap-8">
+          <div className="mx-auto flex w-full max-w-72 flex-shrink-0 items-start justify-center md:w-52 md:max-w-52 md:justify-start">
             <LibraryItemCover
               libraryItem={libraryItem}
               coverAspectRatio={library.settings?.coverAspectRatio ?? 1}
@@ -96,15 +96,15 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
           </div>
           <div className="flex-1">
             <div className="flex flex-col gap-1">
-              <h1 className="text-2xl md:text-3xl font-semibold">{libraryItem.media.metadata.title}</h1>
-              {subtitle && <h2 className="text-xl md:text-2xl font-medium text-foreground-muted">{subtitle}</h2>}
-              {podcastAuthor && <h2 className="text-lg md:text-xl font-medium text-foreground">{t('LabelByAuthor', { 0: podcastAuthor })}</h2>}
+              <h1 className="text-2xl font-semibold md:text-3xl">{libraryItem.media.metadata.title}</h1>
+              {subtitle && <h2 className="text-foreground-muted text-xl font-medium md:text-2xl">{subtitle}</h2>}
+              {podcastAuthor && <h2 className="text-foreground text-lg font-medium md:text-xl">{t('LabelByAuthor', { 0: podcastAuthor })}</h2>}
               {bookSeries.length > 0 && (
                 <div>
                   {bookSeries.map((series, index) => {
                     return (
                       <Fragment key={series.id}>
-                        <a href={`/library/${library.id}/series/${series.id}`} className="text-foreground-muted hover:underline text-lg">
+                        <a href={`/library/${library.id}/series/${series.id}`} className="text-foreground-muted text-lg hover:underline">
                           {series.name}
                           {series.sequence && <span className="text-foreground-muted text-lg"> #{series.sequence}</span>}
                         </a>
@@ -121,7 +121,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                   {bookAuthors.map((author, index) => {
                     return (
                       <Fragment key={author.id}>
-                        <a href={`/library/${library.id}/authors/${author.id}`} className="text-foreground hover:underline text-lg md:text-xl">
+                        <a href={`/library/${library.id}/authors/${author.id}`} className="text-foreground text-lg hover:underline md:text-xl">
                           {author.name}
                         </a>
                         {index < bookAuthors.length - 1 && <span className="text-foreground text-lg md:text-xl">, </span>}
@@ -138,14 +138,14 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
             {/* Podcast episode downloads queue */}
             {episodeDownloadsQueued.length > 0 && (
-              <div className="px-4 py-2 mt-4 bg-info/40 text-sm font-semibold rounded-md text-gray-100 relative max-w-max mx-auto md:mx-0">
+              <div className="bg-info/40 relative mx-auto mt-4 max-w-max rounded-md px-4 py-2 text-sm font-semibold text-gray-100 md:mx-0">
                 <div className="flex items-center">
-                  <p className="text-sm py-1">{t('MessageEpisodesQueuedForDownload', { count: episodeDownloadsQueued.length })}</p>
+                  <p className="py-1 text-sm">{t('MessageEpisodesQueuedForDownload', { count: episodeDownloadsQueued.length })}</p>
                   {userIsAdminOrUp && (
                     <button
                       type="button"
                       aria-label="Clear episode download queue"
-                      className="material-symbols hover:text-error text-xl ml-3 cursor-pointer"
+                      className="material-symbols hover:text-error ml-3 cursor-pointer text-xl"
                       onClick={() => setIsClearQueueDialogOpen(true)}
                     >
                       close
@@ -157,11 +157,11 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
             {/* Podcast episodes currently downloading */}
             {episodesDownloading.length > 0 && (
-              <div className="px-4 py-2 mt-4 bg-success/20 text-sm font-semibold rounded-md text-gray-100 relative max-w-max mx-auto md:mx-0">
+              <div className="bg-success/20 relative mx-auto mt-4 max-w-max rounded-md px-4 py-2 text-sm font-semibold text-gray-100 md:mx-0">
                 {episodesDownloading.map((episode) => (
                   <div key={episode.id} className="flex items-center">
                     <LoadingSpinner />
-                    <p className="text-sm py-1 pl-4">{`${t('MessageDownloadingEpisode')} "${episode.episodeDisplayTitle ?? ''}"`}</p>
+                    <p className="py-1 pl-4 text-sm">{`${t('MessageDownloadingEpisode')} "${episode.episodeDisplayTitle ?? ''}"`}</p>
                   </div>
                 ))}
               </div>

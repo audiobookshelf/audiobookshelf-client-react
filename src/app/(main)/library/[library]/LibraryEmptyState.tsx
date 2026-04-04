@@ -31,7 +31,7 @@ export default function LibraryEmptyState({ library, showScanButton }: LibraryEm
 
   return (
     <div className="flex flex-col items-center justify-center gap-4 py-10">
-      <p className="text-xl mb-2">{t('MessageXLibraryIsEmpty', { 0: library.name })}</p>
+      <p className="mb-2 text-xl">{t('MessageXLibraryIsEmpty', { 0: library.name })}</p>
       {showScanButton && (
         <div className="flex items-center justify-center gap-2">
           <Btn size="small" color="bg-success" onClick={handleScanLibrary} loading={isPending || isLibraryTaskRunning}>

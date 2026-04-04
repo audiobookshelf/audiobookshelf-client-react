@@ -61,40 +61,40 @@ export function SlateEditorExamples() {
         <Example title="Editor with RTL content" className="col-span-1 md:col-span-2 lg:col-span-3">
           <SlateEditor srcContent={rtlContent} onUpdate={handleUpdate} label="Editor with RTL content" />
         </Example>
-        <Example title="Editor vs. Textarea" className="col-span-1 md:col-span-2 lg:col-span-3 space-y-4">
+        <Example title="Editor vs. Textarea" className="col-span-1 space-y-4 md:col-span-2 lg:col-span-3">
           <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Editor" />
             </div>
-            <div className="mt-9.5 flex-1 min-w-[250px]">
+            <div className="mt-9.5 min-w-[250px] flex-1">
               <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Textarea" />
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Read-only Editor" readOnly />
             </div>
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Read-only Textarea" readOnly />
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <SlateEditor srcContent={editorValue} onUpdate={handleUpdate} label="Disabled Editor" disabled />
             </div>
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <TextareaInput value={textAreaValue} onChange={handleUpdateTextarea} rows={4} label="Disabled Textarea" disabled />
             </div>
           </div>
         </Example>
         <Example title="Editor vs. Output" className="col-span-1 md:col-span-2 lg:col-span-3">
           <div className="flex flex-wrap gap-4">
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <SlateEditor srcContent={initialContent} onUpdate={setEditorOutput} label="Editor" className="[&_[data-slate-editor]]:h-83" />
             </div>
-            <div className="flex-1 min-w-[250px]">
+            <div className="min-w-[250px] flex-1">
               <Label className="mt-9.5">Output:</Label>
-              <div className={mergeClasses(slateElementStyles, 'p-2 border border-gray-500 rounded-md')} dangerouslySetInnerHTML={{ __html: editorOutput }} />
+              <div className={mergeClasses(slateElementStyles, 'rounded-md border border-gray-500 p-2')} dangerouslySetInnerHTML={{ __html: editorOutput }} />
             </div>
           </div>
         </Example>

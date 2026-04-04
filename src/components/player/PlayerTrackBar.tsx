@@ -182,39 +182,39 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         {/* Track */}
         <div
           ref={trackRef}
-          className="w-full h-2 bg-track-bg relative cursor-pointer transition-transform duration-100 hover:scale-y-125 overflow-hidden"
+          className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
           onClick={handleTrackClick}
         >
           {/* Buffer track */}
           <div
-            className="h-full bg-track-progress/50 absolute top-0 left-0 pointer-events-none transition-[width] duration-75"
+            className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
             style={{ width: `${bufferedPercent}%` }}
           />
           {/* Played track */}
           <div
-            className="h-full bg-track-progress absolute top-0 left-0 pointer-events-none transition-[width] duration-75"
+            className="bg-track-progress pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
             style={{ width: `${playedPercent}%` }}
           />
           {/* Track cursor (vertical line on hover) */}
           <div
             ref={trackCursorRef}
             className={mergeClasses(
-              'h-full w-0.5 bg-track-progress absolute top-0 left-0 pointer-events-none transition-opacity duration-100',
+              'bg-track-progress pointer-events-none absolute top-0 left-0 h-full w-0.5 transition-opacity duration-100',
               isHovering ? 'opacity-100' : 'opacity-0'
             )}
           />
           {/* Loading animation - sliding shimmer effect */}
           {isLoading && (
-            <div className="h-full w-1/4 absolute top-0 pointer-events-none bg-gradient-to-r from-transparent via-track-progress/30 to-transparent loading-track-slide" />
+            <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
           )}
         </div>
 
         {/* Chapter ticks */}
-        <div className={mergeClasses('w-full h-2 relative overflow-hidden', useChapterTrack ? 'opacity-0' : '')}>
+        <div className={mergeClasses('relative h-2 w-full overflow-hidden', useChapterTrack ? 'opacity-0' : '')}>
           {chapterTicks.map((tick, index) => (
-            <div key={index} className="absolute top-0 w-px bg-track-progress/30 h-1 pointer-events-none" style={{ left: `${tick.left}px` }} />
+            <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
           ))}
         </div>
 
@@ -222,11 +222,11 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         <div
           ref={hoverTimestampRef}
           className={mergeClasses(
-            'absolute -top-8 left-0 bg-foreground text-background rounded-full pointer-events-none z-10 transition-opacity duration-100',
+            'bg-foreground text-background pointer-events-none absolute -top-8 left-0 z-10 rounded-full transition-opacity duration-100',
             isHovering ? 'opacity-100' : 'opacity-0'
           )}
         >
-          <p ref={hoverTimestampTextRef} className="text-xs font-mono text-center px-2 py-0.5 truncate whitespace-nowrap">
+          <p ref={hoverTimestampTextRef} className="truncate px-2 py-0.5 text-center font-mono text-xs whitespace-nowrap">
             00:00
           </p>
         </div>
@@ -235,30 +235,30 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
         <div
           ref={hoverTimestampArrowRef}
           className={mergeClasses(
-            'absolute -top-3.5 left-0 bg-foreground text-background rounded-full pointer-events-none transition-opacity duration-100',
+            'bg-foreground text-background pointer-events-none absolute -top-3.5 left-0 rounded-full transition-opacity duration-100',
             isHovering ? 'opacity-100' : 'opacity-0'
           )}
         >
-          <div className="absolute -bottom-1.5 left-0 right-0 w-full flex justify-center">
-            <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-foreground" />
+          <div className="absolute right-0 -bottom-1.5 left-0 flex w-full justify-center">
+            <div className="border-t-foreground h-0 w-0 border-t-4 border-r-4 border-l-4 border-r-transparent border-l-transparent" />
           </div>
         </div>
       </div>
       <div className="flex items-center justify-between">
-        <p className="text-sm text-foreground-muted font-mono">
+        <p className="text-foreground-muted font-mono text-sm">
           {currentTimeFormatted} / {Math.round(playedPercent)}%
         </p>
         {currentChapter && (
-          <p className="text-sm text-foreground-muted">
+          <p className="text-foreground-muted text-sm">
             {currentChapter.title}{' '}
             {useChapterTrack && (
-              <span className="text-xs text-foreground-subdued pl-1">
+              <span className="text-foreground-subdued pl-1 text-xs">
                 ({currentChapterNumber} of {chapters.length})
               </span>
             )}
           </p>
         )}
-        <p className="text-sm text-foreground-muted font-mono">{timeRemainingFormatted}</p>
+        <p className="text-foreground-muted font-mono text-sm">{timeRemainingFormatted}</p>
       </div>
     </div>
   )

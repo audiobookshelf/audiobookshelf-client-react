@@ -21,11 +21,7 @@ export interface ProgressComputationResult {
   finishedAt: number | null
 }
 
-export function computeProgress({
-  progress,
-  seriesProgressPercent,
-  useSeriesProgress
-}: ProgressComputationOptions): ProgressComputationResult {
+export function computeProgress({ progress, seriesProgressPercent, useSeriesProgress }: ProgressComputationOptions): ProgressComputationResult {
   if (useSeriesProgress && typeof seriesProgressPercent === 'number') {
     const clampedSeries = clamp01(seriesProgressPercent)
     return {
@@ -64,5 +60,3 @@ function clamp01(value: number): number {
   if (Number.isNaN(value)) return 0
   return Math.max(0, Math.min(1, value))
 }
-
-

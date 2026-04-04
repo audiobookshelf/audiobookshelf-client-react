@@ -26,7 +26,7 @@ export default function MediaOverlayIconBtn({ icon, onClick, ariaLabel, position
         borderless
         size="small"
         className={mergeClasses(
-          'text-gray-200 hover:not-disabled:text-yellow-300 hover:scale-125 transform duration-150 text-[1em] w-auto h-auto',
+          'h-auto w-auto transform text-[1em] text-gray-200 duration-150 hover:scale-125 hover:not-disabled:text-yellow-300',
           selected && 'text-yellow-400',
           className
         )}

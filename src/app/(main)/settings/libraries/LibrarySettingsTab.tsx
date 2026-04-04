@@ -62,7 +62,7 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
   const isBookLibrary = mediaType === 'book'
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
       {/* Left column */}
       <div className="flex flex-col gap-2">
         <SettingsToggleSwitch
@@ -131,7 +131,7 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
       {/* TODO: Podcast search region */}
 
       {/* Mark media item as finished when */}
-      <div className="flex flex-col sm:flex-row sm:items-end gap-2">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
         <Dropdown
           label={t('LabelSettingsLibraryMarkAsFinishedWhen')}
           items={markAsFinishedItems}
@@ -149,7 +149,7 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
             customInputClass="no-spinner"
           />
           {markAsFinishedMode === 'percent-complete' && (
-            <span className="text-sm text-foreground-muted absolute top-0 end-0 h-full px-2 flex items-center justify-center" aria-hidden="true">
+            <span className="text-foreground-muted absolute end-0 top-0 flex h-full items-center justify-center px-2 text-sm" aria-hidden="true">
               %
             </span>
           )}

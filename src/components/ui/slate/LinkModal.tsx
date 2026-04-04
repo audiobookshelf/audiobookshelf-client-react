@@ -47,7 +47,7 @@ export const LinkModal = memo(
     return (
       <Modal isOpen={isOpen} onClose={closeModal} className="w-[400px]">
         <div className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Insert Link</h3>
+          <h3 className="mb-4 text-lg font-semibold">Insert Link</h3>
 
           <div className="space-y-4">
             <div>
@@ -75,7 +75,7 @@ export const LinkModal = memo(
               />
             </div>
 
-            <div className="flex gap-2 pt-2 justify-end">
+            <div className="flex justify-end gap-2 pt-2">
               <Btn color="bg-button-selected-bg disabled:bg-button-selected-bg/80" onClick={handleLink} disabled={!isValidUrl}>
                 Link
               </Btn>

@@ -8,4 +8,3 @@ import * as api from '@/lib/api'
 export async function deletePlaylistAction(playlistId: string): Promise<void> {
   return api.deletePlaylist(playlistId)
 }
-

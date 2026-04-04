@@ -1,3 +1,3 @@
 export default function LatestPage() {
-  return <div className="p-8 w-full">Latest</div>
+  return <div className="w-full p-8">Latest</div>
 }

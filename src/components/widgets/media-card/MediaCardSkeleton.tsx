@@ -71,12 +71,12 @@ export default function MediaCardSkeleton({
       tabIndex={0}
       aria-busy="true"
       aria-live="polite"
-      className="relative rounded-xs z-10 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8"
+      className="focus-visible:outline-foreground-muted relative z-10 rounded-xs focus-visible:outline-1 focus-visible:outline-offset-8"
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton */}
       <div
-        className="relative w-full rounded-sm overflow-hidden z-10 bg-primary box-shadow-book animate-pulse"
+        className="bg-primary box-shadow-book relative z-10 w-full animate-pulse overflow-hidden rounded-sm"
         style={{ height: `${coverHeight}px` }}
         aria-hidden="true"
       >

@@ -238,27 +238,27 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
       isOpen={isOpen}
       onClose={onClose}
       outerContent={
-        <div className="absolute top-0 left-0 p-5 w-2/3 overflow-hidden pointer-events-none">
-          <p className="text-3xl text-white truncate drop-shadow-md">{libraryItem.media.metadata.title}</p>
+        <div className="pointer-events-none absolute top-0 left-0 w-2/3 overflow-hidden p-5">
+          <p className="truncate text-3xl text-white drop-shadow-md">{libraryItem.media.metadata.title}</p>
         </div>
       }
       style={{ maxWidth: 1200 }}
     >
-      <div className="flex flex-col h-[80vh] min-h-[400px] px-4 sm:px-6">
+      <div className="flex h-[80vh] min-h-[400px] flex-col px-4 sm:px-6">
         {episodesCleaned.length > 0 && (
-          <div className="w-full py-4 flex gap-2 shrink-0">
+          <div className="flex w-full shrink-0 gap-2 py-4">
             <form onSubmit={handleSubmit} className="flex grow">
               <TextInput
                 value={search}
                 onChange={setSearch}
                 type="search"
                 placeholder={t('PlaceholderSearchEpisode')}
-                className="grow text-sm md:text-base mr-2"
+                className="mr-2 grow text-sm md:text-base"
               />
             </form>
             <Btn className="px-4" onClick={() => setSortDescending(!sortDescending)}>
               <span className="pr-4">{t('LabelSortPubDate')}</span>
-              <span className="text-yellow-400 absolute inset-y-0 right-0 flex items-center pr-2">
+              <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-yellow-400">
                 <span className="material-symbols text-xl" aria-label={sortDescending ? t('LabelSortDescending') : t('LabelSortAscending')}>
                   {sortDescending ? 'expand_more' : 'expand_less'}
                 </span>
@@ -267,7 +267,7 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
           </div>
         )}
 
-        <div className="w-full overflow-x-hidden overflow-y-auto grow">
+        <div className="w-full grow overflow-x-hidden overflow-y-auto">
           {episodesList.map((episode) => {
             const isSelected = selectedEpisodes.has(episode.cleanUrl)
             let bgClass = 'even:bg-table-row-bg-even hover:bg-table-row-bg-hover'
@@ -288,10 +288,10 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
             return (
               <div
                 key={episode.guid || episode.cleanUrl}
-                className={`relative cursor-pointer flex items-center border-b border-border last:border-0 ${bgClass}`}
+                className={`border-border relative flex cursor-pointer items-center border-b last:border-0 ${bgClass}`}
                 onClick={() => toggleSelectEpisode(episode)}
               >
-                <div className="flex-none flex items-center justify-center p-3 w-12 sm:w-16">
+                <div className="flex w-12 flex-none items-center justify-center p-3 sm:w-16">
                   {episode.isDownloaded ? (
                     <span className="material-symbols text-success text-xl">download_done</span>
                   ) : episode.isDownloading ? (
@@ -308,25 +308,25 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
                     </div>
                   )}
                 </div>
-                <div className="py-2 pr-4 sm:pr-8 flex-grow">
-                  <div className={`flex items-center font-semibold gap-1 ${textClass}`}>
+                <div className="flex-grow py-2 pr-4 sm:pr-8">
+                  <div className={`flex items-center gap-1 font-semibold ${textClass}`}>
                     {(episode.season || episode.episode) && <div>#</div>}
                     {episode.season && <div>{episode.season}x</div>}
                     {episode.episode && <div>{episode.episode}</div>}
                   </div>
-                  <div className={`flex items-center mb-1 gap-2 ${textClass}`}>
+                  <div className={`mb-1 flex items-center gap-2 ${textClass}`}>
                     <div className="break-words">{episode.title}</div>
                     {episode.episodeType &&
                       (episode.episodeType.toLowerCase() === 'trailer' || episode.episodeType.toLowerCase() === 'bonus' ? (
-                        <span className="text-xs bg-info text-white px-2 py-0.5 rounded-full capitalize">{episode.episodeType}</span>
+                        <span className="bg-info rounded-full px-2 py-0.5 text-xs text-white capitalize">{episode.episodeType}</span>
                       ) : null)}
                   </div>
-                  {episode.subtitle && <p className={`mb-1 text-sm line-clamp-2 ${subTextClass}`}>{episode.subtitle}</p>}
+                  {episode.subtitle && <p className={`mb-1 line-clamp-2 text-sm ${subTextClass}`}>{episode.subtitle}</p>}
 
-                  <div className={`flex flex-wrap items-center gap-x-4 gap-y-1 mt-1 ${subTextClass}`}>
-                    <p className="text-xs w-40">{publishedLabel}</p>
+                  <div className={`mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 ${subTextClass}`}>
+                    <p className="w-40 text-xs">{publishedLabel}</p>
                     {episode.durationSeconds != null && episode.durationSeconds > 0 && (
-                      <p className="text-xs min-w-28">
+                      <p className="min-w-28 text-xs">
                         {t('LabelDuration')}: {formatDuration(episode.durationSeconds, t)}
                       </p>
                     )}
@@ -342,16 +342,16 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
           })}
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-2 py-4 shrink-0">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 py-4">
           {!allDownloaded ? (
             <>
               <Checkbox value={selectAll} onChange={toggleSelectAll} label={selectAllLabel} size="small" labelClass="whitespace-nowrap" />
-              <Btn className="whitespace-nowrap shrink-0" disabled={selectedEpisodes.size === 0 || isPending} onClick={handleSubmit} size="small">
+              <Btn className="shrink-0 whitespace-nowrap" disabled={selectedEpisodes.size === 0 || isPending} onClick={handleSubmit} size="small">
                 {buttonText}
               </Btn>
             </>
           ) : (
-            <p className="text-success text-base px-2 py-4">{t('LabelAllEpisodesDownloaded')}</p>
+            <p className="text-success px-2 py-4 text-base">{t('LabelAllEpisodesDownloaded')}</p>
           )}
         </div>
       </div>

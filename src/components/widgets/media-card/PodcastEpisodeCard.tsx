@@ -32,7 +32,7 @@ export default function PodcastEpisodeCard(props: PodcastEpisodeCardProps) {
         return (
           <div
             cy-id="episodeNumber"
-            className="absolute rounded-lg bg-black/90 text-white shadow-modal-content z-10 top-[0.375em] end-[0.375em]"
+            className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-10 rounded-lg bg-black/90 text-white"
             style={{ padding: `0.1em 0.25em` }}
           >
             <p style={{ fontSize: '0.8em' }}>

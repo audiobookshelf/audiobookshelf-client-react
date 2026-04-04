@@ -16,7 +16,7 @@ export default async function ComponentsCatalogLayout({ children }: Readonly<{ c
     <>
       <AppBar libraries={librariesRes?.libraries} />
       <ComponentsCatalogProvider libraries={librariesRes?.libraries || []}>
-        <div className="w-full h-full max-h-screen overflow-x-hidden overflow-y-auto">{children}</div>
+        <div className="h-full max-h-screen w-full overflow-x-hidden overflow-y-auto">{children}</div>
       </ComponentsCatalogProvider>
     </>
   )

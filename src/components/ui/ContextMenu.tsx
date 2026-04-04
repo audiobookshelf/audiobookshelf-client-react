@@ -214,7 +214,7 @@ export default function ContextMenu<T = string>({
           aria-label={`${item.text}, submenu`}
           id={`${menuId}-item-${index}`}
           className={mergeClasses(
-            'flex items-center px-2 py-1.5 hover:bg-foreground/5 text-foreground text-xs cursor-default w-full',
+            'hover:bg-foreground/5 text-foreground flex w-full cursor-default items-center px-2 py-1.5 text-xs',
             openSubmenuIndex === index ? 'bg-foreground/5' : '',
             focusedIndex === index && focusedSubIndex === -1 ? 'bg-foreground/10' : ''
           )}
@@ -234,7 +234,7 @@ export default function ContextMenu<T = string>({
             onMouseOver={handleMouseoverSubmenu}
             onMouseLeave={handleMouseleaveSubmenu}
             className={mergeClasses(
-              'absolute bg-bg border border-black-200 shadow-lg z-50 -ms-px py-1',
+              'bg-bg border-black-200 absolute z-50 -ms-px border py-1 shadow-lg',
               openSubmenuLeft ? 'rounded-s-md' : 'rounded-e-md',
               'rounded-b-md',
               autoWidth ? 'inline-flex flex-col whitespace-nowrap' : ''
@@ -254,7 +254,7 @@ export default function ContextMenu<T = string>({
                   aria-label={subitem.text}
                   id={`${menuId}-subitem-${index}-${subitemIndex}`}
                   className={mergeClasses(
-                    'flex items-center px-2 py-1.5 hover:bg-foreground/5 text-foreground text-xs cursor-pointer w-full',
+                    'hover:bg-foreground/5 text-foreground flex w-full cursor-pointer items-center px-2 py-1.5 text-xs',
                     focusedSubIndex === subitemIndex && focusedSubIndex !== -1 ? 'bg-foreground/10' : ''
                   )}
                   onMouseDown={(e) => e.preventDefault()}
@@ -273,7 +273,7 @@ export default function ContextMenu<T = string>({
                 role="menuitem"
                 aria-label={t('LabelNoItems')}
                 id={`${menuId}-subitem-${index}-no-items`}
-                className="flex items-center px-2 py-1.5 text-disabled text-xs cursor-default w-full"
+                className="text-disabled flex w-full cursor-default items-center px-2 py-1.5 text-xs"
                 disabled
                 tabIndex={-1}
               >
@@ -291,7 +291,7 @@ export default function ContextMenu<T = string>({
         aria-label={item.text}
         id={`${menuId}-item-${index}`}
         className={mergeClasses(
-          'flex items-center px-2 py-1.5 hover:bg-foreground/5 text-foreground text-xs cursor-pointer w-full',
+          'hover:bg-foreground/5 text-foreground flex w-full cursor-pointer items-center px-2 py-1.5 text-xs',
           focusedIndex === index && focusedSubIndex === -1 ? 'bg-foreground/10' : ''
         )}
         onClick={(e) => {
@@ -314,7 +314,7 @@ export default function ContextMenu<T = string>({
       role="menu"
       aria-label={t('LabelContextMenu')}
       className={mergeClasses(
-        'absolute z-10 bg-bg border border-black-200 shadow-lg rounded-md py-1 focus:outline-hidden sm:text-sm',
+        'bg-bg border-black-200 absolute z-10 rounded-md border py-1 shadow-lg focus:outline-hidden sm:text-sm',
         !usePortal && 'mt-1',
         !usePortal && (menuAlign === 'right' ? 'end-0' : 'start-0'),
         autoWidth ? 'inline-flex flex-col whitespace-nowrap' : '',

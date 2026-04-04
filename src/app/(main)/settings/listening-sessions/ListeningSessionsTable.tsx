@@ -228,9 +228,9 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         sortKey: 'displayTitle',
         sortable: true,
         accessor: (session) => (
-          <div className="py-1 min-w-0">
-            <TruncatingTooltipText text={session.displayTitle} className="text-xs text-foreground" />
-            <TruncatingTooltipText text={session.displayAuthor} className="text-xs text-foreground-muted" />
+          <div className="min-w-0 py-1">
+            <TruncatingTooltipText text={session.displayTitle} className="text-foreground text-xs" />
+            <TruncatingTooltipText text={session.displayAuthor} className="text-foreground-muted text-xs" />
           </div>
         ),
         headerClassName: 'w-auto text-start px-2',
@@ -238,7 +238,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
       },
       {
         label: t('LabelUser'),
-        accessor: (session) => <p className="text-xs truncate">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
+        accessor: (session) => <p className="truncate text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
         headerClassName: 'w-16 text-left hidden md:table-cell',
         cellClassName: 'hidden md:table-cell py-1'
       },
@@ -260,7 +260,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         label: t('LabelTimeListened'),
         sortKey: 'timeListening',
         sortable: true,
-        accessor: (session) => <p className="text-xs font-mono">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
+        accessor: (session) => <p className="font-mono text-xs">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
         headerClassName: 'w-20 text-center',
         cellClassName: 'text-center py-1'
       },
@@ -271,7 +271,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         accessor: (session) => (
           <button
             type="button"
-            className="w-full text-center hover:underline cursor-pointer text-xs font-mono"
+            className="w-full cursor-pointer text-center font-mono text-xs hover:underline"
             onClick={(e) => {
               e.stopPropagation()
               handlePromptResumePlayback(session)
@@ -289,7 +289,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         sortable: true,
         accessor: (session) => (
           <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
-            <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
+            <p className="text-foreground-muted text-xs">{getRelativeTime(session.updatedAt)}</p>
           </Tooltip>
         ),
         headerClassName: 'w-24 hidden sm:table-cell text-left',
@@ -303,11 +303,11 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
 
   return (
     <>
-      <div className="flex justify-end mb-2">
+      <div className="mb-2 flex justify-end">
         <Dropdown value={selectedUser} items={userItems} label={t('LabelFilterByUser')} size="small" className="max-w-48" onChange={handleUpdateUserFilter} />
       </div>
 
-      <div className="block max-w-full relative">
+      <div className="relative block max-w-full">
         {listeningSessions.length > 0 ? (
           <DataTable
             data={listeningSessions}
@@ -358,9 +358,9 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         {(deletingSessions || loading) && <LoadingIndicator />}
       </div>
 
-      {openListeningSessions.length > 0 && <div className="w-full my-8 h-px bg-border" />}
+      {openListeningSessions.length > 0 && <div className="bg-border my-8 h-px w-full" />}
 
-      {openListeningSessions.length > 0 && <p className="text-lg my-4">{t('HeaderOpenListeningSessions')}</p>}
+      {openListeningSessions.length > 0 && <p className="my-4 text-lg">{t('HeaderOpenListeningSessions')}</p>}
       {openListeningSessions.length > 0 && (
         <SessionListTable
           sessions={openListeningSessions}
@@ -370,9 +370,9 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         />
       )}
 
-      {openShareListeningSessions.length > 0 && <div className="w-full my-8 h-px bg-border" />}
+      {openShareListeningSessions.length > 0 && <div className="bg-border my-8 h-px w-full" />}
 
-      {openShareListeningSessions.length > 0 && <p className="text-lg my-4">Open Share Listening Sessions</p>}
+      {openShareListeningSessions.length > 0 && <p className="my-4 text-lg">Open Share Listening Sessions</p>}
       {openShareListeningSessions.length > 0 && (
         <SessionListTable
           sessions={openShareListeningSessions}
@@ -445,9 +445,9 @@ function SessionListTable({
       {
         label: t('LabelItem'),
         accessor: (session) => (
-          <div className="py-1 min-w-0">
-            <TruncatingTooltipText text={session.displayTitle} className="text-xs text-foreground" />
-            <TruncatingTooltipText text={session.displayAuthor} className="text-xs text-foreground-muted" />
+          <div className="min-w-0 py-1">
+            <TruncatingTooltipText text={session.displayTitle} className="text-foreground text-xs" />
+            <TruncatingTooltipText text={session.displayAuthor} className="text-foreground-muted text-xs" />
           </div>
         ),
         headerClassName: 'w-32 text-left px-2',
@@ -475,7 +475,7 @@ function SessionListTable({
         ? [
             {
               label: t('LabelTimeListened'),
-              accessor: (session: PlaybackSession) => <p className="text-xs font-mono">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
+              accessor: (session: PlaybackSession) => <p className="font-mono text-xs">{formatDuration(session.timeListening, t, { showSeconds: true })}</p>,
               headerClassName: 'w-20 text-center px-2',
               cellClassName: 'text-center w-20 py-1'
             }
@@ -486,7 +486,7 @@ function SessionListTable({
         accessor: (session) => (
           <button
             type="button"
-            className="w-full text-center hover:underline cursor-pointer text-xs font-mono"
+            className="w-full cursor-pointer text-center font-mono text-xs hover:underline"
             onClick={(e) => {
               e.stopPropagation()
               onPromptResumePlayback(session)
@@ -502,7 +502,7 @@ function SessionListTable({
         label: t('LabelLastUpdate'),
         accessor: (session) => (
           <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
-            <p className="text-xs text-foreground-muted">{getRelativeTime(session.updatedAt)}</p>
+            <p className="text-foreground-muted text-xs">{getRelativeTime(session.updatedAt)}</p>
           </Tooltip>
         ),
         headerClassName: 'w-24 hidden sm:table-cell text-left px-2',

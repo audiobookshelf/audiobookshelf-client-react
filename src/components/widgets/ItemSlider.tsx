@@ -21,7 +21,7 @@ const SliderNavBtn = ({ direction, disabled, onClick }: SliderNavBtnProps) => {
   return (
     <IconBtn
       className={mergeClasses(
-        'rounded-full w-8e h-8e disabled:bg-transparent',
+        'w-8e h-8e rounded-full disabled:bg-transparent',
         !disabled ? 'text-foreground hover:bg-white/10' : 'text-foreground/30 cursor-default'
       )}
       borderless
@@ -80,19 +80,19 @@ export default function ItemSlider({ title, children, className = '' }: ItemSlid
   }
 
   return (
-    <div className={mergeClasses('w-full ps-6e mt-6e', className)}>
-      <div className="flex items-center py-1e px-4e">
-        <div className="font-bold flex-grow text-foreground">{title}</div>
+    <div className={mergeClasses('ps-6e mt-6e w-full', className)}>
+      <div className="py-1e px-4e flex items-center">
+        <div className="text-foreground flex-grow font-bold">{title}</div>
 
         {isScrollable && (
-          <div className="flex gap-1e items-center">
+          <div className="gap-1e flex items-center">
             <SliderNavBtn direction="left" disabled={!canScrollLeft} onClick={scrollLeft} />
             <SliderNavBtn direction="right" disabled={!canScrollRight} onClick={scrollRight} />
           </div>
         )}
       </div>
 
-      <div ref={sliderRef} className="w-full overflow-y-hidden overflow-x-auto no-scroll scroll-smooth flex px-2e py-3e" onScroll={checkScroll}>
+      <div ref={sliderRef} className="no-scroll px-2e py-3e flex w-full overflow-x-auto overflow-y-hidden scroll-smooth" onScroll={checkScroll}>
         {children}
       </div>
     </div>

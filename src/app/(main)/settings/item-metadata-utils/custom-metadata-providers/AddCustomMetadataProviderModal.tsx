@@ -64,16 +64,16 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
   }
 
   const outerContentTitle = (
-    <div className="absolute top-0 start-0 p-4">
+    <div className="absolute start-0 top-0 p-4">
       <h2 className="text-xl text-white">{t('HeaderAddCustomMetadataProvider')}</h2>
     </div>
   )
 
   return (
     <Modal isOpen={isOpen} processing={processing} onClose={handleClose} outerContent={outerContentTitle} className="w-[700px]">
-      <div className="flex flex-col max-h-[90vh]">
-        <div className="px-4 sm:px-6 py-6 overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="flex max-h-[90vh] flex-col">
+        <div className="overflow-y-auto px-4 py-6 sm:px-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-6">
             <div className="md:col-span-3">
               <TextInput label={t('LabelName')} value={name} placeholder={t('LabelName')} onChange={setName} />
             </div>
@@ -97,7 +97,7 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
           </div>
         </div>
 
-        <div className="border-t border-border px-4 py-3">
+        <div className="border-border border-t px-4 py-3">
           <div className="flex items-center justify-end">
             <Btn color="bg-success" disabled={processing} onClick={handleSubmit}>
               {t('ButtonAdd')}

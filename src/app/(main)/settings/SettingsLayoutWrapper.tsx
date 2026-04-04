@@ -17,10 +17,10 @@ export default function SettingsLayoutWrapper({ children }: SettingsLayoutWrappe
   const serverVersion = serverSettings?.version || 'Error'
 
   return (
-    <div className={mergeClasses('flex page-wrapper overflow-x-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
+    <div className={mergeClasses('page-wrapper flex overflow-x-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
       <SideNav serverVersion={serverVersion} installSource={installSource} />
-      <div className="flex-1 min-w-0 page-bg-gradient">
-        <div className="w-full h-full overflow-x-hidden overflow-y-auto">{children}</div>
+      <div className="page-bg-gradient min-w-0 flex-1">
+        <div className="h-full w-full overflow-x-hidden overflow-y-auto">{children}</div>
       </div>
 
       <SideNavMobileDrawer serverVersion={serverVersion} installSource={installSource} />

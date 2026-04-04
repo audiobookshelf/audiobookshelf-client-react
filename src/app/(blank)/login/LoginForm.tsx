@@ -55,14 +55,14 @@ export default function LoginForm() {
   )
 
   return (
-    <form onSubmit={handleSubmit} className="bg-bg border border-border rounded-lg shadow-lg p-10 w-full max-w-md">
-      <h1 className="text-2xl font-bold text-center mb-6 text-postcss">{t('LabelLogin')}</h1>
+    <form onSubmit={handleSubmit} className="bg-bg border-border w-full max-w-md rounded-lg border p-10 shadow-lg">
+      <h1 className="text-postcss mb-6 text-center text-2xl font-bold">{t('LabelLogin')}</h1>
 
-      <div className="flex flex-col gap-4 mb-4">
+      <div className="mb-4 flex flex-col gap-4">
         <TextInput label={t('LabelUsername')} value={username} autocomplete="username" onChange={setUsername} />
         <TextInput label={t('LabelPassword')} value={password} type="password" autocomplete="current-password" onChange={setPassword} />
       </div>
-      {error && <div className="text-red-400 text-center text-sm mb-4">{error}</div>}
+      {error && <div className="mb-4 text-center text-sm text-red-400">{error}</div>}
       <div className="flex justify-end">
         <Btn type="submit" loading={loading}>
           {t('LabelSubmit')}

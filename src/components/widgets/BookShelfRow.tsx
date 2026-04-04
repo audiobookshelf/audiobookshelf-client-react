@@ -60,25 +60,25 @@ export default function BookShelfRow({ title, children, className }: BookShelfRo
     <div className={mergeClasses('relative w-full', className)}>
       <div
         ref={shelfRef}
-        className="w-full max-w-full bookshelf-row categorizedBookshelfRow relative overflow-x-auto no-scroll overflow-y-hidden pl-4e md:pl-8e"
+        className="bookshelf-row categorizedBookshelfRow no-scroll pl-4e md:pl-8e relative w-full max-w-full overflow-x-auto overflow-y-hidden"
         onScroll={handleScroll}
       >
-        <div className="w-full h-full pt-6e flex items-center pr-4e">{children}</div>
+        <div className="pt-6e pr-4e flex h-full w-full items-center">{children}</div>
       </div>
 
       <div className="relative">
-        <div className="relative text-center categoryPlacard transform z-30 top-0 left-4e md:left-8e w-44e rounded-md">
-          <div className="w-full h-full shinyBlack flex items-center justify-center rounded-xs border px-2e">
+        <div className="categoryPlacard left-4e md:left-8e w-44e relative top-0 z-30 transform rounded-md text-center">
+          <div className="shinyBlack px-2e flex h-full w-full items-center justify-center rounded-xs border">
             <h2 style={{ fontSize: '0.9em' }}>{title}</h2>
           </div>
         </div>
 
-        <div className="bookshelfDividerCategorized h-6e w-full absolute top-0 left-0 right-0 z-5"></div>
+        <div className="bookshelfDividerCategorized h-6e absolute top-0 right-0 left-0 z-5 w-full"></div>
       </div>
 
       {canScrollLeft && !isScrolling && (
         <button
-          className="hidden sm:flex absolute top-0 left-0 w-32 pr-8 bg-black book-shelf-arrow-left items-center justify-center cursor-pointer opacity-0 hover:opacity-100 z-40 transition-opacity"
+          className="book-shelf-arrow-left absolute top-0 left-0 z-40 hidden w-32 cursor-pointer items-center justify-center bg-black pr-8 opacity-0 transition-opacity hover:opacity-100 sm:flex"
           onClick={scrollLeft}
           aria-label={t('ButtonScrollLeft')}
         >
@@ -90,7 +90,7 @@ export default function BookShelfRow({ title, children, className }: BookShelfRo
 
       {canScrollRight && !isScrolling && (
         <button
-          className="hidden sm:flex absolute top-0 right-0 w-32 pl-8 bg-black book-shelf-arrow-right items-center justify-center cursor-pointer opacity-0 hover:opacity-100 z-40 transition-opacity"
+          className="book-shelf-arrow-right absolute top-0 right-0 z-40 hidden w-32 cursor-pointer items-center justify-center bg-black pl-8 opacity-0 transition-opacity hover:opacity-100 sm:flex"
           onClick={scrollRight}
           aria-label={t('ButtonScrollRight')}
         >

@@ -113,11 +113,11 @@ export default function ConfirmDialog({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} className="w-sm">
-      <div ref={dialogContentRef} className={mergeClasses('px-4 text-sm py-6', className)} aria-labelledby={titleId} aria-describedby={messageId} tabIndex={-1}>
+      <div ref={dialogContentRef} className={mergeClasses('px-4 py-6 text-sm', className)} aria-labelledby={titleId} aria-describedby={messageId} tabIndex={-1}>
         <h2 id={titleId} className="sr-only">
           {dialogTitle}
         </h2>
-        <p id={messageId} className="text-lg mb-6 mt-2 px-1">
+        <p id={messageId} className="mt-2 mb-6 px-1 text-lg">
           {message}
         </p>
 
@@ -127,7 +127,7 @@ export default function ConfirmDialog({
           </div>
         )}
 
-        <div className="flex px-1 items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2 px-1">
           <div className="grow" />
           <Btn color="bg-primary" onClick={handleClose} ariaLabel={t('ButtonCancel')} type="button">
             {t('ButtonCancel')}

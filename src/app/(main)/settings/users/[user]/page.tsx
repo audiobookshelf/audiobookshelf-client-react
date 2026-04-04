@@ -16,9 +16,9 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-2 md:p-6">
-      <div className="bg-bg rounded-md shadow-lg border border-white/5 p-2 sm:p-4 mb-8">
-        <Link href="/settings/users" className="flex items-center gap-2 text-foreground-muted hover:text-foreground mb-4">
+    <div className="mx-auto w-full max-w-4xl p-2 md:p-6">
+      <div className="bg-bg mb-8 rounded-md border border-white/5 p-2 shadow-lg sm:p-4">
+        <Link href="/settings/users" className="text-foreground-muted hover:text-foreground mb-4 flex items-center gap-2">
           <span className="material-symbols text-xl">arrow_back</span>
           <span>{t('LabelBackToUsers')}</span>
         </Link>

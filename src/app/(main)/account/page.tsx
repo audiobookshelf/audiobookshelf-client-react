@@ -29,11 +29,11 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="p-8 w-full max-w-xl mx-auto">
+    <div className="mx-auto w-full max-w-xl p-8">
       <h1 className="text-xl">{t('HeaderAccount')}</h1>
 
-      <div className="flex flex-col items-start gap-4 mt-8">
-        <div className="flex items-center gap-2 w-full">
+      <div className="mt-8 flex flex-col items-start gap-4">
+        <div className="flex w-full items-center gap-2">
           <div className="flex-2">
             <TextInput value={user.username} label={t('LabelUsername')} readOnly />
           </div>
@@ -47,8 +47,8 @@ export default async function AccountPage() {
         <div className="w-full">
           <ThemeSelector value={currentTheme} label={t('LabelTheme')} />
         </div>
-        <div className="w-full h-px bg-border" />
-        <div className="flex items-center justify-between w-full">
+        <div className="bg-border h-px w-full" />
+        <div className="flex w-full items-center justify-between">
           <Btn to="/account/change-password">{t('LabelChangePassword')}</Btn>
           <LogoutBtn />
         </div>

@@ -255,7 +255,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
 
   return (
     <div
-      className="p-4 md:p-8 space-y-4 w-full max-w-6xl mx-auto"
+      className="mx-auto w-full max-w-6xl space-y-4 p-4 md:p-8"
       draggable={false}
       onDragEnter={preventDef}
       onDragOver={preventDef}
@@ -263,9 +263,9 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       onDrop={preventDef}
     >
       {/* First row: Library, Folder, Media Type */}
-      <div className="flex flex-wrap gap-4 items-end">
-        <div className="flex-1 min-w-[200px]">
-          <label htmlFor="library" className="block text-sm font-medium mb-1 px-1">
+      <div className="flex flex-wrap items-end gap-4">
+        <div className="min-w-[200px] flex-1">
+          <label htmlFor="library" className="mb-1 block px-1 text-sm font-medium">
             {t('LabelLibrary')}
           </label>
           <Dropdown
@@ -279,15 +279,15 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
           />
         </div>
 
-        <div className="md:flex-3 min-w-[200px] w-full">
-          <label htmlFor="folder" className="block text-sm font-medium mb-1 px-1">
+        <div className="w-full min-w-[200px] md:flex-3">
+          <label htmlFor="folder" className="mb-1 block px-1 text-sm font-medium">
             {t('LabelFolder')}
           </label>
           <Dropdown items={folderItems} value={selectedFolder} onChange={(value) => setSelectedFolder(value as string)} />
         </div>
 
         <div className="w-32 min-w-32">
-          <label htmlFor="mediaType" className="block text-sm font-medium mb-1 px-1">
+          <label htmlFor="mediaType" className="mb-1 block px-1 text-sm font-medium">
             {t('LabelMediaType')}
           </label>
           <TextInput id="mediaType" readOnly={true} value={currentLibraryMediaType} />
@@ -295,7 +295,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       </div>
       {/* Second row: Auto Fetch, Metadata Provider (books only) */}
       {currentLibraryMediaType === 'book' && (
-        <div className="flex flex-wrap gap-4 items-center">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center pt-6">
             <ToggleSwitch label={t('LabelAutoFetchMetadata')} value={autoFetch} className="pr-0" onChange={setAutoFetch} />
             <Tooltip maxWidth={300} text={t('LabelAutoFetchMetadataHelp')}>
@@ -303,8 +303,8 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
             </Tooltip>
           </div>
 
-          <div className="flex-1 min-w-[200px]">
-            <label htmlFor="provider" className="block text-sm font-medium mb-1 px-1">
+          <div className="min-w-[200px] flex-1">
+            <label htmlFor="provider" className="mb-1 block px-1 text-sm font-medium">
               {t('LabelProvider')}
             </label>
             <Dropdown items={bookProviders} value={selectedProvider} onChange={(value) => setSelectedProvider(value as string)} />
@@ -315,9 +315,9 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       {uploadItems.length === 0 && errors === '' && (
         <div className="text-center">
           <DragDrop onFilesDropped={handleFilesDropped}>
-            <p className="text-2xl pt-6 px-6">{t('LabelUploaderDragAndDrop')}</p>
+            <p className="px-6 pt-6 text-2xl">{t('LabelUploaderDragAndDrop')}</p>
             <p className="p-6">{t('MessageOr')}</p>
-            <div className="flex gap-4 justify-center">
+            <div className="flex justify-center gap-4">
               <FilePicker accept={supFileTypes} onFilesSelected={handleDialogFileSelected}>
                 {t('ButtonChooseFiles')}
               </FilePicker>
@@ -325,10 +325,10 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                 {t('ButtonChooseAFolder')}
               </FilePicker>
             </div>
-            <p className="p-6 text-xs text-foreground-subdued">
+            <p className="text-foreground-subdued p-6 text-xs">
               <strong>{t('LabelSupportedFileTypes')}:</strong> {supFileTypes}
             </p>
-            <p className="pb-6 px-6 text-sm text-foreground-subdued">
+            <p className="text-foreground-subdued px-6 pb-6 text-sm">
               {t('NoteUploaderFoldersWithMediaFiles')} {currentLibraryMediaType === 'book' ? t('NoteUploaderOnlyAudioFiles') : ''}
             </p>
           </DragDrop>
@@ -338,8 +338,8 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       {/* 'staging' area */}
       {(uploadItems.length > 0 || ignoredFiles.length > 0 || errors !== '') && (
         <>
-          <div className="w-full flex items-center py-4 border-b border-border">
-            <p className="text-lg flex-1">{t('LabelXItems', { 0: uploadItems.length })}</p>
+          <div className="border-border flex w-full items-center border-b py-4">
+            <p className="flex-1 text-lg">{t('LabelXItems', { 0: uploadItems.length })}</p>
             <Btn disabled={uploadProcessing} size="small" onClick={resetUpload}>
               {t('ButtonReset')}
             </Btn>
@@ -380,34 +380,34 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                     ))}
                   </CollapsibleTable>
                 </div>
-                <p className="text-xs text-foreground-subdued">
+                <p className="text-foreground-subdued text-xs">
                   <strong>{t('LabelSupportedFileTypes')}:</strong> {supFileTypes}
                 </p>
               </div>
             </Alert>
           )}
           {uploadItems.map((item, index) => (
-            <div key={index} className="relative w-full py-4 px-2 md:px-6 border border-border shadow-lg rounded-md my-6 flex flex-col gap-1">
+            <div key={index} className="border-border relative my-6 flex w-full flex-col gap-1 rounded-md border px-2 py-4 shadow-lg md:px-6">
               <>
                 {!item.uploadComplete && !item.uploadFailed && (
                   <>
                     {item.isUploading && (
                       <LoadingIndicator label={'MessageUploading'}>
                         <ProgressIndicator progress={item.uploadProgress || 0} />
-                        <p className="text-xs text-foreground-muted mt-2 text-center">
+                        <p className="text-foreground-muted mt-2 text-center text-xs">
                           ({bytesPretty(item.uploadBytesLoaded || 0)}/{bytesPretty(item.uploadBytesTotal || 0)})
                         </p>
                       </LoadingIndicator>
                     )}
                     {item.isFetchingMetadata && <LoadingIndicator label="LabelFetchingMetadata" />}
                     {/* floating # on left */}
-                    <div className="absolute -top-3 -left-3 w-8 h-8 bg-bg border border-border flex items-center justify-center rounded-full">
+                    <div className="bg-bg border-border absolute -top-3 -left-3 flex h-8 w-8 items-center justify-center rounded-full border">
                       <p className="text-base">{'#' + (index + 1)}</p>
                     </div>
                     {/* floating x on right */}
                     {!uploadProcessing && !item.isUploading && (
                       <IconBtn
-                        className="absolute -top-3 -right-3 w-8 h-8 bg-bg border border-border rounded-full"
+                        className="bg-bg border-border absolute -top-3 -right-3 h-8 w-8 rounded-full border"
                         onClick={() => handleRemoveStagedItem(index)}
                       >
                         close
@@ -418,18 +418,18 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                         <p>{item.metadataError}</p>
                       </Alert>
                     )}
-                    <div className="flex flex-wrap mb-4 items-center -mx-2">
-                      <div className="w-full md:w-1/2 p-2">
-                        <label htmlFor="" className="text-sm mb-1 px-1">
+                    <div className="-mx-2 mb-4 flex flex-wrap items-center">
+                      <div className="w-full p-2 md:w-1/2">
+                        <label htmlFor="" className="mb-1 px-1 text-sm">
                           {t('LabelTitle')}
                         </label>
                         <TextInput value={item.title} onChange={(value) => handleItemPropertyChange(index, 'title', value)} />
                       </div>
                       {currentLibraryMediaType === 'book' && (
-                        <div className="w-full md:w-1/2 p-2">
+                        <div className="w-full p-2 md:w-1/2">
                           <div className="flex items-end">
                             <div className="w-full pe-2">
-                              <label htmlFor="" className="text-sm mb-1 px-1">
+                              <label htmlFor="" className="mb-1 px-1 text-sm">
                                 {t('LabelAuthor')}
                               </label>
                               <TextInput value={item.author} onChange={(value) => handleItemPropertyChange(index, 'author', value)} />
@@ -442,16 +442,16 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
                       )}
 
                       {currentLibraryMediaType === 'book' && (
-                        <div className="w-full md:w-1/2 p-2">
-                          <label htmlFor="" className="text-sm mb-1 px-1">
+                        <div className="w-full p-2 md:w-1/2">
+                          <label htmlFor="" className="mb-1 px-1 text-sm">
                             {t('LabelUploaderItemSeriesLabel')}
                           </label>
                           <TextInput value={item.series} onChange={(value) => handleItemPropertyChange(index, 'series', value)} />
                         </div>
                       )}
 
-                      <div className="w-full md:w-1/2 p-2">
-                        <label htmlFor="" className="text-sm mb-1 px-1">
+                      <div className="w-full p-2 md:w-1/2">
+                        <label htmlFor="" className="mb-1 px-1 text-sm">
                           {t('LabelUploaderItemDirectory')}
                         </label>
                         <TextInput readOnly={true} value={getDirectory(item)} />
@@ -517,7 +517,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
             </div>
           ))}
           {uploadItems.length > 0 && !uploadFinished && (
-            <div className="w-full flex justify-end">
+            <div className="flex w-full justify-end">
               <Btn disabled={uploadProcessing} color="bg-success" onClick={handleStartUpload}>
                 {t('ButtonUpload')}
               </Btn>

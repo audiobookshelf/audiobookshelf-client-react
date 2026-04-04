@@ -77,7 +77,7 @@ export default function SideRail({ serverVersion, installSource }: { serverVersi
     },
     {
       icon: (
-        <svg className="w-6 h-6" viewBox="0 0 24 24">
+        <svg className="h-6 w-6" viewBox="0 0 24 24">
           <path
             fill="currentColor"
             d="M12,5.5A3.5,3.5 0 0,1 15.5,9A3.5,3.5 0 0,1 12,12.5A3.5,3.5 0 0,1 8.5,9A3.5,3.5 0 0,1 12,5.5M5,8C5.56,8 6.08,8.15 6.53,8.42C6.38,9.85 6.8,11.27 7.66,12.38C7.16,13.34 6.16,14 5,14A3,3 0 0,1 2,11A3,3 0 0,1 5,8M19,8A3,3 0 0,1 22,11A3,3 0 0,1 19,14C17.84,14 16.84,13.34 16.34,12.38C17.2,11.27 17.62,9.85 17.47,8.42C17.92,8.15 18.44,8 19,8M5.5,18.25C5.5,16.18 8.41,14.5 12,14.5C15.59,14.5 18.5,16.18 18.5,18.25V20H5.5V18.25M0,20V18.5C0,17.11 1.89,15.94 4.45,15.6C3.86,16.28 3.5,17.22 3.5,18.25V20H0M24,20H20.5V18.25C20.5,17.22 20.14,16.28 19.55,15.6C22.11,15.94 24,17.11 24,18.5V20Z"
@@ -123,27 +123,27 @@ export default function SideRail({ serverVersion, installSource }: { serverVersi
   const filteredButtons = buttons.filter((button) => (!button.mediaType || button.mediaType === currentLibraryMediaType) && !button.hidden)
 
   return (
-    <div className="w-20 min-w-20 h-full max-h-[calc(100vh-4rem)] bg-bg box-shadow-side z-10 hidden md:block">
-      <div className="w-full h-full max-h-[calc(100%-3rem)] overflow-y-auto">
+    <div className="bg-bg box-shadow-side z-10 hidden h-full max-h-[calc(100vh-4rem)] w-20 min-w-20 md:block">
+      <div className="h-full max-h-[calc(100%-3rem)] w-full overflow-y-auto">
         {filteredButtons.map((button) => (
           <Link
             key={button.label}
             href={button.href}
             className={mergeClasses(
-              'w-full h-20 flex flex-col items-center justify-center text-foreground border-b border-primary/30 hover:bg-nav-item-hover cursor-pointer relative',
+              'text-foreground border-primary/30 hover:bg-nav-item-hover relative flex h-20 w-full cursor-pointer flex-col items-center justify-center border-b',
               pathname === button.href && 'bg-nav-item-selected'
             )}
           >
             {button.icon}
             <p className="text-sm">{button.label}</p>
 
-            {pathname === button.href && <div className="h-full w-0.5 bg-yellow-400 absolute top-0 start-0"></div>}
+            {pathname === button.href && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
           </Link>
         ))}
       </div>
-      <div className="w-full h-12 px-1 py-2 border-t border-primary/30">
-        <p className="text-xs text-center text-foreground-muted font-mono">v{serverVersion}</p>
-        <p className="text-xxs text-center text-foreground-subdued italic">{installSource}</p>
+      <div className="border-primary/30 h-12 w-full border-t px-1 py-2">
+        <p className="text-foreground-muted text-center font-mono text-xs">v{serverVersion}</p>
+        <p className="text-xxs text-foreground-subdued text-center italic">{installSource}</p>
       </div>
     </div>
   )

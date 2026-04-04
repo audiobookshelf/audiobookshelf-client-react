@@ -122,7 +122,7 @@ function DropdownSubmenu({
     <ul
       ref={submenuRef}
       role="menu"
-      className="absolute bg-primary border border-dropdown-menu-border shadow-lg z-[9999] py-1 rounded-md overflow-y-auto"
+      className="bg-primary border-dropdown-menu-border absolute z-[9999] overflow-y-auto rounded-md border py-1 shadow-lg"
       style={{
         ...floatingStyles,
         width: '192px',
@@ -136,7 +136,7 @@ function DropdownSubmenu({
       onClick={(e) => e.stopPropagation()}
     >
       {filterText && (
-        <li className="text-foreground-subdued select-none relative px-3 py-1 text-xs border-b border-dropdown-menu-border mb-1" role="presentation">
+        <li className="text-foreground-subdued border-dropdown-menu-border relative mb-1 border-b px-3 py-1 text-xs select-none" role="presentation">
           <span className="font-mono">{filterText}</span>
         </li>
       )}
@@ -145,7 +145,7 @@ function DropdownSubmenu({
           key={subitem.value}
           id={`${dropdownId}-subitem-${parentIndex}-${subitemIndex}`}
           className={mergeClasses(
-            'text-foreground relative py-2 cursor-pointer hover:bg-dropdown-item-hover',
+            'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
             focusedSubIndex === subitemIndex ? 'bg-dropdown-item-selected' : ''
           )}
           role="option"
@@ -163,9 +163,9 @@ function DropdownSubmenu({
         </li>
       ))}
       {filteredSubitems.length === 0 && (
-        <li className="text-foreground-subdued select-none relative py-2" role="option" aria-selected={false}>
+        <li className="text-foreground-subdued relative py-2 select-none" role="option" aria-selected={false}>
           <div className="flex items-center justify-center">
-            <span className="font-normal text-sm">{t('LabelNoItems')}</span>
+            <span className="text-sm font-normal">{t('LabelNoItems')}</span>
           </div>
         </li>
       )}
@@ -399,7 +399,7 @@ export default function DropdownMenu({
               menuItemRefs.current[index] = el
             }}
             className={mergeClasses(
-              'text-foreground relative py-2 cursor-pointer hover:bg-dropdown-item-hover',
+              'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
               focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-selected' : '',
               isSubmenuOpen ? 'bg-dropdown-item-hover' : '',
               highlightSelected && isItemSelected?.(item) ? 'text-yellow-400' : ''
@@ -420,14 +420,14 @@ export default function DropdownMenu({
             <div className="flex items-center">
               <span className={mergeClasses('ms-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
               {item.subtext && <span>:&nbsp;</span>}
-              {item.subtext && <span className="font-normal block truncate font-sans text-sm text-foreground-subdued">{item.subtext}</span>}
+              {item.subtext && <span className="text-foreground-subdued block truncate font-sans text-sm font-normal">{item.subtext}</span>}
             </div>
             {hasSubitems && (
-              <div className="absolute inset-y-0 right-2 h-full flex items-center pointer-events-none">
+              <div className="pointer-events-none absolute inset-y-0 right-2 flex h-full items-center">
                 <span className="material-symbols text-lg">arrow_right</span>
               </div>
             )}
-            {item.rightIcon && !hasSubitems && <div className="absolute inset-y-0 right-2 h-full flex items-center pointer-events-none">{item.rightIcon}</div>}
+            {item.rightIcon && !hasSubitems && <div className="pointer-events-none absolute inset-y-0 right-2 flex h-full items-center">{item.rightIcon}</div>}
             {showSelectedIndicator && isItemSelected && isItemSelected(item) && !hasSubitems && (
               <span className="absolute inset-y-0 end-0 flex items-center pe-4">
                 <span className="material-symbols text-xl text-yellow-400">check</span>
@@ -478,7 +478,7 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'absolute z-10 w-full bg-primary border border-dropdown-menu-border shadow-lg rounded-md py-1 ring-1 ring-black/5 sm:text-sm mt-0.5 overflow-auto',
+        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 w-full overflow-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
         className
       )}
       role="listbox"
@@ -509,7 +509,7 @@ export default function DropdownMenu({
     >
       {menuItems}
       {showNoItemsMessage && !items.length && (
-        <li className="text-foreground select-none relative py-2 pe-9" role="option" aria-selected={false} cy-id="dropdown-menu-no-items">
+        <li className="text-foreground relative py-2 pe-9 select-none" role="option" aria-selected={false} cy-id="dropdown-menu-no-items">
           <div className="flex items-center justify-center">
             <span className="font-normal">{defaultNoItemsText}</span>
           </div>

@@ -46,12 +46,12 @@ export default function PlaylistCardSkeleton({
       tabIndex={0}
       aria-busy="true"
       aria-live="polite"
-      className="relative rounded-xs z-30 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-8"
+      className="focus-visible:outline-foreground-muted relative z-30 rounded-xs focus-visible:outline-1 focus-visible:outline-offset-8"
       style={{ minWidth: `${coverWidth}px`, maxWidth: `${coverWidth}px` }}
     >
       {/* Cover skeleton with 2x2 grid effect */}
       <div
-        className="relative w-full rounded-sm overflow-hidden z-10 bg-primary box-shadow-book animate-pulse"
+        className="bg-primary box-shadow-book relative z-10 w-full animate-pulse overflow-hidden rounded-sm"
         style={{ height: `${coverHeight}px` }}
         aria-hidden="true"
       >
@@ -71,19 +71,19 @@ export default function PlaylistCardSkeleton({
       {/* Footer skeleton - uses same structure as PlaylistCard for exact height matching */}
       {isDetailView ? (
         // Detail view footer skeleton
-        <div className="relative z-30 start-0 end-0 mx-auto py-[0.25em] rounded-md text-center">
+        <div className="relative start-0 end-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
           {/* Title skeleton */}
-          <p className="truncate rounded bg-gray-600 animate-pulse mx-auto" style={{ fontSize: `${labelFontSize}em`, width: '70%' }}>
+          <p className="mx-auto animate-pulse truncate rounded bg-gray-600" style={{ fontSize: `${labelFontSize}em`, width: '70%' }}>
             &nbsp;
           </p>
         </div>
       ) : (
         // Standard view footer skeleton (shiny black placard)
         <div
-          className="categoryPlacard absolute z-30 start-0 end-0 mx-auto -bottom-[1.5em] h-[1.5em] rounded-md text-center"
+          className="categoryPlacard absolute start-0 end-0 -bottom-[1.5em] z-30 mx-auto h-[1.5em] rounded-md text-center"
           style={{ width: `${Math.min(200, coverWidth)}px` }}
         >
-          <div className="w-full h-full flex items-center justify-center rounded-xs animate-pulse bg-gray-700" style={{ padding: '0em 0.5em' }}>
+          <div className="flex h-full w-full animate-pulse items-center justify-center rounded-xs bg-gray-700" style={{ padding: '0em 0.5em' }}>
             {/* Title text skeleton */}
             <p className="truncate rounded bg-gray-600" style={{ fontSize: `${labelFontSize}em`, width: '60%' }}>
               &nbsp;

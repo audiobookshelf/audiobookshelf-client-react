@@ -70,7 +70,7 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
         </Label>
       )}
       <InputWrapper disabled={disabled} inputRef={readInputRef}>
-        <div className="inline-flex items-center w-full">
+        <div className="inline-flex w-full items-center">
           <input
             ref={writeInputRef}
             id={inputId}
@@ -88,7 +88,7 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
             aria-valuetext={`${value}%`}
             className={rangeInputClasses}
           />
-          <span className="text-sm ms-2" aria-hidden="true">
+          <span className="ms-2 text-sm" aria-hidden="true">
             {value}%
           </span>
         </div>

@@ -96,13 +96,13 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
   }
 
   const renderItem = (source: MetadataSource, index: number) => (
-    <div className={`w-full px-2 flex items-center border border-border ${!source.include ? 'opacity-50' : ''}`}>
-      <span className="material-symbols drag-handle text-xl text-foreground-subdued hover:text-foreground mr-2 md:mr-4 cursor-grab">reorder</span>
-      <div className="text-center py-1 w-8 min-w-8">{source.include ? getSourcePriority(source.id) : ''}</div>
-      <div className="text-sm sm:text-base grow inline-flex justify-between items-center px-2 sm:px-4 py-3">
+    <div className={`border-border flex w-full items-center border px-2 ${!source.include ? 'opacity-50' : ''}`}>
+      <span className="material-symbols drag-handle text-foreground-subdued hover:text-foreground mr-2 cursor-grab text-xl md:mr-4">reorder</span>
+      <div className="w-8 min-w-8 py-1 text-center">{source.include ? getSourcePriority(source.id) : ''}</div>
+      <div className="inline-flex grow items-center justify-between px-2 py-3 text-sm sm:px-4 sm:text-base">
         {source.name}
         {source.include && (index === firstActiveIndex || index === lastActiveIndex) && (
-          <span className="hidden sm:inline-block px-2 italic font-semibold text-xs text-foreground-subdued">
+          <span className="text-foreground-subdued hidden px-2 text-xs font-semibold italic sm:inline-block">
             {index === firstActiveIndex ? t('LabelHighestPriority') : t('LabelLowestPriority')}
           </span>
         )}
@@ -112,9 +112,9 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
   )
 
   return (
-    <div className="w-full h-full px-1 md:px-4 py-1 mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="text-base md:text-lg text-foreground">{t('HeaderMetadataOrderOfPrecedence')}</h2>
+    <div className="mb-4 h-full w-full px-1 py-1 md:px-4">
+      <div className="mb-2 flex items-center justify-between">
+        <h2 className="text-foreground text-base md:text-lg">{t('HeaderMetadataOrderOfPrecedence')}</h2>
         {!isDefault && (
           <Btn size="small" onClick={handleReset}>
             {t('ButtonResetToDefault')}
@@ -122,8 +122,8 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
         )}
       </div>
 
-      <div className="flex items-center justify-between md:justify-start mb-4">
-        <p className="text-sm text-foreground-muted pr-2">{t('LabelMetadataOrderOfPrecedenceDescription')}</p>
+      <div className="mb-4 flex items-center justify-between md:justify-start">
+        <p className="text-foreground-muted pr-2 text-sm">{t('LabelMetadataOrderOfPrecedenceDescription')}</p>
         <SettingsMoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/book-scanner" />
       </div>
 

@@ -51,7 +51,7 @@ export default function Alert({ type = 'error', autoFocus = true, children, clas
 
   return (
     <div cy-id="alert" className={wrapperClass} role={alertRole} tabIndex={isAlert ? -1 : undefined} ref={alertRef}>
-      <div className="absolute top-0 start-4 h-full flex items-center">
+      <div className="absolute start-4 top-0 flex h-full items-center">
         <span cy-id="alert-icon" className="material-symbols text-2xl" aria-hidden="true">
           {icon}
         </span>

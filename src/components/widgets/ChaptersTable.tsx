@@ -50,7 +50,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
         cellClassName: 'text-center px-2',
         accessor: (row: Chapter) => (
           <div
-            className="font-mono text-center hover:underline cursor-pointer"
+            className="cursor-pointer text-center font-mono hover:underline"
             onClick={(e) => {
               e.stopPropagation()
               handleGoToTimestamp(row.start)

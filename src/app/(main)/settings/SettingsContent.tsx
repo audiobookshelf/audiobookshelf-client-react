@@ -25,12 +25,12 @@ export default function SettingsContent(props: {
   const { toggle } = useSettingsDrawer()
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-2 md:p-6">
-      <IconBtn className="md:hidden mb-2" ariaLabel={t('ButtonMenu')} size="large" borderless onClick={toggle}>
+    <div className="mx-auto w-full max-w-4xl p-2 md:p-6">
+      <IconBtn className="mb-2 md:hidden" ariaLabel={t('ButtonMenu')} size="large" borderless onClick={toggle}>
         menu
       </IconBtn>
-      <div className="bg-bg rounded-md shadow-lg border border-border p-2 sm:p-4 mb-8">
-        <div className="flex items-center gap-2 mb-2">
+      <div className="bg-bg border-border mb-8 rounded-md border p-2 shadow-lg sm:p-4">
+        <div className="mb-2 flex items-center gap-2">
           {props.backLink && (
             <Link aria-label={t('ButtonBack')} href={props.backLink} className="text-foreground-muted hover:text-foreground">
               <span className="material-symbols text-xl">arrow_back</span>
@@ -38,7 +38,7 @@ export default function SettingsContent(props: {
           )}
           <h1 className="text-xl">{props.title}</h1>
           {props.entityCount && (
-            <div className="px-1.5 rounded-lg bg-primary/50 text-foreground-muted text-sm inline-flex items-center justify-center">{props.entityCount}</div>
+            <div className="bg-primary/50 text-foreground-muted inline-flex items-center justify-center rounded-lg px-1.5 text-sm">{props.entityCount}</div>
           )}
           {props.moreInfoUrl && <SettingsMoreInfoIcon moreInfoUrl={props.moreInfoUrl} />}
           <div className="grow" />
@@ -48,7 +48,7 @@ export default function SettingsContent(props: {
             </Btn>
           )}
         </div>
-        {props.description && <p className="text-sm text-foreground-muted mb-6">{props.description}</p>}
+        {props.description && <p className="text-foreground-muted mb-6 text-sm">{props.description}</p>}
         {props.children}
       </div>
     </div>

@@ -29,7 +29,7 @@ const ToastContainer: React.FC<ToastContainerProps> = ({ toasts, onRemove }) => 
   if (!mounted) return null
 
   return createPortal(
-    <div className="fixed top-4 end-4 z-80 space-y-2">
+    <div className="fixed end-4 top-4 z-80 space-y-2">
       {toasts.map((toast) => (
         <Toast key={toast.id} id={toast.id} type={toast.type} title={toast.title} message={toast.message} duration={toast.duration} onClose={onRemove} />
       ))}

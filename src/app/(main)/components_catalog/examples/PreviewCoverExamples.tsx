@@ -52,7 +52,7 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>src</Code>: Image source URL (required)
             </li>

@@ -15,7 +15,7 @@ export default function SettingsToggleSwitch(props: SettingsToggleSwitchProps) {
       <ToggleSwitch label={props.label} className="pr-0" value={props.value} onChange={props.onChange} disabled={props.disabled ?? false} />
       {props.tooltip && (
         <Tooltip text={props.tooltip} position="right" maxWidth={300} addTabIndex={true}>
-          <span className="material-symbols text-lg cursor-default" aria-hidden="true">
+          <span className="material-symbols cursor-default text-lg" aria-hidden="true">
             info
           </span>
         </Tooltip>

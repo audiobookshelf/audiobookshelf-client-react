@@ -71,7 +71,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
     <div className={className}>
       <div
         ref={contentRef}
-        className="default-style less-spacing max-w-none transition-all duration-300 overflow-hidden"
+        className="default-style less-spacing max-w-none overflow-hidden transition-all duration-300"
         dir="auto"
         style={{
           display: '-webkit-box',
@@ -87,7 +87,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
       {isClamped && (
         <button
           type="button"
-          className="ps-1 mt-2 text-foreground-muted font-semibold hover:text-foreground flex items-center gap-1 text-[0.875em] select-none focus-visible:outline-1 focus-visible:outline-foreground focus-visible:outline-offset-1 rounded"
+          className="text-foreground-muted hover:text-foreground focus-visible:outline-foreground mt-2 flex items-center gap-1 rounded ps-1 text-[0.875em] font-semibold select-none focus-visible:outline-1 focus-visible:outline-offset-1"
           onClick={() => setIsExpanded(!isExpanded)}
         >
           {isExpanded ? t('ButtonReadLess') : t('ButtonReadMore')}

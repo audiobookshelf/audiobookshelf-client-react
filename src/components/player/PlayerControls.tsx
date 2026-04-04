@@ -57,21 +57,21 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
 
   return (
     <>
-      <div className="flex items-center mt-10">
+      <div className="mt-10 flex items-center">
         {/* Left spacer */}
-        <div className="flex-1 min-w-0" />
+        <div className="min-w-0 flex-1" />
 
         {/* Center - play controls */}
-        <div className="flex items-center gap-4 shrink-0">
+        <div className="flex shrink-0 items-center gap-4">
           {/* previous chapter */}
           <Tooltip text={t('ButtonPreviousChapter')} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={handlePreviousChapter}>
+            <IconBtn borderless size="custom" className="w-10 cursor-pointer text-3xl" onClick={handlePreviousChapter}>
               first_page
             </IconBtn>
           </Tooltip>
           {/* jump backward */}
           <Tooltip text={jumpBackwardTooltipText} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={jumpBackward}>
+            <IconBtn borderless size="custom" className="w-10 cursor-pointer text-3xl" onClick={jumpBackward}>
               replay
             </IconBtn>
           </Tooltip>
@@ -81,27 +81,27 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
             size="custom"
             loading={isLoading}
             outlined={false}
-            className="w-10 h-10 bg-accent text-primary hover:text-primary hover:not-disabled:text-primary rounded-full text-2xl cursor-pointer"
+            className="bg-accent text-primary hover:text-primary hover:not-disabled:text-primary h-10 w-10 cursor-pointer rounded-full text-2xl"
             onClick={playPause}
           >
             {isPlaying ? 'pause' : 'play_arrow'}
           </IconBtn>
           {/* jump forward */}
           <Tooltip text={jumpForwardTooltipText} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={jumpForward}>
+            <IconBtn borderless size="custom" className="w-10 cursor-pointer text-3xl" onClick={jumpForward}>
               forward_media
             </IconBtn>
           </Tooltip>
           {/* next chapter */}
           <Tooltip text={t('ButtonNextChapter')} position="top">
-            <IconBtn borderless size="custom" className="w-10 text-3xl cursor-pointer" onClick={handleNextChapter}>
+            <IconBtn borderless size="custom" className="w-10 cursor-pointer text-3xl" onClick={handleNextChapter}>
               last_page
             </IconBtn>
           </Tooltip>
         </div>
 
         {/* Right section settings buttons */}
-        <div className="flex-1 min-w-0 flex justify-end">
+        <div className="flex min-w-0 flex-1 justify-end">
           <div className="flex items-center gap-4">
             {/* volume control */}
             <VolumeControl playerHandler={playerHandler} />

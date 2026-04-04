@@ -13,7 +13,7 @@ export default async function ItemPage({ params }: { params: Promise<{ item: str
   }
 
   return (
-    <div className="p-6 sm:p-8 w-full">
+    <div className="w-full p-6 sm:p-8">
       <LibraryItemClient libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem} />
     </div>
   )

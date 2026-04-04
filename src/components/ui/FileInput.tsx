@@ -44,7 +44,7 @@ export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', childre
   return (
     <div className={className}>
       <input ref={fileInputRef} type="file" accept={accept} className="hidden" onChange={inputChanged} id={inputId} aria-label={label} tabIndex={-1} />
-      <Btn onClick={clickUpload} color="bg-primary" className="hidden md:block w-full" ariaLabel={label}>
+      <Btn onClick={clickUpload} color="bg-primary" className="hidden w-full md:block" ariaLabel={label}>
         {children}
       </Btn>
       <IconBtn onClick={clickUpload} className="block md:hidden" ariaLabel={label}>

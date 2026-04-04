@@ -97,7 +97,7 @@ export default function GlobalSearchMenu({
       cy-id="global-search-menu"
       role="listbox"
       tabIndex={-1}
-      className="absolute z-50 mt-1 w-full max-h-[calc(100vh-100px)] overflow-y-auto bg-primary border border-dropdown-menu-border shadow-lg rounded-md py-1 ring-1 ring-black/5 globalSearchMenu"
+      className="bg-primary border-dropdown-menu-border globalSearchMenu absolute z-50 mt-1 max-h-[calc(100vh-100px)] w-full overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5"
       style={
         usePortal
           ? {
@@ -114,7 +114,7 @@ export default function GlobalSearchMenu({
       {results.map((result, index) => {
         if (result.isPlaceholder) {
           return (
-            <div key={result.id} className="py-2 px-3 text-sm text-gray-500">
+            <div key={result.id} className="px-3 py-2 text-sm text-gray-500">
               {result.placeholderText}
             </div>
           )
@@ -122,7 +122,7 @@ export default function GlobalSearchMenu({
 
         if (result.type === 'header') {
           return (
-            <div key={result.id} className="px-3 py-1 mt-2 mb-1 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            <div key={result.id} className="mt-2 mb-1 px-3 py-1 text-xs font-semibold tracking-wider text-gray-500 uppercase">
               {result.title}
             </div>
           )
@@ -145,27 +145,27 @@ export default function GlobalSearchMenu({
             {hasImage ? (
               <div
                 className={mergeClasses(
-                  'flex-shrink-0 relative bg-bg-secondary rounded-sm overflow-hidden flex items-center justify-center shadow-sm',
+                  'bg-bg-secondary relative flex flex-shrink-0 items-center justify-center overflow-hidden rounded-sm shadow-sm',
                   containerClass
                 )}
               >
                 {result.type === 'author' && result.originalItem ? (
-                  <AuthorImage author={result.originalItem} className="w-full h-full" />
+                  <AuthorImage author={result.originalItem} className="h-full w-full" />
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={result.imageSrc} alt="" className="w-full h-full object-cover" loading="lazy" />
+                  <img src={result.imageSrc} alt="" className="h-full w-full object-cover" loading="lazy" />
                 )}
               </div>
             ) : (
               // Placeholder or Icon for items without images (Tags/Genres)
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-bg-secondary flex items-center justify-center">
-                <span className="material-symbols text-gray-400 text-lg">{getMaterialSymbolIcon(result.type)}</span>
+              <div className="bg-bg-secondary flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full">
+                <span className="material-symbols text-lg text-gray-400">{getMaterialSymbolIcon(result.type)}</span>
               </div>
             )}
 
             {/* Text */}
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-foreground truncate">
+              <div className="text-foreground truncate text-sm font-medium">
                 <HighlightMatch text={result.title} query={searchQuery} />
               </div>
               {/* Only show subtitle if it exists */}
@@ -176,7 +176,7 @@ export default function GlobalSearchMenu({
               )}
               {/* Show author if it exists */}
               {result.author && (
-                <div className="text-xs text-foreground truncate">
+                <div className="text-foreground truncate text-xs">
                   <HighlightMatch text={result.author} query={searchQuery} />
                 </div>
               )}

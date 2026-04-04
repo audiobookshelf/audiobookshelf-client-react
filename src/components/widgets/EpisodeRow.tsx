@@ -112,20 +112,20 @@ export default function EpisodeRow({
   return (
     <>
       <div
-        className="w-full h-44 overflow-hidden px-2 py-2 border-b border-foreground/10 relative hover:bg-foreground/5 transition-colors"
+        className="border-foreground/10 hover:bg-foreground/5 relative h-44 w-full overflow-hidden border-b px-2 py-2 transition-colors"
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
       >
         {/* Main content — keep onClick for mouse users, but let children dictate keyboard tab index */}
-        <div className="flex flex-col h-full rounded-sm" onClick={handleRowClick}>
-          <div className="flex flex-1 min-h-0 w-full">
-            <div className="grow min-w-0 flex flex-col justify-start">
+        <div className="flex h-full flex-col rounded-sm" onClick={handleRowClick}>
+          <div className="flex min-h-0 w-full flex-1">
+            <div className="flex min-w-0 grow flex-col justify-start">
               {/* Title - serves as the primary keyboard target for opening the row */}
-              <div dir="auto" className="h-10 flex items-center break-words whitespace-normal relative pe-2 flex-shrink-0 w-full">
+              <div dir="auto" className="relative flex h-10 w-full flex-shrink-0 items-center pe-2 break-words whitespace-normal">
                 <button
                   id={`btn-episode-${episode.id}`}
                   type="button"
-                  className={`text-sm font-semibold leading-tight line-clamp-2 text-start cursor-pointer focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-4 rounded-sm ${userIsFinished ? 'text-foreground-muted' : ''}`}
+                  className={`focus-visible:outline-foreground-muted line-clamp-2 cursor-pointer rounded-sm text-start text-sm leading-tight font-semibold focus-visible:outline-1 focus-visible:outline-offset-4 ${userIsFinished ? 'text-foreground-muted' : ''}`}
                   onClick={(e) => {
                     e.stopPropagation()
                     handleRowClick()
@@ -136,10 +136,10 @@ export default function EpisodeRow({
               </div>
 
               {/* Subtitle/Description - This must shrink if title is 2 lines */}
-              <div className="h-10 flex items-start mt-1.5 mb-0.5 overflow-hidden relative min-h-0 pe-12">
+              <div className="relative mt-1.5 mb-0.5 flex h-10 min-h-0 items-start overflow-hidden pe-12">
                 <div
                   dir="auto"
-                  className="text-sm text-foreground-muted line-clamp-2 leading-snug break-words whitespace-normal w-full"
+                  className="text-foreground-muted line-clamp-2 w-full text-sm leading-snug break-words whitespace-normal"
                   dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                   onClick={(e) => {
                     // If a link within the description was clicked, don't open the modal
@@ -151,16 +151,16 @@ export default function EpisodeRow({
               </div>
 
               {/* Metadata row */}
-              <div className="flex items-center h-7 w-full flex-shrink-0">
+              <div className="flex h-7 w-full flex-shrink-0 items-center">
                 {sortKey === 'audioFile.metadata.filename' ? (
-                  <p className="text-sm text-foreground-muted truncate font-light">
+                  <p className="text-foreground-muted truncate text-sm font-light">
                     <strong className="font-bold">{t('LabelFilename')}</strong>: {episode.audioFile?.metadata?.filename}
                   </p>
                 ) : (
-                  <div className="w-full inline-flex justify-between overflow-hidden max-w-xl pr-12">
-                    {episode.season && <p className="text-sm text-foreground-muted whitespace-nowrap">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
-                    {episode.episode && <p className="text-sm text-foreground-muted whitespace-nowrap">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
-                    {publishedDate && <p className="text-sm text-foreground-muted whitespace-nowrap">{t('LabelPublishedDate', { 0: publishedDate })}</p>}
+                  <div className="inline-flex w-full max-w-xl justify-between overflow-hidden pr-12">
+                    {episode.season && <p className="text-foreground-muted text-sm whitespace-nowrap">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
+                    {episode.episode && <p className="text-foreground-muted text-sm whitespace-nowrap">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
+                    {publishedDate && <p className="text-foreground-muted text-sm whitespace-nowrap">{t('LabelPublishedDate', { 0: publishedDate })}</p>}
                   </div>
                 )}
               </div>
@@ -168,7 +168,7 @@ export default function EpisodeRow({
 
             {/* Selection checkbox area */}
             <div
-              className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center flex-shrink-0 transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 md:opacity-0 has-[:focus-visible]:opacity-100 md:has-[:focus-visible]:opacity-100'}`}
+              className={`absolute top-1/2 right-2 z-10 flex flex-shrink-0 -translate-y-1/2 items-center justify-center transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 has-[:focus-visible]:opacity-100 md:opacity-0 md:has-[:focus-visible]:opacity-100'}`}
               onKeyDown={(e) => {
                 if (e.key === ' ') {
                   e.stopPropagation()
@@ -181,20 +181,20 @@ export default function EpisodeRow({
           </div>
 
           {/* Action buttons */}
-          <div className="flex items-center justify-between gap-1 mt-auto w-full @container">
-            <div className="flex items-center w-full gap-1">
+          <div className="@container mt-auto flex w-full items-center justify-between gap-1">
+            <div className="flex w-full items-center gap-1">
               <Btn
                 color="bg-transparent"
                 onClick={(e) => {
                   e.stopPropagation()
                   onPlay(episode)
                 }}
-                className={`px-2 flex-nowrap border-foreground/20 hover:bg-foreground/10 ${userIsFinished ? 'text-foreground/40' : 'text-foreground'}`}
+                className={`border-foreground/20 hover:bg-foreground/10 flex-nowrap px-2 ${userIsFinished ? 'text-foreground/40' : 'text-foreground'}`}
               >
                 <span className={`material-symbols fill text-xl sm:text-2xl ${streamIsPlaying ? '' : 'text-success'}`}>
                   {streamIsPlaying ? 'pause' : 'play_arrow'}
                 </span>
-                <span className="text-xs sm:text-sm pe-1 font-semibold whitespace-nowrap">{timeRemaining}</span>
+                <span className="pe-1 text-xs font-semibold whitespace-nowrap sm:text-sm">{timeRemaining}</span>
               </Btn>
 
               <Tooltip position="top" text={userIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} className="flex-shrink-0">
@@ -254,7 +254,7 @@ export default function EpisodeRow({
         </div>
 
         {/* Progress bar */}
-        {!userIsFinished && progressPercent > 0 && <div className="absolute bottom-0 left-0 h-0.5 bg-warning" style={{ width: `${progressPercent * 100}%` }} />}
+        {!userIsFinished && progressPercent > 0 && <div className="bg-warning absolute bottom-0 left-0 h-0.5" style={{ width: `${progressPercent * 100}%` }} />}
       </div>
 
       {confirmState && (

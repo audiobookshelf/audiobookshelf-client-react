@@ -19,13 +19,13 @@ export function LibraryIconExamples() {
 
       <ExamplesBlock>
         <Example title="Default Library Icon">
-          <div className="p-2 rounded-lg">
+          <div className="rounded-lg p-2">
             <LibraryIcon />
           </div>
         </Example>
 
         <Example title="Large Size">
-          <div className="p-2 rounded-lg">
+          <div className="rounded-lg p-2">
             <LibraryIcon size={6} />
           </div>
         </Example>

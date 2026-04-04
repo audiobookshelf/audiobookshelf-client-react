@@ -137,9 +137,9 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
   }, [middlewareData.arrow, resolvedPlacement])
 
   const popoverContent = isOpen ? (
-    <div ref={popoverRef} id={`${widgetId}-popover`} role="dialog" style={floatingStyles} className="bg-background rounded-lg shadow-lg z-70 p-2">
+    <div ref={popoverRef} id={`${widgetId}-popover`} role="dialog" style={floatingStyles} className="bg-background z-70 rounded-lg p-2 shadow-lg">
       {/* Preset buttons row */}
-      <div className="flex gap-0 mb-2">
+      <div className="mb-2 flex gap-0">
         {PRESET_RATES.map((rate, index) => (
           <button
             key={rate}
@@ -147,12 +147,12 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
             onClick={() => handlePresetClick(rate)}
             className={mergeClasses(
               'px-3 py-1.5 text-sm font-medium transition-colors',
-              'border border-border',
+              'border-border border',
               index === 0 ? 'rounded-l-md' : '',
               index === PRESET_RATES.length - 1 ? 'rounded-r-md' : '',
               playbackRate === rate
                 ? 'bg-button-selected-bg text-button-foreground'
-                : 'bg-transparent text-button-foreground-muted hover:bg-button-selected-bg hover:text-button-foreground'
+                : 'text-button-foreground-muted hover:bg-button-selected-bg hover:text-button-foreground bg-transparent'
             )}
           >
             {rate}x
@@ -166,7 +166,7 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
         <IconBtn onClick={handleDecrement}>remove</IconBtn>
 
         {/* Current rate display */}
-        <div className="flex-1 flex items-center justify-center text-3xl font-semibold text-foreground tabular-nums min-w-[100px]">
+        <div className="text-foreground flex min-w-[100px] flex-1 items-center justify-center text-3xl font-semibold tabular-nums">
           {formatRate(playbackRate)}x
         </div>
 
@@ -175,7 +175,7 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
       </div>
 
       {/* Arrow */}
-      <div ref={arrowRef} style={arrowStyles} className="absolute w-2 h-2 rotate-45 bg-background" />
+      <div ref={arrowRef} style={arrowStyles} className="bg-background absolute h-2 w-2 rotate-45" />
     </div>
   ) : null
 
@@ -189,7 +189,7 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
         aria-expanded={isOpen}
         aria-controls={`${widgetId}-popover`}
         aria-label={`${t('LabelPlaybackRate')}: ${formatRate(playbackRate)}x`}
-        className="text-foreground-muted text-base font-medium hover:text-foreground transition-colors tabular-nums"
+        className="text-foreground-muted hover:text-foreground text-base font-medium tabular-nums transition-colors"
       >
         {formatRate(playbackRate)}x
       </button>

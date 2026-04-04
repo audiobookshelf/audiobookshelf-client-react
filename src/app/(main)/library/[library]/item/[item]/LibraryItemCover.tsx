@@ -106,15 +106,15 @@ export default function LibraryItemCover({ libraryItem, coverAspectRatio, canUpd
         overlay={
           <div
             className={mergeClasses(
-              'absolute inset-0 bg-black/40 transition-opacity duration-200 z-10',
-              showOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none group-focus-within:opacity-100 group-focus-within:pointer-events-auto'
+              'absolute inset-0 z-10 bg-black/40 transition-opacity duration-200',
+              showOverlay ? 'opacity-100' : 'pointer-events-none opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100'
             )}
           >
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <IconBtn
                 borderless
                 outlined={false}
-                className="hover:text-white text-gray-200 hover:scale-110 transform duration-200 pointer-events-auto"
+                className="pointer-events-auto transform text-gray-200 duration-200 hover:scale-110 hover:text-white"
                 style={{ fontSize: '4rem' }}
                 onClick={(e) => {
                   e.preventDefault()

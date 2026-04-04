@@ -21,7 +21,7 @@ export default function Files({ libraryItem }: FilesProps) {
   const inModal = !!modalRef
 
   return (
-    <div className="w-full h-full overflow-y-auto overflow-x-hidden px-4 py-6" role="region" aria-label={t('HeaderLibraryFiles')}>
+    <div className="h-full w-full overflow-x-hidden overflow-y-auto px-4 py-6" role="region" aria-label={t('HeaderLibraryFiles')}>
       <div className="w-full">
         <LibraryFilesTable libraryItem={libraryItem} keepOpen={inModal} inModal={inModal} expanded />
       </div>

@@ -135,15 +135,15 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
 
   // Empty state message
   if (!items.length) {
-    return <p className="text-foreground text-center py-10 text-xl">{t(listTypeEmptyString)}</p>
+    return <p className="text-foreground py-10 text-center text-xl">{t(listTypeEmptyString)}</p>
   }
 
   return (
-    <div role="list" className="border border-border max-w-2xl mx-auto overflow-x-scroll">
-      <table className="table-auto w-full">
-        <thead className="w-full bg-primary/50">
+    <div role="list" className="border-border mx-auto max-w-2xl overflow-x-scroll border">
+      <table className="w-full table-auto">
+        <thead className="bg-primary/50 w-full">
           <tr>
-            <th className="text-left py-2 px-3" title="Name">
+            <th className="px-3 py-2 text-left" title="Name">
               {t('LabelName')}
             </th>
             {showNumBooks && <th className="hidden md:table-cell">{t('LabelBooks')}</th>}
@@ -155,11 +155,11 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
           {items.map((item) => (
             <Fragment key={item.id}>
               {item !== editedItem && (
-                <tr key={item.id} className="p-2 group even:bg-primary/20">
+                <tr key={item.id} className="group even:bg-primary/20 p-2">
                   <td className="p-3.5">
                     {showNumBooks ? (
                       <a
-                        className="text-sm md:text-base text-foreground hover:underline"
+                        className="text-foreground text-sm hover:underline md:text-base"
                         title={item.name}
                         // Only narrators can be clicked on, tags/genres don't have library info attached.
                         // href could be made an EditListItem prop that is passed in if other pages start using this
@@ -168,21 +168,21 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                         {item.name}
                       </a>
                     ) : (
-                      <span className="text-sm md:text-base text-foreground" title={item.name}>
+                      <span className="text-foreground text-sm md:text-base" title={item.name}>
                         {item.name}
                       </span>
                     )}
                   </td>
                   {showNumBooks && (
-                    <td className="hidden md:table-cell w-1/6">
+                    <td className="hidden w-1/6 md:table-cell">
                       <div className="flex justify-center">
-                        <a className="text-sm md:text-base text-foreground hover:underline" href={`/library/${libraryId}/items?filter=narrators.${item.id}`}>
+                        <a className="text-foreground text-sm hover:underline md:text-base" href={`/library/${libraryId}/items?filter=narrators.${item.id}`}>
                           {item.numBooks}
                         </a>
                       </div>
                     </td>
                   )}
-                  <td className="w-1/4 ">
+                  <td className="w-1/4">
                     <div className="flex justify-end">
                       <IconBtn
                         size="small"
@@ -207,19 +207,19 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                 </tr>
               )}
               {item === editedItem && (
-                <tr key={item.id} className="p-2 group even:bg-primary/20">
+                <tr key={item.id} className="group even:bg-primary/20 p-2">
                   <td className="p-0.5">
                     <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5"></TextInput>
                   </td>
                   {showNumBooks && (
-                    <td className="hidden md:table-cell w-1/6">
+                    <td className="hidden w-1/6 md:table-cell">
                       <div className="flex justify-center">
-                        <a className="text-sm md:text-base hover:underline">{item.numBooks}</a>
+                        <a className="text-sm hover:underline md:text-base">{item.numBooks}</a>
                       </div>
                     </td>
                   )}
                   <td className="w-1/4">
-                    <div className="flex mx-1">
+                    <div className="mx-1 flex">
                       <Btn
                         color="bg-success"
                         size="small"
@@ -242,15 +242,15 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
         </tbody>
       </table>
       <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} className="w-[500px]">
-        <div className="p-6 h-full flex flex-col">
+        <div className="flex h-full flex-col p-6">
           {isDeleting ? (
             <p className="text-foreground mb-6 flex-1">{t(listTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
           ) : (
             <>
               <p className="text-foreground mb-6 flex-1">{t(listTypeEditString, { 0: editedItem.name, 1: newName })}</p>
               {/* Show warning if the new value already exists or has a different casing*/}
-              {hasSameName && <p className="text-yellow-500 mb-6 flex-1">{t(listTypeMergeString)}</p>}
-              {sameNameWithDifferentCase !== '' && <p className="text-yellow-500 mb-6 flex-1">{t(listTypeWarningString, { 0: sameNameWithDifferentCase })}</p>}
+              {hasSameName && <p className="mb-6 flex-1 text-yellow-500">{t(listTypeMergeString)}</p>}
+              {sameNameWithDifferentCase !== '' && <p className="mb-6 flex-1 text-yellow-500">{t(listTypeWarningString, { 0: sameNameWithDifferentCase })}</p>}
             </>
           )}
           <div className="flex justify-end gap-3">

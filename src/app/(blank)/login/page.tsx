@@ -10,12 +10,12 @@ export default async function LoginPage() {
     const isServerInitialized = !!status?.isInit
 
     return (
-      <div className="min-h-full flex items-center justify-center -mt-[var(--header-height)]">{isServerInitialized ? <LoginForm /> : <ServerInitForm />}</div>
+      <div className="-mt-[var(--header-height)] flex min-h-full items-center justify-center">{isServerInitialized ? <LoginForm /> : <ServerInitForm />}</div>
     )
   } catch (error) {
     return (
-      <div className="min-h-full flex items-center justify-center">
-        <div className="text-red-500 text-center text-sm mb-4">{error instanceof Error ? error.message : 'Server error'}</div>
+      <div className="flex min-h-full items-center justify-center">
+        <div className="mb-4 text-center text-sm text-red-500">{error instanceof Error ? error.message : 'Server error'}</div>
       </div>
     )
   }

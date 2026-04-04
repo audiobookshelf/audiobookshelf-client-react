@@ -58,7 +58,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>series</Code>: The Series object containing id, name, books array, rssFeed, etc.
             </li>
@@ -78,15 +78,15 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </div>
       </ComponentInfo>
 
-      <h3 id="series-card-examples" className="text-lg font-bold mb-4">
+      <h3 id="series-card-examples" className="mb-4 text-lg font-bold">
         Series: {seriesData.name}
       </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Standard View`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={seriesStandardCardRef}>
                 <SeriesCard
                   series={seriesData}
@@ -98,7 +98,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               </div>
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={seriesStandardSkeletonRef}>
                 <SeriesCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 0} />
               </div>
@@ -108,9 +108,9 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
 
         <Example title={`Detail View`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={seriesDetailCardRef}>
                 <SeriesCard
                   series={seriesData}
@@ -122,7 +122,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={seriesDetailSkeletonRef}>
                 <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 0} />
               </div>
@@ -132,11 +132,11 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`With Progress Bar`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">50% Progress</p>
+              <p className="mb-2 text-sm text-gray-400">50% Progress</p>
               <SeriesCard
                 series={seriesData}
                 libraryId={libraryId}
@@ -153,7 +153,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               />
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">100% Complete (Finished)</p>
+              <p className="mb-2 text-sm text-gray-400">100% Complete (Finished)</p>
               <SeriesCard
                 series={seriesData}
                 libraryId={libraryId}
@@ -174,9 +174,9 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
 
         <Example title={`With RSS Feed`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">RSS Feed Active</p>
+              <p className="mb-2 text-sm text-gray-400">RSS Feed Active</p>
               <SeriesCard
                 series={
                   {
@@ -202,11 +202,11 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Detail View Ordered by AddedAt`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={seriesDetailOrderByCardRef}>
                 <SeriesCard
                   series={seriesData}
@@ -219,7 +219,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={seriesDetailOrderBySkeletonRef}>
                 <SeriesCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 0} orderBy="addedAt" />
               </div>
@@ -229,9 +229,9 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
 
         <Example title={`Sort by: totalDuration`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <SeriesCard
                 series={seriesData}
                 libraryId={libraryId}
@@ -245,9 +245,9 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
 
         <Example title={`No Covers (Fallback)`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">Books without covers</p>
+              <p className="mb-2 text-sm text-gray-400">Books without covers</p>
               <SeriesCard
                 series={
                   {
@@ -268,9 +268,9 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
 
         <Example title={`Single Book Series`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <SeriesCard
                 series={{ ...seriesData, books: seriesData.books?.slice(0, 1) } as Series}
                 libraryId={libraryId}
@@ -280,7 +280,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <SeriesCard
                 series={{ ...seriesData, books: seriesData.books?.slice(0, 1) } as Series}
                 libraryId={libraryId}
@@ -293,11 +293,11 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title="Selection Mode">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Selection Mode (Unselected)</p>
+              <p className="mb-2 text-sm text-gray-400">Selection Mode (Unselected)</p>
               <SeriesCard
                 series={seriesData}
                 libraryId={libraryId}
@@ -311,7 +311,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Selection Mode (Selected)</p>
+              <p className="mb-2 text-sm text-gray-400">Selection Mode (Selected)</p>
               <SeriesCard
                 series={seriesData}
                 libraryId={libraryId}
@@ -329,9 +329,9 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
       </div>
 
       <Example title={`Size Multipliers (Standard View)`}>
-        <div className="flex gap-4 flex-wrap items-start">
+        <div className="flex flex-wrap items-start gap-4">
           <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
-            <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 1/2</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -342,7 +342,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             />
           </div>
           <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
-            <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 3/4</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -353,7 +353,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             />
           </div>
           <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
-            <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 5/6</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -364,7 +364,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             />
           </div>
           <div className="mb-6" style={{ fontSize: `${1}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size: 1 (effective 5/6 on mobile)</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 1 (effective 5/6 on mobile)</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -373,8 +373,8 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               dateFormat={defaultDateFormat}
             />
           </div>
-          <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+          <div className="mb-6 hidden lg:block" style={{ fontSize: `${4 / 3}em` }}>
+            <p className="mb-2 text-sm text-gray-400">Size: 4/3</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -388,9 +388,9 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
       </Example>
 
       <Example title={`Size Multipliers (Detail View)`}>
-        <div className="flex gap-4 flex-wrap items-start">
+        <div className="flex flex-wrap items-start gap-4">
           <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
-            <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 1/2</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -401,7 +401,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             />
           </div>
           <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
-            <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 3/4</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -412,7 +412,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             />
           </div>
           <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
-            <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 5/6</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -423,7 +423,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
             />
           </div>
           <div className="mb-6" style={{ fontSize: `${1}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size: 1 (effective 5/6 on mobile)</p>
+            <p className="mb-2 text-sm text-gray-400">Size: 1 (effective 5/6 on mobile)</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}
@@ -432,8 +432,8 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               dateFormat={defaultDateFormat}
             />
           </div>
-          <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+          <div className="mb-6 hidden lg:block" style={{ fontSize: `${4 / 3}em` }}>
+            <p className="mb-2 text-sm text-gray-400">Size: 4/3</p>
             <SeriesCard
               series={seriesData}
               libraryId={libraryId}

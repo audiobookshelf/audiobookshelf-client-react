@@ -46,9 +46,9 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={mergeClasses(
-        'w-full flex items-center gap-3 px-4 py-3 text-left transition-colors rounded-lg',
+        'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors',
         'hover:bg-foreground-muted/5 focus:bg-foreground-muted/5 focus:outline-none',
-        isCurrentChapter && 'bg-accent/15 border-l-3 border-accent',
+        isCurrentChapter && 'bg-accent/15 border-accent border-l-3',
         isListened && !isCurrentChapter && 'bg-success/5'
       )}
       data-current={isCurrentChapter}
@@ -56,7 +56,7 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       {/* Chapter number indicator */}
       <div
         className={mergeClasses(
-          'w-8 h-8 rounded-full grid place-items-center text-sm font-medium leading-none shrink-0',
+          'grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm leading-none font-medium',
           isCurrentChapter ? 'bg-accent text-primary' : isListened ? 'bg-success/20 text-success' : 'bg-foreground-muted/10 text-foreground-muted'
         )}
       >
@@ -64,16 +64,16 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       </div>
 
       {/* Chapter info */}
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <p
           dir="auto"
-          className={mergeClasses('text-sm font-medium truncate', isCurrentChapter ? 'text-accent' : isListened ? 'text-foreground/80' : 'text-foreground')}
+          className={mergeClasses('truncate text-sm font-medium', isCurrentChapter ? 'text-accent' : isListened ? 'text-foreground/80' : 'text-foreground')}
         >
           {chapter.title}
         </p>
-        <div className="flex items-center gap-1.5 mt-0.5 text-xs text-foreground-muted">
+        <div className="text-foreground-muted mt-0.5 flex items-center gap-1.5 text-xs">
           <span className="font-mono">{startTimestamp}</span>
-          <span className="font-mono text-foreground-muted/60">({durationTimestamp})</span>
+          <span className="text-foreground-muted/60 font-mono">({durationTimestamp})</span>
         </div>
       </div>
     </button>
@@ -111,10 +111,10 @@ export default function ChaptersModal({ isOpen, playerHandler, onClose }: Chapte
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="sm:max-w-lg md:max-w-lg lg:max-w-lg">
-      <div className="flex flex-col max-h-[80vh]">
+      <div className="flex max-h-[80vh] flex-col">
         <div ref={listRef} className="flex-1 overflow-y-auto p-2">
           {chapters.length === 0 ? (
-            <div className="flex items-center justify-center py-12 text-foreground-muted">
+            <div className="text-foreground-muted flex items-center justify-center py-12">
               <p>{t('MessageNoChapters')}</p>
             </div>
           ) : (

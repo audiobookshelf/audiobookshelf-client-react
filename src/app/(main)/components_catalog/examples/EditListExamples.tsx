@@ -44,12 +44,12 @@ export function EditListExamples() {
       <ComponentInfo component="Edit List" description="Interactive list component for editing and deleting items">
         <p className="mb-2">
           <span className="font-bold">Import:</span>{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">import Edit List from &apos;@/components/ui/EditList&apos;</code>
+          <code className="rounded bg-gray-700 px-2 py-1">import Edit List from &apos;@/components/ui/EditList&apos;</code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="bg-gray-700 px-2 py-1 rounded">items</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">onItemEditSaveClick</code>,<code className="bg-gray-700 px-2 py-1 rounded">onItemDeleteClick</code>,{' '}
-          <code className="bg-gray-700 px-2 py-1 rounded">listType</code>,<code className="bg-gray-700 px-2 py-1 rounded">libraryId (optional)</code>,
+          <span className="font-bold">Props:</span> <code className="rounded bg-gray-700 px-2 py-1">items</code>,{' '}
+          <code className="rounded bg-gray-700 px-2 py-1">onItemEditSaveClick</code>,<code className="rounded bg-gray-700 px-2 py-1">onItemDeleteClick</code>,{' '}
+          <code className="rounded bg-gray-700 px-2 py-1">listType</code>,<code className="rounded bg-gray-700 px-2 py-1">libraryId (optional)</code>,
         </p>
         <p className="mb-2 text-sm text-gray-400">Features: Automatically shows extra column for number of books for pages that support that info</p>
       </ComponentInfo>

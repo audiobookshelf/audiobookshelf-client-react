@@ -393,9 +393,9 @@ export default function Dropdown({
           aria-label={longLabel}
           disabled={disabled}
           className={mergeClasses(
-            'relative w-full text-left cursor-pointer text-foreground',
-            'ps-1 h-full bg-transparent border-none outline-none flex items-center justify-between',
-            'disabled:cursor-not-allowed disabled:text-disabled',
+            'text-foreground relative w-full cursor-pointer text-left',
+            'flex h-full items-center justify-between border-none bg-transparent ps-1 outline-none',
+            'disabled:text-disabled disabled:cursor-not-allowed',
             size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : size === 'medium' ? 'text-base' : ''
           )}
           aria-haspopup="listbox"
@@ -411,12 +411,12 @@ export default function Dropdown({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          <span className="flex items-center min-w-0 flex-1 gap-0">
-            <span className={mergeClasses('block truncate font-sans shrink', selectedSubtext ? 'font-semibold max-w-[75%]' : '')}>{selectedText}</span>
+          <span className="flex min-w-0 flex-1 items-center gap-0">
+            <span className={mergeClasses('block shrink truncate font-sans', selectedSubtext ? 'max-w-[75%] font-semibold' : '')}>{selectedText}</span>
             {selectedSubtext && <span className="flex-shrink-0">:&nbsp;</span>}
-            {selectedSubtext && <span className="font-normal block truncate font-sans text-gray-400 shrink max-w-[25%]">{selectedSubtext}</span>}
+            {selectedSubtext && <span className="block max-w-[25%] shrink truncate font-sans font-normal text-gray-400">{selectedSubtext}</span>}
           </span>
-          <span className="ms-3 flex items-center pointer-events-none flex-shrink-0">
+          <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
             {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}
           </span>
         </button>

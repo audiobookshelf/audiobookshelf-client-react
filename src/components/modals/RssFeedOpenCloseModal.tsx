@@ -116,8 +116,8 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
   if (!entity) return null
 
   const outerContent = (
-    <div className="absolute top-0 start-0 p-4">
-      <p className="text-xl font-semibold text-white truncate max-w-[calc(100vw-4rem)]" title={entityName}>
+    <div className="absolute start-0 top-0 p-4">
+      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white" title={entityName}>
         {entityName}
       </p>
     </div>
@@ -130,26 +130,26 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} processing={processing}>
-      <div className="px-4 sm:px-6 py-6 text-sm">
+      <div className="px-4 py-6 text-sm sm:px-6">
         {currentFeed ? (
           <>
-            <p className="text-lg font-semibold mb-4">{viewMode ? t('HeaderRSSDetails') : t('HeaderRSSFeedIsOpen')}</p>
+            <p className="mb-4 text-lg font-semibold">{viewMode ? t('HeaderRSSDetails') : t('HeaderRSSFeedIsOpen')}</p>
             <TextInput value={fullFeedUrl} readOnly showCopy className="text-sm" />
             {meta && (
               <div className="mt-4 space-y-2">
                 <div className="flex items-center">
-                  <span className="text-foreground-subdued uppercase text-xs w-48 shrink-0">{t('LabelPreventIndexingShort')}</span>
+                  <span className="text-foreground-subdued w-48 shrink-0 text-xs uppercase">{t('LabelPreventIndexingShort')}</span>
                   <span className="text-foreground">{meta.preventIndexing ? 'Yes' : 'No'}</span>
                 </div>
                 {hasOwnerName && (
                   <div className="flex items-center">
-                    <span className="text-foreground-subdued uppercase text-xs w-48 shrink-0">{t('LabelRSSFeedCustomOwnerName')}</span>
+                    <span className="text-foreground-subdued w-48 shrink-0 text-xs uppercase">{t('LabelRSSFeedCustomOwnerName')}</span>
                     <span className="text-foreground">{meta.ownerName}</span>
                   </div>
                 )}
                 {hasOwnerEmail && (
                   <div className="flex items-center">
-                    <span className="text-foreground-subdued uppercase text-xs w-48 shrink-0">{t('LabelRSSFeedCustomOwnerEmail')}</span>
+                    <span className="text-foreground-subdued w-48 shrink-0 text-xs uppercase">{t('LabelRSSFeedCustomOwnerEmail')}</span>
                     <span className="text-foreground">{meta.ownerEmail}</span>
                   </div>
                 )}
@@ -158,24 +158,24 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
             {viewMode && (
               <>
                 {currentFeed.episodes && currentFeed.episodes.length > 0 ? (
-                  <div className="mt-6 max-h-[300px] overflow-y-auto rounded-md border border-border">
-                    <table className="w-full text-sm border-collapse">
+                  <div className="border-border mt-6 max-h-[300px] overflow-y-auto rounded-md border">
+                    <table className="w-full border-collapse text-sm">
                       <thead className="bg-table-header-bg sticky top-0">
-                        <tr className="border-b border-border">
-                          <th className="text-start text-xs font-semibold text-foreground-muted py-2 px-2">{t('LabelEpisodeTitle')}</th>
+                        <tr className="border-border border-b">
+                          <th className="text-foreground-muted px-2 py-2 text-start text-xs font-semibold">{t('LabelEpisodeTitle')}</th>
                         </tr>
                       </thead>
                       <tbody>
                         {currentFeed.episodes.map((episode, index) => (
-                          <tr key={episode.id} className={`border-b border-border last:border-b-0 ${index % 2 === 1 ? 'bg-table-row-bg-even' : ''}`}>
-                            <td className="py-2 px-2 text-sm text-foreground">{episode.title}</td>
+                          <tr key={episode.id} className={`border-border border-b last:border-b-0 ${index % 2 === 1 ? 'bg-table-row-bg-even' : ''}`}>
+                            <td className="text-foreground px-2 py-2 text-sm">{episode.title}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
                 ) : (
-                  <div className="mt-6 text-sm text-foreground-muted">{t('MessageNoEpisodes')}</div>
+                  <div className="text-foreground-muted mt-6 text-sm">{t('MessageNoEpisodes')}</div>
                 )}
               </>
             )}
@@ -189,11 +189,11 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
           </>
         ) : (
           <>
-            <p className="text-lg font-semibold mb-4">{t('HeaderOpenRSSFeed')}</p>
-            <div className="space-y-2 mb-2">
-              <label className="block text-foreground-subdued uppercase text-xs">{t('LabelRSSFeedSlug')}</label>
+            <p className="mb-4 text-lg font-semibold">{t('HeaderOpenRSSFeed')}</p>
+            <div className="mb-2 space-y-2">
+              <label className="text-foreground-subdued block text-xs uppercase">{t('LabelRSSFeedSlug')}</label>
               <TextInput value={newFeedSlug} onChange={(value) => setNewFeedSlug(value)} className="text-sm" />
-              <p className="text-xs text-foreground-muted">{t('MessageFeedURLWillBe', { 0: demoFeedUrl })}</p>
+              <p className="text-foreground-muted text-xs">{t('MessageFeedURLWillBe', { 0: demoFeedUrl })}</p>
             </div>
             <div className="space-y-3 py-2">
               <Checkbox
@@ -202,7 +202,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
                 label={t('LabelPreventIndexing')}
               />
               <div>
-                <label className="block text-foreground-subdued uppercase text-xs mb-1">{t('LabelRSSFeedCustomOwnerName')}</label>
+                <label className="text-foreground-subdued mb-1 block text-xs uppercase">{t('LabelRSSFeedCustomOwnerName')}</label>
                 <TextInput
                   value={metadataDetails.ownerName}
                   onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerName: value }))}
@@ -210,7 +210,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
                 />
               </div>
               <div>
-                <label className="block text-foreground-subdued uppercase text-xs mb-1">{t('LabelRSSFeedCustomOwnerEmail')}</label>
+                <label className="text-foreground-subdued mb-1 block text-xs uppercase">{t('LabelRSSFeedCustomOwnerEmail')}</label>
                 <TextInput
                   value={metadataDetails.ownerEmail}
                   onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerEmail: value }))}
@@ -218,8 +218,8 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
                 />
               </div>
             </div>
-            {isHttp && <p className="text-warning text-xs pt-2">{t('NoteRSSFeedPodcastAppsHttps')}</p>}
-            {hasEpisodesWithoutPubDate && <p className="text-warning text-xs pt-2">{t('NoteRSSFeedPodcastAppsPubDate')}</p>}
+            {isHttp && <p className="text-warning pt-2 text-xs">{t('NoteRSSFeedPodcastAppsHttps')}</p>}
+            {hasEpisodesWithoutPubDate && <p className="text-warning pt-2 text-xs">{t('NoteRSSFeedPodcastAppsPubDate')}</p>}
             {userIsAdminOrUp && (
               <div className="flex justify-end pt-6">
                 <Btn color="bg-success" size="small" onClick={handleOpenFeed} disabled={processing}>

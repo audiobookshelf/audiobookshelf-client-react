@@ -7,7 +7,7 @@ export default async function EntityPage({ params }: { params: Promise<{ library
   const entityType = entityTypeString as EntityType
 
   return (
-    <div className="w-full h-full">
+    <div className="h-full w-full">
       <BookshelfClient key={entityType} entityType={entityType} />
     </div>
   )

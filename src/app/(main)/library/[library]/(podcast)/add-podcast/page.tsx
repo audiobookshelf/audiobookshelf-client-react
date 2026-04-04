@@ -1,3 +1,3 @@
 export default function AddPodcastPage() {
-  return <div className="p-8 w-full">Add Podcast</div>
+  return <div className="w-full p-8">Add Podcast</div>
 }

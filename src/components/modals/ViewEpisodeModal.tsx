@@ -88,23 +88,23 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
       isOpen={isOpen}
       onClose={onClose}
       outerContent={
-        <div className="absolute top-0 left-0 p-5 w-2/3 overflow-hidden pointer-events-none">
-          <p className="text-3xl text-white truncate">{t('LabelEpisode')}</p>
+        <div className="pointer-events-none absolute top-0 left-0 w-2/3 overflow-hidden p-5">
+          <p className="truncate text-3xl text-white">{t('LabelEpisode')}</p>
         </div>
       }
-      className="p-4 w-full text-sm rounded-lg bg-bg shadow-lg relative overflow-y-auto max-h-[80vh]"
+      className="bg-bg relative max-h-[80vh] w-full overflow-y-auto rounded-lg p-4 text-sm shadow-lg"
     >
-      <div className="flex mb-4">
-        <div className="w-12 h-12 relative flex-shrink-0">
+      <div className="mb-4 flex">
+        <div className="relative h-12 w-12 flex-shrink-0">
           <PreviewCover src={coverUrl} fill bookCoverAspectRatio={1} showResolution={false} />
         </div>
-        <div className="grow px-2 overflow-hidden">
-          <p className="text-base mb-1 truncate">{podcastTitle}</p>
-          <p className="text-xs text-foreground-muted truncate">{podcastAuthor}</p>
+        <div className="grow overflow-hidden px-2">
+          <p className="mb-1 truncate text-base">{podcastTitle}</p>
+          <p className="text-foreground-muted truncate text-xs">{podcastAuthor}</p>
         </div>
       </div>
 
-      <p dir="auto" className="text-lg font-semibold mb-6">
+      <p dir="auto" className="mb-6 text-lg font-semibold">
         {episode.title || 'No Episode Title'}
       </p>
 
@@ -119,21 +119,21 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
         <p className="mb-2">{t('MessageNoDescription')}</p>
       )}
 
-      <div className="w-full h-px bg-border my-4" />
+      <div className="bg-border my-4 h-px w-full" />
 
       <div className="flex flex-wrap items-center gap-y-4">
-        <div className="grow w-full sm:w-auto">
-          <p className="font-semibold text-xs mb-1">{t('LabelFilename')}</p>
-          <p className="mb-2 text-xs truncate" title={audioFileFilename}>
+        <div className="w-full grow sm:w-auto">
+          <p className="mb-1 text-xs font-semibold">{t('LabelFilename')}</p>
+          <p className="mb-2 truncate text-xs" title={audioFileFilename}>
             {audioFileFilename}
           </p>
         </div>
         <div className="grow">
-          <p className="font-semibold text-xs mb-1">{t('LabelSize')}</p>
+          <p className="mb-1 text-xs font-semibold">{t('LabelSize')}</p>
           <p className="mb-2 text-xs">{audioFileSize}</p>
         </div>
         <div className="grow">
-          <p className="font-semibold text-xs mb-1">{t('LabelDuration')}</p>
+          <p className="mb-1 text-xs font-semibold">{t('LabelDuration')}</p>
           <p className="mb-2 text-xs">{audioFileDuration}</p>
         </div>
       </div>

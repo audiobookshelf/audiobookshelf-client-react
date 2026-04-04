@@ -114,17 +114,17 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
         }}
         processing={isPending}
       >
-        <div className="flex flex-col max-h-[90vh]">
-          <div className="px-4 sm:px-6 py-6 overflow-y-auto">
-            <div className="h-full w-full flex flex-col sm:flex-row">
-              <div className="w-full sm:w-40 p-2 flex justify-center sm:block shrink-0">
-                <div className="w-32 sm:w-full h-40 sm:h-45 relative">
+        <div className="flex max-h-[90vh] flex-col">
+          <div className="overflow-y-auto px-4 py-6 sm:px-6">
+            <div className="flex h-full w-full flex-col sm:flex-row">
+              <div className="flex w-full shrink-0 justify-center p-2 sm:block sm:w-40">
+                <div className="relative h-40 w-32 sm:h-45 sm:w-full">
                   <AuthorImage author={author}></AuthorImage>
                   {author.imagePath && (
-                    <div className="absolute top-0 right-0 w-full h-full opacity-0 hover:opacity-100 focus-within:opacity-100">
+                    <div className="absolute top-0 right-0 h-full w-full opacity-0 focus-within:opacity-100 hover:opacity-100">
                       <IconBtn
                         borderless={true}
-                        className="absolute top-0 right-0 text-error cursor-pointer transform hover:scale-125 hover:not-disabled:text-error transition-transform"
+                        className="text-error hover:not-disabled:text-error absolute top-0 right-0 transform cursor-pointer transition-transform hover:scale-125"
                         onClick={handleRemoveImageWrapper}
                       >
                         delete
@@ -134,12 +134,12 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
                 </div>
               </div>
               {/* form */}
-              <div className="grow mb-2 px-2 pt-2">
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+              <div className="mb-2 grow px-2 pt-2">
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-0">
                   <TextInput className="w-full" placeholder={t('LabelImageURLFromTheWeb')} value={imgUrl} onChange={setImgUrl}></TextInput>
                   <Btn
                     color="bg-success"
-                    className="sm:ml-2 flex-shrink-0"
+                    className="flex-shrink-0 sm:ml-2"
                     onClick={() => {
                       if (!imgUrl?.startsWith('http:') && !imgUrl?.startsWith('https:')) {
                         showToast(t('ToastInvalidImageUrl'), { type: 'error' })
@@ -152,9 +152,9 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
                     {t('ButtonSubmit')}
                   </Btn>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 sm:gap-0 pt-4">
+                <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:gap-0">
                   <div className="w-full sm:w-3/4">
-                    <label htmlFor="" className="text-sm mb-1 px-1">
+                    <label htmlFor="" className="mb-1 px-1 text-sm">
                       {t('LabelName')}
                     </label>
                     <TextInput
@@ -165,7 +165,7 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
                     />
                   </div>
                   <div className="w-full sm:w-1/4">
-                    <label htmlFor="" className="text-sm mb-1 px-1">
+                    <label htmlFor="" className="mb-1 px-1 text-sm">
                       ASIN
                     </label>
                     <TextInput placeholder="ASIN" value={editedAuthor.asin || ''} onChange={(value) => setEditedAuthor({ ...editedAuthor, asin: value })} />
@@ -186,8 +186,8 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
           </div>
 
           {/* Footer */}
-          <div className="border-t border-border px-4 py-3">
-            <div className="flex flex-wrap gap-3 sm:gap-4 items-center justify-end">
+          <div className="border-border border-t px-4 py-3">
+            <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
               {user.permissions.delete && (
                 <Btn color="bg-error" className="mr-auto" onClick={handleOnDelete}>
                   {t('ButtonRemove')}

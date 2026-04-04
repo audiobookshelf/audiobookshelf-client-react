@@ -44,7 +44,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>collection</Code>: Collection - The collection to display
             </li>
@@ -61,21 +61,21 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
         </div>
       </ComponentInfo>
 
-      <h3 id="collection-card-examples" className="text-lg font-bold mb-4">
+      <h3 id="collection-card-examples" className="mb-4 text-lg font-bold">
         Collection: {collectionData.name}
       </h3>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title="Standard View">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={standardCardRef}>
                 <CollectionCard collection={collectionData} bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={standardSkeletonRef}>
                 <CollectionCardSkeleton bookshelfView={BookshelfView.STANDARD} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
@@ -85,15 +85,15 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
         </Example>
 
         <Example title="Detail View">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={detailCardRef}>
                 <CollectionCard collection={collectionData} bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={detailSkeletonRef}>
                 <CollectionCardSkeleton bookshelfView={BookshelfView.DETAIL} bookCoverAspectRatio={bookCoverAspectRatio ?? 1} />
               </div>
@@ -103,11 +103,11 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title="With RSS Feed">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <CollectionCard
                 collection={
                   {
@@ -146,7 +146,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <CollectionCard
                 collection={
                   {
@@ -188,9 +188,9 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
         </Example>
 
         <Example title="Empty Collection">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <CollectionCard
                 collection={{ ...collectionData, books: [] } as Collection}
                 bookshelfView={BookshelfView.STANDARD}
@@ -198,7 +198,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <CollectionCard
                 collection={{ ...collectionData, books: [] } as Collection}
                 bookshelfView={BookshelfView.DETAIL}
@@ -211,9 +211,9 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
 
       <div className="mb-6">
         <Example title="Single Book Collection">
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Standard View</p>
+              <p className="mb-2 text-sm text-gray-400">Standard View</p>
               <CollectionCard
                 collection={{ ...collectionData, books: collectionData.books?.slice(0, 1) } as Collection}
                 bookshelfView={BookshelfView.STANDARD}
@@ -221,7 +221,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Detail View</p>
+              <p className="mb-2 text-sm text-gray-400">Detail View</p>
               <CollectionCard
                 collection={{ ...collectionData, books: collectionData.books?.slice(0, 1) } as Collection}
                 bookshelfView={BookshelfView.DETAIL}
@@ -233,7 +233,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
       </div>
 
       <Example title="Selection Mode">
-        <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-wrap gap-4">
           <CollectionCard
             collection={collectionData}
             bookshelfView={BookshelfView.STANDARD}
@@ -257,9 +257,9 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
 
       <div className="mb-6">
         <Example title="Size Multipliers (Standard View)">
-          <div className="flex gap-8 flex-wrap items-start pb-6">
+          <div className="flex flex-wrap items-start gap-8 pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1/2</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -268,7 +268,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 3/4</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -277,7 +277,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 5/6</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -286,7 +286,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
-              <p className="text-sm text-gray-400 mb-2">Size: 1</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -294,8 +294,8 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 sizeMultiplier={1}
               />
             </div>
-            <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
-              <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+            <div className="mb-6 hidden lg:block" style={{ fontSize: `${4 / 3}em` }}>
+              <p className="mb-2 text-sm text-gray-400">Size: 4/3</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.STANDARD}
@@ -309,9 +309,9 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
 
       <div className="mb-6">
         <Example title="Size Multipliers (Detail View)">
-          <div className="flex gap-8 flex-wrap items-start pb-6">
+          <div className="flex flex-wrap items-start gap-8 pb-6">
             <div style={{ fontSize: `${1 / 2}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 1/2</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1/2</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
@@ -320,7 +320,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div style={{ fontSize: `${3 / 4}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 3/4</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 3/4</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
@@ -329,7 +329,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div style={{ fontSize: `${5 / 6}em` }} className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Size: 5/6</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 5/6</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
@@ -338,7 +338,7 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
               />
             </div>
             <div style={{ fontSize: `${1}em` }} className="mb-6 hidden lg:block">
-              <p className="text-sm text-gray-400 mb-2">Size: 1</p>
+              <p className="mb-2 text-sm text-gray-400">Size: 1</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}
@@ -346,8 +346,8 @@ export function CollectionCardExamples({ collectionData }: CollectionCardExample
                 sizeMultiplier={1}
               />
             </div>
-            <div className="hidden lg:block mb-6" style={{ fontSize: `${4 / 3}em` }}>
-              <p className="text-sm text-gray-400 mb-2">Size: 4/3</p>
+            <div className="mb-6 hidden lg:block" style={{ fontSize: `${4 / 3}em` }}>
+              <p className="mb-2 text-sm text-gray-400">Size: 4/3</p>
               <CollectionCard
                 collection={collectionData}
                 bookshelfView={BookshelfView.DETAIL}

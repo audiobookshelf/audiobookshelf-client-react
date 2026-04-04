@@ -44,7 +44,7 @@ export default function ChangePasswordClient({ changePassword }: ChangePasswordC
   }
 
   return (
-    <div className="flex flex-col gap-4 mt-8">
+    <div className="mt-8 flex flex-col gap-4">
       <TextInput label={t('LabelPassword')} value={oldPassword} type="password" onChange={setOldPassword} />
       <TextInput label={t('LabelNewPassword')} value={newPassword} type="password" onChange={setNewPassword} />
       <TextInput label={t('LabelConfirmPassword')} value={confirmPassword} type="password" onChange={setConfirmPassword} />

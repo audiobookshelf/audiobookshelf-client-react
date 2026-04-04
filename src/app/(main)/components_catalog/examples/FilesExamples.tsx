@@ -20,7 +20,7 @@ export function FilesExamples({ selectedBook, selectedPodcast }: FilesExamplesPr
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>libraryItem</Code>: The library item (BookLibraryItem or PodcastLibraryItem).
             </li>
@@ -33,7 +33,7 @@ export function FilesExamples({ selectedBook, selectedPodcast }: FilesExamplesPr
           <Files libraryItem={selectedLibraryItem} />
         </Example>
       ) : (
-        <div className="p-8 border-2 border-dashed border-gray-600 rounded-lg">
+        <div className="rounded-lg border-2 border-dashed border-gray-600 p-8">
           <p className="text-gray-400">Select a book or podcast from the search box above to see the Files component with real data.</p>
         </div>
       )}

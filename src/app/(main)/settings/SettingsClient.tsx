@@ -160,7 +160,7 @@ export default function SettingsClient(props: SettingsClientProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <div className="flex flex-col gap-4 py-4">
         <div className="flex flex-col gap-2">
           <h2 className="text-base font-semibold">{t('HeaderSettingsGeneral')}</h2>
@@ -183,7 +183,7 @@ export default function SettingsClient(props: SettingsClientProps) {
             tooltip={t('LabelSettingsSortingIgnorePrefixesHelp')}
           />
           {serverSettings?.sortingIgnorePrefix && (
-            <div className="w-full max-w-72 ml-14 mb-2">
+            <div className="mb-2 ml-14 w-full max-w-72">
               <MultiSelect
                 label={t('LabelPrefixesToIgnore')}
                 items={sortingPrefixItems}
@@ -282,7 +282,7 @@ export default function SettingsClient(props: SettingsClientProps) {
               value={serverSettings?.dateFormat}
               onChange={(value) => handleSettingChanged('dateFormat', value as string)}
             />
-            <p className="text-xs text-foreground-muted px-1 mb-2">
+            <p className="text-foreground-muted mb-2 px-1 text-xs">
               {t('LabelExample')}: {exampleDateFormat}
             </p>
           </div>
@@ -293,7 +293,7 @@ export default function SettingsClient(props: SettingsClientProps) {
               value={serverSettings?.timeFormat}
               onChange={(value) => handleSettingChanged('timeFormat', value as string)}
             />
-            <p className="text-xs text-foreground-muted px-1 mb-2">
+            <p className="text-foreground-muted mb-2 px-1 text-xs">
               {t('LabelExample')}: {exampleTimeFormat}
             </p>
           </div>

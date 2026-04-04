@@ -577,7 +577,7 @@ export function MultiSelect<T = string>({
           <div
             ref={inputWrapperRef}
             role="list"
-            className={mergeClasses('flex-wrap relative w-full flex items-center py-1', disabled ? 'text-disabled cursor-not-allowed' : 'cursor-text')}
+            className={mergeClasses('relative flex w-full flex-wrap items-center py-1', disabled ? 'text-disabled cursor-not-allowed' : 'cursor-text')}
             onClick={handleInputWrapperClick}
             onMouseDown={(e) => e.preventDefault()}
           >
@@ -603,7 +603,7 @@ export function MultiSelect<T = string>({
                 onEditDone={handlePillEditDone}
               />
             ))}
-            <span ref={sizerRef} className="absolute invisible whitespace-pre px-1 text-sm">
+            <span ref={sizerRef} className="invisible absolute px-1 text-sm whitespace-pre">
               {textInput}
             </span>
             <input
@@ -611,7 +611,7 @@ export function MultiSelect<T = string>({
               ref={inputRef}
               id={inputId}
               disabled={disabled}
-              className={mergeClasses('bg-transparent border-none outline-none px-1 text-sm', !showInput && 'sr-only')}
+              className={mergeClasses('border-none bg-transparent px-1 text-sm outline-none', !showInput && 'sr-only')}
               autoComplete="off"
               onKeyDown={handleKeyDown}
               onFocus={inputFocus}

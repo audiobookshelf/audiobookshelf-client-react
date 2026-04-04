@@ -234,19 +234,19 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
   }
 
   return (
-    <div className="w-full h-full overflow-hidden overflow-y-auto px-2 sm:px-4 py-6 relative">
-      <div className="flex flex-col sm:flex-row mb-4">
+    <div className="relative h-full w-full overflow-hidden overflow-y-auto px-2 py-6 sm:px-4">
+      <div className="mb-4 flex flex-col sm:flex-row">
         <div className="relative self-center md:self-start">
           <PreviewCover src={coverUrl} width={120} bookCoverAspectRatio={bookCoverAspectRatio} />
 
           {/* book cover overlay */}
           {media.coverPath && (
-            <div className="absolute top-0 left-0 w-full h-full z-10 opacity-0 hover:opacity-100 transition-opacity duration-100">
-              <div className="absolute top-0 left-0 w-full h-16 bg-gradient-to-b from-black/60 to-transparent" />
+            <div className="absolute top-0 left-0 z-10 h-full w-full opacity-0 transition-opacity duration-100 hover:opacity-100">
+              <div className="absolute top-0 left-0 h-16 w-full bg-gradient-to-b from-black/60 to-transparent" />
               {userCanDelete && (
                 <div
                   className={mergeClasses(
-                    'p-1 absolute top-1 right-1 text-red-500 rounded-full w-8 h-8',
+                    'absolute top-1 right-1 h-8 w-8 rounded-full p-1 text-red-500',
                     isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:text-red-400'
                   )}
                   onClick={isPendingUpdate ? undefined : handleRemoveCover}
@@ -260,27 +260,27 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
           )}
         </div>
 
-        <div className="grow sm:ps-2 md:ps-6 sm:pe-2 mt-6 md:mt-0">
+        <div className="mt-6 grow sm:ps-2 sm:pe-2 md:mt-0 md:ps-6">
           <div className="flex items-center">
             {userCanUpload && (
-              <div className="w-10 md:w-40 pe-2 md:min-w-32">
+              <div className="w-10 pe-2 md:w-40 md:min-w-32">
                 <FileInput onChange={fileUploadSelected}>
                   <span className="hidden md:inline-block">{t('ButtonUploadCover')}</span>
-                  <span className="material-symbols text-2xl inline-block md:!hidden">upload</span>
+                  <span className="material-symbols inline-block text-2xl md:!hidden">upload</span>
                 </FileInput>
               </div>
             )}
 
             <form onSubmit={submitForm} className="flex grow">
               <TextInput value={imageUrl} onChange={setImageUrl} placeholder={t('LabelImageURLFromTheWeb')} className="h-9 w-full" disabled={isPendingUpdate} />
-              <Btn color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="ms-2 sm:ms-3 w-24 h-9 px-4">
+              <Btn color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="ms-2 h-9 w-24 px-4 sm:ms-3">
                 {t('ButtonSubmit')}
               </Btn>
             </form>
           </div>
 
           {localCovers.length > 0 && (
-            <div className="mb-4 mt-6 border-t border-b border-white/10">
+            <div className="mt-6 mb-4 border-t border-b border-white/10">
               <div className="flex items-center justify-center py-2">
                 <p>{localCoverImageCount}</p>
                 <div className="grow" />
@@ -290,7 +290,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
               </div>
 
               {showLocalCovers && (
-                <div className="flex items-center justify-center flex-wrap pb-2">
+                <div className="flex flex-wrap items-center justify-center pb-2">
                   {localCovers.map((localCoverFile) => (
                     <div
                       key={localCoverFile.ino}
@@ -301,7 +301,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
                       )}
                       onClick={isPendingUpdate ? undefined : () => handleSetCover(localCoverFile)}
                     >
-                      <div className="h-24 bg-primary" style={{ width: 96 / bookCoverAspectRatio + 'px' }}>
+                      <div className="bg-primary h-24" style={{ width: 96 / bookCoverAspectRatio + 'px' }}>
                         <PreviewCover
                           src={localCoverFile.localPath || ''}
                           width={96 / bookCoverAspectRatio}
@@ -319,7 +319,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
       </div>
 
       <form onSubmit={submitSearchForm}>
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-start -mx-1">
+        <div className="-mx-1 flex flex-wrap items-center justify-start sm:flex-nowrap">
           <div className="w-48 grow p-1">
             <Dropdown
               value={provider}
@@ -345,11 +345,11 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
             </div>
           )}
           {!searchInProgress ? (
-            <Btn className="mt-5 ms-1 md:min-w-24 px-4" type="submit">
+            <Btn className="ms-1 mt-5 px-4 md:min-w-24" type="submit">
               {t('ButtonSearch')}
             </Btn>
           ) : (
-            <Btn className="mt-5 ms-1 md:min-w-24 px-4" type="button" color="bg-error" onClick={cancelSearch}>
+            <Btn className="ms-1 mt-5 px-4 md:min-w-24" type="button" color="bg-error" onClick={cancelSearch}>
               {t('ButtonCancel')}
             </Btn>
           )}
@@ -357,7 +357,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
       </form>
 
       {hasSearched && (
-        <div className="flex items-center flex-wrap justify-center sm:max-h-80 sm:overflow-y-scroll mt-2 max-w-full">
+        <div className="mt-2 flex max-w-full flex-wrap items-center justify-center sm:max-h-80 sm:overflow-y-scroll">
           {searchInProgress && !coversFound.length ? (
             <p className="text-foreground-muted py-4">{t('MessageLoading')}</p>
           ) : !searchInProgress && !coversFound.length ? (
@@ -381,15 +381,15 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
       )}
 
       {previewUpload && (
-        <div className="absolute top-0 left-0 w-full h-full z-10 bg-bg p-8">
+        <div className="bg-bg absolute top-0 left-0 z-10 h-full w-full p-8">
           <p className="text-lg">{t('HeaderPreviewCover')}</p>
-          <span className="absolute top-4 right-4 material-symbols text-2xl cursor-pointer" onClick={resetCoverPreview}>
+          <span className="material-symbols absolute top-4 right-4 cursor-pointer text-2xl" onClick={resetCoverPreview}>
             close
           </span>
           <div className="flex justify-center py-4">
             <PreviewCover src={previewUpload} width={240} bookCoverAspectRatio={bookCoverAspectRatio} />
           </div>
-          <div className="absolute bottom-0 right-0 flex py-4 px-5">
+          <div className="absolute right-0 bottom-0 flex px-5 py-4">
             <Btn disabled={isPendingUpload} className="mx-2" onClick={resetCoverPreview}>
               {t('ButtonReset')}
             </Btn>

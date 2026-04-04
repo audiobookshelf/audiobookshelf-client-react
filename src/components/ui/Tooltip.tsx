@@ -235,7 +235,7 @@ const Tooltip = ({
       onMouseLeave={onMouseLeave}
     >
       {text}
-      {withArrow && <div ref={arrowRef} style={arrowStyles} className="absolute w-2 h-2 rotate-45 bg-primary" />}
+      {withArrow && <div ref={arrowRef} style={arrowStyles} className="bg-primary absolute h-2 w-2 rotate-45" />}
     </div>
   )
 

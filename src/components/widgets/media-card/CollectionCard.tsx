@@ -164,8 +164,8 @@ function CollectionCard(props: CollectionCardProps) {
                   <div
                     cy-id="moreButton"
                     className={mergeClasses(
-                      'md:block absolute cursor-pointer bottom-[0.375em] end-[0.375em]',
-                      'hover:[&_.material-symbols]:!text-yellow-300 hover:scale-125'
+                      'absolute end-[0.375em] bottom-[0.375em] cursor-pointer md:block',
+                      'hover:scale-125 hover:[&_.material-symbols]:!text-yellow-300'
                     )}
                   >
                     <MediaCardMoreMenu items={moreMenuItems} processing={processing} onAction={handleMoreAction} onOpenChange={handleMoreMenuOpenChange} />
@@ -176,7 +176,7 @@ function CollectionCard(props: CollectionCardProps) {
 
             {/* Processing overlay */}
             {processing && (
-              <div cy-id="loadingSpinner" className="w-full h-full absolute top-0 start-0 z-10 bg-black/40 rounded-sm flex items-center justify-center">
+              <div cy-id="loadingSpinner" className="absolute start-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-sm bg-black/40">
                 <LoadingSpinner size="la-lg" />
               </div>
             )}
@@ -185,7 +185,7 @@ function CollectionCard(props: CollectionCardProps) {
             {rssFeed && !isSelectionMode && !isHovering && (
               <div
                 cy-id="rssFeed"
-                className={mergeClasses('absolute top-[0.375em] start-[0.375em] z-10', 'bg-black/40 rounded-full flex items-center justify-center shadow-sm')}
+                className={mergeClasses('absolute start-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
                 style={{ width: '1.5em', height: '1.5em' }}
               >
                 <span className="material-symbols text-orange-500" aria-hidden="true" style={{ fontSize: '1em' }}>
@@ -198,7 +198,7 @@ function CollectionCard(props: CollectionCardProps) {
         footer={
           isAlternativeBookshelfView ? (
             // Detail view footer
-            <div cy-id="detailBottomText" className="relative z-30 start-0 end-0 mx-auto py-[0.25em] rounded-md text-center">
+            <div cy-id="detailBottomText" className="relative start-0 end-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
               <p cy-id="detailBottomDisplayTitle" className="truncate" style={{ fontSize: `${labelFontSize}em` }}>
                 {displayTitle}
               </p>

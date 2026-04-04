@@ -12,92 +12,92 @@ import { TwoStageMultiSelectExamples } from '../examples/TwoStageMultiSelectExam
 
 export default function InputComponentsPage() {
   return (
-    <div className="p-8 w-full max-w-7xl mx-auto">
+    <div className="mx-auto w-full max-w-7xl p-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Input & Selection Components</h1>
-        <p className="text-gray-300 mb-6">This page showcases all the input, dropdown, and selection components available in the audiobookshelf client.</p>
-        <a href="/components_catalog" className="text-blue-400 hover:text-blue-300 transition-colors">
+        <h1 className="mb-4 text-3xl font-bold">Input & Selection Components</h1>
+        <p className="mb-6 text-gray-300">This page showcases all the input, dropdown, and selection components available in the audiobookshelf client.</p>
+        <a href="/components_catalog" className="text-blue-400 transition-colors hover:text-blue-300">
           ← Back to Components Catalog
         </a>
       </div>
 
       {/* Table of Contents */}
       <section className="mb-12">
-        <h2 className="text-2xl font-semibold mb-6 text-gray-400">Table of Contents</h2>
-        <div className="bg-gray-800 p-6 rounded-lg">
+        <h2 className="mb-6 text-2xl font-semibold text-gray-400">Table of Contents</h2>
+        <div className="rounded-lg bg-gray-800 p-6">
           <ul className="space-y-2 text-gray-300">
             <li>
-              <a href="#cron-expression-builder-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#cron-expression-builder-examples" className="transition-colors hover:text-blue-400">
                 Cron Expression Builder
               </a>
             </li>
             <li>
-              <a href="#dropdown-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#dropdown-examples" className="transition-colors hover:text-blue-400">
                 Dropdowns
               </a>
             </li>
             <li>
-              <a href="#duration-picker-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#duration-picker-examples" className="transition-colors hover:text-blue-400">
                 Duration Picker
               </a>
             </li>
             <li>
-              <a href="#file-input-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#file-input-examples" className="transition-colors hover:text-blue-400">
                 File Inputs
               </a>
             </li>
             <li>
-              <a href="#input-dropdown-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#input-dropdown-examples" className="transition-colors hover:text-blue-400">
                 Input Dropdowns
               </a>
             </li>
             <li>
-              <a href="#textarea-input-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#textarea-input-examples" className="transition-colors hover:text-blue-400">
                 Textarea Inputs
               </a>
             </li>
             <li>
-              <a href="#text-input-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#text-input-examples" className="transition-colors hover:text-blue-400">
                 Text Inputs
               </a>
             </li>
             <li>
-              <a href="#multi-select-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#multi-select-examples" className="transition-colors hover:text-blue-400">
                 Multi Selects
               </a>
             </li>
             <li>
-              <a href="#two-stage-multi-select-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#two-stage-multi-select-examples" className="transition-colors hover:text-blue-400">
                 Two Stage Multi Selects
               </a>
             </li>
             <li>
-              <a href="#multi-select-dropdown-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#multi-select-dropdown-examples" className="transition-colors hover:text-blue-400">
                 Multi Select Dropdowns
               </a>
             </li>
             <li>
-              <a href="#range-input-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#range-input-examples" className="transition-colors hover:text-blue-400">
                 Range Inputs
               </a>
             </li>
             <li>
-              <a href="#slate-editor-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#slate-editor-examples" className="transition-colors hover:text-blue-400">
                 Rich Text Editor
               </a>
             </li>
             <li>
-              <a href="#text-input-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#text-input-examples" className="transition-colors hover:text-blue-400">
                 Text Inputs
               </a>
             </li>
             <li>
-              <a href="#textarea-input-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#textarea-input-examples" className="transition-colors hover:text-blue-400">
                 Textarea Inputs
               </a>
             </li>
             <li>
-              <a href="#two-stage-multi-select-examples" className="hover:text-blue-400 transition-colors">
+              <a href="#two-stage-multi-select-examples" className="transition-colors hover:text-blue-400">
                 Two Stage Multi Selects
               </a>
             </li>

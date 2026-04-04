@@ -168,10 +168,10 @@ export default function TextInput({
         />
 
         {clearable && value && (
-          <div className="absolute top-0 end-0 h-full px-2 flex items-center justify-center">
+          <div className="absolute end-0 top-0 flex h-full items-center justify-center px-2">
             <button
               type="button"
-              className="material-symbols text-foreground-muted cursor-pointer hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
+              className="material-symbols text-foreground-muted hover:text-foreground focus:ring-foreground-muted cursor-pointer rounded focus:ring-2 focus:ring-offset-1 focus:outline-none"
               style={{ fontSize: '1.1rem' }}
               onClick={handleClear}
               aria-label={t('ButtonClearInput')}
@@ -184,10 +184,10 @@ export default function TextInput({
 
         {shouldShowPasswordToggle && (
           // password visibility toggle button only show on hover and focus
-          <div className="absolute top-0 end-0 h-full px-4 flex items-center justify-center group-focus-within:opacity-100 group-hover:opacity-100 opacity-0 group-focus-within:pointer-events-auto group-hover:pointer-events-auto pointer-events-none">
+          <div className="pointer-events-none absolute end-0 top-0 flex h-full items-center justify-center px-4 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100">
             <button
               type="button"
-              className="flex text-foreground-muted cursor-pointer text-lg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded"
+              className="text-foreground-muted hover:text-foreground focus:ring-foreground-muted flex cursor-pointer rounded text-lg focus:ring-2 focus:ring-offset-1 focus:outline-none"
               onClick={togglePasswordVisibility}
               aria-label={showPassword ? t('ButtonHidePassword') : t('ButtonShowPassword')}
               aria-controls={inputId}
@@ -207,11 +207,11 @@ export default function TextInput({
         )}
 
         {showCopy && type !== 'password' && (
-          <div className="absolute top-0 end-0 h-full px-2 flex items-center justify-center">
+          <div className="absolute end-0 top-0 flex h-full items-center justify-center px-2">
             <button
               type="button"
               className={mergeClasses(
-                'material-symbols cursor-pointer text-lg focus:outline-none focus:ring-2 focus:ring-foreground-muted focus:ring-offset-1 rounded',
+                'material-symbols focus:ring-foreground-muted cursor-pointer rounded text-lg focus:ring-2 focus:ring-offset-1 focus:outline-none',
                 hasCopied ? 'text-success' : 'text-foreground-muted hover:text-foreground'
               )}
               onClick={handleCopyToClipboard}

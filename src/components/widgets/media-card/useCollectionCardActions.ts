@@ -26,12 +26,7 @@ interface UseCollectionCardActionsProps {
   onCollectionDeleted?: () => void
 }
 
-export function useCollectionCardActions({
-  collection,
-  rssFeed,
-  onOpenRssFeedModal,
-  onCollectionDeleted
-}: UseCollectionCardActionsProps) {
+export function useCollectionCardActions({ collection, rssFeed, onOpenRssFeedModal, onCollectionDeleted }: UseCollectionCardActionsProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userIsAdminOrUp } = useUser()
   const router = useRouter()

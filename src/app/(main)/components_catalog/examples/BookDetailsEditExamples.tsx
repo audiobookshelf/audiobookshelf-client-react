@@ -84,7 +84,7 @@ export function BookDetailsEditExamples({ selectedBook }: BookDetailsEditExample
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>libraryItem</Code>: The book library item to edit.
             </li>

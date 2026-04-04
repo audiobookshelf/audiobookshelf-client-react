@@ -96,17 +96,17 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
   }, [users])
 
   const outerContentTitle = (
-    <div className="absolute top-0 start-0 p-4">
+    <div className="absolute start-0 top-0 p-4">
       <h2 className="text-xl text-white">{isEditing ? t('HeaderUpdateApiKey') : t('HeaderNewApiKey')}</h2>
     </div>
   )
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">
-      <div className="flex flex-col max-h-[90vh]">
-        <div className="px-4 sm:px-6 py-6 overflow-y-auto">
+      <div className="flex max-h-[90vh] flex-col">
+        <div className="overflow-y-auto px-4 py-6 sm:px-6">
           {/* Name and Expires In Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
             {/* Name */}
             <TextInput
               label={t('LabelName')}
@@ -130,7 +130,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
           </div>
 
           {/* Enable Toggle */}
-          <div className="flex items-center gap-4 mt-4">
+          <div className="mt-4 flex items-center gap-4">
             <ToggleSwitch
               value={formData.isActive}
               label={t('LabelEnable')}
@@ -141,9 +141,9 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
           </div>
 
           {/* Act on behalf of user Section */}
-          <div className="border-t border-border mt-4 pt-4">
-            <h3 className="text-lg font-semibold mb-2">{t('LabelApiKeyUser')}</h3>
-            <p className="text-foreground-muted text-sm mb-4">{t('LabelApiKeyUserDescription')}</p>
+          <div className="border-border mt-4 border-t pt-4">
+            <h3 className="mb-2 text-lg font-semibold">{t('LabelApiKeyUser')}</h3>
+            <p className="text-foreground-muted mb-4 text-sm">{t('LabelApiKeyUserDescription')}</p>
 
             <Dropdown
               value={formData.userId}
@@ -157,7 +157,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
         </div>
 
         {/* Footer Actions */}
-        <div className="border-t border-border px-4 py-3">
+        <div className="border-border border-t px-4 py-3">
           <div className="flex items-center justify-end">
             <Btn disabled={!isValid} onClick={handleSubmit}>
               {isEditing ? t('ButtonSave') : t('ButtonCreate')}

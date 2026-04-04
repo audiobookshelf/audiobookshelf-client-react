@@ -77,8 +77,8 @@ export function TooltipExamples() {
 
         <Example title="Portal Tooltips">
           <div className="space-y-4">
-            <div className="p-4 border border-gray-600 rounded-md overflow-hidden">
-              <p className="text-sm text-gray-400 mb-2">This container has overflow: hidden</p>
+            <div className="overflow-hidden rounded-md border border-gray-600 p-4">
+              <p className="mb-2 text-sm text-gray-400">This container has overflow: hidden</p>
               <Tooltip text="This tooltip uses a portal and won't be clipped by the container" position="bottom" usePortal>
                 <Btn>Portal tooltip</Btn>
               </Tooltip>
@@ -90,8 +90,8 @@ export function TooltipExamples() {
           <div className="space-y-4">
             <Btn onClick={() => setIsTooltipModalOpen(true)}>Open modal</Btn>
             <Modal isOpen={isTooltipModalOpen} onClose={() => setIsTooltipModalOpen(false)} className="w-[200px]">
-              <div className="p-6 h-full flex flex-col">
-                <h3 className="text-xl font-semibold text-white mb-4">Tooltip inside a modal</h3>
+              <div className="flex h-full flex-col p-6">
+                <h3 className="mb-4 text-xl font-semibold text-white">Tooltip inside a modal</h3>
                 <Tooltip text="This is a tooltip inside a modal" position="bottom" className="w-fit">
                   <Btn>Tooltip</Btn>
                 </Tooltip>
@@ -102,14 +102,14 @@ export function TooltipExamples() {
 
         <Example title="Tooltip with non-element children">
           <div className="space-y-4">
-            <p className="text-sm text-gray-400 mb-2">Not recommended due to accessibility issues</p>
+            <p className="mb-2 text-sm text-gray-400">Not recommended due to accessibility issues</p>
             <Tooltip text="This is a tooltip with non-element children">Tooltip</Tooltip>
           </div>
         </Example>
 
         <Example title="Tooltip with array of elements as children">
           <div className="space-y-4">
-            <p className="text-sm text-gray-400 mb-2">Not recommended due to accessibility issues</p>
+            <p className="mb-2 text-sm text-gray-400">Not recommended due to accessibility issues</p>
             <Tooltip text="This is a tooltip with array of elements as children" position="bottom" usePortal>
               <Btn>Tooltip</Btn>
               <Btn>Tooltip</Btn>
@@ -119,7 +119,7 @@ export function TooltipExamples() {
 
         <Example title="Bottom Edge">
           <div className="space-y-4">
-            <p className="text-sm text-gray-400 mb-2">Slowly scroll to make this button appear on the bottom edge of the screen</p>
+            <p className="mb-2 text-sm text-gray-400">Slowly scroll to make this button appear on the bottom edge of the screen</p>
             <Tooltip text="bottom tooltip" position="bottom">
               <Btn>Bottom</Btn>
             </Tooltip>
@@ -127,8 +127,8 @@ export function TooltipExamples() {
         </Example>
 
         <Example title="Right Edge" className="col-span-1 md:col-span-2 lg:col-span-2">
-          <div className="space-y-4 flex flex-col items-end">
-            <p className="text-sm text-gray-400 mb-2">Resize to make this button appear close to the right edge of the screen</p>
+          <div className="flex flex-col items-end space-y-4">
+            <p className="mb-2 text-sm text-gray-400">Resize to make this button appear close to the right edge of the screen</p>
             <Tooltip text="Very long tooltip text that should be shifted to the left" position="bottom">
               <Btn>Right</Btn>
             </Tooltip>

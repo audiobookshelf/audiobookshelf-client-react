@@ -138,11 +138,11 @@ export default function PlaylistGroupCover({ items, width, height, bookCoverAspe
   if (!items.length) {
     return (
       <div
-        className="relative w-full h-full flex items-center justify-center bg-primary rounded-xs"
+        className="bg-primary relative flex h-full w-full items-center justify-center rounded-xs"
         style={{ width: `${width}px`, height: `${height}px`, padding: `${sizeMultiplier}em` }}
       >
-        <div className="absolute top-0 left-0 w-full h-full bg-gray-400/5" />
-        <p className="text-white/60 text-center z-10" style={{ fontSize: `${Math.min(1, sizeMultiplier)}em` }}>
+        <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
+        <p className="z-10 text-center text-white/60" style={{ fontSize: `${Math.min(1, sizeMultiplier)}em` }}>
           Empty Playlist
         </p>
       </div>
@@ -153,13 +153,13 @@ export default function PlaylistGroupCover({ items, width, height, bookCoverAspe
   if (items.length === 1) {
     const cover = coverData[0]
     return (
-      <div className="relative rounded-xs overflow-hidden" style={{ width: `${width}px`, height: `${height}px` }}>
-        <div className="flex items-center justify-center h-full relative bg-primary rounded-xs">
-          <div className="absolute top-0 left-0 w-full h-full bg-gray-400/5" />
+      <div className="relative overflow-hidden rounded-xs" style={{ width: `${width}px`, height: `${height}px` }}>
+        <div className="bg-primary relative flex h-full items-center justify-center rounded-xs">
+          <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
           <div className="relative z-10 flex items-center justify-center" style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}>
             {cover?.showCoverBg && (
-              <div className="absolute top-0 start-0 w-full h-full overflow-hidden rounded-xs bg-primary">
-                <div className="absolute cover-bg" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
+              <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs">
+                <div className="cover-bg absolute" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
               </div>
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -167,7 +167,7 @@ export default function PlaylistGroupCover({ items, width, height, bookCoverAspe
               src={getLibraryItemCoverSrc(libraryItemCovers[0], placeholderUrl)}
               alt=""
               aria-hidden="true"
-              className={mergeClasses('relative z-10', cover?.showCoverBg ? 'object-contain' : 'object-cover w-full h-full')}
+              className={mergeClasses('relative z-10', cover?.showCoverBg ? 'object-contain' : 'h-full w-full object-cover')}
               style={cover?.showCoverBg ? { width: `${itemCoverWidth}px`, height: `${itemCoverHeight}px` } : undefined}
             />
           </div>
@@ -178,9 +178,9 @@ export default function PlaylistGroupCover({ items, width, height, bookCoverAspe
 
   // Multiple items - 2x2 grid with flex wrap, each cell is square but covers maintain aspect ratio
   return (
-    <div className="relative rounded-xs overflow-hidden" style={{ width: `${width}px`, height: `${height}px` }}>
-      <div className="flex flex-wrap h-full relative bg-primary/95 rounded-xs">
-        <div className="absolute top-0 left-0 w-full h-full bg-gray-400/5" />
+    <div className="relative overflow-hidden rounded-xs" style={{ width: `${width}px`, height: `${height}px` }}>
+      <div className="bg-primary/95 relative flex h-full flex-wrap rounded-xs">
+        <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
 
         {libraryItemCovers.map((libraryItem, index) => {
           const cover = coverData[index]
@@ -191,8 +191,8 @@ export default function PlaylistGroupCover({ items, width, height, bookCoverAspe
               style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
             >
               {cover?.showCoverBg && (
-                <div className="absolute top-0 start-0 w-full h-full overflow-hidden bg-primary">
-                  <div className="absolute cover-bg" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
+                <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden">
+                  <div className="cover-bg absolute" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
                 </div>
               )}
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -200,7 +200,7 @@ export default function PlaylistGroupCover({ items, width, height, bookCoverAspe
                 src={getLibraryItemCoverSrc(libraryItem, placeholderUrl)}
                 alt=""
                 aria-hidden="true"
-                className={mergeClasses('relative z-10', cover?.showCoverBg ? 'object-contain' : 'object-cover w-full h-full')}
+                className={mergeClasses('relative z-10', cover?.showCoverBg ? 'object-contain' : 'h-full w-full object-cover')}
                 style={cover?.showCoverBg ? { width: `${itemCoverWidth}px`, height: `${itemCoverHeight}px` } : undefined}
               />
             </div>

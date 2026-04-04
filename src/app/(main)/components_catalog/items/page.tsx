@@ -86,23 +86,23 @@ export default function ItemDetailsExamplesPage() {
 
   return (
     <LibraryProvider library={activeLibrary}>
-      <div className="p-8 w-full max-w-7xl mx-auto">
+      <div className="mx-auto w-full max-w-7xl p-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">Item Details & Cover Examples</h1>
-          <p className="text-gray-300 mb-6">
+          <h1 className="mb-4 text-3xl font-bold">Item Details & Cover Examples</h1>
+          <p className="mb-6 text-gray-300">
             This page showcases the item details editing components and cover management components for library items. Use the search box below to find and
             select books or podcasts to see the relevant components in action with real data.
           </p>
-          <a href="/components_catalog" className="text-blue-400 hover:text-blue-300 transition-colors">
+          <a href="/components_catalog" className="text-blue-400 transition-colors hover:text-blue-300">
             ← Back to Components Catalog
           </a>
         </div>
 
         {/* Search Section */}
         <section className="mb-12">
-          <div className="mb-6 p-4 bg-bg/50 rounded-lg border border-primary/10">
-            <h3 className="text-lg font-semibold mb-4">Search Library Items</h3>
-            <p className="text-sm text-gray-400 mb-4">Use the search input to find items. Click on a result to select it for viewing below.</p>
+          <div className="bg-bg/50 border-primary/10 mb-6 rounded-lg border p-4">
+            <h3 className="mb-4 text-lg font-semibold">Search Library Items</h3>
+            <p className="mb-4 text-sm text-gray-400">Use the search input to find items. Click on a result to select it for viewing below.</p>
             <div className="flex items-center gap-3">
               <Dropdown
                 items={libraries.map((lib) => ({ text: lib.name, value: lib.id }))}
@@ -137,28 +137,28 @@ export default function ItemDetailsExamplesPage() {
         {/* Table of Contents - Only show when there's a selected item */}
         {(selectedBook || selectedPodcast || selectedSeries || selectedCollection || selectedPlaylist || selectedAuthor) && (
           <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-6 text-gray-400">Table of Contents</h2>
-            <div className="bg-gray-800 p-6 rounded-lg">
+            <h2 className="mb-6 text-2xl font-semibold text-gray-400">Table of Contents</h2>
+            <div className="rounded-lg bg-gray-800 p-6">
               <ul className="space-y-2 text-gray-300">
                 {selectedBook && (
                   <>
                     <li>
-                      <a href="#book-details-edit-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#book-details-edit-examples" className="transition-colors hover:text-blue-400">
                         Book Details Edit
                       </a>
                     </li>
                     <li>
-                      <a href="#chapters-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#chapters-examples" className="transition-colors hover:text-blue-400">
                         Chapters
                       </a>
                     </li>
                     <li>
-                      <a href="#files-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#files-examples" className="transition-colors hover:text-blue-400">
                         Files
                       </a>
                     </li>
                     <li>
-                      <a href="#tools-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#tools-examples" className="transition-colors hover:text-blue-400">
                         Tools
                       </a>
                     </li>
@@ -167,12 +167,12 @@ export default function ItemDetailsExamplesPage() {
                 {selectedPodcast && (
                   <>
                     <li>
-                      <a href="#podcast-details-edit-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#podcast-details-edit-examples" className="transition-colors hover:text-blue-400">
                         Podcast Details Edit
                       </a>
                     </li>
                     <li>
-                      <a href="#files-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#files-examples" className="transition-colors hover:text-blue-400">
                         Files
                       </a>
                     </li>
@@ -181,17 +181,17 @@ export default function ItemDetailsExamplesPage() {
                 {(selectedBook || selectedPodcast) && (
                   <>
                     <li>
-                      <a href="#cover-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#cover-examples" className="transition-colors hover:text-blue-400">
                         Cover Edit
                       </a>
                     </li>
                     <li>
-                      <a href="#match-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#match-examples" className="transition-colors hover:text-blue-400">
                         Match
                       </a>
                     </li>
                     <li>
-                      <a href="#preview-cover-examples" className="hover:text-blue-400 transition-colors">
+                      <a href="#preview-cover-examples" className="transition-colors hover:text-blue-400">
                         Preview Cover
                       </a>
                     </li>
@@ -199,42 +199,42 @@ export default function ItemDetailsExamplesPage() {
                 )}
                 {selectedBook && (
                   <li>
-                    <a href="#media-card-examples" className="hover:text-blue-400 transition-colors">
+                    <a href="#media-card-examples" className="transition-colors hover:text-blue-400">
                       Book Media Cards
                     </a>
                   </li>
                 )}
                 {selectedPodcast && (
                   <li>
-                    <a href="#media-card-examples" className="hover:text-blue-400 transition-colors">
+                    <a href="#media-card-examples" className="transition-colors hover:text-blue-400">
                       Podcast Media Cards
                     </a>
                   </li>
                 )}
                 {selectedSeries && (
                   <li>
-                    <a href="#series-card-examples" className="hover:text-blue-400 transition-colors">
+                    <a href="#series-card-examples" className="transition-colors hover:text-blue-400">
                       Series Cards
                     </a>
                   </li>
                 )}
                 {selectedCollection && (
                   <li>
-                    <a href="#collection-card-examples" className="hover:text-blue-400 transition-colors">
+                    <a href="#collection-card-examples" className="transition-colors hover:text-blue-400">
                       Collection Cards
                     </a>
                   </li>
                 )}
                 {selectedPlaylist && (
                   <li>
-                    <a href="#playlist-card-examples" className="hover:text-blue-400 transition-colors">
+                    <a href="#playlist-card-examples" className="transition-colors hover:text-blue-400">
                       Playlist Cards
                     </a>
                   </li>
                 )}
                 {selectedAuthor && (
                   <li>
-                    <a href="#author-card-examples" className="hover:text-blue-400 transition-colors">
+                    <a href="#author-card-examples" className="transition-colors hover:text-blue-400">
                       Author Cards
                     </a>
                   </li>

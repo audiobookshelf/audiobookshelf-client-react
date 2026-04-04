@@ -174,7 +174,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
           cy-id="interval-dropdown"
         />
 
-        <div className="flex flex-col sm:flex-row items-center gap-2 mb-2" cy-id="cron-expression-builder-inputs">
+        <div className="mb-2 flex flex-col items-center gap-2 sm:flex-row" cy-id="cron-expression-builder-inputs">
           {(selectedInterval === 'weekly' || selectedInterval === 'daily') && (
             <TextInput
               value={formatTimeValue}
@@ -206,7 +206,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
                 value={value}
                 onChange={handleCustomCronChange}
                 customInputClass={'text-2xl md:text-3xl font-mono text-center'}
-                className="w-full mb-2"
+                className="mb-2 w-full"
                 error={customCronError}
                 cy-id="cron-expression-input"
               />

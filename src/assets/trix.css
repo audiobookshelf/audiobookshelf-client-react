@@ -209,7 +209,9 @@ trix-toolbar .trix-dialog {
   font-size: 0.75em;
   padding: 15px 10px;
   background: rgb(48, 48, 48);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
   border: 1px solid rgb(112, 112, 112);
   border-radius: 5px;
   z-index: 5;

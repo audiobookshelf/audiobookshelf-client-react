@@ -96,14 +96,14 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
   const isProcessing = isPending || filterDataLoading
 
   const outerContentTitle = (
-    <div className="absolute top-0 start-0 p-4">
+    <div className="absolute start-0 top-0 p-4">
       <h2 className="text-lg text-white">{libraryItem.media.metadata.title}</h2>
     </div>
   )
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} processing={isProcessing} className="sm:max-w-screen md:max-w-[800px]">
-      <div className="w-full overflow-x-hidden overflow-y-auto rounded-lg max-h-[85vh]">
+      <div className="max-h-[85vh] w-full overflow-x-hidden overflow-y-auto rounded-lg">
         {/* Content */}
         <div className="min-h-[400px]">
           {isPodcast ? (
@@ -131,7 +131,7 @@ export default function LibraryItemEditModal({ isOpen, libraryItem, onClose, onS
         </div>
 
         {/* Footer */}
-        <div className="sticky bottom-0 z-10 bg-bg px-4 py-3 border-t border-border flex justify-end gap-3">
+        <div className="bg-bg border-border sticky bottom-0 z-10 flex justify-end gap-3 border-t px-4 py-3">
           <Btn onClick={() => handleSave(false)} disabled={!hasChanges || isPending}>
             {t('ButtonSave')}
           </Btn>

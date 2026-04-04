@@ -57,19 +57,19 @@ export function AdvancedModalExamples() {
       <ExamplesBlock>
         <Example title="MultiSelect within Modal Dialog">
           <div>
-            <p className="text-gray-400 text-sm mb-4">This example shows how MultiSelect works inside a modal dialog.</p>
+            <p className="mb-4 text-sm text-gray-400">This example shows how MultiSelect works inside a modal dialog.</p>
             <Btn onClick={() => setIsModalOpen(true)}>Open Modal with MultiSelect</Btn>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="w-[600px]">
-              <div className="p-6 h-full flex flex-col">
+              <div className="flex h-full flex-col p-6">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-6 border-b border-border pb-4">
+                <div className="border-border mb-6 flex items-center justify-between border-b pb-4">
                   <h3 className="text-xl font-semibold text-white">Edit Tags</h3>
                 </div>
 
                 {/* Content */}
-                <div className="space-y-4 flex-1">
-                  <p className="text-gray-300 text-sm">Select or add tags for this item.</p>
+                <div className="flex-1 space-y-4">
+                  <p className="text-sm text-gray-300">Select or add tags for this item.</p>
 
                   <MultiSelect
                     selectedItems={multiSelectValue}
@@ -81,13 +81,13 @@ export function AdvancedModalExamples() {
                     showEdit
                   />
 
-                  <div className="text-xs text-gray-400 mt-2">
+                  <div className="mt-2 text-xs text-gray-400">
                     Current selection: {multiSelectValue.length > 0 ? multiSelectValue.map((i) => i.content).join(', ') : 'None'}
                   </div>
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+                <div className="border-border flex items-center justify-end gap-3 border-t pt-4">
                   <Btn onClick={() => setIsModalOpen(false)} color="bg-gray-600">
                     Cancel
                   </Btn>
@@ -101,7 +101,7 @@ export function AdvancedModalExamples() {
         </Example>
         <Example title="Tabbed Modal">
           <div>
-            <p className="text-gray-400 text-sm mb-4">A modal with tabs and a footer.</p>
+            <p className="mb-4 text-sm text-gray-400">A modal with tabs and a footer.</p>
             <Btn
               onClick={() => {
                 setIsTabbedModalOpen(true)
@@ -142,46 +142,46 @@ export function AdvancedModalExamples() {
             >
               {selectedTab === 'details' && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-foreground">Details</h3>
+                  <h3 className="text-foreground text-lg font-semibold">Details</h3>
                   <p className="text-foreground-muted">Configure the basic details for this library. Name, description, and other metadata.</p>
                   <div className="bg-primary rounded p-4">
-                    <p className="text-sm text-foreground-subdued">This is sample content for the Details tab.</p>
+                    <p className="text-foreground-subdued text-sm">This is sample content for the Details tab.</p>
                   </div>
                 </div>
               )}
               {selectedTab === 'settings' && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-foreground">Settings</h3>
+                  <h3 className="text-foreground text-lg font-semibold">Settings</h3>
                   <p className="text-foreground-muted">Adjust library-level settings such as scan behavior, metadata preferences, and more.</p>
                   <div className="bg-primary rounded p-4">
-                    <p className="text-sm text-foreground-subdued">This is sample content for the Settings tab.</p>
+                    <p className="text-foreground-subdued text-sm">This is sample content for the Settings tab.</p>
                   </div>
                 </div>
               )}
               {selectedTab === 'scanner' && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-foreground">Scanner</h3>
+                  <h3 className="text-foreground text-lg font-semibold">Scanner</h3>
                   <p className="text-foreground-muted">Configure how the scanner processes files in this library.</p>
                   <div className="bg-primary rounded p-4">
-                    <p className="text-sm text-foreground-subdued">This is sample content for the Scanner tab.</p>
+                    <p className="text-foreground-subdued text-sm">This is sample content for the Scanner tab.</p>
                   </div>
                 </div>
               )}
               {selectedTab === 'schedule' && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-foreground">Schedule</h3>
+                  <h3 className="text-foreground text-lg font-semibold">Schedule</h3>
                   <p className="text-foreground-muted">Set up automatic scan schedules for this library.</p>
                   <div className="bg-primary rounded p-4">
-                    <p className="text-sm text-foreground-subdued">This is sample content for the Schedule tab.</p>
+                    <p className="text-foreground-subdued text-sm">This is sample content for the Schedule tab.</p>
                   </div>
                 </div>
               )}
               {selectedTab === 'tools' && (
                 <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-foreground">Tools</h3>
+                  <h3 className="text-foreground text-lg font-semibold">Tools</h3>
                   <p className="text-foreground-muted">Library management tools for bulk operations and maintenance.</p>
                   <div className="bg-primary rounded p-4">
-                    <p className="text-sm text-foreground-subdued">This is sample content for the Tools tab.</p>
+                    <p className="text-foreground-subdued text-sm">This is sample content for the Tools tab.</p>
                   </div>
                 </div>
               )}

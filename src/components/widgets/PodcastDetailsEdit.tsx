@@ -104,19 +104,19 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
   )
 
   return (
-    <div className="w-full h-full relative">
+    <div className="relative h-full w-full">
       <form
-        className="w-full h-full px-2 md:px-4 py-6"
+        className="h-full w-full px-2 py-6 md:px-4"
         onSubmit={(e) => {
           e.preventDefault()
           submitForm()
         }}
       >
-        <div className="flex flex-wrap -mx-1">
-          <div className="w-full md:w-1/2 px-1">
+        <div className="-mx-1 flex flex-wrap">
+          <div className="w-full px-1 md:w-1/2">
             <TextInput value={details.title || ''} onChange={handleFieldUpdate('title') as (value: string) => void} label={t('LabelTitle')} />
           </div>
-          <div className="grow px-1 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 md:mt-0">
             <TextInput value={details.author || ''} onChange={handleFieldUpdate('author') as (value: string) => void} label={t('LabelAuthor')} />
           </div>
         </div>
@@ -130,8 +130,8 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
         <SlateEditor srcContent={initialDetails.description || ''} onUpdate={handleFieldUpdate('description')} label={t('LabelDescription')} className="mt-2" />
 
-        <div className="flex flex-wrap mt-2 -mx-1">
-          <div className="w-full md:w-1/2 px-1">
+        <div className="-mx-1 mt-2 flex flex-wrap">
+          <div className="w-full px-1 md:w-1/2">
             <MultiSelect
               selectedItems={genreItems}
               onItemAdded={handleAddGenre}
@@ -141,7 +141,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               allowNew
             />
           </div>
-          <div className="grow px-1 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 md:mt-0">
             <MultiSelect
               selectedItems={tagItems}
               onItemAdded={handleAddTag}
@@ -153,17 +153,17 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
           </div>
         </div>
 
-        <div className="flex flex-wrap mt-2 -mx-1">
-          <div className="w-full md:w-1/4 px-1">
+        <div className="-mx-1 mt-2 flex flex-wrap">
+          <div className="w-full px-1 md:w-1/4">
             <TextInput value={details.releaseDate || ''} onChange={handleFieldUpdate('releaseDate') as (value: string) => void} label={t('LabelReleaseDate')} />
           </div>
-          <div className="w-full md:w-1/4 px-1 mt-2 md:mt-0">
+          <div className="mt-2 w-full px-1 md:mt-0 md:w-1/4">
             <TextInput value={details.itunesId || ''} onChange={handleFieldUpdate('itunesId') as (value: string | number) => void} label="iTunes ID" />
           </div>
-          <div className="w-full md:w-1/4 px-1 mt-2 md:mt-0">
+          <div className="mt-2 w-full px-1 md:mt-0 md:w-1/4">
             <TextInput value={details.language || ''} onChange={handleFieldUpdate('language') as (value: string) => void} label={t('LabelLanguage')} />
           </div>
-          <div className="grow px-1 pt-6 mt-2 md:mt-0">
+          <div className="mt-2 grow px-1 pt-6 md:mt-0">
             <div className="flex justify-center">
               <Checkbox
                 value={details.explicit}
@@ -176,8 +176,8 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
             </div>
           </div>
         </div>
-        <div className="flex mt-2 -mx-1">
-          <div className="w-full md:w-1/4 px-1">
+        <div className="-mx-1 mt-2 flex">
+          <div className="w-full px-1 md:w-1/4">
             <Dropdown
               label={t('LabelPodcastType')}
               value={details.type || 'episodic'}

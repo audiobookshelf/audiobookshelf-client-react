@@ -70,7 +70,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
         <div className="flex items-center gap-2">
           {/* TODO: Use actual user online status that comes from web socket */}
           <OnlineIndicator value={user.id === currentUserId} />
-          <p className="font-medium text-base">{user.username}</p>
+          <p className="text-base font-medium">{user.username}</p>
         </div>
       )
     },

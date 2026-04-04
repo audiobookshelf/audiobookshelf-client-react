@@ -105,7 +105,7 @@ export default function EpisodeTableHeaderActions({
             delete
           </IconBtn>
           {selectedEpisodes.size > 0 && (
-            <span className="absolute -top-2 -right-2 bg-white text-error border border-error text-[10px] font-bold h-5 min-w-[20px] flex items-center justify-center rounded-full px-1 pointer-events-none shadow-sm">
+            <span className="text-error border-error pointer-events-none absolute -top-2 -right-2 flex h-5 min-w-[20px] items-center justify-center rounded-full border bg-white px-1 text-[10px] font-bold shadow-sm">
               {selectedEpisodes.size}
             </span>
           )}

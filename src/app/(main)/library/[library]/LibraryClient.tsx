@@ -174,7 +174,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                 const mediaProgress = getLibraryItemProgress(libraryItem.id)
 
                 return (
-                  <div key={entity.id + '-' + shelf.id} className="shrink-0 mx-2e">
+                  <div key={entity.id + '-' + shelf.id} className="mx-2e shrink-0">
                     <EntityMediaCard
                       libraryItem={libraryItem}
                       bookshelfView={homeBookshelfView}
@@ -199,7 +199,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                   }
                 })
                 return (
-                  <div key={entity.id + '-' + shelf.id} className="shrink-0 mx-2e">
+                  <div key={entity.id + '-' + shelf.id} className="mx-2e shrink-0">
                     <SeriesCard
                       series={series}
                       libraryId={library.id}
@@ -218,7 +218,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                 }
                 const mediaProgress = getEpisodeProgress(episode.id)
                 return (
-                  <div key={episode.id + '-' + shelf.id} className="shrink-0 mx-2e">
+                  <div key={episode.id + '-' + shelf.id} className="mx-2e shrink-0">
                     <PodcastEpisodeCard
                       libraryItem={libraryItem}
                       bookshelfView={homeBookshelfView}
@@ -235,7 +235,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
               } else if (shelf.type === 'authors') {
                 const author = entity as Author
                 return (
-                  <div key={author.id + '-' + shelf.id} className="shrink-0 mx-2e">
+                  <div key={author.id + '-' + shelf.id} className="mx-2e shrink-0">
                     <AuthorCard author={author} />
                   </div>
                 )

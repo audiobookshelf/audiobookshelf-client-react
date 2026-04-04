@@ -442,7 +442,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
   if (entityType === 'authors') return null
 
   return (
-    <div className="w-36 sm:w-44 md:w-48 h-9 relative">
+    <div className="relative h-9 w-36 sm:w-44 md:w-48">
       <Dropdown
         value={currentFilter}
         items={filterItems}
@@ -454,7 +454,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
       />
       {showClear && (
         <button
-          className="absolute inset-y-0 right-8 flex items-center text-gray-400 hover:text-white z-10"
+          className="absolute inset-y-0 right-8 z-10 flex items-center text-gray-400 hover:text-white"
           onClick={(e) => {
             e.stopPropagation()
             updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')

@@ -133,12 +133,12 @@ function DataTablePagination({
   return (
     <div className="flex items-center justify-end gap-4 px-4 py-3">
       <div className="flex items-center gap-2">
-        <span className="text-sm text-foreground">{rowsPerPageLabel}</span>
+        <span className="text-foreground text-sm">{rowsPerPageLabel}</span>
         <div className="w-20">
           <Dropdown value={rowsPerPage} items={dropdownItems} onChange={(value) => onRowsPerPageChange(value as number)} size="small" />
         </div>
       </div>
-      <span className="text-sm text-foreground">{pageIndicator}</span>
+      <span className="text-foreground text-sm">{pageIndicator}</span>
       <div className="flex items-center gap-1">
         <IconBtn ariaLabel="Previous page" size="small" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
           chevron_left
@@ -285,7 +285,7 @@ export default function DataTable<T>({
   const renderDefaultRow = (row: T, index: number) => (
     <tr
       key={getRowKeyValue(row, index)}
-      className={mergeClasses('border-b border-border even:bg-table-row-bg-even hover:bg-table-row-bg-hover', getRowClassName(row, index))}
+      className={mergeClasses('border-border even:bg-table-row-bg-even hover:bg-table-row-bg-hover border-b', getRowClassName(row, index))}
       onClick={onRowClick ? () => onRowClick(row, index) : undefined}
     >
       {selection && (
@@ -309,7 +309,7 @@ export default function DataTable<T>({
         </td>
       )}
       {visibleColumns.map((column, colIndex) => (
-        <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('py-2 px-2', getResponsiveHiddenClass(column.hiddenBelow), column.cellClassName)}>
+        <td key={`${id}-cell-${index}-${colIndex}`} className={mergeClasses('px-2 py-2', getResponsiveHiddenClass(column.hiddenBelow), column.cellClassName)}>
           {renderCellContent(row, column, index)}
         </td>
       ))}
@@ -326,7 +326,7 @@ export default function DataTable<T>({
         <th
           key={`${id}-header-${index}`}
           className={mergeClasses(
-            'text-start py-2 px-2 text-xs font-semibold text-foreground-muted',
+            'text-foreground-muted px-2 py-2 text-start text-xs font-semibold',
             column.headerClassName,
             getResponsiveHiddenClass(column.hiddenBelow)
           )}
@@ -341,7 +341,7 @@ export default function DataTable<T>({
       <th
         key={`${id}-header-${index}`}
         className={mergeClasses(
-          'text-start py-2 px-2 text-xs font-semibold text-foreground-muted group cursor-pointer select-none',
+          'text-foreground-muted group cursor-pointer px-2 py-2 text-start text-xs font-semibold select-none',
           column.headerClassName,
           getResponsiveHiddenClass(column.hiddenBelow)
         )}
@@ -350,7 +350,7 @@ export default function DataTable<T>({
       >
         <div className="inline-flex items-center">
           {column.label}
-          <span className={mergeClasses('material-symbols text-base pl-px', isActiveSort ? '' : 'opacity-0 group-hover:opacity-30')}>
+          <span className={mergeClasses('material-symbols pl-px text-base', isActiveSort ? '' : 'opacity-0 group-hover:opacity-30')}>
             {sorting.sortDesc ? 'arrow_drop_down' : 'arrow_drop_up'}
           </span>
         </div>
@@ -390,11 +390,11 @@ export default function DataTable<T>({
 
   return (
     <div ref={containerRef} className={mergeClasses('w-full', className)}>
-      <div className="overflow-x-auto rounded-md border border-border relative">
-        <table className={mergeClasses('text-sm w-full border-collapse', tableClassName)}>
+      <div className="border-border relative overflow-x-auto rounded-md border">
+        <table className={mergeClasses('w-full border-collapse text-sm', tableClassName)}>
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead className="bg-table-header-bg">
-            <tr ref={headerRowRef} className="border-b border-border">
+            <tr ref={headerRowRef} className="border-border border-b">
               {renderSelectionHeaderCell()}
               {visibleColumns.map((column, index) => renderHeaderCell(column, index))}
             </tr>
@@ -402,7 +402,7 @@ export default function DataTable<T>({
           <tbody>{data.map((row, index) => (renderRow ? renderRow(row, index) : renderDefaultRow(row, index)))}</tbody>
         </table>
         {showBulkHeader && (
-          <div className="absolute inset-x-0 top-0 z-20 border-b border-border bg-table-header-bg" style={{ height: `${headerHeight}px` }}>
+          <div className="border-border bg-table-header-bg absolute inset-x-0 top-0 z-20 border-b" style={{ height: `${headerHeight}px` }}>
             <div className={mergeClasses('flex h-full items-center', bulkActions?.className)}>
               {selection && (
                 <div
@@ -425,7 +425,7 @@ export default function DataTable<T>({
                 </div>
               )}
               <div className="flex min-h-0 min-w-0 flex-1 items-center justify-between gap-2 px-2">
-                <span className="text-sm text-foreground whitespace-nowrap">{bulkSelectedLabel}</span>
+                <span className="text-foreground text-sm whitespace-nowrap">{bulkSelectedLabel}</span>
                 <div className="shrink-0">{bulkActions?.actions}</div>
               </div>
             </div>

@@ -282,21 +282,21 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const badge = isFiltered ? `${filteredEpisodes.length} / ${episodes.length}` : undefined
 
   const headerNode = (
-    <div className="flex items-center w-full px-1 mb-4 pt-1">
-      <div className="flex items-center flex-1 min-w-0 gap-3">
+    <div className="mb-4 flex w-full items-center px-1 pt-1">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
         <p className="text-xl font-medium">{t('HeaderEpisodes')}</p>
         {count !== undefined && (
-          <div className="h-7 w-7 rounded-full bg-foreground/10 flex items-center justify-center flex-shrink-0">
-            <span className="text-sm font-mono">{count}</span>
+          <div className="bg-foreground/10 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full">
+            <span className="font-mono text-sm">{count}</span>
           </div>
         )}
         {badge && (
-          <div className="h-6 px-3 rounded-full bg-foreground/10 flex items-center justify-center text-sm">
+          <div className="bg-foreground/10 flex h-6 items-center justify-center rounded-full px-3 text-sm">
             <span className="font-mono">{badge}</span>
           </div>
         )}
       </div>
-      {headerActions && <div className="flex items-center gap-2 m-0">{headerActions}</div>}
+      {headerActions && <div className="m-0 flex items-center gap-2">{headerActions}</div>}
     </div>
   )
 
@@ -308,7 +308,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     return (
       <div className="w-full">
         {headerNode}
-        <div className="flex justify-center items-center py-8">
+        <div className="flex items-center justify-center py-8">
           <LoadingSpinner size="la-lg" />
         </div>
       </div>
@@ -344,8 +344,8 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
           style={{ minHeight: filteredEpisodes.length === 0 ? `${EPISODE_ROW_HEIGHT_PX}px` : `${Math.max(totalHeight, EPISODE_ROW_HEIGHT_PX)}px` }}
         >
           {isSearching && (
-            <div className="absolute inset-0 z-50 pointer-events-none bg-black/30">
-              <div className="absolute top-0 w-full h-44 flex items-center justify-center">
+            <div className="pointer-events-none absolute inset-0 z-50 bg-black/30">
+              <div className="absolute top-0 flex h-44 w-full items-center justify-center">
                 <LoadingSpinner size="la-lg" />
               </div>
             </div>

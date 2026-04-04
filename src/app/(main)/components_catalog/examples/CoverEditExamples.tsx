@@ -22,7 +22,7 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>libraryItem</Code>: The library item to manage covers for.
             </li>
@@ -40,8 +40,8 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
             <CoverEdit libraryItem={selectedLibraryItem} bookCoverAspectRatio={bookCoverAspectRatio} />
           </div>
         ) : (
-          <div className="p-8 text-center border-2 border-dashed border-primary/20 rounded-lg">
-            <p className="text-gray-400 mb-2">No book selected</p>
+          <div className="border-primary/20 rounded-lg border-2 border-dashed p-8 text-center">
+            <p className="mb-2 text-gray-400">No book selected</p>
             <p className="text-sm text-gray-500">Use the search box above to select a book and see the Cover component in action with real data</p>
           </div>
         )}

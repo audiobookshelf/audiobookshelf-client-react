@@ -145,7 +145,7 @@ export default function Modal({
       role="dialog"
       aria-modal="true"
       className={mergeClasses(
-        'modal modal-bg w-full h-full fixed top-0 start-0 items-center justify-center flex overflow-x-hidden',
+        'modal modal-bg fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden',
         zIndexClass,
         bgOpacityClass
       )}
@@ -153,11 +153,11 @@ export default function Modal({
       onKeyDown={handleKeyDown}
     >
       {/* Background gradient */}
-      <div className="absolute inset-x-0 top-0 w-full h-36 bg-gradient-to-t from-transparent via-gray-900/50 to-gray-800/70 opacity-90 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-36 w-full bg-gradient-to-t from-transparent via-gray-900/50 to-gray-800/70 opacity-90" />
 
       {/* Close button */}
       <button
-        className="absolute top-2 end-2 sm:top-4 sm:end-4 inline-flex text-foreground-muted hover:text-foreground z-10 transition-colors"
+        className="text-foreground-muted hover:text-foreground absolute end-2 top-2 z-10 inline-flex transition-colors sm:end-4 sm:top-4"
         aria-label={t('ButtonCloseModal')}
         onClick={clickClose}
         cy-id="modal-close-button"
@@ -174,7 +174,7 @@ export default function Modal({
         tabIndex={0}
         style={style}
         className={mergeClasses(
-          'relative text-foreground outline-none focus:outline-none shadow-modal-content rounded-lg bg-bg',
+          'text-foreground shadow-modal-content bg-bg relative rounded-lg outline-none focus:outline-none',
           // Responsive width: full width with margin on mobile, fixed width on larger screens
           'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
           'mt-[50px]',
@@ -187,7 +187,7 @@ export default function Modal({
 
         {/* Processing overlay */}
         {processing && (
-          <div className="absolute inset-0 w-full h-full bg-gray-900/60 rounded-lg flex items-center justify-center" cy-id="modal-processing-overlay">
+          <div className="absolute inset-0 flex h-full w-full items-center justify-center rounded-lg bg-gray-900/60" cy-id="modal-processing-overlay">
             <LoadingIndicator />
           </div>
         )}

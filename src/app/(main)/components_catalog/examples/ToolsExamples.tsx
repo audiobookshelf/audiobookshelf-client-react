@@ -17,7 +17,7 @@ export function ToolsExamples({ selectedBook }: ToolsExamplesProps) {
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>libraryItem</Code>: The book library item (BookLibraryItem).
             </li>
@@ -28,7 +28,7 @@ export function ToolsExamples({ selectedBook }: ToolsExamplesProps) {
         </div>
         <div className="mt-2">
           <span className="font-bold">Features:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>Quick Embed button with real-time progress tracking</li>
             <li>M4B Maker tool access (links to management page)</li>
             <li>Queue status alerts</li>
@@ -42,7 +42,7 @@ export function ToolsExamples({ selectedBook }: ToolsExamplesProps) {
           <Tools libraryItem={selectedBook} />
         </Example>
       ) : (
-        <div className="p-8 border-2 border-dashed border-gray-600 rounded-lg">
+        <div className="rounded-lg border-2 border-dashed border-gray-600 p-8">
           <p className="text-gray-400">Select a book from the search box above to see the Tools component with real data.</p>
         </div>
       )}

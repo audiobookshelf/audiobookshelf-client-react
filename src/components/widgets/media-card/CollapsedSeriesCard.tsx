@@ -93,7 +93,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       return (
         <div
           cy-id="seriesSequenceList"
-          className="absolute rounded-lg bg-amber-900 shadow-modal-content z-20 text-end top-[0.375em] end-[0.375em]"
+          className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-20 rounded-lg bg-amber-900 text-end"
           style={{ padding: '0.1em 0.25em' }}
         >
           <p style={{ fontSize: '0.8em' }}>#{seriesSequenceList}</p>
@@ -106,7 +106,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       return (
         <div
           cy-id="booksInSeries"
-          className="absolute rounded-lg bg-yellow-600/90 shadow-modal-content z-20 top-[0.375em] end-[0.375em]"
+          className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-20 rounded-lg bg-yellow-600/90"
           style={{ padding: '0.1em 0.25em' }}
         >
           <p style={{ fontSize: '0.8em' }}>{booksInSeries}</p>
@@ -122,10 +122,10 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       return (
         <div
           cy-id="seriesNameOverlay"
-          className="w-full h-full absolute top-0 start-0 z-10 bg-black/60 rounded-sm flex items-center justify-center"
+          className="absolute start-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-sm bg-black/60"
           style={{ padding: '1em' }}
         >
-          <p className="text-gray-200 text-center" style={{ fontSize: '1.1em' }}>
+          <p className="text-center text-gray-200" style={{ fontSize: '1.1em' }}>
             {seriesName}
           </p>
         </div>

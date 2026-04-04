@@ -87,7 +87,7 @@ export default function CollapsibleTable({
   const tabIndex = useMemo(() => (keepOpen ? undefined : 0), [keepOpen])
 
   return (
-    <div className="w-full my-2">
+    <div className="my-2 w-full">
       <div
         className={headerClasses}
         onClick={handleClickBar}
@@ -97,17 +97,17 @@ export default function CollapsibleTable({
         aria-expanded={ariaExpanded}
         aria-controls={ariaControls}
       >
-        <div className="flex items-center flex-1 min-w-0 flex-wrap gap-1 md:gap-2">
-          <div className="flex items-center flex-shrink-0 min-w-0">
-            <p className="pe-2 md:pe-4 whitespace-nowrap overflow-hidden text-ellipsis min-w-0">{title}</p>
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 md:gap-2">
+          <div className="flex min-w-0 flex-shrink-0 items-center">
+            <p className="min-w-0 overflow-hidden pe-2 text-ellipsis whitespace-nowrap md:pe-4">{title}</p>
             <div className={`${countBadgeClasses} flex-shrink-0`} aria-label={countAriaLabel} role="status">
-              <span className="text-sm font-mono" aria-hidden="true">
+              <span className="font-mono text-sm" aria-hidden="true">
                 {count}
               </span>
             </div>
           </div>
-          <div className={hasHeaderActions ? 'grow min-w-0' : 'grow'} />
-          {hasHeaderActions && <div className="flex items-center gap-2 flex-shrink-0">{headerActions}</div>}
+          <div className={hasHeaderActions ? 'min-w-0 grow' : 'grow'} />
+          {hasHeaderActions && <div className="flex flex-shrink-0 items-center gap-2">{headerActions}</div>}
         </div>
         {!keepOpen && (
           <div className={iconClasses} aria-hidden="true">
@@ -122,7 +122,7 @@ export default function CollapsibleTable({
             <thead>
               <tr>
                 {tableHeaders.map((header, index) => (
-                  <th key={index} className={mergeClasses('text-start py-1 text-xs', header.className)} scope={header.scope ?? 'col'}>
+                  <th key={index} className={mergeClasses('py-1 text-start text-xs', header.className)} scope={header.scope ?? 'col'}>
                     {header.label}
                   </th>
                 ))}

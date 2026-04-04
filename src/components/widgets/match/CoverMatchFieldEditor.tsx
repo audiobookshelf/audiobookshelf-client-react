@@ -20,21 +20,21 @@ export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, cov
   const displayCoverUrl = useMemo(() => coverUrl || '', [coverUrl])
 
   return (
-    <div className="flex flex-wrap md:flex-nowrap items-center justify-center">
+    <div className="flex flex-wrap items-center justify-center md:flex-nowrap">
       <div className="flex grow items-center py-2">
         <Checkbox value={usageChecked} onChange={onUsageChange} checkboxBgClass="bg-bg" />
-        <TextInput value={displayCoverUrl} onChange={() => {}} disabled={!usageChecked} readOnly label={t('LabelCover')} className="grow mx-4" />
+        <TextInput value={displayCoverUrl} onChange={() => {}} disabled={!usageChecked} readOnly label={t('LabelCover')} className="mx-4 grow" />
       </div>
       <div className="flex gap-2 py-2">
         <div>
-          <p className="text-center text-foreground-muted">{t('LabelNew')}</p>
+          <p className="text-foreground-muted text-center">{t('LabelNew')}</p>
           <a href={displayCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
             <PreviewCover src={displayCoverUrl} width={100} bookCoverAspectRatio={bookCoverAspectRatio} />
           </a>
         </div>
         {currentCoverUrl && (
           <div>
-            <p className="text-center text-foreground-muted">{t('LabelCurrent')}</p>
+            <p className="text-foreground-muted text-center">{t('LabelCurrent')}</p>
             <a href={currentCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
               <PreviewCover src={currentCoverUrl} width={100} bookCoverAspectRatio={bookCoverAspectRatio} />
             </a>

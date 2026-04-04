@@ -1,8 +1,10 @@
 @font-face {
   font-family: 'absicons';
   src: url('../static/fonts/absicons/absicons.eot?2jfq33');
-  src: url('../static/fonts/absicons/absicons.eot?2jfq33#iefix') format('embedded-opentype'),
-    url('../static/fonts/absicons/absicons.ttf?2jfq33') format('truetype'), url('../static/fonts/absicons/absicons.woff?2jfq33') format('woff'),
+  src:
+    url('../static/fonts/absicons/absicons.eot?2jfq33#iefix') format('embedded-opentype'),
+    url('../static/fonts/absicons/absicons.ttf?2jfq33') format('truetype'),
+    url('../static/fonts/absicons/absicons.woff?2jfq33') format('woff'),
     url('../static/fonts/absicons/absicons.svg?2jfq33#absicons') format('svg');
   font-weight: normal;
   font-style: normal;

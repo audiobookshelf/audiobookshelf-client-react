@@ -108,7 +108,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </p>
         <div>
           <span className="font-bold">Props:</span>
-          <ul className="list-disc list-inside">
+          <ul className="list-inside list-disc">
             <li>
               <Code>libraryItem</Code>: The library item to display (BookLibraryItem).
             </li>
@@ -128,12 +128,12 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </div>
       </ComponentInfo>
 
-      <h3 className="text-lg font-bold mb-4">Book Media Card: {selectedBook.media.metadata.title}</h3>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <h3 className="mb-4 text-lg font-bold">Book Media Card: {selectedBook.media.metadata.title}</h3>
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Standard View`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookStandardCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -146,7 +146,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={bookStandardSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={defaultProps.bookshelfView}
@@ -162,9 +162,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Detail View`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookDetailCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -178,7 +178,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={bookDetailSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -194,11 +194,11 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Detail View Without Subtitles`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookDetailNoSubCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -213,7 +213,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={bookDetailNoSubSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -229,9 +229,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Ebook`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookEbookCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -257,7 +257,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={bookEbookSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -273,11 +273,11 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Example title={`Collapsed Series`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookCollapsedSeriesCardRef}>
                 <CollapsedSeriesCard
                   bookshelfView={BookshelfView.DETAIL}
@@ -304,7 +304,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={bookCollapsedSeriesSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -320,9 +320,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Collapsed Series (Books Count Only)`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookCollapsedSeriesBooksCountCardRef}>
                 <CollapsedSeriesCard
                   bookshelfView={BookshelfView.DETAIL}
@@ -349,7 +349,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={bookCollapsedSeriesBooksCountSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -365,9 +365,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Detail View Ordered by AddedAt`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookDetailOrderByCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -382,7 +382,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-400 mb-2">Loading Skeleton</p>
+              <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={bookDetailOrderBySkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
@@ -399,11 +399,11 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mb-6">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
         <Example title={`Author Bookshelf View`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookAuthorBookshelfViewCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -420,9 +420,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Missing`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookMissingCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -444,9 +444,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`No Cover (Placeholder)`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookNoCoverCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -471,9 +471,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Long Title (Truncated)`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div>
                 <BookMediaCard
                   {...defaultProps}
@@ -501,9 +501,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Detail View with RSS Feed & Share`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div ref={bookRssFeedCardRef}>
                 <BookMediaCard
                   {...defaultProps}
@@ -561,9 +561,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Progress Bar - Partial Progress (50%)`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div>
                 <BookMediaCard
                   {...defaultProps}
@@ -593,9 +593,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
         </Example>
 
         <Example title={`Progress Bar - Finished (100%)`}>
-          <div className="flex gap-4 flex-wrap">
+          <div className="flex flex-wrap gap-4">
             <div>
-              <p className="text-sm text-gray-400 mb-2">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
               <div>
                 <BookMediaCard
                   {...defaultProps}
@@ -627,9 +627,9 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
       </div>
 
       <Example title={`Size Multipliers`}>
-        <div className="flex gap-4 flex-wrap items-start">
+        <div className="flex flex-wrap items-start gap-4">
           <div style={{ fontSize: `${2 / 3}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 2/3</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 2/3</p>
             <BookMediaCard
               {...defaultProps}
               libraryItem={selectedBook}
@@ -642,7 +642,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
             />
           </div>
           <div style={{ fontSize: `${1}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 1</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 1</p>
             <BookMediaCard
               {...defaultProps}
               libraryItem={selectedBook}
@@ -655,7 +655,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
             />
           </div>
           <div className="hidden sm:block" style={{ fontSize: `${4 / 3}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 4/3</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 4/3</p>
             <BookMediaCard
               {...defaultProps}
               libraryItem={selectedBook}
@@ -668,7 +668,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
             />
           </div>
           <div className="hidden lg:block" style={{ fontSize: `${11 / 6}em` }}>
-            <p className="text-sm text-gray-400 mb-2">Size Multiplier: 11/6</p>
+            <p className="mb-2 text-sm text-gray-400">Size Multiplier: 11/6</p>
             <BookMediaCard
               {...defaultProps}
               libraryItem={selectedBook}

@@ -102,33 +102,33 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
 
   return (
     <section className={mergeClasses('w-full px-4 py-6', className)} aria-labelledby={elementIds.rootHeader}>
-      <h2 className="text-xl font-semibold mb-2" id={elementIds.rootHeader}>
+      <h2 className="mb-2 text-xl font-semibold" id={elementIds.rootHeader}>
         {t('HeaderAudiobookTools')}
       </h2>
 
       {!mediaTracks.length ? (
-        <p className="text-lg text-center my-8">{t('MessageNoAudioTracks')}</p>
+        <p className="my-8 text-center text-lg">{t('MessageNoAudioTracks')}</p>
       ) : (
         <>
           {/* M4b Maker Section */}
-          <section className="w-full border border-border p-4 my-8" aria-labelledby={elementIds.m4bHeader}>
+          <section className="border-border my-8 w-full border p-4" aria-labelledby={elementIds.m4bHeader}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg" id={elementIds.m4bHeader}>
                   {t('LabelToolsMakeM4b')}
                 </h3>
-                <p className="max-w-sm text-sm pt-2 text-foreground-muted" id={elementIds.m4bDescription}>
+                <p className="text-foreground-muted max-w-sm pt-2 text-sm" id={elementIds.m4bDescription}>
                   {t('LabelToolsMakeM4bDescription')}
                 </p>
               </div>
               <div className="w-full sm:w-[180px]">
                 <Btn
                   to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/manage?tool=m4b`}
-                  className="flex items-center justify-center whitespace-nowrap w-full"
+                  className="flex w-full items-center justify-center whitespace-nowrap"
                   aria-describedby={elementIds.m4bDescription}
                 >
                   {t('ButtonOpenManager')}
-                  <span className="material-symbols text-lg ms-2" aria-hidden="true">
+                  <span className="material-symbols ms-2 text-lg" aria-hidden="true">
                     launch
                   </span>
                 </Btn>
@@ -137,13 +137,13 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
           </section>
 
           {/* Embed Metadata Section */}
-          <section className="w-full border border-border p-4 my-8" aria-labelledby={elementIds.embedHeader}>
+          <section className="border-border my-8 w-full border p-4" aria-labelledby={elementIds.embedHeader}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <h3 className="text-lg" id={elementIds.embedHeader}>
                   {t('LabelToolsEmbedMetadata')}
                 </h3>
-                <p className="max-w-sm text-sm pt-2 text-foreground-muted" id={elementIds.embedDescription}>
+                <p className="text-foreground-muted max-w-sm pt-2 text-sm" id={elementIds.embedDescription}>
                   {t('LabelToolsEmbedMetadataDescription')}
                 </p>
               </div>
@@ -151,11 +151,11 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
                 <div className="w-full sm:w-[180px]">
                   <Btn
                     to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/manage?tool=embed`}
-                    className="flex items-center justify-center whitespace-nowrap w-full"
+                    className="flex w-full items-center justify-center whitespace-nowrap"
                     aria-describedby={elementIds.embedDescription}
                   >
                     {t('ButtonOpenManager')}
-                    <span className="material-symbols text-lg ms-2" aria-hidden="true">
+                    <span className="material-symbols ms-2 text-lg" aria-hidden="true">
                       launch
                     </span>
                   </Btn>
@@ -163,7 +163,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
 
                 <div className="mt-4 w-full sm:w-[180px]" cy-id="quick-embed-btn">
                   <Btn
-                    className="whitespace-nowrap w-full"
+                    className="w-full whitespace-nowrap"
                     disabled={isMetadataEmbedQueued || !!isEmbedTaskRunning || isPending}
                     loading={!!isEmbedTaskRunning}
                     progress={embedProgress}

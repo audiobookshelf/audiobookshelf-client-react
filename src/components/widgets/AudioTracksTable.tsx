@@ -88,7 +88,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
       },
       {
         label: t('LabelFilename'),
-        accessor: (row: TrackWithAudioFile) => <span className="break-all font-sans text-sm">{showFullPath ? row.metadata.path : row.metadata.filename}</span>,
+        accessor: (row: TrackWithAudioFile) => <span className="font-sans text-sm break-all">{showFullPath ? row.metadata.path : row.metadata.filename}</span>,
         headerClassName: 'text-start px-2 min-w-[300px]',
         cellClassName: 'text-start px-2 py-1 align-middle'
       },
