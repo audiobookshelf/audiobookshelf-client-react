@@ -23,10 +23,18 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, updateSetting, filterBy, boundModal, bookshelfView } = useLibrary()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, authorSortBy, updateSetting, filterBy, boundModal, bookshelfView } =
+    useLibrary()
   const { user } = useUser()
 
   const { query } = useBookshelfQuery(entityType)
+
+  const isRandomSort = useMemo(() => {
+    if (entityType === 'items') return orderBy === 'random'
+    if (entityType === 'series') return seriesSortBy === 'random'
+    if (entityType === 'authors') return authorSortBy === 'random'
+    return false
+  }, [entityType, orderBy, seriesSortBy, authorSortBy])
 
   const isPodcastLibrary = library.mediaType === 'podcast'
 
@@ -173,7 +181,8 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     shelfHeight,
     containerHeight: dimensions.height,
     reconcilePagesAfterUpdate,
-    handleScroll
+    handleScroll,
+    isRandomSort
   })
 
   // Sync total count from data hook (reset to 0 while revalidating so loadPage runs for page 0)
@@ -256,8 +265,8 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
 
   if (!validEntities.includes(entityType as string) || !config) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-foreground-muted">
-        <h2 className="text-2xl font-bold mb-2">{t('LabelPageNotFound')}</h2>
+      <div className="text-foreground-muted flex h-full flex-col items-center justify-center">
+        <h2 className="mb-2 text-2xl font-bold">{t('LabelPageNotFound')}</h2>
         <p>{t('MessagePageNotFoundForLibraryType')}</p>
       </div>
     )
@@ -266,7 +275,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   return (
     <div
       ref={containerRef}
-      className={isAlternativeBookshelfView ? 'h-full overflow-y-auto relative py-8' : 'h-full overflow-y-auto relative'}
+      className={isAlternativeBookshelfView ? 'relative h-full overflow-y-auto py-8' : 'relative h-full overflow-y-auto'}
       style={{ fontSize: sizeMultiplier + 'rem' }}
       onScroll={(e) => {
         const scrollTop = e.currentTarget.scrollTop
@@ -288,9 +297,9 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
       {/* Error State */}
       {error && (
         <div className="flex h-full flex-col items-center justify-center p-10 text-center">
-          <p className="text-red-500 mb-2">{t('MessageFailedToLoadData')}</p>
-          <p className="text-sm text-gray-500 mb-4">{error.message}</p>
-          <button onClick={() => loadPage(0)} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+          <p className="mb-2 text-red-500">{t('MessageFailedToLoadData')}</p>
+          <p className="mb-4 text-sm text-gray-500">{error.message}</p>
+          <button onClick={() => loadPage(0)} className="rounded bg-blue-500 px-4 py-2 text-white transition-colors hover:bg-blue-600">
             {t('ButtonRetry')}
           </button>
         </div>
@@ -314,7 +323,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
             return (
               <div
                 key={shelfIndex}
-                className={`absolute left-0 w-full flex ${!isAlternativeBookshelfView ? 'bookshelfRow' : ''}`}
+                className={`absolute left-0 flex w-full ${!isAlternativeBookshelfView ? 'bookshelfRow' : ''}`}
                 style={{
                   top: `${shelfIndex * shelfHeight}px`,
                   height: `${shelfHeight}px`,
@@ -358,7 +367,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                     />
                   )
                 })}
-                {!isAlternativeBookshelfView && <div className="bookshelfDivider w-full absolute bottom-0 left-0 right-0 z-20 h-6e" />}
+                {!isAlternativeBookshelfView && <div className="bookshelfDivider h-6e absolute right-0 bottom-0 left-0 z-20 w-full" />}
               </div>
             )
           })}

@@ -32,6 +32,8 @@ type BookshelfUpdaterRuntime = {
   libraryId: string
   entityType: EntityType
   bookshelfLayoutReady: boolean
+  /** Random sort refetches change the shelf order; skip socket-driven reconcile until server-side stable ordering exists. */
+  isRandomSort: boolean
   reconcilePagesAfterUpdate: (pageIndices: number[], changedIds?: Set<string>) => Promise<{ total: number } | null>
   containerRef: RefObject<HTMLDivElement | null>
   layoutForReconcileRef: RefBox<BookshelfReconcileLayout>
@@ -40,6 +42,7 @@ type BookshelfUpdaterRuntime = {
 
 function reconcileThenClamp(rt: BookshelfUpdaterRuntime, pageIndices: number[], changedIds?: Set<string>) {
   if (!rt.bookshelfLayoutReady) return
+  if (rt.isRandomSort) return
 
   const layout = rt.layoutForReconcileRef.current
 
@@ -99,6 +102,8 @@ export type UseBookshelfUpdaterParams = {
   containerHeight: number
   reconcilePagesAfterUpdate: (pageIndices: number[], changedIds?: Set<string>) => Promise<{ total: number } | null>
   handleScroll: (scrollTop: number) => void
+  /** When true, socket events do not refetch pages (random order is non-deterministic per request). */
+  isRandomSort: boolean
 }
 
 /**
@@ -119,7 +124,8 @@ export function useBookshelfUpdater({
   shelfHeight,
   containerHeight,
   reconcilePagesAfterUpdate,
-  handleScroll
+  handleScroll,
+  isRandomSort
 }: UseBookshelfUpdaterParams): void {
   const layoutForReconcileRef = useRef<BookshelfReconcileLayout>({
     visibleShelfStart: 0,
@@ -166,6 +172,7 @@ export function useBookshelfUpdater({
     libraryId,
     entityType,
     bookshelfLayoutReady,
+    isRandomSort,
     reconcilePagesAfterUpdate,
     containerRef,
     layoutForReconcileRef,
