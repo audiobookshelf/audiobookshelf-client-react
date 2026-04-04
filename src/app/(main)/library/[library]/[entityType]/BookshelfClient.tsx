@@ -5,6 +5,7 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
+import { useBookshelfUpdater } from '@/hooks/useBookshelfUpdater'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -119,14 +120,16 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
 
   // Virtualizer
   const hasMeasuredCard = cardSize.width > 0
-  const { columns, shelfHeight, totalShelves, shelvesPerPage, visibleShelfStart, visibleShelfEnd, handleScroll } = useBookshelfVirtualizer({
-    totalEntities,
-    itemWidth: hasMeasuredCard ? totalEntityCardWidth : 0,
-    itemHeight: hasMeasuredCard ? shelfRowHeight : 0,
-    containerWidth: dimensions.width,
-    containerHeight: dimensions.height,
-    padding: shelfPadding / 2
-  })
+  const { columns, shelfHeight, totalShelves, shelvesPerPage, visibleShelfStart, visibleShelfEnd, handleScroll, getVisiblePageRange } = useBookshelfVirtualizer(
+    {
+      totalEntities,
+      itemWidth: hasMeasuredCard ? totalEntityCardWidth : 0,
+      itemHeight: hasMeasuredCard ? shelfRowHeight : 0,
+      containerWidth: dimensions.width,
+      containerHeight: dimensions.height,
+      padding: shelfPadding / 2
+    }
+  )
 
   // Use custom hook for persistent scroll logic
   const { handleScroll: handlePersistentScroll } = usePersistentScroll({
@@ -139,6 +142,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
 
   const bookshelfMarginLeft = Math.max(0, (dimensions.width - columns * totalEntityCardWidth) / 2)
   const itemsPerPage = columns * shelvesPerPage
+  const bookshelfLayoutReady = hasMeasuredCard && columns > 0 && Number.isFinite(itemsPerPage) && itemsPerPage > 0
 
   // Data hook
   const {
@@ -147,17 +151,37 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     totalEntities: fetchedTotal,
     isLoading,
     isInitialized,
-    error
+    error,
+    reconcilePagesAfterUpdate
   } = useBookshelfData({
     entityType,
     query,
     itemsPerPage
   })
 
-  // Sync total count from data hook
+  useBookshelfUpdater({
+    entityType,
+    libraryId: library.id,
+    containerRef,
+    visibleShelfStart,
+    visibleShelfEnd,
+    columns,
+    itemsPerPage,
+    bookshelfLayoutReady,
+    fetchedTotal,
+    items,
+    shelfHeight,
+    containerHeight: dimensions.height,
+    reconcilePagesAfterUpdate,
+    handleScroll
+  })
+
+  // Sync total count from data hook (reset to 0 while revalidating so loadPage runs for page 0)
   useEffect(() => {
     if (isInitialized) {
       setTotalEntities(fetchedTotal)
+    } else {
+      setTotalEntities(0)
     }
   }, [fetchedTotal, isInitialized])
 
@@ -170,21 +194,17 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     }
   }, [fetchedTotal, isInitialized, setItemCount])
 
-  // Data Fetching Trigger
+  // Data Fetching Trigger — chain promises so list requests are not fired in parallel
   useEffect(() => {
-    if (!hasMeasuredCard || columns === 0 || itemsPerPage === 0) return
+    if (!bookshelfLayoutReady) return
 
-    const itemsPerShelf = columns
-    const startItem = visibleShelfStart * itemsPerShelf
-    const endItem = Math.min(totalEntities, visibleShelfEnd * itemsPerShelf)
+    const { startPage, endPage } = getVisiblePageRange(itemsPerPage, totalEntities)
 
-    const startPage = Math.floor(startItem / itemsPerPage)
-    const endPage = Math.floor(endItem / itemsPerPage)
-
+    let loadPageQueue: Promise<void> = Promise.resolve()
     for (let p = startPage; p <= endPage; p++) {
-      loadPage(p)
+      loadPageQueue = loadPageQueue.then(() => loadPage(p))
     }
-  }, [hasMeasuredCard, visibleShelfStart, visibleShelfEnd, columns, totalEntities, itemsPerPage, loadPage])
+  }, [bookshelfLayoutReady, getVisiblePageRange, totalEntities, itemsPerPage, loadPage])
 
   const bookProgressMap = useMemo(() => {
     const map = new Map<string, MediaProgress>()
