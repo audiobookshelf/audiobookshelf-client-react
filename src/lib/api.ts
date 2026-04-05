@@ -132,32 +132,40 @@ export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userT
 }
 
 /**
- * The NextJS server sets its own cookies separate from the Audiobookshelf server.
- * Because the Abs Server cookies are not available to NextJS for server-side rendering.
+ * Shared shape for `response.cookies` and `cookies()` from `next/headers` (both expose `.set`).
+ * maxAgeSeconds is the env JWT lifetime; cookie maxAge is slightly shorter so the cookie expires
+ * before the token is rejected (5 second buffer).
  */
-export function setTokenCookies(response: NextResponse, accessToken: string, refreshToken: string | null) {
-  response.cookies.set('access_token', accessToken, {
+function sessionCookieOptions(maxAgeSeconds: number) {
+  return {
     httpOnly: true,
     secure: false,
-    sameSite: 'lax',
+    sameSite: 'lax' as const,
     path: '/',
-    // Ensure the cookie is not expired before the access token expires (5 second buffer)
-    maxAge: Math.max(AccessTokenExpiry - 5, 5)
-  })
-
-  if (refreshToken) {
-    response.cookies.set('refresh_token', refreshToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      // Ensure the cookie is not expired before the refresh token expires (5 second buffer)
-      maxAge: Math.max(RefreshTokenExpiry - 5, 5)
-    })
+    maxAge: Math.max(maxAgeSeconds - 5, 5)
   }
 }
 
-/** New tokens from POST /auth/refresh (same shape as internal-api/refresh). */
+type SessionCookieSetter = {
+  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions>): void
+}
+
+function writeSessionCookies(store: SessionCookieSetter, accessToken: string, refreshToken: string | null) {
+  store.set('access_token', accessToken, sessionCookieOptions(AccessTokenExpiry))
+  if (refreshToken) {
+    store.set('refresh_token', refreshToken, sessionCookieOptions(RefreshTokenExpiry))
+  }
+}
+
+/**
+ * The NextJS server sets its own cookies separate from the Audiobookshelf server
+ * because the Abs Server cookies are not available to NextJS for server-side rendering.
+ */
+export function setTokenCookies(response: NextResponse, accessToken: string, refreshToken: string | null) {
+  writeSessionCookies(response.cookies, accessToken, refreshToken)
+}
+
+/** New tokens from POST /auth/refresh */
 export type SessionRefreshTokens = {
   accessToken: string
   refreshToken: string | null
@@ -209,43 +217,114 @@ export async function getAccessToken() {
   return (await cookies()).get('access_token')?.value || null
 }
 
+async function redirectToSessionRefreshRoute() {
+  const currentPath = (await headers()).get('x-current-path') ?? ''
+  redirect(`/internal-api/refresh?redirect=${encodeURIComponent(currentPath || '')}`)
+}
+
+/**
+ * Refresh via ABS, write Next.js cookies for this request (so server actions return Set-Cookie).
+ * If cookies cannot be mutated (e.g. Server Component render), redirect to `/internal-api/refresh` like {@link getData}.
+ */
+async function applyRefreshedSessionOrRedirect(cookieStore: Awaited<ReturnType<typeof cookies>>, refreshToken: string): Promise<SessionRefreshTokens> {
+  const session = await refreshSessionWithToken(refreshToken)
+  if (!session) {
+    throw new UnauthorizedError('Unauthorized')
+  }
+  try {
+    writeSessionCookies(cookieStore, session.accessToken, session.refreshToken)
+  } catch {
+    await redirectToSessionRefreshRoute()
+  }
+  return {
+    accessToken: session.accessToken,
+    refreshToken: session.refreshToken
+  }
+}
+
+async function parseApiResponseBody<T>(response: Response): Promise<T> {
+  const contentType = response.headers.get('content-type')
+  const contentLength = response.headers.get('content-length')
+
+  if (response.status === 204 || contentLength === '0') {
+    return undefined as T
+  }
+
+  if (contentType?.includes('application/json')) {
+    const data = await response.json()
+    return data as T
+  }
+
+  const text = await response.text()
+  if (!text || text.trim() === '') {
+    return undefined as T
+  }
+
+  try {
+    const data = JSON.parse(text)
+    return data as T
+  } catch {
+    return undefined as T
+  }
+}
+
 /**
  * Make an authenticated API request to the server
  * Throws UnauthorizedError, ApiError, or NetworkError on failure
+ *
+ * On 401 (or missing access token with a refresh cookie), exchanges the refresh token for new
+ * session tokens, updates Next.js cookies when possible, and retries once. Server actions return updated cookies to the browser.
  */
 export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
-    let accessToken: string | null = null
-
-    if (!publicEndpoints.includes(endpoint)) {
-      accessToken = (await cookies()).get('access_token')?.value || null
-      if (!accessToken) {
-        throw new UnauthorizedError('No authentication token found')
-      }
-    }
-
+    const isPublic = publicEndpoints.includes(endpoint)
+    const cookieStore = await cookies()
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
 
-    // Check if body is FormData - if so, don't set Content-Type
-    // Node.js fetch will automatically set 'multipart/form-data' with the correct boundary
     const isFormData = options.body instanceof FormData
 
     const fetchHeaders = new Headers(options.headers as Record<string, string>)
 
-    // Only set Content-Type for non-FormData requests (defaults to application/json)
     if (!isFormData && !fetchHeaders.has('Content-Type')) {
       fetchHeaders.set('Content-Type', 'application/json')
     }
 
-    if (accessToken) {
+    let accessToken: string | null = null
+    let refreshToken: string | null = null
+    let didProactiveRefresh = false
+
+    if (!isPublic) {
+      accessToken = cookieStore.get('access_token')?.value ?? null
+      refreshToken = cookieStore.get('refresh_token')?.value ?? null
+
+      if (!accessToken && refreshToken) {
+        const session = await applyRefreshedSessionOrRedirect(cookieStore, refreshToken)
+        accessToken = session.accessToken
+        refreshToken = session.refreshToken ?? cookieStore.get('refresh_token')?.value ?? null
+        didProactiveRefresh = true
+      }
+
+      if (!accessToken) {
+        throw new UnauthorizedError('No authentication token found')
+      }
+
       fetchHeaders.set('Authorization', `Bearer ${accessToken}`)
     }
 
-    const response = await fetch(url, {
+    let response = await fetch(url, {
       ...options,
       headers: fetchHeaders
     })
+
+    if (!isPublic && response.status === 401 && refreshToken && !didProactiveRefresh) {
+      const session = await applyRefreshedSessionOrRedirect(cookieStore, refreshToken)
+      fetchHeaders.set('Authorization', `Bearer ${session.accessToken}`)
+      response = await fetch(url, {
+        ...options,
+        headers: fetchHeaders
+      })
+    }
 
     if (!response.ok) {
       if (response.status === 401) {
@@ -256,40 +335,14 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
       throw new ApiError(errorMessage || `HTTP ${response.status}: ${response.statusText}`, response.status, response.statusText)
     }
 
-    // Check if response has content before trying to parse JSON
-    const contentType = response.headers.get('content-type')
-    const contentLength = response.headers.get('content-length')
-
-    // If no content or explicit 204 No Content status, return empty data
-    if (response.status === 204 || contentLength === '0') {
-      return undefined as T
-    }
-
-    // If there's a content-type header and it's JSON, parse it
-    if (contentType?.includes('application/json')) {
-      const data = await response.json()
-      return data as T
-    }
-
-    // Try to get text content, if empty return undefined
-    const text = await response.text()
-    if (!text || text.trim() === '') {
-      return undefined as T
-    }
-
-    // Try to parse as JSON, fallback to undefined if it fails
-    try {
-      const data = JSON.parse(text)
-      return data as T
-    } catch {
-      return undefined as T
-    }
+    return parseApiResponseBody<T>(response)
   } catch (error) {
-    // Re-throw our custom errors
+    if (error && typeof error === 'object' && 'digest' in error && typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
+      throw error
+    }
     if (error instanceof UnauthorizedError || error instanceof ApiError) {
       throw error
     }
-    // Wrap other errors in NetworkError
     console.error('API request failed:', error)
     throw new NetworkError('Network error', error)
   }
