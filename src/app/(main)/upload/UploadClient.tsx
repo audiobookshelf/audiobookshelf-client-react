@@ -1,6 +1,8 @@
 'use client'
 
+import { useMediaContext } from '@/contexts/MediaContext'
 import { useBookProviders, useMetadata } from '@/contexts/MetadataContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { startTransition, useEffect, useMemo, useState } from 'react'
 
@@ -73,11 +75,31 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     }))
   const currentLibraryMediaType = libraries.find((lib) => lib.id === selectedLibrary)?.mediaType
 
-  if (libraries.length > 0 && !selectedLibrary) {
-    setSelectedLibrary(libraries[0].id)
-    setSelectedFolder(libraries[0].folders?.[0]?.id)
-    setSelectedProvider(libraries[0].provider)
-  }
+  const { lastCurrentLibraryId } = useMediaContext()
+  const { userDefaultLibraryId } = useUser()
+
+  useEffect(() => {
+    if (libraries.length === 0) return
+    if (selectedLibrary) return
+
+    let defaultLibId: string | undefined
+
+    if (lastCurrentLibraryId) {
+      defaultLibId = libraries.find((l) => l.id === lastCurrentLibraryId)?.id
+    }
+
+    if (!defaultLibId && userDefaultLibraryId) {
+      defaultLibId = libraries.find((l) => l.id === userDefaultLibraryId)?.id
+    }
+
+    if (!defaultLibId) {
+      defaultLibId = libraries[0].id
+    }
+
+    setSelectedLibrary(defaultLibId)
+    setSelectedFolder(libraries.find((l) => l.id === defaultLibId)?.folders?.[0]?.id)
+    setSelectedProvider(libraries.find((l) => l.id === defaultLibId)?.provider)
+  }, [libraries, lastCurrentLibraryId, userDefaultLibraryId, selectedLibrary])
 
   const supFileTypes = useMemo(() => {
     let extensions: string[] = []
