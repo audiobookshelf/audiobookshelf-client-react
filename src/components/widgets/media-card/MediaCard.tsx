@@ -1,6 +1,6 @@
 'use client'
 
-import MatchModal from '@/components/modals/MatchModal'
+import BookshelfMatchModalHost from '@/components/modals/BookshelfMatchModalHost'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
@@ -10,24 +10,15 @@ import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
-import type {
-  BookLibraryItem,
-  BookMedia,
-  EReaderDevice,
-  LibraryItem,
-  MediaProgress,
-  PodcastEpisode,
-  PodcastLibraryItem,
-  PodcastMedia,
-  UserPermissions
-} from '@/types/api'
+import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { memo, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 
 export interface MediaCardProps {
   libraryItem: LibraryItem
@@ -108,6 +99,7 @@ function MediaCard(props: MediaCardProps) {
   } = props
 
   const router = useRouter()
+  const { setBoundModal } = useLibrary()
   const { libraryItemIdStreaming, isStreaming, isPlaying, isStreamingFromDifferentLibrary, getIsMediaQueued, playerHandler } = useMediaContext()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
@@ -118,6 +110,15 @@ function MediaCard(props: MediaCardProps) {
 
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+
+  const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
+
+  const handleOpenMatch = useCallback(
+    (libraryItemId: string) => {
+      setBoundModal(<BookshelfMatchModalHost key={libraryItemId} libraryItemId={libraryItemId} onClose={clearBoundModal} />)
+    },
+    [clearBoundModal, setBoundModal]
+  )
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
@@ -246,12 +247,10 @@ function MediaCard(props: MediaCardProps) {
     confirmState,
     rssFeedModalOpen,
     shareModalOpen,
-    matchModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
     closeShareModal,
-    closeMatchModal,
     handleShareChange,
     handlePlay,
     handleReadEBook,
@@ -274,6 +273,7 @@ function MediaCard(props: MediaCardProps) {
     isStreamingFromDifferentLib,
     isQueued,
     initialShare: libraryItem.mediaItemShare ?? null,
+    onOpenMatch: handleOpenMatch,
     playerControls: playerHandler.controls
   })
 
@@ -396,12 +396,6 @@ function MediaCard(props: MediaCardProps) {
           onShareChange={handleShareChange}
         />
       )}
-      <MatchModal
-        isOpen={matchModalOpen}
-        onClose={closeMatchModal}
-        libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem}
-        bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
-      />
     </>
   )
 }
