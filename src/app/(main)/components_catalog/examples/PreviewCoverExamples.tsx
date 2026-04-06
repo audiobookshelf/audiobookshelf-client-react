@@ -15,15 +15,12 @@ interface PreviewCoverExamplesProps {
 export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewCoverExamplesProps) {
   const [isCoverModalOpen, setIsCoverModalOpen] = useState(false)
   const [modalCoverSrc, setModalCoverSrc] = useState('')
-  const [modalCoverAspectRatio, setModalCoverAspectRatio] = useState(1.0)
 
   // Determine which item to use for examples (prefer book over podcast)
   const exampleItem = selectedBook || selectedPodcast
-  const exampleAspectRatio = selectedBook ? 1.6 : 1.0
 
-  const handleCoverClick = useCallback((src: string, aspectRatio: number) => {
+  const handleCoverClick = useCallback((src: string) => {
     setModalCoverSrc(src)
-    setModalCoverAspectRatio(aspectRatio)
     setIsCoverModalOpen(true)
   }, [])
 
@@ -60,7 +57,7 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
               <Code>width</Code>: Width in pixels (default: 120)
             </li>
             <li>
-              <Code>bookCoverAspectRatio</Code>: Aspect ratio for the cover (required)
+              <Code>bookCoverAspectRatio</Code>: Optional override; defaults from <Code>LibraryProvider</Code> via <Code>useBookCoverAspectRatio</Code>
             </li>
             <li>
               <Code>auto</Code>: Enable auto-sizing based on container constraints (default: false)
@@ -75,14 +72,14 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
       <ExamplesBlock>
         <Example title="Standard Cover">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} bookCoverAspectRatio={exampleAspectRatio} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} />
             <p className="text-xs text-gray-400">120px width</p>
           </div>
         </Example>
 
         <Example title="Large Cover">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} width={200} bookCoverAspectRatio={exampleAspectRatio} />
+            <PreviewCover src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)} width={200} />
             <p className="text-xs text-gray-400">200px width</p>
           </div>
         </Example>
@@ -120,7 +117,7 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
             <PreviewCover
               src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)}
               bookCoverAspectRatio={1.0}
-              onClick={() => handleCoverClick(getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt), 1.0)}
+              onClick={() => handleCoverClick(getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt))}
             />
             <p className="text-xs text-gray-400">1:1 aspect ratio, click to open modal</p>
           </div>
@@ -131,7 +128,7 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
             <PreviewCover
               src={getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt)}
               bookCoverAspectRatio={1.6}
-              onClick={() => handleCoverClick(getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt), 1.6)}
+              onClick={() => handleCoverClick(getLibraryItemCoverUrl(exampleItem!.id, exampleItem!.updatedAt))}
             />
             <p className="text-xs text-gray-400">1.6 aspect ratio, click to open modal</p>
           </div>
@@ -139,20 +136,14 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
 
         <Example title="Invalid Cover Error State">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/images/book_placeholder.jpg" width={120} bookCoverAspectRatio={exampleAspectRatio} forceErrorState={true} />
+            <PreviewCover src="/images/book_placeholder.jpg" width={120} forceErrorState={true} />
             <p className="text-xs text-gray-400">Shows error state when image fails to load</p>
           </div>
         </Example>
       </ExamplesBlock>
 
       {/* Cover Preview Modal */}
-      <CoverPreviewModal
-        isOpen={isCoverModalOpen}
-        selectedCover={modalCoverSrc}
-        bookCoverAspectRatio={modalCoverAspectRatio}
-        onClose={handleCancel}
-        onApply={handleApply}
-      />
+      <CoverPreviewModal isOpen={isCoverModalOpen} selectedCover={modalCoverSrc} onClose={handleCancel} onApply={handleApply} />
     </ComponentExamples>
   )
 }

@@ -9,9 +9,9 @@ import MediaCardStandardFooter from '@/components/widgets/media-card/MediaCardSt
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Collection } from '@/types/api'
 import { BookshelfView } from '@/types/api'
@@ -24,8 +24,6 @@ export interface CollectionCardProps {
   collection: Collection
   /** View mode (standard or detail) */
   bookshelfView: BookshelfView
-  /** Cover configuration */
-  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   /** Whether the card is in selection mode */
   isSelectionMode?: boolean
@@ -45,7 +43,6 @@ function CollectionCard(props: CollectionCardProps) {
   const {
     collection,
     bookshelfView,
-    bookCoverAspectRatio,
     sizeMultiplier,
     isSelectionMode = false,
     selected = false,
@@ -56,6 +53,7 @@ function CollectionCard(props: CollectionCardProps) {
   } = props
 
   const router = useRouter()
+  const coverAspect = useBookCoverAspectRatio()
   const { userCanUpdate } = useUser()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
@@ -71,7 +69,6 @@ function CollectionCard(props: CollectionCardProps) {
   const rssFeed = useMemo(() => collection.rssFeed ?? null, [collection.rssFeed])
 
   // Cover dimensions - collection card is wider (2x width of a single book cover)
-  const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio ?? 1), [bookCoverAspectRatio])
   const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
   // Collection card is wider (2x width of a single book cover)
   const coverWidth = useMemo(() => (coverHeight / coverAspect) * 2, [coverHeight, coverAspect])
@@ -136,7 +133,7 @@ function CollectionCard(props: CollectionCardProps) {
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
         cy-id="collectionCard"
-        cover={<CollectionGroupCover books={books} width={coverWidth} height={coverHeight} bookCoverAspectRatio={coverAspect} />}
+        cover={<CollectionGroupCover books={books} width={coverWidth} height={coverHeight} />}
         overlay={
           <>
             {/* Hover overlay */}

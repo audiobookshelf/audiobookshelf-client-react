@@ -22,7 +22,7 @@ interface LibraryClientProps {
 export default function LibraryClient({ personalized }: LibraryClientProps) {
   const { sizeMultiplier } = useCardSize()
   const { user, serverSettings, ereaderDevices, getLibraryItemProgress, getEpisodeProgress } = useUser()
-  const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView, boundModal } = useLibrary()
+  const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView } = useLibrary()
 
   const [shelves, setShelves] = useState(personalized)
 
@@ -183,7 +183,6 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       userPermissions={user.permissions}
                       ereaderDevices={ereaderDevices}
                       showSubtitles={true}
-                      bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
                       mediaProgress={mediaProgress}
                     />
                   </div>
@@ -205,7 +204,6 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       libraryId={library.id}
                       bookshelfView={homeBookshelfView}
                       dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-                      bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
                       bookProgressMap={bookProgressMap}
                     />
                   </div>
@@ -227,7 +225,6 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       userPermissions={user.permissions}
                       ereaderDevices={ereaderDevices}
                       showSubtitles={true}
-                      bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
                       mediaProgress={mediaProgress}
                     />
                   </div>
@@ -244,7 +241,6 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
           </Wrapper>
         )
       })}
-      {boundModal}
     </div>
   )
 }

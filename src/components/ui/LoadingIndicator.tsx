@@ -12,7 +12,7 @@ interface LoadingIndicatorProps {
 export default function LoadingIndicator({ label, children }: LoadingIndicatorProps) {
   const t = useTypeSafeTranslations()
   if (!label) {
-    label = 'LabelLoadingContent'
+    label = 'LabelLoadingIndicator'
   }
   const displayLabel = t(label)
 

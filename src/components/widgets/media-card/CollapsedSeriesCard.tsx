@@ -3,8 +3,9 @@
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
@@ -23,7 +24,6 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
     orderBy,
     sortingIgnorePrefix = false,
     seriesProgressPercent,
-    bookCoverAspectRatio,
     sizeMultiplier,
     dateFormat,
     timeFormat,
@@ -35,6 +35,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
 
   const t = useTypeSafeTranslations()
   const router = useRouter()
+  const coverAspect = useBookCoverAspectRatio()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
 
@@ -48,7 +49,6 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   const seriesSequenceList = collapsedSeries?.seriesSequenceList || null
   const seriesName = collapsedSeries?.name || null
 
-  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1)
   const coverHeight = 192 * effectiveSizeMultiplier
   const coverWidth = coverHeight / coverAspect
   const placeholderUrl = getPlaceholderCoverUrl()

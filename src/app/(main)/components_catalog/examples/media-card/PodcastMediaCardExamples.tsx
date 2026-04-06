@@ -14,7 +14,7 @@ interface PodcastMediaCardExamplesProps {
 }
 
 export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardExamplesProps) {
-  const { user, bookCoverAspectRatio } = useComponentsCatalog()
+  const { user } = useComponentsCatalog()
 
   // Selection state
   const [selectedPodcastId, setSelectedPodcastId] = useState<string | null>(null)
@@ -27,8 +27,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
     timeFormat: 'h:mm a',
     userPermissions: user.permissions,
     ereaderDevices: [] as EReaderDevice[],
-    showSubtitles: false,
-    bookCoverAspectRatio: bookCoverAspectRatio ?? 1
+    showSubtitles: false
   }
 
   // Selection handler
@@ -119,9 +118,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               <Code>bookshelfView</Code>: View mode (BookshelfView.STANDARD or BookshelfView.DETAIL).
             </li>
             <li>
-              <Code>bookCoverAspectRatio</Code>: Aspect ratio for covers.
-            </li>
-            <li>
               <Code>sizeMultiplier</Code>: Size multiplier for the card.
             </li>
           </ul>
@@ -138,7 +134,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                 <PodcastMediaCard
                   {...defaultProps}
                   libraryItem={selectedPodcast}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -148,12 +143,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             <div>
               <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastStandardSkeletonRef}>
-                <MediaCardSkeleton
-                  bookshelfView={defaultProps.bookshelfView}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                  dateFormat={defaultProps.dateFormat}
-                  timeFormat={defaultProps.timeFormat}
-                />
+                <MediaCardSkeleton bookshelfView={defaultProps.bookshelfView} dateFormat={defaultProps.dateFormat} timeFormat={defaultProps.timeFormat} />
               </div>
             </div>
           </div>
@@ -169,7 +159,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                   {...defaultProps}
                   libraryItem={selectedPodcast}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -179,12 +168,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             <div>
               <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastDetailSkeletonRef}>
-                <MediaCardSkeleton
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                  dateFormat={defaultProps.dateFormat}
-                  timeFormat={defaultProps.timeFormat}
-                />
+                <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} dateFormat={defaultProps.dateFormat} timeFormat={defaultProps.timeFormat} />
               </div>
             </div>
           </div>
@@ -202,7 +186,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                   {...defaultProps}
                   libraryItem={selectedPodcast}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -212,12 +195,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             <div>
               <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastDetailNoSubSkeletonRef}>
-                <MediaCardSkeleton
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                  dateFormat={defaultProps.dateFormat}
-                  timeFormat={defaultProps.timeFormat}
-                />
+                <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} dateFormat={defaultProps.dateFormat} timeFormat={defaultProps.timeFormat} />
               </div>
             </div>
           </div>
@@ -234,7 +212,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                   libraryItem={selectedPodcast}
                   bookshelfView={BookshelfView.DETAIL}
                   orderBy="addedAt"
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -246,7 +223,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               <div ref={podcastDetailOrderBySkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   orderBy="addedAt"
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
@@ -284,7 +260,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -294,12 +269,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             <div>
               <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastRecentEpisodeSkeletonRef}>
-                <MediaCardSkeleton
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                  dateFormat={defaultProps.dateFormat}
-                  timeFormat={defaultProps.timeFormat}
-                />
+                <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} dateFormat={defaultProps.dateFormat} timeFormat={defaultProps.timeFormat} />
               </div>
             </div>
           </div>
@@ -356,7 +326,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -366,12 +335,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             <div>
               <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastRssFeedSkeletonRef}>
-                <MediaCardSkeleton
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                  dateFormat={defaultProps.dateFormat}
-                  timeFormat={defaultProps.timeFormat}
-                />
+                <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} dateFormat={defaultProps.dateFormat} timeFormat={defaultProps.timeFormat} />
               </div>
             </div>
           </div>
@@ -397,7 +361,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -407,12 +370,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             <div>
               <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastNumEpisodesSkeletonRef}>
-                <MediaCardSkeleton
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                  dateFormat={defaultProps.dateFormat}
-                  timeFormat={defaultProps.timeFormat}
-                />
+                <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} dateFormat={defaultProps.dateFormat} timeFormat={defaultProps.timeFormat} />
               </div>
             </div>
           </div>
@@ -433,7 +391,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
                     } as PodcastLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isPodcastSelectionMode}
                   selected={selectedPodcastId === selectedPodcast.id}
                   onSelect={handlePodcastSelect}
@@ -443,12 +400,7 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
             <div>
               <p className="mb-2 text-sm text-gray-400">Loading Skeleton</p>
               <div ref={podcastNumEpisodesIncompleteSkeletonRef}>
-                <MediaCardSkeleton
-                  bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
-                  dateFormat={defaultProps.dateFormat}
-                  timeFormat={defaultProps.timeFormat}
-                />
+                <MediaCardSkeleton bookshelfView={BookshelfView.DETAIL} dateFormat={defaultProps.dateFormat} timeFormat={defaultProps.timeFormat} />
               </div>
             </div>
           </div>
@@ -465,7 +417,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={2 / 3}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}
@@ -478,7 +429,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={1}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}
@@ -491,7 +441,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={4 / 3}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}
@@ -504,7 +453,6 @@ export function PodcastMediaCardExamples({ selectedPodcast }: PodcastMediaCardEx
               libraryItem={selectedPodcast}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={11 / 6}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isPodcastSelectionMode}
               selected={selectedPodcastId === selectedPodcast.id}
               onSelect={handlePodcastSelect}

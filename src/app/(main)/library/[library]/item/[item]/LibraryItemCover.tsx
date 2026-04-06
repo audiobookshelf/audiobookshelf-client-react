@@ -5,8 +5,9 @@ import IconBtn from '@/components/ui/IconBtn'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { BookLibraryItem, BookMetadata, LibraryItem, MediaProgress, PodcastLibraryItem } from '@/types/api'
@@ -15,14 +16,14 @@ import { useCallback, useMemo, useState } from 'react'
 
 interface LibraryItemCoverProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
-  coverAspectRatio?: 0 | 1
   canUpdate?: boolean
   onEdit?: () => void
   mediaProgress?: MediaProgress | null
   className?: string
 }
 
-export default function LibraryItemCover({ libraryItem, coverAspectRatio, canUpdate = false, className, mediaProgress, onEdit }: LibraryItemCoverProps) {
+export default function LibraryItemCover({ libraryItem, canUpdate = false, className, mediaProgress, onEdit }: LibraryItemCoverProps) {
+  const coverAspectRatio = useBookCoverAspectRatio()
   const t = useTypeSafeTranslations()
   const [isHovering, setIsHovering] = useState(false)
 
@@ -36,7 +37,6 @@ export default function LibraryItemCover({ libraryItem, coverAspectRatio, canUpd
   const titleCleaned = !title ? '' : title.length > 60 ? `${title.slice(0, 57)}...` : title
   const authorCleaned = !author ? '' : author.length > 30 ? `${author.slice(0, 27)}...` : author
 
-  const coverAspect = getCoverAspectRatio(coverAspectRatio ?? 1)
   const coverPath = libraryItem.media?.coverPath
 
   const { percent: userProgressPercent, isFinished: itemIsFinished } = useMemo(
@@ -83,7 +83,7 @@ export default function LibraryItemCover({ libraryItem, coverAspectRatio, canUpd
       <MediaCardFrame
         width="100%"
         height="auto"
-        aspectRatio={1 / coverAspect}
+        aspectRatio={1 / coverAspectRatio}
         className={mergeClasses('group', className)}
         onClick={coverPath ? handleCoverClick : undefined}
         onKeyDown={handleKeyDown}
@@ -92,7 +92,7 @@ export default function LibraryItemCover({ libraryItem, coverAspectRatio, canUpd
         cover={
           <MediaCardCover
             libraryItem={libraryItem as LibraryItem}
-            coverAspect={coverAspect}
+            coverAspect={coverAspectRatio}
             placeholderUrl={getPlaceholderCoverUrl()}
             hasCover={!!coverPath}
             title={title}

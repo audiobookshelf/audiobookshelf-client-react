@@ -14,7 +14,7 @@ interface BookMediaCardExamplesProps {
 }
 
 export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesProps) {
-  const { user, bookCoverAspectRatio } = useComponentsCatalog()
+  const { user } = useComponentsCatalog()
 
   // Selection state
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null)
@@ -27,8 +27,7 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
     timeFormat: 'h:mm a',
     userPermissions: user.permissions,
     ereaderDevices: [] as EReaderDevice[],
-    showSubtitles: true,
-    bookCoverAspectRatio: bookCoverAspectRatio ?? 1
+    showSubtitles: true
   }
 
   // Selection handler
@@ -116,9 +115,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <Code>bookshelfView</Code>: View mode (BookshelfView.STANDARD, BookshelfView.DETAIL, or BookshelfView.AUTHOR).
             </li>
             <li>
-              <Code>bookCoverAspectRatio</Code>: Aspect ratio for book covers.
-            </li>
-            <li>
               <Code>showSubtitles</Code>: Whether to show subtitles.
             </li>
             <li>
@@ -138,7 +134,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                 <BookMediaCard
                   {...defaultProps}
                   libraryItem={selectedBook}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -150,7 +145,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookStandardSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={defaultProps.bookshelfView}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   showSubtitles={defaultProps.showSubtitles}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
@@ -170,7 +164,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                   {...defaultProps}
                   libraryItem={selectedBook}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -182,7 +175,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookDetailSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   showSubtitles={defaultProps.showSubtitles}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
@@ -205,7 +197,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                   libraryItem={selectedBook}
                   bookshelfView={BookshelfView.DETAIL}
                   showSubtitles={false}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -217,7 +208,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookDetailNoSubSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   showSubtitles={false}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
@@ -249,7 +239,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                     } as BookLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -261,7 +250,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookEbookSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   showSubtitles={defaultProps.showSubtitles}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
@@ -281,7 +269,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookCollapsedSeriesCardRef}>
                 <CollapsedSeriesCard
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
                   showSubtitles={defaultProps.showSubtitles}
@@ -308,7 +295,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookCollapsedSeriesSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   showSubtitles={defaultProps.showSubtitles}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
@@ -326,7 +312,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookCollapsedSeriesBooksCountCardRef}>
                 <CollapsedSeriesCard
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
                   showSubtitles={defaultProps.showSubtitles}
@@ -353,7 +338,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookCollapsedSeriesBooksCountSkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   showSubtitles={defaultProps.showSubtitles}
                   dateFormat={defaultProps.dateFormat}
                   timeFormat={defaultProps.timeFormat}
@@ -374,7 +358,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                   libraryItem={selectedBook}
                   bookshelfView={BookshelfView.DETAIL}
                   orderBy="addedAt"
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -386,7 +369,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               <div ref={bookDetailOrderBySkeletonRef}>
                 <MediaCardSkeleton
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={defaultProps.bookCoverAspectRatio}
                   showSubtitles={defaultProps.showSubtitles}
                   orderBy="addedAt"
                   dateFormat={defaultProps.dateFormat}
@@ -409,7 +391,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                   {...defaultProps}
                   libraryItem={selectedBook}
                   bookshelfView={BookshelfView.AUTHOR}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -433,7 +414,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                     } as BookLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -460,7 +440,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                     } as BookLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -490,7 +469,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                     } as BookLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -550,7 +528,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                     } as BookLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   isSelectionMode={isBookSelectionMode}
                   selected={selectedBookId === selectedBook.id}
                   onSelect={handleBookSelect}
@@ -569,7 +546,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                   {...defaultProps}
                   libraryItem={selectedBook}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   mediaProgress={
                     {
                       id: 'progress-123',
@@ -601,7 +577,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                   {...defaultProps}
                   libraryItem={selectedBook}
                   bookshelfView={BookshelfView.DETAIL}
-                  bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
                   mediaProgress={
                     {
                       id: 'progress-456',
@@ -635,7 +610,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               libraryItem={selectedBook}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={2 / 3}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isBookSelectionMode}
               selected={selectedBookId === selectedBook.id}
               onSelect={handleBookSelect}
@@ -648,7 +622,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               libraryItem={selectedBook}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={1}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isBookSelectionMode}
               selected={selectedBookId === selectedBook.id}
               onSelect={handleBookSelect}
@@ -661,7 +634,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               libraryItem={selectedBook}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={4 / 3}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isBookSelectionMode}
               selected={selectedBookId === selectedBook.id}
               onSelect={handleBookSelect}
@@ -674,7 +646,6 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
               libraryItem={selectedBook}
               bookshelfView={BookshelfView.DETAIL}
               sizeMultiplier={11 / 6}
-              bookCoverAspectRatio={bookCoverAspectRatio ?? 1}
               isSelectionMode={isBookSelectionMode}
               selected={selectedBookId === selectedBook.id}
               onSelect={handleBookSelect}

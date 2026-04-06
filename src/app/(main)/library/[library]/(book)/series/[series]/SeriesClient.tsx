@@ -1,7 +1,6 @@
 'use client'
 
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
-import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { BookshelfView, GetLibraryItemsResponse } from '@/types/api'
 
@@ -10,7 +9,6 @@ interface SeriesClientProps {
 }
 
 export default function SeriesClient({ libraryItems }: SeriesClientProps) {
-  const { library } = useLibrary()
   const { user, serverSettings, ereaderDevices, getLibraryItemProgress } = useUser()
   return (
     <div>
@@ -27,7 +25,6 @@ export default function SeriesClient({ libraryItems }: SeriesClientProps) {
               userPermissions={user.permissions}
               ereaderDevices={ereaderDevices}
               showSubtitles={true}
-              bookCoverAspectRatio={library.settings?.coverAspectRatio ?? 1}
               mediaProgress={entityProgress}
             />
           )

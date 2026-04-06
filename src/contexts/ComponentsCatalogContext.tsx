@@ -7,7 +7,6 @@ import { createContext, ReactNode, useContext } from 'react'
 interface ComponentsCatalogContextType {
   user: User
   libraries: Library[]
-  bookCoverAspectRatio: 0 | 1
 }
 
 const ComponentsCatalogContext = createContext<ComponentsCatalogContextType | undefined>(undefined)
@@ -22,8 +21,7 @@ export function ComponentsCatalogProvider({ children, libraries }: ComponentsCat
 
   const value: ComponentsCatalogContextType = {
     user,
-    libraries,
-    bookCoverAspectRatio: 1
+    libraries
   }
 
   return <ComponentsCatalogContext.Provider value={value}>{children}</ComponentsCatalogContext.Provider>

@@ -38,6 +38,8 @@ interface UseMediaCardActionsProps {
   initialShare?: MediaItemShare | null
   onShareChange?: (share: MediaItemShare | null) => void
   onDeleteSuccess?: () => void
+  /** Invoked for the Match menu action. Host owns modal state (card, page, bookshelf, etc.). */
+  onOpenMatch?: (libraryItemId: string) => void
   playerControls: PlayerHandlerControls
 }
 
@@ -60,6 +62,7 @@ export function useMediaCardActions({
   initialShare = null,
   onShareChange,
   onDeleteSuccess,
+  onOpenMatch,
   playerControls
 }: UseMediaCardActionsProps) {
   const t = useTypeSafeTranslations()
@@ -71,7 +74,6 @@ export function useMediaCardActions({
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
-  const [matchModalOpen, setMatchModalOpen] = useState(false)
   const [mediaItemShare, setMediaItemShare] = useState<MediaItemShare | null>(initialShare)
   const rssFeed = libraryItem.rssFeed ?? null
   const showRssFeedButton = userIsAdminOrUp || rssFeed != null
@@ -213,7 +215,7 @@ export function useMediaCardActions({
       } else if (action === 'openRssFeed') {
         setRssFeedModalOpen(true)
       } else if (action === 'showMatchModal') {
-        setMatchModalOpen(true)
+        onOpenMatch?.(libraryItem.id)
       } else if (action === 'download') {
         downloadLibraryItem(libraryItem.id)
       } else if (action === 'sendToDevice') {
@@ -332,7 +334,8 @@ export function useMediaCardActions({
       t,
       title,
       toggleFinished,
-      onDeleteSuccess
+      onDeleteSuccess,
+      onOpenMatch
     ]
   )
 
@@ -378,7 +381,7 @@ export function useMediaCardActions({
       }
     }
 
-    if (userCanUpdate) {
+    if (userCanUpdate && onOpenMatch) {
       items.push({
         text: t('HeaderMatch'),
         func: 'showMatchModal'
@@ -453,7 +456,8 @@ export function useMediaCardActions({
     userCanDelete,
     userCanDownload,
     userCanUpdate,
-    userIsAdminOrUp
+    userIsAdminOrUp,
+    onOpenMatch
   ])
 
   const closeConfirm = useCallback(() => {
@@ -466,10 +470,6 @@ export function useMediaCardActions({
 
   const closeShareModal = useCallback(() => {
     setShareModalOpen(false)
-  }, [])
-
-  const closeMatchModal = useCallback(() => {
-    setMatchModalOpen(false)
   }, [])
 
   const handleShareChange = useCallback(
@@ -486,12 +486,10 @@ export function useMediaCardActions({
     confirmState,
     rssFeedModalOpen,
     shareModalOpen,
-    matchModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
     closeShareModal,
-    closeMatchModal,
     handleShareChange,
     handlePlay,
     handleReadEBook,

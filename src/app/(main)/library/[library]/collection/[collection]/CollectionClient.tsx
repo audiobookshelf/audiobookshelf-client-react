@@ -8,10 +8,9 @@ import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
 import MediaCardMoreMenu from '@/components/widgets/media-card/MediaCardMoreMenu'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
-import { useLibrary } from '@/contexts/LibraryContext'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { Collection } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
@@ -21,11 +20,10 @@ interface CollectionClientProps {
 }
 
 export default function CollectionClient({ collection }: CollectionClientProps) {
-  const { library } = useLibrary()
+  const coverAspectRatio = useBookCoverAspectRatio()
   const { userCanUpdate } = useUser()
   const t = useTypeSafeTranslations()
   const router = useRouter()
-  const coverAspectRatio = getCoverAspectRatio(library.settings?.coverAspectRatio ?? 1)
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio
 
@@ -53,7 +51,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
   return (
     <div>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 md:flex-row md:items-start">
-        <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} bookCoverAspectRatio={coverAspectRatio} />
+        <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex min-w-0 items-center gap-4">
             <h1 className="text-foreground min-w-0 flex-1 truncate text-2xl font-bold">{collection.name}</h1>

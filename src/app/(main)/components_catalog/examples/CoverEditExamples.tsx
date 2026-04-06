@@ -1,7 +1,6 @@
 'use client'
 
 import CoverEdit from '@/components/widgets/CoverEdit'
-import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
@@ -10,7 +9,6 @@ interface CoverEditExamplesProps {
 }
 
 export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProps) {
-  const { bookCoverAspectRatio } = useComponentsCatalog()
   return (
     <ComponentExamples title="Cover Edit">
       <ComponentInfo
@@ -27,7 +25,7 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
               <Code>libraryItem</Code>: The library item to manage covers for.
             </li>
             <li>
-              <Code>bookCoverAspectRatio</Code>: Aspect ratio for book covers.
+              Cover aspect ratio comes from <Code>LibraryProvider</Code> via <Code>useBookCoverAspectRatio</Code>.
             </li>
           </ul>
         </div>
@@ -37,7 +35,7 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
         {/* Cover Component Display */}
         {selectedLibraryItem ? (
           <div style={{ height: '600px' }}>
-            <CoverEdit libraryItem={selectedLibraryItem} bookCoverAspectRatio={bookCoverAspectRatio} />
+            <CoverEdit libraryItem={selectedLibraryItem} />
           </div>
         ) : (
           <div className="border-primary/20 rounded-lg border-2 border-dashed p-8 text-center">

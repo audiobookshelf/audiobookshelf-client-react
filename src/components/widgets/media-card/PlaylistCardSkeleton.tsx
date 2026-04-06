@@ -6,7 +6,6 @@ import { useId, useMemo } from 'react'
 
 interface PlaylistCardSkeletonProps {
   bookshelfView: BookshelfView
-  bookCoverAspectRatio?: number
   sizeMultiplier?: number
 }
 
@@ -15,12 +14,7 @@ interface PlaylistCardSkeletonProps {
  * Matches the exact dimensions of the actual playlist card (square).
  * Displays a 2x2 grid to simulate the playlist cover layout.
  */
-export default function PlaylistCardSkeleton({
-  bookshelfView,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  bookCoverAspectRatio = 1.6,
-  sizeMultiplier
-}: PlaylistCardSkeletonProps) {
+export default function PlaylistCardSkeleton({ bookshelfView, sizeMultiplier }: PlaylistCardSkeletonProps) {
   const cardId = useId()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
 

@@ -22,21 +22,14 @@ interface MatchProps {
   availableGenres?: MultiSelectItem<string>[]
   availableTags?: MultiSelectItem<string>[]
   availableSeries?: MultiSelectItem<string>[]
-  bookCoverAspectRatio: number
 }
 
 type MatchResult = BookSearchResult | PodcastSearchResult
 
-export default function Match({
-  libraryItem,
-  availableNarrators = [],
-  availableGenres = [],
-  availableTags = [],
-  availableSeries = [],
-  bookCoverAspectRatio
-}: MatchProps) {
+export default function Match({ libraryItem, availableNarrators = [], availableGenres = [], availableTags = [], availableSeries = [] }: MatchProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+
   const { ensureProvidersLoaded, providersLoaded } = useMetadata()
   const bookProviders = useBookProviders()
   const podcastProviders = usePodcastProviders()
@@ -413,7 +406,6 @@ export default function Match({
             media={media as PodcastLibraryItem['media']}
             mediaMetadata={mediaMetadata as PodcastLibraryItem['media']['metadata']}
             coverUrl={coverUrl}
-            bookCoverAspectRatio={bookCoverAspectRatio}
             availableGenres={availableGenres}
             availableTags={availableTags}
             onDone={handleClearSelectedMatch}
@@ -425,7 +417,6 @@ export default function Match({
             media={media as BookLibraryItem['media']}
             mediaMetadata={mediaMetadata as BookLibraryItem['media']['metadata']}
             coverUrl={coverUrl}
-            bookCoverAspectRatio={bookCoverAspectRatio}
             availableGenres={availableGenres}
             availableTags={availableTags}
             availableNarrators={availableNarrators}

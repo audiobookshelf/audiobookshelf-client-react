@@ -12,16 +12,13 @@ interface CollectionGroupCoverProps {
   width: number
   /** Height of the cover area in pixels */
   height: number
-  /** Book cover aspect ratio (1 = square, 1.6 = standard) */
-  bookCoverAspectRatio: number
 }
 
 /**
  * Cover component for collections that displays up to 2 book covers side-by-side.
  * Falls back to "Empty Collection" text when no books are available.
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function CollectionGroupCover({ books, width, height, bookCoverAspectRatio }: CollectionGroupCoverProps) {
+export default function CollectionGroupCover({ books, width, height }: CollectionGroupCoverProps) {
   const { sizeMultiplier } = useCardSize()
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
 

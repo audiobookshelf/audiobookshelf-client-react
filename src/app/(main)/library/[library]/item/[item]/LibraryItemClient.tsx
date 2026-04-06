@@ -86,7 +86,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
           <div className="mx-auto flex w-full max-w-72 flex-shrink-0 items-start justify-center md:w-52 md:max-w-52 md:justify-start">
             <LibraryItemCover
               libraryItem={libraryItem}
-              coverAspectRatio={library.settings?.coverAspectRatio ?? 1}
               canUpdate={userCanUpdate}
               mediaProgress={userProgress}
               onEdit={() => {

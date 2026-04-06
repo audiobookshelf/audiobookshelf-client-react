@@ -23,8 +23,7 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, authorSortBy, updateSetting, filterBy, boundModal, bookshelfView } =
-    useLibrary()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, authorSortBy, updateSetting, filterBy, bookshelfView } = useLibrary()
   const { user } = useUser()
 
   const { query } = useBookshelfQuery(entityType)
@@ -56,9 +55,6 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   // Card Dimensions & Layout Logic
   const { sizeMultiplier } = useCardSize()
 
-  // Aspect Ratio
-  const coverAspectRatio = library.settings?.coverAspectRatio ?? 1
-
   // Measured Card Size State
   const [cardSize, setCardSize] = useState({ width: 0, height: 0 })
   const dummyCardRef = useRef<HTMLDivElement>(null)
@@ -84,7 +80,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     })
     observer.observe(dummyCardRef.current)
     return () => observer.disconnect()
-  }, [entityType, coverAspectRatio, showSubtitles, sizeMultiplier, orderBy])
+  }, [entityType, library.settings?.coverAspectRatio, showSubtitles, sizeMultiplier, orderBy])
 
   // Reset cardSize when sizeMultiplier or entityType changes so we wait for re-measurement
   useEffect(() => {
@@ -285,13 +281,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     >
       {/* Measurement Dummy - Hidden but rendered for sizing */}
       <div ref={dummyCardRef} style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
-        <config.SkeletonComponent
-          bookshelfView={bookshelfView}
-          coverAspectRatio={coverAspectRatio}
-          seriesSortBy={seriesSortBy}
-          showSubtitles={showSubtitles}
-          orderBy={orderBy}
-        />
+        <config.SkeletonComponent bookshelfView={bookshelfView} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
       </div>
 
       {/* Error State */}
@@ -340,13 +330,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                   if (!item) {
                     return (
                       <div key={`skeleton-wrapper-${startIndex + k}`} style={{ width: `${currentCardWidth}px`, flexShrink: 0 }}>
-                        <config.SkeletonComponent
-                          bookshelfView={bookshelfView}
-                          coverAspectRatio={coverAspectRatio}
-                          seriesSortBy={seriesSortBy}
-                          showSubtitles={showSubtitles}
-                          orderBy={orderBy}
-                        />
+                        <config.SkeletonComponent bookshelfView={bookshelfView} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
                       </div>
                     )
                   }
@@ -359,7 +343,6 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                       width={currentCardWidth}
                       libraryId={library.id}
                       isPodcastLibrary={isPodcastLibrary}
-                      coverAspectRatio={coverAspectRatio}
                       showSubtitles={showSubtitles}
                       orderBy={orderBy}
                       seriesSortBy={seriesSortBy}
@@ -386,7 +369,6 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
           )}
         </div>
       )}
-      {boundModal}
     </div>
   )
 }

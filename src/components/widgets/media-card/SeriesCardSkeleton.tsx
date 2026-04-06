@@ -1,13 +1,12 @@
 'use client'
 
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { getCoverAspectRatio } from '@/lib/coverUtils'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { BookshelfView } from '@/types/api'
 import { useId, useMemo } from 'react'
 
 interface SeriesCardSkeletonProps {
   bookshelfView: BookshelfView
-  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   orderBy?: string
 }
@@ -16,14 +15,12 @@ interface SeriesCardSkeletonProps {
  * Skeleton loading state for SeriesCard.
  * Matches the exact dimensions of the actual series card (2x width of book cards).
  */
-export default function SeriesCardSkeleton({ bookshelfView, bookCoverAspectRatio = 0, sizeMultiplier, orderBy }: SeriesCardSkeletonProps) {
+export default function SeriesCardSkeleton({ bookshelfView, sizeMultiplier, orderBy }: SeriesCardSkeletonProps) {
   const cardId = useId()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
+  const coverAspect = useBookCoverAspectRatio()
 
-  // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
-
-  const coverAspect = useMemo(() => getCoverAspectRatio(bookCoverAspectRatio), [bookCoverAspectRatio])
   const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
   // Series card is wider (2x width of a single book cover)
   const coverWidth = useMemo(() => (coverHeight / coverAspect) * 2, [coverHeight, coverAspect])

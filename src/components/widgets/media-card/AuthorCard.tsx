@@ -38,6 +38,7 @@ function AuthorCard(props: AuthorCardProps) {
   const t = useTypeSafeTranslations()
 
   const { setBoundModal } = useLibrary()
+  const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
   const [isHovering, setIsHovering] = useState(false)
 
   const { quickMatchingAuthorIds, handleQuickMatch } = useAuthorActions()
@@ -68,10 +69,10 @@ function AuthorCard(props: AuthorCardProps) {
       event.preventDefault()
       event.stopPropagation()
       if (user) {
-        setBoundModal(<AuthorEditModal isOpen={true} user={user} onClose={() => setBoundModal(null)} author={author} />)
+        setBoundModal(<AuthorEditModal key={author.id} isOpen={true} user={user} onClose={clearBoundModal} author={author} />)
       }
     },
-    [user, author, setBoundModal]
+    [user, author, clearBoundModal, setBoundModal]
   )
 
   const handleQuickMatchClick = useCallback(
