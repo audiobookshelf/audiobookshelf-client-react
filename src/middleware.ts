@@ -3,6 +3,13 @@ import { getServerStatus } from './lib/api'
 import { isTokenExpired } from './lib/jwt'
 import Logger from './lib/Logger'
 
+/** Next.js App Router sends this on Server Action POSTs */
+const NEXT_ACTION_HEADER = 'next-action'
+
+function isNextServerActionRequest(request: NextRequest): boolean {
+  return request.method === 'POST' && request.headers.has(NEXT_ACTION_HEADER)
+}
+
 export default async function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const accessTokenCookie = request.cookies.get('access_token')?.value
@@ -119,6 +126,16 @@ export default async function middleware(request: NextRequest) {
   }
 
   if (!hasValidAccessToken && hasValidRefreshToken) {
+    // Server Actions POST to the page URL. Redirecting to /internal-api/refresh replaces the
+    // action response with a 302, so the client never receives the action result. Let the action
+    // run and refresh tokens in apiRequest (server-side) instead.
+    if (isNextServerActionRequest(request)) {
+      Logger.debug('[middleware] server action with expired access token; continuing so apiRequest can refresh')
+      const response = next()
+      response.headers.set('x-current-path', path)
+      return response
+    }
+
     // Redirect to refresh token route with current path
     const refreshUrl = createUrl('/internal-api/refresh')
     if (pathname !== '/') {
