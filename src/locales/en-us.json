@@ -502,6 +502,7 @@
   "LabelListenAgain": "Listen Again",
   "LabelLoadingContent": "Loading content",
   "LabelLoadingIndicator": "Loading...",
+  "LabelLoadingLibraryItem": "Loading item details...",
   "LabelLogLevelDebug": "Debug",
   "LabelLogLevelInfo": "Info",
   "LabelLogLevelWarn": "Warn",
