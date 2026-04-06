@@ -82,23 +82,23 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     if (libraries.length === 0) return
     if (selectedLibrary) return
 
-    let defaultLibId: string | undefined
+    let defaultLibrary: Library | undefined
 
     if (lastCurrentLibraryId) {
-      defaultLibId = libraries.find((l) => l.id === lastCurrentLibraryId)?.id
+      defaultLibrary = libraries.find((l) => l.id === lastCurrentLibraryId)
     }
 
-    if (!defaultLibId && userDefaultLibraryId) {
-      defaultLibId = libraries.find((l) => l.id === userDefaultLibraryId)?.id
+    if (!defaultLibrary && userDefaultLibraryId) {
+      defaultLibrary = libraries.find((l) => l.id === userDefaultLibraryId)
     }
 
-    if (!defaultLibId) {
-      defaultLibId = libraries[0].id
+    if (!defaultLibrary) {
+      defaultLibrary = libraries[0]
     }
 
-    setSelectedLibrary(defaultLibId)
-    setSelectedFolder(libraries.find((l) => l.id === defaultLibId)?.folders?.[0]?.id)
-    setSelectedProvider(libraries.find((l) => l.id === defaultLibId)?.provider)
+    setSelectedLibrary(defaultLibrary.id)
+    setSelectedFolder(defaultLibrary.folders?.[0]?.id)
+    setSelectedProvider(defaultLibrary.provider)
   }, [libraries, lastCurrentLibraryId, userDefaultLibraryId, selectedLibrary])
 
   const supFileTypes = useMemo(() => {
