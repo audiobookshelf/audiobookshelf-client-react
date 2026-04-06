@@ -1,6 +1,7 @@
 'use client'
 
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { PlaylistItem } from '@/types/api'
@@ -13,8 +14,6 @@ interface PlaylistGroupCoverProps {
   width: number
   /** Height of the cover area in pixels */
   height: number
-  /** Book cover aspect ratio (1 = square, 1.6 = standard) */
-  bookCoverAspectRatio?: number
 }
 
 interface CoverData {
@@ -32,7 +31,8 @@ interface CoverData {
  * - 2 items: Checker pattern (alternating positions)
  * - 3+ items: First 4 items in a 2x2 grid
  */
-export default function PlaylistGroupCover({ items, width, height, bookCoverAspectRatio = 1 }: PlaylistGroupCoverProps) {
+export default function PlaylistGroupCover({ items, width, height }: PlaylistGroupCoverProps) {
+  const bookCoverAspectRatio = useBookCoverAspectRatio()
   const { sizeMultiplier } = useCardSize()
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
   const [coverData, setCoverData] = useState<CoverData[]>([])

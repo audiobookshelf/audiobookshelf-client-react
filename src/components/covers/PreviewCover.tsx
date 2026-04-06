@@ -1,5 +1,6 @@
 'use client'
 
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import Image from 'next/image'
@@ -8,7 +9,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 interface PreviewCoverProps {
   src: string
   width?: number
-  bookCoverAspectRatio: number // actual aspect ratio, not library settings coverAspectRatio
+  /** Override library cover aspect ratio (e.g. square episode art). Defaults from LibraryProvider via useBookCoverAspectRatio. */
+  bookCoverAspectRatio?: number
   showResolution?: boolean
   forceErrorState?: boolean // For testing purposes
   onClick?: () => void
@@ -18,12 +20,14 @@ interface PreviewCoverProps {
 export default function PreviewCover({
   src,
   width = 120,
-  bookCoverAspectRatio,
+  bookCoverAspectRatio: bookCoverAspectRatioProp,
   showResolution = true,
   forceErrorState = false,
   onClick,
   fill = false
 }: PreviewCoverProps) {
+  const libraryBookCoverAspectRatio = useBookCoverAspectRatio()
+  const bookCoverAspectRatio = bookCoverAspectRatioProp ?? libraryBookCoverAspectRatio
   const t = useTypeSafeTranslations()
   const [imageFailed, setImageFailed] = useState(forceErrorState || false)
   const [showCoverBg, setShowCoverBg] = useState(false)

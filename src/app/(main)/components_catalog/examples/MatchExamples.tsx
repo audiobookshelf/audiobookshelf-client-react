@@ -1,7 +1,6 @@
 'use client'
 
 import Match from '@/components/widgets/Match'
-import { useComponentsCatalog } from '@/contexts/ComponentsCatalogContext'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { Code, ComponentExamples, ComponentInfo, Example } from '../ComponentExamples'
 
@@ -22,7 +21,6 @@ export function MatchExamples({
   availableTags = [],
   availableSeries = []
 }: MatchExamplesProps) {
-  const { bookCoverAspectRatio } = useComponentsCatalog()
   return (
     <ComponentExamples title="Match">
       <ComponentInfo
@@ -54,7 +52,7 @@ export function MatchExamples({
               <Code>availableSeries</Code>: Available series for selection (optional).
             </li>
             <li>
-              <Code>bookCoverAspectRatio</Code>: Aspect ratio for book covers.
+              Cover previews use <Code>useBookCoverAspectRatio</Code> (from <Code>LibraryProvider</Code> / <Code>library.settings.coverAspectRatio</Code>).
             </li>
           </ul>
         </div>
@@ -71,7 +69,6 @@ export function MatchExamples({
               availableGenres={availableGenres}
               availableTags={availableTags}
               availableSeries={availableSeries}
-              bookCoverAspectRatio={bookCoverAspectRatio}
             />
           </div>
         ) : (

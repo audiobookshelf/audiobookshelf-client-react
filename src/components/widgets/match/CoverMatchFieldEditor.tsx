@@ -11,10 +11,9 @@ interface CoverMatchFieldEditorProps {
   onUsageChange: (value: boolean) => void
   coverUrl: string
   currentCoverUrl: string | null
-  bookCoverAspectRatio: number
 }
 
-export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, coverUrl, currentCoverUrl, bookCoverAspectRatio }: CoverMatchFieldEditorProps) {
+export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, coverUrl, currentCoverUrl }: CoverMatchFieldEditorProps) {
   const t = useTypeSafeTranslations()
 
   const displayCoverUrl = useMemo(() => coverUrl || '', [coverUrl])
@@ -29,14 +28,14 @@ export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, cov
         <div>
           <p className="text-foreground-muted text-center">{t('LabelNew')}</p>
           <a href={displayCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
-            <PreviewCover src={displayCoverUrl} width={100} bookCoverAspectRatio={bookCoverAspectRatio} />
+            <PreviewCover src={displayCoverUrl} width={100} />
           </a>
         </div>
         {currentCoverUrl && (
           <div>
             <p className="text-foreground-muted text-center">{t('LabelCurrent')}</p>
             <a href={currentCoverUrl} target="_blank" rel="noopener noreferrer" className="bg-primary">
-              <PreviewCover src={currentCoverUrl} width={100} bookCoverAspectRatio={bookCoverAspectRatio} />
+              <PreviewCover src={currentCoverUrl} width={100} />
             </a>
           </div>
         )}

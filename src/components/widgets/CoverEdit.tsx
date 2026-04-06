@@ -8,6 +8,7 @@ import Dropdown from '@/components/ui/Dropdown'
 import FileInput from '@/components/ui/FileInput'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useBookCoverProviders, useMetadata, usePodcastCoverProviders } from '@/contexts/MetadataContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
@@ -24,10 +25,10 @@ interface LocalCover extends LibraryFile {
 
 interface CoverEditProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
-  bookCoverAspectRatio: number
 }
 
-export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEditProps) {
+export default function CoverEdit({ libraryItem }: CoverEditProps) {
+  const bookCoverAspectRatio = useBookCoverAspectRatio()
   const t = useTypeSafeTranslations()
   const { user, userCanDelete } = useUser()
   const { showToast } = useGlobalToast()
@@ -237,7 +238,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
     <div className="relative h-full w-full overflow-hidden overflow-y-auto px-2 py-6 sm:px-4">
       <div className="mb-4 flex flex-col sm:flex-row">
         <div className="relative self-center md:self-start">
-          <PreviewCover src={coverUrl} width={120} bookCoverAspectRatio={bookCoverAspectRatio} />
+          <PreviewCover src={coverUrl} width={120} />
 
           {/* book cover overlay */}
           {media.coverPath && (
@@ -302,12 +303,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
                       onClick={isPendingUpdate ? undefined : () => handleSetCover(localCoverFile)}
                     >
                       <div className="bg-primary h-24" style={{ width: 96 / bookCoverAspectRatio + 'px' }}>
-                        <PreviewCover
-                          src={localCoverFile.localPath || ''}
-                          width={96 / bookCoverAspectRatio}
-                          bookCoverAspectRatio={bookCoverAspectRatio}
-                          showResolution={false}
-                        />
+                        <PreviewCover src={localCoverFile.localPath || ''} width={96 / bookCoverAspectRatio} showResolution={false} />
                       </div>
                     </div>
                   ))}
@@ -373,7 +369,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
                 )}
                 onClick={isPendingUpdate ? undefined : () => handleCoverClick(cover)}
               >
-                <PreviewCover src={cover} width={80} bookCoverAspectRatio={bookCoverAspectRatio} />
+                <PreviewCover src={cover} width={80} />
               </div>
             ))
           )}
@@ -387,7 +383,7 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
             close
           </span>
           <div className="flex justify-center py-4">
-            <PreviewCover src={previewUpload} width={240} bookCoverAspectRatio={bookCoverAspectRatio} />
+            <PreviewCover src={previewUpload} width={240} />
           </div>
           <div className="absolute right-0 bottom-0 flex px-5 py-4">
             <Btn disabled={isPendingUpload} className="mx-2" onClick={resetCoverPreview}>
@@ -404,7 +400,6 @@ export default function CoverEdit({ libraryItem, bookCoverAspectRatio }: CoverEd
       <CoverPreviewModal
         isOpen={!!selectedCoverForPreview}
         selectedCover={selectedCoverForPreview}
-        bookCoverAspectRatio={bookCoverAspectRatio}
         onClose={handleCloseCoverPreview}
         onApply={handleApplyCover}
       />

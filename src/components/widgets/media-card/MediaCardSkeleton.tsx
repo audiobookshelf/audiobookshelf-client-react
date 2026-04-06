@@ -2,13 +2,13 @@
 
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useId, useMemo } from 'react'
 
 interface MediaCardSkeletonProps {
   bookshelfView: BookshelfView
-  bookCoverAspectRatio?: number
   sizeMultiplier?: number
   showSubtitles?: boolean
   orderBy?: string
@@ -22,7 +22,6 @@ interface MediaCardSkeletonProps {
  */
 export default function MediaCardSkeleton({
   bookshelfView,
-  bookCoverAspectRatio = 1.6,
   sizeMultiplier,
   showSubtitles = false,
   orderBy,
@@ -31,14 +30,9 @@ export default function MediaCardSkeleton({
 }: MediaCardSkeletonProps) {
   const cardId = useId()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
+  const coverAspect = useBookCoverAspectRatio()
 
-  // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
-
-  const coverAspect = useMemo(() => {
-    if (bookCoverAspectRatio === 0) return 1.6
-    return bookCoverAspectRatio
-  }, [bookCoverAspectRatio])
 
   const coverHeight = useMemo(() => 192 * effectiveSizeMultiplier, [effectiveSizeMultiplier])
   const coverWidth = useMemo(() => coverHeight / coverAspect, [coverHeight, coverAspect])

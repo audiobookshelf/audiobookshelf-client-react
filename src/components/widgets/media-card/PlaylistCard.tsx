@@ -23,8 +23,6 @@ export interface PlaylistCardProps {
   playlist: Playlist
   /** View mode (standard or detail) */
   bookshelfView: BookshelfView
-  /** Cover configuration */
-  bookCoverAspectRatio?: number
   sizeMultiplier?: number
   /** Whether the card is in selection mode */
   isSelectionMode?: boolean
@@ -39,17 +37,7 @@ export interface PlaylistCardProps {
 }
 
 function PlaylistCard(props: PlaylistCardProps) {
-  const {
-    playlist,
-    bookshelfView,
-    bookCoverAspectRatio = 1,
-    sizeMultiplier,
-    isSelectionMode = false,
-    selected = false,
-    onSelect,
-    onEdit,
-    showSelectedButton = false
-  } = props
+  const { playlist, bookshelfView, sizeMultiplier, isSelectionMode = false, selected = false, onSelect, onEdit, showSelectedButton = false } = props
 
   const router = useRouter()
   const { userCanUpdate } = useUser()
@@ -122,7 +110,7 @@ function PlaylistCard(props: PlaylistCardProps) {
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
         cy-id="playlistCard"
-        cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} bookCoverAspectRatio={bookCoverAspectRatio} />}
+        cover={<PlaylistGroupCover items={items} width={coverWidth} height={coverHeight} />}
         overlay={
           <>
             {/* Hover overlay */}

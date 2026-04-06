@@ -114,7 +114,6 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
                     userPermissions={user.permissions}
                     ereaderDevices={ereaderDevices}
                     showSubtitles={showSubtitles}
-                    bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
                     mediaProgress={mediaProgress}
                   />
                 </div>
@@ -148,7 +147,6 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
                       userPermissions={user.permissions}
                       ereaderDevices={ereaderDevices}
                       showSubtitles={showSubtitles}
-                      bookCoverAspectRatio={library?.settings?.coverAspectRatio ?? 1}
                       mediaProgress={mediaProgress}
                     />
                   </div>

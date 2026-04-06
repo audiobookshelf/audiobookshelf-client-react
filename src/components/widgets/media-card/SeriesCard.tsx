@@ -6,8 +6,8 @@ import MediaCardStandardFooter from '@/components/widgets/media-card/MediaCardSt
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import SeriesGroupCover from '@/components/widgets/media-card/SeriesGroupCover'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { formatJsDate } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -27,8 +27,6 @@ export interface SeriesCardProps {
   orderBy?: string
   /** Whether to use title without prefix when sorting */
   sortingIgnorePrefix?: boolean
-  /** Cover configuration */
-  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   /** Date format from server settings */
   dateFormat: string
@@ -54,7 +52,6 @@ function SeriesCard(props: SeriesCardProps) {
     bookshelfView,
     orderBy,
     sortingIgnorePrefix = false,
-    bookCoverAspectRatio,
     sizeMultiplier,
     dateFormat,
     bookProgressMap,
@@ -65,6 +62,7 @@ function SeriesCard(props: SeriesCardProps) {
   } = props
 
   const router = useRouter()
+  const coverAspect = useBookCoverAspectRatio()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
@@ -75,7 +73,6 @@ function SeriesCard(props: SeriesCardProps) {
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
 
   // Cover dimensions - series card is wider (2x width of a single book cover)
-  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1)
   const coverHeight = 192 * effectiveSizeMultiplier
   // Series card is wider (2x width of a single book cover)
   const coverWidth = (coverHeight / coverAspect) * 2

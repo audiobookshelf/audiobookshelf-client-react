@@ -35,7 +35,6 @@ interface PodcastMatchViewProps {
   media: PodcastLibraryItem['media']
   mediaMetadata: PodcastLibraryItem['media']['metadata']
   coverUrl: string | null
-  bookCoverAspectRatio: number
   availableGenres: MultiSelectItem<string>[]
   availableTags: MultiSelectItem<string>[]
   onDone: () => void
@@ -62,7 +61,6 @@ export default function PodcastMatchView({
   media,
   mediaMetadata,
   coverUrl,
-  bookCoverAspectRatio,
   availableGenres,
   availableTags,
   onDone
@@ -150,7 +148,6 @@ export default function PodcastMatchView({
               onUsageChange={createFieldUsageHandler('cover')}
               coverUrl={getStringValue('cover')}
               currentCoverUrl={coverUrl}
-              bookCoverAspectRatio={bookCoverAspectRatio}
             />
           )}
 

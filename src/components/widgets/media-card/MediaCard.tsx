@@ -10,10 +10,10 @@ import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { useLibrary } from '@/contexts/LibraryContext'
+import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
@@ -34,10 +34,6 @@ export interface MediaCardProps {
    * Optional precomputed series progress for collapsed series items (0–1).
    */
   seriesProgressPercent?: number
-  /**
-   * Cover configuration
-   */
-  bookCoverAspectRatio?: 0 | 1
   sizeMultiplier?: number
   dateFormat: string
   timeFormat: string
@@ -83,7 +79,6 @@ function MediaCard(props: MediaCardProps) {
     continueListeningShelf = false,
     mediaProgress,
     seriesProgressPercent,
-    bookCoverAspectRatio,
     sizeMultiplier,
     dateFormat,
     timeFormat,
@@ -100,6 +95,7 @@ function MediaCard(props: MediaCardProps) {
 
   const router = useRouter()
   const { setBoundModal } = useLibrary()
+  const coverAspect = useBookCoverAspectRatio()
   const { libraryItemIdStreaming, isStreaming, isPlaying, isStreamingFromDifferentLibrary, getIsMediaQueued, playerHandler } = useMediaContext()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
@@ -159,7 +155,6 @@ function MediaCard(props: MediaCardProps) {
   const placeholderUrl = getPlaceholderCoverUrl()
   const hasCover = !!media.coverPath
 
-  const coverAspect = getCoverAspectRatio(bookCoverAspectRatio ?? 1)
   const coverHeight = 192 * effectiveSizeMultiplier
   const coverWidth = coverHeight / coverAspect
 

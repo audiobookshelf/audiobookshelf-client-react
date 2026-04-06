@@ -3,6 +3,7 @@
 import PreviewCover from '@/components/covers/PreviewCover'
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useEffect, useMemo, useState } from 'react'
 
@@ -19,12 +20,12 @@ const PREVIEW_COVER_FALLBACK_WIDTH_LANDSCAPE = 400
 interface CoverPreviewModalProps {
   isOpen: boolean
   selectedCover: string | null
-  bookCoverAspectRatio: number
   onClose: () => void
   onApply: () => void
 }
 
-export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspectRatio, onClose, onApply }: CoverPreviewModalProps) {
+export default function CoverPreviewModal({ isOpen, selectedCover, onClose, onApply }: CoverPreviewModalProps) {
+  const bookCoverAspectRatio = useBookCoverAspectRatio()
   const t = useTypeSafeTranslations()
 
   // Track actual window dimensions for accurate orientation detection.
@@ -106,7 +107,7 @@ export default function CoverPreviewModal({ isOpen, selectedCover, bookCoverAspe
 
         {/* Image area - takes remaining space */}
         <div className="flex min-h-0 flex-1 items-center justify-center px-6">
-          {selectedCover && <PreviewCover src={selectedCover} width={previewCoverWidth} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />}
+          {selectedCover && <PreviewCover src={selectedCover} width={previewCoverWidth} showResolution={false} />}
         </div>
 
         {/* Buttons */}

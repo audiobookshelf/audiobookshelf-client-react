@@ -40,7 +40,6 @@ interface BookMatchViewProps {
   media: BookLibraryItem['media']
   mediaMetadata: BookLibraryItem['media']['metadata']
   coverUrl: string | null
-  bookCoverAspectRatio: number
   availableGenres: MultiSelectItem<string>[]
   availableTags: MultiSelectItem<string>[]
   availableNarrators: MultiSelectItem<string>[]
@@ -73,7 +72,6 @@ export default function BookMatchView({
   media,
   mediaMetadata,
   coverUrl,
-  bookCoverAspectRatio,
   availableGenres,
   availableTags,
   availableNarrators,
@@ -250,7 +248,6 @@ export default function BookMatchView({
               onUsageChange={createFieldUsageHandler('cover')}
               coverUrl={getStringValue('cover')}
               currentCoverUrl={coverUrl}
-              bookCoverAspectRatio={bookCoverAspectRatio}
             />
           )}
 
