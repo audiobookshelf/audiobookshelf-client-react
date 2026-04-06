@@ -4,6 +4,7 @@ import { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useUser } from '@/contexts/UserContext'
 import { useFilterData } from '@/hooks/useFilterData'
+import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { BookshelfView, Library, LibraryFilterData, LibraryItem } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
@@ -255,4 +256,10 @@ export function useLibrary() {
     throw new Error('useLibrary must be used within a LibraryProvider')
   }
   return context
+}
+
+/** Numeric height/width ratio for book-style covers from the active library, or standard (1.6) when outside LibraryProvider. */
+export function useBookCoverAspectRatio(): number {
+  const context = useContext(LibraryContext)
+  return getCoverAspectRatio((context?.library.settings?.coverAspectRatio ?? 1) as 0 | 1)
 }
