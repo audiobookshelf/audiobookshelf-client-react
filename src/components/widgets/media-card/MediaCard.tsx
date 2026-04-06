@@ -1,6 +1,6 @@
 'use client'
 
-import BookshelfMatchModalHost from '@/components/modals/BookshelfMatchModalHost'
+import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
@@ -111,7 +111,7 @@ function MediaCard(props: MediaCardProps) {
 
   const handleOpenMatch = useCallback(
     (libraryItemId: string) => {
-      setBoundModal(<BookshelfMatchModalHost key={libraryItemId} libraryItemId={libraryItemId} onClose={clearBoundModal} />)
+      setBoundModal(<MatchModal key={libraryItemId} isOpen libraryItemId={libraryItemId} onClose={clearBoundModal} />)
     },
     [clearBoundModal, setBoundModal]
   )
