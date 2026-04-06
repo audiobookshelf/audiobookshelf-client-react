@@ -57,7 +57,7 @@ export default function MatchModal(props: MatchModalProps) {
       <div className="flex h-[80vh] flex-col overflow-hidden">
         {loading && !resolvedItem ? (
           <div className="relative min-h-0 flex-1">
-            <LoadingIndicator label="LabelLoadingLibraryItem" />
+            <LoadingIndicator />
           </div>
         ) : resolvedItem ? (
           <Match libraryItem={resolvedItem} />
