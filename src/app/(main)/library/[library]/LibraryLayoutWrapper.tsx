@@ -17,16 +17,21 @@ interface LibraryLayoutWrapperProps {
 export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperProps) {
   const { libraryItemIdStreaming, setLastCurrentLibraryId } = useMediaContext()
   const { Source, serverSettings } = useUser()
-  const { library } = useLibrary()
+  const { library, boundModal, setBoundModal } = useLibrary()
+  const pathname = usePathname()
   const serverVersion = serverSettings?.version || 'Error'
   const installSource = Source || 'Unknown'
-  const isLibraryItemPage = usePathname().includes('/item/')
+  const isLibraryItemPage = pathname.includes('/item/')
 
   useEffect(() => {
     if (library) {
       setLastCurrentLibraryId(library.id)
     }
   }, [library, setLastCurrentLibraryId])
+
+  useEffect(() => {
+    setBoundModal(null)
+  }, [pathname, setBoundModal])
 
   return (
     <div className={mergeClasses('page-wrapper relative flex overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
@@ -38,6 +43,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
       </div>
 
       {!isLibraryItemPage && <CoverSizeWidget className="absolute right-4 bottom-4 z-50" />}
+      {boundModal}
     </div>
   )
 }
