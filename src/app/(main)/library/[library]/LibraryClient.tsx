@@ -11,8 +11,10 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useUser } from '@/contexts/UserContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Author, BookshelfView, LibraryItem, MediaItemShare, MediaProgress, PersonalizedShelf, PersonalizedShelfType, RssFeed, Series } from '@/types/api'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, useTransition } from 'react'
+import { requestScanLibrary } from '../../settings/libraries/actions'
 import LibraryEmptyState from './LibraryEmptyState'
 
 interface LibraryClientProps {
@@ -20,8 +22,10 @@ interface LibraryClientProps {
 }
 
 export default function LibraryClient({ personalized }: LibraryClientProps) {
+  const t = useTypeSafeTranslations()
+  const [, startScanTransition] = useTransition()
   const { sizeMultiplier } = useCardSize()
-  const { user, serverSettings, ereaderDevices, getLibraryItemProgress, getEpisodeProgress } = useUser()
+  const { user, serverSettings, ereaderDevices, userIsAdminOrUp, getLibraryItemProgress, getEpisodeProgress } = useUser()
   const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView } = useLibrary()
 
   const [shelves, setShelves] = useState(personalized)
@@ -124,25 +128,24 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   useEffect(() => {
     const items = []
 
-    if (user.permissions.update) {
+    if (userIsAdminOrUp) {
       items.push({
-        text: 'Scan Library',
+        text: t('ButtonScanLibrary'),
         action: 'scan'
-      })
-      items.push({
-        text: 'Edit Library',
-        action: 'edit'
       })
     }
 
     setContextMenuItems(items)
 
     setContextMenuActionHandler((action) => {
-      console.log('Library action:', action)
       if (action === 'scan') {
-        // TODO: Implement scan
-      } else if (action === 'edit') {
-        // TODO: Implement edit
+        startScanTransition(async () => {
+          try {
+            await requestScanLibrary(library.id)
+          } catch (error) {
+            console.error('Failed to start library scan', error)
+          }
+        })
       }
     })
 
@@ -150,7 +153,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
       setContextMenuItems([])
       setContextMenuActionHandler(() => {})
     }
-  }, [user.permissions.update, setContextMenuItems, setContextMenuActionHandler])
+  }, [userIsAdminOrUp, library.id, setContextMenuItems, setContextMenuActionHandler, t, startScanTransition])
 
   return (
     <div style={{ fontSize: sizeMultiplier + 'rem' }}>
