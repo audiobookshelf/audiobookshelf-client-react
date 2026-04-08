@@ -13,9 +13,10 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { getEntityNavigationContext, type EntityNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
-import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
+import type { BookMedia, BookshelfEntity, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
@@ -68,6 +69,11 @@ export interface MediaCardProps {
    * Callback when the select button is clicked
    */
   onSelect?: (event: React.MouseEvent) => void
+  /**
+   * When both are set, modal prev/next scope is built lazily on open from this shelf snapshot (sparse bookshelf grid or dense home row).
+   */
+  shelfEntities?: (BookshelfEntity | null)[]
+  entityIndex?: number
 }
 
 function MediaCard(props: MediaCardProps) {
@@ -90,7 +96,9 @@ function MediaCard(props: MediaCardProps) {
     episode,
     isSelectionMode = false,
     selected = false,
-    onSelect
+    onSelect,
+    shelfEntities,
+    entityIndex
   } = props
 
   const router = useRouter()
@@ -109,12 +117,15 @@ function MediaCard(props: MediaCardProps) {
 
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 
-  const handleOpenMatch = useCallback(
-    (libraryItemId: string) => {
-      setBoundModal(<MatchModal key={libraryItemId} isOpen libraryItemId={libraryItemId} onClose={clearBoundModal} />)
-    },
-    [clearBoundModal, setBoundModal]
-  )
+  const handleOpenMatch = useCallback(() => {
+    const defaultNavigationContext: EntityNavigationContext = { entityIds: [libraryItem.id], initialIndex: 0 }
+    let navigationContext: EntityNavigationContext = defaultNavigationContext
+    if (shelfEntities !== undefined && entityIndex !== undefined) {
+      const computedNavigationContext = getEntityNavigationContext(shelfEntities, entityIndex)
+      if (computedNavigationContext) navigationContext = computedNavigationContext
+    }
+    setBoundModal(<MatchModal key="match-modal" isOpen navCtx={navigationContext} onClose={clearBoundModal} />)
+  }, [clearBoundModal, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
