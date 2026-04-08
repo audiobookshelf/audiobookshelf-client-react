@@ -39,6 +39,8 @@ export interface CardComponentProps {
   orderBy?: string
   seriesSortBy?: string
   bookProgressMap: Map<string, MediaProgress>
+  shelfEntities?: (BookshelfEntity | null)[]
+  entityIndex?: number
 }
 
 export interface EntityConfig {
@@ -103,7 +105,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     SkeletonComponent: ({ bookshelfView, showSubtitles, orderBy }) => (
       <MediaCardSkeleton bookshelfView={bookshelfView} showSubtitles={showSubtitles} orderBy={orderBy} />
     ),
-    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, showSubtitles, orderBy, bookProgressMap }) => {
+    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, showSubtitles, orderBy, bookProgressMap, shelfEntities, entityIndex }) => {
       const { user, serverSettings, ereaderDevices } = useUser()
       const item = entity as LibraryItem
       const isCollapsedSeries = !!item.collapsedSeries
@@ -144,6 +146,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             ereaderDevices={ereaderDevices}
             showSubtitles={showSubtitles ?? false}
             orderBy={orderBy ?? ''}
+            shelfEntities={shelfEntities}
+            entityIndex={entityIndex}
           />
         </div>
       )
