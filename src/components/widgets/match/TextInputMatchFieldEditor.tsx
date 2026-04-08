@@ -38,7 +38,7 @@ function TextInputMatchFieldEditor({
     }
   }, [currentValue, onChange])
 
-  const hasCurrentValue = currentValue !== undefined && currentValue !== ''
+  const hasCurrentValue = currentValue !== undefined && currentValue !== null && currentValue !== ''
 
   const currentValueDisplay = hasCurrentValue ? (
     <>

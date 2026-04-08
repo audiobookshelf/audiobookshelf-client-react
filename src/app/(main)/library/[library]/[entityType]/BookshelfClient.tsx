@@ -335,6 +335,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                     )
                   }
 
+                  const entityIndex = startIndex + k
                   return (
                     <config.CardComponent
                       key={`card-wrapper-${item.id}`}
@@ -347,6 +348,8 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                       orderBy={orderBy}
                       seriesSortBy={seriesSortBy}
                       bookProgressMap={bookProgressMap}
+                      shelfEntities={entityType === 'items' ? items : undefined}
+                      entityIndex={entityType === 'items' ? entityIndex : undefined}
                     />
                   )
                 })}

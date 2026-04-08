@@ -39,7 +39,7 @@ interface UseMediaCardActionsProps {
   onShareChange?: (share: MediaItemShare | null) => void
   onDeleteSuccess?: () => void
   /** Invoked for the Match menu action. Host owns modal state (card, page, bookshelf, etc.). */
-  onOpenMatch?: (libraryItemId: string) => void
+  onOpenMatch?: () => void
   playerControls: PlayerHandlerControls
 }
 
@@ -215,7 +215,7 @@ export function useMediaCardActions({
       } else if (action === 'openRssFeed') {
         setRssFeedModalOpen(true)
       } else if (action === 'showMatchModal') {
-        onOpenMatch?.(libraryItem.id)
+        onOpenMatch?.()
       } else if (action === 'download') {
         downloadLibraryItem(libraryItem.id)
       } else if (action === 'sendToDevice') {
@@ -381,7 +381,7 @@ export function useMediaCardActions({
       }
     }
 
-    if (userCanUpdate && onOpenMatch) {
+    if (userCanUpdate && onOpenMatch && !episodeForQueue) {
       items.push({
         text: t('HeaderMatch'),
         func: 'showMatchModal'

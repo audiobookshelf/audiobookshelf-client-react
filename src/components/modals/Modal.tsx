@@ -16,6 +16,7 @@ export interface ModalProps {
   bgOpacityClass?: string
   children?: ReactNode
   outerContent?: ReactNode
+  sideNavigation?: ReactNode
   onClose?: () => void
   className?: string
   style?: React.CSSProperties
@@ -29,6 +30,7 @@ export default function Modal({
   bgOpacityClass = 'bg-primary/75',
   children,
   outerContent,
+  sideNavigation,
   onClose,
   className,
   style
@@ -168,29 +170,34 @@ export default function Modal({
       {/* Outer content slot */}
       {outerContent}
 
-      {/* Main modal content */}
+      {/* Focus trap + optional side rails + panel */}
       <div
         ref={contentRef}
         tabIndex={0}
-        style={style}
-        className={mergeClasses(
-          'text-foreground shadow-modal-content bg-bg relative rounded-lg outline-none focus:outline-none',
-          // Responsive width: full width with margin on mobile, fixed width on larger screens
-          'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
-          'mt-[50px]',
-          className
-        )}
+        className="relative mt-[50px] outline-none focus:outline-none"
         cy-id="modal-content"
         onClick={(e) => e.stopPropagation()}
       >
-        <ModalProvider modalRef={wrapperRef as React.RefObject<HTMLDivElement>}>{children}</ModalProvider>
+        {sideNavigation}
+        <div
+          style={style}
+          className={mergeClasses(
+            'text-foreground shadow-modal-content bg-bg relative rounded-lg',
+            // Responsive width: full width with margin on mobile, fixed width on larger screens
+            'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
+            className
+          )}
+          cy-id="modal-panel"
+        >
+          <ModalProvider modalRef={wrapperRef as React.RefObject<HTMLDivElement>}>{children}</ModalProvider>
 
-        {/* Processing overlay */}
-        {processing && (
-          <div className="absolute inset-0 flex h-full w-full items-center justify-center rounded-lg bg-gray-900/60" cy-id="modal-processing-overlay">
-            <LoadingIndicator />
-          </div>
-        )}
+          {/* Processing overlay */}
+          {processing && (
+            <div className="absolute inset-0 flex h-full w-full items-center justify-center rounded-lg bg-gray-900/60" cy-id="modal-processing-overlay">
+              <LoadingIndicator />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
