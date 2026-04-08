@@ -24,7 +24,7 @@ function SlateEditorMatchFieldEditor({ usageChecked, onUsageChange, value, onCha
     }
   }, [currentValue, onChange])
 
-  const hasCurrentValue = currentValue !== undefined && currentValue !== ''
+  const hasCurrentValue = currentValue !== undefined && currentValue !== null && currentValue !== ''
 
   const formattedValue = currentValue ? String(currentValue).substring(0, 100) + (String(currentValue).length > 100 ? '...' : '') : ''
 
