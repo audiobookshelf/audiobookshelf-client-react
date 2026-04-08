@@ -79,6 +79,14 @@ export default function MatchModal(props: MatchModalProps) {
   if (!isOpen) return null
 
   const resolvedItem = navCtxMode ? fetchedItem : props.libraryItem
+  const mediaTitle = resolvedItem?.media.metadata.title ?? ''
+  const outerContent = mediaTitle ? (
+    <div className="absolute start-0 top-0 p-4">
+      <h2 className="max-w-[calc(100vw-4rem)] truncate text-lg text-white" title={mediaTitle}>
+        {mediaTitle}
+      </h2>
+    </div>
+  ) : undefined
   const showRails = navCtxMode && entityIds.length > 1
   const navigationProcessing = navCtxMode && (navFetchPending || isPending)
 
@@ -93,6 +101,7 @@ export default function MatchModal(props: MatchModalProps) {
       onClose={onClose}
       processing={navigationProcessing}
       sideNavigation={sideNavigation}
+      outerContent={outerContent}
       className="md:max-w-[min(90vw,56rem)] lg:max-w-[min(90vw,56rem)]"
     >
       <div className="flex h-[80vh] flex-col overflow-hidden">{resolvedItem ? <Match libraryItem={resolvedItem} /> : null}</div>
