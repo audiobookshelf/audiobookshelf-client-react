@@ -170,7 +170,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
 
         return (
           <Wrapper key={shelf.id} title={shelf.label}>
-            {shelf.entities.map((entity) => {
+            {shelf.entities.map((entity, entityIndex) => {
               if (shelf.type === 'book' || shelf.type === 'podcast') {
                 const EntityMediaCard = shelf.type === 'book' ? BookMediaCard : PodcastMediaCard
                 const libraryItem = entity as LibraryItem
@@ -187,6 +187,8 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       ereaderDevices={ereaderDevices}
                       showSubtitles={true}
                       mediaProgress={mediaProgress}
+                      shelfEntities={shelf.entities}
+                      entityIndex={entityIndex}
                     />
                   </div>
                 )
