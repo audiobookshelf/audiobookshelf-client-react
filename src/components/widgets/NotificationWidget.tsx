@@ -104,17 +104,25 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
       >
         {tasksRunning ? (
           <Tooltip text={t('LabelTasks')} position="bottom" className="flex items-center">
-            <LoadingSpinner className="!cursor-pointer scale-110" />
+            <span className="relative">
+              <LoadingSpinner className="!cursor-pointer scale-110" />
+              {showUnseenSuccessIndicator && (
+                <span className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />
+              )}
+            </span>
           </Tooltip>
         ) : (
           <Tooltip text={t('LabelActivities')} position="bottom" className="flex items-center">
-            <span className="material-symbols text-xl" aria-label={t('LabelActivities')} role="button">
-              notifications
+            <span className="relative">
+              <span className="material-symbols text-xl" aria-label={t('LabelActivities')} role="button">
+                notifications
+              </span>
+              {showUnseenSuccessIndicator && (
+                <span className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />
+              )}
             </span>
           </Tooltip>
         )}
-
-        {showUnseenSuccessIndicator && <div className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />}
       </button>
 
       {showMenu && (
