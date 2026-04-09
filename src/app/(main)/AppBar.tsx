@@ -54,7 +54,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           className="text-foreground hover:text-foreground/80 flex items-center justify-start gap-2 text-sm md:gap-4"
         >
           <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10" />
-          <span className="text-xl hover:underline">audiobookshelf</span>
+          <span className="hidden text-xl hover:underline md:block">audiobookshelf</span>
         </Link>
 
         {/* Libraries Dropdown or Library Books Button */}
@@ -80,7 +80,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
         {/* Search Input mobile and desktop */}
         {currentLibrary && (
-          <div className="max-w-70 min-w-0 flex-1">
+          <div className="min-w-24 flex-1">
             {isSearchMode ? (
               <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
             ) : (
@@ -91,12 +91,10 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           </div>
         )}
 
-        {!currentLibrary && <div className="flex-grow" />}
+        <div className="flex-grow" />
 
         {!isSearchMode && currentLibrary && (
           <>
-            <div className="flex-grow" />
-
             {/* Mobile only - Search Icon toggles search mode */}
             <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="md:hidden">
               search
@@ -104,12 +102,11 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           </>
         )}
 
-        <div className="hidden items-center md:flex">
+        <div className="flex min-w-0 items-center gap-1">
           <NotificationWidget />
 
-          {/* Desktop only - Settings and Upload Buttons */}
           {isAdmin && (
-            <>
+            <div className="hidden items-center gap-1 md:flex">
               <Tooltip text={t('ButtonUpload')} position="bottom">
                 <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
                   upload
@@ -120,14 +117,8 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
                   settings
                 </IconBtn>
               </Tooltip>
-            </>
+            </div>
           )}
-        </div>
-
-        <div className="ms-auto flex items-center gap-2">
-          <div className="md:hidden">
-            <NotificationWidget />
-          </div>
 
           <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
         </div>
