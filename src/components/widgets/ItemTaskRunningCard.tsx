@@ -152,7 +152,7 @@ export default function ItemTaskRunningCard({ task }: ItemTaskRunningCardProps) 
   )
 
   return (
-    <div className="flex items-start gap-2 px-2 py-1">
+    <div className="flex items-center gap-2 px-2 py-1">
       <div className="flex h-5 w-5 shrink-0 items-center justify-center pt-0.5">
         {isFinished ? <span className={`material-symbols text-base ${actionIconStatus}`}>{actionIcon}</span> : <LoadingSpinner className="!cursor-default" />}
       </div>
