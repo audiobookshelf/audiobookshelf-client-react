@@ -11,8 +11,6 @@ import Tooltip from '../ui/Tooltip'
 import ItemTaskRunningCard from './ItemTaskRunningCard'
 import LoadingSpinner from './LoadingSpinner'
 
-const COMPLETED_TASK_VISIBLE_MS = 60_000
-
 function getActionLink(task: Task): string {
   const libraryId = task.data?.libraryId
   const libraryItemId = task.data?.libraryItemId
@@ -47,13 +45,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
   }, [tasks])
 
   const tasksToShow = useMemo(() => {
-    const visibleAfter = Date.now() - COMPLETED_TASK_VISIBLE_MS
-
-    return tasks
-      .filter((task) => {
-        return !task.isFinished || ((task.isFailed || task.showSuccess) && (task.finishedAt ?? 0) > visibleAfter)
-      })
-      .sort((a, b) => (b.startedAt ?? 0) - (a.startedAt ?? 0))
+    return [...tasks].sort((a, b) => (b.startedAt ?? 0) - (a.startedAt ?? 0))
   }, [tasks])
 
   const showUnseenSuccessIndicator = useMemo(() => {
