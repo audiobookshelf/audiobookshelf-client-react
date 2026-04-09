@@ -120,7 +120,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
       {showMenu && (
         <div
           ref={menuRef}
-          className="bg-bg border-border absolute top-full right-0 z-[70] mt-1.5 w-[26rem] max-w-[calc(100vw-1rem)] overflow-y-auto overflow-x-hidden rounded-md border text-base shadow-lg ring-1 ring-black/5 focus:outline-none"
+          className="bg-bg border-border fixed top-16 right-4 left-auto z-[70] mt-0 md:mt-1.5 w-auto max-w-[24rem] min-w-[16rem] overflow-y-auto overflow-x-hidden rounded-md border text-base shadow-lg ring-1 ring-black/5 focus:outline-none"
           style={{ maxHeight: '80vh' }}
         >
           <ul className="h-full w-full" role="listbox" aria-label={t('LabelTasks')}>

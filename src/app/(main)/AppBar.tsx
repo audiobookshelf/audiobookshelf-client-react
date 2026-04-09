@@ -124,7 +124,11 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           )}
         </div>
 
-        <div className="ms-auto">
+        <div className="ms-auto flex items-center gap-2">
+          <div className="md:hidden">
+            <NotificationWidget />
+          </div>
+
           <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
         </div>
       </header>
