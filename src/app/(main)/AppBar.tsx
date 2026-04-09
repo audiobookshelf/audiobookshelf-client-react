@@ -2,6 +2,7 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import NotificationWidget from '@/components/widgets/NotificationWidget'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -103,21 +104,25 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           </>
         )}
 
-        {/* Desktop only - Settings and Upload Buttons */}
-        {isAdmin && (
-          <div className="hidden items-center md:flex">
-            <Tooltip text={t('ButtonUpload')} position="bottom">
-              <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
-                upload
-              </IconBtn>
-            </Tooltip>
-            <Tooltip text={t('HeaderSettings')} position="bottom">
-              <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
-                settings
-              </IconBtn>
-            </Tooltip>
-          </div>
-        )}
+        <div className="hidden items-center md:flex">
+          <NotificationWidget />
+
+          {/* Desktop only - Settings and Upload Buttons */}
+          {isAdmin && (
+            <>
+              <Tooltip text={t('ButtonUpload')} position="bottom">
+                <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
+                  upload
+                </IconBtn>
+              </Tooltip>
+              <Tooltip text={t('HeaderSettings')} position="bottom">
+                <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
+                  settings
+                </IconBtn>
+              </Tooltip>
+            </>
+          )}
+        </div>
 
         <div className="ms-auto">
           <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />

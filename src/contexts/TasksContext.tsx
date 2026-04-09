@@ -1,7 +1,8 @@
 'use client'
 
+import { getTasksAction } from '@/app/actions/toolsActions'
 import { MetadataEmbedQueueUpdate, Task, TaskProgressPayload, TrackFinishedPayload, TrackProgressPayload, TrackStartedPayload } from '@/types/api'
-import { ReactNode, createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
 
 interface TasksState {
@@ -34,6 +35,33 @@ export function TasksProvider({ children }: TasksProviderProps) {
   const [audioFilesEncoding, setAudioFilesEncoding] = useState<Record<string, Record<string, string>>>({})
   const [audioFilesFinished, setAudioFilesFinished] = useState<Record<string, Record<string, boolean>>>({})
   const [taskProgress, setTaskProgress] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadTasks = async () => {
+      try {
+        const payload = await getTasksAction()
+        if (!isMounted || !payload) {
+          return
+        }
+
+        setTasks(payload.tasks || [])
+
+        if (payload.queuedTaskData?.embedMetadata?.length) {
+          setQueuedEmbedLIds(payload.queuedTaskData.embedMetadata.map((taskData) => taskData.libraryItemId))
+        }
+      } catch (error) {
+        console.error('Failed to load tasks', error)
+      }
+    }
+
+    loadTasks()
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   // Actions
   const addUpdateTask = useCallback((task: Task) => {
