@@ -154,18 +154,14 @@ export default function ItemTaskRunningCard({ task }: ItemTaskRunningCardProps) 
   return (
     <div className="flex items-start gap-2 px-2 py-1">
       <div className="flex h-5 w-5 shrink-0 items-center justify-center pt-0.5">
-        {isFinished ? (
-          <span className={`material-symbols text-base ${actionIconStatus}`}>{actionIcon}</span>
-        ) : (
-          <LoadingSpinner className="!cursor-default" />
-        )}
+        {isFinished ? <span className={`material-symbols text-base ${actionIconStatus}`}>{actionIcon}</span> : <LoadingSpinner className="!cursor-default" />}
       </div>
 
       <div className="min-w-0 grow">
-        <p className="break-words text-sm leading-5">{title}</p>
-        {!!description && <p className="text-foreground-muted break-words text-xs leading-4 whitespace-normal">{description}</p>}
-        {!!specialMessage && <p className="text-foreground-muted break-words text-xs leading-4 whitespace-normal">{specialMessage}</p>}
-        {isFailed && !!failedMessage && <p className="text-error break-words text-xs leading-4 whitespace-normal">{failedMessage}</p>}
+        <p className="text-sm leading-5 break-words">{title}</p>
+        {!!description && <p className="text-foreground-muted text-xs leading-4 break-words whitespace-normal">{description}</p>}
+        {!!specialMessage && <p className="text-foreground-muted text-xs leading-4 break-words whitespace-normal">{specialMessage}</p>}
+        {isFailed && !!failedMessage && <p className="text-error text-xs leading-4 break-words whitespace-normal">{failedMessage}</p>}
       </div>
 
       {userIsAdminOrUp && !isFinished && isLibraryScan && !cancelingScan && (

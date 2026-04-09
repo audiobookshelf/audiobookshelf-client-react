@@ -97,10 +97,8 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
         {tasksRunning ? (
           <Tooltip text={t('LabelTasks')} position="bottom" className="flex items-center">
             <span className="relative">
-              <LoadingSpinner className="!cursor-pointer scale-110" />
-              {showUnseenSuccessIndicator && (
-                <span className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />
-              )}
+              <LoadingSpinner className="scale-110 !cursor-pointer" />
+              {showUnseenSuccessIndicator && <span className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />}
             </span>
           </Tooltip>
         ) : (
@@ -109,9 +107,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
               <span className="material-symbols text-xl" aria-label={t('LabelActivities')} role="button">
                 notifications
               </span>
-              {showUnseenSuccessIndicator && (
-                <span className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />
-              )}
+              {showUnseenSuccessIndicator && <span className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />}
             </span>
           </Tooltip>
         )}
@@ -120,7 +116,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
       {showMenu && (
         <div
           ref={menuRef}
-          className="bg-bg border-border fixed top-16 right-4 left-auto z-[70] mt-0 md:mt-1.5 w-auto max-w-[24rem] min-w-[16rem] overflow-y-auto overflow-x-hidden rounded-md border text-base shadow-lg ring-1 ring-black/5 focus:outline-none"
+          className="bg-bg border-border fixed top-16 right-4 left-auto z-[70] mt-0 w-auto max-w-[24rem] min-w-[16rem] overflow-x-hidden overflow-y-auto rounded-md border text-base shadow-lg ring-1 ring-black/5 focus:outline-none md:mt-1.5"
           style={{ maxHeight: '80vh' }}
         >
           <ul className="h-full w-full" role="listbox" aria-label={t('LabelTasks')}>
@@ -129,7 +125,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
 
               if (actionLink) {
                 return (
-                  <li key={task.id} className="text-foreground hover:bg-primary/40 relative select-none py-1">
+                  <li key={task.id} className="text-foreground hover:bg-primary/40 relative py-1 select-none">
                     <Link href={actionLink} onClick={closeMenu} className="block cursor-pointer">
                       <ItemTaskRunningCard task={task} />
                     </Link>
@@ -138,7 +134,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
               }
 
               return (
-                <li key={task.id} className="text-foreground hover:bg-primary/40 relative select-none py-1">
+                <li key={task.id} className="text-foreground hover:bg-primary/40 relative py-1 select-none">
                   <ItemTaskRunningCard task={task} />
                 </li>
               )
