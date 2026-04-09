@@ -149,7 +149,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
   }
 
   return (
-    <div className="relative w-full sm:w-80" ref={containerRef}>
+    <div className="relative w-full" ref={containerRef}>
       <InputWrapper size="small" className="w-full" inputRef={inputRef}>
         <input
           ref={inputRef}
