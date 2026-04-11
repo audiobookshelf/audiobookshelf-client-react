@@ -31,10 +31,6 @@ export interface MediaCardProps {
    * Server-computed or cached media progress for this library item
    */
   mediaProgress?: MediaProgress | null
-  /**
-   * Optional precomputed series progress for collapsed series items (0–1).
-   */
-  seriesProgressPercent?: number
   sizeMultiplier?: number
   dateFormat: string
   timeFormat: string
@@ -84,7 +80,6 @@ function MediaCard(props: MediaCardProps) {
     sortingIgnorePrefix = false,
     continueListeningShelf = false,
     mediaProgress,
-    seriesProgressPercent,
     sizeMultiplier,
     dateFormat,
     timeFormat,
@@ -191,7 +186,7 @@ function MediaCard(props: MediaCardProps) {
     lastUpdated,
     startedAt,
     finishedAt
-  } = useMemo(() => computeProgress({ progress: mediaProgress, seriesProgressPercent, useSeriesProgress: false }), [mediaProgress, seriesProgressPercent])
+  } = useMemo(() => computeProgress({ progress: mediaProgress, useSeriesProgress: false }), [mediaProgress])
 
   const playIconFontSize = Math.max(2, 3 * effectiveSizeMultiplier)
   const author = metadata.authorName

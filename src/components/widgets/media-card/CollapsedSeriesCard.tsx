@@ -15,7 +15,12 @@ import { MediaCardProps } from './MediaCard'
 import MediaCardDetailView from './MediaCardDetailView'
 import MediaCardFrame from './MediaCardFrame'
 
-export type CollapsedSeriesCardProps = Omit<MediaCardProps, 'userPermissions' | 'ereaderDevices'>
+export type CollapsedSeriesCardProps = Omit<MediaCardProps, 'userPermissions' | 'ereaderDevices'> & {
+  /**
+   * Precomputed aggregate series progress for the collapsed row (0–1).
+   */
+  seriesProgressPercent?: number
+}
 
 export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   const {
