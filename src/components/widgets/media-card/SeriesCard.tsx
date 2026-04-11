@@ -31,10 +31,10 @@ export interface SeriesCardProps {
   /** Date format from server settings */
   dateFormat: string
   /**
-   * Map of book progress by library item ID
-   * Used to calculate series progress
+   * Map of progress keyed by book `mediaItemId`
+   * Used to calculate series progress.
    */
-  bookProgressMap?: Map<string, MediaProgress>
+  mediaItemProgressMap?: Map<string, MediaProgress>
   /** Whether the card is in selection mode */
   isSelectionMode?: boolean
   /** Whether the card is currently selected */
@@ -54,7 +54,7 @@ function SeriesCard(props: SeriesCardProps) {
     sortingIgnorePrefix = false,
     sizeMultiplier,
     dateFormat,
-    bookProgressMap,
+    mediaItemProgressMap,
     isSelectionMode = false,
     selected = false,
     onSelect,
@@ -86,7 +86,7 @@ function SeriesCard(props: SeriesCardProps) {
   // Calculate series progress from book progress
   const { seriesProgressPercent, isSeriesFinished } = useMemo(() => {
     const books = series.books || []
-    if (!books.length || !bookProgressMap) {
+    if (!books.length || !mediaItemProgressMap) {
       return { seriesProgressPercent: 0, isSeriesFinished: false }
     }
 
@@ -94,7 +94,7 @@ function SeriesCard(props: SeriesCardProps) {
     let finishedCount = 0
 
     books.forEach((book) => {
-      const progress = bookProgressMap.get(book.id)
+      const progress = book.media?.id ? mediaItemProgressMap.get(book.media.id) : undefined
       if (progress) {
         if (progress.isFinished) {
           progressPercent += 1
@@ -112,7 +112,7 @@ function SeriesCard(props: SeriesCardProps) {
       seriesProgressPercent: progressPercent,
       isSeriesFinished: finishedCount === books.length
     }
-  }, [series.books, bookProgressMap])
+  }, [series.books, mediaItemProgressMap])
 
   // Check if any books have valid covers
   const hasValidCovers = useMemo(() => {

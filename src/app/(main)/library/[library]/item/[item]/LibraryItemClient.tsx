@@ -26,7 +26,7 @@ interface LibraryItemClientProps {
 
 export default function LibraryItemClient({ libraryItem: initialLibraryItem }: LibraryItemClientProps) {
   const { library } = useLibrary()
-  const { serverSettings, getLibraryItemProgress, userCanUpdate, userIsAdminOrUp } = useUser()
+  const { serverSettings, getMediaItemProgress, userCanUpdate, userIsAdminOrUp } = useUser()
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
@@ -46,7 +46,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const bookSeries = 'series' in metadata ? metadata.series || [] : []
   const description = 'description' in metadata ? metadata.description : undefined
 
-  const userProgress = getLibraryItemProgress(libraryItem.id)
+  const userProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
 
   const handleOpenEditModal = () => {
     setIsEditModalOpen(true)

@@ -22,8 +22,8 @@ export interface UserContextType {
   userDefaultLibraryId?: string
   ereaderDevices: EReaderDevice[]
   Source: string
-  getLibraryItemProgress: (libraryItemId: string) => MediaProgress | undefined
-  getEpisodeProgress: (episodeId: string) => MediaProgress | undefined
+  /** Book media id or podcast episode id matches `MediaProgress.mediaItemId` */
+  getMediaItemProgress: (mediaItemId: string) => MediaProgress | undefined
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -85,9 +85,7 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     userDefaultLibraryId: currentUserData.userDefaultLibraryId,
     ereaderDevices: currentUserData.ereaderDevices,
     Source: currentUserData.Source,
-    getLibraryItemProgress: (libraryItemId: string) =>
-      user.mediaProgress.find((p) => p.libraryItemId === libraryItemId && !p.episodeId && p.mediaItemType !== 'podcastEpisode'),
-    getEpisodeProgress: (episodeId: string) => user.mediaProgress.find((p) => p.episodeId === episodeId)
+    getMediaItemProgress: (mediaItemId: string) => user.mediaProgress.find((p) => p.mediaItemId === mediaItemId)
   }
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

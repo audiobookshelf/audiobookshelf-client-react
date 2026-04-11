@@ -69,7 +69,7 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
               <Code>orderBy</Code>: Sort field (addedAt, totalDuration, lastBookUpdated, lastBookAdded).
             </li>
             <li>
-              <Code>bookProgressMap</Code>: Map of book progress by library item ID for calculating series progress.
+              <Code>bookProgressMap</Code>: Map of book progress by media item ID for calculating series progress.
             </li>
           </ul>
         </div>
@@ -127,11 +127,21 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
                 dateFormat={defaultDateFormat}
-                bookProgressMap={
+                mediaItemProgressMap={
                   new Map(
-                    seriesData.books
-                      ?.slice(0, Math.ceil((seriesData.books?.length || 0) / 2))
-                      .map((book) => [book.id, { id: `progress-${book.id}`, libraryItemId: book.id, isFinished: false, progress: 0.5 } as MediaProgress]) || []
+                    seriesData.books?.slice(0, Math.ceil((seriesData.books?.length || 0) / 2)).map((book) => {
+                      const mediaItemId = book.media?.id ?? book.id
+                      return [
+                        mediaItemId,
+                        {
+                          id: `progress-${book.id}`,
+                          libraryItemId: book.id,
+                          mediaItemId,
+                          isFinished: false,
+                          progress: 0.5
+                        } as MediaProgress
+                      ] as [string, MediaProgress]
+                    }) || []
                   )
                 }
               />
@@ -143,12 +153,15 @@ export function SeriesCardExamples({ seriesData, libraryId }: SeriesCardExamples
                 libraryId={libraryId}
                 bookshelfView={BookshelfView.DETAIL}
                 dateFormat={defaultDateFormat}
-                bookProgressMap={
+                mediaItemProgressMap={
                   new Map(
-                    seriesData.books?.map((book) => [
-                      book.id,
-                      { id: `finished-${book.id}`, libraryItemId: book.id, isFinished: true, progress: 1 } as MediaProgress
-                    ]) || []
+                    seriesData.books?.map((book) => {
+                      const mediaItemId = book.media?.id ?? book.id
+                      return [
+                        mediaItemId,
+                        { id: `finished-${book.id}`, libraryItemId: book.id, mediaItemId, isFinished: true, progress: 1 } as MediaProgress
+                      ] as [string, MediaProgress]
+                    }) || []
                   )
                 }
               />

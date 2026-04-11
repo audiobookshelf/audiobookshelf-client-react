@@ -5,10 +5,10 @@ import { useEffect, useMemo, useState } from 'react'
 interface UseEpisodeFilterAndSortReturn {
   libraryItemId: string
   episodes: PodcastEpisode[]
-  getEpisodeProgress?: (episodeId: string) => MediaProgress | null
+  getMediaItemProgress?: (mediaItemId: string) => MediaProgress | null
 }
 
-export function useEpisodeFilterAndSort({ libraryItemId, episodes, getEpisodeProgress }: UseEpisodeFilterAndSortReturn) {
+export function useEpisodeFilterAndSort({ libraryItemId, episodes, getMediaItemProgress }: UseEpisodeFilterAndSortReturn) {
   const storageKey = `episodeTable:${libraryItemId}`
 
   const [filterKey, setFilterKey] = useState<string>('incomplete')
@@ -62,7 +62,7 @@ export function useEpisodeFilterAndSort({ libraryItemId, episodes, getEpisodePro
     // Apply filter
     if (filterKey !== 'all') {
       result = result.filter((ep) => {
-        const progress = getEpisodeProgress?.(ep.id)
+        const progress = getMediaItemProgress?.(ep.id)
         if (filterKey === 'incomplete') return !progress || !progress.isFinished
         if (filterKey === 'complete') return progress?.isFinished
         return progress && !progress.isFinished && progress.currentTime > 0 // in_progress
@@ -111,7 +111,7 @@ export function useEpisodeFilterAndSort({ libraryItemId, episodes, getEpisodePro
     })
 
     return result
-  }, [episodes, filterKey, sortKey, sortDesc, searchText, getEpisodeProgress])
+  }, [episodes, filterKey, sortKey, sortDesc, searchText, getMediaItemProgress])
 
   return {
     filterKey,

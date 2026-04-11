@@ -38,7 +38,7 @@ export interface CardComponentProps {
   showSubtitles?: boolean
   orderBy?: string
   seriesSortBy?: string
-  bookProgressMap: Map<string, MediaProgress>
+  mediaItemProgressMap: Map<string, MediaProgress>
   shelfEntities?: (BookshelfEntity | null)[]
   entityIndex?: number
 }
@@ -105,11 +105,11 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     SkeletonComponent: ({ bookshelfView, showSubtitles, orderBy }) => (
       <MediaCardSkeleton bookshelfView={bookshelfView} showSubtitles={showSubtitles} orderBy={orderBy} />
     ),
-    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, showSubtitles, orderBy, bookProgressMap, shelfEntities, entityIndex }) => {
+    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, showSubtitles, orderBy, mediaItemProgressMap, shelfEntities, entityIndex }) => {
       const { user, serverSettings, ereaderDevices } = useUser()
       const item = entity as LibraryItem
       const isCollapsedSeries = !!item.collapsedSeries
-      const entityProgress = isPodcastLibrary ? null : bookProgressMap.get(item.id)
+      const entityProgress = isPodcastLibrary ? null : item.media?.id ? mediaItemProgressMap.get(item.media.id) : undefined
       const EntityMediaCard = isPodcastLibrary ? PodcastMediaCard : BookMediaCard
 
       if (isCollapsedSeries) {
@@ -164,7 +164,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     handleContextMenuAction: () => {},
     getEmptyMessageKey: (filterBy) => (filterBy === 'all' ? 'MessageBookshelfNoSeries' : 'MessageNoSeriesFound'),
     SkeletonComponent: ({ bookshelfView, seriesSortBy }) => <SeriesCardSkeleton bookshelfView={bookshelfView} orderBy={seriesSortBy} />,
-    CardComponent: ({ entity, bookshelfView, width, libraryId, seriesSortBy, bookProgressMap }) => {
+    CardComponent: ({ entity, bookshelfView, width, libraryId, seriesSortBy, mediaItemProgressMap }) => {
       const { serverSettings } = useUser()
       const series = entity as Series
       return (
@@ -175,7 +175,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             bookshelfView={bookshelfView}
             dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
             orderBy={seriesSortBy}
-            bookProgressMap={bookProgressMap}
+            mediaItemProgressMap={mediaItemProgressMap}
           />
         </div>
       )

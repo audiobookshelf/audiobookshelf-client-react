@@ -9,7 +9,8 @@ import { useBookshelfUpdater } from '@/hooks/useBookshelfUpdater'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { BookshelfEntity, BookshelfView, EntityType, MediaProgress } from '@/types/api'
+import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
+import { BookshelfEntity, BookshelfView, EntityType } from '@/types/api'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import LibraryEmptyState from '../LibraryEmptyState'
 import { ENTITY_CONFIGS } from './entity-config'
@@ -211,18 +212,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
     }
   }, [bookshelfLayoutReady, getVisiblePageRange, totalEntities, itemsPerPage, loadPage])
 
-  const bookProgressMap = useMemo(() => {
-    const map = new Map<string, MediaProgress>()
-    user.mediaProgress.forEach((p) => {
-      if (p.episodeId) {
-        map.set(p.episodeId, p)
-        return
-      }
-
-      map.set(p.libraryItemId, p)
-    })
-    return map
-  }, [user.mediaProgress])
+  const mediaItemProgressMap = useMemo(() => buildMediaItemProgressMap(user.mediaProgress), [user.mediaProgress])
 
   // Inject Toolbar Controls and Menu Items
   const { setToolbarExtras, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
@@ -350,7 +340,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                       showSubtitles={showSubtitles}
                       orderBy={orderBy}
                       seriesSortBy={seriesSortBy}
-                      bookProgressMap={bookProgressMap}
+                      mediaItemProgressMap={mediaItemProgressMap}
                       shelfEntities={entityType === 'items' ? items : undefined}
                       entityIndex={entityType === 'items' ? entityIndex : undefined}
                     />

@@ -25,7 +25,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   const t = useTypeSafeTranslations()
   const [, startScanTransition] = useTransition()
   const { sizeMultiplier } = useCardSize()
-  const { user, serverSettings, ereaderDevices, userIsAdminOrUp, getLibraryItemProgress, getEpisodeProgress } = useUser()
+  const { user, serverSettings, ereaderDevices, userIsAdminOrUp, getMediaItemProgress } = useUser()
   const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView } = useLibrary()
 
   const [shelves, setShelves] = useState(personalized)
@@ -174,7 +174,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
               if (shelf.type === 'book' || shelf.type === 'podcast') {
                 const EntityMediaCard = shelf.type === 'book' ? BookMediaCard : PodcastMediaCard
                 const libraryItem = entity as LibraryItem
-                const mediaProgress = getLibraryItemProgress(libraryItem.id)
+                const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
 
                 return (
                   <div key={entity.id + '-' + shelf.id} className="mx-2e shrink-0">
@@ -195,11 +195,12 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
               } else if (shelf.type === 'series') {
                 const series = entity as Series
                 const libraryItems = series.books || []
-                const bookProgressMap = new Map<string, MediaProgress>()
+                const mediaItemProgressMap = new Map<string, MediaProgress>()
                 libraryItems.forEach((libraryItem) => {
-                  const mediaProgress = getLibraryItemProgress(libraryItem.id)
+                  const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
                   if (mediaProgress) {
-                    bookProgressMap.set(libraryItem.id, mediaProgress)
+                    const key = mediaProgress.mediaItemId ?? libraryItem.media?.id
+                    if (key) mediaItemProgressMap.set(key, mediaProgress)
                   }
                 })
                 return (
@@ -209,7 +210,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       libraryId={library.id}
                       bookshelfView={homeBookshelfView}
                       dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-                      bookProgressMap={bookProgressMap}
+                      mediaItemProgressMap={mediaItemProgressMap}
                     />
                   </div>
                 )
@@ -219,7 +220,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                 if (!episode) {
                   return null
                 }
-                const mediaProgress = getEpisodeProgress(episode.id)
+                const mediaProgress = getMediaItemProgress(episode.id)
                 return (
                   <div key={episode.id + '-' + shelf.id} className="mx-2e shrink-0">
                     <PodcastEpisodeCard
