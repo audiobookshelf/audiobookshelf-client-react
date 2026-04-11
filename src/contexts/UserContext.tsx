@@ -4,6 +4,11 @@ import { EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse }
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
 
+interface UserItemProgressUpdatedPayload {
+  id: string
+  data?: MediaProgress | null
+}
+
 export interface UserContextType {
   user: User
   userCanUpdate: boolean
@@ -35,6 +40,31 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     }
   })
 
+  useSocketEvent<UserItemProgressUpdatedPayload>('user_item_progress_updated', (payload) => {
+    if (!payload?.id) return
+
+    setCurrentUserData((prev) => {
+      const currentProgress = prev.user.mediaProgress || []
+
+      const index = currentProgress.findIndex((entry) => entry.id === payload.id)
+      const nextProgress = [...currentProgress]
+
+      if (index >= 0) {
+        nextProgress[index] = payload.data!
+      } else {
+        nextProgress.push(payload.data!)
+      }
+
+      return {
+        ...prev,
+        user: {
+          ...prev.user,
+          mediaProgress: nextProgress
+        }
+      }
+    })
+  })
+
   // To capture if initialUser changes from server refresh
   useEffect(() => {
     setCurrentUserData(initialUser)
@@ -51,8 +81,9 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     userDefaultLibraryId: currentUserData.userDefaultLibraryId,
     ereaderDevices: currentUserData.ereaderDevices,
     Source: currentUserData.Source,
-    getLibraryItemProgress: (libraryItemId: string) => user.mediaProgress.find((p) => p.libraryItemId === libraryItemId && !p.episodeId),
-    getEpisodeProgress: (episodeId: string) => user.mediaProgress.find((p) => p.mediaItemId === episodeId)
+    getLibraryItemProgress: (libraryItemId: string) =>
+      user.mediaProgress.find((p) => p.libraryItemId === libraryItemId && !p.episodeId && p.mediaItemType !== 'podcastEpisode'),
+    getEpisodeProgress: (episodeId: string) => user.mediaProgress.find((p) => p.episodeId === episodeId)
   }
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

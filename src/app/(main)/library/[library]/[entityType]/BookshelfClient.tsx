@@ -214,9 +214,12 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   const bookProgressMap = useMemo(() => {
     const map = new Map<string, MediaProgress>()
     user.mediaProgress.forEach((p) => {
-      if (!p.episodeId) {
-        map.set(p.libraryItemId, p)
+      if (p.episodeId) {
+        map.set(p.episodeId, p)
+        return
       }
+
+      map.set(p.libraryItemId, p)
     })
     return map
   }, [user.mediaProgress])
