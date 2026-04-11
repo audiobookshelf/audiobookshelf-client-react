@@ -1,5 +1,26 @@
 import type { MediaProgress } from '@/types/api'
 
+export function buildMediaItemProgressMap(mediaProgress: MediaProgress[]): Map<string, MediaProgress> {
+  const map = new Map<string, MediaProgress>()
+  for (const p of mediaProgress) {
+    const key = p.mediaItemId ?? p.episodeId ?? p.libraryItemId
+    map.set(key, p)
+  }
+  return map
+}
+
+/** Progress rows for one podcast library item, keyed by podcast episode id (mediaItemId) */
+export function buildPodcastEpisodeProgressMap(podcastLibraryItemId: string, mediaProgress: MediaProgress[]): Map<string, MediaProgress> {
+  const map = new Map<string, MediaProgress>()
+  for (const p of mediaProgress) {
+    if (p.libraryItemId !== podcastLibraryItemId) continue
+    const key = p.mediaItemId ?? p.episodeId
+    if (!key) continue
+    map.set(key, p)
+  }
+  return map
+}
+
 export interface ProgressComputationOptions {
   progress: MediaProgress | null | undefined
   /**

@@ -15,7 +15,8 @@ import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
 import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { MediaProgress, PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
+import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
+import { PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
 interface EpisodeTableProps {
@@ -40,20 +41,12 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const [podcastFeedEpisodes, setPodcastFeedEpisodes] = useState<RssPodcastEpisode[]>([])
   const [fetchingRSSFeed, startFetchingRSSTransition] = useTransition()
 
-  // Create a dictionary of progress entries for this library item for O(1) lookup
-  const episodeProgressMap = useMemo(() => {
-    const map = new Map<string, MediaProgress>()
-    for (const p of user.mediaProgress) {
-      if (p.libraryItemId === libraryItem.id && p.episodeId) {
-        map.set(p.episodeId, p)
-      }
-    }
-    return map
-  }, [user, libraryItem.id])
+  // Create a dictionary of progress entries for this library item for O(1) lookup (media item id keys)
+  const episodeProgressMap = useMemo(() => buildPodcastEpisodeProgressMap(libraryItem.id, user.mediaProgress), [user.mediaProgress, libraryItem.id])
 
-  const getEpisodeProgress = useCallback(
-    (episodeId: string) => {
-      return episodeProgressMap.get(episodeId) || null
+  const getMediaItemProgress = useCallback(
+    (mediaItemId: string) => {
+      return episodeProgressMap.get(mediaItemId) || null
     },
     [episodeProgressMap]
   )
@@ -66,7 +59,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const episodes = useMemo(() => libraryItem.media.episodes || [], [libraryItem.media.episodes])
 
   const { filterKey, setFilterKey, sortKey, setSortKey, sortDesc, setSortDesc, search, setSearch, isSearching, filteredEpisodes, hasMounted } =
-    useEpisodeFilterAndSort({ libraryItemId: libraryItem.id, episodes, getEpisodeProgress })
+    useEpisodeFilterAndSort({ libraryItemId: libraryItem.id, episodes, getMediaItemProgress })
 
   const handleCloseViewModal = useCallback(() => {
     if (viewedEpisode) {
@@ -89,10 +82,10 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
 
   const allEpisodesFinished = useMemo(() => {
     return !filteredEpisodes.some((episode) => {
-      const itemProgress = getEpisodeProgress?.(episode.id)
+      const itemProgress = getMediaItemProgress?.(episode.id)
       return !itemProgress?.isFinished
     })
-  }, [filteredEpisodes, getEpisodeProgress])
+  }, [filteredEpisodes, getMediaItemProgress])
 
   const handleSelectEpisode = useCallback((episode: PodcastEpisode, isSelected: boolean) => {
     setSelectedEpisodes((prev) => {
@@ -129,7 +122,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
 
   const handleToggleFinished = useCallback(
     (episode: PodcastEpisode) => {
-      const progress = getEpisodeProgress(episode.id)
+      const progress = getMediaItemProgress(episode.id)
       const isFinished = progress ? !progress.isFinished : true
 
       startTransition(async () => {
@@ -144,7 +137,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
         }
       })
     },
-    [libraryItem.id, getEpisodeProgress, showToast, t]
+    [libraryItem.id, getMediaItemProgress, showToast, t]
   )
 
   const handleViewEpisode = useCallback((episode: PodcastEpisode) => {
@@ -257,10 +250,10 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const allSelectedEpisodesFinished = useMemo(() => {
     if (selectedEpisodes.size === 0) return false
     return Array.from(selectedEpisodes).every((episodeId) => {
-      const itemProgress = getEpisodeProgress?.(episodeId)
+      const itemProgress = getMediaItemProgress?.(episodeId)
       return itemProgress?.isFinished
     })
-  }, [selectedEpisodes, getEpisodeProgress])
+  }, [selectedEpisodes, getMediaItemProgress])
 
   const headerActions = useMemo(
     () => (
@@ -364,7 +357,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     episode={episode}
                     libraryItemId={libraryItem.id}
                     sortKey={sortKey}
-                    progress={getEpisodeProgress?.(episode.id) || null}
+                    progress={getMediaItemProgress?.(episode.id) || null}
                     isSelected={selectedEpisodes.has(episode.id)}
                     isSelectionMode={isSelectionMode}
                     dateFormat={dateFormat}
