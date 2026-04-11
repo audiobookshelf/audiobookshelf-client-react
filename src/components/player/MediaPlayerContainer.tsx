@@ -28,6 +28,7 @@ export default function MediaPlayerContainer() {
   // TODO: Get podcast episode duration
   const bookDuration = (streamLibraryItem.media as BookMedia).duration
   const bookAuthors = 'authors' in streamLibraryItem.media.metadata ? streamLibraryItem.media.metadata.authors || [] : []
+  const displayTitle = playerHandler.state.displayTitle || streamLibraryItem.media.metadata.title
 
   return (
     <div className="bg-primary shadow-media-player fixed right-0 bottom-0 left-0 z-50 h-48 w-full px-2 pt-2 pb-1 lg:h-40 lg:px-4 lg:pb-4">
@@ -40,7 +41,7 @@ export default function MediaPlayerContainer() {
         />
         <div className="flex flex-col gap-0.5">
           <Link href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`} className="text-foreground text-lg font-medium hover:underline">
-            {streamLibraryItem.media.metadata.title}
+            {displayTitle}
           </Link>
           {bookAuthors.length > 0 && (
             <div className="text-foreground-muted">
