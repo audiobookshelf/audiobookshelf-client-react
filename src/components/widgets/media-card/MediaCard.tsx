@@ -1,5 +1,6 @@
 'use client'
 
+import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
@@ -13,7 +14,7 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getEntityNavigationContext, type EntityNavigationContext } from '@/lib/bookshelfNavigationContext'
+import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { BookMedia, BookshelfEntity, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
@@ -113,13 +114,13 @@ function MediaCard(props: MediaCardProps) {
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 
   const handleOpenMatch = useCallback(() => {
-    const defaultNavigationContext: EntityNavigationContext = { entityIds: [libraryItem.id], initialIndex: 0 }
-    let navigationContext: EntityNavigationContext = defaultNavigationContext
-    if (shelfEntities !== undefined && entityIndex !== undefined) {
-      const computedNavigationContext = getEntityNavigationContext(shelfEntities, entityIndex)
-      if (computedNavigationContext) navigationContext = computedNavigationContext
-    }
-    setBoundModal(<MatchModal key="match-modal" isOpen navCtx={navigationContext} onClose={clearBoundModal} />)
+    const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
+    setBoundModal(<MatchModal key="match-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+  }, [clearBoundModal, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
+
+  const handleOpenEdit = useCallback(() => {
+    const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
+    setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
@@ -282,11 +283,6 @@ function MediaCard(props: MediaCardProps) {
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
   }
 
-  const handleEdit = () => {
-    // TODO: wire up edit modal when available
-    console.log('handleEdit', libraryItem.id)
-  }
-
   return (
     <>
       <MediaCardFrame
@@ -353,7 +349,7 @@ function MediaCard(props: MediaCardProps) {
             renderSeriesNameOverlay={renderSeriesNameOverlay}
             onPlay={handlePlay}
             onRead={handleReadEBook}
-            onEdit={handleEdit}
+            onEdit={handleOpenEdit}
             onMoreAction={handleMoreAction}
             onMoreMenuOpenChange={handleMoreMenuOpenChange}
             onSelect={onSelect}

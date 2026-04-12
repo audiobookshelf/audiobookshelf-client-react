@@ -21,7 +21,7 @@ export default function ModalSideNavigation({ canGoPrev, canGoNext, onPrevAction
         <div className="pointer-events-none absolute start-[-6rem] top-0 bottom-0 z-[1] flex h-full items-center px-6">
           <button
             type="button"
-            className="material-symbols pointer-events-auto cursor-pointer text-5xl text-white/50 hover:text-white/90"
+            className="material-symbols text-foreground-muted hover:text-foreground pointer-events-auto cursor-pointer text-5xl transition-colors"
             aria-label={t('ButtonPrevious')}
             onClick={(e) => {
               e.stopPropagation()
@@ -38,7 +38,7 @@ export default function ModalSideNavigation({ canGoPrev, canGoNext, onPrevAction
         <div className="pointer-events-none absolute end-[-6rem] top-0 bottom-0 z-[1] flex h-full items-center px-6">
           <button
             type="button"
-            className="material-symbols pointer-events-auto cursor-pointer text-5xl text-white/50 hover:text-white/90"
+            className="material-symbols text-foreground-muted hover:text-foreground pointer-events-auto cursor-pointer text-5xl transition-colors"
             aria-label={t('ButtonNext')}
             onClick={(e) => {
               e.stopPropagation()

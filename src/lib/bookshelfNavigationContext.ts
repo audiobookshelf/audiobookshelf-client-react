@@ -13,7 +13,7 @@ export type EntityNavigationContext = {
  * Prev/next entity scope for one bookshelf entity slot: contiguous non-null run around `entityIndex`, in array order.
  * Call when opening a modal (lazy). Returns a fresh `entityIds` array; safe to pass through to the modal.
  */
-export function getEntityNavigationContext(entities: (BookshelfEntity | null)[], entityIndex: number): EntityNavigationContext | null {
+function getEntityNavigationContext(entities: (BookshelfEntity | null)[], entityIndex: number): EntityNavigationContext | null {
   if (entityIndex < 0 || entityIndex >= entities.length) return null
 
   const at = entities[entityIndex]
@@ -44,4 +44,25 @@ export function getEntityNavigationContext(entities: (BookshelfEntity | null)[],
   if (initialIndex < 0) return null
 
   return { entityIds, initialIndex }
+}
+
+const defaultSingleEntityNavCtx = (libraryItemId: string): EntityNavigationContext => ({
+  entityIds: [libraryItemId],
+  initialIndex: 0
+})
+
+/**
+ * Navigation scope for match/edit modals opened from a media card:
+ * uses shelf row scope when `shelfEntities` + `entityIndex` are set, otherwise a single-item context.
+ */
+export function getMediaCardModalNavigationContext(
+  libraryItemId: string,
+  shelfEntities: (BookshelfEntity | null)[] | undefined,
+  entityIndex: number | undefined
+): EntityNavigationContext {
+  if (shelfEntities !== undefined && entityIndex !== undefined) {
+    const computed = getEntityNavigationContext(shelfEntities, entityIndex)
+    if (computed) return computed
+  }
+  return defaultSingleEntityNavCtx(libraryItemId)
 }
