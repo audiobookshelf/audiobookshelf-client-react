@@ -21,10 +21,7 @@ export default function LoadingIndicator({ label, children, variant = 'overlay' 
   }
   const displayLabel = t(label)
 
-  const rootClass =
-    variant === 'inline'
-      ? 'flex items-center justify-center'
-      : 'absolute inset-0 z-50 flex items-center justify-center bg-black/50'
+  const rootClass = variant === 'inline' ? 'flex items-center justify-center' : 'absolute inset-0 z-50 flex items-center justify-center bg-black/50'
 
   return (
     <div className={rootClass} role="status" aria-live="polite" aria-label={label}>

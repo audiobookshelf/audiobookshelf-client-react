@@ -84,14 +84,7 @@ type LibraryItemEditModalContentProps = {
   stableBodyHeight: boolean
 }
 
-function LibraryItemEditModalContent({
-  isOpen,
-  startSaveTransition,
-  isSavePending,
-  onClose,
-  onSaved,
-  stableBodyHeight
-}: LibraryItemEditModalContentProps) {
+function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePending, onClose, onSaved, stableBodyHeight }: LibraryItemEditModalContentProps) {
   const { resolvedItem, fetchPending, pendingEntityId, syncResolvedItem } = useLibraryItemModal()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
@@ -222,7 +215,7 @@ function LibraryItemEditModalContent({
   }, [library.mediaType, libraryId, pendingEntityId, showPlaceholderShell])
 
   const fetchLoadingOverlay = (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-bg/50">
+    <div className="bg-bg/50 absolute inset-0 z-10 flex items-center justify-center">
       <LoadingIndicator variant="inline" />
     </div>
   )
