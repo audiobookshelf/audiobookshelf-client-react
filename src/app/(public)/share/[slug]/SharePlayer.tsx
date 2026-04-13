@@ -433,7 +433,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
     return (
       <div className="text-foreground flex h-dvh w-full items-center justify-center bg-neutral-900" role="status" aria-live="polite">
         <div className="flex flex-col items-center gap-4">
-          <LoadingSpinner size="la-2x" color="rgb(148 163 184)" dark />
+          <LoadingSpinner size="la-2x" color="rgb(148 163 184)" />
           <p className="text-lg text-slate-400">Loading...</p>
         </div>
       </div>

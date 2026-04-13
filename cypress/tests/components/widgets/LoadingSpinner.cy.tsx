@@ -47,16 +47,19 @@ describe('<LoadingSpinner />', () => {
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'height', '96px')
   })
 
-  it('applies dark theme correctly', () => {
-    cy.mount(<LoadingSpinner dark />)
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-dark'])
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(38, 38, 38)')
+  it('applies invert variant correctly', () => {
+    cy.mount(<LoadingSpinner invert />)
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-invert'])
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(237, 237, 237)')
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should(($el) => {
+      expect($el.css('filter')).to.match(/invert/)
+    })
   })
 
-  it('applies light theme by default', () => {
+  it('uses theme foreground color by default', () => {
     cy.mount(<LoadingSpinner />)
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('not.have.class', styles['la-dark'])
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(255, 255, 255)')
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('not.have.class', styles['la-invert'])
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(237, 237, 237)')
   })
 
   it('applies custom color via style prop', () => {
@@ -117,13 +120,16 @@ describe('<LoadingSpinner />', () => {
     cy.get(`.${styles['la-ball-spin-clockwise']} > div:nth-child(8)`).should('have.css', 'animation-delay', '0s')
   })
 
-  it('handles dark theme with custom size', () => {
-    cy.mount(<LoadingSpinner size="la-2x" dark />)
+  it('handles invert variant with custom size', () => {
+    cy.mount(<LoadingSpinner size="la-2x" invert />)
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-2x'])
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-dark'])
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-invert'])
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'width', '64px')
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'height', '64px')
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(38, 38, 38)')
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(237, 237, 237)')
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should(($el) => {
+      expect($el.css('filter')).to.match(/invert/)
+    })
   })
 
   it('handles custom color with custom size', () => {
@@ -135,19 +141,22 @@ describe('<LoadingSpinner />', () => {
   })
 
   it('handles all props together', () => {
-    cy.mount(<LoadingSpinner size="la-3x" dark={true} color="#0000ff" className="test-spinner" />)
+    cy.mount(<LoadingSpinner size="la-3x" invert={true} color="#0000ff" className="test-spinner" />)
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-3x'])
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-dark'])
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', styles['la-invert'])
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.class', 'test-spinner')
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'width', '96px')
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'height', '96px')
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(0, 0, 255)')
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should(($el) => {
+      expect($el.css('filter')).to.match(/invert/)
+    })
   })
 
   it('handles edge case with empty color string', () => {
     cy.mount(<LoadingSpinner color="" />)
     cy.get(`.${styles['la-ball-spin-clockwise']}`).should('exist')
     // Should fall back to default color
-    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(255, 255, 255)')
+    cy.get(`.${styles['la-ball-spin-clockwise']}`).should('have.css', 'color', 'rgb(237, 237, 237)')
   })
 })

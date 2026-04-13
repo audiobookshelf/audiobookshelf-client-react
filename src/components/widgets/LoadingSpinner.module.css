@@ -14,11 +14,11 @@
 .la-ball-spin-clockwise {
   display: block;
   font-size: 0;
-  color: #fff;
+  color: var(--tc-foreground);
 }
 
-.la-ball-spin-clockwise.la-dark {
-  color: #262626;
+.la-ball-spin-clockwise.la-invert {
+  filter: invert(1);
 }
 
 .la-ball-spin-clockwise > div {

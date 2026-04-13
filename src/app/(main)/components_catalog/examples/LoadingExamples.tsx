@@ -23,7 +23,7 @@ export function LoadingExamples() {
               <span className="font-bold">Import:</span> <Code overflow>import LoadingSpinner from &apos;@/components/widgets/LoadingSpinner&apos;</Code>
             </p>
             <p className="mb-2">
-              <span className="font-bold">Props:</span> <Code>size</Code> (la-sm, la-lg, la-2x, la-3x), <Code>dark</Code>, <Code>color</Code>,{' '}
+              <span className="font-bold">Props:</span> <Code>size</Code> (la-sm, la-lg, la-2x, la-3x), <Code>invert</Code>, <Code>color</Code>,{' '}
               <Code>className</Code>
             </p>
           </ComponentInfo>
@@ -59,9 +59,9 @@ export function LoadingExamples() {
           <LoadingSpinner size="la-3x" />
         </Example>
 
-        <Example title="Loading Spinner (Dark - Large)">
+        <Example title="Loading Spinner (Invert - Large)">
           <div className="rounded-lg bg-gray-500 p-6">
-            <LoadingSpinner size="la-lg" dark />
+            <LoadingSpinner size="la-lg" invert />
           </div>
         </Example>
 
