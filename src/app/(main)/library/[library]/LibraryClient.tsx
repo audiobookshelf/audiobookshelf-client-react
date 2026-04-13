@@ -156,7 +156,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   }, [userIsAdminOrUp, library.id, setContextMenuItems, setContextMenuActionHandler, t, startScanTransition])
 
   return (
-    <div style={{ fontSize: sizeMultiplier + 'rem' }}>
+    <div className="pb-20" style={{ fontSize: sizeMultiplier + 'rem' }}>
       {/* empty state with scan button if user is admin or root */}
       {shelves.length === 0 && (
         <div className="py-8">
