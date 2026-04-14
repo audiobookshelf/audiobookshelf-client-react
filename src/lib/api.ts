@@ -57,36 +57,7 @@ import {
   UserLoginResponse
 } from '../types/api'
 
-/**
- * Custom error classes for API error handling
- */
-export class UnauthorizedError extends Error {
-  constructor(message = 'Unauthorized') {
-    super(message)
-    this.name = 'UnauthorizedError'
-  }
-}
-
-export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-    public statusText: string
-  ) {
-    super(message)
-    this.name = 'ApiError'
-  }
-}
-
-export class NetworkError extends Error {
-  constructor(
-    message = 'Network error',
-    public cause?: unknown
-  ) {
-    super(message)
-    this.name = 'NetworkError'
-  }
-}
+import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
 
 const publicEndpoints = ['/status']
 const RefreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
@@ -958,6 +929,35 @@ export async function matchAll(libraryId: string): Promise<void> {
 //
 // Collection endpoints
 //
+
+/**
+ * Create a collection w/ initial book library item IDs
+ */
+export async function createCollection(payload: { libraryId: string; name: string; description?: string | null; books?: string[] }): Promise<Collection> {
+  return apiRequest<Collection>('/api/collections', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Add a book library item to a collection
+ */
+export async function addBookToCollection(collectionId: string, libraryItemId: string): Promise<Collection> {
+  return apiRequest<Collection>(`/api/collections/${collectionId}/book`, {
+    method: 'POST',
+    body: JSON.stringify({ id: libraryItemId })
+  })
+}
+
+/**
+ * Remove a book library item from a collection
+ */
+export async function removeBookFromCollection(collectionId: string, libraryItemId: string): Promise<Collection> {
+  return apiRequest<Collection>(`/api/collections/${collectionId}/book/${libraryItemId}`, {
+    method: 'DELETE'
+  })
+}
 
 /**
  * Update a collection

@@ -1,5 +1,6 @@
 'use client'
 
+import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
@@ -67,10 +68,12 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
     confirmState,
     rssFeedModalOpen,
     shareModalOpen,
+    collectionsModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
     closeShareModal,
+    closeCollectionsModal,
     handleShareChange,
     handleReadEBook,
     handleMoreAction,
@@ -266,6 +269,15 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
         mediaItemShare={mediaItemShare}
         onShareChange={handleShareChange}
       />
+      {collectionsModalOpen && (
+        <AddToCollectionModal
+          isOpen={collectionsModalOpen}
+          onClose={closeCollectionsModal}
+          libraryId={libraryItem.libraryId}
+          libraryItemId={libraryItem.id}
+          itemTitle={libraryItem.media.metadata.title ?? ''}
+        />
+      )}
       <MatchModal isOpen={matchModalOpen} onClose={() => setMatchModalOpen(false)} libraryItem={libraryItem} />
     </>
   )
