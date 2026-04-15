@@ -366,6 +366,12 @@ export interface Playlist {
   createdAt?: number
 }
 
+/** Request body entry for playlist create and batch add/remove */
+export type PlaylistItemPayload = {
+  libraryItemId: string
+  episodeId?: string | null
+}
+
 // ============================================================================
 // METADATA
 // ============================================================================

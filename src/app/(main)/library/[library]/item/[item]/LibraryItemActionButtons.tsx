@@ -1,6 +1,7 @@
 'use client'
 
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
+import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
@@ -69,11 +70,13 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
     rssFeedModalOpen,
     shareModalOpen,
     collectionsModalOpen,
+    playlistsModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
     closeShareModal,
     closeCollectionsModal,
+    closePlaylistsModal,
     handleShareChange,
     handleReadEBook,
     handleMoreAction,
@@ -275,6 +278,16 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
           onClose={closeCollectionsModal}
           libraryId={libraryItem.libraryId}
           libraryItemId={libraryItem.id}
+          itemTitle={libraryItem.media.metadata.title ?? ''}
+        />
+      )}
+      {playlistsModalOpen && (
+        <AddToPlaylistModal
+          isOpen={playlistsModalOpen}
+          onClose={closePlaylistsModal}
+          libraryId={libraryItem.libraryId}
+          libraryItemId={libraryItem.id}
+          episodeId={null}
           itemTitle={libraryItem.media.metadata.title ?? ''}
         />
       )}

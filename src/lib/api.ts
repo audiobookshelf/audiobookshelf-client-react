@@ -42,6 +42,7 @@ import {
   OpenRssFeedResponse,
   PersonalizedShelf,
   Playlist,
+  PlaylistItemPayload,
   PodcastSearchResult,
   RssPodcastEpisode,
   SaveLibraryOrderApiResponse,
@@ -1002,6 +1003,41 @@ export async function createPlaylistFromCollection(collectionId: string): Promis
 export async function deletePlaylist(playlistId: string): Promise<void> {
   return apiRequest<void>(`/api/playlists/${playlistId}`, {
     method: 'DELETE'
+  })
+}
+
+/**
+ * Create a playlist w/ initial items
+ */
+export async function createPlaylist(payload: {
+  libraryId: string
+  name: string
+  description?: string | null
+  items?: PlaylistItemPayload[]
+}): Promise<Playlist> {
+  return apiRequest<Playlist>('/api/playlists', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Batch add items to a playlist
+ */
+export async function batchAddToPlaylist(playlistId: string, items: PlaylistItemPayload[]): Promise<Playlist> {
+  return apiRequest<Playlist>(`/api/playlists/${playlistId}/batch/add`, {
+    method: 'POST',
+    body: JSON.stringify({ items })
+  })
+}
+
+/**
+ * Batch remove items from a playlist
+ */
+export async function batchRemoveFromPlaylist(playlistId: string, items: PlaylistItemPayload[]): Promise<Playlist> {
+  return apiRequest<Playlist>(`/api/playlists/${playlistId}/batch/remove`, {
+    method: 'POST',
+    body: JSON.stringify({ items })
   })
 }
 
