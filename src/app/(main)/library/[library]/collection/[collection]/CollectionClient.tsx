@@ -71,7 +71,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
                     items={moreMenuItems}
                     processing={processing}
                     onAction={handleMoreAction}
-                    className="border-border bg-primary mx-0.5 h-9 w-9 border"
+                    className="border-border bg-primary text-button-foreground hover:not-disabled:text-button-foreground mx-0.5 h-9 w-9 border"
                   />
                 )}
               </div>
