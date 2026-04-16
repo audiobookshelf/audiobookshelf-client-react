@@ -208,7 +208,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                             ariaLabel={t('ButtonRemove')}
                             size="auto"
                             outlined={false}
-                            className="bg-error text-button-foreground h-9 min-w-10 px-3"
+                            className="bg-error text-white h-9 min-w-10 px-3"
                             disabled={controlsDisabled}
                             onClick={() => handleRemove(collection)}
                           >
@@ -219,7 +219,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                             ariaLabel={t('ButtonAdd')}
                             size="auto"
                             outlined={false}
-                            className="bg-success text-button-foreground h-9 min-w-10 px-3"
+                            className="bg-success text-white h-9 min-w-10 px-3"
                             disabled={controlsDisabled}
                             onClick={() => handleAdd(collection)}
                           >

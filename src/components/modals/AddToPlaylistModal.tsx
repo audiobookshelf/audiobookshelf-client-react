@@ -207,7 +207,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
                             ariaLabel={t('ButtonRemove')}
                             size="auto"
                             outlined={false}
-                            className="bg-error text-button-foreground h-9 min-w-10 px-3"
+                            className="bg-error text-white h-9 min-w-10 px-3"
                             disabled={controlsDisabled}
                             onClick={() => handleRemove(playlist)}
                           >
@@ -218,7 +218,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
                             ariaLabel={t('ButtonAdd')}
                             size="auto"
                             outlined={false}
-                            className="bg-success text-button-foreground h-9 min-w-10 px-3"
+                            className="bg-success text-white h-9 min-w-10 px-3"
                             disabled={controlsDisabled}
                             onClick={() => handleAdd(playlist)}
                           >
