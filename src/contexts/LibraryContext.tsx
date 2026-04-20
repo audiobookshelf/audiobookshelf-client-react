@@ -71,6 +71,9 @@ interface LibraryContextType extends LibrarySettings {
   library: Library
   itemCount: number | null
   setItemCount: (count: number | null) => void
+  /** When set (e.g. series detail page), toolbar shows this title */
+  detailToolbarTitle: string | null
+  setDetailToolbarTitle: (title: string | null) => void
   contextMenuItems: ContextMenuDropdownItem[]
   setContextMenuItems: (items: ContextMenuDropdownItem[]) => void
   onContextMenuAction: ((action: string) => void) | undefined
@@ -92,6 +95,7 @@ const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
 export function LibraryProvider({ children, library }: { children: React.ReactNode; library: Library }) {
   const [itemCount, setItemCount] = useState<number | null>(null)
+  const [detailToolbarTitle, setDetailToolbarTitle] = useState<string | null>(null)
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
   const [settings, setSettings] = useState<LibrarySettings>(DEFAULT_SETTINGS)
@@ -213,6 +217,8 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
       library,
       itemCount,
       setItemCount,
+      detailToolbarTitle,
+      setDetailToolbarTitle,
       contextMenuItems,
       setContextMenuItems,
       onContextMenuAction,
@@ -232,6 +238,7 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
     [
       library,
       itemCount,
+      detailToolbarTitle,
       contextMenuItems,
       onContextMenuAction,
       setContextMenuActionHandler,

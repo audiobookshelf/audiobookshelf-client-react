@@ -15,7 +15,7 @@ export default async function SeriesPage({ params }: { params: Promise<{ series:
 
   return (
     <div className="w-full p-8">
-      <SeriesClient libraryItems={libraryItems} />
+      <SeriesClient series={series} libraryItems={libraryItems} />
     </div>
   )
 }

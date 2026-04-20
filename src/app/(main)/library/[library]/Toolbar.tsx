@@ -10,13 +10,15 @@ const BOOKSHELF_PAGE_PATTERNS = ['/items', '/series', '/collections', '/playlist
 
 export default function Toolbar() {
   const pathname = usePathname()
-  const { library, itemCount, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
+  const { library, itemCount, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
   const t = useTypeSafeTranslations()
 
   // Check if we're on any bookshelf-like page
   const isBookshelfPage = BOOKSHELF_PAGE_PATTERNS.some((pattern) => pathname.endsWith(pattern))
 
   const isBookshelfEmpty = itemCount === 0 && filterBy === 'all'
+
+  const isSeriesDetailPage = Boolean(detailToolbarTitle)
 
   // Determine item name based on current page and library type
   let itemName = ''
@@ -35,24 +37,39 @@ export default function Toolbar() {
       itemName = t('LabelBooks')
     }
   }
+
   const handleAction = (action: string) => {
     onContextMenuAction?.(action)
   }
 
+  const showBookshelfSummary = isBookshelfPage && itemCount !== null && !isSeriesDetailPage
+  const showSeriesDetailSummary = isSeriesDetailPage && itemCount !== null
+  const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage
+  const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage)
+
   return (
     <div className="bg-bg box-shadow-toolbar relative z-40 h-10 w-full" cy-id="library-toolbar">
       <div className="flex h-full w-full items-center justify-between px-4">
-        {isBookshelfPage && itemCount !== null && (
+        {showBookshelfSummary && (
           <p className="text-foreground hidden text-base md:block">
             {itemCount} {itemName}
           </p>
         )}
 
+        {showSeriesDetailSummary && (
+          <div className="hidden min-w-0 flex-1 md:block">
+            <p className="text-foreground truncate text-base" title={detailToolbarTitle ?? ''}>
+              <span>{detailToolbarTitle}</span>
+              <span className="text-foreground-muted"> {itemCount ? `(${itemCount})` : ''}</span>
+            </p>
+          </div>
+        )}
+
         <div className="flex-grow" />
 
-        {isBookshelfPage && !isBookshelfEmpty && <div className="mr-2 flex items-center gap-4">{toolbarExtras}</div>}
+        {showToolbarExtras && <div className="mr-2 flex items-center gap-4">{toolbarExtras}</div>}
 
-        {contextMenuItems.length > 0 && !isBookshelfEmpty && (
+        {showContextMenu && (
           <ContextMenuDropdown items={contextMenuItems} borderless usePortal size="small" autoWidth onAction={(args) => handleAction(args.action)} />
         )}
       </div>
