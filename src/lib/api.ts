@@ -609,8 +609,13 @@ export const closeRssFeed = cache(async (feedId: string): Promise<void> => {
   })
 })
 
-export async function openItemRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
-  return apiRequest<OpenRssFeedResponse>(`/api/feeds/item/${itemId}/open`, {
+/** open an rss feed for library item, series or collection */
+export async function openEntityRssFeed(
+  entityType: 'item' | 'collection' | 'series',
+  entityId: string,
+  payload: OpenRssFeedPayload
+): Promise<OpenRssFeedResponse> {
+  return apiRequest<OpenRssFeedResponse>(`/api/feeds/${entityType}/${entityId}/open`, {
     method: 'POST',
     body: JSON.stringify(payload)
   })

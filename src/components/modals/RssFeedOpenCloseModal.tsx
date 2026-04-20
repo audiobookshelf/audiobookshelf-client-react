@@ -1,6 +1,6 @@
 'use client'
 
-import { closeRssFeed, openItemRssFeed } from '@/app/actions/rssFeedActions'
+import { closeRssFeed, openEntityRssFeed } from '@/app/actions/rssFeedActions'
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
@@ -63,7 +63,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
   }, [isOpen, entity, entityId, entityFeed])
 
   const handleOpenFeed = useCallback(async () => {
-    if (!entityId || entity?.type !== 'item') return
+    if (!entityId || !entity?.type) return
     if (!newFeedSlug.trim()) {
       showToast(t('ToastSlugRequired'), { type: 'error' })
       return
@@ -76,7 +76,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
     }
     setProcessing(true)
     try {
-      const res = await openItemRssFeed(entityId, {
+      const res = await openEntityRssFeed(entity.type, entityId, {
         serverAddress: window.location.origin,
         slug: sanitized,
         metadataDetails: {
@@ -94,7 +94,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
     } finally {
       setProcessing(false)
     }
-  }, [entityId, entity?.type, newFeedSlug, metadataDetails, onFeedChange, showToast, t])
+  }, [entity?.type, entityId, newFeedSlug, metadataDetails, onFeedChange, showToast, t])
 
   const handleCloseFeed = useCallback(async () => {
     if (!currentFeed) return

@@ -10,8 +10,12 @@ export async function closeRssFeed(feedId: string): Promise<void> {
   return result
 }
 
-export async function openItemRssFeed(itemId: string, payload: OpenRssFeedPayload): Promise<OpenRssFeedResponse> {
-  const result = await api.openItemRssFeed(itemId, payload)
+export async function openEntityRssFeed(
+  entityType: 'item' | 'collection' | 'series',
+  entityId: string,
+  payload: OpenRssFeedPayload
+): Promise<OpenRssFeedResponse> {
+  const result = await api.openEntityRssFeed(entityType, entityId, payload)
   revalidatePath('/library', 'layout')
   return result
 }
