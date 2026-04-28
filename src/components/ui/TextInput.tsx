@@ -77,6 +77,9 @@ export default function TextInput({
   const inputClass = mergeClasses(
     'w-full bg-transparent px-1 outline-none border-none h-full',
     'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only',
+    // type="search" adds a native clear control in Blink/WebKit; hide it because we show our own
+    actualType === 'search' &&
+      '[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden',
     '[&::-webkit-calendar-picker-indicator]:invert',
     showCopy ? 'ps-1 pe-8' : 'px-1',
     customInputClass
