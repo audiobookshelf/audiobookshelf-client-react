@@ -303,9 +303,11 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
 
   return (
     <>
-      <div className="mb-2 flex justify-end">
-        <Dropdown value={selectedUser} items={userItems} label={t('LabelFilterByUser')} size="small" className="max-w-48" onChange={handleUpdateUserFilter} />
-      </div>
+      {(total > 0 || selectedUser !== '') && (
+        <div className="mb-2 flex justify-end">
+          <Dropdown value={selectedUser} items={userItems} label={t('LabelFilterByUser')} size="small" className="max-w-48" onChange={handleUpdateUserFilter} />
+        </div>
+      )}
 
       <div className="relative block max-w-full">
         {listeningSessions.length > 0 ? (
