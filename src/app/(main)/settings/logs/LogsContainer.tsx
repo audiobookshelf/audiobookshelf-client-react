@@ -63,6 +63,8 @@ export default function LogsContainer({ currentDailyLogs, logLevel: initialLogLe
     return defaultItems
   }, [t, logLevel])
 
+  const visibleLogs = useMemo(() => logs.filter((log) => log.level >= logLevel), [logs, logLevel])
+
   // Emit set_log_listener when socket connects
   useEffect(() => {
     emit('set_log_listener', logLevel)
@@ -141,7 +143,7 @@ export default function LogsContainer({ currentDailyLogs, logLevel: initialLogLe
       </div>
       <div ref={containerRef} className="border-border h-full max-h-[calc(100vh-20rem)] w-full overflow-x-hidden overflow-y-auto rounded-md border">
         <div className="flex flex-col">
-          {logs.map((log, index) => (
+          {visibleLogs.map((log, index) => (
             <LogsRow key={index} log={log} isEven={index % 2 === 0} />
           ))}
         </div>
