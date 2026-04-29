@@ -5,6 +5,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
@@ -12,10 +13,12 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime } from '@/lib/datefns'
 import { bytesPretty } from '@/lib/string'
 import { Backup, GetBackupsResponse, ServerSettings } from '@/types/api'
-import { useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import { UpdateServerSettingsApiResponse } from '../actions'
 import SettingsContent from '../SettingsContent'
 import SettingsToggleSwitch from '../SettingsToggleSwitch'
+import { createBackup, deleteBackup } from './actions'
 import BackupLocation from './BackupLocation'
 import BackupScheduleModal from './BackupScheduleModal'
 
@@ -26,9 +29,14 @@ interface BackupsClientProps {
 
 export default function BackupsClient({ backupResponse, updateServerSettings }: BackupsClientProps) {
   const t = useTypeSafeTranslations()
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [previousCronExpress, setPreviousCronExpress] = useState<string | false>()
   const [isBackupScheduleModalOpen, setIsBackupScheduleModalOpen] = useState(false)
+  const [isCreatingBackup, setIsCreatingBackup] = useState(false)
+  const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
+  const [deletingBackupId, setDeletingBackupId] = useState<string | null>(null)
+  const backupPendingDeleteRef = useRef<Backup | null>(null)
   const { showToast } = useGlobalToast()
   const { serverSettings } = useUser()
 
@@ -89,6 +97,47 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
   const handleUpdateBackupSchedule = (cronExpression: string) => {
     handleUpdateBackupSettings({ backupSchedule: cronExpression })
   }
+
+  const handleCreateBackup = useCallback(async () => {
+    if (isCreatingBackup) return
+
+    setIsCreatingBackup(true)
+    try {
+      await createBackup()
+      showToast(t('ToastBackupCreateSuccess'), { type: 'success' })
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to create backup', error)
+      showToast(t('ToastBackupCreateFailed'), { type: 'error' })
+    } finally {
+      setIsCreatingBackup(false)
+    }
+  }, [isCreatingBackup, showToast, t, router])
+
+  const handleDeleteBackupClick = useCallback((backup: Backup) => {
+    backupPendingDeleteRef.current = backup
+    setShowDeleteConfirmDialog(true)
+  }, [])
+
+  const handleConfirmDeleteBackup = useCallback(async () => {
+    if (!backupPendingDeleteRef.current) return
+    setShowDeleteConfirmDialog(false)
+
+    const backupToDelete = backupPendingDeleteRef.current
+    setDeletingBackupId(backupToDelete.id)
+
+    try {
+      await deleteBackup(backupToDelete.id)
+      showToast(t('ToastBackupDeleteSuccess'), { type: 'success' })
+      router.refresh()
+    } catch (error) {
+      console.error('Failed to delete backup', error)
+      showToast(t('ToastBackupDeleteFailed'), { type: 'error' })
+    } finally {
+      setDeletingBackupId(null)
+      backupPendingDeleteRef.current = null
+    }
+  }, [showToast, t, router])
 
   return (
     <SettingsContent
@@ -172,12 +221,20 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
 
         <div className="mt-8 mb-4 flex justify-between">
           <Btn onClick={() => {}}>{t('ButtonUploadBackup')}</Btn>
-          <Btn onClick={() => {}}>{t('ButtonCreateBackup')}</Btn>
+          <Btn loading={isCreatingBackup} disabled={isCreatingBackup} onClick={() => void handleCreateBackup()}>
+            {t('ButtonCreateBackup')}
+          </Btn>
         </div>
 
         {/* backups table */}
         {backups.length > 0 ? (
-          <BackupsTable backups={backups} dateFormat={dateFormat} timeFormat={timeFormat} />
+          <BackupsTable
+            backups={backups}
+            dateFormat={dateFormat}
+            timeFormat={timeFormat}
+            onDelete={handleDeleteBackupClick}
+            deletingBackupId={deletingBackupId}
+          />
         ) : (
           <p className="text-foreground py-4 text-center text-lg">{t('MessageNoBackups')}</p>
         )}
@@ -188,6 +245,19 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
         onClose={() => setIsBackupScheduleModalOpen(false)}
         cronExpression={backupSchedule || ''}
         onUpdate={handleUpdateBackupSchedule}
+      />
+      <ConfirmDialog
+        isOpen={showDeleteConfirmDialog}
+        message={t('MessageConfirmDeleteBackup', {
+          0: backupPendingDeleteRef.current ? formatJsDatetime(new Date(backupPendingDeleteRef.current.createdAt), dateFormat, timeFormat) : ''
+        })}
+        yesButtonText={t('ButtonDelete')}
+        yesButtonClassName="bg-error text-white"
+        onClose={() => {
+          backupPendingDeleteRef.current = null
+          setShowDeleteConfirmDialog(false)
+        }}
+        onConfirm={() => void handleConfirmDeleteBackup()}
       />
     </SettingsContent>
   )
@@ -200,9 +270,10 @@ interface BackupsTableProps {
   onRestore?: (backup: Backup) => void
   onDownload?: (backup: Backup) => void
   onDelete?: (backup: Backup) => void
+  deletingBackupId?: string | null
 }
 
-function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, onDelete }: BackupsTableProps) {
+function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, onDelete, deletingBackupId }: BackupsTableProps) {
   const t = useTypeSafeTranslations()
 
   const columns: DataTableColumn<Backup>[] = useMemo(
@@ -223,14 +294,21 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
       {
         label: '',
         accessor: (backup) => (
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
             <Btn size="small" onClick={() => onRestore?.(backup)}>
               {t('ButtonRestore')}
             </Btn>
             <IconBtn ariaLabel={t('LabelDownload')} borderless size="small" onClick={() => onDownload?.(backup)}>
               download
             </IconBtn>
-            <IconBtn ariaLabel={t('ButtonDelete')} borderless size="small" className="hover:not-disabled:text-error" onClick={() => onDelete?.(backup)}>
+            <IconBtn
+              ariaLabel={t('ButtonDelete')}
+              borderless
+              size="small"
+              className="hover:not-disabled:text-error"
+              loading={deletingBackupId === backup.id}
+              onClick={() => onDelete?.(backup)}
+            >
               delete
             </IconBtn>
           </div>
@@ -239,7 +317,7 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
         cellClassName: 'text-right'
       }
     ],
-    [t, onRestore, onDownload, onDelete, dateFormat, timeFormat]
+    [t, onRestore, onDownload, onDelete, deletingBackupId, dateFormat, timeFormat]
   )
 
   return <SimpleDataTable data={backups} columns={columns} getRowKey={(backup) => backup.id} caption={t('HeaderBackups')} />

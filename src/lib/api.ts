@@ -37,6 +37,7 @@ import {
   LibraryItem,
   MediaItemShare,
   MetadataProvidersResponse,
+  MutateBackupsResponse,
   OpenMediaItemSharePayload,
   OpenRssFeedPayload,
   OpenRssFeedResponse,
@@ -637,6 +638,18 @@ export async function closeMediaItemShare(shareId: string): Promise<void> {
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
   return apiRequest<GetBackupsResponse>('/api/backups', {})
 })
+
+export async function createBackup(): Promise<MutateBackupsResponse> {
+  return apiRequest<MutateBackupsResponse>('/api/backups', {
+    method: 'POST'
+  })
+}
+
+export async function deleteBackup(backupId: string): Promise<MutateBackupsResponse> {
+  return apiRequest<MutateBackupsResponse>(`/api/backups/${backupId}`, {
+    method: 'DELETE'
+  })
+}
 
 export const getListeningSessions = cache(async (queryParams?: string): Promise<GetListeningSessionsResponse> => {
   return apiRequest<GetListeningSessionsResponse>(`/api/sessions${queryParams ? `?${queryParams}` : ''}`, {})

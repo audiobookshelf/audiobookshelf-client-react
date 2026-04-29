@@ -945,7 +945,7 @@ export interface CreateCustomMetadataProviderResponse {
 
 export interface Backup {
   id: string
-  key: string
+  key: string | null
   backupDirPath: string
   datePretty: string
   fullPath: string
@@ -953,12 +953,16 @@ export interface Backup {
   filename: string
   fileSize: number
   createdAt: number
-  serverVersion: string
+  serverVersion: string | null
 }
 
 export interface GetBackupsResponse {
   backupLocation: string
   backupPathEnvSet: boolean
+  backups: Backup[]
+}
+
+export interface MutateBackupsResponse {
   backups: Backup[]
 }
 
