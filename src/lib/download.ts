@@ -29,3 +29,7 @@ export function downloadLibraryItem(libraryItemId: string) {
 export function downloadLibraryItemFile(libraryItemId: string, fileId: string, filename?: string) {
   downloadByUrl(`/internal-api/items/${libraryItemId}/file/${fileId}/download`, { filename })
 }
+
+export function downloadBackup(backupId: string, filename?: string) {
+  downloadByUrl(`/internal-api/backups/${encodeURIComponent(backupId)}/download`, { filename })
+}

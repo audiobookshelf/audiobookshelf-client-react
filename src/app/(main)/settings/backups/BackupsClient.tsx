@@ -11,6 +11,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime } from '@/lib/datefns'
+import { downloadBackup } from '@/lib/download'
 import { bytesPretty } from '@/lib/string'
 import { Backup, GetBackupsResponse, ServerSettings } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -113,6 +114,10 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
       setIsCreatingBackup(false)
     }
   }, [isCreatingBackup, showToast, t, router])
+
+  const handleDownloadBackup = useCallback((backup: Backup) => {
+    downloadBackup(backup.id, backup.filename)
+  }, [])
 
   const handleDeleteBackupClick = useCallback((backup: Backup) => {
     backupPendingDeleteRef.current = backup
@@ -232,6 +237,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
             backups={backups}
             dateFormat={dateFormat}
             timeFormat={timeFormat}
+            onDownload={handleDownloadBackup}
             onDelete={handleDeleteBackupClick}
             deletingBackupId={deletingBackupId}
           />
