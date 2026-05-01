@@ -1,12 +1,16 @@
 'use client'
 
+import { getCookie } from '@/app/(main)/upload/actions'
+import { uploadBackupArchive } from '@/app/(main)/upload/UploadHelper'
 import Btn from '@/components/ui/Btn'
+import FileInput from '@/components/ui/FileInput'
 import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
+import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -35,6 +39,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
   const [previousCronExpress, setPreviousCronExpress] = useState<string | false>()
   const [isBackupScheduleModalOpen, setIsBackupScheduleModalOpen] = useState(false)
   const [isCreatingBackup, setIsCreatingBackup] = useState(false)
+  const [isUploadingBackup, setIsUploadingBackup] = useState(false)
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
   const [deletingBackupId, setDeletingBackupId] = useState<string | null>(null)
   const backupPendingDeleteRef = useRef<Backup | null>(null)
@@ -99,8 +104,35 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
     handleUpdateBackupSettings({ backupSchedule: cronExpression })
   }
 
+  const handleUploadBackup = useCallback(
+    async (file: File) => {
+      if (isUploadingBackup || isCreatingBackup) return
+
+      setIsUploadingBackup(true)
+      try {
+        const accessToken = await getCookie()
+        if (!accessToken) {
+          showToast(t('ToastBackupUploadFailed'), { type: 'error' })
+          return
+        }
+
+        await uploadBackupArchive(file, accessToken)
+
+        showToast(t('ToastBackupUploadSuccess'), { type: 'success' })
+        router.refresh()
+      } catch (error) {
+        console.error('Failed to upload backup', error)
+        const message = error instanceof Error && error.message.trim() ? error.message : t('ToastBackupUploadFailed')
+        showToast(message, { type: 'error' })
+      } finally {
+        setIsUploadingBackup(false)
+      }
+    },
+    [isUploadingBackup, isCreatingBackup, showToast, t, router]
+  )
+
   const handleCreateBackup = useCallback(async () => {
-    if (isCreatingBackup) return
+    if (isCreatingBackup || isUploadingBackup) return
 
     setIsCreatingBackup(true)
     try {
@@ -113,7 +145,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
     } finally {
       setIsCreatingBackup(false)
     }
-  }, [isCreatingBackup, showToast, t, router])
+  }, [isCreatingBackup, isUploadingBackup, showToast, t, router])
 
   const handleDownloadBackup = useCallback((backup: Backup) => {
     downloadBackup(backup.id, backup.filename)
@@ -224,26 +256,40 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
           </div>
         </div>
 
-        <div className="mt-8 mb-4 flex justify-between">
-          <Btn onClick={() => {}}>{t('ButtonUploadBackup')}</Btn>
-          <Btn loading={isCreatingBackup} disabled={isCreatingBackup} onClick={() => void handleCreateBackup()}>
+        <div className="mt-8 mb-4 flex flex-wrap items-center justify-between gap-2">
+          <FileInput
+            accept=".audiobookshelf"
+            ariaLabel={t('ButtonUploadBackup')}
+            onChange={(file) => void handleUploadBackup(file)}
+            className={isUploadingBackup || isCreatingBackup ? 'pointer-events-none opacity-50' : ''}
+          >
+            {t('ButtonUploadBackup')}
+          </FileInput>
+          <Btn loading={isCreatingBackup} disabled={isCreatingBackup || isUploadingBackup} onClick={() => void handleCreateBackup()}>
             {t('ButtonCreateBackup')}
           </Btn>
         </div>
 
         {/* backups table */}
-        {backups.length > 0 ? (
-          <BackupsTable
-            backups={backups}
-            dateFormat={dateFormat}
-            timeFormat={timeFormat}
-            onDownload={handleDownloadBackup}
-            onDelete={handleDeleteBackupClick}
-            deletingBackupId={deletingBackupId}
-          />
-        ) : (
-          <p className="text-foreground py-4 text-center text-lg">{t('MessageNoBackups')}</p>
-        )}
+        <div className="relative">
+          {backups.length > 0 ? (
+            <BackupsTable
+              backups={backups}
+              dateFormat={dateFormat}
+              timeFormat={timeFormat}
+              onDownload={handleDownloadBackup}
+              onDelete={handleDeleteBackupClick}
+              deletingBackupId={deletingBackupId}
+            />
+          ) : (
+            <p className="text-foreground py-4 text-center text-lg">{t('MessageNoBackups')}</p>
+          )}
+          {isUploadingBackup && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/25" aria-busy="true" aria-live="polite">
+              <LoadingSpinner size="la-lg" />
+            </div>
+          )}
+        </div>
       </div>
       <BackupScheduleModal
         isOpen={isBackupScheduleModalOpen}

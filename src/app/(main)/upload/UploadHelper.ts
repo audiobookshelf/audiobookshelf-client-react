@@ -250,3 +250,50 @@ export async function upload(
     xhr.send(form)
   })
 }
+
+/**
+ * Stream a backup archive to server /api/backups/upload
+ * Uses the same strategy as file upload to support large files
+ */
+export async function uploadBackupArchive(file: File, accessToken: string, onProgress?: (progress: UploadProgressInfo) => void): Promise<void> {
+  const form = new FormData()
+  form.set('file', file)
+
+  await new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', '/api/backups/upload', true)
+    xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`)
+
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable && onProgress) {
+        onProgress({
+          percent: Math.round((event.loaded / event.total) * 100),
+          loaded: event.loaded,
+          total: event.total
+        })
+      }
+    }
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        if (onProgress && file.size > 0) {
+          onProgress({
+            percent: 100,
+            loaded: file.size,
+            total: file.size
+          })
+        }
+        resolve()
+      } else {
+        const msg = xhr.responseText?.trim() || `Upload failed with status ${xhr.status}`
+        reject(new Error(msg))
+      }
+    }
+
+    xhr.onerror = () => {
+      reject(new Error('Upload failed due to network error'))
+    }
+
+    xhr.send(form)
+  })
+}
