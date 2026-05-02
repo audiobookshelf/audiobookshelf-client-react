@@ -55,7 +55,9 @@ export default function BackupsClient({ backupResponse, updateServerSettings, ap
   const { showToast } = useGlobalToast()
   const { serverSettings } = useUser()
 
-  const backups = backupResponse.backups
+  const backups = useMemo(() => {
+    return [...backupResponse.backups].sort((a, b) => b.createdAt - a.createdAt)
+  }, [backupResponse.backups])
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
 
