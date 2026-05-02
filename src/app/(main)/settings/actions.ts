@@ -22,7 +22,7 @@ export async function updateServerSettings(settingsUpdatePayload: Partial<Server
 
   // Invalidate the current user cache
   if (response) {
-    revalidateTag('current-user')
+    revalidateTag('current-user', 'default')
   }
 
   return response
@@ -39,7 +39,7 @@ export async function updateSortingPrefixes(sortingPrefixes: string[]): Promise<
 
   // Invalidate the current user cache
   if (response) {
-    revalidateTag('current-user')
+    revalidateTag('current-user', 'default')
   }
 
   return response

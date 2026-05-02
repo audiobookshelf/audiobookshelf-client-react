@@ -10,7 +10,7 @@ function isNextServerActionRequest(request: NextRequest): boolean {
   return request.method === 'POST' && request.headers.has(NEXT_ACTION_HEADER)
 }
 
-export default async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const accessTokenCookie = request.cookies.get('access_token')?.value
   const refreshTokenCookie = request.cookies.get('refresh_token')?.value
