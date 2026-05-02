@@ -2,21 +2,19 @@ ARG NUSQLITE3_DIR="/usr/local/lib/nusqlite3"
 ARG NUSQLITE3_PATH="${NUSQLITE3_DIR}/libnusqlite3.so"
 
 ### STAGE 0: Build React client ###
-FROM node:22-alpine AS build-client
-
-RUN corepack enable pnpm
+FROM oven/bun:1.3.9-alpine AS build-client
 
 WORKDIR /client-react
 
-COPY ./client-react/package.json ./client-react/pnpm-lock.yaml ./client-react/.npmrc ./
+COPY ./client-react/package.json ./client-react/bun.lock ./client-react/.npmrc ./
 
-RUN pnpm install --frozen-lockfile
+RUN bun install --frozen-lockfile
 
 COPY ./client-react .
 
-RUN pnpm run build
+RUN bun run build
 
-RUN rm -rf node_modules && pnpm install --frozen-lockfile --prod
+RUN rm -rf node_modules && bun install --frozen-lockfile --production
 
 ### STAGE 1: Build server ###
 FROM node:20-alpine AS build-server
