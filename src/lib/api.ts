@@ -984,7 +984,10 @@ export async function removeBookFromCollection(collectionId: string, libraryItem
  * @param payload - Update payload with name and/or description
  * Returns: Updated collection
  */
-export async function updateCollection(collectionId: string, payload: { name?: string; description?: string }): Promise<Collection> {
+export async function updateCollection(
+  collectionId: string,
+  payload: { name?: string; description?: string | null; books?: string[] }
+): Promise<Collection> {
   return apiRequest<Collection>(`/api/collections/${collectionId}`, {
     method: 'PATCH',
     body: JSON.stringify(payload)
