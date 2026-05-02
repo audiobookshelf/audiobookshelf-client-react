@@ -89,10 +89,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   }, [sizeMultiplier, entityType])
 
   // Computed Layout derived from measurements
-  const shelfPadding = (dimensions.width < 640 ? 32 : 64) * sizeMultiplier
   const cardMargin = 24 * sizeMultiplier
-  const totalEntityCardWidth = cardSize.width + cardMargin
-
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
   // A standard bookshelf divider is 1.5rem (24px).
   // In alternative view there is no divider.
@@ -128,11 +125,11 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   const { columns, shelfHeight, totalShelves, shelvesPerPage, visibleShelfStart, visibleShelfEnd, handleScroll, getVisiblePageRange } = useBookshelfVirtualizer(
     {
       totalEntities,
-      itemWidth: hasMeasuredCard ? totalEntityCardWidth : 0,
+      cardWidth: hasMeasuredCard ? cardSize.width : 0,
+      columnGap: cardMargin,
       itemHeight: hasMeasuredCard ? shelfRowHeight : 0,
       containerWidth: dimensions.width,
-      containerHeight: dimensions.height,
-      padding: shelfPadding / 2
+      containerHeight: dimensions.height
     }
   )
 
@@ -145,7 +142,9 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
 
   // Author actions hook
 
-  const bookshelfMarginLeft = Math.max(0, (dimensions.width - columns * totalEntityCardWidth) / 2)
+  const bookshelfRowWidth =
+    hasMeasuredCard && columns > 0 ? columns * cardSize.width + Math.max(0, columns - 1) * cardMargin : 0
+  const bookshelfMarginLeft = Math.max(0, (dimensions.width - bookshelfRowWidth) / 2)
   const itemsPerPage = columns * shelvesPerPage
   const bookshelfLayoutReady = hasMeasuredCard && columns > 0 && Number.isFinite(itemsPerPage) && itemsPerPage > 0
 
@@ -273,7 +272,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
       }}
     >
       {/* Measurement Dummy - Hidden but rendered for sizing */}
-      <div ref={dummyCardRef} style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
+      <div ref={dummyCardRef} className="w-max" style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
         <config.SkeletonComponent bookshelfView={bookshelfView} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
       </div>
 

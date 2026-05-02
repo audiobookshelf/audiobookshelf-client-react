@@ -2,7 +2,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface UseBookshelfVirtualizerProps {
   totalEntities: number
-  itemWidth: number
+  /** Width of one card (column track), excluding the horizontal gap after it. */
+  cardWidth: number
+  /** Horizontal gap between adjacent cards (`gap` in the shelf flex row). */
+  columnGap: number
   itemHeight: number
   containerWidth: number
   containerHeight: number
@@ -48,11 +51,19 @@ export function getVisibleBookshelfPageRange({ visibleShelfStart, visibleShelfEn
 // Buffer of shelves to render above/below viewport
 const VISIBILITY_BUFFER = 2
 
-export function useBookshelfVirtualizer({ totalEntities, itemWidth, itemHeight, containerWidth, containerHeight, padding = 0 }: UseBookshelfVirtualizerProps) {
+export function useBookshelfVirtualizer({
+  totalEntities,
+  cardWidth,
+  columnGap,
+  itemHeight,
+  containerWidth,
+  containerHeight,
+  padding = 0
+}: UseBookshelfVirtualizerProps) {
   // Calculate layout synchronously with useMemo - this ensures layout is immediately
   // available in the same render cycle when dimensions change
   const layout = useMemo(() => {
-    if (containerWidth === 0) {
+    if (containerWidth === 0 || cardWidth === 0) {
       return {
         columns: 0,
         shelfHeight: 0,
@@ -61,7 +72,11 @@ export function useBookshelfVirtualizer({ totalEntities, itemWidth, itemHeight, 
       }
     }
 
-    const columns = Math.max(1, Math.floor((containerWidth - padding * 2) / itemWidth))
+    const availableWidth = containerWidth - padding * 2
+    // We want max n columns so that n*cardWidth + (n-1)*columnGap <= availableWidth
+    // so (after a little algebra): n <= (availableWidth + columnGap) / (cardWidth + columnGap)
+    // Hence n = Math.floor((availableWidth + columnGap) / (cardWidth + columnGap)) or 1 if < 1
+    const columns = Math.max(1, Math.floor((availableWidth + columnGap) / (cardWidth + columnGap)))
     const totalShelves = Math.ceil(totalEntities / columns)
     const shelfHeight = itemHeight
     // shelvesPerPage = visible shelves + buffer on both sides to ensure single initial fetch
@@ -73,7 +88,7 @@ export function useBookshelfVirtualizer({ totalEntities, itemWidth, itemHeight, 
       shelfHeight,
       shelvesPerPage
     }
-  }, [containerWidth, containerHeight, totalEntities, itemWidth, itemHeight, padding])
+  }, [containerWidth, containerHeight, totalEntities, cardWidth, columnGap, itemHeight, padding])
 
   const [visibleRange, setVisibleRange] = useState({
     visibleShelfStart: 0,

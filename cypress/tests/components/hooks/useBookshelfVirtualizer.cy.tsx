@@ -1,11 +1,14 @@
 import { useBookshelfVirtualizer, type UseBookshelfVirtualizerProps } from '@/hooks/useBookshelfVirtualizer'
 import { useState } from 'react'
 
-const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBookshelfVirtualizerProps> }) => {
+type TestInitialProps = Partial<{ [K in keyof UseBookshelfVirtualizerProps]: string | number }>
+
+const TestComponent = ({ initialProps = {} }: { initialProps?: TestInitialProps }) => {
   // Use strings for input state to allow empty values and prevent "0" glitch
   const [inputState, setInputState] = useState({
     totalEntities: '1000',
-    itemWidth: '100',
+    cardWidth: '100',
+    columnGap: '0',
     itemHeight: '100',
     containerWidth: '500',
     containerHeight: '500',
@@ -16,7 +19,8 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
   // Convert to numbers for the hook
   const props = {
     totalEntities: Number(inputState.totalEntities),
-    itemWidth: Number(inputState.itemWidth),
+    cardWidth: Number(inputState.cardWidth),
+    columnGap: Number(inputState.columnGap),
     itemHeight: Number(inputState.itemHeight),
     containerWidth: Number(inputState.containerWidth),
     containerHeight: Number(inputState.containerHeight),
@@ -55,12 +59,22 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
           />
         </label>
         <label>
-          Item Width:
+          Card width:
           <input
-            data-cy="input-itemWidth"
+            data-cy="input-cardWidth"
             type="number"
-            value={inputState.itemWidth}
-            onChange={(e) => handleChange('itemWidth', e.target.value)}
+            value={inputState.cardWidth}
+            onChange={(e) => handleChange('cardWidth', e.target.value)}
+            className="w-full border p-1"
+          />
+        </label>
+        <label>
+          Column gap:
+          <input
+            data-cy="input-columnGap"
+            type="number"
+            value={inputState.columnGap}
+            onChange={(e) => handleChange('columnGap', e.target.value)}
             className="w-full border p-1"
           />
         </label>
@@ -92,14 +106,14 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
         </button>
         <button
           data-cy="btn-collapse"
-          onClick={() => setInputState((p) => ({ ...p, itemHeight: '0', itemWidth: '0' }))}
+          onClick={() => setInputState((p) => ({ ...p, itemHeight: '0', cardWidth: '0' }))}
           className="rounded bg-red-500 p-2 text-white"
         >
           Collapse
         </button>
         <button
           data-cy="btn-restore"
-          onClick={() => setInputState((p) => ({ ...p, itemHeight: '100', itemWidth: '100' }))}
+          onClick={() => setInputState((p) => ({ ...p, itemHeight: '100', cardWidth: '100' }))}
           className="rounded bg-green-500 p-2 text-white"
         >
           Restore
@@ -191,12 +205,44 @@ describe('useBookshelfVirtualizer', () => {
     cy.get('[data-cy="val-start"]').should('have.text', '0')
   })
 
+  it('counts columns using card width plus between-column gaps only', () => {
+    cy.mount(
+      <TestComponent
+        initialProps={{
+          containerWidth: 380,
+          padding: 16,
+          cardWidth: 160,
+          columnGap: 24,
+          totalEntities: 10
+        }}
+      />
+    )
+    // available = 380 - 32 = 348; max n with n*160 + (n-1)*24 <= 348 => n=2 (344px row)
+    cy.get('[data-cy="val-columns"]').should('have.text', '2')
+  })
+
+  it('uses full container width when padding is zero (narrow collection-style viewport)', () => {
+    cy.mount(
+      <TestComponent
+        initialProps={{
+          containerWidth: 348,
+          padding: 0,
+          cardWidth: 160,
+          columnGap: 24,
+          totalEntities: 10
+        }}
+      />
+    )
+    // floor((348 + 24) / 184) = 2 — would drop to 1 if callers subtracted an extra ~32px “shelf” inset on top of page padding
+    cy.get('[data-cy="val-columns"]').should('have.text', '2')
+  })
+
   it('respects padding', () => {
     cy.mount(<TestComponent />)
 
     // Add 20px padding (applied to both sides -> 40px subtraction)
     // 500 - 40 = 460 available width
-    // 460 / 100 = 4.6 -> 4 columns
+    // floor((460 + 0) / (100 + 0)) = 4 columns
     cy.get('[data-cy="input-padding"]').clear().type('20')
 
     // Verify input value
