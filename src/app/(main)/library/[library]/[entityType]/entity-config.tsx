@@ -12,6 +12,7 @@ import PlaylistCardSkeleton from '@/components/widgets/media-card/PlaylistCardSk
 import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
 import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
+import type { CollectionMarkFinishedControls } from '@/components/widgets/media-card/MediaCard'
 import { UpdateSettingFn } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, Library, LibraryItem, MediaProgress, Playlist, Series, User } from '@/types/api'
@@ -41,6 +42,8 @@ export interface CardComponentProps {
   mediaItemProgressMap: Map<string, MediaProgress>
   shelfEntities?: (BookshelfEntity | null)[]
   entityIndex?: number
+  /** Passed through to book/podcast media cards (collection mark finished). */
+  collectionMarkFinished?: CollectionMarkFinishedControls
 }
 
 export interface EntityConfig {
@@ -105,7 +108,20 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     SkeletonComponent: ({ bookshelfView, showSubtitles, orderBy }) => (
       <MediaCardSkeleton bookshelfView={bookshelfView} showSubtitles={showSubtitles} orderBy={orderBy} />
     ),
-    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, showSubtitles, orderBy, mediaItemProgressMap, shelfEntities, entityIndex }) => {
+    CardComponent: ({
+      entity,
+      bookshelfView,
+      width,
+      isPodcastLibrary,
+      showSubtitles,
+      orderBy,
+      seriesSortBy,
+      mediaItemProgressMap,
+      shelfEntities,
+      entityIndex,
+      collectionMarkFinished
+    }) => {
+      void seriesSortBy
       const { user, serverSettings, ereaderDevices } = useUser()
       const item = entity as LibraryItem
       const isCollapsedSeries = !!item.collapsedSeries
@@ -148,6 +164,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             orderBy={orderBy ?? ''}
             shelfEntities={shelfEntities}
             entityIndex={entityIndex}
+            collectionMarkFinished={collectionMarkFinished}
           />
         </div>
       )

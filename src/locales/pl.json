@@ -133,6 +133,7 @@
   "HeaderChooseAFolder": "Wybierz folder",
   "HeaderCollection": "Kolekcja",
   "HeaderCollectionItems": "Elementy kolekcji",
+  "TooltipCollectionDragHandle": "Przeciągnij, aby zmienić kolejność",
   "HeaderCover": "Okładka",
   "HeaderCurrentDownloads": "Obecnie ściągane",
   "HeaderCustomMessageOnLogin": "Własny tekst podczas logowania",

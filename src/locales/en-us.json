@@ -158,6 +158,7 @@
   "HeaderChooseAFolder": "Choose a Folder",
   "HeaderCollection": "Collection",
   "HeaderCollectionItems": "Collection Items",
+  "TooltipCollectionDragHandle": "Drag to reorder",
   "HeaderCover": "Cover",
   "HeaderCurrentDownloads": "Current Downloads",
   "HeaderCustomMessageOnLogin": "Custom Message on Login",

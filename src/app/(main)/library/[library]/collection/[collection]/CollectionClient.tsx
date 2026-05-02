@@ -14,6 +14,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Collection } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useState } from 'react'
+import CollectionBookshelfClient from './CollectionBookshelfClient'
 
 interface CollectionClientProps {
   collection: Collection
@@ -54,7 +55,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
         <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex min-w-0 items-center gap-4">
-            <h1 className="text-foreground min-w-0 flex-1 truncate text-2xl font-bold">{collection.name}</h1>
+            <h1 className="text-foreground min-w-0 flex-1 truncate px-2 text-2xl font-bold">{collection.name}</h1>
             {showHeaderActions && (
               <div className="flex shrink-0 items-center gap-1">
                 {userCanUpdate && (
@@ -77,9 +78,11 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
               </div>
             )}
           </div>
-          {collection.description && <p className="text-foreground-muted">{collection.description}</p>}
+          {collection.description && <p className="text-foreground-muted px-2">{collection.description}</p>}
         </div>
       </div>
+
+      <CollectionBookshelfClient collection={collection} />
 
       {userCanUpdate && (
         <CollectionEditModal isOpen={editModalOpen} collection={collection} onClose={() => setEditModalOpen(false)} onSaved={() => router.refresh()} />
