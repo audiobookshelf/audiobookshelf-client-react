@@ -70,11 +70,27 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
       }
     }
 
+    /**
+     * Force reload for all clients when a backup has been applied
+     */
+    const handleBackupApplied = () => {
+      try {
+        if (sessionStorage.getItem('abs_backup_restore_navigating') === '1') {
+          sessionStorage.removeItem('abs_backup_restore_navigating')
+          return
+        }
+      } catch {
+        /* ignore */
+      }
+      window.location.reload()
+    }
+
     socketInstance.on('connect', handleConnect)
     socketInstance.on('disconnect', handleDisconnect)
     socketInstance.on('connect_error', handleConnectError)
     socketInstance.on('init', handleInitialized)
     socketInstance.on('auth_failed', handleAuthFailed)
+    socketInstance.on('backup_applied', handleBackupApplied)
 
     return () => {
       socketInstance.off('connect', handleConnect)
@@ -82,6 +98,7 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
       socketInstance.off('connect_error', handleConnectError)
       socketInstance.off('init', handleInitialized)
       socketInstance.off('auth_failed', handleAuthFailed)
+      socketInstance.off('backup_applied', handleBackupApplied)
       socketInstance.disconnect()
     }
   }, [accessToken, router])

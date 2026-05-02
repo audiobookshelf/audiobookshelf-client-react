@@ -185,7 +185,12 @@ export default function BackupsClient({ backupResponse, updateServerSettings, ap
 
     try {
       await applyBackup(backup.id)
-      // After DB swap: full load + ?backup=1 shows success toast
+      try {
+        // handles case where the socket event arrives before the browser navigation
+        sessionStorage.setItem('abs_backup_restore_navigating', '1')
+      } catch {
+        /* ignore */
+      }
       window.location.replace(`${window.location.origin}/settings/backups?backup=1`)
     } catch (error) {
       console.error('Failed to apply backup', error)
