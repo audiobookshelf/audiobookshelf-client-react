@@ -13,6 +13,11 @@ export async function deleteBackup(backupId: string): Promise<void> {
   revalidatePath('/settings/backups')
 }
 
+export async function applyBackup(backupId: string): Promise<void> {
+  await api.applyBackup(backupId)
+  revalidatePath('/settings/backups')
+}
+
 // Server Action to update the backup path
 export async function updateBackupPath(path: string): Promise<boolean> {
   try {

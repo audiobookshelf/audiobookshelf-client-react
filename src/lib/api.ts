@@ -651,6 +651,12 @@ export async function deleteBackup(backupId: string): Promise<MutateBackupsRespo
   })
 }
 
+export async function applyBackup(backupId: string): Promise<void> {
+  await apiRequest<void>(`/api/backups/${backupId}/apply`, {
+    method: 'GET'
+  })
+}
+
 export const getListeningSessions = cache(async (queryParams?: string): Promise<GetListeningSessionsResponse> => {
   return apiRequest<GetListeningSessionsResponse>(`/api/sessions${queryParams ? `?${queryParams}` : ''}`, {})
 })
