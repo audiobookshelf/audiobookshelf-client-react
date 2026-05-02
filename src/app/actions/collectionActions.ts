@@ -25,9 +25,12 @@ export async function removeBookFromCollectionAction(collectionId: string, libra
 }
 
 /**
- * Update a collection's name and/or description
+ * Update a collection's name, description, and/or book order (`books`: library item ids in order)
  */
-export async function updateCollectionAction(collectionId: string, payload: { name?: string; description?: string }): Promise<Collection> {
+export async function updateCollectionAction(
+  collectionId: string,
+  payload: { name?: string; description?: string | null; books?: string[] }
+): Promise<Collection> {
   return api.updateCollection(collectionId, payload)
 }
 
