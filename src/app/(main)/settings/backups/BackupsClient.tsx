@@ -14,25 +14,31 @@ import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { ApiError } from '@/lib/apiErrors'
 import { formatJsDatetime } from '@/lib/datefns'
 import { downloadBackup } from '@/lib/download'
 import { bytesPretty } from '@/lib/string'
 import { Backup, GetBackupsResponse, ServerSettings } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { UpdateServerSettingsApiResponse } from '../actions'
 import SettingsContent from '../SettingsContent'
 import SettingsToggleSwitch from '../SettingsToggleSwitch'
-import { createBackup, deleteBackup } from './actions'
+import { applyBackup, createBackup, deleteBackup } from './actions'
 import BackupLocation from './BackupLocation'
 import BackupScheduleModal from './BackupScheduleModal'
+import RestoreBackupModal from './RestoreBackupModal'
+
+/** Rare legacy backups message pre version 2 */
+const LEGACY_BACKUP_UNSUPPORTED_HINT = 'This backup was created with an old version of Audiobookshelf that is no longer supported'
 
 interface BackupsClientProps {
   backupResponse: GetBackupsResponse
   updateServerSettings: (settingsUpdatePayload: Partial<ServerSettings>) => Promise<UpdateServerSettingsApiResponse>
+  appliedBackupToast?: boolean
 }
 
-export default function BackupsClient({ backupResponse, updateServerSettings }: BackupsClientProps) {
+export default function BackupsClient({ backupResponse, updateServerSettings, appliedBackupToast = false }: BackupsClientProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -40,13 +46,18 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
   const [isBackupScheduleModalOpen, setIsBackupScheduleModalOpen] = useState(false)
   const [isCreatingBackup, setIsCreatingBackup] = useState(false)
   const [isUploadingBackup, setIsUploadingBackup] = useState(false)
+  const [isApplyingBackup, setIsApplyingBackup] = useState(false)
+  const [showRestoreModal, setShowRestoreModal] = useState(false)
+  const [backupToRestore, setBackupToRestore] = useState<Backup | null>(null)
   const [showDeleteConfirmDialog, setShowDeleteConfirmDialog] = useState(false)
   const [deletingBackupId, setDeletingBackupId] = useState<string | null>(null)
   const backupPendingDeleteRef = useRef<Backup | null>(null)
   const { showToast } = useGlobalToast()
   const { serverSettings } = useUser()
 
-  const backups = backupResponse.backups
+  const backups = useMemo(() => {
+    return [...backupResponse.backups].sort((a, b) => b.createdAt - a.createdAt)
+  }, [backupResponse.backups])
   const dateFormat = serverSettings.dateFormat
   const timeFormat = serverSettings.timeFormat
 
@@ -54,6 +65,12 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
   const [maxBackupSize, setMaxBackupSize] = useState(serverSettings.maxBackupSize ? String(serverSettings.maxBackupSize) : '')
 
   const backupSchedule = serverSettings.backupSchedule // cron expression or false if disabled
+
+  useEffect(() => {
+    if (!appliedBackupToast) return
+    showToast(t('ToastBackupAppliedSuccess'), { type: 'success' })
+    router.replace('/settings/backups')
+  }, [appliedBackupToast, showToast, t, router])
 
   const handleUpdateBackupSettings = (settingsUpdatePayload: Partial<ServerSettings>) => {
     if (isPending) return
@@ -106,7 +123,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
 
   const handleUploadBackup = useCallback(
     async (file: File) => {
-      if (isUploadingBackup || isCreatingBackup) return
+      if (isUploadingBackup || isCreatingBackup || isApplyingBackup) return
 
       setIsUploadingBackup(true)
       try {
@@ -128,11 +145,11 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
         setIsUploadingBackup(false)
       }
     },
-    [isUploadingBackup, isCreatingBackup, showToast, t, router]
+    [isUploadingBackup, isCreatingBackup, isApplyingBackup, showToast, t, router]
   )
 
   const handleCreateBackup = useCallback(async () => {
-    if (isCreatingBackup || isUploadingBackup) return
+    if (isCreatingBackup || isUploadingBackup || isApplyingBackup) return
 
     setIsCreatingBackup(true)
     try {
@@ -145,11 +162,47 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
     } finally {
       setIsCreatingBackup(false)
     }
-  }, [isCreatingBackup, isUploadingBackup, showToast, t, router])
+  }, [isCreatingBackup, isUploadingBackup, isApplyingBackup, showToast, t, router])
 
   const handleDownloadBackup = useCallback((backup: Backup) => {
     downloadBackup(backup.id, backup.filename)
   }, [])
+
+  const handleRestoreBackupClick = useCallback((backup: Backup) => {
+    setBackupToRestore(backup)
+    setShowRestoreModal(true)
+  }, [])
+
+  const handleCloseRestoreModal = useCallback(() => {
+    setBackupToRestore(null)
+    setShowRestoreModal(false)
+  }, [])
+
+  const handleConfirmRestoreBackup = useCallback(async () => {
+    const backup = backupToRestore
+    if (!backup) return
+
+    setShowRestoreModal(false)
+    setIsApplyingBackup(true)
+
+    try {
+      await applyBackup(backup.id)
+      try {
+        // handles case where the socket event arrives before the browser navigation
+        sessionStorage.setItem('abs_backup_restore_navigating', '1')
+      } catch {
+        /* ignore */
+      }
+      window.location.replace(`${window.location.origin}/settings/backups?backup=1`)
+    } catch (error) {
+      console.error('Failed to apply backup', error)
+      const message = error instanceof ApiError && error.message ? error.message : t('ToastBackupRestoreFailed')
+      showToast(message, { type: 'error' })
+    } finally {
+      setIsApplyingBackup(false)
+      setBackupToRestore(null)
+    }
+  }, [backupToRestore, showToast, t])
 
   const handleDeleteBackupClick = useCallback((backup: Backup) => {
     backupPendingDeleteRef.current = backup
@@ -261,11 +314,11 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
             accept=".audiobookshelf"
             ariaLabel={t('ButtonUploadBackup')}
             onChange={(file) => void handleUploadBackup(file)}
-            className={isUploadingBackup || isCreatingBackup ? 'pointer-events-none opacity-50' : ''}
+            className={isUploadingBackup || isCreatingBackup || isApplyingBackup ? 'pointer-events-none opacity-50' : ''}
           >
             {t('ButtonUploadBackup')}
           </FileInput>
-          <Btn loading={isCreatingBackup} disabled={isCreatingBackup || isUploadingBackup} onClick={() => void handleCreateBackup()}>
+          <Btn loading={isCreatingBackup} disabled={isCreatingBackup || isUploadingBackup || isApplyingBackup} onClick={() => void handleCreateBackup()}>
             {t('ButtonCreateBackup')}
           </Btn>
         </div>
@@ -277,6 +330,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
               backups={backups}
               dateFormat={dateFormat}
               timeFormat={timeFormat}
+              onRestore={handleRestoreBackupClick}
               onDownload={handleDownloadBackup}
               onDelete={handleDeleteBackupClick}
               deletingBackupId={deletingBackupId}
@@ -284,11 +338,11 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
           ) : (
             <p className="text-foreground py-4 text-center text-lg">{t('MessageNoBackups')}</p>
           )}
-          {isUploadingBackup && (
+          {isUploadingBackup || isApplyingBackup ? (
             <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/25" aria-busy="true" aria-live="polite">
               <LoadingSpinner size="la-lg" />
             </div>
-          )}
+          ) : null}
         </div>
       </div>
       <BackupScheduleModal
@@ -297,6 +351,14 @@ export default function BackupsClient({ backupResponse, updateServerSettings }: 
         onClose={() => setIsBackupScheduleModalOpen(false)}
         cronExpression={backupSchedule || ''}
         onUpdate={handleUpdateBackupSchedule}
+      />
+      <RestoreBackupModal
+        isOpen={showRestoreModal}
+        backup={backupToRestore}
+        dateFormat={dateFormat}
+        timeFormat={timeFormat}
+        onClose={handleCloseRestoreModal}
+        onConfirmRestore={() => void handleConfirmRestoreBackup()}
       />
       <ConfirmDialog
         isOpen={showDeleteConfirmDialog}
@@ -325,6 +387,10 @@ interface BackupsTableProps {
   deletingBackupId?: string | null
 }
 
+function backupIsRestorable(backup: Backup): boolean {
+  return !!(backup.serverVersion && backup.key)
+}
+
 function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, onDelete, deletingBackupId }: BackupsTableProps) {
   const t = useTypeSafeTranslations()
 
@@ -347,9 +413,17 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
         label: '',
         accessor: (backup) => (
           <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-            <Btn size="small" onClick={() => onRestore?.(backup)}>
-              {t('ButtonRestore')}
-            </Btn>
+            {backupIsRestorable(backup) ? (
+              <Btn size="small" onClick={() => onRestore?.(backup)}>
+                {t('ButtonRestore')}
+              </Btn>
+            ) : (
+              <Tooltip text={LEGACY_BACKUP_UNSUPPORTED_HINT} position="bottom" maxWidth={320}>
+                <span className="material-symbols text-error text-2xl" role="img" aria-label={LEGACY_BACKUP_UNSUPPORTED_HINT}>
+                  error_outline
+                </span>
+              </Tooltip>
+            )}
             <IconBtn ariaLabel={t('LabelDownload')} borderless size="small" onClick={() => onDownload?.(backup)}>
               download
             </IconBtn>
@@ -372,5 +446,13 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
     [t, onRestore, onDownload, onDelete, deletingBackupId, dateFormat, timeFormat]
   )
 
-  return <SimpleDataTable data={backups} columns={columns} getRowKey={(backup) => backup.id} caption={t('HeaderBackups')} />
+  return (
+    <SimpleDataTable
+      data={backups}
+      columns={columns}
+      getRowKey={(backup) => backup.id}
+      rowClassName={(backup) => (!backupIsRestorable(backup) ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
+      caption={t('HeaderBackups')}
+    />
+  )
 }
