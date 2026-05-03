@@ -100,11 +100,54 @@
 
   --color-track-bg: var(--tc-track-bg);
   --color-track-progress: var(--tc-track-progress);
+  --color-heatmap-bg: var(--heatmap-bg-color);
 }
 
 body {
   background: var(--tc-background);
   color: var(--tc-foreground);
+}
+
+/* Listening stats heatmap */
+.listening-heatmap-cell,
+.listening-heatmap-swatch {
+  outline-style: solid;
+  outline-width: 1px;
+  outline-offset: -1px;
+}
+
+.listening-heatmap-cell {
+  @apply absolute top-0 left-0 h-2.5 w-2.5 cursor-default rounded-xs border-0 p-0;
+}
+
+.listening-heatmap-cell[data-intensity='0'],
+.listening-heatmap-swatch[data-intensity='0'] {
+  background-color: var(--heatmap-intensity-0);
+  outline-color: var(--heatmap-outline-empty);
+}
+
+.listening-heatmap-cell[data-intensity='1'],
+.listening-heatmap-swatch[data-intensity='1'] {
+  background-color: var(--heatmap-intensity-1);
+  outline-color: var(--heatmap-outline-fill);
+}
+
+.listening-heatmap-cell[data-intensity='2'],
+.listening-heatmap-swatch[data-intensity='2'] {
+  background-color: var(--heatmap-intensity-2);
+  outline-color: var(--heatmap-outline-fill);
+}
+
+.listening-heatmap-cell[data-intensity='3'],
+.listening-heatmap-swatch[data-intensity='3'] {
+  background-color: var(--heatmap-intensity-3);
+  outline-color: var(--heatmap-outline-fill);
+}
+
+.listening-heatmap-cell[data-intensity='4'],
+.listening-heatmap-swatch[data-intensity='4'] {
+  background-color: var(--heatmap-intensity-4);
+  outline-color: var(--heatmap-outline-fill);
 }
 
 /* Screen reader only utility class */

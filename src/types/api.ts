@@ -1348,6 +1348,25 @@ export interface PlaybackSession {
   coverAspectRatio?: 0 | 1
 }
 
+/**
+ * Aggregated listening stats from GET /api/me/listening-stats
+ */
+export interface ListeningStatsItemAggregate {
+  id: string
+  timeListening: number
+  mediaMetadata: Record<string, unknown>
+  lastUpdate?: number
+}
+
+export interface ListeningStats {
+  totalTime: number
+  items: Record<string, ListeningStatsItemAggregate>
+  days: Record<string, number>
+  dayOfWeek: Record<string, number>
+  today: number
+  recentSessions: PlaybackSession[]
+}
+
 export interface GetListeningSessionsResponse {
   total: number
   numPages: number

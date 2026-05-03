@@ -35,6 +35,7 @@ import {
   Library,
   LibraryFilterData,
   LibraryItem,
+  ListeningStats,
   MediaItemShare,
   MetadataProvidersResponse,
   MutateBackupsResponse,
@@ -354,6 +355,10 @@ export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
     method: 'POST',
     next: { tags: ['current-user'] }
   })
+})
+
+export const getListeningStats = cache(async (): Promise<ListeningStats> => {
+  return apiRequest<ListeningStats>('/api/me/listening-stats')
 })
 
 export const getServerStatus = cache(async (): Promise<ServerStatus> => {

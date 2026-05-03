@@ -54,6 +54,16 @@
 
   --tc-track-bg: #374151;
   --tc-track-progress: #e5e7eb;
+
+  /* Listening stats heatmap */
+  --heatmap-bg-color: #232323;
+  --heatmap-intensity-0: rgb(45, 45, 45);
+  --heatmap-intensity-1: rgb(14, 68, 41);
+  --heatmap-intensity-2: rgb(0, 109, 50);
+  --heatmap-intensity-3: rgb(38, 166, 65);
+  --heatmap-intensity-4: rgb(57, 211, 83);
+  --heatmap-outline-empty: rgba(27, 31, 35, 0.06);
+  --heatmap-outline-fill: rgba(255, 255, 255, 0.03);
 }
 
 /* Light theme */
@@ -111,6 +121,15 @@
 
   --tc-track-bg: #d1d5db;
   --tc-track-progress: #374151;
+
+  --heatmap-bg-color: #ffffff;
+  --heatmap-intensity-0: #eff2f5;
+  --heatmap-intensity-1: #aceebb;
+  --heatmap-intensity-2: #4ac26b;
+  --heatmap-intensity-3: #2da44e;
+  --heatmap-intensity-4: #116329;
+  --heatmap-outline-empty: #1f23280d;
+  --heatmap-outline-fill: #1f23280d;
 }
 
 /* Black theme */
@@ -168,4 +187,13 @@
 
   --tc-track-bg: #1f2937;
   --tc-track-progress: #f3f4f6;
+
+  --heatmap-bg-color: #000000;
+  --heatmap-intensity-0: rgb(45, 45, 45);
+  --heatmap-intensity-1: rgb(14, 68, 41);
+  --heatmap-intensity-2: rgb(0, 109, 50);
+  --heatmap-intensity-3: rgb(38, 166, 65);
+  --heatmap-intensity-4: rgb(57, 211, 83);
+  --heatmap-outline-empty: rgba(27, 31, 35, 0.06);
+  --heatmap-outline-fill: rgba(255, 255, 255, 0.03);
 }
