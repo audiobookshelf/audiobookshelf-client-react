@@ -40,15 +40,6 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
     // eslint-disable-next-line react-hooks/exhaustive-deps -- serverBookIds reflects collection.books order and membership
   }, [collection.id, serverBookIds])
 
-  const itemsContentHash = useMemo(
-    () =>
-      [...orderedBooks]
-        .sort((a, b) => a.id.localeCompare(b.id))
-        .map((item) => JSON.stringify(item))
-        .join('|'),
-    [orderedBooks]
-  )
-
   const totalEntities = orderedBooks.length
 
   const totalDurationSeconds = useMemo(() => {
@@ -256,7 +247,6 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
           <CollectionBookshelfReorderGrid
             books={orderedBooks}
             setBooks={setOrderedBooks}
-            itemsContentHash={itemsContentHash}
             collectionId={collection.id}
             columns={columns}
             cardWidth={layoutCardWidth}

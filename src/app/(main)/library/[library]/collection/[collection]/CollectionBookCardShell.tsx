@@ -6,10 +6,10 @@ import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { computeProgress } from '@/lib/mediaProgress'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { BookshelfEntity, BookshelfView, LibraryItem, MediaProgress } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useCallback, useMemo, useState, useTransition, type HTMLAttributes, type Ref } from 'react'
+import CollectionBookCardDragHandle from './CollectionBookCardDragHandle'
 
 const itemsConfig = ENTITY_CONFIGS.items
 
@@ -24,6 +24,10 @@ export interface CollectionBookCardShellProps {
   shelfEntities: (BookshelfEntity | null)[]
   entityIndex: number
   showDragHandle: boolean
+  /** dnd-kit `setActivatorNodeRef` callback ref for the drag handle, when sortable. */
+  dragHandleRef?: Ref<HTMLDivElement>
+  /** Spread of dnd-kit `attributes` + `listeners` onto the drag handle. */
+  dragHandleProps?: HTMLAttributes<HTMLDivElement>
 }
 
 export default function CollectionBookCardShell({
@@ -36,7 +40,9 @@ export default function CollectionBookCardShell({
   mediaItemProgressMap,
   shelfEntities,
   entityIndex,
-  showDragHandle
+  showDragHandle,
+  dragHandleRef,
+  dragHandleProps
 }: CollectionBookCardShellProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
@@ -88,10 +94,7 @@ export default function CollectionBookCardShell({
 
   return (
     <>
-      <div
-        className={mergeClasses('relative shrink-0', showDragHandle && 'touch-none')}
-        style={{ width: `${cardWidth}px` }}
-      >
+      <div className="relative shrink-0" style={{ width: `${cardWidth}px` }}>
         <div className="relative z-0 min-w-0" style={{ width: `${cardWidth}px` }}>
           <itemsConfig.CardComponent
             entity={libraryItem}
@@ -113,14 +116,7 @@ export default function CollectionBookCardShell({
         </div>
 
         {showDragHandle && (
-          <span className="pointer-events-auto absolute start-0 top-[38%] z-50 inline-flex -translate-y-1/2">
-            <div
-              className="drag-handle text-foreground-muted hover:text-foreground flex h-8 w-7 cursor-grab items-center justify-center rounded-sm bg-black/45 active:cursor-grabbing md:h-9 md:w-8"
-              aria-label={t('TooltipCollectionDragHandle')}
-            >
-              <span className="material-symbols text-lg md:text-xl">menu</span>
-            </div>
-          </span>
+          <CollectionBookCardDragHandle activatorRef={dragHandleRef} activatorProps={dragHandleProps} ariaLabel={t('TooltipCollectionDragHandle')} />
         )}
       </div>
 

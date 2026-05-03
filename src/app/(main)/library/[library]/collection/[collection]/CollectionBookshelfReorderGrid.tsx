@@ -4,25 +4,16 @@ import { updateCollectionAction } from '@/app/actions/collectionActions'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { BookshelfEntity, BookshelfView, LibraryItem, MediaProgress } from '@/types/api'
-import { animations, type DragendEvent, type DragstartEvent } from '@formkit/drag-and-drop'
-import { useDragAndDrop } from '@formkit/drag-and-drop/react'
+import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
+import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useTransition } from 'react'
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import CollectionBookCardShell from './CollectionBookCardShell'
-
-/**
- * When true, FormKit's `animations` plugin runs short slide keyframes while reordering
- * (can feel busy on dense grids). Flip here to experiment.
- */
-const ENABLE_COLLECTION_REORDER_SLIDE_ANIMATIONS = true
-
-const collectionReorderAnimationPlugins = ENABLE_COLLECTION_REORDER_SLIDE_ANIMATIONS ? [animations({ duration: 500, xScale: 16, yScale: 16 })] : undefined
+import SortableCollectionBookCard from './SortableCollectionBookCard'
 
 export interface CollectionBookshelfReorderGridProps {
   books: LibraryItem[]
   setBooks: (next: LibraryItem[]) => void
-  /** Order-independent fingerprint (same as SortableList) so setDragItems runs on add/remove/metadata, not on reorder-only. */
-  itemsContentHash: string
   collectionId: string
   columns: number
   cardWidth: number
@@ -38,13 +29,19 @@ export interface CollectionBookshelfReorderGridProps {
 }
 
 /**
- * Isolated mount so `useDragAndDrop`'s init effect runs when `ref` is already on a real DOM node.
- * (FormKit's hook only re-inits when `values` changes; if the grid mounts later, the parent ref was null on first run.)
+ * Grid-aware sortable bookshelf using dnd-kit.
+ *
+ * Why dnd-kit (and not @formkit/drag-and-drop): FormKit's synthetic-drag path uses a
+ * pointer-events:none clone in the popover layer plus `document.elementFromPoint`
+ * to detect the hovered card. That hover detection didn't fire reliably for cards
+ * inside the scrollable bookshelf container on touch devices, so reorder never
+ * happened on mobile. dnd-kit doesn't use the HTML5 drag API at all — its
+ * PointerSensor + DragOverlay (portal) + rectSortingStrategy handle grids and
+ * scrollable parents out of the box.
  */
 export default function CollectionBookshelfReorderGrid({
   books,
   setBooks,
-  itemsContentHash,
   collectionId,
   columns,
   cardWidth,
@@ -62,37 +59,44 @@ export default function CollectionBookshelfReorderGrid({
   const router = useRouter()
   const { showToast } = useGlobalToast()
   const [, startTransition] = useTransition()
+  const [activeId, setActiveId] = useState<string | null>(null)
   const booksRef = useRef(books)
   booksRef.current = books
 
-  const onDragend = useCallback<DragendEvent>((data) => {
-    // FormKit sets drag preview z-index to 9999 but "restores" from the already-mutated
-    // inline style, leaving 9999 in place — above modals (e.g. z-70). Drop inline z-index after drag.
-    for (const node of data.draggedNodes) {
-      const el = node.el
-      if (el instanceof HTMLElement) {
-        el.style.removeProperty('z-index')
-      }
-    }
-    if (data.draggedNode.el) {
-      data.draggedNode.el.classList.remove('opacity-50', 'bg-white/20')
-    }
+  /**
+   * `distance: 8` lets a tap on the drag handle act as a tap (e.g. focusing) without
+   * starting a drag — only commit to dragging once the pointer has moved 8px. This
+   * also keeps clicks on overlay buttons (mark finished, more menu) working.
+   */
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  const itemIds = useMemo(() => books.map((b) => b.id), [books])
+
+  const shelfEntitiesDense = useMemo(() => books as unknown as (BookshelfEntity | null)[], [books])
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(String(event.active.id))
   }, [])
 
-  const onDragstart = useCallback<DragstartEvent>((data) => {
-    if (data.draggedNode.el) {
-      data.draggedNode.el.classList.add('opacity-50', 'bg-white/20')
-    }
+  const handleDragCancel = useCallback(() => {
+    setActiveId(null)
   }, [])
 
-  const [parent, sortedItems, setDragItems] = useDragAndDrop<HTMLDivElement, LibraryItem>(books, {
-    dragHandle: '.drag-handle',
-    ...(collectionReorderAnimationPlugins ? { plugins: collectionReorderAnimationPlugins } : {}),
-    onDragend,
-    onDragstart,
-    handleDragend: () => {
-      const next = [...sortedItems]
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveId(null)
+      const { active, over } = event
+      if (!over || active.id === over.id) return
+
       const prev = booksRef.current
+      const oldIndex = prev.findIndex((b) => b.id === active.id)
+      const newIndex = prev.findIndex((b) => b.id === over.id)
+      if (oldIndex === -1 || newIndex === -1) return
+
+      const next = arrayMove(prev, oldIndex, newIndex)
       setBooks(next)
       startTransition(async () => {
         try {
@@ -102,47 +106,64 @@ export default function CollectionBookshelfReorderGrid({
           console.error('Failed to update collection order', error)
           showToast(t('ToastFailedToUpdate'), { type: 'error' })
           setBooks(prev)
-          setDragItems(prev)
         }
       })
-    }
-  })
+    },
+    [collectionId, router, setBooks, showToast, t]
+  )
 
-  useEffect(() => {
-    setDragItems(books)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- itemsContentHash is order-independent; avoids resetting FormKit after pure reorder
-  }, [itemsContentHash])
+  const activeBook = useMemo(() => (activeId ? books.find((b) => b.id === activeId) ?? null : null), [activeId, books])
+  const activeIndex = useMemo(() => (activeId ? books.findIndex((b) => b.id === activeId) : -1), [activeId, books])
 
-  const shelfEntitiesDense = useMemo(() => sortedItems as unknown as (BookshelfEntity | null)[], [sortedItems])
+  const gridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: `repeat(${columns}, ${cardWidth}px)`,
+      columnGap: `${cardMargin}px`,
+      rowGap: `${(16 + dividerHeight) * sizeMultiplier}px`,
+      paddingLeft: `${bookshelfMarginLeft}px`,
+      paddingRight: `${bookshelfMarginLeft}px`
+    }),
+    [bookshelfMarginLeft, cardMargin, cardWidth, columns, dividerHeight, sizeMultiplier]
+  )
 
   return (
-    <div
-      ref={parent}
-      className="grid w-full min-w-0 max-w-full pt-4"
-      style={{
-        gridTemplateColumns: `repeat(${columns}, ${cardWidth}px)`,
-        columnGap: `${cardMargin}px`,
-        rowGap: `${(16 + dividerHeight) * sizeMultiplier}px`,
-        paddingLeft: `${bookshelfMarginLeft}px`,
-        paddingRight: `${bookshelfMarginLeft}px`
-      }}
-    >
-      {sortedItems.map((book, entityIndex) => (
-        <div key={book.id} className="flex justify-center overflow-visible">
-          <CollectionBookCardShell
-            libraryItem={book}
-            cardWidth={cardWidth}
-            libraryId={libraryId}
-            bookshelfView={bookshelfView}
-            showSubtitles={showSubtitles}
-            seriesSortBy={seriesSortBy}
-            mediaItemProgressMap={mediaItemProgressMap}
-            shelfEntities={shelfEntitiesDense}
-            entityIndex={entityIndex}
-            showDragHandle
-          />
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
+      <SortableContext items={itemIds} strategy={rectSortingStrategy}>
+        <div className="grid w-full max-w-full min-w-0 pt-4" style={gridStyle}>
+          {books.map((book, entityIndex) => (
+            <SortableCollectionBookCard
+              key={book.id}
+              libraryItem={book}
+              cardWidth={cardWidth}
+              libraryId={libraryId}
+              bookshelfView={bookshelfView}
+              showSubtitles={showSubtitles}
+              seriesSortBy={seriesSortBy}
+              mediaItemProgressMap={mediaItemProgressMap}
+              shelfEntities={shelfEntitiesDense}
+              entityIndex={entityIndex}
+            />
+          ))}
         </div>
-      ))}
-    </div>
+      </SortableContext>
+      <DragOverlay>
+        {activeBook ? (
+          <div className="flex justify-center overflow-visible">
+            <CollectionBookCardShell
+              libraryItem={activeBook}
+              cardWidth={cardWidth}
+              libraryId={libraryId}
+              bookshelfView={bookshelfView}
+              showSubtitles={showSubtitles}
+              seriesSortBy={seriesSortBy}
+              mediaItemProgressMap={mediaItemProgressMap}
+              shelfEntities={shelfEntitiesDense}
+              entityIndex={activeIndex}
+              showDragHandle
+            />
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   )
 }
