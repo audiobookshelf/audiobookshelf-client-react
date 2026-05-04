@@ -231,6 +231,7 @@
   "LabelActivities": "Aktywności",
   "LabelActivity": "Aktywność",
   "LabelAddToCollection": "Dodaj do kolekcji",
+  "LabelRemoveFromCollection": "Usuń z kolekcji",
   "LabelAddToCollectionBatch": "Dodaj {0} książki do kolekcji",
   "LabelAddToPlaylist": "Dodaj do playlisty",
   "LabelAddToPlaylistBatch": "Dodaj {0} pozycji do playlisty",

@@ -1,5 +1,6 @@
 'use client'
 
+import { removeBookFromCollectionAction } from '@/app/actions/collectionActions'
 import {
   deleteLibraryItemAction,
   getExpandedLibraryItemAction,
@@ -9,6 +10,7 @@ import {
   toggleFinishedAction
 } from '@/app/actions/mediaActions'
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
+import { useOptionalCollectionBookshelf } from '@/contexts/CollectionBookshelfContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
@@ -65,6 +67,7 @@ export function useMediaCardActions({
   onOpenMatch,
   playerControls
 }: UseMediaCardActionsProps) {
+  const collectionBookshelf = useOptionalCollectionBookshelf()
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const { showToast } = useGlobalToast()
@@ -252,6 +255,22 @@ export function useMediaCardActions({
         })
       } else if (action === 'toggleFinished') {
         toggleFinished(false)
+      } else if (action === 'removeFromCollection') {
+        const ctx = collectionBookshelf
+        if (!ctx?.collectionId || !userCanUpdate) return
+        startTransition(async () => {
+          try {
+            setProcessing(true)
+            await removeBookFromCollectionAction(ctx.collectionId, libraryItem.id)
+            showToast(t('ToastRemoveItemFromCollectionSuccess'), { type: 'success' })
+            ctx.onBookRemovedFromCollection?.(libraryItem.id)
+          } catch (error) {
+            console.error('Failed to remove item from collection', error)
+            showToast(t('ToastRemoveItemFromCollectionFailed'), { type: 'error' })
+          } finally {
+            setProcessing(false)
+          }
+        })
       } else if (action === 'rescan') {
         startTransition(async () => {
           try {
@@ -339,7 +358,9 @@ export function useMediaCardActions({
       title,
       toggleFinished,
       onDeleteSuccess,
-      onOpenMatch
+      onOpenMatch,
+      collectionBookshelf,
+      userCanUpdate
     ]
   )
 
@@ -351,6 +372,13 @@ export function useMediaCardActions({
         text: itemIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished'),
         func: 'toggleFinished'
       })
+
+      if (userCanUpdate && collectionBookshelf) {
+        items.push({
+          text: t('LabelRemoveFromCollection'),
+          func: 'removeFromCollection'
+        })
+      }
 
       if (userCanUpdate) {
         items.push({
@@ -461,7 +489,8 @@ export function useMediaCardActions({
     userCanDownload,
     userCanUpdate,
     userIsAdminOrUp,
-    onOpenMatch
+    onOpenMatch,
+    collectionBookshelf
   ])
 
   const closeConfirm = useCallback(() => {

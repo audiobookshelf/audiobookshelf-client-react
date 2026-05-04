@@ -11,7 +11,7 @@ import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
-import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
+import { useMediaCardActions } from './useMediaCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
@@ -24,11 +24,7 @@ import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 
-export interface CollectionMarkFinishedControls {
-  isRead: boolean
-  disabled: boolean
-  onToggle: () => void
-}
+export type { CollectionBookshelfContext } from '@/contexts/CollectionBookshelfContext'
 
 export interface MediaCardProps {
   libraryItem: LibraryItem
@@ -79,8 +75,6 @@ export interface MediaCardProps {
    */
   shelfEntities?: (BookshelfEntity | null)[]
   entityIndex?: number
-  /** Collection bookshelf: mark finished control inside the overlay stack. */
-  collectionMarkFinished?: CollectionMarkFinishedControls
 }
 
 function MediaCard(props: MediaCardProps) {
@@ -104,8 +98,7 @@ function MediaCard(props: MediaCardProps) {
     selected = false,
     onSelect,
     shelfEntities,
-    entityIndex,
-    collectionMarkFinished
+    entityIndex
   } = props
 
   const router = useRouter()
@@ -368,7 +361,6 @@ function MediaCard(props: MediaCardProps) {
             onMoreAction={handleMoreAction}
             onMoreMenuOpenChange={handleMoreMenuOpenChange}
             onSelect={onSelect}
-            collectionMarkFinished={collectionMarkFinished}
           />
         }
       />

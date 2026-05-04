@@ -1,14 +1,9 @@
 'use client'
 
 import { ENTITY_CONFIGS } from '@/app/(main)/library/[library]/[entityType]/entity-config'
-import { toggleFinishedAction } from '@/app/actions/mediaActions'
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
-import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { computeProgress } from '@/lib/mediaProgress'
-import type { BookshelfEntity, BookshelfView, LibraryItem, MediaProgress } from '@/types/api'
-import { useRouter } from 'next/navigation'
-import { useCallback, useMemo, useState, useTransition, type HTMLAttributes, type Ref } from 'react'
+import { type BookshelfEntity, type BookshelfView, type LibraryItem, type MediaProgress, isBookMedia } from '@/types/api'
+import { type HTMLAttributes, type Ref } from 'react'
 import CollectionBookCardDragHandle from './CollectionBookCardDragHandle'
 
 const itemsConfig = ENTITY_CONFIGS.items
@@ -24,6 +19,8 @@ export interface CollectionBookCardShellProps {
   shelfEntities: (BookshelfEntity | null)[]
   entityIndex: number
   showDragHandle: boolean
+  /** While dragging, the overlay card keeps the handle visible (no card hover). */
+  dragHandleAlwaysVisible?: boolean
   /** dnd-kit `setActivatorNodeRef` callback ref for the drag handle, when sortable. */
   dragHandleRef?: Ref<HTMLDivElement>
   /** Spread of dnd-kit `attributes` + `listeners` onto the drag handle. */
@@ -41,98 +38,42 @@ export default function CollectionBookCardShell({
   shelfEntities,
   entityIndex,
   showDragHandle,
+  dragHandleAlwaysVisible = false,
   dragHandleRef,
   dragHandleProps
 }: CollectionBookCardShellProps) {
   const t = useTypeSafeTranslations()
-  const router = useRouter()
-  const { showToast } = useGlobalToast()
-  const [, startTransition] = useTransition()
-  const [processingFinished, setProcessingFinished] = useState(false)
-  const [confirmFinished, setConfirmFinished] = useState<{ open: boolean } | null>(null)
-
   const media = libraryItem.media
-  const mediaItemId = media && 'id' in media ? media.id : undefined
-  const entityProgress = mediaItemId ? mediaItemProgressMap.get(mediaItemId) : undefined
-
-  const { percent: userProgressPercent, isFinished: itemIsFinished } = useMemo(
-    () => computeProgress({ progress: entityProgress, useSeriesProgress: false }),
-    [entityProgress]
-  )
-
-  const title = useMemo(() => {
-    const md = media && 'metadata' in media ? media.metadata : null
-    if (md && typeof md === 'object' && md && 'title' in md) {
-      return String((md as { title?: string }).title || '')
-    }
-    return ''
-  }, [media])
-
-  const runToggleFinished = useCallback(
-    (confirmed: boolean) => {
-      if (!itemIsFinished && userProgressPercent > 0 && !confirmed) {
-        setConfirmFinished({ open: true })
-        return
-      }
-
-      startTransition(async () => {
-        try {
-          setProcessingFinished(true)
-          await toggleFinishedAction(libraryItem.id, { isFinished: !itemIsFinished })
-          router.refresh()
-        } catch (error) {
-          console.error('Failed to toggle finished', error)
-          showToast(!itemIsFinished ? t('ToastItemMarkedAsFinishedFailed') : t('ToastItemMarkedAsNotFinishedFailed'), { type: 'error' })
-        } finally {
-          setProcessingFinished(false)
-          setConfirmFinished(null)
-        }
-      })
-    },
-    [itemIsFinished, libraryItem.id, router, showToast, t, userProgressPercent]
-  )
+  // Match item page / server shape: ebooks often have `ebookFile` without top-level `ebookFormat`.
+  const isEbook =
+    isBookMedia(media) && (!!media.ebookFormat || !!media.ebookFile)
+  const orderBy = isEbook ? undefined : 'media.duration'
 
   return (
-    <>
-      <div className="relative shrink-0" style={{ width: `${cardWidth}px` }}>
-        <div className="relative z-0 min-w-0" style={{ width: `${cardWidth}px` }}>
-          <itemsConfig.CardComponent
-            entity={libraryItem}
-            bookshelfView={bookshelfView}
-            width={cardWidth}
-            libraryId={libraryId}
-            showSubtitles={showSubtitles}
-            orderBy="media.duration"
-            seriesSortBy={seriesSortBy}
-            mediaItemProgressMap={mediaItemProgressMap}
-            shelfEntities={shelfEntities}
-            entityIndex={entityIndex}
-            collectionMarkFinished={{
-              isRead: itemIsFinished,
-              disabled: processingFinished,
-              onToggle: () => runToggleFinished(false)
-            }}
-          />
-        </div>
-
-        {showDragHandle && (
-          <CollectionBookCardDragHandle activatorRef={dragHandleRef} activatorProps={dragHandleProps} ariaLabel={t('TooltipCollectionDragHandle')} />
-        )}
+    <div className="group relative shrink-0" style={{ width: `${cardWidth}px` }}>
+      <div className="relative z-0 min-w-0" style={{ width: `${cardWidth}px` }}>
+        <itemsConfig.CardComponent
+          entity={libraryItem}
+          bookshelfView={bookshelfView}
+          width={cardWidth}
+          libraryId={libraryId}
+          showSubtitles={showSubtitles}
+          orderBy={orderBy}
+          seriesSortBy={seriesSortBy}
+          mediaItemProgressMap={mediaItemProgressMap}
+          shelfEntities={shelfEntities}
+          entityIndex={entityIndex}
+        />
       </div>
 
-      {confirmFinished?.open && (
-        <ConfirmDialog
-          isOpen
-          message={t('MessageConfirmMarkItemFinished', { 0: title })}
-          yesButtonText={t('ButtonYes')}
-          yesButtonClassName="bg-success"
-          onClose={() => setConfirmFinished(null)}
-          onConfirm={() => {
-            setConfirmFinished(null)
-            runToggleFinished(true)
-          }}
+      {showDragHandle && (
+        <CollectionBookCardDragHandle
+          activatorRef={dragHandleRef}
+          activatorProps={dragHandleProps}
+          ariaLabel={t('TooltipCollectionDragHandle')}
+          alwaysVisible={dragHandleAlwaysVisible}
         />
       )}
-    </>
+    </div>
   )
 }

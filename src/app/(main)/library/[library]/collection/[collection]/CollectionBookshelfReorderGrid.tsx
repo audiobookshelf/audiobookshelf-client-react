@@ -160,6 +160,7 @@ export default function CollectionBookshelfReorderGrid({
               shelfEntities={shelfEntitiesDense}
               entityIndex={activeIndex}
               showDragHandle
+              dragHandleAlwaysVisible
             />
           </div>
         ) : null}

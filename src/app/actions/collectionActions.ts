@@ -2,26 +2,39 @@
 
 import * as api from '@/lib/api'
 import type { Collection } from '@/types/api'
+import { revalidatePath } from 'next/cache'
+
+function revalidateCollectionDetailPage(collection: Pick<Collection, 'libraryId' | 'id'>) {
+  const { libraryId, id } = collection
+  if (!libraryId || !id) return
+  revalidatePath(`/library/${libraryId}/collection/${id}`)
+}
 
 /**
  * Create a collection w/ initial book library item IDs
  */
 export async function createCollectionAction(payload: { libraryId: string; name: string; description?: string | null; books?: string[] }): Promise<Collection> {
-  return api.createCollection(payload)
+  const created = await api.createCollection(payload)
+  revalidateCollectionDetailPage(created)
+  return created
 }
 
 /**
  * Add a library item to a collection
  */
 export async function addBookToCollectionAction(collectionId: string, libraryItemId: string): Promise<Collection> {
-  return api.addBookToCollection(collectionId, libraryItemId)
+  const updated = await api.addBookToCollection(collectionId, libraryItemId)
+  revalidateCollectionDetailPage(updated)
+  return updated
 }
 
 /**
  * Remove a library item from a collection
  */
 export async function removeBookFromCollectionAction(collectionId: string, libraryItemId: string): Promise<Collection> {
-  return api.removeBookFromCollection(collectionId, libraryItemId)
+  const updated = await api.removeBookFromCollection(collectionId, libraryItemId)
+  revalidateCollectionDetailPage(updated)
+  return updated
 }
 
 /**
@@ -31,7 +44,9 @@ export async function updateCollectionAction(
   collectionId: string,
   payload: { name?: string; description?: string | null; books?: string[] }
 ): Promise<Collection> {
-  return api.updateCollection(collectionId, payload)
+  const updated = await api.updateCollection(collectionId, payload)
+  revalidateCollectionDetailPage(updated)
+  return updated
 }
 
 /**

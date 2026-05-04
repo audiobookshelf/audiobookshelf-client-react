@@ -1,5 +1,6 @@
 'use client'
 
+import { CollectionBookshelfProvider, type CollectionBookshelfContext } from '@/contexts/CollectionBookshelfContext'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
@@ -9,6 +10,7 @@ import { formatDuration } from '@/lib/formatDuration'
 import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
 import type { BookshelfEntity, Collection, LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ENTITY_CONFIGS } from '../../[entityType]/entity-config'
 import CollectionBookCardShell from './CollectionBookCardShell'
@@ -22,8 +24,12 @@ interface CollectionBookshelfClientProps {
 
 export default function CollectionBookshelfClient({ collection }: CollectionBookshelfClientProps) {
   const t = useTypeSafeTranslations()
+  const router = useRouter()
   const { user, userCanUpdate } = useUser()
-  const { library, orderBy, showSubtitles, seriesSortBy, bookshelfView } = useLibrary()
+  const { library, orderBy, showSubtitles, seriesSortBy, setItemCount, setItemCountSupplement } = useLibrary()
+  /** Detail (modern) bookshelf: titles and metadata in the card footer, not on the cover. */
+  const bookshelfViewForCollection: BookshelfView = BookshelfView.DETAIL
+  const isDetailBookshelfView = bookshelfViewForCollection === BookshelfView.DETAIL
   const { sizeMultiplier } = useCardSize()
   const coverAspect = useBookCoverAspectRatio()
   const coverHeight = 192 * sizeMultiplier
@@ -34,6 +40,22 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
   const serverBookIds = useMemo(() => (collection.books ?? []).map((b) => b.id).join(','), [collection.books])
 
   const [orderedBooks, setOrderedBooks] = useState<LibraryItem[]>(() => collection.books ?? [])
+
+  const handleBookRemovedFromCollection = useCallback(
+    (libraryItemId: string) => {
+      setOrderedBooks((prev) => prev.filter((b) => b.id !== libraryItemId))
+      router.refresh()
+    },
+    [router]
+  )
+
+  const collectionBookshelf = useMemo<CollectionBookshelfContext>(
+    () => ({
+      collectionId: collection.id,
+      onBookRemovedFromCollection: handleBookRemovedFromCollection
+    }),
+    [collection.id, handleBookRemovedFromCollection]
+  )
 
   useEffect(() => {
     setOrderedBooks(collection.books ?? [])
@@ -52,6 +74,14 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
   }, [orderedBooks])
 
   const totalDurationLabel = totalDurationSeconds > 0 ? formatDuration(totalDurationSeconds, t, { showDays: true }) : null
+
+  useEffect(() => {
+    setItemCount(totalEntities)
+    setItemCountSupplement(totalDurationLabel ? ` (${totalDurationLabel})` : null)
+    return () => {
+      setItemCount(null)
+    }
+  }, [totalEntities, totalDurationLabel, setItemCount, setItemCountSupplement])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
@@ -77,7 +107,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
     })
     observer.observe(dummyCardRef.current)
     return () => observer.disconnect()
-  }, [library.settings?.coverAspectRatio, showSubtitles, sizeMultiplier, orderBy])
+  }, [library.settings?.coverAspectRatio, showSubtitles, sizeMultiplier, orderBy, bookshelfViewForCollection])
 
   useEffect(() => {
     setCardSize({ width: 0, height: 0 })
@@ -95,8 +125,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
     return 24 * sizeMultiplier
   }, [dimensions.width, sizeMultiplier])
 
-  const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
-  const dividerHeight = isAlternativeBookshelfView ? 0 : 24
+  const dividerHeight = isDetailBookshelfView ? 0 : 24
 
   /**
    * The hidden measurement node can incorrectly inherit the scrollport width; never treat a
@@ -107,8 +136,8 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
     return Math.min(cardSize.width, nominalCoverWidth + 1)
   }, [cardSize.width, nominalCoverWidth])
 
-  const estimatedCardBodyHeight = coverHeight + (isAlternativeBookshelfView ? 96 * sizeMultiplier : 0)
-  const maxCardBodyHeight = coverHeight + (isAlternativeBookshelfView ? 220 : 48) * sizeMultiplier
+  const estimatedCardBodyHeight = coverHeight + (isDetailBookshelfView ? 96 * sizeMultiplier : 0)
+  const maxCardBodyHeight = coverHeight + (isDetailBookshelfView ? 220 : 48) * sizeMultiplier
   const cardBodyHeight = useMemo(() => {
     if (cardSize.height <= 0) return estimatedCardBodyHeight
     return Math.min(cardSize.height, maxCardBodyHeight)
@@ -174,7 +203,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
         libraryItem={book}
         cardWidth={layoutCardWidth}
         libraryId={library.id}
-        bookshelfView={bookshelfView}
+        bookshelfView={bookshelfViewForCollection}
         showSubtitles={showSubtitles}
         seriesSortBy={seriesSortBy}
         mediaItemProgressMap={mediaItemProgressMap}
@@ -183,121 +212,95 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
         showDragHandle={false}
       />
     ),
-    [bookshelfView, layoutCardWidth, library.id, mediaItemProgressMap, seriesSortBy, shelfEntitiesDense, showSubtitles]
+    [bookshelfViewForCollection, layoutCardWidth, library.id, mediaItemProgressMap, seriesSortBy, shelfEntitiesDense, showSubtitles]
   )
 
   const visibleShelfStartResolved = visibleShelfStart
   const visibleShelfEndResolved = visibleShelfEnd
 
-  const headerAlignsWithShelf = canLayoutShelf && columns > 0 && bookshelfRowWidth > 0
-
   return (
-    <div className="mt-10 w-full min-w-0">
-      {headerAlignsWithShelf ? (
-        <div className="mx-auto max-w-full" style={{ width: bookshelfRowWidth }}>
-          <div className="bg-primary/40 w-full overflow-hidden rounded-md">
-            <div className="bg-primary flex h-14 items-center gap-3 px-3 py-2 md:px-4">
-              <p className="text-foreground pr-2">{t('HeaderCollectionItems')}</p>
-              <div className="flex h-6 min-w-6 items-center justify-center rounded-full bg-white/10 px-1.5 md:h-7 md:min-w-7">
-                <span className="font-mono text-xs leading-none md:text-sm">{totalEntities}</span>
-              </div>
-              <div className="grow" />
-              {totalDurationLabel ? <p className="text-foreground-muted text-sm">{totalDurationLabel}</p> : null}
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="bg-primary/40 w-full overflow-hidden rounded-md">
-          <div className="bg-primary flex h-14 items-center gap-3 px-4 py-2 md:px-6">
-            <p className="text-foreground pr-2">{t('HeaderCollectionItems')}</p>
-            <div className="flex h-6 min-w-6 items-center justify-center rounded-full bg-white/10 px-1.5 md:h-7 md:min-w-7">
-              <span className="font-mono text-xs leading-none md:text-sm">{totalEntities}</span>
-            </div>
-            <div className="grow" />
-            {totalDurationLabel ? <p className="text-foreground-muted text-sm">{totalDurationLabel}</p> : null}
-          </div>
-        </div>
-      )}
-
-      <div
-        ref={containerRef}
-        className={
-          isAlternativeBookshelfView
-            ? 'relative min-h-[28rem] overflow-x-hidden overflow-y-auto py-4'
-            : 'bookshelf-container relative min-h-[28rem] overflow-x-hidden overflow-y-auto'
-        }
-        style={{ fontSize: sizeMultiplier + 'rem' }}
-        onScroll={(e) => {
-          if (!canReorder) {
-            handleScroll(e.currentTarget.scrollTop)
+    <CollectionBookshelfProvider value={collectionBookshelf}>
+      <div className="mt-10 w-full min-w-0">
+        <div
+          ref={containerRef}
+          className={
+            isDetailBookshelfView
+              ? 'relative min-h-[28rem] overflow-x-hidden overflow-y-auto py-4'
+              : 'bookshelf-container relative min-h-[28rem] overflow-x-hidden overflow-y-auto'
           }
-        }}
-      >
-        <div ref={dummyCardRef} className="w-max" style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
-          <itemsConfig.SkeletonComponent bookshelfView={bookshelfView} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
-        </div>
-
-        {canLayoutShelf && totalEntities === 0 && (
-          <div className="text-foreground-muted flex items-center justify-center p-10">
-            <p>{t('MessageNoBooksFound')}</p>
+          style={{ fontSize: sizeMultiplier + 'rem' }}
+          onScroll={(e) => {
+            if (!canReorder) {
+              handleScroll(e.currentTarget.scrollTop)
+            }
+          }}
+        >
+          <div ref={dummyCardRef} className="w-max" style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
+            <itemsConfig.SkeletonComponent bookshelfView={bookshelfViewForCollection} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
           </div>
-        )}
 
-        {canLayoutShelf && totalEntities > 0 && canReorder && columns > 0 && (
-          <CollectionBookshelfReorderGrid
-            books={orderedBooks}
-            setBooks={setOrderedBooks}
-            collectionId={collection.id}
-            columns={columns}
-            cardWidth={layoutCardWidth}
-            cardMargin={cardMargin}
-            dividerHeight={dividerHeight}
-            sizeMultiplier={sizeMultiplier}
-            bookshelfMarginLeft={bookshelfMarginLeft}
-            libraryId={library.id}
-            bookshelfView={bookshelfView}
-            showSubtitles={showSubtitles}
-            seriesSortBy={seriesSortBy}
-            mediaItemProgressMap={mediaItemProgressMap}
-          />
-        )}
+          {canLayoutShelf && totalEntities === 0 && (
+            <div className="text-foreground-muted flex items-center justify-center p-10">
+              <p>{t('MessageNoBooksFound')}</p>
+            </div>
+          )}
 
-        {canLayoutShelf && totalEntities > 0 && !canReorder && (
-          <div className="relative w-full" style={{ height: totalShelves === 0 ? 'unset' : `${totalShelves * shelfHeight}px` }}>
-            {Array.from({ length: visibleShelfEndResolved - visibleShelfStartResolved }).map((_, i) => {
-              const shelfIndex = visibleShelfStartResolved + i
-              const startIndex = shelfIndex * columns
-              const shelfItems: LibraryItem[] = []
-              for (let k = 0; k < columns; k++) {
-                const itemIndex = startIndex + k
-                if (itemIndex < totalEntities) {
-                  shelfItems.push(orderedBooks[itemIndex])
+          {canLayoutShelf && totalEntities > 0 && canReorder && columns > 0 && (
+            <CollectionBookshelfReorderGrid
+              books={orderedBooks}
+              setBooks={setOrderedBooks}
+              collectionId={collection.id}
+              columns={columns}
+              cardWidth={layoutCardWidth}
+              cardMargin={cardMargin}
+              dividerHeight={dividerHeight}
+              sizeMultiplier={sizeMultiplier}
+              bookshelfMarginLeft={bookshelfMarginLeft}
+              libraryId={library.id}
+              bookshelfView={bookshelfViewForCollection}
+              showSubtitles={showSubtitles}
+              seriesSortBy={seriesSortBy}
+              mediaItemProgressMap={mediaItemProgressMap}
+            />
+          )}
+
+          {canLayoutShelf && totalEntities > 0 && !canReorder && (
+            <div className="relative w-full" style={{ height: totalShelves === 0 ? 'unset' : `${totalShelves * shelfHeight}px` }}>
+              {Array.from({ length: visibleShelfEndResolved - visibleShelfStartResolved }).map((_, i) => {
+                const shelfIndex = visibleShelfStartResolved + i
+                const startIndex = shelfIndex * columns
+                const shelfItems: LibraryItem[] = []
+                for (let k = 0; k < columns; k++) {
+                  const itemIndex = startIndex + k
+                  if (itemIndex < totalEntities) {
+                    shelfItems.push(orderedBooks[itemIndex])
+                  }
                 }
-              }
 
-              return (
-                <div
-                  key={shelfIndex}
-                  className={`absolute left-0 flex w-full ${!isAlternativeBookshelfView ? 'bookshelfRow' : ''}`}
-                  style={{
-                    top: `${shelfIndex * shelfHeight}px`,
-                    height: `${shelfHeight}px`,
-                    paddingLeft: `${bookshelfMarginLeft}px`,
-                    paddingTop: !isAlternativeBookshelfView ? `${16 * sizeMultiplier}px` : undefined,
-                    gap: `${cardMargin}px`
-                  }}
-                >
-                  {shelfItems.map((book, k) => {
-                    const entityIndex = startIndex + k
-                    return <div key={book.id}>{renderCard(book, entityIndex)}</div>
-                  })}
-                  {!isAlternativeBookshelfView && <div className="bookshelfDivider h-6e absolute right-0 bottom-0 left-0 z-20 w-full" />}
-                </div>
-              )
-            })}
-          </div>
-        )}
+                return (
+                  <div
+                    key={shelfIndex}
+                    className={`absolute left-0 flex w-full ${!isDetailBookshelfView ? 'bookshelfRow' : ''}`}
+                    style={{
+                      top: `${shelfIndex * shelfHeight}px`,
+                      height: `${shelfHeight}px`,
+                      paddingLeft: `${bookshelfMarginLeft}px`,
+                      paddingTop: !isDetailBookshelfView ? `${16 * sizeMultiplier}px` : undefined,
+                      gap: `${cardMargin}px`
+                    }}
+                  >
+                    {shelfItems.map((book, k) => {
+                      const entityIndex = startIndex + k
+                      return <div key={book.id}>{renderCard(book, entityIndex)}</div>
+                    })}
+                    {!isDetailBookshelfView && <div className="bookshelfDivider h-6e absolute right-0 bottom-0 left-0 z-20 w-full" />}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </CollectionBookshelfProvider>
   )
 }

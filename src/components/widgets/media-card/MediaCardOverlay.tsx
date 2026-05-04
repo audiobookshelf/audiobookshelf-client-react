@@ -1,7 +1,6 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
-import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
@@ -66,12 +65,6 @@ interface MediaCardOverlayProps {
   onMoreAction: (action: string, data?: Record<string, string>) => void
   onMoreMenuOpenChange: (isOpen: boolean) => void
   onSelect?: (event: React.MouseEvent) => void
-  /** Collection bookshelf: persistent mark finished control (bottom-start, above hover overlay). */
-  collectionMarkFinished?: {
-    isRead: boolean
-    disabled: boolean
-    onToggle: () => void
-  }
 }
 
 export default function MediaCardOverlay({
@@ -100,8 +93,7 @@ export default function MediaCardOverlay({
   onEdit,
   onMoreAction,
   onMoreMenuOpenChange,
-  onSelect,
-  collectionMarkFinished
+  onSelect
 }: MediaCardOverlayProps) {
   const { userCanUpdate } = useUser()
   const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !processing
@@ -291,26 +283,6 @@ export default function MediaCardOverlay({
 
       {/* Series name overlay */}
       {safeRender(() => renderSeriesNameOverlay?.(isHovering), 'Error rendering series name overlay:')}
-
-      {collectionMarkFinished && (
-        <div cy-id="collectionMarkFinishedButton" className="absolute bottom-[0.375em] start-[0.375em] z-40">
-          <ReadIconBtn
-            borderless
-            size="small"
-            tabIndex={-1}
-            isRead={collectionMarkFinished.isRead}
-            disabled={collectionMarkFinished.disabled}
-            onClick={collectionMarkFinished.onToggle}
-            className={mergeClasses(
-              'h-auto w-auto transform text-[1em] duration-150 hover:scale-125',
-              collectionMarkFinished.isRead
-                ? 'text-green-400 hover:not-disabled:text-green-300'
-                : 'text-gray-200 hover:not-disabled:text-yellow-300',
-              'rounded-sm bg-black/50 shadow-[0_0.0625rem_0.25rem_rgba(0,0,0,0.55),0_0.125rem_0.5rem_rgba(0,0,0,0.35)]'
-            )}
-          />
-        </div>
-      )}
     </>
   )
 }

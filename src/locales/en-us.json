@@ -260,6 +260,7 @@
   "LabelActivities": "Activities",
   "LabelActivity": "Activity",
   "LabelAddToCollection": "Add to Collection",
+  "LabelRemoveFromCollection": "Remove from Collection",
   "LabelAddToCollectionBatch": "Add {0} Books to Collection",
   "LabelAddToPlaylist": "Add to Playlist",
   "LabelAddToPlaylistBatch": "Add {0} Items to Playlist",
