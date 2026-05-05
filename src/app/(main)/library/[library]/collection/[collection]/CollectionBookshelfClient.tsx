@@ -20,9 +20,11 @@ const itemsConfig = ENTITY_CONFIGS.items
 
 interface CollectionBookshelfClientProps {
   collection: Collection
+  /** When false on mobile, show browse grid without drag handles; desktop ignores this. */
+  mobileReorderActive: boolean
 }
 
-export default function CollectionBookshelfClient({ collection }: CollectionBookshelfClientProps) {
+export default function CollectionBookshelfClient({ collection, mobileReorderActive }: CollectionBookshelfClientProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const { user, userCanUpdate } = useUser()
@@ -30,7 +32,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
   /** Detail (modern) bookshelf: titles and metadata in the card footer, not on the cover. */
   const bookshelfViewForCollection: BookshelfView = BookshelfView.DETAIL
   const isDetailBookshelfView = bookshelfViewForCollection === BookshelfView.DETAIL
-  const { sizeMultiplier } = useCardSize()
+  const { sizeMultiplier, isMobile } = useCardSize()
   const coverAspect = useBookCoverAspectRatio()
   const coverHeight = 192 * sizeMultiplier
   /** Same width as `MediaCard` / `MediaCardSkeleton` cover column (not the scrollport). */
@@ -160,7 +162,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
   }, [])
 
   const canLayoutShelf = dimensions.width > 0 && nominalCoverWidth > 0 && shelfRowHeight > 0
-  const { columns, shelfHeight, totalShelves, visibleShelfStart, visibleShelfEnd, handleScroll, columnGap } = useBookshelfVirtualizer({
+  const { columns, columnGap } = useBookshelfVirtualizer({
     totalEntities,
     cardWidth: canLayoutShelf ? layoutCardWidth : 0,
     itemHeight: canLayoutShelf ? shelfRowHeight : 0,
@@ -180,6 +182,20 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
     const innerWidth = Math.max(0, dimensions.width - 2 * columnGap)
     return columnGap + Math.max(0, (innerWidth - bookshelfRowWidth) / 2)
   }, [canLayoutShelf, columns, dimensions.width, bookshelfRowWidth, columnGap])
+
+  const showReorderGrid = canReorder && columns > 0 && (!isMobile || mobileReorderActive)
+  const showBrowseGrid = canLayoutShelf && totalEntities > 0 && columns > 0 && !showReorderGrid
+
+  const browseGridStyle = useMemo(
+    () => ({
+      gridTemplateColumns: `repeat(${columns}, ${layoutCardWidth}px)`,
+      columnGap: `${columnGap}px`,
+      rowGap: `${(16 + dividerHeight) * sizeMultiplier}px`,
+      paddingLeft: `${bookshelfMarginLeft}px`,
+      paddingRight: `${bookshelfMarginLeft}px`
+    }),
+    [bookshelfMarginLeft, columnGap, columns, dividerHeight, layoutCardWidth, sizeMultiplier]
+  )
 
   const mediaItemProgressMap = useMemo(() => buildMediaItemProgressMap(user.mediaProgress), [user.mediaProgress])
 
@@ -203,9 +219,6 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
     [bookshelfViewForCollection, layoutCardWidth, library.id, mediaItemProgressMap, seriesSortBy, shelfEntitiesDense, showSubtitles]
   )
 
-  const visibleShelfStartResolved = visibleShelfStart
-  const visibleShelfEndResolved = visibleShelfEnd
-
   return (
     <CollectionBookshelfProvider value={collectionBookshelf}>
       <div className="mt-10 w-full min-w-0">
@@ -217,11 +230,6 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
               : 'bookshelf-container relative min-h-[28rem] overflow-x-hidden overflow-y-auto'
           }
           style={{ fontSize: sizeMultiplier + 'rem' }}
-          onScroll={(e) => {
-            if (!canReorder) {
-              handleScroll(e.currentTarget.scrollTop)
-            }
-          }}
         >
           <div ref={dummyCardRef} className="w-max" style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
             <itemsConfig.SkeletonComponent
@@ -238,7 +246,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
             </div>
           )}
 
-          {canLayoutShelf && totalEntities > 0 && canReorder && columns > 0 && (
+          {canLayoutShelf && totalEntities > 0 && showReorderGrid && (
             <CollectionBookshelfReorderGrid
               books={orderedBooks}
               setBooks={setOrderedBooks}
@@ -257,39 +265,13 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
             />
           )}
 
-          {canLayoutShelf && totalEntities > 0 && !canReorder && (
-            <div className="relative w-full" style={{ height: totalShelves === 0 ? 'unset' : `${totalShelves * shelfHeight}px` }}>
-              {Array.from({ length: visibleShelfEndResolved - visibleShelfStartResolved }).map((_, i) => {
-                const shelfIndex = visibleShelfStartResolved + i
-                const startIndex = shelfIndex * columns
-                const shelfItems: LibraryItem[] = []
-                for (let k = 0; k < columns; k++) {
-                  const itemIndex = startIndex + k
-                  if (itemIndex < totalEntities) {
-                    shelfItems.push(orderedBooks[itemIndex])
-                  }
-                }
-
-                return (
-                  <div
-                    key={shelfIndex}
-                    className={`absolute left-0 flex w-full ${!isDetailBookshelfView ? 'bookshelfRow' : ''}`}
-                    style={{
-                      top: `${shelfIndex * shelfHeight}px`,
-                      height: `${shelfHeight}px`,
-                      paddingLeft: `${bookshelfMarginLeft}px`,
-                      paddingTop: !isDetailBookshelfView ? `${16 * sizeMultiplier}px` : undefined,
-                      gap: `${columnGap}px`
-                    }}
-                  >
-                    {shelfItems.map((book, k) => {
-                      const entityIndex = startIndex + k
-                      return <div key={book.id}>{renderCard(book, entityIndex)}</div>
-                    })}
-                    {!isDetailBookshelfView && <div className="bookshelfDivider h-6e absolute right-0 bottom-0 left-0 z-20 w-full" />}
-                  </div>
-                )
-              })}
+          {showBrowseGrid && (
+            <div className="grid w-full max-w-full min-w-0 pt-4" style={browseGridStyle}>
+              {orderedBooks.map((book, entityIndex) => (
+                <div key={book.id} className="flex justify-center overflow-visible">
+                  {renderCard(book, entityIndex)}
+                </div>
+              ))}
             </div>
           )}
         </div>

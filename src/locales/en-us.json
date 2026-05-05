@@ -159,6 +159,8 @@
   "HeaderCollection": "Collection",
   "HeaderCollectionItems": "Collection Items",
   "TooltipCollectionDragHandle": "Drag to reorder",
+  "LabelCollectionReorderBooks": "Reorder books",
+  "LabelCollectionDoneReordering": "Done reordering",
   "HeaderCover": "Cover",
   "HeaderCurrentDownloads": "Current Downloads",
   "HeaderCustomMessageOnLogin": "Custom Message on Login",
