@@ -1,15 +1,26 @@
+'use client'
+
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 export interface UseBookshelfVirtualizerProps {
   totalEntities: number
   /** Width of one card (column track), excluding the horizontal gap after it. */
   cardWidth: number
-  /** Horizontal gap between adjacent cards (`gap` in the shelf flex row). */
-  columnGap: number
   itemHeight: number
   containerWidth: number
   containerHeight: number
-  padding?: number
+}
+
+/**
+ * Horizontal gap between shelf cards and symmetric horizontal inset for column math.
+ * Tighter on narrow scrollports so more columns can fit (matches collection bookshelf).
+ */
+export function getBookshelfColumnGapPx(containerWidth: number, sizeMultiplier: number): number {
+  const w = containerWidth
+  if (w <= 0) return 24 * sizeMultiplier
+  if (w < 480) return 12 * sizeMultiplier
+  return 24 * sizeMultiplier
 }
 
 /**
@@ -51,15 +62,10 @@ export function getVisibleBookshelfPageRange({ visibleShelfStart, visibleShelfEn
 // Buffer of shelves to render above/below viewport
 const VISIBILITY_BUFFER = 2
 
-export function useBookshelfVirtualizer({
-  totalEntities,
-  cardWidth,
-  columnGap,
-  itemHeight,
-  containerWidth,
-  containerHeight,
-  padding = 0
-}: UseBookshelfVirtualizerProps) {
+export function useBookshelfVirtualizer({ totalEntities, cardWidth, itemHeight, containerWidth, containerHeight }: UseBookshelfVirtualizerProps) {
+  const { sizeMultiplier } = useCardSize()
+  const columnGap = useMemo(() => getBookshelfColumnGapPx(containerWidth, sizeMultiplier), [containerWidth, sizeMultiplier])
+
   // Calculate layout synchronously with useMemo - this ensures layout is immediately
   // available in the same render cycle when dimensions change
   const layout = useMemo(() => {
@@ -72,7 +78,7 @@ export function useBookshelfVirtualizer({
       }
     }
 
-    const availableWidth = containerWidth - padding * 2
+    const availableWidth = containerWidth - columnGap * 2
     // We want max n columns so that n*cardWidth + (n-1)*columnGap <= availableWidth
     // so (after a little algebra): n <= (availableWidth + columnGap) / (cardWidth + columnGap)
     // Hence n = Math.floor((availableWidth + columnGap) / (cardWidth + columnGap)) or 1 if < 1
@@ -88,7 +94,7 @@ export function useBookshelfVirtualizer({
       shelfHeight,
       shelvesPerPage
     }
-  }, [containerWidth, containerHeight, totalEntities, cardWidth, columnGap, itemHeight, padding])
+  }, [containerWidth, containerHeight, totalEntities, cardWidth, columnGap, itemHeight])
 
   const [visibleRange, setVisibleRange] = useState({
     visibleShelfStart: 0,
@@ -174,6 +180,7 @@ export function useBookshelfVirtualizer({
   return {
     ...layout,
     ...visibleRange,
+    columnGap,
     handleScroll,
     getVisiblePageRange
   }

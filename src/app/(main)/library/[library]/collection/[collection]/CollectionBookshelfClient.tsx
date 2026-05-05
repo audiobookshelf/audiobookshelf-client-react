@@ -1,7 +1,7 @@
 'use client'
 
-import { CollectionBookshelfProvider, type CollectionBookshelfContext } from '@/contexts/CollectionBookshelfContext'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { CollectionBookshelfProvider, type CollectionBookshelfContext } from '@/contexts/CollectionBookshelfContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
@@ -113,18 +113,6 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
     setCardSize({ width: 0, height: 0 })
   }, [sizeMultiplier])
 
-  /**
-   * Tighter horizontal gap on narrow scrollports so two columns can still fit (main bookshelf
-   * uses full library width; this page adds outer padding, so we scale gap down by width tier).
-   */
-  const cardMargin = useMemo(() => {
-    const w = dimensions.width
-    if (w <= 0) return 24 * sizeMultiplier
-    if (w < 380) return 8 * sizeMultiplier
-    if (w < 480) return 16 * sizeMultiplier
-    return 24 * sizeMultiplier
-  }, [dimensions.width, sizeMultiplier])
-
   const dividerHeight = isDetailBookshelfView ? 0 : 24
 
   /**
@@ -172,10 +160,9 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
   }, [])
 
   const canLayoutShelf = dimensions.width > 0 && nominalCoverWidth > 0 && shelfRowHeight > 0
-  const { columns, shelfHeight, totalShelves, visibleShelfStart, visibleShelfEnd, handleScroll } = useBookshelfVirtualizer({
+  const { columns, shelfHeight, totalShelves, visibleShelfStart, visibleShelfEnd, handleScroll, columnGap } = useBookshelfVirtualizer({
     totalEntities,
     cardWidth: canLayoutShelf ? layoutCardWidth : 0,
-    columnGap: cardMargin,
     itemHeight: canLayoutShelf ? shelfRowHeight : 0,
     containerWidth: dimensions.width,
     containerHeight: dimensions.height
@@ -184,14 +171,15 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
   /** Pixel width of a full shelf row (N cards + N−1 gaps). */
   const bookshelfRowWidth = useMemo(() => {
     if (!canLayoutShelf || columns <= 0) return 0
-    return columns * layoutCardWidth + Math.max(0, columns - 1) * cardMargin
-  }, [canLayoutShelf, columns, layoutCardWidth, cardMargin])
+    return columns * layoutCardWidth + Math.max(0, columns - 1) * columnGap
+  }, [canLayoutShelf, columns, layoutCardWidth, columnGap])
 
-  /** Centers the row in the scroll container’s layout width (clientWidth — content area). */
+  /** Centers the row in the scroll container; edge inset matches `columnGap` from `useBookshelfVirtualizer`. */
   const bookshelfMarginLeft = useMemo(() => {
     if (!canLayoutShelf || columns <= 0 || dimensions.width <= 0 || bookshelfRowWidth <= 0) return 0
-    return Math.max(0, (dimensions.width - bookshelfRowWidth) / 2)
-  }, [canLayoutShelf, columns, dimensions.width, bookshelfRowWidth])
+    const innerWidth = Math.max(0, dimensions.width - 2 * columnGap)
+    return columnGap + Math.max(0, (innerWidth - bookshelfRowWidth) / 2)
+  }, [canLayoutShelf, columns, dimensions.width, bookshelfRowWidth, columnGap])
 
   const mediaItemProgressMap = useMemo(() => buildMediaItemProgressMap(user.mediaProgress), [user.mediaProgress])
 
@@ -236,7 +224,12 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
           }}
         >
           <div ref={dummyCardRef} className="w-max" style={{ position: 'absolute', visibility: 'hidden', top: 0, left: 0, zIndex: -1 }} aria-hidden="true">
-            <itemsConfig.SkeletonComponent bookshelfView={bookshelfViewForCollection} seriesSortBy={seriesSortBy} showSubtitles={showSubtitles} orderBy={orderBy} />
+            <itemsConfig.SkeletonComponent
+              bookshelfView={bookshelfViewForCollection}
+              seriesSortBy={seriesSortBy}
+              showSubtitles={showSubtitles}
+              orderBy={orderBy}
+            />
           </div>
 
           {canLayoutShelf && totalEntities === 0 && (
@@ -252,7 +245,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
               collectionId={collection.id}
               columns={columns}
               cardWidth={layoutCardWidth}
-              cardMargin={cardMargin}
+              cardMargin={columnGap}
               dividerHeight={dividerHeight}
               sizeMultiplier={sizeMultiplier}
               bookshelfMarginLeft={bookshelfMarginLeft}
@@ -286,7 +279,7 @@ export default function CollectionBookshelfClient({ collection }: CollectionBook
                       height: `${shelfHeight}px`,
                       paddingLeft: `${bookshelfMarginLeft}px`,
                       paddingTop: !isDetailBookshelfView ? `${16 * sizeMultiplier}px` : undefined,
-                      gap: `${cardMargin}px`
+                      gap: `${columnGap}px`
                     }}
                   >
                     {shelfItems.map((book, k) => {

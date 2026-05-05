@@ -89,7 +89,6 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   }, [sizeMultiplier, entityType])
 
   // Computed Layout derived from measurements
-  const cardMargin = 24 * sizeMultiplier
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
   // A standard bookshelf divider is 1.5rem (24px).
   // In alternative view there is no divider.
@@ -122,16 +121,14 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
 
   // Virtualizer
   const hasMeasuredCard = cardSize.width > 0
-  const { columns, shelfHeight, totalShelves, shelvesPerPage, visibleShelfStart, visibleShelfEnd, handleScroll, getVisiblePageRange } = useBookshelfVirtualizer(
-    {
+  const { columns, shelfHeight, totalShelves, shelvesPerPage, visibleShelfStart, visibleShelfEnd, handleScroll, getVisiblePageRange, columnGap } =
+    useBookshelfVirtualizer({
       totalEntities,
       cardWidth: hasMeasuredCard ? cardSize.width : 0,
-      columnGap: cardMargin,
       itemHeight: hasMeasuredCard ? shelfRowHeight : 0,
       containerWidth: dimensions.width,
       containerHeight: dimensions.height
-    }
-  )
+    })
 
   // Use custom hook for persistent scroll logic
   const { handleScroll: handlePersistentScroll } = usePersistentScroll({
@@ -142,9 +139,9 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
 
   // Author actions hook
 
-  const bookshelfRowWidth =
-    hasMeasuredCard && columns > 0 ? columns * cardSize.width + Math.max(0, columns - 1) * cardMargin : 0
-  const bookshelfMarginLeft = Math.max(0, (dimensions.width - bookshelfRowWidth) / 2)
+  const bookshelfRowWidth = hasMeasuredCard && columns > 0 ? columns * cardSize.width + Math.max(0, columns - 1) * columnGap : 0
+  const bookshelfInnerWidth = Math.max(0, dimensions.width - 2 * columnGap)
+  const bookshelfMarginLeft = columnGap + Math.max(0, (bookshelfInnerWidth - bookshelfRowWidth) / 2)
   const itemsPerPage = columns * shelvesPerPage
   const bookshelfLayoutReady = hasMeasuredCard && columns > 0 && Number.isFinite(itemsPerPage) && itemsPerPage > 0
 
@@ -313,7 +310,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                   // To push the cards to the bottom of the flex container (and touch the divider), we align items to center and add some pt-6e equivalent to the cards or use items-end with padding-bottom for the divider.
                   // BookShelfRow uses pt-6e (24px) to push the content down. Then the divider is positioned exactly under it.
                   paddingTop: !isAlternativeBookshelfView ? `${16 * sizeMultiplier}px` : undefined,
-                  gap: `${cardMargin}px`
+                  gap: `${columnGap}px`
                 }}
               >
                 {shelfItems.map((item, k) => {
