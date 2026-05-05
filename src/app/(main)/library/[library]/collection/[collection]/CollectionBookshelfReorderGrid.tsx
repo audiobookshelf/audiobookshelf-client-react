@@ -6,7 +6,6 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { BookshelfEntity, BookshelfView, LibraryItem, MediaProgress } from '@/types/api'
 import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
 import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { useRouter } from 'next/navigation'
 import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import CollectionBookCardShell from './CollectionBookCardShell'
 import SortableCollectionBookCard from './SortableCollectionBookCard'
@@ -56,7 +55,6 @@ export default function CollectionBookshelfReorderGrid({
   mediaItemProgressMap
 }: CollectionBookshelfReorderGridProps) {
   const t = useTypeSafeTranslations()
-  const router = useRouter()
   const { showToast } = useGlobalToast()
   const [, startTransition] = useTransition()
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -101,7 +99,6 @@ export default function CollectionBookshelfReorderGrid({
       startTransition(async () => {
         try {
           await updateCollectionAction(collectionId, { books: next.map((b) => b.id) })
-          router.refresh()
         } catch (error) {
           console.error('Failed to update collection order', error)
           showToast(t('ToastFailedToUpdate'), { type: 'error' })
@@ -109,7 +106,7 @@ export default function CollectionBookshelfReorderGrid({
         }
       })
     },
-    [collectionId, router, setBooks, showToast, t]
+    [collectionId, setBooks, showToast, t]
   )
 
   const activeBook = useMemo(() => (activeId ? books.find((b) => b.id === activeId) ?? null : null), [activeId, books])
