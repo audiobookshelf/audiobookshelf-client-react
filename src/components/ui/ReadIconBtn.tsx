@@ -1,7 +1,7 @@
 'use client'
 
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useTranslations } from 'next-intl'
 import React from 'react'
 import IconBtn from './IconBtn'
 
@@ -16,7 +16,7 @@ interface ReadIconBtnProps {
 }
 
 export default function ReadIconBtn({ isRead, size = 'medium', disabled = false, borderless = false, onClick, className, tabIndex }: ReadIconBtnProps) {
-  const t = useTranslations()
+  const t = useTypeSafeTranslations()
   const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     e.stopPropagation()
     if (disabled) {
