@@ -16,7 +16,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ col
   }
 
   return (
-    <div className="w-full min-w-0 px-2 py-8">
+    <div className="w-full min-w-0 py-8">
       <CollectionClient collection={collection} />
     </div>
   )
