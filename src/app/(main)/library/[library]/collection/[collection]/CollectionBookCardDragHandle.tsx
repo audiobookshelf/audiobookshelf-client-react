@@ -42,7 +42,7 @@ export default function CollectionBookCardDragHandle({ activatorRef, activatorPr
       )}
     >
       <div ref={activatorRef} {...restActivatorProps} className={mergeClasses(HANDLE_BASE, propsClassName)} aria-label={ariaLabel}>
-        <span className="material-symbols text-lg md:text-xl">menu</span>
+        <span className="material-symbols text-lg md:text-xl">drag_handle</span>
       </div>
     </span>
   )
