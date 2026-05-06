@@ -1,12 +1,15 @@
 'use client'
 
 import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
+import OnlineIndicator from '@/components/widgets/OnlineIndicator'
+import { useSocket } from '@/contexts/SocketContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { MediaProgress, User } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
 
 export default function UserClient({ user }: { user: User }) {
   const t = useTypeSafeTranslations()
+  const { getIsUserOnline } = useSocket()
 
   const columns: DataTableColumn<MediaProgress>[] = [
     {
@@ -32,6 +35,7 @@ export default function UserClient({ user }: { user: User }) {
   return (
     <div className="flex flex-col gap-2 py-4">
       <div className="mb-2 flex items-center gap-2">
+        <OnlineIndicator value={getIsUserOnline(user.id)} />
         <h1 className="text-xl">{user.username}</h1>
       </div>
 

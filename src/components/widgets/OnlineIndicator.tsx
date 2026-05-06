@@ -13,14 +13,14 @@ const OnlineIndicator = ({ value, className }: OnlineIndicatorProps) => {
   return (
     <Indicator role="status" tooltipText={statusText} className={className}>
       {value ? (
-        <div className="text-success h-3 w-3 animate-pulse">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" fill="currentColor" />
+        <div className="text-success h-2.5 w-2.5 animate-pulse">
+          <svg className="block h-full w-full" viewBox="0 0 10 10" aria-hidden="true">
+            <circle cx="5" cy="5" r="5" fill="currentColor" />
           </svg>
         </div>
       ) : (
-        <svg className="text-foreground/20 h-3 w-3" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="10" fill="currentColor" />
+        <svg className="text-foreground/20 block h-2.5 w-2.5" viewBox="0 0 10 10" aria-hidden="true">
+          <circle cx="5" cy="5" r="5" fill="currentColor" />
         </svg>
       )}
     </Indicator>
