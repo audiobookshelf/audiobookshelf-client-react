@@ -17,14 +17,14 @@ export interface CollectionBookCardDragHandleProps {
 const HANDLE_BASE =
   'drag-handle text-foreground-muted hover:text-foreground flex h-8 w-7 cursor-grab touch-none items-center justify-center rounded-sm bg-black/45 active:cursor-grabbing md:h-9 md:w-8'
 
-/** Desktop / mouse: hide grip until card hover or keyboard focus-visible (see card `group`). */
-const FINE_POINTER_HOVER = '[@media(hover:hover)_and_(pointer:fine)]'
-
+/**
+ * Desktop / mouse: hide grip until card hover or keyboard focus-visible (see card `group`).
+ */
 const HOVER_ONLY_VISIBILITY = mergeClasses(
   'opacity-100',
-  `${FINE_POINTER_HOVER}:opacity-0`,
-  `${FINE_POINTER_HOVER}:group-hover:opacity-100`,
-  `${FINE_POINTER_HOVER}:group-has-[:focus-visible]:opacity-100`
+  '[@media(hover:hover)_and_(pointer:fine)]:opacity-0',
+  '[@media(hover:hover)_and_(pointer:fine)]:group-hover:opacity-100',
+  '[@media(hover:hover)_and_(pointer:fine)]:group-has-[:focus-visible]:opacity-100'
 )
 
 /**
