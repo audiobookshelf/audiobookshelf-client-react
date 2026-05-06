@@ -858,6 +858,15 @@ export interface User {
   latestSession?: PlaybackSession
 }
 
+export interface OnlineUser {
+  id: string
+  username: string
+  type: 'root' | 'admin' | 'user' | 'guest'
+  session?: PlaybackSession | null
+  lastSeen?: number
+  createdAt: number
+}
+
 export interface EReaderDevice {
   name: string
   email: string
