@@ -105,7 +105,19 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     SkeletonComponent: ({ bookshelfView, showSubtitles, orderBy }) => (
       <MediaCardSkeleton bookshelfView={bookshelfView} showSubtitles={showSubtitles} orderBy={orderBy} />
     ),
-    CardComponent: ({ entity, bookshelfView, width, isPodcastLibrary, showSubtitles, orderBy, mediaItemProgressMap, shelfEntities, entityIndex }) => {
+    CardComponent: ({
+      entity,
+      bookshelfView,
+      width,
+      isPodcastLibrary,
+      showSubtitles,
+      orderBy,
+      seriesSortBy,
+      mediaItemProgressMap,
+      shelfEntities,
+      entityIndex
+    }) => {
+      void seriesSortBy
       const { user, serverSettings, ereaderDevices } = useUser()
       const item = entity as LibraryItem
       const isCollapsedSeries = !!item.collapsedSeries

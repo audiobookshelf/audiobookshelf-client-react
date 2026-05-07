@@ -70,7 +70,11 @@ const PER_LIBRARY_KEYS: (keyof PerLibrarySettings)[] = [
 interface LibraryContextType extends LibrarySettings {
   library: Library
   itemCount: number | null
+  /** Sets toolbar item count and clears `itemCountSupplement` (set supplement again in the same effect if needed). */
   setItemCount: (count: number | null) => void
+  /** Optional suffix for the toolbar count line, e.g. " (7d 22h 48m)" on collection pages */
+  itemCountSupplement: string | null
+  setItemCountSupplement: (value: string | null) => void
   /** When set (e.g. series detail page), toolbar shows this title */
   detailToolbarTitle: string | null
   setDetailToolbarTitle: (title: string | null) => void
@@ -94,8 +98,18 @@ interface LibraryContextType extends LibrarySettings {
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
 export function LibraryProvider({ children, library }: { children: React.ReactNode; library: Library }) {
-  const [itemCount, setItemCount] = useState<number | null>(null)
+  const [itemCount, setItemCountState] = useState<number | null>(null)
+  const [itemCountSupplement, setItemCountSupplementState] = useState<string | null>(null)
   const [detailToolbarTitle, setDetailToolbarTitle] = useState<string | null>(null)
+
+  const setItemCount = useCallback((count: number | null) => {
+    setItemCountState(count)
+    setItemCountSupplementState(null)
+  }, [])
+
+  const setItemCountSupplement = useCallback((value: string | null) => {
+    setItemCountSupplementState(value)
+  }, [])
   const [contextMenuItems, setContextMenuItems] = useState<ContextMenuDropdownItem[]>([])
   const [onContextMenuAction, setOnContextMenuActionState] = useState<((action: string) => void) | undefined>(undefined)
   const [settings, setSettings] = useState<LibrarySettings>(DEFAULT_SETTINGS)
@@ -217,6 +231,8 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
       library,
       itemCount,
       setItemCount,
+      itemCountSupplement,
+      setItemCountSupplement,
       detailToolbarTitle,
       setDetailToolbarTitle,
       contextMenuItems,
@@ -238,6 +254,7 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
     [
       library,
       itemCount,
+      itemCountSupplement,
       detailToolbarTitle,
       contextMenuItems,
       onContextMenuAction,
@@ -250,7 +267,9 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
       boundModal,
       filterData,
       filterDataLoading,
-      isSettingsLoaded
+      isSettingsLoaded,
+      setItemCount,
+      setItemCountSupplement
     ]
   )
 

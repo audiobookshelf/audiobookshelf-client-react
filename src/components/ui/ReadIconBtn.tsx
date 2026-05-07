@@ -1,5 +1,6 @@
 'use client'
 
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import React from 'react'
 import IconBtn from './IconBtn'
@@ -11,9 +12,11 @@ interface ReadIconBtnProps {
   borderless?: boolean
   onClick?: () => void
   className?: string
+  tabIndex?: number
 }
 
-export default function ReadIconBtn({ isRead, size = 'medium', disabled = false, borderless = false, onClick, className }: ReadIconBtnProps) {
+export default function ReadIconBtn({ isRead, size = 'medium', disabled = false, borderless = false, onClick, className, tabIndex }: ReadIconBtnProps) {
+  const t = useTypeSafeTranslations()
   const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     e.stopPropagation()
     if (disabled) {
@@ -23,7 +26,6 @@ export default function ReadIconBtn({ isRead, size = 'medium', disabled = false,
     onClick?.()
   }
 
-  const ariaLabel = isRead ? 'Mark as not finished' : 'Mark as finished'
   const classes = mergeClasses(isRead ? 'text-green-400' : 'text-gray-400', className)
 
   return (
@@ -32,10 +34,11 @@ export default function ReadIconBtn({ isRead, size = 'medium', disabled = false,
       disabled={disabled}
       borderless={borderless}
       outlined={!isRead}
-      ariaLabel={ariaLabel}
+      ariaLabel={isRead ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')}
       onClick={handleClick}
       aria-pressed={isRead}
       className={classes}
+      tabIndex={tabIndex}
     >
       BeenHere
     </IconBtn>

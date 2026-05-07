@@ -8,12 +8,14 @@ import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
 import MediaCardMoreMenu from '@/components/widgets/media-card/MediaCardMoreMenu'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Collection } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import CollectionBookshelfClient from './CollectionBookshelfClient'
 
 interface CollectionClientProps {
   collection: Collection
@@ -22,6 +24,7 @@ interface CollectionClientProps {
 export default function CollectionClient({ collection }: CollectionClientProps) {
   const coverAspectRatio = useBookCoverAspectRatio()
   const { userCanUpdate } = useUser()
+  const { isMobile } = useCardSize()
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const coverWidth = 120
@@ -30,6 +33,11 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
   const rssFeed = useMemo(() => collection.rssFeed ?? null, [collection.rssFeed])
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
+  const [mobileReorderActive, setMobileReorderActive] = useState(false)
+
+  useEffect(() => {
+    if (!isMobile) setMobileReorderActive(false)
+  }, [isMobile])
 
   const handleOpenRssFeedModal = useCallback(() => {
     setRssFeedModalOpen(true)
@@ -54,7 +62,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
         <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex min-w-0 items-center gap-4">
-            <h1 className="text-foreground min-w-0 flex-1 truncate text-2xl font-bold">{collection.name}</h1>
+            <h1 className="text-foreground min-w-0 flex-1 truncate px-2 text-2xl font-bold">{collection.name}</h1>
             {showHeaderActions && (
               <div className="flex shrink-0 items-center gap-1">
                 {userCanUpdate && (
@@ -62,6 +70,25 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
                     <span className="inline-flex">
                       <IconBtn ariaLabel={t('LabelEdit')} onClick={() => setEditModalOpen(true)} outlined className="mx-0.5" size="small">
                         edit
+                      </IconBtn>
+                    </span>
+                  </Tooltip>
+                )}
+                {userCanUpdate && isMobile && (
+                  <Tooltip
+                    text={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')}
+                    position="top"
+                  >
+                    <span className="inline-flex">
+                      <IconBtn
+                        ariaLabel={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')}
+                        aria-pressed={mobileReorderActive}
+                        onClick={() => setMobileReorderActive((v) => !v)}
+                        outlined
+                        className="mx-0.5"
+                        size="small"
+                      >
+                        {mobileReorderActive ? 'check' : 'reorder'}
                       </IconBtn>
                     </span>
                   </Tooltip>
@@ -77,9 +104,11 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
               </div>
             )}
           </div>
-          {collection.description && <p className="text-foreground-muted">{collection.description}</p>}
+          {collection.description && <p className="text-foreground-muted px-2">{collection.description}</p>}
         </div>
       </div>
+
+      <CollectionBookshelfClient collection={collection} mobileReorderActive={mobileReorderActive} />
 
       {userCanUpdate && (
         <CollectionEditModal isOpen={editModalOpen} collection={collection} onClose={() => setEditModalOpen(false)} onSaved={() => router.refresh()} />

@@ -11,7 +11,7 @@ import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
-import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
+import { useMediaCardActions } from './useMediaCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
@@ -23,6 +23,8 @@ import type { BookMedia, BookshelfEntity, EReaderDevice, LibraryItem, MediaProgr
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
+
+export type { CollectionBookshelfContext } from '@/contexts/CollectionBookshelfContext'
 
 export interface MediaCardProps {
   libraryItem: LibraryItem
