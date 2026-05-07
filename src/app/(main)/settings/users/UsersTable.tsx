@@ -7,6 +7,7 @@ import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import OnlineIndicator from '@/components/widgets/OnlineIndicator'
 import { useSocket } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { DeviceInfo, User } from '@/types/api'
@@ -27,6 +28,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
   const router = useRouter()
   const { showToast } = useGlobalToast()
   const { getIsUserOnline } = useSocket()
+  const { user: currentUser } = useUser()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const deletingUserRef = useRef<User | null>(null)
@@ -67,7 +69,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
       label: t('LabelUsername'),
       accessor: (user) => (
         <div className="flex items-center gap-2">
-          <OnlineIndicator value={getIsUserOnline(user.id)} />
+          <OnlineIndicator value={user.id === currentUser.id || getIsUserOnline(user.id)} />
           <p className="text-base font-medium">{user.username}</p>
         </div>
       )
