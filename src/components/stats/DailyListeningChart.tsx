@@ -78,12 +78,12 @@ export default function DailyListeningChart({ daysListening }: DailyListeningCha
 
   return (
     <div className="mx-auto w-96 max-w-full">
-      <h2 className="text-foreground mb-4 text-2xl">{t('HeaderStatsMinutesListeningChart')}</h2>
+      <h2 className="mb-4 text-2xl">{t('HeaderStatsMinutesListeningChart')}</h2>
 
       <div className="relative flex w-full">
         <div className="flex w-6 shrink-0 flex-col">
           {yTickValues.map((tick) => (
-            <div key={tick} style={{ height: `${lineSpacing}px` }} className="text-foreground flex items-center justify-end text-xs font-semibold">
+            <div key={tick} style={{ height: `${lineSpacing}px` }} className="flex items-center justify-end text-xs font-semibold">
               {fmt(tick)}
             </div>
           ))}
@@ -133,7 +133,7 @@ export default function DailyListeningChart({ daysListening }: DailyListeningCha
                 <g
                   key={series[i]?.dateKey ?? i}
                   transform={`translate(${c.x},${c.y})`}
-                  className="group cursor-default outline-none"
+                  className="group cursor-default"
                   aria-label={label}
                   onMouseEnter={(e) => showDotTooltip(minutes, e.currentTarget.getBoundingClientRect())}
                   onMouseLeave={hideTooltip}
@@ -145,7 +145,10 @@ export default function DailyListeningChart({ daysListening }: DailyListeningCha
                   tabIndex={0}
                 >
                   <circle r={14} cx={0} cy={0} className="fill-transparent" />
-                  <g className="origin-center transition-transform duration-150 ease-out group-hover:scale-125" style={{ transformBox: 'fill-box' }}>
+                  <g
+                    className="transition-transform duration-150 ease-out group-hover:scale-125"
+                    style={{ transformBox: 'fill-box', transformOrigin: '0px 0px' }}
+                  >
                     <circle r={4} cx={0} cy={0} className="pointer-events-none fill-yellow-400 transition-colors duration-150 group-hover:fill-yellow-300" />
                   </g>
                 </g>
@@ -155,7 +158,7 @@ export default function DailyListeningChart({ daysListening }: DailyListeningCha
         </div>
       </div>
 
-      <div className="text-foreground flex flex-wrap justify-between gap-4 pt-12">
+      <div className="flex flex-wrap justify-between gap-4 pt-12">
         <div className="text-center">
           <p className="text-sm">{t('LabelStatsWeekListening')}</p>
           <p className="text-5xl leading-[0.85] font-semibold">{fmt(model.totalMinutes)}</p>
