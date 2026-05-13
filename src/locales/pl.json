@@ -860,6 +860,7 @@
   "MessageNoPodcastFeed": "Nieprawidłowy podcast: Brak kanału",
   "MessageNoPodcastsFound": "Nie znaleziono podcastów",
   "MessageNoResults": "Brak wyników",
+  "MessageNoRssFeeds": "Brak kanałów RSS",
   "MessageNoSearchResultsFor": "Brak wyników wyszukiwania dla \"{0}\"",
   "MessageNoSeries": "Brak serii",
   "MessageNoTags": "Brak tagów",

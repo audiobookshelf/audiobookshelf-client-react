@@ -13,7 +13,11 @@ export default function RssFeedsClient({ rssFeeds }: RssFeedsClientProps) {
   const t = useTypeSafeTranslations()
   return (
     <SettingsContent title={t('HeaderRSSFeeds')} moreInfoUrl="https://www.audiobookshelf.org/guides/rss_feeds">
-      <RssFeedsTable rssFeeds={rssFeeds} />
+      {rssFeeds.length > 0 ? (
+        <RssFeedsTable rssFeeds={rssFeeds} />
+      ) : (
+        <p className="text-foreground py-8 text-center text-lg">{t('MessageNoRssFeeds')}</p>
+      )}
     </SettingsContent>
   )
 }

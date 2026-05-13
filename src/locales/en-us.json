@@ -963,6 +963,7 @@
   "MessageNoPodcastFeed": "Invalid podcast: No Feed",
   "MessageNoPodcastsFound": "No podcasts found",
   "MessageNoResults": "No Results",
+  "MessageNoRssFeeds": "No RSS feeds",
   "MessageNoSearchResultsFor": "No search results for \"{0}\"",
   "MessageNoSeries": "No Series",
   "MessageNoSeriesFound": "No series found",
