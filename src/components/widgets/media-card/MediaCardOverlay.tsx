@@ -5,6 +5,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
+import { isDragOnlyOverlay, useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -65,6 +66,7 @@ interface MediaCardOverlayProps {
   onMoreAction: (action: string, data?: Record<string, string>) => void
   onMoreMenuOpenChange: (isOpen: boolean) => void
   onSelect?: (event: React.MouseEvent) => void
+  dragHandle?: ReactNode
 }
 
 export default function MediaCardOverlay({
@@ -93,10 +95,16 @@ export default function MediaCardOverlay({
   onEdit,
   onMoreAction,
   onMoreMenuOpenChange,
-  onSelect
+  onSelect,
+  dragHandle
 }: MediaCardOverlayProps) {
   const { userCanUpdate } = useUser()
-  const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !processing
+  const sortableBookshelf = useSortableBookshelf()
+  const dragOnly = isDragOnlyOverlay(sortableBookshelf?.overlayMode)
+
+  const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen || dragOnly) && !processing
+
+  const effectiveHovering = isHovering || dragOnly
 
   const t = useTypeSafeTranslations()
 
@@ -168,7 +176,7 @@ export default function MediaCardOverlay({
       {showOverlay && (
         <div cy-id="overlay" className={mergeClasses('absolute start-0 top-0 z-10 h-full w-full rounded-sm bg-black md:block', overlayWrapperClasslist)}>
           {/* Play button */}
-          {showPlayButton && (
+          {!dragOnly && showPlayButton && (
             <div cy-id="playButton" className="pointer-events-none flex h-full items-center justify-center">
               <IconBtn
                 borderless
@@ -184,7 +192,7 @@ export default function MediaCardOverlay({
           )}
 
           {/* Read button */}
-          {showReadButton && (
+          {!dragOnly && showReadButton && (
             <div cy-id="readButton" className="pointer-events-none flex h-full items-center justify-center">
               <IconBtn
                 borderless
@@ -199,7 +207,7 @@ export default function MediaCardOverlay({
           )}
 
           {/* Select button */}
-          {showSelectRadioButton && (
+          {!dragOnly && showSelectRadioButton && (
             <MediaOverlayIconBtn
               cyId="selectedRadioButton"
               position="top-start"
@@ -211,12 +219,12 @@ export default function MediaCardOverlay({
           )}
 
           {/* Edit button */}
-          {showEditButton && userCanUpdate && !isSelectionMode && (
+          {!dragOnly && showEditButton && userCanUpdate && !isSelectionMode && (
             <MediaOverlayIconBtn cyId="editButton" position="top-end" icon="edit" onClick={handleEditClick} ariaLabel={t('ButtonEdit')} />
           )}
 
           {/* More menu icon */}
-          {!isSelectionMode && moreMenuItems.length > 0 && (
+          {!dragOnly && !isSelectionMode && moreMenuItems.length > 0 && (
             <div
               cy-id="moreButton"
               className={mergeClasses(
@@ -229,7 +237,9 @@ export default function MediaCardOverlay({
           )}
 
           {/* Overlay badges (e.g., ebook format) */}
-          {safeRender(renderOverlayBadges, 'Error rendering overlay badges:')}
+          {!dragOnly && safeRender(renderOverlayBadges, 'Error rendering overlay badges:')}
+
+          {dragHandle}
         </div>
       )}
 
@@ -255,7 +265,7 @@ export default function MediaCardOverlay({
       )}
 
       {/* RSS feed & share icons */}
-      {rssFeed && !isSelectionMode && !isHovering && (
+      {rssFeed && !isSelectionMode && !effectiveHovering && (
         <div
           cy-id="rssFeed"
           className={mergeClasses('absolute start-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
@@ -266,7 +276,7 @@ export default function MediaCardOverlay({
           </span>
         </div>
       )}
-      {mediaItemShare && !isSelectionMode && !isHovering && (
+      {mediaItemShare && !isSelectionMode && !effectiveHovering && (
         <div
           cy-id="mediaItemShare"
           className={mergeClasses('absolute start-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
@@ -279,10 +289,10 @@ export default function MediaCardOverlay({
       )}
 
       {/* Type-specific badges (books/podcasts) */}
-      {safeRender(() => renderBadges?.({ isHovering, isSelectionMode, processing: isProcessingOrPending }), 'Error rendering badges:')}
+      {safeRender(() => renderBadges?.({ isHovering: effectiveHovering, isSelectionMode, processing: isProcessingOrPending }), 'Error rendering badges:')}
 
       {/* Series name overlay */}
-      {safeRender(() => renderSeriesNameOverlay?.(isHovering), 'Error rendering series name overlay:')}
+      {safeRender(() => renderSeriesNameOverlay?.(effectiveHovering), 'Error rendering series name overlay:')}
     </>
   )
 }
