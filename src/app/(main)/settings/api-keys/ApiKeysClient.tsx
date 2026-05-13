@@ -71,7 +71,11 @@ export default function ApiKeysClient({ apiKeys, users }: ApiKeysClientProps) {
         onClick: handleAddClick
       }}
     >
-      <ApiKeysTable apiKeys={apiKeys} onEditClick={handleEditClick} />
+      {apiKeys.length > 0 ? (
+        <ApiKeysTable apiKeys={apiKeys} onEditClick={handleEditClick} />
+      ) : (
+        <p className="text-foreground py-8 text-center text-lg">{t('LabelNoApiKeys')}</p>
+      )}
 
       <EditApiKeyModal isOpen={isModalOpen} apiKey={editingApiKey} users={users} onClose={handleCloseModal} onSubmit={handleSubmit} />
 

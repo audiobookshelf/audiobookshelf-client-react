@@ -336,7 +336,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings, ap
               deletingBackupId={deletingBackupId}
             />
           ) : (
-            <p className="text-foreground py-4 text-center text-lg">{t('MessageNoBackups')}</p>
+            <p className="text-foreground py-8 text-center text-lg">{t('MessageNoBackups')}</p>
           )}
           {isUploadingBackup || isApplyingBackup ? (
             <div className="absolute inset-0 flex items-center justify-center rounded-md bg-black/25" aria-busy="true" aria-live="polite">
