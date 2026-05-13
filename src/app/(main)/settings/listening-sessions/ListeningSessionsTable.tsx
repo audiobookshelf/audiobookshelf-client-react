@@ -354,7 +354,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             }}
           />
         ) : (
-          <p className="text-foreground-muted">{t('MessageNoListeningSessions')}</p>
+          <p className="text-foreground py-8 text-center text-lg">{t('MessageNoListeningSessions')}</p>
         )}
 
         {(deletingSessions || loading) && <LoadingIndicator />}
