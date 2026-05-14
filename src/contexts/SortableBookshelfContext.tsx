@@ -2,7 +2,7 @@
 
 import type { LibraryItem } from '@/types/api'
 import { isBookMedia } from '@/types/api'
-import { createContext, useContext, useSyncExternalStore, type ReactNode, type Ref } from 'react'
+import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react'
 
 const HOVER_MEDIA_QUERY = '(hover: hover)'
 
@@ -38,22 +38,12 @@ export type SortableBookshelfOverlayMode = 'hover' | 'pinned' | 'drag'
 
 export type SortableListKind = 'collection' | 'playlist'
 
-export interface SortableReorderDragConfig {
-  ariaLabel: string
-  activatorRef?: Ref<HTMLDivElement>
-  /** @dnd-kit `attributes` + `listeners`; loose record for clean merging onto the drag wrapper `div`. */
-  activatorProps?: Record<string, unknown>
-}
-
 export interface SortableBookshelfContextType {
   /** Collection or playlist id, depending on {@link sortableListKind}. */
   sortableListId: string
   sortableListKind: SortableListKind
   onLibraryItemRemovedFromSortableList?: (libraryItemId: string) => void
-  /**
-   * Overlay UX for sortable shelves: `pinned` on touch reorder grids; `drag` on the reorder
-   * grid’s dnd-kit `DragOverlay` subtree (merged in `SortableBookshelfReorderGrid`).
-   */
+  /** Overlay UX for sortable shelves: `pinned` on touch reorder grids; `hover` on desktop reorder. */
   overlayMode?: SortableBookshelfOverlayMode
 }
 
