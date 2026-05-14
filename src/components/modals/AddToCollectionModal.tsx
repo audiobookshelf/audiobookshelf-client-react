@@ -87,7 +87,8 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
     return () => {
       cancelled = true
     }
-  }, [isOpen, libraryId, showToast, t])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, libraryId])
 
   const mergeUpdatedCollection = useCallback((updated: Collection) => {
     setCollections((prev) => prev.map((c) => (c.id === updated.id ? updated : c)))
@@ -208,7 +209,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                             ariaLabel={t('ButtonRemove')}
                             size="auto"
                             outlined={false}
-                            className="bg-error text-white h-9 min-w-10 px-3"
+                            className="bg-error h-9 min-w-10 px-3 text-white"
                             disabled={controlsDisabled}
                             onClick={() => handleRemove(collection)}
                           >
@@ -219,7 +220,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                             ariaLabel={t('ButtonAdd')}
                             size="auto"
                             outlined={false}
-                            className="bg-success text-white h-9 min-w-10 px-3"
+                            className="bg-success h-9 min-w-10 px-3 text-white"
                             disabled={controlsDisabled}
                             onClick={() => handleAdd(collection)}
                           >

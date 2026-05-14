@@ -16,9 +16,7 @@ export interface MediaCardMoreMenuItem {
   subitems?: MediaCardMoreMenuSubitem[]
 }
 
-export function mapMediaCardMoreMenuItemsToDropdownItems(
-  items: MediaCardMoreMenuItem[]
-): ContextMenuDropdownItem<string>[] {
+export function mapMediaCardMoreMenuItemsToDropdownItems(items: MediaCardMoreMenuItem[]): ContextMenuDropdownItem<string>[] {
   return items.map((item) => ({
     text: item.text,
     action: item.func ?? '',

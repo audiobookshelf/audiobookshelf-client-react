@@ -133,7 +133,6 @@
   "HeaderChooseAFolder": "Wybierz folder",
   "HeaderCollection": "Kolekcja",
   "HeaderCollectionItems": "Elementy kolekcji",
-  "TooltipCollectionDragHandle": "Przeciągnij, aby zmienić kolejność",
   "HeaderCover": "Okładka",
   "HeaderCurrentDownloads": "Obecnie ściągane",
   "HeaderCustomMessageOnLogin": "Własny tekst podczas logowania",
@@ -231,8 +230,6 @@
   "LabelActivities": "Aktywności",
   "LabelActivity": "Aktywność",
   "LabelAddToCollection": "Dodaj do kolekcji",
-  "LabelRemoveFromCollection": "Usuń z kolekcji",
-  "LabelRemoveFromPlaylist": "Usuń z playlisty",
   "LabelAddToCollectionBatch": "Dodaj {0} książki do kolekcji",
   "LabelAddToPlaylist": "Dodaj do playlisty",
   "LabelAddToPlaylistBatch": "Dodaj {0} pozycji do playlisty",
@@ -567,6 +564,8 @@
   "LabelRemoveAllMetadataJson": "Usuń wszystkie pliki metadata.json",
   "LabelRemoveAudibleBranding": "Usuń Audible intro i outro z rozdziałów",
   "LabelRemoveCover": "Usuń okładkę",
+  "LabelRemoveFromCollection": "Usuń z kolekcji",
+  "LabelRemoveFromPlaylist": "Usuń z playlisty",
   "LabelRemoveMetadataFile": "Usuń pliki metadanych z folderów biblioteki",
   "LabelRemoveMetadataFileHelp": "Usuń wszystkie pliki metadata.json i metadata.abs z {0} folderów.",
   "LabelRowsPerPage": "Wierszy na stronę",
@@ -1039,5 +1038,6 @@
   "ToastSocketDisconnected": "Połączenie z serwerem zostało zamknięte",
   "ToastSocketFailedToConnect": "Poączenie z serwerem nie powiodło się",
   "ToastUserDeleteFailed": "Nie udało się usunąć użytkownika",
-  "ToastUserDeleteSuccess": "Użytkownik usunięty"
+  "ToastUserDeleteSuccess": "Użytkownik usunięty",
+  "TooltipCollectionDragHandle": "Przeciągnij, aby zmienić kolejność"
 }
