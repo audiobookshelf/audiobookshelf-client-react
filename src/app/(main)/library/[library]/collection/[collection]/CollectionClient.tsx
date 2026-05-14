@@ -9,8 +9,8 @@ import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
 import { mapMediaCardMoreMenuItemsToDropdownItems } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
-import { usePrimaryInputCanHover } from '@/contexts/SortableBookshelfContext'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
+import { usePrimaryInputCanHover } from '@/contexts/SortableBookshelfContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Collection } from '@/types/api'
@@ -69,7 +69,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
 
   return (
     <div>
-      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 md:flex-row md:items-start">
+      <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 md:flex-row md:items-start">
         <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex min-w-0 items-center gap-4">
