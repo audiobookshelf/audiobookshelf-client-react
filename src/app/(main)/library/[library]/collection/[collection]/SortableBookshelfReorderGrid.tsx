@@ -1,19 +1,34 @@
 'use client'
 
+import { ENTITY_CONFIGS } from '@/app/(main)/library/[library]/[entityType]/entity-config'
 import { updateCollectionAction } from '@/app/actions/collectionActions'
+import { getSortableBookshelfItemOrderBy } from '@/contexts/SortableBookshelfContext'
+import type { SortableBookshelfCardOptions } from '@/app/(main)/library/[library]/collection/[collection]/SortableBookshelfCard'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { BookshelfEntity, BookshelfView, LibraryItem, MediaProgress } from '@/types/api'
-import { closestCenter, DndContext, DragOverlay, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent, type DragStartEvent } from '@dnd-kit/core'
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+  type DragStartEvent
+} from '@dnd-kit/core'
 import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
-import CollectionBookCardShell from './CollectionBookCardShell'
-import SortableCollectionBookCard from './SortableCollectionBookCard'
+import SortableBookshelfCard from './SortableBookshelfCard'
 
-export interface CollectionBookshelfReorderGridProps {
-  books: LibraryItem[]
-  setBooks: (next: LibraryItem[]) => void
-  collectionId: string
+const itemsConfig = ENTITY_CONFIGS.items
+
+export interface SortableBookshelfReorderGridProps {
+  items: LibraryItem[]
+  setItems: (next: LibraryItem[]) => void
+  /** Target id for persisting order (e.g. collection id when using {@link updateCollectionAction}). */
+  sortableListId: string
   columns: number
   cardWidth: number
   cardMargin: number
@@ -38,10 +53,10 @@ export interface CollectionBookshelfReorderGridProps {
  * PointerSensor + DragOverlay (portal) + rectSortingStrategy handle grids and
  * scrollable parents out of the box.
  */
-export default function CollectionBookshelfReorderGrid({
-  books,
-  setBooks,
-  collectionId,
+export default function SortableBookshelfReorderGrid({
+  items,
+  setItems,
+  sortableListId,
   columns,
   cardWidth,
   cardMargin,
@@ -53,13 +68,20 @@ export default function CollectionBookshelfReorderGrid({
   showSubtitles,
   seriesSortBy,
   mediaItemProgressMap
-}: CollectionBookshelfReorderGridProps) {
+}: SortableBookshelfReorderGridProps) {
   const t = useTypeSafeTranslations()
+  const dragOverlayCardOptions = useMemo(
+    (): SortableBookshelfCardOptions => ({
+      ariaLabel: t('TooltipCollectionDragHandle'),
+      overlayMode: 'drag'
+    }),
+    [t]
+  )
   const { showToast } = useGlobalToast()
   const [, startTransition] = useTransition()
   const [activeId, setActiveId] = useState<string | null>(null)
-  const booksRef = useRef(books)
-  booksRef.current = books
+  const itemsRef = useRef(items)
+  itemsRef.current = items
 
   /**
    * `distance: 8` lets a tap on the drag handle act as a tap (e.g. focusing) without
@@ -71,9 +93,9 @@ export default function CollectionBookshelfReorderGrid({
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  const itemIds = useMemo(() => books.map((b) => b.id), [books])
+  const itemIds = useMemo(() => items.map((b) => b.id), [items])
 
-  const shelfEntitiesDense = useMemo(() => books as unknown as (BookshelfEntity | null)[], [books])
+  const shelfEntitiesDense = useMemo(() => items as unknown as (BookshelfEntity | null)[], [items])
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(String(event.active.id))
@@ -89,28 +111,28 @@ export default function CollectionBookshelfReorderGrid({
       const { active, over } = event
       if (!over || active.id === over.id) return
 
-      const prev = booksRef.current
+      const prev = itemsRef.current
       const oldIndex = prev.findIndex((b) => b.id === active.id)
       const newIndex = prev.findIndex((b) => b.id === over.id)
       if (oldIndex === -1 || newIndex === -1) return
 
       const next = arrayMove(prev, oldIndex, newIndex)
-      setBooks(next)
+      setItems(next)
       startTransition(async () => {
         try {
-          await updateCollectionAction(collectionId, { books: next.map((b) => b.id) })
+          await updateCollectionAction(sortableListId, { books: next.map((b) => b.id) })
         } catch (error) {
           console.error('Failed to update collection order', error)
           showToast(t('ToastFailedToUpdate'), { type: 'error' })
-          setBooks(prev)
+          setItems(prev)
         }
       })
     },
-    [collectionId, setBooks, showToast, t]
+    [sortableListId, setItems, showToast, t]
   )
 
-  const activeBook = useMemo(() => (activeId ? books.find((b) => b.id === activeId) ?? null : null), [activeId, books])
-  const activeIndex = useMemo(() => (activeId ? books.findIndex((b) => b.id === activeId) : -1), [activeId, books])
+  const activeItem = useMemo(() => (activeId ? (items.find((b) => b.id === activeId) ?? null) : null), [activeId, items])
+  const activeIndex = useMemo(() => (activeId ? items.findIndex((b) => b.id === activeId) : -1), [activeId, items])
 
   const gridStyle = useMemo(
     () => ({
@@ -127,11 +149,11 @@ export default function CollectionBookshelfReorderGrid({
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
       <SortableContext items={itemIds} strategy={rectSortingStrategy}>
         <div className="grid w-full max-w-full min-w-0 pt-4" style={gridStyle}>
-          {books.map((book, entityIndex) => (
-            <SortableCollectionBookCard
-              key={book.id}
-              libraryItem={book}
-              cardWidth={cardWidth}
+          {items.map((item, entityIndex) => (
+            <SortableBookshelfCard
+              key={item.id}
+              libraryItem={item}
+              width={cardWidth}
               libraryId={libraryId}
               bookshelfView={bookshelfView}
               showSubtitles={showSubtitles}
@@ -144,20 +166,21 @@ export default function CollectionBookshelfReorderGrid({
         </div>
       </SortableContext>
       <DragOverlay>
-        {activeBook ? (
+        {activeItem ? (
           <div className="flex justify-center overflow-visible">
-            <CollectionBookCardShell
-              libraryItem={activeBook}
-              cardWidth={cardWidth}
-              libraryId={libraryId}
+            <itemsConfig.CardComponent
+              entity={activeItem}
               bookshelfView={bookshelfView}
+              width={cardWidth}
+              libraryId={libraryId}
+              isPodcastLibrary={false}
               showSubtitles={showSubtitles}
+              orderBy={getSortableBookshelfItemOrderBy(activeItem)}
               seriesSortBy={seriesSortBy}
               mediaItemProgressMap={mediaItemProgressMap}
               shelfEntities={shelfEntitiesDense}
-              entityIndex={activeIndex}
-              showDragHandle
-              dragHandleAlwaysVisible
+              entityIndex={activeIndex >= 0 ? activeIndex : 0}
+              sortableBookshelfCardOptions={dragOverlayCardOptions}
             />
           </div>
         ) : null}
