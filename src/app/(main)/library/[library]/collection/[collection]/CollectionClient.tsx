@@ -2,13 +2,14 @@
 
 import CollectionEditModal from '@/components/modals/CollectionEditModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
+import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
-import MediaCardMoreMenu from '@/components/widgets/media-card/MediaCardMoreMenu'
+import { mapMediaCardMoreMenuItemsToDropdownItems } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
-import { useCardSize } from '@/contexts/CardSizeContext'
+import { usePrimaryInputCanHover } from '@/contexts/SortableBookshelfContext'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -23,8 +24,8 @@ interface CollectionClientProps {
 
 export default function CollectionClient({ collection }: CollectionClientProps) {
   const coverAspectRatio = useBookCoverAspectRatio()
-  const { userCanUpdate } = useUser()
-  const { isMobile } = useCardSize()
+  const { userCanUpdate, userIsAdminOrUp } = useUser()
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const coverWidth = 120
@@ -36,8 +37,8 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
   const [mobileReorderActive, setMobileReorderActive] = useState(false)
 
   useEffect(() => {
-    if (!isMobile) setMobileReorderActive(false)
-  }, [isMobile])
+    if (primaryInputCanHover) setMobileReorderActive(false)
+  }, [primaryInputCanHover])
 
   const handleOpenRssFeedModal = useCallback(() => {
     setRssFeedModalOpen(true)
@@ -53,6 +54,16 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
     onOpenRssFeedModal: handleOpenRssFeedModal,
     onCollectionDeleted: handleCollectionDeleted
   })
+
+  const collectionHeaderMoreItems = useMemo(() => mapMediaCardMoreMenuItemsToDropdownItems(moreMenuItems), [moreMenuItems])
+
+  const handleCollectionHeaderMoreAction = useCallback(
+    ({ action }: { action: string }) => {
+      if (!action) return
+      handleMoreAction(action)
+    },
+    [handleMoreAction]
+  )
 
   const showHeaderActions = userCanUpdate || moreMenuItems.length > 0
 
@@ -74,11 +85,8 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
                     </span>
                   </Tooltip>
                 )}
-                {userCanUpdate && isMobile && (
-                  <Tooltip
-                    text={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')}
-                    position="top"
-                  >
+                {userCanUpdate && !primaryInputCanHover && (
+                  <Tooltip text={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')} position="top">
                     <span className="inline-flex">
                       <IconBtn
                         ariaLabel={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')}
@@ -94,11 +102,15 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
                   </Tooltip>
                 )}
                 {moreMenuItems.length > 0 && (
-                  <MediaCardMoreMenu
-                    items={moreMenuItems}
+                  <ContextMenuDropdown
+                    items={collectionHeaderMoreItems}
                     processing={processing}
-                    onAction={handleMoreAction}
-                    className="border-border bg-primary text-button-foreground hover:not-disabled:text-button-foreground mx-0.5 h-9 w-9 border"
+                    onAction={handleCollectionHeaderMoreAction}
+                    size="small"
+                    menuAlign="right"
+                    autoWidth
+                    usePortal
+                    className="mx-0.5"
                   />
                 )}
               </div>
@@ -114,17 +126,19 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
         <CollectionEditModal isOpen={editModalOpen} collection={collection} onClose={() => setEditModalOpen(false)} onSaved={() => router.refresh()} />
       )}
 
-      <RssFeedOpenCloseModal
-        isOpen={rssFeedModalOpen}
-        onClose={() => setRssFeedModalOpen(false)}
-        entity={{
-          id: collection.id,
-          name: collection.name,
-          type: 'collection',
-          feed: rssFeed
-        }}
-        onFeedChange={() => router.refresh()}
-      />
+      {userIsAdminOrUp && (
+        <RssFeedOpenCloseModal
+          isOpen={rssFeedModalOpen}
+          onClose={() => setRssFeedModalOpen(false)}
+          entity={{
+            id: collection.id,
+            name: collection.name,
+            type: 'collection',
+            feed: rssFeed
+          }}
+          onFeedChange={() => router.refresh()}
+        />
+      )}
 
       {confirmState && (
         <ConfirmDialog
