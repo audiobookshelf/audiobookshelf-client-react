@@ -5,7 +5,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
-import { isDragOnlyOverlay, useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
+import { isDragOnlyOverlay, useSortableBookshelf, type SortableBookshelfOverlayMode } from '@/contexts/SortableBookshelfContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -67,6 +67,8 @@ interface MediaCardOverlayProps {
   onMoreMenuOpenChange: (isOpen: boolean) => void
   onSelect?: (event: React.MouseEvent) => void
   dragHandle?: ReactNode
+  /** When set, overrides context `overlayMode` for drag-only overlay behavior (e.g. drag-config `overlayMode`). */
+  overlayModeOverride?: SortableBookshelfOverlayMode
 }
 
 export default function MediaCardOverlay({
@@ -96,11 +98,12 @@ export default function MediaCardOverlay({
   onMoreAction,
   onMoreMenuOpenChange,
   onSelect,
-  dragHandle
+  dragHandle,
+  overlayModeOverride
 }: MediaCardOverlayProps) {
   const { userCanUpdate } = useUser()
   const sortableBookshelf = useSortableBookshelf()
-  const dragOnly = isDragOnlyOverlay(sortableBookshelf?.overlayMode)
+  const dragOnly = isDragOnlyOverlay(overlayModeOverride ?? sortableBookshelf?.overlayMode)
 
   const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen || dragOnly) && !processing
 
