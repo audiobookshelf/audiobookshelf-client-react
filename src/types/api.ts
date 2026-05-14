@@ -1497,3 +1497,43 @@ export interface OpenRssFeedPayload {
 export interface OpenRssFeedResponse {
   feed: RssFeed
 }
+
+// ============================================================================
+// Library Stats
+// ============================================================================
+
+interface LargestItem {
+  id: string
+  title: string
+  size: number // size in bytes
+}
+
+interface AuthorWithCount {
+  id: string
+  name: string
+  count: number
+}
+
+interface GenreWithCount {
+  genre: string
+  count: number
+}
+
+interface LongestItem {
+  id: string
+  title: string
+  duration: number
+}
+
+export interface LibraryStatsResponse {
+  largestItems: LargestItem[]
+  totalAuthors: number
+  authorsWithCount: AuthorWithCount[]
+  totalGenres: number
+  genresWithCount: GenreWithCount[]
+  totalItems: number
+  longestItems: LongestItem[]
+  totalSize: number
+  totalDuration: number
+  numAudioTracks: number
+}
