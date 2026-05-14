@@ -1,5 +1,6 @@
 'use client'
 
+import type { SortableBookshelfCardOptions } from '@/app/(main)/library/[library]/collection/[collection]/SortableBookshelfCard'
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
@@ -15,7 +16,7 @@ import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
-import { isDragOnlyOverlay, useSortableBookshelf, type SortableReorderDragConfig } from '@/contexts/SortableBookshelfContext'
+import { isDragOnlyOverlay, useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
@@ -25,12 +26,6 @@ import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
 import { useMediaCardActions } from './useMediaCardActions'
-
-export type {
-  SortableBookshelfContextType as SortableBookshelfContextValue,
-  SortableBookshelfOverlayMode,
-  SortableReorderDragConfig
-} from '@/contexts/SortableBookshelfContext'
 
 export interface MediaCardProps {
   libraryItem: LibraryItem
@@ -81,8 +76,8 @@ export interface MediaCardProps {
    */
   shelfEntities?: (BookshelfEntity | null)[]
   entityIndex?: number
-  /** Wired by sortable reorder grid / drag overlay hosts (dnd-kit handle or preview variant). */
-  dragConfig?: SortableReorderDragConfig
+  /** Wired by sortable bookshelf hosts (`SortableBookshelfCard`, `DragOverlay`, etc.). */
+  dragOptions?: SortableBookshelfCardOptions
 }
 
 function MediaCard(props: MediaCardProps) {
@@ -107,11 +102,11 @@ function MediaCard(props: MediaCardProps) {
     onSelect,
     shelfEntities,
     entityIndex,
-    dragConfig
+    dragOptions
   } = props
 
   const sortableBookshelf = useSortableBookshelf()
-  const sortableBookshelfOverlayMode = sortableBookshelf?.overlayMode ?? 'hover'
+  const sortableBookshelfOverlayMode = dragOptions?.overlayMode ?? sortableBookshelf?.overlayMode ?? 'hover'
 
   const router = useRouter()
   const { setBoundModal } = useLibrary()
@@ -306,28 +301,28 @@ function MediaCard(props: MediaCardProps) {
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(sortableBookshelfOverlayMode)
 
   const dragHandle = useMemo(() => {
-    if (!dragConfig) return undefined
+    if (!dragOptions) return undefined
     return (
       <DraggableMediaOverlayIconBtn
         icon="drag_handle"
-        ariaLabel={dragConfig.ariaLabel}
-        activatorRef={dragConfig.activatorRef}
-        activatorProps={dragConfig.activatorProps}
+        ariaLabel={dragOptions.ariaLabel}
+        activatorRef={dragOptions.activatorRef}
+        activatorProps={dragOptions.activatorProps}
       />
     )
-  }, [dragConfig])
+  }, [dragOptions])
 
   return (
     <>
       <MediaCardFrame
         width={coverWidth}
         height={coverHeight}
-        className={dragConfig ? 'group' : undefined}
+        className={dragOptions ? 'group' : undefined}
         onClick={navigateOnCardClick ? handleCardClick : undefined}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onMouseOver={
-          dragConfig
+          dragOptions
             ? () => {
                 setIsHovering(true)
               }
@@ -396,6 +391,7 @@ function MediaCard(props: MediaCardProps) {
             onMoreMenuOpenChange={handleMoreMenuOpenChange}
             onSelect={onSelect}
             dragHandle={dragHandle}
+            overlayModeOverride={sortableBookshelfOverlayMode}
           />
         }
       />
