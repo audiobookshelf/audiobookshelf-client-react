@@ -1,8 +1,14 @@
 'use client'
 
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { CollectionBookshelfProvider, type CollectionBookshelfContext } from '@/contexts/CollectionBookshelfContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
+import {
+  getSortableBookshelfItemOrderBy,
+  SortableBookshelfProvider,
+  usePrimaryInputCanHover,
+  type SortableBookshelfContextType,
+  type SortableBookshelfOverlayMode
+} from '@/contexts/SortableBookshelfContext'
 import { useUser } from '@/contexts/UserContext'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -13,14 +19,13 @@ import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { ENTITY_CONFIGS } from '../../[entityType]/entity-config'
-import CollectionBookCardShell from './CollectionBookCardShell'
-import CollectionBookshelfReorderGrid from './CollectionBookshelfReorderGrid'
+import SortableBookshelfReorderGrid from './SortableBookshelfReorderGrid'
 
 const itemsConfig = ENTITY_CONFIGS.items
 
 interface CollectionBookshelfClientProps {
   collection: Collection
-  /** When false on mobile, show browse grid without drag handles; desktop ignores this. */
+  /** When false without hover-capable primary input, show browse grid without drag handles; hover desktops ignore this. */
   mobileReorderActive: boolean
 }
 
@@ -32,7 +37,8 @@ export default function CollectionBookshelfClient({ collection, mobileReorderAct
   /** Detail (modern) bookshelf: titles and metadata in the card footer, not on the cover. */
   const bookshelfViewForCollection: BookshelfView = BookshelfView.DETAIL
   const isDetailBookshelfView = bookshelfViewForCollection === BookshelfView.DETAIL
-  const { sizeMultiplier, isMobile } = useCardSize()
+  const { sizeMultiplier } = useCardSize()
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const coverAspect = useBookCoverAspectRatio()
   const coverHeight = 192 * sizeMultiplier
   /** Same width as `MediaCard` / `MediaCardSkeleton` cover column (not the scrollport). */
@@ -43,20 +49,12 @@ export default function CollectionBookshelfClient({ collection, mobileReorderAct
 
   const [orderedBooks, setOrderedBooks] = useState<LibraryItem[]>(() => collection.books ?? [])
 
-  const handleBookRemovedFromCollection = useCallback(
+  const handleLibraryItemRemovedFromSortableList = useCallback(
     (libraryItemId: string) => {
       setOrderedBooks((prev) => prev.filter((b) => b.id !== libraryItemId))
       router.refresh()
     },
     [router]
-  )
-
-  const collectionBookshelf = useMemo<CollectionBookshelfContext>(
-    () => ({
-      collectionId: collection.id,
-      onBookRemovedFromCollection: handleBookRemovedFromCollection
-    }),
-    [collection.id, handleBookRemovedFromCollection]
   )
 
   useEffect(() => {
@@ -183,8 +181,18 @@ export default function CollectionBookshelfClient({ collection, mobileReorderAct
     return columnGap + Math.max(0, (innerWidth - bookshelfRowWidth) / 2)
   }, [canLayoutShelf, columns, dimensions.width, bookshelfRowWidth, columnGap])
 
-  const showReorderGrid = canReorder && columns > 0 && (!isMobile || mobileReorderActive)
+  const showReorderGrid = canReorder && columns > 0 && (primaryInputCanHover || mobileReorderActive)
   const showBrowseGrid = canLayoutShelf && totalEntities > 0 && columns > 0 && !showReorderGrid
+
+  const sortableBookshelf = useMemo((): SortableBookshelfContextType => {
+    const overlayMode: SortableBookshelfOverlayMode = showReorderGrid && !primaryInputCanHover ? 'pinned' : 'hover'
+    return {
+      sortableListId: collection.id,
+      sortableListKind: 'collection',
+      onLibraryItemRemovedFromSortableList: handleLibraryItemRemovedFromSortableList,
+      overlayMode
+    }
+  }, [collection.id, handleLibraryItemRemovedFromSortableList, showReorderGrid, primaryInputCanHover])
 
   const browseGridStyle = useMemo(
     () => ({
@@ -203,24 +211,29 @@ export default function CollectionBookshelfClient({ collection, mobileReorderAct
 
   const renderCard = useCallback(
     (book: LibraryItem, entityIndex: number) => (
-      <CollectionBookCardShell
-        libraryItem={book}
-        cardWidth={layoutCardWidth}
-        libraryId={library.id}
+      <itemsConfig.CardComponent
+        entity={book}
         bookshelfView={bookshelfViewForCollection}
+        width={layoutCardWidth}
+        libraryId={library.id}
+        isPodcastLibrary={false}
         showSubtitles={showSubtitles}
+        orderBy={getSortableBookshelfItemOrderBy(book)}
         seriesSortBy={seriesSortBy}
         mediaItemProgressMap={mediaItemProgressMap}
         shelfEntities={shelfEntitiesDense}
         entityIndex={entityIndex}
-        showDragHandle={false}
       />
     ),
     [bookshelfViewForCollection, layoutCardWidth, library.id, mediaItemProgressMap, seriesSortBy, shelfEntitiesDense, showSubtitles]
   )
 
+  /**
+   * Provider stays here: context value depends on shelf layout (`columns`), local book order, and
+   * `overlayMode`, which are only known inside this component — not above the collection header.
+   */
   return (
-    <CollectionBookshelfProvider value={collectionBookshelf}>
+    <SortableBookshelfProvider value={sortableBookshelf}>
       <div className="mt-10 w-full min-w-0">
         <div
           ref={containerRef}
@@ -247,10 +260,10 @@ export default function CollectionBookshelfClient({ collection, mobileReorderAct
           )}
 
           {canLayoutShelf && totalEntities > 0 && showReorderGrid && (
-            <CollectionBookshelfReorderGrid
-              books={orderedBooks}
-              setBooks={setOrderedBooks}
-              collectionId={collection.id}
+            <SortableBookshelfReorderGrid
+              items={orderedBooks}
+              setItems={setOrderedBooks}
+              sortableListId={collection.id}
               columns={columns}
               cardWidth={layoutCardWidth}
               cardMargin={columnGap}
@@ -276,6 +289,6 @@ export default function CollectionBookshelfClient({ collection, mobileReorderAct
           )}
         </div>
       </div>
-    </CollectionBookshelfProvider>
+    </SortableBookshelfProvider>
   )
 }
