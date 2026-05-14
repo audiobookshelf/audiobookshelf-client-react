@@ -1,3 +1,4 @@
+import type { SortableBookshelfCardOptions } from '@/app/(main)/library/[library]/collection/[collection]/SortableBookshelfCard'
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import AuthorCard from '@/components/widgets/media-card/AuthorCard'
@@ -41,6 +42,8 @@ export interface CardComponentProps {
   mediaItemProgressMap: Map<string, MediaProgress>
   shelfEntities?: (BookshelfEntity | null)[]
   entityIndex?: number
+  /** Sortable collection bookshelf: options from `SortableBookshelfCard` (drag activator + overlay override). */
+  sortableBookshelfCardOptions?: SortableBookshelfCardOptions
 }
 
 export interface EntityConfig {
@@ -115,7 +118,8 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       seriesSortBy,
       mediaItemProgressMap,
       shelfEntities,
-      entityIndex
+      entityIndex,
+      sortableBookshelfCardOptions
     }) => {
       void seriesSortBy
       const { user, serverSettings, ereaderDevices } = useUser()
@@ -160,6 +164,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             orderBy={orderBy ?? ''}
             shelfEntities={shelfEntities}
             entityIndex={entityIndex}
+            dragOptions={sortableBookshelfCardOptions}
           />
         </div>
       )
