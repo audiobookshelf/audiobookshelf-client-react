@@ -2,8 +2,8 @@
 
 import { ENTITY_CONFIGS } from '@/app/(main)/library/[library]/[entityType]/entity-config'
 import { updateCollectionAction } from '@/app/actions/collectionActions'
+import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
 import { getSortableBookshelfItemOrderBy } from '@/contexts/SortableBookshelfContext'
-import type { SortableBookshelfCardOptions } from '@/app/(main)/library/[library]/collection/[collection]/SortableBookshelfCard'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { BookshelfEntity, BookshelfView, LibraryItem, MediaProgress } from '@/types/api'
@@ -20,7 +20,7 @@ import {
 } from '@dnd-kit/core'
 import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
-import SortableBookshelfCard from './SortableBookshelfCard'
+import SortableBookshelfCard from './media-card/SortableBookshelfCard'
 
 const itemsConfig = ENTITY_CONFIGS.items
 

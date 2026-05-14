@@ -18,8 +18,8 @@ import type { BookshelfEntity, Collection, LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import SortableBookshelfReorderGrid from '../../../../../../components/widgets/SortableBookshelfReorderGrid'
 import { ENTITY_CONFIGS } from '../../[entityType]/entity-config'
-import SortableBookshelfReorderGrid from './SortableBookshelfReorderGrid'
 
 const itemsConfig = ENTITY_CONFIGS.items
 

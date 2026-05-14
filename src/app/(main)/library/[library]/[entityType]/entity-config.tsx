@@ -1,4 +1,3 @@
-import type { SortableBookshelfCardOptions } from '@/app/(main)/library/[library]/collection/[collection]/SortableBookshelfCard'
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import AuthorCard from '@/components/widgets/media-card/AuthorCard'
@@ -13,6 +12,7 @@ import PlaylistCardSkeleton from '@/components/widgets/media-card/PlaylistCardSk
 import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
 import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
+import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
 import { UpdateSettingFn } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, Library, LibraryItem, MediaProgress, Playlist, Series, User } from '@/types/api'
