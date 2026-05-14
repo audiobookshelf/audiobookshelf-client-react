@@ -1,5 +1,5 @@
 import { mergeClasses } from '@/lib/merge-classes'
-import { type ReactNode } from 'react'
+import { type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 
 interface MediaCardFrameProps {
   width: number | string
@@ -7,6 +7,8 @@ interface MediaCardFrameProps {
   onClick?: (event: React.MouseEvent) => void
   onMouseEnter?: () => void
   onMouseLeave?: () => void
+  /** Fires on bubble (unlike mouseenter); use when descendants need to drive hover reliably. */
+  onMouseOver?: (event: ReactMouseEvent) => void
   onKeyDown?: (event: React.KeyboardEvent) => void
   cardId?: string
   cover: ReactNode
@@ -23,6 +25,7 @@ export default function MediaCardFrame({
   onClick,
   onMouseEnter,
   onMouseLeave,
+  onMouseOver,
   onKeyDown,
   cardId,
   cover,
@@ -40,6 +43,7 @@ export default function MediaCardFrame({
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onMouseOver={onMouseOver}
       onKeyDown={onKeyDown}
       className={mergeClasses(
         'relative z-30 rounded-xs',

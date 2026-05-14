@@ -1,38 +1,54 @@
+import { CardSizeProvider, useCardSize } from '@/contexts/CardSizeContext'
 import { useBookshelfVirtualizer, type UseBookshelfVirtualizerProps } from '@/hooks/useBookshelfVirtualizer'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBookshelfVirtualizerProps> }) => {
-  // Use strings for input state to allow empty values and prevent "0" glitch
-  const [inputState, setInputState] = useState({
-    totalEntities: '1000',
-    itemWidth: '100',
-    itemHeight: '100',
-    containerWidth: '500',
-    containerHeight: '500',
-    padding: '0',
-    ...Object.entries(initialProps).reduce((acc, [k, v]) => ({ ...acc, [k]: String(v) }), {})
+type TestInitialProps = Partial<Record<keyof UseBookshelfVirtualizerProps, string | number>> & {
+  sizeMultiplier?: string | number
+}
+
+function TestInner({ initialProps = {} }: { initialProps?: TestInitialProps }) {
+  const { setSizeMultiplier } = useCardSize()
+  const [inputState, setInputState] = useState(() => {
+    const base = {
+      totalEntities: '1000',
+      cardWidth: '100',
+      itemHeight: '100',
+      containerWidth: '500',
+      containerHeight: '500',
+      sizeMultiplier: '1'
+    }
+    return {
+      ...base,
+      ...Object.fromEntries(Object.entries(initialProps).map(([k, v]) => [k, String(v)]))
+    }
   })
 
-  // Convert to numbers for the hook
+  useEffect(() => {
+    const sm = Number(inputState.sizeMultiplier)
+    if (Number.isFinite(sm)) setSizeMultiplier(sm)
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- test harness: apply initial CardSize once from merged form state
+  }, [])
+
   const props = {
     totalEntities: Number(inputState.totalEntities),
-    itemWidth: Number(inputState.itemWidth),
+    cardWidth: Number(inputState.cardWidth),
     itemHeight: Number(inputState.itemHeight),
     containerWidth: Number(inputState.containerWidth),
-    containerHeight: Number(inputState.containerHeight),
-    padding: Number(inputState.padding)
+    containerHeight: Number(inputState.containerHeight)
   }
 
   const handleChange = (key: string, value: string) => {
     setInputState((prev) => ({ ...prev, [key]: value }))
+    if (key === 'sizeMultiplier') {
+      const n = Number(value)
+      if (Number.isFinite(n)) setSizeMultiplier(n)
+    }
   }
 
-  // Expose virtualizer state
   const virtualizer = useBookshelfVirtualizer(props)
 
   return (
     <div className="flex gap-4">
-      {/* Controls */}
       <div className="flex w-64 flex-col gap-2 border-r bg-gray-50 p-2">
         <label>
           Total Entities:
@@ -55,12 +71,12 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
           />
         </label>
         <label>
-          Item Width:
+          Card width:
           <input
-            data-cy="input-itemWidth"
+            data-cy="input-cardWidth"
             type="number"
-            value={inputState.itemWidth}
-            onChange={(e) => handleChange('itemWidth', e.target.value)}
+            value={inputState.cardWidth}
+            onChange={(e) => handleChange('cardWidth', e.target.value)}
             className="w-full border p-1"
           />
         </label>
@@ -75,15 +91,19 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
           />
         </label>
         <label>
-          Padding:
+          Size multiplier:
           <input
-            data-cy="input-padding"
+            data-cy="input-sizeMultiplier"
             type="number"
-            value={inputState.padding}
-            onChange={(e) => handleChange('padding', e.target.value)}
+            step="0.25"
+            value={inputState.sizeMultiplier}
+            onChange={(e) => handleChange('sizeMultiplier', e.target.value)}
             className="w-full border p-1"
           />
         </label>
+        <div>
+          Column gap (computed): <span data-cy="val-columnGap">{virtualizer.columnGap}</span>
+        </div>
         <button data-cy="btn-scroll-1000" onClick={() => virtualizer.handleScroll(1000)} className="rounded bg-blue-500 p-2 text-white">
           Scroll to 1000
         </button>
@@ -92,21 +112,20 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
         </button>
         <button
           data-cy="btn-collapse"
-          onClick={() => setInputState((p) => ({ ...p, itemHeight: '0', itemWidth: '0' }))}
+          onClick={() => setInputState((p) => ({ ...p, itemHeight: '0', cardWidth: '0' }))}
           className="rounded bg-red-500 p-2 text-white"
         >
           Collapse
         </button>
         <button
           data-cy="btn-restore"
-          onClick={() => setInputState((p) => ({ ...p, itemHeight: '100', itemWidth: '100' }))}
+          onClick={() => setInputState((p) => ({ ...p, itemHeight: '100', cardWidth: '100' }))}
           className="rounded bg-green-500 p-2 text-white"
         >
           Restore
         </button>
       </div>
 
-      {/* Output */}
       <div className="flex-1 p-2">
         <div>
           Visible Start: <span data-cy="val-start">{virtualizer.visibleShelfStart}</span>
@@ -128,35 +147,41 @@ const TestComponent = ({ initialProps = {} }: { initialProps?: Partial<UseBooksh
   )
 }
 
+function TestComponent({ initialProps = {} }: { initialProps?: TestInitialProps }) {
+  return (
+    <CardSizeProvider>
+      <TestInner initialProps={initialProps} />
+    </CardSizeProvider>
+  )
+}
+
 describe('useBookshelfVirtualizer', () => {
+  // CardSizeProvider caps sizeMultiplier at 5/6 when viewport width is < 640px (MOBILE_BREAKPOINT).
+  // useBookshelfVirtualizer reads sizeMultiplier via useCardSize, so keep a desktop-width viewport
+  // so expectations match integer gap math (e.g. 12 / 24 px at multiplier 1).
+  beforeEach(() => {
+    cy.viewport(800, 800)
+  })
+
   it('calculates initial layout correctly', () => {
     cy.mount(<TestComponent />)
 
-    // 500px width / 100px item = 5 columns
-    cy.get('[data-cy="val-columns"]').should('have.text', '5')
-    // 1000 entities / 5 columns = 200 shelves
-    cy.get('[data-cy="val-totalShelves"]').should('have.text', '200')
-    // Start should be 0
+    // width 500 → gap 24; available 452 → 3 columns of 100px tracks
+    cy.get('[data-cy="val-columnGap"]').should('have.text', '24')
+    cy.get('[data-cy="val-columns"]').should('have.text', '3')
+    cy.get('[data-cy="val-totalShelves"]').should('have.text', '334')
     cy.get('[data-cy="val-start"]').should('have.text', '0')
-    // 500px height / 100px item = 5 visible rows
-    // Buffer is 2. So usually 0 to 5+2+1 = 8?
-    // Formula: end = floor((scrollTop + h) / shelfHeight) + buffer + 1
-    // end = floor((0 + 500)/100) + 2 + 1 = 5 + 3 = 8
     cy.get('[data-cy="val-end"]').should('have.text', '8')
   })
 
   it('updates visible range on scroll', () => {
     cy.mount(<TestComponent />)
 
-    // Scroll to 1000px (10 shelves down)
     cy.get('[data-cy="btn-scroll-1000"]').click()
 
-    // Start: floor(1000/100) - 2 = 10 - 2 = 8
     cy.get('[data-cy="val-start"]').should('have.text', '8')
-    // End: floor((1000+500)/100) + 2 + 1 = 15 + 3 = 18
     cy.get('[data-cy="val-end"]').should('have.text', '18')
 
-    // Scroll back to 0
     cy.get('[data-cy="btn-scroll-0"]').click()
     cy.get('[data-cy="val-start"]').should('have.text', '0')
   })
@@ -164,47 +189,59 @@ describe('useBookshelfVirtualizer', () => {
   it('recalculates layout when container resizes', () => {
     cy.mount(<TestComponent />)
 
-    // Change container width to 1000 (double)
-    // Clear first (state becomes ''), then type
     cy.get('[data-cy="input-containerWidth"]').clear().type('1000')
-
-    // Verify input value to be sure
     cy.get('[data-cy="input-containerWidth"]').should('have.value', '1000')
 
-    // 1000 / 100 = 10 columns
-    cy.get('[data-cy="val-columns"]').should('have.text', '10')
-    // 1000 entities / 10 cols = 100 shelves
-    cy.get('[data-cy="val-totalShelves"]').should('have.text', '100')
+    cy.get('[data-cy="val-columnGap"]').should('have.text', '24')
+    cy.get('[data-cy="val-columns"]').should('have.text', '7')
+    cy.get('[data-cy="val-totalShelves"]').should('have.text', '143')
   })
 
   it('handles item resizing and collapse', () => {
     cy.mount(<TestComponent />)
 
-    // Collapse (simulating loading state or zero size)
     cy.get('[data-cy="btn-collapse"]').click()
-    // Should handle gracefully
     cy.get('[data-cy="val-shelfHeight"]').should('have.text', '0')
 
-    // Restore
     cy.get('[data-cy="btn-restore"]').click()
     cy.get('[data-cy="val-shelfHeight"]').should('have.text', '100')
     cy.get('[data-cy="val-start"]').should('have.text', '0')
   })
 
-  it('respects padding', () => {
+  it('uses 12px gap tier for any container width below 480 (w < 480)', () => {
+    cy.mount(
+      <TestComponent
+        initialProps={{
+          containerWidth: 400,
+          cardWidth: 160,
+          totalEntities: 10,
+          sizeMultiplier: 1
+        }}
+      />
+    )
+    cy.get('[data-cy="val-columnGap"]').should('have.text', '12')
+    // getBookshelfColumnGapPx: w < 480 → 12*sm; available = 400 - 24 = 376; floor((376 + 12) / 172) = 2
+    cy.get('[data-cy="val-columns"]').should('have.text', '2')
+
+    // Same tier at a narrower width (still two 160px columns)
+    cy.get('[data-cy="input-containerWidth"]').clear().type('360')
+    cy.get('[data-cy="val-columnGap"]').should('have.text', '12')
+    cy.get('[data-cy="val-columns"]').should('have.text', '2')
+  })
+
+  it('drops to fewer columns when width crosses below 480 (gap 12 vs 24)', () => {
     cy.mount(<TestComponent />)
 
-    // Add 20px padding (applied to both sides -> 40px subtraction)
-    // 500 - 40 = 460 available width
-    // 460 / 100 = 4.6 -> 4 columns
-    cy.get('[data-cy="input-padding"]').clear().type('20')
+    cy.get('[data-cy="val-columns"]').should('have.text', '3')
 
-    // Verify input value
-    cy.get('[data-cy="input-padding"]').should('have.value', '20')
+    // Below 480: columnGap 12; narrow enough that only one 100px track fits between side insets
+    cy.get('[data-cy="input-containerWidth"]').clear().type('220')
+    cy.get('[data-cy="input-containerWidth"]').should('have.value', '220')
 
-    cy.get('[data-cy="val-columns"]').should('have.text', '4')
-    // 1000 / 4 = 250 shelves
-    cy.get('[data-cy="val-totalShelves"]').should('have.text', '250')
+    cy.get('[data-cy="val-columnGap"]').should('have.text', '12')
+    // available = 220 - 24 = 196; floor((196 + 12) / 112) = 1
+    cy.get('[data-cy="val-columns"]').should('have.text', '1')
+    cy.get('[data-cy="val-totalShelves"]').should('have.text', '1000')
   })
 
   it('handles zero entities', () => {

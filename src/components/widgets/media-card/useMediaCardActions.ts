@@ -1,5 +1,6 @@
 'use client'
 
+import { removeBookFromCollectionAction } from '@/app/actions/collectionActions'
 import {
   deleteLibraryItemAction,
   getExpandedLibraryItemAction,
@@ -8,8 +9,10 @@ import {
   sendEbookToDeviceAction,
   toggleFinishedAction
 } from '@/app/actions/mediaActions'
+import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
@@ -65,6 +68,7 @@ export function useMediaCardActions({
   onOpenMatch,
   playerControls
 }: UseMediaCardActionsProps) {
+  const sortableBookshelf = useSortableBookshelf()
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const { showToast } = useGlobalToast()
@@ -252,6 +256,29 @@ export function useMediaCardActions({
         })
       } else if (action === 'toggleFinished') {
         toggleFinished(false)
+      } else if (action === 'removeFromSortableList') {
+        const ctx = sortableBookshelf
+        if (!ctx?.sortableListId || !userCanUpdate) return
+        startTransition(async () => {
+          try {
+            setProcessing(true)
+            if (ctx.sortableListKind === 'collection') {
+              await removeBookFromCollectionAction(ctx.sortableListId, libraryItem.id)
+              showToast(t('ToastRemoveItemFromCollectionSuccess'), { type: 'success' })
+            } else {
+              await batchRemoveFromPlaylistAction(ctx.sortableListId, [{ libraryItemId: libraryItem.id, episodeId: episodeForQueue?.id ?? null }])
+              showToast(t('ToastRemoveItemFromPlaylistSuccess'), { type: 'success' })
+            }
+            ctx.onLibraryItemRemovedFromSortableList?.(libraryItem.id)
+          } catch (error) {
+            console.error('Failed to remove item from sortable list', error)
+            showToast(ctx.sortableListKind === 'collection' ? t('ToastRemoveItemFromCollectionFailed') : t('ToastRemoveItemFromPlaylistFailed'), {
+              type: 'error'
+            })
+          } finally {
+            setProcessing(false)
+          }
+        })
       } else if (action === 'rescan') {
         startTransition(async () => {
           try {
@@ -339,7 +366,9 @@ export function useMediaCardActions({
       title,
       toggleFinished,
       onDeleteSuccess,
-      onOpenMatch
+      onOpenMatch,
+      sortableBookshelf,
+      userCanUpdate
     ]
   )
 
@@ -351,6 +380,13 @@ export function useMediaCardActions({
         text: itemIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished'),
         func: 'toggleFinished'
       })
+
+      if (userCanUpdate && sortableBookshelf) {
+        items.push({
+          text: sortableBookshelf.sortableListKind === 'playlist' ? t('LabelRemoveFromPlaylist') : t('LabelRemoveFromCollection'),
+          func: 'removeFromSortableList'
+        })
+      }
 
       if (userCanUpdate) {
         items.push({
@@ -461,7 +497,8 @@ export function useMediaCardActions({
     userCanDownload,
     userCanUpdate,
     userIsAdminOrUp,
-    onOpenMatch
+    onOpenMatch,
+    sortableBookshelf
   ])
 
   const closeConfirm = useCallback(() => {

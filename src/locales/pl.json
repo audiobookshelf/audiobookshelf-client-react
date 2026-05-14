@@ -564,6 +564,8 @@
   "LabelRemoveAllMetadataJson": "Usuń wszystkie pliki metadata.json",
   "LabelRemoveAudibleBranding": "Usuń Audible intro i outro z rozdziałów",
   "LabelRemoveCover": "Usuń okładkę",
+  "LabelRemoveFromCollection": "Usuń z kolekcji",
+  "LabelRemoveFromPlaylist": "Usuń z playlisty",
   "LabelRemoveMetadataFile": "Usuń pliki metadanych z folderów biblioteki",
   "LabelRemoveMetadataFileHelp": "Usuń wszystkie pliki metadata.json i metadata.abs z {0} folderów.",
   "LabelRowsPerPage": "Wierszy na stronę",
@@ -1028,6 +1030,8 @@
   "ToastRSSFeedCloseSuccess": "Zamknięcie kanału RSS powiodło się",
   "ToastRemoveItemFromCollectionFailed": "Nie udało się usunąć elementu z kolekcji",
   "ToastRemoveItemFromCollectionSuccess": "Pozycja usunięta z kolekcji",
+  "ToastRemoveItemFromPlaylistFailed": "Nie udało się usunąć elementu z playlisty",
+  "ToastRemoveItemFromPlaylistSuccess": "Pozycja usunięta z playlisty",
   "ToastSendEbookToDeviceFailed": "Failed to Send Ebook to device",
   "ToastSessionDeleteFailed": "Nie udało się usunąć sesji",
   "ToastSessionDeleteSuccess": "Sesja usunięta",
@@ -1035,5 +1039,6 @@
   "ToastSocketDisconnected": "Połączenie z serwerem zostało zamknięte",
   "ToastSocketFailedToConnect": "Poączenie z serwerem nie powiodło się",
   "ToastUserDeleteFailed": "Nie udało się usunąć użytkownika",
-  "ToastUserDeleteSuccess": "Użytkownik usunięty"
+  "ToastUserDeleteSuccess": "Użytkownik usunięty",
+  "TooltipCollectionDragHandle": "Przeciągnij, aby zmienić kolejność"
 }

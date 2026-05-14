@@ -7,14 +7,16 @@ import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import DraggableMediaOverlayIconBtn from '@/components/widgets/media-card/DraggableMediaOverlayIconBtn'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetailView'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
-import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
+import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { isDragOnlyOverlay, useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
@@ -23,6 +25,7 @@ import type { BookMedia, BookshelfEntity, EReaderDevice, LibraryItem, MediaProgr
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
+import { useMediaCardActions } from './useMediaCardActions'
 
 export interface MediaCardProps {
   libraryItem: LibraryItem
@@ -73,6 +76,8 @@ export interface MediaCardProps {
    */
   shelfEntities?: (BookshelfEntity | null)[]
   entityIndex?: number
+  /** Wired by sortable bookshelf hosts (`SortableBookshelfCard`, `DragOverlay`, etc.). */
+  dragOptions?: SortableBookshelfCardOptions
 }
 
 function MediaCard(props: MediaCardProps) {
@@ -96,8 +101,12 @@ function MediaCard(props: MediaCardProps) {
     selected = false,
     onSelect,
     shelfEntities,
-    entityIndex
+    entityIndex,
+    dragOptions
   } = props
+
+  const sortableBookshelf = useSortableBookshelf()
+  const sortableBookshelfOverlayMode = dragOptions?.overlayMode ?? sortableBookshelf?.overlayMode ?? 'hover'
 
   const router = useRouter()
   const { setBoundModal } = useLibrary()
@@ -289,14 +298,36 @@ function MediaCard(props: MediaCardProps) {
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
   }
 
+  const navigateOnCardClick = !processing && !isDragOnlyOverlay(sortableBookshelfOverlayMode)
+
+  const dragHandle = useMemo(() => {
+    if (!dragOptions) return undefined
+    return (
+      <DraggableMediaOverlayIconBtn
+        icon="drag_handle"
+        ariaLabel={dragOptions.ariaLabel}
+        activatorRef={dragOptions.activatorRef}
+        activatorProps={dragOptions.activatorProps}
+      />
+    )
+  }, [dragOptions])
+
   return (
     <>
       <MediaCardFrame
         width={coverWidth}
         height={coverHeight}
-        onClick={!processing ? handleCardClick : undefined}
+        className={dragOptions ? 'group' : undefined}
+        onClick={navigateOnCardClick ? handleCardClick : undefined}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
+        onMouseOver={
+          dragOptions
+            ? () => {
+                setIsHovering(true)
+              }
+            : undefined
+        }
         cardId={cardId}
         cy-id="MediaCard"
         footer={
@@ -359,6 +390,8 @@ function MediaCard(props: MediaCardProps) {
             onMoreAction={handleMoreAction}
             onMoreMenuOpenChange={handleMoreMenuOpenChange}
             onSelect={onSelect}
+            dragHandle={dragHandle}
+            overlayModeOverride={sortableBookshelfOverlayMode}
           />
         }
       />

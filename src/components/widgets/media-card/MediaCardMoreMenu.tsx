@@ -16,6 +16,18 @@ export interface MediaCardMoreMenuItem {
   subitems?: MediaCardMoreMenuSubitem[]
 }
 
+export function mapMediaCardMoreMenuItemsToDropdownItems(items: MediaCardMoreMenuItem[]): ContextMenuDropdownItem<string>[] {
+  return items.map((item) => ({
+    text: item.text,
+    action: item.func ?? '',
+    subitems: item.subitems?.map((subitem) => ({
+      text: subitem.text,
+      action: subitem.func,
+      data: subitem.data ?? {}
+    }))
+  }))
+}
+
 interface MediaCardMoreMenuProps {
   items: MediaCardMoreMenuItem[]
   processing?: boolean
@@ -25,17 +37,7 @@ interface MediaCardMoreMenuProps {
 }
 
 export default function MediaCardMoreMenu({ items, processing = false, onAction, onOpenChange, className }: MediaCardMoreMenuProps) {
-  const contextMenuItems = useMemo<ContextMenuDropdownItem<string>[]>(() => {
-    return items.map((item) => ({
-      text: item.text,
-      action: item.func ?? '',
-      subitems: item.subitems?.map((subitem) => ({
-        text: subitem.text,
-        action: subitem.func,
-        data: subitem.data ?? {}
-      }))
-    }))
-  }, [items])
+  const contextMenuItems = useMemo(() => mapMediaCardMoreMenuItemsToDropdownItems(items), [items])
 
   const handleContextMenuAction = useCallback(
     ({ action, data }: { action: string; data?: Record<string, string> }) => {

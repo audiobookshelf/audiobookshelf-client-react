@@ -10,11 +10,12 @@ const BOOKSHELF_PAGE_PATTERNS = ['/items', '/series', '/collections', '/playlist
 
 export default function Toolbar() {
   const pathname = usePathname()
-  const { library, itemCount, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
+  const { library, itemCount, itemCountSupplement, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
   const t = useTypeSafeTranslations()
 
-  // Check if we're on any bookshelf-like page
+  // Check if we're on any bookshelf-like page (or a single collection, which syncs the same summary fields)
   const isBookshelfPage = BOOKSHELF_PAGE_PATTERNS.some((pattern) => pathname.endsWith(pattern))
+  const isCollectionDetailPage = pathname.includes('/collection/')
 
   const isBookshelfEmpty = itemCount === 0 && filterBy === 'all'
 
@@ -30,7 +31,7 @@ export default function Toolbar() {
     itemName = t('LabelPlaylists')
   } else if (pathname.endsWith('/authors')) {
     itemName = t('LabelAuthors')
-  } else if (pathname.endsWith('/items')) {
+  } else if (pathname.endsWith('/items') || isCollectionDetailPage) {
     if (library?.mediaType === 'podcast') {
       itemName = t('LabelPodcasts')
     } else if (library?.mediaType === 'book') {
@@ -42,7 +43,7 @@ export default function Toolbar() {
     onContextMenuAction?.(action)
   }
 
-  const showBookshelfSummary = isBookshelfPage && itemCount !== null && !isSeriesDetailPage
+  const showBookshelfSummary = (isBookshelfPage || isCollectionDetailPage) && itemCount !== null && !isSeriesDetailPage
   const showSeriesDetailSummary = isSeriesDetailPage && itemCount !== null
   const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage
   const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage)
@@ -52,7 +53,10 @@ export default function Toolbar() {
       <div className="flex h-full w-full items-center justify-between px-4">
         {showBookshelfSummary && (
           <p className="text-foreground hidden text-base md:block">
-            {itemCount} {itemName}
+            <span>
+              {itemCount} {itemName}
+            </span>
+            {itemCountSupplement ? <span className="text-foreground-muted">{itemCountSupplement}</span> : null}
           </p>
         )}
 
