@@ -67,16 +67,20 @@ export default function LibrariesList(props: LibrariesListProps) {
   }, [libraries, showToast, t])
 
   return (
-    <div>
+    <div className="min-w-0 overflow-x-hidden overscroll-x-contain">
       <SortableList
         items={libraries}
         itemClassName="first:rounded-t-md last:rounded-b-md border border-border"
         disabled={isPending}
         onSortEnd={handleSortChange}
-        renderItem={(item: Library) => {
-          return <LibrariesListRow item={item} key={item.id} handleDeleteLibrary={handleDeleteLibrary} handleEditLibrary={handleEditLibrary} />
-        }}
-        dragHandle=".drag-handle"
+        renderItem={(item: Library, _index, dragHandle) => (
+          <LibrariesListRow
+            item={item}
+            handleDeleteLibrary={handleDeleteLibrary}
+            handleEditLibrary={handleEditLibrary}
+            sortableDragHandleProps={dragHandle}
+          />
+        )}
       />
       <ConfirmDialog
         isOpen={showConfirmDialog}
