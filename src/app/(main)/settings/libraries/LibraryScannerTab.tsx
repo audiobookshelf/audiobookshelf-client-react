@@ -2,8 +2,10 @@
 
 import Btn from '@/components/ui/Btn'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
-import SortableList from '@/components/widgets/SortableList'
+import SortableList, { type SortableListDragHandleProps } from '@/components/widgets/SortableList'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
+import { mergeClasses } from '@/lib/merge-classes'
 import { LibrarySettings } from '@/types/api'
 import { useMemo, useState } from 'react'
 import SettingsMoreInfoIcon from '../SettingsMoreInfoIcon'
@@ -95,9 +97,20 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
     return activeSources.findIndex((s) => s.id === sourceId) + 1
   }
 
-  const renderItem = (source: MetadataSource, index: number) => (
+  const renderItem = (source: MetadataSource, index: number, dragHandle: SortableListDragHandleProps) => (
     <div className={`border-border flex w-full items-center border px-2 ${!source.include ? 'opacity-50' : ''}`}>
-      <span className="material-symbols drag-handle text-foreground-subdued hover:text-foreground mr-2 cursor-grab text-xl md:mr-4">reorder</span>
+      <div
+        ref={dragHandle.setActivatorNodeRef}
+        className={mergeClasses(
+          'drag-handle mr-2 flex shrink-0 items-center justify-center self-stretch md:mr-4',
+          DRAG_HANDLE_GRAB_CURSOR,
+          DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH
+        )}
+        {...dragHandle.attributes}
+        {...dragHandle.listeners}
+      >
+        <span className="material-symbols text-foreground-subdued hover:text-foreground text-xl leading-none">drag_handle</span>
+      </div>
       <div className="w-8 min-w-8 py-1 text-center">{source.include ? getSourcePriority(source.id) : ''}</div>
       <div className="inline-flex grow items-center justify-between px-2 py-3 text-sm sm:px-4 sm:text-base">
         {source.name}
