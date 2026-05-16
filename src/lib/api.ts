@@ -35,6 +35,7 @@ import {
   Library,
   LibraryFilterData,
   LibraryItem,
+  LibraryStatsResponse,
   ListeningStats,
   MediaItemShare,
   MetadataProvidersResponse,
@@ -1141,4 +1142,12 @@ export async function removeAuthorImage(authorId: string): Promise<AuthorRespons
   return apiRequest<AuthorResponse>(`/api/authors/${authorId}/image`, {
     method: 'DELETE'
   })
+}
+
+/**
+ * Get library statistics for a given library ID
+ * Returns: @LibraryStatsResponse with counts of items, authors, genres, etc.
+ */
+export async function getLibraryStats(libraryId: string): Promise<LibraryStatsResponse> {
+  return apiRequest<LibraryStatsResponse>(`/api/libraries/${libraryId}/stats`)
 }
