@@ -21,8 +21,8 @@ export function TooltipExamples() {
           <span className="font-bold">Props:</span> <Code>text</Code>, <Code>children</Code>, <Code>position</Code>, <Code>usePortal</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> If <Code>usePortal</Code> is true, or the tooltip is inside a modal, the tooltip will be rendered in a
-          portal.
+          <span className="font-bold">Note:</span> By default the tooltip is portaled to <Code>document.body</Code> (or the modal root when inside a
+          modal). Set <Code>usePortal=&#123;false&#125;</Code> to keep it in the DOM tree under the trigger.
         </p>
       </ComponentInfo>
 
@@ -75,13 +75,18 @@ export function TooltipExamples() {
           </div>
         </Example>
 
-        <Example title="Portal Tooltips">
+        <Example title="Portal (default) vs inline">
           <div className="space-y-4">
             <div className="overflow-hidden rounded-md border border-gray-600 p-4">
               <p className="mb-2 text-sm text-gray-400">This container has overflow: hidden</p>
-              <Tooltip text="This tooltip uses a portal and won't be clipped by the container" position="bottom" usePortal>
-                <Btn>Portal tooltip</Btn>
-              </Tooltip>
+              <div className="flex flex-wrap gap-4">
+                <Tooltip text="Default: portaled so this is not clipped" position="bottom">
+                  <Btn>Default (portal)</Btn>
+                </Tooltip>
+                <Tooltip text="Inline tooltip — this text is clipped by the container" position="bottom" usePortal={false}>
+                  <Btn>usePortal false</Btn>
+                </Tooltip>
+              </div>
             </div>
           </div>
         </Example>
@@ -110,7 +115,7 @@ export function TooltipExamples() {
         <Example title="Tooltip with array of elements as children">
           <div className="space-y-4">
             <p className="mb-2 text-sm text-gray-400">Not recommended due to accessibility issues</p>
-            <Tooltip text="This is a tooltip with array of elements as children" position="bottom" usePortal>
+            <Tooltip text="This is a tooltip with array of elements as children" position="bottom">
               <Btn>Tooltip</Btn>
               <Btn>Tooltip</Btn>
             </Tooltip>
