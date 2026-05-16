@@ -42,18 +42,19 @@ export default function StatsClient({ stats }: StatsClientProps) {
     .slice(0, 5)
     .map((stat) => ({
       label: stat.genre,
-      percentage: (stat.count / stats.totalItems) * 100,
+      percentage: Math.round((stat.count / stats.totalItems) * 100),
       linkHref: `items?filter=genres.${filterEncode(stat.genre)}`
     }))
 
-  const topAuthors = stats.authorsWithCount
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10)
-    .map((stat) => ({
-      label: `${stat.name}`,
-      numBooks: stat.count,
-      linkHref: `authors/${stat.id}`
-    }))
+  const topAuthors =
+    stats.authorsWithCount
+      ?.sort((a, b) => b.count - a.count)
+      .slice(0, 10)
+      .map((stat) => ({
+        label: `${stat.name}`,
+        numBooks: stat.count,
+        linkHref: `authors/${stat.id}`
+      })) ?? []
 
   const longestItems = stats.longestItems
     .sort((a, b) => b.duration - a.duration)
@@ -71,7 +72,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
     }))
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
+    <div className="mx-auto w-full max-w-4xl pb-12">
       {/* Summary Cards */}
       <div className="mt-6 flex flex-wrap justify-center">
         <StatCard iconName="newsstand" value={stats.totalItems.toLocaleString()} label={t('LabelStatsItemsInLibrary')} iconStyle="py-1" />
@@ -82,20 +83,22 @@ export default function StatsClient({ stats }: StatsClientProps) {
           iconStyle="py-1"
         />
         {library.mediaType === 'book' && (
-          <StatCard iconName="person" value={stats.totalAuthors.toLocaleString()} label={t('LabelStatsAuthors')} iconStyle="py-1" />
+          <StatCard iconName="person" value={stats.totalAuthors?.toLocaleString() ?? '0'} label={t('LabelStatsAuthors')} iconStyle="py-1" />
         )}
-        <StatCard iconName="insert_drive_file" value={bytesPretty(stats.totalSize)} label={t('LabelStatsTotalSize')} iconStyle="pt-1" />
+        <StatCard iconName="insert_drive_file" value={bytesPretty(stats.totalSize, 1)} label={t('LabelStatsTotalSize')} iconStyle="pt-1" />
         <StatCard iconName="audio_file" value={stats.numAudioTracks.toLocaleString()} label={t('LabelStatsAudioTracks')} iconStyle="pt-1" />
       </div>
 
-      <div className={mergeClasses('mt-8 grid grid-cols-1 gap-8', library.mediaType === 'book' ? 'lg:grid-cols-2' : 'lg:mx-auto lg:max-w-lg')}>
+      <div
+        className={mergeClasses('mt-8 grid grid-cols-1 gap-8 lg:mt-16 lg:gap-16', library.mediaType === 'book' ? 'lg:grid-cols-2' : 'lg:mx-auto lg:max-w-lg')}
+      >
         {/* Top Genres */}
         <div className="w-full">
           <h1 className="mb-4 text-2xl">{t('HeaderStatsTop5Genres')}</h1>
           {topGenres.map((stat, index) => (
             <div key={index} className="w-full py-2">
               <div className="mb-1 flex items-end">
-                <p className="text-2xl font-bold">{stat.percentage > 10 ? `${stat.percentage}%` : `${stat.percentage}%`}</p>
+                <p className="text-2xl font-bold">{`${stat.percentage}%`}</p>
                 <div className="grow"></div>
                 <a href={stat.linkHref} className="text-foreground-subdued ml-2 hover:underline">
                   {stat.label}
@@ -129,7 +132,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
       </div>
 
       {/* Longest & Largest Comparison */}
-      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:mt-16 lg:grid-cols-2 lg:gap-16">
         {/* Longest Items */}
         <div className="w-full">
           <h1 className="mb-4 text-2xl">{t('HeaderStatsLongestItems')}</h1>

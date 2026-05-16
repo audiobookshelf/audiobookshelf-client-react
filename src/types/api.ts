@@ -1527,8 +1527,8 @@ interface LongestItem {
 
 export interface LibraryStatsResponse {
   largestItems: LargestItem[]
-  totalAuthors: number
-  authorsWithCount: AuthorWithCount[]
+  totalAuthors?: number // only for books
+  authorsWithCount?: AuthorWithCount[] // only for books
   totalGenres: number
   genresWithCount: GenreWithCount[]
   totalItems: number
