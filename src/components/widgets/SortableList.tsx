@@ -1,22 +1,25 @@
 'use client'
 
+import { DND_POINTER_DRAG_HTML_CLASS } from '@/lib/dragHandleClasses'
 import { mergeClasses } from '@/lib/merge-classes'
 import {
   closestCenter,
   DndContext,
+  DragOverlay,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
+  type DragCancelEvent,
   type DragEndEvent,
   type DraggableAttributes,
   type DraggableSyntheticListeners,
-  type Modifier
+  type DragStartEvent
 } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { CSSProperties } from 'react'
-import { ReactNode, useCallback, useMemo } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 interface SortableItem {
   id: string | number
@@ -38,6 +41,13 @@ export type SortableListDragHandleProps = {
   setActivatorNodeRef: (element: HTMLElement | null) => void
   attributes: SortableListDragHandleAttributes
   listeners: DraggableSyntheticListeners | undefined
+}
+
+/** Inert handle for `DragOverlay` clones — avoids duplicate listeners while keeping row layout. */
+const sortableListOverlayDragHandleStub: SortableListDragHandleProps = {
+  setActivatorNodeRef: () => {},
+  attributes: {} as SortableListDragHandleAttributes,
+  listeners: undefined
 }
 
 interface SortableListProps<T extends SortableItem> {
@@ -73,10 +83,10 @@ function SortableListRow<T extends SortableItem>({
     }
   })
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition
-  }
+  // While dragging, the live preview is rendered in `<DragOverlay>` (portaled). Clearing
+  // `transform` here keeps the in-list slot from following the pointer so scroll parents
+  // don’t grow (transformed overflow expands scrollable area in common browsers).
+  const style = isDragging ? { transition, opacity: 0 } : { transform: CSS.Transform.toString(transform), transition }
 
   // `touch-action: none` on the activator (same idea as `touch-none` on SortableBookshelfCard’s
   // handle) so coarse pointers don’t scroll the page instead of starting a drag.
@@ -96,7 +106,7 @@ function SortableListRow<T extends SortableItem>({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={mergeClasses(itemWrapperClassName, isDragging && 'bg-white/20 opacity-50')}>
+    <div ref={setNodeRef} style={style} className={itemWrapperClassName}>
       {renderItem(item, index, dragHandleProps)}
     </div>
   )
@@ -110,6 +120,8 @@ export default function SortableList<T extends SortableItem>({
   itemClassName = '',
   disabled = false
 }: SortableListProps<T>) {
+  const [activeId, setActiveId] = useState<string | null>(null)
+
   const itemsWithIds = useMemo(
     () =>
       items.map((item, index) => ({
@@ -128,8 +140,23 @@ export default function SortableList<T extends SortableItem>({
 
   const sortableIds = useMemo(() => itemsWithIds.map((item) => String(item.id)), [itemsWithIds])
 
+  const activeItem = useMemo(() => (activeId ? (itemsWithIds.find((item) => String(item.id) === activeId) ?? null) : null), [activeId, itemsWithIds])
+  const activeIndex = useMemo(() => (activeId ? itemsWithIds.findIndex((item) => String(item.id) === activeId) : -1), [activeId, itemsWithIds])
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(String(event.active.id))
+    document.documentElement.classList.add(DND_POINTER_DRAG_HTML_CLASS)
+  }, [])
+
+  const handleDragCancel = useCallback((_event: DragCancelEvent) => {
+    setActiveId(null)
+    document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
+  }, [])
+
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
+      setActiveId(null)
+      document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
       const { active, over } = event
       if (!over || active.id === over.id) return
       const oldIndex = itemsWithIds.findIndex((item) => String(item.id) === String(active.id))
@@ -140,8 +167,19 @@ export default function SortableList<T extends SortableItem>({
     [itemsWithIds, onSortEnd]
   )
 
+  useEffect(() => {
+    return () => document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
+  }, [])
+
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} modifiers={[restrictSortableListToVerticalAxis]} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      modifiers={[restrictSortableListToVerticalAxis]}
+      onDragStart={handleDragStart}
+      onDragCancel={handleDragCancel}
+      onDragEnd={handleDragEnd}
+    >
       <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
         <div className={mergeClasses('max-w-full min-w-0 overflow-x-hidden', className)}>
           {itemsWithIds.map((item, index) => (
@@ -156,6 +194,13 @@ export default function SortableList<T extends SortableItem>({
           ))}
         </div>
       </SortableContext>
+      <DragOverlay dropAnimation={null}>
+        {activeItem ? (
+          <div className={mergeClasses('pointer-events-none max-w-full min-w-0', itemWrapperClassName)}>
+            {renderItem(activeItem, activeIndex >= 0 ? activeIndex : 0, sortableListOverlayDragHandleStub)}
+          </div>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   )
 }

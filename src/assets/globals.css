@@ -150,6 +150,14 @@ body {
   outline-color: var(--heatmap-outline-fill);
 }
 
+/* SortableList: vertical-axis modifier can leave the pointer off the handle while dragging; keep grabbing cursor (see DND_POINTER_DRAG_HTML_CLASS). */
+@layer utilities {
+  html.abs-dnd-pointer-dragging,
+  html.abs-dnd-pointer-dragging * {
+    @apply !cursor-grabbing;
+  }
+}
+
 /* Screen reader only utility class */
 .sr-only {
   position: absolute;
