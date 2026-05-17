@@ -74,12 +74,7 @@ export default function LibrariesList(props: LibrariesListProps) {
         disabled={isPending}
         onSortEnd={handleSortChange}
         renderItem={(item: Library, _index, dragHandle) => (
-          <LibrariesListRow
-            item={item}
-            handleDeleteLibrary={handleDeleteLibrary}
-            handleEditLibrary={handleEditLibrary}
-            sortableDragHandleProps={dragHandle}
-          />
+          <LibrariesListRow item={item} handleDeleteLibrary={handleDeleteLibrary} handleEditLibrary={handleEditLibrary} sortableDragHandleProps={dragHandle} />
         )}
       />
       <ConfirmDialog

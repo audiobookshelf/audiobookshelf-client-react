@@ -21,8 +21,8 @@ export function TooltipExamples() {
           <span className="font-bold">Props:</span> <Code>text</Code>, <Code>children</Code>, <Code>position</Code>, <Code>usePortal</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> By default the tooltip is portaled to <Code>document.body</Code> (or the modal root when inside a
-          modal). Set <Code>usePortal=&#123;false&#125;</Code> to keep it in the DOM tree under the trigger.
+          <span className="font-bold">Note:</span> By default the tooltip is portaled to <Code>document.body</Code> (or the modal root when inside a modal). Set{' '}
+          <Code>usePortal=&#123;false&#125;</Code> to keep it in the DOM tree under the trigger.
         </p>
       </ComponentInfo>
 
