@@ -14,7 +14,8 @@ import {
   type DragEndEvent,
   type DraggableAttributes,
   type DraggableSyntheticListeners,
-  type DragStartEvent
+  type DragStartEvent,
+  type Modifier
 } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -57,24 +58,26 @@ interface SortableListProps<T extends SortableItem> {
   className?: string
   itemClassName?: string
   disabled?: boolean
+  /** When true for an item, that row is not draggable (e.g. inactive list entries). */
+  isItemDisabled?: (item: T, index: number) => boolean
 }
 
 function SortableListRow<T extends SortableItem>({
   item,
   index,
-  disabled,
+  sortableDisabled,
   itemWrapperClassName,
   renderItem
 }: {
   item: T
   index: number
-  disabled: boolean
+  sortableDisabled: boolean
   itemWrapperClassName: string
   renderItem: (item: T, index: number, dragHandle: SortableListDragHandleProps) => ReactNode
 }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
     id: String(item.id),
-    disabled,
+    disabled: sortableDisabled,
     // Snappier than dnd-kit defaults; avoid CSS `transition-*` on this node (see item wrapper) so
     // `transform` from the sensor isn’t eased separately from layout transitions.
     transition: {
@@ -118,7 +121,8 @@ export default function SortableList<T extends SortableItem>({
   renderItem,
   className = '',
   itemClassName = '',
-  disabled = false
+  disabled = false,
+  isItemDisabled
 }: SortableListProps<T>) {
   const [activeId, setActiveId] = useState<string | null>(null)
 
@@ -187,7 +191,7 @@ export default function SortableList<T extends SortableItem>({
               key={String(item.id)}
               item={item}
               index={index}
-              disabled={disabled}
+              sortableDisabled={disabled || (isItemDisabled?.(item, index) ?? false)}
               itemWrapperClassName={itemWrapperClassName}
               renderItem={renderItem}
             />
