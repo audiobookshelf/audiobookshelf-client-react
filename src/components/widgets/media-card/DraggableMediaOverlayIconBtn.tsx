@@ -5,11 +5,9 @@ import {
   MediaOverlayIconBtnSurface,
   type MediaOverlayIconPosition
 } from '@/components/widgets/media-card/MediaOverlayIconBtn'
+import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR, DRAG_HANDLE_TOUCH_NONE } from '@/lib/dragHandleClasses'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { HTMLAttributes, MouseEvent, Ref } from 'react'
-
-/** ~44px minimum hit area on touch / coarse pointers (WCAG); mouse keeps compact layout via overlay `w-auto`. */
-const COARSE_POINTER_MIN_TOUCH = '[@media(pointer:coarse)]:min-h-[44px] [@media(pointer:coarse)]:min-w-[44px] [@media(pointer:coarse)]:shrink-0'
 
 export interface DraggableMediaOverlayIconBtnProps {
   icon: string
@@ -46,7 +44,8 @@ export default function DraggableMediaOverlayIconBtn({
       ref={activatorRef}
       {...(restActivator as HTMLAttributes<HTMLDivElement>)}
       className={mergeClasses(
-        'pointer-events-auto absolute z-40 touch-none',
+        'pointer-events-auto absolute z-40',
+        DRAG_HANDLE_TOUCH_NONE,
         MEDIA_OVERLAY_ICON_POSITION_CLASSES[position],
         typeof activatorClassName === 'string' ? activatorClassName : undefined
       )}
@@ -56,7 +55,7 @@ export default function DraggableMediaOverlayIconBtn({
         ariaLabel={ariaLabel}
         iconBtnSize="medium"
         onClick={stopOverlayClick}
-        className={mergeClasses(COARSE_POINTER_MIN_TOUCH, 'cursor-grab active:cursor-grabbing', className)}
+        className={mergeClasses(DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR, className)}
       />
     </div>
   )

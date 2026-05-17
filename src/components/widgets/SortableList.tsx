@@ -1,22 +1,118 @@
 'use client'
 
+import { DND_POINTER_DRAG_HTML_CLASS } from '@/lib/dragHandleClasses'
 import { mergeClasses } from '@/lib/merge-classes'
-import { DragendEvent, DragstartEvent } from '@formkit/drag-and-drop'
-import { useDragAndDrop } from '@formkit/drag-and-drop/react'
-import { ReactNode, useCallback, useEffect, useMemo } from 'react'
+import {
+  closestCenter,
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragCancelEvent,
+  type DragEndEvent,
+  type DraggableAttributes,
+  type DraggableSyntheticListeners,
+  type DragStartEvent,
+  type Modifier
+} from '@dnd-kit/core'
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import type { CSSProperties } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 interface SortableItem {
   id: string | number
 }
 
+/** Vertical list: ignore horizontal pointer delta so rows don’t shift sideways (avoids mobile horizontal scroll / “rubber band”). */
+const restrictSortableListToVerticalAxis: Modifier = ({ transform }) => ({
+  ...transform,
+  x: 0
+})
+
+/** Attributes to spread on the drag handle (dnd-kit’s `DraggableAttributes` plus DOM props we set). */
+export type SortableListDragHandleAttributes = DraggableAttributes & {
+  style?: CSSProperties
+  className?: string
+}
+
+export type SortableListDragHandleProps = {
+  setActivatorNodeRef: (element: HTMLElement | null) => void
+  attributes: SortableListDragHandleAttributes
+  listeners: DraggableSyntheticListeners | undefined
+}
+
+/** Inert handle for `DragOverlay` clones — avoids duplicate listeners while keeping row layout. */
+const sortableListOverlayDragHandleStub: SortableListDragHandleProps = {
+  setActivatorNodeRef: () => {},
+  attributes: {} as SortableListDragHandleAttributes,
+  listeners: undefined
+}
+
 interface SortableListProps<T extends SortableItem> {
   items: T[]
   onSortEnd: (sortedItems: T[]) => void
-  renderItem: (item: T, index: number) => ReactNode
-  dragHandle?: string
+  renderItem: (item: T, index: number, dragHandle: SortableListDragHandleProps) => ReactNode
   className?: string
   itemClassName?: string
   disabled?: boolean
+  /** When true for an item, that row is not draggable (e.g. inactive list entries). */
+  isItemDisabled?: (item: T, index: number) => boolean
+}
+
+function SortableListRow<T extends SortableItem>({
+  item,
+  index,
+  sortableDisabled,
+  itemWrapperClassName,
+  renderItem
+}: {
+  item: T
+  index: number
+  sortableDisabled: boolean
+  itemWrapperClassName: string
+  renderItem: (item: T, index: number, dragHandle: SortableListDragHandleProps) => ReactNode
+}) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id: String(item.id),
+    disabled: sortableDisabled,
+    // Snappier than dnd-kit defaults; avoid CSS `transition-*` on this node (see item wrapper) so
+    // `transform` from the sensor isn’t eased separately from layout transitions.
+    transition: {
+      duration: 120,
+      easing: 'ease-out'
+    }
+  })
+
+  // While dragging, the live preview is rendered in `<DragOverlay>` (portaled). Clearing
+  // `transform` here keeps the in-list slot from following the pointer so scroll parents
+  // don’t grow (transformed overflow expands scrollable area in common browsers).
+  const style = isDragging ? { transition, opacity: 0 } : { transform: CSS.Transform.toString(transform), transition }
+
+  // `touch-action: none` on the activator (same idea as `touch-none` on SortableBookshelfCard’s
+  // handle) so coarse pointers don’t scroll the page instead of starting a drag.
+  const fromKit = attributes as SortableListDragHandleAttributes
+  const baseStyle = fromKit.style && typeof fromKit.style === 'object' ? { ...fromKit.style } : {}
+  const activatorAttributes: SortableListDragHandleAttributes = {
+    ...fromKit,
+    style: {
+      ...baseStyle,
+      touchAction: 'none'
+    }
+  }
+  const dragHandleProps: SortableListDragHandleProps = {
+    setActivatorNodeRef,
+    attributes: activatorAttributes,
+    listeners
+  }
+
+  return (
+    <div ref={setNodeRef} style={style} className={itemWrapperClassName}>
+      {renderItem(item, index, dragHandleProps)}
+    </div>
+  )
 }
 
 export default function SortableList<T extends SortableItem>({
@@ -25,67 +121,90 @@ export default function SortableList<T extends SortableItem>({
   renderItem,
   className = '',
   itemClassName = '',
-  disabled = false
+  disabled = false,
+  isItemDisabled
 }: SortableListProps<T>) {
-  // Ensure each item has a unique identifier
+  const [activeId, setActiveId] = useState<string | null>(null)
+
   const itemsWithIds = useMemo(
     () =>
       items.map((item, index) => ({
         ...item,
         id: item.id || `item-${index}`
-      })),
+      })) as T[],
     [items]
   )
 
-  const onDragend = useCallback<DragendEvent>((data) => {
-    if (data.draggedNode.el) {
-      data.draggedNode.el.classList.remove('opacity-50', 'bg-white/20')
-    }
-  }, [])
+  const itemWrapperClassName = mergeClasses(itemClassName)
 
-  const onDragstart = useCallback<DragstartEvent>((data) => {
-    if (data.draggedNode.el) {
-      data.draggedNode.el.classList.add('opacity-50', 'bg-white/20')
-    }
-  }, [])
-
-  const [parent, sortedItems, setItems] = useDragAndDrop<HTMLDivElement, T>(itemsWithIds, {
-    dragHandle: '.drag-handle',
-    disabled,
-    onDragend,
-    onDragstart,
-    handleDragend: () => onSortEnd(sortedItems)
-  })
-
-  // Order-independent content hash: detects add/remove/property-change but NOT reorder.
-  // Sorting by ID before serializing ensures a drag reorder produces the same hash,
-  // so we don't call setItems after a drop (which would corrupt formkit's internal state).
-  const itemsContentHash = useMemo(
-    () =>
-      [...items]
-        .sort((a, b) => String(a.id).localeCompare(String(b.id)))
-        .map((item) => JSON.stringify(item))
-        .join('|'),
-    [items]
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  // Sync the drag-and-drop internal list when items change (add/remove/edit)
+  const sortableIds = useMemo(() => itemsWithIds.map((item) => String(item.id)), [itemsWithIds])
+
+  const activeItem = useMemo(() => (activeId ? (itemsWithIds.find((item) => String(item.id) === activeId) ?? null) : null), [activeId, itemsWithIds])
+  const activeIndex = useMemo(() => (activeId ? itemsWithIds.findIndex((item) => String(item.id) === activeId) : -1), [activeId, itemsWithIds])
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveId(String(event.active.id))
+    document.documentElement.classList.add(DND_POINTER_DRAG_HTML_CLASS)
+  }, [])
+
+  const handleDragCancel = useCallback((_event: DragCancelEvent) => {
+    setActiveId(null)
+    document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
+  }, [])
+
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      setActiveId(null)
+      document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
+      const { active, over } = event
+      if (!over || active.id === over.id) return
+      const oldIndex = itemsWithIds.findIndex((item) => String(item.id) === String(active.id))
+      const newIndex = itemsWithIds.findIndex((item) => String(item.id) === String(over.id))
+      if (oldIndex === -1 || newIndex === -1) return
+      onSortEnd(arrayMove(itemsWithIds, oldIndex, newIndex))
+    },
+    [itemsWithIds, onSortEnd]
+  )
+
   useEffect(() => {
-    setItems(itemsWithIds)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [itemsContentHash])
-
-  const itemWrapperClassName = useMemo(() => {
-    return mergeClasses('transition-all duration-200', itemClassName)
-  }, [itemClassName])
+    return () => document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
+  }, [])
 
   return (
-    <div ref={parent} className={className}>
-      {sortedItems.map((item: T, index: number) => (
-        <div key={item.id || `item-${index}`} className={itemWrapperClassName}>
-          {renderItem(item, index)}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      modifiers={[restrictSortableListToVerticalAxis]}
+      onDragStart={handleDragStart}
+      onDragCancel={handleDragCancel}
+      onDragEnd={handleDragEnd}
+    >
+      <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+        <div className={mergeClasses('max-w-full min-w-0 overflow-x-hidden', className)}>
+          {itemsWithIds.map((item, index) => (
+            <SortableListRow
+              key={String(item.id)}
+              item={item}
+              index={index}
+              sortableDisabled={disabled || (isItemDisabled?.(item, index) ?? false)}
+              itemWrapperClassName={itemWrapperClassName}
+              renderItem={renderItem}
+            />
+          ))}
         </div>
-      ))}
-    </div>
+      </SortableContext>
+      <DragOverlay dropAnimation={null}>
+        {activeItem ? (
+          <div className={mergeClasses('pointer-events-none max-w-full min-w-0', itemWrapperClassName)}>
+            {renderItem(activeItem, activeIndex >= 0 ? activeIndex : 0, sortableListOverlayDragHandleStub)}
+          </div>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
   )
 }

@@ -34,7 +34,11 @@ const Tooltip = ({
   text,
   children,
   position = 'right',
-  usePortal: usePortalProp = false,
+  // Default true: portal to `document.body` or modal root so the tooltip is not clipped by
+  // ancestor `overflow`, trapped under low z-index stacking contexts, or misaligned when a
+  // parent has `transform` (e.g. dnd-kit drag). Opt out with `usePortal={false}` when in-tree
+  // rendering is intentional.
+  usePortal: usePortalProp = true,
   className,
   offsetPx = 8,
   edgePadding = 8,
@@ -92,7 +96,12 @@ const Tooltip = ({
   } = useFloating({
     open,
     placement,
-    strategy: 'absolute',
+    // `fixed` keeps the floating element attached to the viewport so it doesn't widen `<body>`
+    // when its reference sits near the right edge or is being transformed (e.g. dnd-kit cards
+    // during a drag). Functionally identical to `absolute` for our usage — Floating UI applies
+    // the same computed `top/left` either way, and the `shift` middleware keeps the tooltip in
+    // the viewport. Matches the default portaled tooltip path (body or modal root).
+    strategy: 'fixed',
     middleware
   })
 
@@ -252,7 +261,11 @@ const Tooltip = ({
       aria-describedby={tooltipId}
     >
       {children}
+      {/* Skip rendering the floating element when disabled: the tooltip can't open anyway, and an
+          absolutely-positioned element following a transformed reference (e.g. a dnd-kit card during
+          drag) can land past the viewport and widen `<body>`. */}
       {mounted &&
+        !disabled &&
         (usePortal
           ? portalRoot
             ? createPortal(tooltipElement, portalRoot)

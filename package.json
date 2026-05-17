@@ -22,7 +22,6 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@floating-ui/react-dom": "^2.1.6",
-    "@formkit/drag-and-drop": "^0.5.3",
     "clsx": "^2.1.1",
     "cronstrue": "^3.3.0",
     "date-fns": "^4.1.0",

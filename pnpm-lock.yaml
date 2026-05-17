@@ -20,9 +20,6 @@ importers:
       '@floating-ui/react-dom':
         specifier: ^2.1.6
         version: 2.1.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@formkit/drag-and-drop':
-        specifier: ^0.5.3
-        version: 0.5.3
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -243,9 +240,6 @@ packages:
 
   '@formatjs/intl-localematcher@0.6.1':
     resolution: {integrity: sha512-ePEgLgVCqi2BBFnTMWPfIghu6FkbZnnBVhO2sSxvLfrdFw7wCHAHiDoM2h4NRgjbaY7+B7HgOLZGkK187pZTZg==}
-
-  '@formkit/drag-and-drop@0.5.3':
-    resolution: {integrity: sha512-VGQsKYc350OOMbz7wYt69YqDbn49x7RJ32eqiJieNke54nGZYmx18XEqTw0lBiJmH3RaiH6V45gB1u+tvI/TNw==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2862,8 +2856,6 @@ snapshots:
   '@formatjs/intl-localematcher@0.6.1':
     dependencies:
       tslib: 2.8.1
-
-  '@formkit/drag-and-drop@0.5.3': {}
 
   '@humanfs/core@0.19.1': {}
 

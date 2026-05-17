@@ -4,8 +4,11 @@ import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import LibraryIcon from '@/components/ui/LibraryIcon'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
+import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
 import { useTasks } from '@/contexts/TasksContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
+import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useMemo } from 'react'
@@ -15,9 +18,10 @@ interface LibrariesListRowProps {
   item: Library
   handleDeleteLibrary: (library: Library) => void
   handleEditLibrary: (library: Library) => void
+  sortableDragHandleProps?: SortableListDragHandleProps
 }
 
-export default function LibrariesListRow({ item, handleDeleteLibrary, handleEditLibrary }: LibrariesListRowProps) {
+export default function LibrariesListRow({ item, handleDeleteLibrary, handleEditLibrary, sortableDragHandleProps }: LibrariesListRowProps) {
   const t = useTypeSafeTranslations()
   const { getTasksByLibraryId } = useTasks()
 
@@ -88,8 +92,13 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
           <ContextMenuDropdown usePortal borderless size="small" items={contextMenuItems} onAction={handleContextMenuActions} />
         </>
       )}
-      <div className="drag-handle cursor-n-resize">
-        <span className="material-symbols text-foreground/50 hover:text-foreground text-xl">reorder</span>
+      <div
+        ref={sortableDragHandleProps?.setActivatorNodeRef}
+        className={mergeClasses('drag-handle flex shrink-0 items-center justify-center', DRAG_HANDLE_GRAB_CURSOR, DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH)}
+        {...sortableDragHandleProps?.attributes}
+        {...sortableDragHandleProps?.listeners}
+      >
+        <span className="material-symbols text-foreground/50 hover:text-foreground text-xl leading-none">drag_handle</span>
       </div>
     </div>
   )
