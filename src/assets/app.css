@@ -51,6 +51,30 @@
   background-image: var(--tc-page-gradient);
 }
 
+.library-item-cover-accent-backdrop {
+  opacity: 0;
+  animation: library-item-cover-accent-fade-in 0.55s ease-out forwards;
+  background: var(--tc-library-item-accent-background);
+  -webkit-mask-image: var(--tc-library-item-accent-mask-image);
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: var(--tc-library-item-accent-mask-image);
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+@keyframes library-item-cover-accent-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .library-item-cover-accent-backdrop {
+    animation-duration: 0.01ms;
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 8px;

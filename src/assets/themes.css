@@ -64,6 +64,19 @@
   --heatmap-intensity-4: rgb(57, 211, 83);
   --heatmap-outline-empty: rgba(27, 31, 35, 0.06);
   --heatmap-outline-fill: rgba(255, 255, 255, 0.03);
+
+  /*
+   * --tc-library-item-accent-rgb is set on the item page when cover accent color is extracted
+   * the mask-image is a vertical gradient from black to transparent only used because the background is a radial gradient
+   */
+  --tc-library-item-accent-background: radial-gradient(
+    ellipse 128% 92% at -4% -3%,
+    rgb(var(--tc-library-item-accent-rgb) / 0.22) 0%,
+    rgb(var(--tc-library-item-accent-rgb) / 0.106) 40%,
+    rgb(var(--tc-library-item-accent-rgb) / 0.022) 76%,
+    rgb(var(--tc-library-item-accent-rgb) / 0) 90%
+  );
+  --tc-library-item-accent-mask-image: linear-gradient(to bottom, rgb(0 0 0 / 1) 0%, rgb(0 0 0 / 0.72) 32%, rgb(0 0 0 / 0.28) 68%, rgb(0 0 0 / 0) 100%);
 }
 
 /* Light theme */
