@@ -1,6 +1,6 @@
 import { apiRequest } from '@/lib/api'
 import { ServerSettings } from '@/types/api'
-import { revalidateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 
 export type UpdateServerSettingsApiResponse = {
   serverSettings: ServerSettings
@@ -22,7 +22,7 @@ export async function updateServerSettings(settingsUpdatePayload: Partial<Server
 
   // Invalidate the current user cache
   if (response) {
-    revalidateTag('current-user')
+    updateTag('current-user')
   }
 
   return response
@@ -39,7 +39,7 @@ export async function updateSortingPrefixes(sortingPrefixes: string[]): Promise<
 
   // Invalidate the current user cache
   if (response) {
-    revalidateTag('current-user')
+    updateTag('current-user')
   }
 
   return response

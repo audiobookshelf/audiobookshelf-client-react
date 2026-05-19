@@ -21,7 +21,7 @@ export function getLibraryItemCoverUrl(libraryItemId: string, timestamp?: number
  *
  * Authentication is handled via httpOnly cookies through the Next.js internal API proxy.
  * The browser automatically includes the access_token cookie with the request.
- * If the token expires, Next.js middleware will redirect to refresh the token.
+ * If the token expires, Next.js proxy will redirect to refresh the token.
  *
  * @param libraryItemId
  * @param fileIno - The file inode value

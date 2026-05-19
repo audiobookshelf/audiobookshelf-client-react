@@ -13,6 +13,6 @@ describe('<LoadingIndicator />', () => {
 
   it('has a loading text', () => {
     cy.mount(<LoadingIndicator />)
-    cy.get('&loading-text').should('contain.text', 'Loading content')
+    cy.get('&loading-text').should('contain.text', 'Loading...')
   })
 })

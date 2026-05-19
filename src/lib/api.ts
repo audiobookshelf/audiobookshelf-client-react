@@ -349,7 +349,7 @@ export const getData = cache(async <T extends Promise<unknown>[]>(...promises: T
 /**
  * Current user response data
  *
- * call revalidateTag('current-user') when server settings change or user is updated
+ * call updateTag('current-user') when server settings change or user is updated
  */
 export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
   return apiRequest<UserLoginResponse>('/api/authorize', {

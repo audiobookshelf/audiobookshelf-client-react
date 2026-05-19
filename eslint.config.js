@@ -1,26 +1,12 @@
-const { FlatCompat } = require('@eslint/eslintrc')
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname
-})
+const nextConfig = require('eslint-config-next/core-web-vitals')
+const prettierConfig = require('eslint-config-prettier')
 
 module.exports = [
+  ...nextConfig,
+  prettierConfig,
   {
-    ignores: [
-      'node_modules/',
-      '.next/',
-      'dist/',
-      'build/',
-      'out/',
-      'coverage/',
-      'cypress/screenshots/',
-      'cypress/videos/',
-      '.eslintcache',
-      'next-env.d.ts',
-      'eslint.config.js'
-    ]
+    ignores: ['node_modules/', '.next/', 'dist/', 'build/', 'out/', 'coverage/', 'cypress/screenshots/', 'cypress/videos/', '.eslintcache', 'eslint.config.js']
   },
-  ...compat.extends('next/core-web-vitals', 'next/typescript', 'prettier'),
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -28,6 +14,15 @@ module.exports = [
         project: './tsconfig.json',
         tsconfigRootDir: __dirname
       }
+    },
+    rules: {
+      // New in eslint-plugin-react-hooks v7; disable until codebase is migrated
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/error-boundaries': 'off',
+      'react-hooks/purity': 'off',
+      'react-hooks/refs': 'off',
+      'react-hooks/preserve-manual-memoization': 'off',
+      'react-hooks/immutability': 'off'
     }
   }
 ]

@@ -11,7 +11,7 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * This approach:
  * - Keeps tokens secure (httpOnly cookies, not in URLs)
- * - Handles token expiration automatically (middleware refreshes tokens)
+ * - Handles token expiration automatically (proxy refreshes tokens)
  * - Works seamlessly with <img> tags (browsers send cookies automatically)
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; fileId: string }> }) {

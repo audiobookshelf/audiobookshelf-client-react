@@ -10,7 +10,7 @@ function isNextServerActionRequest(request: NextRequest): boolean {
   return request.method === 'POST' && request.headers.has(NEXT_ACTION_HEADER)
 }
 
-export default async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const accessTokenCookie = request.cookies.get('access_token')?.value
   const refreshTokenCookie = request.cookies.get('refresh_token')?.value
@@ -23,12 +23,12 @@ export default async function middleware(request: NextRequest) {
   const hasValidAccessToken = !!(accessTokenCookie && !isTokenExpired(accessTokenCookie, 5))
   const hasValidRefreshToken = !!(refreshTokenCookie && !isTokenExpired(refreshTokenCookie, 5))
 
-  Logger.debug('[middleware] handling request for:', path)
+  Logger.debug('[proxy] handling request for:', path)
   if (accessTokenCookie && !hasValidAccessToken) {
-    Logger.debug('[middleware] access token is expired')
+    Logger.debug('[proxy] access token is expired')
   }
   if (refreshTokenCookie && !hasValidRefreshToken) {
-    Logger.debug('[middleware] refresh token is expired')
+    Logger.debug('[proxy] refresh token is expired')
   }
 
   // Helper to create URLs with correct host/port from request headers.
@@ -40,7 +40,7 @@ export default async function middleware(request: NextRequest) {
       const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
       return new URL(path, `${protocol}://${host}`)
     } catch (error) {
-      Logger.error('[middleware] failed to create URL:', { path, error })
+      Logger.error('[proxy] failed to create URL:', { path, error })
       // Fallback: use the current request's URL as base
       return new URL(path, request.nextUrl.origin)
     }
@@ -55,7 +55,7 @@ export default async function middleware(request: NextRequest) {
         serverLanguage = statusResponse.language
       }
     } catch (error) {
-      Logger.error('[middleware] failed to fetch server status for language:', error)
+      Logger.error('[proxy] failed to fetch server status for language:', error)
     }
   }
 
@@ -86,12 +86,12 @@ export default async function middleware(request: NextRequest) {
   }
 
   const redirect = (url: URL): NextResponse => {
-    Logger.debug(`[middleware] redirecting to: ${url}`)
+    Logger.debug(`[proxy] redirecting to: ${url}`)
     return setLanguageCookie(NextResponse.redirect(url))
   }
 
   const next = (): NextResponse => {
-    Logger.debug(`[middleware] continuing to: ${path}`)
+    Logger.debug(`[proxy] continuing to: ${path}`)
     return setLanguageCookie(NextResponse.next())
   }
 
@@ -103,24 +103,24 @@ export default async function middleware(request: NextRequest) {
   const isLoginRoute = pathname === '/login'
   if (isLoginRoute) {
     if (hasValidAccessToken) {
-      Logger.debug('[middleware] request has valid accessToken')
+      Logger.debug('[proxy] request has valid accessToken')
       const libraryUrl = createUrl('/library')
       return redirect(libraryUrl)
     } else if (hasValidRefreshToken) {
       // Has valid refreshToken redirect to refresh
       const refreshUrl = createUrl('/internal-api/refresh')
-      Logger.debug('[middleware] request has no valid accessToken but has valid refreshToken')
+      Logger.debug('[proxy] request has no valid accessToken but has valid refreshToken')
       return redirect(refreshUrl)
     }
 
-    Logger.debug('[middleware] no valid tokens found')
+    Logger.debug('[proxy] no valid tokens found')
     return next()
   }
 
   // Non-login routes
   if (!hasValidAccessToken && !hasValidRefreshToken) {
     // No valid tokens found, redirect to login
-    Logger.debug(`[middleware] no valid tokens found`)
+    Logger.debug(`[proxy] no valid tokens found`)
     const loginUrl = createUrl('/login')
     return redirect(loginUrl)
   }
@@ -130,7 +130,7 @@ export default async function middleware(request: NextRequest) {
     // action response with a 302, so the client never receives the action result. Let the action
     // run and refresh tokens in apiRequest (server-side) instead.
     if (isNextServerActionRequest(request)) {
-      Logger.debug('[middleware] server action with expired access token; continuing so apiRequest can refresh')
+      Logger.debug('[proxy] server action with expired access token; continuing so apiRequest can refresh')
       const response = next()
       response.headers.set('x-current-path', path)
       return response
@@ -141,7 +141,7 @@ export default async function middleware(request: NextRequest) {
     if (pathname !== '/') {
       refreshUrl.searchParams.set('redirect', path)
     }
-    Logger.debug(`[middleware] valid accessToken not found, valid refreshToken found`)
+    Logger.debug(`[proxy] valid accessToken not found, valid refreshToken found`)
     return redirect(refreshUrl)
   }
 

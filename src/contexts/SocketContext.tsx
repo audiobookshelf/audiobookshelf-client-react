@@ -95,7 +95,7 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
           router.refresh()
         } else {
           console.error('Silent token refresh failed.')
-          window.location.reload() // Reload to let middleware trigger redirect to login
+          window.location.reload() // Reload to let proxy trigger redirect to login
         }
       } catch (err) {
         console.error('Error during token refresh:', err)
