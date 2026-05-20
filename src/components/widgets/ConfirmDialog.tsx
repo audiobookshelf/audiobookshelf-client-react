@@ -15,6 +15,7 @@ interface ConfirmDialogProps {
   checkboxLabel?: string
   yesButtonText?: string
   yesButtonClassName?: string
+  processing?: boolean // Sets modal to persistent & yes button to loading
   onClose: () => void
   onConfirm: (checkboxValue?: boolean) => void
   className?: string
@@ -46,6 +47,7 @@ export default function ConfirmDialog({
   checkboxLabel,
   yesButtonText,
   yesButtonClassName = 'bg-success text-white',
+  processing = false,
   onClose,
   onConfirm,
   className
@@ -63,9 +65,10 @@ export default function ConfirmDialog({
   }, [checkboxValue, onConfirm])
 
   const handleClose = useCallback(() => {
+    if (processing) return
     setCheckboxValue(false)
     onClose()
-  }, [onClose])
+  }, [onClose, processing])
 
   // Store the previously focused element when dialog opens and manage focus
   useEffect(() => {
@@ -112,7 +115,7 @@ export default function ConfirmDialog({
   const dialogTitle = title || 'Confirm'
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} className="w-sm">
+    <Modal isOpen={isOpen} onClose={handleClose} persistent={processing} className="w-sm">
       <div ref={dialogContentRef} className={mergeClasses('px-4 py-6 text-sm', className)} aria-labelledby={titleId} aria-describedby={messageId} tabIndex={-1}>
         <h2 id={titleId} className="sr-only">
           {dialogTitle}
@@ -129,10 +132,17 @@ export default function ConfirmDialog({
 
         <div className="flex items-center justify-end gap-2 px-1">
           <div className="grow" />
-          <Btn color="bg-primary" onClick={handleClose} ariaLabel={t('ButtonCancel')} type="button">
+          <Btn color="bg-primary" disabled={processing} onClick={handleClose} ariaLabel={t('ButtonCancel')} type="button">
             {t('ButtonCancel')}
           </Btn>
-          <Btn color={yesButtonClassName} onClick={handleConfirm} ariaLabel={yesButtonText || t('ButtonYes')} type="button">
+          <Btn
+            color={yesButtonClassName}
+            disabled={processing}
+            loading={processing}
+            onClick={handleConfirm}
+            ariaLabel={yesButtonText || t('ButtonYes')}
+            type="button"
+          >
             {yesButtonText || t('ButtonYes')}
           </Btn>
         </div>

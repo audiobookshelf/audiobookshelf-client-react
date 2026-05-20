@@ -1,5 +1,6 @@
 'use client'
 
+import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import Btn from '@/components/ui/Btn'
 import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import Dropdown from '@/components/ui/Dropdown'
@@ -8,12 +9,21 @@ import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { PlayerQueueItem, useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime, secondsToTimestamp } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
-import { GetListeningSessionsResponse, GetOpenListeningSessionsResponse, PlaybackSession, PlayMethod, User } from '@/types/api'
+import {
+  BookLibraryItem,
+  GetListeningSessionsResponse,
+  GetOpenListeningSessionsResponse,
+  PlaybackSession,
+  PlayMethod,
+  PodcastLibraryItem,
+  User
+} from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
 import { useMemo, useState } from 'react'
 import { batchDeleteListeningSessions, getListeningSessionsData, getOpenListeningSessionsData } from './actions'
@@ -34,6 +44,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const t = useTypeSafeTranslations()
   const { serverSettings } = useUser()
   const { showToast } = useGlobalToast()
+  const { playItem } = useMediaContext()
 
   const [loading, setLoading] = useState(false)
   const [deletingSessions, setDeletingSessions] = useState(false)
@@ -217,8 +228,92 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
     setShowResumePlaybackPrompt(true)
   }
 
+  /**
+   * Start playback for playback session last time
+   * First ensure that the library item exists and is valid
+   */
   const handleStartPlaybackAtTime = async () => {
-    if (!resumePlaybackSession) return
+    if (!resumePlaybackSession || startingPlayback) return
+
+    setStartingPlayback(true)
+
+    try {
+      const session = resumePlaybackSession
+      const libraryItem = await getExpandedLibraryItemAction(session.libraryItemId)
+
+      let queueItem: PlayerQueueItem
+
+      if (session.episodeId) {
+        if (libraryItem.mediaType !== 'podcast') {
+          console.error('Episode session for non-podcast library item', session.libraryItemId)
+          showToast(t('ToastFailedToLoadData'), { type: 'error' })
+          return
+        }
+
+        const podcastLibraryItem = libraryItem as PodcastLibraryItem
+        const episode = podcastLibraryItem.media.episodes?.find((ep) => ep.id === session.episodeId)
+        if (!episode) {
+          console.error('Episode not found in library item', session.episodeId, podcastLibraryItem.media.episodes)
+          showToast(t('ToastFailedToLoadData'), { type: 'error' })
+          return
+        }
+
+        const podcastTitle = podcastLibraryItem.media.metadata.title || session.displayAuthor || ''
+        const caption =
+          episode.publishedAt != null ? t('LabelPublishedDate', { 0: new Date(episode.publishedAt).toLocaleDateString() }) : t('LabelUnknownPublishDate')
+
+        queueItem = {
+          libraryItemId: podcastLibraryItem.id,
+          libraryId: podcastLibraryItem.libraryId,
+          episodeId: episode.id,
+          title: episode.title,
+          subtitle: podcastTitle,
+          caption,
+          duration: episode.audioFile?.duration ?? null,
+          coverPath: podcastLibraryItem.media.coverPath ?? null
+        }
+
+        await playItem({
+          libraryItem: podcastLibraryItem,
+          episodeId: session.episodeId,
+          startTime: session.currentTime,
+          queueItems: [queueItem]
+        })
+      } else if (libraryItem.mediaType === 'book') {
+        const bookLibraryItem = libraryItem as BookLibraryItem
+        const title = bookLibraryItem.media.metadata.title || session.displayTitle
+        const subtitle = bookLibraryItem.media.metadata.authors?.map((author) => author.name).join(', ') || session.displayAuthor || ''
+
+        queueItem = {
+          libraryItemId: libraryItem.id,
+          libraryId: libraryItem.libraryId,
+          episodeId: null,
+          title,
+          subtitle,
+          caption: '',
+          duration: bookLibraryItem.media.duration ?? null,
+          coverPath: libraryItem.media.coverPath ?? null
+        }
+
+        await playItem({
+          libraryItem: bookLibraryItem,
+          startTime: session.currentTime,
+          queueItems: [queueItem]
+        })
+      } else {
+        console.error('Invalid library item type', libraryItem.mediaType)
+        showToast(t('ToastFailedToLoadData'), { type: 'error' })
+        return
+      }
+
+      setShowResumePlaybackPrompt(false)
+      setResumePlaybackSession(null)
+    } catch (error) {
+      console.error('Failed to start playback at timestamp', error)
+      showToast(t('ToastFailedToLoadData'), { type: 'error' })
+    } finally {
+      setStartingPlayback(false)
+    }
   }
 
   const listeningSessionColumns = useMemo<DataTableColumn<PlaybackSession>[]>(
@@ -412,8 +507,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             : ''
         }
         yesButtonText={t('ButtonPlay')}
+        processing={startingPlayback}
         onClose={() => {
-          if (startingPlayback) return
           setShowResumePlaybackPrompt(false)
           setResumePlaybackSession(null)
         }}
