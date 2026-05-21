@@ -5,6 +5,7 @@ import {
   deleteLibraryItemAction,
   getExpandedLibraryItemAction,
   removeFromContinueListeningAction,
+  removeSeriesFromContinueListeningAction,
   rescanLibraryItemAction,
   sendEbookToDeviceAction,
   toggleFinishedAction
@@ -18,7 +19,15 @@ import { useUser } from '@/contexts/UserContext'
 import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { downloadLibraryItem } from '@/lib/download'
-import type { EReaderDevice, LibraryItem, MediaItemShare, MediaProgress, PodcastEpisode } from '@/types/api'
+import {
+  type BookMetadata,
+  type EReaderDevice,
+  type LibraryItem,
+  type MediaItemShare,
+  type MediaProgress,
+  type PodcastEpisode,
+  isPersonalizedSeriesRef
+} from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
 
@@ -34,6 +43,7 @@ interface UseMediaCardActionsProps {
   isPodcast: boolean
   ereaderDevices: EReaderDevice[]
   continueListeningShelf: boolean
+  continueSeriesShelf?: boolean
   libraryItemIdStreaming: string | null
   isStreaming: (libraryItemId: string, episodeId: string | null) => boolean
   isStreamingFromDifferentLib: boolean
@@ -58,6 +68,7 @@ export function useMediaCardActions({
   isPodcast,
   ereaderDevices,
   continueListeningShelf,
+  continueSeriesShelf = false,
   libraryItemIdStreaming,
   isStreaming,
   isStreamingFromDifferentLib,
@@ -315,6 +326,22 @@ export function useMediaCardActions({
             setProcessing(false)
           }
         })
+      } else if (action === 'removeSeriesFromContinueListening') {
+        if (libraryItem.mediaType !== 'book') return
+        const { series } = libraryItem.media.metadata as BookMetadata
+        const seriesId = series && isPersonalizedSeriesRef(series) ? series.id : null
+        if (!seriesId) return
+        startTransition(async () => {
+          try {
+            setProcessing(true)
+            await removeSeriesFromContinueListeningAction(seriesId)
+          } catch (error) {
+            console.error('Failed to remove series from continue series', error)
+            showToast(t('ToastFailedToUpdate'), { type: 'error' })
+          } finally {
+            setProcessing(false)
+          }
+        })
       } else if (action === 'deleteLibraryItem') {
         setConfirmState({
           isOpen: true,
@@ -358,6 +385,8 @@ export function useMediaCardActions({
       episodeForQueue,
       libraryItem.id,
       libraryItem.libraryId,
+      libraryItem.mediaType,
+      libraryItem.media.metadata,
       media,
       mediaProgress,
       removeItemFromQueue,
@@ -435,6 +464,16 @@ export function useMediaCardActions({
       })
     }
 
+    if (continueSeriesShelf && libraryItem.mediaType === 'book') {
+      const { series } = libraryItem.media.metadata as BookMetadata
+      if (series && isPersonalizedSeriesRef(series)) {
+        items.push({
+          text: t('ButtonRemoveSeriesFromContinueSeries'),
+          func: 'removeSeriesFromContinueListening'
+        })
+      }
+    }
+
     if (continueListeningShelf) {
       items.push({
         text: (media as { ebookFormat?: string }).ebookFormat ? t('ButtonRemoveFromContinueReading') : t('ButtonRemoveFromContinueListening'),
@@ -480,6 +519,7 @@ export function useMediaCardActions({
     return items
   }, [
     continueListeningShelf,
+    continueSeriesShelf,
     episodeForQueue,
     ereaderDevices,
     isPodcast,
@@ -489,6 +529,8 @@ export function useMediaCardActions({
     itemIsFinished,
     libraryItem.id,
     libraryItem.isFile,
+    libraryItem.mediaType,
+    libraryItem.media.metadata,
     libraryItemIdStreaming,
     media,
     showRssFeedButton,

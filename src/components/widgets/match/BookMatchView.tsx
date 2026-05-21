@@ -165,8 +165,9 @@ export default function BookMatchView({
   }, [media])
 
   const seriesCurrentValue = useMemo(() => {
-    return mediaMetadata.series && mediaMetadata.series.length > 0 && selectedMatch ? mediaMetadata.series : undefined
-  }, [mediaMetadata.series, selectedMatch])
+    const seriesList = isBookMedia(media) && Array.isArray(media.metadata.series) ? media.metadata.series : []
+    return seriesList.length > 0 && selectedMatch ? seriesList : undefined
+  }, [media, selectedMatch])
 
   const abridgedCurrentValue = useMemo(() => (isBookMedia(media) ? media.metadata.abridged : undefined), [media])
 

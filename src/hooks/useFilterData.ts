@@ -93,7 +93,9 @@ export function useFilterData(libraryId: string | undefined) {
 
           // Add/update authors and series (objects with id/name)
           updated.authors = addUniqueById(updated.authors, metadata.authors)
-          updated.series = addUniqueById(updated.series, metadata.series)
+          if (Array.isArray(metadata.series)) {
+            updated.series = addUniqueById(updated.series, metadata.series)
+          }
 
           // Add string arrays
           updated.genres = addUniqueStrings(updated.genres, metadata.genres)

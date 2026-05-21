@@ -33,6 +33,7 @@ export interface MediaCardProps {
   orderBy?: string
   sortingIgnorePrefix?: boolean
   continueListeningShelf?: boolean
+  continueSeriesShelf?: boolean
   /**
    * Server-computed or cached media progress for this library item
    */
@@ -87,6 +88,7 @@ function MediaCard(props: MediaCardProps) {
     orderBy,
     sortingIgnorePrefix = false,
     continueListeningShelf = false,
+    continueSeriesShelf = false,
     mediaProgress,
     sizeMultiplier,
     dateFormat,
@@ -285,6 +287,7 @@ function MediaCard(props: MediaCardProps) {
     isPodcast,
     ereaderDevices,
     continueListeningShelf,
+    continueSeriesShelf,
     libraryItemIdStreaming,
     isStreaming,
     isStreamingFromDifferentLib,

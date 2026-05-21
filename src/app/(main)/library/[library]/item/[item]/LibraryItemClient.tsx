@@ -45,7 +45,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const podcastAuthor = 'author' in metadata ? metadata.author : undefined
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
   const bookAuthors = 'authors' in metadata ? metadata.authors || [] : []
-  const bookSeries = 'series' in metadata ? metadata.series || [] : []
+  const bookSeries = 'series' in metadata && Array.isArray(metadata.series) ? metadata.series : []
   const description = 'description' in metadata ? metadata.description : undefined
 
   const userProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined

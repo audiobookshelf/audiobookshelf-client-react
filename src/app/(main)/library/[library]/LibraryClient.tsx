@@ -12,13 +12,85 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { Author, BookshelfView, LibraryItem, MediaItemShare, MediaProgress, PersonalizedShelf, PersonalizedShelfType, RssFeed, Series } from '@/types/api'
+import {
+  Author,
+  BookMetadata,
+  BookshelfView,
+  LibraryItem,
+  MediaItemShare,
+  MediaProgress,
+  PersonalizedShelf,
+  PersonalizedShelfType,
+  RssFeed,
+  Series,
+  isPersonalizedSeriesRef
+} from '@/types/api'
 import { useCallback, useEffect, useState, useTransition } from 'react'
 import { requestScanLibrary } from '../../settings/libraries/actions'
 import LibraryEmptyState from './LibraryEmptyState'
 
 interface LibraryClientProps {
   personalized: PersonalizedShelf[]
+}
+
+/**
+ * On user updated socket event, update shelves for continue listening and continue series
+ */
+function applyUserUpdatedToShelves(
+  shelves: PersonalizedShelf[],
+  mediaProgress: MediaProgress[],
+  seriesHideFromContinueListening: string[]
+): PersonalizedShelf[] {
+  let changed = false
+  let nextShelves = shelves
+
+  if (seriesHideFromContinueListening.length) {
+    const seriesIds = seriesHideFromContinueListening
+    nextShelves = nextShelves.map((shelf) => {
+      if (shelf.type !== 'book' || shelf.id !== 'continue-series') return shelf
+
+      const nextEntities = (shelf.entities as LibraryItem[]).filter((entity) => {
+        if (entity.mediaType !== 'book') return true
+        const { series } = entity.media.metadata as BookMetadata
+        const seriesId = series && isPersonalizedSeriesRef(series) ? series.id : null
+        return !seriesId || !seriesIds.includes(seriesId)
+      })
+
+      if (nextEntities.length === shelf.entities.length) return shelf
+      changed = true
+      return { ...shelf, entities: nextEntities }
+    })
+  }
+
+  const mediaProgressToHide = mediaProgress.filter((mp) => mp.hideFromContinueListening)
+  if (mediaProgressToHide.length) {
+    for (const shelfId of ['continue-listening', 'continue-reading'] as const) {
+      nextShelves = nextShelves.map((shelf) => {
+        if (shelf.id !== shelfId) return shelf
+
+        if (shelf.type === 'book' || shelf.type === 'podcast') {
+          const nextEntities = (shelf.entities as LibraryItem[]).filter((entity) => !mediaProgressToHide.some((mp) => mp.libraryItemId === entity.id))
+          if (nextEntities.length === shelf.entities.length) return shelf
+          changed = true
+          return { ...shelf, entities: nextEntities }
+        }
+
+        if (shelf.type === 'episode') {
+          const nextEntities = (shelf.entities as LibraryItem[]).filter((entity) => {
+            if (!entity.recentEpisode) return true
+            return !mediaProgressToHide.some((mp) => mp.libraryItemId === entity.id && mp.episodeId === entity.recentEpisode?.id)
+          })
+          if (nextEntities.length === shelf.entities.length) return shelf
+          changed = true
+          return { ...shelf, entities: nextEntities }
+        }
+
+        return shelf
+      })
+    }
+  }
+
+  return changed ? nextShelves : shelves
 }
 
 export default function LibraryClient({ personalized }: LibraryClientProps) {
@@ -126,6 +198,10 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   useSocketEvent<RssFeed>('rss_feed_closed', handleRssFeedClosed)
 
   useEffect(() => {
+    setShelves((prev) => applyUserUpdatedToShelves(prev, user.mediaProgress, user.seriesHideFromContinueListening))
+  }, [user.mediaProgress, user.seriesHideFromContinueListening])
+
+  useEffect(() => {
     const items = []
 
     if (userIsAdminOrUp) {
@@ -167,6 +243,8 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
       {/* bookshelf rows */}
       {shelves.map((shelf) => {
         const Wrapper = homeBookshelfView === BookshelfView.STANDARD ? BookShelfRow : ItemSlider
+        const continueListeningShelf = shelf.id === 'continue-listening' || shelf.id === 'continue-reading'
+        const continueSeriesShelf = shelf.id === 'continue-series'
 
         return (
           <Wrapper key={shelf.id} title={shelf.label}>
@@ -189,6 +267,8 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       mediaProgress={mediaProgress}
                       shelfEntities={shelf.entities}
                       entityIndex={entityIndex}
+                      continueListeningShelf={continueListeningShelf}
+                      continueSeriesShelf={shelf.type === 'book' && continueSeriesShelf}
                     />
                   </div>
                 )
@@ -232,6 +312,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       ereaderDevices={ereaderDevices}
                       showSubtitles={true}
                       mediaProgress={mediaProgress}
+                      continueListeningShelf={continueListeningShelf}
                     />
                   </div>
                 )

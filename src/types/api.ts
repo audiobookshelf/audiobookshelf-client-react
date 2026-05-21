@@ -318,6 +318,23 @@ export interface Series {
   items?: LibraryItem[]
 }
 
+/**
+ * Single series context the server injects on personalized shelves (e.g. continue-series)
+ * and series-filtered bookshelf rows
+ */
+export interface PersonalizedSeriesRef {
+  id: string
+  name: string
+  sequence?: string | null
+}
+
+/** Expanded library items use array of Series and personalized use a single series reference */
+export type BookMetadataSeriesField = Series[] | PersonalizedSeriesRef
+
+export function isPersonalizedSeriesRef(series: BookMetadataSeriesField): series is PersonalizedSeriesRef {
+  return !Array.isArray(series)
+}
+
 export interface CollapsedSeries {
   id: string
   name?: string
@@ -381,7 +398,7 @@ export interface BookMetadata {
   subtitle?: string
   authors: Author[]
   narrators: string[]
-  series: Series[]
+  series: BookMetadataSeriesField
   /** comma-separated */
   genres: string[]
   publishedYear?: string

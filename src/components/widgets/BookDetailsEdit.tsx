@@ -10,7 +10,10 @@ import SlateEditor from '../ui/SlateEditor'
 import TextInput from '../ui/TextInput'
 import TwoStageMultiSelect from '../ui/TwoStageMultiSelect'
 
-type Details = Omit<BookMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'publishedDate'>
+type Details = Omit<BookMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'publishedDate' | 'series'> & {
+  /** Edit forms always work with the expanded `Series[]` shape. */
+  series: Series[]
+}
 
 export type BookDetailsEditRef = DetailsEditRef<Details>
 export type BookUpdatePayload = UpdatePayload<Details>
@@ -69,7 +72,10 @@ const BookDetailsEdit = ({
     submitForm,
     initialDetails
   } = useDetailsEdit<Details>({
-    metadata: (media.metadata as Details) || {},
+    metadata: {
+      ...(media.metadata as BookMetadata),
+      series: Array.isArray(media.metadata.series) ? media.metadata.series : []
+    },
     tags: media.tags || [],
     libraryItemId: libraryItem.id,
     ref,

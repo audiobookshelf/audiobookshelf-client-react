@@ -1,6 +1,6 @@
 'use client'
 
-import type { BookMedia } from '@/types/api'
+import { type BookMedia, isPersonalizedSeriesRef } from '@/types/api'
 import { useMemo } from 'react'
 import MediaCard, { type MediaCardProps } from './MediaCard'
 
@@ -14,8 +14,10 @@ export default function BookMediaCard(props: BookMediaCardProps) {
   const media = libraryItem.media as BookMedia
 
   const seriesSequence = useMemo(() => {
-    const metadata = media.metadata
-    return metadata.series?.[0]?.sequence || null
+    const { series } = media.metadata
+    if (!series) return null
+    if (isPersonalizedSeriesRef(series)) return series.sequence ?? null
+    return series[0]?.sequence ?? null
   }, [media.metadata])
 
   const ebookFormat = useMemo(() => media.ebookFormat, [media])
