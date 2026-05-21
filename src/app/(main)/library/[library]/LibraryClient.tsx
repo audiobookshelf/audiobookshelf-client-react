@@ -254,8 +254,15 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                 const libraryItem = entity as LibraryItem
                 const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
 
+                let key = entity.id + '-' + shelf.id
+
+                // continue series can have multiple of the same book on the shelf with different series
+                if (continueSeriesShelf) {
+                  const { series } = libraryItem.media.metadata as BookMetadata
+                  key += '-' + (series && isPersonalizedSeriesRef(series) ? series.id : '')
+                }
                 return (
-                  <div key={entity.id + '-' + shelf.id} className="mx-2e shrink-0">
+                  <div key={key} className="mx-2e shrink-0">
                     <EntityMediaCard
                       libraryItem={libraryItem}
                       bookshelfView={homeBookshelfView}
