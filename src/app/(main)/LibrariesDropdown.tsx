@@ -2,7 +2,7 @@
 
 import Dropdown from '@/components/ui/Dropdown'
 import { Library } from '@/types/api'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
 
 interface LibrariesDropdownProps {
@@ -10,27 +10,43 @@ interface LibrariesDropdownProps {
   currentLibraryId: string
 }
 
-const bookLibraryPages = ['bookshelf', 'series', 'collections', 'playlists', 'authors', 'narrators', 'stats']
-const podcastLibraryPages = ['bookshelf', 'latest', 'playlists', 'search', 'download-queue']
+const sharedPages = ['items', 'playlists', 'search', 'item', 'playlist']
+const bookPages = ['series', 'collections', 'authors', 'narrators', 'stats', 'collection']
+const podcastPages = ['latest', 'add-podcast', 'download-queue']
+
+function pageAllowed(page: string, mediaType: Library['mediaType']) {
+  return !page || sharedPages.includes(page) || (mediaType === 'book' && bookPages.includes(page)) || (mediaType === 'podcast' && podcastPages.includes(page))
+}
+
+function getLibrarySwitchPath(pathname: string, search: string, currentLibraryId: string, targetLibraryId: string, targetMediaType: Library['mediaType']) {
+  const home = `/library/${targetLibraryId}`
+  const fromPrefix = `/library/${currentLibraryId}`
+
+  if (!pathname.startsWith(fromPrefix)) return home
+
+  const parts = pathname.split('/').filter(Boolean)
+  const page = parts[2]
+  const hasDetailId = parts.length > 3
+
+  if (page === 'series' && hasDetailId) {
+    return targetMediaType === 'book' ? `${home}/series${search}` : home
+  }
+  if (page === 'authors' && hasDetailId) {
+    return targetMediaType === 'book' ? `${home}/authors${search}` : home
+  }
+
+  parts[1] = targetLibraryId
+  const path = '/' + parts.join('/')
+  return pageAllowed(page ?? '', targetMediaType) ? `${path}${search}` : home
+}
 
 export default function LibrariesDropdown({ libraries, currentLibraryId }: LibrariesDropdownProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
-  function getLibraryPath(libraryId: string) {
-    const library = libraries.find((l) => l.id === libraryId)
-    let page = pathname.split('/').pop() || ''
-    if (library) {
-      if (page && library.mediaType === 'book' && !bookLibraryPages.includes(page)) {
-        page = ''
-      } else if (page && library.mediaType === 'podcast' && !podcastLibraryPages.includes(page)) {
-        page = ''
-      }
-    }
-
-    return `/library/${libraryId}/${page}`
-  }
+  const search = searchParams.size > 0 ? `?${searchParams.toString()}` : ''
 
   const libraryItems = libraries.map((library) => ({
     text: library.name,
@@ -46,8 +62,11 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
         disabled={isPending}
         value={currentLibraryId}
         onChange={(value) => {
+          const lib = libraries.find((l) => l.id === value)
+          if (!lib || lib.id === currentLibraryId) return
+
           startTransition(() => {
-            router.push(getLibraryPath(String(value)))
+            router.push(getLibrarySwitchPath(pathname, search, currentLibraryId, lib.id, lib.mediaType))
           })
         }}
       />
