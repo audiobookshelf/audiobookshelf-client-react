@@ -20,7 +20,7 @@ import { TranslationKey } from '@/types/translations'
 import React, { type MouseEvent, type ReactNode } from 'react'
 
 /** Selection is unused on the bookshelf; stable identity so memo(MediaCard) can skip unchanged cards. */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 function bookshelfCardNoopSelect(_event: MouseEvent) {}
 
 export interface SkeletonComponentProps {
@@ -73,13 +73,12 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       </>
     ),
     getContextMenuItems: (user, library, settings) => {
-      const menuItems: { textKey: TranslationKey; action: string }[] = [
-        {
+      const menuItems: { textKey: TranslationKey; action: string }[] = []
+      if (library.mediaType === 'book') {
+        menuItems.push({
           textKey: settings.showSubtitles ? 'LabelHideSubtitles' : 'LabelShowSubtitles',
           action: settings.showSubtitles ? 'hide-subtitles' : 'show-subtitles'
-        }
-      ]
-      if (library.mediaType === 'book') {
+        })
         menuItems.push({
           textKey: settings.collapseSeries ? 'LabelExpandSeries' : 'LabelCollapseSeries',
           action: settings.collapseSeries ? 'expand-series' : 'collapse-series'
