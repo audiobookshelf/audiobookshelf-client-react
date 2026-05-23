@@ -33,3 +33,7 @@ export function downloadLibraryItemFile(libraryItemId: string, fileId: string, f
 export function downloadBackup(backupId: string, filename?: string) {
   downloadByUrl(`/internal-api/backups/${encodeURIComponent(backupId)}/download`, { filename })
 }
+
+export function downloadLibraryOpml(libraryId: string) {
+  downloadByUrl(`/internal-api/libraries/${libraryId}/opml`, { openInNewTab: true })
+}

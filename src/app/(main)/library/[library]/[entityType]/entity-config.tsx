@@ -14,6 +14,7 @@ import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
 import { UpdateSettingFn } from '@/contexts/LibraryContext'
+import { downloadLibraryOpml } from '@/lib/download'
 import { useUser } from '@/contexts/UserContext'
 import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, Library, LibraryItem, MediaProgress, Playlist, Series, User } from '@/types/api'
 import { TranslationKey } from '@/types/translations'
@@ -55,7 +56,7 @@ export interface EntityConfig {
     settings: { showSubtitles: boolean; collapseSeries: boolean }
   ) => { textKey: TranslationKey; action: string }[]
 
-  handleContextMenuAction: (action: string, helpers: { updateSetting: UpdateSettingFn }) => void
+  handleContextMenuAction: (action: string, helpers: { updateSetting: UpdateSettingFn; library: Library }) => void
 
   getEmptyMessageKey: (filterBy: string, isPodcastLibrary: boolean) => TranslationKey | ''
 
@@ -74,6 +75,15 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     ),
     getContextMenuItems: (user, library, settings) => {
       const menuItems: { textKey: TranslationKey; action: string }[] = []
+      const userCanDownload = !!(user.permissions?.download || user.type === 'admin' || user.type === 'root')
+
+      if (library.mediaType === 'podcast' && userCanDownload) {
+        menuItems.push({
+          textKey: 'LabelExportOPML',
+          action: 'export-opml'
+        })
+      }
+
       if (library.mediaType === 'book') {
         menuItems.push({
           textKey: settings.showSubtitles ? 'LabelHideSubtitles' : 'LabelShowSubtitles',
@@ -86,8 +96,10 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       }
       return menuItems
     },
-    handleContextMenuAction: (action, { updateSetting }) => {
-      if (action === 'show-subtitles') {
+    handleContextMenuAction: (action, { updateSetting, library }) => {
+      if (action === 'export-opml') {
+        downloadLibraryOpml(library.id)
+      } else if (action === 'show-subtitles') {
         updateSetting('showSubtitles', true)
       } else if (action === 'hide-subtitles') {
         updateSetting('showSubtitles', false)
@@ -210,7 +222,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       }
       return []
     },
-    handleContextMenuAction: (action) => {
+    handleContextMenuAction: (action, helpers) => {
       if (action === 'match-all-authors') {
         // TODO: Implement match all authors
         console.log('Match all authors - to be implemented')

@@ -232,7 +232,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
 
     // Set up action handler (delegated to entity config)
     setContextMenuActionHandler((action: string) => {
-      config.handleContextMenuAction(action, { updateSetting })
+      config.handleContextMenuAction(action, { updateSetting, library })
     })
 
     return () => {
