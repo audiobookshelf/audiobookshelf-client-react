@@ -892,6 +892,29 @@ export interface EReaderDevice {
   users?: string[]
 }
 
+export interface EmailSettings {
+  id: string
+  host: string | null
+  port: number
+  secure: boolean
+  rejectUnauthorized: boolean
+  user: string | null
+  pass: string | null
+  testAddress: string | null
+  fromAddress: string | null
+  ereaderDevices: EReaderDevice[]
+}
+
+export type EmailSettingsFormFields = Pick<EmailSettings, 'host' | 'port' | 'secure' | 'rejectUnauthorized' | 'user' | 'pass' | 'testAddress' | 'fromAddress'>
+
+export interface GetEmailSettingsResponse {
+  settings: EmailSettings
+}
+
+export interface UpdateEmailSettingsResponse {
+  settings: EmailSettings
+}
+
 export interface UserLoginResponse {
   user: User
   userDefaultLibraryId?: string

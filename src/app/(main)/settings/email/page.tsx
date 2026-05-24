@@ -1,13 +1,14 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import SettingsContent from '../SettingsContent'
+import { getData, getEmailSettings } from '@/lib/api'
+import EmailClient from './EmailClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function EmailSettingsPage() {
-  const t = await getTypeSafeTranslations()
-  return (
-    <SettingsContent title={t('HeaderEmail')} moreInfoUrl="https://www.audiobookshelf.org/guides/send_to_ereader">
-      <div></div>
-    </SettingsContent>
-  )
+  const [emailSettingsResponse] = await getData(getEmailSettings())
+
+  if (!emailSettingsResponse) {
+    return <div>Error loading email settings</div>
+  }
+
+  return <EmailClient initialSettings={emailSettingsResponse.settings} />
 }

@@ -14,6 +14,7 @@ import {
   CreateCustomMetadataProviderPayload,
   CreateCustomMetadataProviderResponse,
   CreateUpdateApiKeyResponse,
+  EmailSettingsFormFields,
   FetchPodcastFeedResponse,
   FFProbeData,
   GetApiKeysResponse,
@@ -21,6 +22,7 @@ import {
   GetBackupsResponse,
   GetCollectionsResponse,
   GetCustomMetadataProvidersResponse,
+  GetEmailSettingsResponse,
   GetFilesystemPathsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
@@ -54,6 +56,7 @@ import {
   ServerStatus,
   TasksResponse,
   UpdateAuthorPayload,
+  UpdateEmailSettingsResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
   UploadCoverResponse,
@@ -787,6 +790,23 @@ export async function sendEbookToDevice(payload: { libraryItemId: string; device
   return apiRequest<void>('/api/emails/send-ebook-to-device', {
     method: 'POST',
     body: JSON.stringify(payload)
+  })
+}
+
+export const getEmailSettings = cache(async (): Promise<GetEmailSettingsResponse> => {
+  return apiRequest<GetEmailSettingsResponse>('/api/emails/settings', {})
+})
+
+export async function updateEmailSettings(payload: EmailSettingsFormFields): Promise<UpdateEmailSettingsResponse> {
+  return apiRequest<UpdateEmailSettingsResponse>('/api/emails/settings', {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function sendTestEmail(): Promise<void> {
+  return apiRequest<void>('/api/emails/test', {
+    method: 'POST'
   })
 }
 
