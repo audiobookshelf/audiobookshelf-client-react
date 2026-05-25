@@ -4,6 +4,7 @@ import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import { useSettingsDrawer } from '@/contexts/SettingsDrawerContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import SettingsMoreInfoIcon from './SettingsMoreInfoIcon'
 
@@ -20,15 +21,19 @@ export default function SettingsContent(props: {
   backLink?: string
   addButton?: AddButtonProps
   entityCount?: number
+  className?: string
+  hideMobileMenu?: boolean
 }) {
   const t = useTypeSafeTranslations()
   const { toggle } = useSettingsDrawer()
 
   return (
-    <div className="mx-auto w-full max-w-4xl p-2 md:p-6">
-      <IconBtn className="mb-2 md:hidden" ariaLabel={t('ButtonMenu')} size="large" borderless onClick={toggle}>
-        menu
-      </IconBtn>
+    <div className={mergeClasses('mx-auto w-full max-w-4xl p-2 md:p-6', props.className ?? '')}>
+      {!props.hideMobileMenu && (
+        <IconBtn className="mb-2 md:hidden" ariaLabel={t('ButtonMenu')} size="large" borderless onClick={toggle}>
+          menu
+        </IconBtn>
+      )}
       <div className="bg-bg border-border mb-8 rounded-md border p-2 shadow-lg sm:p-4">
         <div className="mb-2 flex items-center gap-2">
           {props.backLink && (

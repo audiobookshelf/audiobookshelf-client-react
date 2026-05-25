@@ -2,7 +2,7 @@
 
 import * as api from '@/lib/api'
 import { ApiError } from '@/lib/apiErrors'
-import { EmailSettingsFormFields } from '@/types/api'
+import { EmailSettingsFormFields, EReaderDevice } from '@/types/api'
 import { revalidatePath } from 'next/cache'
 
 export async function updateEmailSettings(payload: EmailSettingsFormFields) {
@@ -12,6 +12,12 @@ export async function updateEmailSettings(payload: EmailSettingsFormFields) {
 }
 
 export type SendTestEmailResult = { success: true } | { success: false; error: string }
+
+export async function updateEReaderDevices(ereaderDevices: EReaderDevice[]) {
+  const result = await api.updateEReaderDevices(ereaderDevices)
+  revalidatePath('/settings/email')
+  return result
+}
 
 export async function sendTestEmail(): Promise<SendTestEmailResult> {
   try {

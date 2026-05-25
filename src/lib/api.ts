@@ -15,6 +15,7 @@ import {
   CreateCustomMetadataProviderResponse,
   CreateUpdateApiKeyResponse,
   EmailSettingsFormFields,
+  EReaderDevice,
   FetchPodcastFeedResponse,
   FFProbeData,
   GetApiKeysResponse,
@@ -57,6 +58,7 @@ import {
   TasksResponse,
   UpdateAuthorPayload,
   UpdateEmailSettingsResponse,
+  UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
   UploadCoverResponse,
@@ -807,6 +809,13 @@ export async function updateEmailSettings(payload: EmailSettingsFormFields): Pro
 export async function sendTestEmail(): Promise<void> {
   return apiRequest<void>('/api/emails/test', {
     method: 'POST'
+  })
+}
+
+export async function updateEReaderDevices(ereaderDevices: EReaderDevice[]): Promise<UpdateEReaderDevicesResponse> {
+  return apiRequest<UpdateEReaderDevicesResponse>('/api/emails/ereader-devices', {
+    method: 'POST',
+    body: JSON.stringify({ ereaderDevices })
   })
 }
 

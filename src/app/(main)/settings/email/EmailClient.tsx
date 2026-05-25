@@ -94,7 +94,7 @@ export default function EmailClient({ initialSettings }: EmailClientProps) {
   }
 
   return (
-    <SettingsContent title={t('HeaderEmailSettings')} moreInfoUrl="https://www.audiobookshelf.org/guides/send_to_ereader">
+    <SettingsContent title={t('HeaderEmailSettings')} moreInfoUrl="https://www.audiobookshelf.org/guides/send_to_ereader" className="pb-0 md:pb-0">
       <form onSubmit={handleSubmit} className="relative">
         <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
           <div className="md:col-span-3">

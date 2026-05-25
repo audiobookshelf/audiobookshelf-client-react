@@ -915,6 +915,10 @@ export interface UpdateEmailSettingsResponse {
   settings: EmailSettings
 }
 
+export interface UpdateEReaderDevicesResponse {
+  ereaderDevices: EReaderDevice[]
+}
+
 export interface UserLoginResponse {
   user: User
   userDefaultLibraryId?: string
