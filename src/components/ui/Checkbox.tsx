@@ -84,9 +84,9 @@ export default function Checkbox({
           </div>
         </div>
         {label && (
-          <span cy-id="checkbox-label" className={checkboxLabelClassName}>
+          <label htmlFor={checkboxId} cy-id="checkbox-label" className={checkboxLabelClassName}>
             {label}
-          </span>
+          </label>
         )}
         {/* Input is last in DOM so it sits on top of the visual elements in stacking order.
             Clicks land directly on the native input, so the browser's :focus-visible

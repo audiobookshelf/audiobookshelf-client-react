@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
+  AuthenticationSettings,
   Author,
   AuthorImagePayload,
   AuthorQuickMatchPayload,
@@ -57,6 +58,7 @@ import {
   ServerStatus,
   TasksResponse,
   UpdateAuthorPayload,
+  UpdateAuthSettingsResponse,
   UpdateEmailSettingsResponse,
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
@@ -816,6 +818,17 @@ export async function updateEReaderDevices(ereaderDevices: EReaderDevice[]): Pro
   return apiRequest<UpdateEReaderDevicesResponse>('/api/emails/ereader-devices', {
     method: 'POST',
     body: JSON.stringify({ ereaderDevices })
+  })
+}
+
+export const getAuthSettings = cache(async (): Promise<AuthenticationSettings> => {
+  return apiRequest<AuthenticationSettings>('/api/auth-settings', {})
+})
+
+export async function updateAuthSettings(payload: AuthenticationSettings): Promise<UpdateAuthSettingsResponse> {
+  return apiRequest<UpdateAuthSettingsResponse>('/api/auth-settings', {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
   })
 }
 

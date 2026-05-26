@@ -919,6 +919,34 @@ export interface UpdateEReaderDevicesResponse {
   ereaderDevices: EReaderDevice[]
 }
 
+export interface AuthenticationSettings {
+  authLoginCustomMessage?: string | null
+  authActiveAuthMethods: AuthMethod[]
+  authOpenIDIssuerURL?: string | null
+  authOpenIDAuthorizationURL?: string | null
+  authOpenIDTokenURL?: string | null
+  authOpenIDUserInfoURL?: string | null
+  authOpenIDJwksURL?: string | null
+  authOpenIDLogoutURL?: string | null
+  authOpenIDClientID?: string | null
+  authOpenIDClientSecret?: string | null
+  authOpenIDTokenSigningAlgorithm: string
+  authOpenIDButtonText: string
+  authOpenIDAutoLaunch: boolean
+  authOpenIDAutoRegister: boolean
+  authOpenIDMatchExistingBy?: string | null
+  authOpenIDMobileRedirectURIs?: string[]
+  authOpenIDGroupClaim?: string | null
+  authOpenIDAdvancedPermsClaim?: string | null
+  authOpenIDSubfolderForRedirectURLs?: string
+  authOpenIDSamplePermissions?: string
+}
+
+export interface UpdateAuthSettingsResponse {
+  updated: boolean
+  serverSettings: ServerSettings
+}
+
 export interface UserLoginResponse {
   user: User
   userDefaultLibraryId?: string
