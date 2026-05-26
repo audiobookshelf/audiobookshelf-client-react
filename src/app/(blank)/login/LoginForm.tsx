@@ -6,7 +6,11 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
-export default function LoginForm() {
+interface LoginFormProps {
+  loginCustomMessage?: string | null
+}
+
+export default function LoginForm({ loginCustomMessage }: LoginFormProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -55,8 +59,12 @@ export default function LoginForm() {
   )
 
   return (
-    <form onSubmit={handleSubmit} className="bg-bg border-border w-full max-w-md rounded-lg border p-10 shadow-lg">
-      <h1 className="text-postcss mb-6 text-center text-2xl font-bold">{t('LabelLogin')}</h1>
+    <form onSubmit={handleSubmit} className="bg-bg border-border w-full max-w-md rounded-lg border p-4 shadow-lg">
+      <h1 className="text-center text-2xl font-bold">{t('LabelLogin')}</h1>
+
+      <div className="bg-border my-4 h-px w-full" />
+
+      {loginCustomMessage ? <div className="default-style mb-4" dangerouslySetInnerHTML={{ __html: loginCustomMessage }} /> : null}
 
       <div className="mb-4 flex flex-col gap-4">
         <TextInput label={t('LabelUsername')} value={username} autocomplete="username" onChange={setUsername} />

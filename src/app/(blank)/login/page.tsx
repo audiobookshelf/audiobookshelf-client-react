@@ -9,8 +9,12 @@ export default async function LoginPage() {
     const status = await getServerStatus()
     const isServerInitialized = !!status?.isInit
 
+    const loginCustomMessage = status.authFormData?.authLoginCustomMessage || null
+
     return (
-      <div className="-mt-[var(--header-height)] flex min-h-full items-center justify-center">{isServerInitialized ? <LoginForm /> : <ServerInitForm />}</div>
+      <div className="-mt-[var(--header-height)] flex min-h-full items-center justify-center">
+        {isServerInitialized ? <LoginForm loginCustomMessage={loginCustomMessage} /> : <ServerInitForm />}
+      </div>
     )
   } catch (error) {
     return (

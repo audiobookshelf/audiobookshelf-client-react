@@ -54,13 +54,19 @@ export type BookshelfEntity = LibraryItem | Series | Collection | Playlist | Aut
 // SERVER & SYSTEM
 // ============================================================================
 
+export interface AuthFormData {
+  authLoginCustomMessage?: string | null
+  authOpenIDButtonText?: string
+  authOpenIDAutoLaunch?: boolean
+}
+
 // Server status interface
 export interface ServerStatus {
   serverVersion: string
   language: string
   isInit: boolean
   authMethods: string[]
-  authFormData: Record<string, unknown>
+  authFormData: AuthFormData
   ConfigPath: string
   MetadataPath: string
   app: string
