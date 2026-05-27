@@ -122,7 +122,7 @@ export default function AuthenticationClient({ initialSettings }: Authentication
           />
           {showCustomLoginMessage && (
             <div className="w-full pt-4">
-              <SlateEditor srcContent={customLoginMessage} onUpdate={setCustomLoginMessage} disabled={isPending} className="mt-0" />
+              <SlateEditor srcContent={savedSettings.authLoginCustomMessage || ''} onUpdate={setCustomLoginMessage} disabled={isPending} className="mt-0" />
             </div>
           )}
         </SettingsCard>
