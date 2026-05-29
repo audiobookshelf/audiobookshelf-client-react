@@ -925,6 +925,16 @@ export interface UpdateEReaderDevicesResponse {
   ereaderDevices: EReaderDevice[]
 }
 
+export interface OpenIdIssuerConfig {
+  issuer?: string
+  authorization_endpoint?: string
+  token_endpoint?: string
+  userinfo_endpoint?: string
+  end_session_endpoint?: string
+  jwks_uri?: string
+  id_token_signing_alg_values_supported?: string[]
+}
+
 export interface AuthenticationSettings {
   authLoginCustomMessage?: string | null
   authActiveAuthMethods: AuthMethod[]
@@ -947,6 +957,8 @@ export interface AuthenticationSettings {
   authOpenIDSubfolderForRedirectURLs?: string
   authOpenIDSamplePermissions?: string
 }
+
+export type AuthenticationSettingsPatch = Omit<AuthenticationSettings, 'authOpenIDSamplePermissions'>
 
 export interface UpdateAuthSettingsResponse {
   updated: boolean

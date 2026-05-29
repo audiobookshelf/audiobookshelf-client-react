@@ -11,5 +11,8 @@ export default async function AuthenticationSettingsPage() {
     redirect('/settings')
   }
 
-  return <AuthenticationClient initialSettings={authSettings} />
+  // TODO: Find a better way to handle subfolders with nextjs
+  const routerBasePath = process.env.ROUTER_BASE_PATH ?? ''
+
+  return <AuthenticationClient initialSettings={authSettings} routerBasePath={routerBasePath} />
 }

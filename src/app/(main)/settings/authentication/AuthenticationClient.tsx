@@ -5,16 +5,15 @@ import Checkbox from '@/components/ui/Checkbox'
 import SlateEditor from '@/components/ui/SlateEditor'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { mergeClasses } from '@/lib/merge-classes'
 import { AuthMethod, AuthenticationSettings } from '@/types/api'
 import { FormEvent, useMemo, useState, useTransition } from 'react'
 import SettingsContent from '../SettingsContent'
 import SettingsMoreInfoIcon from '../SettingsMoreInfoIcon'
 import { updateAuthenticationSettings } from './actions'
+import { applyAuthSettingsDefaults, validateOpenIdSettings } from './authenticationUtils'
+import OpenIdAuthSettings from './OpenIdAuthSettings'
 
-function SettingsCard({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <div className={mergeClasses('border-border bg-primary/25 my-4 w-full rounded-xl border p-4', className)}>{children}</div>
-}
+const settingsCardClass = 'border-border bg-primary/25 my-4 w-full rounded-xl border p-4'
 
 function buildAuthMethods(enableLocalAuth: boolean, enableOpenIDAuth: boolean): AuthMethod[] {
   const methods: AuthMethod[] = []
@@ -43,14 +42,15 @@ function buildSavePayload(
 
 interface AuthenticationClientProps {
   initialSettings: AuthenticationSettings
+  routerBasePath?: string
 }
 
-export default function AuthenticationClient({ initialSettings }: AuthenticationClientProps) {
+export default function AuthenticationClient({ initialSettings, routerBasePath = '' }: AuthenticationClientProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [isPending, startTransition] = useTransition()
-  const [savedSettings, setSavedSettings] = useState(initialSettings)
-  const [authSettings, setAuthSettings] = useState(initialSettings)
+  const [savedSettings, setSavedSettings] = useState(() => applyAuthSettingsDefaults(initialSettings, routerBasePath))
+  const [authSettings, setAuthSettings] = useState(() => applyAuthSettingsDefaults(initialSettings, routerBasePath))
 
   const [enableLocalAuth, setEnableLocalAuth] = useState(() => (savedSettings.authActiveAuthMethods || []).includes(AuthMethod.LOCAL))
   const [enableOpenIDAuth, setEnableOpenIDAuth] = useState(() => (savedSettings.authActiveAuthMethods || []).includes(AuthMethod.OPENID))
@@ -91,9 +91,21 @@ export default function AuthenticationClient({ initialSettings }: Authentication
       return
     }
 
+    if (enableOpenIDAuth) {
+      const validationErrors = validateOpenIdSettings(draftPayload)
+      for (const error of validationErrors) {
+        showToast(error, { type: 'error' })
+      }
+      if (validationErrors.length > 0) {
+        console.error('OIDC Validation errors', validationErrors)
+        return
+      }
+    }
+
     startTransition(async () => {
       try {
-        const response = await updateAuthenticationSettings(draftPayload)
+        const { authOpenIDSamplePermissions: _samplePermissions, ...patchPayload } = draftPayload
+        const response = await updateAuthenticationSettings(patchPayload)
         setSavedSettings(draftPayload)
         setAuthSettings(draftPayload)
         if (response.updated) {
@@ -111,7 +123,7 @@ export default function AuthenticationClient({ initialSettings }: Authentication
   return (
     <SettingsContent title={t('HeaderAuthentication')}>
       <form onSubmit={handleSubmit}>
-        <SettingsCard>
+        <div className={settingsCardClass}>
           <Checkbox
             value={showCustomLoginMessage}
             onChange={setShowCustomLoginMessage}
@@ -125,9 +137,9 @@ export default function AuthenticationClient({ initialSettings }: Authentication
               <SlateEditor srcContent={savedSettings.authLoginCustomMessage || ''} onUpdate={setCustomLoginMessage} disabled={isPending} className="mt-0" />
             </div>
           )}
-        </SettingsCard>
+        </div>
 
-        <SettingsCard>
+        <div className={settingsCardClass}>
           <Checkbox
             value={enableLocalAuth}
             onChange={setEnableLocalAuth}
@@ -136,9 +148,9 @@ export default function AuthenticationClient({ initialSettings }: Authentication
             labelClass="text-lg ps-3"
             className="px-0"
           />
-        </SettingsCard>
+        </div>
 
-        <SettingsCard>
+        <div className={settingsCardClass}>
           <div className="flex items-center gap-1">
             <Checkbox
               value={enableOpenIDAuth}
@@ -150,7 +162,8 @@ export default function AuthenticationClient({ initialSettings }: Authentication
             />
             <SettingsMoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/oidc_authentication" />
           </div>
-        </SettingsCard>
+          {enableOpenIDAuth && <OpenIdAuthSettings settings={authSettings} onChange={setAuthSettings} disabled={isPending} routerBasePath={routerBasePath} />}
+        </div>
 
         <div className="flex w-full items-center justify-between p-4">
           {enableOpenIDAuth ? <p className="text-warning text-sm">{t('MessageAuthenticationOIDCChangesRestart')}</p> : <span />}

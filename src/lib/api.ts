@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
   AuthenticationSettings,
+  AuthenticationSettingsPatch,
   Author,
   AuthorImagePayload,
   AuthorQuickMatchPayload,
@@ -825,7 +826,7 @@ export const getAuthSettings = cache(async (): Promise<AuthenticationSettings> =
   return apiRequest<AuthenticationSettings>('/api/auth-settings', {})
 })
 
-export async function updateAuthSettings(payload: AuthenticationSettings): Promise<UpdateAuthSettingsResponse> {
+export async function updateAuthSettings(payload: AuthenticationSettingsPatch): Promise<UpdateAuthSettingsResponse> {
   return apiRequest<UpdateAuthSettingsResponse>('/api/auth-settings', {
     method: 'PATCH',
     body: JSON.stringify(payload)
