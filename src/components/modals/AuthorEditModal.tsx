@@ -186,7 +186,7 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
           </div>
 
           {/* Footer */}
-          <div className="border-border border-t px-4 py-3">
+          <div className="border-border border-t px-4 py-3 sm:px-6">
             <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
               {user.permissions.delete && (
                 <Btn color="bg-error" className="mr-auto" onClick={handleOnDelete}>

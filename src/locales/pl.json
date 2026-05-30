@@ -740,7 +740,7 @@
   "LabelYourPlaylists": "Twoje playlisty",
   "LabelYourProgress": "Twój postęp",
   "MessageAddToPlayerQueue": "Dodaj do kolejki odtwarzania",
-  "MessageAppriseDescription": "Aby użyć tej funkcji, konieczne jest posiadanie instancji <a href=\"https://github.com/caronc/apprise-api\" target=\"_blank\">Apprise API</a> albo innego rozwiązania, które obsługuje schemat zapytań Apprise. <br />URL do interfejsu API powinno być całkowitą ścieżką, np., jeśli Twoje API do powiadomień jest dostępne pod adresem <code>http://192.168.1.1:8337</code> to wpisany tutaj URL powinien mieć postać: <code>http://192.168.1.1:8337/notify</code>.",
+  "MessageAppriseDescription": "Aby użyć tej funkcji, konieczne jest posiadanie instancji <appriseLink>Apprise API</appriseLink> albo innego rozwiązania, które obsługuje schemat zapytań Apprise. <br></br>URL do interfejsu API powinno być całkowitą ścieżką, np., jeśli Twoje API do powiadomień jest dostępne pod adresem <code>http://192.168.1.1:8337</code> to wpisany tutaj URL powinien mieć postać: <code>http://192.168.1.1:8337/notify</code>.",
   "MessageAsinCheck": "Upewnij się, że używasz ASIN z poprawnego regionu Audible, nie Amazona.",
   "MessageAuthenticationLegacyTokenWarning": "Starsze tokeny API zostaną w przyszłości usunięte. Zamiast nich należy używać <a href=\"/config/api-keys\">kluczy API</a>.",
   "MessageAuthenticationOIDCChangesRestart": "Zrestartuj serwer aby zastosować zmiany w OIDC.",

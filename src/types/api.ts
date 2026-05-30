@@ -925,6 +925,70 @@ export interface UpdateEReaderDevicesResponse {
   ereaderDevices: EReaderDevice[]
 }
 
+export interface NotificationEvent {
+  name: string
+  requiresLibrary: boolean
+  libraryMediaType?: string
+  description: string
+  descriptionKey: string
+  variables: string[]
+  defaults: {
+    title: string
+    body: string
+  }
+  testData: Record<string, string>
+}
+
+export interface Notification {
+  id: string
+  libraryId: string | null
+  eventName: string
+  urls: string[]
+  titleTemplate: string
+  bodyTemplate: string
+  type: string | null
+  enabled: boolean
+  lastFiredAt: number | null
+  lastAttemptFailed: boolean
+  numConsecutiveFailedAttempts: number
+  numTimesFired: number
+  createdAt: number
+}
+
+export interface NotificationSettings {
+  id: string
+  appriseType: string
+  appriseApiUrl: string | null
+  notifications: Notification[]
+  maxFailedAttempts: number
+  maxNotificationQueue: number
+  notificationDelay: number
+}
+
+export interface NotificationData {
+  events: NotificationEvent[]
+}
+
+export interface GetNotificationsResponse {
+  data: NotificationData
+  settings: NotificationSettings
+}
+
+export type NotificationSettingsPatch = Pick<NotificationSettings, 'appriseApiUrl' | 'maxNotificationQueue' | 'maxFailedAttempts'>
+
+export interface NotificationFormPayload {
+  id?: string
+  libraryId?: string | null
+  eventName: string
+  urls: string[]
+  titleTemplate: string
+  bodyTemplate: string
+  enabled: boolean
+  type?: string | null
+}
+
+export type NotificationUpdatePayload = Partial<NotificationFormPayload>
+
 export interface OpenIdIssuerConfig {
   issuer?: string
   authorization_endpoint?: string

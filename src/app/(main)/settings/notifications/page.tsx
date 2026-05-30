@@ -1,13 +1,14 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import SettingsContent from '../SettingsContent'
+import { getData, getNotifications } from '@/lib/api'
+import NotificationsClient from './NotificationsClient'
 
 export const dynamic = 'force-dynamic'
 
 export default async function NotificationsPage() {
-  const t = await getTypeSafeTranslations()
-  return (
-    <SettingsContent title={t('HeaderNotifications')}>
-      <div></div>
-    </SettingsContent>
-  )
+  const [notificationsResponse] = await getData(getNotifications())
+
+  if (!notificationsResponse) {
+    return <div>Error loading notifications</div>
+  }
+
+  return <NotificationsClient initialSettings={notificationsResponse.settings} notificationData={notificationsResponse.data} />
 }

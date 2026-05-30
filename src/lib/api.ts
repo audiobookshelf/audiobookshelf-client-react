@@ -32,6 +32,7 @@ import {
   GetListeningSessionsResponse,
   GetLoggerDataResponse,
   GetNarratorsResponse,
+  GetNotificationsResponse,
   GetOpenListeningSessionsResponse,
   GetPlaylistsResponse,
   GetRssFeedsResponse,
@@ -45,6 +46,10 @@ import {
   MediaItemShare,
   MetadataProvidersResponse,
   MutateBackupsResponse,
+  NotificationFormPayload,
+  NotificationSettings,
+  NotificationSettingsPatch,
+  NotificationUpdatePayload,
   OpenMediaItemSharePayload,
   OpenRssFeedPayload,
   OpenRssFeedResponse,
@@ -831,6 +836,47 @@ export async function updateAuthSettings(payload: AuthenticationSettingsPatch): 
     method: 'PATCH',
     body: JSON.stringify(payload)
   })
+}
+
+export const getNotifications = cache(async (): Promise<GetNotificationsResponse> => {
+  return apiRequest<GetNotificationsResponse>('/api/notifications', {})
+})
+
+export async function updateNotificationSettings(payload: NotificationSettingsPatch): Promise<void> {
+  return apiRequest<void>('/api/notifications', {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function createNotification(payload: NotificationFormPayload): Promise<NotificationSettings> {
+  return apiRequest<NotificationSettings>('/api/notifications', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function updateNotification(id: string, payload: NotificationUpdatePayload): Promise<NotificationSettings> {
+  return apiRequest<NotificationSettings>(`/api/notifications/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function deleteNotification(id: string): Promise<NotificationSettings> {
+  return apiRequest<NotificationSettings>(`/api/notifications/${id}`, {
+    method: 'DELETE'
+  })
+}
+
+/** Send test data through a notification config */
+export async function testNotification(id: string): Promise<void> {
+  return apiRequest<void>(`/api/notifications/${id}/test`, {})
+}
+
+/** Trigger the onTest event (optional ?fail=1) */
+export async function triggerOnTestEvent(fail = false): Promise<void> {
+  return apiRequest<void>(`/api/notifications/test?fail=${fail ? 1 : 0}`, {})
 }
 
 /**
