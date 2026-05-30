@@ -3,7 +3,7 @@
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
-import DropdownMenu, { DropdownMenuItem } from './DropdownMenu'
+import DropdownMenu, { DropdownItemLabel, DropdownMenuItem } from './DropdownMenu'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
 
@@ -411,10 +411,8 @@ export default function Dropdown({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          <span className="flex min-w-0 flex-1 items-center gap-0">
-            <span className={mergeClasses('block shrink truncate font-sans', selectedSubtext ? 'max-w-[75%] font-semibold' : '')}>{selectedText}</span>
-            {selectedSubtext && <span className="flex-shrink-0">:&nbsp;</span>}
-            {selectedSubtext && <span className="block max-w-[25%] shrink truncate font-sans font-normal text-gray-400">{selectedSubtext}</span>}
+          <span className="min-w-0 flex-1 overflow-hidden text-start">
+            <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
           </span>
           <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
             {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}

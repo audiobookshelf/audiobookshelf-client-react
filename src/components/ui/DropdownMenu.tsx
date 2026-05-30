@@ -24,6 +24,25 @@ export interface DropdownMenuItem {
 }
 
 /**
+ * Renders label + optional subtext as one truncating line
+ */
+export function DropdownItemLabel({ text, subtext, className }: { text: string; subtext?: string; className?: string }) {
+  if (!subtext) {
+    return <span className={mergeClasses('block min-w-0 truncate font-sans', className)}>{text}</span>
+  }
+
+  const fullLabel = `${text}: ${subtext}`
+
+  return (
+    <span className={mergeClasses('block min-w-0 truncate font-sans', className)} title={fullLabel}>
+      <span className="font-semibold">{text}</span>
+      <span>:&nbsp;</span>
+      <span className="text-foreground-subdued font-normal">{subtext}</span>
+    </span>
+  )
+}
+
+/**
  * Submenu component that handles viewport-aware height limiting and positioning via Portal.
  */
 function DropdownSubmenu({
@@ -417,10 +436,8 @@ export default function DropdownMenu({
             onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
             onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
-            <div className="flex items-center">
-              <span className={mergeClasses('ms-3 block truncate font-sans text-sm', item.subtext ? 'font-semibold' : '')}>{item.text}</span>
-              {item.subtext && <span>:&nbsp;</span>}
-              {item.subtext && <span className="text-foreground-subdued block truncate font-sans text-sm font-normal">{item.subtext}</span>}
+            <div className="flex min-w-0 items-center">
+              <DropdownItemLabel text={item.text} subtext={item.subtext} className="ms-3 min-w-0 flex-1 text-sm" />
             </div>
             {hasSubitems && (
               <div className="pointer-events-none absolute inset-y-0 right-2 flex h-full items-center">
