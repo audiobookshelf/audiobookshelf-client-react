@@ -16,7 +16,7 @@ interface AddButtonProps {
 export default function SettingsContent(props: {
   children: React.ReactNode
   title: string
-  description?: string
+  description?: React.ReactNode
   moreInfoUrl?: string
   backLink?: string
   addButton?: AddButtonProps
@@ -53,7 +53,7 @@ export default function SettingsContent(props: {
             </Btn>
           )}
         </div>
-        {props.description && <p className="text-foreground-muted mb-6 text-sm">{props.description}</p>}
+        {props.description ? <div className="text-foreground-muted default-style mb-6 text-sm">{props.description}</div> : null}
         {props.children}
       </div>
     </div>
