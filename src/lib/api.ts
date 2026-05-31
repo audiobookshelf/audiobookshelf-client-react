@@ -56,6 +56,8 @@ import {
   PersonalizedShelf,
   Playlist,
   PlaylistItemPayload,
+  GetPodcastTitlesResponse,
+  ParseOpmlFeedsResponse,
   PodcastSearchResult,
   RssPodcastEpisode,
   SaveLibraryOrderApiResponse,
@@ -738,12 +740,30 @@ export async function searchBooks(provider: string, title: string, author?: stri
  * @param term - Search term or RSS feed URL
  * Returns: Array of podcast match results
  */
-export async function searchPodcasts(term: string): Promise<PodcastSearchResult[]> {
+export async function searchPodcasts(term: string, country = 'us'): Promise<PodcastSearchResult[]> {
   const params = new URLSearchParams({
-    term: term.trim()
+    term: term.trim(),
+    country
   })
 
   return apiRequest<PodcastSearchResult[]>(`/api/search/podcast?${params.toString()}`, {})
+}
+
+/**
+ * Get podcast titles in a library (for add-podcast duplicate detection)
+ */
+export async function getPodcastTitles(libraryId: string): Promise<GetPodcastTitlesResponse> {
+  return apiRequest<GetPodcastTitlesResponse>(`/api/libraries/${libraryId}/podcast-titles`, {})
+}
+
+/**
+ * Parse OPML text into RSS feed entries
+ */
+export async function parseOpmlFeeds(opmlText: string): Promise<ParseOpmlFeedsResponse> {
+  return apiRequest<ParseOpmlFeedsResponse>(`/api/podcasts/opml/parse`, {
+    method: 'POST',
+    body: JSON.stringify({ opmlText })
+  })
 }
 
 /**

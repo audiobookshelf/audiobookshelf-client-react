@@ -1634,6 +1634,26 @@ export interface FetchPodcastFeedResponse {
   podcast: RssPodcast
 }
 
+export interface PodcastTitleInLibrary {
+  title: string
+  itunesId: string | number | null
+  libraryItemId: string
+  libraryId: string
+}
+
+export interface GetPodcastTitlesResponse {
+  podcasts: PodcastTitleInLibrary[]
+}
+
+export interface OpmlFeed {
+  title: string
+  feedUrl: string
+}
+
+export interface ParseOpmlFeedsResponse {
+  feeds: OpmlFeed[]
+}
+
 // ============================================================================
 // OPEN RSS FEED
 // ============================================================================

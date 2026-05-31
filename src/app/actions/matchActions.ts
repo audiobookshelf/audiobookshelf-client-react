@@ -14,8 +14,8 @@ export async function searchBooksAction(provider: string, title: string, author?
 /**
  * Server Action: Search for podcasts
  */
-export async function searchPodcastsAction(term: string): Promise<PodcastSearchResult[]> {
-  return api.searchPodcasts(term)
+export async function searchPodcastsAction(term: string, country = 'us'): Promise<PodcastSearchResult[]> {
+  return api.searchPodcasts(term, country)
 }
 
 /**
