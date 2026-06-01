@@ -6,6 +6,7 @@ import {
   parseOpmlFeedsAction,
   searchPodcastsForLibraryAction
 } from '@/app/(main)/library/[library]/(podcast)/add-podcast/actions'
+import NewPodcastModal from '@/components/modals/NewPodcastModal'
 import Btn from '@/components/ui/Btn'
 import FileInput from '@/components/ui/FileInput'
 import TextInput from '@/components/ui/TextInput'
@@ -15,7 +16,7 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { PodcastSearchResult } from '@/types/api'
+import { PodcastSearchResult, RssPodcast } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -53,6 +54,9 @@ export default function AddPodcastClient() {
   const formDisabled = searchLoading || feedLoading
   const [existentPodcasts, setExistentPodcasts] = useState<ExistentPodcast[]>([])
   const existentPodcastsRef = useRef<ExistentPodcast[]>([])
+  const [showNewPodcastModal, setShowNewPodcastModal] = useState(false)
+  const [selectedPodcast, setSelectedPodcast] = useState<PodcastSearchResult | null>(null)
+  const [selectedPodcastFeed, setSelectedPodcastFeed] = useState<RssPodcast | null>(null)
 
   const podcastSearchRegion = library.settings?.podcastSearchRegion || 'us'
 
@@ -104,9 +108,9 @@ export default function AddPodcastClient() {
       setSearchLoading(true)
       try {
         const payload = await fetchPodcastFeedAction(rssFeed)
-        // TODO: Implement add modal
-        console.log('Podcast feed loaded', payload.podcast)
-        showToast('Not implemented')
+        setSelectedPodcast(null)
+        setSelectedPodcastFeed(payload.podcast)
+        setShowNewPodcastModal(true)
       } catch (error) {
         console.error('Failed to get feed', error)
         showToast(t('ToastPodcastGetFeedFailed'), { type: 'error' })
@@ -169,9 +173,9 @@ export default function AddPodcastClient() {
       setFeedLoading(true)
       try {
         const payload = await fetchPodcastFeedAction(podcast.feedUrl)
-        // TODO: Implement add modal
-        console.log('Podcast feed loaded', payload.podcast, podcast)
-        showToast('Not implemented')
+        setSelectedPodcast(podcast)
+        setSelectedPodcastFeed(payload.podcast)
+        setShowNewPodcastModal(true)
       } catch (error) {
         console.error('Failed to get feed', error)
         showToast(t('ToastPodcastGetFeedFailed'), { type: 'error' })
@@ -295,6 +299,14 @@ export default function AddPodcastClient() {
           )
         })}
       </div>
+
+      <NewPodcastModal
+        isOpen={showNewPodcastModal}
+        podcastData={selectedPodcast}
+        podcastFeedData={selectedPodcastFeed}
+        onClose={() => setShowNewPodcastModal(false)}
+        onCreated={(libraryItemId) => router.push(`/library/${library.id}/item/${libraryItemId}`)}
+      />
     </div>
   )
 }

@@ -1654,6 +1654,32 @@ export interface ParseOpmlFeedsResponse {
   feeds: OpmlFeed[]
 }
 
+export interface CreatePodcastMetadataPayload {
+  title: string
+  author: string
+  description: string
+  releaseDate: string
+  genres: string[]
+  feedUrl: string
+  imageUrl: string
+  itunesPageUrl: string
+  itunesId: string
+  itunesArtistId: string
+  language: string
+  explicit: boolean
+  type: string
+}
+
+export interface CreatePodcastPayload {
+  path: string
+  folderId: string
+  libraryId: string
+  media: {
+    metadata: CreatePodcastMetadataPayload
+    autoDownloadEpisodes: boolean
+  }
+}
+
 // ============================================================================
 // OPEN RSS FEED
 // ============================================================================

@@ -12,6 +12,7 @@ import {
   AuthorUpdateResponse,
   BookSearchResult,
   Collection,
+  CreatePodcastPayload,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
   CreateCustomMetadataProviderResponse,
@@ -946,6 +947,16 @@ export async function fetchPodcastFeed(rssFeed: string): Promise<FetchPodcastFee
   return apiRequest<FetchPodcastFeedResponse>(`/api/podcasts/feed`, {
     method: 'POST',
     body: JSON.stringify({ rssFeed })
+  })
+}
+
+/**
+ * Create a podcast library item
+ */
+export async function createPodcast(payload: CreatePodcastPayload): Promise<LibraryItem> {
+  return apiRequest<LibraryItem>(`/api/podcasts`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
   })
 }
 
