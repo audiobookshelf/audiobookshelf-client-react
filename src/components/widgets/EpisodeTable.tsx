@@ -278,7 +278,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     <div className="mb-4 flex w-full items-center px-1 pt-1">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <p className="text-xl font-medium">{t('HeaderEpisodes')}</p>
-        {count !== undefined && (
+        {count !== undefined && count > 0 && (
           <div className="bg-foreground/10 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full">
             <span className="font-mono text-sm">{count}</span>
           </div>
@@ -292,10 +292,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
       {headerActions && <div className="m-0 flex items-center gap-2">{headerActions}</div>}
     </div>
   )
-
-  if (episodes.length === 0) {
-    return null
-  }
 
   if (!hasMounted) {
     return (
@@ -314,21 +310,23 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
 
       <div className="w-full">
         {/* Toolbar: Filter, Sort, Actions */}
-        <EpisodeTableToolbar
-          isSelectionMode={isSelectionMode}
-          search={search}
-          onSearchChange={setSearch}
-          filterKey={filterKey}
-          onFilterChange={setFilterKey}
-          sortKey={sortKey}
-          sortDesc={sortDesc}
-          onSortChange={(key, desc) => {
-            setSortKey(key)
-            setSortDesc(desc)
-          }}
-          contextMenuItems={contextMenuItems}
-          onContextMenuAction={handleContextMenuAction}
-        />
+        {episodes.length > 0 && (
+          <EpisodeTableToolbar
+            isSelectionMode={isSelectionMode}
+            search={search}
+            onSearchChange={setSearch}
+            filterKey={filterKey}
+            onFilterChange={setFilterKey}
+            sortKey={sortKey}
+            sortDesc={sortDesc}
+            onSortChange={(key, desc) => {
+              setSortKey(key)
+              setSortDesc(desc)
+            }}
+            contextMenuItems={contextMenuItems}
+            onContextMenuAction={handleContextMenuAction}
+          />
+        )}
 
         {/* Episodes list */}
         <div
@@ -345,9 +343,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
           )}
 
           {filteredEpisodes.length === 0 && !isSearching ? (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <p className="text-lg">{t('MessageNoEpisodes')}</p>
-            </div>
+            <p className="text-foreground py-8 text-center text-lg">{t('MessageNoEpisodes')}</p>
           ) : (
             filteredEpisodes.slice(visibleStart, visibleEnd).map((episode, i) => {
               const rowIndex = visibleStart + i
