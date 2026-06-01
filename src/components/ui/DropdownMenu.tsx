@@ -28,7 +28,11 @@ export interface DropdownMenuItem {
  */
 export function DropdownItemLabel({ text, subtext, className }: { text: string; subtext?: string; className?: string }) {
   if (!subtext) {
-    return <span className={mergeClasses('block min-w-0 truncate font-sans', className)}>{text}</span>
+    return (
+      <span className={mergeClasses('block min-w-0 truncate font-sans', className)} title={text}>
+        {text}
+      </span>
+    )
   }
 
   const fullLabel = `${text}: ${subtext}`
@@ -176,8 +180,10 @@ function DropdownSubmenu({
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <div className="flex items-center">
-            <span className="ms-3 block truncate font-sans text-sm">{subitem.text}</span>
+          <div className="flex min-w-0 items-center overflow-hidden">
+            <span className="ms-3 block min-w-0 flex-1 truncate font-sans text-sm" title={subitem.text}>
+              {subitem.text}
+            </span>
           </div>
         </li>
       ))}
@@ -418,7 +424,7 @@ export default function DropdownMenu({
               menuItemRefs.current[index] = el
             }}
             className={mergeClasses(
-              'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
+              'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer overflow-hidden py-2',
               focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-selected' : '',
               isSubmenuOpen ? 'bg-dropdown-item-hover' : '',
               highlightSelected && isItemSelected?.(item) ? 'text-yellow-400' : ''
@@ -436,7 +442,7 @@ export default function DropdownMenu({
             onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
             onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
-            <div className="flex min-w-0 items-center">
+            <div className="flex min-w-0 items-center overflow-hidden">
               <DropdownItemLabel text={item.text} subtext={item.subtext} className="ms-3 min-w-0 flex-1 text-sm" />
             </div>
             {hasSubitems && (
@@ -495,7 +501,7 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 w-full overflow-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 w-full max-w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
         className
       )}
       role="listbox"

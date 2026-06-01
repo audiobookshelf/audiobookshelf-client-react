@@ -377,7 +377,7 @@ export default function Dropdown({
   const dropdownButtonId = `${dropdownId}-button`
 
   return (
-    <div className={mergeClasses('relative w-full', className)}>
+    <div className={mergeClasses('relative w-full min-w-0', className)}>
       {label && (
         <Label htmlFor={dropdownButtonId} disabled={disabled}>
           {label}
@@ -411,7 +411,7 @@ export default function Dropdown({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          <span className="min-w-0 flex-1 overflow-hidden text-start">
+          <span className="flex-1 overflow-hidden text-start" title={longLabel.trim() || undefined}>
             <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
           </span>
           <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
