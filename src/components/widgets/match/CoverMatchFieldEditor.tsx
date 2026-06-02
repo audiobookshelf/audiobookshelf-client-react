@@ -21,8 +21,8 @@ export default function CoverMatchFieldEditor({ usageChecked, onUsageChange, cov
   return (
     <div className="flex flex-wrap items-center justify-center md:flex-nowrap">
       <div className="flex grow items-center py-2">
-        <Checkbox value={usageChecked} onChange={onUsageChange} checkboxBgClass="bg-bg" />
-        <TextInput value={displayCoverUrl} onChange={() => {}} disabled={!usageChecked} readOnly label={t('LabelCover')} className="mx-4 grow" />
+        <Checkbox value={usageChecked} onChange={onUsageChange} size="large" borderColorClass="border-foreground-subdued" checkboxBgClass="bg-bg" />
+        <TextInput value={displayCoverUrl} onChange={() => {}} disabled={!usageChecked} readOnly label={t('LabelCover')} className="mr-4 ml-2 grow" />
       </div>
       <div className="flex gap-2 py-2">
         <div>

@@ -25,11 +25,11 @@ export function BaseMatchFieldEditor({
 }: BaseMatchFieldEditorProps) {
   const wrapperClass = isCheckboxField ? mergeClasses('flex items-center pb-2', hasCurrentValue ? '' : 'pt-2') : 'flex items-center py-2'
 
-  const contentClass = isCheckboxField ? mergeClasses('grow ml-4', hasCurrentValue ? 'pt-4' : '', className) : mergeClasses('grow ml-4', className)
+  const contentClass = isCheckboxField ? mergeClasses('grow ml-2', hasCurrentValue ? 'pt-4' : '', className) : mergeClasses('grow ml-2', className)
 
   return (
     <div className={wrapperClass}>
-      <Checkbox value={usageChecked} onChange={onUsageChange} checkboxBgClass="bg-bg" />
+      <Checkbox value={usageChecked} onChange={onUsageChange} size="large" borderColorClass="border-foreground-subdued" checkboxBgClass="bg-bg" />
       <div className={contentClass}>
         {children}
         {hasCurrentValue && currentValueDisplay && <p className="text-foreground-subdued ml-1 text-xs">{currentValueDisplay}</p>}

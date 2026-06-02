@@ -145,7 +145,16 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
       </div>
 
       <div ref={scrollContainerRef} className="flex-1 overflow-x-hidden overflow-y-auto px-4 py-2">
-        <Checkbox value={selectAll} onChange={handleSelectAllToggle} label={t('LabelSelectAll')} checkboxBgClass="bg-bg" className="w-fit" />
+        <Checkbox
+          value={selectAll}
+          onChange={handleSelectAllToggle}
+          label={t('LabelSelectAll')}
+          size="large"
+          borderColorClass="border-foreground-subdued"
+          checkboxBgClass="bg-bg"
+          labelClass="text-sm md:text-base"
+          className="w-fit"
+        />
 
         <form onSubmit={handleSubmitMatchUpdate}>
           {children({

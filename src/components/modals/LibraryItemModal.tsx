@@ -125,7 +125,7 @@ export default function LibraryItemModal(props: LibraryItemModalProps) {
     if (!mediaTitle) return undefined
     return (
       <div className="absolute start-0 top-0 p-4">
-        <h2 className="max-w-[calc(100vw-4rem)] truncate text-lg text-white" title={mediaTitle}>
+        <h2 className="max-w-[calc(100vw-4rem)] truncate text-xl text-white" title={mediaTitle}>
           {mediaTitle}
         </h2>
       </div>
