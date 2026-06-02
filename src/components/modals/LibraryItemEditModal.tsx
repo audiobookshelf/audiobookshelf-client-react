@@ -286,7 +286,7 @@ function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePendin
       className={
         stableBodyHeight
           ? /* Slightly above empty book placeholder; extra content scrolls in the inner region. */
-            'flex h-[min(50rem,85vh)] max-h-[85vh] w-full flex-col rounded-lg'
+            'flex h-[min(50rem,85vh)] max-h-[85vh] w-full flex-col overflow-hidden rounded-lg'
           : 'flex max-h-[85vh] w-full flex-col rounded-lg'
       }
     >
