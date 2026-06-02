@@ -1654,6 +1654,13 @@ export interface ParseOpmlFeedsResponse {
   feeds: OpmlFeed[]
 }
 
+export interface CreatePodcastsFromOpmlPayload {
+  feeds: string[]
+  folderId: string
+  libraryId: string
+  autoDownloadEpisodes: boolean
+}
+
 export interface CreatePodcastMetadataPayload {
   title: string
   author: string

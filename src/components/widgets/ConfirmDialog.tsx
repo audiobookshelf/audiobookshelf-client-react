@@ -126,7 +126,7 @@ export default function ConfirmDialog({
 
         {checkboxLabel && (
           <div className="mb-6 px-1">
-            <Checkbox label={checkboxLabel} value={checkboxValue} onChange={setCheckboxValue} />
+            <Checkbox label={checkboxLabel} value={checkboxValue} checkboxBgClass="bg-primary" onChange={setCheckboxValue} />
           </div>
         )}
 

@@ -1,7 +1,15 @@
 'use server'
 
 import * as api from '@/lib/api'
-import { CreatePodcastPayload, FetchPodcastFeedResponse, GetPodcastTitlesResponse, LibraryItem, ParseOpmlFeedsResponse, PodcastSearchResult } from '@/types/api'
+import {
+  CreatePodcastPayload,
+  CreatePodcastsFromOpmlPayload,
+  FetchPodcastFeedResponse,
+  GetPodcastTitlesResponse,
+  LibraryItem,
+  ParseOpmlFeedsResponse,
+  PodcastSearchResult
+} from '@/types/api'
 
 export async function searchPodcastsForLibraryAction(term: string, country: string): Promise<PodcastSearchResult[]> {
   return api.searchPodcasts(term, country)
@@ -21,4 +29,8 @@ export async function parseOpmlFeedsAction(opmlText: string): Promise<ParseOpmlF
 
 export async function createPodcastAction(payload: CreatePodcastPayload): Promise<LibraryItem> {
   return api.createPodcast(payload)
+}
+
+export async function createPodcastsFromOpmlAction(payload: CreatePodcastsFromOpmlPayload): Promise<void> {
+  return api.createPodcastsFromOpml(payload)
 }

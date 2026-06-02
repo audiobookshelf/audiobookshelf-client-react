@@ -7,6 +7,7 @@ import {
   searchPodcastsForLibraryAction
 } from '@/app/(main)/library/[library]/(podcast)/add-podcast/actions'
 import NewPodcastModal from '@/components/modals/NewPodcastModal'
+import OpmlFeedsModal from '@/components/modals/OpmlFeedsModal'
 import Btn from '@/components/ui/Btn'
 import FileInput from '@/components/ui/FileInput'
 import TextInput from '@/components/ui/TextInput'
@@ -16,7 +17,7 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { PodcastSearchResult, RssPodcast } from '@/types/api'
+import { OpmlFeed, PodcastSearchResult, RssPodcast } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -57,6 +58,8 @@ export default function AddPodcastClient() {
   const [showNewPodcastModal, setShowNewPodcastModal] = useState(false)
   const [selectedPodcast, setSelectedPodcast] = useState<PodcastSearchResult | null>(null)
   const [selectedPodcastFeed, setSelectedPodcastFeed] = useState<RssPodcast | null>(null)
+  const [showOpmlFeedsModal, setShowOpmlFeedsModal] = useState(false)
+  const [opmlFeeds, setOpmlFeeds] = useState<OpmlFeed[]>([])
 
   const podcastSearchRegion = library.settings?.podcastSearchRegion || 'us'
 
@@ -193,7 +196,7 @@ export default function AddPodcastClient() {
         const txt = await file.text()
 
         if (!txt || !txt.includes('<opml') || !txt.includes('<outline ')) {
-          showToast(t('MessageTaskOpmlParseFastFail'), { type: 'error' })
+          showToast(t('MessageTaskOpmlParseFastFail', { opmlTag: '<opml>', outlineTag: '<outline>' }), { type: 'error' })
           return
         }
 
@@ -201,9 +204,8 @@ export default function AddPodcastClient() {
         if (!data.feeds?.length) {
           showToast(t('MessageTaskOpmlParseNoneFound'), { type: 'error' })
         } else {
-          // TODO: Implement OPML modal
-          console.log('OPML feeds parsed', data.feeds)
-          showToast('Not implemented')
+          setOpmlFeeds(data.feeds)
+          setShowOpmlFeedsModal(true)
         }
       } catch (error) {
         console.error('Failed to parse OPML', error)
@@ -307,6 +309,8 @@ export default function AddPodcastClient() {
         onClose={() => setShowNewPodcastModal(false)}
         onCreated={(libraryItemId) => router.push(`/library/${library.id}/item/${libraryItemId}`)}
       />
+
+      <OpmlFeedsModal isOpen={showOpmlFeedsModal} feeds={opmlFeeds} onClose={() => setShowOpmlFeedsModal(false)} />
     </div>
   )
 }

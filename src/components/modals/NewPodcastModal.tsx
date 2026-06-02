@@ -297,7 +297,6 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
               onChange={(autoDownloadEpisodes) => setPodcast((prev) => ({ ...prev, autoDownloadEpisodes }))}
               label={t('LabelAutoDownloadEpisodes')}
               checkboxBgClass="bg-primary"
-              labelClass="ps-2 text-sm font-semibold md:text-base"
             />
             <Btn disabled={isPending} loading={isPending} onClick={handleSubmit}>
               {t('ButtonSubmit')}

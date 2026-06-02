@@ -12,6 +12,7 @@ import {
   AuthorUpdateResponse,
   BookSearchResult,
   Collection,
+  CreatePodcastsFromOpmlPayload,
   CreatePodcastPayload,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
@@ -764,6 +765,16 @@ export async function parseOpmlFeeds(opmlText: string): Promise<ParseOpmlFeedsRe
   return apiRequest<ParseOpmlFeedsResponse>(`/api/podcasts/opml/parse`, {
     method: 'POST',
     body: JSON.stringify({ opmlText })
+  })
+}
+
+/**
+ * Bulk create podcasts from OPML feed URLs (runs as a background task on the server)
+ */
+export async function createPodcastsFromOpml(payload: CreatePodcastsFromOpmlPayload): Promise<void> {
+  return apiRequest<void>(`/api/podcasts/opml/create`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
   })
 }
 

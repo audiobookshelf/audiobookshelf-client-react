@@ -1036,7 +1036,7 @@
   "MessageTaskOpmlImportFeedPodcastFailed": "Failed to create podcast",
   "MessageTaskOpmlImportFinished": "Added {0} podcasts",
   "MessageTaskOpmlParseFailed": "Failed to parse OPML file",
-  "MessageTaskOpmlParseFastFail": "Invalid OPML file <opml> tag not found OR an <outline> tag was not found",
+  "MessageTaskOpmlParseFastFail": "Invalid OPML file {opmlTag} tag not found OR an {outlineTag} tag was not found",
   "MessageTaskOpmlParseNoneFound": "No feeds found in OPML file",
   "MessageTaskScanItemsAdded": "{0} added",
   "MessageTaskScanItemsMissing": "{0} missing",
