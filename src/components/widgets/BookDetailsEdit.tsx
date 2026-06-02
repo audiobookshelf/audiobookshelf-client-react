@@ -45,6 +45,16 @@ const BookDetailsEdit = ({
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
 
+  const editMetadata = useMemo((): Details => {
+    const meta = media.metadata as BookMetadata
+    return {
+      ...meta,
+      series: Array.isArray(meta?.series) ? meta.series : []
+    }
+  }, [media.metadata])
+
+  const editTags = useMemo(() => [...(media.tags || [])], [media.tags])
+
   const batchAppendLogic = useCallback(
     (state: { details: Details }, detailsToUpdate: Partial<Details>) => ({
       ...state.details,
@@ -72,11 +82,8 @@ const BookDetailsEdit = ({
     submitForm,
     initialDetails
   } = useDetailsEdit<Details>({
-    metadata: {
-      ...(media.metadata as BookMetadata),
-      series: Array.isArray(media.metadata.series) ? media.metadata.series : []
-    },
-    tags: media.tags || [],
+    metadata: editMetadata,
+    tags: editTags,
     libraryItemId: libraryItem.id,
     ref,
     extractAuthor,

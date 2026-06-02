@@ -154,9 +154,9 @@ function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePendin
   const availableTags = (filterData?.tags || []).map((tag) => ({ value: tag, content: tag }))
   const availableSeries = (filterData?.series || []).map((s) => ({ value: s.id, content: s.name }))
 
-  const handleChange = (_details: { libraryItemId: string; hasChanges: boolean }) => {
+  const handleChange = useCallback((_details: { libraryItemId: string; hasChanges: boolean }) => {
     setHasChanges(_details.hasChanges)
-  }
+  }, [])
 
   const handleSubmit = useCallback(
     (details: { updatePayload: BookUpdatePayload | PodcastUpdatePayload; hasChanges: boolean }) => {
