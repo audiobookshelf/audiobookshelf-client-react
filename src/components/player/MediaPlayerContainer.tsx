@@ -64,7 +64,7 @@ export default function MediaPlayerContainer() {
         </div>
       </div>
       <div className="flex flex-col gap-3">
-        <PlayerControls playerHandler={playerHandler} />
+        <PlayerControls playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} />
 
         <PlayerTrackBar playerHandler={playerHandler} />
       </div>

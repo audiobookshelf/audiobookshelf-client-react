@@ -74,6 +74,7 @@ import {
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
   UploadCoverResponse,
+  AudioBookmark,
   User,
   UserLoginResponse
 } from '../types/api'
@@ -813,6 +814,35 @@ export async function batchUpdateMediaFinished(payload: { libraryItemId: string;
   return apiRequest<void>('/api/me/progress/batch/update', {
     method: 'PATCH',
     body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Create a bookmark at a specific time for a library item
+ */
+export async function createBookmark(libraryItemId: string, payload: { time: number; title: string }): Promise<AudioBookmark> {
+  return apiRequest<AudioBookmark>(`/api/me/item/${libraryItemId}/bookmark`, {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Update a bookmark title for a library item
+ */
+export async function updateBookmark(libraryItemId: string, payload: { time: number; title: string }): Promise<AudioBookmark> {
+  return apiRequest<AudioBookmark>(`/api/me/item/${libraryItemId}/bookmark`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Remove a bookmark at a specific time for a library item
+ */
+export async function removeBookmark(libraryItemId: string, time: number): Promise<void> {
+  return apiRequest<void>(`/api/me/item/${libraryItemId}/bookmark/${time}`, {
+    method: 'DELETE'
   })
 }
 

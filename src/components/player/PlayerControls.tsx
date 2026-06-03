@@ -1,9 +1,11 @@
+import { useUser } from '@/contexts/UserContext'
 import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { PlayerState } from '@/types/api'
-import { useState } from 'react'
+import { isPodcastLibraryItem, LibraryItem, PlayerState } from '@/types/api'
+import { useMemo, useState } from 'react'
 import IconBtn from '../ui/IconBtn'
 import Tooltip from '../ui/Tooltip'
+import BookmarksModal from './BookmarksModal'
 import ChaptersModal from './ChaptersModal'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import PlayerSettingsModal from './PlayerSettingsModal'
@@ -11,14 +13,22 @@ import VolumeControl from './VolumeControl'
 
 interface PlayerControlsProps {
   playerHandler: UsePlayerHandlerReturn
+  streamLibraryItem: LibraryItem
 }
 
-export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
+export default function PlayerControls({ playerHandler, streamLibraryItem }: PlayerControlsProps) {
   const t = useTypeSafeTranslations()
+  const { getBookmarksForLibraryItem } = useUser()
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isChaptersModalOpen, setIsChaptersModalOpen] = useState(false)
+  const [isBookmarksModalOpen, setIsBookmarksModalOpen] = useState(false)
+  const [bookmarkCurrentTime, setBookmarkCurrentTime] = useState(0)
   const { jumpBackward, jumpForward, playPause, seek } = playerHandler.controls
   const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings, chapters } = playerHandler.state
+
+  const libraryItemId = streamLibraryItem.id
+  const isPodcast = isPodcastLibraryItem(streamLibraryItem)
+  const bookmarks = useMemo(() => getBookmarksForLibraryItem(libraryItemId), [libraryItemId, getBookmarksForLibraryItem])
 
   const isPlaying = playerState === PlayerState.PLAYING
   const isLoading = playerState === PlayerState.LOADING
@@ -107,6 +117,23 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
             <VolumeControl playerHandler={playerHandler} />
             {/* playback rate widget */}
             <PlaybackRateWidget playerHandler={playerHandler} />
+            {/* bookmarks button */}
+            {!isPodcast && (
+              <Tooltip text={t('LabelViewBookmarks')} position="top">
+                <IconBtn
+                  size="custom"
+                  borderless
+                  className="w-10 text-2xl"
+                  onClick={() => {
+                    setBookmarkCurrentTime(currentTime)
+                    setIsBookmarksModalOpen(true)
+                  }}
+                  ariaLabel={t('LabelViewBookmarks')}
+                >
+                  {bookmarks.length ? 'bookmarks' : 'bookmark_border'}
+                </IconBtn>
+              </Tooltip>
+            )}
             {/* chapters button */}
             {chapters.length > 0 && (
               <Tooltip text={t('LabelViewChapters')} position="top">
@@ -131,6 +158,17 @@ export default function PlayerControls({ playerHandler }: PlayerControlsProps) {
         onUpdateSettings={playerHandler.controls.updateSettings}
       />
       <ChaptersModal isOpen={isChaptersModalOpen} playerHandler={playerHandler} onClose={() => setIsChaptersModalOpen(false)} />
+      {!isPodcast && (
+        <BookmarksModal
+          isOpen={isBookmarksModalOpen}
+          bookmarks={bookmarks}
+          currentTime={bookmarkCurrentTime}
+          libraryItemId={libraryItemId}
+          playbackRate={settings.playbackRate}
+          onClose={() => setIsBookmarksModalOpen(false)}
+          onSelect={(bookmark) => seek(bookmark.time)}
+        />
+      )}
     </>
   )
 }

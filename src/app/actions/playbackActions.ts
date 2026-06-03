@@ -65,3 +65,15 @@ export async function closePlaybackSession(sessionId: string, syncData: SessionS
     }
   })
 }
+
+export async function createBookmarkAction(libraryItemId: string, payload: { time: number; title: string }) {
+  return api.createBookmark(libraryItemId, payload)
+}
+
+export async function updateBookmarkAction(libraryItemId: string, payload: { time: number; title: string }) {
+  return api.updateBookmark(libraryItemId, payload)
+}
+
+export async function removeBookmarkAction(libraryItemId: string, time: number) {
+  return api.removeBookmark(libraryItemId, time)
+}

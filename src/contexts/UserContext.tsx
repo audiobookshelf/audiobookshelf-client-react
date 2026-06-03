@@ -1,6 +1,6 @@
 'use client'
 
-import { EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
+import { AudioBookmark, EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
 
@@ -24,6 +24,7 @@ export interface UserContextType {
   Source: string
   /** Book media id or podcast episode id matches `MediaProgress.mediaItemId` */
   getMediaItemProgress: (mediaItemId: string) => MediaProgress | undefined
+  getBookmarksForLibraryItem: (libraryItemId: string) => AudioBookmark[]
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -85,7 +86,8 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     userDefaultLibraryId: currentUserData.userDefaultLibraryId,
     ereaderDevices: currentUserData.ereaderDevices,
     Source: currentUserData.Source,
-    getMediaItemProgress: (mediaItemId: string) => user.mediaProgress.find((p) => p.mediaItemId === mediaItemId)
+    getMediaItemProgress: (mediaItemId: string) => user.mediaProgress.find((p) => p.mediaItemId === mediaItemId),
+    getBookmarksForLibraryItem: (libraryItemId: string) => user.bookmarks?.filter((bm) => bm.libraryItemId === libraryItemId) ?? []
   }
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
