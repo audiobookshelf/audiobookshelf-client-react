@@ -1,3 +1,10 @@
+export const SleepTimerTypes = {
+  COUNTDOWN: 'countdown',
+  CHAPTER: 'chapter'
+} as const
+
+export type SleepTimerType = (typeof SleepTimerTypes)[keyof typeof SleepTimerTypes]
+
 // Sync timing
 export const FIRST_SYNC_DELAY = 20 // seconds - first sync after this much listening time
 export const SUBSEQUENT_SYNC_INTERVAL = 10 // seconds - subsequent syncs every this many seconds

@@ -91,3 +91,21 @@ export function formatDuration(seconds: number, t: TypeSafeTranslations, options
   }
   return parts.join(' ')
 }
+
+/**
+ * Compact sleep-timer label for the player control (single largest unit)
+ */
+export function formatSleepTimerRemaining(remaining: number, timerType: 'countdown' | 'chapter' | null, t: TypeSafeTranslations): string {
+  const rounded = Math.round(remaining)
+  if (rounded < 90) {
+    return t(COMPACT_KEYS.seconds, { count: rounded })
+  }
+
+  const minutesRounded = Math.round(rounded / 60)
+  if (minutesRounded <= 90) {
+    return t(COMPACT_KEYS.minutes, { count: minutesRounded })
+  }
+
+  const hoursRounded = Math.round(minutesRounded / 60)
+  return t(COMPACT_KEYS.hours, { count: hoursRounded })
+}

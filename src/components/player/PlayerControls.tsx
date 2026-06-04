@@ -1,14 +1,17 @@
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
+import { useSleepTimer } from '@/hooks/useSleepTimer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isPodcastLibraryItem, LibraryItem, PlayerState } from '@/types/api'
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import IconBtn from '../ui/IconBtn'
 import Tooltip from '../ui/Tooltip'
 import BookmarksModal from './BookmarksModal'
 import ChaptersModal from './ChaptersModal'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import PlayerSettingsModal from './PlayerSettingsModal'
+import SleepTimerModal from './SleepTimerModal'
 import VolumeControl from './VolumeControl'
 
 interface PlayerControlsProps {
@@ -18,13 +21,28 @@ interface PlayerControlsProps {
 
 export default function PlayerControls({ playerHandler, streamLibraryItem }: PlayerControlsProps) {
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
   const { getBookmarksForLibraryItem } = useUser()
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isChaptersModalOpen, setIsChaptersModalOpen] = useState(false)
   const [isBookmarksModalOpen, setIsBookmarksModalOpen] = useState(false)
+  const [isSleepTimerModalOpen, setIsSleepTimerModalOpen] = useState(false)
   const [bookmarkCurrentTime, setBookmarkCurrentTime] = useState(0)
-  const { jumpBackward, jumpForward, playPause, seek } = playerHandler.controls
+  const { jumpBackward, jumpForward, playPause, seek, pause } = playerHandler.controls
   const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings, chapters } = playerHandler.state
+
+  const handleSleepTimerEnd = useCallback(() => {
+    showToast(t('ToastSleepTimerDone'), { type: 'info' })
+  }, [showToast, t])
+
+  const { sleepTimerSet, sleepTimerRemaining, sleepTimerType, remainingString, setSleepTimer, cancelSleepTimer, incrementSleepTimer, decrementSleepTimer } =
+    useSleepTimer({
+      pause,
+      currentChapter,
+      currentTime,
+      playbackRate: settings.playbackRate,
+      onTimerEnd: handleSleepTimerEnd
+    })
 
   const libraryItemId = streamLibraryItem.id
   const isPodcast = isPodcastLibraryItem(streamLibraryItem)
@@ -117,6 +135,25 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
             <VolumeControl playerHandler={playerHandler} />
             {/* playback rate widget */}
             <PlaybackRateWidget playerHandler={playerHandler} />
+            {/* sleep timer button */}
+            <Tooltip text={t('LabelSleepTimer')} position="top">
+              <button
+                type="button"
+                aria-label={t('LabelSleepTimer')}
+                className="text-foreground-muted hover:text-foreground mx-1 flex cursor-pointer items-center lg:mx-2"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setIsSleepTimerModalOpen(true)}
+              >
+                {!sleepTimerSet ? (
+                  <span className="material-symbols text-2xl">snooze</span>
+                ) : (
+                  <div className="flex items-center">
+                    <span className="material-symbols text-warning text-lg">snooze</span>
+                    <p className="text-warning min-w-8 px-0.5 text-center text-sm font-semibold sm:pb-0.5 sm:text-lg">{remainingString}</p>
+                  </div>
+                )}
+              </button>
+            </Tooltip>
             {/* bookmarks button */}
             {!isPodcast && (
               <Tooltip text={t('LabelViewBookmarks')} position="top">
@@ -169,6 +206,21 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
           onSelect={(bookmark) => seek(bookmark.time)}
         />
       )}
+      <SleepTimerModal
+        isOpen={isSleepTimerModalOpen}
+        timerSet={sleepTimerSet}
+        timerType={sleepTimerType}
+        remaining={sleepTimerRemaining}
+        hasChapters={chapters.length > 0}
+        onClose={() => setIsSleepTimerModalOpen(false)}
+        onSet={setSleepTimer}
+        onCancel={() => {
+          setIsSleepTimerModalOpen(false)
+          cancelSleepTimer()
+        }}
+        onIncrement={incrementSleepTimer}
+        onDecrement={decrementSleepTimer}
+      />
     </>
   )
 }
