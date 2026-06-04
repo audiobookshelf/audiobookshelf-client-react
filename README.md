@@ -19,6 +19,8 @@ This assumes that you have [audiobookshelf](https://github.com/advplyr/audiobook
 3. Start the audiobookshelf server with the `REACT_CLIENT_PATH` env variable set to this project path. Or in the `dev.js` file add `ReactClientPath` to config.
 4. In the audiobookshelf server repo run with `pnpm run dev` as usual. This will serve the NextJS app using HMR.
 
+If you access the dev app through a reverse proxy (not `localhost`), add `AllowedDevOrigins` to your audiobookshelf `dev.js` (mapped to `ALLOWED_DEV_ORIGINS` in `index.js`). Restart the dev server after changing it.
+
 ```js
 // example dev.js file in audiobookshelf
 const Path = require('path')
@@ -26,7 +28,8 @@ const Path = require('path')
 module.exports.config = {
   ConfigPath: Path.resolve('config'),
   MetadataPath: Path.resolve('metadata'),
-  ReactClientPath: Path.resolve('../audiobookshelf-client-react')
+  ReactClientPath: Path.resolve('../audiobookshelf-client-react'),
+  AllowedDevOrigins: ['your-reverse-proxy-host.example.com']
 }
 ```
 
