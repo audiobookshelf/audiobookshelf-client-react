@@ -3,6 +3,14 @@ import createNextIntlPlugin from 'next-intl/plugin'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
+/** Set via audiobookshelf dev.js `AllowedDevOrigins` → index.js sets ALLOWED_DEV_ORIGINS. */
+function allowedDevOriginsFromEnv(): string[] {
+  return (process.env.ALLOWED_DEV_ORIGINS ?? '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+}
+
 /**
  * next-intl validates the i18n config path against process.cwd(). When Next is
  * embedded in the audiobookshelf server (Server.js), cwd stays at the server root
@@ -30,6 +38,7 @@ function runWithProjectCwd<T>(fn: () => T): T {
 const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts')
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: allowedDevOriginsFromEnv(),
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb'
