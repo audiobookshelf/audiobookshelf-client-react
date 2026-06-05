@@ -1,3 +1,4 @@
+import VersionFooter from '@/components/app/VersionFooter'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -79,9 +80,8 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
           </Link>
         ))}
       </nav>
-      <div className="border-primary/30 flex h-8 w-full items-center justify-between border-t px-4 py-2">
-        <p className="text-foreground-muted text-center font-mono text-xs">v{serverVersion}</p>
-        <p className="text-xxs text-foreground-subdued text-center italic">{installSource}</p>
+      <div className="border-primary/30 w-full border-t px-4 py-2">
+        <VersionFooter serverVersion={serverVersion} installSource={installSource} variant="row" />
       </div>
     </>
   )

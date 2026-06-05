@@ -1,5 +1,6 @@
 'use client'
 
+import VersionFooter from '@/components/app/VersionFooter'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -142,8 +143,7 @@ export default function SideRail({ serverVersion, installSource }: { serverVersi
         ))}
       </div>
       <div className="border-primary/30 h-12 w-full border-t px-1 py-2">
-        <p className="text-foreground-muted text-center font-mono text-xs">v{serverVersion}</p>
-        <p className="text-xxs text-foreground-subdued text-center italic">{installSource}</p>
+        <VersionFooter serverVersion={serverVersion} installSource={installSource} />
       </div>
     </div>
   )

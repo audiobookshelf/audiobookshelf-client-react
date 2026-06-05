@@ -68,3 +68,19 @@
   margin-block-start: 0;
   margin-block-end: 0.5rem;
 }
+
+.changelog-content {
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+}
+
+.changelog-content a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.changelog-content > h2,
+.changelog-content > h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
