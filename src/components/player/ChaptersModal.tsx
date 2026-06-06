@@ -46,18 +46,26 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={mergeClasses(
-        'flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors',
-        'hover:bg-foreground-muted/5 focus:bg-foreground-muted/5 focus:outline-none',
-        isCurrentChapter && 'bg-accent/15 border-accent border-l-3',
-        isListened && !isCurrentChapter && 'bg-success/5'
+        'relative flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left',
+        'hover:bg-primary/10 focus:outline-none',
+        isListened && !isCurrentChapter && 'bg-foreground-muted/5',
+        isCurrentChapter && 'bg-foreground-muted/10'
       )}
       data-current={isCurrentChapter}
     >
+      <div
+        className={mergeClasses(
+          'absolute start-0 top-0 h-full w-1',
+          isListened && !isCurrentChapter && 'bg-success/40',
+          isCurrentChapter && 'bg-success rounded-bl-full'
+        )}
+      ></div>
+
       {/* Chapter number indicator */}
       <div
         className={mergeClasses(
           'grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm leading-none font-medium',
-          isCurrentChapter ? 'bg-accent text-primary' : isListened ? 'bg-success/20 text-success' : 'bg-foreground-muted/10 text-foreground-muted'
+          isCurrentChapter ? 'bg-foreground-muted/20 text-foreground' : 'bg-foreground-muted/10 text-foreground-muted'
         )}
       >
         {chapter.id + 1}
@@ -65,10 +73,7 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
 
       {/* Chapter info */}
       <div className="min-w-0 flex-1">
-        <p
-          dir="auto"
-          className={mergeClasses('truncate text-sm font-medium', isCurrentChapter ? 'text-accent' : isListened ? 'text-foreground/80' : 'text-foreground')}
-        >
+        <p dir="auto" className="text-foreground truncate text-sm font-medium">
           {chapter.title}
         </p>
         <div className="text-foreground-muted mt-0.5 flex items-center gap-1.5 text-xs">
@@ -103,29 +108,37 @@ export default function ChaptersModal({ isOpen, playerHandler, onClose }: Chapte
     }
   }, [isOpen, currentChapter])
 
-  const handleSeek = (time: number) => {
-    seek(time)
-  }
+  const handleSeek = useCallback(
+    (time: number) => {
+      seek(time)
+      onClose()
+    },
+    [onClose, seek]
+  )
 
   const currentChapterId = currentChapter?.id ?? -1
 
+  const outerContent = (
+    <div className="absolute start-0 top-0 p-4">
+      <p className="text-xl text-white">{t('HeaderChapters')}</p>
+    </div>
+  )
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="sm:max-w-lg md:max-w-lg lg:max-w-lg">
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="overflow-hidden sm:max-w-lg md:max-w-lg lg:max-w-lg">
       <div className="flex max-h-[80vh] flex-col">
-        <div ref={listRef} className="flex-1 overflow-y-auto p-2">
+        <div ref={listRef} className="h-full w-full overflow-x-hidden overflow-y-auto">
           {chapters.length === 0 ? (
-            <div className="text-foreground-muted flex items-center justify-center py-12">
-              <p>{t('MessageNoChapters')}</p>
+            <div className="flex h-32 items-center justify-center">
+              <p className="text-lg">{t('MessageNoChapters')}</p>
             </div>
           ) : (
-            <div className="flex flex-col gap-1">
-              {chapters.map((chapter) => {
-                const isCurrentChapter = chapter.id === currentChapterId
-                const isListened = chapter.id < currentChapterId
+            chapters.map((chapter) => {
+              const isCurrentChapter = chapter.id === currentChapterId
+              const isListened = chapter.id < currentChapterId
 
-                return <ChapterRow key={chapter.id} chapter={chapter} isCurrentChapter={isCurrentChapter} isListened={isListened} onSeek={handleSeek} />
-              })}
-            </div>
+              return <ChapterRow key={chapter.id} chapter={chapter} isCurrentChapter={isCurrentChapter} isListened={isListened} onSeek={handleSeek} />
+            })
           )}
         </div>
       </div>
