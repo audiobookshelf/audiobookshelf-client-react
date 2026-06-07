@@ -39,6 +39,7 @@ const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts')
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: allowedDevOriginsFromEnv(),
+  transpilePackages: ['foliate-js'],
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb'

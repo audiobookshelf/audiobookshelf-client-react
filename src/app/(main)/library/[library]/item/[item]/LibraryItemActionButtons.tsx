@@ -11,6 +11,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
@@ -54,14 +55,14 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
   const podcastMedia = isPodcast ? libraryItem.media : null
   const tracks = isBook ? (bookMedia?.tracks ?? []) : []
   const podcastEpisodes = isPodcast ? (podcastMedia?.episodes ?? []) : []
-  const ebookFile = isBook ? bookMedia?.ebookFile : undefined
+  const ebookFormat = bookMedia ? getEbookFormat(bookMedia) : undefined
 
   const showPlayButton = !libraryItem.isMissing && !libraryItem.isInvalid && (isPodcast ? podcastEpisodes.length > 0 : tracks.length > 0)
   const isStreaming = isStreamingFn(libraryItem.id, null)
   const isItemPlaying = isPlayingFn(libraryItem.id, null)
   const showQueueBtn = isBook && !!streamLibraryItem && !isStreamingFromDifferentLibrary(libraryItem.libraryId)
   const isQueued = getIsMediaQueued(libraryItem.id, null)
-  const showReadButton = isBook && !!ebookFile
+  const showReadButton = !!ebookFormat
   const isStreamingFromDifferentLib = isStreamingFromDifferentLibrary(libraryItem.libraryId)
 
   const {

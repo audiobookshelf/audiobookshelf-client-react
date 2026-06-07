@@ -1,5 +1,6 @@
 'use client'
 
+import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
@@ -254,7 +255,7 @@ function MediaCard(props: MediaCardProps) {
 
   const showPlayButton = !isSelectionMode && !isMissing && !isInvalid && (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
 
-  const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!media.ebookFormat
+  const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!getEbookFormat(media)
 
   const {
     processing,

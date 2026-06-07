@@ -48,20 +48,13 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
     <>
       <button
         type="button"
-        className={mergeClasses(
-          'text-foreground-muted hover:text-foreground mb-1 w-full text-center font-mono text-xs leading-3 underline'
-        )}
+        className={mergeClasses('text-foreground-muted hover:text-foreground mb-1 w-full text-center font-mono text-xs leading-3 underline')}
         onClick={() => setShowChangelogModal(true)}
       >
         v{serverVersion}
       </button>
       {hasUpdate && githubTagUrl ? (
-        <a
-          href={githubTagUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-warning text-xxs block text-center leading-3 hover:underline"
-        >
+        <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning text-xxs block text-center leading-3 hover:underline">
           Update
         </a>
       ) : (
