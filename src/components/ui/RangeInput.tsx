@@ -15,10 +15,11 @@ interface RangeInputProps {
   label?: string
   className?: string
   disabled?: boolean
+  borderless?: boolean
   ref?: React.Ref<HTMLInputElement>
 }
 
-const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, className = '', disabled = false, ref }: RangeInputProps) => {
+const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, className = '', disabled = false, borderless = false, ref }: RangeInputProps) => {
   const rangeInputId = useId()
   const inputId = `${rangeInputId}-input`
   const [readInputRef, writeInputRef] = useMergedRef<HTMLInputElement>(ref)
@@ -69,8 +70,8 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
           {label}
         </Label>
       )}
-      <InputWrapper disabled={disabled} inputRef={readInputRef}>
-        <div className="inline-flex w-full items-center">
+      <InputWrapper disabled={disabled} borderless={borderless} inputRef={readInputRef} className="w-full">
+        <div className="grid w-full grid-cols-[1fr_3rem] items-center gap-2">
           <input
             ref={writeInputRef}
             id={inputId}
@@ -86,9 +87,9 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
             aria-valuemax={max}
             aria-valuenow={value}
             aria-valuetext={`${value}%`}
-            className={rangeInputClasses}
+            className={mergeClasses(rangeInputClasses, 'min-w-0')}
           />
-          <span className="ms-2 text-sm" aria-hidden="true">
+          <span className="text-end text-sm tabular-nums" aria-hidden="true">
             {value}%
           </span>
         </div>
