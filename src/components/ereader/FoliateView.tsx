@@ -11,6 +11,7 @@ import {
   type EbookProgressUpdate
 } from '@/lib/ereader/ereaderEbook'
 import { applyEreaderSettingsToView, type EreaderSettings } from '@/lib/ereader/ereaderSettings'
+import { attachEpubSecurity } from '@/lib/ereader/ereaderSecurity'
 import { normalizeEreaderToc, type EreaderTocItem } from '@/lib/ereader/ereaderToc'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react'
 
@@ -30,6 +31,7 @@ export interface FoliateViewHandle {
 interface FoliateViewProps {
   libraryItemId: string
   ebookFormat: string
+  epubsAllowScriptedContent: boolean
   title: string
   savedEbookLocation?: string
   settings: EreaderSettings
@@ -39,7 +41,7 @@ interface FoliateViewProps {
 }
 
 const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function FoliateView(
-  { libraryItemId, ebookFormat, title, savedEbookLocation, settings, onTocReady, onClose, onError },
+  { libraryItemId, ebookFormat, epubsAllowScriptedContent, title, savedEbookLocation, settings, onTocReady, onClose, onError },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -118,6 +120,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     let removeRelocateListener: (() => void) | undefined
     let removeLoadListener: (() => void) | undefined
     let removeDocumentKeydownListener: (() => void) | undefined
+    let removeEpubSecurity: (() => void) | undefined
     let handleKeydown: ((event: KeyboardEvent) => void) | undefined
     const contentDocs = new Set<Document>()
 
@@ -177,7 +180,13 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         if (cancelled) return
 
         const file = blobToEbookFile(blob, ebookFormat, title)
+        const allowScriptedContent = ebookFormat.toLowerCase() === 'epub' && epubsAllowScriptedContent
+
         await view.open(file)
+
+        if (!allowScriptedContent) {
+          removeEpubSecurity = attachEpubSecurity(view)
+        }
 
         const toc = normalizeEreaderToc(view.book?.toc)
         tocRef.current = toc
@@ -211,6 +220,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
       removeRelocateListener?.()
       removeLoadListener?.()
       removeDocumentKeydownListener?.()
+      removeEpubSecurity?.()
       if (handleKeydown) {
         for (const doc of contentDocs) {
           doc.removeEventListener('keydown', handleKeydown)
@@ -228,7 +238,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ebookFormat, flushProgress, libraryItemId, scheduleProgressSave, title])
+  }, [ebookFormat, epubsAllowScriptedContent, flushProgress, libraryItemId, scheduleProgressSave, title])
 
   return <div ref={containerRef} className="h-full w-full" />
 })

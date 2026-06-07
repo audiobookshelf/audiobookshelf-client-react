@@ -13,6 +13,7 @@ export interface FoliateTocItem {
 
 export interface FoliateBook {
   toc?: FoliateTocItem[]
+  transformTarget?: EventTarget
 }
 
 export interface FoliateRendererElement extends HTMLElement {

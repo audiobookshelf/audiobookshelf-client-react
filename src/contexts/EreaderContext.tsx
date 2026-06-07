@@ -8,6 +8,7 @@ export interface OpenEreaderParams {
   libraryItemId: string
   title: string
   ebookFormat: string
+  epubsAllowScriptedContent: boolean
 }
 
 interface EreaderSession extends OpenEreaderParams {
@@ -55,6 +56,7 @@ export function EreaderProvider({ children }: { children: ReactNode }) {
           libraryItemId={session.libraryItemId}
           title={session.title}
           ebookFormat={session.ebookFormat}
+          epubsAllowScriptedContent={session.epubsAllowScriptedContent}
           savedEbookLocation={session.savedEbookLocation}
           onClose={closeEreader}
         />

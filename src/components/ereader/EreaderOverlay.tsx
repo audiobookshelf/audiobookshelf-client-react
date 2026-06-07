@@ -17,11 +17,20 @@ interface EreaderOverlayProps {
   libraryItemId: string
   title: string
   ebookFormat: string
+  epubsAllowScriptedContent: boolean
   savedEbookLocation?: string
   onClose: () => void
 }
 
-export default function EreaderOverlay({ isOpen, libraryItemId, title, ebookFormat, savedEbookLocation, onClose }: EreaderOverlayProps) {
+export default function EreaderOverlay({
+  isOpen,
+  libraryItemId,
+  title,
+  ebookFormat,
+  epubsAllowScriptedContent,
+  savedEbookLocation,
+  onClose
+}: EreaderOverlayProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { settings, updateSettings } = useEreaderSettings()
@@ -108,6 +117,7 @@ export default function EreaderOverlay({ isOpen, libraryItemId, title, ebookForm
             ref={foliateRef}
             libraryItemId={libraryItemId}
             ebookFormat={ebookFormat}
+            epubsAllowScriptedContent={epubsAllowScriptedContent}
             title={title}
             savedEbookLocation={savedEbookLocation}
             settings={settings}

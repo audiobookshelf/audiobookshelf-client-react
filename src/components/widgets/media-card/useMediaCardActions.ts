@@ -14,6 +14,7 @@ import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { useEreader } from '@/contexts/EreaderContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -85,6 +86,7 @@ export function useMediaCardActions({
   const sortableBookshelf = useSortableBookshelf()
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
+  const { library } = useLibrary()
   const { openEreader } = useEreader()
   const { showToast } = useGlobalToast()
   const { addItemToQueue, removeItemFromQueue, playItem } = useMediaContext()
@@ -169,9 +171,10 @@ export function useMediaCardActions({
     openEreader({
       libraryItemId: libraryItem.id,
       title,
-      ebookFormat
+      ebookFormat,
+      epubsAllowScriptedContent: !!library.settings?.epubsAllowScriptedContent
     })
-  }, [libraryItem.id, media, openEreader, title])
+  }, [library.settings?.epubsAllowScriptedContent, libraryItem.id, media, openEreader, title])
 
   const toggleFinished = useCallback(
     (confirmed: boolean) => {
