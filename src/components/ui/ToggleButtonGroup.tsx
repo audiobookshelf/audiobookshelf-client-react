@@ -99,7 +99,7 @@ export default function ToggleButtonGroup({
   }
 
   const containerClass = mergeClasses(
-    'inline-flex w-full sm:w-fit h-full overflow-hidden rounded-md shadow-md focus-within:outline [&>button:not(:first-child)]:border-s-0',
+    'inline-flex w-fit h-full overflow-hidden rounded-md shadow-md focus-within:outline [&>button:not(:first-child)]:border-s-0',
     className
   )
 
