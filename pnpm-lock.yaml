@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   foliate-js@0.0.0:
-    hash: 7ac9091ad3d15b687e1fc7d958f66bcbe8acb44476b1c875d4195a224a335819
+    hash: 5a300fe89af3e45ef762a48858df1a44a6fc43cf83653c826e96a9c69d45db12
     path: patches/foliate-js@0.0.0.patch
 
 importers:
@@ -36,7 +36,7 @@ importers:
         version: 4.1.0
       foliate-js:
         specifier: github:johnfactotum/foliate-js#78914ae
-        version: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1(patch_hash=7ac9091ad3d15b687e1fc7d958f66bcbe8acb44476b1c875d4195a224a335819)
+        version: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1(patch_hash=5a300fe89af3e45ef762a48858df1a44a6fc43cf83653c826e96a9c69d45db12)
       hls.js:
         specifier: ^1.6.15
         version: 1.6.15
@@ -4954,7 +4954,7 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1(patch_hash=7ac9091ad3d15b687e1fc7d958f66bcbe8acb44476b1c875d4195a224a335819): {}
+  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1(patch_hash=5a300fe89af3e45ef762a48858df1a44a6fc43cf83653c826e96a9c69d45db12): {}
 
   for-each@0.3.5:
     dependencies:
