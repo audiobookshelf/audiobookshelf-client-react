@@ -37,9 +37,7 @@ interface ParsedSemver {
 function parseSemver(ver: string): ParsedSemver | null {
   if (!ver) return null
 
-  const groups = ver.match(
-    /^v((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/
-  )
+  const groups = ver.match(/^v((([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?)$/)
 
   if (groups && groups.length > 6) {
     const total = Number(groups[3]) * 10000 + Number(groups[4]) * 100 + Number(groups[5])
@@ -109,10 +107,7 @@ export async function checkForUpdate(currentVersion: string): Promise<VersionDat
 
   const latestVersion = releases[0]
   const releasesToShow = releases.filter(
-    (release) =>
-      release.major === currentRelease.major &&
-      release.minor === currentRelease.minor &&
-      release.total <= currentRelease.total
+    (release) => release.major === currentRelease.major && release.minor === currentRelease.minor && release.total <= currentRelease.total
   )
 
   return {

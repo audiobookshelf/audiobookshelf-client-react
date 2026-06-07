@@ -12,6 +12,9 @@ import {
 } from '@/app/actions/mediaActions'
 import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
+import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
+import { useEreader } from '@/contexts/EreaderContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -26,6 +29,7 @@ import {
   type MediaItemShare,
   type MediaProgress,
   type PodcastEpisode,
+  isBookMedia,
   isPersonalizedSeriesRef
 } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
@@ -82,6 +86,8 @@ export function useMediaCardActions({
   const sortableBookshelf = useSortableBookshelf()
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
+  const { library } = useLibrary()
+  const { openEreader } = useEreader()
   const { showToast } = useGlobalToast()
   const { addItemToQueue, removeItemFromQueue, playItem } = useMediaContext()
   const [processing, setProcessing] = useState(false)
@@ -158,19 +164,17 @@ export function useMediaCardActions({
   }, [author, episodeForQueue, isStreaming, libraryItem, media, playItem, playerControls, showToast, t, title])
 
   const handleReadEBook = useCallback(() => {
-    startTransition(async () => {
-      try {
-        setProcessing(true)
-        await getExpandedLibraryItemAction(libraryItem.id)
-        showToast('E-reader is not implemented yet.', { type: 'info' })
-      } catch (error) {
-        console.error('Failed to load library item for e-reader', error)
-        showToast('Failed to load item for e-reader.', { type: 'error' })
-      } finally {
-        setProcessing(false)
-      }
+    if (!isBookMedia(media)) return
+    const ebookFormat = getEbookFormat(media)
+    if (!ebookFormat) return
+
+    openEreader({
+      libraryItemId: libraryItem.id,
+      title,
+      ebookFormat,
+      epubsAllowScriptedContent: !!library.settings?.epubsAllowScriptedContent
     })
-  }, [libraryItem.id, showToast])
+  }, [library.settings?.epubsAllowScriptedContent, libraryItem.id, media, openEreader, title])
 
   const toggleFinished = useCallback(
     (confirmed: boolean) => {

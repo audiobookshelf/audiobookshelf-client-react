@@ -44,3 +44,6 @@ next-env.d.ts
 express-server
 *.vue
 .idea
+
+# Generated from foliate-js vendor (scripts/sync-pdfjs-vendor.mjs)
+/public/vendor/pdfjs

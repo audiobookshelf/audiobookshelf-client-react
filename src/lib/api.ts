@@ -808,6 +808,16 @@ export async function updateMediaFinished(libraryItemId: string, payload: { isFi
 }
 
 /**
+ * Update ebook reading progress for a library item
+ */
+export async function updateEbookProgress(libraryItemId: string, payload: { ebookLocation?: string | number; ebookProgress?: number }): Promise<void> {
+  return apiRequest<void>(`/api/me/progress/${libraryItemId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
  * Batch update media finished state for multiple items or episodes
  */
 export async function batchUpdateMediaFinished(payload: { libraryItemId: string; episodeId?: string; isFinished: boolean }[]): Promise<void> {

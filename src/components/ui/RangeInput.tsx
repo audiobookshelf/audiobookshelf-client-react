@@ -89,7 +89,7 @@ const RangeInput = ({ value, min = 0, max = 100, step = 1, onChange, label, clas
             aria-valuetext={`${value}%`}
             className={mergeClasses(rangeInputClasses, 'min-w-0')}
           />
-          <span className="text-end text-sm tabular-nums" aria-hidden="true">
+          <span className="text-start text-sm tabular-nums" aria-hidden="true">
             {value}%
           </span>
         </div>
