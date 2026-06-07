@@ -9,6 +9,8 @@ RUN corepack enable pnpm
 WORKDIR /client-react
 
 COPY ./client-react/package.json ./client-react/pnpm-lock.yaml ./client-react/.npmrc ./
+COPY ./client-react/patches ./patches
+COPY ./client-react/scripts/sync-pdfjs-vendor.mjs ./scripts/sync-pdfjs-vendor.mjs
 
 RUN pnpm install --frozen-lockfile
 
