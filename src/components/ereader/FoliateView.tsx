@@ -1,7 +1,7 @@
 'use client'
 
 import { updateEbookProgressAction } from '@/app/actions/ebookActions'
-import type { FoliateRelocateDetail, FoliateViewElement } from '@/components/ereader/foliate'
+import type { FoliateRelocateDetail, FoliateSearchSection, FoliateViewElement } from '@/components/ereader/foliate'
 import {
   blobToEbookFile,
   parseResumeCfi,
@@ -16,6 +16,7 @@ import { normalizeEreaderToc, type EreaderTocItem } from '@/lib/ereader/ereaderT
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react'
 
 const PROGRESS_DEBOUNCE_MS = 2000
+const FOLIATE_SEARCH_PREFIX = 'foliate-search:'
 
 async function loadFoliateViewModule() {
   await import('foliate-js/view.js')
@@ -25,7 +26,10 @@ export interface FoliateViewHandle {
   goLeft: () => void
   goRight: () => void
   goTo: (href: string) => void
+  goToSearchResult: (cfi: string) => void
   getToc: () => EreaderTocItem[]
+  searchBook: (query: string, onProgress?: (progress: number) => void) => Promise<FoliateSearchSection[]>
+  clearSearch: () => void
 }
 
 interface FoliateViewProps {
@@ -69,7 +73,54 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     goTo: (href: string) => {
       void viewRef.current?.goTo(href)
     },
-    getToc: () => tocRef.current
+    goToSearchResult: (cfi: string) => {
+      const view = viewRef.current
+      if (!view) return
+
+      void (async () => {
+        try {
+          if (view.select) await view.select(cfi)
+          else await view.goTo(cfi)
+          await view.addAnnotation({ value: `${FOLIATE_SEARCH_PREFIX}${cfi}` })
+        } catch (error) {
+          console.error('Failed to navigate to search result', error)
+        }
+      })()
+    },
+    getToc: () => tocRef.current,
+    searchBook: async (query, onProgress) => {
+      const view = viewRef.current
+      if (!view?.search) return []
+
+      const sections: FoliateSearchSection[] = []
+
+      for await (const result of view.search({ query })) {
+        if (result === 'done') break
+
+        if ('progress' in result) {
+          onProgress?.(result.progress)
+          continue
+        }
+
+        if ('subitems' in result && result.subitems.length > 0) {
+          const sectionId = `section-${sections.length}`
+          sections.push({
+            id: sectionId,
+            label: result.label.trim(),
+            hits: result.subitems.map((item, index) => ({
+              id: `${sectionId}-${index}`,
+              cfi: item.cfi,
+              excerpt: item.excerpt
+            }))
+          })
+        }
+      }
+
+      return sections
+    },
+    clearSearch: () => {
+      viewRef.current?.clearSearch()
+    }
   }))
 
   const flushProgress = useCallback(async () => {
@@ -232,6 +283,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         debounceTimerRef.current = null
       }
       void flushProgress()
+      viewRef.current?.clearSearch()
       viewRef.current?.close()
       viewRef.current = null
       container.innerHTML = ''

@@ -20,14 +20,54 @@ export interface FoliateRendererElement extends HTMLElement {
   setStyles: (styles: string | [string, string]) => void
 }
 
+export interface FoliateSearchExcerpt {
+  pre: string
+  match: string
+  post: string
+}
+
+export interface FoliateSearchHit {
+  id: string
+  cfi: string
+  excerpt: FoliateSearchExcerpt
+}
+
+export interface FoliateSearchSection {
+  id: string
+  label: string
+  hits: FoliateSearchHit[]
+}
+
+export type FoliateSearchYield =
+  | 'done'
+  | { progress: number }
+  | { label: string; subitems: Array<{ cfi: string; excerpt: FoliateSearchExcerpt }> }
+  | { cfi: string; excerpt: FoliateSearchExcerpt }
+
+export interface FoliateSearchOptions {
+  query: string
+  index?: number
+  matchCase?: boolean
+  matchDiacritics?: boolean
+  matchWholeWords?: boolean
+}
+
+export interface FoliateAnnotation {
+  value: string
+}
+
 export interface FoliateViewElement extends HTMLElement {
   book?: FoliateBook
   open: (file: Blob | string) => Promise<void>
   init: (options: { lastLocation?: string; showTextStart?: boolean }) => Promise<void>
   goTo: (target: number | string) => Promise<void>
+  select: (target: number | string) => Promise<void>
   close: () => void
   goLeft: () => void | Promise<void>
   goRight: () => void | Promise<void>
+  search: (options: FoliateSearchOptions) => AsyncIterable<FoliateSearchYield>
+  clearSearch: () => void
+  addAnnotation: (annotation: FoliateAnnotation, remove?: boolean) => Promise<void>
   renderer: FoliateRendererElement
 }
 

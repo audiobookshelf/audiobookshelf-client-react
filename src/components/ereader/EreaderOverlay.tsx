@@ -6,10 +6,11 @@ import FoliateView, { type FoliateViewHandle } from '@/components/ereader/Foliat
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEreaderSettings } from '@/hooks/useEreaderSettings'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { EREADER_THEME_SHELL_CLASS } from '@/lib/ereader/ereaderSettings'
+import type { FoliateSearchSection } from '@/components/ereader/foliate'
+import { EREADER_THEME_SHELL_CLASS, supportsReflowableSettings } from '@/lib/ereader/ereaderSettings'
 import type { EreaderTocItem } from '@/lib/ereader/ereaderToc'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface EreaderOverlayProps {
@@ -37,24 +38,18 @@ export default function EreaderOverlay({
   const [showSettings, setShowSettings] = useState(false)
   const [showToc, setShowToc] = useState(false)
   const [toc, setToc] = useState<EreaderTocItem[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<FoliateSearchSection[]>([])
+  const [isSearchMode, setIsSearchMode] = useState(false)
+  const [isSearchPending, setIsSearchPending] = useState(false)
+  const [searchProgress, setSearchProgress] = useState<number | null>(null)
   const showSettingsRef = useRef(showSettings)
   const showTocRef = useRef(showToc)
   const foliateRef = useRef<FoliateViewHandle>(null)
+  const searchRequestIdRef = useRef(0)
 
   showSettingsRef.current = showSettings
   showTocRef.current = showToc
-
-  const handleCloseRequest = useCallback(() => {
-    if (showSettingsRef.current) {
-      setShowSettings(false)
-      return
-    }
-    if (showTocRef.current) {
-      setShowToc(false)
-      return
-    }
-    onClose()
-  }, [onClose])
 
   const handleError = useCallback(() => {
     showToast(t('ToastFailedToLoadData'), { type: 'error' })
@@ -69,13 +64,86 @@ export default function EreaderOverlay({
     foliateRef.current?.goRight()
   }, [])
 
+  const resetSearch = useCallback(() => {
+    searchRequestIdRef.current += 1
+    foliateRef.current?.clearSearch()
+    setSearchQuery('')
+    setSearchResults([])
+    setIsSearchMode(false)
+    setIsSearchPending(false)
+    setSearchProgress(null)
+  }, [])
+
+  const handleCloseToc = useCallback(() => {
+    setShowToc(false)
+  }, [])
+
+  const handleSearch = useCallback(
+    async (query: string) => {
+      setSearchQuery(query)
+
+      if (query.length <= 1) {
+        resetSearch()
+        return
+      }
+
+      const requestId = searchRequestIdRef.current + 1
+      searchRequestIdRef.current = requestId
+      setIsSearchMode(true)
+      setIsSearchPending(true)
+      setSearchResults([])
+      setSearchProgress(0)
+
+      try {
+        const results = await foliateRef.current?.searchBook(query, (progress) => {
+          if (searchRequestIdRef.current === requestId) setSearchProgress(progress)
+        })
+
+        if (searchRequestIdRef.current !== requestId) return
+
+        setSearchResults(results ?? [])
+      } catch (error) {
+        console.error('E-reader search failed', error)
+        if (searchRequestIdRef.current === requestId) setSearchResults([])
+      } finally {
+        if (searchRequestIdRef.current === requestId) {
+          setIsSearchPending(false)
+          setSearchProgress(null)
+        }
+      }
+    },
+    [resetSearch]
+  )
+
   const handleGoToChapter = useCallback((href: string) => {
     foliateRef.current?.goTo(href)
   }, [])
 
+  const handleGoToSearchResult = useCallback((cfi: string) => {
+    foliateRef.current?.goToSearchResult(cfi)
+    setShowToc(false)
+  }, [])
+
+  useEffect(() => {
+    if (!isOpen) resetSearch()
+  }, [isOpen, resetSearch])
+
+  const handleCloseRequest = useCallback(() => {
+    if (showSettingsRef.current) {
+      setShowSettings(false)
+      return
+    }
+    if (showTocRef.current) {
+      handleCloseToc()
+      return
+    }
+    onClose()
+  }, [handleCloseToc, onClose])
+
   if (!isOpen || typeof document === 'undefined') return null
 
   const shellClass = EREADER_THEME_SHELL_CLASS[settings.theme]
+  const supportsSearch = supportsReflowableSettings(ebookFormat)
 
   return createPortal(
     <div className={mergeClasses('fixed inset-0 z-80 flex flex-col', shellClass)}>
@@ -144,7 +212,22 @@ export default function EreaderOverlay({
           <span className="material-symbols text-5xl opacity-80">chevron_right</span>
         </button>
 
-        <EreaderTocDrawer isOpen={showToc} shellClass={shellClass} items={toc} onClose={() => setShowToc(false)} onGoTo={handleGoToChapter} />
+        <EreaderTocDrawer
+          isOpen={showToc}
+          shellClass={shellClass}
+          items={toc}
+          supportsSearch={supportsSearch}
+          searchQuery={searchQuery}
+          searchResults={searchResults}
+          isSearchMode={isSearchMode}
+          isSearchPending={isSearchPending}
+          searchProgress={searchProgress}
+          onSearch={handleSearch}
+          onClose={handleCloseToc}
+          onGoTo={handleGoToChapter}
+          onGoToSearchResult={handleGoToSearchResult}
+          theme={settings.theme}
+        />
       </main>
 
       <EreaderSettingsModal

@@ -69,6 +69,31 @@ export const EREADER_THEME_SHELL_CLASS: Record<EreaderTheme, string> = {
   sepia: 'bg-[rgb(244,236,216)] text-[#5b4636]'
 }
 
+export interface EreaderSearchInputClassNames {
+  wrapperClassName: string
+  customInputClass: string
+  clearButtonClassName: string
+}
+
+/** Theme-aware TextInput classes for the ereader TOC search field */
+export const EREADER_THEME_SEARCH_INPUT: Record<EreaderTheme, EreaderSearchInputClassNames> = {
+  dark: {
+    wrapperClassName: 'h-8 border-white/20 bg-white/10 text-inherit has-[:focus-visible]:outline-white/30',
+    customInputClass: 'text-inherit placeholder:text-white/50',
+    clearButtonClassName: 'text-inherit opacity-60 hover:text-inherit hover:opacity-100 focus:ring-white/30'
+  },
+  light: {
+    wrapperClassName: 'h-8 border-black/15 bg-black/5 text-inherit has-[:focus-visible]:outline-black/25',
+    customInputClass: 'text-inherit placeholder:text-black/40',
+    clearButtonClassName: 'text-inherit opacity-60 hover:text-inherit hover:opacity-100 focus:ring-black/25'
+  },
+  sepia: {
+    wrapperClassName: 'h-8 border-[#5b4636]/25 bg-black/5 text-inherit has-[:focus-visible]:outline-[#5b4636]/30',
+    customInputClass: 'text-inherit placeholder:text-[#5b4636]/50',
+    clearButtonClassName: 'text-inherit opacity-60 hover:text-inherit hover:opacity-100 focus:ring-[#5b4636]/30'
+  }
+}
+
 /** User stylesheet injected into foliate section iframes (after the book's own CSS) */
 export function buildFoliateUserStyles(settings: EreaderSettings): string {
   const { background, color } = getThemeColors(settings.theme)
