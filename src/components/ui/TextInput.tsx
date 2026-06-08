@@ -22,6 +22,8 @@ export interface TextInputProps {
   step?: string | number
   min?: string | number
   customInputClass?: string
+  wrapperClassName?: string
+  clearButtonClassName?: string
   enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
   onChange?: (value: string) => void
   onClear?: () => void
@@ -48,6 +50,8 @@ export default function TextInput({
   step,
   min,
   customInputClass,
+  wrapperClassName,
+  clearButtonClassName,
   enterKeyHint,
   onChange,
   onClear,
@@ -143,7 +147,13 @@ export default function TextInput({
         </Label>
       )}
 
-      <InputWrapper disabled={disabled} readOnly={readOnly} error={error || isInvalidDate} inputRef={readInputRef} className="group">
+      <InputWrapper
+        disabled={disabled}
+        readOnly={readOnly}
+        error={error || isInvalidDate}
+        inputRef={readInputRef}
+        className={mergeClasses('group', wrapperClassName)}
+      >
         <input
           ref={writeInputRef}
           id={inputId}
@@ -174,7 +184,10 @@ export default function TextInput({
           <div className="absolute end-0 top-0 flex h-full items-center justify-center px-2">
             <button
               type="button"
-              className="material-symbols text-foreground-muted hover:text-foreground focus:ring-foreground-muted cursor-pointer rounded focus:ring-2 focus:ring-offset-1 focus:outline-none"
+              className={mergeClasses(
+                'material-symbols text-foreground-muted hover:text-foreground focus:ring-foreground-muted cursor-pointer rounded focus:ring-2 focus:ring-offset-1 focus:outline-none',
+                clearButtonClassName
+              )}
               style={{ fontSize: '1.1rem' }}
               onClick={handleClear}
               aria-label={t('ButtonClearInput')}
