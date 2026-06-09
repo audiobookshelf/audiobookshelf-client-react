@@ -7,11 +7,12 @@ import {
   parseResumeCfi,
   parseResumePage,
   progressFromRelocate,
+  resumeEpubLocation,
   usesPageBasedProgress,
   type EbookProgressUpdate
 } from '@/lib/ereader/ereaderEbook'
-import { applyEreaderSettingsToView, type EreaderSettings } from '@/lib/ereader/ereaderSettings'
 import { attachEpubSecurity } from '@/lib/ereader/ereaderSecurity'
+import { applyEreaderSettingsToView, type EreaderSettings } from '@/lib/ereader/ereaderSettings'
 import { normalizeEreaderToc, type EreaderTocItem } from '@/lib/ereader/ereaderToc'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react'
 
@@ -38,6 +39,7 @@ interface FoliateViewProps {
   epubsAllowScriptedContent: boolean
   title: string
   savedEbookLocation?: string
+  savedEbookProgress?: number
   settings: EreaderSettings
   onTocReady?: (toc: EreaderTocItem[]) => void
   onClose?: () => void
@@ -45,7 +47,7 @@ interface FoliateViewProps {
 }
 
 const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function FoliateView(
-  { libraryItemId, ebookFormat, epubsAllowScriptedContent, title, savedEbookLocation, settings, onTocReady, onClose, onError },
+  { libraryItemId, ebookFormat, epubsAllowScriptedContent, title, savedEbookLocation, savedEbookProgress, settings, onTocReady, onClose, onError },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -245,11 +247,15 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
         if (pageBased && resumePage) {
           await view.init({ showTextStart: true })
-          await view.goTo(resumePage - 1)
-          lastSavedLocationRef.current = resumePage
+          const resolved = await view.goTo(resumePage - 1)
+          if (resolved) {
+            lastSavedLocationRef.current = resumePage
+          } else {
+            console.warn('Failed to resume at saved page, using start of book', resumePage)
+          }
         } else if (resumeCfi) {
-          await view.init({ lastLocation: resumeCfi })
-          lastSavedLocationRef.current = resumeCfi
+          const resumed = await resumeEpubLocation(view, resumeCfi, savedEbookProgress)
+          if (resumed) lastSavedLocationRef.current = resumeCfi
         } else {
           await view.init({ showTextStart: true })
         }

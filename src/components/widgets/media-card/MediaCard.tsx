@@ -306,13 +306,7 @@ function MediaCard(props: MediaCardProps) {
 
   const dragHandle = useMemo(() => {
     if (!dragOptions?.ariaLabel) return undefined
-    return (
-      <DraggableMediaOverlayIconBtn
-        icon="drag_handle"
-        ariaLabel={dragOptions.ariaLabel}
-        activatorProps={dragOptions.dragHandlePointerProps}
-      />
-    )
+    return <DraggableMediaOverlayIconBtn icon="drag_handle" ariaLabel={dragOptions.ariaLabel} activatorProps={dragOptions.dragHandlePointerProps} />
   }, [dragOptions])
 
   return (

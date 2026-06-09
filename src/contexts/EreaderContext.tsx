@@ -14,6 +14,7 @@ export interface OpenEreaderParams {
 interface EreaderSession extends OpenEreaderParams {
   /** Snapshot at open time so progress saves do not re-trigger the reader. */
   savedEbookLocation?: string
+  savedEbookProgress?: number
 }
 
 interface EreaderContextType {
@@ -29,8 +30,12 @@ export function EreaderProvider({ children }: { children: ReactNode }) {
 
   const openEreader = useCallback(
     (params: OpenEreaderParams) => {
-      const savedEbookLocation = user.mediaProgress.find((p) => p.libraryItemId === params.libraryItemId)?.ebookLocation
-      setSession({ ...params, savedEbookLocation })
+      const progress = user.mediaProgress.find((p) => p.libraryItemId === params.libraryItemId)
+      setSession({
+        ...params,
+        savedEbookLocation: progress?.ebookLocation,
+        savedEbookProgress: progress?.ebookProgress
+      })
     },
     [user.mediaProgress]
   )
@@ -58,6 +63,7 @@ export function EreaderProvider({ children }: { children: ReactNode }) {
           ebookFormat={session.ebookFormat}
           epubsAllowScriptedContent={session.epubsAllowScriptedContent}
           savedEbookLocation={session.savedEbookLocation}
+          savedEbookProgress={session.savedEbookProgress}
           onClose={closeEreader}
         />
       )}

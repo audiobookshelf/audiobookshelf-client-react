@@ -22,6 +22,7 @@ interface EreaderOverlayProps {
   ebookFormat: string
   epubsAllowScriptedContent: boolean
   savedEbookLocation?: string
+  savedEbookProgress?: number
   onClose: () => void
 }
 
@@ -32,6 +33,7 @@ export default function EreaderOverlay({
   ebookFormat,
   epubsAllowScriptedContent,
   savedEbookLocation,
+  savedEbookProgress,
   onClose
 }: EreaderOverlayProps) {
   const t = useTypeSafeTranslations()
@@ -192,6 +194,7 @@ export default function EreaderOverlay({
             epubsAllowScriptedContent={epubsAllowScriptedContent}
             title={title}
             savedEbookLocation={savedEbookLocation}
+            savedEbookProgress={savedEbookProgress}
             settings={settings}
             onTocReady={setToc}
             onClose={handleCloseRequest}
