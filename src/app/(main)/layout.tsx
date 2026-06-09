@@ -19,13 +19,13 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   return (
     <SocketProvider accessToken={accesstoken}>
       <UserProvider initialUser={currentUser}>
-        <EreaderProvider>
-          <TasksProvider>
-            <MetadataProvider>
-              <MediaProvider>{children}</MediaProvider>
-            </MetadataProvider>
-          </TasksProvider>
-        </EreaderProvider>
+        <TasksProvider>
+          <MetadataProvider>
+            <MediaProvider>
+              <EreaderProvider>{children}</EreaderProvider>
+            </MediaProvider>
+          </MetadataProvider>
+        </TasksProvider>
       </UserProvider>
     </SocketProvider>
   )

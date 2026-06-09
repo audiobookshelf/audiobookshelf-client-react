@@ -2,11 +2,13 @@
 
 import EreaderSettingsModal from '@/components/ereader/EreaderSettingsModal'
 import EreaderTocDrawer from '@/components/ereader/EreaderTocDrawer'
+import type { FoliateSearchSection } from '@/components/ereader/foliate'
 import FoliateView, { type FoliateViewHandle } from '@/components/ereader/FoliateView'
+import { MEDIA_PLAYER_BOTTOM_INSET_CLASS } from '@/components/player/MediaPlayerContainer'
+import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEreaderSettings } from '@/hooks/useEreaderSettings'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { FoliateSearchSection } from '@/components/ereader/foliate'
 import { EREADER_THEME_SHELL_CLASS, supportsReflowableSettings } from '@/lib/ereader/ereaderSettings'
 import type { EreaderTocItem } from '@/lib/ereader/ereaderToc'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -34,7 +36,9 @@ export default function EreaderOverlay({
 }: EreaderOverlayProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+  const { streamLibraryItem } = useMediaContext()
   const { settings, updateSettings } = useEreaderSettings()
+  const playerOpen = !!streamLibraryItem
   const [showSettings, setShowSettings] = useState(false)
   const [showToc, setShowToc] = useState(false)
   const [toc, setToc] = useState<EreaderTocItem[]>([])
@@ -146,7 +150,7 @@ export default function EreaderOverlay({
   const supportsSearch = supportsReflowableSettings(ebookFormat)
 
   return createPortal(
-    <div className={mergeClasses('fixed inset-0 z-80 flex flex-col', shellClass)}>
+    <div className={mergeClasses('fixed inset-x-0 top-0 z-80 flex flex-col', playerOpen ? MEDIA_PLAYER_BOTTOM_INSET_CLASS : 'bottom-0', shellClass)}>
       <header className="flex h-12 shrink-0 items-center gap-3 px-3">
         <button
           type="button"

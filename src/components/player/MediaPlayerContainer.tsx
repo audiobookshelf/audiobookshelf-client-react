@@ -4,6 +4,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
+import { mergeClasses } from '@/lib/merge-classes'
 import { BookMedia } from '@/types/api'
 import Link from 'next/link'
 import { Fragment } from 'react'
@@ -11,6 +12,10 @@ import PreviewCover from '../covers/PreviewCover'
 import IconBtn from '../ui/IconBtn'
 import PlayerControls from './PlayerControls'
 import PlayerTrackBar from './PlayerTrackBar'
+
+/** Keep in sync with the player container and ereader overlay inset when both are open. */
+export const MEDIA_PLAYER_HEIGHT_CLASS = 'h-48 lg:h-40'
+export const MEDIA_PLAYER_BOTTOM_INSET_CLASS = 'bottom-48 lg:bottom-40'
 
 export default function MediaPlayerContainer() {
   const { streamLibraryItem, clearStreamMedia, playerHandler } = useMediaContext()
@@ -31,7 +36,12 @@ export default function MediaPlayerContainer() {
   const displayTitle = playerHandler.state.displayTitle || streamLibraryItem.media.metadata.title
 
   return (
-    <div className="bg-primary shadow-media-player fixed right-0 bottom-0 left-0 z-50 h-48 w-full px-2 pt-2 pb-1 lg:h-40 lg:px-4 lg:pb-4">
+    <div
+      className={mergeClasses(
+        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 z-50 w-full px-2 pt-2 pb-1 lg:px-4 lg:pb-4',
+        MEDIA_PLAYER_HEIGHT_CLASS
+      )}
+    >
       <div className="absolute top-2 left-2 flex gap-4 lg:left-4">
         <PreviewCover
           src={getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt)}
