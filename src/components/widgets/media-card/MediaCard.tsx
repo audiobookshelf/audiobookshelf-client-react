@@ -305,13 +305,12 @@ function MediaCard(props: MediaCardProps) {
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(sortableBookshelfOverlayMode)
 
   const dragHandle = useMemo(() => {
-    if (!dragOptions) return undefined
+    if (!dragOptions?.ariaLabel) return undefined
     return (
       <DraggableMediaOverlayIconBtn
         icon="drag_handle"
         ariaLabel={dragOptions.ariaLabel}
-        activatorRef={dragOptions.activatorRef}
-        activatorProps={dragOptions.activatorProps}
+        activatorProps={dragOptions.dragHandlePointerProps}
       />
     )
   }, [dragOptions])
@@ -321,6 +320,8 @@ function MediaCard(props: MediaCardProps) {
       <MediaCardFrame
         width={coverWidth}
         height={coverHeight}
+        rootRef={dragOptions?.cardActivatorRef}
+        sortableFrameProps={dragOptions?.sortableFrameProps}
         className={dragOptions ? 'group' : undefined}
         onClick={navigateOnCardClick ? handleCardClick : undefined}
         onMouseEnter={() => setIsHovering(true)}

@@ -1,9 +1,13 @@
 import { mergeClasses } from '@/lib/merge-classes'
-import { type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
+import { type HTMLAttributes, type MouseEvent as ReactMouseEvent, type ReactNode, type Ref } from 'react'
 
 interface MediaCardFrameProps {
   width: number | string
   height: number | string
+  /** e.g. dnd-kit `setActivatorNodeRef` for keyboard sort when focus is on the card frame */
+  rootRef?: Ref<HTMLDivElement | null>
+  /** Props merged onto the root (e.g. dnd-kit `attributes`). `onKeyDown` / `tabIndex` are merged explicitly. */
+  sortableFrameProps?: HTMLAttributes<HTMLDivElement>
   onClick?: (event: React.MouseEvent) => void
   onMouseEnter?: () => void
   onMouseLeave?: () => void
@@ -22,6 +26,8 @@ interface MediaCardFrameProps {
 export default function MediaCardFrame({
   width,
   height,
+  rootRef,
+  sortableFrameProps,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -35,16 +41,23 @@ export default function MediaCardFrame({
   className,
   'cy-id': cyId = 'mediaCard'
 }: MediaCardFrameProps) {
+  const { onKeyDown: sortableOnKeyDown, tabIndex: sortableTabIndex, ...sortableRest } = sortableFrameProps ?? {}
+
   return (
     <div
+      ref={rootRef}
       cy-id={cyId}
       id={cardId}
-      tabIndex={0}
+      {...sortableRest}
+      tabIndex={sortableTabIndex ?? 0}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onMouseOver={onMouseOver}
-      onKeyDown={onKeyDown}
+      onKeyDown={(event) => {
+        sortableOnKeyDown?.(event)
+        onKeyDown?.(event)
+      }}
       className={mergeClasses(
         'relative z-30 rounded-xs',
         onClick && 'cursor-pointer',

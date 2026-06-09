@@ -11,18 +11,27 @@ import {
   closestCenter,
   DndContext,
   DragOverlay,
+  KeyboardCode,
   KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
-  type DragStartEvent
+  type DragStartEvent,
+  type KeyboardCodes
 } from '@dnd-kit/core'
 import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 import SortableBookshelfCard from './media-card/SortableBookshelfCard'
 
 const itemsConfig = ENTITY_CONFIGS.items
+
+/** Arrow keys start keyboard reorder (with Space); Enter/Space/Tab drop; Escape cancels — matches dnd-kit defaults minus Enter on start so Enter only commits. */
+const reorderGridKeyboardCodes: KeyboardCodes = {
+  start: [KeyboardCode.Down, KeyboardCode.Up, KeyboardCode.Left, KeyboardCode.Right],
+  cancel: [KeyboardCode.Esc],
+  end: [KeyboardCode.Enter, KeyboardCode.Tab]
+}
 
 export interface SortableBookshelfReorderGridProps {
   items: LibraryItem[]
@@ -90,7 +99,10 @@ export default function SortableBookshelfReorderGrid({
    */
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: reorderGridKeyboardCodes
+    })
   )
 
   const itemIds = useMemo(() => items.map((b) => b.id), [items])
