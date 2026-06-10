@@ -55,7 +55,6 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
         if (isSeries) key = 'seriesSortDesc'
         else if (isAuthors) key = 'authorSortDesc'
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         updateSetting(key as any, !currentSortDesc)
       } else {
         // New sort
@@ -69,10 +68,8 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
           descKey = 'authorSortDesc'
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         updateSetting(key as any, val)
         if (defaultsToAsc(val)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           updateSetting(descKey as any, false)
         }
       }
@@ -202,6 +199,7 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
         className="h-full text-xs"
         highlightSelected={true}
         menuMaxHeight="none"
+        usePortal
       />
     </div>
   )
