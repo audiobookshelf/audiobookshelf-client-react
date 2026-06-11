@@ -24,7 +24,7 @@ export interface FoliateBook {
 }
 
 export interface FoliateRendererElement extends HTMLElement {
-  setStyles: (styles: string | [string, string]) => void
+  setStyles?: (styles: string | [string, string]) => void
 }
 
 export interface FoliateSearchExcerpt {

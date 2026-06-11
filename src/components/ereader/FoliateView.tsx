@@ -11,6 +11,7 @@ import {
   usesPageBasedProgress,
   type EbookProgressUpdate
 } from '@/lib/ereader/ereaderEbook'
+import { FixedLayoutZoomController, getFixedLayoutPageSize } from '@/lib/ereader/ereaderFixedLayoutZoom'
 import { attachEpubSecurity } from '@/lib/ereader/ereaderSecurity'
 import { applyEreaderSettingsToView, type EreaderSettings } from '@/lib/ereader/ereaderSettings'
 import { normalizeEreaderToc, type EreaderTocItem } from '@/lib/ereader/ereaderToc'
@@ -31,6 +32,8 @@ export interface FoliateViewHandle {
   getToc: () => EreaderTocItem[]
   searchBook: (query: string, onProgress?: (progress: number) => void) => Promise<FoliateSearchSection[]>
   clearSearch: () => void
+  zoomIn: () => void
+  zoomOut: () => void
 }
 
 interface FoliateViewProps {
@@ -41,13 +44,26 @@ interface FoliateViewProps {
   savedEbookLocation?: string
   savedEbookProgress?: number
   settings: EreaderSettings
+  onZoomChange?: (scale: number | null) => void
   onTocReady?: (toc: EreaderTocItem[]) => void
   onClose?: () => void
   onError?: () => void
 }
 
 const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function FoliateView(
-  { libraryItemId, ebookFormat, epubsAllowScriptedContent, title, savedEbookLocation, savedEbookProgress, settings, onTocReady, onClose, onError },
+  {
+    libraryItemId,
+    ebookFormat,
+    epubsAllowScriptedContent,
+    title,
+    savedEbookLocation,
+    savedEbookProgress,
+    settings,
+    onZoomChange,
+    onTocReady,
+    onClose,
+    onError
+  },
   ref
 ) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -61,9 +77,23 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onCloseRef = useRef(onClose)
   const onErrorRef = useRef(onError)
+  const zoomCtrlRef = useRef(new FixedLayoutZoomController())
+  const onZoomChangeRef = useRef(onZoomChange)
+  const pageBased = usesPageBasedProgress(ebookFormat)
 
   onCloseRef.current = onClose
   onErrorRef.current = onError
+  onZoomChangeRef.current = onZoomChange
+
+  const runZoom = useCallback(
+    (direction: 'in' | 'out') => {
+      const renderer = viewRef.current?.renderer
+      if (!renderer || !pageBased) return
+      const scale = direction === 'in' ? zoomCtrlRef.current.zoomIn(renderer) : zoomCtrlRef.current.zoomOut(renderer)
+      onZoomChangeRef.current?.(scale)
+    },
+    [pageBased]
+  )
 
   useImperativeHandle(ref, () => ({
     goLeft: () => {
@@ -122,7 +152,9 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     },
     clearSearch: () => {
       viewRef.current?.clearSearch()
-    }
+    },
+    zoomIn: () => runZoom('in'),
+    zoomOut: () => runZoom('out')
   }))
 
   const flushProgress = useCallback(async () => {
@@ -167,15 +199,16 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
     const resumePage = parseResumePage(savedEbookLocation, ebookFormat)
     const resumeCfi = parseResumeCfi(savedEbookLocation, ebookFormat)
-    const pageBased = usesPageBasedProgress(ebookFormat)
-
     let cancelled = false
     let removeRelocateListener: (() => void) | undefined
     let removeLoadListener: (() => void) | undefined
     let removeDocumentKeydownListener: (() => void) | undefined
     let removeEpubSecurity: (() => void) | undefined
+    let removeWheelListeners: (() => void) | undefined
     let handleKeydown: ((event: KeyboardEvent) => void) | undefined
+    let handleWheelZoom: ((event: WheelEvent) => void) | undefined
     const contentDocs = new Set<Document>()
+    const zoomCtrl = zoomCtrlRef.current
 
     const onRelocate = (event: Event) => {
       scheduleProgressSave((event as CustomEvent<FoliateRelocateDetail>).detail)
@@ -207,16 +240,43 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
           }
         }
 
+        handleWheelZoom = (event: WheelEvent) => {
+          if (!pageBased || !event.ctrlKey) return
+          event.preventDefault()
+          event.stopPropagation()
+          const renderer = view.renderer
+          if (!renderer) return
+          const scale = event.deltaY < 0 ? zoomCtrlRef.current.zoomIn(renderer) : zoomCtrlRef.current.zoomOut(renderer)
+          onZoomChangeRef.current?.(scale)
+        }
+
         const onLoad = (event: Event) => {
-          if (!handleKeydown) return
           const { doc } = (event as CustomEvent<{ doc: Document }>).detail
-          doc.addEventListener('keydown', handleKeydown)
+          const syncPageSize = () => {
+            const pageSize = getFixedLayoutPageSize(doc)
+            if (pageSize) zoomCtrlRef.current.setPageSize(pageSize, view.renderer)
+          }
+          syncPageSize()
+          const img = doc.querySelector('img')
+          if (img && !img.naturalWidth) img.addEventListener('load', syncPageSize, { once: true })
+          if (handleKeydown) doc.addEventListener('keydown', handleKeydown)
+          if (handleWheelZoom) doc.addEventListener('wheel', handleWheelZoom, { passive: false, capture: true })
           contentDocs.add(doc)
         }
 
         view.addEventListener('load', onLoad)
         document.addEventListener('keydown', handleKeydown)
         removeLoadListener = () => view.removeEventListener('load', onLoad)
+
+        if (pageBased && handleWheelZoom) {
+          const wheelOptions: AddEventListenerOptions = { passive: false, capture: true }
+          container.addEventListener('wheel', handleWheelZoom, wheelOptions)
+          document.addEventListener('wheel', handleWheelZoom, wheelOptions)
+          removeWheelListeners = () => {
+            container.removeEventListener('wheel', handleWheelZoom!, wheelOptions)
+            document.removeEventListener('wheel', handleWheelZoom!, wheelOptions)
+          }
+        }
         removeDocumentKeydownListener = () => {
           if (handleKeydown) document.removeEventListener('keydown', handleKeydown)
         }
@@ -278,9 +338,11 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
       removeLoadListener?.()
       removeDocumentKeydownListener?.()
       removeEpubSecurity?.()
-      if (handleKeydown) {
+      removeWheelListeners?.()
+      if (handleKeydown || handleWheelZoom) {
         for (const doc of contentDocs) {
-          doc.removeEventListener('keydown', handleKeydown)
+          if (handleKeydown) doc.removeEventListener('keydown', handleKeydown)
+          if (handleWheelZoom) doc.removeEventListener('wheel', handleWheelZoom, { capture: true })
         }
       }
       contentDocs.clear()
@@ -292,6 +354,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
       viewRef.current?.clearSearch()
       viewRef.current?.close()
       viewRef.current = null
+      zoomCtrl.reset()
       container.innerHTML = ''
     }
 

@@ -9,6 +9,8 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEreaderSettings } from '@/hooks/useEreaderSettings'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { usesPageBasedProgress } from '@/lib/ereader/ereaderEbook'
+import { FIXED_LAYOUT_ZOOM_MAX } from '@/lib/ereader/ereaderFixedLayoutZoom'
 import { EREADER_THEME_SHELL_CLASS, supportsReflowableSettings } from '@/lib/ereader/ereaderSettings'
 import type { EreaderTocItem } from '@/lib/ereader/ereaderToc'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -49,6 +51,7 @@ export default function EreaderOverlay({
   const [isSearchMode, setIsSearchMode] = useState(false)
   const [isSearchPending, setIsSearchPending] = useState(false)
   const [searchProgress, setSearchProgress] = useState<number | null>(null)
+  const [zoomScale, setZoomScale] = useState<number | null>(null)
   const showSettingsRef = useRef(showSettings)
   const showTocRef = useRef(showToc)
   const foliateRef = useRef<FoliateViewHandle>(null)
@@ -131,7 +134,10 @@ export default function EreaderOverlay({
   }, [])
 
   useEffect(() => {
-    if (!isOpen) resetSearch()
+    if (!isOpen) {
+      resetSearch()
+      setZoomScale(null)
+    }
   }, [isOpen, resetSearch])
 
   const handleCloseRequest = useCallback(() => {
@@ -150,6 +156,9 @@ export default function EreaderOverlay({
 
   const shellClass = EREADER_THEME_SHELL_CLASS[settings.theme]
   const supportsSearch = supportsReflowableSettings(ebookFormat)
+  const supportsFixedLayoutZoom = usesPageBasedProgress(ebookFormat)
+  const canZoomOut = zoomScale !== null
+  const canZoomIn = zoomScale === null || zoomScale < FIXED_LAYOUT_ZOOM_MAX
 
   return createPortal(
     <div className={mergeClasses('fixed inset-x-0 top-0 z-80 flex flex-col', playerOpen ? MEDIA_PLAYER_BOTTOM_INSET_CLASS : 'bottom-0', shellClass)}>
@@ -172,6 +181,26 @@ export default function EreaderOverlay({
         </button>
         <h1 className="min-w-0 flex-1 truncate text-sm font-semibold">{title}</h1>
         <div className="grow" />
+        {supportsFixedLayoutZoom && (
+          <>
+            <button
+              type="button"
+              className="material-symbols text-2xl opacity-80 hover:opacity-100 disabled:opacity-30"
+              disabled={!canZoomOut}
+              onClick={() => foliateRef.current?.zoomOut()}
+            >
+              zoom_out
+            </button>
+            <button
+              type="button"
+              className="material-symbols text-2xl opacity-80 hover:opacity-100 disabled:opacity-30"
+              disabled={!canZoomIn}
+              onClick={() => foliateRef.current?.zoomIn()}
+            >
+              zoom_in
+            </button>
+          </>
+        )}
         <button type="button" className="material-symbols text-2xl opacity-80 hover:opacity-100" onClick={handleCloseRequest} aria-label={t('ButtonClose')}>
           close
         </button>
@@ -196,6 +225,7 @@ export default function EreaderOverlay({
             savedEbookLocation={savedEbookLocation}
             savedEbookProgress={savedEbookProgress}
             settings={settings}
+            onZoomChange={setZoomScale}
             onTocReady={setToc}
             onClose={handleCloseRequest}
             onError={handleError}
