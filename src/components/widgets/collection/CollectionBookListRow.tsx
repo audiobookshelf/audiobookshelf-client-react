@@ -2,6 +2,7 @@
 
 import { removeBookFromCollectionAction } from '@/app/actions/collectionActions'
 import { toggleFinishedAction } from '@/app/actions/mediaActions'
+import PreviewCover from '@/components/covers/PreviewCover'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
@@ -97,7 +98,6 @@ export default function CollectionBookListRow({
   }, [])
 
   const coverSize = isMdUp ? 50 : 30
-  const coverHeight = coverSize * 1.6
   const coverWidth = bookCoverAspectRatio === 1 ? coverSize * 1.6 : coverSize
 
   const placeholderUrl = getPlaceholderCoverUrl()
@@ -196,9 +196,8 @@ export default function CollectionBookListRow({
         )}
 
         <div className="flex h-full items-center" style={{ width: coverWidth, minWidth: coverWidth, maxWidth: coverWidth }}>
-          <div className="relative" style={{ height: coverHeight, minHeight: coverHeight, maxHeight: coverHeight }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={coverSrc} alt="" className="h-full w-full object-cover" />
+          <div className="relative">
+            <PreviewCover src={coverSrc} width={coverWidth} showResolution={false} />
             {showHoverActions && showPlayBtn && (
               <div className="absolute top-0 left-0 z-10 flex h-full w-full items-center justify-center bg-black/50">
                 <button
