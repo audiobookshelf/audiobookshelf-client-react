@@ -52,6 +52,7 @@ export default function EreaderOverlay({
   const [isSearchPending, setIsSearchPending] = useState(false)
   const [searchProgress, setSearchProgress] = useState<number | null>(null)
   const [zoomScale, setZoomScale] = useState<number | null>(null)
+  const [comicPageFilename, setComicPageFilename] = useState<string | null>(null)
   const showSettingsRef = useRef(showSettings)
   const showTocRef = useRef(showToc)
   const foliateRef = useRef<FoliateViewHandle>(null)
@@ -137,6 +138,7 @@ export default function EreaderOverlay({
     if (!isOpen) {
       resetSearch()
       setZoomScale(null)
+      setComicPageFilename(null)
     }
   }, [isOpen, resetSearch])
 
@@ -157,6 +159,7 @@ export default function EreaderOverlay({
   const shellClass = EREADER_THEME_SHELL_CLASS[settings.theme]
   const supportsSearch = supportsReflowableSettings(ebookFormat)
   const supportsFixedLayoutZoom = usesPageBasedProgress(ebookFormat)
+  const isCbz = ebookFormat.toLowerCase() === 'cbz'
   const canZoomOut = zoomScale !== null
   const canZoomIn = zoomScale === null || zoomScale < FIXED_LAYOUT_ZOOM_MAX
 
@@ -179,6 +182,17 @@ export default function EreaderOverlay({
         >
           settings
         </button>
+        {isCbz && (
+          <button
+            type="button"
+            className="material-symbols text-2xl opacity-80 hover:opacity-100 disabled:opacity-30"
+            disabled={!comicPageFilename}
+            onClick={() => foliateRef.current?.downloadCurrentComicPage()}
+            aria-label={t('LabelDownload')}
+          >
+            download
+          </button>
+        )}
         <h1 className="min-w-0 flex-1 truncate text-sm font-semibold">{title}</h1>
         <div className="grow" />
         {supportsFixedLayoutZoom && (
@@ -226,6 +240,7 @@ export default function EreaderOverlay({
             savedEbookProgress={savedEbookProgress}
             settings={settings}
             onZoomChange={setZoomScale}
+            onComicPageChange={setComicPageFilename}
             onTocReady={setToc}
             onClose={handleCloseRequest}
             onError={handleError}

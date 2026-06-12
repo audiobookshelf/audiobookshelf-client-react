@@ -140,7 +140,7 @@ export async function resumeEpubLocation(view: FoliateViewElement, cfi: string, 
 
 export function progressFromRelocate(detail: FoliateRelocateDetail, format: string): EbookProgressUpdate | null {
   if (usesPageBasedProgress(format)) {
-    const pageIndex = detail.section?.current
+    const pageIndex = detail.section?.current ?? detail.index
     const totalPages = detail.section?.total
     if (typeof pageIndex !== 'number') return null
 

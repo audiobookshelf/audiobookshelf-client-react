@@ -1,6 +1,7 @@
 export interface FoliateRelocateDetail {
   fraction?: number
   cfi?: string
+  index?: number
   section?: { current?: number; total?: number }
   location?: { current?: number; total?: number }
 }
@@ -25,6 +26,7 @@ export interface FoliateBook {
 
 export interface FoliateRendererElement extends HTMLElement {
   setStyles?: (styles: string | [string, string]) => void
+  getContents?: () => Array<{ doc?: Document | null; index?: number }>
 }
 
 export interface FoliateSearchExcerpt {

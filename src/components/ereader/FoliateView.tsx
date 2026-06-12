@@ -3,6 +3,13 @@
 import { updateEbookProgressAction } from '@/app/actions/ebookActions'
 import type { FoliateRelocateDetail, FoliateSearchSection, FoliateViewElement } from '@/components/ereader/foliate'
 import {
+  downloadComicPageImage,
+  getComicPageFilename,
+  getComicPageImageUrl,
+  getComicPageImageUrlFromDoc,
+  getComicPageIndex
+} from '@/lib/ereader/ereaderComicDownload'
+import {
   blobToEbookFile,
   parseResumeCfi,
   parseResumePage,
@@ -34,6 +41,7 @@ export interface FoliateViewHandle {
   clearSearch: () => void
   zoomIn: () => void
   zoomOut: () => void
+  downloadCurrentComicPage: () => void
 }
 
 interface FoliateViewProps {
@@ -45,6 +53,7 @@ interface FoliateViewProps {
   savedEbookProgress?: number
   settings: EreaderSettings
   onZoomChange?: (scale: number | null) => void
+  onComicPageChange?: (filename: string | null) => void
   onTocReady?: (toc: EreaderTocItem[]) => void
   onClose?: () => void
   onError?: () => void
@@ -60,6 +69,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     savedEbookProgress,
     settings,
     onZoomChange,
+    onComicPageChange,
     onTocReady,
     onClose,
     onError
@@ -79,11 +89,35 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   const onErrorRef = useRef(onError)
   const zoomCtrlRef = useRef(new FixedLayoutZoomController())
   const onZoomChangeRef = useRef(onZoomChange)
+  const onComicPageChangeRef = useRef(onComicPageChange)
+  const currentComicPageIndexRef = useRef(-1)
+  const currentComicImageUrlRef = useRef<string | null>(null)
   const pageBased = usesPageBasedProgress(ebookFormat)
+  const isCbz = ebookFormat.toLowerCase() === 'cbz'
 
   onCloseRef.current = onClose
   onErrorRef.current = onError
   onZoomChangeRef.current = onZoomChange
+  onComicPageChangeRef.current = onComicPageChange
+
+  const notifyComicPage = useCallback(
+    (pageIndex: number) => {
+      if (!isCbz || pageIndex < 0) return
+
+      currentComicPageIndexRef.current = pageIndex
+      onComicPageChangeRef.current?.(getComicPageFilename(tocRef.current, pageIndex))
+    },
+    [isCbz]
+  )
+
+  const notifyComicPageFromRelocate = useCallback(
+    (detail: FoliateRelocateDetail) => {
+      const index = getComicPageIndex(detail)
+      if (index === null) return
+      notifyComicPage(index)
+    },
+    [notifyComicPage]
+  )
 
   const runZoom = useCallback(
     (direction: 'in' | 'out') => {
@@ -154,7 +188,20 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
       viewRef.current?.clearSearch()
     },
     zoomIn: () => runZoom('in'),
-    zoomOut: () => runZoom('out')
+    zoomOut: () => runZoom('out'),
+    downloadCurrentComicPage: () => {
+      if (!isCbz) return
+      const view = viewRef.current
+      if (!view?.renderer) return
+
+      const filename = getComicPageFilename(tocRef.current, currentComicPageIndexRef.current)
+      const imageUrl = currentComicImageUrlRef.current ?? getComicPageImageUrl(view.renderer)
+      if (!filename || !imageUrl) return
+
+      void downloadComicPageImage(imageUrl, filename).catch((error) => {
+        console.error('Failed to download comic page', error)
+      })
+    }
   }))
 
   const flushProgress = useCallback(async () => {
@@ -172,6 +219,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
   const scheduleProgressSave = useCallback(
     (detail: FoliateRelocateDetail) => {
+      notifyComicPageFromRelocate(detail)
+
       const progress = progressFromRelocate(detail, ebookFormat)
       if (!progress) return
       if (progress.ebookLocation === lastSavedLocationRef.current) return
@@ -184,7 +233,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         void flushProgress()
       }, PROGRESS_DEBOUNCE_MS)
     },
-    [ebookFormat, flushProgress]
+    [ebookFormat, flushProgress, notifyComicPageFromRelocate]
   )
 
   useEffect(() => {
@@ -251,7 +300,11 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         }
 
         const onLoad = (event: Event) => {
-          const { doc } = (event as CustomEvent<{ doc: Document }>).detail
+          const { doc, index } = (event as CustomEvent<{ doc: Document; index?: number }>).detail
+          if (isCbz) {
+            currentComicImageUrlRef.current = getComicPageImageUrlFromDoc(doc)
+            if (typeof index === 'number') notifyComicPage(index)
+          }
           const syncPageSize = () => {
             const pageSize = getFixedLayoutPageSize(doc)
             if (pageSize) zoomCtrlRef.current.setPageSize(pageSize, view.renderer)
@@ -297,6 +350,9 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
         await view.open(file)
 
+        view.addEventListener('relocate', onRelocate)
+        removeRelocateListener = () => view.removeEventListener('relocate', onRelocate)
+
         if (!allowScriptedContent) {
           removeEpubSecurity = attachEpubSecurity(view)
         }
@@ -321,9 +377,6 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         }
 
         applyEreaderSettingsToView(view, settings, ebookFormat)
-
-        view.addEventListener('relocate', onRelocate)
-        removeRelocateListener = () => view.removeEventListener('relocate', onRelocate)
       } catch (error) {
         console.error('Failed to initialize foliate reader', error)
         onErrorRef.current?.()
@@ -355,6 +408,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
       viewRef.current?.close()
       viewRef.current = null
       zoomCtrl.reset()
+      currentComicPageIndexRef.current = -1
+      currentComicImageUrlRef.current = null
       container.innerHTML = ''
     }
 
