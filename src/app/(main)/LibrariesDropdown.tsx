@@ -34,6 +34,12 @@ function getLibrarySwitchPath(pathname: string, search: string, currentLibraryId
   if (page === 'authors' && hasDetailId) {
     return targetMediaType === 'book' ? `${home}/authors${search}` : home
   }
+  if (page === 'collection' && hasDetailId) {
+    return targetMediaType === 'book' ? `${home}/collections${search}` : home
+  }
+  if (page === 'playlist' && hasDetailId) {
+    return `${home}/playlists${search}`
+  }
 
   parts[1] = targetLibraryId
   const path = '/' + parts.join('/')
