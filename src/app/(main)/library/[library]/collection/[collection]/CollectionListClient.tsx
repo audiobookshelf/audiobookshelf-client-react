@@ -62,7 +62,7 @@ export default function CollectionListClient({ collection, orderedBooks, setOrde
   if (orderedBooks.length === 0) {
     return (
       <div className="bg-primary/40 mt-6e w-full min-w-0" style={{ fontSize: sizeMultiplier + 'rem' }}>
-        <div className="text-foreground-muted flex items-center justify-center p-10e">
+        <div className="text-foreground-muted p-10e flex items-center justify-center">
           <p>{t('MessageNoBooksFound')}</p>
         </div>
       </div>
