@@ -19,7 +19,7 @@ import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationCon
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
 import { formatDuration } from '@/lib/formatDuration'
-import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
+import { buildMediaItemProgressMap, getLibraryItemProgressFromMap } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { BookMetadata, BookshelfEntity, LibraryItem, Series } from '@/types/api'
 import { isBookMedia, isBookMetadata } from '@/types/api'
@@ -84,7 +84,7 @@ export default function CollectionBookListRow({
   const bookDuration = duration ? formatDuration(duration, t) : ''
 
   const mediaItemProgressMap = useMemo(() => buildMediaItemProgressMap(user.mediaProgress), [user.mediaProgress])
-  const itemProgress = mediaItemProgressMap.get(book.id) ?? null
+  const itemProgress = getLibraryItemProgressFromMap(mediaItemProgressMap, book)
   const userIsFinished = !!itemProgress?.isFinished
 
   const isMissing = book.isMissing
