@@ -12,11 +12,12 @@ import { useCollectionCardActions } from '@/components/widgets/media-card/useCol
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { usePrimaryInputCanHover } from '@/contexts/SortableBookshelfContext'
 import { useUser } from '@/contexts/UserContext'
+import { useCollectionDisplayMode } from '@/hooks/useCollectionDisplayMode'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Collection } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import CollectionBookshelfClient from './CollectionBookshelfClient'
+import CollectionItemsClient from './CollectionItemsClient'
 
 interface CollectionClientProps {
   collection: Collection
@@ -28,6 +29,9 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
   const primaryInputCanHover = usePrimaryInputCanHover()
   const t = useTypeSafeTranslations()
   const router = useRouter()
+  const { displayMode, toggleDisplayMode } = useCollectionDisplayMode()
+  const isListMode = displayMode === 'list'
+  const alternateViewLabel = isListMode ? t('LabelCollectionBookshelfView') : t('LabelCollectionListView')
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio
 
@@ -72,55 +76,65 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 md:flex-row md:items-start">
         <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
-          <div className="flex min-w-0 items-center gap-4">
-            <h1 className="text-foreground min-w-0 flex-1 truncate px-2 text-2xl font-bold">{collection.name}</h1>
-            {showHeaderActions && (
-              <div className="flex shrink-0 items-center gap-1">
-                {userCanUpdate && (
-                  <Tooltip text={t('LabelEdit')} position="top">
-                    <span className="inline-flex">
-                      <IconBtn ariaLabel={t('LabelEdit')} onClick={() => setEditModalOpen(true)} outlined className="mx-0.5" size="small">
-                        edit
-                      </IconBtn>
-                    </span>
-                  </Tooltip>
-                )}
-                {userCanUpdate && !primaryInputCanHover && (
-                  <Tooltip text={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')} position="top">
-                    <span className="inline-flex">
-                      <IconBtn
-                        ariaLabel={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')}
-                        aria-pressed={mobileReorderActive}
-                        onClick={() => setMobileReorderActive((v) => !v)}
-                        outlined
-                        className="mx-0.5"
-                        size="small"
-                      >
-                        {mobileReorderActive ? 'check' : 'reorder'}
-                      </IconBtn>
-                    </span>
-                  </Tooltip>
-                )}
-                {moreMenuItems.length > 0 && (
-                  <ContextMenuDropdown
-                    items={collectionHeaderMoreItems}
-                    processing={processing}
-                    onAction={handleCollectionHeaderMoreAction}
-                    size="small"
-                    menuAlign="right"
-                    autoWidth
-                    usePortal
-                    className="mx-0.5"
-                  />
-                )}
-              </div>
-            )}
+          <div className="flex w-full min-w-0 flex-col gap-2 md:flex-row md:items-center md:gap-4">
+            <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold break-words md:flex-1 md:truncate">{collection.name}</h1>
+            <div className="flex shrink-0 flex-wrap items-center gap-1 px-2 md:px-0">
+              <Tooltip text={alternateViewLabel} position="top">
+                <span className="inline-flex">
+                  <IconBtn ariaLabel={alternateViewLabel} onClick={toggleDisplayMode} outlined className="mx-0.5" size="small">
+                    {isListMode ? 'view_module' : 'view_list'}
+                  </IconBtn>
+                </span>
+              </Tooltip>
+              {showHeaderActions && (
+                <>
+                  {userCanUpdate && (
+                    <Tooltip text={t('LabelEdit')} position="top">
+                      <span className="inline-flex">
+                        <IconBtn ariaLabel={t('LabelEdit')} onClick={() => setEditModalOpen(true)} outlined className="mx-0.5" size="small">
+                          edit
+                        </IconBtn>
+                      </span>
+                    </Tooltip>
+                  )}
+                  {userCanUpdate && !primaryInputCanHover && (
+                    <Tooltip text={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')} position="top">
+                      <span className="inline-flex">
+                        <IconBtn
+                          ariaLabel={mobileReorderActive ? t('LabelCollectionDoneReordering') : t('LabelCollectionReorderBooks')}
+                          aria-pressed={mobileReorderActive}
+                          onClick={() => setMobileReorderActive((v) => !v)}
+                          outlined
+                          className="mx-0.5"
+                          size="small"
+                        >
+                          {mobileReorderActive ? 'check' : 'reorder'}
+                        </IconBtn>
+                      </span>
+                    </Tooltip>
+                  )}
+                  {moreMenuItems.length > 0 && (
+                    <ContextMenuDropdown
+                      items={collectionHeaderMoreItems}
+                      processing={processing}
+                      onAction={handleCollectionHeaderMoreAction}
+                      size="small"
+                      menuAlign="right"
+                      autoWidth
+                      usePortal
+                      className="mx-0.5"
+                    />
+                  )}
+                </>
+              )}
+            </div>
           </div>
           {collection.description && <p className="text-foreground-muted px-2">{collection.description}</p>}
+          {isListMode && <CollectionItemsClient collection={collection} displayMode="list" mobileReorderActive={mobileReorderActive} />}
         </div>
       </div>
 
-      <CollectionBookshelfClient collection={collection} mobileReorderActive={mobileReorderActive} />
+      {!isListMode && <CollectionItemsClient collection={collection} displayMode="bookshelf" mobileReorderActive={mobileReorderActive} />}
 
       {userCanUpdate && (
         <CollectionEditModal isOpen={editModalOpen} collection={collection} onClose={() => setEditModalOpen(false)} onSaved={() => router.refresh()} />

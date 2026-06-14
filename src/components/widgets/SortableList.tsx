@@ -6,8 +6,10 @@ import {
   closestCenter,
   DndContext,
   DragOverlay,
+  KeyboardCode,
   KeyboardSensor,
   PointerSensor,
+  useDndMonitor,
   useSensor,
   useSensors,
   type DragCancelEvent,
@@ -15,12 +17,22 @@ import {
   type DraggableAttributes,
   type DraggableSyntheticListeners,
   type DragStartEvent,
+  type KeyboardCodes,
   type Modifier
 } from '@dnd-kit/core'
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { CSSProperties } from 'react'
-import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import type { CSSProperties, KeyboardEvent, KeyboardEventHandler } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+const VERTICAL_ARROW_CODES = new Set(['ArrowUp', 'ArrowDown'])
+
+/** Arrow keys start keyboard reorder; Enter/Tab drop; Escape cancels — matches dnd-kit defaults minus Enter on start so Enter only commits. */
+const sortableListKeyboardCodes: KeyboardCodes = {
+  start: [KeyboardCode.Down, KeyboardCode.Up],
+  cancel: [KeyboardCode.Esc],
+  end: [KeyboardCode.Enter, KeyboardCode.Tab]
+}
 
 interface SortableItem {
   id: string | number
@@ -86,6 +98,77 @@ function SortableListRow<T extends SortableItem>({
     }
   })
 
+  /** dnd-kit defers attaching the keyboard-move listener to the next task, so the arrow that *starts* drag never moves — replay it once. */
+  const synthArrowMoveAfterStartRef = useRef<string | null>(null)
+  const synthArrowTimeoutRef = useRef<number | null>(null)
+
+  useDndMonitor({
+    onDragStart({ active, activatorEvent }) {
+      if (String(active.id) !== String(item.id)) return
+      if (activatorEvent instanceof globalThis.KeyboardEvent && VERTICAL_ARROW_CODES.has(activatorEvent.code)) {
+        synthArrowMoveAfterStartRef.current = activatorEvent.code
+      }
+    },
+    onDragEnd() {
+      if (synthArrowTimeoutRef.current != null) {
+        window.clearTimeout(synthArrowTimeoutRef.current)
+        synthArrowTimeoutRef.current = null
+      }
+      synthArrowMoveAfterStartRef.current = null
+    },
+    onDragCancel() {
+      if (synthArrowTimeoutRef.current != null) {
+        window.clearTimeout(synthArrowTimeoutRef.current)
+        synthArrowTimeoutRef.current = null
+      }
+      synthArrowMoveAfterStartRef.current = null
+    }
+  })
+
+  useEffect(() => {
+    return () => {
+      if (synthArrowTimeoutRef.current != null) {
+        window.clearTimeout(synthArrowTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  const listenerRecord = listeners as Record<string, unknown> | undefined
+
+  const handleActivatorKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLElement>) => {
+      const dndKeyDown = listenerRecord?.onKeyDown as KeyboardEventHandler<HTMLElement> | undefined
+      if (!dndKeyDown) return
+      dndKeyDown(event)
+      const code = synthArrowMoveAfterStartRef.current
+      if (code && code === event.code) {
+        synthArrowMoveAfterStartRef.current = null
+        const el = event.currentTarget
+        if (synthArrowTimeoutRef.current != null) {
+          window.clearTimeout(synthArrowTimeoutRef.current)
+        }
+        synthArrowTimeoutRef.current = window.setTimeout(() => {
+          synthArrowTimeoutRef.current = null
+          el.dispatchEvent(
+            new window.KeyboardEvent('keydown', {
+              code,
+              key: event.key,
+              bubbles: true,
+              cancelable: true,
+              view: window
+            })
+          )
+        }, 0)
+      }
+    },
+    [listenerRecord]
+  )
+
+  const activatorListeners = useMemo((): DraggableSyntheticListeners | undefined => {
+    if (!listenerRecord?.onKeyDown) return listeners
+    return { ...listenerRecord, onKeyDown: handleActivatorKeyDown } as DraggableSyntheticListeners
+  }, [listeners, listenerRecord, handleActivatorKeyDown])
+
   // While dragging, the live preview is rendered in `<DragOverlay>` (portaled). Clearing
   // `transform` here keeps the in-list slot from following the pointer so scroll parents
   // don’t grow (transformed overflow expands scrollable area in common browsers).
@@ -105,7 +188,7 @@ function SortableListRow<T extends SortableItem>({
   const dragHandleProps: SortableListDragHandleProps = {
     setActivatorNodeRef,
     attributes: activatorAttributes,
-    listeners
+    listeners: activatorListeners
   }
 
   return (
@@ -139,7 +222,10 @@ export default function SortableList<T extends SortableItem>({
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: sortableListKeyboardCodes
+    })
   )
 
   const sortableIds = useMemo(() => itemsWithIds.map((item) => String(item.id)), [itemsWithIds])

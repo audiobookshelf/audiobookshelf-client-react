@@ -9,6 +9,19 @@ export function buildMediaItemProgressMap(mediaProgress: MediaProgress[]): Map<s
   return map
 }
 
+/** Progress for a library item (book) from a map built with {@link buildMediaItemProgressMap}. */
+export function getLibraryItemProgressFromMap(
+  map: Map<string, MediaProgress>,
+  libraryItem: { id: string; media?: { id?: string } | null }
+): MediaProgress | null {
+  const mediaItemId = libraryItem.media?.id
+  if (mediaItemId) {
+    const byMediaItem = map.get(mediaItemId)
+    if (byMediaItem) return byMediaItem
+  }
+  return map.get(libraryItem.id) ?? null
+}
+
 /** Progress rows for one podcast library item, keyed by podcast episode id (mediaItemId) */
 export function buildPodcastEpisodeProgressMap(podcastLibraryItemId: string, mediaProgress: MediaProgress[]): Map<string, MediaProgress> {
   const map = new Map<string, MediaProgress>()
