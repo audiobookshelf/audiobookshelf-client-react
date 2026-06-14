@@ -8,6 +8,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover, useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
@@ -35,7 +36,7 @@ interface CollectionBookListRowProps {
   isDragging?: boolean
 }
 
-const COLLECTION_ROW_LINK_FOCUS = 'rounded-sm px-1 py-0.5 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
+const COLLECTION_ROW_LINK_FOCUS = 'rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
 
 function getSeriesList(series: BookMetadata['series']): { id: string; text: string }[] {
   if (!Array.isArray(series)) return []
@@ -56,6 +57,7 @@ export default function CollectionBookListRow({
   isDragging = false
 }: CollectionBookListRowProps) {
   const t = useTypeSafeTranslations()
+  const { sizeMultiplier } = useCardSize()
   const { user, userCanUpdate, userCanDelete } = useUser()
   const { setBoundModal } = useLibrary()
   const sortableBookshelf = useSortableBookshelf()
@@ -99,7 +101,8 @@ export default function CollectionBookListRow({
     return () => mq.removeEventListener('change', update)
   }, [])
 
-  const coverSize = isMdUp ? 50 : 30
+  const baseCoverSize = isMdUp ? 50 : 30
+  const coverSize = baseCoverSize * sizeMultiplier
   const coverWidth = bookCoverAspectRatio === 1 ? coverSize * 1.6 : coverSize
 
   const placeholderUrl = getPlaceholderCoverUrl()
@@ -176,30 +179,29 @@ export default function CollectionBookListRow({
   const showHoverActions = primaryInputCanHover && isHovering && !isDragging
   const showMobilePlayBtn = !isMdUp && !showDragHandle && showPlayBtn
   const bookItemHref = `/library/${book.libraryId}/item/${book.id}`
+  const actionBtnClass = 'size-[1.75em] min-h-0 min-w-0 shrink-0 p-0 text-[1.5em] leading-none hover:not-disabled:before:bg-foreground/10'
 
   return (
     <div
-      className={mergeClasses('relative w-full overflow-hidden px-1 py-2 md:px-2', isHovering && !isDragging ? 'bg-foreground/5' : '')}
+      className={mergeClasses('px-1e py-2e md:px-2e relative w-full overflow-hidden', isHovering && !isDragging ? 'bg-foreground/5' : '')}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="flex h-18 min-w-0 md:h-[5.5rem]">
+      <div className="flex min-h-[4.5em] min-w-0 items-center md:min-h-[5.5em]">
         {showDragHandle && (
-          <div className="h-full w-10 min-w-10 md:w-16 md:max-w-16">
-            <div className="flex h-full items-center justify-center">
-              <div
-                ref={sortableDragHandleProps.setActivatorNodeRef}
-                className={mergeClasses('drag-handle flex items-center justify-center', DRAG_HANDLE_GRAB_CURSOR, DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH)}
-                {...sortableDragHandleProps.attributes}
-                {...sortableDragHandleProps.listeners}
-              >
-                <span className="material-symbols text-foreground-subdued hover:text-foreground text-lg leading-none md:text-xl">menu</span>
-              </div>
+          <div className="w-10e min-w-10e md:w-16e md:max-w-16e flex shrink-0 items-center justify-center">
+            <div
+              ref={sortableDragHandleProps.setActivatorNodeRef}
+              className={mergeClasses('drag-handle flex items-center justify-center', DRAG_HANDLE_GRAB_CURSOR, DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH)}
+              {...sortableDragHandleProps.attributes}
+              {...sortableDragHandleProps.listeners}
+            >
+              <span className="material-symbols text-foreground-subdued hover:text-foreground text-[1.125em] leading-none md:text-[1.25em]">menu</span>
             </div>
           </div>
         )}
 
-        <div className="relative flex h-full min-w-0 flex-1">
+        <div className="relative flex min-w-0 flex-1 items-center">
           {!isMdUp && (
             <Link
               href={bookItemHref}
@@ -211,41 +213,44 @@ export default function CollectionBookListRow({
             />
           )}
 
-          <div className="flex h-full items-center" style={{ width: coverWidth, minWidth: coverWidth, maxWidth: coverWidth }}>
+          <div className="flex shrink-0 items-center" style={{ width: coverWidth, minWidth: coverWidth, maxWidth: coverWidth }}>
             <div className="relative">
               <PreviewCover src={coverSrc} width={coverWidth} showResolution={false} />
               {showHoverActions && showPlayBtn && (
                 <div className="absolute top-0 left-0 z-10 flex h-full w-full items-center justify-center bg-black/50">
                   <button
                     type="button"
-                    className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white/20 hover:bg-white/40"
+                    className="h-8e w-8e flex cursor-pointer items-center justify-center rounded-full bg-white/20 hover:bg-white/40"
                     onClick={handlePlayClick}
                     aria-label={t('ButtonPlay')}
                   >
-                    <span className="material-symbols fill text-2xl text-white">play_arrow</span>
+                    <span className="material-symbols fill text-[1.5em] text-white">play_arrow</span>
                   </button>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="flex h-full min-w-0 flex-1 items-center px-2 md:px-3">
+          <div className="px-2e md:px-3e flex min-w-0 flex-1 items-center">
             <div className="flex w-full min-w-0 flex-col justify-center">
               {isMdUp ? (
                 <Link
                   href={bookItemHref}
-                  className={mergeClasses('text-foreground inline-block w-fit max-w-full text-sm hover:underline md:text-base', COLLECTION_ROW_LINK_FOCUS)}
+                  className={mergeClasses(
+                    'text-foreground inline-block w-fit max-w-full text-[0.875em] hover:underline md:text-[1em]',
+                    COLLECTION_ROW_LINK_FOCUS
+                  )}
                   title={bookTitle}
                 >
                   <span className="block truncate">{bookTitle}</span>
                 </Link>
               ) : (
-                <span className="text-foreground block truncate text-sm" title={bookTitle}>
+                <span className="text-foreground block truncate text-[0.875em]" title={bookTitle}>
                   {bookTitle}
                 </span>
               )}
               {seriesList.length > 0 && (
-                <div className="text-foreground-muted min-w-0 text-xs md:text-sm">
+                <div className="text-foreground-muted min-w-0 text-[0.75em] md:text-[0.875em]">
                   {seriesList.map((se, idx) => (
                     <span key={se.id}>
                       {idx > 0 && ' '}
@@ -264,7 +269,7 @@ export default function CollectionBookListRow({
                 </div>
               )}
               {bookAuthors.length > 0 && (
-                <div className="text-foreground-muted min-w-0 text-xs md:text-sm">
+                <div className="text-foreground-muted min-w-0 text-[0.75em] md:text-[0.875em]">
                   {bookAuthors.map((author, index) => (
                     <span key={author.id}>
                       {isMdUp ? (
@@ -282,39 +287,49 @@ export default function CollectionBookListRow({
                   ))}
                 </div>
               )}
-              {bookDuration && <p className="text-foreground-subdued truncate px-1 text-xs md:text-sm">{bookDuration}</p>}
+              {bookDuration && <p className="text-foreground-subdued px-1e truncate text-[0.75em] md:text-[0.875em]">{bookDuration}</p>}
             </div>
           </div>
         </div>
 
         {showMobilePlayBtn && (
-          <div className="relative z-[2] flex h-full shrink-0 items-center pe-1">
-            <IconBtn borderless ariaLabel={t('ButtonPlay')} onClick={handlePlayClick}>
+          <div className="pe-1e relative z-[2] flex shrink-0 items-center">
+            <IconBtn borderless size="custom" className={actionBtnClass} ariaLabel={t('ButtonPlay')} onClick={handlePlayClick}>
               play_arrow
             </IconBtn>
           </div>
         )}
 
         {showHoverActions && (
-          <div className="flex h-full shrink-0 items-center">
+          <div className="flex shrink-0 items-center gap-0">
             <Tooltip text={userIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} position="top">
-              <span className="mx-1 mt-0.5 inline-flex">
-                <ReadIconBtn disabled={isProcessingReadUpdate} isRead={userIsFinished} borderless onClick={handleToggleFinished} />
+              <span className="inline-flex items-center">
+                <ReadIconBtn
+                  disabled={isProcessingReadUpdate}
+                  isRead={userIsFinished}
+                  borderless
+                  size="custom"
+                  className={actionBtnClass}
+                  onClick={handleToggleFinished}
+                />
               </span>
             </Tooltip>
             {userCanUpdate && (
-              <div className="mx-1">
-                <IconBtn borderless ariaLabel={t('LabelEdit')} onClick={handleEdit}>
-                  edit
-                </IconBtn>
-              </div>
+              <IconBtn borderless size="custom" className={actionBtnClass} ariaLabel={t('LabelEdit')} onClick={handleEdit}>
+                edit
+              </IconBtn>
             )}
             {userCanDelete && (
-              <div className="mx-1">
-                <IconBtn borderless ariaLabel={t('ButtonRemove')} disabled={processingRemove} onClick={handleRemoveClick}>
-                  close
-                </IconBtn>
-              </div>
+              <IconBtn
+                borderless
+                size="custom"
+                className={actionBtnClass}
+                ariaLabel={t('ButtonRemove')}
+                disabled={processingRemove}
+                onClick={handleRemoveClick}
+              >
+                close
+              </IconBtn>
             )}
           </div>
         )}

@@ -3,6 +3,7 @@
 import { updateCollectionAction } from '@/app/actions/collectionActions'
 import CollectionBookListRow from '@/components/widgets/collection/CollectionBookListRow'
 import SortableList from '@/components/widgets/SortableList'
+import { useCardSize } from '@/contexts/CardSizeContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -18,6 +19,7 @@ interface CollectionListClientProps {
 
 export default function CollectionListClient({ collection, orderedBooks, setOrderedBooks, showReorder }: CollectionListClientProps) {
   const t = useTypeSafeTranslations()
+  const { sizeMultiplier } = useCardSize()
   const { userCanUpdate } = useUser()
   const { showToast } = useGlobalToast()
   const [, startTransition] = useTransition()
@@ -59,8 +61,8 @@ export default function CollectionListClient({ collection, orderedBooks, setOrde
 
   if (orderedBooks.length === 0) {
     return (
-      <div className="bg-primary/40 mt-6 w-full min-w-0">
-        <div className="text-foreground-muted flex items-center justify-center p-10">
+      <div className="bg-primary/40 mt-6e w-full min-w-0" style={{ fontSize: sizeMultiplier + 'rem' }}>
+        <div className="text-foreground-muted flex items-center justify-center p-10e">
           <p>{t('MessageNoBooksFound')}</p>
         </div>
       </div>
@@ -68,7 +70,7 @@ export default function CollectionListClient({ collection, orderedBooks, setOrde
   }
 
   return (
-    <div className="bg-primary/40 mt-6 w-full min-w-0">
+    <div className="bg-primary/40 mt-6e w-full min-w-0" style={{ fontSize: sizeMultiplier + 'rem' }}>
       <SortableList items={orderedBooks} onSortEnd={handleSortEnd} renderItem={renderItem} disabled={!showReorder} className="w-full" />
     </div>
   )
