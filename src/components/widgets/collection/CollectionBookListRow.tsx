@@ -35,6 +35,8 @@ interface CollectionBookListRowProps {
   isDragging?: boolean
 }
 
+const COLLECTION_ROW_LINK_FOCUS = 'rounded-sm px-1 py-0.5 focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
+
 function getSeriesList(series: BookMetadata['series']): { id: string; text: string }[] {
   if (!Array.isArray(series)) return []
   return series.map((se: Series) => {
@@ -213,21 +215,24 @@ export default function CollectionBookListRow({
           </div>
         </div>
 
-        <div className="flex h-full min-w-0 flex-1 items-center overflow-hidden px-2 md:px-3">
-          <div className="w-full min-w-0 overflow-hidden">
+        <div className="flex h-full min-w-0 flex-1 items-center px-2 md:px-3">
+          <div className="flex w-full min-w-0 flex-col justify-center">
             <Link
               href={`/library/${book.libraryId}/item/${book.id}`}
-              className="text-foreground block min-w-0 truncate text-sm hover:underline md:text-base"
+              className={mergeClasses('text-foreground inline-block w-fit max-w-full text-sm hover:underline md:text-base', COLLECTION_ROW_LINK_FOCUS)}
               title={bookTitle}
             >
-              {bookTitle}
+              <span className="block truncate">{bookTitle}</span>
             </Link>
             {seriesList.length > 0 && (
-              <div className="text-foreground-muted truncate text-xs md:text-sm">
+              <div className="text-foreground-muted min-w-0 text-xs md:text-sm">
                 {seriesList.map((se, idx) => (
                   <span key={se.id}>
                     {idx > 0 && ' '}
-                    <Link href={`/library/${book.libraryId}/series/${se.id}`} className="font-sans hover:underline">
+                    <Link
+                      href={`/library/${book.libraryId}/series/${se.id}`}
+                      className={mergeClasses('inline-block font-sans hover:underline', COLLECTION_ROW_LINK_FOCUS)}
+                    >
                       {se.text}
                     </Link>
                   </span>
@@ -235,10 +240,13 @@ export default function CollectionBookListRow({
               </div>
             )}
             {bookAuthors.length > 0 && (
-              <div className="text-foreground-muted truncate text-xs md:text-sm">
+              <div className="text-foreground-muted min-w-0 text-xs md:text-sm">
                 {bookAuthors.map((author, index) => (
                   <span key={author.id}>
-                    <Link href={`/library/${book.libraryId}/authors/${author.id}`} className="hover:underline">
+                    <Link
+                      href={`/library/${book.libraryId}/authors/${author.id}`}
+                      className={mergeClasses('inline-block hover:underline', COLLECTION_ROW_LINK_FOCUS)}
+                    >
                       {author.name}
                     </Link>
                     {index < bookAuthors.length - 1 && <>,&nbsp;</>}
@@ -246,7 +254,7 @@ export default function CollectionBookListRow({
                 ))}
               </div>
             )}
-            {bookDuration && <p className="text-foreground-subdued truncate text-xs md:text-sm">{bookDuration}</p>}
+            {bookDuration && <p className="text-foreground-subdued truncate px-1 text-xs md:text-sm">{bookDuration}</p>}
           </div>
         </div>
 
