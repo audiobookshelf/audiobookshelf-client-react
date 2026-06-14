@@ -174,6 +174,7 @@ export default function CollectionBookListRow({
   }
 
   const showHoverActions = primaryInputCanHover && isHovering && !isDragging
+  const showMobilePlayBtn = !isMdUp && !showDragHandle && showPlayBtn
   const bookItemHref = `/library/${book.libraryId}/item/${book.id}`
 
   return (
@@ -203,7 +204,7 @@ export default function CollectionBookListRow({
             <Link
               href={bookItemHref}
               className={mergeClasses(
-                'absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0 md:hidden',
+                'focus-visible:outline-foreground-muted absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
                 isDragging && 'pointer-events-none'
               )}
               aria-label={bookTitle}
@@ -285,6 +286,14 @@ export default function CollectionBookListRow({
             </div>
           </div>
         </div>
+
+        {showMobilePlayBtn && (
+          <div className="relative z-[2] flex h-full shrink-0 items-center pe-1">
+            <IconBtn borderless ariaLabel={t('ButtonPlay')} onClick={handlePlayClick}>
+              play_arrow
+            </IconBtn>
+          </div>
+        )}
 
         {showHoverActions && (
           <div className="flex h-full shrink-0 items-center">
