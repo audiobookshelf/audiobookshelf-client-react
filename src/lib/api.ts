@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
+  AudioBookmark,
   AuthenticationSettings,
   AuthenticationSettingsPatch,
   Author,
@@ -12,11 +13,11 @@ import {
   AuthorUpdateResponse,
   BookSearchResult,
   Collection,
-  CreatePodcastsFromOpmlPayload,
-  CreatePodcastPayload,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
   CreateCustomMetadataProviderResponse,
+  CreatePodcastPayload,
+  CreatePodcastsFromOpmlPayload,
   CreateUpdateApiKeyResponse,
   EmailSettingsFormFields,
   EReaderDevice,
@@ -37,6 +38,7 @@ import {
   GetNotificationsResponse,
   GetOpenListeningSessionsResponse,
   GetPlaylistsResponse,
+  GetPodcastTitlesResponse,
   GetRssFeedsResponse,
   GetSeriesResponse,
   GetUsersResponse,
@@ -55,11 +57,10 @@ import {
   OpenMediaItemSharePayload,
   OpenRssFeedPayload,
   OpenRssFeedResponse,
+  ParseOpmlFeedsResponse,
   PersonalizedShelf,
   Playlist,
   PlaylistItemPayload,
-  GetPodcastTitlesResponse,
-  ParseOpmlFeedsResponse,
   PodcastSearchResult,
   RssPodcastEpisode,
   SaveLibraryOrderApiResponse,
@@ -74,7 +75,6 @@ import {
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
   UploadCoverResponse,
-  AudioBookmark,
   User,
   UserLoginResponse
 } from '../types/api'
@@ -1193,6 +1193,23 @@ export async function deleteCollection(collectionId: string): Promise<void> {
 export async function createPlaylistFromCollection(collectionId: string): Promise<{ id: string }> {
   return apiRequest<{ id: string }>(`/api/playlists/collection/${collectionId}`, {
     method: 'POST'
+  })
+}
+
+/**
+ * Update a playlist (name, description, item order)
+ */
+export async function updatePlaylist(
+  playlistId: string,
+  payload: {
+    name?: string
+    description?: string | null
+    items?: PlaylistItemPayload[]
+  }
+): Promise<Playlist> {
+  return apiRequest<Playlist>(`/api/playlists/${playlistId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
   })
 }
 
