@@ -26,3 +26,14 @@ export async function batchAddToPlaylistAction(playlistId: string, items: Playli
 export async function batchRemoveFromPlaylistAction(playlistId: string, items: PlaylistItemPayload[]): Promise<Playlist> {
   return api.batchRemoveFromPlaylist(playlistId, items)
 }
+
+export async function updatePlaylistAction(
+  playlistId: string,
+  payload: {
+    name?: string
+    description?: string | null
+    items?: PlaylistItemPayload[]
+  }
+): Promise<Playlist> {
+  return api.updatePlaylist(playlistId, payload)
+}
