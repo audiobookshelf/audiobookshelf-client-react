@@ -19,9 +19,11 @@ export interface FoliateSection {
 export interface FoliateBook {
   toc?: FoliateTocItem[]
   sections?: FoliateSection[]
+  rendition?: { layout?: string }
   transformTarget?: EventTarget
   resolveCFI?: (cfi: string) => { index: number }
   resolveHref?: (href: string) => { index: number } | null
+  destroy?: () => void
 }
 
 export interface FoliateRendererElement extends HTMLElement {
@@ -67,7 +69,7 @@ export interface FoliateAnnotation {
 
 export interface FoliateViewElement extends HTMLElement {
   book?: FoliateBook
-  open: (file: Blob | string) => Promise<void>
+  open: (source: Blob | string | FoliateBook) => Promise<void>
   init: (options: { lastLocation?: string; showTextStart?: boolean }) => Promise<void>
   goTo: (target: number | string) => Promise<{ index: number } | undefined>
   goToFraction: (fraction: number) => Promise<void>

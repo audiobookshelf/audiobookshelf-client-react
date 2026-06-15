@@ -11,6 +11,7 @@ import {
 } from '@/lib/ereader/ereaderComicDownload'
 import {
   blobToEbookFile,
+  isComicFormat,
   parseResumeCfi,
   parseResumePage,
   progressFromRelocate,
@@ -25,6 +26,7 @@ import { normalizeEreaderToc, type EreaderTocItem } from '@/lib/ereader/ereaderT
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react'
 
 const PROGRESS_DEBOUNCE_MS = 2000
+const LOADING_INDICATOR_DELAY_MS = 150
 const FOLIATE_SEARCH_PREFIX = 'foliate-search:'
 
 async function loadFoliateViewModule() {
@@ -57,6 +59,7 @@ interface FoliateViewProps {
   onTocReady?: (toc: EreaderTocItem[]) => void
   onClose?: () => void
   onError?: () => void
+  onLoading?: (loading: boolean) => void
 }
 
 const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function FoliateView(
@@ -72,7 +75,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     onComicPageChange,
     onTocReady,
     onClose,
-    onError
+    onError,
+    onLoading
   },
   ref
 ) {
@@ -87,27 +91,31 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onCloseRef = useRef(onClose)
   const onErrorRef = useRef(onError)
+  const onLoadingRef = useRef(onLoading)
   const zoomCtrlRef = useRef(new FixedLayoutZoomController())
   const onZoomChangeRef = useRef(onZoomChange)
   const onComicPageChangeRef = useRef(onComicPageChange)
   const currentComicPageIndexRef = useRef(-1)
   const currentComicImageUrlRef = useRef<string | null>(null)
+  const isReadyRef = useRef(false)
   const pageBased = usesPageBasedProgress(ebookFormat)
-  const isCbz = ebookFormat.toLowerCase() === 'cbz'
+  const isComic = isComicFormat(ebookFormat)
+  const isCbr = ebookFormat.toLowerCase() === 'cbr'
 
   onCloseRef.current = onClose
   onErrorRef.current = onError
+  onLoadingRef.current = onLoading
   onZoomChangeRef.current = onZoomChange
   onComicPageChangeRef.current = onComicPageChange
 
   const notifyComicPage = useCallback(
     (pageIndex: number) => {
-      if (!isCbz || pageIndex < 0) return
+      if (!isComic || pageIndex < 0) return
 
       currentComicPageIndexRef.current = pageIndex
       onComicPageChangeRef.current?.(getComicPageFilename(tocRef.current, pageIndex))
     },
-    [isCbz]
+    [isComic]
   )
 
   const notifyComicPageFromRelocate = useCallback(
@@ -131,12 +139,15 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
   useImperativeHandle(ref, () => ({
     goLeft: () => {
+      if (!isReadyRef.current) return
       void viewRef.current?.goLeft()
     },
     goRight: () => {
+      if (!isReadyRef.current) return
       void viewRef.current?.goRight()
     },
     goTo: (href: string) => {
+      if (!isReadyRef.current) return
       void viewRef.current?.goTo(href)
     },
     goToSearchResult: (cfi: string) => {
@@ -190,7 +201,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     zoomIn: () => runZoom('in'),
     zoomOut: () => runZoom('out'),
     downloadCurrentComicPage: () => {
-      if (!isCbz) return
+      if (!isComic) return
       const view = viewRef.current
       if (!view?.renderer) return
 
@@ -258,12 +269,31 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     let handleWheelZoom: ((event: WheelEvent) => void) | undefined
     const contentDocs = new Set<Document>()
     const zoomCtrl = zoomCtrlRef.current
+    let loadingDelayTimer: ReturnType<typeof setTimeout> | undefined
+
+    const setLoading = (loading: boolean) => {
+      onLoadingRef.current?.(loading)
+    }
+
+    const showLoadingSoon = () => {
+      loadingDelayTimer = setTimeout(() => setLoading(true), LOADING_INDICATOR_DELAY_MS)
+    }
+
+    const clearLoading = () => {
+      if (loadingDelayTimer !== undefined) {
+        clearTimeout(loadingDelayTimer)
+        loadingDelayTimer = undefined
+      }
+      setLoading(false)
+    }
 
     const onRelocate = (event: Event) => {
       scheduleProgressSave((event as CustomEvent<FoliateRelocateDetail>).detail)
     }
 
     const init = async () => {
+      isReadyRef.current = false
+      showLoadingSoon()
       try {
         await loadFoliateViewModule()
         if (cancelled) return
@@ -280,6 +310,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
           if (event.key === 'Escape') {
             event.preventDefault()
             onCloseRef.current?.()
+          } else if (!isReadyRef.current) {
+            return
           } else if (event.key === 'ArrowLeft') {
             event.preventDefault()
             void view.goLeft()
@@ -301,7 +333,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
         const onLoad = (event: Event) => {
           const { doc, index } = (event as CustomEvent<{ doc: Document; index?: number }>).detail
-          if (isCbz) {
+          if (isComic) {
             currentComicImageUrlRef.current = getComicPageImageUrlFromDoc(doc)
             if (typeof index === 'number') notifyComicPage(index)
           }
@@ -345,10 +377,17 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         const blob = await response.blob()
         if (cancelled) return
 
-        const file = blobToEbookFile(blob, ebookFormat, title)
         const allowScriptedContent = ebookFormat.toLowerCase() === 'epub' && epubsAllowScriptedContent
 
-        await view.open(file)
+        if (isCbr) {
+          const { createCbrComicBook } = await import('@/lib/ereader/ereaderCbrBook')
+          const book = await createCbrComicBook(blob, title)
+          if (cancelled) return
+          await view.open(book)
+        } else {
+          const file = blobToEbookFile(blob, ebookFormat, title)
+          await view.open(file)
+        }
 
         view.addEventListener('relocate', onRelocate)
         removeRelocateListener = () => view.removeEventListener('relocate', onRelocate)
@@ -377,9 +416,12 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         }
 
         applyEreaderSettingsToView(view, settings, ebookFormat)
+        isReadyRef.current = true
       } catch (error) {
         console.error('Failed to initialize foliate reader', error)
         onErrorRef.current?.()
+      } finally {
+        clearLoading()
       }
     }
 
@@ -387,6 +429,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
     return () => {
       cancelled = true
+      isReadyRef.current = false
+      clearLoading()
       removeRelocateListener?.()
       removeLoadListener?.()
       removeDocumentKeydownListener?.()

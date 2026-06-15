@@ -49,6 +49,9 @@ importers:
       next-intl:
         specifier: ^4.12.0
         version: 4.12.0(next@16.2.6(@babel/core@7.29.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)(typescript@5.8.3)
+      node-unrar-js:
+        specifier: ^2.0.2
+        version: 2.0.2
       react:
         specifier: ^19.2.6
         version: 19.2.6
@@ -2427,6 +2430,10 @@ packages:
 
   node-releases@2.0.44:
     resolution: {integrity: sha512-5WUyunoPMsvvEhS8AxHtRzP+oA8UCkJ7YRxatWKjngndhDGLiqEVAQKWjFAiAiuL8zMRGzGSJxFnLetoa43qGQ==}
+
+  node-unrar-js@2.0.2:
+    resolution: {integrity: sha512-hLNmoJzqaKJnod8yiTVGe9hnlNRHotUi0CreSv/8HtfRi/3JnRC8DvsmKfeGGguRjTEulhZK6zXX5PXoVuDZ2w==}
+    engines: {node: '>=10.0.0'}
 
   npm-run-path@4.0.1:
     resolution: {integrity: sha512-S48WzZW777zhNIrn7gxOlISNAqi9ZC/uQFnRdbeIHhZhCA6UqpkOT8T1G7BvfdgP4Er8gF4sUbaS0i7QvIfCWw==}
@@ -5529,6 +5536,8 @@ snapshots:
   node-addon-api@7.1.1: {}
 
   node-releases@2.0.44: {}
+
+  node-unrar-js@2.0.2: {}
 
   npm-run-path@4.0.1:
     dependencies:
