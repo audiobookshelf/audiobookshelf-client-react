@@ -9,7 +9,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEreaderSettings } from '@/hooks/useEreaderSettings'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { usesPageBasedProgress } from '@/lib/ereader/ereaderEbook'
+import { isComicFormat, usesPageBasedProgress } from '@/lib/ereader/ereaderEbook'
 import { FIXED_LAYOUT_ZOOM_MAX } from '@/lib/ereader/ereaderFixedLayoutZoom'
 import { EREADER_THEME_SHELL_CLASS, supportsReflowableSettings } from '@/lib/ereader/ereaderSettings'
 import type { EreaderTocItem } from '@/lib/ereader/ereaderToc'
@@ -159,7 +159,7 @@ export default function EreaderOverlay({
   const shellClass = EREADER_THEME_SHELL_CLASS[settings.theme]
   const supportsSearch = supportsReflowableSettings(ebookFormat)
   const supportsFixedLayoutZoom = usesPageBasedProgress(ebookFormat)
-  const isCbz = ebookFormat.toLowerCase() === 'cbz'
+  const isComic = isComicFormat(ebookFormat)
   const canZoomOut = zoomScale !== null
   const canZoomIn = zoomScale === null || zoomScale < FIXED_LAYOUT_ZOOM_MAX
 
@@ -182,7 +182,7 @@ export default function EreaderOverlay({
         >
           settings
         </button>
-        {isCbz && (
+        {isComic && (
           <button
             type="button"
             className="material-symbols text-2xl opacity-80 hover:opacity-100 disabled:opacity-30"

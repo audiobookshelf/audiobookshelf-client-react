@@ -28,6 +28,11 @@ export function blobToEbookFile(blob: Blob, format: string, title: string): File
 
 // ebookLocation is saved as a single page number
 const PAGE_BASED_FORMATS = new Set(['pdf', 'cbz', 'cbr'])
+const COMIC_FORMATS = new Set(['cbz', 'cbr'])
+
+export function isComicFormat(format: string): boolean {
+  return COMIC_FORMATS.has(format.toLowerCase())
+}
 
 export function usesPageBasedProgress(format: string): boolean {
   return PAGE_BASED_FORMATS.has(format.toLowerCase())

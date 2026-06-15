@@ -11,6 +11,7 @@ import {
 } from '@/lib/ereader/ereaderComicDownload'
 import {
   blobToEbookFile,
+  isComicFormat,
   parseResumeCfi,
   parseResumePage,
   progressFromRelocate,
@@ -93,7 +94,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   const currentComicPageIndexRef = useRef(-1)
   const currentComicImageUrlRef = useRef<string | null>(null)
   const pageBased = usesPageBasedProgress(ebookFormat)
-  const isCbz = ebookFormat.toLowerCase() === 'cbz'
+  const isComic = isComicFormat(ebookFormat)
+  const isCbr = ebookFormat.toLowerCase() === 'cbr'
 
   onCloseRef.current = onClose
   onErrorRef.current = onError
@@ -102,12 +104,12 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
   const notifyComicPage = useCallback(
     (pageIndex: number) => {
-      if (!isCbz || pageIndex < 0) return
+      if (!isComic || pageIndex < 0) return
 
       currentComicPageIndexRef.current = pageIndex
       onComicPageChangeRef.current?.(getComicPageFilename(tocRef.current, pageIndex))
     },
-    [isCbz]
+    [isComic]
   )
 
   const notifyComicPageFromRelocate = useCallback(
@@ -190,7 +192,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     zoomIn: () => runZoom('in'),
     zoomOut: () => runZoom('out'),
     downloadCurrentComicPage: () => {
-      if (!isCbz) return
+      if (!isComic) return
       const view = viewRef.current
       if (!view?.renderer) return
 
@@ -301,7 +303,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
         const onLoad = (event: Event) => {
           const { doc, index } = (event as CustomEvent<{ doc: Document; index?: number }>).detail
-          if (isCbz) {
+          if (isComic) {
             currentComicImageUrlRef.current = getComicPageImageUrlFromDoc(doc)
             if (typeof index === 'number') notifyComicPage(index)
           }
@@ -345,10 +347,17 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         const blob = await response.blob()
         if (cancelled) return
 
-        const file = blobToEbookFile(blob, ebookFormat, title)
         const allowScriptedContent = ebookFormat.toLowerCase() === 'epub' && epubsAllowScriptedContent
 
-        await view.open(file)
+        if (isCbr) {
+          const { createCbrComicBook } = await import('@/lib/ereader/ereaderCbrBook')
+          const book = await createCbrComicBook(blob, title)
+          if (cancelled) return
+          await view.open(book)
+        } else {
+          const file = blobToEbookFile(blob, ebookFormat, title)
+          await view.open(file)
+        }
 
         view.addEventListener('relocate', onRelocate)
         removeRelocateListener = () => view.removeEventListener('relocate', onRelocate)

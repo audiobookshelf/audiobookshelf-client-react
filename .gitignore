@@ -47,3 +47,6 @@ express-server
 
 # Generated from foliate-js vendor (scripts/sync-pdfjs-vendor.mjs)
 /public/vendor/pdfjs
+
+# Generated from node-unrar-js (scripts/sync-unrar-wasm.mjs)
+/public/vendor/unrar
