@@ -1,5 +1,6 @@
 'use client'
 
+import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import EreaderSettingsModal from '@/components/ereader/EreaderSettingsModal'
 import EreaderTocDrawer from '@/components/ereader/EreaderTocDrawer'
 import type { FoliateSearchSection } from '@/components/ereader/foliate'
@@ -53,6 +54,7 @@ export default function EreaderOverlay({
   const [searchProgress, setSearchProgress] = useState<number | null>(null)
   const [zoomScale, setZoomScale] = useState<number | null>(null)
   const [comicPageFilename, setComicPageFilename] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
   const showSettingsRef = useRef(showSettings)
   const showTocRef = useRef(showToc)
   const foliateRef = useRef<FoliateViewHandle>(null)
@@ -67,12 +69,14 @@ export default function EreaderOverlay({
   }, [onClose, showToast, t])
 
   const goLeft = useCallback(() => {
+    if (isLoading) return
     foliateRef.current?.goLeft()
-  }, [])
+  }, [isLoading])
 
   const goRight = useCallback(() => {
+    if (isLoading) return
     foliateRef.current?.goRight()
-  }, [])
+  }, [isLoading])
 
   const resetSearch = useCallback(() => {
     searchRequestIdRef.current += 1
@@ -139,6 +143,7 @@ export default function EreaderOverlay({
       resetSearch()
       setZoomScale(null)
       setComicPageFilename(null)
+      setIsLoading(false)
     }
   }, [isOpen, resetSearch])
 
@@ -222,9 +227,10 @@ export default function EreaderOverlay({
       <main className="relative flex min-h-0 flex-1">
         <button
           type="button"
-          className="hidden w-16 shrink-0 items-center justify-center opacity-50 transition-opacity hover:opacity-100 sm:flex"
+          className="hidden w-16 shrink-0 items-center justify-center opacity-50 transition-opacity hover:opacity-100 disabled:pointer-events-none disabled:opacity-20 sm:flex"
           onMouseDown={(event) => event.preventDefault()}
           onClick={goLeft}
+          disabled={isLoading}
           aria-label={t('ButtonPrevious')}
         >
           <span className="material-symbols text-5xl opacity-80">chevron_left</span>
@@ -244,21 +250,30 @@ export default function EreaderOverlay({
             onTocReady={setToc}
             onClose={handleCloseRequest}
             onError={handleError}
+            onLoading={setIsLoading}
           />
-          <button
-            type="button"
-            className="absolute inset-y-0 left-0 z-10 w-1/3 sm:hidden"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={goLeft}
-            aria-label={t('ButtonPrevious')}
-          />
-          <button type="button" className="absolute inset-y-0 right-0 z-10 w-1/3 sm:hidden" onClick={goRight} aria-label={t('ButtonNext')} />
+          {isLoading && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center">
+              <LoadingIndicator label="MessagePleaseWait" variant="inline" />
+            </div>
+          )}
+          {!isLoading && (
+            <button
+              type="button"
+              className="absolute inset-y-0 left-0 z-10 w-1/3 sm:hidden"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={goLeft}
+              aria-label={t('ButtonPrevious')}
+            />
+          )}
+          {!isLoading && <button type="button" className="absolute inset-y-0 right-0 z-10 w-1/3 sm:hidden" onClick={goRight} aria-label={t('ButtonNext')} />}
         </div>
         <button
           type="button"
-          className="hidden w-16 shrink-0 items-center justify-center opacity-50 transition-opacity hover:opacity-100 sm:flex"
+          className="hidden w-16 shrink-0 items-center justify-center opacity-50 transition-opacity hover:opacity-100 disabled:pointer-events-none disabled:opacity-20 sm:flex"
           onMouseDown={(event) => event.preventDefault()}
           onClick={goRight}
+          disabled={isLoading}
           aria-label={t('ButtonNext')}
         >
           <span className="material-symbols text-5xl opacity-80">chevron_right</span>

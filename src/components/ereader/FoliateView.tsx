@@ -26,6 +26,7 @@ import { normalizeEreaderToc, type EreaderTocItem } from '@/lib/ereader/ereaderT
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react'
 
 const PROGRESS_DEBOUNCE_MS = 2000
+const LOADING_INDICATOR_DELAY_MS = 150
 const FOLIATE_SEARCH_PREFIX = 'foliate-search:'
 
 async function loadFoliateViewModule() {
@@ -58,6 +59,7 @@ interface FoliateViewProps {
   onTocReady?: (toc: EreaderTocItem[]) => void
   onClose?: () => void
   onError?: () => void
+  onLoading?: (loading: boolean) => void
 }
 
 const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function FoliateView(
@@ -73,7 +75,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     onComicPageChange,
     onTocReady,
     onClose,
-    onError
+    onError,
+    onLoading
   },
   ref
 ) {
@@ -88,17 +91,20 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onCloseRef = useRef(onClose)
   const onErrorRef = useRef(onError)
+  const onLoadingRef = useRef(onLoading)
   const zoomCtrlRef = useRef(new FixedLayoutZoomController())
   const onZoomChangeRef = useRef(onZoomChange)
   const onComicPageChangeRef = useRef(onComicPageChange)
   const currentComicPageIndexRef = useRef(-1)
   const currentComicImageUrlRef = useRef<string | null>(null)
+  const isReadyRef = useRef(false)
   const pageBased = usesPageBasedProgress(ebookFormat)
   const isComic = isComicFormat(ebookFormat)
   const isCbr = ebookFormat.toLowerCase() === 'cbr'
 
   onCloseRef.current = onClose
   onErrorRef.current = onError
+  onLoadingRef.current = onLoading
   onZoomChangeRef.current = onZoomChange
   onComicPageChangeRef.current = onComicPageChange
 
@@ -133,12 +139,15 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
   useImperativeHandle(ref, () => ({
     goLeft: () => {
+      if (!isReadyRef.current) return
       void viewRef.current?.goLeft()
     },
     goRight: () => {
+      if (!isReadyRef.current) return
       void viewRef.current?.goRight()
     },
     goTo: (href: string) => {
+      if (!isReadyRef.current) return
       void viewRef.current?.goTo(href)
     },
     goToSearchResult: (cfi: string) => {
@@ -260,12 +269,31 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     let handleWheelZoom: ((event: WheelEvent) => void) | undefined
     const contentDocs = new Set<Document>()
     const zoomCtrl = zoomCtrlRef.current
+    let loadingDelayTimer: ReturnType<typeof setTimeout> | undefined
+
+    const setLoading = (loading: boolean) => {
+      onLoadingRef.current?.(loading)
+    }
+
+    const showLoadingSoon = () => {
+      loadingDelayTimer = setTimeout(() => setLoading(true), LOADING_INDICATOR_DELAY_MS)
+    }
+
+    const clearLoading = () => {
+      if (loadingDelayTimer !== undefined) {
+        clearTimeout(loadingDelayTimer)
+        loadingDelayTimer = undefined
+      }
+      setLoading(false)
+    }
 
     const onRelocate = (event: Event) => {
       scheduleProgressSave((event as CustomEvent<FoliateRelocateDetail>).detail)
     }
 
     const init = async () => {
+      isReadyRef.current = false
+      showLoadingSoon()
       try {
         await loadFoliateViewModule()
         if (cancelled) return
@@ -282,6 +310,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
           if (event.key === 'Escape') {
             event.preventDefault()
             onCloseRef.current?.()
+          } else if (!isReadyRef.current) {
+            return
           } else if (event.key === 'ArrowLeft') {
             event.preventDefault()
             void view.goLeft()
@@ -386,9 +416,12 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         }
 
         applyEreaderSettingsToView(view, settings, ebookFormat)
+        isReadyRef.current = true
       } catch (error) {
         console.error('Failed to initialize foliate reader', error)
         onErrorRef.current?.()
+      } finally {
+        clearLoading()
       }
     }
 
@@ -396,6 +429,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
 
     return () => {
       cancelled = true
+      isReadyRef.current = false
+      clearLoading()
       removeRelocateListener?.()
       removeLoadListener?.()
       removeDocumentKeydownListener?.()
