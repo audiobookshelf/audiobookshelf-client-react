@@ -2,6 +2,7 @@
 
 import CollectionEditModal from '@/components/modals/CollectionEditModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
+import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
@@ -10,14 +11,17 @@ import CollectionGroupCover from '@/components/widgets/media-card/CollectionGrou
 import { mapMediaCardMoreMenuItemsToDropdownItems } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
-import { usePrimaryInputCanHover } from '@/contexts/SortableBookshelfContext'
+import { useMediaContext } from '@/contexts/MediaContext'
+import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
 import { useUser } from '@/contexts/UserContext'
+import { useCollectionBooks } from '@/hooks/useCollectionBooks'
 import { useCollectionDisplayMode } from '@/hooks/useCollectionDisplayMode'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { buildCollectionQueueItems, getPlayableCollectionBooks, getQueueItemPlaybackStartTime } from '@/lib/compilationPlayback'
 import { Collection } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import CollectionItemsClient from './CollectionItemsClient'
+import CollectionItems from './CollectionItems'
 
 interface CollectionClientProps {
   collection: Collection
@@ -25,11 +29,13 @@ interface CollectionClientProps {
 
 export default function CollectionClient({ collection }: CollectionClientProps) {
   const coverAspectRatio = useBookCoverAspectRatio()
-  const { userCanUpdate, userIsAdminOrUp } = useUser()
+  const { user, userCanUpdate, userIsAdminOrUp } = useUser()
+  const { playItem, isPlaying } = useMediaContext()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const { displayMode, toggleDisplayMode } = useCollectionDisplayMode()
+  const { orderedBooks, setOrderedBooks, handleItemRemoved } = useCollectionBooks(collection)
   const isListMode = displayMode === 'list'
   const alternateViewLabel = isListMode ? t('LabelCollectionBookshelfView') : t('LabelCollectionListView')
   const coverWidth = 120
@@ -69,7 +75,42 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
     [handleMoreAction]
   )
 
+  const playableBooks = useMemo(() => getPlayableCollectionBooks(collection.books ?? []), [collection.books])
+  const showPlayButton = playableBooks.length > 0
+
+  const streaming = useMemo(() => {
+    return playableBooks.some((book) => isPlaying(book.id, null))
+  }, [isPlaying, playableBooks])
+
+  const handlePlayAll = useCallback(() => {
+    const queueItems = buildCollectionQueueItems(collection.books ?? [], user.mediaProgress)
+    if (queueItems.length === 0) return
+
+    // Queue is in collection order with finished items removed (unless all are finished).
+    // Always start at the first unfinished item and resume from saved progress.
+    const startItem = queueItems[0]
+    const libraryItem = playableBooks.find((book) => book.id === startItem.libraryItemId)
+    if (!libraryItem) return
+
+    void playItem({
+      libraryItem,
+      startTime: getQueueItemPlaybackStartTime(startItem, user.mediaProgress, libraryItem),
+      queueItems
+    })
+  }, [playItem, playableBooks, collection.books, user.mediaProgress])
+
   const showHeaderActions = userCanUpdate || moreMenuItems.length > 0
+
+  const collectionItems = (
+    <CollectionItems
+      collection={collection}
+      displayMode={displayMode}
+      mobileReorderActive={mobileReorderActive}
+      orderedBooks={orderedBooks}
+      setOrderedBooks={setOrderedBooks}
+      onItemRemoved={handleItemRemoved}
+    />
+  )
 
   return (
     <div>
@@ -79,6 +120,12 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
           <div className="flex w-full min-w-0 flex-col gap-2 md:flex-row md:items-center md:gap-4">
             <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold break-words md:flex-1 md:truncate">{collection.name}</h1>
             <div className="flex shrink-0 flex-wrap items-center gap-1 px-2 md:px-0">
+              {showPlayButton && (
+                <Btn color="bg-success" size="small" className="mr-1 h-9" disabled={streaming} onClick={handlePlayAll}>
+                  {!streaming && <span className="material-symbols fill -ml-2 pr-1 text-2xl text-white">play_arrow</span>}
+                  {streaming ? t('ButtonPlaying') : t('ButtonPlayAll')}
+                </Btn>
+              )}
               <Tooltip text={alternateViewLabel} position="top">
                 <span className="inline-flex">
                   <IconBtn ariaLabel={alternateViewLabel} onClick={toggleDisplayMode} outlined className="mx-0.5" size="small">
@@ -130,11 +177,11 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
             </div>
           </div>
           {collection.description && <p className="text-foreground-muted px-2">{collection.description}</p>}
-          {isListMode && <CollectionItemsClient collection={collection} displayMode="list" mobileReorderActive={mobileReorderActive} />}
+          {isListMode && collectionItems}
         </div>
       </div>
 
-      {!isListMode && <CollectionItemsClient collection={collection} displayMode="bookshelf" mobileReorderActive={mobileReorderActive} />}
+      {!isListMode && collectionItems}
 
       {userCanUpdate && (
         <CollectionEditModal isOpen={editModalOpen} collection={collection} onClose={() => setEditModalOpen(false)} onSaved={() => router.refresh()} />
