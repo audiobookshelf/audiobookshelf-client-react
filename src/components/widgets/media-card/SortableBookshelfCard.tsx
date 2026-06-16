@@ -1,9 +1,9 @@
 'use client'
 
 import { ENTITY_CONFIGS, type CardComponentProps } from '@/app/(main)/library/[library]/[entityType]/entity-config'
-import { getSortableBookshelfItemOrderBy, type SortableBookshelfOverlayMode } from '@/contexts/SortableBookshelfContext'
+import { getSortableBookshelfItemOrderBy, type SortableBookshelfOverlayMode } from '@/contexts/SortableBookshelfOverlayContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { LibraryItem } from '@/types/api'
+import type { SortableBookshelfEntry } from '@/types/compilation'
 import { useDndMonitor } from '@dnd-kit/core'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
@@ -19,47 +19,27 @@ const ARROW_CODES = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'])
  */
 export interface SortableBookshelfCardOptions {
   ariaLabel: string
-  /**
-   * dnd-kit activator node: must be the focusable card root so `KeyboardSensor` can start
-   * when the frame is focused (listeners stay on the drag handle for pointer).
-   */
   cardActivatorRef?: Ref<HTMLDivElement | null>
-  /** Merged onto {@link MediaCardFrame} root: `useSortable` `attributes` + keyboard `onKeyDown`. */
   sortableFrameProps?: HTMLAttributes<HTMLDivElement>
-  /** Pointer-only subset of `useSortable` `listeners` for the drag handle. */
   dragHandlePointerProps?: Record<string, unknown>
-  /**
-   * When set (e.g. `drag` on the dnd-kit `DragOverlay` card), overrides shelf context `overlayMode`
-   * for overlay chrome and card navigation on this card only.
-   */
   overlayMode?: SortableBookshelfOverlayMode
 }
 
-type SortableBookshelfCardProps = Omit<CardComponentProps, 'entity'> & {
-  libraryItem: LibraryItem
-}
+type SortableBookshelfCardProps = Omit<CardComponentProps, 'entity'> & SortableBookshelfEntry
 
 /**
  * Sortable wrapper that wires dnd-kit's `useSortable` to the standard items card.
- * The drag handle keeps pointer listeners (`touch-action: none`); keyboard listeners and
- * `setActivatorNodeRef` sit on the card frame so tab focus + Arrow keys work with
- * `SortableBookshelfReorderGrid`'s `KeyboardSensor`.
- *
- * While this item is the active drag, the in-grid slot is hidden via opacity so the
- * portal-rendered `<DragOverlay>` is the only visible representation — the recommended
- * pattern for sortable grids inside a scrollable parent.
  */
-export default function SortableBookshelfCard({ libraryItem, ...cardProps }: SortableBookshelfCardProps) {
+export default function SortableBookshelfCard({ sortableId, libraryItem, episode, ...cardProps }: SortableBookshelfCardProps) {
   const t = useTypeSafeTranslations()
-  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: libraryItem.id })
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id: sortableId })
 
-  /** dnd-kit defers attaching the keyboard-move listener to the next task, so the arrow that *starts* drag never moves — replay it once. */
   const synthArrowMoveAfterStartRef = useRef<string | null>(null)
   const synthArrowTimeoutRef = useRef<number | null>(null)
 
   useDndMonitor({
     onDragStart({ active, activatorEvent }) {
-      if (String(active.id) !== libraryItem.id) return
+      if (String(active.id) !== sortableId) return
       if (activatorEvent instanceof globalThis.KeyboardEvent && ARROW_CODES.has(activatorEvent.code)) {
         synthArrowMoveAfterStartRef.current = activatorEvent.code
       }
@@ -157,8 +137,8 @@ export default function SortableBookshelfCard({ libraryItem, ...cardProps }: Sor
       <itemsConfig.CardComponent
         {...cardProps}
         entity={libraryItem}
+        episode={episode}
         orderBy={orderBy}
-        isPodcastLibrary={false}
         sortableBookshelfCardOptions={sortableBookshelfCardOptions}
       />
     </div>
