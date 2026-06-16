@@ -17,20 +17,8 @@ interface PlaylistItemsProps {
   onItemRemoved: (libraryItemId: string, episodeId?: string | null) => void
 }
 
-export default function PlaylistItems({
-  playlist,
-  displayMode,
-  mobileReorderActive,
-  orderedItems,
-  setOrderedItems,
-  onItemRemoved
-}: PlaylistItemsProps) {
-  const { showReorder, sortableCompilation, bookshelfOverlayMode } = useCompilationSortableContext(
-    playlist.id,
-    'playlist',
-    mobileReorderActive,
-    onItemRemoved
-  )
+export default function PlaylistItems({ playlist, displayMode, mobileReorderActive, orderedItems, setOrderedItems, onItemRemoved }: PlaylistItemsProps) {
+  const { showReorder, sortableCompilation, bookshelfOverlayMode } = useCompilationSortableContext(playlist.id, 'playlist', mobileReorderActive, onItemRemoved)
 
   return (
     <SortableCompilationProvider value={sortableCompilation}>

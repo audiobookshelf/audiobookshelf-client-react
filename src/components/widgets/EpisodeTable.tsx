@@ -389,13 +389,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
 
       <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
       {editedEpisode && (
-        <EpisodeEditModal
-          isOpen
-          libraryItem={libraryItem}
-          episode={editedEpisode}
-          navCtx={editedEpisodeNavCtx ?? undefined}
-          onClose={handleCloseEditModal}
-        />
+        <EpisodeEditModal isOpen libraryItem={libraryItem} episode={editedEpisode} navCtx={editedEpisodeNavCtx ?? undefined} onClose={handleCloseEditModal} />
       )}
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
       <EpisodeFeedModal

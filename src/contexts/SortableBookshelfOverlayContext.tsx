@@ -29,13 +29,7 @@ export function getSortableBookshelfItemOrderBy(libraryItem: LibraryItem): strin
 
 const SortableBookshelfOverlayContext = createContext<SortableBookshelfOverlayContextType | null>(null)
 
-export function SortableBookshelfOverlayProvider({
-  overlayMode,
-  children
-}: {
-  overlayMode: SortableBookshelfOverlayMode
-  children: ReactNode
-}) {
+export function SortableBookshelfOverlayProvider({ overlayMode, children }: { overlayMode: SortableBookshelfOverlayMode; children: ReactNode }) {
   return <SortableBookshelfOverlayContext.Provider value={{ overlayMode }}>{children}</SortableBookshelfOverlayContext.Provider>
 }
 

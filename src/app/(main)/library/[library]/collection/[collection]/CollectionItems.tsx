@@ -17,14 +17,7 @@ interface CollectionItemsProps {
   onItemRemoved: (libraryItemId: string, episodeId?: string | null) => void
 }
 
-export default function CollectionItems({
-  collection,
-  displayMode,
-  mobileReorderActive,
-  orderedBooks,
-  setOrderedBooks,
-  onItemRemoved
-}: CollectionItemsProps) {
+export default function CollectionItems({ collection, displayMode, mobileReorderActive, orderedBooks, setOrderedBooks, onItemRemoved }: CollectionItemsProps) {
   const { showReorder, sortableCompilation, bookshelfOverlayMode } = useCompilationSortableContext(
     collection.id,
     'collection',

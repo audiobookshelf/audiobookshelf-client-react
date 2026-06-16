@@ -29,15 +29,11 @@ import { isBookMedia, isBookMetadata, isPodcastMedia } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
-const COMPILATION_ROW_LINK_FOCUS =
-  'rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
+const COMPILATION_ROW_LINK_FOCUS = 'rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
 
-const COMPILATION_ROW_ACTION_BTN_CLASS =
-  'size-[1.75em] min-h-0 min-w-0 shrink-0 p-0 text-[1.5em] leading-none hover:not-disabled:before:bg-foreground/10'
+const COMPILATION_ROW_ACTION_BTN_CLASS = 'size-[1.75em] min-h-0 min-w-0 shrink-0 p-0 text-[1.5em] leading-none hover:not-disabled:before:bg-foreground/10'
 
-export type CompilationItemListRowContext =
-  | { kind: 'collection'; collectionId: string }
-  | { kind: 'playlist'; playlistId: string }
+export type CompilationItemListRowContext = { kind: 'collection'; collectionId: string } | { kind: 'playlist'; playlistId: string }
 
 interface CompilationItemListRowProps {
   libraryItem: LibraryItem
@@ -96,9 +92,7 @@ export default function CompilationItemListRow({
     () => (episodeId ? buildPodcastEpisodeProgressMap(libraryItem.id, user.mediaProgress) : null),
     [episodeId, libraryItem.id, user.mediaProgress]
   )
-  const itemProgress = episodeId
-    ? (episodeProgressMap?.get(episodeId) ?? null)
-    : getLibraryItemProgressFromMap(mediaItemProgressMap, libraryItem)
+  const itemProgress = episodeId ? (episodeProgressMap?.get(episodeId) ?? null) : getLibraryItemProgressFromMap(mediaItemProgressMap, libraryItem)
   const userIsFinished = !!itemProgress?.isFinished
 
   const isMissing = libraryItem.isMissing

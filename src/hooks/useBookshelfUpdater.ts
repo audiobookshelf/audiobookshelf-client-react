@@ -2,16 +2,7 @@
 
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { getVisibleBookshelfPageRange, type VisibleBookshelfPageRangeInput } from '@/hooks/useBookshelfVirtualizer'
-import {
-  Author,
-  AuthorRemovedPayload,
-  BookshelfEntity,
-  Collection,
-  EntityType,
-  LibraryItem,
-  LibraryItemRemovedPayload,
-  Playlist
-} from '@/types/api'
+import { Author, AuthorRemovedPayload, BookshelfEntity, Collection, EntityType, LibraryItem, LibraryItemRemovedPayload, Playlist } from '@/types/api'
 import { type RefObject, useCallback, useLayoutEffect, useRef } from 'react'
 
 /** Like refs from `useRef` with a writable `current` (avoids deprecated `MutableRefObject` in newer `@types/react`). */

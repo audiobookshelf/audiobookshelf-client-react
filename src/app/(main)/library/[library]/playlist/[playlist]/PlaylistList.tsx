@@ -29,15 +29,9 @@ export default function PlaylistList({ playlist, orderedItems, setOrderedItems, 
 
   const showDragHandle = userCanUpdate && showReorder
 
-  const sortableItems = useMemo(
-    (): SortablePlaylistItem[] => orderedItems.map((item) => ({ ...item, id: getPlaylistItemKey(item) })),
-    [orderedItems]
-  )
+  const sortableItems = useMemo((): SortablePlaylistItem[] => orderedItems.map((item) => ({ ...item, id: getPlaylistItemKey(item) })), [orderedItems])
 
-  const shelfEntitiesDense = useMemo(
-    () => orderedItems.map((i) => i.libraryItem) as unknown as (BookshelfEntity | null)[],
-    [orderedItems]
-  )
+  const shelfEntitiesDense = useMemo(() => orderedItems.map((i) => i.libraryItem) as unknown as (BookshelfEntity | null)[], [orderedItems])
 
   const episodeNavByItemKey = useMemo(() => {
     const navByKey = new Map<string, ReturnType<typeof getPlaylistEpisodeNavigationContext>>()
