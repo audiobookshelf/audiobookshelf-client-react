@@ -14,10 +14,22 @@ import SeriesCard from '@/components/widgets/media-card/SeriesCard'
 import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkeleton'
 import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
 import { UpdateSettingFn } from '@/contexts/LibraryContext'
-import { downloadLibraryOpml } from '@/lib/download'
-import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
 import { useUser } from '@/contexts/UserContext'
-import { Author, BookshelfEntity, BookshelfView, Collection, EntityType, Library, LibraryItem, MediaProgress, Playlist, PodcastEpisode, Series, User } from '@/types/api'
+import { downloadLibraryOpml } from '@/lib/download'
+import {
+  Author,
+  BookshelfEntity,
+  BookshelfView,
+  Collection,
+  EntityType,
+  Library,
+  LibraryItem,
+  MediaProgress,
+  Playlist,
+  PodcastEpisode,
+  Series,
+  User
+} from '@/types/api'
 import { TranslationKey } from '@/types/translations'
 import React, { type MouseEvent, type ReactNode } from 'react'
 
@@ -140,13 +152,9 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       const { user, serverSettings, ereaderDevices } = useUser()
       const item = entity as LibraryItem
       const isCollapsedSeries = !!item.collapsedSeries
-      const entityProgress = episode
-        ? buildPodcastEpisodeProgressMap(item.id, user.mediaProgress).get(episode.id)
-        : isPodcastLibrary
-          ? null
-          : item.media?.id
-            ? mediaItemProgressMap.get(item.media.id)
-            : undefined
+      const mediaItemId = episode?.id ?? item.media?.id ?? null
+      const entityProgress = mediaItemId ? mediaItemProgressMap.get(mediaItemId) : undefined
+
       const EntityMediaCard = isPodcastLibrary ? PodcastMediaCard : BookMediaCard
 
       if (isCollapsedSeries) {

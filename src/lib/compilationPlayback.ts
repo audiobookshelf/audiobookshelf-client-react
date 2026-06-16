@@ -1,5 +1,5 @@
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
-import { buildMediaItemProgressMap, getLibraryItemProgressFromMap } from '@/lib/mediaProgress'
+import { getMediaItemProgress } from '@/lib/mediaProgress'
 import { getEpisodeDuration } from '@/lib/playlistItems'
 import type { LibraryItem, MediaProgress, PlaylistItem, PodcastEpisode } from '@/types/api'
 import { isBookMedia, isBookMetadata, isPodcastMedia } from '@/types/api'
@@ -39,19 +39,6 @@ function toCollectionEntry(book: LibraryItem): CompilationPlaybackEntry {
   }
 }
 
-function getEntryProgress(entry: CompilationPlaybackEntry, mediaProgress: MediaProgress[]): MediaProgress | null {
-  const episodeId = entry.episodeId ?? entry.episode?.id ?? null
-  if (episodeId) {
-    return (
-      mediaProgress.find(
-        (p) => p.libraryItemId === entry.libraryItemId && (p.episodeId === episodeId || p.mediaItemId === episodeId)
-      ) ?? null
-    )
-  }
-
-  return getLibraryItemProgressFromMap(buildMediaItemProgressMap(mediaProgress), entry.libraryItem)
-}
-
 function buildQueueItemFromEntry(entry: CompilationPlaybackEntry): PlayerQueueItem | null {
   const libraryItem = entry.libraryItem
   const media = libraryItem.media
@@ -89,10 +76,12 @@ function buildCompilationQueueItems(entries: CompilationPlaybackEntry[], mediaPr
   const playableEntries = entries.filter(isPlayableEntry)
   if (playableEntries.length === 0) return []
 
-  const entriesWithProgress = playableEntries.map((entry) => ({
-    ...entry,
-    progress: getEntryProgress(entry, mediaProgress)
-  }))
+  const entriesWithProgress = playableEntries.map((entry) => {
+    return {
+      ...entry,
+      progress: getMediaItemProgress(mediaProgress, entry.libraryItemId, entry.episodeId ?? undefined)
+    }
+  })
 
   const hasUnfinishedItems = entriesWithProgress.some((entry) => !entry.progress || !entry.progress.isFinished)
 
@@ -130,18 +119,18 @@ export function getQueueItemPlaybackStartTime(
   mediaProgress: MediaProgress[],
   libraryItem?: { id: string; media?: { id?: string } | null }
 ): number | undefined {
-  let progress: MediaProgress | null = null
+  let progress: MediaProgress | null = getMediaItemProgress(mediaProgress, item.libraryItemId, item.episodeId ?? undefined)
 
-  if (item.episodeId) {
-    progress =
-      mediaProgress.find(
-        (p) => p.libraryItemId === item.libraryItemId && (p.episodeId === item.episodeId || p.mediaItemId === item.episodeId)
-      ) ?? null
-  } else if (libraryItem) {
-    progress = getLibraryItemProgressFromMap(buildMediaItemProgressMap(mediaProgress), libraryItem)
-  } else {
-    progress = mediaProgress.find((p) => p.libraryItemId === item.libraryItemId && !p.episodeId) ?? null
-  }
+  // if (item.episodeId) {
+  //   progress =
+  //     mediaProgress.find(
+  //       (p) => p.libraryItemId === item.libraryItemId && (p.episodeId === item.episodeId || p.mediaItemId === item.episodeId)
+  //     ) ?? null
+  // } else if (libraryItem) {
+  //   progress = getLibraryItemProgressFromMap(buildMediaItemProgressMap(mediaProgress), libraryItem)
+  // } else {
+  //   progress = mediaProgress.find((p) => p.libraryItemId === item.libraryItemId && !p.episodeId) ?? null
+  // }
 
   if (!progress || progress.isFinished) return undefined
   return progress.currentTime

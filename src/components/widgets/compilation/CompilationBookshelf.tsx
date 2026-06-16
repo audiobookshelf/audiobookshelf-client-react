@@ -6,8 +6,7 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
-import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
-import { BookshelfView } from '@/types/api'
+import { BookshelfView, MediaProgress } from '@/types/api'
 import type { SortableBookshelfEntry } from '@/types/compilation'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
@@ -24,6 +23,7 @@ interface CompilationBookshelfProps {
   emptyMessage: string
   isPodcastLibrary?: boolean
   renderCard: (entry: SortableBookshelfEntry, entityIndex: number, layoutCardWidth: number) => ReactNode
+  mediaItemProgressMap: Map<string, MediaProgress>
 }
 
 export default function CompilationBookshelf({
@@ -33,7 +33,8 @@ export default function CompilationBookshelf({
   showReorder,
   emptyMessage,
   isPodcastLibrary = false,
-  renderCard
+  renderCard,
+  mediaItemProgressMap
 }: CompilationBookshelfProps) {
   const { user } = useUser()
   const { library, orderBy, showSubtitles, seriesSortBy } = useLibrary()
@@ -157,8 +158,6 @@ export default function CompilationBookshelf({
     }),
     [bookshelfMarginLeft, columnGap, columns, dividerHeight, layoutCardWidth, sizeMultiplier]
   )
-
-  const mediaItemProgressMap = useMemo(() => buildMediaItemProgressMap(user.mediaProgress), [user.mediaProgress])
 
   return (
     <div className="mt-10 w-full min-w-0">

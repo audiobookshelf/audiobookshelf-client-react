@@ -10,8 +10,8 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
 import { playlistItemsToPayload, toSortablePlaylistItems } from '@/lib/playlistItems'
 import type { BookshelfEntity, Playlist, PlaylistItem } from '@/types/api'
-import type { SortableBookshelfEntry } from '@/types/compilation'
 import { BookshelfView } from '@/types/api'
+import type { SortableBookshelfEntry } from '@/types/compilation'
 import { useCallback, useMemo } from 'react'
 
 const itemsConfig = ENTITY_CONFIGS.items
@@ -87,6 +87,7 @@ export default function PlaylistBookshelf({ playlist, orderedItems, setOrderedIt
       emptyMessage={t('MessageNoItemsFound')}
       isPodcastLibrary={isPodcastLibrary}
       renderCard={renderCard}
+      mediaItemProgressMap={mediaItemProgressMap}
     />
   )
 }

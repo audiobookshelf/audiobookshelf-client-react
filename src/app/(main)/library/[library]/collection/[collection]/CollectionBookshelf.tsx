@@ -9,8 +9,8 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
 import type { BookshelfEntity, Collection, LibraryItem } from '@/types/api'
-import type { SortableBookshelfEntry } from '@/types/compilation'
 import { BookshelfView } from '@/types/api'
+import type { SortableBookshelfEntry } from '@/types/compilation'
 import { useCallback, useMemo } from 'react'
 
 const itemsConfig = ENTITY_CONFIGS.items
@@ -77,6 +77,7 @@ export default function CollectionBookshelf({ collection, orderedBooks, setOrder
       showReorder={showReorder}
       emptyMessage={t('MessageNoBooksFound')}
       renderCard={renderCard}
+      mediaItemProgressMap={mediaItemProgressMap}
     />
   )
 }
