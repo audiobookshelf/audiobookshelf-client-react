@@ -163,6 +163,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   useBookshelfUpdater({
     entityType,
     libraryId: library.id,
+    userId: user.id,
     containerRef,
     visibleShelfStart,
     visibleShelfEnd,
