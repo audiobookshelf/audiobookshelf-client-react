@@ -17,7 +17,7 @@ export function usePlaylistItems(playlist: Playlist) {
 
   const [orderedItems, setOrderedItems] = useState<PlaylistItem[]>(() => playlist.items ?? [])
 
-  const handleItemRemovedFromSortableList = useCallback(
+  const handleItemRemoved = useCallback(
     (libraryItemId: string, episodeId?: string | null) => {
       setOrderedItems((prev) => prev.filter((item) => !matchesPlaylistItem(item, libraryItemId, episodeId)))
       router.refresh()
@@ -53,6 +53,6 @@ export function usePlaylistItems(playlist: Playlist) {
   return {
     orderedItems,
     setOrderedItems,
-    handleItemRemovedFromSortableList
+    handleItemRemoved
   }
 }

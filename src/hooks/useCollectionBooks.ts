@@ -16,7 +16,7 @@ export function useCollectionBooks(collection: Collection) {
 
   const [orderedBooks, setOrderedBooks] = useState<LibraryItem[]>(() => collection.books ?? [])
 
-  const handleItemRemovedFromSortableList = useCallback(
+  const handleItemRemoved = useCallback(
     (libraryItemId: string) => {
       setOrderedBooks((prev) => prev.filter((b) => b.id !== libraryItemId))
       router.refresh()
@@ -53,6 +53,6 @@ export function useCollectionBooks(collection: Collection) {
   return {
     orderedBooks,
     setOrderedBooks,
-    handleItemRemovedFromSortableList
+    handleItemRemoved
   }
 }
