@@ -284,7 +284,7 @@ export function useMediaCardActions({
               await batchRemoveFromPlaylistAction(ctx.sortableListId, [{ libraryItemId: libraryItem.id, episodeId: episodeForQueue?.id ?? null }])
               showToast(t('ToastRemoveItemFromPlaylistSuccess'), { type: 'success' })
             }
-            ctx.onLibraryItemRemovedFromSortableList?.(libraryItem.id)
+            ctx.onItemRemovedFromSortableList?.(libraryItem.id, episodeForQueue?.id ?? null)
           } catch (error) {
             console.error('Failed to remove item from sortable list', error)
             showToast(ctx.sortableListKind === 'collection' ? t('ToastRemoveItemFromCollectionFailed') : t('ToastRemoveItemFromPlaylistFailed'), {

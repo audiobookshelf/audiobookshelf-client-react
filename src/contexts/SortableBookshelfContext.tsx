@@ -42,7 +42,7 @@ export interface SortableBookshelfContextType {
   /** Collection or playlist id, depending on {@link sortableListKind}. */
   sortableListId: string
   sortableListKind: SortableListKind
-  onLibraryItemRemovedFromSortableList?: (libraryItemId: string) => void
+  onItemRemovedFromSortableList?: (libraryItemId: string, episodeId?: string | null) => void
   /** Overlay UX for sortable shelves: `pinned` on touch reorder grids; `hover` on desktop reorder. */
   overlayMode?: SortableBookshelfOverlayMode
 }
