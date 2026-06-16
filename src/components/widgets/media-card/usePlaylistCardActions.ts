@@ -19,9 +19,11 @@ interface ConfirmState {
 
 interface UsePlaylistCardActionsProps {
   playlist: Playlist
+  /** Called after the playlist is deleted successfully (e.g. navigate away from the detail page). */
+  onPlaylistDeleted?: () => void
 }
 
-export function usePlaylistCardActions({ playlist }: UsePlaylistCardActionsProps) {
+export function usePlaylistCardActions({ playlist, onPlaylistDeleted }: UsePlaylistCardActionsProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete } = useUser()
   const { showToast } = useGlobalToast()
@@ -44,6 +46,7 @@ export function usePlaylistCardActions({ playlist }: UsePlaylistCardActionsProps
                 setProcessing(true)
                 await deletePlaylistAction(playlist.id)
                 showToast(t('ToastPlaylistRemoveSuccess'), { type: 'success' })
+                onPlaylistDeleted?.()
               } catch (error) {
                 console.error('Failed to delete playlist', error)
                 showToast(t('ToastRemoveFailed'), { type: 'error' })
@@ -55,7 +58,7 @@ export function usePlaylistCardActions({ playlist }: UsePlaylistCardActionsProps
         })
       }
     },
-    [playlist.id, playlist.name, showToast, t]
+    [onPlaylistDeleted, playlist.id, playlist.name, showToast, t]
   )
 
   const moreMenuItems = useMemo<MediaCardMoreMenuItem[]>(() => {
