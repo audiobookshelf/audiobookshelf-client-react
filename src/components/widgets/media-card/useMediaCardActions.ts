@@ -12,7 +12,6 @@ import {
 } from '@/app/actions/mediaActions'
 import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
-import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { useEreader } from '@/contexts/EreaderContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
@@ -22,6 +21,7 @@ import { useUser } from '@/contexts/UserContext'
 import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { downloadLibraryItem } from '@/lib/download'
+import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import {
   type BookMetadata,
   type EReaderDevice,
@@ -408,18 +408,18 @@ export function useMediaCardActions({
   const moreMenuItems = useMemo<MediaCardMoreMenuItem[]>(() => {
     const items: MediaCardMoreMenuItem[] = []
 
+    if (userCanUpdate && sortableCompilation && (!isPodcast || episodeForQueue)) {
+      items.push({
+        text: sortableCompilation.compilationKind === 'playlist' ? t('LabelRemoveFromPlaylist') : t('LabelRemoveFromCollection'),
+        func: 'removeFromSortableList'
+      })
+    }
+
     if (!isPodcast) {
       items.push({
         text: itemIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished'),
         func: 'toggleFinished'
       })
-
-      if (userCanUpdate && sortableCompilation) {
-        items.push({
-          text: sortableCompilation.compilationKind === 'playlist' ? t('LabelRemoveFromPlaylist') : t('LabelRemoveFromCollection'),
-          func: 'removeFromSortableList'
-        })
-      }
 
       if (userCanUpdate) {
         items.push({
