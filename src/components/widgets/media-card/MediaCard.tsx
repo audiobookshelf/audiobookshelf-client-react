@@ -1,6 +1,5 @@
 'use client'
 
-import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
@@ -17,10 +16,11 @@ import type { SortableBookshelfCardOptions } from '@/components/widgets/media-ca
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
-import { isDragOnlyOverlay, useSortableBookshelf } from '@/contexts/SortableBookshelfContext'
+import { isDragOnlyOverlay, useSortableBookshelfOverlay } from '@/contexts/SortableBookshelfOverlayContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { BookMedia, BookshelfEntity, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
@@ -108,8 +108,8 @@ function MediaCard(props: MediaCardProps) {
     dragOptions
   } = props
 
-  const sortableBookshelf = useSortableBookshelf()
-  const sortableBookshelfOverlayMode = dragOptions?.overlayMode ?? sortableBookshelf?.overlayMode ?? 'hover'
+  const sortableBookshelfOverlay = useSortableBookshelfOverlay()
+  const overlayMode = dragOptions?.overlayMode ?? sortableBookshelfOverlay?.overlayMode ?? 'hover'
 
   const router = useRouter()
   const { setBoundModal } = useLibrary()
@@ -302,7 +302,7 @@ function MediaCard(props: MediaCardProps) {
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
   }
 
-  const navigateOnCardClick = !processing && !isDragOnlyOverlay(sortableBookshelfOverlayMode)
+  const navigateOnCardClick = !processing && !isDragOnlyOverlay(overlayMode)
 
   const dragHandle = useMemo(() => {
     if (!dragOptions?.ariaLabel) return undefined
@@ -390,7 +390,7 @@ function MediaCard(props: MediaCardProps) {
             onMoreMenuOpenChange={handleMoreMenuOpenChange}
             onSelect={onSelect}
             dragHandle={dragHandle}
-            overlayModeOverride={sortableBookshelfOverlayMode}
+            overlayModeOverride={overlayMode}
           />
         }
       />

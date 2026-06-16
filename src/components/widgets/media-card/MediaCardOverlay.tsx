@@ -5,7 +5,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/media-card/MediaCardMoreMenu'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
-import { isDragOnlyOverlay, useSortableBookshelf, type SortableBookshelfOverlayMode } from '@/contexts/SortableBookshelfContext'
+import { isDragOnlyOverlay, useSortableBookshelfOverlay, type SortableBookshelfOverlayMode } from '@/contexts/SortableBookshelfOverlayContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -102,8 +102,8 @@ export default function MediaCardOverlay({
   overlayModeOverride
 }: MediaCardOverlayProps) {
   const { userCanUpdate } = useUser()
-  const sortableBookshelf = useSortableBookshelf()
-  const dragOnly = isDragOnlyOverlay(overlayModeOverride ?? sortableBookshelf?.overlayMode)
+  const sortableBookshelfOverlay = useSortableBookshelfOverlay()
+  const dragOnly = isDragOnlyOverlay(overlayModeOverride ?? sortableBookshelfOverlay?.overlayMode)
 
   const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen || dragOnly) && !processing
 
