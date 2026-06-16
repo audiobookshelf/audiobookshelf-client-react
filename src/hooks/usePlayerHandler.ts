@@ -73,6 +73,8 @@ export interface PlayerHandlerControls {
 export interface UsePlayerHandlerReturn {
   state: PlayerHandlerState
   controls: PlayerHandlerControls
+  /** Register a handler for when the current item finishes (updated via useEffect in callers). */
+  setOnPlaybackFinished: (handler: (() => void) | undefined) => void
 }
 
 // ============================================================================
@@ -85,6 +87,11 @@ export interface UsePlayerHandlerReturn {
  * the LocalAudioPlayer and coordinates with the server for session management.
  */
 export function usePlayerHandler(): UsePlayerHandlerReturn {
+  const onPlaybackFinishedRef = useRef<(() => void) | undefined>(undefined)
+
+  const setOnPlaybackFinished = useCallback((handler: (() => void) | undefined) => {
+    onPlaybackFinishedRef.current = handler
+  }, [])
   // Player settings (persisted in local storage)
   const playerSettings = usePlayerSettings()
   const { settings } = playerSettings
@@ -154,10 +161,13 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
     setPlayerState(PlayerState.ERROR)
   }, [])
 
-  const { startSession, closeSession, startSyncInterval, stopSyncInterval } = usePlaybackSession({
+  const { startSession, closeSession, syncProgress, startSyncInterval, stopSyncInterval } = usePlaybackSession({
     onSessionReady: handleSessionReady,
     onError: handleSessionError
   })
+
+  const syncProgressRef = useRef(syncProgress)
+  syncProgressRef.current = syncProgress
 
   // ============================================================================
   // Player Setup
@@ -207,8 +217,21 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       })
 
       player.on('finished', () => {
-        // TODO: Handle media finished - move to next queue item or close
-        console.log('[usePlayerHandler] Playback finished')
+        void (async () => {
+          stopSyncInterval()
+
+          const player = playerRef.current
+          if (!player) {
+            onPlaybackFinishedRef.current?.()
+            return
+          }
+
+          const duration = player.getDuration()
+          const finalTime = duration > 0 ? duration : player.getCurrentTime()
+          setCurrentTime(finalTime)
+          await syncProgressRef.current(finalTime, { force: true })
+          onPlaybackFinishedRef.current?.()
+        })()
       })
     },
     [startSyncInterval, stopSyncInterval]
@@ -388,6 +411,7 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       decrementPlaybackRate,
       updateSettings: playerSettings.updateSettings,
       closePlayer
-    }
+    },
+    setOnPlaybackFinished
   }
 }

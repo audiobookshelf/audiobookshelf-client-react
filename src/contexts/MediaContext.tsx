@@ -1,9 +1,10 @@
 'use client'
 
+import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
 import { usePlayerHandler, type PlayerHandlerControls, type PlayerHandlerState } from '@/hooks/usePlayerHandler'
 import { LibraryItem, PlayerState } from '@/types/api'
-import { createContext, useCallback, useContext, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 export interface PlayerQueueItem {
   libraryItemId: string
@@ -60,8 +61,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const [playerQueueItems, setPlayerQueueItems] = useState<PlayerQueueItem[]>([])
   const [playerQueueAutoPlay] = useState<boolean>(true)
 
-  // Player handler hook
-  const { state: playerState, controls: playerControls } = usePlayerHandler()
+  const { state: playerState, controls: playerControls, setOnPlaybackFinished } = usePlayerHandler()
 
   const libraryItemIdStreaming = useMemo(() => streamLibraryItem?.id ?? null, [streamLibraryItem])
 
@@ -169,6 +169,47 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     },
     [playerControls]
   )
+
+  const handlePlaybackFinished = useCallback(() => {
+    void (async () => {
+      if (!playerQueueItems.length || !playerQueueAutoPlay) return
+
+      const libraryItemId = streamLibraryItem?.id
+      if (!libraryItemId) return
+
+      const episodeId = streamEpisodeId
+      let currentQueueIndex = playerQueueItems.findIndex((item) => {
+        if (episodeId) return item.libraryItemId === libraryItemId && item.episodeId === episodeId
+        return item.libraryItemId === libraryItemId
+      })
+
+      if (currentQueueIndex < 0) {
+        console.error('[MediaContext] Media finished not found in queue - using first in queue', playerQueueItems)
+        currentQueueIndex = -1
+      }
+
+      if (currentQueueIndex === playerQueueItems.length - 1) return
+
+      const nextItemInQueue = playerQueueItems[currentQueueIndex + 1]
+      if (!nextItemInQueue) return
+
+      try {
+        const libraryItem = await getExpandedLibraryItemAction(nextItemInQueue.libraryItemId)
+        await playItem({
+          libraryItem,
+          episodeId: nextItemInQueue.episodeId,
+          queueItems: playerQueueItems
+        })
+      } catch (error) {
+        console.error('[MediaContext] Failed to play next item in queue', error)
+      }
+    })()
+  }, [playItem, playerQueueAutoPlay, playerQueueItems, streamEpisodeId, streamLibraryItem])
+
+  useEffect(() => {
+    setOnPlaybackFinished(handlePlaybackFinished)
+    return () => setOnPlaybackFinished(undefined)
+  }, [handlePlaybackFinished, setOnPlaybackFinished])
 
   // ============================================================================
   // Context Value
