@@ -9,6 +9,9 @@ export function buildMediaItemProgressMap(mediaProgress: MediaProgress[]): Map<s
   return map
 }
 
+/**
+ * TODO: Media item progress should be fetched using mediaItemId when new API is implemented
+ */
 /** Progress for a library item (book) from a map built with {@link buildMediaItemProgressMap}. */
 export function getLibraryItemProgressFromMap(
   map: Map<string, MediaProgress>,
@@ -20,6 +23,13 @@ export function getLibraryItemProgressFromMap(
     if (byMediaItem) return byMediaItem
   }
   return map.get(libraryItem.id) ?? null
+}
+
+export function getMediaItemProgress(mediaProgress: MediaProgress[], libraryItemId: string, episodeId?: string): MediaProgress | null {
+  if (episodeId) {
+    return mediaProgress.find((p) => p.libraryItemId === libraryItemId && p.episodeId === episodeId) ?? null
+  }
+  return mediaProgress.find((p) => p.libraryItemId === libraryItemId && !p.episodeId) ?? null
 }
 
 /** Progress rows for one podcast library item, keyed by podcast episode id (mediaItemId) */

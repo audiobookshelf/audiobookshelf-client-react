@@ -33,7 +33,7 @@ interface UsePlaybackSessionReturn {
   /** Start a new playback session */
   startSession: (libraryItem: LibraryItem, supportedMimeTypes: string[], episodeId?: string, startTimeOverride?: number) => Promise<PlaybackSession | null>
   /** Sync progress to server */
-  syncProgress: (currentTime: number) => void
+  syncProgress: (currentTime: number, options?: { force?: boolean }) => Promise<void>
   /** Close the current session */
   closeSession: (getCurrentTime?: () => number) => Promise<void>
   /** Start the sync interval (call when playback starts) */
@@ -135,13 +135,13 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
    * Sync progress to server (debounced by minimum diff)
    */
   const syncProgress = useCallback(
-    async (currentTime: number) => {
+    async (currentTime: number, options?: { force?: boolean }) => {
       const session = sessionRef.current
       if (!session) return
 
-      // Skip if time hasn't changed enough
+      // Skip if time hasn't changed enough (always sync when playback finishes)
       const diffSinceLastSync = Math.abs(lastSyncTimeRef.current - currentTime)
-      if (diffSinceLastSync < 1) return
+      if (!options?.force && diffSinceLastSync < 1) return
 
       lastSyncTimeRef.current = currentTime
       const timeListened = Math.max(0, Math.floor(listeningTimeSinceSync.current))

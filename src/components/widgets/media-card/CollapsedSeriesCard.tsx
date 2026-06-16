@@ -176,9 +176,9 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
           title={collapsedSeries?.name || ''}
           titleCleaned={titleCleaned}
           authorCleaned=""
-          isPodcast={false}
           userProgressPercent={userProgressPercent}
           itemIsFinished={itemIsFinished}
+          showProgressBar={userProgressPercent > 0}
         />
       }
       overlay={

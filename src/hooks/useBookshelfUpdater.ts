@@ -2,7 +2,7 @@
 
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { getVisibleBookshelfPageRange, type VisibleBookshelfPageRangeInput } from '@/hooks/useBookshelfVirtualizer'
-import { Author, AuthorRemovedPayload, BookshelfEntity, EntityType, LibraryItem, LibraryItemRemovedPayload } from '@/types/api'
+import { Author, AuthorRemovedPayload, BookshelfEntity, Collection, EntityType, LibraryItem, LibraryItemRemovedPayload, Playlist } from '@/types/api'
 import { type RefObject, useCallback, useLayoutEffect, useRef } from 'react'
 
 /** Like refs from `useRef` with a writable `current` (avoids deprecated `MutableRefObject` in newer `@types/react`). */
@@ -30,6 +30,7 @@ function getPagesForReconcile(layout: BookshelfReconcileLayout, entityIds?: Iter
 
 type BookshelfUpdaterRuntime = {
   libraryId: string
+  userId: string
   entityType: EntityType
   bookshelfLayoutReady: boolean
   /** Random sort refetches change the shelf order; skip socket-driven reconcile until server-side stable ordering exists. */
@@ -90,6 +91,7 @@ function reconcileVisiblePages(rt: BookshelfUpdaterRuntime) {
 export type UseBookshelfUpdaterParams = {
   entityType: EntityType
   libraryId: string
+  userId: string
   containerRef: RefObject<HTMLDivElement | null>
   visibleShelfStart: number
   visibleShelfEnd: number
@@ -113,6 +115,7 @@ export type UseBookshelfUpdaterParams = {
 export function useBookshelfUpdater({
   entityType,
   libraryId,
+  userId,
   containerRef,
   visibleShelfStart,
   visibleShelfEnd,
@@ -170,6 +173,7 @@ export function useBookshelfUpdater({
   const runtimeRef = useRef<BookshelfUpdaterRuntime>({} as BookshelfUpdaterRuntime)
   runtimeRef.current = {
     libraryId,
+    userId,
     entityType,
     bookshelfLayoutReady,
     isRandomSort,
@@ -228,6 +232,42 @@ export function useBookshelfUpdater({
     reconcileVisiblePages(rt)
   }, [])
 
+  const onCollectionUpdated = useCallback((collection: Collection) => {
+    const rt = runtimeRef.current
+    if (collection.libraryId !== rt.libraryId || rt.entityType !== 'collections') return
+    reconcileUpdatedEntities(rt, [collection])
+  }, [])
+
+  const onCollectionAdded = useCallback((collection: Collection) => {
+    const rt = runtimeRef.current
+    if (collection.libraryId !== rt.libraryId || rt.entityType !== 'collections') return
+    reconcileVisiblePages(rt)
+  }, [])
+
+  const onCollectionRemoved = useCallback((collection: Collection) => {
+    const rt = runtimeRef.current
+    if (collection.libraryId !== rt.libraryId || rt.entityType !== 'collections') return
+    reconcileVisiblePages(rt)
+  }, [])
+
+  const onPlaylistUpdated = useCallback((playlist: Playlist) => {
+    const rt = runtimeRef.current
+    if (playlist.libraryId !== rt.libraryId || playlist.userId !== rt.userId || rt.entityType !== 'playlists') return
+    reconcileUpdatedEntities(rt, [playlist])
+  }, [])
+
+  const onPlaylistAdded = useCallback((playlist: Playlist) => {
+    const rt = runtimeRef.current
+    if (playlist.libraryId !== rt.libraryId || playlist.userId !== rt.userId || rt.entityType !== 'playlists') return
+    reconcileVisiblePages(rt)
+  }, [])
+
+  const onPlaylistRemoved = useCallback((playlist: Playlist) => {
+    const rt = runtimeRef.current
+    if (playlist.libraryId !== rt.libraryId || playlist.userId !== rt.userId || rt.entityType !== 'playlists') return
+    reconcileVisiblePages(rt)
+  }, [])
+
   useSocketEvent<LibraryItem>('item_updated', onLibraryItemUpdated, [onLibraryItemUpdated])
   useSocketEvent<LibraryItem[]>('items_updated', onLibraryItemsUpdated, [onLibraryItemsUpdated])
   useSocketEvent<LibraryItem>('item_added', onLibraryItemAdded, [onLibraryItemAdded])
@@ -236,4 +276,10 @@ export function useBookshelfUpdater({
   useSocketEvent<Author>('author_added', onAuthorAdded, [onAuthorAdded])
   useSocketEvent<Author>('author_updated', onAuthorUpdated, [onAuthorUpdated])
   useSocketEvent<AuthorRemovedPayload>('author_removed', onAuthorRemoved, [onAuthorRemoved])
+  useSocketEvent<Collection>('collection_added', onCollectionAdded, [onCollectionAdded])
+  useSocketEvent<Collection>('collection_updated', onCollectionUpdated, [onCollectionUpdated])
+  useSocketEvent<Collection>('collection_removed', onCollectionRemoved, [onCollectionRemoved])
+  useSocketEvent<Playlist>('playlist_added', onPlaylistAdded, [onPlaylistAdded])
+  useSocketEvent<Playlist>('playlist_updated', onPlaylistUpdated, [onPlaylistUpdated])
+  useSocketEvent<Playlist>('playlist_removed', onPlaylistRemoved, [onPlaylistRemoved])
 }

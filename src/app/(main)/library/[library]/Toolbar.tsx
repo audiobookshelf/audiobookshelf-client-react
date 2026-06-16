@@ -16,6 +16,7 @@ export default function Toolbar() {
   // Check if we're on any bookshelf-like page (or a single collection, which syncs the same summary fields)
   const isBookshelfPage = BOOKSHELF_PAGE_PATTERNS.some((pattern) => pathname.endsWith(pattern))
   const isCollectionDetailPage = pathname.includes('/collection/')
+  const isPlaylistDetailPage = pathname.includes('/playlist/')
 
   const isBookshelfEmpty = itemCount === 0 && filterBy === 'all'
 
@@ -31,9 +32,9 @@ export default function Toolbar() {
     itemName = t('LabelPlaylists')
   } else if (pathname.endsWith('/authors')) {
     itemName = t('LabelAuthors')
-  } else if (pathname.endsWith('/items') || isCollectionDetailPage) {
+  } else if (pathname.endsWith('/items') || isCollectionDetailPage || isPlaylistDetailPage) {
     if (library?.mediaType === 'podcast') {
-      itemName = t('LabelPodcasts')
+      itemName = isPlaylistDetailPage ? t('LabelEpisodes') : t('LabelPodcasts')
     } else if (library?.mediaType === 'book') {
       itemName = t('LabelBooks')
     }
@@ -43,7 +44,7 @@ export default function Toolbar() {
     onContextMenuAction?.(action)
   }
 
-  const showBookshelfSummary = (isBookshelfPage || isCollectionDetailPage) && itemCount !== null && !isSeriesDetailPage
+  const showBookshelfSummary = (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
   const showSeriesDetailSummary = isSeriesDetailPage && itemCount !== null
   const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage
   const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage)

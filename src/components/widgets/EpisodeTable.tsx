@@ -2,6 +2,7 @@
 
 import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fetchPodcastFeedAction, toggleFinishedAction } from '@/app/actions/mediaActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
+import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
@@ -16,6 +17,7 @@ import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
+import { getPodcastEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -53,6 +55,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
 
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
+  const [editedEpisode, setEditedEpisode] = useState<PodcastEpisode | null>(null)
 
   const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
 
@@ -145,9 +148,17 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   }, [])
 
   const handleEditEpisode = useCallback((episode: PodcastEpisode) => {
-    // TODO: Open episode edit modal
-    console.log('Edit episode:', episode.id)
+    setEditedEpisode(episode)
   }, [])
+
+  const handleCloseEditModal = useCallback(() => {
+    setEditedEpisode(null)
+  }, [])
+
+  const editedEpisodeNavCtx = useMemo(
+    () => (editedEpisode ? getPodcastEpisodeNavigationContext(filteredEpisodes, editedEpisode.id) : null),
+    [editedEpisode, filteredEpisodes]
+  )
 
   const handleFindEpisodes = useCallback(() => {
     const feedUrl = libraryItem.media.metadata.feedUrl
@@ -377,6 +388,9 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
       </div>
 
       <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
+      {editedEpisode && (
+        <EpisodeEditModal isOpen libraryItem={libraryItem} episode={editedEpisode} navCtx={editedEpisodeNavCtx ?? undefined} onClose={handleCloseEditModal} />
+      )}
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
       <EpisodeFeedModal
         isOpen={isEpisodeFeedModalOpen}
