@@ -44,6 +44,8 @@ export default function LibraryItemCover({ libraryItem, canUpdate = false, class
     [mediaProgress]
   )
 
+  const showProgressBar = userProgressPercent > 0 && (!isPodcast || !!libraryItem.recentEpisode)
+
   const rawCoverUrl = useMemo(() => {
     if (!coverPath) return getPlaceholderCoverUrl()
     return getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, true)
@@ -98,9 +100,9 @@ export default function LibraryItemCover({ libraryItem, canUpdate = false, class
             title={title}
             titleCleaned={titleCleaned}
             authorCleaned={authorCleaned}
-            isPodcast={isPodcast}
             userProgressPercent={userProgressPercent}
             itemIsFinished={itemIsFinished}
+            showProgressBar={showProgressBar}
           />
         }
         overlay={

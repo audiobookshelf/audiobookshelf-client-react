@@ -114,23 +114,8 @@ export function buildCollectionQueueItems(books: LibraryItem[], mediaProgress: M
   return buildCompilationQueueItems(books.map(toCollectionEntry), mediaProgress)
 }
 
-export function getQueueItemPlaybackStartTime(
-  item: PlayerQueueItem,
-  mediaProgress: MediaProgress[],
-  libraryItem?: { id: string; media?: { id?: string } | null }
-): number | undefined {
-  let progress: MediaProgress | null = getMediaItemProgress(mediaProgress, item.libraryItemId, item.episodeId ?? undefined)
-
-  // if (item.episodeId) {
-  //   progress =
-  //     mediaProgress.find(
-  //       (p) => p.libraryItemId === item.libraryItemId && (p.episodeId === item.episodeId || p.mediaItemId === item.episodeId)
-  //     ) ?? null
-  // } else if (libraryItem) {
-  //   progress = getLibraryItemProgressFromMap(buildMediaItemProgressMap(mediaProgress), libraryItem)
-  // } else {
-  //   progress = mediaProgress.find((p) => p.libraryItemId === item.libraryItemId && !p.episodeId) ?? null
-  // }
+export function getQueueItemPlaybackStartTime(item: PlayerQueueItem, mediaProgress: MediaProgress[]): number | undefined {
+  const progress = getMediaItemProgress(mediaProgress, item.libraryItemId, item.episodeId ?? undefined)
 
   if (!progress || progress.isFinished) return undefined
   return progress.currentTime

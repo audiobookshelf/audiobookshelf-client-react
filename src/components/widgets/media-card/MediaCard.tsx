@@ -203,6 +203,9 @@ function MediaCard(props: MediaCardProps) {
     finishedAt
   } = useMemo(() => computeProgress({ progress: mediaProgress, useSeriesProgress: false }), [mediaProgress])
 
+  // Show-level podcast cards have no per-item progress; episode cards use `episode` or `recentEpisode`.
+  const showProgressBar = userProgressPercent > 0 && (!isPodcast || !!episode || !!libraryItem.recentEpisode)
+
   const playIconFontSize = Math.max(2, 3 * effectiveSizeMultiplier)
   const author = metadata.authorName
 
@@ -357,9 +360,9 @@ function MediaCard(props: MediaCardProps) {
             title={title}
             titleCleaned={titleCleaned}
             authorCleaned={authorCleaned}
-            isPodcast={isPodcast}
             userProgressPercent={userProgressPercent}
             itemIsFinished={itemIsFinished}
+            showProgressBar={showProgressBar}
           />
         }
         overlay={

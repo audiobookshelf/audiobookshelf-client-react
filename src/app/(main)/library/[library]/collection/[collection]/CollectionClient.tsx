@@ -94,7 +94,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
 
     void playItem({
       libraryItem,
-      startTime: getQueueItemPlaybackStartTime(startItem, user.mediaProgress, libraryItem),
+      startTime: getQueueItemPlaybackStartTime(startItem, user.mediaProgress),
       queueItems
     })
   }, [playItem, playableBooks, collection.books, user.mediaProgress])

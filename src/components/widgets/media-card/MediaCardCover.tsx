@@ -13,9 +13,9 @@ interface MediaCardCoverProps {
   title: string
   titleCleaned: string
   authorCleaned: string
-  isPodcast: boolean
   userProgressPercent: number
   itemIsFinished: boolean
+  showProgressBar: boolean
   onImageLoad?: (showBg: boolean) => void
 }
 
@@ -32,9 +32,9 @@ export default function MediaCardCover({
   title,
   titleCleaned,
   authorCleaned,
-  isPodcast,
   userProgressPercent,
   itemIsFinished,
+  showProgressBar,
   onImageLoad
 }: MediaCardCoverProps) {
   const [imageReady, setImageReady] = useState(false)
@@ -160,7 +160,7 @@ export default function MediaCardCover({
       )}
 
       {/* Progress bar */}
-      {userProgressPercent > 0 && (!isPodcast || !!libraryItem.recentEpisode) && (
+      {showProgressBar && (
         <div
           cy-id="progressBar"
           className={mergeClasses(

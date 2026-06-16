@@ -89,7 +89,7 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
     void playItem({
       libraryItem,
       episodeId: startItem.episodeId,
-      startTime: getQueueItemPlaybackStartTime(startItem, user.mediaProgress, libraryItem),
+      startTime: getQueueItemPlaybackStartTime(startItem, user.mediaProgress),
       queueItems
     })
   }, [playItem, playableItems, playlist.items, user.mediaProgress])
