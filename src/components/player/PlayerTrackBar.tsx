@@ -1,13 +1,13 @@
 'use client'
 
-import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface PlayerTrackBarProps {
-  playerHandler: UsePlayerHandlerReturn
+  playerHandler: PlayerHandler
 }
 
 interface ChapterTick {

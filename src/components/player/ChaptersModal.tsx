@@ -1,7 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
-import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -10,7 +10,7 @@ import { memo, useCallback, useEffect, useRef } from 'react'
 
 interface ChaptersModalProps {
   isOpen: boolean
-  playerHandler: UsePlayerHandlerReturn
+  playerHandler: PlayerHandler
   onClose: () => void
 }
 

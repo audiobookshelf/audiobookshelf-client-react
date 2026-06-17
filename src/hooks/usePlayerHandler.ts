@@ -70,9 +70,12 @@ export interface PlayerHandlerControls {
   closePlayer: () => Promise<void>
 }
 
-export interface UsePlayerHandlerReturn {
+export interface PlayerHandler {
   state: PlayerHandlerState
   controls: PlayerHandlerControls
+}
+
+export interface UsePlayerHandlerReturn extends PlayerHandler {
   /** Register a handler for when the current item finishes (updated via useEffect in callers). */
   setOnPlaybackFinished: (handler: (() => void) | undefined) => void
 }

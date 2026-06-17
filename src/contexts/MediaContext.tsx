@@ -2,7 +2,7 @@
 
 import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
-import { usePlayerHandler, type PlayerHandlerControls, type PlayerHandlerState } from '@/hooks/usePlayerHandler'
+import { usePlayerHandler, type PlayerHandler } from '@/hooks/usePlayerHandler'
 import { LibraryItem, PlayerState } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
@@ -43,11 +43,8 @@ interface MediaContextValue {
   // Main play function
   playItem: (params: { libraryItem: LibraryItem; episodeId?: string | null; startTime?: number; queueItems?: PlayerQueueItem[] }) => Promise<void>
 
-  // Player handler (state + controls grouped together)
-  playerHandler: {
-    state: PlayerHandlerState
-    controls: PlayerHandlerControls
-  }
+  // Player handler
+  playerHandler: PlayerHandler
 }
 
 const MediaContext = createContext<MediaContextValue | undefined>(undefined)

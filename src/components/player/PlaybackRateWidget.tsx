@@ -1,6 +1,6 @@
 'use client'
 
-import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom'
 import IconBtn from '../ui/IconBtn'
 
 interface PlaybackRateWidgetProps {
-  playerHandler: UsePlayerHandlerReturn
+  playerHandler: PlayerHandler
 }
 
 const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const

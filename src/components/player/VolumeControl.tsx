@@ -1,13 +1,13 @@
 'use client'
 
-import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { autoUpdate, flip, offset, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface VolumeControlProps {
-  playerHandler: UsePlayerHandlerReturn
+  playerHandler: PlayerHandler
 }
 
 export default function VolumeControl({ playerHandler }: VolumeControlProps) {

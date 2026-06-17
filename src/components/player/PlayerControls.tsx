@@ -1,6 +1,6 @@
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
-import type { UsePlayerHandlerReturn } from '@/hooks/usePlayerHandler'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useSleepTimer } from '@/hooks/useSleepTimer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isPodcastLibraryItem, LibraryItem, PlayerState } from '@/types/api'
@@ -15,7 +15,7 @@ import SleepTimerModal from './SleepTimerModal'
 import VolumeControl from './VolumeControl'
 
 interface PlayerControlsProps {
-  playerHandler: UsePlayerHandlerReturn
+  playerHandler: PlayerHandler
   streamLibraryItem: LibraryItem
 }
 
