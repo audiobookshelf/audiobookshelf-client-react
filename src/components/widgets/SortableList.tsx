@@ -23,7 +23,7 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { CSSProperties, KeyboardEvent, KeyboardEventHandler } from 'react'
-import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 
 const VERTICAL_ARROW_CODES = new Set(['ArrowUp', 'ArrowDown'])
 
@@ -207,6 +207,7 @@ export default function SortableList<T extends SortableItem>({
   disabled = false,
   isItemDisabled
 }: SortableListProps<T>) {
+  const dndContextId = useId()
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const itemsWithIds = useMemo(
@@ -263,6 +264,7 @@ export default function SortableList<T extends SortableItem>({
 
   return (
     <DndContext
+      id={dndContextId}
       sensors={sensors}
       collisionDetection={closestCenter}
       modifiers={[restrictSortableListToVerticalAxis]}
