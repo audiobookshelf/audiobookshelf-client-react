@@ -17,14 +17,16 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useCompilationListRowLayout } from '@/hooks/useCompilationListRowLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getMediaCardModalNavigationContext, type EntityNavigationContext } from '@/lib/bookshelfNavigationContext'
+import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
+import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
 import { formatDuration } from '@/lib/formatDuration'
 import { buildMediaItemProgressMap, buildPodcastEpisodeProgressMap, getLibraryItemProgressFromMap } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
 import { getEpisodeDuration, getPlaylistItemDuration } from '@/lib/playlistItems'
-import type { BookshelfEntity, LibraryItem, PodcastEpisode } from '@/types/api'
+import type { LibraryItem, PodcastEpisode } from '@/types/api'
 import { isBookMedia, isBookMetadata, isPodcastMedia } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useMemo, useState, useTransition } from 'react'
@@ -40,8 +42,7 @@ interface CompilationItemListRowProps {
   episode?: PodcastEpisode | null
   context: CompilationItemListRowContext
   entityIndex: number
-  shelfEntities: (BookshelfEntity | null)[]
-  episodeNavCtx?: EntityNavigationContext
+  shelfEntities: (ShelfNavigationEntity | null)[]
   showDragHandle: boolean
   sortableDragHandleProps: SortableListDragHandleProps
   isDragging?: boolean
@@ -53,7 +54,6 @@ export default function CompilationItemListRow({
   context,
   entityIndex,
   shelfEntities,
-  episodeNavCtx,
   showDragHandle,
   sortableDragHandleProps,
   isDragging = false
@@ -107,21 +107,13 @@ export default function CompilationItemListRow({
 
   const handleEdit = useCallback(() => {
     if (episode) {
-      setBoundModal(
-        <EpisodeEditModal
-          key={`episode-edit-modal-${episode.id}`}
-          isOpen
-          libraryItem={libraryItem}
-          episode={episode}
-          navCtx={episodeNavCtx}
-          onClose={clearBoundModal}
-        />
-      )
+      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+      setBoundModal(<EpisodeEditModal key={`episode-edit-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
       return
     }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, entityIndex, episode, episodeNavCtx, libraryItem, setBoundModal, shelfEntities])
+  }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
 
   const handlePlayClick = useCallback(
     (e: React.MouseEvent) => {

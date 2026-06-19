@@ -16,6 +16,7 @@ import type { SortableBookshelfCardOptions } from '@/components/widgets/media-ca
 import { UpdateSettingFn } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { downloadLibraryOpml } from '@/lib/download'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import {
   Author,
   BookshelfEntity,
@@ -54,7 +55,7 @@ export interface CardComponentProps {
   orderBy?: string
   seriesSortBy?: string
   mediaItemProgressMap: Map<string, MediaProgress>
-  shelfEntities?: (BookshelfEntity | null)[]
+  shelfEntities?: (ShelfNavigationEntity | null)[]
   entityIndex?: number
   /** Sortable collection bookshelf: options from `SortableBookshelfCard` (drag activator + overlay override). */
   sortableBookshelfCardOptions?: SortableBookshelfCardOptions

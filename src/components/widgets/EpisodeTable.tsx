@@ -156,8 +156,8 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   }, [])
 
   const editedEpisodeNavCtx = useMemo(
-    () => (editedEpisode ? getPodcastEpisodeNavigationContext(filteredEpisodes, editedEpisode.id) : null),
-    [editedEpisode, filteredEpisodes]
+    () => (editedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, editedEpisode.id) : null),
+    [editedEpisode, filteredEpisodes, libraryItem.id]
   )
 
   const handleFindEpisodes = useCallback(() => {
@@ -388,8 +388,8 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
       </div>
 
       <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
-      {editedEpisode && (
-        <EpisodeEditModal isOpen libraryItem={libraryItem} episode={editedEpisode} navCtx={editedEpisodeNavCtx ?? undefined} onClose={handleCloseEditModal} />
+      {editedEpisode && editedEpisodeNavCtx && (
+        <EpisodeEditModal isOpen navCtx={editedEpisodeNavCtx} onClose={handleCloseEditModal} />
       )}
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
       <EpisodeFeedModal
