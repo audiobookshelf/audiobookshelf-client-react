@@ -3,6 +3,7 @@
 import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fetchPodcastFeedAction, toggleFinishedAction } from '@/app/actions/mediaActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
+import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
@@ -56,6 +57,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
   const [editedEpisode, setEditedEpisode] = useState<PodcastEpisode | null>(null)
+  const [matchedEpisode, setMatchedEpisode] = useState<PodcastEpisode | null>(null)
 
   const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
 
@@ -155,9 +157,22 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     setEditedEpisode(null)
   }, [])
 
+  const handleMatchEpisode = useCallback((episode: PodcastEpisode) => {
+    setMatchedEpisode(episode)
+  }, [])
+
+  const handleCloseMatchModal = useCallback(() => {
+    setMatchedEpisode(null)
+  }, [])
+
   const editedEpisodeNavCtx = useMemo(
     () => (editedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, editedEpisode.id) : null),
     [editedEpisode, filteredEpisodes, libraryItem.id]
+  )
+
+  const matchedEpisodeNavCtx = useMemo(
+    () => (matchedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, matchedEpisode.id) : null),
+    [matchedEpisode, filteredEpisodes, libraryItem.id]
   )
 
   const handleFindEpisodes = useCallback(() => {
@@ -373,6 +388,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     onToggleFinished={handleToggleFinished}
                     onSelect={handleSelectEpisode}
                     onEdit={handleEditEpisode}
+                    onMatch={handleMatchEpisode}
                     onRemove={handleRemoveEpisode}
                     onDownloadFile={handleDownloadFile}
                     onShowMoreInfo={handleShowMoreInfo}
@@ -390,6 +406,9 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
       <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
       {editedEpisode && editedEpisodeNavCtx && (
         <EpisodeEditModal isOpen navCtx={editedEpisodeNavCtx} onClose={handleCloseEditModal} />
+      )}
+      {matchedEpisode && matchedEpisodeNavCtx && (
+        <EpisodeMatchModal isOpen navCtx={matchedEpisodeNavCtx} onClose={handleCloseMatchModal} />
       )}
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
       <EpisodeFeedModal

@@ -61,10 +61,14 @@ import {
   PersonalizedShelf,
   Playlist,
   PlaylistItemPayload,
+  PodcastEpisode,
+  PodcastLibraryItem,
   PodcastSearchResult,
   RssPodcastEpisode,
   SaveLibraryOrderApiResponse,
   SearchLibraryResponse,
+  SearchPodcastEpisodeResponse,
+  SearchPodcastEpisodeResult,
   Series,
   ServerStatus,
   TasksResponse,
@@ -74,6 +78,7 @@ import {
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
+  UpdatePodcastEpisodePayload,
   UploadCoverResponse,
   User,
   UserLoginResponse
@@ -988,6 +993,38 @@ export async function deleteLibraryItemMediaEpisode(libraryItemId: string, episo
   return apiRequest<void>(`/api/podcasts/${libraryItemId}/episode/${episodeId}${hard}`, {
     method: 'DELETE'
   })
+}
+
+/**
+ * Fetch a single podcast episode with full details.
+ */
+export async function getPodcastEpisode(libraryItemId: string, episodeId: string): Promise<PodcastEpisode> {
+  return apiRequest<PodcastEpisode>(`/api/podcasts/${libraryItemId}/episode/${episodeId}`)
+}
+
+/**
+ * Update podcast episode metadata.
+ */
+export async function updatePodcastEpisode(
+  libraryItemId: string,
+  episodeId: string,
+  payload: UpdatePodcastEpisodePayload
+): Promise<PodcastLibraryItem> {
+  return apiRequest<PodcastLibraryItem>(`/api/podcasts/${libraryItemId}/episode/${episodeId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+/**
+ * Search RSS feed for episodes matching a title.
+ */
+export async function searchPodcastEpisode(libraryItemId: string, title: string): Promise<{ episodes: SearchPodcastEpisodeResult[] }> {
+  const params = new URLSearchParams({ title })
+  const response = await apiRequest<SearchPodcastEpisodeResponse>(`/api/podcasts/${libraryItemId}/search-episode?${params.toString()}`)
+  return {
+    episodes: (response.episodes || []).map((item) => item.episode)
+  }
 }
 
 /**

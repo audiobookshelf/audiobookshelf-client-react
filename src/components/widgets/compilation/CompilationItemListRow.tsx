@@ -5,8 +5,10 @@ import { toggleFinishedAction } from '@/app/actions/mediaActions'
 import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import PreviewCover from '@/components/covers/PreviewCover'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
+import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import IconBtn from '@/components/ui/IconBtn'
+import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
@@ -115,6 +117,14 @@ export default function CompilationItemListRow({
     setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
 
+  const handleMatch = useCallback(() => {
+    if (!episode) return
+    const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+    setBoundModal(<EpisodeMatchModal key={`episode-match-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+  }, [clearBoundModal, entityIndex, episode, libraryItem.id, setBoundModal, shelfEntities])
+
+  const canShowRemove = context.kind === 'collection' ? userCanDelete : userCanUpdate
+
   const handlePlayClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
@@ -190,6 +200,28 @@ export default function CompilationItemListRow({
     })
   }, [context, episodeId, libraryItem.id, showToast, sortableCompilation, t])
 
+  const contextMenuItems = useMemo(() => {
+    const items: { text: string; action: string }[] = []
+    if (canShowRemove) {
+      items.push({
+        text: context.kind === 'playlist' ? t('LabelRemoveFromPlaylist') : t('LabelRemoveFromCollection'),
+        action: 'remove'
+      })
+    }
+    if (episode && userCanUpdate) {
+      items.push({ text: t('HeaderMatch'), action: 'match' })
+    }
+    return items
+  }, [canShowRemove, context.kind, episode, t, userCanUpdate])
+
+  const handleContextMenuAction = useCallback(
+    ({ action }: { action: string }) => {
+      if (action === 'match') handleMatch()
+      else if (action === 'remove') handleRemoveClick()
+    },
+    [handleMatch, handleRemoveClick]
+  )
+
   const handleMouseEnter = () => {
     if (isDragging) return
     setIsHovering(true)
@@ -203,7 +235,6 @@ export default function CompilationItemListRow({
   const showMobilePlayBtn = !isMdUp && !showDragHandle && showPlayBtn
   const itemHref = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`
   const canShowEdit = userCanUpdate
-  const canShowRemove = context.kind === 'collection' ? userCanDelete : userCanUpdate
 
   return (
     <div
@@ -358,17 +389,19 @@ export default function CompilationItemListRow({
                 edit
               </IconBtn>
             )}
-            {canShowRemove && (
-              <IconBtn
-                borderless
-                size="custom"
-                className={COMPILATION_ROW_ACTION_BTN_CLASS}
-                ariaLabel={t('ButtonRemove')}
-                disabled={processingRemove}
-                onClick={handleRemoveClick}
-              >
-                close
-              </IconBtn>
+            {contextMenuItems.length > 0 && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <ContextMenuDropdown
+                  items={contextMenuItems}
+                  borderless
+                  size="small"
+                  className={COMPILATION_ROW_ACTION_BTN_CLASS}
+                  autoWidth
+                  processing={processingRemove}
+                  onAction={handleContextMenuAction}
+                  usePortal
+                />
+              </div>
             )}
           </div>
         )}

@@ -1,23 +1,52 @@
 'use client'
 
-import Modal from '@/components/modals/Modal'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
-import type { PodcastEpisode, PodcastLibraryItem } from '@/types/api'
+import EpisodeModal, { useEpisodeModal, type EpisodeModalItemSource } from '@/components/modals/EpisodeModal'
+import LoadingIndicator from '@/components/ui/LoadingIndicator'
+import EpisodeMatch from '@/components/widgets/EpisodeMatch'
 
 export type EpisodeMatchModalProps = {
   isOpen: boolean
   onClose: () => void
-} & ({ navCtx: EpisodeNavigationContext } | { libraryItem: PodcastLibraryItem; episode: PodcastEpisode })
+} & EpisodeModalItemSource
 
-export default function EpisodeMatchModal({ isOpen, onClose }: EpisodeMatchModalProps) {
-  const t = useTypeSafeTranslations()
+function EpisodeMatchModalBody() {
+  const { resolvedEpisode, resolvedLibraryItem, fetchPending, syncResolvedEpisode } = useEpisodeModal()
+
+  if (fetchPending && !resolvedEpisode) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center">
+        <LoadingIndicator variant="inline" />
+      </div>
+    )
+  }
+
+  if (!resolvedEpisode || !resolvedLibraryItem) return null
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="max-w-3xl">
-      <div className="bg-bg border-border w-full rounded-lg border p-6 shadow-lg">
-        <p className="text-foreground-muted text-sm">{t('HeaderMatch')} — coming soon in the React client.</p>
+    <EpisodeMatch
+      libraryItem={resolvedLibraryItem}
+      episode={resolvedEpisode}
+      onEpisodeUpdated={(episode, libraryItem) => syncResolvedEpisode(episode, libraryItem)}
+    />
+  )
+}
+
+export default function EpisodeMatchModal(props: EpisodeMatchModalProps) {
+  const { isOpen, onClose } = props
+  const navCtxMode = 'navCtx' in props
+
+  return (
+    <EpisodeModal
+      isOpen={isOpen}
+      onClose={onClose}
+      {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem, episode: props.episode })}
+      className="md:max-w-[min(90vw,56rem)] lg:max-w-[min(90vw,56rem)]"
+    >
+      <div className="bg-bg border-border flex max-h-[80vh] flex-col overflow-hidden rounded-lg border">
+        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+          <EpisodeMatchModalBody />
+        </div>
       </div>
-    </Modal>
+    </EpisodeModal>
   )
 }
