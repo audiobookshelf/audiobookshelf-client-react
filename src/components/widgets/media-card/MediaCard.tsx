@@ -8,6 +8,7 @@ import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
+import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import DraggableMediaOverlayIconBtn from '@/components/widgets/media-card/DraggableMediaOverlayIconBtn'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
@@ -315,9 +316,21 @@ function MediaCard(props: MediaCardProps) {
     playerControls: playerHandler.controls
   })
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
+    if (episode && isPodcastLibraryItem(libraryItem)) {
+      setBoundModal(
+        <ViewEpisodeModal
+          key={`view-episode-modal-${episode.id}`}
+          isOpen
+          onClose={clearBoundModal}
+          episode={episode}
+          libraryItem={libraryItem}
+        />
+      )
+      return
+    }
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
-  }
+  }, [clearBoundModal, episode, libraryItem, router, setBoundModal])
 
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(overlayMode)
 

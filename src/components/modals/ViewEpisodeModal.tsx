@@ -6,6 +6,7 @@ import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import { bytesPretty } from '@/lib/string'
 import { PodcastEpisode, PodcastLibraryItem } from '@/types/api'
+import Link from 'next/link'
 import React, { useCallback, useMemo } from 'react'
 
 export interface ViewEpisodeModalProps {
@@ -83,6 +84,8 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
 
   if (!episode || !libraryItem) return null
 
+  const podcastHref = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`
+
   return (
     <Modal
       isOpen={isOpen}
@@ -98,8 +101,14 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
         <div className="relative h-12 w-12 flex-shrink-0">
           <PreviewCover src={coverUrl} fill bookCoverAspectRatio={1} showResolution={false} />
         </div>
-        <div className="grow overflow-hidden px-2">
-          <p className="mb-1 truncate text-base">{podcastTitle}</p>
+        <div className="grow min-w-0 px-2">
+          <Link
+            href={podcastHref}
+            className="focus-visible:outline-foreground-muted mb-1 inline-block max-w-full rounded-sm text-base underline focus-visible:outline-1 focus-visible:outline-offset-2 md:no-underline md:hover:underline"
+            onClick={onClose}
+          >
+            <span className="block truncate">{podcastTitle}</span>
+          </Link>
           <p className="text-foreground-muted truncate text-xs">{podcastAuthor}</p>
         </div>
       </div>

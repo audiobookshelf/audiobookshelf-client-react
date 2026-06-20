@@ -7,6 +7,7 @@ import PreviewCover from '@/components/covers/PreviewCover'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import IconBtn from '@/components/ui/IconBtn'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
@@ -29,7 +30,7 @@ import { buildMediaItemProgressMap, buildPodcastEpisodeProgressMap, getLibraryIt
 import { mergeClasses } from '@/lib/merge-classes'
 import { getEpisodeDuration, getPlaylistItemDuration } from '@/lib/playlistItems'
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
-import { isBookMedia, isBookMetadata, isPodcastMedia } from '@/types/api'
+import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMedia } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -122,6 +123,19 @@ export default function CompilationItemListRow({
     const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<EpisodeMatchModal key={`episode-match-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, entityIndex, episode, libraryItem.id, setBoundModal, shelfEntities])
+
+  const handleViewEpisode = useCallback(() => {
+    if (!episode || !isPodcastLibraryItem(libraryItem)) return
+    setBoundModal(
+      <ViewEpisodeModal
+        key={`view-episode-modal-${episode.id}`}
+        isOpen
+        onClose={clearBoundModal}
+        episode={episode}
+        libraryItem={libraryItem}
+      />
+    )
+  }, [clearBoundModal, episode, libraryItem, setBoundModal])
 
   const canShowRemove = context.kind === 'collection' ? userCanDelete : userCanUpdate
 
@@ -257,16 +271,27 @@ export default function CompilationItemListRow({
         )}
 
         <div className="relative flex min-w-0 flex-1 items-center">
-          {!isMdUp && (
-            <Link
-              href={itemHref}
-              className={mergeClasses(
-                'focus-visible:outline-foreground-muted absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
-                isDragging && 'pointer-events-none'
-              )}
-              aria-label={itemTitle}
-            />
-          )}
+          {!isMdUp &&
+            (episode ? (
+              <button
+                type="button"
+                onClick={handleViewEpisode}
+                className={mergeClasses(
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] cursor-pointer rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  isDragging && 'pointer-events-none'
+                )}
+                aria-label={itemTitle}
+              />
+            ) : (
+              <Link
+                href={itemHref}
+                className={mergeClasses(
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  isDragging && 'pointer-events-none'
+                )}
+                aria-label={itemTitle}
+              />
+            ))}
 
           <div className="flex shrink-0 items-center" style={{ width: coverWidth, minWidth: coverWidth, maxWidth: coverWidth }}>
             <div className="relative">
@@ -289,16 +314,30 @@ export default function CompilationItemListRow({
           <div className="px-2e md:px-3e flex min-w-0 flex-1 items-center">
             <div className="flex w-full min-w-0 flex-col justify-center">
               {isMdUp ? (
-                <Link
-                  href={itemHref}
-                  className={mergeClasses(
-                    'text-foreground inline-block w-fit max-w-full text-[0.875em] hover:underline md:text-[1em]',
-                    COMPILATION_ROW_LINK_FOCUS
-                  )}
-                  title={itemTitle}
-                >
-                  <span className="block truncate">{itemTitle}</span>
-                </Link>
+                episode ? (
+                  <button
+                    type="button"
+                    onClick={handleViewEpisode}
+                    className={mergeClasses(
+                      'text-foreground inline-block w-fit max-w-full cursor-pointer text-start text-[0.875em] hover:underline md:text-[1em]',
+                      COMPILATION_ROW_LINK_FOCUS
+                    )}
+                    title={itemTitle}
+                  >
+                    <span className="block truncate">{itemTitle}</span>
+                  </button>
+                ) : (
+                  <Link
+                    href={itemHref}
+                    className={mergeClasses(
+                      'text-foreground inline-block w-fit max-w-full text-[0.875em] hover:underline md:text-[1em]',
+                      COMPILATION_ROW_LINK_FOCUS
+                    )}
+                    title={itemTitle}
+                  >
+                    <span className="block truncate">{itemTitle}</span>
+                  </Link>
+                )
               ) : (
                 <span className="text-foreground block truncate text-[0.875em]" title={itemTitle}>
                   {itemTitle}
