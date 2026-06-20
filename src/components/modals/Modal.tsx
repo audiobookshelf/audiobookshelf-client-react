@@ -8,6 +8,8 @@ import { mergeClasses } from '@/lib/merge-classes'
 import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
+const MODAL_ROOT_SELECTOR = '[data-abs-modal]'
+
 export interface ModalProps {
   isOpen: boolean
   processing?: boolean
@@ -82,16 +84,29 @@ export default function Modal({
     }
   }, [isOpen])
 
+  // Close on Escape even when focus is outside the modal (e.g. after blurring a field
+  // or using episode prev/next navigation). Only the topmost nested modal should respond.
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleDocumentKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || processing || persistent) return
+
+      const modalWrappers = document.querySelectorAll(MODAL_ROOT_SELECTOR)
+      const topmostWrapper = modalWrappers[modalWrappers.length - 1]
+      if (topmostWrapper !== wrapperRef.current) return
+
+      e.preventDefault()
+      e.stopPropagation()
+      onClose?.()
+    }
+
+    document.addEventListener('keydown', handleDocumentKeyDown)
+    return () => document.removeEventListener('keydown', handleDocumentKeyDown)
+  }, [isOpen, processing, persistent, onClose])
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      // Escape key to close
-      if (e.key === 'Escape' && !processing && !persistent) {
-        e.preventDefault()
-        e.stopPropagation()
-        onClose?.()
-        return
-      }
-
       // Focus trap
       if (e.key === 'Tab') {
         if (!contentRef.current) return
@@ -134,7 +149,7 @@ export default function Modal({
         }
       }
     },
-    [processing, persistent, onClose]
+    []
   )
 
   if (!isOpen) {
@@ -146,6 +161,7 @@ export default function Modal({
       ref={wrapperRef}
       role="dialog"
       aria-modal="true"
+      data-abs-modal
       className={mergeClasses(
         'modal modal-bg fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden',
         zIndexClass,
