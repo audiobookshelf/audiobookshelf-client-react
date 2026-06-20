@@ -132,7 +132,13 @@ function MediaCard(props: MediaCardProps) {
 
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 
+  const closeMoreMenu = useCallback(() => {
+    setIsMoreMenuOpen(false)
+    setIsHovering(false)
+  }, [])
+
   const handleOpenMatch = useCallback(() => {
+    closeMoreMenu()
     if (episode) {
       const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
       setBoundModal(<EpisodeMatchModal key={`episode-match-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
@@ -140,9 +146,10 @@ function MediaCard(props: MediaCardProps) {
     }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<MatchModal key="match-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal])
+  }, [clearBoundModal, closeMoreMenu, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal])
 
   const handleOpenEdit = useCallback(() => {
+    closeMoreMenu()
     if (episode) {
       const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
       setBoundModal(<EpisodeEditModal key={`episode-edit-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
@@ -150,7 +157,7 @@ function MediaCard(props: MediaCardProps) {
     }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, episode, libraryItem, shelfEntities, entityIndex, setBoundModal])
+  }, [clearBoundModal, closeMoreMenu, episode, libraryItem, shelfEntities, entityIndex, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
@@ -317,6 +324,7 @@ function MediaCard(props: MediaCardProps) {
   })
 
   const handleCardClick = useCallback(() => {
+    closeMoreMenu()
     if (episode && isPodcastLibraryItem(libraryItem)) {
       setBoundModal(
         <ViewEpisodeModal
@@ -330,7 +338,7 @@ function MediaCard(props: MediaCardProps) {
       return
     }
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
-  }, [clearBoundModal, episode, libraryItem, router, setBoundModal])
+  }, [clearBoundModal, closeMoreMenu, episode, libraryItem, router, setBoundModal])
 
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(overlayMode)
 

@@ -25,6 +25,7 @@ interface ContextMenuDropdownProps<T = string> {
   iconClass?: string
   menuWidth?: number
   processing?: boolean
+  isOpen?: boolean
   onAction?: (params: { action: string; data?: Record<string, T> }) => void
   onOpenChange?: (isOpen: boolean) => void
   menuAlign?: 'right' | 'left'
@@ -46,6 +47,7 @@ export default function ContextMenuDropdown<T = string>({
   iconClass = '',
   menuWidth = 96,
   processing = false,
+  isOpen: isOpenProp,
   onAction,
   onOpenChange,
   menuAlign = 'right',
@@ -57,7 +59,9 @@ export default function ContextMenuDropdown<T = string>({
   usePortal = false
 }: ContextMenuDropdownProps<T>) {
   const t = useTypeSafeTranslations()
-  const [showMenu, setShowMenu] = useState(false)
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
+  const isControlled = isOpenProp !== undefined
+  const showMenu = isControlled ? isOpenProp : uncontrolledOpen
   const menuWrapperRef = useRef<HTMLDivElement>(null)
   const buttonRef = useRef<HTMLButtonElement>(null)
   const [openSubmenuIndex, setOpenSubmenuIndex] = useState<number | null>(null)
@@ -67,10 +71,19 @@ export default function ContextMenuDropdown<T = string>({
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
 
+  const setMenuOpen = useCallback(
+    (isOpen: boolean) => {
+      if (!isControlled) {
+        setUncontrolledOpen(isOpen)
+      }
+      onOpenChange?.(isOpen)
+    },
+    [isControlled, onOpenChange]
+  )
+
   // Helper functions to manage menu state
   const openMenu = (index: number = 0) => {
-    setShowMenu(true)
-    onOpenChange?.(true)
+    setMenuOpen(true)
     setFocusedIndex(index)
     setFocusedSubIndex(-1)
     setOpenSubmenuIndex(null)
@@ -78,12 +91,11 @@ export default function ContextMenuDropdown<T = string>({
 
   // Keep useCallback for closeMenu since it's used in useClickOutside hook dependency
   const closeMenu = useCallback(() => {
-    setShowMenu(false)
-    onOpenChange?.(false)
+    setMenuOpen(false)
     setFocusedIndex(-1)
     setFocusedSubIndex(-1)
     setOpenSubmenuIndex(null)
-  }, [onOpenChange])
+  }, [setMenuOpen])
 
   // Handle click outside to close menu
   useClickOutside(menuWrapperRef, buttonRef, closeMenu)
