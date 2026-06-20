@@ -8,8 +8,8 @@ import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
-import IconBtn from '@/components/ui/IconBtn'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
+import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
@@ -21,14 +21,14 @@ import { useUser } from '@/contexts/UserContext'
 import { useCompilationListRowLayout } from '@/hooks/useCompilationListRowLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
-import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
-import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
+import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
 import { buildMediaItemProgressMap, buildPodcastEpisodeProgressMap, getLibraryItemProgressFromMap } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
 import { getEpisodeDuration, getPlaylistItemDuration } from '@/lib/playlistItems'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
 import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMedia } from '@/types/api'
 import Link from 'next/link'
@@ -126,16 +126,9 @@ export default function CompilationItemListRow({
 
   const handleViewEpisode = useCallback(() => {
     if (!episode || !isPodcastLibraryItem(libraryItem)) return
-    setBoundModal(
-      <ViewEpisodeModal
-        key={`view-episode-modal-${episode.id}`}
-        isOpen
-        onClose={clearBoundModal}
-        episode={episode}
-        libraryItem={libraryItem}
-      />
-    )
-  }, [clearBoundModal, episode, libraryItem, setBoundModal])
+    const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+    setBoundModal(<ViewEpisodeModal key={`view-episode-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+  }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
 
   const canShowRemove = context.kind === 'collection' ? userCanDelete : userCanUpdate
 

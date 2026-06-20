@@ -3,8 +3,8 @@
 import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fetchPodcastFeedAction, toggleFinishedAction } from '@/app/actions/mediaActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
-import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
+import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
 import EpisodeTableHeaderActions from '@/components/widgets/EpisodeTableHeaderActions'
@@ -17,8 +17,8 @@ import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
 import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
 import { getPodcastEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
+import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
 import { PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -76,8 +76,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     }
     setViewedEpisode(null)
   }, [viewedEpisode])
-
-  const isViewEpisodeModalOpen = viewedEpisode !== null
 
   // Virtualizer — lazy render only visible rows
   const { visibleStart, visibleEnd, totalHeight, listContainerRef } = useEpisodeTableVirtualizer(filteredEpisodes.length, EPISODE_ROW_HEIGHT_PX)
@@ -173,6 +171,11 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const matchedEpisodeNavCtx = useMemo(
     () => (matchedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, matchedEpisode.id) : null),
     [matchedEpisode, filteredEpisodes, libraryItem.id]
+  )
+
+  const viewedEpisodeNavCtx = useMemo(
+    () => (viewedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, viewedEpisode.id) : null),
+    [viewedEpisode, filteredEpisodes, libraryItem.id]
   )
 
   const handleFindEpisodes = useCallback(() => {
@@ -403,13 +406,9 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
         </div>
       </div>
 
-      <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
-      {editedEpisode && editedEpisodeNavCtx && (
-        <EpisodeEditModal isOpen navCtx={editedEpisodeNavCtx} onClose={handleCloseEditModal} />
-      )}
-      {matchedEpisode && matchedEpisodeNavCtx && (
-        <EpisodeMatchModal isOpen navCtx={matchedEpisodeNavCtx} onClose={handleCloseMatchModal} />
-      )}
+      {viewedEpisode && viewedEpisodeNavCtx && <ViewEpisodeModal isOpen navCtx={viewedEpisodeNavCtx} onClose={handleCloseViewModal} />}
+      {editedEpisode && editedEpisodeNavCtx && <EpisodeEditModal isOpen navCtx={editedEpisodeNavCtx} onClose={handleCloseEditModal} />}
+      {matchedEpisode && matchedEpisodeNavCtx && <EpisodeMatchModal isOpen navCtx={matchedEpisodeNavCtx} onClose={handleCloseMatchModal} />}
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
       <EpisodeFeedModal
         isOpen={isEpisodeFeedModalOpen}

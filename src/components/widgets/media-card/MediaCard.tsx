@@ -22,11 +22,11 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { isDragOnlyOverlay, useSortableBookshelfOverlay } from '@/contexts/SortableBookshelfOverlayContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
-import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
-import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import { computeProgress } from '@/lib/mediaProgress'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -326,19 +326,12 @@ function MediaCard(props: MediaCardProps) {
   const handleCardClick = useCallback(() => {
     closeMoreMenu()
     if (episode && isPodcastLibraryItem(libraryItem)) {
-      setBoundModal(
-        <ViewEpisodeModal
-          key={`view-episode-modal-${episode.id}`}
-          isOpen
-          onClose={clearBoundModal}
-          episode={episode}
-          libraryItem={libraryItem}
-        />
-      )
+      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+      setBoundModal(<ViewEpisodeModal key={`view-episode-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
       return
     }
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
-  }, [clearBoundModal, closeMoreMenu, episode, libraryItem, router, setBoundModal])
+  }, [clearBoundModal, closeMoreMenu, entityIndex, episode, libraryItem, router, setBoundModal, shelfEntities])
 
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(overlayMode)
 

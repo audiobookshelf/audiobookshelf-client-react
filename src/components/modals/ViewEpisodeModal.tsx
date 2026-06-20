@@ -1,24 +1,32 @@
+'use client'
+
 import PreviewCover from '@/components/covers/PreviewCover'
-import Modal from '@/components/modals/Modal'
+import EpisodeModal, { useEpisodeModal, type EpisodeModalItemSource } from '@/components/modals/EpisodeModal'
+import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import { bytesPretty } from '@/lib/string'
-import { PodcastEpisode, PodcastLibraryItem } from '@/types/api'
 import Link from 'next/link'
 import React, { useCallback, useMemo } from 'react'
 
-export interface ViewEpisodeModalProps {
+export type ViewEpisodeModalProps = {
   isOpen: boolean
   onClose: () => void
-  episode: PodcastEpisode | null
-  libraryItem: PodcastLibraryItem | null
+} & EpisodeModalItemSource
+
+type ViewEpisodeModalBodyProps = {
+  onClose: () => void
 }
 
-export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem }: ViewEpisodeModalProps) {
+function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
   const t = useTypeSafeTranslations()
   const { playItem } = useMediaContext()
+  const { resolvedEpisode, resolvedLibraryItem, fetchPending } = useEpisodeModal()
+
+  const episode = resolvedEpisode
+  const libraryItem = resolvedLibraryItem
 
   const coverUrl = libraryItem ? getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt) : ''
 
@@ -82,26 +90,25 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
     [episode, libraryItem, playItem, onClose]
   )
 
+  if (fetchPending && !episode) {
+    return (
+      <div className="flex min-h-[200px] items-center justify-center">
+        <LoadingIndicator variant="inline" />
+      </div>
+    )
+  }
+
   if (!episode || !libraryItem) return null
 
   const podcastHref = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      outerContent={
-        <div className="pointer-events-none absolute top-0 left-0 w-2/3 overflow-hidden p-5">
-          <p className="truncate text-3xl text-white">{t('LabelEpisode')}</p>
-        </div>
-      }
-      className="bg-bg relative max-h-[80vh] w-full overflow-y-auto rounded-lg p-4 text-sm shadow-lg"
-    >
+    <>
       <div className="mb-4 flex">
         <div className="relative h-12 w-12 flex-shrink-0">
           <PreviewCover src={coverUrl} fill bookCoverAspectRatio={1} showResolution={false} />
         </div>
-        <div className="grow min-w-0 px-2">
+        <div className="min-w-0 grow px-2">
           <Link
             href={podcastHref}
             className="focus-visible:outline-foreground-muted mb-1 inline-block max-w-full rounded-sm text-base underline focus-visible:outline-1 focus-visible:outline-offset-2 md:no-underline md:hover:underline"
@@ -146,6 +153,26 @@ export default function ViewEpisodeModal({ isOpen, onClose, episode, libraryItem
           <p className="mb-2 text-xs">{audioFileDuration}</p>
         </div>
       </div>
-    </Modal>
+    </>
+  )
+}
+
+/**
+ * Modal for viewing podcast episode details.
+ * Pass `navCtx` to load episodes and enable prev/next, or `libraryItem` + `episode` for direct mode.
+ */
+export default function ViewEpisodeModal(props: ViewEpisodeModalProps) {
+  const { isOpen, onClose } = props
+  const navCtxMode = 'navCtx' in props
+
+  return (
+    <EpisodeModal
+      isOpen={isOpen}
+      onClose={onClose}
+      {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem, episode: props.episode })}
+      className="bg-bg relative max-h-[80vh] w-full overflow-y-auto rounded-lg p-4 text-sm shadow-lg"
+    >
+      <ViewEpisodeModalBody onClose={onClose} />
+    </EpisodeModal>
   )
 }
