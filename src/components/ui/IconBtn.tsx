@@ -85,7 +85,7 @@ export default function IconBtn({
       onMouseDown={onMouseDown}
       onKeyDown={onKeyDown}
       className={classList}
-      aria-label={ariaLabel}
+      ariaLabel={ariaLabel}
       aria-pressed={ariaPressed}
       tabIndex={tabIndex}
       {...props}

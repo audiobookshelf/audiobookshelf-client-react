@@ -50,7 +50,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
         {/* Desktop - Username Dropdown */}
         <Btn
           size="small"
-          ariaDescription={t('ButtonMenu')}
+          ariaLabel={`${username}, ${t('ButtonMenu')}`}
           ariaExpanded={mobileMenuOpen}
           className="hidden min-w-24 justify-between ps-3 pe-2 md:flex"
           onClick={toggleMenu}

@@ -17,7 +17,6 @@ interface BtnProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => void
   className?: string
   ariaLabel?: string
-  ariaDescription?: string
   ariaExpanded?: boolean
   ariaControls?: string
 }
@@ -51,7 +50,6 @@ export default function Btn({
   onClick,
   className = '',
   ariaLabel,
-  ariaDescription,
   ariaExpanded,
   ariaControls
 }: BtnProps) {
@@ -79,7 +77,6 @@ export default function Btn({
       onMouseDown={(e) => e.preventDefault()}
       ariaLabel={ariaLabel}
       aria-busy={loading || undefined}
-      aria-description={ariaDescription}
       aria-expanded={ariaExpanded}
       aria-controls={ariaControls}
     >
