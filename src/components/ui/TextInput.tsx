@@ -78,19 +78,22 @@ export default function TextInput({
   const ariaLabel = label || placeholder || undefined
   const ariaInvalid = isInvalidDate
 
+  const isDatetimeLocal = type === 'datetime-local'
+
   const inputClass = mergeClasses(
-    'w-full bg-transparent px-1 outline-none border-none h-full',
+    'w-full bg-transparent outline-none border-none h-full',
     'disabled:cursor-not-allowed disabled:text-disabled read-only:text-read-only',
     // type="search" adds a native clear control in Blink/WebKit; hide it because we show our own
     actualType === 'search' &&
       '[&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden [&::-webkit-search-results-button]:hidden [&::-webkit-search-results-decoration]:hidden',
-    '[&::-webkit-calendar-picker-indicator]:invert',
-    showCopy ? 'ps-1 pe-8' : 'px-1',
+    isDatetimeLocal
+      ? 'ps-1 pe-8 [&::-webkit-calendar-picker-indicator]:hidden [&::-moz-calendar-picker-indicator]:hidden'
+      : mergeClasses('[&::-webkit-calendar-picker-indicator]:invert', showCopy ? 'ps-1 pe-8' : 'px-1'),
     customInputClass
   )
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (type === 'datetime-local') {
+    if (isDatetimeLocal) {
       setIsInvalidDate(Boolean(e.target.validity?.badInput))
     }
     onChange?.(e.target.value)
@@ -110,7 +113,7 @@ export default function TextInput({
   }
 
   const handleKeyUp = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (type === 'datetime-local') {
+    if (isDatetimeLocal) {
       if (e.currentTarget.validity?.badInput) {
         setIsInvalidDate(true)
       } else {
@@ -139,8 +142,16 @@ export default function TextInput({
     setShowPassword((prev) => !prev)
   }
 
+  const openDatePicker = () => {
+    const input = readInputRef.current
+    if (!input || disabled || readOnly) return
+    input.focus()
+    input.showPicker?.()
+  }
+
   // Show password toggle when it is a password field
   const shouldShowPasswordToggle = type === 'password'
+  const shouldShowDatePickerButton = isDatetimeLocal && !readOnly && !disabled
 
   return (
     <div className={mergeClasses('w-full', className)} cy-id="text-input">
@@ -221,6 +232,22 @@ export default function TextInput({
                   visibility_off
                 </span>
               )}
+            </button>
+          </div>
+        )}
+
+        {shouldShowDatePickerButton && (
+          <div className="absolute end-0 top-0 flex h-full items-center justify-center px-2">
+            <button
+              type="button"
+              className="text-foreground-muted hover:text-foreground focus:ring-foreground-muted flex cursor-pointer rounded text-lg focus:ring-2 focus:ring-offset-1 focus:outline-none"
+              onClick={openDatePicker}
+              aria-label={label || t('LabelDatetime')}
+              cy-id="text-input-date-picker"
+            >
+              <span className="material-symbols text-xl" aria-hidden="true">
+                calendar_today
+              </span>
             </button>
           </div>
         )}
