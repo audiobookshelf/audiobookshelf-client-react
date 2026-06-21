@@ -166,13 +166,13 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
       }}
     >
       <div className="-mx-1 flex flex-wrap">
-        <div className="w-1/5 p-1">
+        <div className="w-1/2 p-1 md:w-1/5">
           <TextInput value={details.season} onChange={(v) => updateField('season', v)} label={t('LabelSeason')} />
         </div>
-        <div className="w-1/5 p-1">
+        <div className="w-1/2 p-1 md:w-1/5">
           <TextInput value={details.episode} onChange={(v) => updateField('episode', v)} label={t('LabelEpisode')} />
         </div>
-        <div className="w-1/5 p-1">
+        <div className="mt-2 w-28 p-1 md:mt-0 md:w-1/5">
           <Dropdown
             label={t('LabelEpisodeType')}
             value={details.episodeType || 'full'}
@@ -180,7 +180,7 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
             onChange={(value) => updateField('episodeType', String(value))}
           />
         </div>
-        <div className="w-2/5 p-1">
+        <div className="mt-2 min-w-0 flex-1 p-1 md:mt-0 md:w-2/5 md:flex-none">
           <TextInput
             ref={pubDateInputRef}
             type="datetime-local"
