@@ -44,6 +44,7 @@ export default function EpisodeTableToolbar({
         onChange={onSearchChange}
         type="search"
         size="small"
+        clearable
         placeholder={t('PlaceholderSearchEpisode')}
         className="w-full md:w-auto md:grow"
       />
