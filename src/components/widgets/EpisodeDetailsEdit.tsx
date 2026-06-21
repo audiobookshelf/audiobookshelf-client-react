@@ -78,13 +78,10 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
 
   const initial = useMemo(() => episodeToDetails(episode), [episode])
 
-  const [details, setDetails] = useReducer(
-    (state: EpisodeDetails, action: Partial<EpisodeDetails> | 'reset') => {
-      if (action === 'reset') return initial
-      return { ...state, ...action }
-    },
-    initial
-  )
+  const [details, setDetails] = useReducer((state: EpisodeDetails, action: Partial<EpisodeDetails> | 'reset') => {
+    if (action === 'reset') return initial
+    return { ...state, ...action }
+  }, initial)
 
   const [pubDateInput, setPubDateInput] = useState(() => pubDateToDatetimeLocal(episode.pubDate))
 

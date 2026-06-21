@@ -14,10 +14,7 @@ export type EpisodeNavigationContext = {
  * Prev/next episode scope for one shelf slot: contiguous non-null run around `entityIndex`,
  * filtered to episode-only entities within that run.
  */
-function getShelfEpisodeNavigationContext(
-  entities: (ShelfNavigationEntity | null)[],
-  entityIndex: number
-): EpisodeNavigationContext | null {
+function getShelfEpisodeNavigationContext(entities: (ShelfNavigationEntity | null)[], entityIndex: number): EpisodeNavigationContext | null {
   if (entityIndex < 0 || entityIndex >= entities.length) return null
 
   const at = entities[entityIndex]
@@ -76,11 +73,7 @@ export function getMediaCardEpisodeEditNavigationContext(
   return defaultSingleEpisodeNavCtx(episodeId, libraryItemId)
 }
 
-export function getPodcastEpisodeNavigationContext(
-  libraryItemId: string,
-  episodes: { id: string }[],
-  episodeId: string
-): EpisodeNavigationContext | null {
+export function getPodcastEpisodeNavigationContext(libraryItemId: string, episodes: { id: string }[], episodeId: string): EpisodeNavigationContext | null {
   const slots = episodes.map((episode) => ({ episodeId: episode.id, libraryItemId }))
   const initialIndex = slots.findIndex((slot) => slot.episodeId === episodeId)
   if (initialIndex < 0) return null

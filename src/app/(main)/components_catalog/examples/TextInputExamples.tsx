@@ -32,9 +32,9 @@ export function TextInputExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>placeholder</Code>, <Code>type</Code>,{' '}
-          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>clearable</Code>, <Code>showCopy</Code>, <Code>customInputClass</Code>, <Code>wrapperClassName</Code>,{' '}
-          <Code>size</Code>, <Code>step</Code>, <Code>min</Code>, <Code>onClear</Code>, <Code>onFocus</Code>, <Code>onBlur</Code>, <Code>id</Code>, <Code>name</Code>,{' '}
-          <Code>className</Code>, <Code>ref</Code>
+          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>clearable</Code>, <Code>showCopy</Code>, <Code>customInputClass</Code>,{' '}
+          <Code>wrapperClassName</Code>, <Code>size</Code>, <Code>step</Code>, <Code>min</Code>, <Code>onClear</Code>, <Code>onFocus</Code>, <Code>onBlur</Code>
+          , <Code>id</Code>, <Code>name</Code>, <Code>className</Code>, <Code>ref</Code>
         </p>
       </ComponentInfo>
 

@@ -156,7 +156,14 @@ export default function SortableBookshelf({
   )
 
   return (
-    <DndContext id={dndContextId} sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
+    <DndContext
+      id={dndContextId}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
       <SortableContext items={itemIds} strategy={rectSortingStrategy}>
         <div className="grid w-full max-w-full min-w-0 pt-4" style={gridStyle}>
           {entries.map((entry, entityIndex) => (

@@ -1005,11 +1005,7 @@ export async function getPodcastEpisode(libraryItemId: string, episodeId: string
 /**
  * Update podcast episode metadata.
  */
-export async function updatePodcastEpisode(
-  libraryItemId: string,
-  episodeId: string,
-  payload: UpdatePodcastEpisodePayload
-): Promise<PodcastLibraryItem> {
+export async function updatePodcastEpisode(libraryItemId: string, episodeId: string, payload: UpdatePodcastEpisodePayload): Promise<PodcastLibraryItem> {
   return apiRequest<PodcastLibraryItem>(`/api/podcasts/${libraryItemId}/episode/${episodeId}`, {
     method: 'PATCH',
     body: JSON.stringify(payload)
