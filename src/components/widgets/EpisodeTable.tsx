@@ -6,6 +6,7 @@ import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
+import ConfirmDialog, { type ConfirmState } from '@/components/widgets/ConfirmDialog'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
 import EpisodeTableHeaderActions from '@/components/widgets/EpisodeTableHeaderActions'
 import EpisodeTableToolbar from '@/components/widgets/EpisodeTableToolbar'
@@ -42,6 +43,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const [, startTransition] = useTransition()
 
   const [isEpisodeFeedModalOpen, setIsEpisodeFeedModalOpen] = useState(false)
+  const [batchMarkConfirmState, setBatchMarkConfirmState] = useState<ConfirmState | null>(null)
   const [podcastFeedEpisodes, setPodcastFeedEpisodes] = useState<RssPodcastEpisode[]>([])
   const [fetchingRSSFeed, startFetchingRSSTransition] = useTransition()
 
@@ -258,23 +260,31 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
       } else if (action === 'batch-mark-as-finished') {
         const markState = !allEpisodesFinished
 
-        startTransition(async () => {
-          try {
-            await batchUpdateMediaFinishedAction(
-              filteredEpisodes.map((episode) => ({
-                libraryItemId: libraryItem.id,
-                episodeId: episode.id,
-                isFinished: markState
-              }))
-            )
-          } catch (error) {
-            console.error('Failed to batch mark episodes finished state', error)
-            showToast(t('ToastFailedToUpdate'), { type: 'error' })
+        setBatchMarkConfirmState({
+          isOpen: true,
+          message: markState ? t('MessageConfirmMarkAllEpisodesFinished') : t('MessageConfirmMarkAllEpisodesNotFinished'),
+          onConfirm: () => {
+            setBatchMarkConfirmState(null)
+            startTransition(async () => {
+              try {
+                await batchUpdateMediaFinishedAction(
+                  episodes.map((episode) => ({
+                    libraryItemId: libraryItem.id,
+                    episodeId: episode.id,
+                    isFinished: markState
+                  }))
+                )
+                showToast(t('ToastBatchUpdateSuccess'), { type: 'success' })
+              } catch (error) {
+                console.error('Failed to batch mark episodes finished state', error)
+                showToast(t('ToastBatchUpdateFailed'), { type: 'error' })
+              }
+            })
           }
         })
       }
     },
-    [allEpisodesFinished, filteredEpisodes, libraryItem.id, showToast, t]
+    [allEpisodesFinished, episodes, libraryItem.id, showToast, t]
   )
 
   const allSelectedEpisodesFinished = useMemo(() => {
@@ -425,6 +435,14 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
         downloadQueue={episodeDownloadsQueued}
         episodesDownloading={episodesDownloading}
       />
+      {batchMarkConfirmState && (
+        <ConfirmDialog
+          isOpen={batchMarkConfirmState.isOpen}
+          message={batchMarkConfirmState.message}
+          onClose={() => setBatchMarkConfirmState(null)}
+          onConfirm={() => batchMarkConfirmState.onConfirm()}
+        />
+      )}
     </div>
   )
 }
