@@ -39,7 +39,14 @@ export default function EpisodeTableToolbar({
         isSelectionMode ? 'pointer-events-none opacity-50' : ''
       )}
     >
-      <TextInput value={search} onChange={onSearchChange} type="search" placeholder={t('PlaceholderSearchEpisode')} className="w-full md:w-auto md:grow" />
+      <TextInput
+        value={search}
+        onChange={onSearchChange}
+        type="search"
+        size="small"
+        placeholder={t('PlaceholderSearchEpisode')}
+        className="w-full md:w-auto md:grow"
+      />
 
       <div className="flex w-full min-w-0 flex-nowrap items-center gap-2 md:contents">
         <EpisodesFilterSelect value={filterKey} onChange={onFilterChange} className="w-32 min-w-0 md:w-32" />

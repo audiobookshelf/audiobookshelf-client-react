@@ -56,7 +56,7 @@ export default function EpisodesSortSelect({ sortBy, sortDesc, onChange, disable
   }
 
   const rightIcon = (
-    <span className="material-symbols text-lg text-yellow-400" aria-label={sortDesc ? t('LabelSortDescending') : t('LabelSortAscending')}>
+    <span className="material-symbols text-xl text-yellow-400" aria-label={sortDesc ? t('LabelSortDescending') : t('LabelSortAscending')}>
       {sortDesc ? 'expand_more' : 'expand_less'}
     </span>
   )
@@ -67,9 +67,9 @@ export default function EpisodesSortSelect({ sortBy, sortDesc, onChange, disable
         value={sortBy}
         items={displayItems}
         onChange={handleSortChange}
-        size="auto"
+        size="small"
         rightIcon={rightIcon}
-        className="h-9 text-xs"
+        className="text-xs [&_button]:text-xs"
         highlightSelected={true}
         menuMaxHeight="none"
         disabled={disabled}
