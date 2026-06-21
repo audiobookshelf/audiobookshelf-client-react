@@ -64,7 +64,6 @@ function EpisodeEditModalContent({ isOpen, startSaveTransition, isSavePending, o
 
   useEffect(() => {
     setHasChanges(false)
-    saveAndCloseRef.current = false
   }, [pendingEpisodeId])
 
   const updateFooterShadow = useCallback(() => {
@@ -111,12 +110,15 @@ function EpisodeEditModalContent({ isOpen, startSaveTransition, isSavePending, o
 
       if (!result.hasChanges) {
         if (saveAndCloseRef.current) {
+          saveAndCloseRef.current = false
           onClose()
         } else {
           showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
         }
         return
       }
+
+      const shouldCloseAfterSave = saveAndCloseRef.current
 
       startSaveTransition(async () => {
         try {
@@ -128,7 +130,8 @@ function EpisodeEditModalContent({ isOpen, startSaveTransition, isSavePending, o
           showToast(t('ToastItemUpdateSuccess'), { type: 'success' })
           syncResolvedEpisode(updatedEpisode, updatedLibraryItem)
           onSaved?.(updatedEpisode, updatedLibraryItem)
-          if (saveAndCloseRef.current) {
+          if (shouldCloseAfterSave) {
+            saveAndCloseRef.current = false
             onClose()
           }
         } catch (error) {

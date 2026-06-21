@@ -30,9 +30,7 @@ export function useEpisodeModal(): EpisodeModalContextValue {
   return ctx
 }
 
-export type EpisodeModalItemSource =
-  | { navCtx: EpisodeNavigationContext }
-  | { libraryItem: PodcastLibraryItem; episode: PodcastEpisode }
+export type EpisodeModalItemSource = { navCtx: EpisodeNavigationContext } | { libraryItem: PodcastLibraryItem; episode: PodcastEpisode }
 
 export type EpisodeModalProps = Omit<ModalProps, 'outerContent' | 'sideNavigation' | 'processing' | 'children'> &
   EpisodeModalItemSource & {
@@ -60,25 +58,26 @@ export default function EpisodeModal(props: EpisodeModalProps) {
 
   const { currentSlot, canGoPrev, canGoNext, goPrev, goNext } = useEpisodeNavigationContext(navCtx, isOpen)
 
+  const currentLibraryItemId = currentSlot?.libraryItemId ?? null
+  const currentEpisodeId = currentSlot?.episodeId ?? null
+
   useLayoutEffect(() => {
     if (!isOpen || !navCtxMode) return
-    if (!currentSlot) {
+    if (!currentLibraryItemId || !currentEpisodeId) {
       setFetchedEpisode(null)
       setFetchedLibraryItem(null)
       return
     }
 
-    const { libraryItemId, episodeId } = currentSlot
+    const libraryItemId = currentLibraryItemId
+    const episodeId = currentEpisodeId
     const gen = ++fetchGenRef.current
     setNavFetchPending(true)
     setFetchedEpisode(null)
 
     startNavTransition(async () => {
       try {
-        const [episode, libraryItem] = await Promise.all([
-          getPodcastEpisodeAction(libraryItemId, episodeId),
-          getExpandedLibraryItemAction(libraryItemId)
-        ])
+        const [episode, libraryItem] = await Promise.all([getPodcastEpisodeAction(libraryItemId, episodeId), getExpandedLibraryItemAction(libraryItemId)])
         if (fetchGenRef.current !== gen) return
         setFetchedEpisode(episode)
         setFetchedLibraryItem(libraryItem as PodcastLibraryItem)
@@ -94,7 +93,7 @@ export default function EpisodeModal(props: EpisodeModalProps) {
         }
       }
     })
-  }, [isOpen, navCtxMode, navCtx, currentSlot, onClose, showToast, startNavTransition, t])
+  }, [isOpen, navCtxMode, currentLibraryItemId, currentEpisodeId, onClose, showToast, startNavTransition, t])
 
   const resolvedEpisode = navCtxMode ? fetchedEpisode : (directEpisode ?? null)
   const resolvedLibraryItem = navCtxMode ? fetchedLibraryItem : (directLibraryItem ?? null)
