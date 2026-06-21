@@ -19,6 +19,7 @@ import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getPodcastEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
+import { mergeClasses } from '@/lib/merge-classes'
 import { PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -300,25 +301,31 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   )
 
   const isFiltered = hasMounted && filteredEpisodes.length !== episodes.length
-  const count = !isFiltered && hasMounted ? episodes.length : undefined
-  const badge = isFiltered ? `${filteredEpisodes.length} / ${episodes.length}` : undefined
+  const episodeCountLabel = hasMounted
+    ? isFiltered
+      ? `${filteredEpisodes.length} / ${episodes.length}`
+      : episodes.length > 0
+        ? String(episodes.length)
+        : ''
+    : ''
+  const useCompactEpisodeCount = episodeCountLabel.length >= 8
 
   const headerNode = (
     <div className="mb-4 flex w-full items-center px-1 pt-1">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <p className="text-xl font-medium">{t('HeaderEpisodes')}</p>
-        {count !== undefined && count > 0 && (
-          <div className="bg-foreground/10 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full">
-            <span className="font-mono text-sm">{count}</span>
-          </div>
-        )}
-        {badge && (
-          <div className="bg-foreground/10 flex h-6 items-center justify-center rounded-full px-3 text-sm">
-            <span className="font-mono">{badge}</span>
+        {episodeCountLabel && (
+          <div
+            className={mergeClasses(
+              'bg-foreground/10 flex shrink-0 items-center justify-center rounded-full font-mono whitespace-nowrap',
+              useCompactEpisodeCount ? 'h-5 px-2 text-xs' : isFiltered ? 'h-6 px-3 text-sm' : 'h-7 w-7 text-sm'
+            )}
+          >
+            {episodeCountLabel}
           </div>
         )}
       </div>
-      {headerActions && <div className="m-0 flex items-center gap-2">{headerActions}</div>}
+      {headerActions && <div className="flex shrink-0 items-center gap-2">{headerActions}</div>}
     </div>
   )
 
