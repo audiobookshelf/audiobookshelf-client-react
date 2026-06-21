@@ -56,7 +56,7 @@ const InputWrapper = ({
       <div className={wrapperClass} cy-id="control-wrapper" onClick={handleClick}>
         {children}
       </div>
-      {error && <div className="text-error mt-1 text-sm">{typeof error === 'string' ? error : 'Invalid value'}</div>}
+      {typeof error === 'string' && error && <div className="text-error mt-1 text-sm">{error}</div>}
     </>
   )
 }

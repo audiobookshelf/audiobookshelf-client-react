@@ -187,7 +187,7 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
             value={pubDateInput}
             onChange={handlePubDateChange}
             label={t('LabelPubDate')}
-            error={pubDateInvalid ? t('ToastDateTimeInvalidOrIncomplete') : undefined}
+            error={pubDateInvalid || undefined}
           />
         </div>
         <div className="mt-2 w-full p-1">

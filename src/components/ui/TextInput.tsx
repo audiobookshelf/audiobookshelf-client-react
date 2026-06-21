@@ -32,7 +32,7 @@ export interface TextInputProps {
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
   className?: string
   ref?: React.Ref<HTMLInputElement>
-  error?: string
+  error?: boolean | string
   autocomplete?: 'off' | 'username' | 'current-password' | 'new-password' | 'email' | 'tel' | string
 }
 
@@ -90,6 +90,9 @@ export default function TextInput({
   )
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (type === 'datetime-local') {
+      setIsInvalidDate(Boolean(e.target.validity?.badInput))
+    }
     onChange?.(e.target.value)
   }
 
