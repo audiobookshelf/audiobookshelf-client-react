@@ -23,6 +23,7 @@ export interface TextInputProps {
   min?: string | number
   customInputClass?: string
   wrapperClassName?: string
+  size?: 'small' | 'medium' | 'large' | 'auto'
   clearButtonClassName?: string
   enterKeyHint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send'
   onChange?: (value: string) => void
@@ -51,6 +52,7 @@ export default function TextInput({
   min,
   customInputClass,
   wrapperClassName,
+  size = 'medium',
   clearButtonClassName,
   enterKeyHint,
   onChange,
@@ -166,6 +168,7 @@ export default function TextInput({
         readOnly={readOnly}
         error={error || isInvalidDate}
         inputRef={readInputRef}
+        size={size}
         className={mergeClasses('group', wrapperClassName)}
       >
         <input

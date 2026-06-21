@@ -32,9 +32,9 @@ export function TextInputExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>label</Code>, <Code>placeholder</Code>, <Code>type</Code>,{' '}
-          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>clearable</Code>, <Code>showCopy</Code>, <Code>customInputClass</Code>, <Code>step</Code>,{' '}
-          <Code>min</Code>, <Code>onClear</Code>, <Code>onFocus</Code>, <Code>onBlur</Code>, <Code>id</Code>, <Code>name</Code>, <Code>className</Code>,{' '}
-          <Code>ref</Code>
+          <Code>readOnly</Code>, <Code>disabled</Code>, <Code>clearable</Code>, <Code>showCopy</Code>, <Code>customInputClass</Code>, <Code>wrapperClassName</Code>,{' '}
+          <Code>size</Code>, <Code>step</Code>, <Code>min</Code>, <Code>onClear</Code>, <Code>onFocus</Code>, <Code>onBlur</Code>, <Code>id</Code>, <Code>name</Code>,{' '}
+          <Code>className</Code>, <Code>ref</Code>
         </p>
       </ComponentInfo>
 
@@ -43,8 +43,16 @@ export function TextInputExamples() {
           <TextInput label="Name" value={textValue1} onChange={setTextValue1} placeholder="Enter your name" />
         </Example>
 
-        <Example title="Text Input with Label">
-          <TextInput label="Email" value={textValue2} onChange={setTextValue2} placeholder="Enter your email" />
+        <Example title="Small Size">
+          <TextInput label="Small" value={textValue2} onChange={setTextValue2} placeholder="Compact h-9 input" size="small" />
+        </Example>
+
+        <Example title="Large Size">
+          <TextInput label="Large" value={textValue2} onChange={setTextValue2} placeholder="Tall h-11 input" size="large" />
+        </Example>
+
+        <Example title="Text Input without Label">
+          <TextInput value={textValue2} onChange={setTextValue2} placeholder="Search..." type="search" size="small" />
         </Example>
 
         <Example title="Password Input">
