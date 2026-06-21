@@ -35,16 +35,20 @@ export default function EpisodeTableToolbar({
   return (
     <div
       className={mergeClasses(
-        'border-border bg-bg-elevated flex flex-wrap items-center gap-2 border-b px-1 py-2 transition-opacity',
+        'border-border bg-bg-elevated flex flex-col gap-2 border-b px-1 py-2 transition-opacity md:flex-row md:flex-wrap md:items-center',
         isSelectionMode ? 'pointer-events-none opacity-50' : ''
       )}
     >
       <TextInput value={search} onChange={onSearchChange} type="search" placeholder={t('PlaceholderSearchEpisode')} className="w-full md:w-auto md:grow" />
 
-      <EpisodesFilterSelect value={filterKey} onChange={onFilterChange} className="w-32" />
-      <EpisodesSortSelect sortBy={sortKey} sortDesc={sortDesc} onChange={onSortChange} className="w-38" />
+      <div className="flex w-full min-w-0 flex-nowrap items-center gap-2 md:contents">
+        <EpisodesFilterSelect value={filterKey} onChange={onFilterChange} className="w-32 min-w-0 md:w-32" />
+        <EpisodesSortSelect sortBy={sortKey} sortDesc={sortDesc} onChange={onSortChange} className="w-30 min-w-0 md:w-38" />
 
-      <ContextMenuDropdown size="small" items={contextMenuItems} onAction={({ action }) => onContextMenuAction(action)} autoWidth className="ms-auto md:ms-0" />
+        <div className="ms-auto shrink-0 md:contents">
+          <ContextMenuDropdown size="small" items={contextMenuItems} onAction={({ action }) => onContextMenuAction(action)} autoWidth />
+        </div>
+      </div>
     </div>
   )
 }
