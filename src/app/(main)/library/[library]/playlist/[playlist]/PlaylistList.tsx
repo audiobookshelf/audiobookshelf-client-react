@@ -8,8 +8,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getPlaylistItemKey, playlistItemsToPayload } from '@/lib/playlistItems'
-import { getPlaylistEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
-import type { BookshelfEntity, Playlist, PlaylistItem } from '@/types/api'
+import type { Playlist, PlaylistItem } from '@/types/api'
 import { useCallback, useMemo, useTransition } from 'react'
 
 type SortablePlaylistItem = PlaylistItem & { id: string }
@@ -30,17 +29,6 @@ export default function PlaylistList({ playlist, orderedItems, setOrderedItems, 
   const showDragHandle = userCanUpdate && showReorder
 
   const sortableItems = useMemo((): SortablePlaylistItem[] => orderedItems.map((item) => ({ ...item, id: getPlaylistItemKey(item) })), [orderedItems])
-
-  const shelfEntitiesDense = useMemo(() => orderedItems.map((i) => i.libraryItem) as unknown as (BookshelfEntity | null)[], [orderedItems])
-
-  const episodeNavByItemKey = useMemo(() => {
-    const navByKey = new Map<string, ReturnType<typeof getPlaylistEpisodeNavigationContext>>()
-    for (const item of orderedItems) {
-      if (!item.episode) continue
-      navByKey.set(getPlaylistItemKey(item), getPlaylistEpisodeNavigationContext(orderedItems, item.episode.id))
-    }
-    return navByKey
-  }, [orderedItems])
 
   const handleSortEnd = useCallback(
     (sortedItems: SortablePlaylistItem[]) => {
@@ -67,13 +55,12 @@ export default function PlaylistList({ playlist, orderedItems, setOrderedItems, 
         episode={item.episode}
         context={{ kind: 'playlist', playlistId: playlist.id }}
         entityIndex={index}
-        shelfEntities={shelfEntitiesDense}
-        episodeNavCtx={item.episode ? (episodeNavByItemKey.get(item.id) ?? undefined) : undefined}
+        shelfEntities={orderedItems}
         showDragHandle={showDragHandle}
         sortableDragHandleProps={dragHandle}
       />
     ),
-    [episodeNavByItemKey, playlist.id, shelfEntitiesDense, showDragHandle]
+    [orderedItems, playlist.id, showDragHandle]
   )
 
   return (

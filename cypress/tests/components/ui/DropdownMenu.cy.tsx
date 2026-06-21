@@ -220,18 +220,18 @@ describe('<DropdownMenu />', () => {
 
     it('applies correct text styling for items with subtext', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
-      cy.get('[role="listbox"] > li').eq(1).find('span').first().should('have.class', 'font-semibold')
+      cy.get('[role="listbox"] > li').eq(1).find('span.font-semibold').should('contain.text', 'Option 2')
     })
 
     it('applies correct text styling for items without subtext', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
-      cy.get('[role="listbox"] > li').eq(0).find('span').first().should('not.have.class', 'font-semibold')
+      cy.get('[role="listbox"] > li').eq(0).find('span.font-semibold').should('not.exist')
     })
 
     it('renders subtext with correct styling', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
-      cy.get('[role="listbox"] > li').eq(1).find('span').last().should('have.class', 'text-foreground-subdued')
-      cy.get('[role="listbox"] > li').eq(1).find('span').last().should('have.class', 'font-normal')
+      cy.get('[role="listbox"] > li').eq(1).find('span.text-foreground-subdued').should('have.class', 'font-normal')
+      cy.get('[role="listbox"] > li').eq(1).find('span.text-foreground-subdued').should('contain.text', 'Description')
     })
 
     it('maintains proper z-index for dropdown positioning', () => {
@@ -264,7 +264,8 @@ describe('<DropdownMenu />', () => {
 
     it('applies proper overflow handling', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
-      cy.get('[role="listbox"]').should('have.class', 'overflow-auto')
+      cy.get('[role="listbox"]').should('have.class', 'overflow-x-hidden')
+      cy.get('[role="listbox"]').should('have.class', 'overflow-y-auto')
     })
 
     it('applies responsive text sizing', () => {

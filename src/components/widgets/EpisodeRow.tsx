@@ -28,6 +28,7 @@ export interface EpisodeRowProps {
   onToggleFinished: (episode: PodcastEpisode) => void
   onSelect: (episode: PodcastEpisode, isSelected: boolean) => void
   onEdit?: (episode: PodcastEpisode) => void
+  onMatch?: (episode: PodcastEpisode) => void
   onRemove?: (episode: PodcastEpisode, hardDelete: boolean) => void
   onDownloadFile?: (episode: PodcastEpisode) => void
   onShowMoreInfo?: (episode: PodcastEpisode) => void
@@ -49,11 +50,11 @@ export default function EpisodeRow({
   onToggleFinished,
   onSelect,
   onEdit,
+  onMatch,
   onRemove,
   onDownloadFile,
   onShowMoreInfo,
   onAddToPlaylist,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   rowIndex
 }: EpisodeRowProps) {
   const t = useTypeSafeTranslations()
@@ -63,10 +64,11 @@ export default function EpisodeRow({
 
   const contextMenuItems = useMemo(() => {
     const items: ContextMenuDropdownItem[] = []
+    if (userCanUpdate && onMatch) items.push({ text: t('HeaderMatch'), action: 'match' })
     if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
     if (userIsAdminOrUp && episode.audioFile) items.push({ text: t('LabelMoreInfo'), action: 'more' })
     return items
-  }, [userCanDownload, userIsAdminOrUp, episode.audioFile, t])
+  }, [userCanDownload, userCanUpdate, userIsAdminOrUp, episode.audioFile, onMatch, t])
 
   const closeConfirm = () => setConfirmState(null)
 
@@ -176,7 +178,7 @@ export default function EpisodeRow({
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <Checkbox value={isSelected} onChange={(checked) => onSelect(episode, checked)} />
+              <Checkbox value={isSelected} checkboxBgClass="bg-primary" onChange={(checked) => onSelect(episode, checked)} />
             </div>
           </div>
 
@@ -235,14 +237,15 @@ export default function EpisodeRow({
                 </IconBtn>
               )}
 
-              {episode.audioFile && contextMenuItems.length > 0 && (
+              {contextMenuItems.length > 0 && (
                 <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
                   <ContextMenuDropdown
                     items={contextMenuItems}
                     autoWidth
                     borderless
                     onAction={({ action }) => {
-                      if (action === 'download') onDownloadFile?.(episode)
+                      if (action === 'match') onMatch?.(episode)
+                      else if (action === 'download') onDownloadFile?.(episode)
                       else if (action === 'more') onShowMoreInfo?.(episode)
                     }}
                     usePortal

@@ -454,7 +454,7 @@ export function useMediaCardActions({
       }
     }
 
-    if (userCanUpdate && onOpenMatch && !episodeForQueue) {
+    if (userCanUpdate && onOpenMatch) {
       items.push({
         text: t('HeaderMatch'),
         func: 'showMatchModal'

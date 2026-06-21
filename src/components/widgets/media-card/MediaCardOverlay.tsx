@@ -235,7 +235,13 @@ export default function MediaCardOverlay({
                 'hover:scale-125 hover:[&_.material-symbols]:!text-yellow-300'
               )}
             >
-              <MediaCardMoreMenu items={moreMenuItems} processing={isProcessingOrPending} onAction={onMoreAction} onOpenChange={onMoreMenuOpenChange} />
+              <MediaCardMoreMenu
+                items={moreMenuItems}
+                processing={isProcessingOrPending}
+                isOpen={isMoreMenuOpen}
+                onAction={onMoreAction}
+                onOpenChange={onMoreMenuOpenChange}
+              />
             </div>
           )}
 

@@ -9,7 +9,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
 import { playlistItemsToPayload, toSortablePlaylistItems } from '@/lib/playlistItems'
-import type { BookshelfEntity, Playlist, PlaylistItem } from '@/types/api'
+import type { Playlist, PlaylistItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import type { SortableBookshelfEntry } from '@/types/compilation'
 import { useCallback, useMemo } from 'react'
@@ -40,7 +40,6 @@ export default function PlaylistBookshelf({ playlist, orderedItems, setOrderedIt
   const isPodcastLibrary = library.mediaType === 'podcast'
 
   const shelfEntries = useMemo(() => toSortablePlaylistItems(orderedItems), [orderedItems])
-  const shelfEntitiesDense = useMemo(() => orderedItems.map((i) => i.libraryItem) as unknown as (BookshelfEntity | null)[], [orderedItems])
   const mediaItemProgressMap = useMemo(() => buildMediaItemProgressMap(user.mediaProgress), [user.mediaProgress])
 
   const handlePersistOrder = useCallback(
@@ -71,11 +70,11 @@ export default function PlaylistBookshelf({ playlist, orderedItems, setOrderedIt
         orderBy={getSortableBookshelfItemOrderBy(entry.libraryItem)}
         seriesSortBy={seriesSortBy}
         mediaItemProgressMap={mediaItemProgressMap}
-        shelfEntities={shelfEntitiesDense}
+        shelfEntities={orderedItems}
         entityIndex={entityIndex}
       />
     ),
-    [isPodcastLibrary, library.id, mediaItemProgressMap, seriesSortBy, shelfEntitiesDense, showSubtitles]
+    [isPodcastLibrary, library.id, mediaItemProgressMap, orderedItems, seriesSortBy, showSubtitles]
   )
 
   return (

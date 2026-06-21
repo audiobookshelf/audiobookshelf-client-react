@@ -31,12 +31,13 @@ export function mapMediaCardMoreMenuItemsToDropdownItems(items: MediaCardMoreMen
 interface MediaCardMoreMenuProps {
   items: MediaCardMoreMenuItem[]
   processing?: boolean
+  isOpen?: boolean
   onAction: (func: string, data?: Record<string, string>) => void
   onOpenChange?: (isOpen: boolean) => void
   className?: string
 }
 
-export default function MediaCardMoreMenu({ items, processing = false, onAction, onOpenChange, className }: MediaCardMoreMenuProps) {
+export default function MediaCardMoreMenu({ items, processing = false, isOpen, onAction, onOpenChange, className }: MediaCardMoreMenuProps) {
   const contextMenuItems = useMemo(() => mapMediaCardMoreMenuItemsToDropdownItems(items), [items])
 
   const handleContextMenuAction = useCallback(
@@ -66,6 +67,7 @@ export default function MediaCardMoreMenu({ items, processing = false, onAction,
       menuAlign="right"
       autoWidth
       processing={processing}
+      isOpen={isOpen}
       onAction={handleContextMenuAction}
       onOpenChange={handleOpenChange}
       className={mergeClasses('h-auto w-auto text-[1em] text-white', className)}

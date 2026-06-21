@@ -6,7 +6,7 @@ import SortableBookshelfCard from '@/components/widgets/media-card/SortableBooks
 import { getSortableBookshelfItemOrderBy } from '@/contexts/SortableBookshelfOverlayContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { BookshelfEntity, BookshelfView, MediaProgress } from '@/types/api'
+import type { BookshelfView, MediaProgress, PlaylistItem } from '@/types/api'
 import type { SortableBookshelfEntry } from '@/types/compilation'
 import {
   closestCenter,
@@ -22,7 +22,7 @@ import {
   type KeyboardCodes
 } from '@dnd-kit/core'
 import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
+import { useCallback, useId, useMemo, useRef, useState, useTransition } from 'react'
 
 const itemsConfig = ENTITY_CONFIGS.items
 
@@ -71,6 +71,7 @@ export default function SortableBookshelf({
   mediaItemProgressMap,
   isPodcastLibrary = false
 }: SortableBookshelfProps) {
+  const dndContextId = useId()
   const t = useTypeSafeTranslations()
   const dragOverlayCardOptions = useMemo(
     (): SortableBookshelfCardOptions => ({
@@ -95,7 +96,16 @@ export default function SortableBookshelf({
 
   const itemIds = useMemo(() => entries.map((e) => e.sortableId), [entries])
 
-  const shelfEntitiesDense = useMemo(() => entries.map((e) => e.libraryItem) as unknown as (BookshelfEntity | null)[], [entries])
+  const shelfEntitiesDense = useMemo(
+    (): PlaylistItem[] =>
+      entries.map((entry) => ({
+        libraryItemId: entry.libraryItem.id,
+        libraryItem: entry.libraryItem,
+        episodeId: entry.episode?.id,
+        episode: entry.episode
+      })),
+    [entries]
+  )
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     setActiveId(String(event.active.id))
@@ -146,7 +156,14 @@ export default function SortableBookshelf({
   )
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd} onDragCancel={handleDragCancel}>
+    <DndContext
+      id={dndContextId}
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+    >
       <SortableContext items={itemIds} strategy={rectSortingStrategy}>
         <div className="grid w-full max-w-full min-w-0 pt-4" style={gridStyle}>
           {entries.map((entry, entityIndex) => (

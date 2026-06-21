@@ -1,7 +1,7 @@
 'use server'
 
 import * as api from '@/lib/api'
-import { RssPodcastEpisode, UpdateLibraryItemMediaPayload } from '@/types/api'
+import { RssPodcastEpisode, UpdateLibraryItemMediaPayload, UpdatePodcastEpisodePayload } from '@/types/api'
 
 export async function toggleFinishedAction(libraryItemId: string, params: { isFinished: boolean; episodeId?: string }) {
   return api.updateMediaFinished(libraryItemId, params)
@@ -53,4 +53,16 @@ export async function downloadPodcastEpisodesAction(libraryItemId: string, episo
 
 export async function clearPodcastDownloadQueueAction(libraryItemId: string) {
   return api.clearPodcastDownloadQueue(libraryItemId)
+}
+
+export async function getPodcastEpisodeAction(libraryItemId: string, episodeId: string) {
+  return api.getPodcastEpisode(libraryItemId, episodeId)
+}
+
+export async function updatePodcastEpisodeAction(libraryItemId: string, episodeId: string, payload: UpdatePodcastEpisodePayload) {
+  return api.updatePodcastEpisode(libraryItemId, episodeId, payload)
+}
+
+export async function searchPodcastEpisodeAction(libraryItemId: string, title: string) {
+  return api.searchPodcastEpisode(libraryItemId, title)
 }

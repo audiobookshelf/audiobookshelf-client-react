@@ -638,6 +638,44 @@ export interface PodcastEpisode {
   }
 }
 
+export interface UpdatePodcastEpisodePayload {
+  season?: string
+  episode?: string
+  episodeType?: string
+  title?: string
+  subtitle?: string
+  description?: string
+  pubDate?: string
+  publishedAt?: number
+  chapters?: Chapter[]
+  enclosure?: {
+    url: string
+    type?: string
+    length?: string
+  } | null
+}
+
+export interface SearchPodcastEpisodeResult {
+  title?: string
+  subtitle?: string
+  description?: string
+  episode?: string
+  episodeType?: string
+  season?: string
+  pubDate?: string
+  publishedAt?: number
+  enclosure?: {
+    url: string
+    type?: string
+    length?: string
+  }
+  guid?: string
+}
+
+export interface SearchPodcastEpisodeResponse {
+  episodes: Array<{ episode: SearchPodcastEpisodeResult }>
+}
+
 export interface PodcastEpisodeDownload {
   id: string
   episodeDisplayTitle?: string

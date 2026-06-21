@@ -320,6 +320,8 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       showSubtitles={true}
                       mediaProgress={mediaProgress}
                       continueListeningShelf={continueListeningShelf}
+                      shelfEntities={shelf.entities}
+                      entityIndex={entityIndex}
                     />
                   </div>
                 )

@@ -8,6 +8,8 @@ import { mergeClasses } from '@/lib/merge-classes'
 import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
+const MODAL_ROOT_SELECTOR = '[data-abs-modal]'
+
 export interface ModalProps {
   isOpen: boolean
   processing?: boolean
@@ -82,60 +84,70 @@ export default function Modal({
     }
   }, [isOpen])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // Escape key to close
-      if (e.key === 'Escape' && !processing && !persistent) {
+  // Close on Escape even when focus is outside the modal (e.g. after blurring a field
+  // or using episode prev/next navigation). Only the topmost nested modal should respond.
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleDocumentKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || processing || persistent) return
+
+      const modalWrappers = document.querySelectorAll(MODAL_ROOT_SELECTOR)
+      const topmostWrapper = modalWrappers[modalWrappers.length - 1]
+      if (topmostWrapper !== wrapperRef.current) return
+
+      e.preventDefault()
+      e.stopPropagation()
+      onClose?.()
+    }
+
+    document.addEventListener('keydown', handleDocumentKeyDown)
+    return () => document.removeEventListener('keydown', handleDocumentKeyDown)
+  }, [isOpen, processing, persistent, onClose])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Focus trap
+    if (e.key === 'Tab') {
+      if (!contentRef.current) return
+
+      const focusableElements = contentRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+
+      // If no focusable elements, keep focus on content container
+      if (focusableElements.length === 0) {
         e.preventDefault()
-        e.stopPropagation()
-        onClose?.()
+        contentRef.current.focus()
         return
       }
 
-      // Focus trap
-      if (e.key === 'Tab') {
-        if (!contentRef.current) return
+      const firstElement = focusableElements[0]
+      const lastElement = focusableElements[focusableElements.length - 1]
 
-        const focusableElements = contentRef.current.querySelectorAll<HTMLElement>(
-          'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        )
+      // Check if focus is within the modal
+      const isFocusInModal = contentRef.current.contains(document.activeElement)
 
-        // If no focusable elements, keep focus on content container
-        if (focusableElements.length === 0) {
-          e.preventDefault()
-          contentRef.current.focus()
-          return
-        }
-
-        const firstElement = focusableElements[0]
-        const lastElement = focusableElements[focusableElements.length - 1]
-
-        // Check if focus is within the modal
-        const isFocusInModal = contentRef.current.contains(document.activeElement)
-
-        if (!isFocusInModal) {
-          // If focus somehow got outside, bring it back
-          e.preventDefault()
-          if (e.shiftKey) lastElement.focus()
-          else firstElement.focus()
+      if (!isFocusInModal) {
+        // If focus somehow got outside, bring it back
+        e.preventDefault()
+        if (e.shiftKey) lastElement.focus()
+        else firstElement.focus()
+      } else {
+        // Normal trap logic
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement || document.activeElement === contentRef.current) {
+            e.preventDefault()
+            lastElement.focus()
+          }
         } else {
-          // Normal trap logic
-          if (e.shiftKey) {
-            if (document.activeElement === firstElement || document.activeElement === contentRef.current) {
-              e.preventDefault()
-              lastElement.focus()
-            }
-          } else {
-            if (document.activeElement === lastElement) {
-              e.preventDefault()
-              firstElement.focus()
-            }
+          if (document.activeElement === lastElement) {
+            e.preventDefault()
+            firstElement.focus()
           }
         }
       }
-    },
-    [processing, persistent, onClose]
-  )
+    }
+  }, [])
 
   if (!isOpen) {
     return null
@@ -146,6 +158,7 @@ export default function Modal({
       ref={wrapperRef}
       role="dialog"
       aria-modal="true"
+      data-abs-modal
       className={mergeClasses(
         'modal modal-bg fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden',
         zIndexClass,

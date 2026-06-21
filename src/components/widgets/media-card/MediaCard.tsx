@@ -2,10 +2,13 @@
 
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
+import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
+import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import MatchModal from '@/components/modals/MatchModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
+import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import DraggableMediaOverlayIconBtn from '@/components/widgets/media-card/DraggableMediaOverlayIconBtn'
 import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
@@ -20,9 +23,11 @@ import { isDragOnlyOverlay, useSortableBookshelfOverlay } from '@/contexts/Sorta
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { computeProgress } from '@/lib/mediaProgress'
-import type { BookMedia, BookshelfEntity, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
+import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
@@ -76,7 +81,7 @@ export interface MediaCardProps {
   /**
    * When both are set, modal prev/next scope is built lazily on open from this shelf snapshot (sparse bookshelf grid or dense home row).
    */
-  shelfEntities?: (BookshelfEntity | null)[]
+  shelfEntities?: (ShelfNavigationEntity | null)[]
   entityIndex?: number
   /** Wired by sortable bookshelf hosts (`SortableBookshelfCard`, `DragOverlay`, etc.). */
   dragOptions?: SortableBookshelfCardOptions
@@ -127,15 +132,32 @@ function MediaCard(props: MediaCardProps) {
 
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 
+  const closeMoreMenu = useCallback(() => {
+    setIsMoreMenuOpen(false)
+    setIsHovering(false)
+  }, [])
+
   const handleOpenMatch = useCallback(() => {
+    closeMoreMenu()
+    if (episode) {
+      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+      setBoundModal(<EpisodeMatchModal key={`episode-match-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+      return
+    }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<MatchModal key="match-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
+  }, [clearBoundModal, closeMoreMenu, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal])
 
   const handleOpenEdit = useCallback(() => {
+    closeMoreMenu()
+    if (episode) {
+      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+      setBoundModal(<EpisodeEditModal key={`episode-edit-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+      return
+    }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
+  }, [clearBoundModal, closeMoreMenu, episode, libraryItem, shelfEntities, entityIndex, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
@@ -301,9 +323,15 @@ function MediaCard(props: MediaCardProps) {
     playerControls: playerHandler.controls
   })
 
-  const handleCardClick = () => {
+  const handleCardClick = useCallback(() => {
+    closeMoreMenu()
+    if (episode && isPodcastLibraryItem(libraryItem)) {
+      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+      setBoundModal(<ViewEpisodeModal key={`view-episode-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+      return
+    }
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
-  }
+  }, [clearBoundModal, closeMoreMenu, entityIndex, episode, libraryItem, router, setBoundModal, shelfEntities])
 
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(overlayMode)
 

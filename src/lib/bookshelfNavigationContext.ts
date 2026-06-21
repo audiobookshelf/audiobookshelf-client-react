@@ -1,4 +1,4 @@
-import type { BookshelfEntity } from '@/types/api'
+import { getShelfEntityNavigationId, type ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 
 /**
  * Generic prev/next scope for modals.
@@ -13,7 +13,7 @@ export type EntityNavigationContext = {
  * Prev/next entity scope for one bookshelf entity slot: contiguous non-null run around `entityIndex`, in array order.
  * Call when opening a modal (lazy). Returns a fresh `entityIds` array; safe to pass through to the modal.
  */
-function getEntityNavigationContext(entities: (BookshelfEntity | null)[], entityIndex: number): EntityNavigationContext | null {
+function getEntityNavigationContext(entities: (ShelfNavigationEntity | null)[], entityIndex: number): EntityNavigationContext | null {
   if (entityIndex < 0 || entityIndex >= entities.length) return null
 
   const at = entities[entityIndex]
@@ -38,7 +38,7 @@ function getEntityNavigationContext(entities: (BookshelfEntity | null)[], entity
     if (j === entityIndex) {
       initialIndex = entityIds.length
     }
-    entityIds.push(e.id)
+    entityIds.push(getShelfEntityNavigationId(e))
   }
 
   if (initialIndex < 0) return null
@@ -57,7 +57,7 @@ const defaultSingleEntityNavCtx = (libraryItemId: string): EntityNavigationConte
  */
 export function getMediaCardModalNavigationContext(
   libraryItemId: string,
-  shelfEntities: (BookshelfEntity | null)[] | undefined,
+  shelfEntities: (ShelfNavigationEntity | null)[] | undefined,
   entityIndex: number | undefined
 ): EntityNavigationContext {
   if (shelfEntities !== undefined && entityIndex !== undefined) {

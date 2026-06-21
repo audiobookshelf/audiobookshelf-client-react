@@ -4,7 +4,9 @@ import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fe
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
+import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
+import ConfirmDialog, { type ConfirmState } from '@/components/widgets/ConfirmDialog'
 import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeRow'
 import EpisodeTableHeaderActions from '@/components/widgets/EpisodeTableHeaderActions'
 import EpisodeTableToolbar from '@/components/widgets/EpisodeTableToolbar'
@@ -16,8 +18,9 @@ import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
 import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
 import { getPodcastEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
+import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
+import { mergeClasses } from '@/lib/merge-classes'
 import { PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -40,6 +43,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const [, startTransition] = useTransition()
 
   const [isEpisodeFeedModalOpen, setIsEpisodeFeedModalOpen] = useState(false)
+  const [batchMarkConfirmState, setBatchMarkConfirmState] = useState<ConfirmState | null>(null)
   const [podcastFeedEpisodes, setPodcastFeedEpisodes] = useState<RssPodcastEpisode[]>([])
   const [fetchingRSSFeed, startFetchingRSSTransition] = useTransition()
 
@@ -56,6 +60,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
   const [editedEpisode, setEditedEpisode] = useState<PodcastEpisode | null>(null)
+  const [matchedEpisode, setMatchedEpisode] = useState<PodcastEpisode | null>(null)
 
   const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
 
@@ -74,8 +79,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     }
     setViewedEpisode(null)
   }, [viewedEpisode])
-
-  const isViewEpisodeModalOpen = viewedEpisode !== null
 
   // Virtualizer — lazy render only visible rows
   const { visibleStart, visibleEnd, totalHeight, listContainerRef } = useEpisodeTableVirtualizer(filteredEpisodes.length, EPISODE_ROW_HEIGHT_PX)
@@ -155,9 +158,27 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     setEditedEpisode(null)
   }, [])
 
+  const handleMatchEpisode = useCallback((episode: PodcastEpisode) => {
+    setMatchedEpisode(episode)
+  }, [])
+
+  const handleCloseMatchModal = useCallback(() => {
+    setMatchedEpisode(null)
+  }, [])
+
   const editedEpisodeNavCtx = useMemo(
-    () => (editedEpisode ? getPodcastEpisodeNavigationContext(filteredEpisodes, editedEpisode.id) : null),
-    [editedEpisode, filteredEpisodes]
+    () => (editedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, editedEpisode.id) : null),
+    [editedEpisode, filteredEpisodes, libraryItem.id]
+  )
+
+  const matchedEpisodeNavCtx = useMemo(
+    () => (matchedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, matchedEpisode.id) : null),
+    [matchedEpisode, filteredEpisodes, libraryItem.id]
+  )
+
+  const viewedEpisodeNavCtx = useMemo(
+    () => (viewedEpisode ? getPodcastEpisodeNavigationContext(libraryItem.id, filteredEpisodes, viewedEpisode.id) : null),
+    [viewedEpisode, filteredEpisodes, libraryItem.id]
   )
 
   const handleFindEpisodes = useCallback(() => {
@@ -239,23 +260,31 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
       } else if (action === 'batch-mark-as-finished') {
         const markState = !allEpisodesFinished
 
-        startTransition(async () => {
-          try {
-            await batchUpdateMediaFinishedAction(
-              filteredEpisodes.map((episode) => ({
-                libraryItemId: libraryItem.id,
-                episodeId: episode.id,
-                isFinished: markState
-              }))
-            )
-          } catch (error) {
-            console.error('Failed to batch mark episodes finished state', error)
-            showToast(t('ToastFailedToUpdate'), { type: 'error' })
+        setBatchMarkConfirmState({
+          isOpen: true,
+          message: markState ? t('MessageConfirmMarkAllEpisodesFinished') : t('MessageConfirmMarkAllEpisodesNotFinished'),
+          onConfirm: () => {
+            setBatchMarkConfirmState(null)
+            startTransition(async () => {
+              try {
+                await batchUpdateMediaFinishedAction(
+                  episodes.map((episode) => ({
+                    libraryItemId: libraryItem.id,
+                    episodeId: episode.id,
+                    isFinished: markState
+                  }))
+                )
+                showToast(t('ToastBatchUpdateSuccess'), { type: 'success' })
+              } catch (error) {
+                console.error('Failed to batch mark episodes finished state', error)
+                showToast(t('ToastBatchUpdateFailed'), { type: 'error' })
+              }
+            })
           }
         })
       }
     },
-    [allEpisodesFinished, filteredEpisodes, libraryItem.id, showToast, t]
+    [allEpisodesFinished, episodes, libraryItem.id, showToast, t]
   )
 
   const allSelectedEpisodesFinished = useMemo(() => {
@@ -282,25 +311,31 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   )
 
   const isFiltered = hasMounted && filteredEpisodes.length !== episodes.length
-  const count = !isFiltered && hasMounted ? episodes.length : undefined
-  const badge = isFiltered ? `${filteredEpisodes.length} / ${episodes.length}` : undefined
+  const episodeCountLabel = hasMounted
+    ? isFiltered
+      ? `${filteredEpisodes.length} / ${episodes.length}`
+      : episodes.length > 0
+        ? String(episodes.length)
+        : ''
+    : ''
+  const useCompactEpisodeCount = episodeCountLabel.length >= 8
 
   const headerNode = (
     <div className="mb-4 flex w-full items-center px-1 pt-1">
       <div className="flex min-w-0 flex-1 items-center gap-3">
         <p className="text-xl font-medium">{t('HeaderEpisodes')}</p>
-        {count !== undefined && count > 0 && (
-          <div className="bg-foreground/10 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full">
-            <span className="font-mono text-sm">{count}</span>
-          </div>
-        )}
-        {badge && (
-          <div className="bg-foreground/10 flex h-6 items-center justify-center rounded-full px-3 text-sm">
-            <span className="font-mono">{badge}</span>
+        {episodeCountLabel && (
+          <div
+            className={mergeClasses(
+              'bg-foreground/10 flex shrink-0 items-center justify-center rounded-full font-mono whitespace-nowrap',
+              useCompactEpisodeCount ? 'h-5 px-2 text-xs' : isFiltered ? 'h-6 px-3 text-sm' : 'h-7 w-7 text-sm'
+            )}
+          >
+            {episodeCountLabel}
           </div>
         )}
       </div>
-      {headerActions && <div className="m-0 flex items-center gap-2">{headerActions}</div>}
+      {headerActions && <div className="flex shrink-0 items-center gap-2">{headerActions}</div>}
     </div>
   )
 
@@ -373,6 +408,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     onToggleFinished={handleToggleFinished}
                     onSelect={handleSelectEpisode}
                     onEdit={handleEditEpisode}
+                    onMatch={handleMatchEpisode}
                     onRemove={handleRemoveEpisode}
                     onDownloadFile={handleDownloadFile}
                     onShowMoreInfo={handleShowMoreInfo}
@@ -387,10 +423,9 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
         </div>
       </div>
 
-      <ViewEpisodeModal isOpen={isViewEpisodeModalOpen} onClose={handleCloseViewModal} episode={viewedEpisode} libraryItem={libraryItem} />
-      {editedEpisode && (
-        <EpisodeEditModal isOpen libraryItem={libraryItem} episode={editedEpisode} navCtx={editedEpisodeNavCtx ?? undefined} onClose={handleCloseEditModal} />
-      )}
+      {viewedEpisode && viewedEpisodeNavCtx && <ViewEpisodeModal isOpen navCtx={viewedEpisodeNavCtx} onClose={handleCloseViewModal} />}
+      {editedEpisode && editedEpisodeNavCtx && <EpisodeEditModal isOpen navCtx={editedEpisodeNavCtx} onClose={handleCloseEditModal} />}
+      {matchedEpisode && matchedEpisodeNavCtx && <EpisodeMatchModal isOpen navCtx={matchedEpisodeNavCtx} onClose={handleCloseMatchModal} />}
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
       <EpisodeFeedModal
         isOpen={isEpisodeFeedModalOpen}
@@ -400,6 +435,14 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
         downloadQueue={episodeDownloadsQueued}
         episodesDownloading={episodesDownloading}
       />
+      {batchMarkConfirmState && (
+        <ConfirmDialog
+          isOpen={batchMarkConfirmState.isOpen}
+          message={batchMarkConfirmState.message}
+          onClose={() => setBatchMarkConfirmState(null)}
+          onConfirm={() => batchMarkConfirmState.onConfirm()}
+        />
+      )}
     </div>
   )
 }

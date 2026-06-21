@@ -5,7 +5,10 @@ import { toggleFinishedAction } from '@/app/actions/mediaActions'
 import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import PreviewCover from '@/components/covers/PreviewCover'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
+import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
+import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
@@ -17,15 +20,17 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useCompilationListRowLayout } from '@/hooks/useCompilationListRowLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getMediaCardModalNavigationContext, type EntityNavigationContext } from '@/lib/bookshelfNavigationContext'
+import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
+import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
 import { buildMediaItemProgressMap, buildPodcastEpisodeProgressMap, getLibraryItemProgressFromMap } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
 import { getEpisodeDuration, getPlaylistItemDuration } from '@/lib/playlistItems'
-import type { BookshelfEntity, LibraryItem, PodcastEpisode } from '@/types/api'
-import { isBookMedia, isBookMetadata, isPodcastMedia } from '@/types/api'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
+import type { LibraryItem, PodcastEpisode } from '@/types/api'
+import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMedia } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
@@ -40,8 +45,7 @@ interface CompilationItemListRowProps {
   episode?: PodcastEpisode | null
   context: CompilationItemListRowContext
   entityIndex: number
-  shelfEntities: (BookshelfEntity | null)[]
-  episodeNavCtx?: EntityNavigationContext
+  shelfEntities: (ShelfNavigationEntity | null)[]
   showDragHandle: boolean
   sortableDragHandleProps: SortableListDragHandleProps
   isDragging?: boolean
@@ -53,7 +57,6 @@ export default function CompilationItemListRow({
   context,
   entityIndex,
   shelfEntities,
-  episodeNavCtx,
   showDragHandle,
   sortableDragHandleProps,
   isDragging = false
@@ -107,21 +110,27 @@ export default function CompilationItemListRow({
 
   const handleEdit = useCallback(() => {
     if (episode) {
-      setBoundModal(
-        <EpisodeEditModal
-          key={`episode-edit-modal-${episode.id}`}
-          isOpen
-          libraryItem={libraryItem}
-          episode={episode}
-          navCtx={episodeNavCtx}
-          onClose={clearBoundModal}
-        />
-      )
+      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+      setBoundModal(<EpisodeEditModal key={`episode-edit-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
       return
     }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, entityIndex, episode, episodeNavCtx, libraryItem, setBoundModal, shelfEntities])
+  }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
+
+  const handleMatch = useCallback(() => {
+    if (!episode) return
+    const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+    setBoundModal(<EpisodeMatchModal key={`episode-match-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+  }, [clearBoundModal, entityIndex, episode, libraryItem.id, setBoundModal, shelfEntities])
+
+  const handleViewEpisode = useCallback(() => {
+    if (!episode || !isPodcastLibraryItem(libraryItem)) return
+    const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+    setBoundModal(<ViewEpisodeModal key={`view-episode-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+  }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
+
+  const canShowRemove = context.kind === 'collection' ? userCanDelete : userCanUpdate
 
   const handlePlayClick = useCallback(
     (e: React.MouseEvent) => {
@@ -198,6 +207,28 @@ export default function CompilationItemListRow({
     })
   }, [context, episodeId, libraryItem.id, showToast, sortableCompilation, t])
 
+  const contextMenuItems = useMemo(() => {
+    const items: { text: string; action: string }[] = []
+    if (canShowRemove) {
+      items.push({
+        text: context.kind === 'playlist' ? t('LabelRemoveFromPlaylist') : t('LabelRemoveFromCollection'),
+        action: 'remove'
+      })
+    }
+    if (episode && userCanUpdate) {
+      items.push({ text: t('HeaderMatch'), action: 'match' })
+    }
+    return items
+  }, [canShowRemove, context.kind, episode, t, userCanUpdate])
+
+  const handleContextMenuAction = useCallback(
+    ({ action }: { action: string }) => {
+      if (action === 'match') handleMatch()
+      else if (action === 'remove') handleRemoveClick()
+    },
+    [handleMatch, handleRemoveClick]
+  )
+
   const handleMouseEnter = () => {
     if (isDragging) return
     setIsHovering(true)
@@ -211,7 +242,6 @@ export default function CompilationItemListRow({
   const showMobilePlayBtn = !isMdUp && !showDragHandle && showPlayBtn
   const itemHref = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`
   const canShowEdit = userCanUpdate
-  const canShowRemove = context.kind === 'collection' ? userCanDelete : userCanUpdate
 
   return (
     <div
@@ -234,16 +264,27 @@ export default function CompilationItemListRow({
         )}
 
         <div className="relative flex min-w-0 flex-1 items-center">
-          {!isMdUp && (
-            <Link
-              href={itemHref}
-              className={mergeClasses(
-                'focus-visible:outline-foreground-muted absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
-                isDragging && 'pointer-events-none'
-              )}
-              aria-label={itemTitle}
-            />
-          )}
+          {!isMdUp &&
+            (episode ? (
+              <button
+                type="button"
+                onClick={handleViewEpisode}
+                className={mergeClasses(
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] cursor-pointer rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  isDragging && 'pointer-events-none'
+                )}
+                aria-label={itemTitle}
+              />
+            ) : (
+              <Link
+                href={itemHref}
+                className={mergeClasses(
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  isDragging && 'pointer-events-none'
+                )}
+                aria-label={itemTitle}
+              />
+            ))}
 
           <div className="flex shrink-0 items-center" style={{ width: coverWidth, minWidth: coverWidth, maxWidth: coverWidth }}>
             <div className="relative">
@@ -266,16 +307,30 @@ export default function CompilationItemListRow({
           <div className="px-2e md:px-3e flex min-w-0 flex-1 items-center">
             <div className="flex w-full min-w-0 flex-col justify-center">
               {isMdUp ? (
-                <Link
-                  href={itemHref}
-                  className={mergeClasses(
-                    'text-foreground inline-block w-fit max-w-full text-[0.875em] hover:underline md:text-[1em]',
-                    COMPILATION_ROW_LINK_FOCUS
-                  )}
-                  title={itemTitle}
-                >
-                  <span className="block truncate">{itemTitle}</span>
-                </Link>
+                episode ? (
+                  <button
+                    type="button"
+                    onClick={handleViewEpisode}
+                    className={mergeClasses(
+                      'text-foreground inline-block w-fit max-w-full cursor-pointer text-start text-[0.875em] hover:underline md:text-[1em]',
+                      COMPILATION_ROW_LINK_FOCUS
+                    )}
+                    title={itemTitle}
+                  >
+                    <span className="block truncate">{itemTitle}</span>
+                  </button>
+                ) : (
+                  <Link
+                    href={itemHref}
+                    className={mergeClasses(
+                      'text-foreground inline-block w-fit max-w-full text-[0.875em] hover:underline md:text-[1em]',
+                      COMPILATION_ROW_LINK_FOCUS
+                    )}
+                    title={itemTitle}
+                  >
+                    <span className="block truncate">{itemTitle}</span>
+                  </Link>
+                )
               ) : (
                 <span className="text-foreground block truncate text-[0.875em]" title={itemTitle}>
                   {itemTitle}
@@ -366,17 +421,19 @@ export default function CompilationItemListRow({
                 edit
               </IconBtn>
             )}
-            {canShowRemove && (
-              <IconBtn
-                borderless
-                size="custom"
-                className={COMPILATION_ROW_ACTION_BTN_CLASS}
-                ariaLabel={t('ButtonRemove')}
-                disabled={processingRemove}
-                onClick={handleRemoveClick}
-              >
-                close
-              </IconBtn>
+            {contextMenuItems.length > 0 && (
+              <div onClick={(e) => e.stopPropagation()}>
+                <ContextMenuDropdown
+                  items={contextMenuItems}
+                  borderless
+                  size="small"
+                  className={COMPILATION_ROW_ACTION_BTN_CLASS}
+                  autoWidth
+                  processing={processingRemove}
+                  onAction={handleContextMenuAction}
+                  usePortal
+                />
+              </div>
             )}
           </div>
         )}
