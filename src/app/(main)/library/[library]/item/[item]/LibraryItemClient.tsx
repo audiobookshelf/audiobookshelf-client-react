@@ -158,7 +158,12 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
               <LibraryItemDetails libraryItem={libraryItem} />
 
-              <LibraryItemActionButtons libraryItem={libraryItem} onEdit={handleOpenEditModal} rssFeed={rssFeed ?? null} />
+              <LibraryItemActionButtons
+                libraryItem={libraryItem}
+                onEdit={handleOpenEditModal}
+                onOpenCoverEdit={() => setIsCoverEditModalOpen(true)}
+                rssFeed={rssFeed ?? null}
+              />
 
               {/* Podcast episode downloads queue */}
               {episodeDownloadsQueued.length > 0 && (

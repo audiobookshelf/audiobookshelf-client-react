@@ -57,6 +57,8 @@ interface UseMediaCardActionsProps {
   onDeleteSuccess?: () => void
   /** Invoked for the Match menu action. Host owns modal state (card, page, bookshelf, etc.). */
   onOpenMatch?: () => void
+  /** Invoked for the Edit Cover menu action. Host owns modal state (card, page, bookshelf, etc.). */
+  onOpenCoverEdit?: () => void
   playerControls: PlayerHandlerControls
 }
 
@@ -81,6 +83,7 @@ export function useMediaCardActions({
   onShareChange,
   onDeleteSuccess,
   onOpenMatch,
+  onOpenCoverEdit,
   playerControls
 }: UseMediaCardActionsProps) {
   const sortableCompilation = useSortableCompilation()
@@ -239,6 +242,8 @@ export function useMediaCardActions({
         setRssFeedModalOpen(true)
       } else if (action === 'showMatchModal') {
         onOpenMatch?.()
+      } else if (action === 'openCoverEdit') {
+        onOpenCoverEdit?.()
       } else if (action === 'download') {
         downloadLibraryItem(libraryItem.id)
       } else if (action === 'sendToDevice') {
@@ -400,6 +405,7 @@ export function useMediaCardActions({
       toggleFinished,
       onDeleteSuccess,
       onOpenMatch,
+      onOpenCoverEdit,
       sortableCompilation,
       userCanUpdate
     ]
@@ -452,6 +458,13 @@ export function useMediaCardActions({
           }))
         })
       }
+    }
+
+    if (userCanUpdate && onOpenCoverEdit && !episodeForQueue) {
+      items.push({
+        text: t('ButtonEditCover'),
+        func: 'openCoverEdit'
+      })
     }
 
     if (userCanUpdate && onOpenMatch) {
@@ -544,6 +557,7 @@ export function useMediaCardActions({
     userCanUpdate,
     userIsAdminOrUp,
     onOpenMatch,
+    onOpenCoverEdit,
     sortableCompilation
   ])
 

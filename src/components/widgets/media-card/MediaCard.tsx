@@ -2,6 +2,7 @@
 
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
+import CoverEditModal from '@/components/modals/CoverEditModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
@@ -27,7 +28,7 @@ import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavig
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
-import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
+import type { BookMedia, BookLibraryItem, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastLibraryItem, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
@@ -158,6 +159,19 @@ function MediaCard(props: MediaCardProps) {
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, closeMoreMenu, episode, libraryItem, shelfEntities, entityIndex, setBoundModal])
+
+  const handleOpenCoverEdit = useCallback(() => {
+    closeMoreMenu()
+    if (episode) return
+    setBoundModal(
+      <CoverEditModal
+        key={`cover-edit-modal-${libraryItem.id}`}
+        isOpen
+        libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem}
+        onClose={clearBoundModal}
+      />
+    )
+  }, [clearBoundModal, closeMoreMenu, episode, libraryItem, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
@@ -320,6 +334,7 @@ function MediaCard(props: MediaCardProps) {
     isQueued,
     initialShare: libraryItem.mediaItemShare ?? null,
     onOpenMatch: handleOpenMatch,
+    onOpenCoverEdit: handleOpenCoverEdit,
     playerControls: playerHandler.controls
   })
 
