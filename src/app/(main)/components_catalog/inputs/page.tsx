@@ -1,5 +1,6 @@
 import { CronExpressionBuilderExamples } from '../examples/CronExpressionBuilderExamples'
 import { DropdownExamples } from '../examples/DropdownExamples'
+import { FileInputExamples } from '../examples/FileInputExamples'
 import { DurationPickerExamples } from '../examples/DurationPickerExamples'
 import { InputDropdownExamples } from '../examples/InputDropdownExamples'
 import { MultiSelectDropdownExamples } from '../examples/MultiSelectDropdownExamples'
@@ -134,6 +135,9 @@ export default function InputComponentsPage() {
       </div>
       <div id="duration-picker-examples">
         <DurationPickerExamples />
+      </div>
+      <div id="file-input-examples">
+        <FileInputExamples />
       </div>
       <div id="slate-editor-examples">
         <SlateEditorExamples />
