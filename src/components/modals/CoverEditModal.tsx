@@ -9,12 +9,34 @@ export type CoverEditModalProps = {
   onClose: () => void
 } & LibraryItemModalItemSource
 
-function CoverEditModalBody() {
+type CoverEditModalBodyProps = {
+  /** When true (navCtx), body height stays fixed so prev/next does not resize the panel. */
+  stableBodyHeight: boolean
+}
+
+function CoverEditModalBody({ stableBodyHeight }: CoverEditModalBodyProps) {
   const { resolvedItem, fetchPending } = useLibraryItemModal()
+  const showLoading = fetchPending && !resolvedItem
+
+  if (stableBodyHeight) {
+    return (
+      <div className="flex h-[min(40rem,85vh)] max-h-[85vh] w-full flex-col overflow-hidden rounded-lg">
+        {showLoading ? (
+          <div className="flex flex-1 items-center justify-center">
+            <LoadingIndicator variant="inline" />
+          </div>
+        ) : resolvedItem ? (
+          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+            <CoverEdit libraryItem={resolvedItem} />
+          </div>
+        ) : null}
+      </div>
+    )
+  }
 
   return (
     <div className="max-h-[85vh] overflow-y-auto">
-      {fetchPending && !resolvedItem ? (
+      {showLoading ? (
         <div className="flex min-h-[24rem] items-center justify-center">
           <LoadingIndicator variant="inline" />
         </div>
@@ -34,12 +56,8 @@ export default function CoverEditModal(props: CoverEditModalProps) {
   const navCtxMode = 'navCtx' in props
 
   return (
-    <LibraryItemModal
-      isOpen={isOpen}
-      onClose={onClose}
-      {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}
-    >
-      <CoverEditModalBody />
+    <LibraryItemModal isOpen={isOpen} onClose={onClose} {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}>
+      <CoverEditModalBody stableBodyHeight={navCtxMode} />
     </LibraryItemModal>
   )
 }
