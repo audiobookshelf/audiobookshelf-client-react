@@ -234,10 +234,12 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     handleUpdateCover(selectedCoverForPreview)
   }
 
+  const showAuthorField = provider !== 'itunes' && provider !== 'audiobookcovers'
+
   return (
-    <div className="relative w-full overflow-hidden overflow-y-auto px-2 py-6 sm:px-4">
-      <div className="mb-4 flex flex-col sm:flex-row">
-        <div className="relative self-center md:self-start">
+    <div className="relative w-full space-y-6 px-2 py-6 md:px-4">
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[auto_1fr] md:gap-6">
+        <div className="relative justify-self-center md:justify-self-start">
           <PreviewCover src={coverUrl} width={120} />
 
           {/* book cover overlay */}
@@ -261,17 +263,15 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
           )}
         </div>
 
-        <div className="mt-6 grow sm:mt-0 sm:ps-2 sm:pe-2 md:ps-6">
-          <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             {userCanUpload && (
-              <div className="w-10 shrink-0 md:w-auto md:min-w-32">
-                <FileInput size="small" onChange={fileUploadSelected}>
-                  {t('ButtonUploadCover')}
-                </FileInput>
-              </div>
+              <FileInput size="small" onChange={fileUploadSelected} className="shrink-0">
+                {t('ButtonUploadCover')}
+              </FileInput>
             )}
 
-            <form onSubmit={submitForm} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+            <form onSubmit={submitForm} className="flex min-w-0 flex-1 items-center gap-2">
               <TextInput
                 size="small"
                 value={imageUrl}
@@ -280,36 +280,28 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
                 className="min-w-0 flex-1"
                 disabled={isPendingUpdate}
               />
-              <Btn
-                size="small"
-                color="bg-success"
-                type="submit"
-                disabled={!imageUrl || isPendingUpdate}
-                loading={isPendingUpdate}
-                className="w-24 shrink-0 px-4"
-              >
+              <Btn size="small" color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="w-24 shrink-0">
                 {t('ButtonSubmit')}
               </Btn>
             </form>
           </div>
 
           {localCovers.length > 0 && (
-            <div className="mt-6 mb-4 border-t border-b border-white/10">
-              <div className="flex items-center justify-center py-2">
+            <div className="border-t border-b border-white/10">
+              <div className="flex items-center justify-between py-2 ps-2">
                 <p>{localCoverImageCount}</p>
-                <div className="grow" />
                 <Btn size="small" onClick={() => setShowLocalCovers(!showLocalCovers)}>
                   {showLocalCovers ? t('ButtonHide') : t('ButtonShow')}
                 </Btn>
               </div>
 
               {showLocalCovers && (
-                <div className="flex flex-wrap items-center justify-center pb-2">
+                <div className="flex flex-wrap items-center justify-center gap-1 px-2 pb-2 md:px-1">
                   {localCovers.map((localCoverFile) => (
                     <div
                       key={localCoverFile.ino}
                       className={mergeClasses(
-                        'm-0.5 mb-5 border-2',
+                        'border-2',
                         isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-yellow-300',
                         localCoverFile.metadata.path === coverPath ? 'border-yellow-300' : 'border-transparent'
                       )}
@@ -327,52 +319,48 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         </div>
       </div>
 
-      <form onSubmit={submitSearchForm} className="sm:pe-2">
-        <div className="-mx-1 flex flex-wrap items-center justify-start sm:mx-0 sm:flex-nowrap">
-          <div className="w-48 grow p-1">
-            <Dropdown
-              value={provider}
-              items={providers}
-              disabled={searchInProgress}
-              label={t('LabelProvider')}
-              size="small"
-              onChange={(val) => setProvider(String(val))}
-            />
-          </div>
-          <div className="w-72 grow p-1">
-            <TextInput
-              size="small"
-              value={searchTitle}
-              onChange={setSearchTitle}
-              disabled={searchInProgress}
-              label={searchTitleLabel}
-              placeholder={t('PlaceholderSearch')}
-            />
-          </div>
-          {provider !== 'itunes' && provider !== 'audiobookcovers' && (
-            <div className="w-72 grow p-1">
-              <TextInput size="small" value={searchAuthor} onChange={setSearchAuthor} disabled={searchInProgress} label={t('LabelAuthor')} />
-            </div>
-          )}
-          <div className="ms-auto p-1 sm:ms-0 sm:flex sm:flex-col sm:p-0">
-            <span className="mb-1 hidden px-1 text-sm font-semibold sm:invisible sm:block" aria-hidden="true">
-              &nbsp;
-            </span>
-            {!searchInProgress ? (
-              <Btn size="small" className="mt-5 ml-1 w-24 shrink-0 px-4 sm:mt-0" type="submit">
-                {t('ButtonSearch')}
-              </Btn>
-            ) : (
-              <Btn size="small" className="mt-5 ml-1 w-24 shrink-0 px-4 sm:mt-0" type="button" color="bg-error" onClick={cancelSearch}>
-                {t('ButtonCancel')}
-              </Btn>
-            )}
-          </div>
-        </div>
+      <form onSubmit={submitSearchForm} className="flex flex-wrap items-end gap-2">
+        <Dropdown
+          value={provider}
+          items={providers}
+          disabled={searchInProgress}
+          label={t('LabelProvider')}
+          size="small"
+          className="w-full min-w-40 shrink-0 md:w-48"
+          onChange={(val) => setProvider(String(val))}
+        />
+        <TextInput
+          size="small"
+          value={searchTitle}
+          onChange={setSearchTitle}
+          disabled={searchInProgress}
+          label={searchTitleLabel}
+          placeholder={t('PlaceholderSearch')}
+          className="min-w-0 grow basis-48"
+        />
+        {showAuthorField && (
+          <TextInput
+            size="small"
+            value={searchAuthor}
+            onChange={setSearchAuthor}
+            disabled={searchInProgress}
+            label={t('LabelAuthor')}
+            className="min-w-0 grow basis-48"
+          />
+        )}
+        <Btn
+          size="small"
+          type={searchInProgress ? 'button' : 'submit'}
+          color={searchInProgress ? 'bg-error' : undefined}
+          onClick={searchInProgress ? cancelSearch : undefined}
+          className="w-24 shrink-0"
+        >
+          {searchInProgress ? t('ButtonCancel') : t('ButtonSearch')}
+        </Btn>
       </form>
 
       {hasSearched && (
-        <div className="mt-2 flex max-w-full flex-wrap items-center justify-center sm:max-h-80 sm:overflow-y-scroll">
+        <div className="flex max-w-full flex-wrap justify-center gap-1 md:max-h-80 md:overflow-y-auto">
           {searchInProgress && !coversFound.length ? (
             <p className="text-foreground-muted py-4">{t('MessageLoading')}</p>
           ) : !searchInProgress && !coversFound.length ? (
@@ -382,7 +370,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
               <div
                 key={cover}
                 className={mergeClasses(
-                  'm-0.5 mb-5 border-2',
+                  'border-2',
                   isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-yellow-300',
                   cover === coverPath ? 'border-yellow-300' : 'border-transparent'
                 )}
