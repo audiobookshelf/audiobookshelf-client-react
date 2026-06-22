@@ -348,15 +348,24 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
             className="min-w-0 grow basis-48"
           />
         )}
-        <Btn
-          size="small"
-          type={searchInProgress ? 'button' : 'submit'}
-          color={searchInProgress ? 'bg-error' : undefined}
-          onClick={searchInProgress ? cancelSearch : undefined}
-          className="w-24 shrink-0"
-        >
-          {searchInProgress ? t('ButtonCancel') : t('ButtonSearch')}
-        </Btn>
+        {searchInProgress ? (
+          <Btn
+            size="small"
+            type="button"
+            color="bg-error"
+            onClick={(e) => {
+              e.preventDefault()
+              cancelSearch()
+            }}
+            className="w-24 shrink-0"
+          >
+            {t('ButtonCancel')}
+          </Btn>
+        ) : (
+          <Btn size="small" type="submit" className="w-24 shrink-0">
+            {t('ButtonSearch')}
+          </Btn>
+        )}
       </form>
 
       {hasSearched && (
