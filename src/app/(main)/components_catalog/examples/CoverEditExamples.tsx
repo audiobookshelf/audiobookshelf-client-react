@@ -34,9 +34,7 @@ export function CoverEditExamples({ selectedLibraryItem }: CoverEditExamplesProp
       <Example title={`Cover Edit for: ${selectedLibraryItem?.media.metadata.title}`}>
         {/* Cover Component Display */}
         {selectedLibraryItem ? (
-          <div style={{ height: '600px' }}>
-            <CoverEdit libraryItem={selectedLibraryItem} />
-          </div>
+          <CoverEdit libraryItem={selectedLibraryItem} />
         ) : (
           <div className="border-primary/20 rounded-lg border-2 border-dashed p-8 text-center">
             <p className="mb-2 text-gray-400">No book selected</p>
