@@ -34,7 +34,7 @@ describe('<FileInput />', () => {
   it('renders mobile icon button', () => {
     cy.mount(<FileInput onChange={() => {}}>Choose File</FileInput>)
     cy.get('[cy-id="icon-btn-icon"]').should('exist')
-    cy.get('button').last().should('have.class', 'block')
+    cy.get('button').last().should('have.class', 'flex')
     cy.get('button').last().should('have.class', 'md:hidden')
   })
 
@@ -143,7 +143,7 @@ describe('<FileInput />', () => {
     cy.get('button').first().should('have.class', 'md:block')
 
     // Mobile icon should be visible on mobile
-    cy.get('button').last().should('have.class', 'block')
+    cy.get('button').last().should('have.class', 'flex')
     cy.get('button').last().should('have.class', 'md:hidden')
   })
 
