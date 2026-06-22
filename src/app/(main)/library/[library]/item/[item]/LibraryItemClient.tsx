@@ -1,6 +1,7 @@
 'use client'
 
 import { clearPodcastDownloadQueueAction } from '@/app/actions/mediaActions'
+import CoverEditModal from '@/components/modals/CoverEditModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
@@ -34,6 +35,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+  const [isCoverEditModalOpen, setIsCoverEditModalOpen] = useState(false)
   const [isClearQueueDialogOpen, setIsClearQueueDialogOpen] = useState(false)
 
   useEffect(() => {
@@ -113,9 +115,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 libraryItem={libraryItem}
                 canUpdate={userCanUpdate}
                 mediaProgress={userProgress}
-                onEdit={() => {
-                  console.log('edit cover')
-                }}
+                onEdit={() => setIsCoverEditModalOpen(true)}
               />
             </div>
             <div className="flex-1">
@@ -222,6 +222,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
         </div>
 
         <LibraryItemEditModal isOpen={isEditModalOpen} libraryItem={libraryItem} onClose={handleCloseEditModal} onSaved={handleItemSaved} />
+        <CoverEditModal isOpen={isCoverEditModalOpen} libraryItem={libraryItem} onClose={() => setIsCoverEditModalOpen(false)} />
         <ConfirmDialog
           isOpen={isClearQueueDialogOpen}
           message="Are you sure you want to clear episode download queue?"
