@@ -235,7 +235,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
   }
 
   return (
-    <div className="relative h-full w-full overflow-hidden overflow-y-auto px-2 py-6 sm:px-4">
+    <div className="relative w-full overflow-hidden overflow-y-auto px-2 py-6 sm:px-4">
       <div className="mb-4 flex flex-col sm:flex-row">
         <div className="relative self-center md:self-start">
           <PreviewCover src={coverUrl} width={120} />
@@ -261,20 +261,33 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
           )}
         </div>
 
-        <div className="mt-6 grow sm:ps-2 sm:pe-2 md:mt-0 md:ps-6">
-          <div className="flex items-center">
+        <div className="mt-6 grow sm:mt-0 sm:ps-2 sm:pe-2 md:ps-6">
+          <div className="flex items-center gap-2 sm:gap-3">
             {userCanUpload && (
-              <div className="w-10 pe-2 md:w-40 md:min-w-32">
-                <FileInput onChange={fileUploadSelected}>
-                  <span className="hidden md:inline-block">{t('ButtonUploadCover')}</span>
-                  <span className="material-symbols inline-block text-2xl md:!hidden">upload</span>
+              <div className="w-10 shrink-0 md:w-auto md:min-w-32">
+                <FileInput size="small" onChange={fileUploadSelected}>
+                  {t('ButtonUploadCover')}
                 </FileInput>
               </div>
             )}
 
-            <form onSubmit={submitForm} className="flex grow">
-              <TextInput value={imageUrl} onChange={setImageUrl} placeholder={t('LabelImageURLFromTheWeb')} className="h-9 w-full" disabled={isPendingUpdate} />
-              <Btn color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="ms-2 h-9 w-24 px-4 sm:ms-3">
+            <form onSubmit={submitForm} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+              <TextInput
+                size="small"
+                value={imageUrl}
+                onChange={setImageUrl}
+                placeholder={t('LabelImageURLFromTheWeb')}
+                className="min-w-0 flex-1"
+                disabled={isPendingUpdate}
+              />
+              <Btn
+                size="small"
+                color="bg-success"
+                type="submit"
+                disabled={!imageUrl || isPendingUpdate}
+                loading={isPendingUpdate}
+                className="w-24 shrink-0 px-4"
+              >
                 {t('ButtonSubmit')}
               </Btn>
             </form>
@@ -314,8 +327,8 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         </div>
       </div>
 
-      <form onSubmit={submitSearchForm}>
-        <div className="-mx-1 flex flex-wrap items-center justify-start sm:flex-nowrap">
+      <form onSubmit={submitSearchForm} className="sm:pe-2">
+        <div className="-mx-1 flex flex-wrap items-center justify-start sm:mx-0 sm:flex-nowrap">
           <div className="w-48 grow p-1">
             <Dropdown
               value={provider}
@@ -328,6 +341,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
           </div>
           <div className="w-72 grow p-1">
             <TextInput
+              size="small"
               value={searchTitle}
               onChange={setSearchTitle}
               disabled={searchInProgress}
@@ -337,18 +351,23 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
           </div>
           {provider !== 'itunes' && provider !== 'audiobookcovers' && (
             <div className="w-72 grow p-1">
-              <TextInput value={searchAuthor} onChange={setSearchAuthor} disabled={searchInProgress} label={t('LabelAuthor')} />
+              <TextInput size="small" value={searchAuthor} onChange={setSearchAuthor} disabled={searchInProgress} label={t('LabelAuthor')} />
             </div>
           )}
-          {!searchInProgress ? (
-            <Btn className="ms-1 mt-5 px-4 md:min-w-24" type="submit">
-              {t('ButtonSearch')}
-            </Btn>
-          ) : (
-            <Btn className="ms-1 mt-5 px-4 md:min-w-24" type="button" color="bg-error" onClick={cancelSearch}>
-              {t('ButtonCancel')}
-            </Btn>
-          )}
+          <div className="ms-auto p-1 sm:ms-0 sm:flex sm:flex-col sm:p-0">
+            <span className="mb-1 hidden px-1 text-sm font-semibold sm:invisible sm:block" aria-hidden="true">
+              &nbsp;
+            </span>
+            {!searchInProgress ? (
+              <Btn size="small" className="mt-5 ml-1 w-24 shrink-0 px-4 sm:mt-0" type="submit">
+                {t('ButtonSearch')}
+              </Btn>
+            ) : (
+              <Btn size="small" className="mt-5 ml-1 w-24 shrink-0 px-4 sm:mt-0" type="button" color="bg-error" onClick={cancelSearch}>
+                {t('ButtonCancel')}
+              </Btn>
+            )}
+          </div>
         </div>
       </form>
 
