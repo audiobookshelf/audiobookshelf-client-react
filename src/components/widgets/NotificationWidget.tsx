@@ -56,7 +56,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
     setShowMenu(false)
   }, [])
 
-  useClickOutside(menuRef, triggerRef, closeMenu)
+  useClickOutside(menuRef, triggerRef, closeMenu, true)
 
   const clickShowMenu = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {

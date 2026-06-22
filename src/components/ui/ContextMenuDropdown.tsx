@@ -98,7 +98,7 @@ export default function ContextMenuDropdown<T = string>({
   }, [setMenuOpen])
 
   // Handle click outside to close menu
-  useClickOutside(menuWrapperRef, buttonRef, closeMenu)
+  useClickOutside(menuWrapperRef, buttonRef, closeMenu, true)
 
   const openSubMenu = (index: number) => {
     const currentItem = items[index]

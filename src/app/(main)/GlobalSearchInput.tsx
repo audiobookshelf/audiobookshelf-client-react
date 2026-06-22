@@ -56,9 +56,14 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
   const menuRef = useRef<HTMLDivElement>(null)
 
   // Close menu when clicking outside
-  useClickOutside(menuRef, containerRef, () => {
-    setShowMenu(false)
-  })
+  useClickOutside(
+    menuRef,
+    containerRef,
+    () => {
+      setShowMenu(false)
+    },
+    true
+  )
 
   const handleInputFocus = () => {
     setShowMenu(true)

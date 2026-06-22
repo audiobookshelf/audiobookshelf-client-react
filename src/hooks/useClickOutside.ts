@@ -3,7 +3,9 @@ import { RefObject, useCallback, useEffect, useRef } from 'react'
 export function useClickOutside(
   menuRef: RefObject<HTMLElement | null>,
   triggerRef: RefObject<HTMLElement | null> | null | undefined,
-  handler: (event: MouseEvent) => void
+  handler: (event: MouseEvent) => void,
+  /** Use capture phase so outside clicks are detected before bubble-phase stopPropagation on ancestors */
+  useCapture = false
 ): void {
   const mouseDownTargetRef = useRef<EventTarget | null>(null)
 
@@ -35,17 +37,16 @@ export function useClickOutside(
   )
 
   useEffect(() => {
-    // Track where mousedown occurs to detect drag operations
-    document.addEventListener('mousedown', handleMouseDown)
+    document.addEventListener('mousedown', handleMouseDown, useCapture)
 
     // Use 'click' instead of 'mousedown' to ensure that interactive elements
     // (like buttons) receive their click events before the menu closes.
     // With 'mousedown', the menu close and React re-render would happen between
     // mousedown and mouseup, preventing the clicked element's onClick from firing.
-    document.addEventListener('click', handleClickOutside)
+    document.addEventListener('click', handleClickOutside, useCapture)
     return () => {
-      document.removeEventListener('mousedown', handleMouseDown)
-      document.removeEventListener('click', handleClickOutside)
+      document.removeEventListener('mousedown', handleMouseDown, useCapture)
+      document.removeEventListener('click', handleClickOutside, useCapture)
     }
-  }, [handleClickOutside, handleMouseDown])
+  }, [handleClickOutside, handleMouseDown, useCapture])
 }

@@ -83,7 +83,7 @@ function InputDropdown({
     closeMenu()
   }, [closeMenu])
 
-  useClickOutside(menuRef, wrapperRef, handleClickOutside)
+  useClickOutside(menuRef, wrapperRef, handleClickOutside, true)
 
   const itemsToShow = useMemo(() => {
     if (!textInput) return items

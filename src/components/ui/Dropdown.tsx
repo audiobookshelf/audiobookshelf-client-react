@@ -86,7 +86,7 @@ export default function Dropdown({
     setOpenSubmenuIndex(null)
   }, [])
 
-  useClickOutside(menuRef, buttonRef, closeMenu)
+  useClickOutside(menuRef, buttonRef, closeMenu, true)
 
   const toggleMenu = () => {
     if (disabled) return
