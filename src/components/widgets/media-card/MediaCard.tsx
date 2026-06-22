@@ -163,15 +163,11 @@ function MediaCard(props: MediaCardProps) {
   const handleOpenCoverEdit = useCallback(() => {
     closeMoreMenu()
     if (episode) return
+    const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(
-      <CoverEditModal
-        key={`cover-edit-modal-${libraryItem.id}`}
-        isOpen
-        libraryItem={libraryItem as BookLibraryItem | PodcastLibraryItem}
-        onClose={clearBoundModal}
-      />
+      <CoverEditModal key={`cover-edit-modal-${libraryItem.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />
     )
-  }, [clearBoundModal, closeMoreMenu, episode, libraryItem, setBoundModal])
+  }, [clearBoundModal, closeMoreMenu, episode, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)

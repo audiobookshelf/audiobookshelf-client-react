@@ -1,35 +1,45 @@
 'use client'
 
-import Modal from '@/components/modals/Modal'
+import LibraryItemModal, { type LibraryItemModalItemSource, useLibraryItemModal } from '@/components/modals/LibraryItemModal'
+import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import CoverEdit from '@/components/widgets/CoverEdit'
-import type { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
-import { useMemo } from 'react'
 
-export interface CoverEditModalProps {
+export type CoverEditModalProps = {
   isOpen: boolean
-  libraryItem: BookLibraryItem | PodcastLibraryItem
   onClose: () => void
-}
+} & LibraryItemModalItemSource
 
-export default function CoverEditModal({ isOpen, libraryItem, onClose }: CoverEditModalProps) {
-  const mediaTitle = libraryItem.media.metadata.title ?? ''
-
-  const outerContent = useMemo(() => {
-    if (!mediaTitle) return undefined
-    return (
-      <div className="absolute start-0 top-0 p-4">
-        <h2 className="max-w-[calc(100vw-4rem)] truncate text-xl text-white" title={mediaTitle}>
-          {mediaTitle}
-        </h2>
-      </div>
-    )
-  }, [mediaTitle])
+function CoverEditModalBody() {
+  const { resolvedItem, fetchPending } = useLibraryItemModal()
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent}>
-      <div className="max-h-[85vh] overflow-y-auto">
-        <CoverEdit libraryItem={libraryItem} />
-      </div>
-    </Modal>
+    <div className="max-h-[85vh] overflow-y-auto">
+      {fetchPending && !resolvedItem ? (
+        <div className="flex min-h-[24rem] items-center justify-center">
+          <LoadingIndicator variant="inline" />
+        </div>
+      ) : resolvedItem ? (
+        <CoverEdit libraryItem={resolvedItem} />
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * Modal for editing a library item cover.
+ * Pass `navCtx` to load expanded items (e.g. from media cards); pass `libraryItem` when already expanded.
+ */
+export default function CoverEditModal(props: CoverEditModalProps) {
+  const { isOpen, onClose } = props
+  const navCtxMode = 'navCtx' in props
+
+  return (
+    <LibraryItemModal
+      isOpen={isOpen}
+      onClose={onClose}
+      {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}
+    >
+      <CoverEditModalBody />
+    </LibraryItemModal>
   )
 }
