@@ -1,6 +1,6 @@
 'use client'
 
-import { removeCoverAction, setCoverFromLocalFileAction, updateCoverFromUrlAction, uploadCoverAction } from '@/app/actions/coverActions'
+import { removeCoverAction, setCoverFromLocalFileAction, updateCoverFromUrlAction } from '@/app/actions/coverActions'
 import PreviewCover from '@/components/covers/PreviewCover'
 import CoverPreviewModal from '@/components/modals/CoverPreviewModal'
 import Btn from '@/components/ui/Btn'
@@ -15,6 +15,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useCoverSearch } from '@/hooks/useCoverSearch'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { uploadCoverFile } from '@/lib/coverUpload'
 import { mergeClasses } from '@/lib/merge-classes'
 import { BookLibraryItem, LibraryFile, PodcastLibraryItem } from '@/types/api'
 import React, { useEffect, useMemo, useState, useTransition } from 'react'
@@ -133,12 +134,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
 
     startUploadTransition(async () => {
       try {
-        // Convert File to Base64 for server action
-        const arrayBuffer = await fileToUpload.arrayBuffer()
-        const bytes = new Uint8Array(arrayBuffer)
-        const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('')
-        const base64 = btoa(binary)
-        await uploadCoverAction(libraryItem.id, base64, fileToUpload.name)
+        await uploadCoverFile(libraryItem.id, fileToUpload)
         showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Upload error:', error)
