@@ -118,7 +118,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         setProvider(currentProvider)
       }
     }
-  }, [libraryItem, isPodcast, resetSearch])
+  }, [libraryItem.id, libraryItem.media?.metadata, isPodcast, resetSearch])
 
   // Handlers
   const resetCoverPreview = () => {
@@ -139,6 +139,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('')
         const base64 = btoa(binary)
         await uploadCoverAction(libraryItem.id, base64, fileToUpload.name)
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Upload error:', error)
         showToast(error instanceof Error ? error.message : t('ToastUnknownError'), { type: 'error' })
@@ -160,6 +161,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     startUpdateTransition(async () => {
       try {
         await removeCoverAction(libraryItem.id)
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Error removing cover:', error)
         showToast(error instanceof Error ? error.message : 'Failed to remove cover', { type: 'error' })
@@ -172,6 +174,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
       try {
         await updateCoverFromUrlAction(libraryItem.id, cover)
         setImageUrl('')
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Error updating cover:', error)
         showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
@@ -211,6 +214,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     startUpdateTransition(async () => {
       try {
         await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Error setting cover:', error)
         showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
