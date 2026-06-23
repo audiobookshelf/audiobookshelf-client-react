@@ -99,9 +99,12 @@ export default function PreviewCover({
     [src]
   )
 
-  // Reset imageFailed when src changes
+  // Reset image state when src changes so a new cover is not stuck on the previous image
   useEffect(() => {
     setImageFailed(forceErrorState || false)
+    setShowCoverBg(false)
+    setNaturalHeight(0)
+    setNaturalWidth(0)
   }, [src, forceErrorState])
 
   // No effect needed for background image; it is bound directly in JSX now
