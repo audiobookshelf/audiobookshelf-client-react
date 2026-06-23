@@ -3,6 +3,7 @@
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { isAuthenticatedImageUrl, silentRefreshSession, withImageRetryParam } from '@/lib/silentRefreshSession'
 import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -30,12 +31,25 @@ export default function PreviewCover({
   const bookCoverAspectRatio = bookCoverAspectRatioProp ?? libraryBookCoverAspectRatio
   const t = useTypeSafeTranslations()
   const [imageFailed, setImageFailed] = useState(forceErrorState || false)
+  const [displaySrc, setDisplaySrc] = useState(src)
   const [showCoverBg, setShowCoverBg] = useState(false)
   const [naturalHeight, setNaturalHeight] = useState(0)
   const [naturalWidth, setNaturalWidth] = useState(0)
 
   const coverRef = useRef<HTMLImageElement>(null)
   const coverBgRef = useRef<HTMLDivElement>(null)
+  const authRetryAttemptedRef = useRef(false)
+
+  const resetImageState = useCallback((nextDisplaySrc: string, options?: { imageFailed?: boolean; resetAuthRetry?: boolean }) => {
+    if (options?.resetAuthRetry) {
+      authRetryAttemptedRef.current = false
+    }
+    setDisplaySrc(nextDisplaySrc)
+    setImageFailed(options?.imageFailed ?? false)
+    setShowCoverBg(false)
+    setNaturalHeight(0)
+    setNaturalWidth(0)
+  }, [])
 
   // Calculate final dimensions
   const finalDimensions = useMemo(() => {
@@ -81,31 +95,37 @@ export default function PreviewCover({
   // Set background image when showCoverBg changes to true
   useEffect(() => {
     if (showCoverBg && coverBgRef.current) {
-      coverBgRef.current.style.backgroundImage = `url("${src}")`
+      coverBgRef.current.style.backgroundImage = `url("${displaySrc}")`
     }
-  }, [showCoverBg, src])
+  }, [showCoverBg, displaySrc])
 
   const imageError = useCallback(
-    (err: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    async (err: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      if (!authRetryAttemptedRef.current && isAuthenticatedImageUrl(src)) {
+        authRetryAttemptedRef.current = true
+        const refreshed = await silentRefreshSession()
+        if (refreshed) {
+          resetImageState(withImageRetryParam(src))
+          return
+        }
+      }
+
       // Log with more context - this is a handled error so we use warn instead of error
       console.warn('PreviewCover: Failed to load image', {
-        src,
+        src: displaySrc,
         naturalWidth: err.currentTarget.naturalWidth,
         naturalHeight: err.currentTarget.naturalHeight,
         errorType: err.type
       })
       setImageFailed(true)
     },
-    [src]
+    [src, displaySrc, resetImageState]
   )
 
   // Reset image state when src changes so a new cover is not stuck on the previous image
   useEffect(() => {
-    setImageFailed(forceErrorState || false)
-    setShowCoverBg(false)
-    setNaturalHeight(0)
-    setNaturalWidth(0)
-  }, [src, forceErrorState])
+    resetImageState(src, { imageFailed: forceErrorState || false, resetAuthRetry: true })
+  }, [src, forceErrorState, resetImageState])
 
   // No effect needed for background image; it is bound directly in JSX now
 
@@ -150,7 +170,7 @@ export default function PreviewCover({
         )}
         <Image
           ref={coverRef}
-          src={src}
+          src={displaySrc}
           onError={imageError}
           onLoad={imageLoaded}
           alt={t('LabelCoverPreview')}
