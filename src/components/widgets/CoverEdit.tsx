@@ -396,27 +396,17 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         </div>
       )}
 
-      {previewUpload && (
-        <div className="bg-bg absolute top-0 left-0 z-10 h-full w-full p-8">
-          <p className="text-lg">{t('HeaderPreviewCover')}</p>
-          <span className="material-symbols absolute top-4 right-4 cursor-pointer text-2xl" onClick={resetCoverPreview}>
-            close
-          </span>
-          <div className="flex justify-center py-4">
-            <PreviewCover src={previewUpload} width={240} />
-          </div>
-          <div className="absolute right-0 bottom-0 flex px-5 py-4">
-            <Btn disabled={isPendingUpload} className="mx-2" onClick={resetCoverPreview}>
-              {t('ButtonReset')}
-            </Btn>
-            <Btn loading={isPendingUpload} color="bg-success" onClick={submitCoverUpload}>
-              {t('ButtonUpload')}
-            </Btn>
-          </div>
-        </div>
-      )}
+      <CoverPreviewModal
+        isOpen={!!previewUpload}
+        selectedCover={previewUpload}
+        onClose={resetCoverPreview}
+        onApply={submitCoverUpload}
+        cancelLabel={t('ButtonReset')}
+        applyLabel={t('ButtonUpload')}
+        applyLoading={isPendingUpload}
+        cancelDisabled={isPendingUpload}
+      />
 
-      {/* Cover Preview Modal */}
       <CoverPreviewModal
         isOpen={!!selectedCoverForPreview}
         selectedCover={selectedCoverForPreview}
