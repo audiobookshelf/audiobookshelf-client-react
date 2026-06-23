@@ -10,7 +10,7 @@ export function attachRefreshedSessionCookies(response: NextResponse, refreshedT
   return response
 }
 
-export type BackendDownloadFetchResult =
+export type BackendProxyFetchResult =
   | {
       ok: true
       upstream: Response
@@ -24,35 +24,43 @@ export type BackendDownloadFetchResult =
       refreshedTokens: SessionRefreshTokens | null
     }
 
-/**
- * For browser navigation (`<a href>` downloads), 401 → redirect to login like internal-api/refresh.
- * Clients that send `Accept: application/json` keep a JSON body (e.g. programmatic use).
- */
-export function respondDownloadProxyFailure(request: NextRequest, result: Extract<BackendDownloadFetchResult, { ok: false }>): NextResponse {
-  if (result.status === 401 && request.headers.get('accept') !== 'application/json') {
-    return redirectToLogin(request, 'Session expired')
+async function readUpstreamError(upstream: Response): Promise<string> {
+  try {
+    const text = await upstream.text()
+    if (text?.trim()) {
+      return text.trim()
+    }
+  } catch {
+    // ignore
   }
-  return attachRefreshedSessionCookies(NextResponse.json({ error: result.error }, { status: result.status }), result.refreshedTokens)
+  return `Backend error: ${upstream.statusText}`
 }
 
 /**
- * GET a backend download URL using cookies, refreshing tokens once if the access token expired.
+ * Call the backend with cookie auth, refreshing tokens once if the access token expired.
  */
-export async function fetchBackendDownloadWithCookieRefresh(
+export async function fetchBackendWithCookieRefresh(
   backendUrl: string,
-  cookieStore: Awaited<ReturnType<typeof cookies>>
-): Promise<BackendDownloadFetchResult> {
+  cookieStore: Awaited<ReturnType<typeof cookies>>,
+  init?: RequestInit
+): Promise<BackendProxyFetchResult> {
   const tokens = {
     access: cookieStore.get('access_token')?.value ?? null,
     refresh: cookieStore.get('refresh_token')?.value ?? null
   }
   const initial = { access: tokens.access, refresh: tokens.refresh }
-  Logger.debug(`[fetchBackendDownloadWithCookieRefresh] tokens: has access: ${tokens.access !== null}, has refresh: ${tokens.refresh !== null}`)
+  Logger.debug(`[fetchBackendWithCookieRefresh] tokens: has access: ${tokens.access !== null}, has refresh: ${tokens.refresh !== null}`)
 
   const cookiesToSetIfDirty = (): SessionRefreshTokens | null => {
     if (!tokens.access) return null
     if (tokens.access === initial.access && tokens.refresh === initial.refresh) return null
     return { accessToken: tokens.access, refreshToken: tokens.refresh }
+  }
+
+  const fetchUpstream = (accessToken: string) => {
+    const headers = new Headers(init?.headers)
+    headers.set('Authorization', `Bearer ${accessToken}`)
+    return fetch(backendUrl, { ...init, headers })
   }
 
   if (!tokens.access && !tokens.refresh) {
@@ -68,25 +76,21 @@ export async function fetchBackendDownloadWithCookieRefresh(
 
   if (!tokens.access && tokens.refresh) {
     const session = await refreshSessionWithToken(tokens.refresh)
-    Logger.debug(`[fetchBackendDownloadWithCookieRefresh] refreshSessionWithToken: session: ${session !== null}`)
+    Logger.debug(`[fetchBackendWithCookieRefresh] refreshSessionWithToken: session: ${session !== null}`)
     if (!session) {
       return { ok: false, status: 401, error: 'Unauthorized', refreshedTokens: null }
     }
     applySession(session)
   }
 
-  let upstream = await fetch(backendUrl, {
-    headers: { Authorization: `Bearer ${tokens.access!}` }
-  })
-  Logger.debug(`[fetchBackendDownloadWithCookieRefresh] fetch: upstream: ${upstream.status}`)
+  let upstream = await fetchUpstream(tokens.access!)
+  Logger.debug(`[fetchBackendWithCookieRefresh] fetch: upstream: ${upstream.status}`)
 
   if (upstream.status === 401 && tokens.refresh) {
     const session = await refreshSessionWithToken(tokens.refresh)
     if (session) {
       applySession(session)
-      upstream = await fetch(backendUrl, {
-        headers: { Authorization: `Bearer ${tokens.access!}` }
-      })
+      upstream = await fetchUpstream(tokens.access!)
     }
   }
 
@@ -103,10 +107,21 @@ export async function fetchBackendDownloadWithCookieRefresh(
     return {
       ok: false,
       status: upstream.status,
-      error: `Backend error: ${upstream.statusText}`,
+      error: await readUpstreamError(upstream),
       refreshedTokens: cookiesToSetIfDirty()
     }
   }
 
   return { ok: true, upstream, refreshedTokens: cookiesToSetIfDirty() }
+}
+
+/**
+ * For browser navigation (`<a href>` downloads), 401 → redirect to login like internal-api/refresh.
+ * Clients that send `Accept: application/json` keep a JSON body (e.g. programmatic use).
+ */
+export function respondProxyFailure(request: NextRequest, result: Extract<BackendProxyFetchResult, { ok: false }>): NextResponse {
+  if (result.status === 401 && request.headers.get('accept') !== 'application/json') {
+    return redirectToLogin(request, 'Session expired')
+  }
+  return attachRefreshedSessionCookies(NextResponse.json({ error: result.error }, { status: result.status }), result.refreshedTokens)
 }

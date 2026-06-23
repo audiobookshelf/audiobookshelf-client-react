@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from '@/lib/api'
-import { attachRefreshedSessionCookies, fetchBackendDownloadWithCookieRefresh, respondDownloadProxyFailure } from '@/lib/serverDownloadProxy'
+import { attachRefreshedSessionCookies, fetchBackendWithCookieRefresh, respondProxyFailure } from '@/lib/serverBackendProxy'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -14,9 +14,9 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const baseUrl = getServerBaseUrl()
     const backendUrl = `${baseUrl}/api/libraries/${id}/opml`
 
-    const result = await fetchBackendDownloadWithCookieRefresh(backendUrl, cookieStore)
+    const result = await fetchBackendWithCookieRefresh(backendUrl, cookieStore)
     if (!result.ok) {
-      return respondDownloadProxyFailure(request, result)
+      return respondProxyFailure(request, result)
     }
 
     const { upstream: response, refreshedTokens } = result
