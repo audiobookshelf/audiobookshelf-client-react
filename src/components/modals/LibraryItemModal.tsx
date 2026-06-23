@@ -4,11 +4,13 @@ import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import type { ModalProps } from '@/components/modals/Modal'
 import Modal from '@/components/modals/Modal'
 import ModalSideNavigation from '@/components/modals/ModalSideNavigation'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEntityNavigationContext } from '@/hooks/useEntityNavigationContext'
+import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EntityNavigationContext } from '@/lib/bookshelfNavigationContext'
-import type { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
+import type { BookLibraryItem, LibraryItem, PodcastLibraryItem } from '@/types/api'
 import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
 
 export type LibraryItemModalContextValue = {
@@ -59,6 +61,7 @@ export default function LibraryItemModal(props: LibraryItemModalProps) {
 
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+  const { library } = useLibrary()
   const [fetchedItem, setFetchedItem] = useState<BookLibraryItem | PodcastLibraryItem | null>(null)
   const [isNavPending, startNavTransition] = useTransition()
   const [navFetchPending, setNavFetchPending] = useState(false)
@@ -103,6 +106,18 @@ export default function LibraryItemModal(props: LibraryItemModalProps) {
       if (navCtxMode) setFetchedItem(item)
     },
     [navCtxMode]
+  )
+
+  useLibraryItemUpdated(
+    library.id,
+    useCallback(
+      (item: LibraryItem) => {
+        if (!navCtxMode || !isOpen) return
+        if (item.id !== currentEntityId) return
+        setFetchedItem(item as BookLibraryItem | PodcastLibraryItem)
+      },
+      [navCtxMode, isOpen, currentEntityId]
+    )
   )
 
   const blurActiveElement = useCallback(() => {

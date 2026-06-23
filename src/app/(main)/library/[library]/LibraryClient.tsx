@@ -11,7 +11,9 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useUser } from '@/contexts/UserContext'
+import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { applyLibraryItemUpdateToShelves } from '@/lib/libraryItemUpdatedUtils'
 import {
   Author,
   BookMetadata,
@@ -191,6 +193,12 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
     },
     [library.mediaType, updateShelfEntities]
   )
+
+  const handleItemUpdated = useCallback((updatedItem: LibraryItem) => {
+    setShelves((prev) => applyLibraryItemUpdateToShelves(prev, updatedItem))
+  }, [])
+
+  useLibraryItemUpdated(library.id, handleItemUpdated)
 
   useSocketEvent<MediaItemShare>('share_open', handleShareOpen)
   useSocketEvent<MediaItemShare>('share_closed', handleShareClosed)
