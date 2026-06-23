@@ -1,4 +1,5 @@
 import { getServerBaseUrl } from '@/lib/api'
+import { attachRefreshedSessionCookies, fetchBackendDownloadWithCookieRefresh, respondDownloadProxyFailure } from '@/lib/serverDownloadProxy'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -11,47 +12,37 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * This approach:
  * - Keeps tokens secure (httpOnly cookies, not in URLs)
- * - Handles token expiration automatically (proxy refreshes tokens)
+ * - Refreshes expired access tokens so <img> previews keep working
  * - Works seamlessly with <img> tags (browsers send cookies automatically)
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; fileId: string }> }) {
   const { id, fileId } = await params
   const cookieStore = await cookies()
-  const accessToken = cookieStore.get('access_token')?.value
-
-  if (!accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
 
   try {
     const baseUrl = getServerBaseUrl()
     const backendUrl = `${baseUrl}/api/items/${id}/file/${fileId}`
 
-    const response = await fetch(backendUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
-    })
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        return NextResponse.json({ error: 'Unauthorized - token may be expired' }, { status: 401 })
-      }
-      return NextResponse.json({ error: `Backend error: ${response.statusText}` }, { status: response.status })
+    const result = await fetchBackendDownloadWithCookieRefresh(backendUrl, cookieStore)
+    if (!result.ok) {
+      return respondDownloadProxyFailure(request, result)
     }
 
-    // Get the image data
+    const { upstream: response, refreshedTokens } = result
+
     const imageBuffer = await response.arrayBuffer()
     const contentType = response.headers.get('content-type') || 'application/octet-stream'
 
-    // Return the image with appropriate headers
-    return new NextResponse(imageBuffer, {
-      status: 200,
-      headers: {
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=31536000, immutable'
-      }
-    })
+    return attachRefreshedSessionCookies(
+      new NextResponse(imageBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        }
+      }),
+      refreshedTokens
+    )
   } catch (error) {
     console.error('[FileProxy] Error fetching file:', error)
     return NextResponse.json({ error: 'Failed to fetch file' }, { status: 500 })
