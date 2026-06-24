@@ -957,10 +957,19 @@ export async function triggerOnTestEvent(fail = false): Promise<void> {
 }
 
 /**
- * Remove a series from the "continue listening" shelf
+ * Remove a series from the "continue series" shelf
  */
 export async function removeSeriesFromContinueListening(seriesId: string): Promise<void> {
   return apiRequest<void>(`/api/me/series/${seriesId}/remove-from-continue-listening`, {
+    method: 'GET'
+  })
+}
+
+/**
+ * Re-add a series to the "continue series" shelf
+ */
+export async function readdSeriesToContinueListening(seriesId: string): Promise<void> {
+  return apiRequest<void>(`/api/me/series/${seriesId}/readd-to-continue-listening`, {
     method: 'GET'
   })
 }

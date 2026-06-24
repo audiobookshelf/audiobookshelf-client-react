@@ -27,6 +27,10 @@ export async function removeSeriesFromContinueListeningAction(seriesId: string) 
   return api.removeSeriesFromContinueListening(seriesId)
 }
 
+export async function readdSeriesToContinueListeningAction(seriesId: string) {
+  return api.readdSeriesToContinueListening(seriesId)
+}
+
 export async function removeFromContinueListeningAction(progressId: string) {
   return api.removeFromContinueListening(progressId)
 }
