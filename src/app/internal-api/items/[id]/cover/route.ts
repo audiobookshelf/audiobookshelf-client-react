@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
  * Proxy endpoint for cover uploads.
  *
  * Uses httpOnly cookies for auth and refreshes expired access tokens before
- * forwarding multipart data to the backend.
+ * piping multipart data to the backend (no full-body buffering in Next.js).
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -19,13 +19,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       return NextResponse.json({ error: 'Invalid content type' }, { status: 400 })
     }
 
-    const body = await request.arrayBuffer()
+    if (!request.body) {
+      return NextResponse.json({ error: 'Empty request body' }, { status: 400 })
+    }
+
     const baseUrl = getServerBaseUrl()
     const backendUrl = `${baseUrl}/api/items/${id}/cover`
 
     const result = await fetchBackendWithCookieRefresh(backendUrl, cookieStore, {
       method: 'POST',
-      body,
+      body: request.body,
       headers: { 'Content-Type': contentType }
     })
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerStatus } from './lib/api'
-import { isTokenExpired } from './lib/jwt'
+import { isSessionTokenValid } from './lib/jwt'
 import Logger from './lib/Logger'
 
 /** Next.js App Router sends this on Server Action POSTs */
@@ -18,10 +18,8 @@ export async function proxy(request: NextRequest) {
   const themeCookie = request.cookies.get('theme')?.value
   const path = pathname + search
 
-  // Validate JWT tokens - treat expired tokens as non-existent
-  // Add 5 second buffer to proactively refresh tokens that are about to expire
-  const hasValidAccessToken = !!(accessTokenCookie && !isTokenExpired(accessTokenCookie, 5))
-  const hasValidRefreshToken = !!(refreshTokenCookie && !isTokenExpired(refreshTokenCookie, 5))
+  const hasValidAccessToken = isSessionTokenValid(accessTokenCookie)
+  const hasValidRefreshToken = isSessionTokenValid(refreshTokenCookie)
 
   Logger.debug('[proxy] handling request for:', path)
   if (accessTokenCookie && !hasValidAccessToken) {
