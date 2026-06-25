@@ -1,16 +1,18 @@
 'use client'
 
+import { readdSeriesToContinueListeningAction } from '@/app/actions/mediaActions'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { applyLibraryItemUpdateToList } from '@/lib/libraryItemUpdatedUtils'
 import { BookshelfView, GetLibraryItemsResponse, RssFeed, Series } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState, useTransition } from 'react'
 
 interface SeriesClientProps {
   series: Series
@@ -20,6 +22,7 @@ interface SeriesClientProps {
 export default function SeriesClient({ series, libraryItems }: SeriesClientProps) {
   const router = useRouter()
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
   const { library, setItemCount, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
   const { user, serverSettings, ereaderDevices, getMediaItemProgress, userIsAdminOrUp } = useUser()
 
@@ -35,6 +38,8 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
       setItems((prev) => applyLibraryItemUpdateToList(prev, updatedItem))
     }, [])
   )
+  const [isReaddingSeries, startReaddSeriesTransition] = useTransition()
+  const isSeriesRemovedFromContinueListening = user.seriesHideFromContinueListening.includes(series.id)
 
   const bookTotal = libraryItems.total ?? items.length
 
@@ -77,20 +82,44 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
     setRssFeedModalOpen(true)
   }, [])
 
+  const reAddSeriesToContinueListening = useCallback(() => {
+    if (isReaddingSeries) return
+
+    startReaddSeriesTransition(async () => {
+      try {
+        await readdSeriesToContinueListeningAction(series.id)
+        showToast(t('ToastItemUpdateSuccess'), { type: 'success' })
+      } catch (error) {
+        console.error('Failed to re-add series to continue listening', error)
+        showToast(t('ToastFailedToUpdate'), { type: 'error' })
+      }
+    })
+  }, [isReaddingSeries, series.id, showToast, t])
+
   const handleToolbarMenuAction = useCallback(
     (action: string) => {
-      if (action === 'openRssFeed') openRssModal()
+      if (action === 'openRssFeed') {
+        openRssModal()
+      } else if (action === 'reAddSeriesToContinueListening') {
+        reAddSeriesToContinueListening()
+      }
     },
-    [openRssModal]
+    [openRssModal, reAddSeriesToContinueListening]
   )
 
   useEffect(() => {
-    if (!userIsAdminOrUp && !rssFeed) {
-      setContextMenuItems([])
-      return
+    const items: { text: string; action: string }[] = []
+
+    if (userIsAdminOrUp || rssFeed) {
+      items.push({ text: t('LabelOpenRSSFeed'), action: 'openRssFeed' })
     }
-    setContextMenuItems([{ text: t('LabelOpenRSSFeed'), action: 'openRssFeed' }])
-  }, [rssFeed, setContextMenuItems, t, userIsAdminOrUp])
+
+    if (isSeriesRemovedFromContinueListening) {
+      items.push({ text: t('LabelReAddSeriesToContinueListening'), action: 'reAddSeriesToContinueListening' })
+    }
+
+    setContextMenuItems(items)
+  }, [isSeriesRemovedFromContinueListening, rssFeed, setContextMenuItems, t, userIsAdminOrUp])
 
   useEffect(() => {
     setContextMenuActionHandler(handleToolbarMenuAction)

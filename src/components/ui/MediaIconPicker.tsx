@@ -43,7 +43,7 @@ export default function MediaIconPicker({ value, disabled = false, label, onChan
   }, [])
 
   // Use the existing useClickOutside hook
-  useClickOutside(containerRef, buttonRef, closeMenu)
+  useClickOutside(containerRef, buttonRef, closeMenu, true)
 
   const selectedIcon = useMemo(() => (value ? value : 'database'), [value])
   const validSelectedIcon = useMemo(() => {

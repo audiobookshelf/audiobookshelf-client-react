@@ -44,7 +44,11 @@ export default function UserClient({ user }: { user: User }) {
       <div className="bg-border my-4 h-px w-full" />
 
       <h2 className="text-lg font-medium">{t('HeaderSavedMediaProgress')}</h2>
-      <SimpleDataTable data={user.mediaProgress} columns={columns} getRowKey={(mediaProgress) => mediaProgress.id} />
+      {user.mediaProgress.length > 0 ? (
+        <SimpleDataTable data={user.mediaProgress} columns={columns} getRowKey={(mediaProgress) => mediaProgress.id} />
+      ) : (
+        <p className="text-foreground py-8 text-center text-lg">{t('MessageNoMediaProgress')}</p>
+      )}
     </div>
   )
 }
