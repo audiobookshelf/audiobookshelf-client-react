@@ -28,7 +28,7 @@ import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavig
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
-import type { BookMedia, BookLibraryItem, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastLibraryItem, PodcastMedia, UserPermissions } from '@/types/api'
+import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'

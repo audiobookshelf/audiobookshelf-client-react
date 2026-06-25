@@ -104,7 +104,8 @@ export default function AuthenticationClient({ initialSettings, routerBasePath =
 
     startTransition(async () => {
       try {
-        const { authOpenIDSamplePermissions: _samplePermissions, ...patchPayload } = draftPayload
+        const patchPayload = { ...draftPayload }
+        delete patchPayload.authOpenIDSamplePermissions
         const response = await updateAuthenticationSettings(patchPayload)
         setSavedSettings(draftPayload)
         setAuthSettings(draftPayload)

@@ -32,11 +32,11 @@ import {
   User
 } from '@/types/api'
 import { TranslationKey } from '@/types/translations'
-import React, { type MouseEvent, type ReactNode } from 'react'
+import React, { type ReactNode } from 'react'
 
 /** Selection is unused on the bookshelf; stable identity so memo(MediaCard) can skip unchanged cards. */
 
-function bookshelfCardNoopSelect(_event: MouseEvent) {}
+function bookshelfCardNoopSelect() {}
 
 export interface SkeletonComponentProps {
   bookshelfView: BookshelfView
@@ -242,7 +242,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       }
       return []
     },
-    handleContextMenuAction: (action, helpers) => {
+    handleContextMenuAction: (action) => {
       if (action === 'match-all-authors') {
         // TODO: Implement match all authors
         console.log('Match all authors - to be implemented')

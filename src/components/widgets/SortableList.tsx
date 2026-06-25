@@ -12,7 +12,6 @@ import {
   useDndMonitor,
   useSensor,
   useSensors,
-  type DragCancelEvent,
   type DragEndEvent,
   type DraggableAttributes,
   type DraggableSyntheticListeners,
@@ -239,7 +238,7 @@ export default function SortableList<T extends SortableItem>({
     document.documentElement.classList.add(DND_POINTER_DRAG_HTML_CLASS)
   }, [])
 
-  const handleDragCancel = useCallback((_event: DragCancelEvent) => {
+  const handleDragCancel = useCallback(() => {
     setActiveId(null)
     document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
   }, [])
