@@ -25,10 +25,15 @@ export function getLibraryItemCoverUrl(libraryItemId: string, timestamp?: number
  *
  * @param libraryItemId
  * @param fileIno - The file inode value
+ * @param timestamp - Optional timestamp for cache busting (typically updatedAt)
  * @returns Library file URL (authentication via cookies)
  */
-export function getLibraryFileUrl(libraryItemId: string, fileIno: string): string {
-  return `/internal-api/items/${libraryItemId}/file/${fileIno}`
+export function getLibraryFileUrl(libraryItemId: string, fileIno: string, timestamp?: number): string {
+  const params = new URLSearchParams()
+  if (timestamp) {
+    params.set('ts', String(timestamp))
+  }
+  return `/internal-api/items/${libraryItemId}/file/${fileIno}?${params.toString()}`
 }
 
 /**

@@ -14,8 +14,8 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useCoverSearch } from '@/hooks/useCoverSearch'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { uploadCoverFile } from '@/lib/coverUpload'
+import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import { BookLibraryItem, LibraryFile, PodcastLibraryItem } from '@/types/api'
 import React, { useEffect, useMemo, useState, useTransition } from 'react'
@@ -82,10 +82,10 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
       .map(
         (file): LocalCover => ({
           ...file,
-          localPath: getLibraryFileUrl(libraryItem.id, file.ino)
+          localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
         })
       )
-  }, [libraryItem.libraryFiles, libraryItem.id])
+  }, [libraryItem.libraryFiles, libraryItem.id, libraryItem.updatedAt])
 
   const userCanUpload = user.permissions?.upload || false
 
