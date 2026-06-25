@@ -1,7 +1,6 @@
 import { SupportedFileTypes } from '@/lib/fileUtils'
 import type { Library } from '@/types/api'
 import path from 'path'
-import { ItemToUpload } from './UploadClient'
 
 export interface FileWithMetadata extends File {
   filetype?: string | false
@@ -25,12 +24,6 @@ export interface ProcessedItems {
   items: CleanedItem[]
   ignoredFiles: FileWithMetadata[]
   error?: string
-}
-
-export interface UploadProgressInfo {
-  percent: number
-  loaded: number
-  total: number
 }
 
 /**
@@ -175,125 +168,4 @@ export function getItemsFromFilelist(filelist: FileList, mediaType: Library['med
   }
 
   return { items, ignoredFiles }
-}
-
-/**
- *
- * Note that this cannot be in a 'server' function module because it uses FormData, and next
- * does not seem to handle FormData in server actions very well.
- * @param item
- * @param libraryId
- * @param folderId
- * @param mediaType
- * @param onProgress
- * @returns
- */
-export async function upload(
-  item: ItemToUpload,
-  libraryId: string,
-  folderId: string,
-  mediaType: Library['mediaType'],
-  cookie: string,
-  onProgress?: (progress: UploadProgressInfo) => void
-): Promise<void> {
-  const form = new FormData()
-  form.set('title', item.title)
-  if (mediaType !== 'podcast') {
-    form.set('author', item.author || '')
-    form.set('series', item.series || '')
-  }
-  form.set('library', libraryId)
-  form.set('folder', folderId)
-
-  let index = 0
-  item.itemFiles.forEach((file) => {
-    form.set(`${index++}`, file)
-  })
-
-  // Use XMLHttpRequest for upload progress tracking
-  await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/upload', true)
-    xhr.setRequestHeader('Authorization', `Bearer ${cookie}`)
-
-    // Track upload progress
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && onProgress) {
-        onProgress({
-          percent: Math.round((event.loaded / event.total) * 100),
-          loaded: event.loaded,
-          total: event.total
-        })
-      }
-    }
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        if (onProgress) {
-          const totalSize = item.itemFiles.reduce((sum, file) => sum + file.size, 0)
-          onProgress({
-            percent: 100,
-            loaded: totalSize,
-            total: totalSize
-          })
-        }
-        resolve()
-      } else {
-        reject(new Error(`Upload failed with status ${xhr.status}`))
-      }
-    }
-
-    xhr.onerror = () => {
-      reject(new Error('Upload failed due to network error'))
-    }
-
-    xhr.send(form)
-  })
-}
-
-/**
- * Stream a backup archive to server /api/backups/upload
- * Uses the same strategy as file upload to support large files
- */
-export async function uploadBackupArchive(file: File, accessToken: string, onProgress?: (progress: UploadProgressInfo) => void): Promise<void> {
-  const form = new FormData()
-  form.set('file', file)
-
-  await new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/api/backups/upload', true)
-    xhr.setRequestHeader('Authorization', `Bearer ${accessToken}`)
-
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable && onProgress) {
-        onProgress({
-          percent: Math.round((event.loaded / event.total) * 100),
-          loaded: event.loaded,
-          total: event.total
-        })
-      }
-    }
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        if (onProgress && file.size > 0) {
-          onProgress({
-            percent: 100,
-            loaded: file.size,
-            total: file.size
-          })
-        }
-        resolve()
-      } else {
-        const msg = xhr.responseText?.trim() || `Upload failed with status ${xhr.status}`
-        reject(new Error(msg))
-      }
-    }
-
-    xhr.onerror = () => {
-      reject(new Error('Upload failed due to network error'))
-    }
-
-    xhr.send(form)
-  })
 }

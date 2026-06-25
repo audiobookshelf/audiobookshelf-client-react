@@ -1,7 +1,5 @@
 'use client'
 
-import { getCookie } from '@/app/(main)/upload/actions'
-import { uploadBackupArchive } from '@/app/(main)/upload/UploadHelper'
 import Btn from '@/components/ui/Btn'
 import FileInput from '@/components/ui/FileInput'
 import IconBtn from '@/components/ui/IconBtn'
@@ -15,6 +13,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
+import { uploadBackupArchive } from '@/lib/backupUpload'
 import { formatJsDatetime } from '@/lib/datefns'
 import { downloadBackup } from '@/lib/download'
 import { bytesPretty } from '@/lib/string'
@@ -127,13 +126,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings, ap
 
       setIsUploadingBackup(true)
       try {
-        const accessToken = await getCookie()
-        if (!accessToken) {
-          showToast(t('ToastBackupUploadFailed'), { type: 'error' })
-          return
-        }
-
-        await uploadBackupArchive(file, accessToken)
+        await uploadBackupArchive(file)
 
         showToast(t('ToastBackupUploadSuccess'), { type: 'success' })
         router.refresh()
