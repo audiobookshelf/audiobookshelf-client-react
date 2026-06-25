@@ -1,7 +1,8 @@
 import { getCurrentUser, getData } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { ServerSettings } from '@/types/api'
-import { updateServerSettings, updateSortingPrefixes } from './actions'
+import { purgeCache, purgeItemsCache, updateServerSettings, updateSortingPrefixes } from './actions'
+import SettingsCachePurge from './SettingsCachePurge'
 import SettingsClient from './SettingsClient'
 import SettingsContent from './SettingsContent'
 import SettingsFooter from './SettingsFooter'
@@ -28,6 +29,7 @@ export default async function SettingsPage() {
           updateSortingPrefixes={updateSortingPrefixes}
         />
       </SettingsContent>
+      <SettingsCachePurge purgeCache={purgeCache} purgeItemsCache={purgeItemsCache} />
       <SettingsFooter />
     </>
   )

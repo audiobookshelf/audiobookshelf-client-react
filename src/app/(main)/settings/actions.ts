@@ -44,3 +44,19 @@ export async function updateSortingPrefixes(sortingPrefixes: string[]): Promise<
 
   return response
 }
+
+export async function purgeCache(): Promise<void> {
+  'use server'
+
+  await apiRequest<void>('/api/cache/purge', {
+    method: 'POST'
+  })
+}
+
+export async function purgeItemsCache(): Promise<void> {
+  'use server'
+
+  await apiRequest<void>('/api/cache/items/purge', {
+    method: 'POST'
+  })
+}
