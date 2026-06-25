@@ -3,7 +3,6 @@
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { isAuthenticatedImageUrl, silentRefreshSession, withImageRetryParam } from '@/lib/silentRefreshSession'
 import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -38,14 +37,10 @@ export default function PreviewCover({
 
   const coverRef = useRef<HTMLImageElement>(null)
   const coverBgRef = useRef<HTMLDivElement>(null)
-  const authRetryAttemptedRef = useRef(false)
 
-  const resetImageState = useCallback((nextDisplaySrc: string, options?: { imageFailed?: boolean; resetAuthRetry?: boolean }) => {
-    if (options?.resetAuthRetry) {
-      authRetryAttemptedRef.current = false
-    }
+  const resetImageState = useCallback((nextDisplaySrc: string, failed = false) => {
     setDisplaySrc(nextDisplaySrc)
-    setImageFailed(options?.imageFailed ?? false)
+    setImageFailed(failed)
     setShowCoverBg(false)
     setNaturalHeight(0)
     setNaturalWidth(0)
@@ -100,16 +95,7 @@ export default function PreviewCover({
   }, [showCoverBg, displaySrc])
 
   const imageError = useCallback(
-    async (err: React.SyntheticEvent<HTMLImageElement, Event>) => {
-      if (!authRetryAttemptedRef.current && isAuthenticatedImageUrl(src)) {
-        authRetryAttemptedRef.current = true
-        const refreshed = await silentRefreshSession()
-        if (refreshed) {
-          resetImageState(withImageRetryParam(src))
-          return
-        }
-      }
-
+    (err: React.SyntheticEvent<HTMLImageElement, Event>) => {
       // Log with more context - this is a handled error so we use warn instead of error
       console.warn('PreviewCover: Failed to load image', {
         src: displaySrc,
@@ -119,12 +105,12 @@ export default function PreviewCover({
       })
       setImageFailed(true)
     },
-    [src, displaySrc, resetImageState]
+    [displaySrc]
   )
 
   // Reset image state when src changes so a new cover is not stuck on the previous image
   useEffect(() => {
-    resetImageState(src, { imageFailed: forceErrorState || false, resetAuthRetry: true })
+    resetImageState(src, forceErrorState || false)
   }, [src, forceErrorState, resetImageState])
 
   // No effect needed for background image; it is bound directly in JSX now
