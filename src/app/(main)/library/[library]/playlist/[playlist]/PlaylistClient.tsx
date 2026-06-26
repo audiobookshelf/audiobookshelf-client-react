@@ -67,7 +67,7 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
     [handleMoreAction]
   )
 
-  const playableItems = useMemo(() => getPlayablePlaylistItems(playlist.items ?? []), [playlist.items])
+  const playableItems = useMemo(() => getPlayablePlaylistItems(orderedItems), [orderedItems])
   const showPlayButton = playableItems.length > 0
 
   const streaming = useMemo(() => {
@@ -75,7 +75,7 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
   }, [isPlaying, playableItems])
 
   const handlePlayAll = useCallback(() => {
-    const queueItems = buildPlaylistQueueItems(playlist.items ?? [], user.mediaProgress)
+    const queueItems = buildPlaylistQueueItems(orderedItems, user.mediaProgress)
     if (queueItems.length === 0) return
 
     // Queue is in playlist order with finished items removed (unless all are finished).
@@ -92,7 +92,7 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
       startTime: getQueueItemPlaybackStartTime(startItem, user.mediaProgress),
       queueItems
     })
-  }, [playItem, playableItems, playlist.items, user.mediaProgress])
+  }, [playItem, playableItems, orderedItems, user.mediaProgress])
 
   const showHeaderActions = userCanUpdate || moreMenuItems.length > 0
 
@@ -110,7 +110,7 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
   return (
     <div>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 md:flex-row md:items-start">
-        <PlaylistGroupCover items={playlist.items ?? []} width={coverWidth * 2} height={coverHeight * 2} />
+        <PlaylistGroupCover items={orderedItems} width={coverWidth * 2} height={coverHeight * 2} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex w-full min-w-0 flex-col gap-2 md:flex-row md:items-center md:gap-4">
             <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold break-words md:flex-1 md:truncate">{playlist.name}</h1>

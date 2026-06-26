@@ -1,7 +1,7 @@
 'use client'
 
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
-import { useLibrary } from '@/contexts/LibraryContext'
+import { LibrarySettingKey, useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { EntityType } from '@/types/api'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -55,7 +55,7 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
         if (isSeries) key = 'seriesSortDesc'
         else if (isAuthors) key = 'authorSortDesc'
 
-        updateSetting(key as any, !currentSortDesc)
+        updateSetting(key as LibrarySettingKey, !currentSortDesc)
       } else {
         // New sort
         let key = 'orderBy'
@@ -68,9 +68,9 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
           descKey = 'authorSortDesc'
         }
 
-        updateSetting(key as any, val)
+        updateSetting(key as LibrarySettingKey, val)
         if (defaultsToAsc(val)) {
-          updateSetting(descKey as any, false)
+          updateSetting(descKey as LibrarySettingKey, false)
         }
       }
     },

@@ -1,8 +1,10 @@
 'use client'
 
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatDuration } from '@/lib/formatDuration'
+import { applyLibraryItemUpdateToPlaylistItems } from '@/lib/libraryItemUpdatedUtils'
 import { getPlaylistItemDuration, matchesPlaylistItem } from '@/lib/playlistItems'
 import type { Playlist, PlaylistItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -29,6 +31,13 @@ export function usePlaylistItems(playlist: Playlist) {
     setOrderedItems(playlist.items ?? [])
     // eslint-disable-next-line react-hooks/exhaustive-deps -- serverItemKeys reflects playlist.items order and membership
   }, [playlist.id, serverItemKeys])
+
+  useLibraryItemUpdated(
+    playlist.libraryId,
+    useCallback((updatedItem) => {
+      setOrderedItems((prev) => applyLibraryItemUpdateToPlaylistItems(prev, updatedItem))
+    }, [])
+  )
 
   const totalEntities = orderedItems.length
 

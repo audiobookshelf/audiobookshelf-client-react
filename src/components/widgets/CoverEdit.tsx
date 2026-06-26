@@ -1,6 +1,6 @@
 'use client'
 
-import { removeCoverAction, setCoverFromLocalFileAction, updateCoverFromUrlAction, uploadCoverAction } from '@/app/actions/coverActions'
+import { removeCoverAction, setCoverFromLocalFileAction, updateCoverFromUrlAction } from '@/app/actions/coverActions'
 import PreviewCover from '@/components/covers/PreviewCover'
 import CoverPreviewModal from '@/components/modals/CoverPreviewModal'
 import Btn from '@/components/ui/Btn'
@@ -14,6 +14,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useCoverSearch } from '@/hooks/useCoverSearch'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { uploadCoverFile } from '@/lib/coverUpload'
 import { getLibraryFileUrl, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import { BookLibraryItem, LibraryFile, PodcastLibraryItem } from '@/types/api'
@@ -81,10 +82,10 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
       .map(
         (file): LocalCover => ({
           ...file,
-          localPath: getLibraryFileUrl(libraryItem.id, file.ino)
+          localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
         })
       )
-  }, [libraryItem.libraryFiles, libraryItem.id])
+  }, [libraryItem.libraryFiles, libraryItem.id, libraryItem.updatedAt])
 
   const userCanUpload = user.permissions?.upload || false
 
@@ -118,7 +119,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         setProvider(currentProvider)
       }
     }
-  }, [libraryItem, isPodcast, resetSearch])
+  }, [libraryItem.id, libraryItem.media?.metadata, isPodcast, resetSearch])
 
   // Handlers
   const resetCoverPreview = () => {
@@ -133,12 +134,8 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
 
     startUploadTransition(async () => {
       try {
-        // Convert File to Base64 for server action
-        const arrayBuffer = await fileToUpload.arrayBuffer()
-        const bytes = new Uint8Array(arrayBuffer)
-        const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join('')
-        const base64 = btoa(binary)
-        await uploadCoverAction(libraryItem.id, base64, fileToUpload.name)
+        await uploadCoverFile(libraryItem.id, fileToUpload)
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Upload error:', error)
         showToast(error instanceof Error ? error.message : t('ToastUnknownError'), { type: 'error' })
@@ -160,6 +157,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     startUpdateTransition(async () => {
       try {
         await removeCoverAction(libraryItem.id)
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Error removing cover:', error)
         showToast(error instanceof Error ? error.message : 'Failed to remove cover', { type: 'error' })
@@ -172,6 +170,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
       try {
         await updateCoverFromUrlAction(libraryItem.id, cover)
         setImageUrl('')
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Error updating cover:', error)
         showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
@@ -211,6 +210,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     startUpdateTransition(async () => {
       try {
         await setCoverFromLocalFileAction(libraryItem.id, coverFile.metadata.path)
+        showToast(t('ToastItemCoverUpdateSuccess'), { type: 'success' })
       } catch (error) {
         console.error('Error setting cover:', error)
         showToast(error instanceof Error ? error.message : t('ToastCoverUpdateFailed'), { type: 'error' })
@@ -234,10 +234,12 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     handleUpdateCover(selectedCoverForPreview)
   }
 
+  const showAuthorField = provider !== 'itunes' && provider !== 'audiobookcovers'
+
   return (
-    <div className="relative h-full w-full overflow-hidden overflow-y-auto px-2 py-6 sm:px-4">
-      <div className="mb-4 flex flex-col sm:flex-row">
-        <div className="relative self-center md:self-start">
+    <div className="relative w-full space-y-6 px-2 py-6 md:px-4">
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[auto_1fr] md:gap-6">
+        <div className="relative justify-self-center md:justify-self-start">
           <PreviewCover src={coverUrl} width={120} />
 
           {/* book cover overlay */}
@@ -261,42 +263,45 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
           )}
         </div>
 
-        <div className="mt-6 grow sm:ps-2 sm:pe-2 md:mt-0 md:ps-6">
-          <div className="flex items-center">
+        <div className="flex min-w-0 flex-col gap-4">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             {userCanUpload && (
-              <div className="w-10 pe-2 md:w-40 md:min-w-32">
-                <FileInput onChange={fileUploadSelected}>
-                  <span className="hidden md:inline-block">{t('ButtonUploadCover')}</span>
-                  <span className="material-symbols inline-block text-2xl md:!hidden">upload</span>
-                </FileInput>
-              </div>
+              <FileInput size="small" onChange={fileUploadSelected} className="shrink-0">
+                {t('ButtonUploadCover')}
+              </FileInput>
             )}
 
-            <form onSubmit={submitForm} className="flex grow">
-              <TextInput value={imageUrl} onChange={setImageUrl} placeholder={t('LabelImageURLFromTheWeb')} className="h-9 w-full" disabled={isPendingUpdate} />
-              <Btn color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="ms-2 h-9 w-24 px-4 sm:ms-3">
+            <form onSubmit={submitForm} className="flex min-w-0 flex-1 items-center gap-2">
+              <TextInput
+                size="small"
+                value={imageUrl}
+                onChange={setImageUrl}
+                placeholder={t('LabelImageURLFromTheWeb')}
+                className="min-w-0 flex-1"
+                disabled={isPendingUpdate}
+              />
+              <Btn size="small" color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="w-24 shrink-0">
                 {t('ButtonSubmit')}
               </Btn>
             </form>
           </div>
 
           {localCovers.length > 0 && (
-            <div className="mt-6 mb-4 border-t border-b border-white/10">
-              <div className="flex items-center justify-center py-2">
+            <div className="border-t border-b border-white/10">
+              <div className="flex items-center justify-between py-2 ps-2">
                 <p>{localCoverImageCount}</p>
-                <div className="grow" />
                 <Btn size="small" onClick={() => setShowLocalCovers(!showLocalCovers)}>
                   {showLocalCovers ? t('ButtonHide') : t('ButtonShow')}
                 </Btn>
               </div>
 
               {showLocalCovers && (
-                <div className="flex flex-wrap items-center justify-center pb-2">
+                <div className="flex flex-wrap items-center justify-center gap-1 px-2 pb-2 md:px-1">
                   {localCovers.map((localCoverFile) => (
                     <div
                       key={localCoverFile.ino}
                       className={mergeClasses(
-                        'm-0.5 mb-5 border-2',
+                        'border-2',
                         isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-yellow-300',
                         localCoverFile.metadata.path === coverPath ? 'border-yellow-300' : 'border-transparent'
                       )}
@@ -314,46 +319,57 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         </div>
       </div>
 
-      <form onSubmit={submitSearchForm}>
-        <div className="-mx-1 flex flex-wrap items-center justify-start sm:flex-nowrap">
-          <div className="w-48 grow p-1">
-            <Dropdown
-              value={provider}
-              items={providers}
-              disabled={searchInProgress}
-              label={t('LabelProvider')}
-              size="small"
-              onChange={(val) => setProvider(String(val))}
-            />
-          </div>
-          <div className="w-72 grow p-1">
-            <TextInput
-              value={searchTitle}
-              onChange={setSearchTitle}
-              disabled={searchInProgress}
-              label={searchTitleLabel}
-              placeholder={t('PlaceholderSearch')}
-            />
-          </div>
-          {provider !== 'itunes' && provider !== 'audiobookcovers' && (
-            <div className="w-72 grow p-1">
-              <TextInput value={searchAuthor} onChange={setSearchAuthor} disabled={searchInProgress} label={t('LabelAuthor')} />
-            </div>
-          )}
-          {!searchInProgress ? (
-            <Btn className="ms-1 mt-5 px-4 md:min-w-24" type="submit">
-              {t('ButtonSearch')}
-            </Btn>
-          ) : (
-            <Btn className="ms-1 mt-5 px-4 md:min-w-24" type="button" color="bg-error" onClick={cancelSearch}>
-              {t('ButtonCancel')}
-            </Btn>
-          )}
-        </div>
+      <form onSubmit={submitSearchForm} className="flex flex-wrap items-end gap-2">
+        <Dropdown
+          value={provider}
+          items={providers}
+          disabled={searchInProgress}
+          label={t('LabelProvider')}
+          size="small"
+          className="w-full min-w-40 shrink-0 md:w-48"
+          onChange={(val) => setProvider(String(val))}
+        />
+        <TextInput
+          size="small"
+          value={searchTitle}
+          onChange={setSearchTitle}
+          disabled={searchInProgress}
+          label={searchTitleLabel}
+          placeholder={t('PlaceholderSearch')}
+          className="min-w-0 grow basis-48"
+        />
+        {showAuthorField && (
+          <TextInput
+            size="small"
+            value={searchAuthor}
+            onChange={setSearchAuthor}
+            disabled={searchInProgress}
+            label={t('LabelAuthor')}
+            className="min-w-0 grow basis-48"
+          />
+        )}
+        {searchInProgress ? (
+          <Btn
+            size="small"
+            type="button"
+            color="bg-error"
+            onClick={(e) => {
+              e.preventDefault()
+              cancelSearch()
+            }}
+            className="w-24 shrink-0"
+          >
+            {t('ButtonCancel')}
+          </Btn>
+        ) : (
+          <Btn size="small" type="submit" className="w-24 shrink-0">
+            {t('ButtonSearch')}
+          </Btn>
+        )}
       </form>
 
       {hasSearched && (
-        <div className="mt-2 flex max-w-full flex-wrap items-center justify-center sm:max-h-80 sm:overflow-y-scroll">
+        <div className="flex max-w-full flex-wrap justify-center gap-1 md:max-h-80 md:overflow-y-auto">
           {searchInProgress && !coversFound.length ? (
             <p className="text-foreground-muted py-4">{t('MessageLoading')}</p>
           ) : !searchInProgress && !coversFound.length ? (
@@ -363,7 +379,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
               <div
                 key={cover}
                 className={mergeClasses(
-                  'm-0.5 mb-5 border-2',
+                  'border-2',
                   isPendingUpdate ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:border-yellow-300',
                   cover === coverPath ? 'border-yellow-300' : 'border-transparent'
                 )}
@@ -376,27 +392,17 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         </div>
       )}
 
-      {previewUpload && (
-        <div className="bg-bg absolute top-0 left-0 z-10 h-full w-full p-8">
-          <p className="text-lg">{t('HeaderPreviewCover')}</p>
-          <span className="material-symbols absolute top-4 right-4 cursor-pointer text-2xl" onClick={resetCoverPreview}>
-            close
-          </span>
-          <div className="flex justify-center py-4">
-            <PreviewCover src={previewUpload} width={240} />
-          </div>
-          <div className="absolute right-0 bottom-0 flex px-5 py-4">
-            <Btn disabled={isPendingUpload} className="mx-2" onClick={resetCoverPreview}>
-              {t('ButtonReset')}
-            </Btn>
-            <Btn loading={isPendingUpload} color="bg-success" onClick={submitCoverUpload}>
-              {t('ButtonUpload')}
-            </Btn>
-          </div>
-        </div>
-      )}
+      <CoverPreviewModal
+        isOpen={!!previewUpload}
+        selectedCover={previewUpload}
+        onClose={resetCoverPreview}
+        onApply={submitCoverUpload}
+        cancelLabel={t('ButtonReset')}
+        applyLabel={t('ButtonUpload')}
+        applyLoading={isPendingUpload}
+        cancelDisabled={isPendingUpload}
+      />
 
-      {/* Cover Preview Modal */}
       <CoverPreviewModal
         isOpen={!!selectedCoverForPreview}
         selectedCover={selectedCoverForPreview}

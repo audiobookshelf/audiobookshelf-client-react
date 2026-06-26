@@ -4,7 +4,6 @@ import { ENTITY_CONFIGS } from '@/app/(main)/library/[library]/[entityType]/enti
 import SortableBookshelf from '@/components/widgets/SortableBookshelf'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
-import { useUser } from '@/contexts/UserContext'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { BookshelfView, MediaProgress } from '@/types/api'
 import type { SortableBookshelfEntry } from '@/types/compilation'
@@ -36,7 +35,6 @@ export default function CompilationBookshelf({
   renderCard,
   mediaItemProgressMap
 }: CompilationBookshelfProps) {
-  const { user } = useUser()
   const { library, orderBy, showSubtitles, seriesSortBy } = useLibrary()
   const isDetailBookshelfView = bookshelfView === BookshelfView.DETAIL
   const { sizeMultiplier } = useCardSize()

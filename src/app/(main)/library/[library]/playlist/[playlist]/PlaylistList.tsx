@@ -33,7 +33,12 @@ export default function PlaylistList({ playlist, orderedItems, setOrderedItems, 
   const handleSortEnd = useCallback(
     (sortedItems: SortablePlaylistItem[]) => {
       const prev = orderedItems
-      const next = sortedItems.map(({ id: _id, ...item }) => item)
+      const next = sortedItems.map((item) => ({
+        libraryItemId: item.libraryItemId,
+        libraryItem: item.libraryItem,
+        episodeId: item.episodeId,
+        episode: item.episode
+      }))
       setOrderedItems(next)
       startTransition(async () => {
         try {

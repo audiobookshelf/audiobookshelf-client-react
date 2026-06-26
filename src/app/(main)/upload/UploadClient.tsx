@@ -20,11 +20,13 @@ import Alert from '@/components/widgets/Alert'
 import DragDrop from '@/components/widgets/DragDrop'
 import FilePicker from '@/components/widgets/FilePicker'
 import { sanitizeFileName, SupportedFileTypes } from '@/lib/fileUtils'
+import { uploadLibraryItem } from '@/lib/libraryItemUpload'
 import { bytesPretty } from '@/lib/string'
 import { Library } from '@/types/api'
+import type { UploadProgressInfo } from '@/types/upload'
 import path from 'path'
-import { CleanedItem, FileWithMetadata, getItemsFromFilelist, upload, UploadProgressInfo } from './UploadHelper'
-import { fetchBookMetadata, fetchPodcastMetadata, getCookie } from './actions'
+import { CleanedItem, FileWithMetadata, getItemsFromFilelist } from './UploadHelper'
+import { fetchBookMetadata, fetchPodcastMetadata } from './actions'
 
 export interface ItemToUpload extends CleanedItem {
   metadataError?: string
@@ -247,7 +249,6 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
   const handleStartUpload = async () => {
     setUploadProcessing(true)
     setUploadFinished(false)
-    const cookie = await getCookie()
     for (const item of uploadItems) {
       item.isUploading = true
       item.uploadProgress = 0
@@ -255,7 +256,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       item.uploadBytesTotal = item.itemFiles.reduce((sum, file) => sum + file.size, 0)
 
       try {
-        await upload(item, selectedLibrary!, selectedFolder!, currentLibraryMediaType!, cookie, (progress: UploadProgressInfo) => {
+        await uploadLibraryItem(item, selectedLibrary!, selectedFolder!, currentLibraryMediaType!, (progress: UploadProgressInfo) => {
           item.uploadProgress = progress.percent
           item.uploadBytesLoaded = progress.loaded
           item.uploadBytesTotal = progress.total

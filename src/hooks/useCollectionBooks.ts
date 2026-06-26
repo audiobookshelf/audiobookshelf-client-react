@@ -1,8 +1,10 @@
 'use client'
 
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatDuration } from '@/lib/formatDuration'
+import { applyLibraryItemUpdateToList } from '@/lib/libraryItemUpdatedUtils'
 import type { Collection, LibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -28,6 +30,13 @@ export function useCollectionBooks(collection: Collection) {
     setOrderedBooks(collection.books ?? [])
     // eslint-disable-next-line react-hooks/exhaustive-deps -- serverBookIds reflects collection.books order and membership
   }, [collection.id, serverBookIds])
+
+  useLibraryItemUpdated(
+    collection.libraryId,
+    useCallback((updatedItem) => {
+      setOrderedBooks((prev) => applyLibraryItemUpdateToList(prev, updatedItem))
+    }, [])
+  )
 
   const totalEntities = orderedBooks.length
 

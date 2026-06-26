@@ -22,9 +22,22 @@ interface CoverPreviewModalProps {
   selectedCover: string | null
   onClose: () => void
   onApply: () => void
+  cancelLabel?: string
+  applyLabel?: string
+  applyLoading?: boolean
+  cancelDisabled?: boolean
 }
 
-export default function CoverPreviewModal({ isOpen, selectedCover, onClose, onApply }: CoverPreviewModalProps) {
+export default function CoverPreviewModal({
+  isOpen,
+  selectedCover,
+  onClose,
+  onApply,
+  cancelLabel,
+  applyLabel,
+  applyLoading = false,
+  cancelDisabled = false
+}: CoverPreviewModalProps) {
   const bookCoverAspectRatio = useBookCoverAspectRatio()
   const t = useTypeSafeTranslations()
 
@@ -112,11 +125,11 @@ export default function CoverPreviewModal({ isOpen, selectedCover, onClose, onAp
 
         {/* Buttons */}
         <div className="flex flex-shrink-0 justify-center gap-3 px-6 py-3 sm:gap-4">
-          <Btn onClick={onClose} className="flex-1 sm:min-w-24 sm:flex-none">
-            {t('ButtonCancel')}
+          <Btn onClick={onClose} disabled={cancelDisabled} className="flex-1 sm:min-w-24 sm:flex-none">
+            {cancelLabel ?? t('ButtonCancel')}
           </Btn>
-          <Btn color="bg-success" onClick={onApply} className="flex-1 sm:min-w-24 sm:flex-none">
-            {t('ButtonApply')}
+          <Btn color="bg-success" onClick={onApply} loading={applyLoading} className="flex-1 sm:min-w-24 sm:flex-none">
+            {applyLabel ?? t('ButtonApply')}
           </Btn>
         </div>
       </div>

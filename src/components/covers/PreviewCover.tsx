@@ -30,12 +30,21 @@ export default function PreviewCover({
   const bookCoverAspectRatio = bookCoverAspectRatioProp ?? libraryBookCoverAspectRatio
   const t = useTypeSafeTranslations()
   const [imageFailed, setImageFailed] = useState(forceErrorState || false)
+  const [displaySrc, setDisplaySrc] = useState(src)
   const [showCoverBg, setShowCoverBg] = useState(false)
   const [naturalHeight, setNaturalHeight] = useState(0)
   const [naturalWidth, setNaturalWidth] = useState(0)
 
   const coverRef = useRef<HTMLImageElement>(null)
   const coverBgRef = useRef<HTMLDivElement>(null)
+
+  const resetImageState = useCallback((nextDisplaySrc: string, failed = false) => {
+    setDisplaySrc(nextDisplaySrc)
+    setImageFailed(failed)
+    setShowCoverBg(false)
+    setNaturalHeight(0)
+    setNaturalWidth(0)
+  }, [])
 
   // Calculate final dimensions
   const finalDimensions = useMemo(() => {
@@ -81,28 +90,28 @@ export default function PreviewCover({
   // Set background image when showCoverBg changes to true
   useEffect(() => {
     if (showCoverBg && coverBgRef.current) {
-      coverBgRef.current.style.backgroundImage = `url("${src}")`
+      coverBgRef.current.style.backgroundImage = `url("${displaySrc}")`
     }
-  }, [showCoverBg, src])
+  }, [showCoverBg, displaySrc])
 
   const imageError = useCallback(
     (err: React.SyntheticEvent<HTMLImageElement, Event>) => {
       // Log with more context - this is a handled error so we use warn instead of error
       console.warn('PreviewCover: Failed to load image', {
-        src,
+        src: displaySrc,
         naturalWidth: err.currentTarget.naturalWidth,
         naturalHeight: err.currentTarget.naturalHeight,
         errorType: err.type
       })
       setImageFailed(true)
     },
-    [src]
+    [displaySrc]
   )
 
-  // Reset imageFailed when src changes
+  // Reset image state when src changes so a new cover is not stuck on the previous image
   useEffect(() => {
-    setImageFailed(forceErrorState || false)
-  }, [src, forceErrorState])
+    resetImageState(src, forceErrorState || false)
+  }, [src, forceErrorState, resetImageState])
 
   // No effect needed for background image; it is bound directly in JSX now
 
@@ -147,7 +156,7 @@ export default function PreviewCover({
         )}
         <Image
           ref={coverRef}
-          src={src}
+          src={displaySrc}
           onError={imageError}
           onLoad={imageLoaded}
           alt={t('LabelCoverPreview')}

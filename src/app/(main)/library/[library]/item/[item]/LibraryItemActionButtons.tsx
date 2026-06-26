@@ -22,11 +22,12 @@ import { useCallback, useMemo, useState } from 'react'
 interface LibraryItemActionButtonsProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   onEdit: () => void
+  onOpenCoverEdit?: () => void
   /** Current RSS feed state (from useItemPageSocket + initial server data). */
   rssFeed?: RssFeed | null
 }
 
-export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed = null }: LibraryItemActionButtonsProps) {
+export default function LibraryItemActionButtons({ libraryItem, onEdit, onOpenCoverEdit, rssFeed = null }: LibraryItemActionButtonsProps) {
   const { userCanUpdate, getMediaItemProgress, ereaderDevices } = useUser()
   const {
     playItem,
@@ -103,6 +104,7 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, rssFeed 
       window.location.href = `/library/${libraryItem.libraryId}`
     },
     onOpenMatch: handleOpenMatch,
+    onOpenCoverEdit,
     playerControls: playerHandler.controls
   })
 

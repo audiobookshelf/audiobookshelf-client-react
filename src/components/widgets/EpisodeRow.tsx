@@ -54,8 +54,7 @@ export default function EpisodeRow({
   onRemove,
   onDownloadFile,
   onShowMoreInfo,
-  onAddToPlaylist,
-  rowIndex
+  onAddToPlaylist
 }: EpisodeRowProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()

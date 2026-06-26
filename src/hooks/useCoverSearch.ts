@@ -1,5 +1,5 @@
 import { useSocket, useSocketEmit, useSocketEvent } from '@/contexts/SocketContext'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 
 interface CoverSearchResultData {
   requestId: string
@@ -54,75 +54,69 @@ export function useCoverSearch(onError: (message: string) => void): UseCoverSear
   const [coversFound, setCoversFound] = useState<string[]>([])
   const [searchInProgress, setSearchInProgress] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
-  const [currentSearchRequestId, setCurrentSearchRequestId] = useState<string | null>(null)
+  const currentSearchRequestIdRef = useRef<string | null>(null)
+  const onErrorRef = useRef(onError)
+  onErrorRef.current = onError
 
   // Generate unique request ID
   const generateRequestId = useCallback(() => {
     return `cover-search-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
   }, [])
 
-  // Socket event handlers
-  const handleSearchResult = useCallback(
-    (data: CoverSearchResultData) => {
-      if (data.requestId !== currentSearchRequestId) return
+  const clearActiveSearch = useCallback(() => {
+    currentSearchRequestIdRef.current = null
+    setSearchInProgress(false)
+  }, [])
 
-      // Add new covers to the list (avoiding duplicates)
-      setCoversFound((prev) => {
-        const newCovers = data.covers.filter((cover) => !prev.includes(cover))
-        return [...prev, ...newCovers]
-      })
-    },
-    [currentSearchRequestId]
-  )
+  // Socket event handlers — use ref for request ID so handlers stay stable and
+  // always read the latest value (avoids stale closures during long-running searches).
+  const handleSearchResult = useCallback((data: CoverSearchResultData) => {
+    if (data.requestId !== currentSearchRequestIdRef.current) return
+
+    setCoversFound((prev) => {
+      const newCovers = data.covers.filter((cover) => !prev.includes(cover))
+      return [...prev, ...newCovers]
+    })
+  }, [])
 
   const handleSearchComplete = useCallback(
     (data: CoverSearchCompleteData) => {
-      if (data.requestId !== currentSearchRequestId) return
-
-      setSearchInProgress(false)
-      setCurrentSearchRequestId(null)
+      if (data.requestId !== currentSearchRequestIdRef.current) return
+      clearActiveSearch()
     },
-    [currentSearchRequestId]
+    [clearActiveSearch]
   )
 
   const handleSearchError = useCallback(
     (data: CoverSearchErrorData) => {
-      if (data.requestId !== currentSearchRequestId) return
+      if (data.requestId !== currentSearchRequestIdRef.current) return
 
       console.error('[Cover Search] Search error:', data.error)
-      onError('Cover search failed')
-      setSearchInProgress(false)
-      setCurrentSearchRequestId(null)
+      onErrorRef.current('Cover search failed')
+      clearActiveSearch()
     },
-    [currentSearchRequestId, onError]
+    [clearActiveSearch]
   )
 
-  const handleProviderError = useCallback(
-    (data: CoverSearchProviderErrorData) => {
-      if (data.requestId !== currentSearchRequestId) return
+  const handleProviderError = useCallback((data: CoverSearchProviderErrorData) => {
+    if (data.requestId !== currentSearchRequestIdRef.current) return
 
-      console.warn(`[Cover Search] Provider ${data.provider} failed:`, data.error)
-    },
-    [currentSearchRequestId]
-  )
+    console.warn(`[Cover Search] Provider ${data.provider} failed:`, data.error)
+  }, [])
 
   const handleSearchCancelled = useCallback(
     (data: CoverSearchCancelledData) => {
-      if (data.requestId !== currentSearchRequestId) return
-
-      setSearchInProgress(false)
-      setCurrentSearchRequestId(null)
+      if (data.requestId !== currentSearchRequestIdRef.current) return
+      clearActiveSearch()
     },
-    [currentSearchRequestId]
+    [clearActiveSearch]
   )
 
   const handleSocketDisconnect = useCallback(() => {
-    // If we were in the middle of a search, cancel it (server can't send results anymore)
-    if (searchInProgress && currentSearchRequestId) {
-      setSearchInProgress(false)
-      setCurrentSearchRequestId(null)
+    if (currentSearchRequestIdRef.current) {
+      clearActiveSearch()
     }
-  }, [searchInProgress, currentSearchRequestId])
+  }, [clearActiveSearch])
 
   // Setup socket listeners using useSocketEvent
   useSocketEvent<CoverSearchResultData>('cover_search_result', handleSearchResult)
@@ -132,44 +126,38 @@ export function useCoverSearch(onError: (message: string) => void): UseCoverSear
   useSocketEvent<CoverSearchCancelledData>('cover_search_cancelled', handleSearchCancelled)
   useSocketEvent('disconnect', handleSocketDisconnect)
 
-  // Cancel current search
+  // Cancel current search — always reset UI immediately, then notify server
   const cancelSearch = useCallback(() => {
-    if (!currentSearchRequestId || !isConnected) {
-      console.error('[Cover Search] Socket not connected')
-      onError('Connection not available')
-      return
-    }
+    const requestId = currentSearchRequestIdRef.current
+    clearActiveSearch()
 
-    console.log('cancelSearch: Cancelling search', currentSearchRequestId)
-    emit<string>('cancel_cover_search', currentSearchRequestId)
-    setCurrentSearchRequestId(null)
-    setSearchInProgress(false)
-  }, [currentSearchRequestId, isConnected, emit, onError])
+    if (requestId && isConnected) {
+      emit<string>('cancel_cover_search', requestId)
+    }
+  }, [isConnected, emit, clearActiveSearch])
 
   // Start a new search
   const searchCovers = useCallback(
     (params: SearchCoversParams) => {
       if (!isConnected) {
         console.error('[Cover Search] Socket not connected')
-        onError('Connection not available')
+        onErrorRef.current('Connection not available')
         return
       }
 
-      // Cancel any existing search
-      if (searchInProgress && currentSearchRequestId) {
-        cancelSearch()
+      // Cancel any existing search on the server without clearing the in-progress UI
+      const previousRequestId = currentSearchRequestIdRef.current
+      if (previousRequestId) {
+        emit<string>('cancel_cover_search', previousRequestId)
       }
 
-      // Clear previous results
       setCoversFound([])
       setHasSearched(true)
       setSearchInProgress(true)
 
-      // Generate unique request ID
       const requestId = generateRequestId()
-      setCurrentSearchRequestId(requestId)
+      currentSearchRequestIdRef.current = requestId
 
-      // Emit search request via WebSocket
       emit<SearchCoversRequest>('search_covers', {
         requestId,
         title: params.title,
@@ -178,15 +166,15 @@ export function useCoverSearch(onError: (message: string) => void): UseCoverSear
         podcast: params.podcast
       })
     },
-    [isConnected, searchInProgress, currentSearchRequestId, cancelSearch, generateRequestId, emit, onError]
+    [isConnected, generateRequestId, emit]
   )
 
   // Reset search state
   const resetSearch = useCallback(() => {
     setCoversFound([])
     setHasSearched(false)
+    currentSearchRequestIdRef.current = null
     setSearchInProgress(false)
-    setCurrentSearchRequestId(null)
   }, [])
 
   return {

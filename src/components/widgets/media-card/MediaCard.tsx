@@ -2,6 +2,7 @@
 
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
+import CoverEditModal from '@/components/modals/CoverEditModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
@@ -158,6 +159,13 @@ function MediaCard(props: MediaCardProps) {
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
     setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, closeMoreMenu, episode, libraryItem, shelfEntities, entityIndex, setBoundModal])
+
+  const handleOpenCoverEdit = useCallback(() => {
+    closeMoreMenu()
+    if (episode) return
+    const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
+    setBoundModal(<CoverEditModal key={`cover-edit-modal-${libraryItem.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+  }, [clearBoundModal, closeMoreMenu, episode, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
@@ -320,6 +328,7 @@ function MediaCard(props: MediaCardProps) {
     isQueued,
     initialShare: libraryItem.mediaItemShare ?? null,
     onOpenMatch: handleOpenMatch,
+    onOpenCoverEdit: handleOpenCoverEdit,
     playerControls: playerHandler.controls
   })
 

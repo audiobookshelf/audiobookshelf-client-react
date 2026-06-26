@@ -75,7 +75,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
     [handleMoreAction]
   )
 
-  const playableBooks = useMemo(() => getPlayableCollectionBooks(collection.books ?? []), [collection.books])
+  const playableBooks = useMemo(() => getPlayableCollectionBooks(orderedBooks), [orderedBooks])
   const showPlayButton = playableBooks.length > 0
 
   const streaming = useMemo(() => {
@@ -83,7 +83,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
   }, [isPlaying, playableBooks])
 
   const handlePlayAll = useCallback(() => {
-    const queueItems = buildCollectionQueueItems(collection.books ?? [], user.mediaProgress)
+    const queueItems = buildCollectionQueueItems(orderedBooks, user.mediaProgress)
     if (queueItems.length === 0) return
 
     // Queue is in collection order with finished items removed (unless all are finished).
@@ -97,7 +97,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
       startTime: getQueueItemPlaybackStartTime(startItem, user.mediaProgress),
       queueItems
     })
-  }, [playItem, playableBooks, collection.books, user.mediaProgress])
+  }, [playItem, playableBooks, orderedBooks, user.mediaProgress])
 
   const showHeaderActions = userCanUpdate || moreMenuItems.length > 0
 
@@ -115,7 +115,7 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
   return (
     <div>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 md:flex-row md:items-start">
-        <CollectionGroupCover books={collection.books ?? []} width={coverWidth * 2} height={coverHeight} />
+        <CollectionGroupCover books={orderedBooks} width={coverWidth * 2} height={coverHeight} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex w-full min-w-0 flex-col gap-2 md:flex-row md:items-center md:gap-4">
             <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold break-words md:flex-1 md:truncate">{collection.name}</h1>

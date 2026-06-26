@@ -15,7 +15,8 @@ export function FileInputExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>accept</Code> (file types to accept), <Code>onChange</Code> (callback with selected file),{' '}
-          <Code>children</Code> (ReactNode for button content), <Code>className</Code> (custom CSS classes)
+          <Code>children</Code> (button label on desktop), <Code>className</Code>, <Code>ariaLabel</Code>, <Code>size</Code> (<Code>small</Code> |{' '}
+          <Code>medium</Code>), <Code>icon</Code> (material symbol for mobile icon button)
         </p>
       </ComponentInfo>
 
@@ -44,14 +45,44 @@ export function FileInputExamples() {
           </FileInput>
         </Example>
 
-        <Example title="Custom Styled File Input">
+        <Example title="Image File Input">
           <FileInput
-            accept=".png, .jpg, .jpeg"
+            accept=".png, .jpg, .jpeg, .webp"
             onChange={(file) => showToast(`Selected image: ${file.name}`, { type: 'success', title: 'Image Selected' })}
-            className="rounded-lg border-2 border-dashed border-blue-400 bg-blue-50"
             ariaLabel="Upload Image"
           >
-            Drop Image Here
+            Upload Image
+          </FileInput>
+        </Example>
+
+        <Example title="Small Size">
+          <FileInput
+            size="small"
+            onChange={(file) => showToast(`Selected file: ${file.name}`, { type: 'success', title: 'File Selected' })}
+            ariaLabel="Upload small file input"
+          >
+            Choose File
+          </FileInput>
+        </Example>
+
+        <Example title="Default Icon">
+          <FileInput
+            className="[&>button:nth-of-type(1)]:!hidden [&>button:nth-of-type(2)]:md:!flex"
+            onChange={(file) => showToast(`Selected file: ${file.name}`, { type: 'success', title: 'File Selected' })}
+            ariaLabel="Upload file"
+          >
+            Upload File
+          </FileInput>
+        </Example>
+
+        <Example title="Custom Icon">
+          <FileInput
+            className="[&>button:nth-of-type(1)]:!hidden [&>button:nth-of-type(2)]:md:!flex"
+            icon="attach_file"
+            onChange={(file) => showToast(`Selected file: ${file.name}`, { type: 'success', title: 'File Selected' })}
+            ariaLabel="Attach file"
+          >
+            Attach File
           </FileInput>
         </Example>
       </ExamplesBlock>

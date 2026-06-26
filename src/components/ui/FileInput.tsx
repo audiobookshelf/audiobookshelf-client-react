@@ -11,9 +11,20 @@ interface FileInputProps {
   onChange?: (file: File) => void
   className?: string
   ariaLabel?: string
+  size?: 'small' | 'medium'
+  /** Material symbol name for the mobile icon button. */
+  icon?: string
 }
 
-export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', children, onChange, className = '', ariaLabel }: FileInputProps) {
+export default function FileInput({
+  accept = '.png, .jpg, .jpeg, .webp',
+  children,
+  onChange,
+  className = '',
+  ariaLabel,
+  size = 'medium',
+  icon = 'upload'
+}: FileInputProps) {
   const t = useTypeSafeTranslations()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [selectedFileName, setSelectedFileName] = useState<string>('')
@@ -44,11 +55,11 @@ export default function FileInput({ accept = '.png, .jpg, .jpeg, .webp', childre
   return (
     <div className={className}>
       <input ref={fileInputRef} type="file" accept={accept} className="hidden" onChange={inputChanged} id={inputId} aria-label={label} tabIndex={-1} />
-      <Btn onClick={clickUpload} color="bg-primary" className="hidden w-full md:block" ariaLabel={label}>
+      <Btn onClick={clickUpload} color="bg-primary" size={size} className="hidden w-full md:block" ariaLabel={label}>
         {children}
       </Btn>
-      <IconBtn onClick={clickUpload} className="block md:hidden" ariaLabel={label}>
-        Upload
+      <IconBtn onClick={clickUpload} size={size} className="md:hidden" ariaLabel={label}>
+        {icon}
       </IconBtn>
       {selectedFileName && (
         <div className="sr-only" aria-live="polite" aria-atomic="true">

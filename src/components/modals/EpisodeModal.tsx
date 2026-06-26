@@ -4,9 +4,10 @@ import { getExpandedLibraryItemAction, getPodcastEpisodeAction } from '@/app/act
 import type { ModalProps } from '@/components/modals/Modal'
 import Modal from '@/components/modals/Modal'
 import ModalSideNavigation from '@/components/modals/ModalSideNavigation'
-import { useSocketEvent } from '@/contexts/SocketContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEpisodeNavigationContext } from '@/hooks/useEpisodeNavigationContext'
+import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import type { PodcastEpisode, PodcastLibraryItem } from '@/types/api'
@@ -50,6 +51,7 @@ export default function EpisodeModal(props: EpisodeModalProps) {
 
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+  const { library } = useLibrary()
   const [fetchedEpisode, setFetchedEpisode] = useState<PodcastEpisode | null>(null)
   const [fetchedLibraryItem, setFetchedLibraryItem] = useState<PodcastLibraryItem | null>(null)
   const [isNavPending, startNavTransition] = useTransition()
@@ -119,20 +121,21 @@ export default function EpisodeModal(props: EpisodeModalProps) {
     [navCtxMode, fetchedLibraryItem]
   )
 
-  const handleItemUpdated = useCallback(
-    (libraryItem: PodcastLibraryItem) => {
-      if (!navCtxMode || !resolvedEpisode) return
-      if (libraryItem.id !== resolvedLibraryItem?.id) return
-      const episode = libraryItem.media.episodes?.find((ep) => ep.id === resolvedEpisode.id)
-      if (episode) {
-        setFetchedEpisode(episode)
-        setFetchedLibraryItem(libraryItem)
-      }
-    },
-    [navCtxMode, resolvedEpisode, resolvedLibraryItem?.id]
+  useLibraryItemUpdated(
+    library.id,
+    useCallback(
+      (libraryItem) => {
+        if (!navCtxMode || !isOpen || !resolvedEpisode) return
+        if (libraryItem.id !== resolvedLibraryItem?.id) return
+        const episode = (libraryItem as PodcastLibraryItem).media.episodes?.find((ep) => ep.id === resolvedEpisode.id)
+        if (episode) {
+          setFetchedEpisode(episode)
+          setFetchedLibraryItem(libraryItem as PodcastLibraryItem)
+        }
+      },
+      [navCtxMode, isOpen, resolvedEpisode, resolvedLibraryItem?.id]
+    )
   )
-
-  useSocketEvent<PodcastLibraryItem>('item_updated', handleItemUpdated, [handleItemUpdated])
 
   const blurActiveElement = useCallback(() => {
     const el = document.activeElement

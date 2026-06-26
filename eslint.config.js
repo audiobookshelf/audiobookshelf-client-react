@@ -1,11 +1,26 @@
 const nextConfig = require('eslint-config-next/core-web-vitals')
+const nextTypescript = require('eslint-config-next/typescript')
 const prettierConfig = require('eslint-config-prettier')
 
 module.exports = [
   ...nextConfig,
+  ...nextTypescript,
   prettierConfig,
   {
-    ignores: ['node_modules/', '.next/', 'dist/', 'build/', 'out/', 'coverage/', 'cypress/screenshots/', 'cypress/videos/', '.eslintcache', 'eslint.config.js']
+    ignores: [
+      'node_modules/',
+      '.next/',
+      'dist/',
+      'build/',
+      'out/',
+      'coverage/',
+      'cypress/screenshots/',
+      'cypress/videos/',
+      '.eslintcache',
+      'eslint.config.js',
+      'next-env.d.ts',
+      'public/vendor/'
+    ]
   },
   {
     files: ['**/*.{ts,tsx}'],
