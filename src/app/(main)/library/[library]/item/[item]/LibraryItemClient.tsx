@@ -111,12 +111,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
         <div className="mx-auto w-full max-w-6xl">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
             <div className="mx-auto flex w-full max-w-72 flex-shrink-0 items-start justify-center md:w-52 md:max-w-52 md:justify-start">
-              <LibraryItemCover
-                libraryItem={libraryItem}
-                canUpdate={userCanUpdate}
-                mediaProgress={userProgress}
-                onEdit={() => setIsCoverEditModalOpen(true)}
-              />
+              <LibraryItemCover libraryItem={libraryItem} canUpdate={userCanUpdate} mediaProgress={userProgress} onEdit={() => setIsCoverEditModalOpen(true)} />
             </div>
             <div className="flex-1">
               <div className="flex flex-col gap-1">

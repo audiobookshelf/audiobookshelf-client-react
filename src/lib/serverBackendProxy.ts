@@ -131,10 +131,7 @@ function upstreamFetchWithAuth(accessToken: string, backendUrl: string, init?: R
   return fetch(backendUrl, { ...init, headers })
 }
 
-async function toBackendProxyFetchResult(
-  upstream: Response,
-  refreshedTokens: SessionRefreshTokens | null
-): Promise<BackendProxyFetchResult> {
+async function toBackendProxyFetchResult(upstream: Response, refreshedTokens: SessionRefreshTokens | null): Promise<BackendProxyFetchResult> {
   if (upstream.status === 401) {
     return {
       ok: false,
@@ -162,11 +159,7 @@ async function toBackendProxyFetchResult(
  * Buffered bodies and GET requests may retry once on 401. ReadableStream bodies are
  * refreshed proactively and piped with duplex: 'half' (single-use, no retry).
  */
-export async function fetchBackendWithCookieRefresh(
-  backendUrl: string,
-  cookieStore: CookieStore,
-  init?: RequestInit
-): Promise<BackendProxyFetchResult> {
+export async function fetchBackendWithCookieRefresh(backendUrl: string, cookieStore: CookieStore, init?: RequestInit): Promise<BackendProxyFetchResult> {
   const streaming = isReadableStreamBody(init?.body)
   Logger.debug(
     `[fetchBackendWithCookieRefresh] has access: ${cookieStore.get('access_token')?.value != null}, has refresh: ${cookieStore.get('refresh_token')?.value != null}, streaming: ${streaming}`

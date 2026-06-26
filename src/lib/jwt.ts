@@ -53,16 +53,10 @@ export function isTokenExpired(token: string, bufferSeconds: number = 0): boolea
 /** Treat tokens as expired this many seconds before JWT exp (proxy middleware + internal-api). */
 export const SESSION_TOKEN_EXPIRY_BUFFER_SECONDS = 5
 
-export function isSessionTokenValid(
-  token: string | null | undefined,
-  bufferSeconds: number = SESSION_TOKEN_EXPIRY_BUFFER_SECONDS
-): boolean {
+export function isSessionTokenValid(token: string | null | undefined, bufferSeconds: number = SESSION_TOKEN_EXPIRY_BUFFER_SECONDS): boolean {
   return !!token && !isTokenExpired(token, bufferSeconds)
 }
 
-export function shouldRefreshAccessToken(
-  accessToken: string,
-  bufferSeconds: number = SESSION_TOKEN_EXPIRY_BUFFER_SECONDS
-): boolean {
+export function shouldRefreshAccessToken(accessToken: string, bufferSeconds: number = SESSION_TOKEN_EXPIRY_BUFFER_SECONDS): boolean {
   return isTokenExpired(accessToken, bufferSeconds)
 }

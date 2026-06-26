@@ -212,12 +212,7 @@ export default function SleepTimerModal({
                         add
                       </IconBtn>
 
-                      <Btn
-                        size="small"
-                        className="px-2"
-                        ariaLabel={`${t('ButtonJumpForward')}, ${thirtyMinutesLabel}`}
-                        onClick={() => onIncrement(30 * 60)}
-                      >
+                      <Btn size="small" className="px-2" ariaLabel={`${t('ButtonJumpForward')}, ${thirtyMinutesLabel}`} onClick={() => onIncrement(30 * 60)}>
                         <span className="material-symbols text-lg">add</span>
                         <span className="ps-1 text-sm">{thirtyMinutesLabel}</span>
                       </Btn>

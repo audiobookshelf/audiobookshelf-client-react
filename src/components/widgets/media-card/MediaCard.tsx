@@ -164,9 +164,7 @@ function MediaCard(props: MediaCardProps) {
     closeMoreMenu()
     if (episode) return
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
-    setBoundModal(
-      <CoverEditModal key={`cover-edit-modal-${libraryItem.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />
-    )
+    setBoundModal(<CoverEditModal key={`cover-edit-modal-${libraryItem.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, closeMoreMenu, episode, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
