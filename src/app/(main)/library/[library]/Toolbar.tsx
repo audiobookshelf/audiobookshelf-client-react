@@ -48,8 +48,7 @@ export default function Toolbar() {
     onContextMenuAction?.(action)
   }
 
-  const showBookshelfSummary =
-    !isSearchPage && (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
+  const showBookshelfSummary = !isSearchPage && (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
   const showSeriesDetailSummary = !isSearchPage && isSeriesDetailPage && itemCount !== null
   const showSearchSummary = isSearchPage && searchQuery
   const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage && !isSearchPage
