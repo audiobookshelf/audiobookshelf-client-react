@@ -3,15 +3,19 @@
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 // Pages that should show item count and toolbar extras
 const BOOKSHELF_PAGE_PATTERNS = ['/items', '/series', '/collections', '/playlists', '/authors']
 
 export default function Toolbar() {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { library, itemCount, itemCountSupplement, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
   const t = useTypeSafeTranslations()
+
+  const isSearchPage = pathname.endsWith('/search')
+  const searchQuery = searchParams.get('q')?.trim() ?? ''
 
   // Check if we're on any bookshelf-like page (or a single collection, which syncs the same summary fields)
   const isBookshelfPage = BOOKSHELF_PAGE_PATTERNS.some((pattern) => pathname.endsWith(pattern))
@@ -44,14 +48,25 @@ export default function Toolbar() {
     onContextMenuAction?.(action)
   }
 
-  const showBookshelfSummary = (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
-  const showSeriesDetailSummary = isSeriesDetailPage && itemCount !== null
-  const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage
-  const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage)
+  const showBookshelfSummary = !isSearchPage && (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
+  const showSeriesDetailSummary = !isSearchPage && isSeriesDetailPage && itemCount !== null
+  const showSearchSummary = isSearchPage && searchQuery
+  const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage && !isSearchPage
+  const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage) && !isSearchPage
 
   return (
     <div className="bg-bg box-shadow-toolbar relative z-40 h-10 w-full" cy-id="library-toolbar">
       <div className="flex h-full w-full items-center justify-between px-4">
+        {showSearchSummary && (
+          <>
+            <div className="flex-grow" />
+            <p className="text-foreground text-base">
+              {t('MessageSearchResultsFor')} &quot;{searchQuery}&quot;
+            </p>
+            <div className="flex-grow" />
+          </>
+        )}
+
         {showBookshelfSummary && (
           <p className="text-foreground hidden text-base md:block">
             <span>
@@ -70,7 +85,7 @@ export default function Toolbar() {
           </div>
         )}
 
-        <div className="flex-grow" />
+        {!showSearchSummary && <div className="flex-grow" />}
 
         {showToolbarExtras && <div className="mr-2 flex items-center gap-4">{toolbarExtras}</div>}
 
