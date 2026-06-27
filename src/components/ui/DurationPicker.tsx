@@ -48,9 +48,6 @@ export default function DurationPicker({
   const mRef = useRef<HTMLInputElement>(null)
   const sRef = useRef<HTMLInputElement>(null)
 
-  // single flag: user is actively editing some field
-  const [isEditing, setIsEditing] = useState(false)
-
   // local raw text (no padding while typing)
   const init = () => {
     const { h, m, s } = toHMS(value)
@@ -60,21 +57,27 @@ export default function DurationPicker({
 
   // remember what we emitted to avoid immediate echo reset
   const lastSentRef = useRef<number | null>(null)
+  // skip one emit cycle after syncing from parent to avoid re-applying stale local text
+  const syncingFromParentRef = useRef(false)
 
-  // sync from parent only when not editing, and only if different from last sent
+  // sync from parent when value changes externally (e.g. reset)
   useUpdateEffect(() => {
-    if (isEditing) return
     if (value === lastSentRef.current) {
       lastSentRef.current = null
       return
     }
+    syncingFromParentRef.current = true
     const { h, m, s } = toHMS(value)
     setText({ hText: padZeros(clamp(h, 0, hoursMax), hoursW), mText: padZeros(m, 2), sText: padZeros(s, 2) })
-  }, [value, isEditing, hoursMax, hoursW])
+  }, [value, hoursMax, hoursW])
 
   // emit to parent on text changes (clamped numerically)
   useUpdateEffect(() => {
     if (disabled || readOnly) return
+    if (syncingFromParentRef.current) {
+      syncingFromParentRef.current = false
+      return
+    }
     const h = clamp(parseInt(hText || '0', 10) || 0, 0, hoursMax)
     const m = clamp(parseInt(mText || '0', 10) || 0, 0, 59)
     const s = clamp(parseInt(sText || '0', 10) || 0, 0, 59)
@@ -100,7 +103,6 @@ export default function DurationPicker({
 
   // select on focus (works for click + programmatic)
   const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    setIsEditing(true)
     const el = e.currentTarget // capture now; don't read from e in rAF
     requestAnimationFrame(() => {
       if (!el || el !== document.activeElement) return
@@ -116,7 +118,6 @@ export default function DurationPicker({
     if (field === 'h') normalizeHours()
     else if (field === 'm') normalizeMinutes()
     else normalizeSeconds()
-    setIsEditing(false)
   }
 
   const handleWrapperClick = () => {
@@ -236,7 +237,11 @@ export default function DurationPicker({
   }
 
   const sizeText = size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : 'text-base'
-  const sepClass = mergeClasses('select-none px-1', sizeText, disabled ? 'text-disabled' : readOnly ? 'text-read-only' : 'text-foreground-muted')
+  const sepClass = mergeClasses(
+    'select-none leading-none',
+    size === 'small' ? 'px-0.5' : 'px-1',
+    disabled ? 'text-disabled' : readOnly ? 'text-read-only' : 'text-foreground-muted'
+  )
 
   const hoursId = `${id}-h`
   const minutesId = `${id}-m`
@@ -249,117 +254,121 @@ export default function DurationPicker({
     return formatDuration(fromHMS(h, m, s), t, { style: 'long' })
   }, [hText, mText, sText, hoursMax, t])
 
-  const wrapperClass = mergeClasses('flex items-center gap-0 h-full px-1', disabled ? 'cursor-not-allowed' : 'cursor-text')
+  const wrapperClass = mergeClasses(
+    'flex w-full items-center justify-center gap-0 border-0 p-0 m-0 min-w-0 font-mono',
+    disabled ? 'cursor-not-allowed' : 'cursor-text'
+  )
   const inputClass = mergeClasses(
-    sizeText,
-    'bg-transparent outline-none text-center caret-current tabular-nums box-content',
+    'bg-transparent outline-none text-center caret-current tabular-nums leading-none',
     'disabled:cursor-not-allowed disabled:text-disabled read-only:cursor-default read-only:text-read-only',
-    'px-0 py-1 rounded-sm'
+    'rounded-sm border-0 p-0'
   )
   const hoursClass = mergeClasses(inputClass, showThreeDigitHour ? 'w-[3ch]' : 'w-[2ch]')
   const minutesClass = mergeClasses(inputClass, 'w-[2ch]')
   const secondsClass = mergeClasses(inputClass, 'w-[2ch]')
 
   return (
-    <InputWrapper disabled={disabled} readOnly={readOnly} borderless={borderless} size={size} className={className}>
-      <fieldset cy-id="duration-picker-wrapper" className={wrapperClass} onClick={handleWrapperClick}>
-        <legend className="sr-only">{t('LabelDuration')}</legend>
-        {/* HOURS */}
-        <div className="min-w-0 flex-shrink">
-          <label htmlFor={hoursId} className="sr-only">
-            {t('LabelHours')}
-          </label>
-          <input
-            id={hoursId}
-            ref={hRef}
-            type="text"
-            inputMode="numeric"
-            pattern="\d*"
-            enterKeyHint="next"
-            maxLength={hoursW}
-            disabled={disabled}
-            readOnly={readOnly}
-            className={hoursClass}
-            value={hText}
-            onFocus={handleFocus}
-            onBlur={() => handleBlur('h')}
-            onChange={(e) => handleHoursChange(e.target.value)}
-            onKeyDown={handleHoursKeyDown}
-            role="spinbutton"
-            aria-valuemin={0}
-            aria-valuemax={hoursMax}
-            aria-valuenow={parseInt(hText, 10)}
-          />
-        </div>
+    <div className={mergeClasses(size === 'small' && 'w-fit', sizeText, className)}>
+      <InputWrapper disabled={disabled} readOnly={readOnly} borderless={borderless} size={size} className="items-center px-2.5">
+        <fieldset cy-id="duration-picker-wrapper" className={wrapperClass} onClick={handleWrapperClick}>
+          <legend className="sr-only">{t('LabelDuration')}</legend>
+          {/* HOURS */}
+          <div className="flex min-w-0 shrink items-center">
+            <label htmlFor={hoursId} className="sr-only">
+              {t('LabelHours')}
+            </label>
+            <input
+              id={hoursId}
+              ref={hRef}
+              type="text"
+              inputMode="numeric"
+              pattern="\d*"
+              enterKeyHint="next"
+              maxLength={hoursW}
+              disabled={disabled}
+              readOnly={readOnly}
+              className={hoursClass}
+              value={hText}
+              onFocus={handleFocus}
+              onBlur={() => handleBlur('h')}
+              onChange={(e) => handleHoursChange(e.target.value)}
+              onKeyDown={handleHoursKeyDown}
+              role="spinbutton"
+              aria-valuemin={0}
+              aria-valuemax={hoursMax}
+              aria-valuenow={parseInt(hText, 10)}
+            />
+          </div>
 
-        <div aria-hidden="true" className={sepClass} onClick={() => mRef.current?.focus()} onMouseDown={(e) => e.preventDefault()}>
-          :
-        </div>
+          <div aria-hidden="true" className={sepClass} onClick={() => mRef.current?.focus()} onMouseDown={(e) => e.preventDefault()}>
+            :
+          </div>
 
-        {/* MINUTES */}
-        <div className="min-w-0 flex-shrink">
-          <label htmlFor={minutesId} className="sr-only">
-            {t('LabelMinutes')}
-          </label>
-          <input
-            id={minutesId}
-            ref={mRef}
-            type="text"
-            inputMode="numeric"
-            pattern="\d*"
-            enterKeyHint="next"
-            maxLength={2}
-            disabled={disabled}
-            readOnly={readOnly}
-            className={minutesClass}
-            value={mText}
-            onFocus={handleFocus}
-            onBlur={() => handleBlur('m')}
-            onChange={(e) => handleMinutesChange(e.target.value)}
-            onKeyDown={handleMinutesKeyDown}
-            role="spinbutton"
-            aria-valuemin={0}
-            aria-valuemax={59}
-            aria-valuenow={parseInt(mText, 10)}
-          />
-        </div>
+          {/* MINUTES */}
+          <div className="flex min-w-0 shrink items-center">
+            <label htmlFor={minutesId} className="sr-only">
+              {t('LabelMinutes')}
+            </label>
+            <input
+              id={minutesId}
+              ref={mRef}
+              type="text"
+              inputMode="numeric"
+              pattern="\d*"
+              enterKeyHint="next"
+              maxLength={2}
+              disabled={disabled}
+              readOnly={readOnly}
+              className={minutesClass}
+              value={mText}
+              onFocus={handleFocus}
+              onBlur={() => handleBlur('m')}
+              onChange={(e) => handleMinutesChange(e.target.value)}
+              onKeyDown={handleMinutesKeyDown}
+              role="spinbutton"
+              aria-valuemin={0}
+              aria-valuemax={59}
+              aria-valuenow={parseInt(mText, 10)}
+            />
+          </div>
 
-        <div aria-hidden="true" className={sepClass} onClick={() => sRef.current?.focus()} onMouseDown={(e) => e.preventDefault()}>
-          :
-        </div>
+          <div aria-hidden="true" className={sepClass} onClick={() => sRef.current?.focus()} onMouseDown={(e) => e.preventDefault()}>
+            :
+          </div>
 
-        {/* SECONDS */}
-        <div className="min-w-0 flex-shrink">
-          <label htmlFor={secondsId} className="sr-only">
-            {t('LabelSeconds')}
-          </label>
-          <input
-            id={secondsId}
-            ref={sRef}
-            type="text"
-            inputMode="numeric"
-            pattern="\d*"
-            enterKeyHint="done"
-            maxLength={2}
-            disabled={disabled}
-            readOnly={readOnly}
-            className={secondsClass}
-            value={sText}
-            onFocus={handleFocus}
-            onBlur={() => handleBlur('s')}
-            onChange={(e) => handleSecondsChange(e.target.value)}
-            onKeyDown={handleSecondsKeyDown}
-            role="spinbutton"
-            aria-valuemin={0}
-            aria-valuemax={59}
-            aria-valuenow={parseInt(sText, 10)}
-          />
-        </div>
+          {/* SECONDS */}
+          <div className="flex min-w-0 shrink items-center">
+            <label htmlFor={secondsId} className="sr-only">
+              {t('LabelSeconds')}
+            </label>
+            <input
+              id={secondsId}
+              ref={sRef}
+              type="text"
+              inputMode="numeric"
+              pattern="\d*"
+              enterKeyHint="done"
+              maxLength={2}
+              disabled={disabled}
+              readOnly={readOnly}
+              className={secondsClass}
+              value={sText}
+              onFocus={handleFocus}
+              onBlur={() => handleBlur('s')}
+              onChange={(e) => handleSecondsChange(e.target.value)}
+              onKeyDown={handleSecondsKeyDown}
+              role="spinbutton"
+              aria-valuemin={0}
+              aria-valuemax={59}
+              aria-valuenow={parseInt(sText, 10)}
+            />
+          </div>
 
-        <p id={`${id}-live`} aria-live="polite" className="sr-only">
-          {human}
-        </p>
-      </fieldset>
-    </InputWrapper>
+          <p id={`${id}-live`} aria-live="polite" className="sr-only">
+            {human}
+          </p>
+        </fieldset>
+      </InputWrapper>
+    </div>
   )
 }
