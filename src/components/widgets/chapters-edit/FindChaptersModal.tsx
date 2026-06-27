@@ -101,7 +101,17 @@ export default function FindChaptersModal({
   const displayData = chapterData
 
   return (
-    <Modal isOpen={isOpen} processing={isPending} onClose={onClose} style={{ width: 500 }} outerContent={<p className="truncate text-3xl text-white">{t('HeaderFindChapters')}</p>}>
+    <Modal
+      isOpen={isOpen}
+      processing={isPending}
+      onClose={onClose}
+      style={{ width: 500 }}
+      outerContent={
+        <div className="absolute start-0 top-0 p-4">
+          <p className="max-w-[calc(100vw-4rem)] truncate text-xl text-white">{t('HeaderFindChapters')}</p>
+        </div>
+      }
+    >
       <div className="bg-bg border-black-300 relative max-h-full w-full rounded-lg border text-sm shadow-lg">
         {!displayData ? (
           <div className="flex flex-col items-center justify-center p-20">
