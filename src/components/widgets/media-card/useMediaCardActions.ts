@@ -33,6 +33,7 @@ import {
   isPersonalizedSeriesRef
 } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
 
 interface UseMediaCardActionsProps {
@@ -87,6 +88,7 @@ export function useMediaCardActions({
   playerControls
 }: UseMediaCardActionsProps) {
   const sortableCompilation = useSortableCompilation()
+  const router = useRouter()
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const { library } = useLibrary()
@@ -244,6 +246,8 @@ export function useMediaCardActions({
         onOpenMatch?.()
       } else if (action === 'openCoverEdit') {
         onOpenCoverEdit?.()
+      } else if (action === 'editChapters') {
+        router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`)
       } else if (action === 'download') {
         downloadLibraryItem(libraryItem.id)
       } else if (action === 'sendToDevice') {
@@ -406,6 +410,7 @@ export function useMediaCardActions({
       onDeleteSuccess,
       onOpenMatch,
       onOpenCoverEdit,
+      router,
       sortableCompilation,
       userCanUpdate
     ]
@@ -464,6 +469,13 @@ export function useMediaCardActions({
       items.push({
         text: t('ButtonEditCover'),
         func: 'openCoverEdit'
+      })
+    }
+
+    if (userCanUpdate && libraryItem.mediaType === 'book' && isBookMedia(media) && (media.tracks?.length ?? 0) > 0 && !episodeForQueue) {
+      items.push({
+        text: t('ButtonEditChapters'),
+        func: 'editChapters'
       })
     }
 
