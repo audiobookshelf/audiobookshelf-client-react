@@ -44,16 +44,14 @@ function MetadataFilterCard({ name, count, filterKey, icon }: MetadataFilterCard
         style={{ width: `${coverWidth}px`, height: `${coverHeight}px`, fontSize: `${sizeMultiplier}rem` }}
       >
         <div className="pointer-events-none absolute inset-0 flex h-full w-full items-center justify-center">
-          <span className="material-symbols text-[8em] text-white opacity-60">{icon}</span>
+          <span className="material-symbols text-[8em] text-white opacity-40">{icon}</span>
         </div>
 
-        <div className="absolute start-0 bottom-0 z-10 w-full bg-black/60 px-2 py-1">
+        <div className="absolute start-0 bottom-0 z-10 w-full bg-black/75 px-2 py-1">
           <div className="text-[0.75em]">
             <TruncatingTooltipText text={name} position="bottom" className="text-center font-semibold text-white" />
           </div>
-          <p className="text-center text-[0.65em] text-gray-200">
-            {countLabel}
-          </p>
+          <p className="text-center text-[0.65em] text-gray-200">{countLabel}</p>
         </div>
       </div>
     </Link>

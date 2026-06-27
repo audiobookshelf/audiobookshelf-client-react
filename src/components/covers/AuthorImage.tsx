@@ -44,7 +44,7 @@ export default function AuthorImage({ author, className }: AuthorImageProps) {
         <svg
           width="140%"
           height="140%"
-          style={{ marginLeft: '-20%', marginTop: '-20%', opacity: 0.6 }}
+          style={{ marginLeft: '-20%', marginTop: '-20%', opacity: 0.4 }}
           viewBox="0 0 177 266"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
