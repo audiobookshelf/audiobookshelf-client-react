@@ -24,7 +24,7 @@ export default function Checkbox({
   label,
   size = 'medium',
   checkboxBgClass = 'bg-bg',
-  borderColorClass = 'border-border',
+  borderColorClass = 'border-foreground-subdued',
   checkColorClass = 'text-green-500',
   labelClass = '',
   disabled = false,
