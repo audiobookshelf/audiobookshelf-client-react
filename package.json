@@ -28,12 +28,12 @@
     "clsx": "^2.1.1",
     "cronstrue": "^3.3.0",
     "date-fns": "^4.1.0",
-    "foliate-js": "github:johnfactotum/foliate-js#78914ae",
+    "foliate-js": "github:audiobookshelf/foliate-js#abs-1.0.0",
     "hls.js": "^1.6.15",
     "marked": "^18.0.5",
     "next": "^16.2.6",
-    "node-unrar-js": "^2.0.2",
     "next-intl": "^4.12.0",
+    "node-unrar-js": "^2.0.2",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-transition-group": "^4.4.5",
@@ -77,10 +77,5 @@
   "engines": {
     "node": ">=22.15.0",
     "pnpm": ">=10.33.0"
-  },
-  "pnpm": {
-    "patchedDependencies": {
-      "foliate-js@0.0.0": "patches/foliate-js@0.0.0.patch"
-    }
   }
 }

@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  foliate-js@0.0.0:
-    hash: 5a300fe89af3e45ef762a48858df1a44a6fc43cf83653c826e96a9c69d45db12
-    path: patches/foliate-js@0.0.0.patch
-
 importers:
 
   .:
@@ -35,8 +30,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       foliate-js:
-        specifier: github:johnfactotum/foliate-js#78914ae
-        version: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1(patch_hash=5a300fe89af3e45ef762a48858df1a44a6fc43cf83653c826e96a9c69d45db12)
+        specifier: github:audiobookshelf/foliate-js#abs-1.0.0
+        version: https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7
       hls.js:
         specifier: ^1.6.15
         version: 1.6.15
@@ -1818,8 +1813,8 @@ packages:
   flatted@3.4.2:
     resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
-  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1:
-    resolution: {tarball: https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1}
+  foliate-js@https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7:
+    resolution: {tarball: https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7}
     version: 0.0.0
 
   for-each@0.3.5:
@@ -4961,7 +4956,7 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  foliate-js@https://codeload.github.com/johnfactotum/foliate-js/tar.gz/78914aef4466eb960965702401634c2cb348e9b1(patch_hash=5a300fe89af3e45ef762a48858df1a44a6fc43cf83653c826e96a9c69d45db12): {}
+  foliate-js@https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7: {}
 
   for-each@0.3.5:
     dependencies:
