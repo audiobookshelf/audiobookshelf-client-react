@@ -813,6 +813,15 @@ export async function updateMediaFinished(libraryItemId: string, payload: { isFi
 }
 
 /**
+ * Toggle primary/supplementary status for an ebook file
+ */
+export async function updateEbookFileStatus(libraryItemId: string, fileIno: string): Promise<void> {
+  return apiRequest<void>(`/api/items/${libraryItemId}/ebook/${fileIno}/status`, {
+    method: 'PATCH'
+  })
+}
+
+/**
  * Update ebook reading progress for a library item
  */
 export async function updateEbookProgress(libraryItemId: string, payload: { ebookLocation?: string | number; ebookProgress?: number }): Promise<void> {

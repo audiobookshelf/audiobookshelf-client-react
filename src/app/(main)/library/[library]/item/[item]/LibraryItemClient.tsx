@@ -6,6 +6,7 @@ import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import EbookFilesTable from '@/components/widgets/EbookFilesTable'
 import EpisodeTable from '@/components/widgets/EpisodeTable'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
@@ -213,6 +214,9 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     episodeDownloadsQueued={episodeDownloadsQueued}
                   />
                 )}
+
+                {/* ebook files table */}
+                {libraryItem.mediaType === 'book' && <EbookFilesTable libraryItem={libraryItem as BookLibraryItem} />}
 
                 {/* library files table */}
                 {!isPodcast && (libraryItem.libraryFiles?.length ?? 0) > 0 && <LibraryFilesTable libraryItem={libraryItem} />}

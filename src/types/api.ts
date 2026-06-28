@@ -787,7 +787,7 @@ export interface MediaProgress {
   currentTime: number
   isFinished: boolean
   hideFromContinueListening?: boolean
-  ebookLocation?: string
+  ebookLocation?: string | number
   ebookProgress: number
   finishedAt?: number
   lastUpdate: number
