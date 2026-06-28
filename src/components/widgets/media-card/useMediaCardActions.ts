@@ -472,7 +472,8 @@ export function useMediaCardActions({
       })
     }
 
-    if (userCanUpdate && libraryItem.mediaType === 'book' && isBookMedia(media) && (media.tracks?.length ?? 0) > 0 && !episodeForQueue) {
+    const numTracks = isBookMedia(media) ? (media.tracks ? media.tracks.length : media.numTracks || 0) : 0
+    if (userCanUpdate && libraryItem.mediaType === 'book' && isBookMedia(media) && numTracks > 0 && !episodeForQueue) {
       items.push({
         text: t('ButtonEditChapters'),
         func: 'editChapters'
