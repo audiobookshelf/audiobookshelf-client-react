@@ -44,7 +44,7 @@ export type EbookProgressUpdate = {
 }
 
 /** Parse a 1-based page from saved progress */
-export function parseResumePage(location: string | undefined, format: string): number | undefined {
+export function parseResumePage(location: string | number | undefined, format: string): number | undefined {
   if (!location || !usesPageBasedProgress(format)) return undefined
 
   const page = Number(location)
@@ -52,8 +52,9 @@ export function parseResumePage(location: string | undefined, format: string): n
   return Math.floor(page)
 }
 
-export function parseResumeCfi(location: string | undefined, format: string): string | undefined {
-  if (!location || usesPageBasedProgress(format)) return undefined
+export function parseResumeCfi(location: string | number | undefined, format: string): string | undefined {
+  if (location == null || usesPageBasedProgress(format)) return undefined
+  if (typeof location !== 'string') return undefined
   return location.startsWith('epubcfi') ? location : undefined
 }
 
