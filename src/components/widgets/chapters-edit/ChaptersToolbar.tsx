@@ -31,7 +31,7 @@ export default function ChaptersToolbar({
   return (
     <div className="-mx-1 mb-3 flex items-center py-1">
       <div className="hidden w-12 min-[1120px]:block" />
-      {savedChapterCount > 0 && (
+      {savedChapterCount > 0 && chapterCount > 0 && (
         <Btn color="bg-primary" size="small" className="mx-1 whitespace-nowrap" onClick={onRemoveAll}>
           {t('ButtonRemoveAll')}
         </Btn>

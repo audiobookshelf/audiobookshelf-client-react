@@ -146,11 +146,13 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
 
     const payload = computeChapterEnds(validated, mediaDuration)
 
+    const successToast = payload.length === 0 ? t('ToastChaptersRemoved') : t('ToastChaptersUpdated')
+
     startTransition(async () => {
       try {
         const data = await updateChaptersAction(libraryItem.id, payload)
         if (data.updated) {
-          await refreshAfterChapterUpdate(t('ToastChaptersUpdated'))
+          await refreshAfterChapterUpdate(successToast)
         } else {
           showToast(t('MessageNoUpdatesWereNecessary'), { type: 'info' })
         }
@@ -162,20 +164,9 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   }, [libraryItem.id, mediaDuration, newChapters, refreshAfterChapterUpdate, runValidation, showToast, t])
 
   const handleRemoveAll = useCallback(() => {
-    startTransition(async () => {
-      try {
-        const data = await updateChaptersAction(libraryItem.id, [])
-        if (data.updated) {
-          await refreshAfterChapterUpdate(t('ToastChaptersRemoved'))
-        } else {
-          showToast(t('MessageNoUpdatesWereNecessary'), { type: 'info' })
-        }
-      } catch (error) {
-        console.error('Failed to remove chapters', error)
-        showToast(t('ToastRemoveFailed'), { type: 'error' })
-      }
-    })
-  }, [libraryItem.id, refreshAfterChapterUpdate, showToast, t])
+    replaceChapterList([])
+    setLockedChapters(new Set())
+  }, [replaceChapterList])
 
   const handleShiftChapterTimes = useCallback(() => {
     if (!shiftAmount || isNaN(shiftAmount) || newChapters.length <= 1) return
