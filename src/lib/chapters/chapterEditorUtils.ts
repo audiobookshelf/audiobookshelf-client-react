@@ -306,6 +306,48 @@ export function addSingleChapterFromInput(
   ]
 }
 
+export function updateChapterStart(chapters: EditableChapter[], id: number, start: number): EditableChapter[] {
+  return chapters.map((c) => (c.id === id ? { ...c, start } : c))
+}
+
+export function updateChapterTitle(chapters: EditableChapter[], id: number, title: string): EditableChapter[] {
+  return chapters.map((c) => (c.id === id ? { ...c, title } : c))
+}
+
+export function incrementChapterTime(
+  chapters: EditableChapter[],
+  id: number,
+  amount: number,
+  mediaDuration: number
+): EditableChapter[] | null {
+  const chapter = chapters.find((c) => c.id === id)
+  if (!chapter) return null
+  if (chapter.id === 0 && chapter.start + amount < 0) return null
+  if (chapter.start + amount >= mediaDuration) return null
+  return chapters.map((c) => (c.id === id ? { ...c, start: Math.max(0, c.start + amount) } : c))
+}
+
+export function removeChapterAt(chapters: EditableChapter[], id: number): EditableChapter[] {
+  return chapters.filter((c) => c.id !== id)
+}
+
+export function insertChapterBelow(chapters: EditableChapter[], chapter: EditableChapter): EditableChapter[] {
+  const insert: EditableChapter = {
+    id: chapter.id + 1,
+    start: chapter.start,
+    end: chapter.end,
+    title: '',
+    error: null
+  }
+  const updated = [...chapters]
+  updated.splice(chapter.id + 1, 0, insert)
+  return updated
+}
+
+export function adjustChapterStartTime(chapters: EditableChapter[], id: number, elapsedTime: number): EditableChapter[] {
+  return chapters.map((c) => (c.id === id ? { ...c, start: c.start + elapsedTime } : c))
+}
+
 export function getAudioTrackForTime<T extends { startOffset: number; duration: number }>(tracks: T[], time: number): T | null {
   if (typeof time !== 'number') {
     return null
