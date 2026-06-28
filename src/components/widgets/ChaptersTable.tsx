@@ -21,6 +21,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
   const [expanded, setExpanded] = useState(expandedProp)
 
   const chapters = useMemo<Chapter[]>(() => libraryItem.media.chapters || [], [libraryItem.media.chapters])
+  const isEmpty = chapters.length === 0
 
   // Sync expanded state with props (keepOpen takes precedence)
   useEffect(() => {
@@ -81,11 +82,13 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
     [t, handleGoToTimestamp]
   )
 
+  const chaptersPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`
+
   const headerActions = useMemo(
     () =>
       userCanUpdate ? (
         <Btn
-          to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`}
+          to={chaptersPath}
           color="bg-primary"
           size="small"
           className="me-2"
@@ -93,11 +96,15 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
             e.stopPropagation()
           }}
         >
-          {t('ButtonEditChapters')}
+          {isEmpty ? t('ButtonAddChapters') : t('ButtonEditChapters')}
         </Btn>
       ) : null,
-    [userCanUpdate, libraryItem.libraryId, libraryItem.id, t]
+    [userCanUpdate, chaptersPath, isEmpty, t]
   )
+
+  if (isEmpty && !userCanUpdate) {
+    return null
+  }
 
   return (
     <CollapsibleSection
@@ -108,7 +115,13 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
       keepOpen={keepOpen}
       headerActions={headerActions}
     >
-      <SimpleDataTable data={chapters} columns={columns} getRowKey={(row) => row.id} />
+      {isEmpty ? (
+        <div className="py-4 text-center" role="status">
+          <p className="text-foreground-muted">{t('MessageNoChapters')}</p>
+        </div>
+      ) : (
+        <SimpleDataTable data={chapters} columns={columns} getRowKey={(row) => row.id} />
+      )}
     </CollapsibleSection>
   )
 }

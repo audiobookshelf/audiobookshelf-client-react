@@ -4,7 +4,6 @@ import { clearPodcastDownloadQueueAction } from '@/app/actions/mediaActions'
 import CoverEditModal from '@/components/modals/CoverEditModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
-import ChaptersEmptyState from '@/components/widgets/ChaptersEmptyState'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import EpisodeTable from '@/components/widgets/EpisodeTable'
@@ -46,8 +45,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const isPodcast = libraryItem.mediaType === 'podcast'
   const isBookWithAudio =
     libraryItem.mediaType === 'book' && ((libraryItem as BookLibraryItem).media.tracks?.length ?? 0) > 0
-  const bookChapterCount =
-    libraryItem.mediaType === 'book' ? ((libraryItem as BookLibraryItem).media.chapters?.length ?? 0) : 0
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
   const podcastAuthor = 'author' in metadata ? metadata.author : undefined
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
@@ -199,10 +196,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
               <div className="mt-6 flex flex-col gap-4">
-                {isBookWithAudio && bookChapterCount > 0 && <ChaptersTable libraryItem={libraryItem as BookLibraryItem} />}
-                {isBookWithAudio && bookChapterCount === 0 && userCanUpdate && (
-                  <ChaptersEmptyState libraryItem={libraryItem as BookLibraryItem} />
-                )}
+                {isBookWithAudio && <ChaptersTable libraryItem={libraryItem as BookLibraryItem} />}
 
                 {/* audio tracks table */}
                 {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
