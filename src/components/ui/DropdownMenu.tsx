@@ -145,6 +145,7 @@ function DropdownSubmenu({
     <ul
       ref={submenuRef}
       role="menu"
+      data-dropdown-id={dropdownId}
       className="bg-primary border-dropdown-menu-border absolute z-[9999] overflow-y-auto rounded-md border py-1 shadow-lg"
       style={{
         ...floatingStyles,
