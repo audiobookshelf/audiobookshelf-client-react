@@ -1,22 +1,23 @@
+import ChaptersEditClient from '@/components/widgets/chapters-edit/ChaptersEditClient'
 import { getCurrentUser, getData, getLibraryItem } from '@/lib/api'
+import { userCanUpdate } from '@/lib/userPermissions'
+import type { BookLibraryItem } from '@/types/api'
+import { redirect } from 'next/navigation'
 
 export default async function ChaptersPage({ params }: { params: Promise<{ item: string; library: string }> }) {
   const { item: itemId } = await params
-  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId), getCurrentUser())
+  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId, true), getCurrentUser())
 
   if (!libraryItem || !currentUser) {
-    console.error('Error getting library item or user data')
-    return null
+    redirect('/')
   }
 
-  return (
-    <div className="flex w-full flex-col gap-4 p-8">
-      <div className="rounded border bg-black p-2">
-        <pre className="overflow-x-auto text-sm whitespace-pre-wrap">{JSON.stringify(libraryItem, null, 2)}</pre>
-      </div>
-      <div className="rounded border bg-black p-2">
-        <pre className="overflow-x-auto text-sm whitespace-pre-wrap">{JSON.stringify(currentUser, null, 2)}</pre>
-      </div>
-    </div>
-  )
+  const itemPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`
+  const bookItem = libraryItem.mediaType === 'book' ? (libraryItem as BookLibraryItem) : null
+
+  if (!userCanUpdate(currentUser.user) || !bookItem?.media.tracks?.length) {
+    redirect(itemPath)
+  }
+
+  return <ChaptersEditClient libraryItem={bookItem} />
 }
