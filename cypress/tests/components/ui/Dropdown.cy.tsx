@@ -461,6 +461,15 @@ describe('<Dropdown />', () => {
       cy.get('@onChangeSpy').should('have.been.calledWith', 'sub1')
     })
 
+    it('selects subitem on click with usePortal', () => {
+      const onChangeSpy = cy.spy().as('onChangeSpy')
+      cy.mount(<Dropdown items={itemsWithSubmenus} onChange={onChangeSpy} usePortal />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
+      cy.get('[role="menu"] li').first().click({ force: true })
+      cy.get('@onChangeSpy').should('have.been.calledWith', 'sub1')
+    })
+
     it('closes menu after subitem selection', () => {
       cy.mount(<Dropdown items={itemsWithSubmenus} />)
       cy.get('button').click()

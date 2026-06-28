@@ -1,6 +1,6 @@
 'use client'
 
-import { useClickOutside } from '@/hooks/useClickOutside'
+import { createAdditionalInsideCheck, useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import DropdownMenu, { DropdownItemLabel, DropdownMenuItem } from './DropdownMenu'
@@ -86,7 +86,10 @@ export default function Dropdown({
     setOpenSubmenuIndex(null)
   }, [])
 
-  useClickOutside(menuRef, buttonRef, closeMenu, true)
+  // data-dropdown-id is used to identify portaled submenus as "inside" the dropdown
+  const isInsideSubmenu = useMemo(() => createAdditionalInsideCheck('data-dropdown-id', dropdownId), [dropdownId])
+
+  useClickOutside(menuRef, buttonRef, closeMenu, true, isInsideSubmenu)
 
   const toggleMenu = () => {
     if (disabled) return
