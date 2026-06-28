@@ -43,6 +43,15 @@ export function initChapters(existing: Chapter[], mediaDuration: number): Editab
   return ensureClientKeys(chapters)
 }
 
+/** True when the editor shows the default single-row placeholder for an item with no saved chapters. */
+export function isEmptyListPlaceholderState(chapters: EditableChapter[], existingChapters: Chapter[]): boolean {
+  if (existingChapters.length > 0 || chapters.length !== 1) {
+    return false
+  }
+  const chapter = chapters[0]
+  return chapter.start === 0 && !(chapter.title || '').trim()
+}
+
 export function validateChapters(
   chapters: EditableChapter[],
   existingChapters: Chapter[],
@@ -82,6 +91,10 @@ export function validateChapters(
 
     return next
   })
+
+  if (isEmptyListPlaceholderState(updated, existingChapters)) {
+    hasChanges = false
+  }
 
   return { chapters: ensureClientKeys(updated), hasChanges }
 }
