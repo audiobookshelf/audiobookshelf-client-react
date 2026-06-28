@@ -82,7 +82,7 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
   } = editor
 
   return (
-    <div className={mergeClasses('bg-bg page relative overflow-y-auto', isStreaming && 'streaming')}>
+    <div className={mergeClasses('bg-bg relative min-h-full overflow-y-auto', isStreaming && 'streaming')}>
       <ChaptersEditHeader
         libraryId={libraryItem.libraryId}
         itemId={libraryItem.id}
