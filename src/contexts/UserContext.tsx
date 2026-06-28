@@ -1,5 +1,6 @@
 'use client'
 
+import { getUserPermissionFlags } from '@/lib/userPermissions'
 import { AudioBookmark, EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
@@ -32,7 +33,7 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 export function UserProvider({ children, initialUser }: { children: ReactNode; initialUser: UserLoginResponse }) {
   const [currentUserData, setCurrentUserData] = useState<UserLoginResponse>(initialUser)
   const user = currentUserData.user
-  const userIsAdminOrUp = user.type === 'admin' || user.type === 'root'
+  const permissionFlags = getUserPermissionFlags(user)
 
   useSocketEvent<User>('user_updated', (updatedUser) => {
     if (updatedUser.id === currentUserData.user.id) {
@@ -77,10 +78,7 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
 
   const contextValue: UserContextType = {
     user,
-    userCanUpdate: !!(user.permissions?.update || userIsAdminOrUp),
-    userCanDelete: !!(user.permissions?.delete || userIsAdminOrUp),
-    userCanDownload: !!(user.permissions?.download || userIsAdminOrUp),
-    userIsAdminOrUp,
+    ...permissionFlags,
     token: user.token,
     serverSettings: currentUserData.serverSettings,
     userDefaultLibraryId: currentUserData.userDefaultLibraryId,
