@@ -48,8 +48,7 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   const mediaDuration = media.duration ?? 0
   const mediaDurationRounded = Math.round(mediaDuration)
   const savedChapters = useMemo(() => media.chapters || [], [media.chapters])
-  const tracks = media.tracks || []
-  const audioFiles = useMemo(() => media.audioFiles || [], [media.audioFiles])
+  const tracks = useMemo(() => media.tracks ?? [], [media.tracks])
   const title = media.metadata.title ?? ''
 
   const [newChapters, setNewChapters] = useState<EditableChapter[]>(() => initChapters(savedChapters, mediaDuration))
@@ -310,9 +309,9 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   )
 
   const handleSetChaptersFromTracks = useCallback(() => {
-    replaceChapterList(setChaptersFromTracks(audioFiles))
+    replaceChapterList(setChaptersFromTracks(tracks))
     setLockedChapters(new Set())
-  }, [audioFiles, replaceChapterList])
+  }, [tracks, replaceChapterList])
 
   const handleLibraryItemSaved = useCallback((updated: BookLibraryItem) => {
     setLibraryItem(updated)
@@ -327,7 +326,7 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     mediaDuration,
     mediaDurationRounded,
     savedChapters,
-    audioFiles,
+    tracks,
     newChapters,
     hasChanges,
     lockedChapters,

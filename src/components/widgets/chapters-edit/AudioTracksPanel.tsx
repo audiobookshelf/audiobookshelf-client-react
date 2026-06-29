@@ -5,23 +5,22 @@ import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { AudioFile } from '@/types/api'
+import type { AudioTrack } from '@/types/api'
 
 interface AudioTracksPanelProps {
-  audioFiles: AudioFile[]
+  tracks: AudioTrack[]
   currentTrackIndex: number
   isPlayingChapter: boolean
   onSetChaptersFromTracks: () => void
 }
 
 export default function AudioTracksPanel({
-  audioFiles,
+  tracks,
   currentTrackIndex,
   isPlayingChapter,
   onSetChaptersFromTracks
 }: AudioTracksPanelProps) {
   const t = useTypeSafeTranslations()
-  const audioTracks = audioFiles.filter((af) => !(af as AudioFile & { exclude?: boolean }).exclude)
 
   return (
     <div className="w-full max-w-3xl px-2 py-4 min-[1120px]:max-w-xl">
@@ -42,7 +41,7 @@ export default function AudioTracksPanel({
         <div className="hidden w-20 text-center md:block">{t('HeaderChapters')}</div>
       </div>
 
-      {audioTracks.map((track) => (
+      {tracks.map((track) => (
         <div
           key={track.ino}
           className={mergeClasses(

@@ -31,7 +31,7 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
     mediaDuration,
     mediaDurationRounded,
     savedChapters,
-    audioFiles,
+    tracks,
     newChapters,
     hasChanges,
     lockedChapters,
@@ -155,7 +155,7 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
         </div>
 
         <AudioTracksPanel
-          audioFiles={audioFiles}
+          tracks={tracks}
           currentTrackIndex={preview.currentTrackIndex}
           isPlayingChapter={preview.isPlayingChapter}
           onSetChaptersFromTracks={handleSetChaptersFromTracks}

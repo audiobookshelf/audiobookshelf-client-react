@@ -111,13 +111,12 @@ export function computeChapterEnds(chapters: EditableChapter[], mediaDuration: n
   })
 }
 
-export function setChaptersFromTracks(audioFiles: AudioFile[]): EditableChapter[] {
+export function setChaptersFromTracks(tracks: AudioFile[]): EditableChapter[] {
   let currentStartTime = 0
   let index = 0
   const chapters: EditableChapter[] = []
 
-  for (const track of audioFiles) {
-    if ((track as AudioFile & { exclude?: boolean }).exclude) continue
+  for (const track of tracks) {
     const filename = track.metadata?.filename ?? ''
     const ext = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : ''
     const title = ext ? filename.slice(0, -ext.length) : filename
