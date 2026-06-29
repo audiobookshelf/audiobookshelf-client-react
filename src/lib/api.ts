@@ -51,6 +51,7 @@ import {
   ListeningStats,
   M4bEncodeOptions,
   MediaItemShare,
+  MetadataObject,
   MetadataProvidersResponse,
   MutateBackupsResponse,
   NotificationFormPayload,
@@ -1121,8 +1122,8 @@ export async function embedMetadataQuick(libraryItemId: string): Promise<void> {
  * Get the metadata object that would be embedded into audio files
  * @param libraryItemId - Library item ID
  */
-export async function getMetadataObject(libraryItemId: string): Promise<Record<string, string>> {
-  return apiRequest<Record<string, string>>(`/api/items/${libraryItemId}/metadata-object`)
+export async function getMetadataObject(libraryItemId: string): Promise<MetadataObject> {
+  return apiRequest<MetadataObject>(`/api/items/${libraryItemId}/metadata-object`)
 }
 
 /**

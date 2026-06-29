@@ -6,7 +6,7 @@ import { useSocketEvent } from '@/contexts/SocketContext'
 import { useTasks } from '@/contexts/TasksContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { BookLibraryItem, M4bEncodeOptions, PodcastLibraryItem } from '@/types/api'
+import type { BookLibraryItem, M4bEncodeOptions, MetadataObject, PodcastLibraryItem } from '@/types/api'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
@@ -30,7 +30,7 @@ export function useAudiobookTools({ initialLibraryItem }: UseAudiobookToolsOptio
   const [isPending, startTransition] = useTransition()
 
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
-  const [metadataObject, setMetadataObject] = useState<Record<string, string> | null>(null)
+  const [metadataObject, setMetadataObject] = useState<MetadataObject | null>(null)
   const [shouldBackupAudioFiles, setShouldBackupAudioFiles] = useState(readBackupPreference)
   const [processing, setProcessing] = useState(false)
   const [isCancelingEncode, setIsCancelingEncode] = useState(false)
