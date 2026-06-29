@@ -1,8 +1,8 @@
 'use client'
 
+import type { FoliateSearchSection } from '@/components/ereader/foliate'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { FoliateSearchSection } from '@/components/ereader/foliate'
 import type { EreaderTheme } from '@/lib/ereader/ereaderSettings'
 import { EREADER_THEME_SEARCH_INPUT } from '@/lib/ereader/ereaderSettings'
 import type { EreaderTocItem } from '@/lib/ereader/ereaderToc'
@@ -146,11 +146,16 @@ function SearchResults({
     <ul>
       {results.map((section) => (
         <li key={section.id} className="py-1">
-          {section.label ? <p className="opacity-80">{section.label}</p> : null}
+          {section.label ? (
+            <p dir="auto" className="block w-full text-start opacity-80">
+              {section.label}
+            </p>
+          ) : null}
           {section.hits.map((hit) => (
             <button
               key={hit.id}
               type="button"
+              dir="auto"
               className="block w-full py-1 ps-4 text-start text-sm opacity-50 hover:opacity-100"
               onClick={() => onGoTo(hit.cfi)}
             >
@@ -166,7 +171,7 @@ function SearchResults({
 function TocEntry({ item, onGoTo }: { item: EreaderTocItem; onGoTo: (href: string) => void }) {
   return (
     <li className="py-1">
-      <button type="button" className="text-start opacity-80 hover:opacity-100" onClick={() => onGoTo(item.href)}>
+      <button type="button" dir="auto" className="block w-full text-start opacity-80 hover:opacity-100" onClick={() => onGoTo(item.href)}>
         {item.label}
       </button>
       {item.subitems && item.subitems.length > 0 && (
