@@ -24,7 +24,9 @@ interface EreaderOverlayProps {
   title: string
   ebookFormat: string
   epubsAllowScriptedContent: boolean
-  savedEbookLocation?: string
+  fileId?: string
+  keepProgress?: boolean
+  savedEbookLocation?: string | number
   savedEbookProgress?: number
   onClose: () => void
 }
@@ -35,6 +37,8 @@ export default function EreaderOverlay({
   title,
   ebookFormat,
   epubsAllowScriptedContent,
+  fileId,
+  keepProgress = true,
   savedEbookLocation,
   savedEbookProgress,
   onClose
@@ -237,10 +241,13 @@ export default function EreaderOverlay({
         </button>
         <div className="relative min-h-0 min-w-0 flex-1">
           <FoliateView
+            key={`${libraryItemId}-${fileId ?? 'primary'}-${keepProgress}`}
             ref={foliateRef}
             libraryItemId={libraryItemId}
             ebookFormat={ebookFormat}
             epubsAllowScriptedContent={epubsAllowScriptedContent}
+            fileId={fileId}
+            keepProgress={keepProgress}
             title={title}
             savedEbookLocation={savedEbookLocation}
             savedEbookProgress={savedEbookProgress}

@@ -9,11 +9,15 @@ export interface OpenEreaderParams {
   title: string
   ebookFormat: string
   epubsAllowScriptedContent: boolean
+  /** When set, load this specific ebook file instead of the primary ebook */
+  fileId?: string
+  /** When false, open without resuming saved progress (defaults to true) */
+  keepProgress?: boolean
 }
 
 interface EreaderSession extends OpenEreaderParams {
   /** Snapshot at open time so progress saves do not re-trigger the reader. */
-  savedEbookLocation?: string
+  savedEbookLocation?: string | number
   savedEbookProgress?: number
 }
 
@@ -30,11 +34,13 @@ export function EreaderProvider({ children }: { children: ReactNode }) {
 
   const openEreader = useCallback(
     (params: OpenEreaderParams) => {
-      const progress = user.mediaProgress.find((p) => p.libraryItemId === params.libraryItemId)
+      const keepProgress = params.keepProgress !== false
+      const progress = keepProgress ? user.mediaProgress.find((p) => p.libraryItemId === params.libraryItemId) : undefined
       setSession({
         ...params,
-        savedEbookLocation: progress?.ebookLocation,
-        savedEbookProgress: progress?.ebookProgress
+        keepProgress,
+        savedEbookLocation: keepProgress ? progress?.ebookLocation : undefined,
+        savedEbookProgress: keepProgress ? progress?.ebookProgress : undefined
       })
     },
     [user.mediaProgress]
@@ -62,6 +68,8 @@ export function EreaderProvider({ children }: { children: ReactNode }) {
           title={session.title}
           ebookFormat={session.ebookFormat}
           epubsAllowScriptedContent={session.epubsAllowScriptedContent}
+          fileId={session.fileId}
+          keepProgress={session.keepProgress !== false}
           savedEbookLocation={session.savedEbookLocation}
           savedEbookProgress={session.savedEbookProgress}
           onClose={closeEreader}

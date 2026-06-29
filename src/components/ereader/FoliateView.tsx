@@ -50,8 +50,10 @@ interface FoliateViewProps {
   libraryItemId: string
   ebookFormat: string
   epubsAllowScriptedContent: boolean
+  fileId?: string
+  keepProgress?: boolean
   title: string
-  savedEbookLocation?: string
+  savedEbookLocation?: string | number
   savedEbookProgress?: number
   settings: EreaderSettings
   onZoomChange?: (scale: number | null) => void
@@ -67,6 +69,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     libraryItemId,
     ebookFormat,
     epubsAllowScriptedContent,
+    fileId,
+    keepProgress = true,
     title,
     savedEbookLocation,
     savedEbookProgress,
@@ -95,7 +99,10 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   const zoomCtrlRef = useRef(new FixedLayoutZoomController())
   const onZoomChangeRef = useRef(onZoomChange)
   const onComicPageChangeRef = useRef(onComicPageChange)
+  const keepProgressRef = useRef(keepProgress)
   const currentComicPageIndexRef = useRef(-1)
+
+  keepProgressRef.current = keepProgress
   const currentComicImageUrlRef = useRef<string | null>(null)
   const isReadyRef = useRef(false)
   const pageBased = usesPageBasedProgress(ebookFormat)
@@ -216,6 +223,10 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   }))
 
   const flushProgress = useCallback(async () => {
+    if (!keepProgressRef.current) {
+      pendingProgressRef.current = null
+      return
+    }
     const pending = pendingProgressRef.current
     if (!pending) return
     pendingProgressRef.current = null
@@ -231,6 +242,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
   const scheduleProgressSave = useCallback(
     (detail: FoliateRelocateDetail) => {
       notifyComicPageFromRelocate(detail)
+      if (!keepProgressRef.current) return
 
       const progress = progressFromRelocate(detail, ebookFormat)
       if (!progress) return
@@ -366,7 +378,8 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
           if (handleKeydown) document.removeEventListener('keydown', handleKeydown)
         }
 
-        const response = await fetch(`/internal-api/items/${libraryItemId}/ebook`, {
+        const ebookUrl = fileId ? `/internal-api/items/${libraryItemId}/ebook/${fileId}` : `/internal-api/items/${libraryItemId}/ebook`
+        const response = await fetch(ebookUrl, {
           credentials: 'include',
           headers: { Accept: 'application/json' }
         })
@@ -400,7 +413,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         tocRef.current = toc
         onTocReadyRef.current?.(toc)
 
-        if (pageBased && resumePage) {
+        if (keepProgress && pageBased && resumePage) {
           await view.init({ showTextStart: true })
           const resolved = await view.goTo(resumePage - 1)
           if (resolved) {
@@ -408,7 +421,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
           } else {
             console.warn('Failed to resume at saved page, using start of book', resumePage)
           }
-        } else if (resumeCfi) {
+        } else if (keepProgress && resumeCfi) {
           const resumed = await resumeEpubLocation(view, resumeCfi, savedEbookProgress)
           if (resumed) lastSavedLocationRef.current = resumeCfi
         } else {
@@ -458,7 +471,18 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ebookFormat, epubsAllowScriptedContent, flushProgress, libraryItemId, scheduleProgressSave, title])
+  }, [
+    ebookFormat,
+    epubsAllowScriptedContent,
+    fileId,
+    flushProgress,
+    keepProgress,
+    libraryItemId,
+    savedEbookLocation,
+    savedEbookProgress,
+    scheduleProgressSave,
+    title
+  ])
 
   return <div ref={containerRef} className="h-full w-full" />
 })
