@@ -1,6 +1,6 @@
 'use server'
 
-import type { M4bEncodeOptions } from '@/types/api'
+import type { M4bEncodeOptions, MetadataObject } from '@/types/api'
 import * as api from '@/lib/api'
 
 /**
@@ -20,7 +20,7 @@ export async function getTasksAction() {
 /**
  * Server Action: Get metadata object for embedding preview
  */
-export async function getMetadataObjectAction(libraryItemId: string) {
+export async function getMetadataObjectAction(libraryItemId: string): Promise<MetadataObject> {
   return api.getMetadataObject(libraryItemId)
 }
 
