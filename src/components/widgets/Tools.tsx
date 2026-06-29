@@ -1,3 +1,8 @@
+/**
+ * Not currently wired into the production app (components catalog only).
+ * Migrated from the Vue Edit modal Tools tab; superseded by the item-page
+ * /tools manage page (AudiobookTools).
+ */
 'use client'
 
 import { embedMetadataQuickAction } from '@/app/actions/toolsActions'
@@ -16,12 +21,6 @@ interface ToolsProps {
   className?: string
 }
 
-/**
- * Tools component for audiobook management
- *
- * Provides quick access to metadata embedding and M4B creation tools.
- * Only Quick Embed is functional - other tools link to management pages.
- */
 export default function Tools({ libraryItem, className }: ToolsProps) {
   const t = useTypeSafeTranslations()
   const { queuedEmbedLIds, taskProgress, getTasksByLibraryItemId } = useTasks()
@@ -45,7 +44,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
     if (!isBookLibraryItem(libraryItem)) {
       return []
     }
-    return libraryItem.media.tracks || []
+    return libraryItem.media.tracks ?? []
   }, [libraryItem])
 
   const itemTasks = useMemo(() => getTasksByLibraryItemId(libraryItemId), [getTasksByLibraryItemId, libraryItemId])
@@ -123,7 +122,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
               </div>
               <div className="w-full sm:w-[180px]">
                 <Btn
-                  to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/manage?tool=m4b`}
+                  to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/tools?tool=m4b`}
                   className="flex w-full items-center justify-center whitespace-nowrap"
                   aria-describedby={elementIds.m4bDescription}
                 >
@@ -150,7 +149,7 @@ export default function Tools({ libraryItem, className }: ToolsProps) {
               <div className="flex w-full flex-col items-end sm:w-auto">
                 <div className="w-full sm:w-[180px]">
                   <Btn
-                    to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/manage?tool=embed`}
+                    to={`/library/${libraryItem.libraryId}/item/${libraryItemId}/tools?tool=embed`}
                     className="flex w-full items-center justify-center whitespace-nowrap"
                     aria-describedby={elementIds.embedDescription}
                   >
