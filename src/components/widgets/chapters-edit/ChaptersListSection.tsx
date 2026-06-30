@@ -73,10 +73,10 @@ function ChaptersListSection({
 
   return (
     <>
-      <div className="text-foreground-muted mb-2 flex text-xs font-semibold uppercase">
+      <div className="text-foreground-muted flex items-end text-xs font-semibold uppercase">
         <div className="w-8 min-w-8 md:w-12 md:min-w-12" />
-        <div className="w-38 min-w-38 px-1 ps-8 md:w-40 md:min-w-40">{t('LabelStart')}</div>
-        <div className="min-w-54 grow px-1">{t('LabelTitle')}</div>
+        <div className="w-38 min-w-38 px-1 ps-8 pb-2 md:w-40 md:min-w-40">{t('LabelStart')}</div>
+        <div className="min-w-54 grow px-1 pb-2">{t('LabelTitle')}</div>
         <div className="flex w-7 min-w-7 items-center justify-center px-1">
           <Tooltip text={allChaptersLocked ? t('TooltipUnlockAllChapters') : t('TooltipLockAllChapters')} position="bottom">
             <IconBtn
