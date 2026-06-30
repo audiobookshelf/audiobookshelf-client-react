@@ -14,12 +14,7 @@ interface AudioTracksPanelProps {
   onSetChaptersFromTracks: () => void
 }
 
-export default function AudioTracksPanel({
-  tracks,
-  currentTrackIndex,
-  isPlayingChapter,
-  onSetChaptersFromTracks
-}: AudioTracksPanelProps) {
+export default function AudioTracksPanel({ tracks, currentTrackIndex, isPlayingChapter, onSetChaptersFromTracks }: AudioTracksPanelProps) {
   const t = useTypeSafeTranslations()
 
   return (
@@ -31,29 +26,23 @@ export default function AudioTracksPanel({
           {t('ButtonSetChaptersFromTracks')}
         </Btn>
         <Tooltip text={t('MessageSetChaptersFromTracksDescription')} position="top" className="mx-1 flex cursor-default items-center">
-          <span className="material-symbols text-xl text-gray-200">info</span>
+          <span className="material-symbols text-foreground-muted text-xl">info</span>
         </Tooltip>
       </div>
 
-      <div className="mb-2 flex text-xs font-semibold uppercase text-gray-300">
+      <div className="text-foreground-muted mb-2 flex text-xs font-semibold uppercase">
         <div className="grow min-[1120px]:max-w-64 xl:max-w-sm">{t('LabelFilename')}</div>
         <div className="w-20">{t('LabelDuration')}</div>
         <div className="hidden w-20 text-center md:block">{t('HeaderChapters')}</div>
       </div>
 
       {tracks.map((track) => (
-        <div
-          key={track.ino}
-          className={mergeClasses(
-            'flex items-center py-2',
-            currentTrackIndex === track.index && isPlayingChapter && 'bg-success/10'
-          )}
-        >
-          <div className="min-[1120px]:max-w-64 grow pr-2 xl:max-w-sm">
+        <div key={track.ino} className={mergeClasses('flex items-center py-2', currentTrackIndex === track.index && isPlayingChapter && 'bg-success/10')}>
+          <div className="grow pr-2 min-[1120px]:max-w-64 xl:max-w-sm">
             <p className="truncate text-xs">{track.metadata.filename}</p>
           </div>
           <div className="w-20" style={{ minWidth: 80 }}>
-            <p className="font-mono text-xs text-gray-200">{secondsToTimestamp(Math.round(track.duration))}</p>
+            <p className="text-foreground-muted font-mono text-xs">{secondsToTimestamp(Math.round(track.duration))}</p>
           </div>
           <div className="hidden w-20 justify-center md:flex" style={{ minWidth: 80 }}>
             {(track.chapters || []).length > 0 && <span className="material-symbols text-success text-sm">check</span>}

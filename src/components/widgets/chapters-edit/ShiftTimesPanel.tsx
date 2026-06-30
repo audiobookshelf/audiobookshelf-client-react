@@ -21,13 +21,7 @@ export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onSh
       <div className="grow">
         <div className="flex items-center">
           <p className="mb-1 pr-2 text-sm font-semibold">{t('LabelTimeToShift')}</p>
-          <TextInput
-            type="number"
-            value={String(shiftAmount)}
-            size="small"
-            className="max-w-20"
-            onChange={(value) => onShiftAmountChange(Number(value))}
-          />
+          <TextInput type="number" value={String(shiftAmount)} size="small" className="max-w-20" onChange={(value) => onShiftAmountChange(Number(value))} />
           <Btn color="bg-primary" size="small" className="mx-1" onClick={onShift}>
             {t('ButtonAdd')}
           </Btn>
@@ -36,7 +30,7 @@ export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onSh
             expand_less
           </IconBtn>
         </div>
-        <p className="max-w-md py-1.5 text-xs text-gray-300">{t('NoteChapterEditorTimes')}</p>
+        <p className="text-foreground-muted max-w-md py-1.5 text-xs">{t('NoteChapterEditorTimes')}</p>
       </div>
       <div className="hidden w-32 lg:block" />
     </div>

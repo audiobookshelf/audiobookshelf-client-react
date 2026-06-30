@@ -48,9 +48,7 @@ const ChapterTitleInput = memo(function ChapterTitleInput({ title, onDraft, onCo
     onCommit(trimmedTitle)
   }, [onCommit])
 
-  return (
-    <TextInput value={localTitle} size="small" className="min-w-52 text-sm" onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
-  )
+  return <TextInput value={localTitle} size="small" className="min-w-52 text-sm" onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
 })
 
 interface ChapterRowProps {
@@ -113,7 +111,7 @@ function ChapterRow({
               type="button"
               aria-label={t('TooltipSubtractOneSecond')}
               className={mergeClasses(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-300 transition-transform duration-150 hover:scale-110 hover:text-white',
+                'text-foreground-muted hover:text-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110',
                 cannotDecrement && 'cursor-not-allowed opacity-50'
               )}
               disabled={cannotDecrement}
@@ -136,7 +134,7 @@ function ChapterRow({
               type="button"
               aria-label={t('TooltipAddOneSecond')}
               className={mergeClasses(
-                'flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-gray-300 transition-transform duration-150 hover:scale-110 hover:text-white',
+                'text-foreground-muted hover:text-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110',
                 cannotIncrement && 'cursor-not-allowed opacity-50'
               )}
               disabled={cannotIncrement}
@@ -158,7 +156,7 @@ function ChapterRow({
             ariaLabel={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')}
             borderless
             size="small"
-            className={mergeClasses(isLocked ? 'text-orange-400 hover:not-disabled:text-orange-300' : 'text-gray-300 hover:not-disabled:text-white')}
+            className={mergeClasses(isLocked ? 'text-warning hover:not-disabled:text-warning' : 'text-foreground-muted hover:not-disabled:text-foreground')}
             onClick={(e) => onToggleLock(e.shiftKey)}
           >
             {isLocked ? 'lock' : 'lock_open'}
@@ -170,14 +168,26 @@ function ChapterRow({
         <div className="flex items-center">
           {chapterCount > 1 && (
             <LazyTooltip text={t('MessageRemoveChapter')} position="bottom">
-              <IconBtn ariaLabel={t('MessageRemoveChapter')} borderless size="small" className="text-gray-300 hover:not-disabled:text-error" onClick={onRemove}>
+              <IconBtn
+                ariaLabel={t('MessageRemoveChapter')}
+                borderless
+                size="small"
+                className="text-foreground-muted hover:not-disabled:text-error"
+                onClick={onRemove}
+              >
                 delete
               </IconBtn>
             </LazyTooltip>
           )}
 
           <LazyTooltip text={t('MessageInsertChapterBelow')} position="bottom">
-            <IconBtn ariaLabel={t('MessageInsertChapterBelow')} borderless size="small" className="text-gray-300 hover:not-disabled:text-success" onClick={onInsertBelow}>
+            <IconBtn
+              ariaLabel={t('MessageInsertChapterBelow')}
+              borderless
+              size="small"
+              className="text-foreground-muted hover:not-disabled:text-success"
+              onClick={onInsertBelow}
+            >
               add_row_below
             </IconBtn>
           </LazyTooltip>
@@ -188,7 +198,7 @@ function ChapterRow({
               borderless
               size="small"
               loading={isSelected && isLoadingChapter}
-              className="text-gray-300 hover:not-disabled:text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="text-foreground-muted hover:not-disabled:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!canPlay}
               onClick={onPlay}
             >
@@ -200,7 +210,7 @@ function ChapterRow({
             <LazyTooltip text={t('TooltipAdjustChapterStart')} position="bottom">
               <button
                 type="button"
-                className="ml-2 min-w-10 cursor-pointer font-mono text-xs text-gray-300 transition-colors hover:text-white"
+                className="text-foreground-muted hover:text-foreground ml-2 min-w-10 cursor-pointer font-mono text-xs transition-colors"
                 onClick={onAdjustStartTime}
               >
                 {elapsedTime}s

@@ -73,7 +73,7 @@ function ChaptersListSection({
 
   return (
     <>
-      <div className="mb-2 flex text-xs font-semibold text-gray-300 uppercase">
+      <div className="text-foreground-muted mb-2 flex text-xs font-semibold uppercase">
         <div className="w-8 min-w-8 md:w-12 md:min-w-12" />
         <div className="w-38 min-w-38 px-1 ps-8 md:w-40 md:min-w-40">{t('LabelStart')}</div>
         <div className="min-w-54 grow px-1">{t('LabelTitle')}</div>
@@ -83,7 +83,7 @@ function ChaptersListSection({
               ariaLabel={allChaptersLocked ? t('TooltipUnlockAllChapters') : t('TooltipLockAllChapters')}
               borderless
               size="small"
-              className={allChaptersLocked ? 'text-orange-400 hover:text-orange-300' : 'text-gray-300 hover:text-white'}
+              className={allChaptersLocked ? 'text-warning hover:text-warning' : 'text-foreground-muted hover:text-foreground'}
               onClick={onToggleAllChaptersLock}
             >
               {allChaptersLocked ? 'lock' : 'lock_open'}
@@ -142,7 +142,7 @@ function ChaptersListSection({
               ariaLabel={t('TooltipAddChapters')}
               borderless
               size="small"
-              className={mergeClasses('hover:not-disabled:text-success text-gray-300', !bulkChapterInput.trim() && 'cursor-not-allowed opacity-50')}
+              className={mergeClasses('text-foreground-muted hover:not-disabled:text-success', !bulkChapterInput.trim() && 'cursor-not-allowed opacity-50')}
               disabled={!bulkChapterInput.trim()}
               onClick={onBulkChapterAdd}
             >

@@ -1,22 +1,17 @@
 'use client'
 
 import { searchChaptersAction } from '@/app/actions/chapterActions'
+import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown from '@/components/ui/Dropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
-import Modal from '@/components/modals/Modal'
 import Alert from '@/components/widgets/Alert'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import {
-  AUDIBLE_REGIONS,
-  type AudibleRegion,
-  getStoredAudibleRegion,
-  setStoredAudibleRegion
-} from '@/lib/chapters/audibleChapterLookupPrefs'
+import { AUDIBLE_REGIONS, type AudibleRegion, getStoredAudibleRegion, setStoredAudibleRegion } from '@/lib/chapters/audibleChapterLookupPrefs'
 import { audibleChapterRowClass, removeBrandingFromAudibleData } from '@/lib/chapters/chapterEditorUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import type { AudibleChapterSearchResult, BookMetadata } from '@/types/api'
@@ -112,13 +107,20 @@ export default function FindChaptersModal({
         </div>
       }
     >
-      <div className="bg-bg border-black-300 relative max-h-full w-full rounded-lg border text-sm shadow-lg">
+      <div className="bg-bg border-border relative max-h-full w-full rounded-lg border text-sm shadow-lg">
         {!displayData ? (
           <div className="flex flex-col items-center justify-center p-20">
             <div className="relative">
               <div className="flex items-end gap-2">
                 <TextInput value={asinInput} label="ASIN" className="grow" onChange={setAsinInput} />
-                <Dropdown label={t('LabelRegion')} value={regionInput} items={regionItems} size="small" className="w-24 min-w-24 shrink-0" onChange={(v) => setRegionInput(String(v) as AudibleRegion)} />
+                <Dropdown
+                  label={t('LabelRegion')}
+                  value={regionInput}
+                  items={regionItems}
+                  size="small"
+                  className="w-24 min-w-24 shrink-0"
+                  onChange={(v) => setRegionInput(String(v) as AudibleRegion)}
+                />
                 <Btn color="bg-primary" onClick={handleSearch}>
                   {t('ButtonSearch')}
                 </Btn>
@@ -127,7 +129,7 @@ export default function FindChaptersModal({
                 <Checkbox value={removeBranding} label={t('LabelRemoveAudibleBranding')} size="small" onChange={onRemoveBrandingChange} />
               </div>
               {asinError && (
-                <div className="absolute start-0 mt-1.5 h-5 text-sm text-error">
+                <div className="text-error absolute start-0 mt-1.5 h-5 text-sm">
                   <p>{asinError}</p>
                   <p>{t('MessageAsinCheck')}</p>
                 </div>
@@ -142,10 +144,9 @@ export default function FindChaptersModal({
                 arrow_back
               </IconBtn>
               <p>
-                {t('LabelDurationFound')}{' '}
-                <span className="font-semibold">{secondsToTimestamp(displayData.runtimeLengthSec)}</span>
+                {t('LabelDurationFound')} <span className="font-semibold">{secondsToTimestamp(displayData.runtimeLengthSec)}</span>
                 <br />
-                <span className={savedChapterCount !== displayData.chapters.length ? 'font-semibold text-warning' : 'font-semibold'}>
+                <span className={savedChapterCount !== displayData.chapters.length ? 'text-warning font-semibold' : 'font-semibold'}>
                   {displayData.chapters.length}
                 </span>{' '}
                 {t('LabelChaptersFound')}
@@ -155,7 +156,7 @@ export default function FindChaptersModal({
                 {t('LabelYourAudiobookDuration')}: <span className="font-semibold">{secondsToTimestamp(mediaDurationRounded)}</span>
                 <br />
                 Your audiobook has{' '}
-                <span className={savedChapterCount !== displayData.chapters.length ? 'font-semibold text-warning' : 'font-semibold'}>
+                <span className={savedChapterCount !== displayData.chapters.length ? 'text-warning font-semibold' : 'font-semibold'}>
                   {savedChapterCount}
                 </span>{' '}
                 chapters
@@ -173,7 +174,7 @@ export default function FindChaptersModal({
               </Alert>
             )}
 
-            <div className="mb-1 flex py-0.5 text-xs font-semibold uppercase text-gray-300">
+            <div className="text-foreground-muted mb-1 flex py-0.5 text-xs font-semibold uppercase">
               <div className="w-24 px-2">{t('LabelStart')}</div>
               <div className="grow px-2">{t('LabelTitle')}</div>
             </div>
@@ -193,11 +194,11 @@ export default function FindChaptersModal({
             {displayData.runtimeLengthSec > mediaDurationRounded && (
               <div className="w-full pt-2">
                 <div className="flex items-center">
-                  <div className="h-2 w-2 bg-warning/50" />
+                  <div className="bg-warning/50 h-2 w-2" />
                   <p className="ps-2">{t('MessageChapterEndIsAfter')}</p>
                 </div>
                 <div className="flex items-center">
-                  <div className="h-2 w-2 bg-error/50" />
+                  <div className="bg-error/50 h-2 w-2" />
                   <p className="ps-2">{t('MessageChapterStartIsAfter')}</p>
                 </div>
               </div>
@@ -215,7 +216,7 @@ export default function FindChaptersModal({
                   {t('ButtonMapChapterTitles')}
                 </Btn>
                 <Tooltip text={t('MessageMapChapterTitles')} position="top" className="flex items-center">
-                  <span className="material-symbols text-xl text-gray-200">info</span>
+                  <span className="material-symbols text-foreground-muted text-xl">info</span>
                 </Tooltip>
               </div>
               <Btn

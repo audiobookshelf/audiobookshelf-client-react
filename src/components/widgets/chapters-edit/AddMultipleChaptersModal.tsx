@@ -1,8 +1,8 @@
 'use client'
 
+import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
-import Modal from '@/components/modals/Modal'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { BulkChapterPattern } from '@/lib/chapters/chapterEditorUtils'
 import { formatNumberWithPadding } from '@/lib/chapters/chapterEditorUtils'
@@ -34,12 +34,12 @@ export default function AddMultipleChaptersModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} style={{ width: 400 }} outerContent={outerContent}>
-      <div className="bg-bg border-black-300 relative max-h-full w-full rounded-lg border p-6 text-sm shadow-lg">
+      <div className="bg-bg border-border relative max-h-full w-full rounded-lg border p-6 text-sm shadow-lg">
         <div className="flex flex-col gap-8">
           <p className="text-base">{t('MessageBulkChapterPattern')}</p>
 
           {detectedPattern && (
-            <div className="rounded bg-gray-800 p-2 text-sm text-gray-400">
+            <div className="bg-primary/25 text-foreground-muted rounded p-2 text-sm">
               <strong>{t('LabelDetectedPattern')}</strong> &quot;{detectedPattern.before}
               {formatNumberWithPadding(detectedPattern.startingNumber, detectedPattern)}
               {detectedPattern.after}&quot;
