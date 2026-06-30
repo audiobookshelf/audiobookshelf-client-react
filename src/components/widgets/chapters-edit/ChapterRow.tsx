@@ -7,6 +7,48 @@ import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EditableChapter } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
+
+interface ChapterTitleInputProps {
+  title: string
+  onDraft: (title: string) => void
+  onCommit: (title: string) => void
+}
+
+const ChapterTitleInput = memo(function ChapterTitleInput({ title, onDraft, onCommit }: ChapterTitleInputProps) {
+  const [localTitle, setLocalTitle] = useState(title)
+  const localTitleRef = useRef(title)
+  const isEditingRef = useRef(false)
+
+  useEffect(() => {
+    if (!isEditingRef.current) {
+      setLocalTitle(title)
+      localTitleRef.current = title
+    }
+  }, [title])
+
+  const handleChange = useCallback(
+    (value: string) => {
+      localTitleRef.current = value
+      setLocalTitle(value)
+      onDraft(value)
+    },
+    [onDraft]
+  )
+
+  const handleFocus = useCallback(() => {
+    isEditingRef.current = true
+  }, [])
+
+  const handleBlur = useCallback(() => {
+    isEditingRef.current = false
+    onCommit(localTitleRef.current)
+  }, [onCommit])
+
+  return (
+    <TextInput value={localTitle} size="small" className="min-w-52 text-sm" onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
+  )
+})
 
 interface ChapterRowProps {
   chapter: EditableChapter
@@ -20,7 +62,8 @@ interface ChapterRowProps {
   elapsedTime: number
   canPlay: boolean
   onStartChange: (start: number) => void
-  onTitleChange: (title: string) => void
+  onTitleDraft: (title: string) => void
+  onTitleCommit: (title: string) => void
   onIncrementTime: (amount: number) => void
   onToggleLock: (shiftKey: boolean) => void
   onRemove: () => void
@@ -43,7 +86,8 @@ export default function ChapterRow({
   elapsedTime,
   canPlay,
   onStartChange,
-  onTitleChange,
+  onTitleDraft,
+  onTitleCommit,
   onIncrementTime,
   onToggleLock,
   onRemove,
@@ -103,7 +147,7 @@ export default function ChapterRow({
       </div>
 
       <div className="min-w-52 grow px-1">
-        <TextInput value={chapter.title} size="small" className="min-w-52 text-sm" onChange={onTitleChange} />
+        <ChapterTitleInput title={chapter.title} onDraft={onTitleDraft} onCommit={onTitleCommit} />
       </div>
 
       <div className="flex w-7 min-w-7 items-center justify-center px-1">

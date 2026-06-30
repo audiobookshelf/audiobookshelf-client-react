@@ -31,7 +31,8 @@ interface ChaptersListSectionProps {
   onBulkChapterInputChange: (value: string) => void
   onBulkChapterAdd: () => void
   onChapterStartChange: (chapterId: number, start: number) => void
-  onChapterTitleChange: (chapterId: number, title: string) => void
+  onChapterTitleDraft: (chapterId: number, title: string) => void
+  onChapterTitleCommit: (chapterId: number, title: string) => void
   onChapterIncrementTime: (chapterId: number, amount: number) => void
   onToggleChapterLock: (chapterId: number, shiftKey: boolean) => void
   onChapterRemove: (chapterId: number) => void
@@ -52,7 +53,8 @@ export default function ChaptersListSection({
   onBulkChapterInputChange,
   onBulkChapterAdd,
   onChapterStartChange,
-  onChapterTitleChange,
+  onChapterTitleDraft,
+  onChapterTitleCommit,
   onChapterIncrementTime,
   onToggleChapterLock,
   onChapterRemove,
@@ -98,7 +100,8 @@ export default function ChaptersListSection({
             elapsedTime={preview.elapsedTime}
             canPlay={!!preview.getAudioTrackForTime(chapter.start)}
             onStartChange={(start) => onChapterStartChange(chapter.id, start)}
-            onTitleChange={(chapterTitle) => onChapterTitleChange(chapter.id, chapterTitle)}
+            onTitleDraft={(chapterTitle) => onChapterTitleDraft(chapter.id, chapterTitle)}
+            onTitleCommit={(chapterTitle) => onChapterTitleCommit(chapter.id, chapterTitle)}
             onIncrementTime={(amount) => onChapterIncrementTime(chapter.id, amount)}
             onToggleLock={(shiftKey) => onToggleChapterLock(chapter.id, shiftKey)}
             onRemove={() => onChapterRemove(chapter.id)}

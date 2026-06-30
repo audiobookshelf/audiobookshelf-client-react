@@ -72,7 +72,8 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
     handleApplyChapters,
     handleAdjustChapterStartTime,
     handleChapterStartChange,
-    handleChapterTitleChange,
+    handleChapterTitleDraft,
+    handleChapterTitleCommit,
     handleChapterIncrementTime,
     handleChapterRemove,
     handleChapterInsertBelow,
@@ -145,7 +146,8 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
             onBulkChapterInputChange={setBulkChapterInput}
             onBulkChapterAdd={handleBulkChapterAdd}
             onChapterStartChange={handleChapterStartChange}
-            onChapterTitleChange={handleChapterTitleChange}
+            onChapterTitleDraft={handleChapterTitleDraft}
+            onChapterTitleCommit={handleChapterTitleCommit}
             onChapterIncrementTime={handleChapterIncrementTime}
             onToggleChapterLock={toggleChapterLock}
             onChapterRemove={handleChapterRemove}

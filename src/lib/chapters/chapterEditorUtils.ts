@@ -10,7 +10,34 @@ export function createChapterClientKey(): string {
 }
 
 export function ensureClientKeys(chapters: EditableChapter[]): EditableChapter[] {
+  if (chapters.every((chapter) => chapter.clientKey)) {
+    return chapters
+  }
   return chapters.map((chapter) => (chapter.clientKey ? chapter : { ...chapter, clientKey: createChapterClientKey() }))
+}
+
+export function computeHasChanges(chapters: EditableChapter[], existingChapters: Chapter[]): boolean {
+  if (isEmptyListPlaceholderState(chapters, existingChapters)) {
+    return false
+  }
+  if (chapters.length !== existingChapters.length) {
+    return true
+  }
+  for (let i = 0; i < chapters.length; i++) {
+    const chapter = chapters[i]
+    const existingChapter = existingChapters[i]
+    if (!existingChapter) {
+      return true
+    }
+    if (
+      chapter.start !== existingChapter.start ||
+      chapter.end !== existingChapter.end ||
+      chapter.title !== existingChapter.title
+    ) {
+      return true
+    }
+  }
+  return false
 }
 
 export interface ChapterValidationMessages {
@@ -59,44 +86,28 @@ export function validateChapters(
   messages: ChapterValidationMessages
 ): { chapters: EditableChapter[]; hasChanges: boolean } {
   let previousStart = 0
-  let hasChanges = chapters.length !== existingChapters.length
   const updated = chapters.map((chapter, i) => {
-    const next = { ...chapter }
-    next.id = i
-    next.start = Number(next.start)
-    next.title = (next.title || '').trim()
+    const start = Number(chapter.start)
 
-    if (i === 0 && next.start !== 0) {
-      next.error = messages.firstNotZero
-    } else if (next.start <= previousStart && i > 0) {
-      next.error = messages.startLtPrev
-    } else if (next.start >= mediaDuration) {
-      next.error = messages.startGteDuration
+    let error: string | null
+    if (i === 0 && start !== 0) {
+      error = messages.firstNotZero
+    } else if (start <= previousStart && i > 0) {
+      error = messages.startLtPrev
+    } else if (start >= mediaDuration) {
+      error = messages.startGteDuration
     } else {
-      next.error = null
+      error = null
     }
-    previousStart = next.start
+    previousStart = start
 
-    if (!hasChanges) {
-      const existingChapter = existingChapters[i]
-      if (existingChapter) {
-        const { start, end, title } = next
-        if (start !== existingChapter.start || end !== existingChapter.end || title !== existingChapter.title) {
-          hasChanges = true
-        }
-      } else {
-        hasChanges = true
-      }
+    if (chapter.id === i && chapter.error === error && chapter.start === start) {
+      return chapter
     }
-
-    return next
+    return { ...chapter, id: i, start, error }
   })
 
-  if (isEmptyListPlaceholderState(updated, existingChapters)) {
-    hasChanges = false
-  }
-
-  return { chapters: ensureClientKeys(updated), hasChanges }
+  return { chapters: ensureClientKeys(updated), hasChanges: computeHasChanges(updated, existingChapters) }
 }
 
 export function computeChapterEnds(chapters: EditableChapter[], mediaDuration: number): Chapter[] {
@@ -106,7 +117,7 @@ export function computeChapterEnds(chapters: EditableChapter[], mediaDuration: n
       id: chapter.id,
       start: chapter.start,
       end: nextChapter ? nextChapter.start : mediaDuration,
-      title: chapter.title
+      title: (chapter.title || '').trim()
     }
   })
 }
@@ -324,6 +335,24 @@ export function updateChapterStart(chapters: EditableChapter[], id: number, star
 
 export function updateChapterTitle(chapters: EditableChapter[], id: number, title: string): EditableChapter[] {
   return chapters.map((c) => (c.id === id ? { ...c, title } : c))
+}
+
+export function applyChapterTitleDrafts(chapters: EditableChapter[], drafts: ReadonlyMap<number, string>): EditableChapter[] {
+  if (drafts.size === 0) {
+    return chapters
+  }
+
+  let changed = false
+  const updated = chapters.map((chapter) => {
+    const draft = drafts.get(chapter.id)
+    if (draft === undefined || draft === chapter.title) {
+      return chapter
+    }
+    changed = true
+    return { ...chapter, title: draft }
+  })
+
+  return changed ? updated : chapters
 }
 
 export function incrementChapterTime(

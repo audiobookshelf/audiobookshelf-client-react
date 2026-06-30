@@ -11,8 +11,10 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import {
   addSingleChapterFromInput,
   adjustChapterStartTime,
+  applyChapterTitleDrafts,
   buildBulkChapters,
   computeChapterEnds,
+  computeHasChanges,
   detectBulkChapterPattern,
   incrementChapterTime,
   initChapters,
@@ -29,7 +31,7 @@ import {
   type EditableChapter
 } from '@/lib/chapters/chapterEditorUtils'
 import type { AudibleChapterSearchResult, BookLibraryItem, Chapter } from '@/types/api'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
 
 interface UseChapterEditorOptions {
   initialLibraryItem: BookLibraryItem
@@ -67,6 +69,11 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null)
   const [chapterListKey, setChapterListKey] = useState(0)
+  const titleDraftsRef = useRef<Map<number, string>>(new Map())
+
+  const clearTitleDrafts = useCallback(() => {
+    titleDraftsRef.current.clear()
+  }, [])
 
   const validationMessages = useMemo(
     () => ({
@@ -93,10 +100,11 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
 
   const replaceChapterList = useCallback(
     (chapters: EditableChapter[], existingOverride?: Chapter[]) => {
+      clearTitleDrafts()
       setChapterListKey((key) => key + 1)
       return runValidation(chapters, existingOverride)
     },
-    [runValidation]
+    [clearTitleDrafts, runValidation]
   )
 
   const resetEditorChapters = useCallback(() => {
@@ -130,14 +138,16 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   })
 
   const handleSave = useCallback(() => {
-    const validated = runValidation([...newChapters])
+    const withDrafts = applyChapterTitleDrafts(newChapters, titleDraftsRef.current)
+    clearTitleDrafts()
+    const validated = runValidation(withDrafts)
 
     for (const chapter of validated) {
       if (chapter.error) {
         showToast(t('ToastChaptersHaveErrors'), { type: 'error' })
         return
       }
-      if (!chapter.title) {
+      if (!(chapter.title || '').trim()) {
         showToast(t('ToastChaptersMustHaveTitles'), { type: 'error' })
         return
       }
@@ -160,7 +170,7 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
         showToast(t('ToastFailedToUpdate'), { type: 'error' })
       }
     })
-  }, [libraryItem.id, mediaDuration, newChapters, refreshAfterChapterUpdate, runValidation, showToast, t])
+  }, [clearTitleDrafts, libraryItem.id, mediaDuration, newChapters, refreshAfterChapterUpdate, runValidation, showToast, t])
 
   const handleRemoveAll = useCallback(() => {
     replaceChapterList([])
@@ -275,11 +285,26 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     [newChapters, runValidation]
   )
 
-  const handleChapterTitleChange = useCallback(
+  const handleChapterTitleDraft = useCallback((chapterId: number, chapterTitle: string) => {
+    titleDraftsRef.current.set(chapterId, chapterTitle)
+    setHasChanges((prev) => prev || true)
+  }, [])
+
+  const handleChapterTitleCommit = useCallback(
     (chapterId: number, chapterTitle: string) => {
-      runValidation(updateChapterTitle(newChapters, chapterId, chapterTitle))
+      titleDraftsRef.current.delete(chapterId)
+      setNewChapters((prev) => {
+        const existing = prev[chapterId]
+        if (!existing || existing.title === chapterTitle) {
+          setHasChanges(computeHasChanges(prev, savedChapters))
+          return prev
+        }
+        const updated = updateChapterTitle(prev, chapterId, chapterTitle)
+        setHasChanges(computeHasChanges(updated, savedChapters))
+        return updated
+      })
     },
-    [newChapters, runValidation]
+    [savedChapters]
   )
 
   const handleChapterIncrementTime = useCallback(
@@ -367,7 +392,8 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     handleApplyChapters,
     handleAdjustChapterStartTime,
     handleChapterStartChange,
-    handleChapterTitleChange,
+    handleChapterTitleDraft,
+    handleChapterTitleCommit,
     handleChapterIncrementTime,
     handleChapterRemove,
     handleChapterInsertBelow,
