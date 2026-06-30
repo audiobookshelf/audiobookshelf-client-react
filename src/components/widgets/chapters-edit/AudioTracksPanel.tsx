@@ -25,7 +25,7 @@ export default function AudioTracksPanel({ tracks, currentTrackIndex, isPlayingC
         <Btn size="small" onClick={onSetChaptersFromTracks}>
           {t('ButtonSetChaptersFromTracks')}
         </Btn>
-        <Tooltip text={t('MessageSetChaptersFromTracksDescription')} position="top" className="mx-1 flex cursor-default items-center">
+        <Tooltip text={t('MessageSetChaptersFromTracksDescription')} position="top" maxWidth={300} className="mx-1 flex cursor-default items-center">
           <span className="material-symbols text-foreground-muted text-xl">info</span>
         </Tooltip>
       </div>

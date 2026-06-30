@@ -215,7 +215,7 @@ export default function FindChaptersModal({
                 >
                   {t('ButtonMapChapterTitles')}
                 </Btn>
-                <Tooltip text={t('MessageMapChapterTitles')} position="top" className="flex items-center">
+                <Tooltip text={t('MessageMapChapterTitles')} position="top" maxWidth={300} className="flex items-center">
                   <span className="material-symbols text-foreground-muted text-xl">info</span>
                 </Tooltip>
               </div>

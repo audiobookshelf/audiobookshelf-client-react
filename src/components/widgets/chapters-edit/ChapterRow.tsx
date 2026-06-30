@@ -151,7 +151,7 @@ function ChapterRow({
       </div>
 
       <div className="flex w-7 min-w-7 items-center justify-center px-1">
-        <LazyTooltip text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom">
+        <LazyTooltip text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom" maxWidth={300}>
           <IconBtn
             ariaLabel={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')}
             borderless
@@ -219,7 +219,7 @@ function ChapterRow({
           )}
 
           {chapter.error && (
-            <LazyTooltip text={chapter.error} position="left">
+            <LazyTooltip text={chapter.error} position="left" maxWidth={300}>
               <span className="material-symbols text-error text-lg" aria-label={chapter.error}>
                 error_outline
               </span>
