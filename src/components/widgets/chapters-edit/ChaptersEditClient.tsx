@@ -35,7 +35,6 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
     newChapters,
     hasChanges,
     lockedChapters,
-    chapterListKey,
     showSecondInputs,
     showShiftTimes,
     shiftAmount,
@@ -135,13 +134,13 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
 
           <ChaptersListSection
             newChapters={newChapters}
-            chapterListKey={chapterListKey}
             mediaDuration={mediaDuration}
             showSecondInputs={showSecondInputs}
             bulkChapterInput={bulkChapterInput}
             lockedChapters={lockedChapters}
             allChaptersLocked={allChaptersLocked}
             preview={preview}
+            tracks={tracks}
             onToggleAllChaptersLock={toggleAllChaptersLock}
             onBulkChapterInputChange={setBulkChapterInput}
             onBulkChapterAdd={handleBulkChapterAdd}
@@ -170,40 +169,46 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
         </div>
       )}
 
-      <FindChaptersModal
-        isOpen={showFindChaptersModal}
-        metadata={media.metadata}
-        mediaDuration={mediaDuration}
-        mediaDurationRounded={mediaDurationRounded}
-        savedChapterCount={savedChapters.length}
-        removeBranding={removeBranding}
-        onRemoveBrandingChange={setRemoveBranding}
-        onClose={() => setShowFindChaptersModal(false)}
-        onApplyTitles={handleApplyTitles}
-        onApplyChapters={handleApplyChapters}
-      />
+      {showFindChaptersModal && (
+        <FindChaptersModal
+          isOpen
+          metadata={media.metadata}
+          mediaDuration={mediaDuration}
+          mediaDurationRounded={mediaDurationRounded}
+          savedChapterCount={savedChapters.length}
+          removeBranding={removeBranding}
+          onRemoveBrandingChange={setRemoveBranding}
+          onClose={() => setShowFindChaptersModal(false)}
+          onApplyTitles={handleApplyTitles}
+          onApplyChapters={handleApplyChapters}
+        />
+      )}
 
-      <AddMultipleChaptersModal
-        isOpen={showAddMultipleChaptersModal}
-        detectedPattern={detectedPattern}
-        bulkChapterCount={bulkChapterCount}
-        onBulkChapterCountChange={setBulkChapterCount}
-        onClose={() => setShowAddMultipleChaptersModal(false)}
-        onConfirm={handleAddBulkChapters}
-      />
+      {showAddMultipleChaptersModal && (
+        <AddMultipleChaptersModal
+          isOpen
+          detectedPattern={detectedPattern}
+          bulkChapterCount={bulkChapterCount}
+          onBulkChapterCountChange={setBulkChapterCount}
+          onClose={() => setShowAddMultipleChaptersModal(false)}
+          onConfirm={handleAddBulkChapters}
+        />
+      )}
 
       {confirmState && <ConfirmDialog isOpen message={confirmState.message} onClose={() => setConfirmState(null)} onConfirm={() => confirmState.onConfirm()} />}
 
-      <LibraryItemEditModal
-        isOpen={isEditModalOpen}
-        libraryItem={libraryItem}
-        onClose={() => setIsEditModalOpen(false)}
-        onSaved={(updated) => {
-          if (updated.mediaType === 'book') {
-            handleLibraryItemSaved(updated as BookLibraryItem)
-          }
-        }}
-      />
+      {isEditModalOpen && (
+        <LibraryItemEditModal
+          isOpen
+          libraryItem={libraryItem}
+          onClose={() => setIsEditModalOpen(false)}
+          onSaved={(updated) => {
+            if (updated.mediaType === 'book') {
+              handleLibraryItemSaved(updated as BookLibraryItem)
+            }
+          }}
+        />
+      )}
     </div>
   )
 }

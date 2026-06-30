@@ -5,28 +5,28 @@ import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EditableChapter } from '@/lib/chapters/chapterEditorUtils'
+import { getAudioTrackForTime } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
-import { TransitionGroup } from 'react-transition-group'
-import ChapterRowItem from './ChapterRowItem'
+import { memo, useMemo } from 'react'
+import ChapterRow from './ChapterRow'
 
 interface ChapterPreviewState {
   selectedChapterId: number | null
   isPlayingChapter: boolean
   isLoadingChapter: boolean
   elapsedTime: number
-  getAudioTrackForTime: (time: number) => unknown
   playChapter: (chapterId: number, start: number) => void
 }
 
 interface ChaptersListSectionProps {
   newChapters: EditableChapter[]
-  chapterListKey: number
   mediaDuration: number
   showSecondInputs: boolean
   bulkChapterInput: string
   lockedChapters: Set<number>
   allChaptersLocked: boolean
   preview: ChapterPreviewState
+  tracks: { startOffset: number; duration: number }[]
   onToggleAllChaptersLock: () => void
   onBulkChapterInputChange: (value: string) => void
   onBulkChapterAdd: () => void
@@ -40,15 +40,15 @@ interface ChaptersListSectionProps {
   onAdjustChapterStartTime: (chapterId: number) => void
 }
 
-export default function ChaptersListSection({
+function ChaptersListSection({
   newChapters,
-  chapterListKey,
   mediaDuration,
   showSecondInputs,
   bulkChapterInput,
   lockedChapters,
   allChaptersLocked,
   preview,
+  tracks,
   onToggleAllChaptersLock,
   onBulkChapterInputChange,
   onBulkChapterAdd,
@@ -62,6 +62,14 @@ export default function ChaptersListSection({
   onAdjustChapterStartTime
 }: ChaptersListSectionProps) {
   const t = useTypeSafeTranslations()
+
+  const canPlayByChapterId = useMemo(() => {
+    const map = new Map<number, boolean>()
+    for (const chapter of newChapters) {
+      map.set(chapter.id, !!getAudioTrackForTime(tracks, chapter.start))
+    }
+    return map
+  }, [newChapters, tracks])
 
   return (
     <>
@@ -85,20 +93,21 @@ export default function ChaptersListSection({
         <div className="w-32" />
       </div>
 
-      <TransitionGroup key={chapterListKey} component={null}>
-        {newChapters.map((chapter) => (
-          <ChapterRowItem
+      {newChapters.map((chapter) => {
+        const isSelected = preview.selectedChapterId === chapter.id
+        return (
+          <ChapterRow
             key={chapter.clientKey}
             chapter={chapter}
             chapterCount={newChapters.length}
             mediaDuration={mediaDuration}
             showSecondInputs={showSecondInputs}
             isLocked={lockedChapters.has(chapter.id)}
-            selectedChapterId={preview.selectedChapterId}
-            isPlayingChapter={preview.isPlayingChapter}
-            isLoadingChapter={preview.isLoadingChapter}
-            elapsedTime={preview.elapsedTime}
-            canPlay={!!preview.getAudioTrackForTime(chapter.start)}
+            isSelected={isSelected}
+            isPlayingChapter={isSelected && preview.isPlayingChapter}
+            isLoadingChapter={isSelected && preview.isLoadingChapter}
+            elapsedTime={isSelected ? preview.elapsedTime : 0}
+            canPlay={canPlayByChapterId.get(chapter.id) ?? false}
             onStartChange={(start) => onChapterStartChange(chapter.id, start)}
             onTitleDraft={(chapterTitle) => onChapterTitleDraft(chapter.id, chapterTitle)}
             onTitleCommit={(chapterTitle) => onChapterTitleCommit(chapter.id, chapterTitle)}
@@ -109,8 +118,8 @@ export default function ChaptersListSection({
             onPlay={() => preview.playChapter(chapter.id, chapter.start)}
             onAdjustStartTime={() => onAdjustChapterStartTime(chapter.id)}
           />
-        ))}
-      </TransitionGroup>
+        )
+      })}
 
       <div className="mt-4 mb-2 flex items-center">
         <div className="w-8 min-w-8 md:w-12 md:min-w-12" />
@@ -145,3 +154,5 @@ export default function ChaptersListSection({
     </>
   )
 }
+
+export default memo(ChaptersListSection)

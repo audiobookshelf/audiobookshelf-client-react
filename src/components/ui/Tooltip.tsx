@@ -21,6 +21,9 @@ interface TooltipProps {
   disabled?: boolean
   addTabIndex?: boolean
   openOnClick?: boolean
+  /** When true, tooltip starts open on mount (used by LazyTooltip for first-hover activation). */
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
 const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
@@ -48,10 +51,12 @@ const Tooltip = ({
   tooltipClassName,
   disabled = false,
   addTabIndex = false,
-  openOnClick = false
+  openOnClick = false,
+  defaultOpen = false,
+  onOpenChange
 }: TooltipProps) => {
   const tooltipId = useId()
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(defaultOpen)
   const [mounted, setMounted] = useState(false)
   const arrowRef = useRef<HTMLDivElement | null>(null)
 
@@ -65,6 +70,10 @@ const Tooltip = ({
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    onOpenChange?.(open)
+  }, [open, onOpenChange])
 
   // Positioning middleware (see https://floating-ui.com/docs/useFloating#middleware)
   const middleware = useMemo(() => {
@@ -278,3 +287,4 @@ const Tooltip = ({
 }
 
 export default Tooltip
+export type { TooltipProps }

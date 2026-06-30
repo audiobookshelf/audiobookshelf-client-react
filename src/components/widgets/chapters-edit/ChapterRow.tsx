@@ -2,8 +2,8 @@
 
 import DurationPicker from '@/components/ui/DurationPicker'
 import IconBtn from '@/components/ui/IconBtn'
+import LazyTooltip from '@/components/ui/LazyTooltip'
 import TextInput from '@/components/ui/TextInput'
-import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EditableChapter } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -56,7 +56,7 @@ interface ChapterRowProps {
   mediaDuration: number
   showSecondInputs: boolean
   isLocked: boolean
-  selectedChapterId: number | null
+  isSelected: boolean
   isPlayingChapter: boolean
   isLoadingChapter: boolean
   elapsedTime: number
@@ -74,13 +74,13 @@ interface ChapterRowProps {
 
 const TIME_INCREMENT = 1
 
-export default function ChapterRow({
+function ChapterRow({
   chapter,
   chapterCount,
   mediaDuration,
   showSecondInputs,
   isLocked,
-  selectedChapterId,
+  isSelected,
   isPlayingChapter,
   isLoadingChapter,
   elapsedTime,
@@ -96,7 +96,6 @@ export default function ChapterRow({
   onAdjustStartTime
 }: ChapterRowProps) {
   const t = useTypeSafeTranslations()
-  const isSelected = selectedChapterId === chapter.id
   const cannotDecrement = chapter.id === 0 && chapter.start - TIME_INCREMENT < 0
   const cannotIncrement = chapter.start + TIME_INCREMENT >= mediaDuration
 
@@ -106,7 +105,7 @@ export default function ChapterRow({
 
       <div className="w-38 min-w-38 px-1 md:w-40 md:min-w-40">
         <div className="flex items-center gap-1">
-          <Tooltip text={t('TooltipSubtractOneSecond')} position="bottom">
+          <LazyTooltip text={t('TooltipSubtractOneSecond')} position="bottom">
             <button
               type="button"
               aria-label={t('TooltipSubtractOneSecond')}
@@ -119,7 +118,7 @@ export default function ChapterRow({
             >
               <span className="material-symbols text-sm">remove</span>
             </button>
-          </Tooltip>
+          </LazyTooltip>
 
           <div className="min-w-0 flex-1">
             {showSecondInputs ? (
@@ -129,7 +128,7 @@ export default function ChapterRow({
             )}
           </div>
 
-          <Tooltip text={t('TooltipAddOneSecond')} position="bottom">
+          <LazyTooltip text={t('TooltipAddOneSecond')} position="bottom">
             <button
               type="button"
               aria-label={t('TooltipAddOneSecond')}
@@ -142,7 +141,7 @@ export default function ChapterRow({
             >
               <span className="material-symbols text-sm">add</span>
             </button>
-          </Tooltip>
+          </LazyTooltip>
         </div>
       </div>
 
@@ -151,7 +150,7 @@ export default function ChapterRow({
       </div>
 
       <div className="flex w-7 min-w-7 items-center justify-center px-1">
-        <Tooltip text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom">
+        <LazyTooltip text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom">
           <IconBtn
             ariaLabel={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')}
             borderless
@@ -161,26 +160,26 @@ export default function ChapterRow({
           >
             {isLocked ? 'lock' : 'lock_open'}
           </IconBtn>
-        </Tooltip>
+        </LazyTooltip>
       </div>
 
       <div className="flex w-32 min-w-32 items-center px-2">
         <div className="flex items-center">
           {chapterCount > 1 && (
-            <Tooltip text={t('MessageRemoveChapter')} position="bottom">
+            <LazyTooltip text={t('MessageRemoveChapter')} position="bottom">
               <IconBtn ariaLabel={t('MessageRemoveChapter')} borderless size="small" className="text-gray-300 hover:not-disabled:text-error" onClick={onRemove}>
                 delete
               </IconBtn>
-            </Tooltip>
+            </LazyTooltip>
           )}
 
-          <Tooltip text={t('MessageInsertChapterBelow')} position="bottom">
+          <LazyTooltip text={t('MessageInsertChapterBelow')} position="bottom">
             <IconBtn ariaLabel={t('MessageInsertChapterBelow')} borderless size="small" className="text-gray-300 hover:not-disabled:text-success" onClick={onInsertBelow}>
               add_row_below
             </IconBtn>
-          </Tooltip>
+          </LazyTooltip>
 
-          <Tooltip text={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
+          <LazyTooltip text={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
             <IconBtn
               ariaLabel={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')}
               borderless
@@ -192,10 +191,10 @@ export default function ChapterRow({
             >
               {isSelected && isPlayingChapter ? 'pause' : 'play_arrow'}
             </IconBtn>
-          </Tooltip>
+          </LazyTooltip>
 
           {isSelected && (isPlayingChapter || isLoadingChapter) && (
-            <Tooltip text={t('TooltipAdjustChapterStart')} position="bottom">
+            <LazyTooltip text={t('TooltipAdjustChapterStart')} position="bottom">
               <button
                 type="button"
                 className="ml-2 min-w-10 cursor-pointer font-mono text-xs text-gray-300 transition-colors hover:text-white"
@@ -203,16 +202,20 @@ export default function ChapterRow({
               >
                 {elapsedTime}s
               </button>
-            </Tooltip>
+            </LazyTooltip>
           )}
 
           {chapter.error && (
-            <Tooltip text={chapter.error} position="left">
-              <span className="material-symbols text-error text-lg">error_outline</span>
-            </Tooltip>
+            <LazyTooltip text={chapter.error} position="left">
+              <span className="material-symbols text-error text-lg" aria-label={chapter.error}>
+                error_outline
+              </span>
+            </LazyTooltip>
           )}
         </div>
       </div>
     </div>
   )
 }
+
+export default memo(ChapterRow)

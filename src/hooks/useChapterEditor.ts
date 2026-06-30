@@ -68,7 +68,6 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   const [bulkChapterCount, setBulkChapterCount] = useState(1)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null)
-  const [chapterListKey, setChapterListKey] = useState(0)
   const titleDraftsRef = useRef<Map<number, string>>(new Map())
 
   const clearTitleDrafts = useCallback(() => {
@@ -101,7 +100,6 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   const replaceChapterList = useCallback(
     (chapters: EditableChapter[], existingOverride?: Chapter[]) => {
       clearTitleDrafts()
-      setChapterListKey((key) => key + 1)
       return runValidation(chapters, existingOverride)
     },
     [clearTitleDrafts, runValidation]
@@ -355,7 +353,6 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     newChapters,
     hasChanges,
     lockedChapters,
-    chapterListKey,
     showSecondInputs,
     showShiftTimes,
     shiftAmount,
