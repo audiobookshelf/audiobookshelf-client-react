@@ -32,7 +32,7 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
     if (
       chapter.start !== existingChapter.start ||
       chapter.end !== existingChapter.end ||
-      chapter.title !== existingChapter.title
+      (chapter.title || '').trim() !== (existingChapter.title || '').trim()
     ) {
       return true
     }
@@ -345,11 +345,15 @@ export function applyChapterTitleDrafts(chapters: EditableChapter[], drafts: Rea
   let changed = false
   const updated = chapters.map((chapter) => {
     const draft = drafts.get(chapter.id)
-    if (draft === undefined || draft === chapter.title) {
+    if (draft === undefined) {
+      return chapter
+    }
+    const trimmedTitle = draft.trim()
+    if (trimmedTitle === chapter.title) {
       return chapter
     }
     changed = true
-    return { ...chapter, title: draft }
+    return { ...chapter, title: trimmedTitle }
   })
 
   return changed ? updated : chapters

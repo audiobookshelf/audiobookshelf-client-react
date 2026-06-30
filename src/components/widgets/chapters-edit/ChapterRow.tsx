@@ -42,7 +42,10 @@ const ChapterTitleInput = memo(function ChapterTitleInput({ title, onDraft, onCo
 
   const handleBlur = useCallback(() => {
     isEditingRef.current = false
-    onCommit(localTitleRef.current)
+    const trimmedTitle = localTitleRef.current.trim()
+    localTitleRef.current = trimmedTitle
+    setLocalTitle(trimmedTitle)
+    onCommit(trimmedTitle)
   }, [onCommit])
 
   return (

@@ -285,24 +285,22 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
 
   const handleChapterTitleDraft = useCallback((chapterId: number, chapterTitle: string) => {
     titleDraftsRef.current.set(chapterId, chapterTitle)
-    setHasChanges((prev) => prev || true)
   }, [])
 
   const handleChapterTitleCommit = useCallback(
     (chapterId: number, chapterTitle: string) => {
       titleDraftsRef.current.delete(chapterId)
+      const trimmedTitle = chapterTitle.trim()
+      let nextChapters = newChapters
       setNewChapters((prev) => {
         const existing = prev[chapterId]
-        if (!existing || existing.title === chapterTitle) {
-          setHasChanges(computeHasChanges(prev, savedChapters))
-          return prev
-        }
-        const updated = updateChapterTitle(prev, chapterId, chapterTitle)
-        setHasChanges(computeHasChanges(updated, savedChapters))
-        return updated
+        nextChapters =
+          !existing || existing.title === trimmedTitle ? prev : updateChapterTitle(prev, chapterId, trimmedTitle)
+        return nextChapters
       })
+      setHasChanges(computeHasChanges(nextChapters, savedChapters))
     },
-    [savedChapters]
+    [newChapters, savedChapters]
   )
 
   const handleChapterIncrementTime = useCallback(
