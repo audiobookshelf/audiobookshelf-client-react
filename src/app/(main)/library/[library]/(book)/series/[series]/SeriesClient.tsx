@@ -23,7 +23,7 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
   const router = useRouter()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { library, setItemCount, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
+  const { library, collapseBookSeries, setItemCount, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
   const { user, serverSettings, ereaderDevices, getMediaItemProgress, userIsAdminOrUp } = useUser()
 
   const [items, setItems] = useState(libraryItems.results)
@@ -102,24 +102,40 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
         openRssModal()
       } else if (action === 'reAddSeriesToContinueListening') {
         reAddSeriesToContinueListening()
+      } else if (action === 'collapse-sub-series' || action === 'expand-sub-series') {
+        showToast('Not implemented', { type: 'warning' })
+      } else if (action === 'mark-series-finished') {
+        showToast('Not implemented', { type: 'warning' })
       }
     },
-    [openRssModal, reAddSeriesToContinueListening]
+    [openRssModal, reAddSeriesToContinueListening, showToast]
   )
 
   useEffect(() => {
-    const items: { text: string; action: string }[] = []
+    const menuItems: { text: string; action: string }[] = [
+      {
+        text: t('MessageMarkAsFinished'),
+        action: 'mark-series-finished'
+      }
+    ]
 
     if (userIsAdminOrUp || rssFeed) {
-      items.push({ text: t('LabelOpenRSSFeed'), action: 'openRssFeed' })
+      menuItems.push({ text: t('LabelOpenRSSFeed'), action: 'openRssFeed' })
     }
 
     if (isSeriesRemovedFromContinueListening) {
-      items.push({ text: t('LabelReAddSeriesToContinueListening'), action: 'reAddSeriesToContinueListening' })
+      menuItems.push({ text: t('LabelReAddSeriesToContinueListening'), action: 'reAddSeriesToContinueListening' })
     }
 
-    setContextMenuItems(items)
-  }, [isSeriesRemovedFromContinueListening, rssFeed, setContextMenuItems, t, userIsAdminOrUp])
+    if (library.mediaType === 'book') {
+      menuItems.push({
+        text: t(collapseBookSeries ? 'LabelExpandSubSeries' : 'LabelCollapseSubSeries'),
+        action: collapseBookSeries ? 'expand-sub-series' : 'collapse-sub-series'
+      })
+    }
+
+    setContextMenuItems(menuItems)
+  }, [collapseBookSeries, isSeriesRemovedFromContinueListening, library.mediaType, rssFeed, setContextMenuItems, t, userIsAdminOrUp])
 
   useEffect(() => {
     setContextMenuActionHandler(handleToolbarMenuAction)
