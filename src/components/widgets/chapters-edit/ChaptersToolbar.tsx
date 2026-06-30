@@ -4,8 +4,8 @@ import Btn from '@/components/ui/Btn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
 interface ChaptersToolbarProps {
-  savedChapterCount: number
   chapterCount: number
+  showRemoveAll: boolean
   hasChanges: boolean
   showShiftTimes: boolean
   onRemoveAll: () => void
@@ -16,8 +16,8 @@ interface ChaptersToolbarProps {
 }
 
 export default function ChaptersToolbar({
-  savedChapterCount,
   chapterCount,
+  showRemoveAll,
   hasChanges,
   showShiftTimes,
   onRemoveAll,
@@ -31,7 +31,7 @@ export default function ChaptersToolbar({
   return (
     <div className="-mx-1 mb-3 flex items-center py-1">
       <div className="hidden w-12 min-[1120px]:block" />
-      {savedChapterCount > 0 && chapterCount > 0 && (
+      {showRemoveAll && (
         <Btn color="bg-primary" size="small" className="mx-1 whitespace-nowrap" onClick={onRemoveAll}>
           {t('ButtonRemoveAll')}
         </Btn>

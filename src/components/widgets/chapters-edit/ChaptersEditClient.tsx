@@ -6,6 +6,7 @@ import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useChapterEditor } from '@/hooks/useChapterEditor'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { hasNonPlaceholderChapters } from '@/lib/chapters/chapterEditorUtils'
 import type { BookLibraryItem } from '@/types/api'
 import AddMultipleChaptersModal from './AddMultipleChaptersModal'
 import AudioTracksPanel from './AudioTracksPanel'
@@ -96,19 +97,11 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
           <ChaptersSectionHeader showSecondInputs={showSecondInputs} onShowSecondInputsChange={setShowSecondInputs} />
 
           <ChaptersToolbar
-            savedChapterCount={savedChapters.length}
             chapterCount={newChapters.length}
+            showRemoveAll={hasNonPlaceholderChapters(newChapters)}
             hasChanges={hasChanges}
             showShiftTimes={showShiftTimes}
-            onRemoveAll={() =>
-              setConfirmState({
-                message: t('MessageConfirmRemoveAllChapters'),
-                onConfirm: () => {
-                  setConfirmState(null)
-                  handleRemoveAll()
-                }
-              })
-            }
+            onRemoveAll={handleRemoveAll}
             onToggleShiftTimes={() => setShowShiftTimes((v) => !v)}
             onLookup={() => setShowFindChaptersModal(true)}
             onReset={() =>

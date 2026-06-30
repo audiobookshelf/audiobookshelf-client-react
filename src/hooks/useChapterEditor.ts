@@ -19,6 +19,7 @@ import {
   incrementChapterTime,
   initChapters,
   insertChapterBelow,
+  isClearAllChaptersState,
   mergeAudibleChapterData,
   mergeAudibleChapterTitles,
   removeChapterAt,
@@ -139,19 +140,22 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     const withDrafts = applyChapterTitleDrafts(newChapters, titleDraftsRef.current)
     clearTitleDrafts()
     const validated = runValidation(withDrafts)
+    const clearingAllChapters = isClearAllChaptersState(validated, savedChapters)
 
-    for (const chapter of validated) {
-      if (chapter.error) {
-        showToast(t('ToastChaptersHaveErrors'), { type: 'error' })
-        return
-      }
-      if (!(chapter.title || '').trim()) {
-        showToast(t('ToastChaptersMustHaveTitles'), { type: 'error' })
-        return
+    if (!clearingAllChapters) {
+      for (const chapter of validated) {
+        if (chapter.error) {
+          showToast(t('ToastChaptersHaveErrors'), { type: 'error' })
+          return
+        }
+        if (!(chapter.title || '').trim()) {
+          showToast(t('ToastChaptersMustHaveTitles'), { type: 'error' })
+          return
+        }
       }
     }
 
-    const payload = computeChapterEnds(validated, mediaDuration)
+    const payload = clearingAllChapters ? [] : computeChapterEnds(validated, mediaDuration)
 
     const successToast = payload.length === 0 ? t('ToastChaptersRemoved') : t('ToastChaptersUpdated')
 
@@ -168,12 +172,12 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
         showToast(t('ToastFailedToUpdate'), { type: 'error' })
       }
     })
-  }, [clearTitleDrafts, libraryItem.id, mediaDuration, newChapters, refreshAfterChapterUpdate, runValidation, showToast, t])
+  }, [clearTitleDrafts, libraryItem.id, mediaDuration, newChapters, refreshAfterChapterUpdate, runValidation, savedChapters, showToast, t])
 
   const handleRemoveAll = useCallback(() => {
-    replaceChapterList([])
+    replaceChapterList(initChapters([], mediaDuration))
     setLockedChapters(new Set())
-  }, [replaceChapterList])
+  }, [mediaDuration, replaceChapterList])
 
   const handleShiftChapterTimes = useCallback(() => {
     if (!shiftAmount || isNaN(shiftAmount) || newChapters.length <= 1) return
