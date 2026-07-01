@@ -18,6 +18,7 @@ import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
@@ -44,6 +45,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   }, [initialLibraryItem])
 
   const isPodcast = libraryItem.mediaType === 'podcast'
+  const isBookWithAudio = libraryItem.mediaType === 'book' && ((libraryItem as BookLibraryItem).media.tracks?.length ?? 0) > 0
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
   const podcastAuthor = 'author' in metadata ? metadata.author : undefined
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined
@@ -61,15 +63,15 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     setIsEditModalOpen(false)
   }
 
-  const handleItemSaved = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
-    setLibraryItem(updatedItem)
+  const handleItemUpdated = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
+    setLibraryItem((prev) => mergeLibraryItemUpdate(prev, updatedItem) as BookLibraryItem | PodcastLibraryItem)
   }
 
   const { rssFeed, episodesDownloading, episodeDownloadsQueued } = useItemPageSocket({
     libraryItemId: libraryItem.id,
     mediaId: libraryItem.media?.id,
     isPodcast,
-    onItemUpdated: handleItemSaved,
+    onItemUpdated: handleItemUpdated,
     initialRssFeed: initialLibraryItem.rssFeed ?? null
   })
 
@@ -195,10 +197,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
               <div className="mt-6 flex flex-col gap-4">
-                {/* chapters table */}
-                {libraryItem.mediaType === 'book' && (libraryItem.media.chapters?.length ?? 0) > 0 && (
-                  <ChaptersTable libraryItem={libraryItem as BookLibraryItem} />
-                )}
+                {isBookWithAudio && <ChaptersTable libraryItem={libraryItem as BookLibraryItem} />}
 
                 {/* audio tracks table */}
                 {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
@@ -225,7 +224,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
           </div>
         </div>
 
-        <LibraryItemEditModal isOpen={isEditModalOpen} libraryItem={libraryItem} onClose={handleCloseEditModal} onSaved={handleItemSaved} />
+        <LibraryItemEditModal isOpen={isEditModalOpen} libraryItem={libraryItem} onClose={handleCloseEditModal} />
         <CoverEditModal isOpen={isCoverEditModalOpen} libraryItem={libraryItem} onClose={() => setIsCoverEditModalOpen(false)} />
         <ConfirmDialog
           isOpen={isClearQueueDialogOpen}

@@ -536,6 +536,28 @@ export interface Chapter {
   title: string
 }
 
+export interface AudibleSearchChapter {
+  title: string
+  startOffsetSec: number
+  startOffsetMs: number
+  lengthMs: number
+}
+
+export interface AudibleChapterSearchResult {
+  runtimeLengthSec: number
+  runtimeLengthMs: number
+  brandIntroDurationMs?: number
+  brandOutroDurationMs?: number
+  chapters: AudibleSearchChapter[]
+  error?: string
+  stringKey?: string
+}
+
+export interface UpdateChaptersResponse {
+  success: boolean
+  updated: boolean
+}
+
 export interface EBookFile {
   ino: string
   metadata: {

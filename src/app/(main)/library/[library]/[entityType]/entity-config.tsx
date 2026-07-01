@@ -17,6 +17,7 @@ import { UpdateSettingFn } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { downloadLibraryOpml } from '@/lib/download'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
+import { userCanDownload, userCanUpdate } from '@/lib/userPermissions'
 import {
   Author,
   BookshelfEntity,
@@ -91,9 +92,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
     ),
     getContextMenuItems: (user, library, settings) => {
       const menuItems: { textKey: TranslationKey; action: string }[] = []
-      const userCanDownload = !!(user.permissions?.download || user.type === 'admin' || user.type === 'root')
-
-      if (library.mediaType === 'podcast' && userCanDownload) {
+      if (library.mediaType === 'podcast' && userCanDownload(user)) {
         menuItems.push({
           textKey: 'LabelExportOPML',
           action: 'export-opml'
@@ -237,7 +236,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       </>
     ),
     getContextMenuItems: (user) => {
-      if (user.permissions?.update) {
+      if (userCanUpdate(user)) {
         return [{ textKey: 'ButtonMatchAllAuthors', action: 'match-all-authors' }]
       }
       return []

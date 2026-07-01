@@ -11,7 +11,9 @@ import {
   AuthorQuickMatchPayload,
   AuthorResponse,
   AuthorUpdateResponse,
+  AudibleChapterSearchResult,
   BookSearchResult,
+  Chapter,
   Collection,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
@@ -74,6 +76,7 @@ import {
   TasksResponse,
   UpdateAuthorPayload,
   UpdateAuthSettingsResponse,
+  UpdateChaptersResponse,
   UpdateEmailSettingsResponse,
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
@@ -390,19 +393,19 @@ export const getServerStatus = cache(async (): Promise<ServerStatus> => {
 })
 
 export const getLibraries = cache(async (): Promise<GetLibrariesResponse> => {
-  return apiRequest<GetLibrariesResponse>('/api/libraries', {})
+  return apiRequest<GetLibrariesResponse>('/api/libraries')
 })
 
 export const getLibrary = cache(async (libraryId: string): Promise<Library> => {
-  return apiRequest<Library>(`/api/libraries/${libraryId}`, {})
+  return apiRequest<Library>(`/api/libraries/${libraryId}`)
 })
 
 export const getLibraryPersonalized = cache(async (libraryId: string): Promise<PersonalizedShelf[]> => {
-  return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized?include=rssfeed,share`, {})
+  return apiRequest<PersonalizedShelf[]>(`/api/libraries/${libraryId}/personalized?include=rssfeed,share`)
 })
 
 export const getLibraryItems = cache(async (libraryId: string, queryParams?: string): Promise<GetLibraryItemsResponse> => {
-  return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<GetLibraryItemsResponse>(`/api/libraries/${libraryId}/items${queryParams ? `?${queryParams}` : ''}`)
 })
 
 /**
@@ -410,7 +413,7 @@ export const getLibraryItems = cache(async (libraryId: string, queryParams?: str
  * Used for populating filter dropdown menus
  */
 export async function getLibraryFilterData(libraryId: string): Promise<LibraryFilterData> {
-  return apiRequest<LibraryFilterData>(`/api/libraries/${libraryId}/filterdata`, {})
+  return apiRequest<LibraryFilterData>(`/api/libraries/${libraryId}/filterdata`)
 }
 
 /**
@@ -423,8 +426,26 @@ export const getLibraryItem = cache(async (itemId: string, expanded?: boolean, i
   const params = new URLSearchParams()
   params.set('expanded', expanded ? '1' : '0')
   if (include) params.set('include', include)
-  return apiRequest<LibraryItem>(`/api/items/${itemId}?${params.toString()}`, {})
+  return apiRequest<LibraryItem>(`/api/items/${itemId}?${params.toString()}`)
 })
+
+/**
+ * Update chapters for a library item
+ */
+export async function updateChapters(libraryItemId: string, chapters: Chapter[]): Promise<UpdateChaptersResponse> {
+  return apiRequest<UpdateChaptersResponse>(`/api/items/${libraryItemId}/chapters`, {
+    method: 'POST',
+    body: JSON.stringify({ chapters })
+  })
+}
+
+/**
+ * Search Audible chapters by ASIN and region
+ */
+export async function searchChapters(asin: string, region: string): Promise<AudibleChapterSearchResult> {
+  const params = new URLSearchParams({ asin, region })
+  return apiRequest<AudibleChapterSearchResult>(`/api/search/chapters?${params.toString()}`)
+}
 
 /**
  * Get FFProbe data for an audio file
@@ -434,15 +455,15 @@ export const getLibraryItem = cache(async (itemId: string, expanded?: boolean, i
  * Returns: FFProbe data object
  */
 export async function getAudioFileFFProbeData(itemId: string, fileIno: string): Promise<FFProbeData> {
-  return apiRequest<FFProbeData>(`/api/items/${itemId}/ffprobe/${fileIno}`, {})
+  return apiRequest<FFProbeData>(`/api/items/${itemId}/ffprobe/${fileIno}`)
 }
 
 export const getUsers = cache(async (queryParams?: string): Promise<GetUsersResponse> => {
-  return apiRequest<GetUsersResponse>(`/api/users${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<GetUsersResponse>(`/api/users${queryParams ? `?${queryParams}` : ''}`)
 })
 
 export const getUser = cache(async (userId: string): Promise<User> => {
-  return apiRequest<User>(`/api/users/${userId}`, {})
+  return apiRequest<User>(`/api/users/${userId}`)
 })
 
 export const deleteUser = cache(async (userId: string): Promise<void> => {
@@ -528,7 +549,7 @@ export async function searchLibrary(libraryId: string, query: string, limit?: nu
     params.set('limit', limit.toString())
   }
 
-  return apiRequest<SearchLibraryResponse>(`/api/libraries/${libraryId}/search?${params.toString()}`, {})
+  return apiRequest<SearchLibraryResponse>(`/api/libraries/${libraryId}/search?${params.toString()}`)
 }
 
 //
@@ -540,56 +561,56 @@ export async function searchLibrary(libraryId: string, query: string, limit?: nu
  * Returns: Object with providers for books, book covers, and podcasts
  */
 export const getMetadataProviders = cache(async (): Promise<MetadataProvidersResponse> => {
-  return apiRequest<MetadataProvidersResponse>('/api/search/providers', {})
+  return apiRequest<MetadataProvidersResponse>('/api/search/providers')
 })
 
 export const getTags = cache(async () => {
-  return apiRequest<{ tags: string[] }>('/api/tags', {})
+  return apiRequest<{ tags: string[] }>('/api/tags')
 })
 
 export const getGenres = cache(async () => {
-  return apiRequest<{ genres: string[] }>('/api/genres', {})
+  return apiRequest<{ genres: string[] }>('/api/genres')
 })
 
 export const getNarrators = cache(async (libraryId: string) => {
-  return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`, {})
+  return apiRequest<GetNarratorsResponse>(`/api/libraries/${libraryId}/narrators`)
 })
 
 export const getAuthor = cache(async (authorId: string, queryParams?: string): Promise<Author> => {
-  return apiRequest<Author>(`/api/authors/${authorId}${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<Author>(`/api/authors/${authorId}${queryParams ? `?${queryParams}` : ''}`)
 })
 
 export const getPlaylist = cache(async (playlistId: string): Promise<Playlist> => {
-  return apiRequest<Playlist>(`/api/playlists/${playlistId}`, {})
+  return apiRequest<Playlist>(`/api/playlists/${playlistId}`)
 })
 
 export const getCollection = cache(async (collectionId: string): Promise<Collection> => {
-  return apiRequest<Collection>(`/api/collections/${collectionId}?include=rssfeed`, {})
+  return apiRequest<Collection>(`/api/collections/${collectionId}?include=rssfeed`)
 })
 
 export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
-  return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}?include=rssfeed`, {})
+  return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}?include=rssfeed`)
 })
 
 // Paginated entity list functions for bookshelf views
 export const getLibrarySeries = cache(async (libraryId: string, queryParams?: string): Promise<GetSeriesResponse> => {
-  return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<GetSeriesResponse>(`/api/libraries/${libraryId}/series${queryParams ? `?${queryParams}` : ''}`)
 })
 
 export const getLibraryAuthors = cache(async (libraryId: string, queryParams?: string): Promise<GetAuthorsResponse> => {
-  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<GetAuthorsResponse>(`/api/libraries/${libraryId}/authors${queryParams ? `?${queryParams}` : ''}`)
 })
 
 export const getLibraryCollections = cache(async (libraryId: string, queryParams?: string): Promise<GetCollectionsResponse> => {
-  return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<GetCollectionsResponse>(`/api/libraries/${libraryId}/collections${queryParams ? `?${queryParams}` : ''}`)
 })
 
 export const getLibraryPlaylists = cache(async (libraryId: string, queryParams?: string): Promise<GetPlaylistsResponse> => {
-  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<GetPlaylistsResponse>(`/api/libraries/${libraryId}/playlists${queryParams ? `?${queryParams}` : ''}`)
 })
 
 export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
-  return apiRequest<GetApiKeysResponse>('/api/api-keys', {})
+  return apiRequest<GetApiKeysResponse>('/api/api-keys')
 })
 
 export const deleteApiKey = cache(async (apiKeyId: string): Promise<void> => {
@@ -613,11 +634,11 @@ export async function updateApiKey(apiKeyId: string, payload: CreateApiKeyPayloa
 }
 
 export const getRssFeeds = cache(async (): Promise<GetRssFeedsResponse> => {
-  return apiRequest<GetRssFeedsResponse>('/api/feeds', {})
+  return apiRequest<GetRssFeedsResponse>('/api/feeds')
 })
 
 export const getCustomMetadataProviders = cache(async (): Promise<GetCustomMetadataProvidersResponse> => {
-  return apiRequest<GetCustomMetadataProvidersResponse>('/api/custom-metadata-providers', {})
+  return apiRequest<GetCustomMetadataProvidersResponse>('/api/custom-metadata-providers')
 })
 
 export const deleteCustomMetadataProvider = cache(async (providerId: string): Promise<void> => {
@@ -665,7 +686,7 @@ export async function closeMediaItemShare(shareId: string): Promise<void> {
 }
 
 export const getBackups = cache(async (): Promise<GetBackupsResponse> => {
-  return apiRequest<GetBackupsResponse>('/api/backups', {})
+  return apiRequest<GetBackupsResponse>('/api/backups')
 })
 
 export async function createBackup(): Promise<MutateBackupsResponse> {
@@ -687,11 +708,11 @@ export async function applyBackup(backupId: string): Promise<void> {
 }
 
 export const getListeningSessions = cache(async (queryParams?: string): Promise<GetListeningSessionsResponse> => {
-  return apiRequest<GetListeningSessionsResponse>(`/api/sessions${queryParams ? `?${queryParams}` : ''}`, {})
+  return apiRequest<GetListeningSessionsResponse>(`/api/sessions${queryParams ? `?${queryParams}` : ''}`)
 })
 
 export const getOpenListeningSessions = cache(async (): Promise<GetOpenListeningSessionsResponse> => {
-  return apiRequest<GetOpenListeningSessionsResponse>('/api/sessions/open', {})
+  return apiRequest<GetOpenListeningSessionsResponse>('/api/sessions/open')
 })
 
 export async function deleteListeningSession(sessionId: string): Promise<void> {
@@ -714,7 +735,7 @@ export async function batchDeleteListeningSessions(sessionIds: string[]): Promis
 }
 
 export const getLoggerData = cache(async (): Promise<GetLoggerDataResponse> => {
-  return apiRequest<GetLoggerDataResponse>('/api/logger-data', {})
+  return apiRequest<GetLoggerDataResponse>('/api/logger-data')
 })
 
 /**
@@ -740,7 +761,7 @@ export async function searchBooks(provider: string, title: string, author?: stri
     params.set('id', libraryItemId)
   }
 
-  return apiRequest<BookSearchResult[]>(`/api/search/books?${params.toString()}`, {})
+  return apiRequest<BookSearchResult[]>(`/api/search/books?${params.toString()}`)
 }
 
 /**
@@ -754,14 +775,14 @@ export async function searchPodcasts(term: string, country = 'us'): Promise<Podc
     country
   })
 
-  return apiRequest<PodcastSearchResult[]>(`/api/search/podcast?${params.toString()}`, {})
+  return apiRequest<PodcastSearchResult[]>(`/api/search/podcast?${params.toString()}`)
 }
 
 /**
  * Get podcast titles in a library (for add-podcast duplicate detection)
  */
 export async function getPodcastTitles(libraryId: string): Promise<GetPodcastTitlesResponse> {
-  return apiRequest<GetPodcastTitlesResponse>(`/api/libraries/${libraryId}/podcast-titles`, {})
+  return apiRequest<GetPodcastTitlesResponse>(`/api/libraries/${libraryId}/podcast-titles`)
 }
 
 /**
@@ -890,7 +911,7 @@ export async function sendEbookToDevice(payload: { libraryItemId: string; device
 }
 
 export const getEmailSettings = cache(async (): Promise<GetEmailSettingsResponse> => {
-  return apiRequest<GetEmailSettingsResponse>('/api/emails/settings', {})
+  return apiRequest<GetEmailSettingsResponse>('/api/emails/settings')
 })
 
 export async function updateEmailSettings(payload: EmailSettingsFormFields): Promise<UpdateEmailSettingsResponse> {
@@ -914,7 +935,7 @@ export async function updateEReaderDevices(ereaderDevices: EReaderDevice[]): Pro
 }
 
 export const getAuthSettings = cache(async (): Promise<AuthenticationSettings> => {
-  return apiRequest<AuthenticationSettings>('/api/auth-settings', {})
+  return apiRequest<AuthenticationSettings>('/api/auth-settings')
 })
 
 export async function updateAuthSettings(payload: AuthenticationSettingsPatch): Promise<UpdateAuthSettingsResponse> {
@@ -925,7 +946,7 @@ export async function updateAuthSettings(payload: AuthenticationSettingsPatch): 
 }
 
 export const getNotifications = cache(async (): Promise<GetNotificationsResponse> => {
-  return apiRequest<GetNotificationsResponse>('/api/notifications', {})
+  return apiRequest<GetNotificationsResponse>('/api/notifications')
 })
 
 export async function updateNotificationSettings(payload: NotificationSettingsPatch): Promise<void> {
@@ -957,12 +978,12 @@ export async function deleteNotification(id: string): Promise<NotificationSettin
 
 /** Send test data through a notification config */
 export async function testNotification(id: string): Promise<void> {
-  return apiRequest<void>(`/api/notifications/${id}/test`, {})
+  return apiRequest<void>(`/api/notifications/${id}/test`)
 }
 
 /** Trigger the onTest event (optional ?fail=1) */
 export async function triggerOnTestEvent(fail = false): Promise<void> {
-  return apiRequest<void>(`/api/notifications/test?fail=${fail ? 1 : 0}`, {})
+  return apiRequest<void>(`/api/notifications/test?fail=${fail ? 1 : 0}`)
 }
 
 /**
@@ -1100,7 +1121,7 @@ export async function embedMetadataQuick(libraryItemId: string): Promise<void> {
  * Returns: Tasks array and queued task data
  */
 export async function getTasks(): Promise<TasksResponse> {
-  return apiRequest<TasksResponse>('/api/tasks?include=queue', {})
+  return apiRequest<TasksResponse>('/api/tasks?include=queue')
 }
 
 //

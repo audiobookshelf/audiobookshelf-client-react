@@ -1,3 +1,8 @@
+/**
+ * Not currently wired into the production app (components catalog only).
+ * Migrated from the Vue Edit modal Chapters tab; superseded by item-page
+ * ChaptersTable and the /chapters edit page.
+ */
 'use client'
 
 import Btn from '@/components/ui/Btn'

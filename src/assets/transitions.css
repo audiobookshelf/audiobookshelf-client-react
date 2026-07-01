@@ -90,6 +90,49 @@
   position: absolute;
 }
 
+.chapter-row-anim {
+  display: grid;
+  grid-template-rows: 1fr;
+}
+
+.chapter-row-anim-inner {
+  min-height: 0;
+  overflow: visible;
+}
+
+.chapter-row-enter > .chapter-row-anim-inner,
+.chapter-row-enter-active > .chapter-row-anim-inner,
+.chapter-row-exit > .chapter-row-anim-inner,
+.chapter-row-exit-active > .chapter-row-anim-inner {
+  overflow: hidden;
+}
+
+.chapter-row-enter {
+  grid-template-rows: 0fr;
+  opacity: 0;
+}
+
+.chapter-row-enter-active {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition:
+    grid-template-rows 300ms ease-out,
+    opacity 300ms ease-out;
+}
+
+.chapter-row-exit {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.chapter-row-exit-active {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 250ms ease-in,
+    opacity 250ms ease-in;
+}
+
 /* Player track loading animation */
 .loading-track-slide {
   animation: loading-track-slide 1.5s ease-in-out infinite;

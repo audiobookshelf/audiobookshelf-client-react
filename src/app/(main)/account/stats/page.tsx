@@ -1,6 +1,7 @@
 import AccountStatsSummary from '@/components/stats/AccountStatsSummary'
 import { getCurrentUser, getData, getListeningStats } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { isUserAdminOrUp } from '@/lib/userPermissions'
 import AccountStatsClient from './AccountStatsClient'
 
 export const dynamic = 'force-dynamic'
@@ -18,7 +19,7 @@ export default async function AccountStatsPage() {
   const days = listeningStats.days ?? {}
   const daysListened = Object.values(days).length
   const minutesListening = Math.round((listeningStats.totalTime ?? 0) / 60)
-  const showViewAllSessions = user.type === 'admin' || user.type === 'root'
+  const showViewAllSessions = isUserAdminOrUp(user)
 
   return (
     <div className="mx-auto w-full max-w-4xl p-8">
