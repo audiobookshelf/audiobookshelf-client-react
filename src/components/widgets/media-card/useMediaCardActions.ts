@@ -32,8 +32,8 @@ import {
   isBookMedia,
   isPersonalizedSeriesRef
 } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
 
 interface UseMediaCardActionsProps {
@@ -248,6 +248,10 @@ export function useMediaCardActions({
         onOpenCoverEdit?.()
       } else if (action === 'editChapters') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`)
+      } else if (action === 'makeM4b') {
+        router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tools?tool=m4b`)
+      } else if (action === 'embedMetadata') {
+        router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tools?tool=embed`)
       } else if (action === 'download') {
         downloadLibraryItem(libraryItem.id)
       } else if (action === 'sendToDevice') {
@@ -477,6 +481,17 @@ export function useMediaCardActions({
       items.push({
         text: t('ButtonEditChapters'),
         func: 'editChapters'
+      })
+    }
+
+    if (userIsAdminOrUp && libraryItem.mediaType === 'book' && isBookMedia(media) && numTracks > 0 && !episodeForQueue) {
+      items.push({
+        text: t('LabelToolsMakeM4b'),
+        func: 'makeM4b'
+      })
+      items.push({
+        text: t('LabelToolsEmbedMetadata'),
+        func: 'embedMetadata'
       })
     }
 
