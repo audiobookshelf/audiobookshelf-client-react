@@ -77,13 +77,13 @@ function ChaptersListSection({
         <div />
         <div className="px-1 ps-8 md:ps-8">{t('LabelStart')}</div>
         <div className="px-1">{t('LabelTitle')}</div>
-        <div className="flex items-center justify-center px-1 pb-2">
+        <div className="flex items-center justify-center px-1">
           <Tooltip text={allChaptersLocked ? t('TooltipUnlockAllChapters') : t('TooltipLockAllChapters')} position="bottom">
             <IconBtn
               ariaLabel={allChaptersLocked ? t('TooltipUnlockAllChapters') : t('TooltipLockAllChapters')}
               borderless
               size="small"
-              className={allChaptersLocked ? 'text-warning hover:text-warning' : 'text-foreground-muted hover:text-foreground'}
+              className={allChaptersLocked ? 'text-warning hover:not-disabled:text-warning' : 'text-foreground-muted hover:not-disabled:text-foreground'}
               onClick={onToggleAllChaptersLock}
             >
               {allChaptersLocked ? 'lock' : 'lock_open'}
