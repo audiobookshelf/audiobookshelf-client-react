@@ -189,9 +189,7 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
 
       {confirmState && <ConfirmDialog isOpen message={confirmState.message} onClose={() => setConfirmState(null)} onConfirm={() => confirmState.onConfirm()} />}
 
-      {isEditModalOpen && (
-        <LibraryItemEditModal isOpen libraryItem={libraryItem} onClose={() => setIsEditModalOpen(false)} />
-      )}
+      {isEditModalOpen && <LibraryItemEditModal isOpen libraryItem={libraryItem} onClose={() => setIsEditModalOpen(false)} />}
     </div>
   )
 }

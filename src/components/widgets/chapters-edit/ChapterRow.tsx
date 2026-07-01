@@ -164,7 +164,7 @@ function ChapterRow({
         </LazyTooltip>
       </div>
 
-      <div className="flex w-52 min-w-52 shrink-0 items-center px-2">
+      <div className="flex w-32 min-w-32 shrink-0 items-center px-2">
         <div className="flex shrink-0 items-center">
           {chapterCount > 1 && (
             <LazyTooltip text={t('MessageRemoveChapter')} position="bottom">
