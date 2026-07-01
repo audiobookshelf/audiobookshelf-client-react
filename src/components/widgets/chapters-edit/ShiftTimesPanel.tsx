@@ -17,7 +17,7 @@ export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onSh
 
   return (
     <div className="mb-4 flex">
-      <div className="hidden w-12 lg:block" />
+      <div className="hidden w-12 xl:block" />
       <div className="grow">
         <div className="flex items-center">
           <p className="mb-1 pr-2 text-sm font-semibold">{t('LabelTimeToShift')}</p>
@@ -32,7 +32,7 @@ export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onSh
         </div>
         <p className="text-foreground-muted max-w-md py-1.5 text-xs">{t('NoteChapterEditorTimes')}</p>
       </div>
-      <div className="hidden w-52 lg:block" />
+      <div className="hidden w-52 xl:block" />
     </div>
   )
 }

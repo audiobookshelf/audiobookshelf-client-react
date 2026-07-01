@@ -13,11 +13,11 @@ export default function ChaptersSectionHeader({ showSecondInputs, onShowSecondIn
 
   return (
     <div className="flex items-center">
-      <div className="hidden w-12 min-[1120px]:block" />
+      <div className="hidden w-12 xl:block" />
       <p className="mb-4 text-lg font-semibold">{t('HeaderChapters')}</p>
       <div className="grow" />
       <Checkbox value={showSecondInputs} label={t('LabelShowSeconds')} size="small" className="mx-2" onChange={onShowSecondInputsChange} />
-      <div className="hidden w-52 min-[1120px]:block" />
+      <div className="hidden w-52 xl:block" />
     </div>
   )
 }

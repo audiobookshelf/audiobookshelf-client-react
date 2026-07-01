@@ -19,7 +19,7 @@ export default function AudioTracksPanel({ tracks, currentTrackIndex, isPlayingC
   const t = useTypeSafeTranslations()
 
   return (
-    <div className="w-full max-w-3xl overflow-x-hidden px-2 py-4 min-[1120px]:max-w-xl">
+    <div className="w-full max-w-3xl overflow-x-hidden px-2 py-4 xl:max-w-xl">
       <div className="mb-4 flex items-center py-1">
         <p className="text-lg font-semibold">{t('HeaderAudioTracks')}</p>
         <div className="grow" />
@@ -32,14 +32,14 @@ export default function AudioTracksPanel({ tracks, currentTrackIndex, isPlayingC
       </div>
 
       <div className="text-foreground-muted mb-2 flex text-xs font-semibold uppercase">
-        <div className="min-w-0 grow min-[1120px]:max-w-64 xl:max-w-sm">{t('LabelFilename')}</div>
+        <div className="min-w-0 grow xl:max-w-sm">{t('LabelFilename')}</div>
         <div className="w-20">{t('LabelDuration')}</div>
         <div className="hidden w-20 text-center md:block">{t('HeaderChapters')}</div>
       </div>
 
       {tracks.map((track) => (
         <div key={track.ino} className={mergeClasses('flex items-center py-2', currentTrackIndex === track.index && isPlayingChapter && 'bg-success/10')}>
-          <div className="min-w-0 grow overflow-hidden pr-2 min-[1120px]:max-w-64 xl:max-w-sm">
+          <div className="min-w-0 grow overflow-hidden pr-2 xl:max-w-sm">
             <LazyTruncatingTooltipText text={track.metadata.filename} className="text-xs" maxWidth={400} />
           </div>
           <div className="w-20" style={{ minWidth: 80 }}>

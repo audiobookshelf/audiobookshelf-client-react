@@ -30,7 +30,7 @@ export default function ChaptersToolbar({
 
   return (
     <div className="-mx-1 mb-3 flex items-center py-1">
-      <div className="hidden w-12 min-[1120px]:block" />
+      <div className="hidden w-12 xl:block" />
       {showRemoveAll && (
         <Btn color="bg-primary" size="small" className="mx-1 whitespace-nowrap" onClick={onRemoveAll}>
           {t('ButtonRemoveAll')}
@@ -55,7 +55,7 @@ export default function ChaptersToolbar({
           {t('ButtonSave')}
         </Btn>
       )}
-      <div className="hidden w-52 min-[1120px]:block" />
+      <div className="hidden w-52 xl:block" />
     </div>
   )
 }
