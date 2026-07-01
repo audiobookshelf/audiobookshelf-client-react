@@ -93,7 +93,7 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
       />
 
       <div className="flex flex-wrap-reverse justify-center px-4 py-4 min-[1120px]:flex-nowrap">
-        <div className="w-full max-w-3xl py-4">
+        <div className="w-full max-w-3xl overflow-x-hidden py-4">
           <ChaptersSectionHeader showSecondInputs={showSecondInputs} onShowSecondInputsChange={setShowSecondInputs} />
 
           <ChaptersToolbar

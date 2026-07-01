@@ -164,8 +164,8 @@ function ChapterRow({
         </LazyTooltip>
       </div>
 
-      <div className="flex w-32 min-w-32 items-center px-2">
-        <div className="flex items-center">
+      <div className="flex w-52 min-w-52 shrink-0 items-center px-2">
+        <div className="flex shrink-0 items-center">
           {chapterCount > 1 && (
             <LazyTooltip text={t('MessageRemoveChapter')} position="bottom">
               <IconBtn
@@ -206,17 +206,19 @@ function ChapterRow({
             </IconBtn>
           </LazyTooltip>
 
-          {isSelected && (isPlayingChapter || isLoadingChapter) && (
-            <LazyTooltip text={t('TooltipAdjustChapterStart')} position="bottom">
-              <button
-                type="button"
-                className="text-foreground-muted hover:text-foreground ml-2 min-w-10 cursor-pointer font-mono text-xs transition-colors"
-                onClick={onAdjustStartTime}
-              >
-                {elapsedTime}s
-              </button>
-            </LazyTooltip>
-          )}
+          <div className="ml-2 w-10 shrink-0 text-center">
+            {isSelected && (isPlayingChapter || isLoadingChapter) && (
+              <LazyTooltip text={t('TooltipAdjustChapterStart')} position="bottom">
+                <button
+                  type="button"
+                  className="text-foreground-muted hover:text-foreground cursor-pointer font-mono text-xs transition-colors"
+                  onClick={onAdjustStartTime}
+                >
+                  {elapsedTime}s
+                </button>
+              </LazyTooltip>
+            )}
+          </div>
 
           {chapter.error && (
             <LazyTooltip text={chapter.error} position="left" maxWidth={300}>

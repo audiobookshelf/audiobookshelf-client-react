@@ -90,7 +90,7 @@ function ChaptersListSection({
             </IconBtn>
           </Tooltip>
         </div>
-        <div className="w-32" />
+        <div className="w-52 min-w-52 shrink-0" />
       </div>
 
       {newChapters.map((chapter) => {

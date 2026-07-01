@@ -32,7 +32,7 @@ export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onSh
         </div>
         <p className="text-foreground-muted max-w-md py-1.5 text-xs">{t('NoteChapterEditorTimes')}</p>
       </div>
-      <div className="hidden w-32 lg:block" />
+      <div className="hidden w-52 lg:block" />
     </div>
   )
 }

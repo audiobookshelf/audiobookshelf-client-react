@@ -55,7 +55,7 @@ export default function ChaptersToolbar({
           {t('ButtonSave')}
         </Btn>
       )}
-      <div className="hidden w-32 min-[1120px]:block" />
+      <div className="hidden w-52 min-[1120px]:block" />
     </div>
   )
 }
