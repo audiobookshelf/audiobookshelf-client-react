@@ -121,10 +121,10 @@ function ChaptersListSection({
         )
       })}
 
-      <div className="mt-4 mb-2 contents">
-        <div />
-        <div />
-        <div className="min-w-0 px-1">
+      <div className="contents">
+        <div className="py-1 pt-4" />
+        <div className="py-1 pt-4" />
+        <div className="min-w-0 px-1 py-1 pt-4">
           <TextInput
             value={bulkChapterInput}
             placeholder={t('PlaceholderBulkChapterInput')}
@@ -136,9 +136,8 @@ function ChaptersListSection({
             }}
           />
         </div>
-        <div />
-        <div className="px-2 py-1">
-          <Tooltip text={t('TooltipAddChapters')} position="bottom" className="inline-block align-middle">
+        <div className="flex items-center justify-center px-1 py-1 pt-4">
+          <Tooltip text={t('TooltipAddChapters')} position="bottom">
             <IconBtn
               ariaLabel={t('TooltipAddChapters')}
               borderless
@@ -151,6 +150,7 @@ function ChaptersListSection({
             </IconBtn>
           </Tooltip>
         </div>
+        <div className="py-1 pt-4" />
       </div>
     </div>
   )

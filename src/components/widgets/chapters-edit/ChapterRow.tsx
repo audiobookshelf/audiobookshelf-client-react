@@ -164,7 +164,7 @@ function ChapterRow({
         </LazyTooltip>
       </div>
 
-      <div className="flex min-w-0 items-center px-2 py-1">
+      <div className="flex items-center px-2 py-1">
         <div className="flex shrink-0 items-center">
           {chapterCount > 1 && (
             <LazyTooltip text={t('MessageRemoveChapter')} position="bottom">
@@ -207,26 +207,27 @@ function ChapterRow({
           </LazyTooltip>
 
           <div className="ml-2 w-10 shrink-0 text-center">
-            {isSelected && (isPlayingChapter || isLoadingChapter) && (
-              <LazyTooltip text={t('TooltipAdjustChapterStart')} position="bottom">
-                <button
-                  type="button"
-                  className="text-foreground-muted hover:text-foreground cursor-pointer font-mono text-xs transition-colors"
-                  onClick={onAdjustStartTime}
-                >
-                  {elapsedTime}s
-                </button>
+            {chapter.error ? (
+              <LazyTooltip text={chapter.error} position="left" maxWidth={300}>
+                <span className="material-symbols text-error text-lg" aria-label={chapter.error}>
+                  error_outline
+                </span>
               </LazyTooltip>
+            ) : (
+              isSelected &&
+              (isPlayingChapter || isLoadingChapter) && (
+                <LazyTooltip text={t('TooltipAdjustChapterStart')} position="bottom">
+                  <button
+                    type="button"
+                    className="text-foreground-muted hover:text-foreground cursor-pointer font-mono text-xs transition-colors"
+                    onClick={onAdjustStartTime}
+                  >
+                    {elapsedTime}s
+                  </button>
+                </LazyTooltip>
+              )
             )}
           </div>
-
-          {chapter.error && (
-            <LazyTooltip text={chapter.error} position="left" maxWidth={300}>
-              <span className="material-symbols text-error text-lg" aria-label={chapter.error}>
-                error_outline
-              </span>
-            </LazyTooltip>
-          )}
         </div>
       </div>
     </div>
