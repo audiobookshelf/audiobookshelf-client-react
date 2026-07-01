@@ -338,10 +338,6 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     setLockedChapters(new Set())
   }, [tracks, replaceChapterList])
 
-  const handleLibraryItemSaved = useCallback((updated: BookLibraryItem) => {
-    setLibraryItem(updated)
-  }, [])
-
   const isStreaming = !!streamLibraryItem
 
   return {
@@ -397,7 +393,6 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     handleChapterRemove,
     handleChapterInsertBelow,
     handleSetChaptersFromTracks,
-    handleLibraryItemSaved,
     resetEditorChapters
   }
 }

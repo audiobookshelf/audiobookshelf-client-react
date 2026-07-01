@@ -18,6 +18,7 @@ import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
@@ -63,15 +64,15 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     setIsEditModalOpen(false)
   }
 
-  const handleItemSaved = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
-    setLibraryItem(updatedItem)
+  const handleItemUpdated = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
+    setLibraryItem((prev) => mergeLibraryItemUpdate(prev, updatedItem) as BookLibraryItem | PodcastLibraryItem)
   }
 
   const { rssFeed, episodesDownloading, episodeDownloadsQueued } = useItemPageSocket({
     libraryItemId: libraryItem.id,
     mediaId: libraryItem.media?.id,
     isPodcast,
-    onItemUpdated: handleItemSaved,
+    onItemUpdated: handleItemUpdated,
     initialRssFeed: initialLibraryItem.rssFeed ?? null
   })
 
@@ -224,7 +225,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
           </div>
         </div>
 
-        <LibraryItemEditModal isOpen={isEditModalOpen} libraryItem={libraryItem} onClose={handleCloseEditModal} onSaved={handleItemSaved} />
+        <LibraryItemEditModal isOpen={isEditModalOpen} libraryItem={libraryItem} onClose={handleCloseEditModal} />
         <CoverEditModal isOpen={isCoverEditModalOpen} libraryItem={libraryItem} onClose={() => setIsCoverEditModalOpen(false)} />
         <ConfirmDialog
           isOpen={isClearQueueDialogOpen}

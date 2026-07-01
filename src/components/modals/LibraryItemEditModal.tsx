@@ -71,7 +71,6 @@ function createPlaceholderPodcastLibraryItem(id: string, libraryId: string): Pod
 export type LibraryItemEditModalProps = {
   isOpen: boolean
   onClose: () => void
-  onSaved?: (libraryItem: BookLibraryItem | PodcastLibraryItem) => void
 } & LibraryItemModalItemSource
 
 type LibraryItemEditModalContentProps = {
@@ -79,13 +78,12 @@ type LibraryItemEditModalContentProps = {
   startSaveTransition: TransitionStartFunction
   isSavePending: boolean
   onClose: () => void
-  onSaved?: (libraryItem: BookLibraryItem | PodcastLibraryItem) => void
   /** When true (navCtx), body height stays fixed so prev/next does not resize the panel. */
   stableBodyHeight: boolean
 }
 
-function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePending, onClose, onSaved, stableBodyHeight }: LibraryItemEditModalContentProps) {
-  const { resolvedItem, fetchPending, pendingEntityId, syncResolvedItem } = useLibraryItemModal()
+function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePending, onClose, stableBodyHeight }: LibraryItemEditModalContentProps) {
+  const { resolvedItem, fetchPending, pendingEntityId } = useLibraryItemModal()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { filterData, library } = useLibrary()
@@ -172,14 +170,12 @@ function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePendin
 
       startSaveTransition(async () => {
         try {
-          const updatedItem = await updateLibraryItemMediaAction(itemId, {
+          await updateLibraryItemMediaAction(itemId, {
             metadata: details.updatePayload.metadata,
             tags: details.updatePayload.tags
           })
-          const next = updatedItem.libraryItem as BookLibraryItem | PodcastLibraryItem
           showToast(t('ToastItemUpdateSuccess'), { type: 'success' })
-          syncResolvedItem(next)
-          onSaved?.(next)
+          setHasChanges(false)
           if (saveAndCloseRef.current) {
             onClose()
           }
@@ -189,7 +185,7 @@ function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePendin
         }
       })
     },
-    [onClose, onSaved, resolvedItem?.id, showToast, startSaveTransition, syncResolvedItem, t]
+    [onClose, resolvedItem?.id, showToast, startSaveTransition, t]
   )
 
   const handleSave = (close: boolean = false) => {
@@ -315,7 +311,7 @@ function LibraryItemEditModalContent({ isOpen, startSaveTransition, isSavePendin
  * Pass `navCtx` to load expanded items and enable prev/next like MatchModal.
  */
 export default function LibraryItemEditModal(props: LibraryItemEditModalProps) {
-  const { isOpen, onClose, onSaved } = props
+  const { isOpen, onClose } = props
   const navCtxMode = 'navCtx' in props
   const { filterDataLoading } = useLibrary()
   const [isSavePending, startSaveTransition] = useTransition()
@@ -333,7 +329,6 @@ export default function LibraryItemEditModal(props: LibraryItemEditModalProps) {
         startSaveTransition={startSaveTransition}
         isSavePending={isSavePending}
         onClose={onClose}
-        onSaved={onSaved}
         stableBodyHeight={navCtxMode}
       />
     </LibraryItemModal>

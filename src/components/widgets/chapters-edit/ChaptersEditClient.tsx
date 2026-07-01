@@ -78,7 +78,6 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
     handleChapterRemove,
     handleChapterInsertBelow,
     handleSetChaptersFromTracks,
-    handleLibraryItemSaved,
     resetEditorChapters
   } = editor
 
@@ -191,16 +190,7 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
       {confirmState && <ConfirmDialog isOpen message={confirmState.message} onClose={() => setConfirmState(null)} onConfirm={() => confirmState.onConfirm()} />}
 
       {isEditModalOpen && (
-        <LibraryItemEditModal
-          isOpen
-          libraryItem={libraryItem}
-          onClose={() => setIsEditModalOpen(false)}
-          onSaved={(updated) => {
-            if (updated.mediaType === 'book') {
-              handleLibraryItemSaved(updated as BookLibraryItem)
-            }
-          }}
-        />
+        <LibraryItemEditModal isOpen libraryItem={libraryItem} onClose={() => setIsEditModalOpen(false)} />
       )}
     </div>
   )
