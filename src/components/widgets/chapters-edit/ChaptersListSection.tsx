@@ -72,12 +72,12 @@ function ChaptersListSection({
   }, [newChapters, tracks])
 
   return (
-    <>
-      <div className="text-foreground-muted flex items-end text-xs font-semibold uppercase">
-        <div className="w-8 min-w-8 md:w-12 md:min-w-12" />
-        <div className="w-38 min-w-38 px-1 ps-8 pb-2 md:w-40 md:min-w-40">{t('LabelStart')}</div>
-        <div className="min-w-52 grow px-1 pb-2">{t('LabelTitle')}</div>
-        <div className="flex w-7 min-w-7 items-center justify-center px-1">
+    <div className="grid grid-cols-[2rem_9.5rem_minmax(13rem,1fr)_1.75rem_13rem] items-center md:grid-cols-[3rem_10rem_minmax(13rem,1fr)_1.75rem_13rem]">
+      <div className="text-foreground-muted contents text-xs font-semibold uppercase">
+        <div />
+        <div className="px-1 ps-8 md:ps-8">{t('LabelStart')}</div>
+        <div className="px-1">{t('LabelTitle')}</div>
+        <div className="flex items-center justify-center px-1 pb-2">
           <Tooltip text={allChaptersLocked ? t('TooltipUnlockAllChapters') : t('TooltipLockAllChapters')} position="bottom">
             <IconBtn
               ariaLabel={allChaptersLocked ? t('TooltipUnlockAllChapters') : t('TooltipLockAllChapters')}
@@ -90,7 +90,7 @@ function ChaptersListSection({
             </IconBtn>
           </Tooltip>
         </div>
-        <div className="w-32 min-w-32 shrink-0" />
+        <div />
       </div>
 
       {newChapters.map((chapter) => {
@@ -121,22 +121,23 @@ function ChaptersListSection({
         )
       })}
 
-      <div className="mt-4 mb-2 flex items-center">
-        <div className="w-8 min-w-8 md:w-12 md:min-w-12" />
-        <div className="w-38 min-w-38 px-1 md:w-40 md:min-w-40" />
-        <div className="flex grow items-center gap-2 px-1">
+      <div className="mt-4 mb-2 contents">
+        <div />
+        <div />
+        <div className="min-w-0 px-1">
           <TextInput
             value={bulkChapterInput}
             placeholder={t('PlaceholderBulkChapterInput')}
             size="small"
-            className="min-w-52 grow text-xs"
+            className="w-full text-xs"
             onChange={onBulkChapterInputChange}
             onKeyDown={(e) => {
               if (e.key === 'Enter') onBulkChapterAdd()
             }}
           />
         </div>
-        <div className="w-39 min-w-39 px-1 py-1">
+        <div />
+        <div className="px-2 py-1">
           <Tooltip text={t('TooltipAddChapters')} position="bottom" className="inline-block align-middle">
             <IconBtn
               ariaLabel={t('TooltipAddChapters')}
@@ -151,7 +152,7 @@ function ChaptersListSection({
           </Tooltip>
         </div>
       </div>
-    </>
+    </div>
   )
 }
 

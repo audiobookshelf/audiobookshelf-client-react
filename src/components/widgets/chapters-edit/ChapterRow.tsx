@@ -48,7 +48,7 @@ const ChapterTitleInput = memo(function ChapterTitleInput({ title, onDraft, onCo
     onCommit(trimmedTitle)
   }, [onCommit])
 
-  return <TextInput value={localTitle} size="small" className="min-w-52 text-sm" onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
+  return <TextInput value={localTitle} size="small" className="w-full min-w-0 text-sm" onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
 })
 
 interface ChapterRowProps {
@@ -101,10 +101,10 @@ function ChapterRow({
   const cannotIncrement = chapter.start + TIME_INCREMENT >= mediaDuration
 
   return (
-    <div className="flex items-center py-1">
-      <div className="flex w-8 min-w-8 items-center md:w-12 md:min-w-12">#{chapter.id + 1}</div>
+    <div className="contents">
+      <div className="flex items-center py-1">#{chapter.id + 1}</div>
 
-      <div className="w-38 min-w-38 px-1 md:w-40 md:min-w-40">
+      <div className="min-w-0 px-1 py-1">
         <div className="flex items-center gap-1">
           <LazyTooltip text={t('TooltipSubtractOneSecond')} position="bottom">
             <button
@@ -146,11 +146,11 @@ function ChapterRow({
         </div>
       </div>
 
-      <div className="min-w-52 grow px-1">
+      <div className="min-w-0 px-1 py-1">
         <ChapterTitleInput title={chapter.title} onDraft={onTitleDraft} onCommit={onTitleCommit} />
       </div>
 
-      <div className="flex w-7 min-w-7 items-center justify-center px-1">
+      <div className="flex items-center justify-center px-1 py-1">
         <LazyTooltip text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom" maxWidth={300}>
           <IconBtn
             ariaLabel={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')}
@@ -164,7 +164,7 @@ function ChapterRow({
         </LazyTooltip>
       </div>
 
-      <div className="flex w-32 min-w-32 shrink-0 items-center px-2">
+      <div className="flex min-w-0 items-center px-2 py-1">
         <div className="flex shrink-0 items-center">
           {chapterCount > 1 && (
             <LazyTooltip text={t('MessageRemoveChapter')} position="bottom">
