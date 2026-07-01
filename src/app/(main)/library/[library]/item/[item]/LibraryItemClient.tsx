@@ -45,8 +45,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   }, [initialLibraryItem])
 
   const isPodcast = libraryItem.mediaType === 'podcast'
-  const isBookWithAudio =
-    libraryItem.mediaType === 'book' && ((libraryItem as BookLibraryItem).media.tracks?.length ?? 0) > 0
+  const isBookWithAudio = libraryItem.mediaType === 'book' && ((libraryItem as BookLibraryItem).media.tracks?.length ?? 0) > 0
   const metadata = libraryItem.media.metadata as BookMetadata | PodcastMetadata
   const podcastAuthor = 'author' in metadata ? metadata.author : undefined
   const subtitle = 'subtitle' in metadata ? metadata.subtitle : undefined

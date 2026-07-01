@@ -160,12 +160,7 @@ export function setChaptersFromTracks(tracks: AudioFile[]): EditableChapter[] {
   return ensureClientKeys(chapters)
 }
 
-export function shiftChapterTimes(
-  chapters: EditableChapter[],
-  amount: number,
-  lockedIds: Set<number>,
-  mediaDuration: number
-): EditableChapter[] {
+export function shiftChapterTimes(chapters: EditableChapter[], amount: number, lockedIds: Set<number>, mediaDuration: number): EditableChapter[] {
   if (!amount || isNaN(amount) || chapters.length <= 1) {
     return chapters
   }
@@ -183,11 +178,7 @@ export function shiftChapterTimes(
   })
 }
 
-export function mergeAudibleChapterTitles(
-  chapters: EditableChapter[],
-  audibleData: AudibleChapterSearchResult,
-  lockedIds: Set<number>
-): EditableChapter[] {
+export function mergeAudibleChapterTitles(chapters: EditableChapter[], audibleData: AudibleChapterSearchResult, lockedIds: Set<number>): EditableChapter[] {
   return chapters.map((chapter, index) => {
     if (lockedIds.has(chapter.id) || !audibleData.chapters[index]) {
       return chapter
@@ -248,8 +239,7 @@ export function removeBrandingFromAudibleData(data: AudibleChapterSearchResult):
     })
 
     const lastChapter = chapters[chapters.length - 1]
-    const trimmedChapters =
-      lastChapter && lastChapter.lengthMs <= outroDuration ? chapters.slice(0, -1) : chapters
+    const trimmedChapters = lastChapter && lastChapter.lengthMs <= outroDuration ? chapters.slice(0, -1) : chapters
 
     return {
       ...data,
@@ -290,12 +280,7 @@ export function formatNumberWithPadding(number: number, pattern: BulkChapterPatt
   return number.toString().padStart(pattern.originalPadding, '0')
 }
 
-export function buildBulkChapters(
-  pattern: BulkChapterPattern,
-  count: number,
-  existingChapters: EditableChapter[],
-  mediaDuration: number
-): EditableChapter[] {
+export function buildBulkChapters(pattern: BulkChapterPattern, count: number, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
   const { before, after, startingNumber, hasLeadingZeros, originalPadding } = pattern
   const lastChapter = existingChapters[existingChapters.length - 1]
   const baseStart = lastChapter ? lastChapter.start + 1 : 0
@@ -323,11 +308,7 @@ export function buildBulkChapters(
   return newChapters
 }
 
-export function addSingleChapterFromInput(
-  title: string,
-  existingChapters: EditableChapter[],
-  mediaDuration: number
-): EditableChapter[] {
+export function addSingleChapterFromInput(title: string, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
   const lastChapter = existingChapters[existingChapters.length - 1]
   const newStart = lastChapter ? lastChapter.end : 0
   const newEnd = Math.min(newStart + 300, mediaDuration)
@@ -374,12 +355,7 @@ export function applyChapterTitleDrafts(chapters: EditableChapter[], drafts: Rea
   return changed ? updated : chapters
 }
 
-export function incrementChapterTime(
-  chapters: EditableChapter[],
-  id: number,
-  amount: number,
-  mediaDuration: number
-): EditableChapter[] | null {
+export function incrementChapterTime(chapters: EditableChapter[], id: number, amount: number, mediaDuration: number): EditableChapter[] | null {
   const chapter = chapters.find((c) => c.id === id)
   if (!chapter) return null
   if (chapter.id === 0 && chapter.start + amount < 0) return null
@@ -415,11 +391,7 @@ export function getAudioTrackForTime<T extends { startOffset: number; duration: 
   return tracks.find((at) => time >= at.startOffset && time < at.startOffset + at.duration) ?? null
 }
 
-export function audibleChapterRowClass(
-  chapter: AudibleSearchChapter,
-  index: number,
-  mediaDuration: number
-): string {
+export function audibleChapterRowClass(chapter: AudibleSearchChapter, index: number, mediaDuration: number): string {
   if (chapter.startOffsetSec > mediaDuration) {
     return 'bg-error/20'
   }

@@ -298,8 +298,7 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
       let nextChapters = newChapters
       setNewChapters((prev) => {
         const existing = prev[chapterId]
-        nextChapters =
-          !existing || existing.title === trimmedTitle ? prev : updateChapterTitle(prev, chapterId, trimmedTitle)
+        nextChapters = !existing || existing.title === trimmedTitle ? prev : updateChapterTitle(prev, chapterId, trimmedTitle)
         return nextChapters
       })
       setHasChanges(computeHasChanges(nextChapters, savedChapters))

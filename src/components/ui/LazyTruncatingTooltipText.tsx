@@ -18,13 +18,7 @@ export default function LazyTruncatingTooltipText({ text, className, position = 
   const { ref, isTruncated } = useTruncation(text, false)
 
   return (
-    <LazyTooltip
-      text={text}
-      position={position}
-      maxWidth={maxWidth}
-      disabled={!isTruncated}
-      className="block w-full min-w-0 overflow-hidden"
-    >
+    <LazyTooltip text={text} position={position} maxWidth={maxWidth} disabled={!isTruncated} className="block w-full min-w-0 overflow-hidden">
       <p ref={ref} className={mergeClasses('min-w-0 truncate select-none', className)}>
         {text}
       </p>

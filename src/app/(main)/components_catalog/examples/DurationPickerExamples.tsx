@@ -63,7 +63,7 @@ export function DurationPickerExamples() {
         </Example>
 
         <Example title="Small Size with text-xs">
-          <DurationPicker value={timeValue2} onChange={setTimeValue2} size="small" className="text-xs w-fit" />
+          <DurationPicker value={timeValue2} onChange={setTimeValue2} size="small" className="w-fit text-xs" />
         </Example>
 
         <Example title="Small Size DurationPicker">

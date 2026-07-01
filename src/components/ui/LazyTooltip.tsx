@@ -13,13 +13,7 @@ export interface LazyTooltipProps extends TooltipProps {
  * Defers mounting Floating UI until hover (after a delay) or focus, matching Vue tooltip behavior.
  * Unmounts the full Tooltip again once it closes so rows do not accumulate floating-ui instances.
  */
-export default function LazyTooltip({
-  className,
-  children,
-  disabled = false,
-  activationDelayMs = 400,
-  ...tooltipProps
-}: LazyTooltipProps) {
+export default function LazyTooltip({ className, children, disabled = false, activationDelayMs = 400, ...tooltipProps }: LazyTooltipProps) {
   const [activated, setActivated] = useState(false)
   const activateTimeoutRef = useRef<number | null>(null)
 
@@ -59,12 +53,7 @@ export default function LazyTooltip({
 
   if (!activated) {
     return (
-      <div
-        className={mergeClasses('inline-flex', className)}
-        onMouseEnter={scheduleActivate}
-        onMouseLeave={clearActivateTimeout}
-        onFocusCapture={activateNow}
-      >
+      <div className={mergeClasses('inline-flex', className)} onMouseEnter={scheduleActivate} onMouseLeave={clearActivateTimeout} onFocusCapture={activateNow}>
         {children}
       </div>
     )
