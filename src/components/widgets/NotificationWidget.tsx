@@ -19,7 +19,9 @@ function getActionLink(task: Task): string {
     case 'download-podcast-episode':
       return libraryId ? `/library/${libraryId}/podcast/download-queue` : ''
     case 'encode-m4b':
+      return libraryId && libraryItemId ? `/library/${libraryId}/item/${libraryItemId}/tools?tool=m4b` : ''
     case 'embed-metadata':
+      return libraryId && libraryItemId ? `/library/${libraryId}/item/${libraryItemId}/tools?tool=embed` : ''
     case 'scan-item':
       return libraryId && libraryItemId ? `/library/${libraryId}/item/${libraryItemId}` : ''
     default:

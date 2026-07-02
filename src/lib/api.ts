@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
 import {
+  AudibleChapterSearchResult,
   AudioBookmark,
   AuthenticationSettings,
   AuthenticationSettingsPatch,
@@ -11,7 +12,6 @@ import {
   AuthorQuickMatchPayload,
   AuthorResponse,
   AuthorUpdateResponse,
-  AudibleChapterSearchResult,
   BookSearchResult,
   Chapter,
   Collection,
@@ -49,7 +49,9 @@ import {
   LibraryItem,
   LibraryStatsResponse,
   ListeningStats,
+  M4bEncodeOptions,
   MediaItemShare,
+  MetadataObject,
   MetadataProvidersResponse,
   MutateBackupsResponse,
   NotificationFormPayload,
@@ -1113,6 +1115,51 @@ export async function clearPodcastDownloadQueue(libraryItemId: string): Promise<
 export async function embedMetadataQuick(libraryItemId: string): Promise<void> {
   return apiRequest<void>(`/api/tools/item/${libraryItemId}/embed-metadata`, {
     method: 'POST'
+  })
+}
+
+/**
+ * Get the metadata object that would be embedded into audio files
+ * @param libraryItemId - Library item ID
+ */
+export async function getMetadataObject(libraryItemId: string): Promise<MetadataObject> {
+  return apiRequest<MetadataObject>(`/api/items/${libraryItemId}/metadata-object`)
+}
+
+/**
+ * Embed metadata into audio files with optional backup
+ * @param libraryItemId - Library item ID
+ * @param backup - Whether to backup audio files before embedding
+ */
+export async function embedMetadata(libraryItemId: string, backup: boolean): Promise<void> {
+  return apiRequest<void>(`/api/tools/item/${libraryItemId}/embed-metadata?backup=${backup ? 1 : 0}`, {
+    method: 'POST'
+  })
+}
+
+/**
+ * Start M4B encode for a library item
+ * @param libraryItemId - Library item ID
+ * @param options - Encoding options (bitrate, channels, codec)
+ */
+export async function encodeM4b(libraryItemId: string, options: M4bEncodeOptions): Promise<void> {
+  const params = new URLSearchParams({
+    bitrate: options.bitrate,
+    channels: String(options.channels),
+    codec: options.codec
+  })
+  return apiRequest<void>(`/api/tools/item/${libraryItemId}/encode-m4b?${params.toString()}`, {
+    method: 'POST'
+  })
+}
+
+/**
+ * Cancel an in-progress M4B encode for a library item
+ * @param libraryItemId - Library item ID
+ */
+export async function cancelM4bEncode(libraryItemId: string): Promise<void> {
+  return apiRequest<void>(`/api/tools/item/${libraryItemId}/encode-m4b`, {
+    method: 'DELETE'
   })
 }
 

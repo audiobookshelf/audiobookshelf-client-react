@@ -1379,12 +1379,22 @@ export interface UpdateLibraryItemMediaResponse {
 // TASKS & PROGRESS TRACKING
 // ============================================================================
 
+/** FFmpeg metadata tags that would be embedded into audio files (empty values omitted). */
+export type MetadataObject = Record<string, string>
+
+export interface M4bEncodeOptions {
+  bitrate: string
+  channels: string | number
+  codec: string
+}
+
 export interface Task {
   id: string
   action: string // 'embed-metadata' | 'encode-m4b'
   data?: {
     libraryId?: string
     libraryItemId?: string
+    encodeOptions?: M4bEncodeOptions
     [key: string]: unknown
   }
   title: string | null
