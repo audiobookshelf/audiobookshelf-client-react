@@ -23,7 +23,8 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
   const router = useRouter()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { library, collapseBookSeries, setItemCount, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
+  const { library, collapseBookSeries, showSubtitles, updateSetting, setItemCount, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } =
+    useLibrary()
   const { user, serverSettings, ereaderDevices, getMediaItemProgress, userIsAdminOrUp } = useUser()
 
   const [items, setItems] = useState(libraryItems.results)
@@ -102,13 +103,17 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
         openRssModal()
       } else if (action === 'reAddSeriesToContinueListening') {
         reAddSeriesToContinueListening()
+      } else if (action === 'show-subtitles') {
+        updateSetting('showSubtitles', true)
+      } else if (action === 'hide-subtitles') {
+        updateSetting('showSubtitles', false)
       } else if (action === 'collapse-sub-series' || action === 'expand-sub-series') {
         showToast('Not implemented', { type: 'warning' })
       } else if (action === 'mark-series-finished') {
         showToast('Not implemented', { type: 'warning' })
       }
     },
-    [openRssModal, reAddSeriesToContinueListening, showToast]
+    [openRssModal, reAddSeriesToContinueListening, showToast, updateSetting]
   )
 
   useEffect(() => {
@@ -129,13 +134,17 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
 
     if (library.mediaType === 'book') {
       menuItems.push({
+        text: t(showSubtitles ? 'LabelHideSubtitles' : 'LabelShowSubtitles'),
+        action: showSubtitles ? 'hide-subtitles' : 'show-subtitles'
+      })
+      menuItems.push({
         text: t(collapseBookSeries ? 'LabelExpandSubSeries' : 'LabelCollapseSubSeries'),
         action: collapseBookSeries ? 'expand-sub-series' : 'collapse-sub-series'
       })
     }
 
     setContextMenuItems(menuItems)
-  }, [collapseBookSeries, isSeriesRemovedFromContinueListening, library.mediaType, rssFeed, setContextMenuItems, t, userIsAdminOrUp])
+  }, [collapseBookSeries, isSeriesRemovedFromContinueListening, library.mediaType, rssFeed, setContextMenuItems, showSubtitles, t, userIsAdminOrUp])
 
   useEffect(() => {
     setContextMenuActionHandler(handleToolbarMenuAction)
@@ -166,7 +175,7 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
               timeFormat={serverSettings.timeFormat}
               userPermissions={user.permissions}
               ereaderDevices={ereaderDevices}
-              showSubtitles={true}
+              showSubtitles={showSubtitles}
               mediaProgress={entityProgress}
             />
           )
