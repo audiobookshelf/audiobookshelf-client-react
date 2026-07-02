@@ -150,6 +150,7 @@ export interface FileMetadata {
   ext: string
   path: string
   relPath: string
+  /** in bytes */
   size: number
   mtimeMs: number
   ctimeMs: number
@@ -488,17 +489,7 @@ export interface AudioMetaTags {
 export interface AudioFile {
   index: number
   ino: string
-  metadata: {
-    filename: string
-    ext: string
-    path: string
-    relPath: string
-    /** in bytes */
-    size: number
-    mtimeMs: number
-    ctimeMs: number
-    birthtimeMs: number
-  }
+  metadata: FileMetadata
   addedAt: number
   updatedAt: number
   trackNumFromMeta?: number
@@ -507,6 +498,8 @@ export interface AudioFile {
   discNumFromMeta?: number
   /** from filename */
   discNumFromFilename?: number
+  exclude?: boolean
+  error?: string | null
   /** in seconds */
   duration: number
   bitRate: number
@@ -558,19 +551,16 @@ export interface UpdateChaptersResponse {
   updated: boolean
 }
 
+export interface OrderedTrackFileData {
+  index: number
+  filename: string
+  ino: string
+  exclude: boolean
+}
+
 export interface EBookFile {
   ino: string
-  metadata: {
-    filename: string
-    ext: string
-    path: string
-    relPath: string
-    /** in bytes */
-    size: number
-    mtimeMs: number
-    ctimeMs: number
-    birthtimeMs: number
-  }
+  metadata: FileMetadata
   ebookFormat: string
   addedAt: number
   updatedAt: number
