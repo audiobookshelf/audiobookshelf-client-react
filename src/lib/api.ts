@@ -15,6 +15,7 @@ import {
   BookSearchResult,
   Chapter,
   Collection,
+  OrderedTrackFileData,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
   CreateCustomMetadataProviderResponse,
@@ -438,6 +439,16 @@ export async function updateChapters(libraryItemId: string, chapters: Chapter[])
   return apiRequest<UpdateChaptersResponse>(`/api/items/${libraryItemId}/chapters`, {
     method: 'POST',
     body: JSON.stringify({ chapters })
+  })
+}
+
+/**
+ * Update track order and exclude flags for a library item
+ */
+export async function updateTracks(libraryItemId: string, orderedFileData: OrderedTrackFileData[]): Promise<void> {
+  await apiRequest(`/api/items/${libraryItemId}/tracks`, {
+    method: 'PATCH',
+    body: JSON.stringify({ orderedFileData })
   })
 }
 
