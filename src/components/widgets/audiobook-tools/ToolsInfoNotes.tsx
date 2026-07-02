@@ -32,8 +32,7 @@ export default function ToolsInfoNotes({ selectedTool, libraryItemRelPath, libra
         <InfoNote>{t('LabelEncodingInfoEmbedded')}</InfoNote>
       ) : (
         <InfoNote>
-          {t('LabelEncodingFinishedM4B')}{' '}
-          <span className="rounded-md bg-neutral-600 px-1 py-0.5 font-mono text-sm text-white">.../{libraryItemRelPath}/</span>.
+          {t('LabelEncodingFinishedM4B')} <span className="rounded-md bg-neutral-600 px-1 py-0.5 font-mono text-sm text-white">.../{libraryItemRelPath}/</span>.
         </InfoNote>
       )}
 

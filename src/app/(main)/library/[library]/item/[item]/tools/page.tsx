@@ -15,7 +15,7 @@ export default async function ToolsPage({ params }: { params: Promise<{ item: st
   const itemPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`
   const bookItem = libraryItem.mediaType === 'book' ? (libraryItem as BookLibraryItem) : null
 
-  if (!isUserAdminOrUp(currentUser.user) || !bookItem || !(bookItem.media.tracks?.length)) {
+  if (!isUserAdminOrUp(currentUser.user) || !bookItem || !bookItem.media.tracks?.length) {
     redirect(itemPath)
   }
 

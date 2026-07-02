@@ -71,11 +71,7 @@ export default function M4bEncodePanel({
         </div>
       ) : (
         <div className="mb-4">
-          <EncoderOptionsCard
-            audioTracks={tracks}
-            disabled={processing || isTaskFinished}
-            onEncodingOptionsChange={onEncodingOptionsChange}
-          />
+          <EncoderOptionsCard audioTracks={tracks} disabled={processing || isTaskFinished} onEncodingOptionsChange={onEncodingOptionsChange} />
         </div>
       )}
     </>
