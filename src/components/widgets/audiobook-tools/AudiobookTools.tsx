@@ -8,8 +8,8 @@ import AudioTracksProgressTable from '@/components/widgets/audiobook-tools/Audio
 import ChaptersPreviewTable from '@/components/widgets/audiobook-tools/ChaptersPreviewTable'
 import EmbedMetadataPanel from '@/components/widgets/audiobook-tools/EmbedMetadataPanel'
 import M4bEncodePanel from '@/components/widgets/audiobook-tools/M4bEncodePanel'
-import ToolsInfoNotes from '@/components/widgets/audiobook-tools/ToolsInfoNotes'
 import MetadataPreviewTable from '@/components/widgets/audiobook-tools/MetadataPreviewTable'
+import ToolsInfoNotes from '@/components/widgets/audiobook-tools/ToolsInfoNotes'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useAudiobookTools } from '@/hooks/useAudiobookTools'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -70,7 +70,7 @@ export default function AudiobookTools({ libraryItem: initialLibraryItem }: Audi
         </div>
       </div>
 
-      <div className="my-8 h-px w-full bg-white/10" />
+      <div className="bg-foreground/10 my-8 h-px w-full" />
 
       <div className="mx-auto w-full max-w-4xl">
         {tools.isEmbedTool ? (
@@ -113,11 +113,7 @@ export default function AudiobookTools({ libraryItem: initialLibraryItem }: Audi
       </div>
 
       <div className="mx-auto w-full max-w-4xl">
-        <AudioTracksProgressTable
-          tracks={tools.tracks}
-          audioFilesEncoding={tools.audioFilesEncoding}
-          audioFilesFinished={tools.audioFilesFinished}
-        />
+        <AudioTracksProgressTable tracks={tools.tracks} audioFilesEncoding={tools.audioFilesEncoding} audioFilesFinished={tools.audioFilesFinished} />
       </div>
 
       {tools.confirmState && (
@@ -131,12 +127,7 @@ export default function AudiobookTools({ libraryItem: initialLibraryItem }: Audi
         />
       )}
 
-      <LibraryItemEditModal
-        isOpen={tools.isEditModalOpen}
-        libraryItem={tools.libraryItem}
-        onClose={() => tools.setIsEditModalOpen(false)}
-        onSaved={tools.handleLibraryItemSaved}
-      />
+      <LibraryItemEditModal isOpen={tools.isEditModalOpen} libraryItem={tools.libraryItem} onClose={() => tools.setIsEditModalOpen(false)} />
     </div>
   )
 }

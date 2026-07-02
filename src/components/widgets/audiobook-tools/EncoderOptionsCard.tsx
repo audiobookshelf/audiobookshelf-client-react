@@ -3,9 +3,8 @@
 import TextInput from '@/components/ui/TextInput'
 import ToggleButtonGroup from '@/components/ui/ToggleButtonGroup'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { M4bEncodeOptions } from '@/types/api'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { AudioFile } from '@/types/api'
+import type { AudioFile, M4bEncodeOptions } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface EncoderOptionsCardProps {
@@ -192,7 +191,7 @@ export default function EncoderOptionsCard({ audioTracks, disabled = false, onEn
         {!showAdvancedView ? (
           <div className="flex flex-wrap justify-start gap-4 sm:justify-center sm:gap-8">
             <div className="flex flex-col items-start gap-2">
-              <p className="w-40 text-sm">{t('LabelCodec')}</p>
+              <p className="w-40 text-sm font-semibold">{t('LabelCodec')}</p>
               <ToggleButtonGroup items={CODEC_ITEMS} value={selectedCodec} onChange={(value) => setSelectedCodec(String(value))} disabled={disabled} />
               <p className="text-foreground-muted text-xs">
                 {t('LabelCurrently')} <span className="text-foreground">{currentCodec}</span>
@@ -200,14 +199,14 @@ export default function EncoderOptionsCard({ audioTracks, disabled = false, onEn
               </p>
             </div>
             <div className="flex flex-col items-start gap-2">
-              <p className="w-40 text-sm">{t('LabelBitrate')}</p>
+              <p className="w-40 text-sm font-semibold">{t('LabelBitrate')}</p>
               <ToggleButtonGroup items={BITRATE_ITEMS} value={selectedBitrate} onChange={(value) => setSelectedBitrate(String(value))} disabled={disabled} />
               <p className="text-foreground-muted text-xs">
                 {t('LabelCurrently')} <span className="text-foreground">{currentBitrate} KB/s</span>
               </p>
             </div>
             <div className="flex flex-col items-start gap-2">
-              <p className="w-40 text-sm">{t('LabelChannels')}</p>
+              <p className="w-40 text-sm font-semibold">{t('LabelChannels')}</p>
               <ToggleButtonGroup items={CHANNELS_ITEMS} value={selectedChannels} onChange={(value) => setSelectedChannels(Number(value))} disabled={disabled} />
               <p className="text-foreground-muted text-xs">
                 {t('LabelCurrently')}{' '}

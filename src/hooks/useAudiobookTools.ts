@@ -187,16 +187,6 @@ export function useAudiobookTools({ initialLibraryItem }: UseAudiobookToolsOptio
     })
   }, [libraryItemId, showToast, t])
 
-  const handleLibraryItemSaved = useCallback(
-    (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
-      if (updatedItem.mediaType !== 'book') return
-      setLibraryItem(updatedItem)
-      void fetchMetadataObject()
-      setIsEditModalOpen(false)
-    },
-    [fetchMetadataObject]
-  )
-
   const toolDropdownItems = useMemo(
     () => [
       { text: t('LabelToolsEmbedMetadata'), value: 'embed' as const },
@@ -240,7 +230,6 @@ export function useAudiobookTools({ initialLibraryItem }: UseAudiobookToolsOptio
     setIsEditModalOpen,
     handleEmbedClick,
     handleEncodeM4bClick,
-    handleCancelEncodeClick,
-    handleLibraryItemSaved
+    handleCancelEncodeClick
   }
 }
