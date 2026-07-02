@@ -12,12 +12,6 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 export type AudiobookTool = 'embed' | 'm4b'
 
-function readBackupPreference(): boolean {
-  if (typeof window === 'undefined') return true
-  const stored = localStorage.getItem('embedMetadataShouldBackup')
-  return stored !== '0'
-}
-
 interface UseAudiobookToolsOptions {
   initialLibraryItem: BookLibraryItem
 }
@@ -31,7 +25,7 @@ export function useAudiobookTools({ initialLibraryItem }: UseAudiobookToolsOptio
 
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
   const [metadataObject, setMetadataObject] = useState<MetadataObject | null>(null)
-  const [shouldBackupAudioFiles, setShouldBackupAudioFiles] = useState(readBackupPreference)
+  const [shouldBackupAudioFiles, setShouldBackupAudioFiles] = useState(true)
   const [processing, setProcessing] = useState(false)
   const [isCancelingEncode, setIsCancelingEncode] = useState(false)
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
@@ -43,6 +37,13 @@ export function useAudiobookTools({ initialLibraryItem }: UseAudiobookToolsOptio
   })
 
   const { queuedEmbedLIds, getTasksByLibraryItemId, getTaskProgress, getAudioFilesEncoding, getAudioFilesFinished } = useTasks()
+
+  useEffect(() => {
+    const stored = localStorage.getItem('embedMetadataShouldBackup')
+    if (stored !== null) {
+      setShouldBackupAudioFiles(stored !== '0')
+    }
+  }, [])
 
   const libraryItemId = libraryItem.id
   const itemPath = `/library/${libraryItem.libraryId}/item/${libraryItemId}`
@@ -125,9 +126,7 @@ export function useAudiobookTools({ initialLibraryItem }: UseAudiobookToolsOptio
 
   const toggleBackupAudioFiles = useCallback((value: boolean) => {
     setShouldBackupAudioFiles(value)
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('embedMetadataShouldBackup', value ? '1' : '0')
-    }
+    localStorage.setItem('embedMetadataShouldBackup', value ? '1' : '0')
   }, [])
 
   const handleEncodingOptionsChange = useCallback((options: M4bEncodeOptions) => {
