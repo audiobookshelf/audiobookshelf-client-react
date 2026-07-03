@@ -13,7 +13,15 @@ export interface LazyTooltipProps extends TooltipProps {
  * Defers mounting Floating UI until hover (after a delay) or focus, matching Vue tooltip behavior.
  * Unmounts the full Tooltip again once it closes so rows do not accumulate floating-ui instances.
  */
-export default function LazyTooltip({ className, children, disabled = false, activationDelayMs = 400, ...tooltipProps }: LazyTooltipProps) {
+export default function LazyTooltip({
+  className,
+  children,
+  disabled = false,
+  activationDelayMs = 400,
+  openOnClick = false,
+  addTabIndex = false,
+  ...tooltipProps
+}: LazyTooltipProps) {
   const [activated, setActivated] = useState(false)
   const activateTimeoutRef = useRef<number | null>(null)
 
@@ -32,6 +40,11 @@ export default function LazyTooltip({ className, children, disabled = false, act
       setActivated(true)
     }
   }, [clearActivateTimeout, disabled])
+
+  const activateOnClick = useCallback(() => {
+    // Defer past the opening tap so the same click cannot toggle the tooltip closed.
+    queueMicrotask(activateNow)
+  }, [activateNow])
 
   const scheduleActivate = useCallback(() => {
     if (disabled || activated) {
@@ -53,14 +66,29 @@ export default function LazyTooltip({ className, children, disabled = false, act
 
   if (!activated) {
     return (
-      <div className={mergeClasses('inline-flex', className)} onMouseEnter={scheduleActivate} onMouseLeave={clearActivateTimeout} onFocusCapture={activateNow}>
+      <div
+        className={mergeClasses('inline-flex', className)}
+        tabIndex={openOnClick ? undefined : addTabIndex ? 0 : undefined}
+        onMouseEnter={openOnClick ? undefined : scheduleActivate}
+        onMouseLeave={openOnClick ? undefined : clearActivateTimeout}
+        onFocusCapture={openOnClick ? undefined : activateNow}
+        onClick={openOnClick ? activateOnClick : undefined}
+      >
         {children}
       </div>
     )
   }
 
   return (
-    <Tooltip {...tooltipProps} disabled={disabled} className={className} defaultOpen onOpenChange={handleOpenChange}>
+    <Tooltip
+      {...tooltipProps}
+      disabled={disabled}
+      className={className}
+      defaultOpen
+      openOnClick={openOnClick}
+      addTabIndex={openOnClick ? false : addTabIndex}
+      onOpenChange={handleOpenChange}
+    >
       {children}
     </Tooltip>
   )
