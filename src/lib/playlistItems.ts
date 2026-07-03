@@ -1,4 +1,6 @@
-import type { PlaylistItem, PodcastEpisode } from '@/types/api'
+import { getBookDuration } from '@/lib/book'
+import { getEpisodeDuration } from '@/lib/episode'
+import type { PlaylistItem } from '@/types/api'
 import { isBookMedia } from '@/types/api'
 import type { SortableBookshelfEntry } from '@/types/compilation'
 
@@ -14,19 +16,13 @@ export function toSortablePlaylistItems(items: PlaylistItem[]): SortableBookshel
   }))
 }
 
-export function getEpisodeDuration(episode: PodcastEpisode): number {
-  const d = episode.audioFile?.duration ?? episode.audioTrack?.duration
-  return typeof d === 'number' && Number.isFinite(d) ? d : 0
-}
-
 export function getPlaylistItemDuration(item: PlaylistItem): number {
   if (item.episode) {
     return getEpisodeDuration(item.episode)
   }
   const media = item.libraryItem.media
-  if (isBookMedia(media) && 'duration' in media) {
-    const d = media.duration
-    return typeof d === 'number' && Number.isFinite(d) ? d : 0
+  if (isBookMedia(media)) {
+    return getBookDuration(media)
   }
   return 0
 }
