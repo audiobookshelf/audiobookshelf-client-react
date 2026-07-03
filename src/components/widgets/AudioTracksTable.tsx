@@ -160,7 +160,8 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
   )
 
   const headerActions = useMemo(() => {
-    const manageTracksBtn = userCanUpdate ? (
+    const audioFileCount = libraryItem.media.audioFiles?.length ?? 0
+    const manageTracksBtn = userCanUpdate && !libraryItem.isFile && audioFileCount > 1 ? (
       <Btn
         key="manage-tracks"
         to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`}
@@ -196,7 +197,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         {fullPathBtn}
       </div>
     )
-  }, [userCanUpdate, userIsAdminOrUp, showFullPath, handleToggleFullPath, t, libraryItem.id, libraryItem.libraryId])
+  }, [userCanUpdate, userIsAdminOrUp, showFullPath, handleToggleFullPath, t, libraryItem.id, libraryItem.libraryId, libraryItem.isFile, libraryItem.media.audioFiles])
 
   if (tracksWithAudioFile.length === 0) {
     return null

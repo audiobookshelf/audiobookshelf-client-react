@@ -22,7 +22,7 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import type { CSSProperties, KeyboardEvent, KeyboardEventHandler } from 'react'
-import { ReactNode, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 const VERTICAL_ARROW_CODES = new Set(['ArrowUp', 'ArrowDown'])
 
@@ -69,6 +69,8 @@ interface SortableListProps<T extends SortableItem> {
   className?: string
   itemClassName?: string
   disabled?: boolean
+  /** When set (ms), animates rows sliding to new positions after programmatic reorder (e.g. column sort). */
+  reorderAnimationDuration?: number
   /** When true for an item, that row is not draggable (e.g. inactive list entries). */
   isItemDisabled?: (item: T, index: number) => boolean
 }
@@ -171,7 +173,11 @@ function SortableListRow<T extends SortableItem>({
   // While dragging, the live preview is rendered in `<DragOverlay>` (portaled). Clearing
   // `transform` here keeps the in-list slot from following the pointer so scroll parents
   // don’t grow (transformed overflow expands scrollable area in common browsers).
-  const style = isDragging ? { transition, opacity: 0 } : { transform: CSS.Transform.toString(transform), transition }
+  const transformString = CSS.Transform.toString(transform)
+  const hasActiveTransform = Boolean(transform && (transform.x !== 0 || transform.y !== 0))
+  const style = isDragging
+    ? { transition, opacity: 0 }
+    : { transform: transformString, transition: hasActiveTransform ? transition : undefined }
 
   // `touch-action: none` on the activator (same idea as `touch-none` on SortableBookshelfCard’s
   // handle) so coarse pointers don’t scroll the page instead of starting a drag.
@@ -191,7 +197,7 @@ function SortableListRow<T extends SortableItem>({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={itemWrapperClassName}>
+    <div ref={setNodeRef} style={style} className={itemWrapperClassName} data-flip-id={String(item.id)}>
       {renderItem(item, index, dragHandleProps)}
     </div>
   )
@@ -204,10 +210,15 @@ export default function SortableList<T extends SortableItem>({
   className = '',
   itemClassName = '',
   disabled = false,
+  reorderAnimationDuration,
   isItemDisabled
 }: SortableListProps<T>) {
   const dndContextId = useId()
   const [activeId, setActiveId] = useState<string | null>(null)
+  const listContainerRef = useRef<HTMLDivElement>(null)
+  const rowPositionsRef = useRef<Map<string, DOMRect>>(new Map())
+  const previousOrderRef = useRef<string[]>([])
+  const skipNextFlipRef = useRef(false)
 
   const itemsWithIds = useMemo(
     () =>
@@ -252,6 +263,7 @@ export default function SortableList<T extends SortableItem>({
       const oldIndex = itemsWithIds.findIndex((item) => String(item.id) === String(active.id))
       const newIndex = itemsWithIds.findIndex((item) => String(item.id) === String(over.id))
       if (oldIndex === -1 || newIndex === -1) return
+      skipNextFlipRef.current = true
       onSortEnd(arrayMove(itemsWithIds, oldIndex, newIndex))
     },
     [itemsWithIds, onSortEnd]
@@ -260,6 +272,49 @@ export default function SortableList<T extends SortableItem>({
   useEffect(() => {
     return () => document.documentElement.classList.remove(DND_POINTER_DRAG_HTML_CLASS)
   }, [])
+
+  useLayoutEffect(() => {
+    if (!reorderAnimationDuration) return
+
+    const container = listContainerRef.current
+    if (!container) return
+
+    const children = Array.from(container.children) as HTMLElement[]
+    const previousPositions = rowPositionsRef.current
+    const currentOrder = itemsWithIds.map((item) => String(item.id))
+    const orderChanged =
+      previousOrderRef.current.length !== currentOrder.length ||
+      previousOrderRef.current.some((id, index) => id !== currentOrder[index])
+    const shouldAnimate = !skipNextFlipRef.current && orderChanged
+    skipNextFlipRef.current = false
+    previousOrderRef.current = currentOrder
+
+    if (shouldAnimate) {
+      for (const child of children) {
+        const id = child.dataset.flipId
+        if (!id) continue
+
+        const previousRect = previousPositions.get(id)
+        const nextRect = child.getBoundingClientRect()
+        if (!previousRect) continue
+
+        const deltaY = previousRect.top - nextRect.top
+        if (Math.abs(deltaY) < 1) continue
+
+        child.animate(
+          [{ transform: `translate3d(0, ${deltaY}px, 0)` }, { transform: 'translate3d(0, 0, 0)' }],
+          { duration: reorderAnimationDuration, easing: 'ease' }
+        )
+      }
+    }
+
+    const nextPositions = new Map<string, DOMRect>()
+    for (const child of children) {
+      const id = child.dataset.flipId
+      if (id) nextPositions.set(id, child.getBoundingClientRect())
+    }
+    rowPositionsRef.current = nextPositions
+  }, [itemsWithIds, reorderAnimationDuration])
 
   return (
     <DndContext
@@ -272,7 +327,7 @@ export default function SortableList<T extends SortableItem>({
       onDragEnd={handleDragEnd}
     >
       <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
-        <div className={mergeClasses('max-w-full min-w-0 overflow-x-hidden', className)}>
+        <div ref={listContainerRef} className={mergeClasses('max-w-full min-w-0 overflow-x-hidden', className)}>
           {itemsWithIds.map((item, index) => (
             <SortableListRow
               key={String(item.id)}
