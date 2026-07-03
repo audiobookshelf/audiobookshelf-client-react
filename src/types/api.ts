@@ -709,6 +709,18 @@ export interface PodcastEpisodeDownload {
   guid?: string
 }
 
+/** Episode from GET /api/libraries/:id/recent-episodes (includes nested podcast show) */
+export interface RecentPodcastEpisode extends PodcastEpisode {
+  libraryId: string
+  podcast: PodcastMedia
+}
+
+export interface GetRecentEpisodesResponse {
+  episodes: RecentPodcastEpisode[]
+  limit: number
+  page: number
+}
+
 // ============================================================================
 // LIBRARY ITEMS
 // ============================================================================
