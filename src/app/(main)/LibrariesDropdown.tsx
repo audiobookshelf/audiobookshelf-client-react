@@ -10,7 +10,7 @@ interface LibrariesDropdownProps {
   currentLibraryId: string
 }
 
-const sharedPages = ['items', 'playlists', 'search', 'item', 'playlist']
+const sharedPages = ['items', 'playlists', 'search', 'playlist']
 const bookPages = ['series', 'collections', 'authors', 'narrators', 'stats', 'collection']
 const podcastPages = ['latest', 'add-podcast', 'download-queue']
 
@@ -39,6 +39,9 @@ function getLibrarySwitchPath(pathname: string, search: string, currentLibraryId
   }
   if (page === 'playlist' && hasDetailId) {
     return `${home}/playlists${search}`
+  }
+  if (page === 'item' && hasDetailId) {
+    return home
   }
 
   parts[1] = targetLibraryId
