@@ -1,10 +1,12 @@
-import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
+import { isAbsModalOpen } from '@/components/modals/Modal'
 import type { PlayerHandlerControls, PlayerHandlerState } from '@/hooks/usePlayerHandler'
+import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
 import { useEffect } from 'react'
 
 /**
  * Registers keyboard hotkeys for the audio player.
- * Automatically disables when nothing is streaming or when an input element is focused.
+ * Automatically disables when nothing is streaming, when an input element is focused,
+ * or when Escape is pressed while a modal is open (modal handles close instead)
  */
 export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: PlayerHandlerControls, enabled: boolean, onClose: () => void) {
   useEffect(() => {
@@ -50,6 +52,7 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
           controls.decrementPlaybackRate()
           break
         case 'Escape':
+          if (isAbsModalOpen()) return
           onClose()
           break
         default:

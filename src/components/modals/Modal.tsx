@@ -8,7 +8,11 @@ import { mergeClasses } from '@/lib/merge-classes'
 import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
-const MODAL_ROOT_SELECTOR = '[data-abs-modal]'
+export const MODAL_ROOT_SELECTOR = '[data-abs-modal]'
+
+export function isAbsModalOpen(): boolean {
+  return document.querySelector(MODAL_ROOT_SELECTOR) !== null
+}
 
 export interface ModalProps {
   isOpen: boolean
