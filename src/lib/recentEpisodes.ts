@@ -51,9 +51,13 @@ export function buildRecentEpisodesQueueFromIndex(
     if (progress?.isFinished) continue
 
     const queueItem = buildEpisodeQueueItem({
+      libraryItem: {
+        id: episode.libraryItemId,
+        libraryId: episode.libraryId,
+        isMissing: false,
+        isInvalid: false
+      },
       episode,
-      libraryItemId: episode.libraryItemId,
-      libraryId: episode.libraryId,
       podcastTitle: episode.podcast.metadata?.title ?? '',
       coverPath: episode.podcast.coverPath ?? null,
       caption: captionForEpisode?.(episode) ?? ''

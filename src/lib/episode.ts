@@ -1,4 +1,4 @@
-import type { PodcastEpisode } from '@/types/api'
+import type { LibraryItem, PodcastEpisode } from '@/types/api'
 
 /** Shared icon-button sizing for episode row listen actions (latest, table, compilation rows). */
 export const EPISODE_ROW_ACTION_BTN_CLASS =
@@ -12,4 +12,9 @@ export function sanitizeEpisodeDescriptionHtml(description: string): string {
 export function getEpisodeDuration(episode: PodcastEpisode): number {
   const d = episode.audioFile?.duration ?? episode.audioTrack?.duration
   return typeof d === 'number' && Number.isFinite(d) ? d : 0
+}
+
+export function isPlayableEpisode(libraryItem: Pick<LibraryItem, 'isMissing' | 'isInvalid'>, episode: PodcastEpisode): boolean {
+  if (libraryItem.isMissing || libraryItem.isInvalid) return false
+  return !!episode.audioFile
 }

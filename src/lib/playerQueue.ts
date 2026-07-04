@@ -1,7 +1,7 @@
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { getMediaItemProgress } from '@/lib/mediaProgress'
 import { formatBookAuthorNames, getBookDuration, isPlayableBook } from '@/lib/book'
-import { getEpisodeDuration } from '@/lib/episode'
+import { getEpisodeDuration, isPlayableEpisode } from '@/lib/episode'
 import type { LibraryItem, MediaProgress, PodcastEpisode } from '@/types/api'
 import { isBookMedia, isBookMetadata } from '@/types/api'
 
@@ -24,20 +24,19 @@ export function buildBookQueueItem(libraryItem: LibraryItem): PlayerQueueItem | 
 }
 
 export function buildEpisodeQueueItem(params: {
+  libraryItem: Pick<LibraryItem, 'id' | 'libraryId' | 'isMissing' | 'isInvalid'>
   episode: PodcastEpisode
-  libraryItemId: string
-  libraryId: string
   podcastTitle: string
   coverPath?: string | null
   caption?: string
 }): PlayerQueueItem | null {
-  const { episode, libraryItemId, libraryId, podcastTitle, coverPath, caption = '' } = params
+  const { libraryItem, episode, podcastTitle, coverPath, caption = '' } = params
 
-  if (!episode.audioFile) return null
+  if (!isPlayableEpisode(libraryItem, episode)) return null
 
   return {
-    libraryItemId,
-    libraryId,
+    libraryItemId: libraryItem.id,
+    libraryId: libraryItem.libraryId,
     episodeId: episode.id,
     title: episode.title,
     subtitle: podcastTitle,
