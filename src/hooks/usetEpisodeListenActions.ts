@@ -58,8 +58,11 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     if (!progress) return formatDuration(durationSeconds, t)
     if (progress.isFinished) return t('LabelFinished')
 
+    const currentTime = progress.currentTime || 0
     const duration = progress.duration || durationSeconds
-    const remaining = Math.floor(duration - (progress.currentTime || 0))
+    if (currentTime <= 0) return formatDuration(duration, t)
+
+    const remaining = Math.floor(duration - currentTime)
     return t('LabelTimeLeft', { 0: formatDuration(remaining, t) })
   }, [durationSeconds, episodeIsPlaying, progress, t])
 
