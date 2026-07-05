@@ -20,8 +20,9 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getPodcastEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
+import { applyShiftClickSelection } from '@/lib/shiftClickSelection'
 import { PodcastEpisode, PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
 interface EpisodeTableProps {
   libraryItem: PodcastLibraryItem
@@ -56,6 +57,7 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   )
 
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
+  const lastSelectedEpisodeIdRef = useRef<string | null>(null)
   const [viewedEpisode, setViewedEpisode] = useState<PodcastEpisode | null>(null)
   const [editedEpisode, setEditedEpisode] = useState<PodcastEpisode | null>(null)
   const [matchedEpisode, setMatchedEpisode] = useState<PodcastEpisode | null>(null)
@@ -66,6 +68,15 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
 
   const { filterKey, setFilterKey, sortKey, setSortKey, sortDesc, setSortDesc, search, setSearch, isSearching, filteredEpisodes, hasMounted } =
     useEpisodeFilterAndSort({ libraryItemId: libraryItem.id, episodes, getMediaItemProgress })
+
+  const filteredEpisodeIds = useMemo(() => filteredEpisodes.map((episode) => episode.id), [filteredEpisodes])
+
+  // Anchor is only meaningful while the episode is still visible in the filtered list.
+  useEffect(() => {
+    if (lastSelectedEpisodeIdRef.current && !filteredEpisodeIds.includes(lastSelectedEpisodeIdRef.current)) {
+      lastSelectedEpisodeIdRef.current = null
+    }
+  }, [filteredEpisodeIds])
 
   const handleCloseViewModal = useCallback(() => {
     if (viewedEpisode) {
@@ -91,20 +102,33 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     })
   }, [filteredEpisodes, getMediaItemProgress])
 
-  const handleSelectEpisode = useCallback((episode: PodcastEpisode, isSelected: boolean) => {
-    setSelectedEpisodes((prev) => {
-      const next = new Set(prev)
-      if (isSelected) {
-        next.add(episode.id)
-      } else {
-        next.delete(episode.id)
-      }
-      return next
-    })
-  }, [])
+  const handleSelectEpisode = useCallback(
+    (episode: PodcastEpisode, isSelected: boolean, shiftKey = false, rowIndex?: number) => {
+      const index = rowIndex ?? filteredEpisodes.findIndex((e) => e.id === episode.id)
+      if (index < 0) return
+
+      let anchorUpdate: string | null = lastSelectedEpisodeIdRef.current
+      setSelectedEpisodes((prev) => {
+        const { nextSelected, anchorKey } = applyShiftClickSelection({
+          prevSelected: prev,
+          clickedKey: episode.id,
+          clickedIndex: index,
+          shiftKey,
+          anchorKey: lastSelectedEpisodeIdRef.current,
+          orderedKeys: filteredEpisodeIds,
+          selectClicked: isSelected
+        })
+        anchorUpdate = anchorKey
+        return nextSelected
+      })
+      lastSelectedEpisodeIdRef.current = anchorUpdate
+    },
+    [filteredEpisodes, filteredEpisodeIds]
+  )
 
   const handleClearSelection = useCallback(() => {
     setSelectedEpisodes(new Set())
+    lastSelectedEpisodeIdRef.current = null
   }, [])
 
   const handleViewEpisode = useCallback((episode: PodcastEpisode) => {
