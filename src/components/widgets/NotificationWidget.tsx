@@ -17,7 +17,7 @@ function getActionLink(task: Task): string {
 
   switch (task.action) {
     case 'download-podcast-episode':
-      return libraryId ? `/library/${libraryId}/podcast/download-queue` : ''
+      return libraryId ? `/library/${libraryId}/download-queue` : ''
     case 'encode-m4b':
       return libraryId && libraryItemId ? `/library/${libraryId}/item/${libraryItemId}/tools?tool=m4b` : ''
     case 'embed-metadata':
@@ -91,7 +91,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
       <button
         ref={triggerRef}
         type="button"
-        className="text-foreground hover:text-foreground/80 relative flex h-10 w-10 cursor-pointer items-center justify-center"
+        className="text-foreground hover:text-foreground/80 relative flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center md:h-10 md:w-10"
         aria-haspopup="listbox"
         aria-expanded={showMenu}
         onClick={clickShowMenu}
