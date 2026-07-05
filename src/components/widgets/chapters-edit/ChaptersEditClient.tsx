@@ -3,14 +3,15 @@
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import LibraryItemSubpageHeader from '@/components/widgets/LibraryItemSubpageHeader'
 import { useChapterEditor } from '@/hooks/useChapterEditor'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { hasNonPlaceholderChapters } from '@/lib/chapters/chapterEditorUtils'
+import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { BookLibraryItem } from '@/types/api'
 import AddMultipleChaptersModal from './AddMultipleChaptersModal'
 import AudioTracksPanel from './AudioTracksPanel'
-import ChaptersEditHeader from './ChaptersEditHeader'
 import ChaptersListSection from './ChaptersListSection'
 import ChaptersSectionHeader from './ChaptersSectionHeader'
 import ChaptersToolbar from './ChaptersToolbar'
@@ -82,16 +83,22 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
   } = editor
 
   return (
-    <div className={mergeClasses('bg-bg relative min-h-full overflow-y-auto', isStreaming && 'streaming')}>
-      <ChaptersEditHeader
+    <div className={mergeClasses('bg-bg relative min-h-full overflow-y-auto p-8', isStreaming && 'streaming')}>
+      <LibraryItemSubpageHeader
+        libraryItem={libraryItem}
         libraryId={libraryItem.libraryId}
         itemId={libraryItem.id}
         title={title}
-        mediaDurationRounded={mediaDurationRounded}
         onEditClick={() => setIsEditModalOpen(true)}
+        trailing={
+          <div className="flex justify-end">
+            <p className="hidden text-base md:block">{t('LabelDuration')}:</p>
+            <p className="ms-4 hidden font-mono text-base md:block">{secondsToTimestamp(mediaDurationRounded)}</p>
+          </div>
+        }
       />
 
-      <div className="flex flex-wrap-reverse justify-center px-4 py-4 xl:flex-nowrap">
+      <div className="flex flex-wrap-reverse justify-center xl:flex-nowrap">
         <div className="w-full max-w-3xl overflow-x-hidden py-4">
           <ChaptersSectionHeader showSecondInputs={showSecondInputs} onShowSecondInputsChange={setShowSecondInputs} />
 

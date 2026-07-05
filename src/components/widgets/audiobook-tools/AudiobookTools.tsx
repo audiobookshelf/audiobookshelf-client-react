@@ -2,8 +2,8 @@
 
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import Dropdown from '@/components/ui/Dropdown'
-import IconBtn from '@/components/ui/IconBtn'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import LibraryItemSubpageHeader from '@/components/widgets/LibraryItemSubpageHeader'
 import AudioTracksProgressTable from '@/components/widgets/audiobook-tools/AudioTracksProgressTable'
 import ChaptersPreviewTable from '@/components/widgets/audiobook-tools/ChaptersPreviewTable'
 import EmbedMetadataPanel from '@/components/widgets/audiobook-tools/EmbedMetadataPanel'
@@ -15,7 +15,6 @@ import { useAudiobookTools } from '@/hooks/useAudiobookTools'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { BookLibraryItem } from '@/types/api'
-import Link from 'next/link'
 
 interface AudiobookToolsProps {
   libraryItem: BookLibraryItem
@@ -30,18 +29,13 @@ export default function AudiobookTools({ libraryItem: initialLibraryItem }: Audi
 
   return (
     <div className={mergeClasses('bg-bg relative min-h-full overflow-y-auto p-8', isStreaming && 'streaming')}>
-      <div className="mb-6 flex items-center justify-center">
-        <div className="w-full max-w-2xl">
-          <div className="mb-4 flex items-center">
-            <Link href={`/library/${tools.libraryItem.libraryId}/item/${tools.libraryItem.id}`} className="hover:underline">
-              <h1 className="text-lg lg:text-xl">{tools.title}</h1>
-            </Link>
-            <IconBtn ariaLabel={t('ButtonEdit')} borderless size="small" className="mx-4" onClick={() => tools.setIsEditModalOpen(true)}>
-              edit
-            </IconBtn>
-          </div>
-        </div>
-        <div className="w-full max-w-2xl">
+      <LibraryItemSubpageHeader
+        libraryItem={tools.libraryItem}
+        libraryId={tools.libraryItem.libraryId}
+        itemId={tools.libraryItem.id}
+        title={tools.title}
+        onEditClick={() => tools.setIsEditModalOpen(true)}
+        trailing={
           <div className="flex justify-end">
             <Dropdown
               value={tools.selectedTool}
@@ -51,8 +45,8 @@ export default function AudiobookTools({ libraryItem: initialLibraryItem }: Audi
               onChange={(value) => tools.setSelectedTool(value === 'm4b' ? 'm4b' : 'embed')}
             />
           </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="mb-2 flex justify-center">
         <div className="w-full max-w-2xl">
