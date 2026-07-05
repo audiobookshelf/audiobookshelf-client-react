@@ -17,7 +17,7 @@ export default function TruncatingTooltipText({ text, className, position = 'top
   const { ref, isTruncated } = useTruncation(text, false)
   return (
     <Tooltip text={text} position={position} disabled={!isTruncated} className="block w-full">
-      <p ref={ref} className={mergeClasses('truncate', className)}>
+      <p ref={ref} dir="auto" className={mergeClasses('truncate', className)}>
         {text}
       </p>
     </Tooltip>
