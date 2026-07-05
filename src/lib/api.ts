@@ -41,6 +41,7 @@ import {
   GetNotificationsResponse,
   GetOpenListeningSessionsResponse,
   GetPlaylistsResponse,
+  GetEpisodeDownloadQueueResponse,
   GetRecentEpisodesResponse,
   GetPodcastTitlesResponse,
   GetRssFeedsResponse,
@@ -625,6 +626,10 @@ export const getLibraryPlaylists = cache(async (libraryId: string, queryParams?:
 
 export const getRecentEpisodes = cache(async (libraryId: string, limit = 50, page = 0): Promise<GetRecentEpisodesResponse> => {
   return apiRequest<GetRecentEpisodesResponse>(`/api/libraries/${libraryId}/recent-episodes?limit=${limit}&page=${page}`)
+})
+
+export const getEpisodeDownloadQueue = cache(async (libraryId: string): Promise<GetEpisodeDownloadQueueResponse> => {
+  return apiRequest<GetEpisodeDownloadQueueResponse>(`/api/libraries/${libraryId}/episode-downloads`)
 })
 
 export const getApiKeys = cache(async (): Promise<GetApiKeysResponse> => {
