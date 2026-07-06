@@ -12,7 +12,7 @@ import { mapMediaCardMoreMenuItemsToDropdownItems } from '@/components/widgets/m
 import { useCollectionCardActions } from '@/components/widgets/media-card/useCollectionCardActions'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
-import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useUser } from '@/contexts/UserContext'
 import { useCollectionBooks } from '@/hooks/useCollectionBooks'
 import { useCollectionDisplayMode } from '@/hooks/useCollectionDisplayMode'
