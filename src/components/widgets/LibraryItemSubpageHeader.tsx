@@ -11,6 +11,9 @@ import type { ReactNode } from 'react'
 
 const COVER_HEIGHT = 36
 
+/** Width of the centered header row (two max-w-2xl columns). Use for subpage content alignment. */
+export const libraryItemSubpageMaxWidthClass = 'max-w-[84rem]'
+
 interface LibraryItemSubpageHeaderProps {
   libraryItem: BookLibraryItem
   libraryId: string
@@ -26,9 +29,9 @@ export default function LibraryItemSubpageHeader({ libraryItem, libraryId, itemI
   const coverSrc = getLibraryItemCoverSrc(libraryItem, getPlaceholderCoverUrl())
 
   return (
-    <div className="mb-6 flex flex-wrap items-center justify-center sm:flex-nowrap">
+    <div className="mb-4 flex flex-wrap items-center justify-center sm:mb-6 sm:flex-nowrap">
       <div className="w-full max-w-2xl">
-        <div className="mb-4 flex items-center">
+        <div className="flex items-center">
           <div className="me-3 shrink-0">
             <PreviewCover src={coverSrc} width={COVER_HEIGHT / bookCoverAspectRatio} showResolution={false} />
           </div>
@@ -40,7 +43,11 @@ export default function LibraryItemSubpageHeader({ libraryItem, libraryId, itemI
           </IconBtn>
         </div>
       </div>
-      <div className="w-full max-w-2xl">{trailing}</div>
+      {trailing !== undefined ? (
+        <div className="w-full max-w-2xl">{trailing}</div>
+      ) : (
+        <div className="hidden w-full max-w-2xl sm:block" aria-hidden />
+      )}
     </div>
   )
 }
