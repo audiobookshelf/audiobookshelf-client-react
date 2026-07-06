@@ -3,13 +3,14 @@
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import TracksEditToolbar, { TracksEditActions } from '@/components/widgets/tracks-edit/TracksEditToolbar'
 import TracksList from '@/components/widgets/tracks-edit/TracksList'
+import { getTracksListColumnVisibility } from '@/components/widgets/tracks-edit/tracksListColumns'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTrackEditor } from '@/hooks/useTrackEditor'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { BookLibraryItem } from '@/types/api'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 interface TracksEditClientProps {
   libraryItem: BookLibraryItem
@@ -22,6 +23,7 @@ export default function TracksEditClient({ libraryItem: initialLibraryItem }: Tr
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   const editor = useTrackEditor({ initialLibraryItem })
+  const columnVisibility = useMemo(() => getTracksListColumnVisibility(editor.files), [editor.files])
 
   return (
     <div className={mergeClasses('bg-bg page flex h-full min-h-0 flex-col overflow-hidden', isStreaming && 'streaming')}>
@@ -34,7 +36,7 @@ export default function TracksEditClient({ libraryItem: initialLibraryItem }: Tr
             <h1 className="text-lg lg:text-xl">{editor.title}</h1>
           </Link>
 
-          <TracksEditToolbar currentSort={editor.currentSort} onSort={editor.handleSort} />
+          <TracksEditToolbar currentSort={editor.currentSort} columnVisibility={columnVisibility} onSort={editor.handleSort} />
         </div>
 
         <TracksList

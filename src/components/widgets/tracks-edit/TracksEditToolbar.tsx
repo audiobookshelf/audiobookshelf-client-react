@@ -3,8 +3,10 @@
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import type { TracksListColumnVisibility } from '@/components/widgets/tracks-edit/tracksListColumns'
 import type { TrackSortKey } from '@/hooks/useTrackEditor'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useMemo } from 'react'
 
 interface TracksEditActionsProps {
   hasChanges: boolean
@@ -18,13 +20,25 @@ interface TracksEditActionsProps {
 
 interface TracksEditToolbarProps {
   currentSort: TrackSortKey
+  columnVisibility?: TracksListColumnVisibility
   onSort: (sortKey: TrackSortKey) => void
 }
 
-const MOBILE_SORT_OPTIONS: { value: Exclude<TrackSortKey, 'custom'>; labelKey: 'LabelTrackOrder' | 'LabelTrackFromFilename' | 'LabelTrackFromMetadata' | 'LabelFilename' }[] = [
+const MOBILE_SORT_OPTIONS: {
+  value: Exclude<TrackSortKey, 'custom'>
+  labelKey:
+    | 'LabelTrackOrder'
+    | 'LabelTrackFromFilename'
+    | 'LabelTrackFromMetadata'
+    | 'LabelDiscFromFilename'
+    | 'LabelDiscFromMetadata'
+    | 'LabelFilename'
+}[] = [
   { value: 'current', labelKey: 'LabelTrackOrder' },
   { value: 'track-filename', labelKey: 'LabelTrackFromFilename' },
   { value: 'metadata', labelKey: 'LabelTrackFromMetadata' },
+  { value: 'disc-filename', labelKey: 'LabelDiscFromFilename' },
+  { value: 'disc-metadata', labelKey: 'LabelDiscFromMetadata' },
   { value: 'filename', labelKey: 'LabelFilename' }
 ]
 
@@ -76,10 +90,19 @@ export function TracksEditActions({
   )
 }
 
-export default function TracksEditToolbar({ currentSort, onSort }: TracksEditToolbarProps) {
+export default function TracksEditToolbar({ currentSort, columnVisibility, onSort }: TracksEditToolbarProps) {
   const t = useTypeSafeTranslations()
 
-  const sortDropdownItems = MOBILE_SORT_OPTIONS.map((opt) => ({
+  const mobileSortOptions = useMemo(() => {
+    if (!columnVisibility) return MOBILE_SORT_OPTIONS
+    return MOBILE_SORT_OPTIONS.filter((opt) => {
+      if (opt.value === 'disc-filename') return columnVisibility.discFromFilename
+      if (opt.value === 'disc-metadata') return columnVisibility.discFromMetadata
+      return true
+    })
+  }, [columnVisibility])
+
+  const sortDropdownItems = mobileSortOptions.map((opt) => ({
     text: t(opt.labelKey),
     value: opt.value
   }))
@@ -88,7 +111,7 @@ export default function TracksEditToolbar({ currentSort, onSort }: TracksEditToo
   const activeSortValue = isCustomOrder ? 'current' : currentSort
   const activeSortLabel = isCustomOrder
     ? t('LabelCustomTrackOrder')
-    : t(MOBILE_SORT_OPTIONS.find((o) => o.value === currentSort)?.labelKey ?? 'LabelTrackOrder')
+    : t(mobileSortOptions.find((o) => o.value === currentSort)?.labelKey ?? 'LabelTrackOrder')
 
   return (
     <Dropdown

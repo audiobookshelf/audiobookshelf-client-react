@@ -7,7 +7,14 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { AudioFile, BookLibraryItem } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
-export type TrackSortKey = 'custom' | 'current' | 'track-filename' | 'metadata' | 'filename'
+export type TrackSortKey =
+  | 'custom'
+  | 'current'
+  | 'track-filename'
+  | 'metadata'
+  | 'disc-filename'
+  | 'disc-metadata'
+  | 'filename'
 
 export interface EditableTrackFile extends AudioFile {
   include: boolean
@@ -75,6 +82,21 @@ function sortByDiscThenTrack(
   return next
 }
 
+/** Sort by disc number first, then track — always uses disc when present (for the disc column headers). */
+function sortByDisc(
+  files: EditableTrackFile[],
+  discKey: 'discNumFromMeta' | 'discNumFromFilename',
+  trackKey: 'trackNumFromMeta' | 'trackNumFromFilename'
+): EditableTrackFile[] {
+  const next = [...files]
+  next.sort((a, b) => {
+    const discDiff = compareNullableTrackAsc(a[discKey], b[discKey])
+    if (discDiff !== 0) return discDiff
+    return compareNullableTrackAsc(a[trackKey], b[trackKey])
+  })
+  return next
+}
+
 /** Keep the user's list order; merge exclude/index and other fields from the server response. */
 function mergeEditableFilesPreservingOrder(currentFiles: EditableTrackFile[], serverAudioFiles: AudioFile[]): EditableTrackFile[] {
   const serverByIno = new Map(serverAudioFiles.map((af) => [af.ino, af]))
@@ -115,6 +137,10 @@ function sortFiles(files: EditableTrackFile[], sortKey: TrackSortKey): EditableT
       return sortByDiscThenTrack(files, 'discNumFromMeta', 'trackNumFromMeta')
     case 'track-filename':
       return sortByDiscThenTrack(files, 'discNumFromFilename', 'trackNumFromFilename')
+    case 'disc-filename':
+      return sortByDisc(files, 'discNumFromFilename', 'trackNumFromFilename')
+    case 'disc-metadata':
+      return sortByDisc(files, 'discNumFromMeta', 'trackNumFromMeta')
     case 'filename':
       return [...files].sort((a, b) =>
         (a.metadata.filename || '').toLowerCase().localeCompare((b.metadata.filename || '').toLowerCase())

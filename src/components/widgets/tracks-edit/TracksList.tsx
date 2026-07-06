@@ -119,10 +119,22 @@ export default function TracksList({ files, newTrackIndices, currentSort, onSort
           />
         )}
         {columnVisibility.discFromFilename && (
-          <div className={mergeClasses(TRACKS_COL_XL_FLEX, 'w-20 shrink-0 justify-center text-center')}>{t('LabelDiscFromFilename')}</div>
+          <SortColumnHeader
+            label={t('LabelDiscFromFilename')}
+            sortKey="disc-filename"
+            currentSort={currentSort}
+            className={mergeClasses(TRACKS_COL_XL_FLEX, 'w-20 shrink-0 px-4')}
+            onSort={onSort}
+          />
         )}
         {columnVisibility.discFromMetadata && (
-          <div className={mergeClasses(TRACKS_COL_XL_FLEX, 'w-20 shrink-0 justify-center text-center')}>{t('LabelDiscFromMetadata')}</div>
+          <SortColumnHeader
+            label={t('LabelDiscFromMetadata')}
+            sortKey="disc-metadata"
+            currentSort={currentSort}
+            className={mergeClasses(TRACKS_COL_XL_FLEX, 'w-20 shrink-0 px-4')}
+            onSort={onSort}
+          />
         )}
         <div className={mergeClasses(TRACKS_COL_COMPACT, TRACKS_FILENAME_COLUMN_CLASS, 'justify-start px-2')} role="columnheader">
           {t('LabelFilename')}
