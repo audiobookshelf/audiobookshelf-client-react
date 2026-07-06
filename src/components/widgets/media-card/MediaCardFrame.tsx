@@ -1,5 +1,12 @@
 import { mergeClasses } from '@/lib/merge-classes'
-import { type HTMLAttributes, type MouseEvent as ReactMouseEvent, type ReactNode, type Ref } from 'react'
+import {
+  type FocusEvent,
+  type HTMLAttributes,
+  type MouseEvent as ReactMouseEvent,
+  type ReactNode,
+  type PointerEvent as ReactPointerEvent,
+  type Ref
+} from 'react'
 
 interface MediaCardFrameProps {
   width: number | string
@@ -9,11 +16,16 @@ interface MediaCardFrameProps {
   /** Props merged onto the root (e.g. dnd-kit `attributes`). `onKeyDown` / `tabIndex` are merged explicitly. */
   sortableFrameProps?: HTMLAttributes<HTMLDivElement>
   onClick?: (event: React.MouseEvent) => void
+  onPointerDown?: (event: ReactPointerEvent) => void
+  onPointerUp?: (event: ReactPointerEvent) => void
+  onPointerCancel?: (event: ReactPointerEvent) => void
+  onPointerMove?: (event: ReactPointerEvent) => void
   onMouseEnter?: () => void
   onMouseLeave?: () => void
   /** Fires on bubble (unlike mouseenter); use when descendants need to drive hover reliably. */
   onMouseOver?: (event: ReactMouseEvent) => void
   onKeyDown?: (event: React.KeyboardEvent) => void
+  onFocus?: (event: FocusEvent) => void
   cardId?: string
   cover: ReactNode
   overlay: ReactNode
@@ -21,6 +33,7 @@ interface MediaCardFrameProps {
   aspectRatio?: number
   className?: string
   'cy-id'?: string
+  'aria-selected'?: boolean
 }
 
 export default function MediaCardFrame({
@@ -29,17 +42,23 @@ export default function MediaCardFrame({
   rootRef,
   sortableFrameProps,
   onClick,
+  onPointerDown,
+  onPointerUp,
+  onPointerCancel,
+  onPointerMove,
   onMouseEnter,
   onMouseLeave,
   onMouseOver,
   onKeyDown,
+  onFocus,
   cardId,
   cover,
   overlay,
   footer,
   aspectRatio,
   className,
-  'cy-id': cyId = 'mediaCard'
+  'cy-id': cyId = 'mediaCard',
+  'aria-selected': ariaSelected
 }: MediaCardFrameProps) {
   const { onKeyDown: sortableOnKeyDown, tabIndex: sortableTabIndex, ...sortableRest } = sortableFrameProps ?? {}
 
@@ -48,9 +67,14 @@ export default function MediaCardFrame({
       ref={rootRef}
       cy-id={cyId}
       id={cardId}
+      aria-selected={ariaSelected}
       {...sortableRest}
       tabIndex={sortableTabIndex ?? 0}
       onClick={onClick}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      onPointerCancel={onPointerCancel}
+      onPointerMove={onPointerMove}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       onMouseOver={onMouseOver}
@@ -58,6 +82,7 @@ export default function MediaCardFrame({
         sortableOnKeyDown?.(event)
         onKeyDown?.(event)
       }}
+      onFocus={onFocus}
       className={mergeClasses(
         'relative z-30 rounded-xs',
         onClick && 'cursor-pointer',

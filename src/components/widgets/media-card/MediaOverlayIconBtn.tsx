@@ -33,7 +33,8 @@ export function MediaOverlayIconBtnSurface({
   ariaLabel,
   className,
   selected,
-  iconBtnSize = 'small'
+  iconBtnSize = 'small',
+  tabIndex
 }: {
   icon: string
   onClick: (event: MouseEvent) => void
@@ -41,6 +42,7 @@ export function MediaOverlayIconBtnSurface({
   className?: string
   selected?: boolean
   iconBtnSize?: MediaOverlayIconBtnSize
+  tabIndex?: number
 }) {
   return (
     <IconBtn
@@ -49,6 +51,7 @@ export function MediaOverlayIconBtnSurface({
       className={mergeClasses(OVERLAY_ICON_SHARED_CLASSES, ICON_SIZE_CLASSES[iconBtnSize], selected && 'text-yellow-400', className)}
       onClick={onClick}
       ariaLabel={ariaLabel}
+      tabIndex={tabIndex}
     >
       {icon}
     </IconBtn>
@@ -63,12 +66,22 @@ export interface MediaOverlayIconBtnProps {
   className?: string
   selected?: boolean
   cyId?: string
+  tabIndex?: number
 }
 
-export default function MediaOverlayIconBtn({ icon, onClick, ariaLabel, position = 'top-start', className, selected, cyId }: MediaOverlayIconBtnProps) {
+export default function MediaOverlayIconBtn({
+  icon,
+  onClick,
+  ariaLabel,
+  position = 'top-start',
+  className,
+  selected,
+  cyId,
+  tabIndex
+}: MediaOverlayIconBtnProps) {
   return (
     <div cy-id={cyId} className={mergeClasses('absolute z-40', MEDIA_OVERLAY_ICON_POSITION_CLASSES[position])}>
-      <MediaOverlayIconBtnSurface icon={icon} onClick={onClick} ariaLabel={ariaLabel} className={className} selected={selected} />
+      <MediaOverlayIconBtnSurface icon={icon} onClick={onClick} ariaLabel={ariaLabel} className={className} selected={selected} tabIndex={tabIndex} />
     </div>
   )
 }

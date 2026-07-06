@@ -136,6 +136,7 @@ function AuthorCard(props: AuthorCardProps) {
                     onClick={handleSelectClick}
                     ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
                     selected={selected}
+                    tabIndex={-1}
                   />
                 )}
 
