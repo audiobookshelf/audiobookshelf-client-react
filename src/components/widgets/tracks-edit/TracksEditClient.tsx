@@ -54,7 +54,6 @@ export default function TracksEditClient({ libraryItem: initialLibraryItem }: Tr
 
         <TracksEditActions
           className="border-border w-full shrink-0 border-t pt-3"
-          reserveSpace={false}
           hasChanges={editor.hasChanges}
           isPending={editor.isPending}
           onReset={() => setShowResetConfirm(true)}

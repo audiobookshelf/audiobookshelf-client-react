@@ -2,9 +2,9 @@
 
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { TracksListColumnVisibility } from '@/components/widgets/tracks-edit/tracksListColumns'
 import type { TrackSortKey } from '@/hooks/useTrackEditor'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useMemo } from 'react'
 
@@ -14,8 +14,6 @@ interface TracksEditActionsProps {
   onReset: () => void
   onSave: () => void
   className?: string
-  /** When false, omit the actions entirely instead of reserving space while hidden. */
-  reserveSpace?: boolean
 }
 
 interface TracksEditToolbarProps {
@@ -26,13 +24,7 @@ interface TracksEditToolbarProps {
 
 const MOBILE_SORT_OPTIONS: {
   value: Exclude<TrackSortKey, 'custom'>
-  labelKey:
-    | 'LabelTrackOrder'
-    | 'LabelTrackFromFilename'
-    | 'LabelTrackFromMetadata'
-    | 'LabelDiscFromFilename'
-    | 'LabelDiscFromMetadata'
-    | 'LabelFilename'
+  labelKey: 'LabelTrackOrder' | 'LabelTrackFromFilename' | 'LabelTrackFromMetadata' | 'LabelDiscFromFilename' | 'LabelDiscFromMetadata' | 'LabelFilename'
 }[] = [
   { value: 'current', labelKey: 'LabelTrackOrder' },
   { value: 'track-filename', labelKey: 'LabelTrackFromFilename' },
@@ -42,48 +34,19 @@ const MOBILE_SORT_OPTIONS: {
   { value: 'filename', labelKey: 'LabelFilename' }
 ]
 
-export function TracksEditActions({
-  hasChanges,
-  isPending,
-  onReset,
-  onSave,
-  className,
-  reserveSpace = true
-}: TracksEditActionsProps) {
+export function TracksEditActions({ hasChanges, isPending, onReset, onSave, className }: TracksEditActionsProps) {
   const t = useTypeSafeTranslations()
 
-  if (!hasChanges && !reserveSpace) {
+  if (!hasChanges) {
     return null
   }
 
   return (
-    <div
-      className={mergeClasses(
-        'flex shrink-0 items-center justify-end gap-2',
-        reserveSpace && 'min-h-9',
-        !hasChanges && reserveSpace && 'invisible pointer-events-none',
-        className
-      )}
-      aria-hidden={!hasChanges}
-    >
-      <Btn
-        size="small"
-        className="w-auto"
-        disabled={isPending}
-        tabIndex={!hasChanges ? -1 : undefined}
-        onClick={onReset}
-      >
+    <div className={mergeClasses('flex shrink-0 items-center justify-end gap-2', className)}>
+      <Btn size="small" className="w-auto" disabled={isPending} onClick={onReset}>
         {t('ButtonReset')}
       </Btn>
-      <Btn
-        color="bg-success"
-        size="small"
-        className="w-auto"
-        loading={isPending}
-        disabled={isPending}
-        tabIndex={!hasChanges ? -1 : undefined}
-        onClick={onSave}
-      >
+      <Btn color="bg-success" size="small" className="w-auto" loading={isPending} disabled={isPending} onClick={onSave}>
         {t('ButtonSaveTracklist')}
       </Btn>
     </div>
@@ -109,9 +72,7 @@ export default function TracksEditToolbar({ currentSort, columnVisibility, onSor
 
   const isCustomOrder = currentSort === 'custom'
   const activeSortValue = isCustomOrder ? 'current' : currentSort
-  const activeSortLabel = isCustomOrder
-    ? t('LabelCustomTrackOrder')
-    : t(mobileSortOptions.find((o) => o.value === currentSort)?.labelKey ?? 'LabelTrackOrder')
+  const activeSortLabel = isCustomOrder ? t('LabelCustomTrackOrder') : t(mobileSortOptions.find((o) => o.value === currentSort)?.labelKey ?? 'LabelTrackOrder')
 
   return (
     <Dropdown
