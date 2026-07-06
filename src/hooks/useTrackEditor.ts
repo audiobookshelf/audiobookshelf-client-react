@@ -7,14 +7,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { AudioFile, BookLibraryItem } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
-export type TrackSortKey =
-  | 'custom'
-  | 'current'
-  | 'track-filename'
-  | 'metadata'
-  | 'disc-filename'
-  | 'disc-metadata'
-  | 'filename'
+export type TrackSortKey = 'custom' | 'current' | 'track-filename' | 'metadata' | 'disc-filename' | 'disc-metadata' | 'filename'
 
 export interface EditableTrackFile extends AudioFile {
   include: boolean
@@ -142,9 +135,7 @@ function sortFiles(files: EditableTrackFile[], sortKey: TrackSortKey): EditableT
     case 'disc-metadata':
       return sortByDisc(files, 'discNumFromMeta', 'trackNumFromMeta')
     case 'filename':
-      return [...files].sort((a, b) =>
-        (a.metadata.filename || '').toLowerCase().localeCompare((b.metadata.filename || '').toLowerCase())
-      )
+      return [...files].sort((a, b) => (a.metadata.filename || '').toLowerCase().localeCompare((b.metadata.filename || '').toLowerCase()))
     default:
       return files
   }
@@ -164,12 +155,8 @@ export function useTrackEditor({ initialLibraryItem }: UseTrackEditorOptions) {
   const [isPending, startTransition] = useTransition()
 
   const [libraryItem] = useState(initialLibraryItem)
-  const [savedFiles, setSavedFiles] = useState<EditableTrackFile[]>(() =>
-    buildInitialEditableFiles(initialLibraryItem.media.audioFiles ?? [])
-  )
-  const [files, setFiles] = useState<EditableTrackFile[]>(() =>
-    buildInitialEditableFiles(initialLibraryItem.media.audioFiles ?? [])
-  )
+  const [savedFiles, setSavedFiles] = useState<EditableTrackFile[]>(() => buildInitialEditableFiles(initialLibraryItem.media.audioFiles ?? []))
+  const [files, setFiles] = useState<EditableTrackFile[]>(() => buildInitialEditableFiles(initialLibraryItem.media.audioFiles ?? []))
   const [currentSort, setCurrentSort] = useState<TrackSortKey>('current')
 
   const title = libraryItem.media.metadata.title || 'No Title'

@@ -4,7 +4,13 @@ import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import IconBtn from '@/components/ui/IconBtn'
 import LazyTruncatingTooltipText from '@/components/ui/LazyTruncatingTooltipText'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
-import { TRACKS_COL_COMPACT_CELL, TRACKS_COL_LG, TRACKS_COL_XL, TRACKS_FILENAME_COLUMN_CLASS, type TracksListColumnVisibility } from '@/components/widgets/tracks-edit/tracksListColumns'
+import {
+  TRACKS_COL_COMPACT_CELL,
+  TRACKS_COL_LG,
+  TRACKS_COL_XL,
+  TRACKS_FILENAME_COLUMN_CLASS,
+  type TracksListColumnVisibility
+} from '@/components/widgets/tracks-edit/tracksListColumns'
 import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
 import type { EditableTrackFile } from '@/hooks/useTrackEditor'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
@@ -22,15 +28,7 @@ interface TrackRowProps {
   onIncludeToggle: (ino: string, include: boolean) => void
 }
 
-export default function TrackRow({
-  file,
-  listIndex,
-  newIndex,
-  showDragHandle,
-  dragHandle,
-  columnVisibility,
-  onIncludeToggle
-}: TrackRowProps) {
+export default function TrackRow({ file, listIndex, newIndex, showDragHandle, dragHandle, columnVisibility, onIncludeToggle }: TrackRowProps) {
   const currentIndex = file.include && file.index != null && file.index >= 0 ? file.index : null
   const isEvenRow = listIndex % 2 === 1
   const primaryInputCanHover = usePrimaryInputCanHover()
@@ -39,9 +37,7 @@ export default function TrackRow({
     <div
       className={mergeClasses(
         'border-border flex w-full min-w-0 items-center overflow-hidden border-x border-b [@media(pointer:coarse)]:min-h-11',
-        file.include
-          ? mergeClasses(isEvenRow && 'bg-black/25', 'hover:bg-black/10')
-          : 'cursor-not-allowed bg-red-500/25 hover:bg-red-600/25'
+        file.include ? mergeClasses(isEvenRow && 'bg-black/25', 'hover:bg-black/10') : 'cursor-not-allowed bg-red-500/25 hover:bg-red-600/25'
       )}
     >
       {showDragHandle && (
@@ -92,7 +88,7 @@ export default function TrackRow({
         <div className={mergeClasses(TRACKS_COL_XL, 'w-20 shrink-0 truncate px-4 text-center text-sm')}>{file.discNumFromMeta ?? ''}</div>
       )}
 
-      <div className={mergeClasses(TRACKS_FILENAME_COLUMN_CLASS, 'px-2 py-1 [@media(pointer:coarse)]:py-2.5 lg:px-4')}>
+      <div className={mergeClasses(TRACKS_FILENAME_COLUMN_CLASS, 'px-2 py-1 lg:px-4 [@media(pointer:coarse)]:py-2.5')}>
         <LazyTruncatingTooltipText text={file.metadata.filename} className="text-sm" maxWidth={400} />
         {file.error && <div className="text-error mt-0.5 text-xs lg:hidden">{file.error}</div>}
       </div>
@@ -100,11 +96,9 @@ export default function TrackRow({
       <div className={mergeClasses(TRACKS_COL_LG, 'w-20 shrink-0 text-center font-mono text-xs')}>{bytesPretty(file.metadata.size)}</div>
       <div className={mergeClasses(TRACKS_COL_LG, 'w-20 shrink-0 text-center font-mono text-xs')}>{secondsToTimestamp(file.duration)}</div>
 
-      {columnVisibility.notes && (
-        <div className={mergeClasses(TRACKS_COL_XL, 'w-56 shrink-0 px-2 font-sans text-xs font-normal')}>{file.error ?? ''}</div>
-      )}
+      {columnVisibility.notes && <div className={mergeClasses(TRACKS_COL_XL, 'w-56 shrink-0 px-2 font-sans text-xs font-normal')}>{file.error ?? ''}</div>}
 
-      <div className="flex w-16 shrink-0 items-center justify-center self-stretch px-1 py-1 [@media(pointer:coarse)]:min-w-16 lg:w-28 lg:min-w-28">
+      <div className="flex w-16 shrink-0 items-center justify-center self-stretch px-1 py-1 lg:w-28 lg:min-w-28 [@media(pointer:coarse)]:min-w-16">
         <ToggleSwitch
           value={file.include}
           offColor="error"

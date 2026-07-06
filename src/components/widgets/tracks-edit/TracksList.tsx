@@ -2,7 +2,14 @@
 
 import SortableList, { type SortableListDragHandleProps } from '@/components/widgets/SortableList'
 import TrackRow from '@/components/widgets/tracks-edit/TrackRow'
-import { getTracksListColumnVisibility, TRACKS_COL_COMPACT, TRACKS_COL_LG, TRACKS_COL_LG_FLEX, TRACKS_COL_XL_FLEX, TRACKS_FILENAME_COLUMN_CLASS } from '@/components/widgets/tracks-edit/tracksListColumns'
+import {
+  getTracksListColumnVisibility,
+  TRACKS_COL_COMPACT,
+  TRACKS_COL_LG,
+  TRACKS_COL_LG_FLEX,
+  TRACKS_COL_XL_FLEX,
+  TRACKS_FILENAME_COLUMN_CLASS
+} from '@/components/widgets/tracks-edit/tracksListColumns'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EditableTrackFile, TrackSortKey } from '@/hooks/useTrackEditor'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -40,17 +47,14 @@ function SortColumnHeader({
     <button
       type="button"
       className={mergeClasses(
-        'text-foreground-subdued hover:text-foreground flex w-full flex-nowrap cursor-pointer items-center border-0 bg-transparent p-0 text-sm',
+        'text-foreground-subdued hover:text-foreground flex w-full cursor-pointer flex-nowrap items-center border-0 bg-transparent p-0 text-sm',
         className
       )}
       onClick={() => onSort(sortKey)}
       onMouseDown={(e) => e.preventDefault()}
     >
       <span className="text-foreground min-w-0 leading-tight">{label}</span>
-      <span
-        className={mergeClasses('material-symbols ms-1 shrink-0', isActive ? 'text-foreground text-lg' : 'text-sm')}
-        aria-hidden
-      >
+      <span className={mergeClasses('material-symbols ms-1 shrink-0', isActive ? 'text-foreground text-lg' : 'text-sm')} aria-hidden>
         {isActive ? 'expand_more' : 'unfold_more'}
       </span>
     </button>
@@ -152,9 +156,7 @@ export default function TracksList({ files, newTrackIndices, currentSort, onSort
         <div className={mergeClasses(TRACKS_COL_COMPACT, 'w-16 shrink-0 justify-center px-1 text-center')} role="columnheader">
           {t('LabelInclude')}
         </div>
-        <div className={mergeClasses(TRACKS_COL_LG, 'w-28 shrink-0 px-1 text-center leading-tight whitespace-pre-line')}>
-          {t('LabelIncludeInTracklist')}
-        </div>
+        <div className={mergeClasses(TRACKS_COL_LG, 'w-28 shrink-0 px-1 text-center leading-tight whitespace-pre-line')}>{t('LabelIncludeInTracklist')}</div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">

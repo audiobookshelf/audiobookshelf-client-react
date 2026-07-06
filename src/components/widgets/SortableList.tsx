@@ -175,9 +175,7 @@ function SortableListRow<T extends SortableItem>({
   // don’t grow (transformed overflow expands scrollable area in common browsers).
   const transformString = CSS.Transform.toString(transform)
   const hasActiveTransform = Boolean(transform && (transform.x !== 0 || transform.y !== 0))
-  const style = isDragging
-    ? { transition, opacity: 0 }
-    : { transform: transformString, transition: hasActiveTransform ? transition : undefined }
+  const style = isDragging ? { transition, opacity: 0 } : { transform: transformString, transition: hasActiveTransform ? transition : undefined }
 
   // `touch-action: none` on the activator (same idea as `touch-none` on SortableBookshelfCard’s
   // handle) so coarse pointers don’t scroll the page instead of starting a drag.
@@ -282,9 +280,7 @@ export default function SortableList<T extends SortableItem>({
     const children = Array.from(container.children) as HTMLElement[]
     const previousPositions = rowPositionsRef.current
     const currentOrder = itemsWithIds.map((item) => String(item.id))
-    const orderChanged =
-      previousOrderRef.current.length !== currentOrder.length ||
-      previousOrderRef.current.some((id, index) => id !== currentOrder[index])
+    const orderChanged = previousOrderRef.current.length !== currentOrder.length || previousOrderRef.current.some((id, index) => id !== currentOrder[index])
     const shouldAnimate = !skipNextFlipRef.current && orderChanged
     skipNextFlipRef.current = false
     previousOrderRef.current = currentOrder
@@ -301,10 +297,10 @@ export default function SortableList<T extends SortableItem>({
         const deltaY = previousRect.top - nextRect.top
         if (Math.abs(deltaY) < 1) continue
 
-        child.animate(
-          [{ transform: `translate3d(0, ${deltaY}px, 0)` }, { transform: 'translate3d(0, 0, 0)' }],
-          { duration: reorderAnimationDuration, easing: 'ease' }
-        )
+        child.animate([{ transform: `translate3d(0, ${deltaY}px, 0)` }, { transform: 'translate3d(0, 0, 0)' }], {
+          duration: reorderAnimationDuration,
+          easing: 'ease'
+        })
       }
     }
 

@@ -43,11 +43,7 @@ export default function LibraryItemSubpageHeader({ libraryItem, libraryId, itemI
           </IconBtn>
         </div>
       </div>
-      {trailing !== undefined ? (
-        <div className="w-full max-w-2xl">{trailing}</div>
-      ) : (
-        <div className="hidden w-full max-w-2xl sm:block" aria-hidden />
-      )}
+      {trailing !== undefined ? <div className="w-full max-w-2xl">{trailing}</div> : <div className="hidden w-full max-w-2xl sm:block" aria-hidden />}
     </div>
   )
 }
