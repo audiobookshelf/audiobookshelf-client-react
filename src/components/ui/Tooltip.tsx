@@ -142,20 +142,20 @@ const Tooltip = ({
   }, [clearHideTimeout])
 
   const onMouseEnter = () => {
-    if (!disabled) openNow()
+    if (!disabled && !openOnClick) openNow()
   }
 
   const onMouseLeave = () => {
-    closeSoon()
+    if (!openOnClick) closeSoon()
   }
 
   // Focus/blur (keyboard a11y)
   const onFocus = () => {
-    if (!disabled) openNow()
+    if (!disabled && !openOnClick) openNow()
   }
 
   const onBlur = () => {
-    setOpen(false)
+    if (!openOnClick) setOpen(false)
   }
 
   // Handle click to close (used when child opens an external link)
@@ -199,6 +199,24 @@ const Tooltip = ({
       window.removeEventListener('keydown', onKey)
     }
   }, [open, refs.reference, refs.floating])
+
+  // Tap-outside dismiss for click-triggered tooltips (hover/blur paths are unreliable on touch).
+  useEffect(() => {
+    if (!open || !openOnClick) return
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target
+      if (!(target instanceof Node)) return
+      const reference = refs.reference.current
+      const floating = elements.floating
+      if (reference instanceof Element && reference.contains(target)) return
+      if (floating instanceof Element && floating.contains(target)) return
+      setOpen(false)
+    }
+
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [open, openOnClick, refs.reference, elements.floating])
 
   // If reference goes offscreen entirely, hide tooltip
   useEffect(() => {

@@ -160,20 +160,22 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
   )
 
   const headerActions = useMemo(() => {
-    const manageTracksBtn = userCanUpdate ? (
-      <Btn
-        key="manage-tracks"
-        to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`}
-        color="bg-primary"
-        size="small"
-        className="me-2"
-        onClick={(e) => {
-          e.stopPropagation()
-        }}
-      >
-        {t('ButtonManageTracks')}
-      </Btn>
-    ) : null
+    const audioFileCount = libraryItem.media.audioFiles?.length ?? 0
+    const manageTracksBtn =
+      userCanUpdate && !libraryItem.isFile && audioFileCount > 1 ? (
+        <Btn
+          key="manage-tracks"
+          to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`}
+          color="bg-primary"
+          size="small"
+          className="me-2"
+          onClick={(e) => {
+            e.stopPropagation()
+          }}
+        >
+          {t('ButtonManageTracks')}
+        </Btn>
+      ) : null
 
     const fullPathBtn = userIsAdminOrUp ? (
       <Btn
@@ -196,7 +198,17 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         {fullPathBtn}
       </div>
     )
-  }, [userCanUpdate, userIsAdminOrUp, showFullPath, handleToggleFullPath, t, libraryItem.id, libraryItem.libraryId])
+  }, [
+    userCanUpdate,
+    userIsAdminOrUp,
+    showFullPath,
+    handleToggleFullPath,
+    t,
+    libraryItem.id,
+    libraryItem.libraryId,
+    libraryItem.isFile,
+    libraryItem.media.audioFiles
+  ])
 
   if (tracksWithAudioFile.length === 0) {
     return null
