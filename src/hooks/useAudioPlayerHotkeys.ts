@@ -1,14 +1,21 @@
 import { isAbsModalOpen } from '@/components/modals/Modal'
 import type { PlayerHandlerControls, PlayerHandlerState } from '@/hooks/usePlayerHandler'
 import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
+
+const OPEN_COMBOBOX_SELECTOR = '[role="combobox"][aria-expanded="true"]'
 
 /**
  * Registers keyboard hotkeys for the audio player.
- * Automatically disables when nothing is streaming, when an input element is focused,
- * or when Escape is pressed while a modal is open (modal handles close instead)
+ * Disabled while streaming is off, an input has focus, a modal is open, or a combobox menu is open.
  */
 export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: PlayerHandlerControls, enabled: boolean, onClose: () => void) {
+  const volumeRef = useRef(state.volume)
+  volumeRef.current = state.volume
+
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
     if (!enabled) return
 
@@ -21,8 +28,12 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
       return false
     }
 
+    function shouldIgnoreHotkeys(): boolean {
+      return isInputFocused() || isAbsModalOpen() || document.querySelector(OPEN_COMBOBOX_SELECTOR) !== null
+    }
+
     function handleKeyDown(e: KeyboardEvent) {
-      if (isInputFocused()) return
+      if (shouldIgnoreHotkeys()) return
 
       const key = e.shiftKey ? `Shift-${e.code}` : e.code
 
@@ -37,10 +48,10 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
           controls.jumpBackward()
           break
         case 'ArrowUp':
-          controls.setVolume(Math.min(state.volume + VOLUME_HOTKEY_STEP, 1))
+          controls.setVolume(Math.min(volumeRef.current + VOLUME_HOTKEY_STEP, 1))
           break
         case 'ArrowDown':
-          controls.setVolume(Math.max(state.volume - VOLUME_HOTKEY_STEP, 0))
+          controls.setVolume(Math.max(volumeRef.current - VOLUME_HOTKEY_STEP, 0))
           break
         case 'KeyM':
           controls.toggleMute()
@@ -52,8 +63,7 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
           controls.decrementPlaybackRate()
           break
         case 'Escape':
-          if (isAbsModalOpen()) return
-          onClose()
+          onCloseRef.current()
           break
         default:
           return // Don't preventDefault for unhandled keys
@@ -64,5 +74,5 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [enabled, state.volume, controls, onClose])
+  }, [enabled, controls])
 }

@@ -9,6 +9,7 @@ import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 
 export const MODAL_ROOT_SELECTOR = '[data-abs-modal]'
+const OPEN_COMBOBOX_SELECTOR = '[role="combobox"][aria-expanded="true"]'
 
 export function isAbsModalOpen(): boolean {
   return document.querySelector(MODAL_ROOT_SELECTOR) !== null
@@ -95,18 +96,19 @@ export default function Modal({
 
     const handleDocumentKeyDown = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || processing || persistent) return
+      if (document.querySelector(OPEN_COMBOBOX_SELECTOR)) return
 
       const modalWrappers = document.querySelectorAll(MODAL_ROOT_SELECTOR)
       const topmostWrapper = modalWrappers[modalWrappers.length - 1]
       if (topmostWrapper !== wrapperRef.current) return
 
       e.preventDefault()
-      e.stopPropagation()
+      e.stopImmediatePropagation()
       onClose?.()
     }
 
-    document.addEventListener('keydown', handleDocumentKeyDown)
-    return () => document.removeEventListener('keydown', handleDocumentKeyDown)
+    document.addEventListener('keydown', handleDocumentKeyDown, { capture: true })
+    return () => document.removeEventListener('keydown', handleDocumentKeyDown, { capture: true })
   }, [isOpen, processing, persistent, onClose])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {

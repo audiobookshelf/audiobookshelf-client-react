@@ -333,7 +333,10 @@ export default function Dropdown({
 
       case 'Escape':
         e.preventDefault()
-        handleEscape()
+        if (showMenu || openSubmenuIndex !== null) {
+          e.stopPropagation()
+          handleEscape()
+        }
         break
 
       case 'Home':
