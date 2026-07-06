@@ -15,6 +15,7 @@ import SeriesCardSkeleton from '@/components/widgets/media-card/SeriesCardSkelet
 import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
 import { UpdateSettingFn } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
+import { useBookshelfCardSelection } from '@/hooks/useBookshelfCardSelection'
 import { downloadLibraryOpml } from '@/lib/download'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import { userCanDownload, userCanUpdate } from '@/lib/userPermissions'
@@ -34,10 +35,6 @@ import {
 } from '@/types/api'
 import { TranslationKey } from '@/types/translations'
 import React, { type ReactNode } from 'react'
-
-/** Selection is unused on the bookshelf; stable identity so memo(MediaCard) can skip unchanged cards. */
-
-function bookshelfCardNoopSelect() {}
 
 export interface SkeletonComponentProps {
   bookshelfView: BookshelfView
@@ -62,6 +59,10 @@ export interface CardComponentProps {
   sortableBookshelfCardOptions?: SortableBookshelfCardOptions
   /** When set, display this podcast episode instead of the library item (playlist episode entries). */
   episode?: PodcastEpisode
+  /** When true, wire multi-select for library item cards (items bookshelf only). */
+  bookshelfSelectionEnabled?: boolean
+  /** Scope id for multi-select (per page or per shelf). */
+  selectionScopeId?: string
 }
 
 export interface EntityConfig {
@@ -146,7 +147,9 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       shelfEntities,
       entityIndex,
       sortableBookshelfCardOptions,
-      episode
+      episode,
+      bookshelfSelectionEnabled = false,
+      selectionScopeId = 'bookshelf:items'
     }) => {
       void seriesSortBy
       const { user, serverSettings, ereaderDevices } = useUser()
@@ -154,6 +157,11 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       const isCollapsedSeries = !!item.collapsedSeries
       const mediaItemId = episode?.id ?? item.media?.id ?? null
       const entityProgress = mediaItemId ? mediaItemProgressMap.get(mediaItemId) : undefined
+
+      const { isSelectionMode, selected, onSelect, selectionKey } = useBookshelfCardSelection(item, entityIndex, shelfEntities, episode, {
+        enabled: bookshelfSelectionEnabled && !isCollapsedSeries,
+        scopeId: selectionScopeId
+      })
 
       const EntityMediaCard = isPodcastLibrary ? PodcastMediaCard : BookMediaCard
 
@@ -166,7 +174,6 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
               mediaProgress={entityProgress}
               isSelectionMode={false}
               selected={false}
-              onSelect={bookshelfCardNoopSelect}
               dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
               timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
               showSubtitles={showSubtitles ?? false}
@@ -183,9 +190,9 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             episode={episode}
             bookshelfView={bookshelfView}
             mediaProgress={entityProgress}
-            isSelectionMode={false}
-            selected={false}
-            onSelect={bookshelfCardNoopSelect}
+            isSelectionMode={isSelectionMode}
+            selected={selected}
+            onSelect={onSelect}
             dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
             timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
             userPermissions={user.permissions}
@@ -195,6 +202,7 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
             shelfEntities={shelfEntities}
             entityIndex={entityIndex}
             dragOptions={sortableBookshelfCardOptions}
+            selectionAnchorKey={selectionKey}
           />
         </div>
       )
