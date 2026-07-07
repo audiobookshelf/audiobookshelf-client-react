@@ -86,6 +86,9 @@ import {
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
+  BatchGetLibraryItemsResponse,
+  BatchUpdateLibraryItemPayload,
+  BatchUpdateLibraryItemsResponse,
   UpdatePodcastEpisodePayload,
   UploadCoverResponse,
   User,
@@ -838,6 +841,20 @@ export async function updateLibraryItemMedia(libraryItemId: string, updatePayloa
   return apiRequest<UpdateLibraryItemMediaResponse>(`/api/items/${libraryItemId}/media`, {
     method: 'PATCH',
     body: JSON.stringify(updatePayload)
+  })
+}
+
+export async function batchGetLibraryItems(libraryItemIds: string[]): Promise<BatchGetLibraryItemsResponse> {
+  return apiRequest<BatchGetLibraryItemsResponse>('/api/items/batch/get', {
+    method: 'POST',
+    body: JSON.stringify({ libraryItemIds })
+  })
+}
+
+export async function batchUpdateLibraryItems(payload: BatchUpdateLibraryItemPayload[]): Promise<BatchUpdateLibraryItemsResponse> {
+  return apiRequest<BatchUpdateLibraryItemsResponse>('/api/items/batch/update', {
+    method: 'POST',
+    body: JSON.stringify(payload)
   })
 }
 

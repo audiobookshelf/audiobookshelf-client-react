@@ -1382,6 +1382,20 @@ export interface UpdateLibraryItemMediaResponse {
   libraryItem?: LibraryItem
 }
 
+export interface BatchGetLibraryItemsResponse {
+  libraryItems: LibraryItem[]
+}
+
+export interface BatchUpdateLibraryItemPayload {
+  id: string
+  mediaPayload: UpdateLibraryItemMediaPayload
+}
+
+export interface BatchUpdateLibraryItemsResponse {
+  success: boolean
+  updates: number
+}
+
 // ============================================================================
 // TASKS & PROGRESS TRACKING
 // ============================================================================

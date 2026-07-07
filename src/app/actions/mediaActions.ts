@@ -1,7 +1,7 @@
 'use server'
 
 import * as api from '@/lib/api'
-import { RssPodcastEpisode, UpdateLibraryItemMediaPayload, UpdatePodcastEpisodePayload } from '@/types/api'
+import { RssPodcastEpisode, UpdateLibraryItemMediaPayload, UpdatePodcastEpisodePayload, type BatchUpdateLibraryItemPayload } from '@/types/api'
 
 export async function toggleFinishedAction(libraryItemId: string, params: { isFinished: boolean; episodeId?: string }) {
   return api.updateMediaFinished(libraryItemId, params)
@@ -13,6 +13,14 @@ export async function batchUpdateMediaFinishedAction(payload: { libraryItemId: s
 
 export async function updateLibraryItemMediaAction(libraryItemId: string, payload: UpdateLibraryItemMediaPayload) {
   return api.updateLibraryItemMedia(libraryItemId, payload)
+}
+
+export async function batchGetLibraryItemsAction(libraryItemIds: string[]) {
+  return api.batchGetLibraryItems(libraryItemIds)
+}
+
+export async function batchUpdateLibraryItemsAction(payload: BatchUpdateLibraryItemPayload[]) {
+  return api.batchUpdateLibraryItems(payload)
 }
 
 export async function rescanLibraryItemAction(libraryItemId: string) {
