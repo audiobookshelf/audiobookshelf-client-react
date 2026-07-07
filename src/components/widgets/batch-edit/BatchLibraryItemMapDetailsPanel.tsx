@@ -9,7 +9,7 @@ import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Author, BookMetadata, LibraryItem, Series } from '@/types/api'
-import { useCallback, useImperativeHandle, useMemo, useState } from 'react'
+import { useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 
 export type MapDetailsType = 'overwrite' | 'append'
 
@@ -93,6 +93,7 @@ interface BatchLibraryItemMapDetailsPanelProps {
   availableTags: MultiSelectItem<string>[]
   availableSeries: MultiSelectItem<string>[]
   onApply: (payload: LibraryItemBatchMapPayload, mapType: MapDetailsType) => void
+  onHasSelectedUsageChange?: (hasSelected: boolean) => void
   disabled?: boolean
   ref?: React.Ref<BatchLibraryItemMapDetailsPanelRef>
 }
@@ -128,6 +129,7 @@ export default function BatchLibraryItemMapDetailsPanel({
   availableTags,
   availableSeries,
   onApply,
+  onHasSelectedUsageChange,
   disabled = false,
   ref
 }: BatchLibraryItemMapDetailsPanelProps) {
@@ -139,6 +141,10 @@ export default function BatchLibraryItemMapDetailsPanel({
 
   const isAppend = mapType === 'append'
   const hasSelectedUsage = useMemo(() => Object.values(usage).some(Boolean), [usage])
+
+  useEffect(() => {
+    onHasSelectedUsageChange?.(hasSelectedUsage)
+  }, [hasSelectedUsage, onHasSelectedUsageChange])
 
   const setUsageField = useCallback((field: BatchFieldKey, value: boolean) => {
     setUsage((prev) => ({ ...prev, [field]: value }))

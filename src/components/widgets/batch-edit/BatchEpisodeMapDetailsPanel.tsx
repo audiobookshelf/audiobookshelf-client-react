@@ -9,7 +9,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EpisodeBatchDetails } from '@/components/widgets/EpisodeDetailsEdit'
 import type { PodcastEpisode } from '@/types/api'
-import { useCallback, useImperativeHandle, useMemo, useState } from 'react'
+import { useCallback, useEffect, useImperativeHandle, useMemo, useState } from 'react'
 
 type EpisodeBatchFieldKey = keyof EpisodeBatchDetails
 
@@ -36,6 +36,7 @@ const MAP_FIELD_INPUT_CLASS = 'mb-5 min-w-0 flex-1'
 interface BatchEpisodeMapDetailsPanelProps {
   episodes: PodcastEpisode[]
   onApply: (payload: Partial<EpisodeBatchDetails>) => void
+  onHasSelectedUsageChange?: (hasSelected: boolean) => void
   disabled?: boolean
   ref?: React.Ref<BatchEpisodeMapDetailsPanelRef>
 }
@@ -45,13 +46,17 @@ export type BatchEpisodeMapDetailsPanelRef = {
   hasSelectedUsage: () => boolean
 }
 
-export default function BatchEpisodeMapDetailsPanel({ episodes, onApply, disabled = false, ref }: BatchEpisodeMapDetailsPanelProps) {
+export default function BatchEpisodeMapDetailsPanel({ episodes, onApply, onHasSelectedUsageChange, disabled = false, ref }: BatchEpisodeMapDetailsPanelProps) {
   const t = useTypeSafeTranslations()
   const [open, setOpen] = useState(true)
   const [usage, setUsage] = useState<EpisodeBatchUsage>({ ...EMPTY_USAGE })
   const [details, setDetails] = useState<EpisodeBatchDetails>({ ...EMPTY_DETAILS })
 
   const hasSelectedUsage = useMemo(() => Object.values(usage).some(Boolean), [usage])
+
+  useEffect(() => {
+    onHasSelectedUsageChange?.(hasSelectedUsage)
+  }, [hasSelectedUsage, onHasSelectedUsageChange])
 
   const setUsageField = useCallback((field: EpisodeBatchFieldKey, value: boolean) => {
     setUsage((prev) => ({ ...prev, [field]: value }))

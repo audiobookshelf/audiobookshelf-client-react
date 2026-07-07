@@ -63,6 +63,7 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
   const [episodeEntries, setEpisodeEntries] = useState<EpisodeBatchEntry[]>([])
   const [itemsWithChanges, setItemsWithChanges] = useState<Set<string>>(new Set())
   const [showResetConfirm, setShowResetConfirm] = useState(false)
+  const [hasMapFieldSelected, setHasMapFieldSelected] = useState(false)
 
   const originalLibraryItemsRef = useRef<LibraryItem[]>([])
   const originalEpisodeEntriesRef = useRef<EpisodeBatchEntry[]>([])
@@ -321,6 +322,7 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
             ref={episodeMapPanelRef}
             episodes={episodeEntries.map((entry) => entry.episode)}
             onApply={handleEpisodeMapApply}
+            onHasSelectedUsageChange={setHasMapFieldSelected}
             disabled={isProcessing}
           />
         ) : (
@@ -334,6 +336,7 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
             availableTags={availableTags}
             availableSeries={availableSeries}
             onApply={handleLibraryItemMapApply}
+            onHasSelectedUsageChange={setHasMapFieldSelected}
             disabled={isProcessing}
           />
         )}
@@ -344,7 +347,11 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
                 <div key={entry.episode.id} className="border-foreground/15 w-full max-w-3xl border p-2 sm:p-6">
                   <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     <Tooltip text={t('MessageBatchEditPopulateMapDetailsItemHelp')} position="bottom" className="self-end sm:order-2">
-                      <Btn size="small" disabled={isProcessing} onClick={() => episodeMapPanelRef.current?.populateFromExisting(entry.episode.id)}>
+                      <Btn
+                        size="small"
+                        disabled={isProcessing || !hasMapFieldSelected}
+                        onClick={() => episodeMapPanelRef.current?.populateFromExisting(entry.episode.id)}
+                      >
                         {t('ButtonBatchEditPopulateMapDetails')}
                       </Btn>
                     </Tooltip>
@@ -369,7 +376,11 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
                 <div key={libraryItem.id} className="border-foreground/15 w-full max-w-3xl border p-2 sm:p-6">
                   <div className="flex items-center justify-end">
                     <Tooltip text={t('MessageBatchEditPopulateMapDetailsItemHelp')} position="bottom">
-                      <Btn size="small" disabled={isProcessing} onClick={() => libraryItemMapPanelRef.current?.populateFromExisting(libraryItem.id)}>
+                      <Btn
+                        size="small"
+                        disabled={isProcessing || !hasMapFieldSelected}
+                        onClick={() => libraryItemMapPanelRef.current?.populateFromExisting(libraryItem.id)}
+                      >
                         {t('ButtonBatchEditPopulateMapDetails')}
                       </Btn>
                     </Tooltip>
