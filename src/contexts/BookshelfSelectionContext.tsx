@@ -1,6 +1,13 @@
 'use client'
 
-import { getSelectionKey, getSelectionKind, toSelectedMediaItem, type SelectedMediaItem, type SelectionKeySource, type SelectionKind } from '@/lib/selectedMediaItem'
+import {
+  getSelectionKey,
+  getSelectionKind,
+  toSelectedMediaItem,
+  type SelectedMediaItem,
+  type SelectionKeySource,
+  type SelectionKind
+} from '@/lib/selectedMediaItem'
 import { applyShiftClickSelection } from '@/lib/shiftClickSelection'
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react'

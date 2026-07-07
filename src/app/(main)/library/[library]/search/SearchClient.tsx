@@ -96,9 +96,7 @@ export default function SearchClient({ initialQuery, initialResults }: SearchCli
                   }
 
                   const key =
-                    shelf.type === 'episode' && libraryItem.recentEpisode
-                      ? `${libraryItem.recentEpisode.id}-${shelf.id}`
-                      : `${libraryItem.id}-${shelf.id}`
+                    shelf.type === 'episode' && libraryItem.recentEpisode ? `${libraryItem.recentEpisode.id}-${shelf.id}` : `${libraryItem.id}-${shelf.id}`
 
                   const shelfLibraryItems = shelf.entities as LibraryItem[]
 

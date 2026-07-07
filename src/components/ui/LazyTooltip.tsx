@@ -13,17 +13,6 @@ export interface LazyTooltipProps extends TooltipProps {
  * Defers mounting the portaled tooltip label until hover (after a delay).
  * Children stay in a stable wrapper and are never remounted by this component.
  */
-export default function LazyTooltip({
-  activationDelayMs = 400,
-  activateOnFocus = false,
-  ...tooltipProps
-}: LazyTooltipProps) {
-  return (
-    <Tooltip
-      {...tooltipProps}
-      activationDelayMs={activationDelayMs}
-      activateOnFocus={activateOnFocus}
-      lazyUnmountFloating
-    />
-  )
+export default function LazyTooltip({ activationDelayMs = 400, activateOnFocus = false, ...tooltipProps }: LazyTooltipProps) {
+  return <Tooltip {...tooltipProps} activationDelayMs={activationDelayMs} activateOnFocus={activateOnFocus} lazyUnmountFloating />
 }

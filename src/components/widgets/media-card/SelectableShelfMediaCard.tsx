@@ -46,17 +46,11 @@ export default function SelectableShelfMediaCard({
   selectionEnabled = true
 }: SelectableShelfMediaCardProps) {
   const episode = cardType === 'episode' ? libraryItem.recentEpisode : undefined
-  const { isSelectionMode, selected, onSelect, selectionKey } = useBookshelfCardSelection(
-    libraryItem,
-    entityIndex,
-    shelfEntities,
-    episode,
-    {
-      scopeId,
-      enabled: selectionEnabled,
-      selectEpisodes: cardType === 'episode'
-    }
-  )
+  const { isSelectionMode, selected, onSelect, selectionKey } = useBookshelfCardSelection(libraryItem, entityIndex, shelfEntities, episode, {
+    scopeId,
+    enabled: selectionEnabled,
+    selectEpisodes: cardType === 'episode'
+  })
 
   const sharedProps = {
     libraryItem,

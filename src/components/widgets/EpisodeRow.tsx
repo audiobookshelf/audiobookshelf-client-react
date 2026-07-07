@@ -154,7 +154,7 @@ export default function EpisodeRow({
                     <strong className="font-bold">{t('LabelFilename')}</strong>: {episode.audioFile?.metadata?.filename}
                   </p>
                 ) : (
-                  <div className="flex w-full min-w-0 max-w-xl items-center gap-x-3 overflow-hidden pr-12">
+                  <div className="flex w-full max-w-xl min-w-0 items-center gap-x-3 overflow-hidden pr-12">
                     {episode.season && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
                     {episode.episode && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
                     {publishedDate && (
@@ -177,11 +177,7 @@ export default function EpisodeRow({
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <Checkbox
-                value={isSelected}
-                checkboxBgClass="bg-primary"
-                onChange={(checked, shiftKey) => onSelect(episode, checked, shiftKey, rowIndex)}
-              />
+              <Checkbox value={isSelected} checkboxBgClass="bg-primary" onChange={(checked, shiftKey) => onSelect(episode, checked, shiftKey, rowIndex)} />
             </div>
           </div>
 

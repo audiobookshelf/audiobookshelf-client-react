@@ -7,15 +7,14 @@ import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useUser } from '@/contexts/UserContext'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getSelectionCountMessageKey, type SelectedMediaItem, type SelectionKind } from '@/lib/selectedMediaItem'
 import type { MediaProgress } from '@/types/api'
-import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useCallback, useMemo } from 'react'
 
 const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
-const countBadgeClasses =
-  'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
+const countBadgeClasses = 'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
 
 type BatchActionId =
   | 'play'
@@ -138,11 +137,7 @@ export default function AppBarSelectionOverlay() {
   const showDelete = userCanDelete
 
   return (
-    <div
-      className="bg-primary absolute inset-0 z-70 flex items-center px-4 md:px-6"
-      role="toolbar"
-      aria-label={selectionLabel}
-    >
+    <div className="bg-primary absolute inset-0 z-70 flex items-center px-4 md:px-6" role="toolbar" aria-label={selectionLabel}>
       <div className={countBadgeClasses} aria-label={selectionLabel} role="status">
         <span className="font-mono text-sm" aria-hidden="true">
           {selectedItems.length}
@@ -203,13 +198,7 @@ export default function AppBarSelectionOverlay() {
 
         {showBatchEdit && (
           <Tooltip text={t('LabelEdit')} position="bottom">
-            <IconBtn
-              size="small"
-              borderless
-              ariaLabel={t('LabelEdit')}
-              onClick={() => onBatchAction('batch-edit')}
-              className="mx-0.5 bg-warning text-white"
-            >
+            <IconBtn size="small" borderless ariaLabel={t('LabelEdit')} onClick={() => onBatchAction('batch-edit')} className="bg-warning mx-0.5 text-white">
               edit
             </IconBtn>
           </Tooltip>
@@ -222,7 +211,7 @@ export default function AppBarSelectionOverlay() {
               borderless
               ariaLabel={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')}
               onClick={() => onBatchAction('delete')}
-              className="mx-0.5 bg-error text-white"
+              className="bg-error mx-0.5 text-white"
             >
               delete
             </IconBtn>

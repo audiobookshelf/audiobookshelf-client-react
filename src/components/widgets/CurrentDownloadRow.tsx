@@ -21,9 +21,7 @@ export default function CurrentDownloadRow({ episode }: CurrentDownloadRowProps)
 
   const coverSrc = useMemo(() => getLibraryItemCoverUrl(episode.libraryItemId), [episode.libraryItemId])
   const itemHref = `/library/${library.id}/item/${episode.libraryItemId}`
-  const publishedDateLabel = episode.publishedAt
-    ? formatDistanceToNow(new Date(episode.publishedAt), { addSuffix: true })
-    : null
+  const publishedDateLabel = episode.publishedAt ? formatDistanceToNow(new Date(episode.publishedAt), { addSuffix: true }) : null
 
   return (
     <div className="relative flex py-5">

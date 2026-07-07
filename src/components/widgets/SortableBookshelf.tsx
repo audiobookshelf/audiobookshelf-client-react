@@ -104,8 +104,7 @@ export default function SortableBookshelf({
   const itemIds = useMemo(() => entries.map((e) => e.sortableId), [entries])
 
   const shelfEntitiesDense = useMemo(
-    (): (ShelfNavigationEntity | null)[] =>
-      shelfSelectionEntities ? [...shelfSelectionEntities] : entries.map((entry) => entry.libraryItem),
+    (): (ShelfNavigationEntity | null)[] => (shelfSelectionEntities ? [...shelfSelectionEntities] : entries.map((entry) => entry.libraryItem)),
     [entries, shelfSelectionEntities]
   )
 
