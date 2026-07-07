@@ -3,9 +3,7 @@
 import BookShelfRow from '@/components/widgets/BookShelfRow'
 import ItemSlider from '@/components/widgets/ItemSlider'
 import { AuthorCard } from '@/components/widgets/media-card/AuthorCard'
-import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
-import PodcastEpisodeCard from '@/components/widgets/media-card/PodcastEpisodeCard'
-import PodcastMediaCard from '@/components/widgets/media-card/PodcastMediaCard'
+import SelectableShelfMediaCard from '@/components/widgets/media-card/SelectableShelfMediaCard'
 import { SeriesCard } from '@/components/widgets/media-card/SeriesCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -257,28 +255,38 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
         return (
           <Wrapper key={shelf.id} title={shelf.label}>
             {shelf.entities.map((entity, entityIndex) => {
-              if (shelf.type === 'book' || shelf.type === 'podcast') {
-                const EntityMediaCard = shelf.type === 'book' ? BookMediaCard : PodcastMediaCard
+              if (shelf.type === 'book' || shelf.type === 'podcast' || shelf.type === 'episode') {
                 const libraryItem = entity as LibraryItem
-                const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
+                const mediaProgress =
+                  shelf.type === 'episode' && libraryItem.recentEpisode
+                    ? getMediaItemProgress(libraryItem.recentEpisode.id)
+                    : libraryItem.media?.id
+                      ? getMediaItemProgress(libraryItem.media.id)
+                      : undefined
 
-                let key = entity.id + '-' + shelf.id
+                if (shelf.type === 'episode' && !libraryItem.recentEpisode) {
+                  return null
+                }
 
-                // continue series can have multiple of the same book on the shelf with different series
-                if (continueSeriesShelf) {
+                let key = shelf.type === 'episode' && libraryItem.recentEpisode ? `${libraryItem.recentEpisode.id}-${shelf.id}` : `${entity.id}-${shelf.id}`
+
+                if (continueSeriesShelf && shelf.type === 'book') {
                   const { series } = libraryItem.media.metadata as BookMetadata
                   key += '-' + (series && isPersonalizedSeriesRef(series) ? series.id : '')
                 }
+
                 return (
                   <div key={key} className="mx-2e shrink-0">
-                    <EntityMediaCard
+                    <SelectableShelfMediaCard
+                      scopeId={shelf.id}
                       libraryItem={libraryItem}
+                      cardType={shelf.type}
                       bookshelfView={homeBookshelfView}
                       dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                       timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
                       userPermissions={user.permissions}
                       ereaderDevices={ereaderDevices}
-                      showSubtitles={true}
+                      showSubtitles
                       mediaProgress={mediaProgress}
                       shelfEntities={shelf.entities}
                       entityIndex={entityIndex}
@@ -306,30 +314,6 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       bookshelfView={homeBookshelfView}
                       dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                       mediaItemProgressMap={mediaItemProgressMap}
-                    />
-                  </div>
-                )
-              } else if (shelf.type === 'episode') {
-                const libraryItem = entity as LibraryItem
-                const episode = libraryItem.recentEpisode
-                if (!episode) {
-                  return null
-                }
-                const mediaProgress = getMediaItemProgress(episode.id)
-                return (
-                  <div key={episode.id + '-' + shelf.id} className="mx-2e shrink-0">
-                    <PodcastEpisodeCard
-                      libraryItem={libraryItem}
-                      bookshelfView={homeBookshelfView}
-                      dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
-                      timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
-                      userPermissions={user.permissions}
-                      ereaderDevices={ereaderDevices}
-                      showSubtitles={true}
-                      mediaProgress={mediaProgress}
-                      continueListeningShelf={continueListeningShelf}
-                      shelfEntities={shelf.entities}
-                      entityIndex={entityIndex}
                     />
                   </div>
                 )

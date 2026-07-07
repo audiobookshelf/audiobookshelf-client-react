@@ -164,7 +164,7 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
   return (
     <div>
       <div className="flex flex-wrap gap-4">
-        {items.map((libraryItem) => {
+        {items.map((libraryItem, entityIndex) => {
           const entityProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
           return (
             <BookMediaCard
@@ -177,6 +177,8 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
               ereaderDevices={ereaderDevices}
               showSubtitles={showSubtitles}
               mediaProgress={entityProgress}
+              shelfEntities={items}
+              entityIndex={entityIndex}
             />
           )
         })}

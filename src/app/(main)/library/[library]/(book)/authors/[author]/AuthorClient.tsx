@@ -102,7 +102,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
             }
             className="!ps-0"
           >
-            {libraryItems.map((libraryItem) => {
+            {libraryItems.map((libraryItem, entityIndex) => {
               const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
               return (
                 <div key={libraryItem.id} className="mx-2e shrink-0">
@@ -115,6 +115,8 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
                     ereaderDevices={ereaderDevices}
                     showSubtitles={showSubtitles}
                     mediaProgress={mediaProgress}
+                    shelfEntities={libraryItems}
+                    entityIndex={entityIndex}
                   />
                 </div>
               )
@@ -135,8 +137,9 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
         return (
           <div key={bookSeries.id} className="-ms-2e shrink-0">
             <ItemSlider title={seriesTitle} className="!ps-0">
-              {bookSeries.items?.map((libraryItem) => {
+              {bookSeries.items?.map((libraryItem, entityIndex) => {
                 const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
+                const seriesItems = bookSeries.items ?? []
                 return (
                   <div key={libraryItem.id} className="mx-2e shrink-0">
                     <BookMediaCard
@@ -148,6 +151,8 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
                       ereaderDevices={ereaderDevices}
                       showSubtitles={showSubtitles}
                       mediaProgress={mediaProgress}
+                      shelfEntities={seriesItems}
+                      entityIndex={entityIndex}
                     />
                   </div>
                 )
