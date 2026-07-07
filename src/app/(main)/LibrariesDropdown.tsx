@@ -1,6 +1,7 @@
 'use client'
 
 import Dropdown from '@/components/ui/Dropdown'
+import { attemptGuardedNavigation } from '@/hooks/useUnsavedNavigationGuard'
 import { Library } from '@/types/api'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTransition } from 'react'
@@ -75,8 +76,11 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
           const lib = libraries.find((l) => l.id === value)
           if (!lib || lib.id === currentLibraryId) return
 
+          const path = getLibrarySwitchPath(pathname, search, currentLibraryId, lib.id, lib.mediaType)
+          if (!attemptGuardedNavigation(path)) return
+
           startTransition(() => {
-            router.push(getLibrarySwitchPath(pathname, search, currentLibraryId, lib.id, lib.mediaType))
+            router.push(path)
           })
         }}
       />

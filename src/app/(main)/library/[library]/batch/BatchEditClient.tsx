@@ -24,6 +24,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { useUnsavedNavigationGuard } from '@/hooks/useUnsavedNavigationGuard'
 import { clearBatchEditSession, cloneLibraryItemForBatchEdit, readBatchEditSession, saveEpisodeBatchSequential, type BatchEditSession } from '@/lib/batchEdit'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { SelectionKind } from '@/lib/selectedMediaItem'
@@ -155,15 +156,12 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
     void loadBatchData(batchSession)
   }, [libraryId, loadBatchData, router, userCanUpdate])
 
-  useEffect(() => {
-    const handler = (event: BeforeUnloadEvent) => {
-      if (!hasChanges) return
-      event.preventDefault()
-      event.returnValue = ''
-    }
-    window.addEventListener('beforeunload', handler)
-    return () => window.removeEventListener('beforeunload', handler)
-  }, [hasChanges])
+  const backLeavePath = useMemo(
+    () => (session ? session.returnPath || getDefaultReturnPath(libraryId, session.selectionKind) : undefined),
+    [libraryId, session]
+  )
+
+  useUnsavedNavigationGuard({ enabled: hasChanges, backLeavePath })
 
   const handleLibraryItemChange = useCallback(({ libraryItemId, hasChanges: hasItemChanges }: { libraryItemId: string; hasChanges: boolean }) => {
     setItemsWithChanges((prev) => {
