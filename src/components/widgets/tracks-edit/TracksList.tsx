@@ -10,8 +10,8 @@ import {
   TRACKS_COL_XL_FLEX,
   TRACKS_FILENAME_COLUMN_CLASS
 } from '@/components/widgets/tracks-edit/tracksListColumns'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EditableTrackFile, TrackSortKey } from '@/hooks/useTrackEditor'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useMemo } from 'react'
 
@@ -69,7 +69,13 @@ export default function TracksList({ files, newTrackIndices, currentSort, onSort
 
   const handleSortEnd = useCallback(
     (sortedItems: SortableTrackFile[]) => {
-      onSortEnd(sortedItems.map(({ id: _id, ...rest }) => rest))
+      onSortEnd(
+        sortedItems.map((item) => {
+          const { id, ...rest } = item
+          void id
+          return rest
+        })
+      )
     },
     [onSortEnd]
   )
