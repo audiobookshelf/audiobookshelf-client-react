@@ -20,6 +20,8 @@ type EpisodeDetails = {
   publishedAt: number | null
 }
 
+export type EpisodeBatchDetails = Pick<EpisodeDetails, 'season' | 'episode' | 'episodeType' | 'subtitle'>
+
 function episodeToDetails(episode: PodcastEpisode): EpisodeDetails {
   return {
     season: episode.season || '',
@@ -56,6 +58,7 @@ function datetimeLocalToPubDate(value: string): { pubDate: string | null; publis
 
 export type EpisodeDetailsEditRef = {
   submit: () => boolean
+  mapBatchDetails: (batchDetails: Partial<EpisodeBatchDetails>) => void
 }
 
 export type EpisodeDetailsEditSubmitResult = {
@@ -93,6 +96,19 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
 
   const updateField = useCallback(<K extends keyof EpisodeDetails>(field: K, value: EpisodeDetails[K]) => {
     setDetails({ [field]: value })
+  }, [])
+
+  const mapBatchDetails = useCallback((batchDetails: Partial<EpisodeBatchDetails>) => {
+    const patch: Partial<EpisodeDetails> = {}
+    for (const key of Object.keys(batchDetails) as (keyof EpisodeBatchDetails)[]) {
+      const value = batchDetails[key]
+      if (value !== undefined) {
+        patch[key] = value
+      }
+    }
+    if (Object.keys(patch).length > 0) {
+      setDetails(patch)
+    }
   }, [])
 
   const handlePubDateChange = useCallback((value: string) => {
@@ -141,7 +157,7 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
     return true
   }, [getUpdatePayload, onSubmit, pubDateInput])
 
-  useImperativeHandle(ref, () => ({ submit: submitForm }), [submitForm])
+  useImperativeHandle(ref, () => ({ submit: submitForm, mapBatchDetails }), [submitForm, mapBatchDetails])
 
   const episodeTypeItems = useMemo<DropdownItem[]>(
     () => [

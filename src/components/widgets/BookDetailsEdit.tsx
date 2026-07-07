@@ -294,8 +294,8 @@ const BookDetailsEdit = ({
           <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
             <TextInput value={details.language || ''} onChange={handleFieldUpdate('language')} label={t('LabelLanguage')} />
           </div>
-          <div className="mt-2 grow px-1 pt-6 md:mt-0">
-            <div className="flex justify-center">
+          <div className="mt-2 flex w-full items-center gap-6 px-1 md:contents">
+            <div className="flex h-10 flex-1 items-center md:mt-6 md:w-1/4 md:flex-none md:px-1">
               <Checkbox
                 value={details.explicit}
                 onChange={handleFieldUpdate('explicit')}
@@ -305,9 +305,7 @@ const BookDetailsEdit = ({
                 labelClass="ps-2 text-base font-semibold"
               />
             </div>
-          </div>
-          <div className="mt-2 grow px-1 pt-6 md:mt-0">
-            <div className="flex justify-center">
+            <div className="flex h-10 flex-1 items-center md:mt-6 md:w-1/4 md:flex-none md:px-1">
               <Checkbox
                 value={details.abridged}
                 onChange={handleFieldUpdate('abridged')}
