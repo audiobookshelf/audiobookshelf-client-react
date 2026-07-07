@@ -12,22 +12,27 @@ import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { EPISODE_ROW_ACTION_BTN_CLASS } from '@/lib/episode'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
 import { useLibrary } from '@/contexts/LibraryContext'
+import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover, useSortableCompilation } from '@/contexts/SortableCompilationContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useCompilationListRowLayout } from '@/hooks/useCompilationListRowLayout'
+import { useEpisodeListenActions, type PodcastEpisodeListenActions } from '@/hooks/usetEpisodeListenActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
+import { buildBookQueueItem, buildEpisodeQueueItem } from '@/lib/playerQueue'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
 import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
 import { buildMediaItemProgressMap, buildPodcastEpisodeProgressMap, getLibraryItemProgressFromMap } from '@/lib/mediaProgress'
 import { mergeClasses } from '@/lib/merge-classes'
-import { getEpisodeDuration, getPlaylistItemDuration } from '@/lib/playlistItems'
+import { getPlaylistItemDuration } from '@/lib/playlistItems'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
 import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMedia } from '@/types/api'
@@ -35,8 +40,6 @@ import Link from 'next/link'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
 const COMPILATION_ROW_LINK_FOCUS = 'rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
-
-const COMPILATION_ROW_ACTION_BTN_CLASS = 'size-[1.75em] min-h-0 min-w-0 shrink-0 p-0 text-[1.5em] leading-none hover:not-disabled:before:bg-foreground/10'
 
 export type CompilationItemListRowContext = { kind: 'collection'; collectionId: string } | { kind: 'playlist'; playlistId: string }
 
@@ -51,7 +54,47 @@ interface CompilationItemListRowProps {
   isDragging?: boolean
 }
 
-export default function CompilationItemListRow({
+type CompilationItemListRowBodyProps = CompilationItemListRowProps & {
+  episodeListenActions: PodcastEpisodeListenActions | null
+}
+
+function CompilationEpisodeListRow(props: CompilationItemListRowProps & { episode: PodcastEpisode }) {
+  const { episode, libraryItem } = props
+  const media = libraryItem.media
+  const mediaMetadata = media?.metadata
+
+  const getEpisodeQueueItems = useCallback((): PlayerQueueItem[] => {
+    const queueItem = buildEpisodeQueueItem({
+      libraryItem,
+      episode,
+      podcastTitle: mediaMetadata?.title ?? '',
+      coverPath: isPodcastMedia(media) ? (media.coverPath ?? null) : null
+    })
+    return queueItem ? [queueItem] : []
+  }, [episode, libraryItem, media, mediaMetadata?.title])
+
+  const episodeListenActions = useEpisodeListenActions({
+    libraryItemId: libraryItem.id,
+    episode,
+    itemTitle: episode.title,
+    getQueueItems: getEpisodeQueueItems
+  })
+
+  return <CompilationItemListRowBody {...props} episodeListenActions={episodeListenActions} />
+}
+
+function CompilationBookListRow(props: CompilationItemListRowProps) {
+  return <CompilationItemListRowBody {...props} episode={null} episodeListenActions={null} />
+}
+
+export default function CompilationItemListRow(props: CompilationItemListRowProps) {
+  if (props.episode) {
+    return <CompilationEpisodeListRow {...props} episode={props.episode} />
+  }
+  return <CompilationBookListRow {...props} />
+}
+
+function CompilationItemListRowBody({
   libraryItem,
   episode = null,
   context,
@@ -59,8 +102,9 @@ export default function CompilationItemListRow({
   shelfEntities,
   showDragHandle,
   sortableDragHandleProps,
-  isDragging = false
-}: CompilationItemListRowProps) {
+  isDragging = false,
+  episodeListenActions
+}: CompilationItemListRowBodyProps) {
   const t = useTypeSafeTranslations()
   const { isMdUp, coverWidth } = useCompilationListRowLayout()
   const { user, userCanUpdate, userCanDelete } = useUser()
@@ -96,7 +140,9 @@ export default function CompilationItemListRow({
     [episodeId, libraryItem.id, user.mediaProgress]
   )
   const itemProgress = episodeId ? (episodeProgressMap?.get(episodeId) ?? null) : getLibraryItemProgressFromMap(mediaItemProgressMap, libraryItem)
-  const userIsFinished = !!itemProgress?.isFinished
+  const bookUserIsFinished = !!itemProgress?.isFinished
+
+  const userIsFinished = episodeListenActions?.userIsFinished ?? bookUserIsFinished
 
   const isMissing = libraryItem.isMissing
   const isInvalid = libraryItem.isInvalid
@@ -136,53 +182,36 @@ export default function CompilationItemListRow({
     (e: React.MouseEvent) => {
       e.stopPropagation()
       e.preventDefault()
-      if (episode) {
-        const queueItems = [
-          {
-            libraryItemId: libraryItem.id,
-            libraryId: libraryItem.libraryId,
-            episodeId: episode.id,
-            title: episode.title,
-            subtitle: mediaMetadata?.title ?? '',
-            caption: '',
-            duration: getEpisodeDuration(episode) || null,
-            coverPath: isPodcastMedia(media) ? (media.coverPath ?? null) : null
-          }
-        ]
-        playItem({ libraryItem, episodeId: episode.id, queueItems })
+      if (episode && episodeListenActions) {
+        episodeListenActions.handlePlay(e)
         return
       }
       if (!isBook || !mediaMetadata) return
-      const queueItems = [
-        {
-          libraryItemId: libraryItem.id,
-          libraryId: libraryItem.libraryId,
-          episodeId: null,
-          title: itemTitle,
-          subtitle: bookAuthors.map((au) => au.name).join(', '),
-          caption: '',
-          duration: isBook && 'duration' in media ? (media.duration ?? null) : null,
-          coverPath: isBook && 'coverPath' in media ? (media.coverPath ?? null) : null
-        }
-      ]
-      playItem({ libraryItem, queueItems })
+      const queueItem = buildBookQueueItem(libraryItem)
+      if (!queueItem) return
+      playItem({ libraryItem, queueItems: [queueItem] })
     },
-    [bookAuthors, episode, isBook, itemTitle, libraryItem, media, mediaMetadata, playItem]
+    [episode, episodeListenActions, isBook, libraryItem, mediaMetadata, playItem]
   )
 
   const handleToggleFinished = useCallback(() => {
+    if (episode && episodeListenActions) {
+      episodeListenActions.handleToggleFinished()
+      return
+    }
+
     setIsProcessingReadUpdate(true)
     startTransition(async () => {
       try {
-        await toggleFinishedAction(libraryItem.id, { isFinished: !userIsFinished, episodeId: episodeId ?? undefined })
+        await toggleFinishedAction(libraryItem.id, { isFinished: !bookUserIsFinished, episodeId: episodeId ?? undefined })
       } catch (error) {
         console.error('Failed to toggle finished', error)
-        showToast(userIsFinished ? t('ToastItemMarkedAsNotFinishedFailed') : t('ToastItemMarkedAsFinishedFailed'), { type: 'error' })
+        showToast(bookUserIsFinished ? t('ToastItemMarkedAsNotFinishedFailed') : t('ToastItemMarkedAsFinishedFailed'), { type: 'error' })
       } finally {
         setIsProcessingReadUpdate(false)
       }
     })
-  }, [episodeId, libraryItem.id, showToast, t, userIsFinished])
+  }, [episode, episodeListenActions, episodeId, libraryItem.id, showToast, t, bookUserIsFinished])
 
   const handleRemoveClick = useCallback(() => {
     setProcessingRemove(true)
@@ -396,7 +425,7 @@ export default function CompilationItemListRow({
 
         {showMobilePlayBtn && (
           <div className="pe-1e relative z-[2] flex shrink-0 items-center">
-            <IconBtn borderless size="custom" className={COMPILATION_ROW_ACTION_BTN_CLASS} ariaLabel={t('ButtonPlay')} onClick={handlePlayClick}>
+            <IconBtn borderless size="custom" className={EPISODE_ROW_ACTION_BTN_CLASS} ariaLabel={t('ButtonPlay')} onClick={handlePlayClick}>
               play_arrow
             </IconBtn>
           </div>
@@ -407,17 +436,17 @@ export default function CompilationItemListRow({
             <Tooltip text={userIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} position="top">
               <span className="inline-flex items-center">
                 <ReadIconBtn
-                  disabled={isProcessingReadUpdate}
+                  disabled={episodeListenActions?.isProcessingFinished ?? isProcessingReadUpdate}
                   isRead={userIsFinished}
                   borderless
                   size="custom"
-                  className={COMPILATION_ROW_ACTION_BTN_CLASS}
+                  className={EPISODE_ROW_ACTION_BTN_CLASS}
                   onClick={handleToggleFinished}
                 />
               </span>
             </Tooltip>
             {canShowEdit && (
-              <IconBtn borderless size="custom" className={COMPILATION_ROW_ACTION_BTN_CLASS} ariaLabel={t('LabelEdit')} onClick={handleEdit}>
+              <IconBtn borderless size="custom" className={EPISODE_ROW_ACTION_BTN_CLASS} ariaLabel={t('LabelEdit')} onClick={handleEdit}>
                 edit
               </IconBtn>
             )}
@@ -427,7 +456,7 @@ export default function CompilationItemListRow({
                   items={contextMenuItems}
                   borderless
                   size="small"
-                  className={COMPILATION_ROW_ACTION_BTN_CLASS}
+                  className={EPISODE_ROW_ACTION_BTN_CLASS}
                   autoWidth
                   processing={processingRemove}
                   onAction={handleContextMenuAction}
@@ -438,6 +467,20 @@ export default function CompilationItemListRow({
           </div>
         )}
       </div>
+
+      {episodeListenActions?.confirmState && (
+        <ConfirmDialog
+          isOpen={episodeListenActions.confirmState.isOpen}
+          message={episodeListenActions.confirmState.message}
+          checkboxLabel={episodeListenActions.confirmState.checkboxLabel}
+          yesButtonText={episodeListenActions.confirmState.yesButtonText}
+          yesButtonClassName={episodeListenActions.confirmState.yesButtonClassName}
+          onClose={episodeListenActions.closeConfirm}
+          onConfirm={(value) => {
+            episodeListenActions.confirmState?.onConfirm(value)
+          }}
+        />
+      )}
     </div>
   )
 }

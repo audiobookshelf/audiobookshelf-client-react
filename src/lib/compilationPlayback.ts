@@ -1,8 +1,10 @@
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
+import { isPlayableBook } from '@/lib/book'
+import { isPlayableEpisode } from '@/lib/episode'
+import { buildBookQueueItem, buildEpisodeQueueItem } from '@/lib/playerQueue'
 import { getMediaItemProgress } from '@/lib/mediaProgress'
-import { getEpisodeDuration } from '@/lib/playlistItems'
 import type { LibraryItem, MediaProgress, PlaylistItem, PodcastEpisode } from '@/types/api'
-import { isBookMedia, isBookMetadata, isPodcastMedia } from '@/types/api'
+import { isPodcastMedia } from '@/types/api'
 
 type CompilationPlaybackEntry = {
   libraryItemId: string
@@ -12,14 +14,10 @@ type CompilationPlaybackEntry = {
 }
 
 function isPlayableEntry(entry: CompilationPlaybackEntry): boolean {
-  const libraryItem = entry.libraryItem
-  if (libraryItem.isMissing || libraryItem.isInvalid) return false
-  if (entry.episode) return !!entry.episode.audioFile
-  const media = libraryItem.media
-  if (isBookMedia(media) && 'tracks' in media) {
-    return (media.tracks ?? []).length > 0
+  if (entry.episode) {
+    return isPlayableEpisode(entry.libraryItem, entry.episode)
   }
-  return false
+  return isPlayableBook(entry.libraryItem)
 }
 
 function toPlaylistEntry(item: PlaylistItem): CompilationPlaybackEntry {
@@ -44,32 +42,15 @@ function buildQueueItemFromEntry(entry: CompilationPlaybackEntry): PlayerQueueIt
   const media = libraryItem.media
 
   if (entry.episode) {
-    return {
-      libraryItemId: libraryItem.id,
-      libraryId: libraryItem.libraryId,
-      episodeId: entry.episode.id,
-      title: entry.episode.title,
-      subtitle: media.metadata?.title ?? '',
-      caption: '',
-      duration: getEpisodeDuration(entry.episode) || null,
+    return buildEpisodeQueueItem({
+      libraryItem,
+      episode: entry.episode,
+      podcastTitle: media.metadata?.title ?? '',
       coverPath: isPodcastMedia(media) ? (media.coverPath ?? null) : null
-    }
+    })
   }
 
-  if (isBookMedia(media) && isBookMetadata(media.metadata)) {
-    return {
-      libraryItemId: libraryItem.id,
-      libraryId: libraryItem.libraryId,
-      episodeId: null,
-      title: media.metadata.title ?? '',
-      subtitle: (media.metadata.authors ?? []).map((au) => au.name).join(', '),
-      caption: '',
-      duration: media.duration ?? null,
-      coverPath: media.coverPath ?? null
-    }
-  }
-
-  return null
+  return buildBookQueueItem(libraryItem)
 }
 
 function buildCompilationQueueItems(entries: CompilationPlaybackEntry[], mediaProgress: MediaProgress[]): PlayerQueueItem[] {
@@ -112,11 +93,4 @@ export function buildPlaylistQueueItems(items: PlaylistItem[], mediaProgress: Me
 
 export function buildCollectionQueueItems(books: LibraryItem[], mediaProgress: MediaProgress[]): PlayerQueueItem[] {
   return buildCompilationQueueItems(books.map(toCollectionEntry), mediaProgress)
-}
-
-export function getQueueItemPlaybackStartTime(item: PlayerQueueItem, mediaProgress: MediaProgress[]): number | undefined {
-  const progress = getMediaItemProgress(mediaProgress, item.libraryItemId, item.episodeId ?? undefined)
-
-  if (!progress || progress.isFinished) return undefined
-  return progress.currentTime
 }

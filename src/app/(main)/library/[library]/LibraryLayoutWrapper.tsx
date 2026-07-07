@@ -22,6 +22,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   const serverVersion = serverSettings?.version || 'Error'
   const installSource = Source || 'Unknown'
   const isLibraryItemPage = pathname.includes('/item/')
+  const showCoverSizeWidget = !isLibraryItemPage && !pathname.endsWith('/latest')
 
   useEffect(() => {
     if (library) {
@@ -42,7 +43,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
         <div className={mergeClasses('w-full overflow-x-hidden overflow-y-auto', isLibraryItemPage ? 'h-full' : 'h-[calc(100%-2.5rem)]')}>{children}</div>
       </div>
 
-      {!isLibraryItemPage && <CoverSizeWidget className="absolute right-4 bottom-4 z-50" />}
+      {showCoverSizeWidget && <CoverSizeWidget className="absolute right-4 bottom-4 z-50" />}
       {boundModal}
     </div>
   )

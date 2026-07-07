@@ -1,6 +1,7 @@
 'use client'
 
 import { useModalRef } from '@/contexts/ModalContext'
+import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
 import { mergeClasses } from '@/lib/merge-classes'
 import { type Placement, arrow as arrowMw, autoUpdate, flip, offset, shift, size, useFloating } from '@floating-ui/react-dom'
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
@@ -24,6 +25,12 @@ interface TooltipProps {
   /** When true, tooltip starts open on mount (used by LazyTooltip for first-hover activation). */
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
+  /** Delay (ms) before showing on hover. Used by LazyTooltip. */
+  activationDelayMs?: number
+  /** When false, hover-only activation — focus on children does not open the tooltip. */
+  activateOnFocus?: boolean
+  /** When true, unmount the portaled label while closed to avoid accumulating Floating UI instances. */
+  lazyUnmountFloating?: boolean
 }
 
 const placementMap: Record<NonNullable<TooltipProps['position']>, Placement> = {
@@ -53,12 +60,18 @@ const Tooltip = ({
   addTabIndex = false,
   openOnClick = false,
   defaultOpen = false,
-  onOpenChange
+  onOpenChange,
+  activationDelayMs = 0,
+  activateOnFocus = true,
+  lazyUnmountFloating = false
 }: TooltipProps) => {
   const tooltipId = useId()
   const [open, setOpen] = useState(defaultOpen)
   const [mounted, setMounted] = useState(false)
+  const [floatingInDom, setFloatingInDom] = useState(!lazyUnmountFloating || defaultOpen)
   const arrowRef = useRef<HTMLDivElement | null>(null)
+  const activateTimeoutRef = useRef<number | null>(null)
+  const primaryInputCanHover = usePrimaryInputCanHover()
 
   const modalRef = useModalRef()
   const portalRoot = modalRef?.current ?? undefined
@@ -74,6 +87,27 @@ const Tooltip = ({
   useEffect(() => {
     onOpenChange?.(open)
   }, [open, onOpenChange])
+
+  const clearActivateTimeout = useCallback(() => {
+    if (activateTimeoutRef.current != null) {
+      clearTimeout(activateTimeoutRef.current)
+      activateTimeoutRef.current = null
+    }
+  }, [])
+
+  useEffect(() => clearActivateTimeout, [clearActivateTimeout])
+
+  useEffect(() => {
+    if (open) {
+      setFloatingInDom(true)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!lazyUnmountFloating || open) return
+    const timeout = window.setTimeout(() => setFloatingInDom(false), 150)
+    return () => clearTimeout(timeout)
+  }, [lazyUnmountFloating, open])
 
   // Positioning middleware (see https://floating-ui.com/docs/useFloating#middleware)
   const middleware = useMemo(() => {
@@ -136,30 +170,44 @@ const Tooltip = ({
     setOpen(true)
   }, [clearHideTimeout])
 
+  const dismissTooltip = useCallback(() => {
+    clearActivateTimeout()
+    clearHideTimeout()
+    setOpen(false)
+  }, [clearActivateTimeout, clearHideTimeout])
+
   const closeSoon = useCallback(() => {
     clearHideTimeout()
     hideTimeoutRef.current = window.setTimeout(() => setOpen(false), 100)
   }, [clearHideTimeout])
 
   const onMouseEnter = () => {
-    if (!disabled && !openOnClick) openNow()
+    if (disabled || openOnClick || !primaryInputCanHover) return
+    if (activationDelayMs > 0) {
+      clearActivateTimeout()
+      activateTimeoutRef.current = window.setTimeout(openNow, activationDelayMs)
+      return
+    }
+    openNow()
   }
 
   const onMouseLeave = () => {
-    if (!openOnClick) closeSoon()
+    if (!openOnClick) {
+      clearActivateTimeout()
+      closeSoon()
+    }
   }
 
   // Focus/blur (keyboard a11y)
   const onFocus = () => {
-    if (!disabled && !openOnClick) openNow()
+    if (!disabled && !openOnClick && activateOnFocus) openNow()
   }
 
   const onBlur = () => {
     if (!openOnClick) setOpen(false)
   }
 
-  // Handle click to close (used when child opens an external link)
-  const onClick = () => {
+  const onReferenceClick = () => {
     if (closeOnClick) {
       closeSoon()
 
@@ -177,6 +225,15 @@ const Tooltip = ({
     if (!disabled && openOnClick) {
       clearHideTimeout()
       setOpen((prev) => !prev)
+    }
+  }
+
+  const handleReferenceClick = openOnClick || closeOnClick ? onReferenceClick : undefined
+
+  /** Bubble phase: cancel pending/open tooltips when the user presses a child control (e.g. tap on mobile). */
+  const onReferencePointerDown = () => {
+    if (!openOnClick) {
+      dismissTooltip()
     }
   }
 
@@ -253,7 +310,8 @@ const Tooltip = ({
     'inline-block whitespace-normal break-words text-center',
     'rounded-sm bg-primary text-foreground text-xs px-2 py-1 shadow-lg z-[1000]',
     'transition-opacity duration-300',
-    open ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
+    open ? 'opacity-100' : 'opacity-0',
+    'pointer-events-none',
     tooltipClassName
   )
 
@@ -282,9 +340,10 @@ const Tooltip = ({
       className={referenceClass}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      onClick={onClick}
+      onPointerDown={onReferencePointerDown}
+      onFocus={activateOnFocus && !openOnClick && primaryInputCanHover ? onFocus : undefined}
+      onBlur={!openOnClick ? onBlur : undefined}
+      onClick={handleReferenceClick}
       aria-describedby={tooltipId}
     >
       {children}
@@ -292,6 +351,7 @@ const Tooltip = ({
           absolutely-positioned element following a transformed reference (e.g. a dnd-kit card during
           drag) can land past the viewport and widen `<body>`. */}
       {mounted &&
+        floatingInDom &&
         !disabled &&
         (usePortal
           ? portalRoot

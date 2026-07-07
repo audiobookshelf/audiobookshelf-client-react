@@ -1,6 +1,6 @@
 'use client'
 
-import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fetchPodcastFeedAction, toggleFinishedAction } from '@/app/actions/mediaActions'
+import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fetchPodcastFeedAction } from '@/app/actions/mediaActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
@@ -11,7 +11,6 @@ import EpisodeRow, { EPISODE_ROW_HEIGHT_PX } from '@/components/widgets/EpisodeR
 import EpisodeTableHeaderActions from '@/components/widgets/EpisodeTableHeaderActions'
 import EpisodeTableToolbar from '@/components/widgets/EpisodeTableToolbar'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
@@ -37,7 +36,6 @@ interface EpisodeTableProps {
  */
 export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', episodesDownloading = [], episodeDownloadsQueued = [] }: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
-  const { playItem, isStreaming, isPlaying, playerHandler } = useMediaContext()
   const { showToast } = useGlobalToast()
   const { user, userIsAdminOrUp } = useUser()
   const [, startTransition] = useTransition()
@@ -108,43 +106,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
   const handleClearSelection = useCallback(() => {
     setSelectedEpisodes(new Set())
   }, [])
-
-  const handlePlayEpisode = useCallback(
-    (episode: PodcastEpisode) => {
-      // If the episode is currently streaming, toggle play/pause
-      if (isStreaming(libraryItem.id, episode.id)) {
-        playerHandler.controls.playPause()
-        return
-      }
-
-      playItem({
-        libraryItem,
-        episodeId: episode.id,
-        queueItems: []
-      })
-    },
-    [libraryItem, playItem, isStreaming, playerHandler.controls]
-  )
-
-  const handleToggleFinished = useCallback(
-    (episode: PodcastEpisode) => {
-      const progress = getMediaItemProgress(episode.id)
-      const isFinished = progress ? !progress.isFinished : true
-
-      startTransition(async () => {
-        try {
-          await toggleFinishedAction(libraryItem.id, {
-            isFinished,
-            episodeId: episode.id
-          })
-        } catch (error) {
-          console.error('Failed to update media finished state', error)
-          showToast(t('ToastFailedToUpdate'), { type: 'error' })
-        }
-      })
-    },
-    [libraryItem.id, getMediaItemProgress, showToast, t]
-  )
 
   const handleViewEpisode = useCallback((episode: PodcastEpisode) => {
     setViewedEpisode(episode)
@@ -235,11 +196,6 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     },
     [libraryItem.id, t, showToast]
   )
-
-  const handleAddToPlaylist = useCallback(() => {
-    // NOTE: Not natively implemented yet
-    showToast('This action is not implemented yet.', { type: 'info' })
-  }, [showToast])
 
   const contextMenuItems = useMemo(() => {
     const items = []
@@ -399,21 +355,16 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                     episode={episode}
                     libraryItemId={libraryItem.id}
                     sortKey={sortKey}
-                    progress={getMediaItemProgress?.(episode.id) || null}
                     isSelected={selectedEpisodes.has(episode.id)}
                     isSelectionMode={isSelectionMode}
                     dateFormat={dateFormat}
-                    onPlay={handlePlayEpisode}
                     onView={handleViewEpisode}
-                    onToggleFinished={handleToggleFinished}
                     onSelect={handleSelectEpisode}
                     onEdit={handleEditEpisode}
                     onMatch={handleMatchEpisode}
                     onRemove={handleRemoveEpisode}
                     onDownloadFile={handleDownloadFile}
                     onShowMoreInfo={handleShowMoreInfo}
-                    onAddToPlaylist={handleAddToPlaylist}
-                    isPlayingThisEpisode={isPlaying(libraryItem.id, episode.id)}
                     rowIndex={rowIndex}
                   />
                 </div>
