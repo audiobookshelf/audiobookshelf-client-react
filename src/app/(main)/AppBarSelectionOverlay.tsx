@@ -10,7 +10,12 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getSelectionCountMessageKey, type SelectedMediaItem, type SelectionKind } from '@/lib/selectedMediaItem'
 import type { MediaProgress } from '@/types/api'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useCallback, useMemo } from 'react'
+
+const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
+const countBadgeClasses =
+  'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
 
 type BatchActionId =
   | 'play'
@@ -84,6 +89,7 @@ export default function AppBarSelectionOverlay() {
   const t = useTypeSafeTranslations()
   const { user, userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const { selectedItems, selectionKind, clearSelection } = useBookshelfSelection()
+  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
 
   const { allPlayable, allFinished } = useSelectionBatchState(selectedItems, user.mediaProgress)
 
@@ -95,6 +101,31 @@ export default function AppBarSelectionOverlay() {
   const libraryItemAdminMenuItems = useLibraryItemAdminMenuItems(selectionKind ?? 'book', selectedItems.length, userIsAdminOrUp)
   const episodeBatchMenuItems = useEpisodeBatchMenuItems(userCanUpdate, userCanDownload, userIsAdminOrUp)
 
+  const showAddToCollection = selectionKind === 'book' && userCanUpdate
+  const showAddToPlaylist = selectionKind === 'episode' && userCanUpdate
+
+  const libraryItemContextMenuItems = useMemo(() => {
+    const items: ContextMenuDropdownItem[] = []
+
+    if (isMobile && showAddToCollection) {
+      items.push({ text: t('LabelAddToCollection'), action: 'add-to-collection' })
+    }
+
+    items.push(...libraryItemAdminMenuItems)
+    return items
+  }, [isMobile, libraryItemAdminMenuItems, showAddToCollection, t])
+
+  const episodeContextMenuItems = useMemo(() => {
+    const items: ContextMenuDropdownItem[] = []
+
+    if (isMobile && showAddToPlaylist) {
+      items.push({ text: t('LabelAddToPlaylist'), action: 'add-to-playlist' })
+    }
+
+    items.push(...episodeBatchMenuItems)
+    return items
+  }, [episodeBatchMenuItems, isMobile, showAddToPlaylist, t])
+
   if (selectedItems.length === 0 || selectionKind === null) {
     return null
   }
@@ -103,9 +134,7 @@ export default function AppBarSelectionOverlay() {
 
   const showPlay = (selectionKind === 'book' || selectionKind === 'episode') && allPlayable
   const showMarkFinished = selectionKind === 'book' || selectionKind === 'episode'
-  const showAddToCollection = selectionKind === 'book' && userCanUpdate
-  const showAddToPlaylist = selectionKind === 'episode' && userCanUpdate
-  const showBatchEdit = selectionKind !== 'episode' && userCanUpdate
+  const showBatchEdit = userCanUpdate
   const showDelete = userCanDelete
 
   return (
@@ -114,7 +143,12 @@ export default function AppBarSelectionOverlay() {
       role="toolbar"
       aria-label={selectionLabel}
     >
-      <h1 className="px-4 text-lg md:text-2xl">{selectionLabel}</h1>
+      <div className={countBadgeClasses} aria-label={selectionLabel} role="status">
+        <span className="font-mono text-sm" aria-hidden="true">
+          {selectedItems.length}
+        </span>
+      </div>
+      <h1 className="hidden px-4 text-lg md:block md:text-2xl">{selectionLabel}</h1>
       <div className="grow" />
 
       <div className="flex items-center gap-1 md:gap-1.5">
@@ -141,7 +175,13 @@ export default function AppBarSelectionOverlay() {
 
         {showAddToCollection && (
           <Tooltip text={t('LabelAddToCollection')} position="bottom">
-            <IconBtn size="small" borderless ariaLabel={t('LabelAddToCollection')} onClick={() => onBatchAction('add-to-collection')} className="mx-0.5">
+            <IconBtn
+              size="small"
+              borderless
+              ariaLabel={t('LabelAddToCollection')}
+              onClick={() => onBatchAction('add-to-collection')}
+              className="mx-0.5 hidden md:inline-flex"
+            >
               collections_bookmark
             </IconBtn>
           </Tooltip>
@@ -149,7 +189,13 @@ export default function AppBarSelectionOverlay() {
 
         {showAddToPlaylist && (
           <Tooltip text={t('LabelAddToPlaylist')} position="bottom">
-            <IconBtn size="small" borderless ariaLabel={t('LabelAddToPlaylist')} onClick={() => onBatchAction('add-to-playlist')} className="mx-0.5">
+            <IconBtn
+              size="small"
+              borderless
+              ariaLabel={t('LabelAddToPlaylist')}
+              onClick={() => onBatchAction('add-to-playlist')}
+              className="mx-0.5 hidden md:inline-flex"
+            >
               playlist_add
             </IconBtn>
           </Tooltip>
@@ -169,14 +215,6 @@ export default function AppBarSelectionOverlay() {
           </Tooltip>
         )}
 
-        {selectionKind === 'episode' && userCanUpdate && (
-          <Tooltip text={t('LabelEdit')} position="bottom">
-            <IconBtn size="small" borderless ariaLabel={t('LabelEdit')} onClick={() => onBatchAction('batch-edit')} className="mx-0.5">
-              edit
-            </IconBtn>
-          </Tooltip>
-        )}
-
         {showDelete && (
           <Tooltip text={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')} position="bottom">
             <IconBtn
@@ -191,9 +229,9 @@ export default function AppBarSelectionOverlay() {
           </Tooltip>
         )}
 
-        {selectionKind !== 'episode' && libraryItemAdminMenuItems.length > 0 && (
+        {selectionKind !== 'episode' && libraryItemContextMenuItems.length > 0 && (
           <ContextMenuDropdown
-            items={libraryItemAdminMenuItems}
+            items={libraryItemContextMenuItems}
             borderless
             size="small"
             className="mx-0.5"
@@ -201,9 +239,9 @@ export default function AppBarSelectionOverlay() {
           />
         )}
 
-        {selectionKind === 'episode' && episodeBatchMenuItems.length > 0 && (
+        {selectionKind === 'episode' && episodeContextMenuItems.length > 0 && (
           <ContextMenuDropdown
-            items={episodeBatchMenuItems}
+            items={episodeContextMenuItems}
             borderless
             size="small"
             className="mx-0.5"
