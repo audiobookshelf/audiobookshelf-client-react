@@ -5,16 +5,19 @@ import ContextMenuDropdown, { type ContextMenuDropdownItem } from '@/components/
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
-import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
+import { useBookshelfSelectionOptional } from '@/contexts/BookshelfSelectionContext'
 import { useUser } from '@/contexts/UserContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { writeBatchEditSession } from '@/lib/batchEdit'
 import { getSelectionCountMessageKey, type SelectedMediaItem, type SelectionKind } from '@/lib/selectedMediaItem'
 import type { MediaProgress } from '@/types/api'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 
 const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
 const countBadgeClasses = 'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
+const EMPTY_SELECTED_ITEMS: readonly SelectedMediaItem[] = []
 
 type BatchActionId =
   | 'play'
@@ -84,18 +87,37 @@ function useEpisodeBatchMenuItems(userCanUpdate: boolean, userCanDownload: boole
   }, [t, userCanDownload, userCanUpdate, userIsAdminOrUp])
 }
 
-export default function AppBarSelectionOverlay() {
+export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: string }) {
   const t = useTypeSafeTranslations()
+  const router = useRouter()
+  const pathname = usePathname()
+  const selection = useBookshelfSelectionOptional()
   const { user, userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
-  const { selectedItems, selectionKind, clearSelection } = useBookshelfSelection()
+  const selectedItems = selection?.selectedItems ?? EMPTY_SELECTED_ITEMS
+  const selectionKind = selection?.selectionKind ?? null
+  const clearSelection = selection?.clearSelection
   const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
 
   const { allPlayable, allFinished } = useSelectionBatchState(selectedItems, user.mediaProgress)
 
-  const onBatchAction = useCallback((action: BatchActionId) => {
-    void action
-    // TODO: wire batch handlers (play, progress, collection, playlist, edit, delete, admin tools)
-  }, [])
+  const onBatchAction = useCallback(
+    (action: BatchActionId) => {
+      if (action === 'batch-edit') {
+        if (!userCanUpdate || selectedItems.length === 0 || !selectionKind || !libraryId) return
+        writeBatchEditSession({
+          libraryId,
+          selectionKind,
+          items: selectedItems,
+          returnPath: pathname
+        })
+        router.push(`/library/${libraryId}/batch`)
+        return
+      }
+      // TODO: wire remaining batch handlers (play, progress, collection, playlist, delete, admin tools)
+      void action
+    },
+    [libraryId, pathname, router, selectedItems, selectionKind, userCanUpdate]
+  )
 
   const libraryItemAdminMenuItems = useLibraryItemAdminMenuItems(selectionKind ?? 'book', selectedItems.length, userIsAdminOrUp)
   const episodeBatchMenuItems = useEpisodeBatchMenuItems(userCanUpdate, userCanDownload, userIsAdminOrUp)
@@ -125,7 +147,7 @@ export default function AppBarSelectionOverlay() {
     return items
   }, [episodeBatchMenuItems, isMobile, showAddToPlaylist, t])
 
-  if (selectedItems.length === 0 || selectionKind === null) {
+  if (!selection || selectedItems.length === 0 || selectionKind === null) {
     return null
   }
 
@@ -239,7 +261,7 @@ export default function AppBarSelectionOverlay() {
         )}
 
         <Tooltip text={t('LabelDeselectAll')} position="bottom">
-          <IconBtn borderless ariaLabel={t('LabelDeselectAll')} onClick={clearSelection} className="ms-1 text-3xl">
+          <IconBtn borderless ariaLabel={t('LabelDeselectAll')} onClick={() => clearSelection?.()} className="ms-1 text-3xl">
             close
           </IconBtn>
         </Tooltip>

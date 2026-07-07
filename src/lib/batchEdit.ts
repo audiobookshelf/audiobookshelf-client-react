@@ -7,7 +7,7 @@ const BATCH_EDIT_SESSION_KEY = 'abs_batch_edit_session'
 export interface BatchEditSession {
   libraryId: string
   selectionKind: SelectionKind
-  items: SelectedMediaItem[]
+  items: readonly SelectedMediaItem[]
   returnPath: string
 }
 

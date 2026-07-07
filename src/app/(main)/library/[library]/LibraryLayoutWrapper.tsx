@@ -24,7 +24,8 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   const serverVersion = serverSettings?.version || 'Error'
   const installSource = Source || 'Unknown'
   const isLibraryItemPage = pathname.includes('/item/')
-  const showCoverSizeWidget = !isLibraryItemPage && !pathname.endsWith('/latest') && !pathname.endsWith('/download-queue')
+  const isBatchEditPage = pathname.endsWith('/batch')
+  const showCoverSizeWidget = !isLibraryItemPage && !pathname.endsWith('/latest') && !pathname.endsWith('/download-queue') && !isBatchEditPage
 
   useEffect(() => {
     if (library) {
@@ -53,9 +54,18 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
     <div className={mergeClasses('page-wrapper relative flex overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
       <SideRail serverVersion={serverVersion} installSource={installSource} />
       <div className="page-bg-gradient min-w-0 flex-1 overflow-hidden">
-        {!isLibraryItemPage && <Toolbar />}
+        {!isLibraryItemPage && !isBatchEditPage && <Toolbar />}
         {/* subtract height of toolbar if not library item page */}
-        <div className={mergeClasses('w-full overflow-x-hidden overflow-y-auto', isLibraryItemPage ? 'h-full' : 'h-[calc(100%-2.5rem)]')}>{children}</div>
+        <div
+          className={mergeClasses(
+            'w-full overflow-x-hidden',
+            isBatchEditPage && 'h-full overflow-hidden',
+            isLibraryItemPage && !isBatchEditPage && 'h-full overflow-y-auto',
+            !isLibraryItemPage && !isBatchEditPage && 'h-[calc(100%-2.5rem)] overflow-y-auto'
+          )}
+        >
+          {children}
+        </div>
       </div>
 
       {showCoverSizeWidget && <CoverSizeWidget className="absolute right-4 bottom-4 z-50" />}
