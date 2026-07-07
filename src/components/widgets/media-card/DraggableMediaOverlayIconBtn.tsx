@@ -56,6 +56,7 @@ export default function DraggableMediaOverlayIconBtn({
         iconBtnSize="medium"
         onClick={stopOverlayClick}
         className={mergeClasses(DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR, className)}
+        tabIndex={-1}
       />
     </div>
   )

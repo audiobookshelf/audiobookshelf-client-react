@@ -1,6 +1,7 @@
 'use client'
 
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
+import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { usePathname, useSearchParams } from 'next/navigation'
@@ -12,6 +13,7 @@ export default function Toolbar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { library, itemCount, itemCountSupplement, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
+  const { isSelectionMode } = useBookshelfSelection()
   const t = useTypeSafeTranslations()
 
   const isSearchPage = pathname.endsWith('/search')
@@ -51,8 +53,8 @@ export default function Toolbar() {
   const showBookshelfSummary = !isSearchPage && (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
   const showSeriesDetailSummary = !isSearchPage && isSeriesDetailPage && itemCount !== null
   const showSearchSummary = isSearchPage && searchQuery
-  const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage && !isSearchPage
-  const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage) && !isSearchPage
+  const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage && !isSearchPage && !isSelectionMode
+  const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage) && !isSearchPage && !isSelectionMode
 
   return (
     <div className="bg-bg box-shadow-toolbar relative z-40 h-10 w-full" cy-id="library-toolbar">

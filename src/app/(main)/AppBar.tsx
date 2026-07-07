@@ -12,6 +12,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import AppBarNav from './AppBarNav'
+import AppBarSelectionOverlay from './AppBarSelectionOverlay'
 import GlobalSearchInput from './GlobalSearchInput'
 import LibrariesDropdown from './LibrariesDropdown'
 
@@ -120,6 +121,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
         </div>
       </header>
+      <AppBarSelectionOverlay />
     </div>
   )
 }
