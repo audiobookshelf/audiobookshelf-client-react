@@ -5,6 +5,15 @@ import { useEffect, useRef } from 'react'
 const BACK_COOLDOWN_MS = 400
 
 let guardEnabled = false
+let skipHistoryTrapRemoval = false
+
+/**
+ * Call before disabling the guard for an intentional in-app navigation (e.g. post-save redirect).
+ * Skips the history-trap pop that would otherwise race with `router.replace`.
+ */
+export function allowProgrammaticNavigationWithoutTrapCleanup() {
+  skipHistoryTrapRemoval = true
+}
 
 export interface UseUnsavedNavigationGuardOptions {
   /** When true, soft navigation is converted to a full reload so beforeunload can prompt. */
@@ -66,6 +75,17 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
   backLeavePathRef.current = backLeavePath
   const trapActiveRef = useRef(false)
   const backHandlingRef = useRef(false)
+  const removingTrapRef = useRef(false)
+
+  const removeHistoryTrapSilently = () => {
+    if (!trapActiveRef.current) return
+    trapActiveRef.current = false
+    removingTrapRef.current = true
+    window.history.back()
+    queueMicrotask(() => {
+      removingTrapRef.current = false
+    })
+  }
 
   useEffect(() => {
     guardEnabled = enabled
@@ -129,6 +149,10 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
     }
 
     const onPopState = (event: PopStateEvent) => {
+      if (removingTrapRef.current) {
+        removingTrapRef.current = false
+        return
+      }
       if (!enabledRef.current || backHandlingRef.current) return
 
       event.stopImmediatePropagation()
@@ -158,9 +182,11 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
       history.pushState = originalPushState
       history.replaceState = originalReplaceState
 
-      if (trapActiveRef.current) {
+      if (skipHistoryTrapRemoval) {
         trapActiveRef.current = false
-        window.history.back()
+        skipHistoryTrapRemoval = false
+      } else {
+        removeHistoryTrapSilently()
       }
 
       backHandlingRef.current = false

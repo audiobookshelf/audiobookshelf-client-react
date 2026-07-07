@@ -24,13 +24,14 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { useUnsavedNavigationGuard } from '@/hooks/useUnsavedNavigationGuard'
+import { useUnsavedNavigationGuard, allowProgrammaticNavigationWithoutTrapCleanup } from '@/hooks/useUnsavedNavigationGuard'
 import { clearBatchEditSession, cloneLibraryItemForBatchEdit, readBatchEditSession, saveEpisodeBatchSequential, type BatchEditSession } from '@/lib/batchEdit'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { SelectionKind } from '@/lib/selectedMediaItem'
 import type { BookLibraryItem, LibraryItem, PodcastEpisode, PodcastLibraryItem, UpdateLibraryItemMediaPayload } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 interface BatchEditClientProps {
   libraryId: string
@@ -242,10 +243,12 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
         }
 
         const count = await saveEpisodeBatchSequential(updates)
+        const returnPath = session.returnPath || getDefaultReturnPath(libraryId, 'episode')
         clearBatchEditSession()
-        setItemsWithChanges(new Set())
         showToast(t('MessageItemsUpdated', { 0: count.toString() }), { type: 'success' })
-        router.replace(session.returnPath || getDefaultReturnPath(libraryId, 'episode'))
+        allowProgrammaticNavigationWithoutTrapCleanup()
+        flushSync(() => setItemsWithChanges(new Set()))
+        router.replace(returnPath)
       } else {
         libraryItemSaveBuffer.current.clear()
         for (const item of libraryItemCopies) {
@@ -267,10 +270,12 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
 
         const response = await batchUpdateLibraryItemsAction(updates)
         if (response.updates) {
+          const returnPath = session.returnPath || getDefaultReturnPath(libraryId, session.selectionKind)
           clearBatchEditSession()
-          setItemsWithChanges(new Set())
           showToast(t('MessageItemsUpdated', { 0: response.updates.toString() }), { type: 'success' })
-          router.replace(session.returnPath || getDefaultReturnPath(libraryId, session.selectionKind))
+          allowProgrammaticNavigationWithoutTrapCleanup()
+          flushSync(() => setItemsWithChanges(new Set()))
+          router.replace(returnPath)
         } else {
           showToast(t('MessageNoUpdatesWereNecessary'), { type: 'warning' })
         }
