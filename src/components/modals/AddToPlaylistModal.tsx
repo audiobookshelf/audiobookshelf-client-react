@@ -65,6 +65,9 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
       })
   }, [playlists, libraryItemId, episodeId])
 
+  /**
+   * Load list only when the modal opens or the library changes
+   */
   useEffect(() => {
     if (!isOpen) return
     setPlaylists([])
@@ -88,7 +91,8 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
     return () => {
       cancelled = true
     }
-  }, [isOpen, libraryId, showToast, t])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, libraryId])
 
   const mergeUpdatedPlaylist = useCallback((updated: Playlist) => {
     setPlaylists((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
