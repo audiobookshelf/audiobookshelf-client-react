@@ -1,6 +1,6 @@
 'use client'
 
-import { getSelectionKey, toSelectedMediaItem, type SelectedMediaItem, type SelectionKeySource } from '@/lib/selectedMediaItem'
+import { getSelectionKey, getSelectionKind, toSelectedMediaItem, type SelectedMediaItem, type SelectionKeySource, type SelectionKind } from '@/lib/selectedMediaItem'
 import { applyShiftClickSelection } from '@/lib/shiftClickSelection'
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react'
@@ -19,6 +19,7 @@ export interface SelectItemOptions {
 interface BookshelfSelectionContextValue {
   selectedItems: SelectedMediaItem[]
   selectedKeys: Set<string>
+  selectionKind: SelectionKind | null
   activeScopeId: string | null
   isSelectionMode: boolean
   isSelected: (selectionKey: string) => boolean
@@ -45,10 +46,15 @@ function itemsFromKeys(keys: Set<string>, orderedSources: readonly SelectionKeyS
 
 export function BookshelfSelectionProvider({ children }: { children: ReactNode }) {
   const [selectedItems, setSelectedItems] = useState<SelectedMediaItem[]>([])
+  const [selectionKind, setSelectionKind] = useState<SelectionKind | null>(null)
   const [activeScopeId, setActiveScopeId] = useState<string | null>(null)
+  const selectedItemsRef = useRef<SelectedMediaItem[]>([])
+  const selectionKindRef = useRef<SelectionKind | null>(null)
   const activeScopeIdRef = useRef<string | null>(null)
   const anchorKeyRef = useRef<string | null>(null)
 
+  selectedItemsRef.current = selectedItems
+  selectionKindRef.current = selectionKind
   activeScopeIdRef.current = activeScopeId
 
   const selectedKeys = useMemo(() => new Set(selectedItems.map((item) => item.selectionKey)), [selectedItems])
@@ -59,7 +65,10 @@ export function BookshelfSelectionProvider({ children }: { children: ReactNode }
   const isScopeActive = useCallback((scopeId: string) => activeScopeId === scopeId, [activeScopeId])
 
   const clearSelection = useCallback(() => {
+    selectedItemsRef.current = []
+    selectionKindRef.current = null
     setSelectedItems([])
+    setSelectionKind(null)
     setActiveScopeId(null)
     activeScopeIdRef.current = null
     anchorKeyRef.current = null
@@ -76,38 +85,54 @@ export function BookshelfSelectionProvider({ children }: { children: ReactNode }
       return
     }
 
-    const { shiftKey = false, index, orderedKeys, orderedSources, selectionKey, isKeySelectable } = options
+    const { shiftKey = false, index, orderedKeys, orderedSources, selectionKey, libraryItem, episode, isKeySelectable } = options
 
     if (anchorKeyRef.current && !orderedKeys.includes(anchorKeyRef.current)) {
       anchorKeyRef.current = null
     }
 
-    activeScopeIdRef.current = scopeId
-    setActiveScopeId(scopeId)
-    setSelectedItems((prev) => {
-      const prevKeys = new Set(prev.map((entry) => entry.selectionKey))
-      const selectClicked = !prevKeys.has(selectionKey)
+    const prev = selectedItemsRef.current
+    const prevKeys = new Set(prev.map((entry) => entry.selectionKey))
+    const selectClicked = !prevKeys.has(selectionKey)
 
-      const { nextSelected, anchorKey } = applyShiftClickSelection({
-        prevSelected: prevKeys,
-        clickedKey: selectionKey,
-        clickedIndex: index,
-        shiftKey,
-        anchorKey: anchorKeyRef.current,
-        orderedKeys,
-        selectClicked,
-        isKeySelectable
-      })
-
-      anchorKeyRef.current = anchorKey
-      return itemsFromKeys(nextSelected, orderedSources, prev)
+    const { nextSelected, anchorKey } = applyShiftClickSelection({
+      prevSelected: prevKeys,
+      clickedKey: selectionKey,
+      clickedIndex: index,
+      shiftKey,
+      anchorKey: anchorKeyRef.current,
+      orderedKeys,
+      selectClicked,
+      isKeySelectable
     })
+
+    anchorKeyRef.current = anchorKey
+    const next = itemsFromKeys(nextSelected, orderedSources, prev)
+
+    let nextKind = selectionKindRef.current
+    if (next.length === 0) {
+      nextKind = null
+      activeScopeIdRef.current = null
+      setActiveScopeId(null)
+    } else {
+      activeScopeIdRef.current = scopeId
+      setActiveScopeId(scopeId)
+      if (prev.length === 0) {
+        nextKind = getSelectionKind(libraryItem, episode)
+      }
+    }
+
+    selectedItemsRef.current = next
+    selectionKindRef.current = nextKind
+    setSelectedItems(next)
+    setSelectionKind(nextKind)
   }, [])
 
   const value = useMemo(
     () => ({
       selectedItems,
       selectedKeys,
+      selectionKind,
       activeScopeId,
       isSelectionMode,
       isSelected,
@@ -116,7 +141,7 @@ export function BookshelfSelectionProvider({ children }: { children: ReactNode }
       ensureSelectionAnchor,
       clearSelection
     }),
-    [selectedItems, selectedKeys, activeScopeId, isSelectionMode, isSelected, isScopeActive, selectItem, ensureSelectionAnchor, clearSelection]
+    [selectedItems, selectedKeys, selectionKind, activeScopeId, isSelectionMode, isSelected, isScopeActive, selectItem, ensureSelectionAnchor, clearSelection]
   )
 
   return <BookshelfSelectionContext.Provider value={value}>{children}</BookshelfSelectionContext.Provider>

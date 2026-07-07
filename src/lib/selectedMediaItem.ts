@@ -2,11 +2,30 @@ import { isPlayableBook } from '@/lib/book'
 import { isPlayableEpisode } from '@/lib/episode'
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
 
+export type SelectionKind = 'book' | 'podcast' | 'episode'
+
 export interface SelectedMediaItem {
   selectionKey: string
   libraryItemId: string
   episodeId?: string
   hasTracks: boolean
+}
+
+export function getSelectionKind(libraryItem: LibraryItem, episode?: PodcastEpisode): SelectionKind {
+  if (episode) return 'episode'
+  if (libraryItem.mediaType === 'podcast') return 'podcast'
+  return 'book'
+}
+
+export function getSelectionCountMessageKey(kind: SelectionKind): 'MessageBooksSelected' | 'MessagePodcastsSelected' | 'MessageEpisodesSelected' {
+  switch (kind) {
+    case 'podcast':
+      return 'MessagePodcastsSelected'
+    case 'episode':
+      return 'MessageEpisodesSelected'
+    default:
+      return 'MessageBooksSelected'
+  }
 }
 
 export function libraryItemSelectionKey(libraryItemId: string): string {
