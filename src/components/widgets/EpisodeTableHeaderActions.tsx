@@ -6,6 +6,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog, { type ConfirmState } from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { openHardDeleteConfirm } from '@/lib/confirmDialogs'
 import { useState, useTransition } from 'react'
 
 interface EpisodeTableHeaderActionsProps {
@@ -34,18 +35,15 @@ export default function EpisodeTableHeaderActions({
 
   if (isSelectionMode) {
     const handleRemoveClick = () => {
-      setConfirmState({
-        isOpen: true,
+      openHardDeleteConfirm({
         message: t('MessageConfirmRemoveEpisodes', { count: selectedEpisodes.size }),
-        checkboxLabel: t('LabelDeleteFromFileSystemCheckbox'),
-        yesButtonText: t('ButtonDelete'),
-        yesButtonClassName: 'bg-error',
-        onConfirm: (hardDelete?: boolean) => {
-          setConfirmState(null)
+        t,
+        setConfirmState,
+        onDelete: (hardDelete) => {
           startTransition(async () => {
             try {
               for (const episodeId of Array.from(selectedEpisodes)) {
-                await deleteLibraryItemMediaEpisodeAction(libraryItemId, episodeId, !!hardDelete)
+                await deleteLibraryItemMediaEpisodeAction(libraryItemId, episodeId, hardDelete)
               }
               onClearSelection()
             } catch (err: unknown) {

@@ -20,6 +20,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { openHardDeleteConfirm } from '@/lib/confirmDialogs'
 import { downloadLibraryItem } from '@/lib/download'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import {
@@ -360,25 +361,11 @@ export function useMediaCardActions({
           }
         })
       } else if (action === 'deleteLibraryItem') {
-        setConfirmState({
-          isOpen: true,
+        openHardDeleteConfirm({
           message: t('MessageConfirmDeleteLibraryItem'),
-          checkboxLabel: t('LabelDeleteFromFileSystemCheckbox'),
-          yesButtonText: t('ButtonDelete'),
-          yesButtonClassName: 'bg-error',
-          onConfirm: (hardDeleteChecked?: boolean) => {
-            setConfirmState(null)
-            const hardDelete = !!hardDeleteChecked
-
-            // SSR-safe localStorage access
-            if (typeof window !== 'undefined') {
-              try {
-                localStorage.setItem('softDeleteDefault', hardDelete ? '0' : '1')
-              } catch (error) {
-                console.warn('Failed to save delete preference to localStorage', error)
-              }
-            }
-
+          t,
+          setConfirmState,
+          onDelete: (hardDelete) => {
             startTransition(async () => {
               try {
                 setProcessing(true)

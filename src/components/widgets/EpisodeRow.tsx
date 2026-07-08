@@ -9,6 +9,7 @@ import EpisodePlayButton from '@/components/widgets/episode/EpisodePlayButton'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeListenActions } from '@/hooks/usetEpisodeListenActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { openHardDeleteConfirm } from '@/lib/confirmDialogs'
 import { formatJsDate } from '@/lib/datefns'
 import { sanitizeEpisodeDescriptionHtml } from '@/lib/episode'
 import { PodcastEpisode } from '@/types/api'
@@ -90,16 +91,11 @@ export default function EpisodeRow({
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setDeleteConfirmState({
-      isOpen: true,
+    openHardDeleteConfirm({
       message: t('MessageConfirmDeleteEpisode', { 0: episode.title }),
-      checkboxLabel: t('LabelDeleteFromFileSystemCheckbox'),
-      yesButtonText: t('ButtonDelete'),
-      yesButtonClassName: 'bg-error',
-      onConfirm: (hardDelete?: boolean) => {
-        setDeleteConfirmState(null)
-        onRemove?.(episode, !!hardDelete)
-      }
+      t,
+      setConfirmState: setDeleteConfirmState,
+      onDelete: (hardDelete) => onRemove?.(episode, hardDelete)
     })
   }
 
@@ -245,9 +241,8 @@ export default function EpisodeRow({
           isOpen={playlistsModalOpen}
           onClose={closePlaylistsModal}
           libraryId={libraryId}
-          libraryItemId={libraryItemId}
-          episodeId={episode.id}
-          itemTitle={episode.title}
+          items={[{ libraryItemId, episodeId: episode.id }]}
+          headerTitle={episode.title}
         />
       )}
 
