@@ -5,33 +5,20 @@ import ContextMenuDropdown, { type ContextMenuDropdownItem } from '@/components/
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import AppBarBatchActionModals from '@/components/widgets/AppBarBatchActionModals'
 import { useBookshelfSelectionOptional } from '@/contexts/BookshelfSelectionContext'
 import { useUser } from '@/contexts/UserContext'
+import { type AppBarBatchActionId, useAppBarBatchActions } from '@/hooks/useAppBarBatchActions'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { writeBatchEditSession } from '@/lib/batchEdit'
 import { getSelectionCountMessageKey, type SelectedMediaItem, type SelectionKind } from '@/lib/selectedMediaItem'
 import type { MediaProgress } from '@/types/api'
-import { usePathname, useRouter } from 'next/navigation'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 
 const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
 const countBadgeClasses = 'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
 const EMPTY_SELECTED_ITEMS: readonly SelectedMediaItem[] = []
-
-type BatchActionId =
-  | 'play'
-  | 'toggle-finished'
-  | 'add-to-collection'
-  | 'add-to-playlist'
-  | 'batch-edit'
-  | 'delete'
-  | 'quick-match'
-  | 'quick-embed'
-  | 'rescan'
-  | 'download'
-  | 'match'
-  | 'more-info'
 
 function findProgressForSelectedItem(item: SelectedMediaItem, progressList: readonly MediaProgress[]): MediaProgress | undefined {
   if (item.episodeId) {
@@ -75,22 +62,18 @@ function useLibraryItemAdminMenuItems(selectionKind: SelectionKind, selectedCoun
   }, [selectionKind, selectedCount, t, userIsAdminOrUp])
 }
 
-function useEpisodeBatchMenuItems(userCanUpdate: boolean, userCanDownload: boolean, userIsAdminOrUp: boolean): ContextMenuDropdownItem[] {
+function useEpisodeBatchMenuItems(userCanDownload: boolean): ContextMenuDropdownItem[] {
   const t = useTypeSafeTranslations()
 
   return useMemo(() => {
     const items: ContextMenuDropdownItem[] = []
-    if (userCanUpdate) items.push({ text: t('HeaderMatch'), action: 'match' })
     if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
-    if (userIsAdminOrUp) items.push({ text: t('LabelMoreInfo'), action: 'more-info' })
     return items
-  }, [t, userCanDownload, userCanUpdate, userIsAdminOrUp])
+  }, [t, userCanDownload])
 }
 
 export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: string }) {
   const t = useTypeSafeTranslations()
-  const router = useRouter()
-  const pathname = usePathname()
   const selection = useBookshelfSelectionOptional()
   const { user, userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const selectedItems = selection?.selectedItems ?? EMPTY_SELECTED_ITEMS
@@ -100,30 +83,23 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
 
   const { allPlayable, allFinished } = useSelectionBatchState(selectedItems, user.mediaProgress)
 
-  const onBatchAction = useCallback(
-    (action: BatchActionId) => {
-      if (action === 'batch-edit') {
-        if (!userCanUpdate || selectedItems.length === 0 || !selectionKind || !libraryId) return
-        writeBatchEditSession({
-          libraryId,
-          selectionKind,
-          items: selectedItems,
-          returnPath: pathname
-        })
-        router.push(`/library/${libraryId}/batch`)
-        return
-      }
-      // TODO: wire remaining batch handlers (play, progress, collection, playlist, delete, admin tools)
-      void action
-    },
-    [libraryId, pathname, router, selectedItems, selectionKind, userCanUpdate]
-  )
+  const { onBatchAction, processing, confirmState, closeConfirm, modalsProps } = useAppBarBatchActions({
+    selectedItems,
+    selectionKind: selectionKind ?? 'book',
+    libraryId,
+    allFinished,
+    clearSelection
+  })
+
+  const handleBatchAction = (action: AppBarBatchActionId) => {
+    onBatchAction(action)
+  }
 
   const libraryItemAdminMenuItems = useLibraryItemAdminMenuItems(selectionKind ?? 'book', selectedItems.length, userIsAdminOrUp)
-  const episodeBatchMenuItems = useEpisodeBatchMenuItems(userCanUpdate, userCanDownload, userIsAdminOrUp)
+  const episodeBatchMenuItems = useEpisodeBatchMenuItems(userCanDownload)
 
   const showAddToCollection = selectionKind === 'book' && userCanUpdate
-  const showAddToPlaylist = selectionKind === 'episode' && userCanUpdate
+  const showAddToPlaylist = (selectionKind === 'book' || selectionKind === 'episode') && userCanUpdate && allPlayable
 
   const libraryItemContextMenuItems = useMemo(() => {
     const items: ContextMenuDropdownItem[] = []
@@ -132,20 +108,24 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
       items.push({ text: t('LabelAddToCollection'), action: 'add-to-collection' })
     }
 
+    if (isMobile && showAddToPlaylist && selectionKind === 'book') {
+      items.push({ text: t('LabelAddToPlaylist'), action: 'add-to-playlist' })
+    }
+
     items.push(...libraryItemAdminMenuItems)
     return items
-  }, [isMobile, libraryItemAdminMenuItems, showAddToCollection, t])
+  }, [isMobile, libraryItemAdminMenuItems, selectionKind, showAddToCollection, showAddToPlaylist, t])
 
   const episodeContextMenuItems = useMemo(() => {
     const items: ContextMenuDropdownItem[] = []
 
-    if (isMobile && showAddToPlaylist) {
+    if (isMobile && showAddToPlaylist && selectionKind === 'episode') {
       items.push({ text: t('LabelAddToPlaylist'), action: 'add-to-playlist' })
     }
 
     items.push(...episodeBatchMenuItems)
     return items
-  }, [episodeBatchMenuItems, isMobile, showAddToPlaylist, t])
+  }, [episodeBatchMenuItems, isMobile, selectionKind, showAddToPlaylist, t])
 
   if (!selection || selectedItems.length === 0 || selectionKind === null) {
     return null
@@ -157,115 +137,164 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
   const showMarkFinished = selectionKind === 'book' || selectionKind === 'episode'
   const showBatchEdit = userCanUpdate
   const showDelete = userCanDelete
+  const controlsDisabled = processing
 
   return (
-    <div className="bg-primary absolute inset-0 z-70 flex items-center px-4 md:px-6" role="toolbar" aria-label={selectionLabel}>
-      <div className={countBadgeClasses} aria-label={selectionLabel} role="status">
-        <span className="font-mono text-sm" aria-hidden="true">
-          {selectedItems.length}
-        </span>
+    <>
+      <div className="bg-primary absolute inset-0 z-70 flex items-center px-4 md:px-6" role="toolbar" aria-label={selectionLabel}>
+        <div className={countBadgeClasses} aria-label={selectionLabel} role="status">
+          <span className="font-mono text-sm" aria-hidden="true">
+            {selectedItems.length}
+          </span>
+        </div>
+        <h1 className="hidden px-4 text-lg md:block md:text-2xl">{selectionLabel}</h1>
+        <div className="grow" />
+
+        <div className="flex items-center gap-1 md:gap-1.5">
+          {showPlay && (
+            <Btn
+              color="bg-success"
+              size="small"
+              className="me-1 hidden h-9 items-center sm:inline-flex"
+              disabled={controlsDisabled}
+              onClick={() => handleBatchAction('play')}
+            >
+              <span className="material-symbols fill -ms-2 pe-1 text-2xl text-white">play_arrow</span>
+              {t('ButtonPlay')}
+            </Btn>
+          )}
+
+          {showPlay && (
+            <Tooltip text={t('ButtonPlay')} position="bottom">
+              <IconBtn
+                size="small"
+                borderless
+                className="bg-success text-white sm:hidden"
+                ariaLabel={t('ButtonPlay')}
+                disabled={controlsDisabled}
+                onClick={() => handleBatchAction('play')}
+              >
+                play_arrow
+              </IconBtn>
+            </Tooltip>
+          )}
+
+          {showMarkFinished && (
+            <Tooltip text={allFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} position="bottom">
+              <ReadIconBtn
+                size="small"
+                isRead={allFinished}
+                disabled={controlsDisabled}
+                onClick={() => handleBatchAction('toggle-finished')}
+                className="mx-0.5"
+              />
+            </Tooltip>
+          )}
+
+          {showAddToCollection && (
+            <Tooltip text={t('LabelAddToCollection')} position="bottom">
+              <IconBtn
+                size="small"
+                borderless
+                ariaLabel={t('LabelAddToCollection')}
+                disabled={controlsDisabled}
+                onClick={() => handleBatchAction('add-to-collection')}
+                className="mx-0.5 hidden md:inline-flex"
+              >
+                collections_bookmark
+              </IconBtn>
+            </Tooltip>
+          )}
+
+          {showAddToPlaylist && (
+            <Tooltip text={t('LabelAddToPlaylist')} position="bottom">
+              <IconBtn
+                size="small"
+                borderless
+                ariaLabel={t('LabelAddToPlaylist')}
+                disabled={controlsDisabled}
+                onClick={() => handleBatchAction('add-to-playlist')}
+                className="mx-0.5 hidden md:inline-flex"
+              >
+                playlist_add
+              </IconBtn>
+            </Tooltip>
+          )}
+
+          {showBatchEdit && (
+            <Tooltip text={t('LabelEdit')} position="bottom">
+              <IconBtn
+                size="small"
+                borderless
+                ariaLabel={t('LabelEdit')}
+                disabled={controlsDisabled}
+                onClick={() => handleBatchAction('batch-edit')}
+                className="bg-warning mx-0.5 text-white"
+              >
+                edit
+              </IconBtn>
+            </Tooltip>
+          )}
+
+          {showDelete && (
+            <Tooltip text={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')} position="bottom">
+              <IconBtn
+                size="small"
+                borderless
+                ariaLabel={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')}
+                disabled={controlsDisabled}
+                onClick={() => handleBatchAction('delete')}
+                className="bg-error mx-0.5 text-white"
+              >
+                delete
+              </IconBtn>
+            </Tooltip>
+          )}
+
+          {selectionKind !== 'episode' && libraryItemContextMenuItems.length > 0 && (
+            <ContextMenuDropdown
+              items={libraryItemContextMenuItems}
+              borderless
+              size="small"
+              className="mx-0.5"
+              disabled={controlsDisabled}
+              onAction={({ action }) => handleBatchAction(action as AppBarBatchActionId)}
+            />
+          )}
+
+          {selectionKind === 'episode' && episodeContextMenuItems.length > 0 && (
+            <ContextMenuDropdown
+              items={episodeContextMenuItems}
+              borderless
+              size="small"
+              className="mx-0.5"
+              disabled={controlsDisabled}
+              onAction={({ action }) => handleBatchAction(action as AppBarBatchActionId)}
+            />
+          )}
+
+          <Tooltip text={t('LabelDeselectAll')} position="bottom">
+            <IconBtn borderless ariaLabel={t('LabelDeselectAll')} disabled={processing} onClick={() => clearSelection?.()} className="ms-1 text-3xl">
+              close
+            </IconBtn>
+          </Tooltip>
+        </div>
       </div>
-      <h1 className="hidden px-4 text-lg md:block md:text-2xl">{selectionLabel}</h1>
-      <div className="grow" />
 
-      <div className="flex items-center gap-1 md:gap-1.5">
-        {showPlay && (
-          <Btn color="bg-success" size="small" className="me-1 hidden h-9 items-center sm:inline-flex" onClick={() => onBatchAction('play')}>
-            <span className="material-symbols fill -ms-2 pe-1 text-2xl text-white">play_arrow</span>
-            {t('ButtonPlay')}
-          </Btn>
-        )}
+      {confirmState && (
+        <ConfirmDialog
+          isOpen={confirmState.isOpen}
+          message={confirmState.message}
+          checkboxLabel={confirmState.checkboxLabel}
+          yesButtonText={confirmState.yesButtonText}
+          yesButtonClassName={confirmState.yesButtonClassName}
+          processing={processing}
+          onClose={closeConfirm}
+          onConfirm={(value) => confirmState.onConfirm(value)}
+        />
+      )}
 
-        {showPlay && (
-          <Tooltip text={t('ButtonPlay')} position="bottom">
-            <IconBtn size="small" borderless className="bg-success text-white sm:hidden" ariaLabel={t('ButtonPlay')} onClick={() => onBatchAction('play')}>
-              play_arrow
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        {showMarkFinished && (
-          <Tooltip text={allFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} position="bottom">
-            <ReadIconBtn size="small" isRead={allFinished} onClick={() => onBatchAction('toggle-finished')} className="mx-0.5" />
-          </Tooltip>
-        )}
-
-        {showAddToCollection && (
-          <Tooltip text={t('LabelAddToCollection')} position="bottom">
-            <IconBtn
-              size="small"
-              borderless
-              ariaLabel={t('LabelAddToCollection')}
-              onClick={() => onBatchAction('add-to-collection')}
-              className="mx-0.5 hidden md:inline-flex"
-            >
-              collections_bookmark
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        {showAddToPlaylist && (
-          <Tooltip text={t('LabelAddToPlaylist')} position="bottom">
-            <IconBtn
-              size="small"
-              borderless
-              ariaLabel={t('LabelAddToPlaylist')}
-              onClick={() => onBatchAction('add-to-playlist')}
-              className="mx-0.5 hidden md:inline-flex"
-            >
-              playlist_add
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        {showBatchEdit && (
-          <Tooltip text={t('LabelEdit')} position="bottom">
-            <IconBtn size="small" borderless ariaLabel={t('LabelEdit')} onClick={() => onBatchAction('batch-edit')} className="bg-warning mx-0.5 text-white">
-              edit
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        {showDelete && (
-          <Tooltip text={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')} position="bottom">
-            <IconBtn
-              size="small"
-              borderless
-              ariaLabel={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')}
-              onClick={() => onBatchAction('delete')}
-              className="bg-error mx-0.5 text-white"
-            >
-              delete
-            </IconBtn>
-          </Tooltip>
-        )}
-
-        {selectionKind !== 'episode' && libraryItemContextMenuItems.length > 0 && (
-          <ContextMenuDropdown
-            items={libraryItemContextMenuItems}
-            borderless
-            size="small"
-            className="mx-0.5"
-            onAction={({ action }) => onBatchAction(action as BatchActionId)}
-          />
-        )}
-
-        {selectionKind === 'episode' && episodeContextMenuItems.length > 0 && (
-          <ContextMenuDropdown
-            items={episodeContextMenuItems}
-            borderless
-            size="small"
-            className="mx-0.5"
-            onAction={({ action }) => onBatchAction(action as BatchActionId)}
-          />
-        )}
-
-        <Tooltip text={t('LabelDeselectAll')} position="bottom">
-          <IconBtn borderless ariaLabel={t('LabelDeselectAll')} onClick={() => clearSelection?.()} className="ms-1 text-3xl">
-            close
-          </IconBtn>
-        </Tooltip>
-      </div>
-    </div>
+      <AppBarBatchActionModals {...modalsProps} />
+    </>
   )
 }

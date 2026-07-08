@@ -26,6 +26,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useUnsavedNavigationGuard, allowProgrammaticNavigationWithoutTrapCleanup } from '@/hooks/useUnsavedNavigationGuard'
 import { clearBatchEditSession, cloneLibraryItemForBatchEdit, readBatchEditSession, saveEpisodeBatchSequential, type BatchEditSession } from '@/lib/batchEdit'
+import { getUniqueLibraryItemIds } from '@/lib/selectedMediaItem'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { SelectionKind } from '@/lib/selectedMediaItem'
 import type { BookLibraryItem, LibraryItem, PodcastEpisode, PodcastLibraryItem, UpdateLibraryItemMediaPayload } from '@/types/api'
@@ -89,7 +90,7 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
       setLoading(true)
       try {
         if (batchSession.selectionKind === 'episode') {
-          const uniqueLibraryItemIds = [...new Set(batchSession.items.map((item) => item.libraryItemId))]
+          const uniqueLibraryItemIds = getUniqueLibraryItemIds(batchSession.items)
           const response = await batchGetLibraryItemsAction(uniqueLibraryItemIds)
           const libraryItemsById = new Map(response.libraryItems.map((item) => [item.id, item]))
           const entries: EpisodeBatchEntry[] = []
