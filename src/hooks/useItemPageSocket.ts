@@ -10,6 +10,8 @@ interface UseItemPageSocketOptions {
   isPodcast: boolean
   onItemUpdated?: (libraryItem: BookLibraryItem | PodcastLibraryItem) => void
   initialRssFeed?: RssFeed | null
+  initialEpisodeDownloadsQueued?: PodcastEpisodeDownload[]
+  initialEpisodesDownloading?: PodcastEpisodeDownload[]
 }
 
 interface UseItemPageSocketReturn {
@@ -33,12 +35,14 @@ export function useItemPageSocket({
   mediaId,
   isPodcast,
   onItemUpdated,
-  initialRssFeed = null
+  initialRssFeed = null,
+  initialEpisodeDownloadsQueued = [],
+  initialEpisodesDownloading = []
 }: UseItemPageSocketOptions): UseItemPageSocketReturn {
   const [rssFeed, setRssFeed] = useState<RssFeed | null>(initialRssFeed ?? null)
   const [mediaItemShare, setMediaItemShare] = useState<MediaItemShare | null>(null)
-  const [episodesDownloading, setEpisodesDownloading] = useState<PodcastEpisodeDownload[]>([])
-  const [episodeDownloadsQueued, setEpisodeDownloadsQueued] = useState<PodcastEpisodeDownload[]>([])
+  const [episodesDownloading, setEpisodesDownloading] = useState<PodcastEpisodeDownload[]>(initialEpisodesDownloading)
+  const [episodeDownloadsQueued, setEpisodeDownloadsQueued] = useState<PodcastEpisodeDownload[]>(initialEpisodeDownloadsQueued)
 
   // Item updated event
   const handleItemUpdated = useCallback(
