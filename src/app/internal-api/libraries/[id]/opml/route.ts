@@ -1,46 +1,21 @@
 import { getServerBaseUrl } from '@/lib/api'
-import { attachRefreshedSessionCookies, fetchBackendWithCookieRefresh, respondProxyFailure } from '@/lib/serverBackendProxy'
+import { proxyBackendStreamingResponse } from '@/lib/serverBackendProxy'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 /**
- * Proxy endpoint for podcast library OPML export
+ * Proxy endpoint for podcast library OPML export.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const cookieStore = await cookies()
+  const backendUrl = `${getServerBaseUrl()}/api/libraries/${id}/opml`
 
-  try {
-    const baseUrl = getServerBaseUrl()
-    const backendUrl = `${baseUrl}/api/libraries/${id}/opml`
-
-    const result = await fetchBackendWithCookieRefresh(backendUrl, cookieStore)
-    if (!result.ok) {
-      return respondProxyFailure(request, result)
-    }
-
-    const { upstream: response, refreshedTokens } = result
-
-    if (!response.body) {
-      return attachRefreshedSessionCookies(NextResponse.json({ error: 'Backend returned empty OPML response' }, { status: 502 }), refreshedTokens)
-    }
-
-    const contentType = response.headers.get('content-type') || 'application/xml'
-    const contentLength = response.headers.get('content-length')
-
-    return attachRefreshedSessionCookies(
-      new NextResponse(response.body, {
-        status: 200,
-        headers: {
-          'Content-Type': contentType,
-          ...(contentLength ? { 'Content-Length': contentLength } : {}),
-          'Cache-Control': 'no-cache'
-        }
-      }),
-      refreshedTokens
-    )
-  } catch (error) {
-    console.error('[LibraryOpml] Error fetching library OPML:', error)
-    return NextResponse.json({ error: 'Failed to fetch library OPML' }, { status: 500 })
-  }
+  return proxyBackendStreamingResponse(request, cookieStore, backendUrl, {
+    logLabel: 'LibraryOpml',
+    errorMessage: 'Failed to fetch library OPML',
+    emptyBodyError: 'Backend returned empty OPML response',
+    defaultContentType: 'application/xml',
+    contentDisposition: false
+  })
 }
