@@ -280,7 +280,7 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, onOpenCo
           isOpen={collectionsModalOpen}
           onClose={closeCollectionsModal}
           libraryId={libraryItem.libraryId}
-          libraryItemId={libraryItem.id}
+          libraryItemIds={[libraryItem.id]}
           itemTitle={libraryItem.media.metadata.title ?? ''}
         />
       )}
@@ -289,9 +289,8 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, onOpenCo
           isOpen={playlistsModalOpen}
           onClose={closePlaylistsModal}
           libraryId={libraryItem.libraryId}
-          libraryItemId={libraryItem.id}
-          episodeId={null}
-          itemTitle={libraryItem.media.metadata.title ?? ''}
+          items={[{ libraryItemId: libraryItem.id, episodeId: null }]}
+          headerTitle={libraryItem.media.metadata.title ?? ''}
         />
       )}
       <MatchModal isOpen={matchModalOpen} onClose={() => setMatchModalOpen(false)} libraryItem={libraryItem} />

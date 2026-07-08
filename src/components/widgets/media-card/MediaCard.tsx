@@ -638,7 +638,7 @@ function MediaCard(props: MediaCardProps) {
           isOpen={collectionsModalOpen}
           onClose={closeCollectionsModal}
           libraryId={libraryItem.libraryId}
-          libraryItemId={libraryItem.id}
+          libraryItemIds={[libraryItem.id]}
           itemTitle={title}
         />
       )}
@@ -647,9 +647,8 @@ function MediaCard(props: MediaCardProps) {
           isOpen={playlistsModalOpen}
           onClose={closePlaylistsModal}
           libraryId={libraryItem.libraryId}
-          libraryItemId={libraryItem.id}
-          episodeId={episode?.id ?? null}
-          itemTitle={title}
+          items={[{ libraryItemId: libraryItem.id, episodeId: episode?.id ?? null }]}
+          headerTitle={title}
         />
       )}
     </>
