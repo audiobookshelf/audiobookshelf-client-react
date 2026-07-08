@@ -46,7 +46,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
 
   return (
     <>
-      <div className="relative">
+      <div className="relative shrink-0">
         {/* Desktop - Username Dropdown */}
         <Btn
           size="small"

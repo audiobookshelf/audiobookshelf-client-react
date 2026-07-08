@@ -30,7 +30,7 @@ export default function LazyTruncatingTooltipText({ text, className, position = 
       openOnClick={useClickTooltip}
       className="block w-full min-w-0 overflow-hidden"
     >
-      <p ref={ref} className={mergeClasses('min-w-0 truncate select-none', className)}>
+      <p ref={ref} dir="auto" className={mergeClasses('min-w-0 truncate text-start select-none', className)}>
         {text}
       </p>
     </LazyTooltip>

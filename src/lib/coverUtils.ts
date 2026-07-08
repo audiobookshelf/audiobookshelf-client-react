@@ -9,7 +9,7 @@ import type { LibraryItem } from '@/types/api'
  */
 export function getLibraryItemCoverUrl(libraryItemId: string, timestamp?: number | null, raw: boolean = false): string {
   const params = new URLSearchParams()
-  params.set('ts', String(timestamp || Date.now()))
+  params.set('ts', String(timestamp ?? 0))
   if (raw) {
     params.set('raw', '1')
   }

@@ -715,6 +715,11 @@ export interface RecentPodcastEpisode extends PodcastEpisode {
   podcast: PodcastMedia
 }
 
+export interface GetEpisodeDownloadQueueResponse {
+  currentDownload?: PodcastEpisodeDownload
+  queue: PodcastEpisodeDownload[]
+}
+
 export interface GetRecentEpisodesResponse {
   episodes: RecentPodcastEpisode[]
   limit: number

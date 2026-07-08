@@ -63,13 +63,14 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
   }))
 
   return (
-    <div className="relative">
+    <div className="relative min-w-0">
       <Dropdown
         items={libraryItems}
         menuMaxHeight="80vh"
         size="small"
         disabled={isPending}
         value={currentLibraryId}
+        usePortal
         onChange={(value) => {
           const lib = libraries.find((l) => l.id === value)
           if (!lib || lib.id === currentLibraryId) return

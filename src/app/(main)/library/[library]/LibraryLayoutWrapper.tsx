@@ -22,7 +22,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   const serverVersion = serverSettings?.version || 'Error'
   const installSource = Source || 'Unknown'
   const isLibraryItemPage = pathname.includes('/item/')
-  const showCoverSizeWidget = !isLibraryItemPage && !pathname.endsWith('/latest')
+  const showCoverSizeWidget = !isLibraryItemPage && !pathname.endsWith('/latest') && !pathname.endsWith('/download-queue')
 
   useEffect(() => {
     if (library) {

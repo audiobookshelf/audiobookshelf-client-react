@@ -72,7 +72,9 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     mediaId: libraryItem.media?.id,
     isPodcast,
     onItemUpdated: handleItemUpdated,
-    initialRssFeed: initialLibraryItem.rssFeed ?? null
+    initialRssFeed: initialLibraryItem.rssFeed ?? null,
+    initialEpisodeDownloadsQueued: initialLibraryItem.episodeDownloadsQueued ?? [],
+    initialEpisodesDownloading: initialLibraryItem.episodesDownloading ?? []
   })
 
   const handleClearDownloadQueue = useCallback(async () => {

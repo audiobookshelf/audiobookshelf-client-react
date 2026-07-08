@@ -115,7 +115,7 @@ describe('<Checkbox />', () => {
       const onChangeSpy = cy.spy().as('onChangeSpy')
       cy.mount(<Checkbox onChange={onChangeSpy} />)
       cy.get('input[type="checkbox"]').click()
-      cy.get('@onChangeSpy').should('have.been.calledWith', true)
+      cy.get('@onChangeSpy').should('have.been.calledWith', true, false)
     })
 
     it('calls onChange when label is clicked', () => {
@@ -124,7 +124,7 @@ describe('<Checkbox />', () => {
       // realClick simulates a real pointer event at the label's coordinates,
       // which hits the input overlay on top and triggers onChange.
       cy.get('[cy-id="checkbox-label"]').realClick()
-      cy.get('@onChangeSpy').should('have.been.calledWith', true)
+      cy.get('@onChangeSpy').should('have.been.calledWith', true, false)
     })
 
     it('handles controlled component behavior', () => {
@@ -132,7 +132,7 @@ describe('<Checkbox />', () => {
       cy.mount(<Checkbox value={false} onChange={onChangeSpy} />)
       cy.get('input[type="checkbox"]').should('not.be.checked')
       cy.get('input[type="checkbox"]').click()
-      cy.get('@onChangeSpy').should('have.been.calledWith', true)
+      cy.get('@onChangeSpy').should('have.been.calledWith', true, false)
       // Value should not change until parent updates it
       cy.get('input[type="checkbox"]').should('not.be.checked')
     })

@@ -25,7 +25,7 @@ export interface EpisodeRowProps {
   isSelectionMode: boolean
   dateFormat: string
   onView: (episode: PodcastEpisode) => void
-  onSelect: (episode: PodcastEpisode, isSelected: boolean) => void
+  onSelect: (episode: PodcastEpisode, isSelected: boolean, shiftKey?: boolean, rowIndex?: number) => void
   onEdit?: (episode: PodcastEpisode) => void
   onMatch?: (episode: PodcastEpisode) => void
   onRemove?: (episode: PodcastEpisode, hardDelete: boolean) => void
@@ -47,7 +47,8 @@ export default function EpisodeRow({
   onMatch,
   onRemove,
   onDownloadFile,
-  onShowMoreInfo
+  onShowMoreInfo,
+  rowIndex
 }: EpisodeRowProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
@@ -176,7 +177,11 @@ export default function EpisodeRow({
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <Checkbox value={isSelected} checkboxBgClass="bg-primary" onChange={(checked) => onSelect(episode, checked)} />
+              <Checkbox
+                value={isSelected}
+                checkboxBgClass="bg-primary"
+                onChange={(checked, shiftKey) => onSelect(episode, checked, shiftKey, rowIndex)}
+              />
             </div>
           </div>
 
