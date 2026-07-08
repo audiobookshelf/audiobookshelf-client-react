@@ -1,6 +1,7 @@
 'use client'
 
 import LazyTruncatingTooltipText from '@/components/ui/LazyTruncatingTooltipText'
+import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import BonusIndicator from '@/components/widgets/BonusIndicator'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
 import TrailerIndicator from '@/components/widgets/TrailerIndicator'
@@ -53,55 +54,75 @@ function EpisodeNumberAndType({ item }: { item: PodcastEpisodeDownload }) {
   )
 }
 
-function QueueTableRow({ item, libraryId }: { item: PodcastEpisodeDownload; libraryId: string }) {
-  const publishedDateLabel = item.publishedAt ? formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true }) : null
-
-  return (
-    <tr>
-      <td dir="auto" className="px-4">
-        <div className="flex items-center">
-          <Link
-            href={`/library/${libraryId}/item/${item.libraryItemId}`}
-            className="text-foreground-muted hover:text-foreground text-start text-sm hover:underline"
-          >
-            {item.podcastTitle}
-          </Link>
-          {item.podcastExplicit && <ExplicitIndicator className="ms-1 shrink-0" />}
-        </div>
-      </td>
-      <td>
-        <EpisodeNumberAndType item={item} />
-      </td>
-      <td dir="auto" className="px-4">
-        {item.episodeDisplayTitle}
-      </td>
-      <td className="text-xs">
-        <div className="flex items-center">{publishedDateLabel && <p>{publishedDateLabel}</p>}</div>
-      </td>
-    </tr>
-  )
-}
-
-function MobileEpisodeRow({ item }: { item: PodcastEpisodeDownload }) {
-  const title = item.episodeDisplayTitle ?? ''
-
-  return (
-    <tr>
-      <td className="w-12 shrink-0 px-2 py-2 align-middle">
-        <EpisodeNumberAndType item={item} />
-      </td>
-      <td dir="auto" className="max-w-0 min-w-0 px-2 py-2 align-middle">
-        {title ? <LazyTruncatingTooltipText text={title} className="text-sm" position="top" /> : null}
-      </td>
-    </tr>
-  )
-}
-
 export default function PodcastDownloadQueueTable({ queue }: PodcastDownloadQueueTableProps) {
   const t = useTypeSafeTranslations()
   const { library } = useLibrary()
 
   const groupedQueue = useMemo(() => groupQueueByPodcast(queue), [queue])
+
+  const desktopColumns = useMemo<DataTableColumn<PodcastEpisodeDownload>[]>(
+    () => [
+      {
+        label: t('LabelPodcast'),
+        accessor: (item) => (
+          <div className="flex items-center">
+            <Link
+              href={`/library/${library.id}/item/${item.libraryItemId}`}
+              className="text-foreground-muted hover:text-foreground text-start text-sm hover:underline"
+            >
+              {item.podcastTitle}
+            </Link>
+            {item.podcastExplicit && <ExplicitIndicator className="ms-1 shrink-0" />}
+          </div>
+        ),
+        headerClassName: 'min-w-48 px-4',
+        cellClassName: 'px-4'
+      },
+      {
+        label: t('LabelEpisode'),
+        accessor: (item) => <EpisodeNumberAndType item={item} />,
+        headerClassName: 'w-32 min-w-32',
+        cellClassName: ''
+      },
+      {
+        label: t('LabelEpisodeTitle'),
+        accessor: (item) => item.episodeDisplayTitle,
+        headerClassName: 'px-4',
+        cellClassName: 'px-4'
+      },
+      {
+        label: t('LabelPubDate'),
+        accessor: (item) => {
+          const publishedDateLabel = item.publishedAt ? formatDistanceToNow(new Date(item.publishedAt), { addSuffix: true }) : null
+          return publishedDateLabel ? <p>{publishedDateLabel}</p> : null
+        },
+        headerClassName: 'w-48 px-4',
+        cellClassName: 'text-xs px-4'
+      }
+    ],
+    [t, library.id]
+  )
+
+  const mobileColumns = useMemo<DataTableColumn<PodcastEpisodeDownload>[]>(
+    () => [
+      {
+        label: '#',
+        accessor: (item) => <EpisodeNumberAndType item={item} />,
+        headerClassName: 'w-12 px-2',
+        cellClassName: 'w-12 shrink-0 px-2 align-middle'
+      },
+      {
+        label: t('LabelEpisodeTitle'),
+        accessor: (item) => {
+          const title = item.episodeDisplayTitle ?? ''
+          return title ? <LazyTruncatingTooltipText text={title} className="text-sm" position="top" /> : null
+        },
+        headerClassName: 'min-w-0 px-2',
+        cellClassName: 'max-w-0 min-w-0 px-2 align-middle'
+      }
+    ],
+    [t]
+  )
 
   return (
     <div className="my-2 w-full min-w-0">
@@ -126,19 +147,7 @@ export default function PodcastDownloadQueueTable({ queue }: PodcastDownloadQueu
                 {group.podcastExplicit && <ExplicitIndicator className="shrink-0" />}
                 <span className="text-foreground-subdued shrink-0 font-mono text-xs">({group.items.length})</span>
               </div>
-              <table className="tracksTable w-full min-w-0 table-fixed text-sm">
-                <thead>
-                  <tr>
-                    <th className="w-12 px-2 text-left">#</th>
-                    <th className="min-w-0 px-2 text-left">{t('LabelEpisodeTitle')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {group.items.map((item) => (
-                    <MobileEpisodeRow key={item.id} item={item} />
-                  ))}
-                </tbody>
-              </table>
+              <SimpleDataTable data={group.items} columns={mobileColumns} getRowKey={(item) => item.id} tableClassName="table-fixed" className="min-w-0" />
             </div>
           )
         })}
@@ -146,21 +155,7 @@ export default function PodcastDownloadQueueTable({ queue }: PodcastDownloadQueu
 
       {/* Desktop: full table */}
       <div className="hidden w-full md:block">
-        <table className="tracksTable text-sm">
-          <thead>
-            <tr>
-              <th className="min-w-48 px-4 text-left">{t('LabelPodcast')}</th>
-              <th className="w-32 min-w-32 text-left">{t('LabelEpisode')}</th>
-              <th className="px-4 text-left">{t('LabelEpisodeTitle')}</th>
-              <th className="w-48 px-4 text-left">{t('LabelPubDate')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {queue.map((item) => (
-              <QueueTableRow key={item.id} item={item} libraryId={library.id} />
-            ))}
-          </tbody>
-        </table>
+        <SimpleDataTable data={queue} columns={desktopColumns} getRowKey={(item) => item.id} />
       </div>
     </div>
   )
