@@ -4,6 +4,10 @@ import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/Co
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useMemo } from 'react'
 
+function isOverlayAction(target: Node) {
+  return target instanceof Element && !!target.closest('[data-overlay-action]')
+}
+
 export interface MediaCardMoreMenuSubitem {
   text: string
   func: string
@@ -70,6 +74,7 @@ export default function MediaCardMoreMenu({ items, processing = false, isOpen, o
       isOpen={isOpen}
       onAction={handleContextMenuAction}
       onOpenChange={handleOpenChange}
+      isAdditionalInside={isOverlayAction}
       className={mergeClasses('h-auto w-auto text-[1em] text-white', className)}
       usePortal
     />

@@ -35,6 +35,8 @@ interface ContextMenuDropdownProps<T = string> {
   borderless?: boolean
   className?: string
   usePortal?: boolean
+  /** Extra click targets that should not close the menu (e.g. sibling overlay buttons on a media card). */
+  isAdditionalInside?: (target: Node) => boolean
 }
 
 /**
@@ -56,7 +58,8 @@ export default function ContextMenuDropdown<T = string>({
   size = 'medium',
   borderless = false,
   className,
-  usePortal = false
+  usePortal = false,
+  isAdditionalInside
 }: ContextMenuDropdownProps<T>) {
   const t = useTypeSafeTranslations()
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false)
@@ -98,7 +101,7 @@ export default function ContextMenuDropdown<T = string>({
   }, [setMenuOpen])
 
   // Handle click outside to close menu
-  useClickOutside(menuWrapperRef, buttonRef, closeMenu, true)
+  useClickOutside(menuWrapperRef, buttonRef, closeMenu, true, isAdditionalInside)
 
   const openSubMenu = (index: number) => {
     const currentItem = items[index]

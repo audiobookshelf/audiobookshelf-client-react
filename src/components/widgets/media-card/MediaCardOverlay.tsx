@@ -185,7 +185,7 @@ export default function MediaCardOverlay({
         >
           {/* Play button */}
           {!dragOnly && showPlayButton && (
-            <div cy-id="playButton" className="pointer-events-none flex h-full items-center justify-center">
+            <div cy-id="playButton" className="pointer-events-none flex h-full items-center justify-center" data-overlay-action>
               <IconBtn
                 borderless
                 outlined={false}
@@ -201,7 +201,7 @@ export default function MediaCardOverlay({
 
           {/* Read button */}
           {!dragOnly && showReadButton && (
-            <div cy-id="readButton" className="pointer-events-none flex h-full items-center justify-center">
+            <div cy-id="readButton" className="pointer-events-none flex h-full items-center justify-center" data-overlay-action>
               <IconBtn
                 borderless
                 className={mergeClasses('text-gray-200 hover:scale-110 hover:text-white', 'pointer-events-auto h-auto w-auto transform duration-200')}
