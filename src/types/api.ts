@@ -272,6 +272,13 @@ export interface LibraryItemRemovedPayload {
   libraryId: string
 }
 
+/** Payload for the `episode_added` socket event (expanded episode with nested library item). */
+export interface EpisodeAddedPayload {
+  id: string
+  libraryItemId?: string
+  libraryItem?: LibraryItem
+}
+
 export interface AuthorQuickMatchPayload {
   asin?: string
   q?: string

@@ -1,6 +1,14 @@
 'use server'
 
-import { getLibraryAuthors, getLibraryCollections, getLibraryFilterData, getLibraryItems, getLibraryPlaylists, getLibrarySeries } from '@/lib/api'
+import {
+  getLibraryAuthors,
+  getLibraryCollections,
+  getLibraryFilterData,
+  getLibraryItems,
+  getLibraryPersonalized,
+  getLibraryPlaylists,
+  getLibrarySeries
+} from '@/lib/api'
 
 export async function fetchLibraryItemsAction(libraryId: string, query: string) {
   return getLibraryItems(libraryId, query)
@@ -8,6 +16,10 @@ export async function fetchLibraryItemsAction(libraryId: string, query: string) 
 
 export async function fetchLibraryFilterDataAction(libraryId: string) {
   return getLibraryFilterData(libraryId)
+}
+
+export async function fetchLibraryPersonalizedAction(libraryId: string) {
+  return getLibraryPersonalized(libraryId)
 }
 
 export async function fetchSeriesAction(libraryId: string, query: string) {
