@@ -44,6 +44,7 @@ import LibraryEmptyState from './LibraryEmptyState'
 
 interface LibraryClientProps {
   personalized: PersonalizedShelf[]
+  libraryItemCount: number
 }
 
 /**
@@ -106,7 +107,7 @@ function applyUserUpdatedToShelves(
   return changed ? prunePersonalizedShelves(nextShelves) : shelves
 }
 
-export default function LibraryClient({ personalized }: LibraryClientProps) {
+export default function LibraryClient({ personalized, libraryItemCount: libraryItemCountProp }: LibraryClientProps) {
   const t = useTypeSafeTranslations()
   const [, startScanTransition] = useTransition()
   const { sizeMultiplier } = useCardSize()
@@ -114,12 +115,17 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView } = useLibrary()
 
   const [shelves, setShelves] = useState(personalized)
+  const [libraryItemCount, setLibraryItemCount] = useState(libraryItemCountProp)
 
   const visibleShelves = useMemo(() => prunePersonalizedShelves(shelves), [shelves])
 
   useEffect(() => {
     setShelves(personalized)
   }, [personalized])
+
+  useEffect(() => {
+    setLibraryItemCount(libraryItemCountProp)
+  }, [libraryItemCountProp])
 
   /**
    * Updates entities within shelves of matching types.
@@ -228,6 +234,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
     (payload: LibraryItemRemovedPayload) => {
       if (payload.libraryId !== library.id) return
       setShelves((prev) => applyLibraryItemRemovalToShelves(prev, payload.id))
+      setLibraryItemCount((prev) => Math.max(0, prev - 1))
     },
     [library.id]
   )
@@ -235,6 +242,7 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   const handleItemAdded = useCallback(
     (libraryItem: LibraryItem) => {
       if (libraryItem.libraryId !== library.id) return
+      setLibraryItemCount((prev) => prev + 1)
       refetchPersonalizedShelves()
     },
     [library.id, refetchPersonalizedShelves]
@@ -244,6 +252,8 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
     (libraryItems: LibraryItem[]) => {
       const itemsInLibrary = libraryItems.filter((item) => item.libraryId === library.id)
       if (itemsInLibrary.length === 0) return
+
+      setLibraryItemCount((prev) => prev + itemsInLibrary.length)
 
       // First items added to an empty library — refetch full personalized shelves
       if (prunePersonalizedShelves(shelvesRef.current).length === 0) {
@@ -345,7 +355,11 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
       {/* empty state with scan button if user is admin or root */}
       {visibleShelves.length === 0 && (
         <div className="py-8">
-          <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
+          <LibraryEmptyState
+            library={library}
+            showScanButton={['admin', 'root'].includes(user.type)}
+            variant={libraryItemCount === 0 ? 'library-empty' : 'no-home-shelves'}
+          />
         </div>
       )}
 

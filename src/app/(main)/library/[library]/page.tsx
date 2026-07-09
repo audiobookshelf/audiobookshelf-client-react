@@ -1,10 +1,10 @@
-import { getData, getLibraryPersonalized } from '@/lib/api'
+import { getData, getLibraryPersonalized, getLibraryStats } from '@/lib/api'
 import LibraryClient from './LibraryClient'
 
 export default async function LibraryPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params
 
-  const [personalized] = await getData(getLibraryPersonalized(libraryId))
+  const [[personalized], [stats]] = await Promise.all([getData(getLibraryPersonalized(libraryId)), getData(getLibraryStats(libraryId))])
 
   if (!personalized) {
     console.error('Error getting personalized data')
@@ -13,7 +13,7 @@ export default async function LibraryPage({ params }: { params: Promise<{ librar
 
   return (
     <div className="w-full">
-      <LibraryClient personalized={personalized} />
+      <LibraryClient personalized={personalized} libraryItemCount={stats?.totalItems ?? 0} />
     </div>
   )
 }
