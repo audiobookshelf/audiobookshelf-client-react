@@ -74,6 +74,27 @@
   }
 }
 
+.player-cover-accent-backdrop {
+  opacity: 0;
+  animation: library-item-cover-accent-fade-in 0.55s ease-out forwards;
+  /*
+   * --tc-player-accent-rgb is set on the media player container
+   */
+  background: radial-gradient(
+    ellipse 128% 92% at -4% -3%,
+    rgb(var(--tc-player-accent-rgb) / 0.13) 0%,
+    rgb(var(--tc-player-accent-rgb) / 0.075) 40%,
+    rgb(var(--tc-player-accent-rgb) / 0.01) 76%,
+    rgb(var(--tc-player-accent-rgb) / 0) 90%
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-cover-accent-backdrop {
+    animation-duration: 0.01ms;
+  }
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 8px;

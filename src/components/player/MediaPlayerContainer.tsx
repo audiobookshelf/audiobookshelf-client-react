@@ -2,12 +2,13 @@
 
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
+import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
 import { BookMedia } from '@/types/api'
 import Link from 'next/link'
-import { Fragment } from 'react'
+import { CSSProperties, Fragment, useMemo } from 'react'
 import PreviewCover from '../covers/PreviewCover'
 import IconBtn from '../ui/IconBtn'
 import PlayerControls from './PlayerControls'
@@ -21,6 +22,18 @@ export default function MediaPlayerContainer() {
   const { streamLibraryItem, clearStreamMedia, playerHandler } = useMediaContext()
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
+
+  const coverPath = streamLibraryItem?.media?.coverPath
+  const accentSourceUrl = useMemo(
+    () => (streamLibraryItem && coverPath ? getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt, true) : null),
+    [coverPath, streamLibraryItem]
+  )
+  const accentRgb = useCoverAccentColor(accentSourceUrl)
+
+  const playerAccentStyle = useMemo((): CSSProperties | undefined => {
+    if (!accentRgb) return undefined
+    return { '--tc-player-accent-rgb': `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}` } as CSSProperties
+  }, [accentRgb])
 
   // TODO: Set library in media context for streaming library item
   const coverAspectRatio = 1
@@ -38,11 +51,13 @@ export default function MediaPlayerContainer() {
   return (
     <div
       className={mergeClasses(
-        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 z-50 w-full px-2 pt-2 pb-1 lg:px-4 lg:pb-4',
+        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full overflow-hidden px-2 pt-2 pb-1 lg:px-4 lg:pb-4',
         MEDIA_PLAYER_HEIGHT_CLASS
       )}
+      style={playerAccentStyle}
     >
-      <div className="absolute top-2 left-2 flex gap-4 lg:left-4">
+      {accentRgb !== null ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
+      <div className="absolute top-2 left-2 z-[1] flex gap-4 lg:left-4">
         <PreviewCover
           src={getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt)}
           bookCoverAspectRatio={coverAspectRatio}
@@ -73,13 +88,13 @@ export default function MediaPlayerContainer() {
           )}
         </div>
       </div>
-      <div className="flex flex-col gap-3">
+      <div className="relative z-[1] flex flex-col gap-3">
         <PlayerControls playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} />
 
         <PlayerTrackBar playerHandler={playerHandler} />
       </div>
 
-      <div className="absolute top-2 right-2 flex items-center gap-1 lg:right-4">
+      <div className="absolute top-2 right-2 z-[1] flex items-center gap-1 lg:right-4">
         <IconBtn size="small" borderless onClick={clearStreamMedia}>
           close
         </IconBtn>
