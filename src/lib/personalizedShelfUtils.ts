@@ -1,4 +1,4 @@
-import type { Author, LibraryItem, PersonalizedShelf, Series } from '@/types/api'
+import type { Author, AuthorNumBooksUpdate, LibraryItem, PersonalizedShelf, Series } from '@/types/api'
 
 /** Drop series with no books, authors with no books, and shelves with no entities. */
 export function prunePersonalizedShelves(shelves: PersonalizedShelf[]): PersonalizedShelf[] {
@@ -84,14 +84,11 @@ export function applyAuthorAddedToNewestAuthorsShelf(shelves: PersonalizedShelf[
   return nextShelves
 }
 
-export function applyAuthorUpdateToNewestAuthorsShelf(shelves: PersonalizedShelf[], author: Author): PersonalizedShelf[] {
-  if ((author.numBooks ?? 0) <= 0) {
+export function applyAuthorUpdateToShelves(shelves: PersonalizedShelf[], author: Author | AuthorNumBooksUpdate): PersonalizedShelf[] {
+  if (author.numBooks !== undefined && author.numBooks <= 0) {
     return applyAuthorRemovalToShelves(shelves, author.id)
   }
-  return applyAuthorAddedToNewestAuthorsShelf(shelves, author)
-}
 
-export function applyAuthorUpdateToShelves(shelves: PersonalizedShelf[], author: Author): PersonalizedShelf[] {
   let changed = false
   const nextShelves = shelves.map((shelf) => {
     if (shelf.type !== 'authors') return shelf

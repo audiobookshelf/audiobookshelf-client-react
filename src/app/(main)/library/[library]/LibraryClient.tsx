@@ -16,7 +16,6 @@ import { applyLibraryItemUpdateToShelves } from '@/lib/libraryItemUpdatedUtils'
 import {
   applyAuthorAddedToNewestAuthorsShelf,
   applyAuthorRemovalToShelves,
-  applyAuthorUpdateToNewestAuthorsShelf,
   applyAuthorUpdateToShelves,
   applyLibraryItemRemovalToShelves,
   applyLibraryItemsAddedToRecentlyAddedShelf,
@@ -24,6 +23,7 @@ import {
 } from '@/lib/personalizedShelfUtils'
 import {
   Author,
+  AuthorsNumBooksUpdatedPayload,
   AuthorRemovedPayload,
   BookMetadata,
   BookshelfView,
@@ -277,9 +277,19 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
   const handleAuthorUpdated = useCallback(
     (author: Author) => {
       if (author.libraryId !== undefined && author.libraryId !== library.id) return
+      setShelves((prev) => applyAuthorUpdateToShelves(prev, author))
+    },
+    [library.id]
+  )
+
+  const handleAuthorsNumBooksUpdated = useCallback(
+    (payload: AuthorsNumBooksUpdatedPayload) => {
+      if (payload.libraryId !== library.id || payload.authors.length === 0) return
       setShelves((prev) => {
-        let next = applyAuthorUpdateToShelves(prev, author)
-        next = applyAuthorUpdateToNewestAuthorsShelf(next, author)
+        let next = prev
+        for (const author of payload.authors) {
+          next = applyAuthorUpdateToShelves(next, author)
+        }
         return next
       })
     },
@@ -310,6 +320,7 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
   useSocketEvent<EpisodeAddedPayload>('episode_added', handleEpisodeAdded)
   useSocketEvent<Author>('author_added', handleAuthorAdded)
   useSocketEvent<Author>('author_updated', handleAuthorUpdated)
+  useSocketEvent<AuthorsNumBooksUpdatedPayload>('authors_num_books_updated', handleAuthorsNumBooksUpdated)
   useSocketEvent<AuthorRemovedPayload>('author_removed', handleAuthorRemoved)
   useSocketEvent<MediaItemShare>('share_open', handleShareOpen)
   useSocketEvent<MediaItemShare>('share_closed', handleShareClosed)

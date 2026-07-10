@@ -2,7 +2,17 @@
 
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { getVisibleBookshelfPageRange, type VisibleBookshelfPageRangeInput } from '@/hooks/useBookshelfVirtualizer'
-import { Author, AuthorRemovedPayload, BookshelfEntity, Collection, EntityType, LibraryItem, LibraryItemRemovedPayload, Playlist } from '@/types/api'
+import {
+  Author,
+  AuthorsNumBooksUpdatedPayload,
+  AuthorRemovedPayload,
+  BookshelfEntity,
+  Collection,
+  EntityType,
+  LibraryItem,
+  LibraryItemRemovedPayload,
+  Playlist
+} from '@/types/api'
 import { type RefObject, useCallback, useLayoutEffect, useRef } from 'react'
 
 /** Like refs from `useRef` with a writable `current` (avoids deprecated `MutableRefObject` in newer `@types/react`). */
@@ -220,6 +230,12 @@ export function useBookshelfUpdater({
     reconcileUpdatedEntities(rt, [author])
   }, [])
 
+  const onAuthorsNumBooksUpdated = useCallback((payload: AuthorsNumBooksUpdatedPayload) => {
+    const rt = runtimeRef.current
+    if (payload.libraryId !== rt.libraryId || rt.entityType !== 'authors' || payload.authors.length === 0) return
+    reconcileUpdatedEntities(rt, payload.authors)
+  }, [])
+
   const onAuthorAdded = useCallback((author: Author) => {
     const rt = runtimeRef.current
     if ((author.libraryId !== undefined && author.libraryId !== rt.libraryId) || rt.entityType !== 'authors') return
@@ -275,6 +291,7 @@ export function useBookshelfUpdater({
   useSocketEvent<LibraryItemRemovedPayload>('item_removed', onLibraryItemRemoved, [onLibraryItemRemoved])
   useSocketEvent<Author>('author_added', onAuthorAdded, [onAuthorAdded])
   useSocketEvent<Author>('author_updated', onAuthorUpdated, [onAuthorUpdated])
+  useSocketEvent<AuthorsNumBooksUpdatedPayload>('authors_num_books_updated', onAuthorsNumBooksUpdated, [onAuthorsNumBooksUpdated])
   useSocketEvent<AuthorRemovedPayload>('author_removed', onAuthorRemoved, [onAuthorRemoved])
   useSocketEvent<Collection>('collection_added', onCollectionAdded, [onCollectionAdded])
   useSocketEvent<Collection>('collection_updated', onCollectionUpdated, [onCollectionUpdated])
