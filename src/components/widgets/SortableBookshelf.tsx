@@ -6,7 +6,8 @@ import SortableBookshelfCard from '@/components/widgets/media-card/SortableBooks
 import { getSortableBookshelfItemOrderBy } from '@/contexts/SortableBookshelfOverlayContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { BookshelfView, MediaProgress, PlaylistItem } from '@/types/api'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
+import type { BookshelfView, MediaProgress } from '@/types/api'
 import type { SortableBookshelfEntry } from '@/types/compilation'
 import {
   closestCenter,
@@ -49,6 +50,9 @@ export interface SortableBookshelfProps {
   seriesSortBy: string
   mediaItemProgressMap: Map<string, MediaProgress>
   isPodcastLibrary?: boolean
+  bookshelfSelectionEnabled?: boolean
+  selectionScopeId?: string
+  shelfSelectionEntities?: readonly (ShelfNavigationEntity | null)[]
 }
 
 /**
@@ -69,7 +73,10 @@ export default function SortableBookshelf({
   showSubtitles,
   seriesSortBy,
   mediaItemProgressMap,
-  isPodcastLibrary = false
+  isPodcastLibrary = false,
+  bookshelfSelectionEnabled = false,
+  selectionScopeId,
+  shelfSelectionEntities
 }: SortableBookshelfProps) {
   const dndContextId = useId()
   const t = useTypeSafeTranslations()
@@ -97,14 +104,8 @@ export default function SortableBookshelf({
   const itemIds = useMemo(() => entries.map((e) => e.sortableId), [entries])
 
   const shelfEntitiesDense = useMemo(
-    (): PlaylistItem[] =>
-      entries.map((entry) => ({
-        libraryItemId: entry.libraryItem.id,
-        libraryItem: entry.libraryItem,
-        episodeId: entry.episode?.id,
-        episode: entry.episode
-      })),
-    [entries]
+    (): (ShelfNavigationEntity | null)[] => (shelfSelectionEntities ? [...shelfSelectionEntities] : entries.map((entry) => entry.libraryItem)),
+    [entries, shelfSelectionEntities]
   )
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
@@ -179,6 +180,8 @@ export default function SortableBookshelf({
               shelfEntities={shelfEntitiesDense}
               entityIndex={entityIndex}
               isPodcastLibrary={isPodcastLibrary}
+              bookshelfSelectionEnabled={bookshelfSelectionEnabled}
+              selectionScopeId={selectionScopeId}
             />
           ))}
         </div>
@@ -200,6 +203,8 @@ export default function SortableBookshelf({
               shelfEntities={shelfEntitiesDense}
               entityIndex={activeIndex >= 0 ? activeIndex : 0}
               sortableBookshelfCardOptions={dragOverlayCardOptions}
+              bookshelfSelectionEnabled={bookshelfSelectionEnabled}
+              selectionScopeId={selectionScopeId}
             />
           </div>
         ) : null}

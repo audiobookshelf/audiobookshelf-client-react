@@ -2,7 +2,7 @@
 
 import { readdSeriesToContinueListeningAction } from '@/app/actions/mediaActions'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
-import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
+import SelectableShelfMediaCard from '@/components/widgets/media-card/SelectableShelfMediaCard'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -164,12 +164,14 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
   return (
     <div>
       <div className="flex flex-wrap gap-4">
-        {items.map((libraryItem) => {
+        {items.map((libraryItem, entityIndex) => {
           const entityProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
           return (
-            <BookMediaCard
+            <SelectableShelfMediaCard
               key={libraryItem.id}
+              scopeId={`series:${series.id}`}
               libraryItem={libraryItem}
+              cardType="book"
               bookshelfView={BookshelfView.DETAIL}
               dateFormat={serverSettings.dateFormat}
               timeFormat={serverSettings.timeFormat}
@@ -177,6 +179,8 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
               ereaderDevices={ereaderDevices}
               showSubtitles={showSubtitles}
               mediaProgress={entityProgress}
+              shelfEntities={items}
+              entityIndex={entityIndex}
             />
           )
         })}

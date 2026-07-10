@@ -118,6 +118,8 @@ export default function MediaCardOverlay({
     [isSelectionMode, selected]
   )
 
+  const overlayZIndexClass = selected ? 'z-30' : 'z-10'
+
   const playButtonStyle = useMemo(() => ({ fontSize: `${playIconFontSize}em` }), [playIconFontSize])
 
   const errorBadgeStyle = useMemo(() => ({ height: `${ICON_SIZE.ERROR_BADGE_HEIGHT}em`, width: `${ICON_SIZE.ERROR_BADGE_WIDTH}em` }), [])
@@ -177,7 +179,10 @@ export default function MediaCardOverlay({
     <>
       {/* Overlay */}
       {showOverlay && (
-        <div cy-id="overlay" className={mergeClasses('absolute start-0 top-0 z-10 h-full w-full rounded-sm bg-black md:block', overlayWrapperClasslist)}>
+        <div
+          cy-id="overlay"
+          className={mergeClasses('absolute start-0 top-0 h-full w-full rounded-sm bg-black md:block', overlayZIndexClass, overlayWrapperClasslist)}
+        >
           {/* Play button */}
           {!dragOnly && showPlayButton && (
             <div cy-id="playButton" className="pointer-events-none flex h-full items-center justify-center">
@@ -210,7 +215,7 @@ export default function MediaCardOverlay({
           )}
 
           {/* Select button */}
-          {!dragOnly && showSelectRadioButton && (
+          {showSelectRadioButton && (!dragOnly || isSelectionMode) && (
             <MediaOverlayIconBtn
               cyId="selectedRadioButton"
               position="top-start"
@@ -218,6 +223,7 @@ export default function MediaCardOverlay({
               onClick={handleSelectClick}
               ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
               selected={selected}
+              tabIndex={-1}
             />
           )}
 

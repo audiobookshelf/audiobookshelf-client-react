@@ -1,6 +1,7 @@
 'use client'
 
-import { usePrimaryInputCanHover, type SortableCompilationContextType, type SortableCompilationKind } from '@/contexts/SortableCompilationContext'
+import type { SortableCompilationContextType, SortableCompilationKind } from '@/contexts/SortableCompilationContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import type { SortableBookshelfOverlayMode } from '@/contexts/SortableBookshelfOverlayContext'
 import { useUser } from '@/contexts/UserContext'
 import { useMemo } from 'react'

@@ -51,12 +51,10 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
 
   const sortedPlaylists = useMemo((): PlaylistRow[] => {
     return [...playlists]
-      .map(
-        (p): PlaylistRow => ({
-          ...p,
-          isItemIncluded: playlistHasItem(p, libraryItemId, episodeId)
-        })
-      )
+      .map((p): PlaylistRow => ({
+        ...p,
+        isItemIncluded: playlistHasItem(p, libraryItemId, episodeId)
+      }))
       .sort((a, b) => {
         if (a.isItemIncluded !== b.isItemIncluded) {
           return a.isItemIncluded ? -1 : 1

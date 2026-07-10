@@ -1,7 +1,7 @@
 'use client'
 
 import LazyTooltip from '@/components/ui/LazyTooltip'
-import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTruncation } from '@/hooks/useTruncation'
 import { mergeClasses } from '@/lib/merge-classes'
 

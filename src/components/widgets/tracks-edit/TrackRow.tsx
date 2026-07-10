@@ -11,7 +11,7 @@ import {
   TRACKS_FILENAME_COLUMN_CLASS,
   type TracksListColumnVisibility
 } from '@/components/widgets/tracks-edit/tracksListColumns'
-import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import type { EditableTrackFile } from '@/hooks/useTrackEditor'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
 import { secondsToTimestamp } from '@/lib/datefns'

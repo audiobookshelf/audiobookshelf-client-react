@@ -12,6 +12,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import AppBarNav from './AppBarNav'
+import AppBarSelectionOverlay from './AppBarSelectionOverlay'
 import GlobalSearchInput from './GlobalSearchInput'
 import LibrariesDropdown from './LibrariesDropdown'
 
@@ -47,7 +48,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
     <div className="bg-primary relative h-16 w-full">
       <header
         cy-id="appbar"
-        className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 max-md:overflow-x-hidden px-2 py-1 md:gap-4 md:px-6"
+        className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
       >
         <Link
           href={redirectUrl}
@@ -60,12 +61,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
         {libraries && currentLibraryId && (
           <>
-            <div
-              className={mergeClasses(
-                'min-w-0 flex-1 overflow-hidden md:w-fit md:flex-none md:shrink-0',
-                isSearchMode && 'hidden md:block'
-              )}
-            >
+            <div className={mergeClasses('min-w-0 flex-1 overflow-hidden md:w-fit md:flex-none md:shrink-0', isSearchMode && 'hidden md:block')}>
               <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />
             </div>
 
@@ -120,6 +116,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
         </div>
       </header>
+      <AppBarSelectionOverlay />
     </div>
   )
 }

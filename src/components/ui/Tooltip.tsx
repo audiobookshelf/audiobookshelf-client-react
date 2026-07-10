@@ -1,7 +1,7 @@
 'use client'
 
 import { useModalRef } from '@/contexts/ModalContext'
-import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { mergeClasses } from '@/lib/merge-classes'
 import { type Placement, arrow as arrowMw, autoUpdate, flip, offset, shift, size, useFloating } from '@floating-ui/react-dom'
 import React, { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'

@@ -338,11 +338,7 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
                     <span className="material-symbols text-warning text-xl">download</span>
                   ) : (
                     <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center">
-                      <Checkbox
-                        value={isSelected}
-                        size="small"
-                        onChange={(checked, shiftKey) => selectEpisode(episode, checked, shiftKey, index)}
-                      />
+                      <Checkbox value={isSelected} size="small" onChange={(checked, shiftKey) => selectEpisode(episode, checked, shiftKey, index)} />
                     </div>
                   )}
                 </div>

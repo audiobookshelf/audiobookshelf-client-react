@@ -6,7 +6,7 @@ import AuthorImage from '@/components/covers/AuthorImage'
 import IconBtn from '@/components/ui/IconBtn'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import ItemSlider from '@/components/widgets/ItemSlider'
-import BookMediaCard from '@/components/widgets/media-card/BookMediaCard'
+import SelectableShelfMediaCard from '@/components/widgets/media-card/SelectableShelfMediaCard'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
@@ -102,12 +102,14 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
             }
             className="!ps-0"
           >
-            {libraryItems.map((libraryItem) => {
+            {libraryItems.map((libraryItem, entityIndex) => {
               const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
               return (
                 <div key={libraryItem.id} className="mx-2e shrink-0">
-                  <BookMediaCard
+                  <SelectableShelfMediaCard
+                    scopeId="author-books"
                     libraryItem={libraryItem}
+                    cardType="book"
                     bookshelfView={BookshelfView.DETAIL}
                     dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                     timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
@@ -115,6 +117,8 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
                     ereaderDevices={ereaderDevices}
                     showSubtitles={showSubtitles}
                     mediaProgress={mediaProgress}
+                    shelfEntities={libraryItems}
+                    entityIndex={entityIndex}
                   />
                 </div>
               )
@@ -135,12 +139,15 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
         return (
           <div key={bookSeries.id} className="-ms-2e shrink-0">
             <ItemSlider title={seriesTitle} className="!ps-0">
-              {bookSeries.items?.map((libraryItem) => {
+              {bookSeries.items?.map((libraryItem, entityIndex) => {
                 const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
+                const seriesItems = bookSeries.items ?? []
                 return (
                   <div key={libraryItem.id} className="mx-2e shrink-0">
-                    <BookMediaCard
+                    <SelectableShelfMediaCard
+                      scopeId={bookSeries.id}
                       libraryItem={libraryItem}
+                      cardType="book"
                       bookshelfView={BookshelfView.DETAIL}
                       dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
                       timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
@@ -148,6 +155,8 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
                       ereaderDevices={ereaderDevices}
                       showSubtitles={showSubtitles}
                       mediaProgress={mediaProgress}
+                      shelfEntities={seriesItems}
+                      entityIndex={entityIndex}
                     />
                   </div>
                 )

@@ -79,12 +79,10 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     const libraryFiles = (libraryItem.libraryFiles || []) as LibraryFile[]
     return libraryFiles
       .filter((f) => f.fileType === 'image')
-      .map(
-        (file): LocalCover => ({
-          ...file,
-          localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
-        })
-      )
+      .map((file): LocalCover => ({
+        ...file,
+        localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
+      }))
   }, [libraryItem.libraryFiles, libraryItem.id, libraryItem.updatedAt])
 
   const userCanUpload = user.permissions?.upload || false

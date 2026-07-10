@@ -17,10 +17,12 @@ import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetail
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
+import { useBookshelfSelectionOptional } from '@/contexts/BookshelfSelectionContext'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { isDragOnlyOverlay, useSortableBookshelfOverlay } from '@/contexts/SortableBookshelfOverlayContext'
+import { useCoarsePointer } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
@@ -31,7 +33,7 @@ import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { memo, useCallback, useEffect, useId, useMemo, useState, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
 import { useMediaCardActions } from './useMediaCardActions'
 
 export interface MediaCardProps {
@@ -79,6 +81,8 @@ export interface MediaCardProps {
    * Callback when the select button is clicked
    */
   onSelect?: (event: React.MouseEvent) => void
+  /** Shift-range keyboard anchor key from bookshelf selection hook. */
+  selectionAnchorKey?: string
   /**
    * When both are set, modal prev/next scope is built lazily on open from this shelf snapshot (sparse bookshelf grid or dense home row).
    */
@@ -86,6 +90,17 @@ export interface MediaCardProps {
   entityIndex?: number
   /** Wired by sortable bookshelf hosts (`SortableBookshelfCard`, `DragOverlay`, etc.). */
   dragOptions?: SortableBookshelfCardOptions
+}
+
+const LONG_PRESS_MS = 450
+const LONG_PRESS_MOVE_THRESHOLD_PX = 10
+
+function createSyntheticSelectEvent(shiftKey = false): MouseEvent {
+  return { shiftKey } as MouseEvent
+}
+
+function isSpaceKey(event: KeyboardEvent): boolean {
+  return event.code === 'Space' || event.key === ' ' || event.key === 'Spacebar'
 }
 
 function MediaCard(props: MediaCardProps) {
@@ -109,6 +124,7 @@ function MediaCard(props: MediaCardProps) {
     isSelectionMode = false,
     selected = false,
     onSelect,
+    selectionAnchorKey,
     shelfEntities,
     entityIndex,
     dragOptions
@@ -116,6 +132,41 @@ function MediaCard(props: MediaCardProps) {
 
   const sortableBookshelfOverlay = useSortableBookshelfOverlay()
   const overlayMode = dragOptions?.overlayMode ?? sortableBookshelfOverlay?.overlayMode ?? 'hover'
+  const isCoarsePointer = useCoarsePointer()
+  const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const longPressTriggeredRef = useRef(false)
+  const pointerStartRef = useRef<{ x: number; y: number } | null>(null)
+  const selectionSelectHandlerRef = useRef(onSelect)
+  selectionSelectHandlerRef.current = onSelect
+  const bookshelfSelection = useBookshelfSelectionOptional()
+  const tabFocusPendingRef = useRef(false)
+
+  useEffect(() => {
+    const markTabFocus = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Tab') {
+        tabFocusPendingRef.current = true
+      }
+    }
+    const clearTabFocus = () => {
+      tabFocusPendingRef.current = false
+    }
+
+    document.addEventListener('keydown', markTabFocus, true)
+    document.addEventListener('pointerdown', clearTabFocus, true)
+    return () => {
+      document.removeEventListener('keydown', markTabFocus, true)
+      document.removeEventListener('pointerdown', clearTabFocus, true)
+    }
+  }, [])
+
+  const clearLongPressTimer = useCallback(() => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current)
+      longPressTimerRef.current = null
+    }
+  }, [])
+
+  useEffect(() => () => clearLongPressTimer(), [clearLongPressTimer])
 
   const router = useRouter()
   const { setBoundModal } = useLibrary()
@@ -290,6 +341,9 @@ function MediaCard(props: MediaCardProps) {
 
   const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!getEbookFormat(media)
 
+  const globalSelectionActive = bookshelfSelection?.isSelectionMode ?? false
+  const showSelectRadioButton = !isAuthorBookshelfView && Boolean(onSelect) && (isSelectionMode || !globalSelectionActive)
+
   const {
     processing,
     isPending,
@@ -332,8 +386,9 @@ function MediaCard(props: MediaCardProps) {
     playerControls: playerHandler.controls
   })
 
-  const handleCardClick = useCallback(() => {
+  const performCardActivate = useCallback(() => {
     closeMoreMenu()
+
     if (episode && isPodcastLibraryItem(libraryItem)) {
       const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
       setBoundModal(<ViewEpisodeModal key={`view-episode-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
@@ -342,7 +397,107 @@ function MediaCard(props: MediaCardProps) {
     router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)
   }, [clearBoundModal, closeMoreMenu, entityIndex, episode, libraryItem, router, setBoundModal, shelfEntities])
 
+  const handleCardClick = useCallback(
+    (event: MouseEvent) => {
+      closeMoreMenu()
+
+      if (longPressTriggeredRef.current) {
+        longPressTriggeredRef.current = false
+        event.preventDefault()
+        event.stopPropagation()
+        return
+      }
+
+      if (isSelectionMode && selectionSelectHandlerRef.current) {
+        event.preventDefault()
+        event.stopPropagation()
+        selectionSelectHandlerRef.current(event)
+        return
+      }
+
+      performCardActivate()
+    },
+    [closeMoreMenu, isSelectionMode, performCardActivate]
+  )
+
+  const handleCardKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      if (processing || isDragOnlyOverlay(overlayMode)) return
+      if (dragOptions?.overlayMode === 'drag') return
+
+      if (isSpaceKey(event)) {
+        if (!selectionSelectHandlerRef.current) return
+        if (event.repeat) return
+        event.preventDefault()
+        event.stopPropagation()
+        selectionSelectHandlerRef.current(createSyntheticSelectEvent(event.shiftKey))
+        return
+      }
+
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        event.stopPropagation()
+        performCardActivate()
+      }
+    },
+    [dragOptions?.overlayMode, overlayMode, performCardActivate, processing]
+  )
+
+  const handleCardFocus = useCallback(() => {
+    if (!selectionSelectHandlerRef.current || !tabFocusPendingRef.current || !selectionAnchorKey) return
+    tabFocusPendingRef.current = false
+    bookshelfSelection?.ensureSelectionAnchor(selectionAnchorKey)
+  }, [bookshelfSelection, selectionAnchorKey])
+
+  const handlePointerDown = useCallback(
+    (event: PointerEvent) => {
+      if (!selectionSelectHandlerRef.current || !isCoarsePointer || processing || isSelectionMode) return
+
+      longPressTriggeredRef.current = false
+      pointerStartRef.current = { x: event.clientX, y: event.clientY }
+
+      clearLongPressTimer()
+      longPressTimerRef.current = setTimeout(() => {
+        longPressTriggeredRef.current = true
+        selectionSelectHandlerRef.current?.(createSyntheticSelectEvent(false))
+      }, LONG_PRESS_MS)
+    },
+    [clearLongPressTimer, isCoarsePointer, isSelectionMode, processing]
+  )
+
+  const handlePointerMove = useCallback(
+    (event: PointerEvent) => {
+      if (!longPressTimerRef.current || !pointerStartRef.current) return
+
+      const dx = event.clientX - pointerStartRef.current.x
+      const dy = event.clientY - pointerStartRef.current.y
+      if (Math.hypot(dx, dy) > LONG_PRESS_MOVE_THRESHOLD_PX) {
+        clearLongPressTimer()
+      }
+    },
+    [clearLongPressTimer]
+  )
+
+  const handlePointerEnd = useCallback(() => {
+    clearLongPressTimer()
+    pointerStartRef.current = null
+  }, [clearLongPressTimer])
+
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(overlayMode)
+  const hasSelectionHandler = Boolean(onSelect)
+  const cardClickHandler = navigateOnCardClick || (isSelectionMode && hasSelectionHandler) ? handleCardClick : undefined
+  const cardKeyDownHandler = navigateOnCardClick || hasSelectionHandler ? handleCardKeyDown : undefined
+  const cardFocusHandler = hasSelectionHandler ? handleCardFocus : undefined
+  const pointerHandlers =
+    hasSelectionHandler && isCoarsePointer && !processing
+      ? {
+          onPointerDown: handlePointerDown,
+          onPointerUp: handlePointerEnd,
+          onPointerCancel: handlePointerEnd,
+          onPointerMove: handlePointerMove
+        }
+      : undefined
 
   const dragHandle = useMemo(() => {
     if (!dragOptions?.ariaLabel) return undefined
@@ -357,7 +512,14 @@ function MediaCard(props: MediaCardProps) {
         rootRef={dragOptions?.cardActivatorRef}
         sortableFrameProps={dragOptions?.sortableFrameProps}
         className={dragOptions ? 'group' : undefined}
-        onClick={navigateOnCardClick ? handleCardClick : undefined}
+        aria-selected={hasSelectionHandler && isSelectionMode ? selected : undefined}
+        onClick={cardClickHandler}
+        onPointerDown={pointerHandlers?.onPointerDown}
+        onPointerUp={pointerHandlers?.onPointerUp}
+        onPointerCancel={pointerHandlers?.onPointerCancel}
+        onPointerMove={pointerHandlers?.onPointerMove}
+        onKeyDown={cardKeyDownHandler}
+        onFocus={cardFocusHandler}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         onMouseOver={
@@ -419,7 +581,7 @@ function MediaCard(props: MediaCardProps) {
             mediaItemShare={mediaItemShare}
             showError={showError}
             errorText={errorText}
-            showSelectRadioButton={!isAuthorBookshelfView}
+            showSelectRadioButton={showSelectRadioButton}
             renderOverlayBadges={renderOverlayBadges}
             renderBadges={renderBadges}
             renderSeriesNameOverlay={renderSeriesNameOverlay}

@@ -140,6 +140,7 @@ export default function SortableBookshelfCard({ sortableId, libraryItem, episode
         episode={episode}
         orderBy={orderBy}
         sortableBookshelfCardOptions={sortableBookshelfCardOptions}
+        bookshelfSelectionEnabled={cardProps.bookshelfSelectionEnabled}
       />
     </div>
   )

@@ -340,6 +340,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                       mediaItemProgressMap={mediaItemProgressMap}
                       shelfEntities={entityType === 'items' ? items : undefined}
                       entityIndex={entityType === 'items' ? entityIndex : undefined}
+                      bookshelfSelectionEnabled={entityType === 'items'}
                     />
                   )
                 })}

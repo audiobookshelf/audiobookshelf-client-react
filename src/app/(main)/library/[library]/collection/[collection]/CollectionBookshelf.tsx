@@ -3,6 +3,7 @@
 import { ENTITY_CONFIGS } from '@/app/(main)/library/[library]/[entityType]/entity-config'
 import { updateCollectionAction } from '@/app/actions/collectionActions'
 import CompilationBookshelf from '@/components/widgets/compilation/CompilationBookshelf'
+import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { getSortableBookshelfItemOrderBy } from '@/contexts/SortableBookshelfOverlayContext'
 import { useUser } from '@/contexts/UserContext'
@@ -31,6 +32,7 @@ export default function CollectionBookshelf({ collection, orderedBooks, setOrder
   const t = useTypeSafeTranslations()
   const { user } = useUser()
   const { library, showSubtitles, seriesSortBy } = useLibrary()
+  const { isSelectionMode } = useBookshelfSelection()
 
   const shelfEntries = useMemo(() => toSortableCollectionEntries(orderedBooks), [orderedBooks])
   const shelfEntitiesDense = useMemo(() => orderedBooks as unknown as (BookshelfEntity | null)[], [orderedBooks])
@@ -64,9 +66,11 @@ export default function CollectionBookshelf({ collection, orderedBooks, setOrder
         mediaItemProgressMap={mediaItemProgressMap}
         shelfEntities={shelfEntitiesDense}
         entityIndex={entityIndex}
+        bookshelfSelectionEnabled
+        selectionScopeId={`collection:${collection.id}`}
       />
     ),
-    [library.id, mediaItemProgressMap, seriesSortBy, shelfEntitiesDense, showSubtitles]
+    [collection.id, library.id, mediaItemProgressMap, seriesSortBy, shelfEntitiesDense, showSubtitles]
   )
 
   return (
@@ -74,10 +78,13 @@ export default function CollectionBookshelf({ collection, orderedBooks, setOrder
       entries={shelfEntries}
       setEntries={handleSetShelfEntries}
       onPersistOrder={handlePersistOrder}
-      showReorder={showReorder}
+      showReorder={showReorder && !isSelectionMode}
       emptyMessage={t('MessageNoBooksFound')}
       renderCard={renderCard}
       mediaItemProgressMap={mediaItemProgressMap}
+      bookshelfSelectionEnabled
+      selectionScopeId={`collection:${collection.id}`}
+      shelfSelectionEntities={shelfEntitiesDense}
     />
   )
 }

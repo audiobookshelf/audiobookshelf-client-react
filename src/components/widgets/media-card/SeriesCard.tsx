@@ -228,6 +228,7 @@ function SeriesCard(props: SeriesCardProps) {
                 onClick={handleSelectClick}
                 ariaLabel={selected ? t('ButtonDeselect') : t('ButtonSelect')}
                 selected={selected}
+                tabIndex={-1}
               />
             )}
           </MediaCardOverlayContainer>

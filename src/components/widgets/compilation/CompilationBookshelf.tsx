@@ -5,6 +5,7 @@ import SortableBookshelf from '@/components/widgets/SortableBookshelf'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
+import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import { BookshelfView, MediaProgress } from '@/types/api'
 import type { SortableBookshelfEntry } from '@/types/compilation'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
@@ -23,6 +24,9 @@ interface CompilationBookshelfProps {
   isPodcastLibrary?: boolean
   renderCard: (entry: SortableBookshelfEntry, entityIndex: number, layoutCardWidth: number) => ReactNode
   mediaItemProgressMap: Map<string, MediaProgress>
+  bookshelfSelectionEnabled?: boolean
+  selectionScopeId?: string
+  shelfSelectionEntities?: readonly (ShelfNavigationEntity | null)[]
 }
 
 export default function CompilationBookshelf({
@@ -33,7 +37,10 @@ export default function CompilationBookshelf({
   emptyMessage,
   isPodcastLibrary = false,
   renderCard,
-  mediaItemProgressMap
+  mediaItemProgressMap,
+  bookshelfSelectionEnabled = false,
+  selectionScopeId,
+  shelfSelectionEntities
 }: CompilationBookshelfProps) {
   const { library, orderBy, showSubtitles, seriesSortBy } = useLibrary()
   const isDetailBookshelfView = bookshelfView === BookshelfView.DETAIL
@@ -195,6 +202,9 @@ export default function CompilationBookshelf({
             seriesSortBy={seriesSortBy}
             mediaItemProgressMap={mediaItemProgressMap}
             isPodcastLibrary={isPodcastLibrary}
+            bookshelfSelectionEnabled={bookshelfSelectionEnabled}
+            selectionScopeId={selectionScopeId}
+            shelfSelectionEntities={shelfSelectionEntities}
           />
         )}
 

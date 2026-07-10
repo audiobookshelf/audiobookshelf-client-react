@@ -126,10 +126,7 @@ export default function SideRail({ serverVersion, installSource }: { serverVersi
   ]
 
   const filteredButtons = buttons.filter(
-    (button) =>
-      (!button.mediaType || button.mediaType === currentLibraryMediaType) &&
-      !button.hidden &&
-      (!button.adminOnly || userIsAdminOrUp)
+    (button) => (!button.mediaType || button.mediaType === currentLibraryMediaType) && !button.hidden && (!button.adminOnly || userIsAdminOrUp)
   )
 
   return (

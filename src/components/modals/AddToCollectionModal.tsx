@@ -46,12 +46,10 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
 
   const sortedCollections = useMemo((): CollectionRow[] => {
     return [...collections]
-      .map(
-        (c): CollectionRow => ({
-          ...c,
-          isBookIncluded: collectionHasItem(c, libraryItemId)
-        })
-      )
+      .map((c): CollectionRow => ({
+        ...c,
+        isBookIncluded: collectionHasItem(c, libraryItemId)
+      }))
       .sort((a, b) => {
         if (a.isBookIncluded !== b.isBookIncluded) {
           return a.isBookIncluded ? -1 : 1

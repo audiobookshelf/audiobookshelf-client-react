@@ -11,7 +11,7 @@ import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCov
 import { usePlaylistCardActions } from '@/components/widgets/media-card/usePlaylistCardActions'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
-import { usePrimaryInputCanHover } from '@/contexts/SortableCompilationContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useUser } from '@/contexts/UserContext'
 import { usePlaylistDisplayMode } from '@/hooks/usePlaylistDisplayMode'
 import { usePlaylistItems } from '@/hooks/usePlaylistItems'
