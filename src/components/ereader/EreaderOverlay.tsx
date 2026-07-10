@@ -1,15 +1,16 @@
 'use client'
 
-import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import EreaderSettingsModal from '@/components/ereader/EreaderSettingsModal'
 import EreaderTocDrawer from '@/components/ereader/EreaderTocDrawer'
 import type { FoliateSearchSection } from '@/components/ereader/foliate'
 import FoliateView, { type FoliateViewHandle } from '@/components/ereader/FoliateView'
 import { MEDIA_PLAYER_BOTTOM_INSET_CLASS } from '@/components/player/MediaPlayerContainer'
+import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEreaderSettings } from '@/hooks/useEreaderSettings'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import type { ComicPageInfo } from '@/lib/ereader/ereaderComicDownload'
 import { isComicFormat, usesPageBasedProgress } from '@/lib/ereader/ereaderEbook'
 import { FIXED_LAYOUT_ZOOM_MAX } from '@/lib/ereader/ereaderFixedLayoutZoom'
 import { EREADER_THEME_SHELL_CLASS, supportsReflowableSettings } from '@/lib/ereader/ereaderSettings'
@@ -57,7 +58,7 @@ export default function EreaderOverlay({
   const [isSearchPending, setIsSearchPending] = useState(false)
   const [searchProgress, setSearchProgress] = useState<number | null>(null)
   const [zoomScale, setZoomScale] = useState<number | null>(null)
-  const [comicPageFilename, setComicPageFilename] = useState<string | null>(null)
+  const [comicPageInfo, setComicPageInfo] = useState<ComicPageInfo | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const showSettingsRef = useRef(showSettings)
   const showTocRef = useRef(showToc)
@@ -146,7 +147,7 @@ export default function EreaderOverlay({
     if (!isOpen) {
       resetSearch()
       setZoomScale(null)
-      setComicPageFilename(null)
+      setComicPageInfo(null)
       setIsLoading(false)
     }
   }, [isOpen, resetSearch])
@@ -195,14 +196,19 @@ export default function EreaderOverlay({
           <button
             type="button"
             className="material-symbols text-2xl opacity-80 hover:opacity-100 disabled:opacity-30"
-            disabled={!comicPageFilename}
+            disabled={!comicPageInfo?.filename}
             onClick={() => foliateRef.current?.downloadCurrentComicPage()}
             aria-label={t('LabelDownload')}
           >
             download
           </button>
         )}
-        <h1 className="min-w-0 flex-1 truncate text-sm font-semibold">{title}</h1>
+        <h1 className="hidden min-w-0 flex-1 truncate text-sm font-semibold sm:block">{title}</h1>
+        {isComic && comicPageInfo && (
+          <span className="shrink-0 text-sm font-medium tabular-nums opacity-80">
+            {t('LabelPaginationPageXOfY', { 0: comicPageInfo.pageIndex + 1, 1: comicPageInfo.totalPages })}
+          </span>
+        )}
         <div className="grow" />
         {supportsFixedLayoutZoom && (
           <>
@@ -253,7 +259,7 @@ export default function EreaderOverlay({
             savedEbookProgress={savedEbookProgress}
             settings={settings}
             onZoomChange={setZoomScale}
-            onComicPageChange={setComicPageFilename}
+            onComicPageChange={setComicPageInfo}
             onTocReady={setToc}
             onClose={handleCloseRequest}
             onError={handleError}

@@ -7,7 +7,9 @@ import {
   getComicPageFilename,
   getComicPageImageUrl,
   getComicPageImageUrlFromDoc,
-  getComicPageIndex
+  getComicPageIndex,
+  getComicPageInfo,
+  type ComicPageInfo
 } from '@/lib/ereader/ereaderComicDownload'
 import {
   blobToEbookFile,
@@ -57,7 +59,7 @@ interface FoliateViewProps {
   savedEbookProgress?: number
   settings: EreaderSettings
   onZoomChange?: (scale: number | null) => void
-  onComicPageChange?: (filename: string | null) => void
+  onComicPageChange?: (page: ComicPageInfo | null) => void
   onTocReady?: (toc: EreaderTocItem[]) => void
   onClose?: () => void
   onError?: () => void
@@ -120,7 +122,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
       if (!isComic || pageIndex < 0) return
 
       currentComicPageIndexRef.current = pageIndex
-      onComicPageChangeRef.current?.(getComicPageFilename(tocRef.current, pageIndex))
+      onComicPageChangeRef.current?.(getComicPageInfo(tocRef.current, pageIndex))
     },
     [isComic]
   )

@@ -1,6 +1,12 @@
 import type { FoliateRelocateDetail, FoliateRendererElement } from '@/components/ereader/foliate'
 import type { EreaderTocItem } from '@/lib/ereader/ereaderToc'
 
+export interface ComicPageInfo {
+  pageIndex: number
+  totalPages: number
+  filename: string | null
+}
+
 export function getComicPageIndex(detail: FoliateRelocateDetail): number | null {
   const index = detail.section?.current ?? detail.index
   return typeof index === 'number' ? index : null
@@ -9,6 +15,16 @@ export function getComicPageIndex(detail: FoliateRelocateDetail): number | null 
 export function getComicPageFilename(toc: EreaderTocItem[], pageIndex: number): string | null {
   if (pageIndex < 0 || pageIndex >= toc.length) return null
   return toc[pageIndex]?.href ?? null
+}
+
+export function getComicPageInfo(toc: EreaderTocItem[], pageIndex: number): ComicPageInfo | null {
+  if (pageIndex < 0 || toc.length === 0) return null
+
+  return {
+    pageIndex,
+    totalPages: toc.length,
+    filename: getComicPageFilename(toc, pageIndex)
+  }
 }
 
 export function getComicDownloadBasename(path: string): string {
