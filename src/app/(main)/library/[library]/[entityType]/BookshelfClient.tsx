@@ -328,7 +328,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                   const entityIndex = startIndex + k
                   return (
                     <config.CardComponent
-                      key={`card-wrapper-${item.id}`}
+                      key={`card-wrapper-${entityIndex}`}
                       entity={item}
                       bookshelfView={bookshelfView}
                       width={currentCardWidth}
