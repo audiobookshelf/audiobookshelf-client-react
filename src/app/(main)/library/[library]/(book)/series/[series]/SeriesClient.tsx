@@ -1,48 +1,33 @@
 'use client'
 
+import BookshelfClient from '@/app/(main)/library/[library]/[entityType]/BookshelfClient'
 import { readdSeriesToContinueListeningAction } from '@/app/actions/mediaActions'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
-import SelectableShelfMediaCard from '@/components/widgets/media-card/SelectableShelfMediaCard'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
-import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
+import { useSeriesBooksQuery } from '@/hooks/useSeriesBooksQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { applyLibraryItemUpdateToList } from '@/lib/libraryItemUpdatedUtils'
-import { BookshelfView, GetLibraryItemsResponse, RssFeed, Series } from '@/types/api'
+import { RssFeed, Series } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState, useTransition } from 'react'
 
 interface SeriesClientProps {
   series: Series
-  libraryItems: GetLibraryItemsResponse
 }
 
-export default function SeriesClient({ series, libraryItems }: SeriesClientProps) {
+export default function SeriesClient({ series }: SeriesClientProps) {
   const router = useRouter()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { library, collapseBookSeries, showSubtitles, updateSetting, setItemCount, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } =
-    useLibrary()
-  const { user, serverSettings, ereaderDevices, getMediaItemProgress, userIsAdminOrUp } = useUser()
+  const { library, collapseBookSeries, showSubtitles, updateSetting, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
+  const { user, userIsAdminOrUp } = useUser()
 
-  const [items, setItems] = useState(libraryItems.results)
+  const seriesBooksQuery = useSeriesBooksQuery(series.id)
 
-  useEffect(() => {
-    setItems(libraryItems.results)
-  }, [libraryItems.results])
-
-  useLibraryItemUpdated(
-    library.id,
-    useCallback((updatedItem) => {
-      setItems((prev) => applyLibraryItemUpdateToList(prev, updatedItem))
-    }, [])
-  )
   const [isReaddingSeries, startReaddSeriesTransition] = useTransition()
   const isSeriesRemovedFromContinueListening = user.seriesHideFromContinueListening.includes(series.id)
-
-  const bookTotal = libraryItems.total ?? items.length
 
   const [rssFeed, setRssFeed] = useState<RssFeed | null>(series.rssFeed ?? null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
@@ -70,14 +55,12 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
 
   useLayoutEffect(() => {
     setDetailToolbarTitle(series.name)
-    setItemCount(bookTotal)
 
     return () => {
       setDetailToolbarTitle(null)
-      setItemCount(null)
       setContextMenuItems([])
     }
-  }, [bookTotal, series.name, setContextMenuItems, setDetailToolbarTitle, setItemCount])
+  }, [series.name, setContextMenuItems, setDetailToolbarTitle])
 
   const openRssModal = useCallback(() => {
     setRssFeedModalOpen(true)
@@ -107,8 +90,10 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
         updateSetting('showSubtitles', true)
       } else if (action === 'hide-subtitles') {
         updateSetting('showSubtitles', false)
-      } else if (action === 'collapse-sub-series' || action === 'expand-sub-series') {
-        showToast('Not implemented', { type: 'warning' })
+      } else if (action === 'collapse-sub-series') {
+        updateSetting('collapseBookSeries', true)
+      } else if (action === 'expand-sub-series') {
+        updateSetting('collapseBookSeries', false)
       } else if (action === 'mark-series-finished') {
         showToast('Not implemented', { type: 'warning' })
       }
@@ -162,29 +147,8 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
   )
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-4">
-        {items.map((libraryItem, entityIndex) => {
-          const entityProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
-          return (
-            <SelectableShelfMediaCard
-              key={libraryItem.id}
-              scopeId={`series:${series.id}`}
-              libraryItem={libraryItem}
-              cardType="book"
-              bookshelfView={BookshelfView.DETAIL}
-              dateFormat={serverSettings.dateFormat}
-              timeFormat={serverSettings.timeFormat}
-              userPermissions={user.permissions}
-              ereaderDevices={ereaderDevices}
-              showSubtitles={showSubtitles}
-              mediaProgress={entityProgress}
-              shelfEntities={items}
-              entityIndex={entityIndex}
-            />
-          )
-        })}
-      </div>
+    <div className="h-full w-full">
+      <BookshelfClient entityType="items" queryOverride={seriesBooksQuery} registerToolbar={false} />
 
       <RssFeedOpenCloseModal
         isOpen={rssFeedModalOpen}
