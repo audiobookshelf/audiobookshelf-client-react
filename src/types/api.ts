@@ -321,6 +321,12 @@ export interface AuthorResponse {
 // SERIES
 // ============================================================================
 
+export interface SeriesProgress {
+  libraryItemIds: string[]
+  libraryItemIdsFinished: string[]
+  isFinished: boolean
+}
+
 export interface Series {
   id: string
   name: string
@@ -340,6 +346,8 @@ export interface Series {
   books?: LibraryItem[]
   /** if available (expanded only) */
   rssFeed?: RssFeed
+  /** aggregate read progress for books in the series (`?include=progress`) */
+  progress?: SeriesProgress
   /** library items (author page endpoint only) */
   items?: LibraryItem[]
 }

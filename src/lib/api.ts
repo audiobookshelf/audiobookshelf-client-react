@@ -607,7 +607,7 @@ export const getCollection = cache(async (collectionId: string): Promise<Collect
 })
 
 export const getSeries = cache(async (libraryId: string, seriesId: string): Promise<Series> => {
-  return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}?include=rssfeed`)
+  return apiRequest<Series>(`/api/libraries/${libraryId}/series/${seriesId}?include=progress,rssfeed`)
 })
 
 // Paginated entity list functions for bookshelf views

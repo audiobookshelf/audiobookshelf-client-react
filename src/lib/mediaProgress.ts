@@ -32,6 +32,12 @@ export function getMediaItemProgress(mediaProgress: MediaProgress[], libraryItem
   return mediaProgress.find((p) => p.libraryItemId === libraryItemId && !p.episodeId) ?? null
 }
 
+/** True when every book in the series has finished progress (matches server series progress). */
+export function computeIsSeriesFinished(mediaProgress: MediaProgress[], libraryItemIds: readonly string[]): boolean {
+  if (libraryItemIds.length === 0) return false
+  return libraryItemIds.every((libraryItemId) => getMediaItemProgress(mediaProgress, libraryItemId)?.isFinished)
+}
+
 /** Average progress (0–1) across books in a collapsed sub-series card. */
 export function computeCollapsedSeriesProgress(mediaProgress: MediaProgress[], libraryItemIds: readonly string[]): number {
   if (libraryItemIds.length === 0) return 0

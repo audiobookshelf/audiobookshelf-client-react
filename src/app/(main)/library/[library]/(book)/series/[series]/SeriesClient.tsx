@@ -1,14 +1,16 @@
 'use client'
 
 import BookshelfClient from '@/app/(main)/library/[library]/[entityType]/BookshelfClient'
-import { readdSeriesToContinueListeningAction } from '@/app/actions/mediaActions'
+import { markSeriesFinishedAction, readdSeriesToContinueListeningAction } from '@/app/actions/mediaActions'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useSeriesBooksQuery } from '@/hooks/useSeriesBooksQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { computeIsSeriesFinished } from '@/lib/mediaProgress'
 import { RssFeed, Series } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState, useTransition } from 'react'
@@ -17,17 +19,28 @@ interface SeriesClientProps {
   series: Series
 }
 
-export default function SeriesClient({ series }: SeriesClientProps) {
+export default function SeriesClient({ series: seriesProp }: SeriesClientProps) {
   const router = useRouter()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { library, collapseBookSeries, showSubtitles, updateSetting, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
   const { user, userIsAdminOrUp } = useUser()
 
-  const seriesBooksQuery = useSeriesBooksQuery(series.id)
+  const seriesBooksQuery = useSeriesBooksQuery(seriesProp.id)
+
+  const [series, setSeries] = useState(seriesProp)
+  const [markSeriesConfirmOpen, setMarkSeriesConfirmOpen] = useState(false)
+
+  useEffect(() => {
+    setSeries(seriesProp)
+  }, [seriesProp])
 
   const [isReaddingSeries, startReaddSeriesTransition] = useTransition()
+  const [isMarkingSeriesFinished, startMarkSeriesFinishedTransition] = useTransition()
   const isSeriesRemovedFromContinueListening = user.seriesHideFromContinueListening.includes(series.id)
+
+  const seriesLibraryItemIds = useMemo(() => series.progress?.libraryItemIds ?? [], [series.progress?.libraryItemIds])
+  const isSeriesFinished = useMemo(() => computeIsSeriesFinished(user.mediaProgress, seriesLibraryItemIds), [seriesLibraryItemIds, user.mediaProgress])
 
   const [rssFeed, setRssFeed] = useState<RssFeed | null>(series.rssFeed ?? null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
@@ -80,6 +93,36 @@ export default function SeriesClient({ series }: SeriesClientProps) {
     })
   }, [isReaddingSeries, series.id, showToast, t])
 
+  const openMarkSeriesFinishedConfirm = useCallback(() => {
+    if (isMarkingSeriesFinished || seriesLibraryItemIds.length === 0) return
+    setMarkSeriesConfirmOpen(true)
+  }, [isMarkingSeriesFinished, seriesLibraryItemIds.length])
+
+  const confirmMarkSeriesFinished = useCallback(() => {
+    if (isMarkingSeriesFinished || seriesLibraryItemIds.length === 0) return
+
+    const newIsFinished = !isSeriesFinished
+
+    startMarkSeriesFinishedTransition(async () => {
+      try {
+        await markSeriesFinishedAction(
+          library.id,
+          series.id,
+          seriesLibraryItemIds.map((libraryItemId) => ({
+            libraryItemId,
+            isFinished: newIsFinished
+          }))
+        )
+
+        showToast(t('ToastSeriesUpdateSuccess'), { type: 'success' })
+        setMarkSeriesConfirmOpen(false)
+      } catch (error) {
+        console.error('Failed to batch update series finished state', error)
+        showToast(t('ToastSeriesUpdateFailed'), { type: 'error' })
+      }
+    })
+  }, [isMarkingSeriesFinished, isSeriesFinished, library.id, series.id, seriesLibraryItemIds, showToast, t])
+
   const handleToolbarMenuAction = useCallback(
     (action: string) => {
       if (action === 'openRssFeed') {
@@ -95,19 +138,21 @@ export default function SeriesClient({ series }: SeriesClientProps) {
       } else if (action === 'expand-sub-series') {
         updateSetting('collapseBookSeries', false)
       } else if (action === 'mark-series-finished') {
-        showToast('Not implemented', { type: 'warning' })
+        openMarkSeriesFinishedConfirm()
       }
     },
-    [openRssModal, reAddSeriesToContinueListening, showToast, updateSetting]
+    [openMarkSeriesFinishedConfirm, openRssModal, reAddSeriesToContinueListening, updateSetting]
   )
 
   useEffect(() => {
-    const menuItems: { text: string; action: string }[] = [
-      {
-        text: t('MessageMarkAsFinished'),
+    const menuItems: { text: string; action: string }[] = []
+
+    if (seriesLibraryItemIds.length > 0) {
+      menuItems.push({
+        text: t(isSeriesFinished ? 'MessageMarkAsNotFinished' : 'MessageMarkAsFinished'),
         action: 'mark-series-finished'
-      }
-    ]
+      })
+    }
 
     if (userIsAdminOrUp || rssFeed) {
       menuItems.push({ text: t('LabelOpenRSSFeed'), action: 'openRssFeed' })
@@ -129,7 +174,18 @@ export default function SeriesClient({ series }: SeriesClientProps) {
     }
 
     setContextMenuItems(menuItems)
-  }, [collapseBookSeries, isSeriesRemovedFromContinueListening, library.mediaType, rssFeed, setContextMenuItems, showSubtitles, t, userIsAdminOrUp])
+  }, [
+    collapseBookSeries,
+    isSeriesFinished,
+    isSeriesRemovedFromContinueListening,
+    library.mediaType,
+    rssFeed,
+    seriesLibraryItemIds.length,
+    setContextMenuItems,
+    showSubtitles,
+    t,
+    userIsAdminOrUp
+  ])
 
   useEffect(() => {
     setContextMenuActionHandler(handleToolbarMenuAction)
@@ -158,6 +214,14 @@ export default function SeriesClient({ series }: SeriesClientProps) {
           setRssFeed(feed)
           router.refresh()
         }}
+      />
+
+      <ConfirmDialog
+        isOpen={markSeriesConfirmOpen}
+        message={t(isSeriesFinished ? 'MessageConfirmMarkSeriesNotFinished' : 'MessageConfirmMarkSeriesFinished')}
+        processing={isMarkingSeriesFinished}
+        onClose={() => setMarkSeriesConfirmOpen(false)}
+        onConfirm={confirmMarkSeriesFinished}
       />
     </div>
   )
