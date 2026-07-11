@@ -16,6 +16,7 @@ interface MediaCardFrameProps {
   /** Props merged onto the root (e.g. dnd-kit `attributes`). `onKeyDown` / `tabIndex` are merged explicitly. */
   sortableFrameProps?: HTMLAttributes<HTMLDivElement>
   onClick?: (event: React.MouseEvent) => void
+  onMouseDown?: (event: ReactMouseEvent) => void
   onPointerDown?: (event: ReactPointerEvent) => void
   onPointerUp?: (event: ReactPointerEvent) => void
   onPointerCancel?: (event: ReactPointerEvent) => void
@@ -34,6 +35,8 @@ interface MediaCardFrameProps {
   className?: string
   'cy-id'?: string
   'aria-selected'?: boolean
+  /** Disables text selection on the card (e.g. multi-select mode). */
+  suppressTextSelection?: boolean
 }
 
 export default function MediaCardFrame({
@@ -42,6 +45,7 @@ export default function MediaCardFrame({
   rootRef,
   sortableFrameProps,
   onClick,
+  onMouseDown,
   onPointerDown,
   onPointerUp,
   onPointerCancel,
@@ -58,7 +62,8 @@ export default function MediaCardFrame({
   aspectRatio,
   className,
   'cy-id': cyId = 'mediaCard',
-  'aria-selected': ariaSelected
+  'aria-selected': ariaSelected,
+  suppressTextSelection = false
 }: MediaCardFrameProps) {
   const { onKeyDown: sortableOnKeyDown, tabIndex: sortableTabIndex, ...sortableRest } = sortableFrameProps ?? {}
 
@@ -71,6 +76,7 @@ export default function MediaCardFrame({
       {...sortableRest}
       tabIndex={sortableTabIndex ?? 0}
       onClick={onClick}
+      onMouseDown={onMouseDown}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerCancel}
@@ -86,6 +92,7 @@ export default function MediaCardFrame({
       className={mergeClasses(
         'relative z-30 rounded-xs',
         onClick && 'cursor-pointer',
+        suppressTextSelection && 'select-none',
         'focus-visible:outline-foreground-muted focus-visible:outline-1 focus-visible:outline-offset-[0.5em]',
         className
       )}

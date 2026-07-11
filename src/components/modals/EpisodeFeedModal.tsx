@@ -4,8 +4,10 @@ import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useShiftClickTextSelectionGuard } from '@/hooks/useShiftClickTextSelectionGuard'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatDuration } from '@/lib/formatDuration'
+import { mergeClasses } from '@/lib/merge-classes'
 import { applyShiftClickSelection } from '@/lib/shiftClickSelection'
 import { bytesPretty } from '@/lib/string'
 import { PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@/types/api'
@@ -53,6 +55,10 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
   const [selectedEpisodes, setSelectedEpisodes] = useState<Set<string>>(new Set())
   const [selectAll, setSelectAll] = useState(false)
   const lastSelectedEpisodeUrlRef = useRef<string | null>(null)
+  const { onMouseDown: episodeRowMouseDown, suppressTextSelection } = useShiftClickTextSelectionGuard({
+    enabled: true,
+    selectionActive: selectedEpisodes.size > 0
+  })
 
   const itemEpisodes = useMemo(() => libraryItem.media.episodes || [], [libraryItem.media.episodes])
 
@@ -325,7 +331,15 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
             return (
               <div
                 key={episode.guid || episode.cleanUrl}
-                className={`border-border relative flex cursor-pointer items-center border-b last:border-0 ${bgClass}`}
+                className={mergeClasses(
+                  'border-border relative flex cursor-pointer items-center border-b last:border-0',
+                  bgClass,
+                  suppressTextSelection && 'select-none'
+                )}
+                onMouseDown={(e) => {
+                  if (episode.isDownloaded || episode.isDownloading) return
+                  episodeRowMouseDown?.(e)
+                }}
                 onClick={(e) => {
                   if (episode.isDownloaded || episode.isDownloading) return
                   selectEpisode(episode, !isSelected, e.shiftKey, index)

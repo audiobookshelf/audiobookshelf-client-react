@@ -1,5 +1,6 @@
 'use client'
 
+import { useShiftClickTextSelectionGuard } from '@/hooks/useShiftClickTextSelectionGuard'
 import { mergeClasses } from '@/lib/merge-classes'
 import React, { useId, useRef } from 'react'
 import InputWrapper from './InputWrapper'
@@ -35,6 +36,7 @@ export default function Checkbox({
 }: CheckboxProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const shiftKeyRef = useRef(false)
+  const { onPointerDown: guardPointerDown } = useShiftClickTextSelectionGuard({ enabled: true })
 
   const checkboxId = useId()
 
@@ -54,6 +56,7 @@ export default function Checkbox({
 
   const handlePointerDown = (e: React.PointerEvent) => {
     shiftKeyRef.current = e.shiftKey
+    guardPointerDown?.(e)
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

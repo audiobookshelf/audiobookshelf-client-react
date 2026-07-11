@@ -23,6 +23,7 @@ import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { isDragOnlyOverlay, useSortableBookshelfOverlay } from '@/contexts/SortableBookshelfOverlayContext'
 import { useCoarsePointer } from '@/hooks/useMediaQuery'
+import { useShiftClickTextSelectionGuard } from '@/hooks/useShiftClickTextSelectionGuard'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
 import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
@@ -140,6 +141,11 @@ function MediaCard(props: MediaCardProps) {
   selectionSelectHandlerRef.current = onSelect
   const bookshelfSelection = useBookshelfSelectionOptional()
   const tabFocusPendingRef = useRef(false)
+  const hasSelectionHandler = Boolean(onSelect)
+  const { onMouseDown: selectionMouseDown, suppressTextSelection } = useShiftClickTextSelectionGuard({
+    enabled: hasSelectionHandler,
+    selectionActive: isSelectionMode
+  })
 
   useEffect(() => {
     const markTabFocus = (event: globalThis.KeyboardEvent) => {
@@ -485,7 +491,6 @@ function MediaCard(props: MediaCardProps) {
   }, [clearLongPressTimer])
 
   const navigateOnCardClick = !processing && !isDragOnlyOverlay(overlayMode)
-  const hasSelectionHandler = Boolean(onSelect)
   const cardClickHandler = navigateOnCardClick || (isSelectionMode && hasSelectionHandler) ? handleCardClick : undefined
   const cardKeyDownHandler = navigateOnCardClick || hasSelectionHandler ? handleCardKeyDown : undefined
   const cardFocusHandler = hasSelectionHandler ? handleCardFocus : undefined
@@ -513,7 +518,9 @@ function MediaCard(props: MediaCardProps) {
         sortableFrameProps={dragOptions?.sortableFrameProps}
         className={dragOptions ? 'group' : undefined}
         aria-selected={hasSelectionHandler && isSelectionMode ? selected : undefined}
+        suppressTextSelection={suppressTextSelection}
         onClick={cardClickHandler}
+        onMouseDown={selectionMouseDown}
         onPointerDown={pointerHandlers?.onPointerDown}
         onPointerUp={pointerHandlers?.onPointerUp}
         onPointerCancel={pointerHandlers?.onPointerCancel}
