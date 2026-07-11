@@ -26,7 +26,12 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   const isLibraryItemPage = pathname.includes('/item/')
   const isBatchEditPage = pathname.endsWith('/batch')
   const showCoverSizeWidget =
-    !isLibraryItemPage && !pathname.endsWith('/latest') && !pathname.endsWith('/download-queue') && !pathname.endsWith('/stats') && !isBatchEditPage
+    !isLibraryItemPage &&
+    !pathname.endsWith('/latest') &&
+    !pathname.endsWith('/download-queue') &&
+    !pathname.endsWith('/stats') &&
+    !pathname.endsWith('/narrators') &&
+    !isBatchEditPage
 
   useEffect(() => {
     if (library) {
