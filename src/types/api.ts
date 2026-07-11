@@ -365,6 +365,7 @@ export interface CollapsedSeries {
   id: string
   name?: string
   nameIgnorePrefix?: string
+  libraryItemIds?: string[]
   numBooks?: number
   seriesSequenceList?: string
 }

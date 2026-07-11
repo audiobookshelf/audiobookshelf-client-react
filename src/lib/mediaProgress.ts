@@ -32,6 +32,22 @@ export function getMediaItemProgress(mediaProgress: MediaProgress[], libraryItem
   return mediaProgress.find((p) => p.libraryItemId === libraryItemId && !p.episodeId) ?? null
 }
 
+/** Average progress (0–1) across books in a collapsed sub-series card. */
+export function computeCollapsedSeriesProgress(mediaProgress: MediaProgress[], libraryItemIds: readonly string[]): number {
+  if (libraryItemIds.length === 0) return 0
+
+  let progressPercent = 0
+  for (const libraryItemId of libraryItemIds) {
+    const progress = getMediaItemProgress(mediaProgress, libraryItemId)
+    if (progress) {
+      const useEbookProgress = !progress.progress && progress.ebookProgress > 0
+      progressPercent += progress.isFinished ? 1 : useEbookProgress ? progress.ebookProgress || 0 : progress.progress || 0
+    }
+  }
+
+  return progressPercent / libraryItemIds.length
+}
+
 /** Progress rows for one podcast library item, keyed by podcast episode id (mediaItemId) */
 export function buildPodcastEpisodeProgressMap(podcastLibraryItemId: string, mediaProgress: MediaProgress[]): Map<string, MediaProgress> {
   const map = new Map<string, MediaProgress>()
