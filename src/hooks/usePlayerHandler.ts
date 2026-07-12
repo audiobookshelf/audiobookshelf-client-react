@@ -164,7 +164,7 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
     setPlayerState(PlayerState.ERROR)
   }, [])
 
-  const { startSession, closeSession, syncProgress, startSyncInterval, stopSyncInterval } = usePlaybackSession({
+  const { startSession, closeSession, syncProgress, startSyncInterval, stopSyncInterval, getSessionId } = usePlaybackSession({
     onSessionReady: handleSessionReady,
     onError: handleSessionError
   })
@@ -269,8 +269,8 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
 
   const load = useCallback(
     async (libraryItem: LibraryItem, episodeId?: string | null, startTimeOverride?: number) => {
-      // Close existing session if any
-      if (sessionId) {
+      // Close existing session if any (use session ref, not React state, to avoid stale/double close)
+      if (getSessionId()) {
         stopSyncInterval()
         await closeSession(() => playerRef.current?.getCurrentTime() ?? 0)
       }
@@ -288,7 +288,7 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
       // Start session - this will trigger handleSessionReady which starts playback
       await startSession(libraryItem, playerRef.current.playableMimeTypes, episodeId ?? undefined, startTimeOverride)
     },
-    [sessionId, closeSession, stopSyncInterval, setupPlayerListeners, startSession]
+    [closeSession, getSessionId, stopSyncInterval, setupPlayerListeners, startSession]
   )
 
   const play = useCallback(() => {
