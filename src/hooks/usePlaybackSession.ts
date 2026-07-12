@@ -1,6 +1,7 @@
 import { closePlaybackSession, startPlaybackSession, syncPlaybackSession } from '@/app/actions/playbackActions'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { ApiError } from '@/lib/apiErrors'
 import { generateUUID } from '@/lib/cryptoUtils'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { FIRST_SYNC_DELAY, SUBSEQUENT_SYNC_INTERVAL } from '@/lib/player/constants'
@@ -242,6 +243,8 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
 
         await closePlaybackSession(session.id, syncData)
       } catch (error) {
+        // Session may already be closed when switching queue items quickly
+        if (error instanceof ApiError && error.status === 404) return
         console.error('[usePlaybackSession] Failed to close session:', error)
       } finally {
         sessionRef.current = null
