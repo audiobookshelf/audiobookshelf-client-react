@@ -71,10 +71,13 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
   const jumpBackwardTooltipText = getJumpTooltipText(t('ButtonJumpBackward'), settings.jumpBackwardAmount)
   const jumpForwardTooltipText = getJumpTooltipText(t('ButtonJumpForward'), settings.jumpForwardAmount)
   const hasNext = !!nextChapter || hasNextItemInQueue
-  const nextQueueTooltipText = isPodcast ? t('ButtonNextEpisodeInQueue') : t('ButtonNextBookInQueue')
-  const nextButtonTooltipText = hasNextItemInQueue && !nextChapter ? nextQueueTooltipText : t('ButtonNextChapter')
-
   const useEpisodeNavigation = isPodcast && chapters.length === 0
+  const nextQueueTooltipText = isPodcast ? t('ButtonNextEpisodeInQueue') : t('ButtonNextBookInQueue')
+  const nextButtonTooltipText = useEpisodeNavigation
+    ? t('ButtonNextEpisodeInQueue')
+    : hasNextItemInQueue && !nextChapter
+      ? nextQueueTooltipText
+      : t('ButtonNextChapter')
   const previousQueueTooltipText = isPodcast ? t('ButtonPreviousEpisodeInQueue') : t('ButtonPreviousBookInQueue')
   const previousButtonTooltipText = useEpisodeNavigation
     ? hasPreviousItemInQueue
