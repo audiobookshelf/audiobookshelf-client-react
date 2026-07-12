@@ -4,7 +4,6 @@ import { getExpandedLibraryItemAction, getPodcastEpisodeAction } from '@/app/act
 import type { ModalProps } from '@/components/modals/Modal'
 import Modal from '@/components/modals/Modal'
 import ModalSideNavigation from '@/components/modals/ModalSideNavigation'
-import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEpisodeNavigationContext } from '@/hooks/useEpisodeNavigationContext'
 import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
@@ -51,7 +50,6 @@ export default function EpisodeModal(props: EpisodeModalProps) {
 
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { library } = useLibrary()
   const [fetchedEpisode, setFetchedEpisode] = useState<PodcastEpisode | null>(null)
   const [fetchedLibraryItem, setFetchedLibraryItem] = useState<PodcastLibraryItem | null>(null)
   const [isNavPending, startNavTransition] = useTransition()
@@ -99,6 +97,7 @@ export default function EpisodeModal(props: EpisodeModalProps) {
 
   const resolvedEpisode = navCtxMode ? fetchedEpisode : (directEpisode ?? null)
   const resolvedLibraryItem = navCtxMode ? fetchedLibraryItem : (directLibraryItem ?? null)
+  const libraryId = resolvedLibraryItem?.libraryId ?? ''
 
   const syncResolvedEpisode = useCallback(
     (episode: PodcastEpisode, libraryItem?: PodcastLibraryItem) => {
@@ -122,10 +121,10 @@ export default function EpisodeModal(props: EpisodeModalProps) {
   )
 
   useLibraryItemUpdated(
-    library.id,
+    libraryId,
     useCallback(
       (libraryItem) => {
-        if (!navCtxMode || !isOpen || !resolvedEpisode) return
+        if (!libraryId || !navCtxMode || !isOpen || !resolvedEpisode) return
         if (libraryItem.id !== resolvedLibraryItem?.id) return
         const episode = (libraryItem as PodcastLibraryItem).media.episodes?.find((ep) => ep.id === resolvedEpisode.id)
         if (episode) {
@@ -133,7 +132,7 @@ export default function EpisodeModal(props: EpisodeModalProps) {
           setFetchedLibraryItem(libraryItem as PodcastLibraryItem)
         }
       },
-      [navCtxMode, isOpen, resolvedEpisode, resolvedLibraryItem?.id]
+      [isOpen, libraryId, navCtxMode, resolvedEpisode, resolvedLibraryItem?.id]
     )
   )
 
