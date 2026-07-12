@@ -3,6 +3,8 @@
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
 import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
+import { useMediaSession } from '@/hooks/useMediaSession'
+import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -22,6 +24,16 @@ export default function MediaPlayerContainer() {
   const { streamLibraryItem, clearStreamMedia, playerHandler } = useMediaContext()
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
+
+  const { handleNext, handlePrevious } = usePlayerChapterQueueNavigation(playerHandler, streamLibraryItem)
+
+  useMediaSession({
+    libraryItem: streamLibraryItem,
+    playerHandler,
+    onPreviousTrack: handlePrevious,
+    onNextTrack: handleNext,
+    enabled: !!streamLibraryItem
+  })
 
   const coverPath = streamLibraryItem?.media?.coverPath
   const accentSourceUrl = useMemo(

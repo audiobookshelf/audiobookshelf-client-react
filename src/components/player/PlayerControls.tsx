@@ -2,9 +2,10 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
 import { useSleepTimer } from '@/hooks/useSleepTimer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { isPodcastLibraryItem, LibraryItem, PlayerState } from '@/types/api'
+import { LibraryItem, PlayerState } from '@/types/api'
 import { useCallback, useMemo, useState } from 'react'
 import IconBtn from '../ui/IconBtn'
 import Tooltip from '../ui/Tooltip'
@@ -25,7 +26,15 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { getBookmarksForLibraryItem } = useUser()
-  const { playerQueueItems, hasNextItemInQueue, hasPreviousItemInQueue, playNextInQueue, playPreviousInQueue } = useMediaContext()
+  const { playerQueueItems } = useMediaContext()
+  const {
+    handleNext: handleNextChapter,
+    handlePrevious: handlePreviousChapter,
+    hasNextItemInQueue,
+    hasPreviousItemInQueue,
+    isPodcast,
+    chapters
+  } = usePlayerChapterQueueNavigation(playerHandler, streamLibraryItem)
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isChaptersModalOpen, setIsChaptersModalOpen] = useState(false)
   const [isBookmarksModalOpen, setIsBookmarksModalOpen] = useState(false)
@@ -33,7 +42,7 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false)
   const [bookmarkCurrentTime, setBookmarkCurrentTime] = useState(0)
   const { jumpBackward, jumpForward, playPause, seek, pause } = playerHandler.controls
-  const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings, chapters } = playerHandler.state
+  const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings } = playerHandler.state
 
   const handleSleepTimerEnd = useCallback(() => {
     showToast(t('ToastSleepTimerDone'), { type: 'info' })
@@ -49,7 +58,6 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
     })
 
   const libraryItemId = streamLibraryItem.id
-  const isPodcast = isPodcastLibraryItem(streamLibraryItem)
   const bookmarks = useMemo(() => getBookmarksForLibraryItem(libraryItemId), [libraryItemId, getBookmarksForLibraryItem])
 
   const isPlaying = playerState === PlayerState.PLAYING
@@ -75,40 +83,6 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
     : hasPreviousItemInQueue && !previousChapter
       ? previousQueueTooltipText
       : t('ButtonPreviousChapter')
-
-  const handleNextChapter = () => {
-    if (nextChapter) {
-      seek(nextChapter.start)
-    } else if (hasNextItemInQueue) {
-      void playNextInQueue()
-    }
-  }
-
-  const handlePreviousChapter = () => {
-    if (chapters.length > 0) {
-      if (previousChapter) {
-        // if time in current chapter is less than 3 seconds then seek to start of previous chapter
-        // otherwise seek to start of current chapter
-        const currentChapterStart = currentChapter?.start ?? 0
-        const timeInCurrentChapter = currentTime - currentChapterStart
-        if (timeInCurrentChapter <= 3) {
-          seek(previousChapter.start)
-        } else {
-          seek(currentChapterStart)
-        }
-      } else {
-        seek(0)
-      }
-      return
-    }
-
-    if (hasPreviousItemInQueue && currentTime <= 3) {
-      void playPreviousInQueue()
-      return
-    }
-
-    seek(0)
-  }
 
   return (
     <>
