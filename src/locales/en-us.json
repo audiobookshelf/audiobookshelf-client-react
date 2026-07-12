@@ -858,6 +858,7 @@
   "MessageBookshelfNoResultsForQuery": "No results for query",
   "MessageBookshelfNoSeries": "You have no series",
   "MessageBulkChapterPattern": "How many chapters would you like to add with this numbering pattern?",
+  "MessageCastingRequiresHttps": "Casting requires a secure connection",
   "MessageChapterEndIsAfter": "Chapter end is after the end of your audiobook",
   "MessageChapterErrorFirstNotZero": "First chapter must start at 0",
   "MessageChapterErrorStartGteDuration": "Invalid start time must be less than audiobook duration",

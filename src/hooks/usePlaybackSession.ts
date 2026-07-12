@@ -30,9 +30,21 @@ interface UsePlaybackSessionOptions {
   getCurrentTime?: () => number
 }
 
+export interface StartSessionOptions {
+  mediaPlayer?: StartSessionPayload['mediaPlayer']
+  forceDirectPlay?: boolean
+  forceTranscode?: boolean
+}
+
 interface UsePlaybackSessionReturn {
   /** Start a new playback session */
-  startSession: (libraryItem: LibraryItem, supportedMimeTypes: string[], episodeId?: string, startTimeOverride?: number) => Promise<PlaybackSession | null>
+  startSession: (
+    libraryItem: LibraryItem,
+    supportedMimeTypes: string[],
+    episodeId?: string,
+    startTimeOverride?: number,
+    options?: StartSessionOptions
+  ) => Promise<PlaybackSession | null>
   /** Sync progress to server */
   syncProgress: (currentTime: number, options?: { force?: boolean }) => Promise<void>
   /** Close the current session */
@@ -78,7 +90,13 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
    * Start a new playback session
    */
   const startSession = useCallback(
-    async (libraryItem: LibraryItem, supportedMimeTypes: string[], episodeId?: string, startTimeOverride?: number): Promise<PlaybackSession | null> => {
+    async (
+      libraryItem: LibraryItem,
+      supportedMimeTypes: string[],
+      episodeId?: string,
+      startTimeOverride?: number,
+      options: StartSessionOptions = {}
+    ): Promise<PlaybackSession | null> => {
       try {
         const payload: StartSessionPayload = {
           deviceInfo: {
@@ -86,9 +104,9 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
             deviceId: getDeviceId()
           },
           supportedMimeTypes,
-          mediaPlayer: 'html5',
-          forceTranscode: false,
-          forceDirectPlay: false
+          mediaPlayer: options.mediaPlayer ?? 'html5',
+          forceTranscode: options.forceTranscode ?? false,
+          forceDirectPlay: options.forceDirectPlay ?? false
         }
 
         const session = await startPlaybackSession(libraryItem.id, payload, episodeId)

@@ -1,10 +1,39 @@
-import { usePlaybackSession } from '@/hooks/usePlaybackSession'
+import { subscribeCastSessionActive } from '@/contexts/ChromecastContext'
+import { usePlaybackSession, type StartSessionOptions } from '@/hooks/usePlaybackSession'
 import { usePlayerSettings, type PlayerSettings, type UsePlayerSettingsReturn } from '@/hooks/usePlayerSettings'
 import { AudioTrack } from '@/lib/player/AudioTrack'
+import { CastPlayer } from '@/lib/player/CastPlayer'
+import { getCastRemotePlayerHandles } from '@/lib/player/chromecastConstants'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
 import type { Chapter, LibraryItem, PlaybackSession, PlayMethod } from '@/types/api'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
+
+type PlayerBackend = LocalAudioPlayer | CastPlayer
+type PlayerKind = 'local' | 'cast'
+
+function createPlayerInstance(kind: PlayerKind): PlayerBackend {
+  if (kind === 'cast') {
+    const handles = getCastRemotePlayerHandles()
+    if (!handles) {
+      console.warn('[usePlayerHandler] Cast remote player unavailable, falling back to local player')
+      return new LocalAudioPlayer()
+    }
+    return new CastPlayer(handles)
+  }
+  return new LocalAudioPlayer()
+}
+
+function getSessionOptions(kind: PlayerKind): StartSessionOptions {
+  return {
+    mediaPlayer: kind === 'cast' ? 'chromecast' : 'html5',
+    forceDirectPlay: kind === 'cast'
+  }
+}
+
+interface UsePlayerHandlerOptions {
+  isCasting?: boolean
+}
 
 export interface PlayerHandlerState {
   /** Current player state */
@@ -87,9 +116,12 @@ export interface UsePlayerHandlerReturn extends PlayerHandler {
 /**
  * Hook that manages the audio player and playback sessions.
  * This is the main orchestrator for audio playback - it instantiates
- * the LocalAudioPlayer and coordinates with the server for session management.
+ * the LocalAudioPlayer or CastPlayer and coordinates with the server for session management.
  */
-export function usePlayerHandler(): UsePlayerHandlerReturn {
+export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlayerHandlerReturn {
+  const isCastingRef = useRef(options.isCasting ?? false)
+  isCastingRef.current = options.isCasting ?? false
+
   const onPlaybackFinishedRef = useRef<(() => void) | undefined>(undefined)
 
   const setOnPlaybackFinished = useCallback((handler: (() => void) | undefined) => {
@@ -112,9 +144,11 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
   const [chapters, setChapters] = useState<Chapter[]>([])
 
   // Refs
-  const playerRef = useRef<LocalAudioPlayer | null>(null)
+  const playerRef = useRef<PlayerBackend | null>(null)
+  const playerKindRef = useRef<PlayerKind>('local')
   const audioTracksRef = useRef<AudioTrack[]>([])
   const libraryItemRef = useRef<LibraryItem | null>(null)
+  const episodeIdRef = useRef<string | null>(null)
 
   // Refs for values needed in callbacks (to avoid stale closures)
   const playbackRateRef = useRef(settings.playbackRate)
@@ -152,11 +186,17 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
 
     audioTracksRef.current = audioTracks
 
-    // Start playback
     const item = libraryItemRef.current
-    if (playerRef.current && item) {
-      playerRef.current.set(item, audioTracks, hlsTranscode, session.currentTime, true)
-    }
+    const player = playerRef.current
+    if (!player || !item) return
+
+    void (async () => {
+      if (playerKindRef.current === 'cast') {
+        await player.set(item, audioTracks, hlsTranscode, session.currentTime, true)
+      } else {
+        player.set(item, audioTracks, hlsTranscode, session.currentTime, true)
+      }
+    })()
   }, [])
 
   const handleSessionError = useCallback((error: Error) => {
@@ -177,7 +217,7 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
   // ============================================================================
 
   const setupPlayerListeners = useCallback(
-    (player: LocalAudioPlayer) => {
+    (player: PlayerBackend) => {
       player.on('stateChange', (state) => {
         setPlayerState(state)
 
@@ -263,6 +303,48 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
     }
   }, [])
 
+  const switchPlayer = useCallback(
+    async (targetKind: PlayerKind) => {
+      const item = libraryItemRef.current
+      if (!item) return
+
+      const resumeTime = playerRef.current?.getCurrentTime() ?? 0
+      const episodeId = episodeIdRef.current
+
+      stopSyncInterval()
+      if (getSessionId()) {
+        await closeSession(() => playerRef.current?.getCurrentTime() ?? resumeTime)
+      }
+
+      playerRef.current?.destroy()
+      playerRef.current = null
+
+      setPlayerState(PlayerState.LOADING)
+
+      const player = createPlayerInstance(targetKind)
+      playerRef.current = player
+      playerKindRef.current = targetKind
+      setupPlayerListeners(player)
+
+      await startSession(item, player.playableMimeTypes, episodeId ?? undefined, resumeTime, getSessionOptions(targetKind))
+    },
+    [closeSession, getSessionId, setupPlayerListeners, startSession, stopSyncInterval]
+  )
+
+  useEffect(() => {
+    return subscribeCastSessionActive((isActive) => {
+      if (!libraryItemRef.current) return
+
+      queueMicrotask(() => {
+        if (isActive && playerKindRef.current === 'local') {
+          void switchPlayer('cast')
+        } else if (!isActive && playerKindRef.current === 'cast') {
+          void switchPlayer('local')
+        }
+      })
+    })
+  }, [switchPlayer])
+
   // ============================================================================
   // Controls
   // ============================================================================
@@ -277,16 +359,20 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
 
       // Store reference to library item
       libraryItemRef.current = libraryItem
+      episodeIdRef.current = episodeId ?? null
       setPlayerState(PlayerState.LOADING)
 
-      // Initialize player if needed
-      if (!playerRef.current) {
-        playerRef.current = new LocalAudioPlayer()
+      const targetKind: PlayerKind = isCastingRef.current && getCastRemotePlayerHandles() ? 'cast' : 'local'
+
+      if (!playerRef.current || playerKindRef.current !== targetKind) {
+        playerRef.current?.destroy()
+        playerRef.current = createPlayerInstance(targetKind)
+        playerKindRef.current = targetKind
         setupPlayerListeners(playerRef.current)
       }
 
       // Start session - this will trigger handleSessionReady which starts playback
-      await startSession(libraryItem, playerRef.current.playableMimeTypes, episodeId ?? undefined, startTimeOverride)
+      await startSession(libraryItem, playerRef.current.playableMimeTypes, episodeId ?? undefined, startTimeOverride, getSessionOptions(targetKind))
     },
     [closeSession, getSessionId, stopSyncInterval, setupPlayerListeners, startSession]
   )
@@ -307,7 +393,7 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
     (time: number) => {
       if (!playerRef.current) return
       const isPlaying = playerState === PlayerState.PLAYING
-      playerRef.current.seek(time, isPlaying)
+      void Promise.resolve(playerRef.current.seek(time, isPlaying))
       setCurrentTime(time)
     },
     [playerState]
@@ -379,6 +465,8 @@ export function usePlayerHandler(): UsePlayerHandlerReturn {
     setIsHlsTranscode(false)
     audioTracksRef.current = []
     libraryItemRef.current = null
+    episodeIdRef.current = null
+    playerKindRef.current = 'local'
   }, [closeSession, stopSyncInterval])
 
   return {
