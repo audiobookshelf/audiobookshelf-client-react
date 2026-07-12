@@ -377,7 +377,9 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                 <div key={episode.id} className="absolute w-full" style={{ top: rowIndex * EPISODE_ROW_HEIGHT_PX }}>
                   <EpisodeRow
                     episode={episode}
-                    libraryItemId={libraryItem.id}
+                    libraryItem={libraryItem}
+                    episodesInOrder={filteredEpisodes}
+                    episodeIndex={rowIndex}
                     sortKey={sortKey}
                     isSelected={selectedEpisodes.has(episode.id)}
                     isSelectionMode={isSelectionMode}

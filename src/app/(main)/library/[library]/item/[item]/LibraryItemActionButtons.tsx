@@ -146,7 +146,7 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, onOpenCo
 
   const contextMenuItems = useMemo<ContextMenuDropdownItem<string>[]>(() => {
     return moreMenuItems
-      .filter((item) => item.func !== 'toggleFinished')
+      .filter((item) => item.func !== 'toggleFinished' && item.func !== 'addToQueue' && item.func !== 'removeFromQueue')
       .map((item) => ({
         text: item.text,
         action: item.func ?? '',

@@ -629,7 +629,7 @@ export function useMediaCardActions({
       })
     }
 
-    if (!isPodcast && libraryItemIdStreaming && !isStreamingFromDifferentLib) {
+    if ((!isPodcast || episodeForQueue) && libraryItemIdStreaming && !isStreamingFromDifferentLib) {
       if (!isQueued) {
         items.push({
           text: t('ButtonQueueAddItem'),
