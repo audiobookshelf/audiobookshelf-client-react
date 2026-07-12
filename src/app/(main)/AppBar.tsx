@@ -2,8 +2,9 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import ChromecastLauncher from '@/components/widgets/ChromecastLauncher'
 import NotificationWidget from '@/components/widgets/NotificationWidget'
-import { useMediaContext } from '@/contexts/MediaContext'
+import { useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -27,7 +28,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const userCanUpload = user.permissions.upload
   const [isSearchMode, setIsSearchMode] = useState(false)
   // When not on a library page, use the last current library id when navigating home
-  const { lastCurrentLibraryId } = useMediaContext()
+  const { lastCurrentLibraryId } = useMediaNavigation()
 
   const handleSearchModeToggle = useCallback(() => {
     setIsSearchMode((prev) => !prev)
@@ -97,6 +98,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
         )}
 
         <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
+          <ChromecastLauncher libraryId={currentLibraryId} />
           <NotificationWidget />
 
           {isAdmin && (

@@ -2,6 +2,7 @@
 
 import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
+import { useChromecast } from '@/contexts/ChromecastContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { usePlayerHandler, type PlayerHandler } from '@/hooks/usePlayerHandler'
 import { isPodcastLibraryItem, LibraryItem, LibraryItemRemovedPayload, PlayerState } from '@/types/api'
@@ -18,11 +19,12 @@ export interface PlayerQueueItem {
   coverPath: string | null
 }
 
-interface MediaContextValue {
-  // Current library state (used for navigation when not on a library page to go back to the last library)
+interface MediaNavigationContextValue {
   lastCurrentLibraryId: string | null
   setLastCurrentLibraryId: (libraryId: string) => void
+}
 
+interface MediaContextValue {
   // Stream state
   streamLibraryItem: LibraryItem | null
   streamEpisodeId: string | null
@@ -55,6 +57,7 @@ interface MediaContextValue {
   playerHandler: PlayerHandler
 }
 
+const MediaNavigationContext = createContext<MediaNavigationContextValue | undefined>(undefined)
 const MediaContext = createContext<MediaContextValue | undefined>(undefined)
 
 const LOCAL_STORAGE_AUTO_PLAY_KEY = 'playerQueueAutoPlay'
@@ -82,7 +85,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const playerQueueAutoPlayRef = useRef(playerQueueAutoPlay)
   playerQueueAutoPlayRef.current = playerQueueAutoPlay
 
-  const { state: playerState, controls: playerControls, setOnPlaybackFinished } = usePlayerHandler()
+  const { isCasting } = useChromecast()
+  const { state: playerState, controls: playerControls, setOnPlaybackFinished } = usePlayerHandler({ isCasting })
 
   const libraryItemIdStreaming = useMemo(() => streamLibraryItem?.id ?? null, [streamLibraryItem])
 
@@ -373,12 +377,16 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   // Context Value
   // ============================================================================
 
+  const navigationValue = useMemo(
+    (): MediaNavigationContextValue => ({
+      lastCurrentLibraryId,
+      setLastCurrentLibraryId
+    }),
+    [lastCurrentLibraryId, setLastCurrentLibraryId]
+  )
+
   const value: MediaContextValue = useMemo(
     () => ({
-      // Current library state
-      lastCurrentLibraryId,
-      setLastCurrentLibraryId,
-
       // Stream state
       streamLibraryItem,
       streamEpisodeId,
@@ -414,8 +422,6 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       }
     }),
     [
-      lastCurrentLibraryId,
-      setLastCurrentLibraryId,
       streamLibraryItem,
       streamEpisodeId,
       playerQueueItems,
@@ -442,11 +448,21 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <MediaContext.Provider value={value}>
-      {children}
-      <MediaPlayerContainer />
-    </MediaContext.Provider>
+    <MediaNavigationContext.Provider value={navigationValue}>
+      <MediaContext.Provider value={value}>
+        {children}
+        <MediaPlayerContainer />
+      </MediaContext.Provider>
+    </MediaNavigationContext.Provider>
   )
+}
+
+export function useMediaNavigation(): MediaNavigationContextValue {
+  const ctx = useContext(MediaNavigationContext)
+  if (!ctx) {
+    throw new Error('useMediaNavigation must be used within a MediaProvider')
+  }
+  return ctx
 }
 
 export function useMediaContext(): MediaContextValue {
