@@ -37,3 +37,8 @@ export function downloadBackup(backupId: string, filename?: string) {
 export function downloadLibraryOpml(libraryId: string) {
   downloadByUrl(`/internal-api/libraries/${libraryId}/opml`, { openInNewTab: true })
 }
+
+export function downloadLibraryItems(libraryId: string, libraryItemIds: string[]) {
+  if (!libraryItemIds.length) return
+  downloadByUrl(`/internal-api/libraries/${libraryId}/download?ids=${encodeURIComponent(libraryItemIds.join(','))}`)
+}

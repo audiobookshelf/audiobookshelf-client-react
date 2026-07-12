@@ -1,50 +1,21 @@
 import { getServerBaseUrl } from '@/lib/api'
-import { attachRefreshedSessionCookies, fetchBackendWithCookieRefresh, respondProxyFailure } from '@/lib/serverBackendProxy'
+import { proxyBackendBufferedResponse } from '@/lib/serverBackendProxy'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 /**
- * Proxy endpoint for library file image requests
+ * Proxy endpoint for library file image requests.
  *
- * This route acts as a proxy to the backend server, using the httpOnly
- * access_token cookie for authentication instead of requiring a token
- * in the URL query parameter.
- *
- * This approach:
- * - Keeps tokens secure (httpOnly cookies, not in URLs)
- * - Refreshes expired access tokens so <img> previews keep working
- * - Works seamlessly with <img> tags (browsers send cookies automatically)
+ * Uses httpOnly cookies for auth and token refresh so `<img>` previews keep working.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; fileId: string }> }) {
   const { id, fileId } = await params
   const cookieStore = await cookies()
+  const backendUrl = `${getServerBaseUrl()}/api/items/${id}/file/${fileId}`
 
-  try {
-    const baseUrl = getServerBaseUrl()
-    const backendUrl = `${baseUrl}/api/items/${id}/file/${fileId}`
-
-    const result = await fetchBackendWithCookieRefresh(backendUrl, cookieStore)
-    if (!result.ok) {
-      return respondProxyFailure(request, result)
-    }
-
-    const { upstream: response, refreshedTokens } = result
-
-    const imageBuffer = await response.arrayBuffer()
-    const contentType = response.headers.get('content-type') || 'application/octet-stream'
-
-    return attachRefreshedSessionCookies(
-      new NextResponse(imageBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': contentType,
-          'Cache-Control': 'public, max-age=31536000, immutable'
-        }
-      }),
-      refreshedTokens
-    )
-  } catch (error) {
-    console.error('[FileProxy] Error fetching file:', error)
-    return NextResponse.json({ error: 'Failed to fetch file' }, { status: 500 })
-  }
+  return proxyBackendBufferedResponse(request, cookieStore, backendUrl, {
+    logLabel: 'FileProxy',
+    errorMessage: 'Failed to fetch file',
+    cacheControl: 'public, max-age=31536000, immutable'
+  })
 }

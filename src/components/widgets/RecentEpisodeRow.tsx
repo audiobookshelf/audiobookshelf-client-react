@@ -218,9 +218,8 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
           isOpen={playlistsModalOpen}
           onClose={closePlaylistsModal}
           libraryId={episode.libraryId}
-          libraryItemId={episode.libraryItemId}
-          episodeId={episode.id}
-          itemTitle={episode.title}
+          items={[{ libraryItemId: episode.libraryItemId, episodeId: episode.id }]}
+          headerTitle={episode.title}
         />
       )}
 

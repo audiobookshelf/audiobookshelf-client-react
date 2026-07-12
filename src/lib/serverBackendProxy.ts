@@ -200,3 +200,122 @@ export function respondProxyFailure(request: NextRequest, result: Extract<Backen
   }
   return attachRefreshedSessionCookies(NextResponse.json({ error: result.error }, { status: result.status }), result.refreshedTokens)
 }
+
+type ProxyBackendResponseOptions = {
+  logLabel: string
+  errorMessage: string
+}
+
+type ProxyBackendStreamingOptions = ProxyBackendResponseOptions & {
+  emptyBodyError?: string
+  defaultContentType?: string
+  /** Omit header when false. When omitted, uses upstream Content-Disposition or `attachment`. */
+  contentDisposition?: string | false
+  cacheControl?: string
+}
+
+type ProxyBackendBufferedOptions = ProxyBackendResponseOptions & {
+  defaultContentType?: string
+  cacheControl: string
+  contentDisposition?: string
+}
+
+/**
+ * Proxy a backend response stream through internal-api (cookie auth + token refresh).
+ */
+export async function proxyBackendStreamingResponse(
+  request: NextRequest,
+  cookieStore: CookieStore,
+  backendUrl: string,
+  options: ProxyBackendStreamingOptions
+): Promise<NextResponse> {
+  try {
+    const result = await fetchBackendWithCookieRefresh(backendUrl, cookieStore)
+    if (!result.ok) {
+      return respondProxyFailure(request, result)
+    }
+
+    const { upstream: response, refreshedTokens } = result
+
+    if (!response.body) {
+      return attachRefreshedSessionCookies(
+        NextResponse.json({ error: options.emptyBodyError ?? 'Backend returned empty response stream' }, { status: 502 }),
+        refreshedTokens
+      )
+    }
+
+    const contentType = response.headers.get('content-type') || options.defaultContentType || 'application/octet-stream'
+    const contentDisposition =
+      options.contentDisposition === false ? null : (options.contentDisposition ?? response.headers.get('content-disposition') ?? 'attachment')
+    const contentLength = response.headers.get('content-length')
+
+    return attachRefreshedSessionCookies(
+      new NextResponse(response.body, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          ...(contentDisposition ? { 'Content-Disposition': contentDisposition } : {}),
+          ...(contentLength ? { 'Content-Length': contentLength } : {}),
+          'Cache-Control': options.cacheControl ?? 'no-cache'
+        }
+      }),
+      refreshedTokens
+    )
+  } catch (error) {
+    console.error(`[${options.logLabel}] Error fetching response:`, error)
+    return NextResponse.json({ error: options.errorMessage }, { status: 500 })
+  }
+}
+
+/**
+ * Proxy a backend download stream through internal-api (cookie auth + token refresh).
+ * Used by `<a href>` download routes so browsers keep working when the access token expires.
+ */
+export async function proxyBackendStreamingDownload(
+  request: NextRequest,
+  cookieStore: CookieStore,
+  backendUrl: string,
+  options: ProxyBackendResponseOptions
+): Promise<NextResponse> {
+  return proxyBackendStreamingResponse(request, cookieStore, backendUrl, {
+    ...options,
+    emptyBodyError: 'Backend returned empty download stream'
+  })
+}
+
+/**
+ * Proxy a backend response buffered in memory (cookie auth + token refresh).
+ * Used for smaller assets like ebook previews and file thumbnails.
+ */
+export async function proxyBackendBufferedResponse(
+  request: NextRequest,
+  cookieStore: CookieStore,
+  backendUrl: string,
+  options: ProxyBackendBufferedOptions
+): Promise<NextResponse> {
+  try {
+    const result = await fetchBackendWithCookieRefresh(backendUrl, cookieStore)
+    if (!result.ok) {
+      return respondProxyFailure(request, result)
+    }
+
+    const { upstream: response, refreshedTokens } = result
+    const body = await response.arrayBuffer()
+    const contentType = response.headers.get('content-type') || options.defaultContentType || 'application/octet-stream'
+
+    return attachRefreshedSessionCookies(
+      new NextResponse(body, {
+        status: 200,
+        headers: {
+          'Content-Type': contentType,
+          ...(options.contentDisposition ? { 'Content-Disposition': options.contentDisposition } : {}),
+          'Cache-Control': options.cacheControl
+        }
+      }),
+      refreshedTokens
+    )
+  } catch (error) {
+    console.error(`[${options.logLabel}] Error fetching response:`, error)
+    return NextResponse.json({ error: options.errorMessage }, { status: 500 })
+  }
+}

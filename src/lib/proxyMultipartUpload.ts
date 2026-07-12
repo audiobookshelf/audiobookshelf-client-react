@@ -9,6 +9,11 @@ type MultipartProxyOptions = {
   forwardJsonResponse?: boolean
 }
 
+type MultipartProxyRouteOptions = MultipartProxyOptions & {
+  logLabel: string
+  errorMessage: string
+}
+
 /**
  * Pipe a multipart upload from the browser to the backend with cookie auth.
  */
@@ -43,4 +48,23 @@ export async function proxyMultipartUpload(
   }
 
   return attachRefreshedSessionCookies(new NextResponse(null, { status: 200 }), result.refreshedTokens)
+}
+
+/**
+ * Multipart upload proxy with route-level error handling.
+ */
+export async function proxyMultipartUploadRoute(
+  request: NextRequest,
+  backendUrl: string,
+  cookieStore: CookieStore,
+  options: MultipartProxyRouteOptions
+): Promise<NextResponse> {
+  const { logLabel, errorMessage, ...uploadOptions } = options
+
+  try {
+    return await proxyMultipartUpload(request, backendUrl, cookieStore, uploadOptions)
+  } catch (error) {
+    console.error(`[${logLabel}] Error uploading:`, error)
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
+  }
 }

@@ -116,7 +116,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
         </div>
       </header>
-      <AppBarSelectionOverlay />
+      <AppBarSelectionOverlay libraryId={currentLibraryId} />
     </div>
   )
 }

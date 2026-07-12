@@ -28,6 +28,10 @@ export function getSelectionCountMessageKey(kind: SelectionKind): 'MessageBooksS
   }
 }
 
+export function getAddToPlaylistBatchLabelKey(kind: SelectionKind): 'LabelAddToPlaylistBatchBooks' | 'LabelAddToPlaylistBatchEpisodes' {
+  return kind === 'episode' ? 'LabelAddToPlaylistBatchEpisodes' : 'LabelAddToPlaylistBatchBooks'
+}
+
 export function libraryItemSelectionKey(libraryItemId: string): string {
   return `li:${libraryItemId}`
 }
@@ -88,4 +92,8 @@ export interface SelectionKeySource {
 
 export function orderedSelectionKeysFromSources(sources: readonly SelectionKeySource[]): string[] {
   return sources.map((source) => getSelectionKey({ libraryItemId: source.libraryItem.id, episodeId: source.episode?.id }))
+}
+
+export function getUniqueLibraryItemIds(selectedItems: readonly SelectedMediaItem[]): string[] {
+  return [...new Set(selectedItems.map((item) => item.libraryItemId))]
 }

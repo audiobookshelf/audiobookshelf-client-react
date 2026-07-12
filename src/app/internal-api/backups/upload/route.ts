@@ -1,22 +1,18 @@
 import { getServerBaseUrl } from '@/lib/api'
-import { proxyMultipartUpload } from '@/lib/proxyMultipartUpload'
+import { proxyMultipartUploadRoute } from '@/lib/proxyMultipartUpload'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest } from 'next/server'
 
 /**
  * Proxy endpoint for backup archive uploads.
- *
- * Uses httpOnly cookies for auth and pipes multipart data to the backend.
  */
 export async function POST(request: NextRequest) {
   const cookieStore = await cookies()
+  const backendUrl = `${getServerBaseUrl()}/api/backups/upload`
 
-  try {
-    const baseUrl = getServerBaseUrl()
-    const backendUrl = `${baseUrl}/api/backups/upload`
-    return await proxyMultipartUpload(request, backendUrl, cookieStore, { forwardJsonResponse: true })
-  } catch (error) {
-    console.error('[BackupUploadProxy] Error uploading backup:', error)
-    return NextResponse.json({ error: 'Failed to upload backup' }, { status: 500 })
-  }
+  return proxyMultipartUploadRoute(request, backendUrl, cookieStore, {
+    forwardJsonResponse: true,
+    logLabel: 'BackupUploadProxy',
+    errorMessage: 'Failed to upload backup'
+  })
 }

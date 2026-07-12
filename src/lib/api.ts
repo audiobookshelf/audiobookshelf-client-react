@@ -86,6 +86,9 @@ import {
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
+  BatchGetLibraryItemsResponse,
+  BatchUpdateLibraryItemPayload,
+  BatchUpdateLibraryItemsResponse,
   UpdatePodcastEpisodePayload,
   UploadCoverResponse,
   User,
@@ -841,6 +844,20 @@ export async function updateLibraryItemMedia(libraryItemId: string, updatePayloa
   })
 }
 
+export async function batchGetLibraryItems(libraryItemIds: string[]): Promise<BatchGetLibraryItemsResponse> {
+  return apiRequest<BatchGetLibraryItemsResponse>('/api/items/batch/get', {
+    method: 'POST',
+    body: JSON.stringify({ libraryItemIds })
+  })
+}
+
+export async function batchUpdateLibraryItems(payload: BatchUpdateLibraryItemPayload[]): Promise<BatchUpdateLibraryItemsResponse> {
+  return apiRequest<BatchUpdateLibraryItemsResponse>('/api/items/batch/update', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
 /**
  * Update media finished state for a library item (and optional episode)
  */
@@ -882,6 +899,40 @@ export async function batchUpdateMediaFinished(payload: { libraryItemId: string;
   return apiRequest<void>('/api/me/progress/batch/update', {
     method: 'PATCH',
     body: JSON.stringify(payload)
+  })
+}
+
+export interface BatchQuickMatchOptions {
+  provider?: string
+  overrideCover?: boolean
+  overrideDetails?: boolean
+}
+
+export async function batchDeleteLibraryItems(libraryItemIds: string[], hardDelete: boolean): Promise<void> {
+  return apiRequest<void>(`/api/items/batch/delete?hard=${hardDelete ? 1 : 0}`, {
+    method: 'POST',
+    body: JSON.stringify({ libraryItemIds })
+  })
+}
+
+export async function batchScanLibraryItems(libraryItemIds: string[]): Promise<void> {
+  return apiRequest<void>('/api/items/batch/scan', {
+    method: 'POST',
+    body: JSON.stringify({ libraryItemIds })
+  })
+}
+
+export async function batchQuickMatchLibraryItems(libraryItemIds: string[], options: BatchQuickMatchOptions): Promise<void> {
+  return apiRequest<void>('/api/items/batch/quickmatch', {
+    method: 'POST',
+    body: JSON.stringify({ libraryItemIds, options })
+  })
+}
+
+export async function batchEmbedMetadata(libraryItemIds: string[]): Promise<void> {
+  return apiRequest<void>('/api/tools/batch/embed-metadata', {
+    method: 'POST',
+    body: JSON.stringify({ libraryItemIds })
   })
 }
 
@@ -1298,6 +1349,20 @@ export async function addBookToCollection(collectionId: string, libraryItemId: s
 export async function removeBookFromCollection(collectionId: string, libraryItemId: string): Promise<Collection> {
   return apiRequest<Collection>(`/api/collections/${collectionId}/book/${libraryItemId}`, {
     method: 'DELETE'
+  })
+}
+
+export async function batchAddBooksToCollection(collectionId: string, books: string[]): Promise<Collection> {
+  return apiRequest<Collection>(`/api/collections/${collectionId}/batch/add`, {
+    method: 'POST',
+    body: JSON.stringify({ books })
+  })
+}
+
+export async function batchRemoveBooksFromCollection(collectionId: string, books: string[]): Promise<Collection> {
+  return apiRequest<Collection>(`/api/collections/${collectionId}/batch/remove`, {
+    method: 'POST',
+    body: JSON.stringify({ books })
   })
 }
 

@@ -11,66 +11,78 @@ import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCov
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
-import type { Playlist } from '@/types/api'
+import { getAddToPlaylistBatchLabelKey, getSelectionCountMessageKey, type SelectionKind } from '@/lib/selectedMediaItem'
+import type { Playlist, PlaylistItemPayload } from '@/types/api'
 import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-type PlaylistRow = Playlist & { isItemIncluded: boolean }
+type PlaylistRow = Playlist & { allItemsIncluded: boolean }
 
 interface AddToPlaylistModalProps {
   isOpen: boolean
   onClose: () => void
   libraryId: string
-  libraryItemId: string
-  /** Podcast episode when adding an episode */
-  episodeId?: string | null
-  itemTitle: string
+  items: PlaylistItemPayload[]
+  /** Single-item outer header title; ignored when multiple items are selected */
+  headerTitle?: string
+  /** Used for batch outer header when multiple items are selected */
+  selectionKind?: SelectionKind
 }
 
-function playlistHasItem(playlist: Playlist, libraryItemId: string, episodeId: string | null) {
-  const items = playlist.items ?? []
-  if (episodeId) {
-    return items.some((i) => i.libraryItemId === libraryItemId && i.episodeId === episodeId)
-  }
-  return items.some((i) => i.libraryItemId === libraryItemId && !i.episodeId)
+function playlistIncludesAllItems(playlist: Playlist, items: readonly PlaylistItemPayload[]) {
+  const playlistItems = playlist.items ?? []
+  return items.every((item) =>
+    playlistItems.some((playlistItem) => playlistItem.libraryItemId === item.libraryItemId && (playlistItem.episodeId ?? null) === (item.episodeId ?? null))
+  )
 }
 
-export default function AddToPlaylistModal({ isOpen, onClose, libraryId, libraryItemId, episodeId = null, itemTitle }: AddToPlaylistModalProps) {
+export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, headerTitle, selectionKind }: AddToPlaylistModalProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [loadingInitial, setLoadingInitial] = useState(true)
   const [isMutating, setIsMutating] = useState(false)
   const [playlists, setPlaylists] = useState<Playlist[]>([])
   const [newPlaylistName, setNewPlaylistName] = useState('')
+  const loadedLibraryIdRef = useRef<string | null>(null)
+  const showToastRef = useRef(showToast)
+  const tRef = useRef(t)
+  showToastRef.current = showToast
+  tRef.current = t
 
-  // Playlist covers are always square
   const coverWidth = 64
   const coverHeight = 64
-
-  const itemPayload = useMemo(() => [{ libraryItemId, episodeId: episodeId ?? null }] as const, [libraryItemId, episodeId])
+  const isBatch = items.length > 1
+  const itemCount = items.length
 
   const sortedPlaylists = useMemo((): PlaylistRow[] => {
     return [...playlists]
-      .map((p): PlaylistRow => ({
-        ...p,
-        isItemIncluded: playlistHasItem(p, libraryItemId, episodeId)
+      .map((playlist): PlaylistRow => ({
+        ...playlist,
+        allItemsIncluded: playlistIncludesAllItems(playlist, items)
       }))
       .sort((a, b) => {
-        if (a.isItemIncluded !== b.isItemIncluded) {
-          return a.isItemIncluded ? -1 : 1
+        if (a.allItemsIncluded !== b.allItemsIncluded) {
+          return a.allItemsIncluded ? -1 : 1
         }
         return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
       })
-  }, [playlists, libraryItemId, episodeId])
+  }, [items, playlists])
 
-  /**
-   * Load list only when the modal opens or the library changes
-   */
   useEffect(() => {
-    if (!isOpen) return
-    setPlaylists([])
-    setNewPlaylistName('')
-    setLoadingInitial(true)
+    if (!isOpen) {
+      loadedLibraryIdRef.current = null
+      return
+    }
+
+    const isFreshOpen = loadedLibraryIdRef.current !== libraryId
+    loadedLibraryIdRef.current = libraryId
+
+    if (isFreshOpen) {
+      setPlaylists([])
+      setNewPlaylistName('')
+      setLoadingInitial(true)
+    }
+
     let cancelled = false
     void (async () => {
       try {
@@ -79,8 +91,8 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
       } catch (error) {
         if (!cancelled) {
           console.error('Failed to load playlists', error)
-          showToast(t('ToastFailedToLoadData'), { type: 'error' })
-          setPlaylists([])
+          showToastRef.current(tRef.current('ToastFailedToLoadData'), { type: 'error' })
+          if (isFreshOpen) setPlaylists([])
         }
       } finally {
         if (!cancelled) setLoadingInitial(false)
@@ -89,11 +101,10 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, libraryId])
 
   const mergeUpdatedPlaylist = useCallback((updated: Playlist) => {
-    setPlaylists((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
+    setPlaylists((prev) => prev.map((playlist) => (playlist.id === updated.id ? updated : playlist)))
   }, [])
 
   const handleAdd = useCallback(
@@ -101,8 +112,9 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
       setIsMutating(true)
       void (async () => {
         try {
-          const updated = await batchAddToPlaylistAction(playlist.id, [...itemPayload])
+          const updated = await batchAddToPlaylistAction(playlist.id, [...items])
           mergeUpdatedPlaylist(updated)
+          if (isBatch) showToast(t('ToastPlaylistUpdateSuccess'), { type: 'success' })
         } catch (error) {
           console.error('Failed to add to playlist', error)
           showToast(t('ToastFailedToUpdate'), { type: 'error' })
@@ -111,7 +123,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
         }
       })()
     },
-    [itemPayload, mergeUpdatedPlaylist, showToast, t]
+    [isBatch, items, mergeUpdatedPlaylist, showToast, t]
   )
 
   const handleRemove = useCallback(
@@ -119,8 +131,9 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
       setIsMutating(true)
       void (async () => {
         try {
-          const updated = await batchRemoveFromPlaylistAction(playlist.id, [...itemPayload])
+          const updated = await batchRemoveFromPlaylistAction(playlist.id, [...items])
           mergeUpdatedPlaylist(updated)
+          if (isBatch) showToast(t('ToastPlaylistUpdateSuccess'), { type: 'success' })
         } catch (error) {
           console.error('Failed to remove from playlist', error)
           showToast(t('ToastFailedToUpdate'), { type: 'error' })
@@ -129,7 +142,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
         }
       })()
     },
-    [itemPayload, mergeUpdatedPlaylist, showToast, t]
+    [isBatch, items, mergeUpdatedPlaylist, showToast, t]
   )
 
   const handleCreatePlaylist = useCallback(
@@ -137,21 +150,23 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
       e?.preventDefault()
       const name = newPlaylistName.trim()
       if (!name) return
+
       setIsMutating(true)
       void (async () => {
         try {
           const created = await createPlaylistAction({
             libraryId,
             name,
-            items: [...itemPayload]
+            items: [...items]
           })
           setPlaylists((prev) => {
-            if (prev.some((p) => p.id === created.id)) {
-              return prev.map((p) => (p.id === created.id ? created : p))
+            if (prev.some((playlist) => playlist.id === created.id)) {
+              return prev.map((playlist) => (playlist.id === created.id ? created : playlist))
             }
             return [...prev, created]
           })
           setNewPlaylistName('')
+          if (isBatch) showToast(t('ToastPlaylistCreateSuccess'), { type: 'success' })
         } catch (error) {
           console.error('Failed to create playlist', error)
           const message = error instanceof ApiError ? error.message : t('ToastPlaylistCreateFailed')
@@ -161,13 +176,15 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
         }
       })()
     },
-    [libraryId, itemPayload, newPlaylistName, showToast, t]
+    [isBatch, items, libraryId, newPlaylistName, showToast, t]
   )
+
+  const outerHeaderText = isBatch ? t(getSelectionCountMessageKey(selectionKind ?? 'book'), { count: itemCount }) : (headerTitle ?? '')
 
   const outerContent = (
     <div className="absolute start-0 top-0 p-4">
-      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white" title={itemTitle}>
-        {itemTitle}
+      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white" title={outerHeaderText}>
+        {outerHeaderText}
       </p>
     </div>
   )
@@ -175,18 +192,26 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, library
   const controlsDisabled = loadingInitial || isMutating
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} processing={loadingInitial} outerContent={outerContent} className="max-w-lg sm:max-w-lg md:max-w-lg lg:max-w-lg">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      processing={loadingInitial && playlists.length === 0}
+      outerContent={outerContent}
+      className="max-w-lg sm:max-w-lg md:max-w-lg lg:max-w-lg"
+    >
       <div className="max-h-[80vh] w-full overflow-x-hidden overflow-y-auto rounded-lg">
         {isOpen && (
           <>
             <div className="px-4 pt-4 pb-2">
-              <h1 className="text-lg font-semibold">{t('LabelAddToPlaylist')}</h1>
+              <h1 className="text-lg font-semibold">
+                {isBatch ? t(getAddToPlaylistBatchLabelKey(selectionKind ?? 'book'), { 0: itemCount }) : t('LabelAddToPlaylist')}
+              </h1>
             </div>
 
             <div className="max-h-96 w-full overflow-x-hidden overflow-y-auto pt-4 pb-2">
               <div>
                 {sortedPlaylists.map((playlist) => {
-                  const included = playlist.isItemIncluded
+                  const included = playlist.allItemsIncluded
                   const playlistItems = playlist.items ?? []
                   return (
                     <div key={playlist.id} className="hover:bg-dropdown-item-hover relative flex items-center justify-start px-4 py-2">
