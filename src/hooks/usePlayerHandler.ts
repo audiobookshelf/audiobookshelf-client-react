@@ -137,6 +137,8 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
   const [duration, setDuration] = useState(0)
   const [bufferedTime, setBufferedTime] = useState(0)
   const [isHlsTranscode, setIsHlsTranscode] = useState(false)
+  const isHlsTranscodeRef = useRef(false)
+  isHlsTranscodeRef.current = isHlsTranscode
   const [playMethod, setPlayMethod] = useState<PlayMethod | null>(null)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [displayTitle, setDisplayTitle] = useState<string | null>(null)
@@ -181,6 +183,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       })
     )
     setPlayMethod(session.playMethod)
+    isHlsTranscodeRef.current = hlsTranscode
     setIsHlsTranscode(hlsTranscode)
     setDuration(session.duration)
 
@@ -211,6 +214,39 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const syncProgressRef = useRef(syncProgress)
   syncProgressRef.current = syncProgress
+
+  const isRetryingTranscodeRef = useRef(false)
+  const retryWithForceTranscodeRef = useRef<() => Promise<void>>(async () => {})
+
+  retryWithForceTranscodeRef.current = async () => {
+    const item = libraryItemRef.current
+    const player = playerRef.current
+    if (!item || !player) return
+    if (playerKindRef.current !== 'local' || isCastingRef.current) return
+    if (isHlsTranscodeRef.current || isRetryingTranscodeRef.current) return
+
+    isRetryingTranscodeRef.current = true
+
+    try {
+      console.log('[usePlayerHandler] Audio player error switching to HLS stream')
+
+      const resumeTime = player.getCurrentTime()
+      stopSyncInterval()
+
+      if (getSessionId()) {
+        await closeSession(() => resumeTime)
+      }
+
+      setPlayerState(PlayerState.LOADING)
+
+      await startSession(item, player.playableMimeTypes, episodeIdRef.current ?? undefined, undefined, {
+        ...getSessionOptions('local'),
+        forceTranscode: true
+      })
+    } finally {
+      isRetryingTranscodeRef.current = false
+    }
+  }
 
   // ============================================================================
   // Player Setup
@@ -256,7 +292,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
       player.on('error', (error) => {
         console.error('[usePlayerHandler] Player error:', error)
-        // TODO: Try switching to HLS transcode on error
+        void retryWithForceTranscodeRef.current()
       })
 
       player.on('finished', () => {
@@ -462,6 +498,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     setDisplayAuthor(null)
     setChapters([])
     setPlayMethod(null)
+    isHlsTranscodeRef.current = false
     setIsHlsTranscode(false)
     audioTracksRef.current = []
     libraryItemRef.current = null
