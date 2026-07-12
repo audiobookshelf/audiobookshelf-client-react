@@ -289,7 +289,7 @@ export default function BatchLibraryItemMapDetailsPanel({
             type="button"
             className={mergeClasses(
               'border-foreground/20 h-8 flex-1 rounded-s-md border shadow-md sm:w-32 sm:flex-none',
-              mapType !== 'overwrite' ? 'bg-bg text-foreground/30' : 'bg-primary text-white'
+              mapType !== 'overwrite' ? 'bg-bg text-foreground/30' : 'bg-primary text-foreground'
             )}
             onClick={() => setMapType('overwrite')}
           >
@@ -299,7 +299,7 @@ export default function BatchLibraryItemMapDetailsPanel({
             type="button"
             className={mergeClasses(
               'border-foreground/20 h-8 flex-1 rounded-e-md border shadow-md sm:w-32 sm:flex-none',
-              mapType !== 'append' ? 'bg-bg text-foreground/30' : 'bg-primary text-white'
+              mapType !== 'append' ? 'bg-bg text-foreground/30' : 'bg-primary text-foreground'
             )}
             onClick={() => setMapType('append')}
           >
