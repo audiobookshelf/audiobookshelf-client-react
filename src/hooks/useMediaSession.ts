@@ -48,30 +48,41 @@ export function useMediaSession({ libraryItem, playerHandler, onPreviousTrack, o
   const onNextTrackRef = useRef(onNextTrack)
   onNextTrackRef.current = onNextTrack
 
-  const { play, pause, jumpBackward, jumpForward, seek } = playerHandler.controls
+  const controlsRef = useRef(playerHandler.controls)
+  controlsRef.current = playerHandler.controls
+
   const { playerState, displayTitle, displayAuthor, chapters } = playerHandler.state
   const isPlaying = playerState === PlayerState.PLAYING
 
+  // Metadata only when track identity changes — not on every playback tick (Cast dialog reads this).
   useEffect(() => {
     if (!enabled || !libraryItem || !('mediaSession' in navigator)) return
 
     navigator.mediaSession.metadata = buildMediaMetadata(libraryItem, displayTitle, displayAuthor, chapters)
 
-    navigator.mediaSession.setActionHandler('play', () => play())
-    navigator.mediaSession.setActionHandler('pause', () => pause())
-    navigator.mediaSession.setActionHandler('stop', () => pause())
-    navigator.mediaSession.setActionHandler('seekbackward', () => jumpBackward())
-    navigator.mediaSession.setActionHandler('seekforward', () => jumpForward())
+    return () => {
+      navigator.mediaSession.metadata = null
+    }
+  }, [enabled, libraryItem, displayAuthor, displayTitle, chapters])
+
+  // Action handlers use refs so seek/jump callbacks changing with currentTime do not reset metadata.
+  useEffect(() => {
+    if (!enabled || !('mediaSession' in navigator)) return
+
+    navigator.mediaSession.setActionHandler('play', () => controlsRef.current.play())
+    navigator.mediaSession.setActionHandler('pause', () => controlsRef.current.pause())
+    navigator.mediaSession.setActionHandler('stop', () => controlsRef.current.pause())
+    navigator.mediaSession.setActionHandler('seekbackward', () => controlsRef.current.jumpBackward())
+    navigator.mediaSession.setActionHandler('seekforward', () => controlsRef.current.jumpForward())
     navigator.mediaSession.setActionHandler('seekto', (details) => {
       if (details.seekTime != null && !Number.isNaN(details.seekTime)) {
-        seek(details.seekTime)
+        controlsRef.current.seek(details.seekTime)
       }
     })
     navigator.mediaSession.setActionHandler('previoustrack', () => onPreviousTrackRef.current?.())
     navigator.mediaSession.setActionHandler('nexttrack', () => onNextTrackRef.current?.())
 
     return () => {
-      navigator.mediaSession.metadata = null
       for (const action of MEDIA_SESSION_ACTIONS) {
         try {
           navigator.mediaSession.setActionHandler(action, null)
@@ -80,7 +91,7 @@ export function useMediaSession({ libraryItem, playerHandler, onPreviousTrack, o
         }
       }
     }
-  }, [enabled, libraryItem, displayAuthor, displayTitle, chapters, jumpBackward, jumpForward, pause, play, seek])
+  }, [enabled])
 
   useEffect(() => {
     if (!enabled || !('mediaSession' in navigator)) return
