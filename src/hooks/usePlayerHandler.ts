@@ -1,11 +1,13 @@
 import { subscribeCastSessionActive } from '@/contexts/ChromecastContext'
+import { useSocketEvent } from '@/contexts/SocketContext'
 import { usePlaybackSession, type StartSessionOptions } from '@/hooks/usePlaybackSession'
 import { usePlayerSettings, type PlayerSettings, type UsePlayerSettingsReturn } from '@/hooks/usePlayerSettings'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { CastPlayer } from '@/lib/player/CastPlayer'
 import { getCastRemotePlayerHandles } from '@/lib/player/chromecastConstants'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
-import type { Chapter, LibraryItem, PlaybackSession, PlayMethod } from '@/types/api'
+import { computeTranscodePercentReady } from '@/lib/player/streamProgressUtils'
+import type { Chapter, LibraryItem, PlaybackSession, PlayMethod, StreamProgressPayload } from '@/types/api'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -44,6 +46,8 @@ export interface PlayerHandlerState {
   duration: number
   /** Buffered time in seconds */
   bufferedTime: number
+  /** HLS transcode segments ready on server (0–1); direct play stays at 1 */
+  transcodePercentReady: number
   /** Current volume (0-1) */
   volume: number
   /** Whether using HLS transcode */
@@ -136,6 +140,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [bufferedTime, setBufferedTime] = useState(0)
+  const [transcodePercentReady, setTranscodePercentReady] = useState(1)
   const [isHlsTranscode, setIsHlsTranscode] = useState(false)
   const isHlsTranscodeRef = useRef(false)
   isHlsTranscodeRef.current = isHlsTranscode
@@ -185,6 +190,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     setPlayMethod(session.playMethod)
     isHlsTranscodeRef.current = hlsTranscode
     setIsHlsTranscode(hlsTranscode)
+    setTranscodePercentReady(hlsTranscode ? 0 : 1)
     setDuration(session.duration)
 
     audioTracksRef.current = audioTracks
@@ -214,6 +220,24 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const syncProgressRef = useRef(syncProgress)
   syncProgressRef.current = syncProgress
+
+  const handleStreamProgress = useCallback(
+    (data: StreamProgressPayload) => {
+      if (playerKindRef.current !== 'local' || !isHlsTranscodeRef.current) return
+      if (getSessionId() !== data.stream || !data.numSegments) return
+
+      setTranscodePercentReady(computeTranscodePercentReady(data.chunks, data.numSegments))
+    },
+    [getSessionId]
+  )
+
+  const handleStreamReady = useCallback(() => {
+    if (playerKindRef.current !== 'local' || !isHlsTranscodeRef.current) return
+    setTranscodePercentReady(1)
+  }, [])
+
+  useSocketEvent<StreamProgressPayload>('stream_progress', handleStreamProgress, [handleStreamProgress])
+  useSocketEvent('stream_ready', handleStreamReady, [handleStreamReady])
 
   const isRetryingTranscodeRef = useRef(false)
   const retryWithForceTranscodeRef = useRef<() => Promise<void>>(async () => {})
@@ -397,6 +421,9 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       libraryItemRef.current = libraryItem
       episodeIdRef.current = episodeId ?? null
       setPlayerState(PlayerState.LOADING)
+      isHlsTranscodeRef.current = false
+      setIsHlsTranscode(false)
+      setTranscodePercentReady(1)
 
       const targetKind: PlayerKind = isCastingRef.current && getCastRemotePlayerHandles() ? 'cast' : 'local'
 
@@ -493,6 +520,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     setCurrentTime(0)
     setDuration(0)
     setBufferedTime(0)
+    setTranscodePercentReady(1)
     setSessionId(null)
     setDisplayTitle(null)
     setDisplayAuthor(null)
@@ -512,6 +540,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       currentTime,
       duration,
       bufferedTime,
+      transcodePercentReady,
       volume: settings.volume,
       isHlsTranscode,
       playMethod,
