@@ -39,8 +39,9 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
   const isAdmin = ['admin', 'root'].includes(user.type)
 
-  const currentLibrary = libraries?.find((lib) => lib.id === currentLibraryId)
-  const redirectLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
+  const effectiveLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
+  const currentLibrary = libraries?.find((lib) => lib.id === effectiveLibraryId)
+  const redirectLibraryId = effectiveLibraryId
   // New installs have no libraries, so redirect to settings
   const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/settings'
 
@@ -59,10 +60,10 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           <span className="hidden text-xl hover:underline md:block">audiobookshelf</span>
         </Link>
 
-        {libraries && currentLibraryId && (
+        {libraries && effectiveLibraryId && currentLibrary && (
           <>
             <div className={mergeClasses('min-w-0 flex-1 overflow-hidden md:w-fit md:flex-none md:shrink-0', isSearchMode && 'hidden md:block')}>
-              <LibrariesDropdown currentLibraryId={currentLibraryId} libraries={libraries} />
+              <LibrariesDropdown currentLibraryId={effectiveLibraryId} libraries={libraries} />
             </div>
 
             {isSearchMode && currentLibrary && (
@@ -81,11 +82,11 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
         {currentLibrary &&
           (isSearchMode ? (
             <div className="min-w-0 flex-1">
-              <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
+              <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ) : (
             <div className="hidden min-w-0 flex-1 md:block md:min-w-24">
-              <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
+              <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ))}
 
@@ -116,7 +117,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
         </div>
       </header>
-      <AppBarSelectionOverlay libraryId={currentLibraryId} />
+      <AppBarSelectionOverlay libraryId={effectiveLibraryId} />
     </div>
   )
 }

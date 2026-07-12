@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import '../../../assets/globals.css'
 import { ComponentsCatalogProvider } from '../../../contexts/ComponentsCatalogContext'
 import { getData, getLibraries } from '../../../lib/api'
-import AppBar from '../AppBar'
+import AppBarLoader from '../AppBarLoader'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf - Components Catalog',
@@ -14,7 +14,7 @@ export default async function ComponentsCatalogLayout({ children }: Readonly<{ c
 
   return (
     <>
-      <AppBar libraries={librariesRes?.libraries} />
+      <AppBarLoader />
       <ComponentsCatalogProvider libraries={librariesRes?.libraries || []}>
         <div className="h-full max-h-screen w-full overflow-x-hidden overflow-y-auto">{children}</div>
       </ComponentsCatalogProvider>

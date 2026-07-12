@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import AppBar from '../AppBar'
+import AppBarLoader from '../AppBarLoader'
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default async function AccountLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
-      <AppBar />
+      <AppBarLoader />
       <div className="page-bg-gradient h-[calc(100vh-4rem)]">
         <div className="h-full w-full overflow-x-hidden overflow-y-auto">{children}</div>
       </div>

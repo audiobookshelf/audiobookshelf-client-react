@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import '../../../assets/globals.css'
 import { getCurrentUser, getData } from '../../../lib/api'
-import AppBar from '../AppBar'
+import AppBarLoader from '../AppBarLoader'
 import SettingsLayoutWrapper from './SettingsLayoutWrapper'
 
 export const metadata: Metadata = {
@@ -26,7 +26,7 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
 
   return (
     <SettingsDrawerProvider>
-      <AppBar />
+      <AppBarLoader />
       <SettingsLayoutWrapper>{children}</SettingsLayoutWrapper>
     </SettingsDrawerProvider>
   )

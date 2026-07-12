@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import '../../../assets/globals.css'
-import AppBar from '../AppBar'
+import AppBarLoader from '../AppBarLoader'
 import UploadLayoutWrapper from './UploadLayoutWrapper'
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ export default async function UploadLayout({
 }>) {
   return (
     <>
-      <AppBar />
+      <AppBarLoader />
       <UploadLayoutWrapper>{children}</UploadLayoutWrapper>
     </>
   )
