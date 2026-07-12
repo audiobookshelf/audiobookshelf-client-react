@@ -1,4 +1,5 @@
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useSleepTimer } from '@/hooks/useSleepTimer'
@@ -12,6 +13,7 @@ import ChaptersModal from './ChaptersModal'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import PlayerSettingsModal from './PlayerSettingsModal'
 import SleepTimerModal from './SleepTimerModal'
+import QueueItemsModal from './QueueItemsModal'
 import VolumeControl from './VolumeControl'
 
 interface PlayerControlsProps {
@@ -23,10 +25,12 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { getBookmarksForLibraryItem } = useUser()
+  const { playerQueueItems, hasNextItemInQueue, hasPreviousItemInQueue, playNextInQueue, playPreviousInQueue } = useMediaContext()
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false)
   const [isChaptersModalOpen, setIsChaptersModalOpen] = useState(false)
   const [isBookmarksModalOpen, setIsBookmarksModalOpen] = useState(false)
   const [isSleepTimerModalOpen, setIsSleepTimerModalOpen] = useState(false)
+  const [isQueueModalOpen, setIsQueueModalOpen] = useState(false)
   const [bookmarkCurrentTime, setBookmarkCurrentTime] = useState(0)
   const { jumpBackward, jumpForward, playPause, seek, pause } = playerHandler.controls
   const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings, chapters } = playerHandler.state
@@ -58,29 +62,52 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
 
   const jumpBackwardTooltipText = getJumpTooltipText(t('ButtonJumpBackward'), settings.jumpBackwardAmount)
   const jumpForwardTooltipText = getJumpTooltipText(t('ButtonJumpForward'), settings.jumpForwardAmount)
+  const hasNext = !!nextChapter || hasNextItemInQueue
+  const nextQueueTooltipText = isPodcast ? t('ButtonNextEpisodeInQueue') : t('ButtonNextBookInQueue')
+  const nextButtonTooltipText = hasNextItemInQueue && !nextChapter ? nextQueueTooltipText : t('ButtonNextChapter')
+
+  const useEpisodeNavigation = isPodcast && chapters.length === 0
+  const previousQueueTooltipText = isPodcast ? t('ButtonPreviousEpisodeInQueue') : t('ButtonPreviousBookInQueue')
+  const previousButtonTooltipText = useEpisodeNavigation
+    ? hasPreviousItemInQueue
+      ? t('ButtonPreviousEpisodeInQueue')
+      : t('ButtonPreviousEpisode')
+    : hasPreviousItemInQueue && !previousChapter
+      ? previousQueueTooltipText
+      : t('ButtonPreviousChapter')
 
   const handleNextChapter = () => {
     if (nextChapter) {
       seek(nextChapter.start)
-    } else {
-      // TODO: Implement next in queue
+    } else if (hasNextItemInQueue) {
+      void playNextInQueue()
     }
   }
 
   const handlePreviousChapter = () => {
-    if (previousChapter) {
-      // if time in current chapter is less than 3 seconds then seek to start of previous chapter
-      // otherwise seek to start of current chapter
-      const currentChapterStart = currentChapter?.start ?? 0
-      const timeInCurrentChapter = currentTime - currentChapterStart
-      if (timeInCurrentChapter <= 3) {
-        seek(previousChapter.start)
+    if (chapters.length > 0) {
+      if (previousChapter) {
+        // if time in current chapter is less than 3 seconds then seek to start of previous chapter
+        // otherwise seek to start of current chapter
+        const currentChapterStart = currentChapter?.start ?? 0
+        const timeInCurrentChapter = currentTime - currentChapterStart
+        if (timeInCurrentChapter <= 3) {
+          seek(previousChapter.start)
+        } else {
+          seek(currentChapterStart)
+        }
       } else {
-        seek(currentChapterStart)
+        seek(0)
       }
-    } else {
-      seek(0)
+      return
     }
+
+    if (hasPreviousItemInQueue && currentTime <= 3) {
+      void playPreviousInQueue()
+      return
+    }
+
+    seek(0)
   }
 
   return (
@@ -92,7 +119,7 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
         {/* Center - play controls */}
         <div className="flex shrink-0 items-center gap-4">
           {/* previous chapter */}
-          <Tooltip text={t('ButtonPreviousChapter')} position="top">
+          <Tooltip text={previousButtonTooltipText} position="top">
             <IconBtn borderless size="custom" className="w-10 cursor-pointer text-3xl" onClick={handlePreviousChapter}>
               first_page
             </IconBtn>
@@ -121,8 +148,8 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
             </IconBtn>
           </Tooltip>
           {/* next chapter */}
-          <Tooltip text={t('ButtonNextChapter')} position="top">
-            <IconBtn borderless size="custom" className="w-10 cursor-pointer text-3xl" onClick={handleNextChapter}>
+          <Tooltip text={nextButtonTooltipText} position="top">
+            <IconBtn borderless size="custom" className="w-10 cursor-pointer text-3xl" disabled={!hasNext} onClick={handleNextChapter}>
               last_page
             </IconBtn>
           </Tooltip>
@@ -179,6 +206,19 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
                 </IconBtn>
               </Tooltip>
             )}
+            {playerQueueItems.length > 0 && (
+              <Tooltip text={t('LabelViewQueue')} position="top">
+                <IconBtn
+                  size="custom"
+                  borderless
+                  className="w-10 text-2xl sm:text-3xl"
+                  onClick={() => setIsQueueModalOpen(true)}
+                  ariaLabel={t('LabelViewQueue')}
+                >
+                  playlist_play
+                </IconBtn>
+              </Tooltip>
+            )}
             {/* player settings button */}
             <Tooltip text={t('LabelViewPlayerSettings')} position="top">
               <IconBtn size="custom" borderless className="w-10 text-2xl" onClick={() => setIsSettingsModalOpen(true)} ariaLabel={t('LabelViewPlayerSettings')}>
@@ -221,6 +261,7 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
         onIncrement={incrementSleepTimer}
         onDecrement={decrementSleepTimer}
       />
+      <QueueItemsModal isOpen={isQueueModalOpen} onClose={() => setIsQueueModalOpen(false)} />
     </>
   )
 }
