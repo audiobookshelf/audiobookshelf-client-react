@@ -104,3 +104,26 @@ export function buildPodcastEpisodesQueueFromIndex(
 
   return queueItems
 }
+
+/** Item-page Play: first unplayed episode in table order (Vue parity), with forward queue. */
+export function getPodcastItemPagePlaybackParams(
+  episodesInOrder: PodcastEpisode[],
+  libraryItem: PodcastLibraryItem,
+  mediaProgress: MediaProgress[],
+  captionForEpisode?: (episode: PodcastEpisode) => string
+): { episodeId: string; queueItems: PlayerQueueItem[] } | null {
+  if (episodesInOrder.length === 0) return null
+
+  let episodeIndex = episodesInOrder.findIndex((episode) => {
+    const progress = getMediaItemProgress(mediaProgress, libraryItem.id, episode.id)
+    return !progress || !progress.isFinished
+  })
+  if (episodeIndex < 0) episodeIndex = 0
+
+  const episodeId = episodesInOrder[episodeIndex]?.id
+  if (!episodeId) return null
+
+  const queueItems = buildPodcastEpisodesQueueFromIndex(episodesInOrder, libraryItem, mediaProgress, episodeIndex, captionForEpisode)
+
+  return { episodeId, queueItems }
+}

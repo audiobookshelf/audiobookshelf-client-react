@@ -16,7 +16,9 @@ import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCar
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
+import { formatJsDate } from '@/lib/datefns'
+import { buildBookQueueItem, getPodcastItemPagePlaybackParams } from '@/lib/playerQueue'
+import { PlayerState, type BookLibraryItem, type PodcastEpisode, type PodcastLibraryItem, type RssFeed } from '@/types/api'
 import { useCallback, useMemo, useState } from 'react'
 
 interface LibraryItemActionButtonsProps {
@@ -25,10 +27,18 @@ interface LibraryItemActionButtonsProps {
   onOpenCoverEdit?: () => void
   /** Current RSS feed state (from useItemPageSocket + initial server data). */
   rssFeed?: RssFeed | null
+  /** Filtered/sorted podcast episodes from EpisodeTable (item-page Play). */
+  podcastEpisodesInOrder?: PodcastEpisode[]
 }
 
-export default function LibraryItemActionButtons({ libraryItem, onEdit, onOpenCoverEdit, rssFeed = null }: LibraryItemActionButtonsProps) {
-  const { userCanUpdate, getMediaItemProgress, ereaderDevices } = useUser()
+export default function LibraryItemActionButtons({
+  libraryItem,
+  onEdit,
+  onOpenCoverEdit,
+  rssFeed = null,
+  podcastEpisodesInOrder = []
+}: LibraryItemActionButtonsProps) {
+  const { userCanUpdate, getMediaItemProgress, ereaderDevices, user, serverSettings } = useUser()
   const {
     playItem,
     libraryItemIdStreaming,
@@ -54,8 +64,8 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, onOpenCo
   const isBook = libraryItem.mediaType === 'book'
   const bookMedia = !isPodcast ? libraryItem.media : null
   const podcastMedia = isPodcast ? libraryItem.media : null
-  const tracks = isBook ? (bookMedia?.tracks ?? []) : []
-  const podcastEpisodes = isPodcast ? (podcastMedia?.episodes ?? []) : []
+  const tracks = useMemo(() => (isBook ? (bookMedia?.tracks ?? []) : []), [isBook, bookMedia?.tracks])
+  const podcastEpisodes = useMemo(() => (isPodcast ? (podcastMedia?.episodes ?? []) : []), [isPodcast, podcastMedia?.episodes])
   const ebookFormat = bookMedia ? getEbookFormat(bookMedia) : undefined
 
   const showPlayButton = !libraryItem.isMissing && !libraryItem.isInvalid && (isPodcast ? podcastEpisodes.length > 0 : tracks.length > 0)
@@ -113,12 +123,44 @@ export default function LibraryItemActionButtons({ libraryItem, onEdit, onOpenCo
       playerHandler.controls.playPause()
       return
     }
+
+    if (isPodcast) {
+      const dateFormat = serverSettings.dateFormat ?? 'MM/dd/yyyy'
+      const playback = getPodcastItemPagePlaybackParams(
+        podcastEpisodesInOrder.length > 0 ? podcastEpisodesInOrder : podcastEpisodes,
+        libraryItem as PodcastLibraryItem,
+        user.mediaProgress,
+        (episode) =>
+          episode.publishedAt ? t('LabelPublishedDate', { 0: formatJsDate(new Date(episode.publishedAt), dateFormat) }) : t('LabelUnknownPublishDate')
+      )
+      if (!playback) return
+
+      void playItem({
+        libraryItem,
+        episodeId: playback.episodeId,
+        queueItems: playback.queueItems
+      })
+      return
+    }
+
+    const queueItem = buildBookQueueItem(libraryItem)
     void playItem({
       libraryItem,
       episodeId: null,
-      queueItems: []
+      queueItems: queueItem ? [queueItem] : []
     })
-  }, [isStreaming, libraryItem, playItem, playerHandler.controls])
+  }, [
+    isPodcast,
+    isStreaming,
+    libraryItem,
+    playItem,
+    playerHandler.controls,
+    podcastEpisodes,
+    podcastEpisodesInOrder,
+    serverSettings.dateFormat,
+    t,
+    user.mediaProgress
+  ])
 
   const handleQueueClick = useCallback(() => {
     if (isQueued) {

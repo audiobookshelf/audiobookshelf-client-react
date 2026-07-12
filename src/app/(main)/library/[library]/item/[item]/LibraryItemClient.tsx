@@ -19,7 +19,7 @@ import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
-import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
+import { BookLibraryItem, BookMetadata, PodcastEpisode, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
@@ -39,6 +39,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isCoverEditModalOpen, setIsCoverEditModalOpen] = useState(false)
   const [isClearQueueDialogOpen, setIsClearQueueDialogOpen] = useState(false)
+  const [podcastEpisodesInOrder, setPodcastEpisodesInOrder] = useState<PodcastEpisode[]>([])
 
   useEffect(() => {
     setLibraryItem(initialLibraryItem)
@@ -163,6 +164,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 onEdit={handleOpenEditModal}
                 onOpenCoverEdit={() => setIsCoverEditModalOpen(true)}
                 rssFeed={rssFeed ?? null}
+                podcastEpisodesInOrder={podcastEpisodesInOrder}
               />
 
               {/* Podcast episode downloads queue */}
@@ -213,6 +215,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     dateFormat={serverSettings?.dateFormat}
                     episodesDownloading={episodesDownloading}
                     episodeDownloadsQueued={episodeDownloadsQueued}
+                    onEpisodesInOrderChange={setPodcastEpisodesInOrder}
                   />
                 )}
 
