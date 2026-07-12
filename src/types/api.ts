@@ -1295,6 +1295,10 @@ export function isPodcastLibraryItem(item: LibraryItem): item is PodcastLibraryI
   return item.mediaType === 'podcast'
 }
 
+export function isBookMediaWithTracks(media: BookMedia | PodcastMedia): boolean {
+  return isBookMedia(media) && (media.tracks ? media.tracks.length : media.numTracks || 0) > 0
+}
+
 // ============================================================================
 // SEARCH & MATCH TYPES
 // ============================================================================

@@ -2,6 +2,7 @@
 
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
+import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import CoverEditModal from '@/components/modals/CoverEditModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
@@ -32,7 +33,7 @@ import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
-import { BookshelfView, isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
+import { BookshelfView, isBookMedia, isBookMediaWithTracks, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
 import { useMediaCardActions } from './useMediaCardActions'
@@ -339,11 +340,11 @@ function MediaCard(props: MediaCardProps) {
   const isStreamingFromDifferentLib = isStreamingFromDifferentLibrary(libraryItem.libraryId)
   const isQueued = getIsMediaQueued(libraryItem.id, episode?.id ?? null)
 
-  const numTracks = isBookMedia(media) ? (media.tracks ? media.tracks.length : media.numTracks || 0) : 0
+  const isAudiobook = isBookMediaWithTracks(media)
 
   const isItemPlaying = isPlaying(libraryItem.id, episode?.id ?? null)
 
-  const showPlayButton = !isSelectionMode && !isMissing && !isInvalid && (numTracks > 0 || !!episode || !!libraryItem.recentEpisode)
+  const showPlayButton = !isSelectionMode && !isMissing && !isInvalid && (isAudiobook || !!episode || !!libraryItem.recentEpisode)
 
   const showReadButton = !isSelectionMode && !showPlayButton && isBookMedia(media) && !!getEbookFormat(media)
 
@@ -368,7 +369,9 @@ function MediaCard(props: MediaCardProps) {
     handlePlay,
     handleReadEBook,
     handleMoreAction,
-    moreMenuItems
+    moreMenuItems,
+    audioFileToShow,
+    closeMoreInfo
   } = useMediaCardActions({
     libraryItem,
     media,
@@ -655,9 +658,10 @@ function MediaCard(props: MediaCardProps) {
           onClose={closePlaylistsModal}
           libraryId={libraryItem.libraryId}
           items={[{ libraryItemId: libraryItem.id, episodeId: episode?.id ?? null }]}
-          headerTitle={title}
+          headerTitle={episode?.title ?? title}
         />
       )}
+      {audioFileToShow && <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />}
     </>
   )
 }
