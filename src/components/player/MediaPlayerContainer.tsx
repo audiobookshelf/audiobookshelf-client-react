@@ -1,14 +1,17 @@
 'use client'
 
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
 import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useMediaSession } from '@/hooks/useMediaSession'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
+import { getEpisodeDuration } from '@/lib/episode'
 import { mergeClasses } from '@/lib/merge-classes'
-import { BookMedia } from '@/types/api'
+import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMetadata } from '@/types/api'
 import Link from 'next/link'
 import { CSSProperties, Fragment, useMemo } from 'react'
 import PreviewCover from '../covers/PreviewCover'
@@ -21,7 +24,9 @@ export const MEDIA_PLAYER_HEIGHT_CLASS = 'h-48 lg:h-40'
 export const MEDIA_PLAYER_BOTTOM_INSET_CLASS = 'bottom-48 lg:bottom-40'
 
 export default function MediaPlayerContainer() {
-  const { streamLibraryItem, clearStreamMedia, playerHandler } = useMediaContext()
+  const t = useTypeSafeTranslations()
+  const { streamLibraryItem, streamEpisodeId, clearStreamMedia, playerHandler } = useMediaContext()
+  const coverAspectRatio = useBookCoverAspectRatio()
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
 
@@ -47,18 +52,42 @@ export default function MediaPlayerContainer() {
     return { '--tc-player-accent-rgb': `${accentRgb.r} ${accentRgb.g} ${accentRgb.b}` } as CSSProperties
   }, [accentRgb])
 
-  // TODO: Set library in media context for streaming library item
-  const coverAspectRatio = 1
+  const playerMetadata = useMemo(() => {
+    if (!streamLibraryItem) return null
+
+    const metadata = streamLibraryItem.media.metadata
+    const isPodcast = isPodcastLibraryItem(streamLibraryItem)
+    const streamEpisode = isPodcast && streamEpisodeId ? streamLibraryItem.media.episodes?.find((episode) => episode.id === streamEpisodeId) : undefined
+    const bookAuthors = isBookMetadata(metadata) ? metadata.authors || [] : []
+    const podcastAuthor = isPodcast && isPodcastMetadata(metadata) ? metadata.author || t('LabelUnknown') : null
+    const displayTitle = playerHandler.state.displayTitle || metadata.title || ''
+
+    const playbackRate = playerHandler.state.settings.playbackRate
+    let totalDuration = playerHandler.state.duration
+    if (totalDuration <= 0) {
+      if (streamEpisode) {
+        totalDuration = getEpisodeDuration(streamEpisode)
+      } else if (isBookMedia(streamLibraryItem.media)) {
+        totalDuration = streamLibraryItem.media.duration ?? 0
+      }
+    }
+
+    const durationLabel = totalDuration > 0 ? secondsToTimestamp(totalDuration / playbackRate) : null
+
+    return {
+      displayTitle,
+      bookAuthors,
+      podcastAuthor,
+      durationLabel
+    }
+  }, [playerHandler.state.displayTitle, playerHandler.state.duration, playerHandler.state.settings.playbackRate, streamEpisodeId, streamLibraryItem, t])
 
   // Don't render the player if nothing is streaming
-  if (!streamLibraryItem) {
+  if (!streamLibraryItem || !playerMetadata) {
     return null
   }
 
-  // TODO: Get podcast episode duration
-  const bookDuration = (streamLibraryItem.media as BookMedia).duration
-  const bookAuthors = 'authors' in streamLibraryItem.media.metadata ? streamLibraryItem.media.metadata.authors || [] : []
-  const displayTitle = playerHandler.state.displayTitle || streamLibraryItem.media.metadata.title
+  const { displayTitle, bookAuthors, podcastAuthor, durationLabel } = playerMetadata
 
   return (
     <div
@@ -80,22 +109,29 @@ export default function MediaPlayerContainer() {
           <Link href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`} className="text-foreground text-lg font-medium hover:underline">
             {displayTitle}
           </Link>
-          {bookAuthors.length > 0 && (
-            <div className="text-foreground-muted">
-              {bookAuthors.map((author, index) => (
-                <Fragment key={author.id}>
-                  <Link href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} className="text-foreground-muted hover:underline">
-                    {author.name}
-                  </Link>
-                  {index < bookAuthors.length - 1 && <span className="text-foreground-muted">, </span>}
-                </Fragment>
-              ))}
-            </div>
-          )}
-          {bookDuration && (
+          <div className="text-foreground-muted flex items-center text-sm">
+            <span className="material-symbols text-sm">person</span>
+            {podcastAuthor ? (
+              <span className="truncate ps-1">{podcastAuthor}</span>
+            ) : bookAuthors.length > 0 ? (
+              <div className="truncate ps-1">
+                {bookAuthors.map((author, index) => (
+                  <Fragment key={author.id}>
+                    <Link href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} className="text-foreground-muted hover:underline">
+                      {author.name}
+                    </Link>
+                    {index < bookAuthors.length - 1 && <span className="text-foreground-muted">, </span>}
+                  </Fragment>
+                ))}
+              </div>
+            ) : (
+              <span className="ps-1">{t('LabelUnknown')}</span>
+            )}
+          </div>
+          {durationLabel && (
             <div className="text-foreground-muted flex items-center gap-1 text-sm">
               <span className="material-symbols text-foreground-muted text-sm">schedule</span>
-              {secondsToTimestamp(bookDuration)}
+              <span className="ps-0.5 font-mono">{durationLabel}</span>
             </div>
           )}
         </div>
