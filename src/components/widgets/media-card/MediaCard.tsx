@@ -92,6 +92,8 @@ export interface MediaCardProps {
   entityIndex?: number
   /** Wired by sortable bookshelf hosts (`SortableBookshelfCard`, `DragOverlay`, etc.). */
   dragOptions?: SortableBookshelfCardOptions
+  /** Called after a library item or episode delete succeeds. */
+  onDeleteSuccess?: () => void
 }
 
 const LONG_PRESS_MS = 450
@@ -129,7 +131,8 @@ function MediaCard(props: MediaCardProps) {
     selectionAnchorKey,
     shelfEntities,
     entityIndex,
-    dragOptions
+    dragOptions,
+    onDeleteSuccess
   } = props
 
   const sortableBookshelfOverlay = useSortableBookshelfOverlay()
@@ -392,6 +395,7 @@ function MediaCard(props: MediaCardProps) {
     initialShare: libraryItem.mediaItemShare ?? null,
     onOpenMatch: handleOpenMatch,
     onOpenCoverEdit: handleOpenCoverEdit,
+    onDeleteSuccess,
     playerControls: playerHandler.controls
   })
 

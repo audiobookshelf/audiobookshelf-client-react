@@ -17,14 +17,15 @@ import {
   applyAuthorAddedToNewestAuthorsShelf,
   applyAuthorRemovalToShelves,
   applyAuthorUpdateToShelves,
+  applyEpisodeRemovalFromShelves,
   applyLibraryItemRemovalToShelves,
   applyLibraryItemsAddedToRecentlyAddedShelf,
   prunePersonalizedShelves
 } from '@/lib/personalizedShelfUtils'
 import {
   Author,
-  AuthorsNumBooksUpdatedPayload,
   AuthorRemovedPayload,
+  AuthorsNumBooksUpdatedPayload,
   BookMetadata,
   BookshelfView,
   EpisodeAddedPayload,
@@ -239,6 +240,10 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
     [library.id]
   )
 
+  const handleEpisodeDeleted = useCallback((libraryItemId: string, episodeId: string) => {
+    setShelves((prev) => applyEpisodeRemovalFromShelves(prev, libraryItemId, episodeId))
+  }, [])
+
   const handleItemAdded = useCallback(
     (libraryItem: LibraryItem) => {
       if (libraryItem.libraryId !== library.id) return
@@ -420,6 +425,11 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
                       entityIndex={entityIndex}
                       continueListeningShelf={continueListeningShelf}
                       continueSeriesShelf={shelf.type === 'book' && continueSeriesShelf}
+                      onDeleteSuccess={
+                        shelf.type === 'episode' && libraryItem.recentEpisode
+                          ? () => handleEpisodeDeleted(libraryItem.id, libraryItem.recentEpisode!.id)
+                          : undefined
+                      }
                     />
                   </div>
                 )

@@ -21,6 +21,19 @@ export function prunePersonalizedShelves(shelves: PersonalizedShelf[]): Personal
   return nextShelves.filter((shelf) => shelf.entities.length > 0)
 }
 
+/** Remove a recent-episode card from episode shelves after the episode was deleted. */
+export function applyEpisodeRemovalFromShelves(shelves: PersonalizedShelf[], libraryItemId: string, episodeId: string): PersonalizedShelf[] {
+  const nextShelves = shelves.map((shelf) => {
+    if (shelf.type !== 'episode') return shelf
+
+    const nextEntities = (shelf.entities as LibraryItem[]).filter((entity) => entity.id !== libraryItemId || entity.recentEpisode?.id !== episodeId)
+    if (nextEntities.length === shelf.entities.length) return shelf
+    return { ...shelf, entities: nextEntities }
+  })
+
+  return prunePersonalizedShelves(nextShelves)
+}
+
 /** Remove a library item from book/podcast/episode shelves and from nested series books. */
 export function applyLibraryItemRemovalToShelves(shelves: PersonalizedShelf[], libraryItemId: string): PersonalizedShelf[] {
   const nextShelves = shelves.map((shelf) => {

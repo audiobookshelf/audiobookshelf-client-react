@@ -1,4 +1,18 @@
+import { prunePersonalizedShelves } from '@/lib/personalizedShelfUtils'
 import type { LibraryItem, PersonalizedShelf, PlaylistItem, Series } from '@/types/api'
+import { isPodcastMedia } from '@/types/api'
+
+function resolveRecentEpisodeAfterUpdate(existing: LibraryItem, updated: LibraryItem) {
+  const recentEpisode = existing.recentEpisode
+  if (!recentEpisode) return undefined
+
+  if (!isPodcastMedia(updated.media)) return recentEpisode
+
+  const episodes = updated.media.episodes
+  if (!episodes?.some((episode) => episode.id === recentEpisode.id)) return undefined
+
+  return recentEpisode
+}
 
 /** Preserve client-only fields when merging a socket `item_updated` payload. */
 export function mergeLibraryItemUpdate(existing: LibraryItem, updated: LibraryItem): LibraryItem {
@@ -6,7 +20,7 @@ export function mergeLibraryItemUpdate(existing: LibraryItem, updated: LibraryIt
     ...updated,
     rssFeed: existing.rssFeed,
     mediaItemShare: existing.mediaItemShare,
-    recentEpisode: existing.recentEpisode
+    recentEpisode: resolveRecentEpisodeAfterUpdate(existing, updated)
   }
 }
 
@@ -38,10 +52,12 @@ export function applyLibraryItemUpdateToShelves(shelves: PersonalizedShelf[], up
   const nextShelves = shelves.map((shelf) => {
     if (shelf.type === 'book' || shelf.type === 'podcast' || shelf.type === 'episode') {
       let entityChanged = false
-      const nextEntities = (shelf.entities as LibraryItem[]).map((entity) => {
-        if (entity.id !== updatedItem.id) return entity
+      const nextEntities = (shelf.entities as LibraryItem[]).flatMap((entity) => {
+        if (entity.id !== updatedItem.id) return [entity]
         entityChanged = true
-        return mergeLibraryItemUpdate(entity, updatedItem)
+        const merged = mergeLibraryItemUpdate(entity, updatedItem)
+        if (shelf.type === 'episode' && !merged.recentEpisode) return []
+        return [merged]
       })
       if (!entityChanged) return shelf
       changed = true
@@ -72,5 +88,5 @@ export function applyLibraryItemUpdateToShelves(shelves: PersonalizedShelf[], up
     return shelf
   })
 
-  return changed ? nextShelves : shelves
+  return changed ? prunePersonalizedShelves(nextShelves) : shelves
 }
