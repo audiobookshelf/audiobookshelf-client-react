@@ -825,6 +825,7 @@
   "LabelWebRedirectURLsSubfolder": "Subfolder for Redirect URLs",
   "LabelWeekdaysToRun": "Weekdays to run",
   "LabelXBooks": "{count} {count, plural, one {book} other {books}}",
+  "LabelXEpisodes": "{count} {count, plural, one {episode} other {episodes}}",
   "LabelXItems": "{0} items",
   "LabelYearReviewHide": "Hide Year in Review",
   "LabelYearReviewShow": "See Year in Review",
