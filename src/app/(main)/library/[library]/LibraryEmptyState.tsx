@@ -5,12 +5,15 @@ import { Library } from '@/types/api'
 import { useMemo, useTransition } from 'react'
 import { requestScanLibrary } from '../../settings/libraries/actions'
 
+export type LibraryEmptyStateVariant = 'library-empty' | 'no-home-shelves'
+
 interface LibraryEmptyStateProps {
   library: Library
   showScanButton: boolean
+  variant?: LibraryEmptyStateVariant
 }
 
-export default function LibraryEmptyState({ library, showScanButton }: LibraryEmptyStateProps) {
+export default function LibraryEmptyState({ library, showScanButton, variant = 'library-empty' }: LibraryEmptyStateProps) {
   const t = useTypeSafeTranslations()
   const [isPending, startTransition] = useTransition()
   const { getTasksByLibraryId } = useTasks()
@@ -27,6 +30,19 @@ export default function LibraryEmptyState({ library, showScanButton }: LibraryEm
         console.error('Failed to scan library', error)
       }
     })
+  }
+
+  if (variant === 'no-home-shelves') {
+    const browseLabel = library.mediaType === 'podcast' ? t('LabelPodcasts') : t('LabelBooks')
+
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-10">
+        <p className="mb-2 max-w-lg text-center text-xl">{t('MessageNoHomeShelves')}</p>
+        <Btn size="small" color="bg-success" to={`/library/${library.id}/items`}>
+          {browseLabel}
+        </Btn>
+      </div>
+    )
   }
 
   return (

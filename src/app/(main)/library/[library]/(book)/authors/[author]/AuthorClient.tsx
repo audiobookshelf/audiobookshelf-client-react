@@ -13,7 +13,7 @@ import { useSocketEvent } from '@/contexts/SocketContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterEncode } from '@/lib/filterUtils'
-import { Author, BookshelfView } from '@/types/api'
+import { Author, AuthorsNumBooksUpdatedPayload, BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -53,6 +53,16 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
     [author.id]
   )
 
+  const handleAuthorsNumBooksUpdated = useCallback(
+    (payload: AuthorsNumBooksUpdatedPayload) => {
+      const update = payload.authors.find((a) => a.id === author.id)
+      if (update) {
+        setAuthor((prev) => ({ ...prev, numBooks: update.numBooks }))
+      }
+    },
+    [author.id]
+  )
+
   const handleAuthorRemoved = useCallback(
     (data: Author | { id: string; libraryId: string }) => {
       const id = 'id' in data ? data.id : (data as Author).id
@@ -65,6 +75,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
   )
 
   useSocketEvent<Author>('author_updated', handleAuthorUpdated)
+  useSocketEvent<AuthorsNumBooksUpdatedPayload>('authors_num_books_updated', handleAuthorsNumBooksUpdated)
   useSocketEvent<Author | { id: string; libraryId: string }>('author_removed', handleAuthorRemoved)
 
   return (

@@ -1,5 +1,6 @@
 'use client'
 
+import { fetchLibraryPersonalizedAction } from '@/app/actions/libraryActions'
 import BookShelfRow from '@/components/widgets/BookShelfRow'
 import ItemSlider from '@/components/widgets/ItemSlider'
 import { AuthorCard } from '@/components/widgets/media-card/AuthorCard'
@@ -13,10 +14,23 @@ import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { applyLibraryItemUpdateToShelves } from '@/lib/libraryItemUpdatedUtils'
 import {
+  applyAuthorAddedToNewestAuthorsShelf,
+  applyAuthorRemovalToShelves,
+  applyAuthorUpdateToShelves,
+  applyEpisodeRemovalFromShelves,
+  applyLibraryItemRemovalToShelves,
+  applyLibraryItemsAddedToRecentlyAddedShelf,
+  prunePersonalizedShelves
+} from '@/lib/personalizedShelfUtils'
+import {
   Author,
+  AuthorRemovedPayload,
+  AuthorsNumBooksUpdatedPayload,
   BookMetadata,
   BookshelfView,
+  EpisodeAddedPayload,
   LibraryItem,
+  LibraryItemRemovedPayload,
   MediaItemShare,
   MediaProgress,
   PersonalizedShelf,
@@ -25,12 +39,13 @@ import {
   Series,
   isPersonalizedSeriesRef
 } from '@/types/api'
-import { useCallback, useEffect, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { requestScanLibrary } from '../../settings/libraries/actions'
 import LibraryEmptyState from './LibraryEmptyState'
 
 interface LibraryClientProps {
   personalized: PersonalizedShelf[]
+  libraryItemCount: number
 }
 
 /**
@@ -90,10 +105,10 @@ function applyUserUpdatedToShelves(
     }
   }
 
-  return changed ? nextShelves : shelves
+  return changed ? prunePersonalizedShelves(nextShelves) : shelves
 }
 
-export default function LibraryClient({ personalized }: LibraryClientProps) {
+export default function LibraryClient({ personalized, libraryItemCount: libraryItemCountProp }: LibraryClientProps) {
   const t = useTypeSafeTranslations()
   const [, startScanTransition] = useTransition()
   const { sizeMultiplier } = useCardSize()
@@ -101,10 +116,17 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView } = useLibrary()
 
   const [shelves, setShelves] = useState(personalized)
+  const [libraryItemCount, setLibraryItemCount] = useState(libraryItemCountProp)
+
+  const visibleShelves = useMemo(() => prunePersonalizedShelves(shelves), [shelves])
 
   useEffect(() => {
     setShelves(personalized)
   }, [personalized])
+
+  useEffect(() => {
+    setLibraryItemCount(libraryItemCountProp)
+  }, [libraryItemCountProp])
 
   /**
    * Updates entities within shelves of matching types.
@@ -196,8 +218,115 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
     setShelves((prev) => applyLibraryItemUpdateToShelves(prev, updatedItem))
   }, [])
 
+  const shelvesRef = useRef(shelves)
+  shelvesRef.current = shelves
+
+  const refetchPersonalizedShelves = useCallback(() => {
+    void fetchLibraryPersonalizedAction(library.id)
+      .then((nextShelves) => {
+        setShelves(nextShelves)
+      })
+      .catch((error) => {
+        console.error('Failed to fetch personalized shelves', error)
+      })
+  }, [library.id])
+
+  const handleItemRemoved = useCallback(
+    (payload: LibraryItemRemovedPayload) => {
+      if (payload.libraryId !== library.id) return
+      setShelves((prev) => applyLibraryItemRemovalToShelves(prev, payload.id))
+      setLibraryItemCount((prev) => Math.max(0, prev - 1))
+    },
+    [library.id]
+  )
+
+  const handleEpisodeDeleted = useCallback((libraryItemId: string, episodeId: string) => {
+    setShelves((prev) => applyEpisodeRemovalFromShelves(prev, libraryItemId, episodeId))
+  }, [])
+
+  const handleItemAdded = useCallback(
+    (libraryItem: LibraryItem) => {
+      if (libraryItem.libraryId !== library.id) return
+      setLibraryItemCount((prev) => prev + 1)
+      refetchPersonalizedShelves()
+    },
+    [library.id, refetchPersonalizedShelves]
+  )
+
+  const handleItemsAdded = useCallback(
+    (libraryItems: LibraryItem[]) => {
+      const itemsInLibrary = libraryItems.filter((item) => item.libraryId === library.id)
+      if (itemsInLibrary.length === 0) return
+
+      setLibraryItemCount((prev) => prev + itemsInLibrary.length)
+
+      // First items added to an empty library — refetch full personalized shelves
+      if (prunePersonalizedShelves(shelvesRef.current).length === 0) {
+        refetchPersonalizedShelves()
+        return
+      }
+
+      setShelves((prev) => applyLibraryItemsAddedToRecentlyAddedShelf(prev, itemsInLibrary))
+    },
+    [library.id, refetchPersonalizedShelves]
+  )
+
+  const handleEpisodeAdded = useCallback(
+    (payload: EpisodeAddedPayload) => {
+      if (payload.libraryItem?.libraryId !== library.id) return
+      refetchPersonalizedShelves()
+    },
+    [library.id, refetchPersonalizedShelves]
+  )
+
+  const handleAuthorUpdated = useCallback(
+    (author: Author) => {
+      if (author.libraryId !== undefined && author.libraryId !== library.id) return
+      setShelves((prev) => applyAuthorUpdateToShelves(prev, author))
+    },
+    [library.id]
+  )
+
+  const handleAuthorsNumBooksUpdated = useCallback(
+    (payload: AuthorsNumBooksUpdatedPayload) => {
+      if (payload.libraryId !== library.id || payload.authors.length === 0) return
+      setShelves((prev) => {
+        let next = prev
+        for (const author of payload.authors) {
+          next = applyAuthorUpdateToShelves(next, author)
+        }
+        return next
+      })
+    },
+    [library.id]
+  )
+
+  const handleAuthorAdded = useCallback(
+    (author: Author) => {
+      if (author.libraryId !== undefined && author.libraryId !== library.id) return
+      setShelves((prev) => applyAuthorAddedToNewestAuthorsShelf(prev, author))
+    },
+    [library.id]
+  )
+
+  const handleAuthorRemoved = useCallback(
+    (payload: AuthorRemovedPayload) => {
+      if (payload.libraryId !== library.id) return
+      setShelves((prev) => applyAuthorRemovalToShelves(prev, payload.id))
+    },
+    [library.id]
+  )
+
   useLibraryItemUpdated(library.id, handleItemUpdated)
 
+  useSocketEvent<LibraryItemRemovedPayload>('item_removed', handleItemRemoved)
+  useSocketEvent<LibraryItem>('item_added', handleItemAdded)
+  useSocketEvent<LibraryItem[]>('items_added', handleItemsAdded)
+  useSocketEvent<EpisodeAddedPayload>('episode_added', handleEpisodeAdded)
+  useSocketEvent<Author>('author_added', handleAuthorAdded)
+  useSocketEvent<Author>('author_updated', handleAuthorUpdated)
+  useSocketEvent<AuthorsNumBooksUpdatedPayload>('authors_num_books_updated', handleAuthorsNumBooksUpdated)
+  useSocketEvent<AuthorRemovedPayload>('author_removed', handleAuthorRemoved)
   useSocketEvent<MediaItemShare>('share_open', handleShareOpen)
   useSocketEvent<MediaItemShare>('share_closed', handleShareClosed)
   useSocketEvent<RssFeed>('rss_feed_open', handleRssFeedOpen)
@@ -240,14 +369,18 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
   return (
     <div className="pb-20" style={{ fontSize: sizeMultiplier + 'rem' }}>
       {/* empty state with scan button if user is admin or root */}
-      {shelves.length === 0 && (
+      {visibleShelves.length === 0 && (
         <div className="py-8">
-          <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
+          <LibraryEmptyState
+            library={library}
+            showScanButton={['admin', 'root'].includes(user.type)}
+            variant={libraryItemCount === 0 ? 'library-empty' : 'no-home-shelves'}
+          />
         </div>
       )}
 
       {/* bookshelf rows */}
-      {shelves.map((shelf) => {
+      {visibleShelves.map((shelf) => {
         const Wrapper = homeBookshelfView === BookshelfView.STANDARD ? BookShelfRow : ItemSlider
         const continueListeningShelf = shelf.id === 'continue-listening' || shelf.id === 'continue-reading'
         const continueSeriesShelf = shelf.id === 'continue-series'
@@ -292,6 +425,11 @@ export default function LibraryClient({ personalized }: LibraryClientProps) {
                       entityIndex={entityIndex}
                       continueListeningShelf={continueListeningShelf}
                       continueSeriesShelf={shelf.type === 'book' && continueSeriesShelf}
+                      onDeleteSuccess={
+                        shelf.type === 'episode' && libraryItem.recentEpisode
+                          ? () => handleEpisodeDeleted(libraryItem.id, libraryItem.recentEpisode!.id)
+                          : undefined
+                      }
                     />
                   </div>
                 )

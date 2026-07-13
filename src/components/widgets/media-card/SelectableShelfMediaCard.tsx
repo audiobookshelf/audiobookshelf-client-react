@@ -26,6 +26,7 @@ interface SelectableShelfMediaCardProps {
   continueListeningShelf?: boolean
   continueSeriesShelf?: boolean
   selectionEnabled?: boolean
+  onDeleteSuccess?: () => void
 }
 
 export default function SelectableShelfMediaCard({
@@ -43,7 +44,8 @@ export default function SelectableShelfMediaCard({
   entityIndex,
   continueListeningShelf,
   continueSeriesShelf,
-  selectionEnabled = true
+  selectionEnabled = true,
+  onDeleteSuccess
 }: SelectableShelfMediaCardProps) {
   const episode = cardType === 'episode' ? libraryItem.recentEpisode : undefined
   const { isSelectionMode, selected, onSelect, selectionKey } = useBookshelfCardSelection(libraryItem, entityIndex, shelfEntities, episode, {
@@ -67,7 +69,8 @@ export default function SelectableShelfMediaCard({
     isSelectionMode,
     selected,
     onSelect,
-    selectionAnchorKey: selectionKey
+    selectionAnchorKey: selectionKey,
+    onDeleteSuccess
   }
 
   if (cardType === 'episode') {

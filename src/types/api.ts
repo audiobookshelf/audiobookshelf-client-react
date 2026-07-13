@@ -266,10 +266,29 @@ export interface AuthorRemovedPayload {
   libraryId: string
 }
 
+/** Author book-count entry in the `authors_num_books_updated` socket event. */
+export interface AuthorNumBooksUpdate {
+  id: string
+  numBooks: number
+}
+
+/** Payload for the `authors_num_books_updated` socket event (scan-linked existing authors). */
+export interface AuthorsNumBooksUpdatedPayload {
+  libraryId: string
+  authors: AuthorNumBooksUpdate[]
+}
+
 /** Payload for the `item_removed` socket event. */
 export interface LibraryItemRemovedPayload {
   id: string
   libraryId: string
+}
+
+/** Payload for the `episode_added` socket event (expanded episode with nested library item). */
+export interface EpisodeAddedPayload {
+  id: string
+  libraryItemId?: string
+  libraryItem?: LibraryItem
 }
 
 export interface AuthorQuickMatchPayload {
