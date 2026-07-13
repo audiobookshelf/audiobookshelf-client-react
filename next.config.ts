@@ -38,6 +38,7 @@ function runWithProjectCwd<T>(fn: () => T): T {
 const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts')
 
 const nextConfig: NextConfig = {
+  devIndicators: false,
   allowedDevOrigins: allowedDevOriginsFromEnv(),
   transpilePackages: ['foliate-js', 'node-unrar-js'],
   experimental: {
