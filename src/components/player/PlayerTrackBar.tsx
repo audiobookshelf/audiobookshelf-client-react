@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface PlayerTrackBarProps {
   playerHandler: PlayerHandler
+  variant?: 'full' | 'mobile-collapsed'
 }
 
 interface ChapterTick {
@@ -15,7 +16,7 @@ interface ChapterTick {
   left: number
 }
 
-export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
+export default function PlayerTrackBar({ playerHandler, variant = 'full' }: PlayerTrackBarProps) {
   const { currentTime, duration, bufferedTime, transcodePercentReady, isHlsTranscode, settings, chapters, playerState, currentChapter } = playerHandler.state
   const { seek } = playerHandler.controls
   const { playbackRate, useChapterTrack } = settings
@@ -177,6 +178,8 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
     setIsHovering(false)
   }, [])
 
+  const isMobileCollapsed = variant === 'mobile-collapsed'
+
   return (
     <div>
       <div className="relative">
@@ -252,12 +255,18 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between">
-        <p className="text-foreground-muted font-mono text-sm">
-          {currentTimeFormatted} / {Math.round(playedPercent)}%
+      <div className={mergeClasses('flex items-center justify-between', isMobileCollapsed ? 'mt-0.5' : '')}>
+        <p className={mergeClasses('text-foreground-muted font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>
+          {currentTimeFormatted}
+          {!isMobileCollapsed && (
+            <>
+              {' / '}
+              {Math.round(playedPercent)}%
+            </>
+          )}
         </p>
-        {currentChapter && (
-          <p className="text-foreground-muted text-sm">
+        {!isMobileCollapsed && currentChapter && (
+          <p className="text-foreground-muted max-w-[40%] truncate text-sm sm:max-w-none">
             {currentChapter.title}{' '}
             {useChapterTrack && (
               <span className="text-foreground-subdued pl-1 text-xs">
@@ -266,7 +275,7 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
             )}
           </p>
         )}
-        <p className="text-foreground-muted font-mono text-sm">{timeRemainingFormatted}</p>
+        <p className={mergeClasses('text-foreground-muted font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>{timeRemainingFormatted}</p>
       </div>
     </div>
   )

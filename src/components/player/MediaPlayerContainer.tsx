@@ -8,25 +8,39 @@ import { useMediaSession } from '@/hooks/useMediaSession'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverSrc, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { getEpisodeDuration } from '@/lib/episode'
 import { mergeClasses } from '@/lib/merge-classes'
 import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMetadata } from '@/types/api'
-import Link from 'next/link'
-import { CSSProperties, Fragment, useMemo } from 'react'
-import PreviewCover from '../covers/PreviewCover'
+import { CSSProperties, useLayoutEffect, useMemo, useRef } from 'react'
 import IconBtn from '../ui/IconBtn'
 import PlayerControls from './PlayerControls'
+import PlayerMetadataBlock from './PlayerMetadataBlock'
+import PlayerMobileLayout from './PlayerMobileLayout'
 import PlayerTrackBar from './PlayerTrackBar'
 
-/** Keep in sync with the player container and ereader overlay inset when both are open. */
-export const MEDIA_PLAYER_HEIGHT_CLASS = 'h-48 lg:h-40'
-export const MEDIA_PLAYER_BOTTOM_INSET_CLASS = 'bottom-48 lg:bottom-40'
+export function getPlayerBottomInsetClass(): string {
+  return 'bottom-[var(--media-player-height,10rem)] lg:bottom-40'
+}
+
+/** 1rem gap above the player — uses live `--media-player-height` when streaming. */
+export function getCoverSizeWidgetBottomClass(isStreaming: boolean): string {
+  if (!isStreaming) return 'bottom-4'
+  return 'bottom-[calc(var(--media-player-height,10rem)+1rem)]'
+}
+
+function syncMediaPlayerHeightCssVar(el: HTMLElement) {
+  document.documentElement.style.setProperty('--media-player-height', `${el.getBoundingClientRect().height}px`)
+}
+
+function clearMediaPlayerHeightCssVar() {
+  document.documentElement.style.removeProperty('--media-player-height')
+}
 
 export default function MediaPlayerContainer() {
   const t = useTypeSafeTranslations()
-  const { streamLibraryItem, streamEpisodeId, clearStreamMedia, playerControls } = useMediaContext()
+  const { streamLibraryItem, streamEpisodeId, clearStreamMedia, playerControls, isPlayerDetailsExpanded } = useMediaContext()
   const playerState = usePlayerState()
   const playerHandler = useMemo((): PlayerHandler => ({ state: playerState, controls: playerControls }), [playerControls, playerState])
   const coverAspectRatio = useBookCoverAspectRatio()
@@ -85,70 +99,62 @@ export default function MediaPlayerContainer() {
     }
   }, [playerHandler.state.displayTitle, playerHandler.state.duration, playerHandler.state.settings.playbackRate, streamEpisodeId, streamLibraryItem, t])
 
-  // Don't render the player if nothing is streaming
+  const playerShellRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    if (!streamLibraryItem) {
+      clearMediaPlayerHeightCssVar()
+      return
+    }
+
+    const el = playerShellRef.current
+    if (!el) return
+
+    syncMediaPlayerHeightCssVar(el)
+    const resizeObserver = new ResizeObserver(() => syncMediaPlayerHeightCssVar(el))
+    resizeObserver.observe(el)
+
+    return () => {
+      resizeObserver.disconnect()
+      clearMediaPlayerHeightCssVar()
+    }
+  }, [streamLibraryItem, isPlayerDetailsExpanded])
+
   if (!streamLibraryItem || !playerMetadata) {
     return null
   }
 
-  const { displayTitle, bookAuthors, podcastAuthor, durationLabel } = playerMetadata
-
   return (
     <div
+      ref={playerShellRef}
       className={mergeClasses(
-        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full overflow-hidden px-2 pt-2 pb-1 lg:px-4 lg:pb-4',
-        MEDIA_PLAYER_HEIGHT_CLASS
+        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full px-2 pt-2 pb-1 lg:px-4 lg:pb-4',
+        isPlayerDetailsExpanded ? 'max-lg:min-h-[11.875rem]' : 'max-lg:min-h-[8.75rem]',
+        'lg:h-40'
       )}
       style={playerAccentStyle}
     >
       {accentRgb !== null ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
-      <div className="absolute top-2 left-2 z-[1] flex gap-4 lg:left-4">
-        <PreviewCover
-          src={getLibraryItemCoverSrc(streamLibraryItem, getPlaceholderCoverUrl())}
-          bookCoverAspectRatio={coverAspectRatio}
-          showResolution={false}
-          width={77}
-        />
-        <div className="flex flex-col gap-0.5">
-          <Link href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`} className="text-foreground text-lg font-medium hover:underline">
-            {displayTitle}
-          </Link>
-          <div className="text-foreground-muted flex items-center text-sm">
-            <span className="material-symbols text-sm">person</span>
-            {podcastAuthor ? (
-              <span className="truncate ps-1">{podcastAuthor}</span>
-            ) : bookAuthors.length > 0 ? (
-              <div className="truncate ps-1">
-                {bookAuthors.map((author, index) => (
-                  <Fragment key={author.id}>
-                    <Link href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} className="text-foreground-muted hover:underline">
-                      {author.name}
-                    </Link>
-                    {index < bookAuthors.length - 1 && <span className="text-foreground-muted">, </span>}
-                  </Fragment>
-                ))}
-              </div>
-            ) : (
-              <span className="ps-1">{t('LabelUnknown')}</span>
-            )}
-          </div>
-          {durationLabel && (
-            <div className="text-foreground-muted flex items-center gap-1 text-sm">
-              <span className="material-symbols text-foreground-muted text-sm">schedule</span>
-              <span className="ps-0.5 font-mono">{durationLabel}</span>
-            </div>
-          )}
+
+      {/* Desktop layout */}
+      <div className="relative z-[1] hidden lg:block">
+        <div className="absolute top-0 left-0 flex min-w-0 items-start gap-4">
+          <PlayerMetadataBlock streamLibraryItem={streamLibraryItem} metadata={playerMetadata} coverAspectRatio={coverAspectRatio} coverWidth={77} />
+        </div>
+        <div className="absolute top-0 right-0 flex items-center gap-1">
+          <IconBtn size="small" borderless onClick={clearStreamMedia} ariaLabel={t('LabelClosePlayer')}>
+            close
+          </IconBtn>
+        </div>
+        <div className="flex flex-col gap-3">
+          <PlayerControls playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} />
+          <PlayerTrackBar playerHandler={playerHandler} variant="full" />
         </div>
       </div>
-      <div className="relative z-[1] flex flex-col gap-3">
-        <PlayerControls playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} />
 
-        <PlayerTrackBar playerHandler={playerHandler} />
-      </div>
-
-      <div className="absolute top-2 right-2 z-[1] flex items-center gap-1 lg:right-4">
-        <IconBtn size="small" borderless onClick={clearStreamMedia}>
-          close
-        </IconBtn>
+      {/* Mobile layout */}
+      <div className="relative z-[1] lg:hidden">
+        <PlayerMobileLayout playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} metadata={playerMetadata} onClose={clearStreamMedia} />
       </div>
     </div>
   )

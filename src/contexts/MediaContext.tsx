@@ -35,6 +35,8 @@ interface MediaContextValue {
   hasNextItemInQueue: boolean
   hasPreviousItemInQueue: boolean
   libraryItemIdStreaming: string | null
+  isPlayerDetailsExpanded: boolean
+  setPlayerDetailsExpanded: (expanded: boolean) => void
 
   // Stream utilities
   isStreaming: (libraryItemId: string, episodeId?: string | null) => boolean
@@ -78,6 +80,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const [streamEpisodeId, setStreamEpisodeId] = useState<string | null>(null)
   const [playerQueueItems, setPlayerQueueItems] = useState<PlayerQueueItem[]>([])
   const [playerQueueAutoPlay, setPlayerQueueAutoPlayState] = useState<boolean>(() => readPlayerQueueAutoPlay())
+  const [isPlayerDetailsExpanded, setPlayerDetailsExpanded] = useState(false)
 
   const playerQueueItemsRef = useRef(playerQueueItems)
   playerQueueItemsRef.current = playerQueueItems
@@ -128,6 +131,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     setStreamLibraryItem(null)
     setStreamEpisodeId(null)
     setPlayerQueueItems([])
+    setPlayerDetailsExpanded(false)
   }, [playerControls])
 
   // ============================================================================
@@ -400,6 +404,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       hasNextItemInQueue,
       hasPreviousItemInQueue,
       libraryItemIdStreaming,
+      isPlayerDetailsExpanded,
+      setPlayerDetailsExpanded,
 
       // Stream utilities
       isStreaming,
@@ -431,6 +437,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       hasNextItemInQueue,
       hasPreviousItemInQueue,
       libraryItemIdStreaming,
+      isPlayerDetailsExpanded,
+      setPlayerDetailsExpanded,
       isStreaming,
       isStreamingFromDifferentLibrary,
       isPlaying,
