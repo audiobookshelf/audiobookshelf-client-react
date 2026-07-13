@@ -1,5 +1,6 @@
 'use client'
 
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -255,27 +256,36 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
           </div>
         </div>
       </div>
-      <div className={mergeClasses('flex items-center justify-between', isMobileCollapsed ? 'mt-0.5' : '')}>
-        <p className={mergeClasses('text-foreground-muted font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>
+      <div className={mergeClasses('flex items-center justify-between gap-3', isMobileCollapsed ? 'mt-0.5' : '')}>
+        <p className={mergeClasses('text-foreground-muted shrink-0 font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>
           {currentTimeFormatted}
-          {!isMobileCollapsed && (
-            <>
-              {' / '}
-              {Math.round(playedPercent)}%
-            </>
-          )}
+          {' / '}
+          {Math.round(playedPercent)}%
         </p>
-        {!isMobileCollapsed && currentChapter && (
-          <p className="text-foreground-muted max-w-[40%] truncate text-sm sm:max-w-none">
-            {currentChapter.title}{' '}
-            {useChapterTrack && (
-              <span className="text-foreground-subdued pl-1 text-xs">
-                ({currentChapterNumber} of {chapters.length})
-              </span>
-            )}
-          </p>
+        {currentChapter ? (
+          isMobileCollapsed ? (
+            <div className="text-foreground-muted flex min-w-0 flex-1 items-center justify-center sm:max-w-none">
+              <TruncatingTooltipText lazy text={currentChapter.title} className="min-w-0 text-xs" position="top" />
+              {useChapterTrack && currentChapterNumber !== null && (
+                <span className="text-foreground-subdued shrink-0 pl-1 text-xs">
+                  ({currentChapterNumber} of {chapters.length})
+                </span>
+              )}
+            </div>
+          ) : (
+            <p className="text-foreground-muted max-w-[40%] truncate text-sm sm:max-w-none">
+              {currentChapter.title}{' '}
+              {useChapterTrack && (
+                <span className="text-foreground-subdued pl-1 text-xs">
+                  ({currentChapterNumber} of {chapters.length})
+                </span>
+              )}
+            </p>
+          )
+        ) : (
+          <span className="flex-1" />
         )}
-        <p className={mergeClasses('text-foreground-muted font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>{timeRemainingFormatted}</p>
+        <p className={mergeClasses('text-foreground-muted shrink-0 font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>{timeRemainingFormatted}</p>
       </div>
     </div>
   )

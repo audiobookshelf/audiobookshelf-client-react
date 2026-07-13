@@ -55,7 +55,7 @@ export default function PlayerMobileLayout({ playerHandler, streamLibraryItem, m
           <PlayerTrackBar playerHandler={playerHandler} variant="mobile-collapsed" />
         </div>
 
-        <PlayerDetailsPanel controls={controlsState} isExpanded={isPlayerDetailsExpanded} playerHandler={playerHandler} />
+        <PlayerDetailsPanel controls={controlsState} isExpanded={isPlayerDetailsExpanded} />
       </div>
       <PlayerModals controls={controlsState} />
     </>
