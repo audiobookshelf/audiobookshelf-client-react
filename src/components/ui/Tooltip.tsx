@@ -1,5 +1,6 @@
 'use client'
 
+import { MODAL_ROOT_SELECTOR } from '@/components/modals/Modal'
 import { useModalRef } from '@/contexts/ModalContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -77,6 +78,8 @@ const Tooltip = ({
   const [floatingInDom, setFloatingInDom] = useState(!lazyUnmountFloating || defaultOpen)
   const arrowRef = useRef<HTMLDivElement | null>(null)
   const activateTimeoutRef = useRef<number | null>(null)
+  /** After pointer activation, ignore hover/focus-open until the pointer re-enters (modal overlay triggers mouseleave). */
+  const suppressFocusOpenRef = useRef(false)
   const primaryInputCanHover = usePrimaryInputCanHover()
 
   const modalRef = useModalRef()
@@ -188,6 +191,7 @@ const Tooltip = ({
   }, [clearHideTimeout])
 
   const onMouseEnter = () => {
+    if (suppressFocusOpenRef.current) return
     if (disabled || openOnClick || !primaryInputCanHover) return
     if (activationDelayMs > 0) {
       clearActivateTimeout()
@@ -204,13 +208,35 @@ const Tooltip = ({
     }
   }
 
-  // Focus/blur (keyboard a11y)
-  const onFocus = () => {
-    if (!disabled && !openOnClick && activateOnFocus) openNow()
+  const onPointerEnter = () => {
+    suppressFocusOpenRef.current = false
   }
 
-  const onBlur = () => {
+  // Focus/blur (keyboard a11y)
+  const shouldOpenOnFocus = useCallback(() => {
+    const reference = refs.reference.current
+    if (!(reference instanceof HTMLElement)) return true
+    // Keyboard tab focus opens the tooltip; mouse click and programmatic focus (e.g. modal
+    // restore after close) should not — those leave a stale label visible over the player.
+    return reference.matches(':focus-visible') || reference.querySelector(':focus-visible') !== null
+  }, [refs])
+
+  const onFocus = () => {
+    if (suppressFocusOpenRef.current) return
+    if (!disabled && !openOnClick && activateOnFocus && shouldOpenOnFocus()) openNow()
+  }
+
+  const onBlur = (e: React.FocusEvent) => {
     if (!openOnClick) setOpen(false)
+
+    const related = e.relatedTarget
+    if (!(related instanceof Element)) {
+      return
+    }
+    if (related.closest(MODAL_ROOT_SELECTOR)) {
+      return
+    }
+    suppressFocusOpenRef.current = false
   }
 
   const onReferenceClick = () => {
@@ -240,6 +266,7 @@ const Tooltip = ({
   const onReferencePointerDown = () => {
     if (!openOnClick) {
       dismissTooltip()
+      suppressFocusOpenRef.current = true
     }
   }
 
@@ -346,6 +373,7 @@ const Tooltip = ({
       className={referenceClass}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onPointerEnter={onPointerEnter}
       onPointerDown={onReferencePointerDown}
       onFocus={activateOnFocus && !openOnClick && primaryInputCanHover ? onFocus : undefined}
       onBlur={!openOnClick ? onBlur : undefined}
