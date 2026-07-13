@@ -1,6 +1,7 @@
 'use client'
 
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import ButtonBase from '@/components/ui/ButtonBase'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
@@ -120,6 +121,25 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
     decrementPlaybackRate()
   }
 
+  const handlePlaybackRateKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        e.stopPropagation()
+        incrementPlaybackRate()
+        setIsOpen(true)
+        return
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        e.stopPropagation()
+        decrementPlaybackRate()
+        setIsOpen(true)
+      }
+    },
+    [decrementPlaybackRate, incrementPlaybackRate]
+  )
+
   // Arrow positioning
   const arrowStyles = useMemo<React.CSSProperties>(() => {
     const { x, y } = middlewareData.arrow ?? {}
@@ -182,17 +202,19 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
   return (
     <>
       {/* toggle widget button showing current playback rate */}
-      <button
+      <ButtonBase
         ref={triggerRef}
-        type="button"
+        size="custom"
+        borderless
+        className="min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base"
         onClick={toggleOpen}
+        onKeyDown={handlePlaybackRateKeyDown}
         aria-expanded={isOpen}
         aria-controls={`${widgetId}-popover`}
-        aria-label={`${t('LabelPlaybackRate')}: ${formatRate(playbackRate)}x`}
-        className="text-foreground-muted hover:text-foreground text-base font-medium tabular-nums transition-colors"
+        ariaLabel={`${t('LabelPlaybackRate')}: ${formatRate(playbackRate)}x`}
       >
         {formatRate(playbackRate)}x
-      </button>
+      </ButtonBase>
 
       {/* Popover rendered via portal */}
       {mounted && typeof document !== 'undefined' && createPortal(popoverContent, document.body)}
