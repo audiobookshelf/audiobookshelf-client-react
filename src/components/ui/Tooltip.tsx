@@ -22,14 +22,16 @@ interface TooltipProps {
   disabled?: boolean
   addTabIndex?: boolean
   openOnClick?: boolean
-  /** When true, tooltip starts open on mount (used by LazyTooltip for first-hover activation). */
+  /** Defer mounting the portaled label until hover (after a delay). Use in dense UIs or long lists. */
+  lazy?: boolean
+  /** When true, tooltip starts open on mount (used when lazy-mounting on first hover). */
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-  /** Delay (ms) before showing on hover. Used by LazyTooltip. */
+  /** Delay (ms) before showing on hover. Defaults to 400 when `lazy`, otherwise 0. */
   activationDelayMs?: number
-  /** When false, hover-only activation — focus on children does not open the tooltip. */
+  /** When false, hover-only activation — focus on children does not open the tooltip. Defaults to false when `lazy`. */
   activateOnFocus?: boolean
-  /** When true, unmount the portaled label while closed to avoid accumulating Floating UI instances. */
+  /** When true, unmount the portaled label while closed to avoid accumulating Floating UI instances. Defaults to `lazy`. */
   lazyUnmountFloating?: boolean
 }
 
@@ -59,12 +61,16 @@ const Tooltip = ({
   disabled = false,
   addTabIndex = false,
   openOnClick = false,
+  lazy = false,
   defaultOpen = false,
   onOpenChange,
-  activationDelayMs = 0,
-  activateOnFocus = true,
-  lazyUnmountFloating = false
+  activationDelayMs: activationDelayMsProp,
+  activateOnFocus: activateOnFocusProp,
+  lazyUnmountFloating: lazyUnmountFloatingProp
 }: TooltipProps) => {
+  const activationDelayMs = activationDelayMsProp ?? (lazy ? 400 : 0)
+  const activateOnFocus = activateOnFocusProp ?? !lazy
+  const lazyUnmountFloating = lazyUnmountFloatingProp ?? lazy
   const tooltipId = useId()
   const [open, setOpen] = useState(defaultOpen)
   const [mounted, setMounted] = useState(false)

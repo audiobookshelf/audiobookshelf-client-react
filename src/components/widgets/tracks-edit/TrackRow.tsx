@@ -2,7 +2,7 @@
 
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import IconBtn from '@/components/ui/IconBtn'
-import LazyTruncatingTooltipText from '@/components/ui/LazyTruncatingTooltipText'
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
 import {
   TRACKS_COL_COMPACT_CELL,
@@ -89,7 +89,7 @@ export default function TrackRow({ file, listIndex, newIndex, showDragHandle, dr
       )}
 
       <div className={mergeClasses(TRACKS_FILENAME_COLUMN_CLASS, 'px-2 py-1 lg:px-4 [@media(pointer:coarse)]:py-2.5')}>
-        <LazyTruncatingTooltipText text={file.metadata.filename} className="text-sm" maxWidth={400} />
+        <TruncatingTooltipText lazy text={file.metadata.filename} className="text-sm" maxWidth={400} />
         {file.error && <div className="text-error mt-0.5 text-xs lg:hidden">{file.error}</div>}
       </div>
 

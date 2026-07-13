@@ -2,7 +2,7 @@
 
 import { batchGetLibraryItemsAction, batchUpdateLibraryItemsAction } from '@/app/actions/mediaActions'
 import Btn from '@/components/ui/Btn'
-import LazyTruncatingTooltipText from '@/components/ui/LazyTruncatingTooltipText'
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import Tooltip from '@/components/ui/Tooltip'
 import BatchEpisodeMapDetailsPanel, { type BatchEpisodeMapDetailsPanelRef } from '@/components/widgets/batch-edit/BatchEpisodeMapDetailsPanel'
@@ -357,7 +357,7 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
                       </Btn>
                     </Tooltip>
                     <div className="order-last min-w-0 flex-1 sm:order-1">
-                      <LazyTruncatingTooltipText text={entry.podcastTitle} className="text-foreground-muted text-sm" position="top" />
+                      <TruncatingTooltipText lazy text={entry.podcastTitle} className="text-foreground-muted text-sm" position="top" />
                     </div>
                   </div>
                   <EpisodeDetailsEdit
