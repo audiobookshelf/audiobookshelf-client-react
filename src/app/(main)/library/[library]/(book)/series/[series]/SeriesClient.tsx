@@ -8,8 +8,8 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
-import { useSeriesBooksQuery } from '@/hooks/useSeriesBooksQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { filterEncode } from '@/lib/filterUtils'
 import { computeIsSeriesFinished } from '@/lib/mediaProgress'
 import { RssFeed, Series } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -26,7 +26,15 @@ export default function SeriesClient({ series: seriesProp }: SeriesClientProps) 
   const { library, collapseBookSeries, showSubtitles, updateSetting, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
   const { user, userIsAdminOrUp } = useUser()
 
-  const seriesBooksQuery = useSeriesBooksQuery(seriesProp.id)
+  const seriesBooksQuery = useMemo(() => {
+    const params = new URLSearchParams()
+    params.set('filter', `series.${filterEncode(seriesProp.id)}`)
+    if (collapseBookSeries) {
+      params.set('collapseseries', '1')
+    }
+
+    return params.toString()
+  }, [seriesProp.id, collapseBookSeries])
 
   const [series, setSeries] = useState(seriesProp)
   const [markSeriesConfirmOpen, setMarkSeriesConfirmOpen] = useState(false)
