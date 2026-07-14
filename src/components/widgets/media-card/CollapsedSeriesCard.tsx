@@ -98,7 +98,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       return (
         <div
           cy-id="seriesSequenceList"
-          className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-20 rounded-lg bg-amber-900 text-end"
+          className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-20 rounded-lg bg-amber-900 text-end text-white"
           style={{ padding: '0.1em 0.25em' }}
         >
           <p style={{ fontSize: '0.8em' }}>#{seriesSequenceList}</p>
