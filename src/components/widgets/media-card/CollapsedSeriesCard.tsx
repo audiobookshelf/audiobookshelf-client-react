@@ -111,7 +111,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       return (
         <div
           cy-id="booksInSeries"
-          className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-20 rounded-lg bg-yellow-600/90"
+          className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-20 rounded-lg bg-yellow-600/90 text-white"
           style={{ padding: '0.1em 0.25em' }}
         >
           <p style={{ fontSize: '0.8em' }}>{booksInSeries}</p>
