@@ -3,7 +3,7 @@ import { EntityType } from '@/types/api'
 import { useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef } from 'react'
 
-export function useBookshelfQuery(entityType: EntityType) {
+export function useBookshelfQuery(entityType: EntityType, enabled = true) {
   const {
     library,
     orderBy,
@@ -29,7 +29,7 @@ export function useBookshelfQuery(entityType: EntityType) {
   // Sync Settings <-> URL
   // 1. Initialize settings from URL on mount & navigation
   useEffect(() => {
-    if (!isSettingsLoaded) return
+    if (!enabled || !isSettingsLoaded) return
 
     const params = searchParams
     const hasParams = params.size > 0
@@ -67,11 +67,11 @@ export function useBookshelfQuery(entityType: EntityType) {
       syncSetting('desc', 'authorSortDesc', true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSettingsLoaded, searchParams, currentParamsString]) // Run when settings are loaded or search params change
+  }, [enabled, isSettingsLoaded, searchParams, currentParamsString]) // Run when settings are loaded or search params change
 
   // 2. Update URL when settings change
   useEffect(() => {
-    if (!isSettingsLoaded) return
+    if (!enabled || !isSettingsLoaded) return
 
     const isNavigation = prevParamsRef.current !== currentParamsString
 
@@ -120,6 +120,7 @@ export function useBookshelfQuery(entityType: EntityType) {
       window.history.replaceState(null, '', newUrl)
     }
   }, [
+    enabled,
     entityType,
     orderBy,
     orderDesc,
@@ -138,6 +139,8 @@ export function useBookshelfQuery(entityType: EntityType) {
 
   // Build query string for API (separate from URL params, but often similar)
   const query = useMemo(() => {
+    if (!enabled) return ''
+
     const params = new URLSearchParams()
 
     switch (entityType) {
@@ -170,7 +173,20 @@ export function useBookshelfQuery(entityType: EntityType) {
         break
     }
     return params.toString()
-  }, [entityType, orderBy, orderDesc, filterBy, collapseSeries, isPodcastLibrary, seriesSortBy, seriesSortDesc, seriesFilterBy, authorSortBy, authorSortDesc])
+  }, [
+    enabled,
+    entityType,
+    orderBy,
+    orderDesc,
+    filterBy,
+    collapseSeries,
+    isPodcastLibrary,
+    seriesSortBy,
+    seriesSortDesc,
+    seriesFilterBy,
+    authorSortBy,
+    authorSortDesc
+  ])
 
   return { query }
 }

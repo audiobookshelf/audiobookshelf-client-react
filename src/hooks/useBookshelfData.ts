@@ -105,20 +105,26 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
     invalidate()
   }, [libraryId, entityType, query, invalidate])
 
-  // Handle itemsPerPage changes - invalidate cache but keep items
-  // Only clear cache when itemsPerPage changes AFTER initial data load is complete
-  // During initial layout settling, itemsPerPage may bounce around - ignore those changes
+  // When itemsPerPage changes, page boundaries shift — clear loaded pages and wipe the sparse
+  // array so stale slots cannot overlap with newly fetched pages (duplicate item ids).
   useEffect(() => {
-    if (itemsPerPage > 0) {
-      // Only clear cache if we've already fetched data (isInitialized) and itemsPerPage actually changed
-      if (state.isInitialized && itemsPerPageRef.current > 0 && itemsPerPageRef.current !== itemsPerPage) {
-        // itemsPerPage changed after initial load - clear cache for re-fetch with new page boundaries
-        pagesLoadedRef.current.clear()
-        loadingPagesRef.current.clear()
-      }
-      itemsPerPageRef.current = itemsPerPage
+    if (itemsPerPage <= 0) return
+
+    const prevItemsPerPage = itemsPerPageRef.current
+    if (prevItemsPerPage > 0 && prevItemsPerPage !== itemsPerPage) {
+      pagesLoadedRef.current.clear()
+      loadingPagesRef.current.clear()
+      setState((prev) => {
+        if (prev.items.length === 0) return prev
+        return {
+          ...prev,
+          items: prev.totalEntities > 0 ? new Array(prev.totalEntities).fill(null) : [],
+          isLoading: true
+        }
+      })
     }
-  }, [itemsPerPage, state.isInitialized])
+    itemsPerPageRef.current = itemsPerPage
+  }, [itemsPerPage])
 
   /**
    * Side-fetch pages and merge into the existing sparse array without clearing the shelf.

@@ -1,48 +1,54 @@
 'use client'
 
-import { readdSeriesToContinueListeningAction } from '@/app/actions/mediaActions'
+import BookshelfClient from '@/app/(main)/library/[library]/[entityType]/BookshelfClient'
+import { markSeriesFinishedAction, readdSeriesToContinueListeningAction } from '@/app/actions/mediaActions'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
-import SelectableShelfMediaCard from '@/components/widgets/media-card/SelectableShelfMediaCard'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
-import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { applyLibraryItemUpdateToList } from '@/lib/libraryItemUpdatedUtils'
-import { BookshelfView, GetLibraryItemsResponse, RssFeed, Series } from '@/types/api'
+import { filterEncode } from '@/lib/filterUtils'
+import { computeIsSeriesFinished } from '@/lib/mediaProgress'
+import { RssFeed, Series } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState, useTransition } from 'react'
 
 interface SeriesClientProps {
   series: Series
-  libraryItems: GetLibraryItemsResponse
 }
 
-export default function SeriesClient({ series, libraryItems }: SeriesClientProps) {
+export default function SeriesClient({ series: seriesProp }: SeriesClientProps) {
   const router = useRouter()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { library, collapseBookSeries, showSubtitles, updateSetting, setItemCount, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } =
-    useLibrary()
-  const { user, serverSettings, ereaderDevices, getMediaItemProgress, userIsAdminOrUp } = useUser()
+  const { library, collapseBookSeries, showSubtitles, updateSetting, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
+  const { user, userIsAdminOrUp } = useUser()
 
-  const [items, setItems] = useState(libraryItems.results)
+  const seriesBooksQuery = useMemo(() => {
+    const params = new URLSearchParams()
+    params.set('filter', `series.${filterEncode(seriesProp.id)}`)
+    if (collapseBookSeries) {
+      params.set('collapseseries', '1')
+    }
+
+    return params.toString()
+  }, [seriesProp.id, collapseBookSeries])
+
+  const [series, setSeries] = useState(seriesProp)
+  const [markSeriesConfirmOpen, setMarkSeriesConfirmOpen] = useState(false)
 
   useEffect(() => {
-    setItems(libraryItems.results)
-  }, [libraryItems.results])
+    setSeries(seriesProp)
+  }, [seriesProp])
 
-  useLibraryItemUpdated(
-    library.id,
-    useCallback((updatedItem) => {
-      setItems((prev) => applyLibraryItemUpdateToList(prev, updatedItem))
-    }, [])
-  )
   const [isReaddingSeries, startReaddSeriesTransition] = useTransition()
+  const [isMarkingSeriesFinished, startMarkSeriesFinishedTransition] = useTransition()
   const isSeriesRemovedFromContinueListening = user.seriesHideFromContinueListening.includes(series.id)
 
-  const bookTotal = libraryItems.total ?? items.length
+  const seriesLibraryItemIds = useMemo(() => series.progress?.libraryItemIds ?? [], [series.progress?.libraryItemIds])
+  const isSeriesFinished = useMemo(() => computeIsSeriesFinished(user.mediaProgress, seriesLibraryItemIds), [seriesLibraryItemIds, user.mediaProgress])
 
   const [rssFeed, setRssFeed] = useState<RssFeed | null>(series.rssFeed ?? null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
@@ -70,14 +76,12 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
 
   useLayoutEffect(() => {
     setDetailToolbarTitle(series.name)
-    setItemCount(bookTotal)
 
     return () => {
       setDetailToolbarTitle(null)
-      setItemCount(null)
       setContextMenuItems([])
     }
-  }, [bookTotal, series.name, setContextMenuItems, setDetailToolbarTitle, setItemCount])
+  }, [series.name, setContextMenuItems, setDetailToolbarTitle])
 
   const openRssModal = useCallback(() => {
     setRssFeedModalOpen(true)
@@ -97,6 +101,36 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
     })
   }, [isReaddingSeries, series.id, showToast, t])
 
+  const openMarkSeriesFinishedConfirm = useCallback(() => {
+    if (isMarkingSeriesFinished || seriesLibraryItemIds.length === 0) return
+    setMarkSeriesConfirmOpen(true)
+  }, [isMarkingSeriesFinished, seriesLibraryItemIds.length])
+
+  const confirmMarkSeriesFinished = useCallback(() => {
+    if (isMarkingSeriesFinished || seriesLibraryItemIds.length === 0) return
+
+    const newIsFinished = !isSeriesFinished
+
+    startMarkSeriesFinishedTransition(async () => {
+      try {
+        await markSeriesFinishedAction(
+          library.id,
+          series.id,
+          seriesLibraryItemIds.map((libraryItemId) => ({
+            libraryItemId,
+            isFinished: newIsFinished
+          }))
+        )
+
+        showToast(t('ToastSeriesUpdateSuccess'), { type: 'success' })
+        setMarkSeriesConfirmOpen(false)
+      } catch (error) {
+        console.error('Failed to batch update series finished state', error)
+        showToast(t('ToastSeriesUpdateFailed'), { type: 'error' })
+      }
+    })
+  }, [isMarkingSeriesFinished, isSeriesFinished, library.id, series.id, seriesLibraryItemIds, showToast, t])
+
   const handleToolbarMenuAction = useCallback(
     (action: string) => {
       if (action === 'openRssFeed') {
@@ -107,22 +141,26 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
         updateSetting('showSubtitles', true)
       } else if (action === 'hide-subtitles') {
         updateSetting('showSubtitles', false)
-      } else if (action === 'collapse-sub-series' || action === 'expand-sub-series') {
-        showToast('Not implemented', { type: 'warning' })
+      } else if (action === 'collapse-sub-series') {
+        updateSetting('collapseBookSeries', true)
+      } else if (action === 'expand-sub-series') {
+        updateSetting('collapseBookSeries', false)
       } else if (action === 'mark-series-finished') {
-        showToast('Not implemented', { type: 'warning' })
+        openMarkSeriesFinishedConfirm()
       }
     },
-    [openRssModal, reAddSeriesToContinueListening, showToast, updateSetting]
+    [openMarkSeriesFinishedConfirm, openRssModal, reAddSeriesToContinueListening, updateSetting]
   )
 
   useEffect(() => {
-    const menuItems: { text: string; action: string }[] = [
-      {
-        text: t('MessageMarkAsFinished'),
+    const menuItems: { text: string; action: string }[] = []
+
+    if (seriesLibraryItemIds.length > 0) {
+      menuItems.push({
+        text: t(isSeriesFinished ? 'MessageMarkAsNotFinished' : 'MessageMarkAsFinished'),
         action: 'mark-series-finished'
-      }
-    ]
+      })
+    }
 
     if (userIsAdminOrUp || rssFeed) {
       menuItems.push({ text: t('LabelOpenRSSFeed'), action: 'openRssFeed' })
@@ -144,7 +182,18 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
     }
 
     setContextMenuItems(menuItems)
-  }, [collapseBookSeries, isSeriesRemovedFromContinueListening, library.mediaType, rssFeed, setContextMenuItems, showSubtitles, t, userIsAdminOrUp])
+  }, [
+    collapseBookSeries,
+    isSeriesFinished,
+    isSeriesRemovedFromContinueListening,
+    library.mediaType,
+    rssFeed,
+    seriesLibraryItemIds.length,
+    setContextMenuItems,
+    showSubtitles,
+    t,
+    userIsAdminOrUp
+  ])
 
   useEffect(() => {
     setContextMenuActionHandler(handleToolbarMenuAction)
@@ -162,29 +211,8 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
   )
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-4">
-        {items.map((libraryItem, entityIndex) => {
-          const entityProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
-          return (
-            <SelectableShelfMediaCard
-              key={libraryItem.id}
-              scopeId={`series:${series.id}`}
-              libraryItem={libraryItem}
-              cardType="book"
-              bookshelfView={BookshelfView.DETAIL}
-              dateFormat={serverSettings.dateFormat}
-              timeFormat={serverSettings.timeFormat}
-              userPermissions={user.permissions}
-              ereaderDevices={ereaderDevices}
-              showSubtitles={showSubtitles}
-              mediaProgress={entityProgress}
-              shelfEntities={items}
-              entityIndex={entityIndex}
-            />
-          )
-        })}
-      </div>
+    <div className="h-full w-full">
+      <BookshelfClient entityType="items" queryOverride={seriesBooksQuery} registerToolbar={false} />
 
       <RssFeedOpenCloseModal
         isOpen={rssFeedModalOpen}
@@ -194,6 +222,14 @@ export default function SeriesClient({ series, libraryItems }: SeriesClientProps
           setRssFeed(feed)
           router.refresh()
         }}
+      />
+
+      <ConfirmDialog
+        isOpen={markSeriesConfirmOpen}
+        message={t(isSeriesFinished ? 'MessageConfirmMarkSeriesNotFinished' : 'MessageConfirmMarkSeriesFinished')}
+        processing={isMarkingSeriesFinished}
+        onClose={() => setMarkSeriesConfirmOpen(false)}
+        onConfirm={confirmMarkSeriesFinished}
       />
     </div>
   )
