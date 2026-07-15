@@ -11,12 +11,12 @@ import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
-import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCardActions'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
+import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { buildBookQueueItem, getPodcastItemPagePlaybackParams } from '@/lib/playerQueue'
 import { PlayerState, type BookLibraryItem, type PodcastEpisode, type PodcastLibraryItem, type RssFeed } from '@/types/api'
 import { useCallback, useMemo, useState } from 'react'
@@ -49,7 +49,8 @@ export default function LibraryItemActionButtons({
     getIsMediaQueued,
     addItemToQueue,
     removeItemFromQueue,
-    playerHandler
+    playerControls,
+    playerLoadState
   } = useMediaContext()
   const t = useTypeSafeTranslations()
   const [matchModalOpen, setMatchModalOpen] = useState(false)
@@ -115,12 +116,12 @@ export default function LibraryItemActionButtons({
     },
     onOpenMatch: handleOpenMatch,
     onOpenCoverEdit,
-    playerControls: playerHandler.controls
+    playerControls
   })
 
   const handlePlay = useCallback(() => {
     if (isStreaming) {
-      playerHandler.controls.playPause()
+      playerControls.playPause()
       return
     }
 
@@ -155,7 +156,7 @@ export default function LibraryItemActionButtons({
     isStreaming,
     libraryItem,
     playItem,
-    playerHandler.controls,
+    playerControls,
     podcastEpisodes,
     getPodcastEpisodesInOrder,
     serverSettings.dateFormat,
@@ -216,7 +217,7 @@ export default function LibraryItemActionButtons({
         {showPlayButton && (
           <Btn
             onClick={handlePlay}
-            loading={playerHandler.state.playerState === PlayerState.LOADING}
+            loading={playerLoadState === PlayerState.LOADING}
             color="bg-success"
             size="small"
             className="mr-2 flex h-9 items-center px-4"

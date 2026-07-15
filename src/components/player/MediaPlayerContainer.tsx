@@ -1,11 +1,12 @@
 'use client'
 
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
+import { useMediaContext, usePlayerState } from '@/contexts/MediaContext'
 import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
 import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useMediaSession } from '@/hooks/useMediaSession'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
@@ -25,7 +26,9 @@ export const MEDIA_PLAYER_BOTTOM_INSET_CLASS = 'bottom-48 lg:bottom-40'
 
 export default function MediaPlayerContainer() {
   const t = useTypeSafeTranslations()
-  const { streamLibraryItem, streamEpisodeId, clearStreamMedia, playerHandler } = useMediaContext()
+  const { streamLibraryItem, streamEpisodeId, clearStreamMedia, playerControls } = useMediaContext()
+  const playerState = usePlayerState()
+  const playerHandler = useMemo((): PlayerHandler => ({ state: playerState, controls: playerControls }), [playerControls, playerState])
   const coverAspectRatio = useBookCoverAspectRatio()
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)

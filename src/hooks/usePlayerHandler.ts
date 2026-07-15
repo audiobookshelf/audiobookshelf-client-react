@@ -9,7 +9,7 @@ import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
 import { computeTranscodePercentReady } from '@/lib/player/streamProgressUtils'
 import type { Chapter, LibraryItem, PlaybackSession, PlayMethod, StreamProgressPayload } from '@/types/api'
 import { PlayerState } from '@/types/api'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type PlayerBackend = LocalAudioPlayer | CastPlayer
 type PlayerKind = 'local' | 'cast'
@@ -132,8 +132,15 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     onPlaybackFinishedRef.current = handler
   }, [])
   // Player settings (persisted in local storage)
-  const playerSettings = usePlayerSettings()
-  const { settings } = playerSettings
+  const {
+    settings,
+    setVolume: setPersistedVolume,
+    toggleMute: togglePersistedMute,
+    setPlaybackRate: setPersistedPlaybackRate,
+    incrementPlaybackRate: incrementPersistedPlaybackRate,
+    decrementPlaybackRate: decrementPersistedPlaybackRate,
+    updateSettings
+  } = usePlayerSettings()
 
   // Player state
   const [playerState, setPlayerState] = useState<PlayerState>(PlayerState.IDLE)
@@ -163,6 +170,15 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const volumeRef = useRef(settings.volume)
   volumeRef.current = settings.volume
+
+  const playerStateRef = useRef(playerState)
+  playerStateRef.current = playerState
+
+  const jumpForwardAmountRef = useRef(settings.jumpForwardAmount)
+  jumpForwardAmountRef.current = settings.jumpForwardAmount
+
+  const jumpBackwardAmountRef = useRef(settings.jumpBackwardAmount)
+  jumpBackwardAmountRef.current = settings.jumpBackwardAmount
 
   const currentChapter = chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null
   const nextChapter = chapters.find((chapter) => chapter.start > currentTime && chapter.end > currentTime) ?? null
@@ -300,10 +316,6 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
         if (state === PlayerState.LOADED || state === PlayerState.PLAYING) {
           setDuration(player.getDuration())
         }
-      })
-
-      player.on('timeupdate', (time) => {
-        setCurrentTime(time)
       })
 
       player.on('buffertimeUpdate', (time) => {
@@ -452,58 +464,57 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     playerRef.current?.playPause()
   }, [])
 
-  const seek = useCallback(
-    (time: number) => {
-      if (!playerRef.current) return
-      const isPlaying = playerState === PlayerState.PLAYING
-      void Promise.resolve(playerRef.current.seek(time, isPlaying))
-      setCurrentTime(time)
-    },
-    [playerState]
-  )
+  const seek = useCallback((time: number) => {
+    if (!playerRef.current) return
+    const isPlaying = playerStateRef.current === PlayerState.PLAYING
+    void Promise.resolve(playerRef.current.seek(time, isPlaying))
+    setCurrentTime(time)
+  }, [])
 
   const jumpForward = useCallback(() => {
-    if (!playerRef.current) return
-    const newTime = Math.min(currentTime + settings.jumpForwardAmount, duration)
+    const player = playerRef.current
+    if (!player) return
+    const newTime = Math.min(player.getCurrentTime() + jumpForwardAmountRef.current, player.getDuration())
     seek(newTime)
-  }, [currentTime, duration, seek, settings.jumpForwardAmount])
+  }, [seek])
 
   const jumpBackward = useCallback(() => {
-    if (!playerRef.current) return
-    const newTime = Math.max(currentTime - settings.jumpBackwardAmount, 0)
+    const player = playerRef.current
+    if (!player) return
+    const newTime = Math.max(player.getCurrentTime() - jumpBackwardAmountRef.current, 0)
     seek(newTime)
-  }, [currentTime, seek, settings.jumpBackwardAmount])
+  }, [seek])
 
   const setVolume = useCallback(
     (vol: number) => {
-      playerSettings.setVolume(vol)
+      setPersistedVolume(vol)
       playerRef.current?.setVolume(vol)
     },
-    [playerSettings]
+    [setPersistedVolume]
   )
 
   const toggleMute = useCallback(() => {
-    const newVolume = playerSettings.toggleMute()
+    const newVolume = togglePersistedMute()
     playerRef.current?.setVolume(newVolume)
-  }, [playerSettings])
+  }, [togglePersistedMute])
 
   const setPlaybackRate = useCallback(
     (rate: number) => {
-      playerSettings.setPlaybackRate(rate)
+      setPersistedPlaybackRate(rate)
       playerRef.current?.setPlaybackRate(rate)
     },
-    [playerSettings]
+    [setPersistedPlaybackRate]
   )
 
   const incrementPlaybackRate = useCallback(() => {
-    const newRate = playerSettings.incrementPlaybackRate()
+    const newRate = incrementPersistedPlaybackRate()
     playerRef.current?.setPlaybackRate(newRate)
-  }, [playerSettings])
+  }, [incrementPersistedPlaybackRate])
 
   const decrementPlaybackRate = useCallback(() => {
-    const newRate = playerSettings.decrementPlaybackRate()
+    const newRate = decrementPersistedPlaybackRate()
     playerRef.current?.setPlaybackRate(newRate)
-  }, [playerSettings])
+  }, [decrementPersistedPlaybackRate])
 
   const closePlayer = useCallback(async () => {
     stopSyncInterval()
@@ -534,6 +545,41 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     playerKindRef.current = 'local'
   }, [closeSession, stopSyncInterval])
 
+  const controls = useMemo(
+    (): PlayerHandlerControls => ({
+      load,
+      play,
+      pause,
+      playPause,
+      seek,
+      jumpForward,
+      jumpBackward,
+      setVolume,
+      toggleMute,
+      setPlaybackRate,
+      incrementPlaybackRate,
+      decrementPlaybackRate,
+      updateSettings,
+      closePlayer
+    }),
+    [
+      load,
+      play,
+      pause,
+      playPause,
+      seek,
+      jumpForward,
+      jumpBackward,
+      setVolume,
+      toggleMute,
+      setPlaybackRate,
+      incrementPlaybackRate,
+      decrementPlaybackRate,
+      updateSettings,
+      closePlayer
+    ]
+  )
+
   return {
     state: {
       playerState,
@@ -553,22 +599,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       previousChapter,
       settings
     },
-    controls: {
-      load,
-      play,
-      pause,
-      playPause,
-      seek,
-      jumpForward,
-      jumpBackward,
-      setVolume,
-      toggleMute,
-      setPlaybackRate,
-      incrementPlaybackRate,
-      decrementPlaybackRate,
-      updateSettings: playerSettings.updateSettings,
-      closePlayer
-    },
+    controls,
     setOnPlaybackFinished
   }
 }

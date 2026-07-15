@@ -10,10 +10,10 @@ import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
 import { getPlayerQueueEpisodeNavigationContext } from '@/lib/playerQueue'
-import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -24,7 +24,7 @@ interface QueueItemsModalProps {
 
 export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProps) {
   const t = useTypeSafeTranslations()
-  const { playerQueueItems, playerQueueAutoPlay, setPlayerQueueAutoPlay, isStreaming, isPlaying, playQueueItemAtIndex, removeItemFromQueue, playerHandler } =
+  const { playerQueueItems, playerQueueAutoPlay, setPlayerQueueAutoPlay, isStreaming, isPlaying, playQueueItemAtIndex, removeItemFromQueue, playerControls } =
     useMediaContext()
   const [viewEpisodeNavCtx, setViewEpisodeNavCtx] = useState<EpisodeNavigationContext | null>(null)
 
@@ -65,8 +65,8 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   )
 
   const handlePause = useCallback(() => {
-    playerHandler.controls.playPause()
-  }, [playerHandler.controls])
+    playerControls.playPause()
+  }, [playerControls])
 
   const columns = useMemo<DataTableColumn<PlayerQueueItem>[]>(
     () => [

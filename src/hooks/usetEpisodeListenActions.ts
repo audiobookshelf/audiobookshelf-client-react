@@ -37,7 +37,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     getIsMediaQueued,
     addItemToQueue,
     removeItemFromQueue,
-    playerHandler
+    playerControls
   } = useMediaContext()
 
   const [, startTransition] = useTransition()
@@ -75,7 +75,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
       e.preventDefault()
 
       if (isStreaming(libraryItemId, episode.id)) {
-        playerHandler.controls.playPause()
+        playerControls.playPause()
         return
       }
 
@@ -98,7 +98,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
         }
       })
     },
-    [episode.id, getQueueItems, isStreaming, libraryItemId, playItem, playerHandler.controls, progress, showToast, t]
+    [episode.id, getQueueItems, isStreaming, libraryItemId, playItem, playerControls, progress, showToast, t]
   )
 
   const handleQueueToggle = useCallback(

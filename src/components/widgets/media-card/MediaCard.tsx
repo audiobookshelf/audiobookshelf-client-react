@@ -181,7 +181,7 @@ function MediaCard(props: MediaCardProps) {
   const router = useRouter()
   const { setBoundModal } = useLibrary()
   const coverAspect = useBookCoverAspectRatio()
-  const { libraryItemIdStreaming, isStreaming, isPlaying, isStreamingFromDifferentLibrary, getIsMediaQueued, playerHandler } = useMediaContext()
+  const { libraryItemIdStreaming, isStreaming, isPlaying, isStreamingFromDifferentLibrary, getIsMediaQueued, playerControls } = useMediaContext()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
@@ -404,7 +404,7 @@ function MediaCard(props: MediaCardProps) {
     onOpenMatch: handleOpenMatch,
     onOpenCoverEdit: handleOpenCoverEdit,
     onDeleteSuccess,
-    playerControls: playerHandler.controls
+    playerControls
   })
 
   const performCardActivate = useCallback(() => {

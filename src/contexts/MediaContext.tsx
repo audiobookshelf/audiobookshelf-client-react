@@ -4,7 +4,7 @@ import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
 import { useChromecast } from '@/contexts/ChromecastContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
-import { usePlayerHandler, type PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerHandler, type PlayerHandlerControls, type PlayerHandlerState } from '@/hooks/usePlayerHandler'
 import { isPodcastLibraryItem, LibraryItem, LibraryItemRemovedPayload, PlayerState } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -53,12 +53,15 @@ interface MediaContextValue {
   playNextInQueue: () => Promise<void>
   playPreviousInQueue: () => Promise<void>
 
-  // Player handler
-  playerHandler: PlayerHandler
+  // Player controls
+  playerControls: PlayerHandlerControls
+  // Player load state enum (changes on play/pause/load only)
+  playerLoadState: PlayerState
 }
 
 const MediaNavigationContext = createContext<MediaNavigationContextValue | undefined>(undefined)
 const MediaContext = createContext<MediaContextValue | undefined>(undefined)
+const PlayerStateContext = createContext<PlayerHandlerState | undefined>(undefined)
 
 const LOCAL_STORAGE_AUTO_PLAY_KEY = 'playerQueueAutoPlay'
 
@@ -86,7 +89,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   playerQueueAutoPlayRef.current = playerQueueAutoPlay
 
   const { isCasting } = useChromecast()
-  const { state: playerState, controls: playerControls, setOnPlaybackFinished } = usePlayerHandler({ isCasting })
+  const { state: playerHandlerState, controls: playerControls, setOnPlaybackFinished } = usePlayerHandler({ isCasting })
 
   const libraryItemIdStreaming = useMemo(() => streamLibraryItem?.id ?? null, [streamLibraryItem])
 
@@ -153,9 +156,9 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const isPlaying = useCallback(
     (libraryItemId: string, episodeId?: string | null) => {
       if (!isStreaming(libraryItemId, episodeId)) return false
-      return playerState.playerState === PlayerState.PLAYING
+      return playerHandlerState.playerState === PlayerState.PLAYING
     },
-    [isStreaming, playerState.playerState]
+    [isStreaming, playerHandlerState.playerState]
   )
 
   const getIsMediaQueued = useCallback(
@@ -415,11 +418,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       playNextInQueue,
       playPreviousInQueue,
 
-      // Player handler (state + controls)
-      playerHandler: {
-        state: playerState,
-        controls: playerControls
-      }
+      playerControls,
+      playerLoadState: playerHandlerState.playerState
     }),
     [
       streamLibraryItem,
@@ -442,7 +442,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       playQueueItemAtIndex,
       playNextInQueue,
       playPreviousInQueue,
-      playerState,
+      playerHandlerState.playerState,
       playerControls
     ]
   )
@@ -451,7 +451,9 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     <MediaNavigationContext.Provider value={navigationValue}>
       <MediaContext.Provider value={value}>
         {children}
-        <MediaPlayerContainer />
+        <PlayerStateContext.Provider value={playerHandlerState}>
+          <MediaPlayerContainer />
+        </PlayerStateContext.Provider>
       </MediaContext.Provider>
     </MediaNavigationContext.Provider>
   )
@@ -469,6 +471,15 @@ export function useMediaContext(): MediaContextValue {
   const ctx = useContext(MediaContext)
   if (!ctx) {
     throw new Error('useMediaContext must be used within a MediaProvider')
+  }
+  return ctx
+}
+
+/** Ticking player state (only subscribe within the player UI subtree) */
+export function usePlayerState(): PlayerHandlerState {
+  const ctx = useContext(PlayerStateContext)
+  if (!ctx) {
+    throw new Error('usePlayerState must be used within MediaProvider player state context')
   }
   return ctx
 }
