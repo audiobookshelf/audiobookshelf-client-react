@@ -17,17 +17,19 @@ import { ENTITY_CONFIGS } from './entity-config'
 
 interface BookshelfClientProps {
   entityType: EntityType
-  // Different APIs return different structures:
-  // - items/series/collections/playlists: { results: T[], total?: number }
-  // - authors: { authors: Author[], total?: number }
+  queryOverride?: string
+  /** When false, skip wiring toolbar extras and context menu into LibraryContext (caller owns the toolbar). Default true. */
+  registerToolbar?: boolean
 }
 
-export default function BookshelfClient({ entityType }: BookshelfClientProps) {
+export default function BookshelfClient({ entityType, queryOverride, registerToolbar = true }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
   const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, authorSortBy, updateSetting, filterBy, bookshelfView } = useLibrary()
   const { user } = useUser()
 
-  const { query } = useBookshelfQuery(entityType)
+  const usesExternalQuery = queryOverride !== undefined
+  const { query: defaultQuery } = useBookshelfQuery(entityType, !usesExternalQuery)
+  const query = queryOverride ?? defaultQuery
 
   const isRandomSort = useMemo(() => {
     if (entityType === 'items') return orderBy === 'random'
@@ -218,7 +220,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
   const config = validEntities.includes(entityType as string) ? ENTITY_CONFIGS[entityType] : null
 
   useEffect(() => {
-    if (!config) return
+    if (!config || !registerToolbar) return
     // Set up toolbar extras based on entity config
     setToolbarExtras(config.getToolbarExtras(user, library))
 
@@ -240,7 +242,20 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
       setToolbarExtras(null)
       setContextMenuItems([])
     }
-  }, [entityType, config, setToolbarExtras, setContextMenuItems, setContextMenuActionHandler, updateSetting, library, showSubtitles, collapseSeries, user, t])
+  }, [
+    entityType,
+    config,
+    registerToolbar,
+    setToolbarExtras,
+    setContextMenuItems,
+    setContextMenuActionHandler,
+    updateSetting,
+    library,
+    showSubtitles,
+    collapseSeries,
+    user,
+    t
+  ])
 
   // Get empty state message based on entity config
   const getEmptyMessage = () => {
@@ -328,7 +343,7 @@ export default function BookshelfClient({ entityType }: BookshelfClientProps) {
                   const entityIndex = startIndex + k
                   return (
                     <config.CardComponent
-                      key={`card-wrapper-${item.id}`}
+                      key={`card-wrapper-${entityIndex}`}
                       entity={item}
                       bookshelfView={bookshelfView}
                       width={currentCardWidth}

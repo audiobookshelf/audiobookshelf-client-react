@@ -236,6 +236,14 @@ function MediaCard(props: MediaCardProps) {
     }
   }
 
+  const handleSelect = useCallback(
+    (event: MouseEvent) => {
+      closeMoreMenu()
+      onSelect?.(event)
+    },
+    [closeMoreMenu, onSelect]
+  )
+
   const isPodcast = isPodcastLibraryItem(libraryItem)
 
   const media = libraryItem.media as BookMedia | PodcastMedia
@@ -604,7 +612,7 @@ function MediaCard(props: MediaCardProps) {
             onEdit={handleOpenEdit}
             onMoreAction={handleMoreAction}
             onMoreMenuOpenChange={handleMoreMenuOpenChange}
-            onSelect={onSelect}
+            onSelect={handleSelect}
             dragHandle={dragHandle}
             overlayModeOverride={overlayMode}
           />

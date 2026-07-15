@@ -182,7 +182,7 @@ function SeriesCard(props: SeriesCardProps) {
           {/* Books count badge */}
           <div
             cy-id="seriesLengthMarker"
-            className="shadow-modal-content absolute z-20 rounded-lg"
+            className="shadow-modal-content absolute z-20 rounded-lg text-white"
             style={{
               top: '0.375em',
               right: '0.375em',

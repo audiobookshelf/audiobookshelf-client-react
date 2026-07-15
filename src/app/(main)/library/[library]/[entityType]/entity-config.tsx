@@ -17,6 +17,7 @@ import { UpdateSettingFn } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useBookshelfCardSelection } from '@/hooks/useBookshelfCardSelection'
 import { downloadLibraryOpml } from '@/lib/download'
+import { computeCollapsedSeriesProgress } from '@/lib/mediaProgress'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import { userCanDownload, userCanUpdate } from '@/lib/userPermissions'
 import {
@@ -166,12 +167,17 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       const EntityMediaCard = isPodcastLibrary ? PodcastMediaCard : BookMediaCard
 
       if (isCollapsedSeries) {
+        const libraryItemIds = item.collapsedSeries?.libraryItemIds
+        const seriesProgressPercent =
+          libraryItemIds && libraryItemIds.length > 0 ? computeCollapsedSeriesProgress(user.mediaProgress, libraryItemIds) : undefined
+
         return (
           <div style={{ width: `${width}px`, flexShrink: 0 }}>
             <CollapsedSeriesCard
               libraryItem={item}
               bookshelfView={bookshelfView}
               mediaProgress={entityProgress}
+              seriesProgressPercent={seriesProgressPercent}
               isSelectionMode={false}
               selected={false}
               dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}

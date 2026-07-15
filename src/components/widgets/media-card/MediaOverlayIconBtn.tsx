@@ -80,7 +80,7 @@ export default function MediaOverlayIconBtn({
   tabIndex
 }: MediaOverlayIconBtnProps) {
   return (
-    <div cy-id={cyId} className={mergeClasses('absolute z-40', MEDIA_OVERLAY_ICON_POSITION_CLASSES[position])}>
+    <div cy-id={cyId} data-overlay-action className={mergeClasses('absolute z-40', MEDIA_OVERLAY_ICON_POSITION_CLASSES[position])}>
       <MediaOverlayIconBtnSurface icon={icon} onClick={onClick} ariaLabel={ariaLabel} className={className} selected={selected} tabIndex={tabIndex} />
     </div>
   )

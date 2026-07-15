@@ -2,6 +2,11 @@
 
 import * as api from '@/lib/api'
 import { RssPodcastEpisode, UpdateLibraryItemMediaPayload, UpdatePodcastEpisodePayload, type BatchUpdateLibraryItemPayload } from '@/types/api'
+import { revalidatePath } from 'next/cache'
+
+function revalidateSeriesPage(libraryId: string, seriesId: string) {
+  revalidatePath(`/library/${libraryId}/series/${seriesId}`)
+}
 
 export async function toggleFinishedAction(libraryItemId: string, params: { isFinished: boolean; episodeId?: string }) {
   return api.updateMediaFinished(libraryItemId, params)
@@ -9,6 +14,11 @@ export async function toggleFinishedAction(libraryItemId: string, params: { isFi
 
 export async function batchUpdateMediaFinishedAction(payload: { libraryItemId: string; episodeId?: string; isFinished: boolean }[]) {
   return api.batchUpdateMediaFinished(payload)
+}
+
+export async function markSeriesFinishedAction(libraryId: string, seriesId: string, payload: { libraryItemId: string; isFinished: boolean }[]) {
+  await api.batchUpdateMediaFinished(payload)
+  revalidateSeriesPage(libraryId, seriesId)
 }
 
 export async function updateLibraryItemMediaAction(libraryItemId: string, payload: UpdateLibraryItemMediaPayload) {
