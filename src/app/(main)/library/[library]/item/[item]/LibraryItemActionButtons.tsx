@@ -28,7 +28,7 @@ interface LibraryItemActionButtonsProps {
   /** Current RSS feed state (from useItemPageSocket + initial server data). */
   rssFeed?: RssFeed | null
   /** Filtered/sorted podcast episodes from EpisodeTable (item-page Play). */
-  podcastEpisodesInOrder?: PodcastEpisode[]
+  getPodcastEpisodesInOrder?: () => PodcastEpisode[]
 }
 
 export default function LibraryItemActionButtons({
@@ -36,7 +36,7 @@ export default function LibraryItemActionButtons({
   onEdit,
   onOpenCoverEdit,
   rssFeed = null,
-  podcastEpisodesInOrder = []
+  getPodcastEpisodesInOrder
 }: LibraryItemActionButtonsProps) {
   const { userCanUpdate, getMediaItemProgress, ereaderDevices, user, serverSettings } = useUser()
   const {
@@ -126,6 +126,7 @@ export default function LibraryItemActionButtons({
 
     if (isPodcast) {
       const dateFormat = serverSettings.dateFormat ?? 'MM/dd/yyyy'
+      const podcastEpisodesInOrder = getPodcastEpisodesInOrder?.() ?? []
       const playback = getPodcastItemPagePlaybackParams(
         podcastEpisodesInOrder.length > 0 ? podcastEpisodesInOrder : podcastEpisodes,
         libraryItem as PodcastLibraryItem,
@@ -156,7 +157,7 @@ export default function LibraryItemActionButtons({
     playItem,
     playerHandler.controls,
     podcastEpisodes,
-    podcastEpisodesInOrder,
+    getPodcastEpisodesInOrder,
     serverSettings.dateFormat,
     t,
     user.mediaProgress
