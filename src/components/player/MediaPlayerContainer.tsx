@@ -8,7 +8,7 @@ import { useMediaSession } from '@/hooks/useMediaSession'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { getLibraryItemCoverSrc, getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { getEpisodeDuration } from '@/lib/episode'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -103,7 +103,7 @@ export default function MediaPlayerContainer() {
       {accentRgb !== null ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
       <div className="absolute top-2 left-2 z-[1] flex gap-4 lg:left-4">
         <PreviewCover
-          src={getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt)}
+          src={getLibraryItemCoverSrc(streamLibraryItem, getPlaceholderCoverUrl())}
           bookCoverAspectRatio={coverAspectRatio}
           showResolution={false}
           width={77}
