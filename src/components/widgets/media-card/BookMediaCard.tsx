@@ -13,11 +13,13 @@ export default function BookMediaCard(props: BookMediaCardProps) {
   const { libraryItem } = props
   const media = libraryItem.media as BookMedia
 
+  // Sequence badge only when the server injects a shelf `PersonalizedSeriesRef`
+  // (continue-series, series-filtered rows). Minified home shelves use `seriesName` only;
+  // expanded `Series[]` from socket updates must not drive this badge.
   const seriesSequence = useMemo(() => {
     const { series } = media.metadata
-    if (!series) return null
-    if (isPersonalizedSeriesRef(series)) return series.sequence ?? null
-    return series[0]?.sequence ?? null
+    if (!series || !isPersonalizedSeriesRef(series)) return null
+    return series.sequence ?? null
   }, [media.metadata])
 
   const ebookFormat = useMemo(() => media.ebookFormat, [media])
