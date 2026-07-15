@@ -1,8 +1,8 @@
-import { useGlobalToast } from '@/contexts/ToastContext'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
-import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useSleepTimer } from '@/hooks/useSleepTimer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { LibraryItem, PlayerState } from '@/types/api'
@@ -13,8 +13,8 @@ import BookmarksModal from './BookmarksModal'
 import ChaptersModal from './ChaptersModal'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import PlayerSettingsModal from './PlayerSettingsModal'
-import SleepTimerModal from './SleepTimerModal'
 import QueueItemsModal from './QueueItemsModal'
+import SleepTimerModal from './SleepTimerModal'
 import VolumeControl from './VolumeControl'
 
 interface PlayerControlsProps {
@@ -71,21 +71,8 @@ export default function PlayerControls({ playerHandler, streamLibraryItem }: Pla
   const jumpBackwardTooltipText = getJumpTooltipText(t('ButtonJumpBackward'), settings.jumpBackwardAmount)
   const jumpForwardTooltipText = getJumpTooltipText(t('ButtonJumpForward'), settings.jumpForwardAmount)
   const hasNext = !!nextChapter || hasNextItemInQueue
-  const useEpisodeNavigation = isPodcast && chapters.length === 0
-  const nextQueueTooltipText = isPodcast ? t('ButtonNextEpisodeInQueue') : t('ButtonNextBookInQueue')
-  const nextButtonTooltipText = useEpisodeNavigation
-    ? t('ButtonNextEpisodeInQueue')
-    : hasNextItemInQueue && !nextChapter
-      ? nextQueueTooltipText
-      : t('ButtonNextChapter')
-  const previousQueueTooltipText = isPodcast ? t('ButtonPreviousEpisodeInQueue') : t('ButtonPreviousBookInQueue')
-  const previousButtonTooltipText = useEpisodeNavigation
-    ? hasPreviousItemInQueue
-      ? t('ButtonPreviousEpisodeInQueue')
-      : t('ButtonPreviousEpisode')
-    : hasPreviousItemInQueue && !previousChapter
-      ? previousQueueTooltipText
-      : t('ButtonPreviousChapter')
+  const nextButtonTooltipText = hasNextItemInQueue && !nextChapter ? t('ButtonNextItemInQueue') : t('ButtonNextChapter')
+  const previousButtonTooltipText = hasPreviousItemInQueue && !previousChapter ? t('ButtonPreviousItemInQueue') : t('ButtonPreviousChapter')
 
   return (
     <>

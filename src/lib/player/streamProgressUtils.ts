@@ -2,8 +2,7 @@
 export type TranscodeChunk = number | string
 
 /**
- * Compute how much of an HLS transcode stream is ready on the server (0–1).
- * Matches Vue `PlayerUi.setChunksReady`.
+ * Compute how much of an HLS transcode stream is ready on the server (0–1)
  */
 export function computeTranscodePercentReady(chunks: TranscodeChunk[], numSegments: number): number {
   if (!numSegments) return 0

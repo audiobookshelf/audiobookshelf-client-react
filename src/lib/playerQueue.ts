@@ -1,8 +1,8 @@
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
-import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
-import { getMediaItemProgress } from '@/lib/mediaProgress'
 import { formatBookAuthorNames, getBookDuration, isPlayableBook } from '@/lib/book'
 import { getEpisodeDuration, isPlayableEpisode } from '@/lib/episode'
+import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
+import { getMediaItemProgress } from '@/lib/mediaProgress'
 import type { LibraryItem, MediaProgress, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
 import { isBookMedia, isBookMetadata } from '@/types/api'
 
@@ -105,7 +105,7 @@ export function buildPodcastEpisodesQueueFromIndex(
   return queueItems
 }
 
-/** Item-page Play: first unplayed episode in table order (Vue parity), with forward queue. */
+/** Item-page Play: first unplayed episode in table order, with forward queue. */
 export function getPodcastItemPagePlaybackParams(
   episodesInOrder: PodcastEpisode[],
   libraryItem: PodcastLibraryItem,
