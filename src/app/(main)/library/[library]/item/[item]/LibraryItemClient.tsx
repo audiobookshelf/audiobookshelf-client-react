@@ -19,8 +19,8 @@ import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
-import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
-import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { BookLibraryItem, BookMetadata, PodcastEpisode, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
@@ -39,6 +39,11 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isCoverEditModalOpen, setIsCoverEditModalOpen] = useState(false)
   const [isClearQueueDialogOpen, setIsClearQueueDialogOpen] = useState(false)
+  const podcastEpisodesInOrderRef = useRef<PodcastEpisode[]>([])
+  const handlePodcastEpisodesInOrderChange = useCallback((episodes: PodcastEpisode[]) => {
+    podcastEpisodesInOrderRef.current = episodes
+  }, [])
+  const getPodcastEpisodesInOrder = useCallback(() => podcastEpisodesInOrderRef.current, [])
 
   useEffect(() => {
     setLibraryItem(initialLibraryItem)
@@ -163,6 +168,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 onEdit={handleOpenEditModal}
                 onOpenCoverEdit={() => setIsCoverEditModalOpen(true)}
                 rssFeed={rssFeed ?? null}
+                getPodcastEpisodesInOrder={getPodcastEpisodesInOrder}
               />
 
               {/* Podcast episode downloads queue */}
@@ -213,6 +219,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     dateFormat={serverSettings?.dateFormat}
                     episodesDownloading={episodesDownloading}
                     episodeDownloadsQueued={episodeDownloadsQueued}
+                    onEpisodesInOrderChange={handlePodcastEpisodesInOrderChange}
                   />
                 )}
 

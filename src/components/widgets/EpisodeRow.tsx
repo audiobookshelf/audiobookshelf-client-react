@@ -2,17 +2,16 @@ import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import Checkbox from '@/components/ui/Checkbox'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
-import ReadIconBtn from '@/components/ui/ReadIconBtn'
-import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog, { type ConfirmState } from '@/components/widgets/ConfirmDialog'
-import EpisodePlayButton from '@/components/widgets/episode/EpisodePlayButton'
+import PodcastEpisodeListenActions from '@/components/widgets/episode/PodcastEpisodeListenActions'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeListenActions } from '@/hooks/usetEpisodeListenActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { openHardDeleteConfirm } from '@/lib/confirmDialogs'
 import { formatJsDate } from '@/lib/datefns'
 import { sanitizeEpisodeDescriptionHtml } from '@/lib/episode'
-import { PodcastEpisode } from '@/types/api'
+import { buildEpisodeQueueItem, buildPodcastEpisodesQueueFromIndex } from '@/lib/playerQueue'
+import { PodcastEpisode, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useMemo, useState } from 'react'
 
 /** Fixed height of a single episode row (px). Used by EpisodeTable virtualizer and minHeight. */
@@ -20,7 +19,9 @@ export const EPISODE_ROW_HEIGHT_PX = 176
 
 export interface EpisodeRowProps {
   episode: PodcastEpisode
-  libraryItemId: string
+  libraryItem: PodcastLibraryItem
+  episodesInOrder: PodcastEpisode[]
+  episodeIndex: number
   sortKey: string
   isSelected: boolean
   isSelectionMode: boolean
@@ -37,7 +38,9 @@ export interface EpisodeRowProps {
 
 export default function EpisodeRow({
   episode,
-  libraryItemId,
+  libraryItem,
+  episodesInOrder,
+  episodeIndex,
   sortKey,
   isSelected,
   isSelectionMode,
@@ -52,21 +55,49 @@ export default function EpisodeRow({
   rowIndex
 }: EpisodeRowProps) {
   const t = useTypeSafeTranslations()
-  const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
+  const { user, userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const [isHovering, setIsHovering] = useState(false)
   const [deleteConfirmState, setDeleteConfirmState] = useState<ConfirmState | null>(null)
 
-  const getQueueItems = useCallback(() => [], [])
+  const libraryItemId = libraryItem.id
+  const podcastTitle = libraryItem.media.metadata?.title ?? ''
+  const coverPath = libraryItem.media.coverPath ?? null
+
+  const captionForEpisode = useCallback(
+    (ep: PodcastEpisode) =>
+      ep.publishedAt ? t('LabelPublishedDate', { 0: formatJsDate(new Date(ep.publishedAt), dateFormat) }) : t('LabelUnknownPublishDate'),
+    [dateFormat, t]
+  )
+
+  const getQueueItems = useCallback(
+    () => buildPodcastEpisodesQueueFromIndex(episodesInOrder, libraryItem, user.mediaProgress, episodeIndex, captionForEpisode),
+    [captionForEpisode, episodeIndex, episodesInOrder, libraryItem, user.mediaProgress]
+  )
+
+  const buildQueueItem = useCallback(
+    () =>
+      buildEpisodeQueueItem({
+        libraryItem,
+        episode,
+        podcastTitle,
+        coverPath,
+        caption: captionForEpisode(episode)
+      }),
+    [captionForEpisode, coverPath, episode, libraryItem, podcastTitle]
+  )
 
   const {
     userIsFinished,
     userProgressPercent,
     episodeIsPlaying,
+    isQueued,
+    showQueueButton,
     playButtonLabel,
     isProcessingFinished,
     playlistsModalOpen,
     confirmState: finishedConfirmState,
     handlePlay,
+    handleQueueToggle,
     handleToggleFinished,
     handleOpenPlaylist,
     closePlaylistsModal,
@@ -76,7 +107,8 @@ export default function EpisodeRow({
     libraryItemId,
     episode,
     itemTitle: episode.title,
-    getQueueItems
+    getQueueItems,
+    buildQueueItem
   })
 
   const contextMenuItems = useMemo(() => {
@@ -178,20 +210,19 @@ export default function EpisodeRow({
           </div>
 
           <div className="@container mt-auto flex w-full items-center justify-between gap-1">
-            <div className="flex w-full items-center gap-1">
-              <EpisodePlayButton label={playButtonLabel} isPlaying={episodeIsPlaying} isFinished={userIsFinished} onClick={handlePlay} />
-
-              <Tooltip position="top" text={userIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} className="flex-shrink-0">
-                <div onClick={(e) => e.stopPropagation()}>
-                  <ReadIconBtn borderless disabled={isProcessingFinished} isRead={userIsFinished} onClick={handleToggleFinished} />
-                </div>
-              </Tooltip>
-
-              <Tooltip position="top" text={t('LabelAddToPlaylist')} className="flex-shrink-0">
-                <IconBtn borderless className="flex-shrink-0" onClick={handleOpenPlaylist}>
-                  playlist_add
-                </IconBtn>
-              </Tooltip>
+            <div className="flex w-full items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <PodcastEpisodeListenActions
+                playButtonLabel={playButtonLabel}
+                isPlaying={episodeIsPlaying}
+                isFinished={userIsFinished}
+                isProcessingFinished={isProcessingFinished}
+                showQueueButton={showQueueButton}
+                isQueued={isQueued}
+                onPlay={handlePlay}
+                onQueueToggle={handleQueueToggle}
+                onToggleFinished={handleToggleFinished}
+                onAddToPlaylist={handleOpenPlaylist}
+              />
 
               {userCanUpdate && (
                 <IconBtn

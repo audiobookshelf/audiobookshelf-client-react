@@ -78,7 +78,14 @@ function CompilationEpisodeListRow(props: CompilationItemListRowProps & { episod
     libraryItemId: libraryItem.id,
     episode,
     itemTitle: episode.title,
-    getQueueItems: getEpisodeQueueItems
+    getQueueItems: getEpisodeQueueItems,
+    buildQueueItem: () =>
+      buildEpisodeQueueItem({
+        libraryItem,
+        episode,
+        podcastTitle: mediaMetadata?.title ?? '',
+        coverPath: isPodcastMedia(media) ? (media.coverPath ?? null) : null
+      })
   })
 
   return <CompilationItemListRowBody {...props} episodeListenActions={episodeListenActions} />

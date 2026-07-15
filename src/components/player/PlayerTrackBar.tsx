@@ -16,7 +16,7 @@ interface ChapterTick {
 }
 
 export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
-  const { currentTime, duration, bufferedTime, settings, chapters, playerState, currentChapter } = playerHandler.state
+  const { currentTime, duration, bufferedTime, transcodePercentReady, isHlsTranscode, settings, chapters, playerState, currentChapter } = playerHandler.state
   const { seek } = playerHandler.controls
   const { playbackRate, useChapterTrack } = settings
 
@@ -58,6 +58,7 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
 
   const bufferedTimeAdjusted = useChapterTrack ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
   const bufferedPercent = effectiveDuration ? Math.min(100, (bufferedTimeAdjusted / effectiveDuration) * 100) : 0
+  const transcodeReadyPercent = isHlsTranscode ? Math.min(100, transcodePercentReady * 100) : 0
 
   // Chapter ticks for display (only visible when not in chapter mode)
   const chapterTicks = useMemo<ChapterTick[]>(() => {
@@ -187,6 +188,13 @@ export default function PlayerTrackBar({ playerHandler }: PlayerTrackBarProps) {
           onMouseLeave={handleMouseLeave}
           onClick={handleTrackClick}
         >
+          {/* HLS transcode ready track (server-side segment progress) */}
+          {isHlsTranscode && (
+            <div
+              className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
+              style={{ width: `${transcodeReadyPercent}%` }}
+            />
+          )}
           {/* Buffer track */}
           <div
             className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"

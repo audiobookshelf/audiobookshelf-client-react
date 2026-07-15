@@ -4,6 +4,7 @@ import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import EpisodePlayButton from '@/components/widgets/episode/EpisodePlayButton'
 import { EPISODE_ROW_ACTION_BTN_CLASS } from '@/lib/episode'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
 
 interface PodcastEpisodeListenActionsProps {
   playButtonLabel: string
@@ -43,7 +44,11 @@ export default function PodcastEpisodeListenActions({
           className={isQueued ? 'text-success' : undefined}
         >
           <span onClick={(e) => e.stopPropagation()}>
-            <IconBtn borderless className={EPISODE_ROW_ACTION_BTN_CLASS} onClick={onQueueToggle}>
+            <IconBtn
+              borderless
+              className={mergeClasses(EPISODE_ROW_ACTION_BTN_CLASS, isQueued && 'text-success hover:not-disabled:text-success')}
+              onClick={onQueueToggle}
+            >
               {isQueued ? 'playlist_add_check' : 'playlist_play'}
             </IconBtn>
           </span>

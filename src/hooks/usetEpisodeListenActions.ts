@@ -19,9 +19,10 @@ export interface UseEpisodeListenActionsParams {
   episode: PodcastEpisode
   itemTitle: string
   getQueueItems: () => PlayerQueueItem[]
+  buildQueueItem?: () => PlayerQueueItem | null
 }
 
-export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, getQueueItems }: UseEpisodeListenActionsParams) {
+export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, getQueueItems, buildQueueItem }: UseEpisodeListenActionsParams) {
   const t = useTypeSafeTranslations()
   const { library } = useLibrary()
   const libraryId = library.id
@@ -36,7 +37,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     getIsMediaQueued,
     addItemToQueue,
     removeItemFromQueue,
-    playerHandler
+    playerControls
   } = useMediaContext()
 
   const [, startTransition] = useTransition()
@@ -74,7 +75,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
       e.preventDefault()
 
       if (isStreaming(libraryItemId, episode.id)) {
-        playerHandler.controls.playPause()
+        playerControls.playPause()
         return
       }
 
@@ -97,7 +98,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
         }
       })
     },
-    [episode.id, getQueueItems, isStreaming, libraryItemId, playItem, playerHandler.controls, progress, showToast, t]
+    [episode.id, getQueueItems, isStreaming, libraryItemId, playItem, playerControls, progress, showToast, t]
   )
 
   const handleQueueToggle = useCallback(
@@ -110,12 +111,12 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
         return
       }
 
-      const queueItem = getQueueItems().find((item) => item.libraryItemId === libraryItemId && item.episodeId === episode.id)
+      const queueItem = buildQueueItem?.() ?? getQueueItems().find((item) => item.libraryItemId === libraryItemId && item.episodeId === episode.id)
       if (queueItem) {
         addItemToQueue(queueItem)
       }
     },
-    [addItemToQueue, episode.id, getQueueItems, isQueued, libraryItemId, removeItemFromQueue]
+    [addItemToQueue, buildQueueItem, episode.id, getQueueItems, isQueued, libraryItemId, removeItemFromQueue]
   )
 
   const toggleFinished = useCallback(

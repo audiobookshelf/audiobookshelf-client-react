@@ -3,7 +3,7 @@
 import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { useMediaContext } from '@/contexts/MediaContext'
+import { useMediaContext, useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { mergeClasses } from '@/lib/merge-classes'
 import { usePathname } from 'next/navigation'
@@ -16,7 +16,8 @@ interface LibraryLayoutWrapperProps {
 }
 
 export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperProps) {
-  const { libraryItemIdStreaming, setLastCurrentLibraryId } = useMediaContext()
+  const { libraryItemIdStreaming } = useMediaContext()
+  const { setLastCurrentLibraryId } = useMediaNavigation()
   const { Source, serverSettings } = useUser()
   const { library, boundModal, setBoundModal } = useLibrary()
   const { clearSelection, isSelectionMode } = useBookshelfSelection()

@@ -30,12 +30,20 @@ interface EpisodeTableProps {
   dateFormat?: string
   episodesDownloading?: PodcastEpisodeDownload[]
   episodeDownloadsQueued?: PodcastEpisodeDownload[]
+  /** Current filtered/sorted episode list (for item-page Play parity with Vue). */
+  onEpisodesInOrderChange?: (episodes: PodcastEpisode[]) => void
 }
 
 /**
  * Table for podcast episodes with advanced filtering, sorting, and management controls.
  */
-export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', episodesDownloading = [], episodeDownloadsQueued = [] }: EpisodeTableProps) {
+export default function EpisodeTable({
+  libraryItem,
+  dateFormat = 'MM/dd/yyyy',
+  episodesDownloading = [],
+  episodeDownloadsQueued = [],
+  onEpisodesInOrderChange
+}: EpisodeTableProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { user, userIsAdminOrUp } = useUser()
@@ -70,6 +78,10 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
     useEpisodeFilterAndSort({ libraryItemId: libraryItem.id, episodes, getMediaItemProgress })
 
   const filteredEpisodeIds = useMemo(() => filteredEpisodes.map((episode) => episode.id), [filteredEpisodes])
+
+  useEffect(() => {
+    onEpisodesInOrderChange?.(filteredEpisodes)
+  }, [filteredEpisodes, onEpisodesInOrderChange])
 
   // Anchor is only meaningful while the episode is still visible in the filtered list.
   useEffect(() => {
@@ -377,7 +389,9 @@ export default function EpisodeTable({ libraryItem, dateFormat = 'MM/dd/yyyy', e
                 <div key={episode.id} className="absolute w-full" style={{ top: rowIndex * EPISODE_ROW_HEIGHT_PX }}>
                   <EpisodeRow
                     episode={episode}
-                    libraryItemId={libraryItem.id}
+                    libraryItem={libraryItem}
+                    episodesInOrder={filteredEpisodes}
+                    episodeIndex={rowIndex}
                     sortKey={sortKey}
                     isSelected={selectedEpisodes.has(episode.id)}
                     isSelectionMode={isSelectionMode}

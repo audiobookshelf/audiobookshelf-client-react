@@ -291,6 +291,14 @@ export interface EpisodeAddedPayload {
   libraryItem?: LibraryItem
 }
 
+/** Payload for the `stream_progress` socket event (HLS transcode buffer on server). */
+export interface StreamProgressPayload {
+  stream: string
+  percent: string
+  chunks: Array<number | string>
+  numSegments: number
+}
+
 export interface AuthorQuickMatchPayload {
   asin?: string
   q?: string

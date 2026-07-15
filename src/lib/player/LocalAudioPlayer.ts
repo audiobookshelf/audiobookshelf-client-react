@@ -341,7 +341,9 @@ export class LocalAudioPlayer {
 
   play(): void {
     this.playWhenReady = true
-    this.player?.play()
+    const playPromise = this.player?.play()
+    // play() returns a promise that rejects on failure; the 'error' event handler covers recovery
+    playPromise?.catch(() => {})
   }
 
   pause(): void {
