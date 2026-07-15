@@ -40,6 +40,7 @@ const SPACING = {
 } as const
 
 interface MediaCardOverlayProps {
+  cardId: string
   isHovering: boolean
   isSelectionMode: boolean
   selected: boolean
@@ -72,6 +73,7 @@ interface MediaCardOverlayProps {
 }
 
 export default function MediaCardOverlay({
+  cardId,
   isHovering,
   isSelectionMode,
   selected,
@@ -249,6 +251,7 @@ export default function MediaCardOverlay({
             >
               <MediaCardMoreMenu
                 items={moreMenuItems}
+                cardId={cardId}
                 processing={isProcessingOrPending}
                 isOpen={isMoreMenuOpen}
                 onAction={onMoreAction}

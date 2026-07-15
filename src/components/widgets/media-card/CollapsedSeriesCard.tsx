@@ -183,6 +183,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       }
       overlay={
         <MediaCardOverlay
+          cardId={cardId}
           isHovering={isHovering}
           isSelectionMode={isSelectionMode}
           selected={selected}
