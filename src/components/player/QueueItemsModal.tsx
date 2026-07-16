@@ -212,8 +212,8 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   )
 
   const outerContent = (
-    <div className="absolute start-0 top-0 w-2/3 overflow-hidden p-5">
-      <p className="truncate text-3xl text-white">{t('HeaderPlayerQueue')}</p>
+    <div className="absolute start-0 top-0 p-4">
+      <p className="text-xl text-white">{t('HeaderPlayerQueue')}</p>
     </div>
   )
 
@@ -221,8 +221,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-[800px] md:max-w-[800px] lg:max-w-[800px]">
       <div className="max-h-[80vh] w-full min-w-0 overflow-x-hidden overflow-y-auto py-4">
         <div className="flex items-center px-4 pb-4">
-          <p className="text-foreground shrink-0 text-base">{t('HeaderPlayerQueue')}</p>
-          <p className="text-foreground-muted shrink-0 px-4 text-base">{queueCountLabel}</p>
+          <p className="text-foreground-muted shrink-0 text-base">{queueCountLabel}</p>
           <div className="grow" />
           <Checkbox
             value={playerQueueAutoPlay}
