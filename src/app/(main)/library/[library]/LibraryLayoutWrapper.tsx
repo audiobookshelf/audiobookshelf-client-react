@@ -1,5 +1,6 @@
 'use client'
 
+import { getCoverSizeWidgetBottomClass } from '@/components/player/MediaPlayerContainer'
 import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -75,7 +76,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
         </div>
       </div>
 
-      {showCoverSizeWidget && <CoverSizeWidget className="absolute right-4 bottom-4 z-50" />}
+      {showCoverSizeWidget && <CoverSizeWidget className={mergeClasses('fixed right-4 z-[60]', getCoverSizeWidgetBottomClass(!!libraryItemIdStreaming))} />}
       {boundModal}
     </div>
   )

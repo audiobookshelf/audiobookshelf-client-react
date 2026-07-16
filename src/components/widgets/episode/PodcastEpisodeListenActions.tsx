@@ -1,5 +1,5 @@
 import IconBtn from '@/components/ui/IconBtn'
-import LazyTooltip from '@/components/ui/LazyTooltip'
+import Tooltip from '@/components/ui/Tooltip'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import EpisodePlayButton from '@/components/widgets/episode/EpisodePlayButton'
 import { EPISODE_ROW_ACTION_BTN_CLASS } from '@/lib/episode'
@@ -38,7 +38,8 @@ export default function PodcastEpisodeListenActions({
       <EpisodePlayButton label={playButtonLabel} isPlaying={isPlaying} isFinished={isFinished} onClick={onPlay} />
 
       {showQueueButton && onQueueToggle && (
-        <LazyTooltip
+        <Tooltip
+          lazy
           position="top"
           text={isQueued ? t('MessageRemoveFromPlayerQueue') : t('MessageAddToPlayerQueue')}
           className={isQueued ? 'text-success' : undefined}
@@ -52,10 +53,10 @@ export default function PodcastEpisodeListenActions({
               {isQueued ? 'playlist_add_check' : 'playlist_play'}
             </IconBtn>
           </span>
-        </LazyTooltip>
+        </Tooltip>
       )}
 
-      <LazyTooltip position="top" text={isFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')}>
+      <Tooltip lazy position="top" text={isFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')}>
         <span onClick={(e) => e.stopPropagation()}>
           <ReadIconBtn
             borderless
@@ -66,15 +67,15 @@ export default function PodcastEpisodeListenActions({
             onClick={onToggleFinished}
           />
         </span>
-      </LazyTooltip>
+      </Tooltip>
 
-      <LazyTooltip position="top" text={t('LabelAddToPlaylist')}>
+      <Tooltip lazy position="top" text={t('LabelAddToPlaylist')}>
         <span onClick={(e) => e.stopPropagation()}>
           <IconBtn borderless className={EPISODE_ROW_ACTION_BTN_CLASS} ariaLabel={t('LabelAddToPlaylist')} onClick={onAddToPlaylist}>
             playlist_add
           </IconBtn>
         </span>
-      </LazyTooltip>
+      </Tooltip>
     </div>
   )
 }

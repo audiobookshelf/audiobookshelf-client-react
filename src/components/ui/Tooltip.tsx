@@ -1,5 +1,6 @@
 'use client'
 
+import { MODAL_ROOT_SELECTOR } from '@/components/modals/Modal'
 import { useModalRef } from '@/contexts/ModalContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -22,14 +23,16 @@ interface TooltipProps {
   disabled?: boolean
   addTabIndex?: boolean
   openOnClick?: boolean
-  /** When true, tooltip starts open on mount (used by LazyTooltip for first-hover activation). */
+  /** Defer mounting the portaled label until hover (after a delay). Use in dense UIs or long lists. */
+  lazy?: boolean
+  /** When true, tooltip starts open on mount (used when lazy-mounting on first hover). */
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
-  /** Delay (ms) before showing on hover. Used by LazyTooltip. */
+  /** Delay (ms) before showing on hover. Defaults to 400 when `lazy`, otherwise 0. */
   activationDelayMs?: number
-  /** When false, hover-only activation — focus on children does not open the tooltip. */
+  /** When false, hover-only activation — focus on children does not open the tooltip. Defaults to false when `lazy`. */
   activateOnFocus?: boolean
-  /** When true, unmount the portaled label while closed to avoid accumulating Floating UI instances. */
+  /** When true, unmount the portaled label while closed to avoid accumulating Floating UI instances. Defaults to `lazy`. */
   lazyUnmountFloating?: boolean
 }
 
@@ -59,18 +62,24 @@ const Tooltip = ({
   disabled = false,
   addTabIndex = false,
   openOnClick = false,
+  lazy = false,
   defaultOpen = false,
   onOpenChange,
-  activationDelayMs = 0,
-  activateOnFocus = true,
-  lazyUnmountFloating = false
+  activationDelayMs: activationDelayMsProp,
+  activateOnFocus: activateOnFocusProp,
+  lazyUnmountFloating: lazyUnmountFloatingProp
 }: TooltipProps) => {
+  const activationDelayMs = activationDelayMsProp ?? (lazy ? 400 : 0)
+  const activateOnFocus = activateOnFocusProp ?? !lazy
+  const lazyUnmountFloating = lazyUnmountFloatingProp ?? lazy
   const tooltipId = useId()
   const [open, setOpen] = useState(defaultOpen)
   const [mounted, setMounted] = useState(false)
   const [floatingInDom, setFloatingInDom] = useState(!lazyUnmountFloating || defaultOpen)
   const arrowRef = useRef<HTMLDivElement | null>(null)
   const activateTimeoutRef = useRef<number | null>(null)
+  /** After pointer activation, ignore hover/focus-open until the pointer re-enters (modal overlay triggers mouseleave). */
+  const suppressFocusOpenRef = useRef(false)
   const primaryInputCanHover = usePrimaryInputCanHover()
 
   const modalRef = useModalRef()
@@ -182,6 +191,7 @@ const Tooltip = ({
   }, [clearHideTimeout])
 
   const onMouseEnter = () => {
+    if (suppressFocusOpenRef.current) return
     if (disabled || openOnClick || !primaryInputCanHover) return
     if (activationDelayMs > 0) {
       clearActivateTimeout()
@@ -198,13 +208,35 @@ const Tooltip = ({
     }
   }
 
-  // Focus/blur (keyboard a11y)
-  const onFocus = () => {
-    if (!disabled && !openOnClick && activateOnFocus) openNow()
+  const onPointerEnter = () => {
+    suppressFocusOpenRef.current = false
   }
 
-  const onBlur = () => {
+  // Focus/blur (keyboard a11y)
+  const shouldOpenOnFocus = useCallback(() => {
+    const reference = refs.reference.current
+    if (!(reference instanceof HTMLElement)) return true
+    // Keyboard tab focus opens the tooltip; mouse click and programmatic focus (e.g. modal
+    // restore after close) should not — those leave a stale label visible over the player.
+    return reference.matches(':focus-visible') || reference.querySelector(':focus-visible') !== null
+  }, [refs])
+
+  const onFocus = () => {
+    if (suppressFocusOpenRef.current) return
+    if (!disabled && !openOnClick && activateOnFocus && shouldOpenOnFocus()) openNow()
+  }
+
+  const onBlur = (e: React.FocusEvent) => {
     if (!openOnClick) setOpen(false)
+
+    const related = e.relatedTarget
+    if (!(related instanceof Element)) {
+      return
+    }
+    if (related.closest(MODAL_ROOT_SELECTOR)) {
+      return
+    }
+    suppressFocusOpenRef.current = false
   }
 
   const onReferenceClick = () => {
@@ -234,6 +266,7 @@ const Tooltip = ({
   const onReferencePointerDown = () => {
     if (!openOnClick) {
       dismissTooltip()
+      suppressFocusOpenRef.current = true
     }
   }
 
@@ -340,6 +373,7 @@ const Tooltip = ({
       className={referenceClass}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      onPointerEnter={onPointerEnter}
       onPointerDown={onReferencePointerDown}
       onFocus={activateOnFocus && !openOnClick && primaryInputCanHover ? onFocus : undefined}
       onBlur={!openOnClick ? onBlur : undefined}

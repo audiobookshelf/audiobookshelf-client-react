@@ -1,8 +1,9 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatSleepTimerRemaining } from '@/lib/formatDuration'
 import { SleepTimerTypes, type SleepTimerType } from '@/lib/player/constants'
+import { subscribePlayerProgress, getPlayerProgress } from '@/lib/player/playerProgressStore'
 import type { Chapter } from '@/types/api'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface SleepTimerTime {
   seconds: number
@@ -12,16 +13,16 @@ export interface SleepTimerTime {
 interface UseSleepTimerOptions {
   pause: () => void
   currentChapter: Chapter | null
-  currentTime: number
   playbackRate: number
   onTimerEnd: () => void
 }
 
-export function useSleepTimer({ pause, currentChapter, currentTime, playbackRate, onTimerEnd }: UseSleepTimerOptions) {
+export function useSleepTimer({ pause, currentChapter, playbackRate, onTimerEnd }: UseSleepTimerOptions) {
   const t = useTypeSafeTranslations()
   const [sleepTimerSet, setSleepTimerSet] = useState(false)
   const [sleepTimerRemaining, setSleepTimerRemaining] = useState(0)
   const [sleepTimerType, setSleepTimerType] = useState<SleepTimerType | null>(null)
+  const [chapterRemaining, setChapterRemaining] = useState(0)
 
   const sleepTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const remainingRef = useRef(0)
@@ -138,13 +139,22 @@ export function useSleepTimer({ pause, currentChapter, currentTime, playbackRate
     }
   }, [])
 
-  const displayRemaining = useMemo(() => {
-    if (sleepTimerType === SleepTimerTypes.CHAPTER && sleepTimerSet && currentChapter) {
-      const effectivePlaybackRate = playbackRate && !Number.isNaN(playbackRate) ? playbackRate : 1
-      return Math.max(0, (currentChapter.end - currentTime) / effectivePlaybackRate)
+  useEffect(() => {
+    if (sleepTimerType !== SleepTimerTypes.CHAPTER || !sleepTimerSet || !currentChapter) {
+      setChapterRemaining(0)
+      return
     }
-    return sleepTimerRemaining
-  }, [currentChapter, currentTime, playbackRate, sleepTimerRemaining, sleepTimerSet, sleepTimerType])
+
+    const updateRemaining = () => {
+      const effectivePlaybackRate = playbackRate && !Number.isNaN(playbackRate) ? playbackRate : 1
+      setChapterRemaining(Math.max(0, (currentChapter.end - getPlayerProgress().currentTime) / effectivePlaybackRate))
+    }
+
+    updateRemaining()
+    return subscribePlayerProgress(updateRemaining)
+  }, [currentChapter, playbackRate, sleepTimerSet, sleepTimerType])
+
+  const displayRemaining = sleepTimerType === SleepTimerTypes.CHAPTER && sleepTimerSet && currentChapter ? chapterRemaining : sleepTimerRemaining
 
   const remainingString = formatSleepTimerRemaining(displayRemaining, sleepTimerType, t)
 

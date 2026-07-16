@@ -1,6 +1,6 @@
 'use client'
 
-import LazyTruncatingTooltipText from '@/components/ui/LazyTruncatingTooltipText'
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import BonusIndicator from '@/components/widgets/BonusIndicator'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
@@ -115,7 +115,7 @@ export default function PodcastDownloadQueueTable({ queue }: PodcastDownloadQueu
         label: t('LabelEpisodeTitle'),
         accessor: (item) => {
           const title = item.episodeDisplayTitle ?? ''
-          return title ? <LazyTruncatingTooltipText text={title} className="text-sm" position="top" /> : null
+          return title ? <TruncatingTooltipText lazy text={title} className="text-sm" position="top" /> : null
         },
         headerClassName: 'min-w-0 px-2',
         cellClassName: 'max-w-0 min-w-0 px-2 align-middle'
@@ -141,7 +141,7 @@ export default function PodcastDownloadQueueTable({ queue }: PodcastDownloadQueu
               <div className="bg-primary/50 flex w-full min-w-0 items-center gap-1 px-4 py-2">
                 {group.podcastTitle ? (
                   <div className="min-w-0 flex-1 overflow-hidden">
-                    <LazyTruncatingTooltipText text={group.podcastTitle} className="text-foreground text-sm font-semibold" position="top" />
+                    <TruncatingTooltipText lazy text={group.podcastTitle} className="text-foreground text-sm font-semibold" position="top" />
                   </div>
                 ) : null}
                 {group.podcastExplicit && <ExplicitIndicator className="shrink-0" />}

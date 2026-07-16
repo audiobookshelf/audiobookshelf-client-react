@@ -6,6 +6,7 @@ import { AudioTrack } from '@/lib/player/AudioTrack'
 import { CastPlayer } from '@/lib/player/CastPlayer'
 import { getCastRemotePlayerHandles } from '@/lib/player/chromecastConstants'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
+import { PLAYER_PROGRESS_POLL_MS, resetPlayerProgress, setPlayerProgress } from '@/lib/player/playerProgressStore'
 import { computeTranscodePercentReady } from '@/lib/player/streamProgressUtils'
 import type { Chapter, LibraryItem, PlaybackSession, PlayMethod, StreamProgressPayload } from '@/types/api'
 import { PlayerState } from '@/types/api'
@@ -40,12 +41,8 @@ interface UsePlayerHandlerOptions {
 export interface PlayerHandlerState {
   /** Current player state */
   playerState: PlayerState
-  /** Current playback time in seconds */
-  currentTime: number
   /** Total duration in seconds */
   duration: number
-  /** Buffered time in seconds */
-  bufferedTime: number
   /** HLS transcode segments ready on server (0–1); direct play stays at 1 */
   transcodePercentReady: number
   /** Current volume (0-1) */
@@ -101,6 +98,8 @@ export interface PlayerHandlerControls {
   updateSettings: UsePlayerSettingsReturn['updateSettings']
   /** Close the player and end session */
   closePlayer: () => Promise<void>
+  /** Read playback time from the player instance (for handlers without tick subscriptions). */
+  getCurrentTime: () => number
 }
 
 export interface PlayerHandler {
@@ -144,9 +143,9 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   // Player state
   const [playerState, setPlayerState] = useState<PlayerState>(PlayerState.IDLE)
-  const [currentTime, setCurrentTime] = useState(0)
+  const currentTimeRef = useRef(0)
+  const bufferedTimeRef = useRef(0)
   const [duration, setDuration] = useState(0)
-  const [bufferedTime, setBufferedTime] = useState(0)
   const [transcodePercentReady, setTranscodePercentReady] = useState(1)
   const [isHlsTranscode, setIsHlsTranscode] = useState(false)
   const isHlsTranscodeRef = useRef(false)
@@ -156,8 +155,38 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
   const [displayTitle, setDisplayTitle] = useState<string | null>(null)
   const [displayAuthor, setDisplayAuthor] = useState<string | null>(null)
   const [chapters, setChapters] = useState<Chapter[]>([])
+  const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null)
+  const [nextChapter, setNextChapter] = useState<Chapter | null>(null)
+  const [previousChapter, setPreviousChapter] = useState<Chapter | null>(null)
+  const chaptersRef = useRef(chapters)
+  chaptersRef.current = chapters
 
-  // Refs
+  const syncChapterNav = useCallback((time: number) => {
+    const chapterList = chaptersRef.current
+    const current = chapterList.find((chapter) => chapter.start <= time && chapter.end > time) ?? null
+    const next = chapterList.find((chapter) => chapter.start > time && chapter.end > time) ?? null
+    const previous = chapterList.findLast((chapter) => chapter.end <= time && chapter.start < time) ?? null
+
+    setCurrentChapter((prev) => (prev?.start === current?.start ? prev : current))
+    setNextChapter((prev) => (prev?.start === next?.start ? prev : next))
+    setPreviousChapter((prev) => (prev?.start === previous?.start ? prev : previous))
+  }, [])
+
+  const setPlaybackTime = useCallback(
+    (time: number, bufferedTime = bufferedTimeRef.current) => {
+      currentTimeRef.current = time
+      bufferedTimeRef.current = bufferedTime
+      setPlayerProgress(time, bufferedTime)
+      syncChapterNav(time)
+    },
+    [syncChapterNav]
+  )
+
+  const pollPlaybackProgress = useCallback(() => {
+    if (!playerRef.current) return
+    setPlaybackTime(playerRef.current.getCurrentTime(), bufferedTimeRef.current)
+  }, [setPlaybackTime])
+
   const playerRef = useRef<PlayerBackend | null>(null)
   const playerKindRef = useRef<PlayerKind>('local')
   const audioTracksRef = useRef<AudioTrack[]>([])
@@ -179,10 +208,6 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const jumpBackwardAmountRef = useRef(settings.jumpBackwardAmount)
   jumpBackwardAmountRef.current = settings.jumpBackwardAmount
-
-  const currentChapter = chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null
-  const nextChapter = chapters.find((chapter) => chapter.start > currentTime && chapter.end > currentTime) ?? null
-  const previousChapter = chapters.findLast((chapter) => chapter.end <= currentTime && chapter.start < currentTime) ?? null
 
   // ============================================================================
   // Session Management
@@ -309,7 +334,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
         // Update current time on state changes
         if (state !== PlayerState.LOADING) {
-          setCurrentTime(player.getCurrentTime())
+          setPlaybackTime(player.getCurrentTime())
         }
 
         // Update duration when loaded
@@ -319,7 +344,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       })
 
       player.on('buffertimeUpdate', (time) => {
-        setBufferedTime(time)
+        setPlaybackTime(currentTimeRef.current, time)
       })
 
       player.on('durationChange', (dur) => {
@@ -343,27 +368,23 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
           const duration = player.getDuration()
           const finalTime = duration > 0 ? duration : player.getCurrentTime()
-          setCurrentTime(finalTime)
+          setPlaybackTime(finalTime)
           await syncProgressRef.current(finalTime, { force: true })
           onPlaybackFinishedRef.current?.()
         })()
       })
     },
-    [startSyncInterval, stopSyncInterval]
+    [startSyncInterval, stopSyncInterval, setPlaybackTime]
   )
 
-  // Time update interval for smoother progress updates during playback
+  // Single progress poll during playback
   useEffect(() => {
     if (playerState !== PlayerState.PLAYING) return
 
-    const interval = setInterval(() => {
-      if (playerRef.current) {
-        setCurrentTime(playerRef.current.getCurrentTime())
-      }
-    }, 250) // Update 4 times per second for smooth UI
-
+    pollPlaybackProgress()
+    const interval = setInterval(pollPlaybackProgress, PLAYER_PROGRESS_POLL_MS)
     return () => clearInterval(interval)
-  }, [playerState])
+  }, [playerState, pollPlaybackProgress])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -464,12 +485,15 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     playerRef.current?.playPause()
   }, [])
 
-  const seek = useCallback((time: number) => {
-    if (!playerRef.current) return
-    const isPlaying = playerStateRef.current === PlayerState.PLAYING
-    void Promise.resolve(playerRef.current.seek(time, isPlaying))
-    setCurrentTime(time)
-  }, [])
+  const seek = useCallback(
+    (time: number) => {
+      if (!playerRef.current) return
+      const isPlaying = playerStateRef.current === PlayerState.PLAYING
+      void Promise.resolve(playerRef.current.seek(time, isPlaying))
+      setPlaybackTime(time)
+    },
+    [setPlaybackTime]
+  )
 
   const jumpForward = useCallback(() => {
     const player = playerRef.current
@@ -516,6 +540,8 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     playerRef.current?.setPlaybackRate(newRate)
   }, [decrementPersistedPlaybackRate])
 
+  const getCurrentTime = useCallback(() => playerRef.current?.getCurrentTime() ?? currentTimeRef.current, [])
+
   const closePlayer = useCallback(async () => {
     stopSyncInterval()
     await closeSession(() => playerRef.current?.getCurrentTime() ?? 0)
@@ -528,14 +554,18 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
     // Reset state
     setPlayerState(PlayerState.IDLE)
-    setCurrentTime(0)
+    currentTimeRef.current = 0
+    bufferedTimeRef.current = 0
+    resetPlayerProgress()
     setDuration(0)
-    setBufferedTime(0)
     setTranscodePercentReady(1)
     setSessionId(null)
     setDisplayTitle(null)
     setDisplayAuthor(null)
     setChapters([])
+    setCurrentChapter(null)
+    setNextChapter(null)
+    setPreviousChapter(null)
     setPlayMethod(null)
     isHlsTranscodeRef.current = false
     setIsHlsTranscode(false)
@@ -560,7 +590,8 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       incrementPlaybackRate,
       decrementPlaybackRate,
       updateSettings,
-      closePlayer
+      closePlayer,
+      getCurrentTime
     }),
     [
       load,
@@ -576,16 +607,15 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       incrementPlaybackRate,
       decrementPlaybackRate,
       updateSettings,
-      closePlayer
+      closePlayer,
+      getCurrentTime
     ]
   )
 
   return {
     state: {
       playerState,
-      currentTime,
       duration,
-      bufferedTime,
       transcodePercentReady,
       volume: settings.volume,
       isHlsTranscode,

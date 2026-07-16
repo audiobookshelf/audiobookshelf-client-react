@@ -171,7 +171,7 @@ export default function SleepTimerModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-[350px] md:max-w-[350px] lg:max-w-[350px]">
-      <div className="max-h-[80vh] w-full overflow-x-hidden overflow-y-auto">
+      <div className="max-h-[80vh] w-full overflow-y-auto px-1 py-0.5">
         {timerSet ? (
           <>
             <section className="flex flex-col items-center p-4 pb-0">
@@ -242,16 +242,13 @@ export default function SleepTimerModal({
           </>
         ) : (
           <>
-            {sleepTimes.map((time) => (
-              <button
-                key={time.text}
-                type="button"
-                className="hover:bg-primary/10 relative flex w-full cursor-pointer items-center justify-center px-6 py-3"
-                onClick={() => handleSetTime(time)}
-              >
-                <p className="text-center text-lg">{time.text}</p>
-              </button>
-            ))}
+            <div className="flex flex-col gap-1 px-3 py-2">
+              {sleepTimes.map((time) => (
+                <Btn key={time.text} className="flex w-full justify-center text-lg" onClick={() => handleSetTime(time)} ariaLabel={time.text}>
+                  {time.text}
+                </Btn>
+              ))}
+            </div>
 
             <form className="flex items-center justify-center gap-2 px-4 py-3" onSubmit={submitCustomTime}>
               <TextInput

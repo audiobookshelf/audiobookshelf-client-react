@@ -6,8 +6,8 @@ import { useCallback } from 'react'
 /** Shared prev/next chapter or queue navigation used by player controls and Media Session. */
 export function usePlayerChapterQueueNavigation(playerHandler: PlayerHandler, streamLibraryItem: LibraryItem | null) {
   const { hasNextItemInQueue, hasPreviousItemInQueue, playNextInQueue, playPreviousInQueue } = useMediaContext()
-  const { seek } = playerHandler.controls
-  const { nextChapter, previousChapter, currentChapter, currentTime, chapters } = playerHandler.state
+  const { seek, getCurrentTime } = playerHandler.controls
+  const { nextChapter, previousChapter, currentChapter, chapters } = playerHandler.state
   const isPodcast = streamLibraryItem ? isPodcastLibraryItem(streamLibraryItem) : false
 
   const handleNext = useCallback(() => {
@@ -19,6 +19,8 @@ export function usePlayerChapterQueueNavigation(playerHandler: PlayerHandler, st
   }, [hasNextItemInQueue, nextChapter, playNextInQueue, seek])
 
   const handlePrevious = useCallback(() => {
+    const currentTime = getCurrentTime()
+
     if (chapters.length > 0) {
       if (previousChapter) {
         const currentChapterStart = currentChapter?.start ?? 0
@@ -40,7 +42,7 @@ export function usePlayerChapterQueueNavigation(playerHandler: PlayerHandler, st
     }
 
     seek(0)
-  }, [chapters.length, currentChapter?.start, currentTime, hasPreviousItemInQueue, playPreviousInQueue, previousChapter, seek])
+  }, [chapters.length, currentChapter?.start, getCurrentTime, hasPreviousItemInQueue, playPreviousInQueue, previousChapter, seek])
 
   return { handleNext, handlePrevious, hasNextItemInQueue, hasPreviousItemInQueue, isPodcast, chapters }
 }

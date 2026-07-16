@@ -1,7 +1,7 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import LazyTruncatingTooltipText from '@/components/ui/LazyTruncatingTooltipText'
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
@@ -40,7 +40,7 @@ export default function AudioTracksPanel({ tracks, currentTrackIndex, isPlayingC
       {tracks.map((track) => (
         <div key={track.ino} className={mergeClasses('flex items-center py-2', currentTrackIndex === track.index && isPlayingChapter && 'bg-success/10')}>
           <div className="min-w-0 grow overflow-hidden pr-2 xl:max-w-sm">
-            <LazyTruncatingTooltipText text={track.metadata.filename} className="text-xs" maxWidth={400} />
+            <TruncatingTooltipText lazy text={track.metadata.filename} className="text-xs" maxWidth={400} />
           </div>
           <div className="w-20" style={{ minWidth: 80 }}>
             <p className="text-foreground-muted font-mono text-xs">{secondsToTimestamp(Math.round(track.duration))}</p>

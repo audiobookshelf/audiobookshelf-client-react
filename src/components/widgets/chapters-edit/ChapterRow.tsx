@@ -2,7 +2,7 @@
 
 import DurationPicker from '@/components/ui/DurationPicker'
 import IconBtn from '@/components/ui/IconBtn'
-import LazyTooltip from '@/components/ui/LazyTooltip'
+import Tooltip from '@/components/ui/Tooltip'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EditableChapter } from '@/lib/chapters/chapterEditorUtils'
@@ -106,7 +106,7 @@ function ChapterRow({
 
       <div className="min-w-0 px-1 py-1">
         <div className="flex items-center gap-1">
-          <LazyTooltip text={t('TooltipSubtractOneSecond')} position="bottom">
+          <Tooltip lazy text={t('TooltipSubtractOneSecond')} position="bottom">
             <button
               type="button"
               aria-label={t('TooltipSubtractOneSecond')}
@@ -119,7 +119,7 @@ function ChapterRow({
             >
               <span className="material-symbols text-sm">remove</span>
             </button>
-          </LazyTooltip>
+          </Tooltip>
 
           <div className="min-w-0 flex-1">
             {showSecondInputs ? (
@@ -129,7 +129,7 @@ function ChapterRow({
             )}
           </div>
 
-          <LazyTooltip text={t('TooltipAddOneSecond')} position="bottom">
+          <Tooltip lazy text={t('TooltipAddOneSecond')} position="bottom">
             <button
               type="button"
               aria-label={t('TooltipAddOneSecond')}
@@ -142,7 +142,7 @@ function ChapterRow({
             >
               <span className="material-symbols text-sm">add</span>
             </button>
-          </LazyTooltip>
+          </Tooltip>
         </div>
       </div>
 
@@ -151,7 +151,7 @@ function ChapterRow({
       </div>
 
       <div className="flex items-center justify-center px-1 py-1">
-        <LazyTooltip text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom" maxWidth={300}>
+        <Tooltip lazy text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom" maxWidth={300}>
           <IconBtn
             ariaLabel={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')}
             borderless
@@ -161,13 +161,13 @@ function ChapterRow({
           >
             {isLocked ? 'lock' : 'lock_open'}
           </IconBtn>
-        </LazyTooltip>
+        </Tooltip>
       </div>
 
       <div className="flex items-center px-2 py-1">
         <div className="flex shrink-0 items-center">
           {chapterCount > 1 && (
-            <LazyTooltip text={t('MessageRemoveChapter')} position="bottom">
+            <Tooltip lazy text={t('MessageRemoveChapter')} position="bottom">
               <IconBtn
                 ariaLabel={t('MessageRemoveChapter')}
                 borderless
@@ -177,10 +177,10 @@ function ChapterRow({
               >
                 delete
               </IconBtn>
-            </LazyTooltip>
+            </Tooltip>
           )}
 
-          <LazyTooltip text={t('MessageInsertChapterBelow')} position="bottom">
+          <Tooltip lazy text={t('MessageInsertChapterBelow')} position="bottom">
             <IconBtn
               ariaLabel={t('MessageInsertChapterBelow')}
               borderless
@@ -190,9 +190,9 @@ function ChapterRow({
             >
               add_row_below
             </IconBtn>
-          </LazyTooltip>
+          </Tooltip>
 
-          <LazyTooltip text={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
+          <Tooltip lazy text={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
             <IconBtn
               ariaLabel={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')}
               borderless
@@ -204,19 +204,19 @@ function ChapterRow({
             >
               {isSelected && isPlayingChapter ? 'pause' : 'play_arrow'}
             </IconBtn>
-          </LazyTooltip>
+          </Tooltip>
 
           <div className="ml-2 w-10 shrink-0 text-center">
             {chapter.error ? (
-              <LazyTooltip text={chapter.error} position="left" maxWidth={300}>
+              <Tooltip lazy text={chapter.error} position="left" maxWidth={300}>
                 <span className="material-symbols text-error text-lg" aria-label={chapter.error}>
                   error_outline
                 </span>
-              </LazyTooltip>
+              </Tooltip>
             ) : (
               isSelected &&
               (isPlayingChapter || isLoadingChapter) && (
-                <LazyTooltip text={t('TooltipAdjustChapterStart')} position="bottom">
+                <Tooltip lazy text={t('TooltipAdjustChapterStart')} position="bottom">
                   <button
                     type="button"
                     className="text-foreground-muted hover:text-foreground cursor-pointer font-mono text-xs transition-colors"
@@ -224,7 +224,7 @@ function ChapterRow({
                   >
                     {elapsedTime}s
                   </button>
-                </LazyTooltip>
+                </Tooltip>
               )
             )}
           </div>

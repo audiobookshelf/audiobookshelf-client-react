@@ -8,6 +8,9 @@ export const COARSE_POINTER_MEDIA_QUERY = '(hover: none), (pointer: coarse)'
 /** Primary input supports hover (e.g. mouse / trackpad). */
 export const HOVER_CAPABLE_MEDIA_QUERY = '(hover: hover)'
 
+/** Tailwind `lg` breakpoint (desktop player layout) */
+export const LG_MEDIA_QUERY = '(min-width: 1024px)'
+
 function subscribeMediaQuery(query: string, onStoreChange: () => void) {
   const mq = window.matchMedia(query)
   mq.addEventListener('change', onStoreChange)
@@ -40,4 +43,9 @@ export function useCoarsePointer(): boolean {
  */
 export function usePrimaryInputCanHover(): boolean {
   return useMediaQuery(HOVER_CAPABLE_MEDIA_QUERY, true)
+}
+
+/** True at Tailwind `lg` and above (desktop player layout) */
+export function useIsLgViewport(): boolean {
+  return useMediaQuery(LG_MEDIA_QUERY, false)
 }

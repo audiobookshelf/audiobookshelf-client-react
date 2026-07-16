@@ -50,15 +50,15 @@ export default function CoverSizeWidget({ className }: CoverSizeWidgetProps) {
   const isAtMaxSize = sizeIndex === numAvailableCoverSizes - 1
 
   const buttonClass = useMemo(() => 'text-base h-6 w-4 disabled:bg-transparent disabled:cursor-default', [])
-  const containerClass = useMemo(
-    () => mergeClasses('rounded-full py-1 bg-primary px-2 border border-border text-center flex items-center shadow-modal-content select-none', className),
-    [className]
+  const pillClass = useMemo(
+    () => mergeClasses('flex w-fit shrink-0 items-center rounded-full border border-border bg-primary px-2 py-1 text-center shadow-modal-content select-none'),
+    []
   )
-  const textClass = useMemo(() => 'px-2 font-mono text-center w-10 text-base', [])
+  const textClass = useMemo(() => 'w-10 px-2 text-center font-mono text-base', [])
 
   return (
-    <div>
-      <div aria-label={t('LabelCoverSize')} role="group" className={containerClass}>
+    <div className={className}>
+      <div aria-label={t('LabelCoverSize')} role="group" className={pillClass}>
         <IconBtn className={buttonClass} disabled={isAtMinSize} onClick={decreaseSize} ariaLabel={t('LabelDecreaseCoverSize')} borderless>
           remove
         </IconBtn>
