@@ -7,6 +7,7 @@ import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useMediaSession } from '@/hooks/useMediaSession'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { useIsLgViewport } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
@@ -44,6 +45,7 @@ export default function MediaPlayerContainer() {
   const playerState = usePlayerState()
   const playerHandler = useMemo((): PlayerHandler => ({ state: playerState, controls: playerControls }), [playerControls, playerState])
   const coverAspectRatio = useBookCoverAspectRatio()
+  const isDesktop = useIsLgViewport()
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
 
@@ -118,7 +120,7 @@ export default function MediaPlayerContainer() {
       resizeObserver.disconnect()
       clearMediaPlayerHeightCssVar()
     }
-  }, [streamLibraryItem, isPlayerDetailsExpanded])
+  }, [streamLibraryItem, isPlayerDetailsExpanded, isDesktop])
 
   if (!streamLibraryItem || !playerMetadata) {
     return null
@@ -128,34 +130,33 @@ export default function MediaPlayerContainer() {
     <div
       ref={playerShellRef}
       className={mergeClasses(
-        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full px-2 pt-2 pb-1 lg:px-4 lg:pb-4',
-        isPlayerDetailsExpanded ? 'max-lg:min-h-[11.875rem]' : 'max-lg:min-h-[8.75rem]',
-        'lg:h-40'
+        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full pt-2',
+        isDesktop ? 'h-40 px-4 pb-4' : mergeClasses('px-2 pb-1', isPlayerDetailsExpanded ? 'min-h-[11.875rem]' : 'min-h-[8.75rem]')
       )}
       style={playerAccentStyle}
     >
       {accentRgb !== null ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
 
-      {/* Desktop layout */}
-      <div className="relative z-[1] hidden lg:block">
-        <div className="absolute top-0 left-0 flex min-w-0 items-start gap-4">
-          <PlayerMetadataBlock streamLibraryItem={streamLibraryItem} metadata={playerMetadata} coverAspectRatio={coverAspectRatio} coverWidth={77} />
+      {isDesktop ? (
+        <div className="relative z-[1]">
+          <div className="absolute top-0 left-0 flex min-w-0 items-start gap-4">
+            <PlayerMetadataBlock streamLibraryItem={streamLibraryItem} metadata={playerMetadata} coverAspectRatio={coverAspectRatio} coverWidth={77} />
+          </div>
+          <div className="absolute top-0 right-0 flex items-center gap-1">
+            <IconBtn size="small" borderless onClick={clearStreamMedia} ariaLabel={t('LabelClosePlayer')}>
+              close
+            </IconBtn>
+          </div>
+          <div className="flex flex-col gap-3">
+            <PlayerControls playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} />
+            <PlayerTrackBar playerHandler={playerHandler} variant="full" />
+          </div>
         </div>
-        <div className="absolute top-0 right-0 flex items-center gap-1">
-          <IconBtn size="small" borderless onClick={clearStreamMedia} ariaLabel={t('LabelClosePlayer')}>
-            close
-          </IconBtn>
+      ) : (
+        <div className="relative z-[1]">
+          <PlayerMobileLayout playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} metadata={playerMetadata} onClose={clearStreamMedia} />
         </div>
-        <div className="flex flex-col gap-3">
-          <PlayerControls playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} />
-          <PlayerTrackBar playerHandler={playerHandler} variant="full" />
-        </div>
-      </div>
-
-      {/* Mobile layout */}
-      <div className="relative z-[1] lg:hidden">
-        <PlayerMobileLayout playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} metadata={playerMetadata} onClose={clearStreamMedia} />
-      </div>
+      )}
     </div>
   )
 }
