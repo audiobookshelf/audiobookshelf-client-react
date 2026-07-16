@@ -60,21 +60,8 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
   const jumpBackwardTooltipText = getJumpTooltipText(t('ButtonJumpBackward'), settings.jumpBackwardAmount)
   const jumpForwardTooltipText = getJumpTooltipText(t('ButtonJumpForward'), settings.jumpForwardAmount)
   const hasNext = !!nextChapter || hasNextItemInQueue
-  const useEpisodeNavigation = isPodcast && chapters.length === 0
-  const nextQueueTooltipText = isPodcast ? t('ButtonNextEpisodeInQueue') : t('ButtonNextBookInQueue')
-  const nextButtonTooltipText = useEpisodeNavigation
-    ? t('ButtonNextEpisodeInQueue')
-    : hasNextItemInQueue && !nextChapter
-      ? nextQueueTooltipText
-      : t('ButtonNextChapter')
-  const previousQueueTooltipText = isPodcast ? t('ButtonPreviousEpisodeInQueue') : t('ButtonPreviousBookInQueue')
-  const previousButtonTooltipText = useEpisodeNavigation
-    ? hasPreviousItemInQueue
-      ? t('ButtonPreviousEpisodeInQueue')
-      : t('ButtonPreviousEpisode')
-    : hasPreviousItemInQueue && !previousChapter
-      ? previousQueueTooltipText
-      : t('ButtonPreviousChapter')
+  const nextButtonTooltipText = hasNextItemInQueue && !nextChapter ? t('ButtonNextItemInQueue') : t('ButtonNextChapter')
+  const previousButtonTooltipText = hasPreviousItemInQueue && !previousChapter ? t('ButtonPreviousItemInQueue') : t('ButtonPreviousChapter')
 
   const openBookmarksModal = useCallback(() => {
     setBookmarkCurrentTime(currentTime)

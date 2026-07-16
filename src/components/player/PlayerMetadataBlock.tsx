@@ -1,7 +1,7 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { LibraryItem } from '@/types/api'
 import Link from 'next/link'
 import PreviewCover from '../covers/PreviewCover'
@@ -29,7 +29,7 @@ export default function PlayerMetadataBlock({ streamLibraryItem, metadata, cover
   return (
     <div className="flex min-w-0 flex-1 items-start gap-2">
       <PreviewCover
-        src={getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt)}
+        src={getLibraryItemCoverSrc(streamLibraryItem, getPlaceholderCoverUrl())}
         bookCoverAspectRatio={coverAspectRatio}
         showResolution={false}
         width={coverWidth}
