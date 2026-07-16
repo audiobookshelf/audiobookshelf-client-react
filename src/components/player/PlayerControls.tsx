@@ -15,7 +15,7 @@ interface PlayerControlsProps {
 /** Desktop layout: transport centered with secondary toolbar on the right. */
 export default function PlayerControls({ playerHandler, streamLibraryItem }: PlayerControlsProps) {
   const controlsState = usePlayerControlsState(playerHandler, streamLibraryItem)
-
+  console.log('controlsState', controlsState)
   return (
     <>
       <div className="mt-10 flex items-center">

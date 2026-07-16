@@ -31,8 +31,8 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false)
   const [bookmarkCurrentTime, setBookmarkCurrentTime] = useState(0)
 
-  const { jumpBackward, jumpForward, playPause, seek, pause } = playerHandler.controls
-  const { nextChapter, previousChapter, currentChapter, playerState, currentTime, settings } = playerHandler.state
+  const { jumpBackward, jumpForward, playPause, seek, pause, getCurrentTime } = playerHandler.controls
+  const { nextChapter, previousChapter, currentChapter, playerState, settings } = playerHandler.state
 
   const handleSleepTimerEnd = useCallback(() => {
     showToast(t('ToastSleepTimerDone'), { type: 'info' })
@@ -41,7 +41,6 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
   const sleepTimer = useSleepTimer({
     pause,
     currentChapter,
-    currentTime,
     playbackRate: settings.playbackRate,
     onTimerEnd: handleSleepTimerEnd
   })
@@ -64,9 +63,9 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
   const previousButtonTooltipText = hasPreviousItemInQueue && !previousChapter ? t('ButtonPreviousItemInQueue') : t('ButtonPreviousChapter')
 
   const openBookmarksModal = useCallback(() => {
-    setBookmarkCurrentTime(currentTime)
+    setBookmarkCurrentTime(getCurrentTime())
     setIsBookmarksModalOpen(true)
-  }, [currentTime])
+  }, [getCurrentTime])
 
   return {
     playerHandler,

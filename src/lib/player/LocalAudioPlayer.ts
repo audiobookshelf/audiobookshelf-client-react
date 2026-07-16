@@ -154,8 +154,7 @@ export class LocalAudioPlayer {
   }
 
   private handleTimeUpdate = (): void => {
-    // Only emit during pause to avoid too frequent updates
-    // The interval in PlayerHandler handles updates during playback
+    // Only emit while paused; during playback usePlayerHandler polls getCurrentTime().
     if (this.player?.paused) {
       this.emit('timeupdate', this.getCurrentTime())
     }

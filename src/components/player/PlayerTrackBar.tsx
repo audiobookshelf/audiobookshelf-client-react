@@ -2,6 +2,7 @@
 
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
 import { PlayerState } from '@/types/api'
@@ -18,9 +19,12 @@ interface ChapterTick {
 }
 
 export default function PlayerTrackBar({ playerHandler, variant = 'full' }: PlayerTrackBarProps) {
-  const { currentTime, duration, bufferedTime, transcodePercentReady, isHlsTranscode, settings, chapters, playerState, currentChapter } = playerHandler.state
+  const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
   const { seek } = playerHandler.controls
   const { playbackRate, useChapterTrack } = settings
+  const { currentTime, bufferedTime } = usePlayerProgress()
+
+  const currentChapter = useMemo(() => chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null, [chapters, currentTime])
 
   const isLoading = playerState === PlayerState.LOADING
 
