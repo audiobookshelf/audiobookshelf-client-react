@@ -178,7 +178,7 @@ export default function Modal({
 
       {/* Close button */}
       <button
-        className="text-foreground-muted hover:text-foreground absolute end-2 top-2 z-10 inline-flex transition-colors sm:end-4 sm:top-4"
+        className="absolute end-2 top-2 z-10 inline-flex text-gray-200 transition-colors hover:text-white sm:end-4 sm:top-4"
         aria-label={t('ButtonCloseModal')}
         onClick={clickClose}
         cy-id="modal-close-button"
