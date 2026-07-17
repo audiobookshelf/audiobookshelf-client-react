@@ -4,8 +4,10 @@ import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/Co
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useMemo } from 'react'
 
-function isOverlayAction(target: Node) {
-  return target instanceof Element && !!target.closest('[data-overlay-action]')
+/** Overlay buttons on the same card should not dismiss the menu before their click handlers run. */
+function isOverlayActionInsideCard(target: Node, cardId: string): boolean {
+  if (!(target instanceof Element)) return false
+  return !!target.closest(`#${CSS.escape(cardId)} [data-overlay-action]`)
 }
 
 export interface MediaCardMoreMenuSubitem {
@@ -34,6 +36,8 @@ export function mapMediaCardMoreMenuItemsToDropdownItems(items: MediaCardMoreMen
 
 interface MediaCardMoreMenuProps {
   items: MediaCardMoreMenuItem[]
+  /** Matches MediaCardFrame root `id` so overlay clicks are scoped to this card only. */
+  cardId: string
   processing?: boolean
   isOpen?: boolean
   onAction: (func: string, data?: Record<string, string>) => void
@@ -41,8 +45,9 @@ interface MediaCardMoreMenuProps {
   className?: string
 }
 
-export default function MediaCardMoreMenu({ items, processing = false, isOpen, onAction, onOpenChange, className }: MediaCardMoreMenuProps) {
+export default function MediaCardMoreMenu({ items, cardId, processing = false, isOpen, onAction, onOpenChange, className }: MediaCardMoreMenuProps) {
   const contextMenuItems = useMemo(() => mapMediaCardMoreMenuItemsToDropdownItems(items), [items])
+  const isAdditionalInside = useCallback((target: Node) => isOverlayActionInsideCard(target, cardId), [cardId])
 
   const handleContextMenuAction = useCallback(
     ({ action, data }: { action: string; data?: Record<string, string> }) => {
@@ -74,7 +79,7 @@ export default function MediaCardMoreMenu({ items, processing = false, isOpen, o
       isOpen={isOpen}
       onAction={handleContextMenuAction}
       onOpenChange={handleOpenChange}
-      isAdditionalInside={isOverlayAction}
+      isAdditionalInside={isAdditionalInside}
       className={mergeClasses('h-auto w-auto text-[1em] text-white', className)}
       usePortal
     />

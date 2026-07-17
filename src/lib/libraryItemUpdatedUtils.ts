@@ -1,6 +1,6 @@
 import { prunePersonalizedShelves } from '@/lib/personalizedShelfUtils'
 import type { LibraryItem, PersonalizedShelf, PlaylistItem, Series } from '@/types/api'
-import { isPodcastMedia } from '@/types/api'
+import { isBookLibraryItem, isPersonalizedSeriesRef, isPodcastMedia } from '@/types/api'
 
 function resolveRecentEpisodeAfterUpdate(existing: LibraryItem, updated: LibraryItem) {
   const recentEpisode = existing.recentEpisode
@@ -14,14 +14,32 @@ function resolveRecentEpisodeAfterUpdate(existing: LibraryItem, updated: Library
   return recentEpisode
 }
 
+function preserveShelfSeriesRef(existing: LibraryItem, updated: LibraryItem): LibraryItem {
+  if (!isBookLibraryItem(existing) || !isBookLibraryItem(updated)) return updated
+  const existingSeries = existing.media.metadata.series
+  if (!existingSeries || !isPersonalizedSeriesRef(existingSeries)) return updated
+
+  return {
+    ...updated,
+    media: {
+      ...updated.media,
+      metadata: {
+        ...updated.media.metadata,
+        series: existingSeries
+      }
+    }
+  }
+}
+
 /** Preserve client-only fields when merging a socket `item_updated` payload. */
 export function mergeLibraryItemUpdate(existing: LibraryItem, updated: LibraryItem): LibraryItem {
-  return {
+  const merged: LibraryItem = {
     ...updated,
     rssFeed: existing.rssFeed,
     mediaItemShare: existing.mediaItemShare,
     recentEpisode: resolveRecentEpisodeAfterUpdate(existing, updated)
   }
+  return preserveShelfSeriesRef(existing, merged)
 }
 
 export function applyLibraryItemUpdateToList(items: LibraryItem[], updatedItem: LibraryItem): LibraryItem[] {

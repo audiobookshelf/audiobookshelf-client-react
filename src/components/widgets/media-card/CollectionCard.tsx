@@ -166,7 +166,13 @@ function CollectionCard(props: CollectionCardProps) {
                       'hover:scale-125 hover:[&_.material-symbols]:!text-yellow-300'
                     )}
                   >
-                    <MediaCardMoreMenu items={moreMenuItems} processing={processing} onAction={handleMoreAction} onOpenChange={handleMoreMenuOpenChange} />
+                    <MediaCardMoreMenu
+                      items={moreMenuItems}
+                      cardId={cardId}
+                      processing={processing}
+                      onAction={handleMoreAction}
+                      onOpenChange={handleMoreMenuOpenChange}
+                    />
                   </div>
                 )}
               </MediaCardOverlayContainer>

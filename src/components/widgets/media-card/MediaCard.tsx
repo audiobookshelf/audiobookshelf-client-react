@@ -588,6 +588,7 @@ function MediaCard(props: MediaCardProps) {
         }
         overlay={
           <MediaCardOverlay
+            cardId={cardId}
             isHovering={isHovering}
             isSelectionMode={isSelectionMode}
             selected={selected}
