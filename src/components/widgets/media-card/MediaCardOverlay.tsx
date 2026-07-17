@@ -276,16 +276,18 @@ export default function MediaCardOverlay({
 
       {/* Error tooltip */}
       {showError && (
-        <Tooltip text={errorText} position="right" usePortal className="absolute start-0 bottom-4 z-10" tooltipClassName="whitespace-nowrap">
-          <div
-            className={mergeClasses('bg-error flex items-center justify-end rounded-r-full shadow-md', 'border-r border-b border-red-300')}
-            style={errorBadgeStyle}
-          >
-            <span className="material-symbols pr-1 text-red-100" style={errorIconStyle}>
-              priority_high
-            </span>
-          </div>
-        </Tooltip>
+        <div className="absolute start-0 bottom-4 z-10">
+          <Tooltip text={errorText} position="right">
+            <div
+              className={mergeClasses('bg-error flex items-center justify-end rounded-r-full shadow-md', 'border-r border-b border-red-300')}
+              style={errorBadgeStyle}
+            >
+              <span className="material-symbols pr-1 text-red-100" style={errorIconStyle}>
+                priority_high
+              </span>
+            </div>
+          </Tooltip>
+        </div>
       )}
 
       {/* RSS feed & share icons */}

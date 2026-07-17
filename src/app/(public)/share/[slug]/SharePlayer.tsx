@@ -563,11 +563,13 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
           {/* Download button */}
           {shareData.isDownloadable && (
-            <Tooltip text="Download" position="bottom" className="absolute top-0 left-0 m-4">
-              <button aria-label="Download" className="cursor-pointer text-gray-300 hover:text-white" onClick={downloadShareItem}>
-                <span className="material-symbols text-2xl sm:text-3xl">download</span>
-              </button>
-            </Tooltip>
+            <div className="absolute top-0 left-0 m-4">
+              <Tooltip text="Download" position="bottom">
+                <button aria-label="Download" className="cursor-pointer text-gray-300 hover:text-white" onClick={downloadShareItem}>
+                  <span className="material-symbols text-2xl sm:text-3xl">download</span>
+                </button>
+              </Tooltip>
+            </div>
           )}
         </div>
       </div>

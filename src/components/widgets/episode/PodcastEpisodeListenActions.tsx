@@ -38,12 +38,7 @@ export default function PodcastEpisodeListenActions({
       <EpisodePlayButton label={playButtonLabel} isPlaying={isPlaying} isFinished={isFinished} onClick={onPlay} />
 
       {showQueueButton && onQueueToggle && (
-        <Tooltip
-          lazy
-          position="top"
-          text={isQueued ? t('MessageRemoveFromPlayerQueue') : t('MessageAddToPlayerQueue')}
-          className={isQueued ? 'text-success' : undefined}
-        >
+        <Tooltip lazy position="top" text={isQueued ? t('MessageRemoveFromPlayerQueue') : t('MessageAddToPlayerQueue')}>
           <span onClick={(e) => e.stopPropagation()}>
             <IconBtn
               borderless

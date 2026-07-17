@@ -489,11 +489,13 @@ export default function BatchLibraryItemMapDetailsPanel({
             <Btn size="small" className="w-full sm:w-auto" onClick={resetMapDetails} disabled={disabled}>
               {t('ButtonReset')}
             </Btn>
-            <Tooltip text={t('MessageBatchEditPopulateMapDetailsAllHelp')} position="bottom" className="w-full sm:w-auto">
-              <Btn size="small" className="w-full sm:w-auto" disabled={disabled || !hasSelectedUsage} onClick={() => populateFromExisting()}>
-                {t('ButtonBatchEditPopulateFromExisting')}
-              </Btn>
-            </Tooltip>
+            <div className="w-full sm:w-auto">
+              <Tooltip text={t('MessageBatchEditPopulateMapDetailsAllHelp')} position="bottom">
+                <Btn size="small" className="w-full sm:w-auto" disabled={disabled || !hasSelectedUsage} onClick={() => populateFromExisting()}>
+                  {t('ButtonBatchEditPopulateFromExisting')}
+                </Btn>
+              </Tooltip>
+            </div>
             <div className="hidden grow sm:block" />
             <Btn color="bg-success" size="small" disabled={disabled || !hasSelectedUsage} className="w-full px-8 text-base sm:w-auto" onClick={handleApply}>
               {t('ButtonApply')}

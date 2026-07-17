@@ -347,15 +347,17 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
             ? episodeEntries.map((entry) => (
                 <div key={entry.episode.id} className="border-foreground/15 w-full max-w-3xl border p-2 sm:p-6">
                   <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-                    <Tooltip text={t('MessageBatchEditPopulateMapDetailsItemHelp')} position="bottom" className="self-end sm:order-2">
-                      <Btn
-                        size="small"
-                        disabled={isProcessing || !hasMapFieldSelected}
-                        onClick={() => episodeMapPanelRef.current?.populateFromExisting(entry.episode.id)}
-                      >
-                        {t('ButtonBatchEditPopulateMapDetails')}
-                      </Btn>
-                    </Tooltip>
+                    <div className="self-end sm:order-2">
+                      <Tooltip text={t('MessageBatchEditPopulateMapDetailsItemHelp')} position="bottom">
+                        <Btn
+                          size="small"
+                          disabled={isProcessing || !hasMapFieldSelected}
+                          onClick={() => episodeMapPanelRef.current?.populateFromExisting(entry.episode.id)}
+                        >
+                          {t('ButtonBatchEditPopulateMapDetails')}
+                        </Btn>
+                      </Tooltip>
+                    </div>
                     <div className="order-last min-w-0 flex-1 sm:order-1">
                       <TruncatingTooltipText lazy text={entry.podcastTitle} className="text-foreground-muted text-sm" position="top" />
                     </div>
