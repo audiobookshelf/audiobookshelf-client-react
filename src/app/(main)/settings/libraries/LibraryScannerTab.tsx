@@ -8,7 +8,7 @@ import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@
 import { mergeClasses } from '@/lib/merge-classes'
 import { LibrarySettings } from '@/types/api'
 import { useMemo, useState } from 'react'
-import SettingsMoreInfoIcon from '../SettingsMoreInfoIcon'
+import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
 
 interface MetadataSource {
   id: string
@@ -144,7 +144,7 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
 
       <div className="mb-4 flex items-center justify-between md:justify-start">
         <p className="text-foreground-muted pr-2 text-sm">{t('LabelMetadataOrderOfPrecedenceDescription')}</p>
-        <SettingsMoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/book-scanner" />
+        <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/book-scanner" />
       </div>
 
       <SortableList key={listKey} items={sources} onSortEnd={handleSortEnd} renderItem={renderItem} isItemDisabled={(source) => !source.include} />

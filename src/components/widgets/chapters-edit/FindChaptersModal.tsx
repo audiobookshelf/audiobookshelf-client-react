@@ -5,9 +5,9 @@ import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown from '@/components/ui/Dropdown'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
-import Tooltip from '@/components/ui/Tooltip'
 import Alert from '@/components/widgets/Alert'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -215,9 +215,7 @@ export default function FindChaptersModal({
                 >
                   {t('ButtonMapChapterTitles')}
                 </Btn>
-                <Tooltip text={t('MessageMapChapterTitles')} position="top" maxWidth={300} className="flex items-center">
-                  <span className="material-symbols text-foreground-muted text-xl">info</span>
-                </Tooltip>
+                <HelpTooltipIcon text={t('MessageMapChapterTitles')} />
               </div>
               <Btn
                 size="small"

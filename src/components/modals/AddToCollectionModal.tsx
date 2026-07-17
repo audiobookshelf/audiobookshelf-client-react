@@ -7,7 +7,7 @@ import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
-import Tooltip from '@/components/ui/Tooltip'
+import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -259,13 +259,9 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
               <div className="flex h-32 items-center justify-center px-4 text-center sm:px-6">
                 <div>
                   <p className="mb-2 text-xl">{t('MessageNoCollections')}</p>
-                  <div className="text-foreground-muted flex items-center justify-center text-sm">
+                  <div className="text-foreground-muted flex items-center justify-center gap-2 text-sm">
                     <p>{t('MessageBookshelfNoCollectionsHelp')}</p>
-                    <Tooltip text={t('LabelClickForMoreInfo')} className="ms-2 inline-flex">
-                      <a href="https://www.audiobookshelf.org/guides/collections" target="_blank" rel="noreferrer" className="inline-flex">
-                        <span className="material-symbols text-xl">help_outline</span>
-                      </a>
-                    </Tooltip>
+                    <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/collections" size="xl" />
                   </div>
                 </div>
               </div>

@@ -6,7 +6,7 @@ import { useSettingsDrawer } from '@/contexts/SettingsDrawerContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
-import SettingsMoreInfoIcon from './SettingsMoreInfoIcon'
+import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
 
 interface AddButtonProps {
   label: string
@@ -45,7 +45,7 @@ export default function SettingsContent(props: {
           {props.entityCount && (
             <div className="bg-primary/50 text-foreground-muted inline-flex items-center justify-center rounded-lg px-1.5 text-sm">{props.entityCount}</div>
           )}
-          {props.moreInfoUrl && <SettingsMoreInfoIcon moreInfoUrl={props.moreInfoUrl} />}
+          {props.moreInfoUrl && <MoreInfoIcon moreInfoUrl={props.moreInfoUrl} />}
           <div className="grow" />
           {props.addButton && (
             <Btn size="small" onClick={props.addButton.onClick}>

@@ -9,6 +9,7 @@ import { startTransition, useEffect, useMemo, useState } from 'react'
 import Btn from '@/components/ui/Btn'
 import CollapsibleTable from '@/components/ui/CollapsibleTable'
 import Dropdown from '@/components/ui/Dropdown'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import IconBtn from '@/components/ui/IconBtn'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import ProgressIndicator from '@/components/ui/ProgressIndicator'
@@ -321,9 +322,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center pt-6">
             <ToggleSwitch label={t('LabelAutoFetchMetadata')} value={autoFetch} className="pr-0" onChange={setAutoFetch} />
-            <Tooltip maxWidth={300} text={t('LabelAutoFetchMetadataHelp')}>
-              <span className="material-symbols text-lg">info</span>
-            </Tooltip>
+            <HelpTooltipIcon text={t('LabelAutoFetchMetadataHelp')} />
           </div>
 
           <div className="min-w-[200px] flex-1">
