@@ -1415,6 +1415,10 @@ export interface UpdateLibraryItemMediaPayload {
   }
   tags?: string[]
   url?: string
+  autoDownloadEpisodes?: boolean
+  autoDownloadSchedule?: string
+  maxEpisodesToKeep?: number
+  maxNewEpisodesToDownload?: number
 }
 
 export interface UpdateLibraryItemMediaResponse {
