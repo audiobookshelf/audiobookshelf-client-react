@@ -48,11 +48,15 @@ export default function PlayerSettingsModal({ isOpen, settings, onClose, onUpdat
     onUpdateSettings({ playbackRateIncrementDecrement: value as 0.1 | 0.05 })
   }
 
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} className="sm:max-w-md md:max-w-md lg:max-w-md">
-      <div className="flex flex-col gap-6 p-6">
-        <h2 className="text-foreground text-xl font-semibold">{t('HeaderPlayerSettings')}</h2>
+  const outerContent = (
+    <div className="absolute start-0 top-0 p-4">
+      <p className="text-xl text-white">{t('HeaderPlayerSettings')}</p>
+    </div>
+  )
 
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-md md:max-w-md lg:max-w-md">
+      <div className="max-h-[80vh] w-full overflow-y-auto p-4">
         <div className="flex flex-col gap-5">
           {/* Use chapter track toggle */}
           <ToggleSwitch value={settings.useChapterTrack} label={t('LabelUseChapterTrack')} onChange={handleUseChapterTrackChange} />
