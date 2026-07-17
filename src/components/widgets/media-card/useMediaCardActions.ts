@@ -104,6 +104,7 @@ export function useMediaCardActions({
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
+  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
   const [playlistsModalOpen, setPlaylistsModalOpen] = useState(false)
@@ -247,6 +248,8 @@ export function useMediaCardActions({
         setShareModalOpen(true)
       } else if (action === 'openRssFeed') {
         setRssFeedModalOpen(true)
+      } else if (action === 'openSchedule') {
+        setScheduleModalOpen(true)
       } else if (action === 'showMatchModal') {
         onOpenMatch?.()
       } else if (action === 'downloadEpisode') {
@@ -622,6 +625,13 @@ export function useMediaCardActions({
       })
     }
 
+    if (userIsAdminOrUp && isPodcast && !episodeForQueue) {
+      items.push({
+        text: t('HeaderSchedule'),
+        func: 'openSchedule'
+      })
+    }
+
     if (userCanDownload) {
       items.push({
         text: t('LabelDownload'),
@@ -686,6 +696,10 @@ export function useMediaCardActions({
     setRssFeedModalOpen(false)
   }, [])
 
+  const closeScheduleModal = useCallback(() => {
+    setScheduleModalOpen(false)
+  }, [])
+
   const closeShareModal = useCallback(() => {
     setShareModalOpen(false)
   }, [])
@@ -711,12 +725,14 @@ export function useMediaCardActions({
     isPending,
     confirmState,
     rssFeedModalOpen,
+    scheduleModalOpen,
     shareModalOpen,
     collectionsModalOpen,
     playlistsModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
+    closeScheduleModal,
     closeShareModal,
     closeCollectionsModal,
     closePlaylistsModal,
