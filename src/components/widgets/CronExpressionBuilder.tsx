@@ -163,7 +163,7 @@ export default function CronExpressionBuilder({ value, onChange, options: { lang
   }, [clientTimeZone, timeZone, language])
 
   return (
-    <div className="w-full py-2" cy-id="cron-expression-builder">
+    <div className="w-full" cy-id="cron-expression-builder">
       <div style={{ minHeight: '172px' }}>
         <Dropdown
           value={selectedInterval}
