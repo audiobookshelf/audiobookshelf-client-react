@@ -400,17 +400,38 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
           </div>
         </Example>
 
-        <Example title={`Missing`}>
-          <div className="flex flex-wrap gap-4">
+        <Example title={`Issues (Missing / Invalid)`}>
+          <p className="mb-4 text-sm text-gray-400">Hover the red badge on the bottom-left of the cover to see the error tooltip.</p>
+          <div className="flex flex-wrap gap-8">
             <div>
-              <p className="mb-2 text-sm text-gray-400">With Data</p>
+              <p className="mb-2 text-sm text-gray-400">Missing directory</p>
               <div ref={bookMissingCardRef}>
                 <BookMediaCard
                   {...defaultProps}
                   libraryItem={
                     {
                       ...selectedBook,
-                      isMissing: true
+                      isMissing: true,
+                      isInvalid: false
+                    } as BookLibraryItem
+                  }
+                  bookshelfView={BookshelfView.DETAIL}
+                  isSelectionMode={isBookSelectionMode}
+                  selected={selectedBookId === selectedBook.id}
+                  onSelect={handleBookSelect}
+                />
+              </div>
+            </div>
+            <div>
+              <p className="mb-2 text-sm text-gray-400">No audio tracks or ebook</p>
+              <div>
+                <BookMediaCard
+                  {...defaultProps}
+                  libraryItem={
+                    {
+                      ...selectedBook,
+                      isMissing: false,
+                      isInvalid: true
                     } as BookLibraryItem
                   }
                   bookshelfView={BookshelfView.DETAIL}
@@ -464,6 +485,36 @@ export function BookMediaCardExamples({ selectedBook }: BookMediaCardExamplesPro
                         metadata: {
                           ...selectedBook.media.metadata,
                           title: 'The Incredibly Long and Extraordinarily Detailed Title of This Audiobook That Should Definitely Be Truncated'
+                        }
+                      }
+                    } as BookLibraryItem
+                  }
+                  bookshelfView={BookshelfView.DETAIL}
+                  isSelectionMode={isBookSelectionMode}
+                  selected={selectedBookId === selectedBook.id}
+                  onSelect={handleBookSelect}
+                />
+              </div>
+            </div>
+          </div>
+        </Example>
+
+        <Example title={`Explicit (Long Title)`}>
+          <div className="flex flex-wrap gap-4">
+            <div>
+              <p className="mb-2 text-sm text-gray-400">With Data</p>
+              <div>
+                <BookMediaCard
+                  {...defaultProps}
+                  libraryItem={
+                    {
+                      ...selectedBook,
+                      media: {
+                        ...selectedBook.media,
+                        metadata: {
+                          ...selectedBook.media.metadata,
+                          title: 'The Incredibly Long and Extraordinarily Detailed Title of This Audiobook That Should Definitely Be Truncated',
+                          explicit: true
                         }
                       }
                     } as BookLibraryItem
