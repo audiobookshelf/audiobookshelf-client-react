@@ -22,7 +22,6 @@ export default function HelpTooltipIcon({ text, size = 'lg' }: HelpTooltipIconPr
   return (
     <TooltipCore
       inline
-      lazy
       activateOnFocus
       text={text}
       position="right"
