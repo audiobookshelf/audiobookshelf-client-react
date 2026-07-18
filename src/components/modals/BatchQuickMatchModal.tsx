@@ -4,8 +4,8 @@ import { batchQuickMatchLibraryItemsAction } from '@/app/actions/batchActions'
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
-import Tooltip from '@/components/ui/Tooltip'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useBookProviders, useMetadata } from '@/contexts/MetadataContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -86,22 +86,20 @@ export default function BatchQuickMatchModal({ isOpen, onClose, libraryItemIds, 
 
             <div className="flex items-center gap-4 px-1 py-2">
               <ToggleSwitch value={overrideCover} onChange={setOverrideCover} disabled={isPending} className="h-auto px-0" />
-              <Tooltip text={t('LabelUpdateCoverHelp')}>
-                <p>
-                  {t('LabelUpdateCover')}
-                  <span className="material-symbols icon-text ms-1">info</span>
-                </p>
-              </Tooltip>
+              <p>
+                {t('LabelUpdateCover')}
+                {'\u00A0'}
+                <HelpTooltipIcon text={t('LabelUpdateCoverHelp')} />
+              </p>
             </div>
 
             <div className="flex items-center gap-4 px-1 py-2">
               <ToggleSwitch value={overrideDetails} onChange={setOverrideDetails} disabled={isPending} className="h-auto px-0" />
-              <Tooltip text={t('LabelUpdateDetailsHelp')}>
-                <p>
-                  {t('LabelUpdateDetails')}
-                  <span className="material-symbols icon-text ms-1">info</span>
-                </p>
-              </Tooltip>
+              <p>
+                {t('LabelUpdateDetails')}
+                {'\u00A0'}
+                <HelpTooltipIcon text={t('LabelUpdateDetailsHelp')} />
+              </p>
             </div>
 
             <div className="border-border mt-4 flex items-center border-t pt-4">

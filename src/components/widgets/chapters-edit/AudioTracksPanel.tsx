@@ -1,8 +1,8 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
-import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -20,15 +20,13 @@ export default function AudioTracksPanel({ tracks, currentTrackIndex, isPlayingC
 
   return (
     <div className="w-full max-w-3xl overflow-x-hidden px-2 py-4 xl:max-w-xl">
-      <div className="mb-4 flex items-center py-1">
+      <div className="mb-4 flex items-center gap-1 py-1">
         <p className="text-lg font-semibold">{t('HeaderAudioTracks')}</p>
         <div className="grow" />
         <Btn size="small" onClick={onSetChaptersFromTracks}>
           {t('ButtonSetChaptersFromTracks')}
         </Btn>
-        <Tooltip text={t('MessageSetChaptersFromTracksDescription')} position="top" maxWidth={300} className="mx-1 flex cursor-default items-center">
-          <span className="material-symbols text-foreground-muted text-xl">info</span>
-        </Tooltip>
+        <HelpTooltipIcon text={t('MessageSetChaptersFromTracksDescription')} />
       </div>
 
       <div className="text-foreground-muted mb-2 flex text-xs font-semibold uppercase">

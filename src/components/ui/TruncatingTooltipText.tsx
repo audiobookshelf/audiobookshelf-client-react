@@ -1,13 +1,13 @@
 'use client'
 
-import Tooltip from '@/components/ui/Tooltip'
+import { TooltipCore } from '@/components/ui/Tooltip'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTruncation } from '@/hooks/useTruncation'
 import { mergeClasses } from '@/lib/merge-classes'
 
 export interface TruncatingTooltipTextProps {
   text: string
-  className: string
+  className?: string
   position?: 'top' | 'bottom' | 'left' | 'right'
   maxWidth?: number
   /** Defer mounting the portaled tooltip until hover — use in long lists. */
@@ -25,10 +25,10 @@ export default function TruncatingTooltipText({ text, className, position = 'top
   const openOnClick = !primaryInputCanHover && isTruncated
 
   return (
-    <Tooltip lazy={lazy} text={text} position={position} maxWidth={maxWidth} disabled={!isTruncated} openOnClick={openOnClick} className={wrapperClassName}>
+    <TooltipCore lazy={lazy} text={text} position={position} maxWidth={maxWidth} disabled={!isTruncated} openOnClick={openOnClick} className={wrapperClassName}>
       <p ref={ref} dir="auto" className={mergeClasses('min-w-0 truncate text-start select-none', className)}>
         {text}
       </p>
-    </Tooltip>
+    </TooltipCore>
   )
 }

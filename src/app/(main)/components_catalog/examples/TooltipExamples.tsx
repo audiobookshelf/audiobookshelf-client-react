@@ -18,11 +18,11 @@ export function TooltipExamples() {
           <span className="font-bold">Import:</span> <Code overflow>import Tooltip from &apos;@/components/ui/Tooltip&apos;</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Props:</span> <Code>text</Code>, <Code>children</Code>, <Code>position</Code>, <Code>usePortal</Code>
+          <span className="font-bold">Props:</span> <Code>text</Code>, <Code>children</Code>, <Code>position</Code>, <Code>maxWidth</Code>, <Code>lazy</Code>
         </p>
         <p className="mb-2">
-          <span className="font-bold">Note:</span> By default the tooltip is portaled to <Code>document.body</Code> (or the modal root when inside a modal). Set{' '}
-          <Code>usePortal=&#123;false&#125;</Code> to keep it in the DOM tree under the trigger.
+          <span className="font-bold">Note:</span> Tooltips are portaled to <Code>document.body</Code> (or the modal root when inside a modal) so they are not
+          clipped by ancestor overflow or stacking contexts.
         </p>
       </ComponentInfo>
 
@@ -75,16 +75,13 @@ export function TooltipExamples() {
           </div>
         </Example>
 
-        <Example title="Portal (default) vs inline">
+        <Example title="Overflow container">
           <div className="space-y-4">
             <div className="overflow-hidden rounded-md border border-gray-600 p-4">
               <p className="mb-2 text-sm text-gray-400">This container has overflow: hidden</p>
               <div className="flex flex-wrap gap-4">
-                <Tooltip text="Default: portaled so this is not clipped" position="bottom">
-                  <Btn>Default (portal)</Btn>
-                </Tooltip>
-                <Tooltip text="Inline tooltip — this text is clipped by the container" position="bottom" usePortal={false}>
-                  <Btn>usePortal false</Btn>
+                <Tooltip text="Portaled tooltips are not clipped by overflow containers" position="bottom">
+                  <Btn>Hover me</Btn>
                 </Tooltip>
               </div>
             </div>
@@ -97,9 +94,11 @@ export function TooltipExamples() {
             <Modal isOpen={isTooltipModalOpen} onClose={() => setIsTooltipModalOpen(false)} className="w-[200px]">
               <div className="flex h-full flex-col p-6">
                 <h3 className="mb-4 text-xl font-semibold text-white">Tooltip inside a modal</h3>
-                <Tooltip text="This is a tooltip inside a modal" position="bottom" className="w-fit">
-                  <Btn>Tooltip</Btn>
-                </Tooltip>
+                <div className="w-fit">
+                  <Tooltip text="This is a tooltip inside a modal" position="bottom">
+                    <Btn>Tooltip</Btn>
+                  </Tooltip>
+                </div>
               </div>
             </Modal>
           </div>

@@ -8,7 +8,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { AuthMethod, AuthenticationSettings } from '@/types/api'
 import { FormEvent, useMemo, useState, useTransition } from 'react'
 import SettingsContent from '../SettingsContent'
-import SettingsMoreInfoIcon from '../SettingsMoreInfoIcon'
+import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
 import { updateAuthenticationSettings } from './actions'
 import { applyAuthSettingsDefaults, validateOpenIdSettings } from './authenticationUtils'
 import OpenIdAuthSettings from './OpenIdAuthSettings'
@@ -161,7 +161,7 @@ export default function AuthenticationClient({ initialSettings, routerBasePath =
               labelClass="text-lg ps-3"
               className="px-0"
             />
-            <SettingsMoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/oidc_authentication" />
+            <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/oidc_authentication" />
           </div>
           {enableOpenIDAuth && <OpenIdAuthSettings settings={authSettings} onChange={setAuthSettings} disabled={isPending} routerBasePath={routerBasePath} />}
         </div>

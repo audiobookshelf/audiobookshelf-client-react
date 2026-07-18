@@ -1,8 +1,7 @@
 'use client'
 
-import Tooltip from '@/components/ui/Tooltip'
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
-import { useTruncation } from '@/hooks/useTruncation'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { LibraryItem } from '@/types/api'
 import { useId } from 'react'
@@ -43,8 +42,6 @@ export default function MediaCardDetailView({
 }: MediaCardDetailViewProps) {
   const t = useTypeSafeTranslations()
   const descriptionId = useId()
-  const { ref: titleRef, isTruncated: displayTitleTruncated } = useTruncation(displayTitle, isSkeleton)
-  const { ref: subtitleRef, isTruncated: displaySubtitleTruncated } = useTruncation(displaySubtitle, isSkeleton)
 
   return (
     <div cy-id="detailBottom" id={descriptionId} dir="auto" className="relative start-0 z-50 mt-2 mb-2 w-full">
@@ -62,12 +59,12 @@ export default function MediaCardDetailView({
             &nbsp;
           </div>
         ) : (
-          <Tooltip text={displayTitle} position="bottom" className="flex items-center" disabled={!displayTitleTruncated}>
-            <p cy-id="title" ref={titleRef} className="truncate">
-              {displayTitle}
-            </p>
-            {isExplicit && <ExplicitIndicator className="ms-1" />}
-          </Tooltip>
+          <div className="flex min-w-0 items-center">
+            <div className="min-w-0 flex-1">
+              <TruncatingTooltipText lazy text={displayTitle} position="bottom" />
+            </div>
+            {isExplicit && <ExplicitIndicator className="ms-1 shrink-0" />}
+          </div>
         )}
       </div>
       {showSubtitles &&
@@ -84,11 +81,9 @@ export default function MediaCardDetailView({
             &nbsp;
           </p>
         ) : (
-          <Tooltip text={displaySubtitle} position="bottom" disabled={!displaySubtitleTruncated} className="block w-full">
-            <p cy-id="subtitle" ref={subtitleRef} className="truncate" style={{ fontSize: `${0.6}em` }}>
-              {displaySubtitle}
-            </p>
-          </Tooltip>
+          <div className="block w-full min-w-0" style={{ fontSize: `${0.6}em` }}>
+            <TruncatingTooltipText lazy text={displaySubtitle} position="bottom" />
+          </div>
         ))}
       {isSkeleton ? (
         <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">

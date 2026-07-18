@@ -97,14 +97,14 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
         onClick={clickShowMenu}
       >
         {tasksRunning ? (
-          <Tooltip text={t('LabelTasks')} position="bottom" className="flex items-center">
+          <Tooltip text={t('LabelTasks')} position="bottom">
             <span className="relative">
               <LoadingSpinner className="scale-110 !cursor-pointer" />
               {showUnseenSuccessIndicator && <span className="bg-success pointer-events-none absolute -top-1 -right-0.5 h-2 w-2 rounded-full" />}
             </span>
           </Tooltip>
         ) : (
-          <Tooltip text={t('LabelActivities')} position="bottom" className="flex items-center">
+          <Tooltip text={t('LabelActivities')} position="bottom">
             <span className="relative">
               <span className="material-symbols text-xl" aria-label={t('LabelActivities')} role="button">
                 notifications

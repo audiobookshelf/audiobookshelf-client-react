@@ -4,6 +4,7 @@ import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import { updateEbookFileStatusAction } from '@/app/actions/ebookActions'
 import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
@@ -139,9 +140,11 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
             <span className="break-all">
               {showFullPath ? row.metadata.path : row.metadata.relPath}
               {isPrimary && (
-                <Tooltip text={t('LabelPrimaryEbook')} position="top" className="ms-1 inline-block">
-                  <span className="material-symbols text-success align-text-bottom text-base">check_circle</span>
-                </Tooltip>
+                <span className="ms-1 inline-block">
+                  <Tooltip text={t('LabelPrimaryEbook')} position="top">
+                    <span className="material-symbols text-success align-text-bottom text-base">check_circle</span>
+                  </Tooltip>
+                </span>
               )}
             </span>
           )
@@ -160,9 +163,7 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
         label: (
           <span className="inline-flex items-center gap-1">
             {t('LabelRead')}
-            <Tooltip text={t('LabelReadEbookWithoutProgress')} position="top" className="inline-block">
-              <span className="material-symbols align-middle text-sm">info</span>
-            </Tooltip>
+            <HelpTooltipIcon text={t('LabelReadEbookWithoutProgress')} size="sm" />
           </span>
         ),
         accessor: (row: LibraryFile) => (

@@ -4,9 +4,10 @@ import { closeMediaItemShareAction, openMediaItemShareAction } from '@/app/actio
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
+import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
 import TextInput from '@/components/ui/TextInput'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
-import Tooltip from '@/components/ui/Tooltip'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
@@ -173,16 +174,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} processing={processing} className="sm:max-w-[520px] md:max-w-[560px] lg:max-w-[560px]">
       <div className="max-h-[80vh] overflow-x-hidden overflow-y-auto px-4 py-6 text-sm sm:px-6">
         <div className="absolute end-0 top-0 p-4">
-          <Tooltip text={t('LabelClickForMoreInfo')} className="inline-flex">
-            <a
-              href="https://www.audiobookshelf.org/guides/media-item-shares"
-              target="_blank"
-              rel="noreferrer"
-              className="text-foreground-muted hover:text-foreground inline-flex"
-            >
-              <span className="material-symbols text-xl">help_outline</span>
-            </a>
-          </Tooltip>
+          <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/media-item-shares" size="xl" />
         </div>
 
         {currentShare ? (
@@ -225,11 +217,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
             <div className="mb-4 flex w-full items-center md:w-1/2">
               <p className="text-foreground-muted px-1 py-1 text-sm">{t('LabelDownloadable')}</p>
               <ToggleSwitch size="medium" value={isDownloadable} onChange={setIsDownloadable} />
-              <Tooltip text={t('LabelShareDownloadableHelp')} position="right" maxWidth={160} openOnClick addTabIndex>
-                <span className="text-foreground-muted inline-flex h-8 w-8 cursor-pointer items-center justify-center sm:h-auto sm:w-auto">
-                  <span className="material-symbols icon-text text-lg">info</span>
-                </span>
-              </Tooltip>
+              <HelpTooltipIcon text={t('LabelShareDownloadableHelp')} />
             </div>
 
             <p className="text-foreground-muted px-1 py-1 text-sm">

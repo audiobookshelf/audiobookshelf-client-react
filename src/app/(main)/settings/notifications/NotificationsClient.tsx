@@ -1,8 +1,8 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
-import Tooltip from '@/components/ui/Tooltip'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -127,22 +127,20 @@ export default function NotificationsClient({ initialSettings, notificationData 
 
           <div className="flex items-center py-2">
             <TextInput type="number" value={maxNotificationQueue} disabled={isPending} className="w-16" onChange={setMaxNotificationQueue} />
-            <Tooltip text={t('LabelNotificationsMaxQueueSizeHelp')} position="right" maxWidth={300} addTabIndex>
-              <p className="ps-2 text-base">
-                {t('LabelNotificationsMaxQueueSize')}
-                <span className="material-symbols icon-text ms-1 text-lg">info</span>
-              </p>
-            </Tooltip>
+            <p className="ps-2 text-base">
+              {t('LabelNotificationsMaxQueueSize')}
+              {'\u00A0'}
+              <HelpTooltipIcon text={t('LabelNotificationsMaxQueueSizeHelp')} />
+            </p>
           </div>
 
           <div className="flex items-center py-2">
             <TextInput type="number" value={maxFailedAttempts} disabled={isPending} className="w-16" onChange={setMaxFailedAttempts} />
-            <Tooltip text={t('LabelNotificationsMaxFailedAttemptsHelp')} position="right" maxWidth={300} addTabIndex>
-              <p className="ps-2 text-base">
-                {t('LabelNotificationsMaxFailedAttempts')}
-                <span className="material-symbols icon-text ms-1 text-lg">info</span>
-              </p>
-            </Tooltip>
+            <p className="ps-2 text-base">
+              {t('LabelNotificationsMaxFailedAttempts')}
+              {'\u00A0'}
+              <HelpTooltipIcon text={t('LabelNotificationsMaxFailedAttemptsHelp')} />
+            </p>
           </div>
 
           <div className="flex items-center justify-end pt-4">

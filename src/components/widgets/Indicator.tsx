@@ -1,6 +1,6 @@
 'use client'
 
-import Tooltip from '@/components/ui/Tooltip'
+import { TooltipCore } from '@/components/ui/Tooltip'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { mergeClasses } from '@/lib/merge-classes'
 import React from 'react'
@@ -18,7 +18,7 @@ const Indicator = ({ tooltipText, children, className, ariaLabel, role = 'note' 
   const primaryInputCanHover = usePrimaryInputCanHover()
 
   return (
-    <Tooltip lazy text={tooltipText} position="top" openOnClick={!primaryInputCanHover} className="inline-flex items-center">
+    <TooltipCore lazy text={tooltipText} position="top" openOnClick={!primaryInputCanHover} className="inline-flex items-center">
       {typeof children === 'string' ? (
         <span className={mergeClasses('material-symbols text-sm', className)} role={role} aria-label={effectiveAriaLabel}>
           {children}
@@ -28,7 +28,7 @@ const Indicator = ({ tooltipText, children, className, ariaLabel, role = 'note' 
           {children}
         </div>
       )}
-    </Tooltip>
+    </TooltipCore>
   )
 }
 
