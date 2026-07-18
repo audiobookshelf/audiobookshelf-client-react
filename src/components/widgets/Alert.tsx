@@ -41,7 +41,7 @@ export default function Alert({ type = 'error', autoFocus = true, children, clas
             ? 'bg-info/5 border-info/60 text-info'
             : 'bg-primary/5 border-primary/60 text-primary'
 
-  const wrapperClass = mergeClasses('w-full border rounded-lg flex items-center relative py-4 ps-16', typeClasses, className)
+  const wrapperClass = mergeClasses('w-full border rounded-lg flex items-center relative py-4 ps-16 pe-4', typeClasses, className)
 
   useEffect(() => {
     if (isAlert && alertRef.current && autoFocus) {
