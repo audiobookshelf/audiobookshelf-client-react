@@ -1,5 +1,6 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getData, getUser } from '../../../../../lib/api'
 import UserClient from './UserClient'
 
@@ -12,7 +13,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   const [user] = await getData(getUser(userId))
 
   if (!user) {
-    return null
+    redirect('/settings/users')
   }
 
   return (
