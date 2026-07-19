@@ -1,25 +1,21 @@
 'use client'
 
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { calculateNextRunDate, getHumanReadableCronExpression, validateCron } from '@/lib/cron'
-import { mergeClasses } from '@/lib/merge-classes'
+import { calculateNextRunDate, getCronExpressionOptions, getHumanReadableCronExpression, validateCron, type FormatDateOptions } from '@/lib/cron'
 import { capitalizeFirstLetter } from '@/lib/string'
 import { useEffect, useMemo, useState } from 'react'
 
 interface CronExpressionPreviewProps {
   cronExpression: string
-  className?: string
   isValid?: boolean
-  options?: {
-    language?: string
-    dateFormat?: string
-    timeFormat?: string
-    timeZone?: string
-  }
+  options?: FormatDateOptions
 }
 
-export default function CronExpressionPreview({ cronExpression, className, isValid: isValidProp, options }: CronExpressionPreviewProps) {
+export default function CronExpressionPreview({ cronExpression, isValid: isValidProp, options }: CronExpressionPreviewProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
+  const resolvedOptions = useMemo(() => options ?? getCronExpressionOptions(serverSettings), [options, serverSettings])
   const [clientTimeZone, setClientTimeZone] = useState<string | null>(null)
 
   useEffect(() => {
@@ -28,33 +24,31 @@ export default function CronExpressionPreview({ cronExpression, className, isVal
 
   const { isValid, verbalDescription, nextRunDate } = useMemo(() => {
     const isValid = isValidProp !== undefined ? isValidProp : validateCron(cronExpression).isValid
-    const verbalDescription = isValid ? getHumanReadableCronExpression(cronExpression, options?.language || 'en') : ''
-    const nextRunDate = isValid ? capitalizeFirstLetter(calculateNextRunDate(cronExpression, options, clientTimeZone)) : ''
+    const verbalDescription = isValid ? getHumanReadableCronExpression(cronExpression, resolvedOptions.language || 'en') : ''
+    const nextRunDate = isValid ? capitalizeFirstLetter(calculateNextRunDate(cronExpression, resolvedOptions, clientTimeZone)) : ''
 
     return { isValid, verbalDescription, nextRunDate }
-  }, [cronExpression, isValidProp, options, clientTimeZone])
+  }, [cronExpression, isValidProp, resolvedOptions, clientTimeZone])
 
   if (!isValid || !cronExpression) {
     return null
   }
 
   return (
-    <div className={mergeClasses('p-1', className)}>
-      <div className="grid grid-cols-1 gap-x-2 gap-y-1 sm:grid-cols-[auto_1fr] sm:gap-y-2">
-        <div className="flex items-center">
-          <span className="material-symbols text-foreground mr-2">schedule</span>
-          <p className="text-foreground font-medium">{t('LabelSchedule')}:</p>
-        </div>
-        <p className="text-foreground" cy-id="cron-description">
-          {verbalDescription}
-        </p>
-
-        <div className="mt-2 flex items-center sm:mt-0">
-          <span className="material-symbols text-foreground mr-2">event</span>
-          <p className="text-foreground font-medium">{t('LabelNextRun')}:</p>
-        </div>
-        <p className="text-foreground">{nextRunDate || t('LabelNotAvailable')}</p>
+    <div className="grid grid-cols-1 gap-x-2 gap-y-1 sm:grid-cols-[auto_1fr] sm:gap-y-2">
+      <div className="flex items-center">
+        <span className="material-symbols text-foreground mr-2">schedule</span>
+        <p className="text-foreground font-medium">{t('LabelSchedule')}:</p>
       </div>
+      <p className="text-foreground" cy-id="cron-description">
+        {verbalDescription}
+      </p>
+
+      <div className="mt-2 flex items-center sm:mt-0">
+        <span className="material-symbols text-foreground mr-2">event</span>
+        <p className="text-foreground font-medium">{t('LabelNextRun')}:</p>
+      </div>
+      <p className="text-foreground">{nextRunDate || t('LabelNotAvailable')}</p>
     </div>
   )
 }

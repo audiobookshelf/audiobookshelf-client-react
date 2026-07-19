@@ -117,6 +117,8 @@ export interface ServerSettings {
   dateFormat: string
   timeFormat: string
   language: string
+  /** IANA timezone of the Audiobookshelf server host (runtime value, not user-configurable) */
+  timeZone?: string
   allowedOrigins: string[]
 
   // System info
@@ -1415,6 +1417,10 @@ export interface UpdateLibraryItemMediaPayload {
   }
   tags?: string[]
   url?: string
+  autoDownloadEpisodes?: boolean
+  autoDownloadSchedule?: string
+  maxEpisodesToKeep?: number
+  maxNewEpisodesToDownload?: number
 }
 
 export interface UpdateLibraryItemMediaResponse {

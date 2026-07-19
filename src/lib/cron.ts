@@ -1,3 +1,4 @@
+import type { ServerSettings } from '@/types/api'
 import cronstrue from 'cronstrue/i18n'
 
 export interface ValidationResult {
@@ -10,6 +11,15 @@ export interface FormatDateOptions {
   dateFormat?: string
   timeFormat?: string
   timeZone?: string
+}
+
+export function getCronExpressionOptions(serverSettings: Pick<ServerSettings, 'language' | 'dateFormat' | 'timeFormat' | 'timeZone'>): FormatDateOptions {
+  return {
+    language: serverSettings.language,
+    dateFormat: serverSettings.dateFormat,
+    timeFormat: serverSettings.timeFormat,
+    timeZone: serverSettings.timeZone
+  }
 }
 
 // Helper function to validate individual cron fields

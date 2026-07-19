@@ -117,8 +117,6 @@ export function CronExpressionBuilderExamples() {
               </Code>{' '}
               - the server language, date, and time settings
             </span>
-            <Code className="px-1">className?</Code>
-            <span>classes to merge with the default classes</span>
           </div>
         </div>
       </ComponentInfo>

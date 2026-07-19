@@ -55,10 +55,10 @@ export default function LibraryScheduleTab({ settings, onSettingsChange }: Libra
       </div>
 
       {enableAutoScan ? (
-        <>
+        <div className="flex flex-col gap-2">
           <CronExpressionBuilder value={cronExpression} onChange={handleCronChange} />
           <CronExpressionPreview cronExpression={cronExpression} isValid={isValid} />
-        </>
+        </div>
       ) : (
         <p className="text-base text-yellow-400">{t('MessageScheduleLibraryScanNote')}</p>
       )}
