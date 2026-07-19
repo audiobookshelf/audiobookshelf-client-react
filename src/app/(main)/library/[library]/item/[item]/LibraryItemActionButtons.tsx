@@ -3,6 +3,7 @@
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import MatchModal from '@/components/modals/MatchModal'
+import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
 import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
@@ -83,6 +84,7 @@ export default function LibraryItemActionButtons({
     confirmState,
     rssFeedModalOpen,
     scheduleModalOpen,
+    checkNewEpisodesModalOpen,
     shareModalOpen,
     collectionsModalOpen,
     playlistsModalOpen,
@@ -90,6 +92,7 @@ export default function LibraryItemActionButtons({
     closeConfirm,
     closeRssFeedModal,
     closeScheduleModal,
+    closeCheckNewEpisodesModal,
     closeShareModal,
     closeCollectionsModal,
     closePlaylistsModal,
@@ -316,6 +319,9 @@ export default function LibraryItemActionButtons({
         }}
       />
       {isPodcast && <PodcastDownloadScheduleModal isOpen={scheduleModalOpen} onClose={closeScheduleModal} libraryItem={libraryItem as PodcastLibraryItem} />}
+      {isPodcast && (
+        <PodcastCheckNewEpisodesModal isOpen={checkNewEpisodesModalOpen} onClose={closeCheckNewEpisodesModal} libraryItem={libraryItem as PodcastLibraryItem} />
+      )}
       <ShareModal
         isOpen={shareModalOpen}
         onClose={closeShareModal}
