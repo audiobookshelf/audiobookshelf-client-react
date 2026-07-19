@@ -7,6 +7,7 @@ import { MultiSelect, MultiSelectItem } from '@/components/ui/MultiSelect'
 import TextInput from '@/components/ui/TextInput'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library, User, UserPermissions } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
@@ -69,13 +70,15 @@ const getInitialFormData = (user: User | null): UserFormData => {
 interface UserAccountModalProps {
   isOpen: boolean
   user: User | null
+  processing?: boolean
   onClose: () => void
   onSubmit: (formData: UserFormData) => void
   onUnlinkOpenId?: () => void
 }
 
-export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUnlinkOpenId }: UserAccountModalProps) {
+export default function UserAccountModal({ isOpen, user, processing = false, onClose, onSubmit, onUnlinkOpenId }: UserAccountModalProps) {
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
   const [formData, setFormData] = useState<UserFormData>(getInitialFormData(user))
   const [showUnlinkConfirm, setShowUnlinkConfirm] = useState(false)
 
@@ -90,16 +93,18 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
 
   // Load libraries when needed
   const loadLibraries = useCallback(async () => {
-    if (librariesLoaded) return
+    if (librariesLoaded) return availableLibraries
     setLibrariesLoaded(true)
     try {
       const libraries = await fetchLibraries()
       setAvailableLibraries(libraries)
+      return libraries
     } catch (error) {
       console.error('Failed to fetch libraries:', error)
       setLibrariesLoaded(false) // Allow retry on error
+      return []
     }
-  }, [librariesLoaded])
+  }, [availableLibraries, librariesLoaded])
 
   // Load tags when needed
   const loadTags = useCallback(async () => {
@@ -124,17 +129,34 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
 
   // Load libraries/tags when modal opens if user doesn't have access to all
   useEffect(() => {
-    if (isOpen && user) {
-      if (!user.permissions.accessAllLibraries) {
+    if (isOpen) {
+      if (!user || !user.permissions.accessAllLibraries) {
         loadLibraries()
       }
-      if (!user.permissions.accessAllTags) {
+      if (!user || !user.permissions.accessAllTags) {
         loadTags()
       }
     }
   }, [isOpen, user, loadLibraries, loadTags])
 
   const handleSubmit = () => {
+    if (!formData.username.trim()) {
+      showToast(t('ToastNewUserUsernameError'), { type: 'error' })
+      return
+    }
+    if (!formData.permissions.accessAllLibraries && !formData.librariesAccessible.length) {
+      showToast(t('ToastNewUserLibraryError'), { type: 'error' })
+      return
+    }
+    if (!formData.permissions.accessAllTags && !formData.itemTagsSelected.length) {
+      showToast(t('ToastNewUserTagError'), { type: 'error' })
+      return
+    }
+    if (!isEditing && !formData.password) {
+      showToast(t('ToastNewUserPasswordError'), { type: 'error' })
+      return
+    }
+
     onSubmit(formData)
   }
 
@@ -179,7 +201,15 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
 
     // When disabling "access all", load the data if not already loaded
     if (key === 'accessAllLibraries' && !value) {
-      loadLibraries()
+      loadLibraries().then((libraries) => {
+        setFormData((prev) => {
+          if (prev.librariesAccessible.length) return prev
+          return {
+            ...prev,
+            librariesAccessible: libraries.map((lib) => lib.id)
+          }
+        })
+      })
     }
     if (key === 'accessAllTags' && !value) {
       loadTags()
@@ -233,7 +263,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle}>
+    <Modal isOpen={isOpen} processing={processing} onClose={onClose} outerContent={outerContentTitle}>
       <div className="flex max-h-[90vh] flex-col">
         <div className="overflow-y-auto px-4 py-6 sm:px-6">
           {/* Basic Info Section */}
@@ -243,6 +273,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
               label={t('LabelUsername')}
               value={formData.username}
               placeholder={t('LabelUsername')}
+              disabled={processing}
               onChange={(value) => setFormData((prev) => ({ ...prev, username: value }))}
             />
 
@@ -253,6 +284,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
                 type="password"
                 value={formData.password}
                 placeholder={isEditing ? t('LabelChangePassword') : t('LabelPassword')}
+                disabled={processing}
                 onChange={(value) => setFormData((prev) => ({ ...prev, password: value }))}
               />
             )}
@@ -263,6 +295,7 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
               type="email"
               value={formData.email}
               placeholder={t('LabelEmail')}
+              disabled={processing}
               onChange={(value) => setFormData((prev) => ({ ...prev, email: value }))}
             />
 
@@ -274,108 +307,118 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
                   value={formData.type}
                   items={accountTypeItems}
                   highlightSelected
+                  disabled={processing}
                   onChange={(value) => handleAccountTypeChange(value as AccountType)}
                   className="flex-1"
                 />
 
-                <ToggleSwitch value={formData.isActive} label={t('LabelEnable')} onChange={(value) => setFormData((prev) => ({ ...prev, isActive: value }))} />
+                <ToggleSwitch
+                  value={formData.isActive}
+                  label={t('LabelEnable')}
+                  disabled={processing}
+                  onChange={(value) => setFormData((prev) => ({ ...prev, isActive: value }))}
+                />
               </div>
             )}
           </div>
 
           {/* Permissions Section */}
           {!isRootUser && (
-            <>
-              <div className="border-border mt-6 border-t pt-6">
-                <h3 className="mb-4 text-lg font-semibold">{t('HeaderPermissions')}</h3>
-                <div>
-                  {basicPermissionsList.map(({ key, label }) => (
-                    <ToggleSwitch
-                      key={key}
-                      value={formData.permissions[key]}
-                      label={label}
-                      className="h-fit"
-                      onChange={(value) => updatePermission(key, value)}
+            <div className="border-border mt-6 border-t pt-6">
+              <h3 className="mb-4 text-lg font-semibold">{t('HeaderPermissions')}</h3>
+              <div>
+                {basicPermissionsList.map(({ key, label }) => (
+                  <ToggleSwitch
+                    key={key}
+                    value={formData.permissions[key]}
+                    label={label}
+                    className="h-fit"
+                    disabled={processing}
+                    onChange={(value) => updatePermission(key, value)}
+                  />
+                ))}
+
+                {/* Can Access All Libraries */}
+                <ToggleSwitch
+                  value={formData.permissions.accessAllLibraries}
+                  label={t('LabelPermissionsAccessAllLibraries')}
+                  className="h-fit"
+                  disabled={processing}
+                  onChange={(value) => updatePermission('accessAllLibraries', value)}
+                />
+
+                {/* Libraries Accessible to User (shown when accessAllLibraries is false) */}
+                {!formData.permissions.accessAllLibraries && (
+                  <div className="mt-3 mb-4 ml-4">
+                    <MultiSelect
+                      label={t('LabelLibrariesAccessibleToUser')}
+                      items={libraryItems}
+                      selectedItems={selectedLibraryItems}
+                      allowNew={false}
+                      showEdit={false}
+                      disabled={processing}
+                      onItemAdded={(item) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          librariesAccessible: [...prev.librariesAccessible, item.value]
+                        }))
+                      }}
+                      onItemRemoved={(item) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          librariesAccessible: prev.librariesAccessible.filter((id) => id !== item.value)
+                        }))
+                      }}
                     />
-                  ))}
+                  </div>
+                )}
 
-                  {/* Can Access All Libraries */}
-                  <ToggleSwitch
-                    value={formData.permissions.accessAllLibraries}
-                    label={t('LabelPermissionsAccessAllLibraries')}
-                    className="h-fit"
-                    onChange={(value) => updatePermission('accessAllLibraries', value)}
-                  />
+                {/* Can Access All Tags */}
+                <ToggleSwitch
+                  value={formData.permissions.accessAllTags}
+                  label={t('LabelPermissionsAccessAllTags')}
+                  className="h-fit"
+                  disabled={processing}
+                  onChange={(value) => updatePermission('accessAllTags', value)}
+                />
 
-                  {/* Libraries Accessible to User (shown when accessAllLibraries is false) */}
-                  {!formData.permissions.accessAllLibraries && (
-                    <div className="mt-3 mb-4 ml-4">
-                      <MultiSelect
-                        label={t('LabelLibrariesAccessibleToUser')}
-                        items={libraryItems}
-                        selectedItems={selectedLibraryItems}
-                        allowNew={false}
-                        showEdit={false}
-                        onItemAdded={(item) => {
-                          setFormData((prev) => ({
-                            ...prev,
-                            librariesAccessible: [...prev.librariesAccessible, item.value]
-                          }))
-                        }}
-                        onItemRemoved={(item) => {
-                          setFormData((prev) => ({
-                            ...prev,
-                            librariesAccessible: prev.librariesAccessible.filter((id) => id !== item.value)
-                          }))
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {/* Can Access All Tags */}
-                  <ToggleSwitch
-                    value={formData.permissions.accessAllTags}
-                    label={t('LabelPermissionsAccessAllTags')}
-                    className="h-fit"
-                    onChange={(value) => updatePermission('accessAllTags', value)}
-                  />
-
-                  {/* Tags Accessible to User (shown when accessAllTags is false) */}
-                  {!formData.permissions.accessAllTags && (
-                    <div className="mt-3 mb-4 ml-4">
-                      <div className="flex flex-col sm:flex-row sm:items-end sm:gap-4">
-                        <div className="flex-1">
-                          <MultiSelect
-                            label={formData.permissions.selectedTagsNotAccessible ? t('LabelTagsNotAccessibleToUser') : t('LabelTagsAccessibleToUser')}
-                            items={tagItems}
-                            selectedItems={selectedTagItems}
-                            allowNew={false}
-                            showEdit={false}
-                            onItemAdded={(item) => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                itemTagsSelected: [...prev.itemTagsSelected, item.value]
-                              }))
-                            }}
-                            onItemRemoved={(item) => {
-                              setFormData((prev) => ({
-                                ...prev,
-                                itemTagsSelected: prev.itemTagsSelected.filter((tag) => tag !== item.value)
-                              }))
-                            }}
-                          />
-                        </div>
-                        <ToggleSwitch
-                          value={formData.permissions.selectedTagsNotAccessible}
-                          label={t('LabelInvert')}
-                          onChange={(value) => updatePermission('selectedTagsNotAccessible', value)}
+                {/* Tags Accessible to User (shown when accessAllTags is false) */}
+                {!formData.permissions.accessAllTags && (
+                  <div className="mt-3 mb-4 ml-4">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:gap-4">
+                      <div className="flex-1">
+                        <MultiSelect
+                          label={formData.permissions.selectedTagsNotAccessible ? t('LabelTagsNotAccessibleToUser') : t('LabelTagsAccessibleToUser')}
+                          items={tagItems}
+                          selectedItems={selectedTagItems}
+                          allowNew={false}
+                          showEdit={false}
+                          disabled={processing}
+                          onItemAdded={(item) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              itemTagsSelected: [...prev.itemTagsSelected, item.value]
+                            }))
+                          }}
+                          onItemRemoved={(item) => {
+                            setFormData((prev) => ({
+                              ...prev,
+                              itemTagsSelected: prev.itemTagsSelected.filter((tag) => tag !== item.value)
+                            }))
+                          }}
                         />
                       </div>
+                      <ToggleSwitch
+                        value={formData.permissions.selectedTagsNotAccessible}
+                        label={t('LabelInvert')}
+                        disabled={processing}
+                        onChange={(value) => updatePermission('selectedTagsNotAccessible', value)}
+                      />
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            </>
+            </div>
           )}
         </div>
 
@@ -384,12 +427,16 @@ export default function UserAccountModal({ isOpen, user, onClose, onSubmit, onUn
           <div className="flex items-center justify-end gap-4">
             {/* Unlink OpenID button */}
             {isEditing && user?.hasOpenIDLink && (
-              <Btn onClick={handleUnlinkOpenIdClick} className="mr-auto">
+              <Btn disabled={processing} onClick={handleUnlinkOpenIdClick} className="mr-auto">
                 {t('ButtonUnlinkOpenId')}
               </Btn>
             )}
 
-            <Btn onClick={handleSubmit}>{isEditing ? t('ButtonSave') : t('ButtonCreate')}</Btn>
+            {isRootUser && <Btn to="/account/change-password">{t('ButtonChangeRootPassword')}</Btn>}
+
+            <Btn loading={processing} disabled={processing} onClick={handleSubmit}>
+              {isEditing ? t('ButtonSave') : t('ButtonCreate')}
+            </Btn>
           </div>
         </div>
       </div>
