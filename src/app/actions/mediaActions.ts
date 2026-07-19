@@ -77,6 +77,10 @@ export async function clearPodcastDownloadQueueAction(libraryItemId: string) {
   return api.clearPodcastDownloadQueue(libraryItemId)
 }
 
+export async function checkPodcastNewEpisodesAction(libraryItemId: string, limit: number) {
+  return api.checkPodcastNewEpisodes(libraryItemId, limit)
+}
+
 export async function getPodcastEpisodeAction(libraryItemId: string, episodeId: string) {
   return api.getPodcastEpisode(libraryItemId, episodeId)
 }
