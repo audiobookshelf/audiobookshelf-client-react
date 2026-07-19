@@ -1,36 +1,34 @@
 'use client'
 
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { calculateNextRunDate, getHumanReadableCronExpression, validateCron } from '@/lib/cron'
+import { calculateNextRunDate, getCronExpressionOptions, getHumanReadableCronExpression, validateCron, type FormatDateOptions } from '@/lib/cron'
 import { capitalizeFirstLetter } from '@/lib/string'
 import { useEffect, useMemo, useState } from 'react'
 
 interface CronExpressionPreviewProps {
   cronExpression: string
   isValid?: boolean
-  options?: {
-    language?: string
-    dateFormat?: string
-    timeFormat?: string
-    timeZone?: string
-  }
+  options?: FormatDateOptions
 }
 
 export default function CronExpressionPreview({ cronExpression, isValid: isValidProp, options }: CronExpressionPreviewProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
+  const resolvedOptions = useMemo(() => options ?? getCronExpressionOptions(serverSettings), [options, serverSettings])
   const [clientTimeZone, setClientTimeZone] = useState<string | null>(null)
-
+  console.log('resolvedOptions', resolvedOptions)
   useEffect(() => {
     setClientTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone)
   }, [])
 
   const { isValid, verbalDescription, nextRunDate } = useMemo(() => {
     const isValid = isValidProp !== undefined ? isValidProp : validateCron(cronExpression).isValid
-    const verbalDescription = isValid ? getHumanReadableCronExpression(cronExpression, options?.language || 'en') : ''
-    const nextRunDate = isValid ? capitalizeFirstLetter(calculateNextRunDate(cronExpression, options, clientTimeZone)) : ''
+    const verbalDescription = isValid ? getHumanReadableCronExpression(cronExpression, resolvedOptions.language || 'en') : ''
+    const nextRunDate = isValid ? capitalizeFirstLetter(calculateNextRunDate(cronExpression, resolvedOptions, clientTimeZone)) : ''
 
     return { isValid, verbalDescription, nextRunDate }
-  }, [cronExpression, isValidProp, options, clientTimeZone])
+  }, [cronExpression, isValidProp, resolvedOptions, clientTimeZone])
 
   if (!isValid || !cronExpression) {
     return null

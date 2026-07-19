@@ -117,6 +117,8 @@ export interface ServerSettings {
   dateFormat: string
   timeFormat: string
   language: string
+  /** IANA timezone of the Audiobookshelf server host (runtime value, not user-configurable) */
+  timeZone?: string
   allowedOrigins: string[]
 
   // System info

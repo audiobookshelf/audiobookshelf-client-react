@@ -4,8 +4,9 @@ import Dropdown from '@/components/ui/Dropdown'
 import type { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { MultiSelect } from '@/components/ui/MultiSelect'
 import TextInput from '@/components/ui/TextInput'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLocalizedServerTimeZone, validateCron, type FormatDateOptions, type ValidationResult } from '@/lib/cron'
+import { getCronExpressionOptions, getLocalizedServerTimeZone, validateCron, type FormatDateOptions, type ValidationResult } from '@/lib/cron'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface CronExpressionBuilderProps {
@@ -14,8 +15,10 @@ interface CronExpressionBuilderProps {
   options?: FormatDateOptions
 }
 
-export default function CronExpressionBuilder({ value, onChange, options: { language, timeZone } = {} }: CronExpressionBuilderProps) {
+export default function CronExpressionBuilder({ value, onChange, options }: CronExpressionBuilderProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
+  const { language, timeZone } = useMemo(() => options ?? getCronExpressionOptions(serverSettings), [options, serverSettings])
   const [selectedInterval, setSelectedInterval] = useState<string>('daily')
   const [customCronError, setCustomCronError] = useState<string>('')
 
