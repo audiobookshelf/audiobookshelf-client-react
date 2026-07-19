@@ -1,34 +1,31 @@
 'use client'
 
-import { mergeClasses } from '@/lib/merge-classes'
+import SkeletonBar from '@/components/ui/SkeletonBar'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-
-function ShadowSkeletonBar({ className }: { className?: string }) {
-  return (
-    <div
-      className={mergeClasses('box-shadow-book animate-pulse rounded-sm bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700', className)}
-      aria-hidden="true"
-    />
-  )
-}
 
 export default function UserListeningStatsSkeleton() {
   const t = useTypeSafeTranslations()
 
   return (
     <div className="py-2" aria-busy="true" aria-live="polite">
+      {/* Listening stats section */}
       <h2 className="mb-2 text-lg font-medium">{t('HeaderListeningStats')}</h2>
 
+      {/* Session count and view-all button */}
       <div className="flex items-center gap-2">
-        <ShadowSkeletonBar className="h-4 w-36" />
-        <ShadowSkeletonBar className="h-7 w-16 rounded-md" />
+        <SkeletonBar className="h-4 w-36 rounded-sm" />
+        <SkeletonBar className="h-7 w-16 rounded-md" />
       </div>
 
-      <ShadowSkeletonBar className="mt-2 h-4 w-52" />
+      {/* Total time listened */}
+      <div className="mt-2">
+        <SkeletonBar className="h-4 w-52 rounded-sm" />
+      </div>
 
+      {/* Last listening session */}
       <div className="mt-4">
         <h2 className="mb-2 text-lg font-medium">{t('HeaderLastListeningSession')}</h2>
-        <ShadowSkeletonBar className="h-6 w-full max-w-md" />
+        <SkeletonBar className="h-6 w-full max-w-md rounded-sm" />
       </div>
     </div>
   )
