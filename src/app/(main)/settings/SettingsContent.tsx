@@ -34,7 +34,7 @@ export default function SettingsContent(props: {
           menu
         </IconBtn>
       )}
-      <div className="bg-bg border-border mb-8 rounded-md border p-2 shadow-lg sm:p-4">
+      <div className="bg-bg border-border rounded-md border p-2 shadow-lg sm:p-4">
         <div className="mb-2 flex items-center gap-2">
           {props.backLink && (
             <Link aria-label={t('ButtonBack')} href={props.backLink} className="text-foreground-muted hover:text-foreground">
