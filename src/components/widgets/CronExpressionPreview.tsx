@@ -17,7 +17,7 @@ export default function CronExpressionPreview({ cronExpression, isValid: isValid
   const { serverSettings } = useUser()
   const resolvedOptions = useMemo(() => options ?? getCronExpressionOptions(serverSettings), [options, serverSettings])
   const [clientTimeZone, setClientTimeZone] = useState<string | null>(null)
-  console.log('resolvedOptions', resolvedOptions)
+
   useEffect(() => {
     setClientTimeZone(Intl.DateTimeFormat().resolvedOptions().timeZone)
   }, [])

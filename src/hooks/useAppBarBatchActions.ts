@@ -22,7 +22,16 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createElement, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 export type AppBarBatchActionId =
-  'play' | 'toggle-finished' | 'add-to-collection' | 'add-to-playlist' | 'batch-edit' | 'delete' | 'quick-match' | 'quick-embed' | 'rescan' | 'download'
+  | 'play'
+  | 'toggle-finished'
+  | 'add-to-collection'
+  | 'add-to-playlist'
+  | 'batch-edit'
+  | 'delete'
+  | 'quick-match'
+  | 'quick-embed'
+  | 'rescan'
+  | 'download'
 
 interface UseAppBarBatchActionsParams {
   selectedItems: readonly SelectedMediaItem[]
