@@ -1217,6 +1217,15 @@ export async function clearPodcastDownloadQueue(libraryItemId: string): Promise<
 }
 
 /**
+ * Check a podcast RSS feed for new episodes and queue downloads.
+ * @param libraryItemId - Library item ID
+ * @param limit - Max number of new episodes to download
+ */
+export async function checkPodcastNewEpisodes(libraryItemId: string, limit: number): Promise<{ episodes: RssPodcastEpisode[] }> {
+  return apiRequest<{ episodes: RssPodcastEpisode[] }>(`/api/podcasts/${libraryItemId}/checknew?limit=${limit}`)
+}
+
+/**
  * Quick embed metadata into audio files for a library item
  * @param libraryItemId - Library item ID
  * Returns: void (success) or throws error
