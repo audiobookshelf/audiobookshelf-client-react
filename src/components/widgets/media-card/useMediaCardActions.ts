@@ -252,6 +252,11 @@ export function useMediaCardActions({
       } else if (action === 'openSchedule') {
         setScheduleModalOpen(true)
       } else if (action === 'openCheckNewEpisodes') {
+        const feedUrl = 'feedUrl' in media.metadata ? media.metadata.feedUrl : undefined
+        if (!feedUrl) {
+          showToast(t('ToastPodcastNoRssFeed'), { type: 'error' })
+          return
+        }
         setCheckNewEpisodesModalOpen(true)
       } else if (action === 'showMatchModal') {
         onOpenMatch?.()
