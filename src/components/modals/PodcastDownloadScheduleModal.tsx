@@ -230,7 +230,7 @@ export default function PodcastDownloadScheduleModal({ isOpen, onClose, libraryI
               )}
               {showScheduleForm && (
                 <Btn disabled={!isUpdated || !cronIsValid || isProcessing} loading={isSaving} onClick={handleSave}>
-                  {t('ButtonSave')}
+                  {savedAutoDownloadEpisodes ? t('ButtonSave') : t('ButtonEnable')}
                 </Btn>
               )}
             </div>
