@@ -67,6 +67,7 @@ export default function Dropdown({
   // Type-to-filter for submenus
   const [submenuFilterText, setSubmenuFilterText] = useState('')
   const buttonRef = useRef<HTMLButtonElement>(null)
+  const controlWrapperRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLUListElement>(null)
 
   // Generate unique ID for this dropdown instance
@@ -392,7 +393,7 @@ export default function Dropdown({
         </Label>
       )}
 
-      <InputWrapper disabled={disabled} size={size} inputRef={buttonRef}>
+      <InputWrapper disabled={disabled} size={size} inputRef={buttonRef} wrapperRef={controlWrapperRef}>
         <button
           ref={buttonRef}
           id={dropdownButtonId}
@@ -471,7 +472,7 @@ export default function Dropdown({
         highlightSelected={highlightSelected}
         isItemSelected={(item) => item.value === value}
         usePortal={usePortal}
-        triggerRef={buttonRef as React.RefObject<HTMLElement>}
+        triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
       />
     </div>
   )
