@@ -702,6 +702,16 @@ describe('<Dropdown />', () => {
     })
   })
 
+  describe('hideSelectedInMenu Prop', () => {
+    it('hides the selected item from the menu but keeps it in the button', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" hideSelectedInMenu />)
+      cy.get('button').should('contain.text', 'Option 2')
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').should('have.length', 3)
+      cy.get('[role="listbox"]').should('not.contain.text', 'Option 2')
+    })
+  })
+
   describe('highlightSelected Prop', () => {
     it('highlights selected item when highlightSelected is true', () => {
       cy.mount(<Dropdown items={mockItems} value="option2" highlightSelected={true} />)

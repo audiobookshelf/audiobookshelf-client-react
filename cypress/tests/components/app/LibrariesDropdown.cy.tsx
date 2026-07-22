@@ -52,13 +52,13 @@ describe('<LibrariesDropdown />', () => {
     cy.get('button [cy-id="library-icon-span"]').should('have.class', 'icon-books-1')
   })
 
-  it('renders library icons in the menu list', () => {
+  it('renders other libraries in the menu list but not the selected library', () => {
     mountLibrariesDropdown(<LibrariesDropdown libraries={mockLibraries} currentLibraryId="lib-books" />)
     cy.get('button').click()
-    cy.get('[role="listbox"] > li').eq(0).find('[cy-id="library-icon-span"]').should('have.class', 'icon-books-1')
-    cy.get('[role="listbox"] > li').eq(0).should('contain.text', 'Audiobooks')
-    cy.get('[role="listbox"] > li').eq(1).find('[cy-id="library-icon-span"]').should('have.class', 'icon-podcast')
-    cy.get('[role="listbox"] > li').eq(1).should('contain.text', 'Podcasts')
+    cy.get('[role="listbox"] > li').should('have.length', 1)
+    cy.get('[role="listbox"] > li').eq(0).find('[cy-id="library-icon-span"]').should('have.class', 'icon-podcast')
+    cy.get('[role="listbox"] > li').eq(0).should('contain.text', 'Podcasts')
+    cy.get('[role="listbox"]').should('not.contain.text', 'Audiobooks')
   })
 
   it('shows the selected podcast library icon when that library is active', () => {
