@@ -17,6 +17,7 @@ export interface DropdownItem {
   value: string | number
   subtext?: string
   keepOpen?: boolean
+  leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   disabled?: boolean
   /** Subitems for two-level menu support */
@@ -373,6 +374,7 @@ export default function Dropdown({
     value: item.value,
     subtext: item.subtext,
     keepOpen: item.keepOpen,
+    leftIcon: item.leftIcon,
     rightIcon: item.rightIcon,
     subitems: item.subitems?.map((sub) => ({
       text: sub.text,
@@ -417,8 +419,11 @@ export default function Dropdown({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          <span className="flex-1 overflow-hidden text-start" title={longLabel.trim() || undefined}>
-            <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
+          <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-start" title={longLabel.trim() || undefined}>
+            {selectedItem?.leftIcon && <span className="shrink-0">{selectedItem.leftIcon}</span>}
+            <span className="min-w-0 flex-1">
+              <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
+            </span>
           </span>
           <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
             {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}
