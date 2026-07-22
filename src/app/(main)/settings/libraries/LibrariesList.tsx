@@ -1,5 +1,6 @@
 'use client'
 
+import Btn from '@/components/ui/Btn'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import SortableList from '@/components/widgets/SortableList'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -13,16 +14,19 @@ interface LibrariesListProps {
   libraries: Library[]
   saveLibraryOrderAction: (reorderObjects: { id: string; newOrder: number }[]) => void
   onEditLibrary?: (library: Library) => void
+  onAddLibrary?: () => void
 }
 
 export default function LibrariesList(props: LibrariesListProps) {
-  const { libraries: librariesData, saveLibraryOrderAction, onEditLibrary } = props
+  const { libraries: librariesData, saveLibraryOrderAction, onEditLibrary, onAddLibrary } = props
   const t = useTypeSafeTranslations()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const { showToast } = useGlobalToast()
   const [isPending, startTransition] = useTransition()
   const [libraries, setLibraries] = useState(librariesData || ([] as Library[]))
   const delRef = useRef<Library>(null)
+
+  const hasBookLibrary = libraries.some((library) => library.mediaType === 'book')
 
   useEffect(() => {
     setLibraries(librariesData)
@@ -68,15 +72,31 @@ export default function LibrariesList(props: LibrariesListProps) {
 
   return (
     <div className="min-w-0 overflow-x-hidden overscroll-x-contain">
-      <SortableList
-        items={libraries}
-        itemClassName="first:rounded-t-md last:rounded-b-md border border-border"
-        disabled={isPending}
-        onSortEnd={handleSortChange}
-        renderItem={(item: Library, _index, dragHandle) => (
-          <LibrariesListRow item={item} handleDeleteLibrary={handleDeleteLibrary} handleEditLibrary={handleEditLibrary} sortableDragHandleProps={dragHandle} />
-        )}
-      />
+      {libraries.length > 0 ? (
+        <SortableList
+          items={libraries}
+          itemClassName="first:rounded-t-md last:rounded-b-md border border-border"
+          disabled={isPending}
+          onSortEnd={handleSortChange}
+          renderItem={(item: Library, _index, dragHandle) => (
+            <LibrariesListRow
+              item={item}
+              handleDeleteLibrary={handleDeleteLibrary}
+              handleEditLibrary={handleEditLibrary}
+              sortableDragHandleProps={dragHandle}
+            />
+          )}
+        />
+      ) : (
+        <div className="pb-4">
+          <Btn onClick={onAddLibrary}>{t('ButtonAddYourFirstLibrary')}</Btn>
+        </div>
+      )}
+      {hasBookLibrary && (
+        <p className="text-foreground-subdued mt-4 text-xs">
+          **<strong>{t('ButtonMatchBooks')}</strong> {t('MessageMatchBooksDescription')}
+        </p>
+      )}
       <ConfirmDialog
         isOpen={showConfirmDialog}
         message={t('MessageConfirmDeleteLibrary', { 0: delRef.current?.name || '' })}
