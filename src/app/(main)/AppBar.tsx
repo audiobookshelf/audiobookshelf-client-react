@@ -1,21 +1,26 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
+import ButtonBase from '@/components/ui/ButtonBase'
 import Tooltip from '@/components/ui/Tooltip'
 import ChromecastLauncher from '@/components/widgets/ChromecastLauncher'
 import NotificationWidget from '@/components/widgets/NotificationWidget'
 import { useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import AppBarNav from './AppBarNav'
 import AppBarSelectionOverlay from './AppBarSelectionOverlay'
 import GlobalSearchInput from './GlobalSearchInput'
 import LibrariesDropdown from './LibrariesDropdown'
+import SideRailMobileDrawer from './SideRailMobileDrawer'
+
+const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
 
 interface AppBarProps {
   libraries?: Library[]
@@ -24,6 +29,8 @@ interface AppBarProps {
 
 export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const t = useTypeSafeTranslations()
+  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
+  const [isSideRailOpen, setIsSideRailOpen] = useState(false)
   const { user, userDefaultLibraryId } = useUser()
   const userCanUpload = user.permissions.upload
   const [isSearchMode, setIsSearchMode] = useState(false)
@@ -38,6 +45,20 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
     setIsSearchMode(false)
   }, [])
 
+  const toggleSideRail = useCallback(() => {
+    setIsSideRailOpen((prev) => !prev)
+  }, [])
+
+  const closeSideRail = useCallback(() => {
+    setIsSideRailOpen(false)
+  }, [])
+
+  useEffect(() => {
+    if (!isMobile && isSideRailOpen) {
+      setIsSideRailOpen(false)
+    }
+  }, [isMobile, isSideRailOpen])
+
   const isAdmin = ['admin', 'root'].includes(user.type)
 
   const effectiveLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
@@ -45,6 +66,14 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const redirectLibraryId = effectiveLibraryId
   // New installs have no libraries, so redirect to settings
   const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/settings'
+  const showMobileSideRailToggle = Boolean(effectiveLibraryId && currentLibrary)
+
+  const logoContent = (
+    <>
+      <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10" />
+      <span className="hidden text-xl hover:underline md:block">audiobookshelf</span>
+    </>
+  )
 
   return (
     <div className="bg-primary relative h-16 w-full">
@@ -52,13 +81,27 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
         cy-id="appbar"
         className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
       >
+        {showMobileSideRailToggle && (
+          <ButtonBase
+            borderless
+            size="custom"
+            ariaLabel={isSideRailOpen ? t('ButtonClose') : t('ButtonMenu')}
+            aria-expanded={isSideRailOpen}
+            className="text-foreground hover:text-foreground/80 flex shrink-0 items-center justify-start gap-2 text-sm md:hidden md:gap-4"
+            onClick={toggleSideRail}
+          >
+            {logoContent}
+          </ButtonBase>
+        )}
         <Link
           href={redirectUrl}
           aria-label={`audiobookshelf - ${t('ButtonHome')}`}
-          className="text-foreground hover:text-foreground/80 flex shrink-0 items-center justify-start gap-2 text-sm md:gap-4"
+          className={mergeClasses(
+            'text-foreground hover:text-foreground/80 shrink-0 items-center justify-start gap-2 text-sm md:gap-4',
+            showMobileSideRailToggle ? 'hidden md:flex' : 'flex'
+          )}
         >
-          <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10" />
-          <span className="hidden text-xl hover:underline md:block">audiobookshelf</span>
+          {logoContent}
         </Link>
 
         {libraries && effectiveLibraryId && currentLibrary && (
@@ -120,6 +163,9 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
         </div>
       </header>
       <AppBarSelectionOverlay libraryId={effectiveLibraryId} />
+      {showMobileSideRailToggle && isMobile && (
+        <SideRailMobileDrawer isOpen={isSideRailOpen} onClose={closeSideRail} libraries={libraries} currentLibraryId={currentLibraryId} />
+      )}
     </div>
   )
 }
