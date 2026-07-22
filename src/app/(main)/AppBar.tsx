@@ -106,7 +106,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
         {libraries && effectiveLibraryId && currentLibrary && (
           <>
-            <div className={mergeClasses('min-w-0 flex-1 overflow-hidden md:w-fit md:flex-none md:shrink-0', isSearchMode && 'hidden md:block')}>
+            <div className={mergeClasses('min-w-0 flex-1 md:w-fit md:flex-none md:shrink-0', isSearchMode && 'hidden md:block')}>
               <LibrariesDropdown currentLibraryId={effectiveLibraryId} libraries={libraries} />
             </div>
 
