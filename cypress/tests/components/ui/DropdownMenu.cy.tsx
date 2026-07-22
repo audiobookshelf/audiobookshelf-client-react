@@ -1,4 +1,5 @@
 import DropdownMenu from '@/components/ui/DropdownMenu'
+import LibraryIcon from '@/components/ui/LibraryIcon'
 import React from 'react'
 
 // Define types for the dropdown menu items based on the component's interface
@@ -6,6 +7,7 @@ interface DropdownMenuItem {
   text: string
   value: string | number
   subtext?: string
+  leftIcon?: React.ReactNode
 }
 
 describe('<DropdownMenu />', () => {
@@ -286,6 +288,19 @@ describe('<DropdownMenu />', () => {
     it('applies primary background color', () => {
       cy.mount(<DropdownMenu {...defaultProps} />)
       cy.get('[role="listbox"]').should('have.class', 'bg-primary')
+    })
+  })
+
+  describe('leftIcon', () => {
+    it('renders leftIcon before item text', () => {
+      const itemsWithIcons: DropdownMenuItem[] = [
+        { text: 'Books', value: 'books', leftIcon: <LibraryIcon icon="books-1" decorative /> },
+        { text: 'Podcasts', value: 'podcasts', leftIcon: <LibraryIcon icon="podcast" decorative /> }
+      ]
+      cy.mount(<DropdownMenu {...defaultProps} items={itemsWithIcons} />)
+      cy.get('[role="listbox"] > li').eq(0).find('[cy-id="library-icon-span"]').should('have.class', 'icon-books-1')
+      cy.get('[role="listbox"] > li').eq(0).should('contain.text', 'Books')
+      cy.get('[role="listbox"] > li').eq(1).find('[cy-id="library-icon-span"]').should('have.class', 'icon-podcast')
     })
   })
 

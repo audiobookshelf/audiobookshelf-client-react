@@ -1,10 +1,11 @@
 'use client'
 
 import Dropdown from '@/components/ui/Dropdown'
+import LibraryIcon from '@/components/ui/LibraryIcon'
 import { attemptGuardedNavigation } from '@/hooks/useUnsavedNavigationGuard'
 import { Library } from '@/types/api'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useTransition } from 'react'
+import { useMemo, useTransition } from 'react'
 
 interface LibrariesDropdownProps {
   libraries: Library[]
@@ -56,12 +57,17 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
-  const search = searchParams.size > 0 ? `?${searchParams.toString()}` : ''
+  const search = searchParams?.size ? `?${searchParams.toString()}` : ''
 
-  const libraryItems = libraries.map((library) => ({
-    text: library.name,
-    value: library.id
-  }))
+  const libraryItems = useMemo(
+    () =>
+      libraries.map((library) => ({
+        text: library.name,
+        value: library.id,
+        leftIcon: <LibraryIcon icon={library.icon} decorative />
+      })),
+    [libraries]
+  )
 
   return (
     <div className="relative min-w-0">
