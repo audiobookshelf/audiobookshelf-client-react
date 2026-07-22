@@ -19,6 +19,7 @@ export interface DropdownMenuItem {
   value: string | number
   subtext?: string
   keepOpen?: boolean
+  leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   subitems?: DropdownMenuSubitem[]
 }
@@ -444,7 +445,12 @@ export default function DropdownMenu({
             onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
             <div className="flex min-w-0 items-center overflow-hidden">
-              <DropdownItemLabel text={item.text} subtext={item.subtext} className="ms-3 min-w-0 flex-1 text-sm" />
+              {item.leftIcon && <span className="ms-3 shrink-0">{item.leftIcon}</span>}
+              <DropdownItemLabel
+                text={item.text}
+                subtext={item.subtext}
+                className={mergeClasses(item.leftIcon ? 'ms-1.5' : 'ms-3', 'min-w-0 flex-1 text-sm')}
+              />
             </div>
             {hasSubitems && (
               <div className="pointer-events-none absolute inset-y-0 right-2 flex h-full items-center">
