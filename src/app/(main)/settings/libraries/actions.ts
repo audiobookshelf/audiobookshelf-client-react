@@ -19,6 +19,7 @@ export async function editLibrary(libraryId: string, updatedLibrary: Library): P
 export async function deleteLibrary(libraryId: string): Promise<Library> {
   const result = await api.deleteLibrary(libraryId)
   revalidatePath('/settings/libraries')
+  revalidatePath('/settings', 'layout')
   return result
 }
 
