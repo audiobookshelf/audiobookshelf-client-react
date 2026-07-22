@@ -1,18 +1,17 @@
 'use client'
 
-import IconBtn from '@/components/ui/IconBtn'
 import ButtonBase from '@/components/ui/ButtonBase'
+import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ChromecastLauncher from '@/components/widgets/ChromecastLauncher'
 import NotificationWidget from '@/components/widgets/NotificationWidget'
 import { useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
 import AppBarNav from './AppBarNav'
 import AppBarSelectionOverlay from './AppBarSelectionOverlay'
@@ -75,6 +74,8 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
     </>
   )
 
+  const LOGO_BUTTON_CLASSES = 'text-foreground hover:text-foreground/80 flex shrink-0 items-center justify-start gap-2 p-1 text-sm md:gap-4'
+
   return (
     <div className="bg-primary relative h-16 w-full">
       <header
@@ -87,22 +88,21 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
             size="custom"
             ariaLabel={isSideRailOpen ? t('ButtonClose') : t('ButtonMenu')}
             aria-expanded={isSideRailOpen}
-            className="text-foreground hover:text-foreground/80 flex shrink-0 items-center justify-start gap-2 text-sm md:hidden md:gap-4"
+            className={mergeClasses(LOGO_BUTTON_CLASSES, 'md:hidden')}
             onClick={toggleSideRail}
           >
             {logoContent}
           </ButtonBase>
         )}
-        <Link
-          href={redirectUrl}
-          aria-label={`audiobookshelf - ${t('ButtonHome')}`}
-          className={mergeClasses(
-            'text-foreground hover:text-foreground/80 shrink-0 items-center justify-start gap-2 text-sm md:gap-4',
-            showMobileSideRailToggle ? 'hidden md:flex' : 'flex'
-          )}
+        <ButtonBase
+          to={redirectUrl}
+          borderless
+          size="custom"
+          ariaLabel={`audiobookshelf - ${t('ButtonHome')}`}
+          className={mergeClasses(LOGO_BUTTON_CLASSES, showMobileSideRailToggle && 'hidden md:flex')}
         >
           {logoContent}
-        </Link>
+        </ButtonBase>
 
         {libraries && effectiveLibraryId && currentLibrary && (
           <>
