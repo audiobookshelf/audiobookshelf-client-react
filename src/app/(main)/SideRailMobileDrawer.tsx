@@ -5,6 +5,7 @@ import LibraryIcon from '@/components/ui/LibraryIcon'
 import { useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { resolveEffectiveLibrary } from '@/lib/libraries'
 import { Library } from '@/types/api'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
@@ -26,8 +27,8 @@ export default function SideRailMobileDrawer({ isOpen, onClose, libraries, curre
   const serverVersion = serverSettings?.version || 'Error'
   const installSource = Source || 'Unknown'
 
-  const effectiveLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
-  const library = libraries?.find((lib) => lib.id === effectiveLibraryId)
+  const preferredLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
+  const library = resolveEffectiveLibrary(libraries, preferredLibraryId)
   const previousPathnameRef = useRef(pathname)
 
   useEffect(() => {

@@ -9,10 +9,11 @@ import { useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { resolveEffectiveLibrary } from '@/lib/libraries'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Image from 'next/image'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import AppBarNav from './AppBarNav'
 import AppBarSelectionOverlay from './AppBarSelectionOverlay'
 import GlobalSearchInput from './GlobalSearchInput'
@@ -34,7 +35,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const userCanUpload = user.permissions.upload
   const [isSearchMode, setIsSearchMode] = useState(false)
   // When not on a library page, use the last current library id when navigating home
-  const { lastCurrentLibraryId } = useMediaNavigation()
+  const { lastCurrentLibraryId, setLastCurrentLibraryId } = useMediaNavigation()
 
   const handleSearchModeToggle = useCallback(() => {
     setIsSearchMode((prev) => !prev)
@@ -60,12 +61,20 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
   const isAdmin = ['admin', 'root'].includes(user.type)
 
-  const effectiveLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
-  const currentLibrary = libraries?.find((lib) => lib.id === effectiveLibraryId)
+  const preferredLibraryId = currentLibraryId || lastCurrentLibraryId || userDefaultLibraryId
+  const currentLibrary = useMemo(() => resolveEffectiveLibrary(libraries, preferredLibraryId), [libraries, preferredLibraryId])
+  const effectiveLibraryId = currentLibrary?.id
   const redirectLibraryId = effectiveLibraryId
   // New installs have no libraries, so redirect to settings
   const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/settings'
   const showMobileSideRailToggle = Boolean(effectiveLibraryId && currentLibrary)
+
+  useEffect(() => {
+    if (!effectiveLibraryId || currentLibraryId) return
+    if (lastCurrentLibraryId !== effectiveLibraryId) {
+      setLastCurrentLibraryId(effectiveLibraryId)
+    }
+  }, [currentLibraryId, effectiveLibraryId, lastCurrentLibraryId, setLastCurrentLibraryId])
 
   const logoContent = (
     <>
