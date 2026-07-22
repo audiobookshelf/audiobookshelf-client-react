@@ -66,4 +66,37 @@ describe('<LibrariesDropdown />', () => {
     cy.get('button').should('contain.text', 'Podcasts')
     cy.get('button [cy-id="library-icon-span"]').should('have.class', 'icon-podcast')
   })
+
+  it('sizes the button to the longest library name when a shorter library is selected', () => {
+    const libraries: Library[] = [
+      {
+        id: 'lib-short',
+        name: 'Test',
+        displayOrder: 1,
+        icon: 'database',
+        mediaType: 'book',
+        createdAt: 0,
+        updatedAt: 0
+      },
+      {
+        id: 'lib-long',
+        name: 'Audiobookshelf Collection',
+        displayOrder: 2,
+        icon: 'books-1',
+        mediaType: 'book',
+        createdAt: 0,
+        updatedAt: 0
+      }
+    ]
+
+    mountLibrariesDropdown(<LibrariesDropdown libraries={libraries} currentLibraryId="lib-short" />)
+    cy.get('button').click()
+    cy.get('[role="listbox"] > li')
+      .eq(0)
+      .invoke('outerWidth')
+      .then((menuItemWidth) => {
+        cy.get('button').invoke('outerWidth').should('be.gte', menuItemWidth)
+      })
+    cy.get('[role="listbox"] > li').eq(0).should('contain.text', 'Audiobookshelf Collection')
+  })
 })

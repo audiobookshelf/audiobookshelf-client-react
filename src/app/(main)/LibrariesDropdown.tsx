@@ -3,9 +3,13 @@
 import Dropdown from '@/components/ui/Dropdown'
 import LibraryIcon from '@/components/ui/LibraryIcon'
 import { attemptGuardedNavigation } from '@/hooks/useUnsavedNavigationGuard'
+import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useTransition } from 'react'
+
+// Match Vue LibrariesDropdown max width (max-w-52 = 13rem)
+const LIBRARIES_DROPDOWN_MAX_WIDTH_CLASS = 'md:max-w-52'
 
 interface LibrariesDropdownProps {
   libraries: Library[]
@@ -69,28 +73,48 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
     [libraries]
   )
 
+  const widestLibrary = useMemo(() => {
+    if (!libraries.length) return null
+
+    return libraries.reduce((longest, library) => (library.name.length > longest.name.length ? library : longest))
+  }, [libraries])
+
   return (
-    <div className="relative min-w-0">
-      <Dropdown
-        items={libraryItems}
-        hideSelectedInMenu
-        menuMaxHeight="80vh"
-        size="small"
-        disabled={isPending}
-        value={currentLibraryId}
-        usePortal
-        onChange={(value) => {
-          const lib = libraries.find((l) => l.id === value)
-          if (!lib || lib.id === currentLibraryId) return
+    <div className={mergeClasses('relative min-w-0 md:grid md:w-fit', LIBRARIES_DROPDOWN_MAX_WIDTH_CLASS)}>
+      {widestLibrary && (
+        <span
+          aria-hidden="true"
+          className="pointer-events-none invisible col-start-1 row-start-1 hidden h-0 overflow-hidden whitespace-nowrap md:flex md:h-9 md:items-center md:overflow-visible md:rounded-md md:px-2 md:text-sm"
+        >
+          <span className="flex min-w-0 flex-1 items-center gap-1.5 ps-1">
+            <LibraryIcon icon={widestLibrary.icon} decorative />
+            <span className="font-sans">{widestLibrary.name}</span>
+          </span>
+          <span className="material-symbols pointer-events-none ms-3 shrink-0 text-2xl">expand_more</span>
+        </span>
+      )}
+      <div className="col-start-1 row-start-1 min-w-0">
+        <Dropdown
+          items={libraryItems}
+          hideSelectedInMenu
+          menuMaxHeight="80vh"
+          size="small"
+          disabled={isPending}
+          value={currentLibraryId}
+          usePortal
+          onChange={(value) => {
+            const lib = libraries.find((l) => l.id === value)
+            if (!lib || lib.id === currentLibraryId) return
 
-          const path = getLibrarySwitchPath(pathname, search, currentLibraryId, lib.id, lib.mediaType)
-          if (!attemptGuardedNavigation(path)) return
+            const path = getLibrarySwitchPath(pathname, search, currentLibraryId, lib.id, lib.mediaType)
+            if (!attemptGuardedNavigation(path)) return
 
-          startTransition(() => {
-            router.push(path)
-          })
-        }}
-      />
+            startTransition(() => {
+              router.push(path)
+            })
+          }}
+        />
+      </div>
     </div>
   )
 }
