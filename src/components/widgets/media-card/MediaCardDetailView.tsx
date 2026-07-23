@@ -1,5 +1,6 @@
 'use client'
 
+import SkeletonBar from '@/components/ui/SkeletonBar'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -48,14 +49,7 @@ export default function MediaCardDetailView({
       <div style={{ fontSize: `${0.9}em` }}>
         {isSkeleton ? (
           <div className="flex items-center" aria-busy="true" aria-live="polite">
-            <div
-              className="h-[1em] w-3/4 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
-              style={{
-                animationDelay: '0s',
-                animationDuration: '1.5s'
-              }}
-              aria-hidden="true"
-            />
+            <SkeletonBar className="h-[1em] w-3/4" animationDelay="0s" />
             &nbsp;
           </div>
         ) : (
@@ -70,14 +64,7 @@ export default function MediaCardDetailView({
       {showSubtitles &&
         (isSkeleton ? (
           <p className="truncate" style={{ fontSize: `${0.6}em` }} aria-busy="true" aria-live="polite">
-            <span
-              className="inline-block h-[1em] w-1/2 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
-              style={{
-                animationDelay: '0.1s',
-                animationDuration: '1.5s'
-              }}
-              aria-hidden="true"
-            />
+            <SkeletonBar inline className="inline-block h-[1em] w-1/2" animationDelay="0.1s" />
             &nbsp;
           </p>
         ) : (
@@ -87,14 +74,7 @@ export default function MediaCardDetailView({
         ))}
       {isSkeleton ? (
         <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
-          <span
-            className="inline-block h-[1em] w-2/3 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
-            style={{
-              animationDelay: '0.2s',
-              animationDuration: '1.5s'
-            }}
-            aria-hidden="true"
-          />
+          <SkeletonBar inline className="inline-block h-[1em] w-2/3" animationDelay="0.2s" />
           &nbsp;
         </p>
       ) : (
@@ -118,14 +98,7 @@ export default function MediaCardDetailView({
           if (isSkeleton) {
             return sortLine !== null ? (
               <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
-                <span
-                  className="inline-block h-[1em] w-1/2 animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700"
-                  style={{
-                    animationDelay: '0.3s',
-                    animationDuration: '1.5s'
-                  }}
-                  aria-hidden="true"
-                />
+                <SkeletonBar inline className="inline-block h-[1em] w-1/2" animationDelay="0.3s" />
                 &nbsp;
               </p>
             ) : null

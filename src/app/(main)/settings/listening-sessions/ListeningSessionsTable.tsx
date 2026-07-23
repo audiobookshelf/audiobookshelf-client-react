@@ -34,13 +34,14 @@ interface ListeningSessionsTableProps {
   users: User[]
   sessionsResponse: GetListeningSessionsResponse
   openSessionsResponse: GetOpenListeningSessionsResponse
+  lockedUserId?: string
 }
 
 const ITEMS_PER_PAGE_OPTIONS = [10, 25, 50, 100]
 
 type SortColumn = 'displayTitle' | 'playMethod' | 'timeListening' | 'currentTime' | 'updatedAt'
 
-export default function ListeningSessionsTable({ users, sessionsResponse, openSessionsResponse }: ListeningSessionsTableProps) {
+export default function ListeningSessionsTable({ users, sessionsResponse, openSessionsResponse, lockedUserId }: ListeningSessionsTableProps) {
   const t = useTypeSafeTranslations()
   const { serverSettings } = useUser()
   const { showToast } = useGlobalToast()
@@ -72,7 +73,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
   const [currentPage, setCurrentPage] = useState(sessionsResponse.page)
   const [itemsPerPage, setItemsPerPage] = useState(sessionsResponse.itemsPerPage)
 
-  const [selectedUser, setSelectedUser] = useState(sessionsResponse.userId || '')
+  const [selectedUser, setSelectedUser] = useState(lockedUserId || sessionsResponse.userId || '')
   const [sortBy, setSortBy] = useState<SortColumn>('updatedAt')
   const [sortDesc, setSortDesc] = useState(true)
 
@@ -324,19 +325,23 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         sortable: true,
         accessor: (session) => (
           <div className="min-w-0 py-1">
-            <TruncatingTooltipText text={session.displayTitle} className="text-foreground text-xs" />
-            <TruncatingTooltipText text={session.displayAuthor} className="text-foreground-muted text-xs" />
+            <TruncatingTooltipText lazy text={session.displayTitle} className="text-foreground text-xs" position="top" />
+            <TruncatingTooltipText lazy text={session.displayAuthor} className="text-foreground-muted text-xs" position="top" />
           </div>
         ),
         headerClassName: 'w-auto text-start px-2',
         cellClassName: 'px-2 py-1'
       },
-      {
-        label: t('LabelUser'),
-        accessor: (session) => <p className="truncate text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
-        headerClassName: 'w-16 text-left hidden md:table-cell',
-        cellClassName: 'hidden md:table-cell py-1'
-      },
+      ...(!lockedUserId
+        ? [
+            {
+              label: t('LabelUser'),
+              accessor: (session: PlaybackSession) => <p className="truncate text-xs">{filteredUserUsername || session.user?.username || 'N/A'}</p>,
+              headerClassName: 'w-16 text-left hidden md:table-cell',
+              cellClassName: 'hidden md:table-cell py-1'
+            } satisfies DataTableColumn<PlaybackSession>
+          ]
+        : []),
       {
         label: t('LabelPlayMethod'),
         sortKey: 'playMethod',
@@ -383,7 +388,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         sortKey: 'updatedAt',
         sortable: true,
         accessor: (session) => (
-          <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
+          <Tooltip lazy text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
             <p className="text-foreground-muted text-xs">{getRelativeTime(session.updatedAt)}</p>
           </Tooltip>
         ),
@@ -391,14 +396,14 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         cellClassName: 'text-left hidden sm:table-cell py-1'
       }
     ],
-    [t, filteredUserUsername, dateFormat, timeFormat]
+    [t, filteredUserUsername, dateFormat, timeFormat, lockedUserId]
   )
 
   const pageLabel = t('LabelPaginationPageXOfY', { 0: currentPage + 1, 1: Math.max(numPages, 1) })
 
   return (
     <>
-      {(total > 0 || selectedUser !== '') && (
+      {!lockedUserId && (total > 0 || selectedUser !== '') && (
         <div className="mb-2 flex justify-end">
           <Dropdown value={selectedUser} items={userItems} label={t('LabelFilterByUser')} size="small" className="max-w-48" onChange={handleUpdateUserFilter} />
         </div>
@@ -411,26 +416,34 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
             columns={listeningSessionColumns}
             getRowKey={(session) => session.id}
             tableClassName="table-fixed"
-            selection={{
-              selectedRowKeys: selectedSessionIds,
-              onToggleAllRows: handleSetSelectionForAll,
-              onToggleRow: (session, _index, selected) => handleToggleSessionSelection(session.id, selected)
-            }}
-            bulkActions={{
-              selectedLabel: t('MessageSelected', { 0: numSelected }),
-              actions: (
-                <Btn className="h-7" size="small" color="bg-error" loading={deletingSessions} onClick={() => setShowDeleteConfirmDialog(true)}>
-                  {t('ButtonDelete')}
-                </Btn>
-              )
-            }}
+            selection={
+              lockedUserId
+                ? undefined
+                : {
+                    selectedRowKeys: selectedSessionIds,
+                    onToggleAllRows: handleSetSelectionForAll,
+                    onToggleRow: (session, _index, selected) => handleToggleSessionSelection(session.id, selected)
+                  }
+            }
+            bulkActions={
+              lockedUserId
+                ? undefined
+                : {
+                    selectedLabel: t('MessageSelected', { 0: numSelected }),
+                    actions: (
+                      <Btn className="h-7" size="small" color="bg-error" loading={deletingSessions} onClick={() => setShowDeleteConfirmDialog(true)}>
+                        {t('ButtonDelete')}
+                      </Btn>
+                    )
+                  }
+            }
             sorting={{
               sortBy,
               sortDesc,
               onSortChange: (nextSortBy, nextSortDesc) => handleSortColumn(nextSortBy as SortColumn, nextSortDesc)
             }}
             onRowClick={(session) => {
-              if (numSelected > 0) {
+              if (!lockedUserId && numSelected > 0) {
                 const isSelected = selectedSessionIds.includes(session.id)
                 handleToggleSessionSelection(session.id, !isSelected)
               } else {
@@ -455,10 +468,10 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         {(deletingSessions || loading) && <LoadingIndicator />}
       </div>
 
-      {openListeningSessions.length > 0 && <div className="bg-border my-8 h-px w-full" />}
+      {!lockedUserId && openListeningSessions.length > 0 && <div className="bg-border my-8 h-px w-full" />}
 
-      {openListeningSessions.length > 0 && <p className="my-4 text-lg">{t('HeaderOpenListeningSessions')}</p>}
-      {openListeningSessions.length > 0 && (
+      {!lockedUserId && openListeningSessions.length > 0 && <p className="my-4 text-lg">{t('HeaderOpenListeningSessions')}</p>}
+      {!lockedUserId && openListeningSessions.length > 0 && (
         <SessionListTable
           sessions={openListeningSessions}
           onSelectSession={handleSelectSession}
@@ -467,10 +480,10 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         />
       )}
 
-      {openShareListeningSessions.length > 0 && <div className="bg-border my-8 h-px w-full" />}
+      {!lockedUserId && openShareListeningSessions.length > 0 && <div className="bg-border my-8 h-px w-full" />}
 
-      {openShareListeningSessions.length > 0 && <p className="my-4 text-lg">Open Share Listening Sessions</p>}
-      {openShareListeningSessions.length > 0 && (
+      {!lockedUserId && openShareListeningSessions.length > 0 && <p className="my-4 text-lg">Open Share Listening Sessions</p>}
+      {!lockedUserId && openShareListeningSessions.length > 0 && (
         <SessionListTable
           sessions={openShareListeningSessions}
           onSelectSession={handleSelectSession}
@@ -543,8 +556,8 @@ function SessionListTable({
         label: t('LabelItem'),
         accessor: (session) => (
           <div className="min-w-0 py-1">
-            <TruncatingTooltipText text={session.displayTitle} className="text-foreground text-xs" />
-            <TruncatingTooltipText text={session.displayAuthor} className="text-foreground-muted text-xs" />
+            <TruncatingTooltipText lazy text={session.displayTitle} className="text-foreground text-xs" position="top" />
+            <TruncatingTooltipText lazy text={session.displayAuthor} className="text-foreground-muted text-xs" position="top" />
           </div>
         ),
         headerClassName: 'w-32 text-left px-2',
@@ -598,7 +611,7 @@ function SessionListTable({
       {
         label: t('LabelLastUpdate'),
         accessor: (session) => (
-          <Tooltip text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
+          <Tooltip lazy text={formatJsDatetime(new Date(session.updatedAt), dateFormat, timeFormat)} position="top">
             <p className="text-foreground-muted text-xs">{getRelativeTime(session.updatedAt)}</p>
           </Tooltip>
         ),

@@ -27,8 +27,9 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const { showToast } = useGlobalToast()
-  const { getIsUserOnline } = useSocket()
+  const { getIsUserOnline, getOnlineUser } = useSocket()
   const { user: currentUser } = useUser()
+  const isRootUser = currentUser.type === 'root'
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
   const deletingUserRef = useRef<User | null>(null)
@@ -48,6 +49,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
     try {
       await deleteUser(userToDelete.id)
       showToast(t('ToastUserDeleteSuccess'), { type: 'success' })
+      router.refresh()
     } catch (error) {
       showToast(t('ToastUserDeleteFailed'), { type: 'error' })
       console.error('Failed to delete user:', error)
@@ -55,9 +57,9 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
       setDeletingUserId(null)
       deletingUserRef.current = null
     }
-  }, [showToast, t])
+  }, [router, showToast, t])
 
-  const getDeviceInfoString = (deviceInfo: DeviceInfo | null) => {
+  const getDeviceInfoString = (deviceInfo: DeviceInfo | null | undefined) => {
     if (!deviceInfo) return ''
     if (deviceInfo.manufacturer && deviceInfo.model) return `${deviceInfo.manufacturer} ${deviceInfo.model}`
 
@@ -70,31 +72,45 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
       accessor: (user) => (
         <div className="flex items-center gap-2">
           <OnlineIndicator value={user.id === currentUser.id || getIsUserOnline(user.id)} />
-          <p className="text-base font-medium">{user.username}</p>
+          <p className="truncate text-base font-medium">{user.username}</p>
         </div>
       )
     },
     {
       label: t('LabelAccountType'),
-      accessor: 'type'
+      accessor: 'type',
+      cellClassName: 'text-sm'
     },
     {
       label: t('LabelActivity'),
+      hiddenBelow: 'lg',
       accessor: (user) => {
+        const isOnline = getIsUserOnline(user.id)
+        const onlineSession = getOnlineUser(user.id)?.session
+        if (isOnline && onlineSession?.displayTitle) {
+          return (
+            <div className="flex flex-col text-xs">
+              <span>Listening: {onlineSession.displayTitle}</span>
+              <span className="text-foreground-muted">{getDeviceInfoString(onlineSession.deviceInfo)}</span>
+            </div>
+          )
+        }
+
         const latestSession = user.latestSession
-        if (!latestSession) return ''
-        const latestSessionDisplayTitle = latestSession.displayTitle || ''
-        const latestSessionDeviceInfo = getDeviceInfoString(latestSession.deviceInfo)
+        if (!latestSession?.displayTitle) return ''
+
         return (
           <div className="flex flex-col text-xs">
-            <span>{latestSessionDisplayTitle}</span>
-            <span className="text-foreground-muted">{latestSessionDeviceInfo}</span>
+            <span>Last: {latestSession.displayTitle}</span>
+            <span className="text-foreground-muted">{getDeviceInfoString(latestSession.deviceInfo)}</span>
           </div>
         )
       }
     },
     {
       label: t('LabelLastSeen'),
+      hiddenBelow: 'sm',
+      headerClassName: 'w-32',
       accessor: (user) => {
         if (!user.lastSeen) return ''
         return (
@@ -106,6 +122,8 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
     },
     {
       label: t('LabelCreatedAt'),
+      hiddenBelow: 'sm',
+      headerClassName: 'w-32',
       accessor: (user) => {
         return (
           <Tooltip text={formatJsDatetime(new Date(user.createdAt), dateFormat, timeFormat)} position="top">
@@ -116,31 +134,43 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
     },
     {
       label: '',
-      accessor: (user) => (
-        <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-          <IconBtn
-            ariaLabel={t('ButtonUserEdit', { 0: user.username })}
-            borderless
-            size="small"
-            className="text-foreground-muted"
-            onClick={() => onEditUser(user)}
-          >
-            edit
-          </IconBtn>
-          {user.type !== 'root' && (
-            <IconBtn
-              ariaLabel={t('ButtonUserDelete', { 0: user.username })}
-              borderless
-              size="small"
-              className="text-foreground-muted hover:not-disabled:text-error"
-              loading={deletingUserId === user.id}
-              onClick={() => handleDeleteClick(user)}
-            >
-              delete
-            </IconBtn>
-          )}
-        </div>
-      )
+      headerClassName: 'w-32',
+      accessor: (user) => {
+        const showEdit = user.type !== 'root' || isRootUser
+        const showDelete = user.type !== 'root' && user.id !== currentUser.id
+
+        return (
+          <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
+            {showEdit ? (
+              <IconBtn
+                ariaLabel={t('ButtonUserEdit', { 0: user.username })}
+                borderless
+                size="small"
+                className="text-foreground-muted"
+                onClick={() => onEditUser(user)}
+              >
+                edit
+              </IconBtn>
+            ) : (
+              <span className="inline-block w-9 shrink-0" aria-hidden="true" />
+            )}
+            {showDelete ? (
+              <IconBtn
+                ariaLabel={t('ButtonUserDelete', { 0: user.username })}
+                borderless
+                size="small"
+                className="text-foreground-muted hover:not-disabled:text-error"
+                loading={deletingUserId === user.id}
+                onClick={() => handleDeleteClick(user)}
+              >
+                delete
+              </IconBtn>
+            ) : (
+              <span className="inline-block w-9 shrink-0" aria-hidden="true" />
+            )}
+          </div>
+        )
+      }
     }
   ]
 

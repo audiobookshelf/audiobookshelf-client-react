@@ -38,8 +38,10 @@ export default function DeviceInfoCell({ session }: { session: PlaybackSession }
 
   return (
     <div className="min-w-0 py-1">
-      {parts.line1 ? <TruncatingTooltipText text={parts.line1} className="text-xs" /> : null}
-      {parts.line2 ? <TruncatingTooltipText text={parts.line2} className={parts.line1 ? 'text-foreground-muted text-xs' : 'text-xs'} /> : null}
+      {parts.line1 ? <TruncatingTooltipText lazy text={parts.line1} className="text-xs" position="top" /> : null}
+      {parts.line2 ? (
+        <TruncatingTooltipText lazy text={parts.line2} className={parts.line1 ? 'text-foreground-muted text-xs' : 'text-xs'} position="top" />
+      ) : null}
     </div>
   )
 }
