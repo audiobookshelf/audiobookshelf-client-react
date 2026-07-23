@@ -31,7 +31,7 @@
     "foliate-js": "github:audiobookshelf/foliate-js#abs-1.0.0",
     "hls.js": "^1.6.15",
     "marked": "^18.0.5",
-    "next": "^16.2.6",
+    "next": "^16.2.11",
     "next-intl": "^4.12.0",
     "node-unrar-js": "^2.0.2",
     "react": "^19.2.6",
@@ -56,7 +56,7 @@
     "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.15.0",
     "eslint": "^9.36.0",
-    "eslint-config-next": "^16.2.6",
+    "eslint-config-next": "^16.2.11",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.4",
     "prettier-plugin-sort-json": "^4.1.1",
@@ -78,5 +78,25 @@
   "engines": {
     "node": ">=22.15.0",
     "pnpm": ">=10.33.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@babel/core@<=7.29.0": "^7.29.6",
+      "brace-expansion@<1.1.16": ">=1.1.16",
+      "brace-expansion@>=2.0.0 <2.1.2": ">=2.1.2",
+      "brace-expansion@>=3.0.0 <5.0.7": ">=5.0.7",
+      "form-data@>=4.0.0 <4.0.6": ">=4.0.6",
+      "js-yaml@<4.3.0": ">=4.3.0",
+      "lodash@<=4.17.23": "^4.18.0",
+      "minimatch@9.0.9>brace-expansion": "5.0.7",
+      "postcss@<8.5.10": "^8.5.10",
+      "qs@>=6.11.1 <=6.15.1": ">=6.15.2",
+      "sharp@<0.35.0": "^0.35.0",
+      "systeminformation@<=5.31.6": ">=5.31.7",
+      "tar@<=7.5.18": ">=7.5.19",
+      "tmp@<0.2.6": ">=0.2.6",
+      "uuid@<11.1.1": ">=11.1.1",
+      "ws@>=8.0.0 <8.21.0": "^8.21.0"
+    }
   }
 }
