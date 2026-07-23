@@ -11,6 +11,7 @@ export interface InputWrapperProps {
   size?: 'small' | 'medium' | 'large' | 'auto'
   className?: string
   inputRef?: React.RefObject<HTMLElement | null>
+  wrapperRef?: React.RefObject<HTMLDivElement | null>
 }
 
 const InputWrapper = ({
@@ -21,7 +22,8 @@ const InputWrapper = ({
   borderless = false,
   size = 'medium',
   className,
-  inputRef
+  inputRef,
+  wrapperRef
 }: InputWrapperProps) => {
   const wrapperClass = mergeClasses(
     // Base styles
@@ -53,7 +55,7 @@ const InputWrapper = ({
 
   return (
     <>
-      <div className={wrapperClass} cy-id="control-wrapper" onClick={handleClick}>
+      <div ref={wrapperRef} className={wrapperClass} cy-id="control-wrapper" onClick={handleClick}>
         {children}
       </div>
       {typeof error === 'string' && error && <div className="text-error mt-1 text-sm">{error}</div>}

@@ -75,7 +75,7 @@ export default function LibrariesClient({ libraries }: LibraryClientProps) {
         }}
         moreInfoUrl="https://www.audiobookshelf.org/guides/library_creation"
       >
-        <LibrariesList libraries={libraries} saveLibraryOrderAction={saveLibraryOrder} onEditLibrary={handleEditLibrary} />
+        <LibrariesList libraries={libraries} saveLibraryOrderAction={saveLibraryOrder} onEditLibrary={handleEditLibrary} onAddLibrary={handleAddLibrary} />
       </SettingsContent>
 
       <LibraryEditModal isOpen={isModalOpen} library={editingLibrary} processing={isProcessing} onClose={handleCloseModal} onSubmit={handleSubmit} />
