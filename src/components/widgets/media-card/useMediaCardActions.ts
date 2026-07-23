@@ -105,6 +105,7 @@ export function useMediaCardActions({
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
+  const [checkNewEpisodesModalOpen, setCheckNewEpisodesModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
   const [playlistsModalOpen, setPlaylistsModalOpen] = useState(false)
@@ -250,6 +251,13 @@ export function useMediaCardActions({
         setRssFeedModalOpen(true)
       } else if (action === 'openSchedule') {
         setScheduleModalOpen(true)
+      } else if (action === 'openCheckNewEpisodes') {
+        const feedUrl = 'feedUrl' in media.metadata ? media.metadata.feedUrl : undefined
+        if (!feedUrl) {
+          showToast(t('ToastPodcastNoRssFeed'), { type: 'error' })
+          return
+        }
+        setCheckNewEpisodesModalOpen(true)
       } else if (action === 'showMatchModal') {
         onOpenMatch?.()
       } else if (action === 'downloadEpisode') {
@@ -627,6 +635,10 @@ export function useMediaCardActions({
 
     if (userIsAdminOrUp && isPodcast && !episodeForQueue) {
       items.push({
+        text: t('ButtonCheckForNewEpisodes'),
+        func: 'openCheckNewEpisodes'
+      })
+      items.push({
         text: t('HeaderSchedule'),
         func: 'openSchedule'
       })
@@ -700,6 +712,10 @@ export function useMediaCardActions({
     setScheduleModalOpen(false)
   }, [])
 
+  const closeCheckNewEpisodesModal = useCallback(() => {
+    setCheckNewEpisodesModalOpen(false)
+  }, [])
+
   const closeShareModal = useCallback(() => {
     setShareModalOpen(false)
   }, [])
@@ -726,6 +742,7 @@ export function useMediaCardActions({
     confirmState,
     rssFeedModalOpen,
     scheduleModalOpen,
+    checkNewEpisodesModalOpen,
     shareModalOpen,
     collectionsModalOpen,
     playlistsModalOpen,
@@ -733,6 +750,7 @@ export function useMediaCardActions({
     closeConfirm,
     closeRssFeedModal,
     closeScheduleModal,
+    closeCheckNewEpisodesModal,
     closeShareModal,
     closeCollectionsModal,
     closePlaylistsModal,
