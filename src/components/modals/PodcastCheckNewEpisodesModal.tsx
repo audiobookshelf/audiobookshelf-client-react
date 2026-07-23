@@ -149,7 +149,7 @@ export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryI
         <div className="border-border border-t px-4 py-3">
           <div className="flex justify-end">
             <Btn disabled={isChecking} loading={isChecking} onClick={handleSubmit}>
-              {t('LabelDownload')}
+              {t('LabelDownloadEpisodes')}
             </Btn>
           </div>
         </div>
