@@ -237,7 +237,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
         <CoverEditModal isOpen={isCoverEditModalOpen} libraryItem={libraryItem} onClose={() => setIsCoverEditModalOpen(false)} />
         <ConfirmDialog
           isOpen={isClearQueueDialogOpen}
-          message="Are you sure you want to clear episode download queue?"
+          message={t('MessageConfirmClearEpisodeFetchQueue')}
           onClose={() => setIsClearQueueDialogOpen(false)}
           onConfirm={handleClearDownloadQueue}
         />

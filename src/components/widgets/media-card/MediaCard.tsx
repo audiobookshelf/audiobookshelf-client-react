@@ -394,7 +394,7 @@ function MediaCard(props: MediaCardProps) {
     media,
     title,
     author: author || null,
-    episodeForQueue: episode || null,
+    episode: episode ?? null,
     mediaProgress,
     itemIsFinished,
     userProgressPercent,

@@ -17,21 +17,13 @@ import {
   toggleFinishedSelection
 } from '@/lib/batchSelection/selectionUtils'
 import { openHardDeleteConfirm, openSimpleConfirm } from '@/lib/confirmDialogs'
+import { openPodcastDeviceDownloadConfirm } from '@/lib/podcastDownload'
 import type { SelectedMediaItem, SelectionKind } from '@/lib/selectedMediaItem'
 import { usePathname, useRouter } from 'next/navigation'
 import { createElement, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 export type AppBarBatchActionId =
-  | 'play'
-  | 'toggle-finished'
-  | 'add-to-collection'
-  | 'add-to-playlist'
-  | 'batch-edit'
-  | 'delete'
-  | 'quick-match'
-  | 'quick-embed'
-  | 'rescan'
-  | 'download'
+  'play' | 'toggle-finished' | 'add-to-collection' | 'add-to-playlist' | 'batch-edit' | 'delete' | 'quick-match' | 'quick-embed' | 'rescan' | 'download'
 
 interface UseAppBarBatchActionsParams {
   selectedItems: readonly SelectedMediaItem[]
@@ -179,23 +171,40 @@ export function useAppBarBatchActions({
     if (selectionKind === 'episode') {
       runBatch(async () => downloadEpisodesSelection(selectedItems), {
         logLabel: 'Failed to download selected episodes',
-        successToast: t('ToastStartedDownloadingEpisodes'),
+        successToast: t('ToastStartedDownloadingEpisodeFiles'),
         errorToast: t('ToastFailedToLoadData'),
         onSuccess: finishBatchAction
       })
       return
     }
 
-    runBatch(
-      async () => {
-        downloadLibraryItemsSelection(libraryId, uniqueLibraryItemIds)
-      },
-      {
-        logLabel: 'Failed to batch download library items',
-        successToast: t('ToastBatchDownloadSuccess'),
-        onSuccess: finishBatchAction
-      }
-    )
+    const startLibraryItemsDownload = () => {
+      runBatch(
+        async () => {
+          downloadLibraryItemsSelection(libraryId, uniqueLibraryItemIds)
+        },
+        {
+          logLabel: 'Failed to batch download library items',
+          successToast: t('ToastBatchDownloadSuccess'),
+          onSuccess: finishBatchAction
+        }
+      )
+    }
+
+    if (selectionKind === 'podcast') {
+      openPodcastDeviceDownloadConfirm({
+        items: selectedItems.map((item) => ({
+          title: item.title ?? '',
+          downloadSize: item.downloadSize ?? 0
+        })),
+        t,
+        setConfirmState,
+        onConfirm: startLibraryItemsDownload
+      })
+      return
+    }
+
+    startLibraryItemsDownload()
   }, [finishBatchAction, libraryId, runBatch, selectedItems, selectionKind, t, uniqueLibraryItemIds])
 
   const handleRescan = useCallback(() => {
