@@ -68,6 +68,8 @@ describe('<LibrariesDropdown />', () => {
   })
 
   it('sizes the button to the longest library name when a shorter library is selected', () => {
+    cy.viewport(1024, 768)
+
     const libraries: Library[] = [
       {
         id: 'lib-short',
@@ -95,7 +97,7 @@ describe('<LibrariesDropdown />', () => {
       .eq(0)
       .invoke('outerWidth')
       .then((menuItemWidth) => {
-        cy.get('button').invoke('outerWidth').should('be.gte', menuItemWidth)
+        cy.get('[cy-id="control-wrapper"]').invoke('outerWidth').should('be.gte', menuItemWidth)
       })
     cy.get('[role="listbox"] > li').eq(0).should('contain.text', 'Audiobookshelf Collection')
   })
