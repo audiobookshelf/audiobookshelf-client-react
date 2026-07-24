@@ -10,11 +10,10 @@ interface AppBarNavMenuItemProps {
   icon: string
   label: string
   href?: string
-  onClick?: () => void
-  ref: (el: HTMLAnchorElement | HTMLButtonElement | null) => void
+  onClick: () => void
 }
 
-export default function AppBarNavMenuItem({ id, className, ariaLabel, tabIndex, icon, label, href, onClick, ref }: AppBarNavMenuItemProps) {
+export default function AppBarNavMenuItem({ id, className, ariaLabel, tabIndex, icon, label, href, onClick }: AppBarNavMenuItemProps) {
   const content = (
     <>
       <span className="material-symbols mr-3 text-xl">{icon}</span>
@@ -22,25 +21,31 @@ export default function AppBarNavMenuItem({ id, className, ariaLabel, tabIndex, 
     </>
   )
 
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    onClick()
+  }
+
   const sharedProps = {
     id,
     role: 'menuitem' as const,
     tabIndex,
     className,
     'aria-label': ariaLabel,
-    onMouseDown: (e: React.MouseEvent) => e.preventDefault()
+    onMouseDown: (e: React.MouseEvent) => e.preventDefault(),
+    onClick: handleClick
   }
 
   if (href) {
     return (
-      <Link ref={ref} href={href} {...sharedProps} onClick={onClick}>
+      <Link href={href} {...sharedProps}>
         {content}
       </Link>
     )
   }
 
   return (
-    <button ref={ref} type="button" {...sharedProps} onClick={onClick}>
+    <button type="button" {...sharedProps}>
       {content}
     </button>
   )
