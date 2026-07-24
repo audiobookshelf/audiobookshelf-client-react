@@ -32,7 +32,6 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
   const triggerRef = useRef<HTMLDivElement>(null)
   const desktopTriggerRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
-  const itemRefs = useRef<(HTMLAnchorElement | HTMLButtonElement | null)[]>([])
 
   const allMenuItems = useMemo(() => buildAppBarNavMenuItems({ username, isAdmin, userCanUpload, t }), [isAdmin, t, userCanUpload, username])
 
@@ -48,11 +47,6 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
     },
     [isDesktop]
   )
-
-  const focusMenuItem = useCallback((index: number) => {
-    setFocusedIndex(index)
-    itemRefs.current[index]?.focus()
-  }, [])
 
   const openMenu = useCallback(
     (startIndex = 0) => {
@@ -104,14 +98,27 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
     }
   }, [router, closeMenu])
 
+  const activateMenuItem = useCallback(
+    (index: number) => {
+      const item = visibleMenuItems[index]
+      if (!item) return
+
+      if (item.type === 'logout') {
+        void handleLogout()
+        return
+      }
+
+      closeMenu(false)
+      if (item.href) {
+        router.push(item.href)
+      }
+    },
+    [closeMenu, handleLogout, router, visibleMenuItems]
+  )
+
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  useEffect(() => {
-    if (!menuOpen || focusedIndex < 0) return
-    itemRefs.current[focusedIndex]?.focus()
-  }, [menuOpen, focusedIndex])
 
   const middleware = useMemo(() => [offset(8), shift({ padding: 8 }), flip({ fallbackAxisSideDirection: 'start' })], [])
 
@@ -143,16 +150,56 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
     return autoUpdate(refs.reference.current, refs.floating.current, update)
   }, [menuOpen, refs, update])
 
+  const handleVerticalNavigation = useCallback(
+    (direction: 'up' | 'down') => {
+      if (!visibleMenuItems.length) return
+
+      if (direction === 'down') {
+        if (!menuOpen) {
+          openMenu(0)
+        } else {
+          setFocusedIndex((prev) => (prev < visibleMenuItems.length - 1 ? prev + 1 : prev))
+        }
+      } else if (!menuOpen) {
+        openMenu(visibleMenuItems.length - 1)
+      } else {
+        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+      }
+    },
+    [menuOpen, openMenu, visibleMenuItems.length]
+  )
+
+  const handleHomeEnd = useCallback(
+    (key: 'home' | 'end') => {
+      if (!menuOpen || !visibleMenuItems.length) return
+      setFocusedIndex(key === 'home' ? 0 : visibleMenuItems.length - 1)
+    },
+    [menuOpen, visibleMenuItems.length]
+  )
+
+  const handleTab = useCallback(() => {
+    if (menuOpen) {
+      closeMenu(false)
+    }
+  }, [closeMenu, menuOpen])
+
   const handleDesktopTriggerKeyDown = (e: React.KeyboardEvent<HTMLButtonElement | HTMLAnchorElement>) => {
     switch (e.key) {
       case 'ArrowDown':
+        e.preventDefault()
+        handleVerticalNavigation('down')
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        handleVerticalNavigation('up')
+        break
       case 'Enter':
       case ' ':
         e.preventDefault()
         if (!menuOpen) {
           openMenu(0)
-        } else if (focusedIndex < 0) {
-          focusMenuItem(0)
+        } else if (focusedIndex >= 0) {
+          activateMenuItem(focusedIndex)
         }
         break
       case 'Escape':
@@ -161,41 +208,16 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
           closeMenu(true)
         }
         break
-      default:
-        break
-    }
-  }
-
-  const handleMenuKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-    if (!visibleMenuItems.length) return
-
-    switch (e.key) {
-      case 'ArrowDown': {
-        e.preventDefault()
-        const nextIndex = focusedIndex < visibleMenuItems.length - 1 ? focusedIndex + 1 : 0
-        focusMenuItem(nextIndex)
-        break
-      }
-      case 'ArrowUp': {
-        e.preventDefault()
-        const prevIndex = focusedIndex > 0 ? focusedIndex - 1 : visibleMenuItems.length - 1
-        focusMenuItem(prevIndex)
-        break
-      }
       case 'Home':
         e.preventDefault()
-        focusMenuItem(0)
+        handleHomeEnd('home')
         break
       case 'End':
         e.preventDefault()
-        focusMenuItem(visibleMenuItems.length - 1)
-        break
-      case 'Escape':
-        e.preventDefault()
-        closeMenu(isDesktop)
+        handleHomeEnd('end')
         break
       case 'Tab':
-        closeMenu(false)
+        handleTab()
         break
       default:
         break
@@ -211,21 +233,18 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
     )
 
   const menuContent = (
-    <nav id={menuId} role="menu" className="flex flex-col py-1" onClick={(e) => e.stopPropagation()} onKeyDown={isDesktop ? handleMenuKeyDown : undefined}>
+    <nav id={menuId} role="menu" className="flex flex-col py-1" onClick={(e) => e.stopPropagation()}>
       {visibleMenuItems.map((item, index) => (
         <AppBarNavMenuItem
           key={item.id}
-          ref={(el) => {
-            itemRefs.current[index] = el
-          }}
           id={`${menuId}-item-${item.id}`}
-          tabIndex={isDesktop ? (focusedIndex === index ? 0 : -1) : undefined}
+          tabIndex={isDesktop ? -1 : undefined}
           className={getItemClassName(item, index)}
           ariaLabel={item.ariaLabel}
           icon={item.icon}
           label={item.label}
           href={item.type === 'link' ? item.href : undefined}
-          onClick={item.type === 'logout' ? handleLogout : () => closeMenu(false)}
+          onClick={() => activateMenuItem(index)}
         />
       ))}
     </nav>
@@ -279,6 +298,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
             className="bg-primary border-border z-[9999] min-w-[200px] rounded-md border shadow-lg"
             style={floatingStyles}
             onClick={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.preventDefault()}
           >
             {menuContent}
           </div>,
