@@ -55,7 +55,7 @@ export default function SideRailMobileDrawer({ isOpen, onClose, libraries, curre
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 z-40 bg-black/50 transition-opacity duration-100 ease-in-out ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        className={`fixed inset-0 z-[65] bg-black/50 transition-opacity duration-100 ease-in-out ${isOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
         onClick={handleBackdropClick}
         aria-hidden="true"
       />
