@@ -20,10 +20,11 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
 import { BookLibraryItem, BookMetadata, PodcastEpisode, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
+import { useLibraryItemPagePlay } from './useLibraryItemPagePlay'
 
 interface LibraryItemClientProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -39,11 +40,12 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isCoverEditModalOpen, setIsCoverEditModalOpen] = useState(false)
   const [isClearQueueDialogOpen, setIsClearQueueDialogOpen] = useState(false)
-  const podcastEpisodesInOrderRef = useRef<PodcastEpisode[]>([])
+  const [podcastEpisodesInOrder, setPodcastEpisodesInOrder] = useState<PodcastEpisode[]>([])
   const handlePodcastEpisodesInOrderChange = useCallback((episodes: PodcastEpisode[]) => {
-    podcastEpisodesInOrderRef.current = episodes
+    setPodcastEpisodesInOrder(episodes)
   }, [])
-  const getPodcastEpisodesInOrder = useCallback(() => podcastEpisodesInOrderRef.current, [])
+
+  const { handlePlay, showPlayButton, isItemPlaying } = useLibraryItemPagePlay({ libraryItem, podcastEpisodesInOrder })
 
   useEffect(() => {
     setLibraryItem(initialLibraryItem)
@@ -121,7 +123,15 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
         <div className="mx-auto w-full max-w-6xl">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
             <div className="mx-auto flex w-full max-w-72 flex-shrink-0 items-start justify-center md:w-52 md:max-w-52 md:justify-start">
-              <LibraryItemCover libraryItem={libraryItem} canUpdate={userCanUpdate} mediaProgress={userProgress} onEdit={() => setIsCoverEditModalOpen(true)} />
+              <LibraryItemCover
+                libraryItem={libraryItem}
+                canUpdate={userCanUpdate}
+                mediaProgress={userProgress}
+                onEdit={() => setIsCoverEditModalOpen(true)}
+                showPlayButton={showPlayButton}
+                isItemPlaying={isItemPlaying}
+                onPlay={handlePlay}
+              />
             </div>
             <div className="flex-1">
               <div className="flex flex-col gap-1">
@@ -168,7 +178,9 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 onEdit={handleOpenEditModal}
                 onOpenCoverEdit={() => setIsCoverEditModalOpen(true)}
                 rssFeed={rssFeed ?? null}
-                getPodcastEpisodesInOrder={getPodcastEpisodesInOrder}
+                showPlayButton={showPlayButton}
+                isItemPlaying={isItemPlaying}
+                onPlay={handlePlay}
               />
 
               {/* Podcast episode downloads queue */}

@@ -977,6 +977,7 @@
   "MessageNoDownloadsQueued": "No episodes queued",
   "MessageNoEpisodeMatchesFound": "No episode matches found",
   "MessageNoEpisodes": "No Episodes",
+  "MessageNoEpisodesToPlay": "No episodes match the current filter or search",
   "MessageNoFoldersAvailable": "No Folders Available",
   "MessageNoGenres": "No Genres",
   "MessageNoHomeShelves": "Nothing to show on your home page right now.",
