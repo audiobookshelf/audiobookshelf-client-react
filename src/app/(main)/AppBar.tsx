@@ -13,7 +13,8 @@ import { resolveEffectiveLibrary } from '@/lib/libraries'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Image from 'next/image'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import AppBarNav from './AppBarNav'
 import AppBarSelectionOverlay from './AppBarSelectionOverlay'
 import GlobalSearchInput from './GlobalSearchInput'
@@ -34,12 +35,21 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const { user, userDefaultLibraryId } = useUser()
   const userCanUpload = user.permissions.upload
   const [isSearchMode, setIsSearchMode] = useState(false)
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null)
   // When not on a library page, use the last current library id when navigating home
   const { lastCurrentLibraryId, setLastCurrentLibraryId } = useMediaNavigation()
 
   const handleSearchModeToggle = useCallback(() => {
-    setIsSearchMode((prev) => !prev)
-  }, [])
+    if (isSearchMode) {
+      setIsSearchMode(false)
+      return
+    }
+    // Render the search input before focus() so the ref exists and mobile browsers treat focus as part of this tap (keyboard opens).
+    flushSync(() => {
+      setIsSearchMode(true)
+    })
+    mobileSearchInputRef.current?.focus({ preventScroll: true })
+  }, [isSearchMode])
 
   const handleSearchSubmit = useCallback(() => {
     setIsSearchMode(false)
@@ -135,11 +145,11 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
         {currentLibrary &&
           (isSearchMode ? (
             <div className="min-w-0 flex-1">
-              <GlobalSearchInput autoFocus onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
+              <GlobalSearchInput ref={mobileSearchInputRef} usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ) : (
             <div className="hidden min-w-0 flex-1 md:block md:min-w-24">
-              <GlobalSearchInput onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
+              <GlobalSearchInput usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ))}
 
