@@ -19,11 +19,13 @@ import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
+import { computeProgress } from '@/lib/mediaProgress'
 import { BookLibraryItem, BookMetadata, PodcastEpisode, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
 import LibraryItemDetails from './LibraryItemDetails'
+import LibraryItemProgressPanel from './LibraryItemProgressPanel'
 import { useLibraryItemPagePlay } from './useLibraryItemPagePlay'
 
 interface LibraryItemClientProps {
@@ -61,6 +63,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const description = 'description' in metadata ? metadata.description : undefined
 
   const userProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
+  const showProgressPanel = useMemo(() => {
+    if (isPodcast || !userProgress) return false
+    return computeProgress({ progress: userProgress, useSeriesProgress: false }).percent > 0
+  }, [isPodcast, userProgress])
 
   const handleOpenEditModal = () => {
     setIsEditModalOpen(true)
@@ -173,16 +179,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
               <LibraryItemDetails libraryItem={libraryItem} />
 
-              <LibraryItemActionButtons
-                libraryItem={libraryItem}
-                onEdit={handleOpenEditModal}
-                onOpenCoverEdit={() => setIsCoverEditModalOpen(true)}
-                rssFeed={rssFeed ?? null}
-                showPlayButton={showPlayButton}
-                isItemPlaying={isItemPlaying}
-                onPlay={handlePlay}
-              />
-
               {/* Podcast episode downloads queue */}
               {episodeDownloadsQueued.length > 0 && (
                 <div className="bg-info/40 relative mx-auto mt-4 max-w-max rounded-md px-4 py-2 text-sm font-semibold text-gray-100 md:mx-0">
@@ -213,6 +209,24 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                   ))}
                 </div>
               )}
+
+              {showProgressPanel && userProgress && (
+                <LibraryItemProgressPanel
+                  libraryItem={libraryItem as BookLibraryItem}
+                  mediaProgress={userProgress}
+                  dateFormat={serverSettings?.dateFormat ?? 'MM/dd/yyyy'}
+                />
+              )}
+
+              <LibraryItemActionButtons
+                libraryItem={libraryItem}
+                onEdit={handleOpenEditModal}
+                onOpenCoverEdit={() => setIsCoverEditModalOpen(true)}
+                rssFeed={rssFeed ?? null}
+                showPlayButton={showPlayButton}
+                isItemPlaying={isItemPlaying}
+                onPlay={handlePlay}
+              />
 
               {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
