@@ -5,7 +5,11 @@ import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
-export default function LogoutBtn() {
+interface LogoutBtnProps {
+  size?: 'small' | 'medium'
+}
+
+export default function LogoutBtn({ size = 'medium' }: LogoutBtnProps) {
   const t = useTranslations()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
@@ -30,7 +34,12 @@ export default function LogoutBtn() {
   }
 
   return (
-    <Btn onClick={handleLogout} loading={loading} className="items-center justify-between gap-2 ps-6">
+    <Btn
+      onClick={handleLogout}
+      loading={loading}
+      size={size}
+      className={`ms-auto shrink-0 items-center justify-between gap-2 whitespace-nowrap ${size === 'small' ? 'ps-4' : 'ps-6'}`}
+    >
       <span className="material-symbols text-lg">logout</span>
       {t('LabelLogout')}
     </Btn>
