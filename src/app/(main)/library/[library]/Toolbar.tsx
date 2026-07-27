@@ -23,6 +23,7 @@ export default function Toolbar() {
   const isBookshelfPage = BOOKSHELF_PAGE_PATTERNS.some((pattern) => pathname.endsWith(pattern))
   const isCollectionDetailPage = pathname.includes('/collection/')
   const isPlaylistDetailPage = pathname.includes('/playlist/')
+  const isNarratorsPage = pathname.endsWith('/narrators')
 
   const isBookshelfEmpty = itemCount === 0 && filterBy === 'all'
 
@@ -38,6 +39,8 @@ export default function Toolbar() {
     itemName = t('LabelPlaylists')
   } else if (pathname.endsWith('/authors')) {
     itemName = t('LabelAuthors')
+  } else if (isNarratorsPage) {
+    itemName = t('LabelNarrators')
   } else if (pathname.endsWith('/items') || isCollectionDetailPage || isPlaylistDetailPage) {
     if (library?.mediaType === 'podcast') {
       itemName = isPlaylistDetailPage ? t('LabelEpisodes') : t('LabelPodcasts')
@@ -50,7 +53,8 @@ export default function Toolbar() {
     onContextMenuAction?.(action)
   }
 
-  const showBookshelfSummary = !isSearchPage && (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
+  const showBookshelfSummary =
+    !isSearchPage && (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage || isNarratorsPage) && itemCount !== null && !isSeriesDetailPage
   const showSeriesDetailSummary = !isSearchPage && isSeriesDetailPage && itemCount !== null
   const showSearchSummary = isSearchPage && searchQuery
   // Wait for itemCount so the mobile count badge is present before flex filter/sort measure their widths
