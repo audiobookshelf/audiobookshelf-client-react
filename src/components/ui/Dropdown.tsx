@@ -41,6 +41,8 @@ interface DropdownProps {
   hideSelectedInMenu?: boolean
   /** Use portal to render the dropdown menu. Useful for avoiding clipping issues. */
   usePortal?: boolean
+  /** When true, menu item labels wrap up to two lines then truncate */
+  wrapText?: boolean
 }
 
 /**
@@ -61,7 +63,8 @@ export default function Dropdown({
   highlightSelected = false,
   displayText,
   hideSelectedInMenu = false,
-  usePortal = false
+  usePortal = false,
+  wrapText = false
 }: DropdownProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -481,6 +484,7 @@ export default function Dropdown({
         isItemSelected={(item) => item.value === value}
         usePortal={usePortal}
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
+        wrapText={wrapText}
       />
     </div>
   )
