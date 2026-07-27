@@ -44,7 +44,7 @@ export function useCollectionCardActions({ collection, rssFeed, onOpenRssFeedMod
             const playlist = await createPlaylistFromCollectionAction(collection.id)
             if (playlist?.id) {
               showToast(t('ToastPlaylistCreateSuccess'), { type: 'success' })
-              router.push(`/playlist/${playlist.id}`)
+              router.push(`/library/${collection.libraryId}/playlist/${playlist.id}`)
             }
           } catch (error) {
             console.error('Failed to create playlist from collection', error)
@@ -80,7 +80,7 @@ export function useCollectionCardActions({ collection, rssFeed, onOpenRssFeedMod
         })
       }
     },
-    [collection.id, collection.name, onCollectionDeleted, onOpenRssFeedModal, router, showToast, t]
+    [collection.id, collection.libraryId, collection.name, onCollectionDeleted, onOpenRssFeedModal, router, showToast, t]
   )
 
   const moreMenuItems = useMemo<MediaCardMoreMenuItem[]>(() => {
