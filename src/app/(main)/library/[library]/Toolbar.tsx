@@ -53,8 +53,10 @@ export default function Toolbar() {
   const showBookshelfSummary = !isSearchPage && (isBookshelfPage || isCollectionDetailPage || isPlaylistDetailPage) && itemCount !== null && !isSeriesDetailPage
   const showSeriesDetailSummary = !isSearchPage && isSeriesDetailPage && itemCount !== null
   const showSearchSummary = isSearchPage && searchQuery
-  const showToolbarExtras = isBookshelfPage && !isBookshelfEmpty && !isSeriesDetailPage && !isSearchPage && !isSelectionMode
+  // Wait for itemCount so the mobile count badge is present before flex filter/sort measure their widths
+  const showToolbarExtras = isBookshelfPage && itemCount !== null && !isBookshelfEmpty && !isSeriesDetailPage && !isSearchPage && !isSelectionMode
   const showContextMenu = contextMenuItems.length > 0 && (!isBookshelfEmpty || isSeriesDetailPage) && !isSearchPage && !isSelectionMode
+  const countBadgeLabel = itemName ? `${itemCount} ${itemName}` : String(itemCount)
 
   return (
     <div className="bg-bg box-shadow-toolbar relative z-40 h-10 w-full" cy-id="library-toolbar">
@@ -70,26 +72,46 @@ export default function Toolbar() {
         )}
 
         {showBookshelfSummary && (
-          <p className="text-foreground hidden text-base md:block">
-            <span>
-              {itemCount} {itemName}
-            </span>
-            {itemCountSupplement ? <span className="text-foreground-muted">{itemCountSupplement}</span> : null}
-          </p>
+          <>
+            <p className="text-foreground hidden text-base md:block">
+              <span>
+                {itemCount} {itemName}
+              </span>
+              {itemCountSupplement ? <span className="text-foreground-muted">{itemCountSupplement}</span> : null}
+            </p>
+            <div
+              className="bg-foreground/10 flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 font-mono text-sm md:hidden"
+              aria-label={countBadgeLabel}
+              title={countBadgeLabel}
+            >
+              {itemCount}
+            </div>
+          </>
         )}
 
         {showSeriesDetailSummary && (
-          <div className="hidden min-w-0 flex-1 md:block">
-            <p className="text-foreground truncate text-base" title={detailToolbarTitle ?? ''}>
-              <span>{detailToolbarTitle}</span>
-              <span className="text-foreground-muted"> {itemCount ? `(${itemCount})` : ''}</span>
-            </p>
-          </div>
+          <>
+            <div className="hidden min-w-0 flex-1 md:block">
+              <p className="text-foreground truncate text-base" title={detailToolbarTitle ?? ''}>
+                <span>{detailToolbarTitle}</span>
+                <span className="text-foreground-muted"> {itemCount ? `(${itemCount})` : ''}</span>
+              </p>
+            </div>
+            <div
+              className="bg-foreground/10 flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1.5 font-mono text-sm md:hidden"
+              aria-label={`${detailToolbarTitle} (${itemCount})`}
+              title={`${detailToolbarTitle} (${itemCount})`}
+            >
+              {itemCount}
+            </div>
+          </>
         )}
 
-        {!showSearchSummary && <div className="flex-grow" />}
+        {!showSearchSummary && <div className={showToolbarExtras ? 'hidden flex-grow md:block' : 'flex-grow'} />}
 
-        {showToolbarExtras && <div className="mr-2 flex items-center gap-4">{toolbarExtras}</div>}
+        {showToolbarExtras && (
+          <div className="ms-1.5 flex min-w-0 flex-1 items-center justify-end gap-1.5 md:ms-0 md:me-2 md:flex-none md:gap-4">{toolbarExtras}</div>
+        )}
 
         {showContextMenu && (
           <ContextMenuDropdown items={contextMenuItems} borderless usePortal size="small" autoWidth onAction={(args) => handleAction(args.action)} />
