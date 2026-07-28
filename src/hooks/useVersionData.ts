@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react'
 // - Fetches GitHub releases via checkForUpdate()
 // - Caches the result in localStorage so we don't hit the API on every page load
 // - Re-checks at most once every 5 minutes (based on VersionFooter being mounted)
+// - Loads cache only after mount (in useEffect) to avoid SSR/client hydration mismatches
 // - Used by VersionFooter for the changelog modal and "Update available" link
 
 const VERSION_CHECK_BUFF = 1000 * 60 * 5
@@ -38,14 +39,9 @@ function loadSavedVersionData(): VersionData | null {
 }
 
 export function useVersionData(currentVersion: string) {
-  // Hydrate from cache on first render so the changelog can open immediately
-  const [versionData, setVersionData] = useState<VersionData | null>(() => {
-    const saved = loadSavedVersionData()
-    if (saved?.currentVersion === currentVersion && saved.releasesToShow?.length) {
-      return reviveVersionData(saved)
-    }
-    return null
-  })
+  // Always start as null so SSR and the first client paint match.
+  // localStorage is only available in the browser and would cause a hydration mismatch.
+  const [versionData, setVersionData] = useState<VersionData | null>(null)
 
   useEffect(() => {
     if (!currentVersion || currentVersion === 'Error') return
@@ -62,6 +58,11 @@ export function useVersionData(currentVersion: string) {
     if (!shouldCheckForUpdate && savedVersionData) {
       setVersionData(reviveVersionData(savedVersionData))
       return
+    }
+
+    // Show cached data immediately while a fresh check runs
+    if (savedVersionData?.currentVersion === currentVersion && savedVersionData.releasesToShow?.length) {
+      setVersionData(reviveVersionData(savedVersionData))
     }
 
     let cancelled = false
