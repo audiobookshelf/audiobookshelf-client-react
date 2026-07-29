@@ -1,5 +1,4 @@
 import { getBackups, getData } from '@/lib/api'
-import { updateServerSettings } from '../actions'
 import BackupsClient from './BackupsClient'
 
 export const dynamic = 'force-dynamic'
@@ -12,5 +11,5 @@ export default async function BackupsPage({ searchParams }: { searchParams: Prom
     return <div>Error loading backups</div>
   }
 
-  return <BackupsClient backupResponse={backupsResponse} updateServerSettings={updateServerSettings} appliedBackupToast={sp.backup === '1'} />
+  return <BackupsClient backupResponse={backupsResponse} appliedBackupToast={sp.backup === '1'} />
 }
