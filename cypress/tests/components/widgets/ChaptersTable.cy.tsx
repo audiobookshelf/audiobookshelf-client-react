@@ -42,7 +42,8 @@ const mockUserContextValue: UserContextType = {
   ereaderDevices: [],
   Source: 'test',
   getMediaItemProgress: () => undefined,
-  getBookmarksForLibraryItem: () => []
+  getBookmarksForLibraryItem: () => [],
+  mergeServerSettings: () => {}
 }
 
 const mockLibraryItem: BookLibraryItem = {

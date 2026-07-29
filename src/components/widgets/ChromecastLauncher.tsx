@@ -2,6 +2,7 @@
 
 import Tooltip from '@/components/ui/Tooltip'
 import { setChromecastLibraryId, useChromecast } from '@/contexts/ChromecastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { memo, useEffect, useRef } from 'react'
 
@@ -11,8 +12,10 @@ interface ChromecastLauncherProps {
 
 function ChromecastLauncher({ libraryId }: ChromecastLauncherProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
   const { isChromecastInitialized, isHttps } = useChromecast()
   const launcherContainerRef = useRef<HTMLDivElement>(null)
+  const chromecastEnabled = serverSettings.chromecastEnabled
 
   useEffect(() => {
     setChromecastLibraryId(libraryId ?? null)
@@ -21,7 +24,7 @@ function ChromecastLauncher({ libraryId }: ChromecastLauncherProps) {
   // Mount google-cast-launcher once; recreating it on parent re-renders causes the Cast dialog to flicker.
   useEffect(() => {
     const container = launcherContainerRef.current
-    if (!container || !isChromecastInitialized || !isHttps) return
+    if (!container || !chromecastEnabled || !isChromecastInitialized || !isHttps) return
 
     const launcher = document.createElement('google-cast-launcher')
     container.appendChild(launcher)
@@ -29,9 +32,9 @@ function ChromecastLauncher({ libraryId }: ChromecastLauncherProps) {
     return () => {
       launcher.remove()
     }
-  }, [isChromecastInitialized, isHttps])
+  }, [chromecastEnabled, isChromecastInitialized, isHttps])
 
-  if (!isChromecastInitialized) return null
+  if (!chromecastEnabled || !isChromecastInitialized) return null
 
   if (!isHttps) {
     return (

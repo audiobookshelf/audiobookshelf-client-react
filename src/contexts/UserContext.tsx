@@ -2,7 +2,7 @@
 
 import { getUserPermissionFlags } from '@/lib/userPermissions'
 import { AudioBookmark, EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
-import { createContext, ReactNode, useContext, useEffect, useState } from 'react'
+import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
 
 interface UserItemProgressUpdatedPayload {
@@ -26,6 +26,7 @@ export interface UserContextType {
   /** Book media id or podcast episode id matches `MediaProgress.mediaItemId` */
   getMediaItemProgress: (mediaItemId: string) => MediaProgress | undefined
   getBookmarksForLibraryItem: (libraryItemId: string) => AudioBookmark[]
+  mergeServerSettings: (settings: ServerSettings | null | undefined) => void
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -76,6 +77,16 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     setCurrentUserData(initialUser)
   }, [initialUser])
 
+  const mergeServerSettings = useCallback((settings: ServerSettings | null | undefined) => {
+    if (!settings) {
+      return
+    }
+    setCurrentUserData((prev) => ({
+      ...prev,
+      serverSettings: settings
+    }))
+  }, [])
+
   const contextValue: UserContextType = {
     user,
     ...permissionFlags,
@@ -85,7 +96,8 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     ereaderDevices: currentUserData.ereaderDevices,
     Source: currentUserData.Source,
     getMediaItemProgress: (mediaItemId: string) => user.mediaProgress.find((p) => p.mediaItemId === mediaItemId),
-    getBookmarksForLibraryItem: (libraryItemId: string) => user.bookmarks?.filter((bm) => bm.libraryItemId === libraryItemId) ?? []
+    getBookmarksForLibraryItem: (libraryItemId: string) => user.bookmarks?.filter((bm) => bm.libraryItemId === libraryItemId) ?? [],
+    mergeServerSettings
   }
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

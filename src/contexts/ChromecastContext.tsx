@@ -68,7 +68,12 @@ export function ChromecastProvider({ children }: { children: React.ReactNode }) 
   libraryIdRef.current = userDefaultLibraryId
 
   useEffect(() => {
-    if (!serverSettings.chromecastEnabled) return
+    if (!serverSettings.chromecastEnabled) {
+      setIsChromecastInitialized(false)
+      setIsCasting(false)
+      notifyCastSessionActive(false)
+      return
+    }
 
     let active = true
 
