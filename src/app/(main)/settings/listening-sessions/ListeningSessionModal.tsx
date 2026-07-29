@@ -108,16 +108,16 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         onClose={onClose}
         className="w-[calc(100vw-1rem)] md:max-w-[700px]"
         outerContent={
-          <div className="absolute top-0 left-0 w-2/3 overflow-hidden p-5">
-            <p className="text-foreground truncate text-lg md:text-2xl">{sessionTitle}</p>
+          <div className="absolute top-0 left-0 w-2/3 overflow-hidden p-4">
+            <p className="text-foreground truncate text-xl">{sessionTitle}</p>
           </div>
         }
       >
         {currentSession && (
           <div className="bg-bg w-full overflow-x-hidden overflow-y-auto rounded-lg p-6" style={{ maxHeight: '80vh' }}>
             <div className="flex items-baseline gap-4">
-              <p className="text-foreground-muted text-base">{currentSession.displayTitle}</p>
-              {currentSession.displayAuthor && <p className="text-foreground-subdued text-xs">{t('LabelByAuthor', { 0: currentSession.displayAuthor })}</p>}
+              <p className="text-foreground text-base">{currentSession.displayTitle}</p>
+              {currentSession.displayAuthor && <p className="text-foreground-muted text-xs">{t('LabelByAuthor', { 0: currentSession.displayAuthor })}</p>}
             </div>
 
             <div className="bg-border my-4 h-px w-full" />
