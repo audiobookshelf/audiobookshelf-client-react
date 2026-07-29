@@ -1,5 +1,6 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { getData, getUser } from '../../../../../lib/api'
 import UserClient from './UserClient'
 
@@ -12,13 +13,13 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   const [user] = await getData(getUser(userId))
 
   if (!user) {
-    return null
+    redirect('/settings/users')
   }
 
   return (
     <div className="mx-auto w-full max-w-4xl p-2 md:p-6">
       <div className="bg-bg mb-8 rounded-md border border-white/5 p-2 shadow-lg sm:p-4">
-        <Link href="/settings/users" className="text-foreground-muted hover:text-foreground mb-4 flex items-center gap-2">
+        <Link href="/settings/users" className="text-foreground-muted hover:text-foreground mb-4 flex w-fit items-center gap-2">
           <span className="material-symbols text-xl">arrow_back</span>
           <span>{t('LabelBackToUsers')}</span>
         </Link>

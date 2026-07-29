@@ -22,6 +22,7 @@ import {
   CreatePodcastPayload,
   CreatePodcastsFromOpmlPayload,
   CreateUpdateApiKeyResponse,
+  CreateUserResponse,
   EmailSettingsFormFields,
   EReaderDevice,
   FetchPodcastFeedResponse,
@@ -91,7 +92,9 @@ import {
   BatchUpdateLibraryItemsResponse,
   UpdatePodcastEpisodePayload,
   UploadCoverResponse,
+  UpdateUserResponse,
   User,
+  UserAccountPayload,
   UserLoginResponse
 } from '../types/api'
 
@@ -224,6 +227,12 @@ export async function refreshSessionWithToken(refreshToken: string): Promise<Ses
 
 export async function getAccessToken() {
   return (await cookies()).get('access_token')?.value || null
+}
+
+export async function persistAccessTokenInCookies(accessToken: string) {
+  const cookieStore = await cookies()
+  const refreshToken = cookieStore.get('refresh_token')?.value ?? null
+  writeSessionCookies(cookieStore, accessToken, refreshToken)
 }
 
 async function redirectToSessionRefreshRoute() {
@@ -489,6 +498,34 @@ export const deleteUser = cache(async (userId: string): Promise<void> => {
     method: 'DELETE'
   })
 })
+
+export async function createUser(payload: UserAccountPayload): Promise<CreateUserResponse> {
+  return apiRequest<CreateUserResponse>('/api/users', {
+    method: 'POST',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function updateUser(userId: string, payload: UserAccountPayload): Promise<UpdateUserResponse> {
+  return apiRequest<UpdateUserResponse>(`/api/users/${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(payload)
+  })
+}
+
+export async function unlinkUserOpenId(userId: string): Promise<void> {
+  return apiRequest<void>(`/api/users/${userId}/openid-unlink`, {
+    method: 'PATCH'
+  })
+}
+
+export async function getUserListeningStats(userId: string): Promise<ListeningStats> {
+  return apiRequest<ListeningStats>(`/api/users/${userId}/listening-stats`)
+}
+
+export async function getUserListeningSessions(userId: string, queryParams?: string): Promise<GetListeningSessionsResponse> {
+  return apiRequest<GetListeningSessionsResponse>(`/api/users/${userId}/listening-sessions${queryParams ? `?${queryParams}` : ''}`)
+}
 
 /**
  * Upload a cover image file for a library item

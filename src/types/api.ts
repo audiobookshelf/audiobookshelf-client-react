@@ -222,6 +222,26 @@ export interface GetUsersResponse {
   users: User[]
 }
 
+export interface UserAccountPayload {
+  username: string
+  email?: string
+  password?: string
+  type: 'admin' | 'user' | 'guest'
+  isActive: boolean
+  permissions: UserPermissions
+  librariesAccessible: string[]
+  itemTagsSelected: string[]
+}
+
+export interface CreateUserResponse {
+  user: User
+}
+
+export interface UpdateUserResponse {
+  success: boolean
+  user: User & { accessToken?: string }
+}
+
 export interface LibraryFolder {
   id: string
   fullPath: string
@@ -864,6 +884,8 @@ export interface MediaProgress {
   mediaItemId?: string
   mediaItemType?: string
   userId?: string
+  coverPath?: string
+  mediaUpdatedAt?: number
 }
 
 export interface AudioBookmark {
