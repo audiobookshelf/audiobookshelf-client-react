@@ -12,12 +12,5 @@ export default function SkeletonBar({ className, animationDelay, inline = false,
   const Component = inline ? 'span' : 'div'
   const animationStyle: CSSProperties | undefined = animationDelay ? { animationDelay, animationDuration: '1.5s', ...style } : style
 
-  return (
-    <Component
-      className={mergeClasses('animate-pulse rounded bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700', className)}
-      style={animationStyle}
-      aria-hidden="true"
-      {...props}
-    />
-  )
+  return <Component className={mergeClasses('bg-foreground-muted/20 animate-pulse rounded', className)} style={animationStyle} aria-hidden="true" {...props} />
 }

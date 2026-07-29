@@ -109,7 +109,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         className="w-[calc(100vw-1rem)] md:max-w-[700px]"
         outerContent={
           <div className="absolute top-0 left-0 w-2/3 overflow-hidden p-4">
-            <p className="text-foreground truncate text-xl">{sessionTitle}</p>
+            <p className="truncate text-xl text-white">{sessionTitle}</p>
           </div>
         }
       >
