@@ -12,6 +12,7 @@ RUN corepack enable pnpm
 WORKDIR /client-react
 
 COPY package.json pnpm-lock.yaml .npmrc ./
+COPY scripts ./scripts
 
 RUN pnpm install --frozen-lockfile
 
