@@ -15,6 +15,8 @@ type Details = Omit<BookMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'pu
   series: Series[]
 }
 
+const BOOK_TEXT_TRIM_FIELDS = ['title', 'subtitle', 'isbn', 'asin', 'publisher', 'language'] as const satisfies readonly (keyof Details)[]
+
 export type BookDetailsEditRef = DetailsEditRef<Details>
 export type BookUpdatePayload = UpdatePayload<Details>
 
@@ -89,7 +91,8 @@ const BookDetailsEdit = ({
     extractAuthor,
     onChange,
     onSubmit,
-    batchAppendLogic
+    batchAppendLogic,
+    trimFields: BOOK_TEXT_TRIM_FIELDS
   })
 
   const authorItems = useMemo(() => details.authors.map((a) => ({ value: a.id, content: a.name })), [details.authors])
@@ -207,10 +210,10 @@ const BookDetailsEdit = ({
       >
         <div className="-mx-1 flex flex-wrap">
           <div className="w-full px-1 md:w-1/2">
-            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title')} label={t('LabelTitle')} />
+            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title')} label={t('LabelTitle')} trimWhitespace />
           </div>
           <div className="mt-2 grow px-1 md:mt-0">
-            <TextInput value={details.subtitle || ''} onChange={handleFieldUpdate('subtitle')} label={t('LabelSubtitle')} />
+            <TextInput value={details.subtitle || ''} onChange={handleFieldUpdate('subtitle')} label={t('LabelSubtitle')} trimWhitespace />
           </div>
         </div>
 
@@ -280,19 +283,19 @@ const BookDetailsEdit = ({
             />
           </div>
           <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.isbn || ''} onChange={handleFieldUpdate('isbn')} label="ISBN" />
+            <TextInput value={details.isbn || ''} onChange={handleFieldUpdate('isbn')} label="ISBN" trimWhitespace />
           </div>
           <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.asin || ''} onChange={handleFieldUpdate('asin')} label="ASIN" />
+            <TextInput value={details.asin || ''} onChange={handleFieldUpdate('asin')} label="ASIN" trimWhitespace />
           </div>
         </div>
 
         <div className="-mx-1 mt-2 flex flex-wrap">
           <div className="w-full px-1 md:w-1/4">
-            <TextInput value={details.publisher || ''} onChange={handleFieldUpdate('publisher')} label={t('LabelPublisher')} />
+            <TextInput value={details.publisher || ''} onChange={handleFieldUpdate('publisher')} label={t('LabelPublisher')} trimWhitespace />
           </div>
           <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.language || ''} onChange={handleFieldUpdate('language')} label={t('LabelLanguage')} />
+            <TextInput value={details.language || ''} onChange={handleFieldUpdate('language')} label={t('LabelLanguage')} trimWhitespace />
           </div>
           <div className="mt-2 flex w-full items-center gap-6 px-1 md:contents">
             <div className="flex h-10 flex-1 items-center md:mt-6 md:w-1/4 md:flex-none md:px-1">
