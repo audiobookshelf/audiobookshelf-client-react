@@ -13,6 +13,7 @@ import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useUser } from '@/contexts/UserContext'
+import { useSocketEvent } from '@/contexts/SocketContext'
 import { usePlaylistDisplayMode } from '@/hooks/usePlaylistDisplayMode'
 import { usePlaylistItems } from '@/hooks/usePlaylistItems'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -36,7 +37,6 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const { displayMode, toggleDisplayMode } = usePlaylistDisplayMode(library.mediaType)
-  const { orderedItems, setOrderedItems, handleItemRemoved } = usePlaylistItems(playlist)
   const isListMode = displayMode === 'list'
   const alternateViewLabel = isListMode ? t('LabelCollectionBookshelfView') : t('LabelCollectionListView')
   const coverWidth = 120
@@ -52,6 +52,20 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
   const handlePlaylistDeleted = useCallback(() => {
     router.push(`/library/${playlist.libraryId}/playlists`)
   }, [playlist.libraryId, router])
+
+  const { orderedItems, setOrderedItems, handleItemRemoved } = usePlaylistItems(playlist)
+
+  useSocketEvent<Playlist>(
+    'playlist_removed',
+    useCallback(
+      (removed) => {
+        if (removed.id === playlist.id) {
+          handlePlaylistDeleted()
+        }
+      },
+      [handlePlaylistDeleted, playlist.id]
+    )
+  )
 
   const { processing, confirmState, closeConfirm, handleMoreAction, moreMenuItems } = usePlaylistCardActions({
     playlist,
