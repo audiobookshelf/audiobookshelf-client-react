@@ -12,7 +12,8 @@ const BOOKSHELF_PAGE_PATTERNS = ['/items', '/series', '/collections', '/playlist
 export default function Toolbar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { library, itemCount, itemCountSupplement, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy } = useLibrary()
+  const { library, itemCount, itemCountSupplement, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy, seriesFilterBy } =
+    useLibrary()
   const { isSelectionMode } = useBookshelfSelection()
   const t = useTypeSafeTranslations()
 
@@ -25,13 +26,15 @@ export default function Toolbar() {
   const isPlaylistDetailPage = pathname.includes('/playlist/')
   const isNarratorsPage = pathname.endsWith('/narrators')
 
-  const isBookshelfEmpty = itemCount === 0 && filterBy === 'all'
+  const isSeriesPage = pathname.endsWith('/series')
+  const activeFilter = isSeriesPage ? seriesFilterBy : filterBy
+  const isBookshelfEmpty = itemCount === 0 && activeFilter === 'all'
 
   const isSeriesDetailPage = Boolean(detailToolbarTitle)
 
   // Determine item name based on current page and library type
   let itemName = ''
-  if (pathname.endsWith('/series')) {
+  if (isSeriesPage) {
     itemName = t('LabelSeries')
   } else if (pathname.endsWith('/collections')) {
     itemName = t('LabelCollections')
