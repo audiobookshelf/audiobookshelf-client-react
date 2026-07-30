@@ -157,7 +157,11 @@ export default function UserAccountModal({ isOpen, user, processing = false, onC
       return
     }
 
-    onSubmit(formData)
+    onSubmit({
+      ...formData,
+      username: formData.username.trim(),
+      email: formData.email.trim()
+    })
   }
 
   const handleUnlinkOpenIdClick = () => {
@@ -275,6 +279,7 @@ export default function UserAccountModal({ isOpen, user, processing = false, onC
               placeholder={t('LabelUsername')}
               disabled={processing}
               onChange={(value) => setFormData((prev) => ({ ...prev, username: value }))}
+              trimWhitespace
             />
 
             {/* Change Password */}
@@ -297,6 +302,7 @@ export default function UserAccountModal({ isOpen, user, processing = false, onC
               placeholder={t('LabelEmail')}
               disabled={processing}
               onChange={(value) => setFormData((prev) => ({ ...prev, email: value }))}
+              trimWhitespace
             />
 
             {/* Account Type & Enable */}
