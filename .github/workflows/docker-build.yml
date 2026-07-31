@@ -61,15 +61,16 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Copy Dockerfile from React client
-        run: cp client-react/Dockerfile ./Dockerfile
-
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           tags: ${{ github.event.inputs.tags || steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          file: client-react/Dockerfile
           context: .
+          build-contexts: |
+            abs-client=client-react
+            abs-server=.
           platforms: linux/amd64
           push: true
           cache-from: type=local,src=/tmp/.buildx-cache
