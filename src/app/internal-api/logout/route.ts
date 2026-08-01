@@ -24,7 +24,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Logout failed' }, { status: 401 })
     }
 
-    const response = NextResponse.json({ success: true })
+    const response = NextResponse.json(await logoutResponse.json())
     // Delete token cookies
     response.cookies.delete('refresh_token')
     response.cookies.delete('access_token')
