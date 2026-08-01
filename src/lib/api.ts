@@ -114,14 +114,30 @@ export function getServerBaseUrl() {
 }
 
 /**
- * Client-facing origin from request headers (for redirects out of internal API routes).
+ * Client-facing origin from request headers (protocol + host, no ROUTER_BASE_PATH).
  * The server may use an internal hostname; the browser must be sent to the URL it used.
  */
-export function getClientBaseUrlFromRequest(request: Request): string {
-  const headers = new Headers(request.headers)
-  const host = headers.get('x-forwarded-host') || headers.get('host') || 'localhost'
-  const protocol = headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
+function getClientOriginFromHeaders(headerStore: { get(name: string): string | null }): string {
+  const host = headerStore.get('x-forwarded-host') || headerStore.get('host') || 'localhost'
+  const protocol = headerStore.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
   return `${protocol}://${host}`
+}
+
+export function getClientBaseUrlFromRequest(request: Request): string {
+  return getClientOriginFromHeaders(request.headers)
+}
+
+/**
+ * Browser-facing app base URL (origin + ROUTER_BASE_PATH), e.g. for OIDC callback URLs.
+ * Parallels the server's getRequestOrigin() plus global.RouterBasePath (see OidcAuthStrategy).
+ */
+export function getClientBaseUrlFromHeaders(headerStore: { get(name: string): string | null }): string {
+  const routerBasePath = process.env.ROUTER_BASE_PATH ?? ''
+  return `${getClientOriginFromHeaders(headerStore)}${routerBasePath}`
+}
+
+export async function getClientBaseUrl(): Promise<string> {
+  return getClientBaseUrlFromHeaders(await headers())
 }
 
 /**
@@ -414,6 +430,23 @@ export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
     next: { tags: ['current-user'] }
   })
 })
+
+/**
+ * Exchange an OIDC access token (from the Express post-login redirect) into Next.js session cookies.
+ * Returns the in-app path to redirect to, or null if authorization failed.
+ */
+export async function completeOidcLogin(accessToken: string, redirectParam?: string | null): Promise<string | null> {
+  try {
+    await persistAccessTokenInCookies(accessToken)
+    const data = await getCurrentUser()
+    setLanguageCookie(await cookies(), data.serverSettings?.language)
+
+    return redirectParam || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null, data.user?.type ?? 'user')
+  } catch (error) {
+    console.error('[completeOidcLogin] Error:', error)
+    return null
+  }
+}
 
 export const getListeningStats = cache(async (): Promise<ListeningStats> => {
   return apiRequest<ListeningStats>('/api/me/listening-stats')
