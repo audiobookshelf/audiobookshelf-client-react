@@ -1,3 +1,9 @@
+# Requires named build contexts (not the default context):
+#   abs-client — React client repo root (package.json, src, scripts)
+#   abs-server — audiobookshelf server repo root (index.js, server/)
+# Local: docker-compose.yml (abs-client=., abs-server=../audiobookshelf)
+# CI: .github/workflows/docker-build.yml (abs-client=client-react, abs-server=.)
+
 ARG NUSQLITE3_DIR="/usr/local/lib/nusqlite3"
 ARG NUSQLITE3_PATH="${NUSQLITE3_DIR}/libnusqlite3.so"
 
@@ -8,13 +14,12 @@ RUN corepack enable pnpm
 
 WORKDIR /client-react
 
-COPY ./client-react/package.json ./client-react/pnpm-lock.yaml ./client-react/.npmrc ./
-COPY ./client-react/scripts/sync-pdfjs-vendor.mjs ./scripts/sync-pdfjs-vendor.mjs
-COPY ./client-react/scripts/sync-unrar-wasm.mjs ./scripts/sync-unrar-wasm.mjs
+COPY --from=abs-client package.json pnpm-lock.yaml .npmrc ./
+COPY --from=abs-client scripts ./scripts
 
 RUN pnpm install --frozen-lockfile
 
-COPY ./client-react .
+COPY --from=abs-client . .
 
 RUN pnpm run build
 
@@ -36,8 +41,8 @@ RUN apk add --no-cache --update \
   unzip
 
 WORKDIR /server
-COPY index.js package* /server
-COPY /server /server/server
+COPY --from=abs-server index.js package* ./
+COPY --from=abs-server server ./server
 
 RUN case "$TARGETPLATFORM" in \
   "linux/amd64") \
