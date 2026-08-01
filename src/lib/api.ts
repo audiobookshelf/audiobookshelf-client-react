@@ -12,10 +12,12 @@ import {
   AuthorQuickMatchPayload,
   AuthorResponse,
   AuthorUpdateResponse,
+  BatchGetLibraryItemsResponse,
+  BatchUpdateLibraryItemPayload,
+  BatchUpdateLibraryItemsResponse,
   BookSearchResult,
   Chapter,
   Collection,
-  OrderedTrackFileData,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
   CreateCustomMetadataProviderResponse,
@@ -33,6 +35,7 @@ import {
   GetCollectionsResponse,
   GetCustomMetadataProvidersResponse,
   GetEmailSettingsResponse,
+  GetEpisodeDownloadQueueResponse,
   GetFilesystemPathsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
@@ -42,9 +45,8 @@ import {
   GetNotificationsResponse,
   GetOpenListeningSessionsResponse,
   GetPlaylistsResponse,
-  GetEpisodeDownloadQueueResponse,
-  GetRecentEpisodesResponse,
   GetPodcastTitlesResponse,
+  GetRecentEpisodesResponse,
   GetRssFeedsResponse,
   GetSeriesResponse,
   GetUsersResponse,
@@ -65,6 +67,7 @@ import {
   OpenMediaItemSharePayload,
   OpenRssFeedPayload,
   OpenRssFeedResponse,
+  OrderedTrackFileData,
   ParseOpmlFeedsResponse,
   PersonalizedShelf,
   Playlist,
@@ -87,12 +90,9 @@ import {
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
-  BatchGetLibraryItemsResponse,
-  BatchUpdateLibraryItemPayload,
-  BatchUpdateLibraryItemsResponse,
   UpdatePodcastEpisodePayload,
-  UploadCoverResponse,
   UpdateUserResponse,
+  UploadCoverResponse,
   User,
   UserAccountPayload,
   UserLoginResponse
@@ -100,9 +100,9 @@ import {
 
 import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
 
-const publicEndpoints = ['/status']
-const RefreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
-const AccessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
+const PUBLIC_ENDPOINTS = ['/status']
+const refreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
+const accessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
 
 export function getServerBaseUrl() {
   let host = process.env.HOST || 'localhost'
@@ -158,14 +158,28 @@ function sessionCookieOptions(maxAgeSeconds: number) {
   }
 }
 
+const LANGUAGE_COOKIE_OPTIONS = {
+  httpOnly: false,
+  secure: false,
+  sameSite: 'lax' as const,
+  path: '/',
+  maxAge: 365 * 24 * 60 * 60 // 1 year
+}
+
 type SessionCookieSetter = {
-  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions>): void
+  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions> | typeof LANGUAGE_COOKIE_OPTIONS): void
 }
 
 function writeSessionCookies(store: SessionCookieSetter, accessToken: string, refreshToken: string | null) {
-  store.set('access_token', accessToken, sessionCookieOptions(AccessTokenExpiry))
+  store.set('access_token', accessToken, sessionCookieOptions(accessTokenExpiry))
   if (refreshToken) {
-    store.set('refresh_token', refreshToken, sessionCookieOptions(RefreshTokenExpiry))
+    store.set('refresh_token', refreshToken, sessionCookieOptions(refreshTokenExpiry))
+  }
+}
+
+export function setLanguageCookie(store: SessionCookieSetter, language: string | null | undefined) {
+  if (language) {
+    store.set('language', language, LANGUAGE_COOKIE_OPTIONS)
   }
 }
 
@@ -295,7 +309,7 @@ async function parseApiResponseBody<T>(response: Response): Promise<T> {
  */
 export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
-    const isPublic = publicEndpoints.includes(endpoint)
+    const isPublic = PUBLIC_ENDPOINTS.includes(endpoint)
     const cookieStore = await cookies()
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
