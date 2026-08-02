@@ -41,6 +41,32 @@ export function useFilterData(libraryId: string | undefined) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
 
+  const fetchFilterData = useCallback(
+    async (isActive: () => boolean = () => true) => {
+      if (!libraryId) {
+        setFilterData(null)
+        return
+      }
+
+      setIsLoading(true)
+      setError(null)
+      try {
+        const data = await fetchLibraryFilterDataAction(libraryId)
+        if (!isActive()) return
+        setFilterData(data)
+      } catch (err) {
+        if (!isActive()) return
+        setError(err instanceof Error ? err : new Error('Failed to fetch filter data'))
+        console.error('Failed to fetch filter data:', err)
+      } finally {
+        if (isActive()) {
+          setIsLoading(false)
+        }
+      }
+    },
+    [libraryId]
+  )
+
   // Fetch filter data when library changes
   useEffect(() => {
     if (!libraryId) {
@@ -50,32 +76,13 @@ export function useFilterData(libraryId: string | undefined) {
 
     let cancelled = false
 
-    async function fetchFilterData() {
-      setIsLoading(true)
-      setError(null)
-      try {
-        const data = await fetchLibraryFilterDataAction(libraryId!)
-        if (!cancelled) {
-          setFilterData(data)
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err : new Error('Failed to fetch filter data'))
-          console.error('Failed to fetch filter data:', err)
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoading(false)
-        }
-      }
-    }
-
-    fetchFilterData()
+    setFilterData(null)
+    void fetchFilterData(() => !cancelled)
 
     return () => {
       cancelled = true
     }
-  }, [libraryId])
+  }, [libraryId, fetchFilterData])
 
   /**
    * Update filter data incrementally when a library item is added or updated.
@@ -142,6 +149,7 @@ export function useFilterData(libraryId: string | undefined) {
     filterData,
     isLoading,
     error,
+    fetchFilterData,
     updateFilterDataWithItem,
     removeSeriesFromFilterData
   }

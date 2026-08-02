@@ -262,6 +262,7 @@ export interface LibraryFilterData {
   publishers: string[]
   languages: string[]
   publishedDecades: string[]
+  numIssues?: number
 }
 
 // ============================================================================
