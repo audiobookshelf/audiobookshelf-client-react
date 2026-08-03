@@ -68,6 +68,8 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
     console.log('Show more info for:', audioFile)
   }, [])
 
+  const canDownloadItem = !libraryItem.isMissing && !libraryItem.isInvalid
+
   const tracksWithAudioFile = useMemo<TrackWithAudioFile[]>(() => {
     const tracks = libraryItem.media.tracks || []
     const audioFiles = libraryItem.media.audioFiles || []
@@ -124,7 +126,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         label: '',
         accessor: (row: TrackWithAudioFile) => {
           const items: ContextMenuDropdownItem[] = []
-          if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
+          if (userCanDownload && canDownloadItem) items.push({ text: t('LabelDownload'), action: 'download' })
           if (userCanDelete) items.push({ text: t('ButtonDelete'), action: 'delete' })
           if (userIsAdminOrUp && row.audioFile) items.push({ text: t('LabelMoreInfo'), action: 'more' })
 
@@ -156,7 +158,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
-    [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, libraryItem.id, handleShowMore]
+    [t, showFullPath, userCanDownload, canDownloadItem, userCanDelete, userIsAdminOrUp, libraryItem.id, handleShowMore]
   )
 
   const headerActions = useMemo(() => {
