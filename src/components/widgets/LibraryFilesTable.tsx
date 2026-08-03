@@ -58,6 +58,8 @@ export default function LibraryFilesTable({ libraryItem, keepOpen = false, inMod
 
   const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
 
+  const canDownloadItem = !libraryItem.isMissing && !libraryItem.isInvalid
+
   const files = useMemo<LibraryFile[]>(() => libraryItem.libraryFiles || [], [libraryItem.libraryFiles])
 
   const audioFiles = useMemo<AudioFile[]>(() => {
@@ -148,7 +150,7 @@ export default function LibraryFilesTable({ libraryItem, keepOpen = false, inMod
         label: '',
         accessor: (row: LibraryFileWithAudio) => {
           const items: ContextMenuDropdownItem[] = []
-          if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
+          if (userCanDownload && canDownloadItem) items.push({ text: t('LabelDownload'), action: 'download' })
           if (userCanDelete) items.push({ text: t('ButtonDelete'), action: 'delete' })
           if (userIsAdminOrUp && row.audioFile && !inModal) items.push({ text: t('LabelMoreInfo'), action: 'more' })
 
@@ -174,7 +176,7 @@ export default function LibraryFilesTable({ libraryItem, keepOpen = false, inMod
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
-    [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, inModal, handleDeleteFile, downloadFile, showMoreInfo]
+    [t, showFullPath, userCanDownload, canDownloadItem, userCanDelete, userIsAdminOrUp, inModal, handleDeleteFile, downloadFile, showMoreInfo]
   )
 
   const headerActions = useMemo(
