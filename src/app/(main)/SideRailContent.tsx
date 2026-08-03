@@ -1,12 +1,14 @@
 'use client'
 
 import VersionFooter from '@/components/app/VersionFooter'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { isLibraryIssuesMode, libraryIssuesModeHref } from '@/lib/libraryIssuesMode'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 interface SideRailContentProps {
   libraryId: string
@@ -28,8 +30,21 @@ export default function SideRailContent({
   variant = 'rail'
 }: SideRailContentProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
   const t = useTypeSafeTranslations()
   const { userIsAdminOrUp } = useUser()
+  const { filterData } = useLibrary()
+  const numIssues = filterData?.numIssues ?? 0
+  const issuesHref = libraryIssuesModeHref(libraryId)
+  const libraryHref = `/library/${libraryId}/items`
+  const showingIssues = isLibraryIssuesMode(pathname, searchParams)
+
+  const isButtonActive = (href: string) => {
+    if (href === libraryHref) {
+      return pathname === libraryHref && !showingIssues
+    }
+    return pathname === href
+  }
 
   const buttons = [
     {
@@ -130,48 +145,71 @@ export default function SideRailContent({
       href: `/library/${libraryId}/download-queue`,
       mediaType: 'podcast' as const,
       adminOnly: true
-    },
-    {
-      icon: <span className="material-symbols text-2xl">warning</span>,
-      label: t('ButtonIssues'),
-      href: `/library/${libraryId}/issues`,
-      hidden: true
     }
   ]
 
-  const filteredButtons = buttons.filter(
-    (button) => (!button.mediaType || button.mediaType === mediaType) && !button.hidden && (!button.adminOnly || userIsAdminOrUp)
-  )
+  const filteredButtons = buttons.filter((button) => (!button.mediaType || button.mediaType === mediaType) && (!button.adminOnly || userIsAdminOrUp))
 
   const isDrawer = variant === 'drawer'
 
   return (
     <div className="flex h-full w-full flex-col">
       <nav className={mergeClasses('min-h-0 w-full flex-1 overflow-y-auto', isDrawer ? 'flex flex-col py-1' : '')}>
-        {filteredButtons.map((button) => (
-          <Link
-            key={button.label}
-            href={button.href}
-            onClick={onItemClick ?? undefined}
-            className={mergeClasses(
-              'text-foreground hover:bg-nav-item-hover relative w-full cursor-pointer border-b transition-colors',
-              isDrawer ? 'border-border flex items-center justify-start px-4 py-3' : 'border-primary/30 flex h-20 flex-col items-center justify-center',
-              pathname === button.href && (isDrawer ? 'bg-nav-item-hover' : 'bg-nav-item-selected')
-            )}
-          >
-            <span
+        {filteredButtons.map((button) => {
+          const isActive = isButtonActive(button.href)
+
+          return (
+            <Link
+              key={button.label}
+              href={button.href}
+              onClick={onItemClick ?? undefined}
               className={mergeClasses(
-                'shrink-0',
-                isDrawer ? 'me-3 flex items-center [&_.abs-icons]:text-xl [&_.material-symbols]:text-xl [&_svg]:h-5 [&_svg]:w-5' : ''
+                'text-foreground hover:bg-nav-item-hover relative w-full cursor-pointer border-b transition-colors',
+                isDrawer ? 'border-border flex items-center justify-start px-4 py-3' : 'border-primary/30 flex h-20 flex-col items-center justify-center',
+                isActive && (isDrawer ? 'bg-nav-item-hover' : 'bg-nav-item-selected')
               )}
             >
-              {button.icon}
-            </span>
-            <span className={mergeClasses(isDrawer ? 'text-sm font-semibold' : 'text-sm')}>{button.label}</span>
+              <span
+                className={mergeClasses(
+                  'shrink-0',
+                  isDrawer ? 'me-3 flex items-center [&_.abs-icons]:text-xl [&_.material-symbols]:text-xl [&_svg]:h-5 [&_svg]:w-5' : ''
+                )}
+              >
+                {button.icon}
+              </span>
+              <span className={mergeClasses(isDrawer ? 'text-sm font-semibold' : 'text-sm')}>{button.label}</span>
 
-            {!isDrawer && pathname === button.href && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
+              {!isDrawer && isActive && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
+            </Link>
+          )
+        })}
+
+        {numIssues > 0 && (
+          <Link
+            href={issuesHref}
+            onClick={onItemClick ?? undefined}
+            className={mergeClasses(
+              'text-foreground relative w-full cursor-pointer border-b transition-colors',
+              isDrawer ? 'border-border flex items-center justify-start px-4 py-3' : 'border-primary/30 flex h-20 flex-col items-center justify-center',
+              showingIssues ? 'bg-error/40 hover:bg-error/40' : 'bg-error/20 hover:bg-error/40'
+            )}
+          >
+            <span className={mergeClasses('shrink-0', isDrawer ? 'me-3 flex items-center [&_.material-symbols]:text-xl' : '')}>
+              <span className="material-symbols text-2xl">warning</span>
+            </span>
+            <span className={mergeClasses(isDrawer ? 'text-sm font-semibold' : 'text-sm')}>{t('ButtonIssues')}</span>
+
+            {!isDrawer && showingIssues && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
+            <div
+              className={mergeClasses(
+                'bg-foreground/30 absolute flex items-center justify-center rounded-full',
+                isDrawer ? 'end-4 top-1/2 h-5 min-w-5 -translate-y-1/2 px-1' : 'end-1 top-1 h-4 w-4'
+              )}
+            >
+              <span className="font-mono text-xs leading-none">{numIssues}</span>
+            </div>
           </Link>
-        ))}
+        )}
       </nav>
       {showFooter && (
         <div className={mergeClasses('w-full shrink-0 border-t', isDrawer ? 'border-primary/30 px-4 py-2' : 'border-primary/30 h-12 px-1 py-2')}>
