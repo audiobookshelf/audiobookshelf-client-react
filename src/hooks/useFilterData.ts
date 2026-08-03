@@ -1,8 +1,12 @@
 'use client'
 
 import { fetchLibraryFilterDataAction } from '@/app/actions/libraryActions'
-import { isBookLibraryItem, isPodcastLibraryItem, LibraryFilterData, LibraryItem } from '@/types/api'
-import { useCallback, useEffect, useState } from 'react'
+import { useSocketEvent } from '@/contexts/SocketContext'
+import { isBookLibraryItem, isPodcastLibraryItem, LibraryFilterData, LibraryItem, LibraryItemRemovedPayload, Task } from '@/types/api'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+const FILTER_DATA_REFETCH_TASK_ACTIONS = ['library-scan', 'watcher-scan', 'batch-item-scan']
+const FILTER_DATA_REFETCH_DEBOUNCE_MS = 300
 
 /**
  * Add unique strings to an array and sort alphabetically.
@@ -35,21 +39,27 @@ function addUniqueById<T extends { id: string; name: string }>(existing: T[], ne
  * Hook to fetch and manage library filter data.
  * Provides filter data for populating filter dropdown menus,
  * and utility functions for updating filter data based on socket events.
+ *
+ * `numIssues` is loaded from `/filterdata` and refreshed after scans, deletes,
+ * and when the Issues bookshelf loads (`setNumIssues`).
  */
 export function useFilterData(libraryId: string | undefined) {
   const [filterData, setFilterData] = useState<LibraryFilterData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  const refetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const fetchFilterData = useCallback(
-    async (isActive: () => boolean = () => true) => {
+    async (isActive: () => boolean = () => true, options?: { silent?: boolean }) => {
       if (!libraryId) {
         setFilterData(null)
         return
       }
 
-      setIsLoading(true)
-      setError(null)
+      if (!options?.silent) {
+        setIsLoading(true)
+        setError(null)
+      }
       try {
         const data = await fetchLibraryFilterDataAction(libraryId)
         if (!isActive()) return
@@ -59,13 +69,35 @@ export function useFilterData(libraryId: string | undefined) {
         setError(err instanceof Error ? err : new Error('Failed to fetch filter data'))
         console.error('Failed to fetch filter data:', err)
       } finally {
-        if (isActive()) {
+        if (isActive() && !options?.silent) {
           setIsLoading(false)
         }
       }
     },
     [libraryId]
   )
+
+  const refetchFilterDataSilently = useCallback(() => {
+    void fetchFilterData(() => true, { silent: true })
+  }, [fetchFilterData])
+
+  const scheduleSilentRefetch = useCallback(() => {
+    if (refetchTimerRef.current) {
+      clearTimeout(refetchTimerRef.current)
+    }
+    refetchTimerRef.current = setTimeout(() => {
+      refetchTimerRef.current = null
+      refetchFilterDataSilently()
+    }, FILTER_DATA_REFETCH_DEBOUNCE_MS)
+  }, [refetchFilterDataSilently])
+
+  useEffect(() => {
+    return () => {
+      if (refetchTimerRef.current) {
+        clearTimeout(refetchTimerRef.current)
+      }
+    }
+  }, [])
 
   // Fetch filter data when library changes
   useEffect(() => {
@@ -145,12 +177,81 @@ export function useFilterData(libraryId: string | undefined) {
     })
   }, [])
 
+  /** Patch numIssues when the Issues bookshelf total is authoritative. */
+  const setNumIssues = useCallback((count: number) => {
+    setFilterData((prev) => {
+      if (!prev || (prev.numIssues ?? 0) === count) return prev
+      return { ...prev, numIssues: count }
+    })
+  }, [])
+
+  const handleItemAdded = useCallback(
+    (item: LibraryItem) => {
+      updateFilterDataWithItem(item)
+    },
+    [updateFilterDataWithItem]
+  )
+
+  const handleItemUpdated = useCallback(
+    (item: LibraryItem) => {
+      updateFilterDataWithItem(item)
+    },
+    [updateFilterDataWithItem]
+  )
+
+  const handleItemsAdded = useCallback(
+    (items: LibraryItem[]) => {
+      items.forEach(updateFilterDataWithItem)
+    },
+    [updateFilterDataWithItem]
+  )
+
+  const handleItemsUpdated = useCallback(
+    (items: LibraryItem[]) => {
+      items.forEach(updateFilterDataWithItem)
+    },
+    [updateFilterDataWithItem]
+  )
+
+  const handleItemRemoved = useCallback(
+    (payload: LibraryItemRemovedPayload) => {
+      if (!libraryId || payload.libraryId !== libraryId) return
+      scheduleSilentRefetch()
+    },
+    [libraryId, scheduleSilentRefetch]
+  )
+
+  const handleSeriesRemoved = useCallback(
+    (data: { id: string; libraryId: string }) => {
+      if (libraryId && data.libraryId === libraryId) {
+        removeSeriesFromFilterData(data.id)
+      }
+    },
+    [libraryId, removeSeriesFromFilterData]
+  )
+
+  const handleTaskFinished = useCallback(
+    (task: Task) => {
+      if (!libraryId || task.data?.libraryId !== libraryId) return
+      if (!FILTER_DATA_REFETCH_TASK_ACTIONS.includes(task.action)) return
+      scheduleSilentRefetch()
+    },
+    [libraryId, scheduleSilentRefetch]
+  )
+
+  useSocketEvent<LibraryItem>('item_added', handleItemAdded)
+  useSocketEvent<LibraryItem>('item_updated', handleItemUpdated)
+  useSocketEvent<LibraryItem[]>('items_added', handleItemsAdded)
+  useSocketEvent<LibraryItem[]>('items_updated', handleItemsUpdated)
+  useSocketEvent<LibraryItemRemovedPayload>('item_removed', handleItemRemoved)
+  useSocketEvent<{ id: string; libraryId: string }>('series_removed', handleSeriesRemoved)
+  useSocketEvent<Task>('task_finished', handleTaskFinished, [handleTaskFinished])
+
   return {
     filterData,
     isLoading,
     error,
-    fetchFilterData,
-    updateFilterDataWithItem,
-    removeSeriesFromFilterData
+    setNumIssues,
+    refetchFilterDataSilently
   }
 }
