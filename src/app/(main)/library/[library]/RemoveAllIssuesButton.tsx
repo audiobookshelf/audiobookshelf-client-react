@@ -8,15 +8,14 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { removeLibraryItemsWithIssuesAction } from '@/app/actions/libraryActions'
-import { isLibraryIssuesMode } from '@/lib/libraryIssuesMode'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useState, useTransition } from 'react'
 
 export default function RemoveAllIssuesButton() {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const { showToast } = useGlobalToast()
   const { userCanDelete } = useUser()
   const { isSelectionMode } = useBookshelfSelection()
@@ -24,8 +23,7 @@ export default function RemoveAllIssuesButton() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  const isItemsPage = pathname.endsWith('/items')
-  const isIssuesMode = isLibraryIssuesMode(pathname, searchParams)
+  const isIssuesPage = isLibraryIssuesPage(pathname)
 
   const handleConfirm = useCallback(() => {
     startTransition(async () => {
@@ -42,7 +40,7 @@ export default function RemoveAllIssuesButton() {
     })
   }, [library.id, refetchFilterDataSilently, router, showToast, t])
 
-  if (!isItemsPage || !isIssuesMode || !userCanDelete || isSelectionMode || !itemCount) {
+  if (!isIssuesPage || !userCanDelete || isSelectionMode || !itemCount) {
     return null
   }
 
