@@ -1,11 +1,11 @@
 'use client'
 
 import { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
-import { useSocketEvent } from '@/contexts/SocketContext'
 import { useUser } from '@/contexts/UserContext'
 import { useFilterData } from '@/hooks/useFilterData'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
-import { BookshelfView, Library, LibraryFilterData, LibraryItem } from '@/types/api'
+import { getLibrarySortFilterUpdates } from '@/lib/libraryMediaTypeSortFilter'
+import { BookshelfView, Library, LibraryFilterData } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 // Per-library settings (stored separately for each library)
@@ -92,6 +92,8 @@ interface LibraryContextType extends LibrarySettings {
   // Filter data
   filterData: LibraryFilterData | null
   filterDataLoading: boolean
+  setNumIssues: (count: number) => void
+  refetchFilterDataSilently: () => void
   isSettingsLoaded: boolean
 }
 
@@ -122,52 +124,7 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
   const bookshelfView = serverSettings?.bookshelfView || 0
 
   // Filter data hook
-  const { filterData, isLoading: filterDataLoading, updateFilterDataWithItem, removeSeriesFromFilterData } = useFilterData(library.id)
-
-  // Socket listeners for real-time filter data updates
-  const handleItemAdded = useCallback(
-    (item: LibraryItem) => {
-      updateFilterDataWithItem(item)
-    },
-    [updateFilterDataWithItem]
-  )
-
-  const handleItemUpdated = useCallback(
-    (item: LibraryItem) => {
-      updateFilterDataWithItem(item)
-    },
-    [updateFilterDataWithItem]
-  )
-
-  const handleItemsAdded = useCallback(
-    (items: LibraryItem[]) => {
-      items.forEach(updateFilterDataWithItem)
-    },
-    [updateFilterDataWithItem]
-  )
-
-  const handleItemsUpdated = useCallback(
-    (items: LibraryItem[]) => {
-      items.forEach(updateFilterDataWithItem)
-    },
-    [updateFilterDataWithItem]
-  )
-
-  const handleSeriesRemoved = useCallback(
-    (data: { id: string; libraryId: string }) => {
-      if (data.libraryId === library.id) {
-        removeSeriesFromFilterData(data.id)
-      }
-    },
-    [library.id, removeSeriesFromFilterData]
-  )
-
-  // Register socket listeners
-  useSocketEvent<LibraryItem>('item_added', handleItemAdded)
-  useSocketEvent<LibraryItem>('item_updated', handleItemUpdated)
-  useSocketEvent<LibraryItem[]>('items_added', handleItemsAdded)
-  useSocketEvent<LibraryItem[]>('items_updated', handleItemsUpdated)
-  useSocketEvent<{ id: string; libraryId: string }>('series_removed', handleSeriesRemoved)
+  const { filterData, isLoading: filterDataLoading, setNumIssues, refetchFilterDataSilently } = useFilterData(library.id)
 
   // Load settings from localStorage when library changes
   useEffect(() => {
@@ -185,17 +142,27 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
         }
       }
 
-      setSettings({
+      const merged: LibrarySettings = {
         ...DEFAULT_SETTINGS,
         ...globalParsed,
         ...perLibraryParsed
-      })
+      }
+      const sortFilterUpdates = getLibrarySortFilterUpdates(merged, library.mediaType)
+      const finalSettings = { ...merged, ...sortFilterUpdates }
+
+      setSettings(finalSettings)
+
+      if (Object.keys(sortFilterUpdates).length > 0 && library.id) {
+        const perLibraryStored = localStorage.getItem(`librarySettings_${library.id}`)
+        const perLibraryParsedForSave = perLibraryStored ? JSON.parse(perLibraryStored) : {}
+        localStorage.setItem(`librarySettings_${library.id}`, JSON.stringify({ ...perLibraryParsedForSave, ...sortFilterUpdates }))
+      }
     } catch (e) {
       console.error('Failed to load user settings', e)
     } finally {
       setIsSettingsLoaded(true)
     }
-  }, [library.id])
+  }, [library.id, library.mediaType])
 
   const updateSetting = useCallback(
     (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => {
@@ -249,6 +216,8 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
       setBoundModal,
       filterData,
       filterDataLoading,
+      setNumIssues,
+      refetchFilterDataSilently,
       isSettingsLoaded
     }),
     [
@@ -267,6 +236,8 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
       boundModal,
       filterData,
       filterDataLoading,
+      setNumIssues,
+      refetchFilterDataSilently,
       isSettingsLoaded,
       setItemCount,
       setItemCountSupplement
@@ -276,12 +247,16 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>
 }
 
-export function useLibrary() {
+export function useLibrary(): LibraryContextType {
   const context = useContext(LibraryContext)
   if (context === undefined) {
     throw new Error('useLibrary must be used within a LibraryProvider')
   }
   return context
+}
+
+export function useLibraryOptional(): Partial<LibraryContextType> {
+  return useContext(LibraryContext) ?? {}
 }
 
 /** Numeric height/width ratio for covers from library setting. Square (1) or standard (1.6) */
