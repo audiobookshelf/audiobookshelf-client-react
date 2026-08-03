@@ -1,5 +1,6 @@
 'use client'
 
+import Btn from '@/components/ui/Btn'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
@@ -9,8 +10,10 @@ import { useBookshelfUpdater } from '@/hooks/useBookshelfUpdater'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { isLibraryIssuesMode } from '@/lib/libraryIssuesMode'
 import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
 import { BookshelfEntity, BookshelfView, EntityType } from '@/types/api'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import LibraryEmptyState from '../LibraryEmptyState'
 import { ENTITY_CONFIGS } from './entity-config'
@@ -24,8 +27,12 @@ interface BookshelfClientProps {
 
 export default function BookshelfClient({ entityType, queryOverride, registerToolbar = true }: BookshelfClientProps) {
   const t = useTypeSafeTranslations()
-  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, authorSortBy, updateSetting, filterBy, bookshelfView } = useLibrary()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const { library, setItemCount, orderBy, collapseSeries, showSubtitles, seriesSortBy, authorSortBy, updateSetting, filterBy, bookshelfView, setNumIssues } =
+    useLibrary()
   const { user } = useUser()
+  const showingIssues = isLibraryIssuesMode(pathname, searchParams)
 
   const usesExternalQuery = queryOverride !== undefined
   const { query: defaultQuery } = useBookshelfQuery(entityType, !usesExternalQuery)
@@ -199,6 +206,12 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
     }
   }, [fetchedTotal, isInitialized, setItemCount])
 
+  // Issues bookshelf total is authoritative for the side-rail badge while in issues mode
+  useEffect(() => {
+    if (entityType !== 'items' || !showingIssues || !isInitialized) return
+    setNumIssues(fetchedTotal)
+  }, [entityType, showingIssues, isInitialized, fetchedTotal, setNumIssues])
+
   // Data Fetching Trigger — chain promises so list requests are not fired in parallel
   useEffect(() => {
     if (!bookshelfLayoutReady) return
@@ -370,8 +383,15 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
               {entityType === 'items' && filterBy === 'all' ? (
                 <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
               ) : (
-                <div className="flex h-full items-center justify-center p-10">
-                  <p className="text-xl">{getEmptyMessage()}</p>
+                <div className="flex flex-col items-center justify-center py-16">
+                  <p className="text-center text-xl">{getEmptyMessage()}</p>
+                  {entityType === 'items' && filterBy !== 'all' && (
+                    <div className="mt-2 flex justify-center">
+                      <Btn size="small" color="bg-primary" onClick={() => updateSetting('filterBy', 'all')}>
+                        {t('ButtonClearFilter')}
+                      </Btn>
+                    </div>
+                  )}
                 </div>
               )}
             </>
