@@ -4,10 +4,11 @@ import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 // Pages that should show item count and toolbar extras
-const BOOKSHELF_PAGE_PATTERNS = ['/items', '/series', '/collections', '/playlists', '/authors']
+const BOOKSHELF_PAGE_PATTERNS = ['/items', '/issues', '/series', '/collections', '/playlists', '/authors']
 
 export default function Toolbar() {
   const pathname = usePathname()
@@ -17,6 +18,7 @@ export default function Toolbar() {
   const { isSelectionMode } = useBookshelfSelection()
   const t = useTypeSafeTranslations()
 
+  const isIssuesPage = isLibraryIssuesPage(pathname)
   const isSearchPage = pathname.endsWith('/search')
   const searchQuery = searchParams.get('q')?.trim() ?? ''
 
@@ -44,7 +46,7 @@ export default function Toolbar() {
     itemName = t('LabelAuthors')
   } else if (isNarratorsPage) {
     itemName = t('LabelNarrators')
-  } else if (pathname.endsWith('/items') || isCollectionDetailPage || isPlaylistDetailPage) {
+  } else if (pathname.endsWith('/items') || isIssuesPage || isCollectionDetailPage || isPlaylistDetailPage) {
     if (library?.mediaType === 'podcast') {
       itemName = isPlaylistDetailPage ? t('LabelEpisodes') : t('LabelPodcasts')
     } else if (library?.mediaType === 'book') {

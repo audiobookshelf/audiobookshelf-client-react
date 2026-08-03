@@ -3,9 +3,9 @@
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import RemoveAllIssuesButton from '@/app/(main)/library/[library]/RemoveAllIssuesButton'
-import { isLibraryIssuesMode } from '@/lib/libraryIssuesMode'
+import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
 import { Library, User } from '@/types/api'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 interface ItemsToolbarExtrasProps {
   user: User
@@ -14,12 +14,11 @@ interface ItemsToolbarExtrasProps {
 
 export default function ItemsToolbarExtras({ user, library }: ItemsToolbarExtrasProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const showingIssues = isLibraryIssuesMode(pathname, searchParams)
+  const onIssuesPage = isLibraryIssuesPage(pathname)
 
   return (
     <>
-      {!showingIssues && <LibraryFilterSelect user={user} entityType="items" />}
+      {!onIssuesPage && <LibraryFilterSelect user={user} entityType="items" />}
       <LibrarySortSelect entityType="items" libraryMediaType={library.mediaType} />
       <RemoveAllIssuesButton />
     </>

@@ -1,12 +1,12 @@
 'use client'
 
 import { useLibrary } from '@/contexts/LibraryContext'
-import { isLibraryIssuesMode } from '@/lib/libraryIssuesMode'
+import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
 import type { Library } from '@/types/api'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-const LIBRARY_SHARED_PAGES = ['items', 'playlists', 'search', 'playlist', 'item']
+const LIBRARY_SHARED_PAGES = ['items', 'issues', 'playlists', 'search', 'playlist', 'item']
 const LIBRARY_BOOK_PAGES = ['series', 'collections', 'authors', 'narrators', 'stats', 'collection']
 const LIBRARY_PODCAST_PAGES = ['latest', 'add-podcast', 'download-queue']
 
@@ -22,7 +22,6 @@ export function isLibraryPageAllowed(page: string, mediaType: Library['mediaType
 export function useLibraryRouteGuard() {
   const router = useRouter()
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const { library, filterData, filterDataLoading, updateSetting } = useLibrary()
 
   useEffect(() => {
@@ -36,13 +35,13 @@ export function useLibraryRouteGuard() {
       return
     }
 
-    if (isLibraryIssuesMode(pathname, searchParams)) {
+    if (isLibraryIssuesPage(pathname)) {
       if (filterDataLoading || filterData === null) return
       if ((filterData.numIssues ?? 0) === 0) {
-        // Issues mode sets filterBy to 'issues' and persists it; home redirect does not run useBookshelfQuery to reset it.
+        // Issues page sets filterBy to 'issues' and persists it; home redirect does not run useBookshelfQuery to reset it.
         updateSetting('filterBy', 'all')
         router.replace(`/library/${library.id}`)
       }
     }
-  }, [pathname, searchParams, library, filterData, filterDataLoading, router, updateSetting])
+  }, [pathname, library, filterData, filterDataLoading, router, updateSetting])
 }

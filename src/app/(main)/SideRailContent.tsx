@@ -4,11 +4,11 @@ import VersionFooter from '@/components/app/VersionFooter'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { isLibraryIssuesMode, libraryIssuesModeHref } from '@/lib/libraryIssuesMode'
+import { isLibraryIssuesPage, libraryIssuesPageHref } from '@/lib/libraryIssuesPage'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 
 interface SideRailContentProps {
   libraryId: string
@@ -30,18 +30,17 @@ export default function SideRailContent({
   variant = 'rail'
 }: SideRailContentProps) {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
   const t = useTypeSafeTranslations()
   const { userIsAdminOrUp } = useUser()
   const { filterData } = useLibrary()
   const numIssues = filterData?.numIssues ?? 0
-  const issuesHref = libraryIssuesModeHref(libraryId)
+  const issuesHref = libraryIssuesPageHref(libraryId)
   const libraryHref = `/library/${libraryId}/items`
-  const showingIssues = isLibraryIssuesMode(pathname, searchParams)
+  const onIssuesPage = isLibraryIssuesPage(pathname)
 
   const isButtonActive = (href: string) => {
     if (href === libraryHref) {
-      return pathname === libraryHref && !showingIssues
+      return pathname === libraryHref && !onIssuesPage
     }
     return pathname === href
   }
@@ -191,7 +190,7 @@ export default function SideRailContent({
             className={mergeClasses(
               'text-foreground relative w-full cursor-pointer border-b transition-colors',
               isDrawer ? 'border-border flex items-center justify-start px-4 py-3' : 'border-primary/30 flex h-20 flex-col items-center justify-center',
-              showingIssues ? 'bg-error/40 hover:bg-error/40' : 'bg-error/20 hover:bg-error/40'
+              onIssuesPage ? 'bg-error/40 hover:bg-error/40' : 'bg-error/20 hover:bg-error/40'
             )}
           >
             <span className={mergeClasses('shrink-0', isDrawer ? 'me-3 flex items-center [&_.material-symbols]:text-xl' : '')}>
@@ -199,7 +198,7 @@ export default function SideRailContent({
             </span>
             <span className={mergeClasses(isDrawer ? 'text-sm font-semibold' : 'text-sm')}>{t('ButtonIssues')}</span>
 
-            {!isDrawer && showingIssues && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
+            {!isDrawer && onIssuesPage && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
             <div
               className={mergeClasses(
                 'bg-foreground/30 absolute flex items-center justify-center rounded-full',
