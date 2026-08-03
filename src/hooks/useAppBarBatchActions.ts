@@ -2,6 +2,7 @@
 
 import type { AppBarBatchActionModalsProps } from '@/components/widgets/AppBarBatchActionModals'
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
+import { useLibraryOptional } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -53,6 +54,7 @@ export function useAppBarBatchActions({
   const pathname = usePathname()
   const { showToast } = useGlobalToast()
   const { playItem } = useMediaContext()
+  const { library, refetchFilterDataSilently } = useLibraryOptional()
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
@@ -143,11 +145,16 @@ export function useAppBarBatchActions({
           logLabel: 'Failed to batch delete library items',
           successToast: t('ToastBatchDeleteSuccess'),
           errorToast: t('ToastBatchDeleteFailed'),
-          onSuccess: finishBatchAction
+          onSuccess: () => {
+            finishBatchAction()
+            if (libraryId && library?.id === libraryId) {
+              refetchFilterDataSilently?.()
+            }
+          }
         })
       }
     })
-  }, [finishBatchAction, runBatch, selectedItems.length, t, uniqueLibraryItemIds])
+  }, [finishBatchAction, library?.id, libraryId, refetchFilterDataSilently, runBatch, selectedItems.length, t, uniqueLibraryItemIds])
 
   const handleDeleteEpisodes = useCallback(() => {
     openHardDeleteConfirm({
