@@ -96,7 +96,7 @@ export function useMediaCardActions({
   const router = useRouter()
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
-  const { library } = useLibrary()
+  const { library, refetchFilterDataSilently } = useLibrary()
   const { openEreader } = useEreader()
   const { showToast } = useGlobalToast()
   const { addItemToQueue, removeItemFromQueue, playItem } = useMediaContext()
@@ -369,12 +369,15 @@ export function useMediaCardActions({
             const outcome = result?.result
             if (!outcome) {
               showToast('Rescan failed.', { type: 'error' })
-            } else if (outcome === 'UPDATED') {
-              showToast(t('ToastRescanUpdated'), { type: 'success' })
-            } else if (outcome === 'UPTODATE') {
-              showToast(t('ToastRescanUpToDate'), { type: 'success' })
-            } else if (outcome === 'REMOVED') {
-              showToast(t('ToastRescanRemoved'), { type: 'error' })
+            } else {
+              refetchFilterDataSilently()
+              if (outcome === 'UPDATED') {
+                showToast(t('ToastRescanUpdated'), { type: 'success' })
+              } else if (outcome === 'UPTODATE') {
+                showToast(t('ToastRescanUpToDate'), { type: 'success' })
+              } else if (outcome === 'REMOVED') {
+                showToast(t('ToastRescanRemoved'), { type: 'error' })
+              }
             }
           } catch (error) {
             console.error('Failed to rescan library item', error)
@@ -424,6 +427,7 @@ export function useMediaCardActions({
                 setProcessing(true)
                 await deleteLibraryItemAction(libraryItem.id, hardDelete)
                 showToast(t('ToastItemDeletedSuccess'), { type: 'success' })
+                refetchFilterDataSilently()
                 onDeleteSuccess?.()
               } catch (error) {
                 console.error('Failed to delete item', error)
@@ -456,12 +460,14 @@ export function useMediaCardActions({
       showMoreInfo,
       router,
       sortableCompilation,
-      userCanUpdate
+      userCanUpdate,
+      refetchFilterDataSilently
     ]
   )
 
   const moreMenuItems = useMemo<MediaCardMoreMenuItem[]>(() => {
     const items: MediaCardMoreMenuItem[] = []
+    const canDownloadItem = !libraryItem.isMissing && !libraryItem.isInvalid
 
     if (userCanUpdate && sortableCompilation && (!isPodcast || episode)) {
       items.push({
@@ -491,7 +497,7 @@ export function useMediaCardActions({
         })
       }
 
-      if (userCanDownload && episode.audioFile) {
+      if (userCanDownload && episode.audioFile && canDownloadItem) {
         items.push({
           text: t('LabelDownload'),
           func: 'downloadEpisode'
@@ -650,7 +656,7 @@ export function useMediaCardActions({
       })
     }
 
-    if (userCanDownload) {
+    if (userCanDownload && canDownloadItem) {
       items.push({
         text: t('LabelDownload'),
         func: 'download'
@@ -691,6 +697,8 @@ export function useMediaCardActions({
     itemIsFinished,
     libraryItem.id,
     libraryItem.isFile,
+    libraryItem.isInvalid,
+    libraryItem.isMissing,
     libraryItem.mediaType,
     libraryItem.media.metadata,
     libraryItemIdStreaming,
