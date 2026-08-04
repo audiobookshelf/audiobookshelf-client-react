@@ -183,7 +183,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
                     </td>
                   )}
                   <td className="w-1/4">
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pr-2">
                       <IconBtn
                         size="small"
                         borderless={true}
