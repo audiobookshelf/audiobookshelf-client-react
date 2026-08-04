@@ -67,8 +67,10 @@ export interface ServerStatus {
   isInit: boolean
   authMethods: string[]
   authFormData: AuthFormData
-  ConfigPath: string
-  MetadataPath: string
+  /** Present only when the server has not been initialized yet */
+  ConfigPath?: string
+  /** Present only when the server has not been initialized yet */
+  MetadataPath?: string
   app: string
 }
 
@@ -1164,6 +1166,15 @@ export interface UserLoginResponse {
   ereaderDevices: EReaderDevice[]
   /** e.g., 'local', 'docker' */
   Source: string
+}
+
+/** Login response when `x-return-tokens: true` is sent */
+export interface UserLoginWithTokensResponse extends UserLoginResponse {
+  user: User & { accessToken?: string; refreshToken?: string }
+}
+
+export interface UpdateServerSettingsResponse {
+  serverSettings: ServerSettings
 }
 
 /** Response from POST /logout on the Audiobookshelf server (and /internal-api/logout passthrough) */
