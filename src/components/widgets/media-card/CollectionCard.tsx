@@ -16,7 +16,7 @@ import { mergeClasses } from '@/lib/merge-classes'
 import type { Collection } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { memo, useCallback, useId, useMemo, useState } from 'react'
+import { memo, useCallback, useId, useMemo, useState, type KeyboardEvent } from 'react'
 import LoadingSpinner from '../LoadingSpinner'
 
 export interface CollectionCardProps {
@@ -123,12 +123,25 @@ function CollectionCard(props: CollectionCardProps) {
     onOpenRssFeedModal: handleOpenRssFeedModal
   })
 
+  const handleCardKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.defaultPrevented || processing) return
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        event.stopPropagation()
+        handleCardClick()
+      }
+    },
+    [handleCardClick, processing]
+  )
+
   return (
     <>
       <MediaCardFrame
         width={coverWidth}
         height={coverHeight}
         onClick={!processing ? handleCardClick : undefined}
+        onKeyDown={handleCardKeyDown}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}

@@ -10,7 +10,7 @@ import { computeProgress } from '@/lib/mediaProgress'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useId, useMemo, useState } from 'react'
+import { useId, useMemo, useState, type KeyboardEvent } from 'react'
 import { MediaCardProps } from './MediaCard'
 import MediaCardDetailView from './MediaCardDetailView'
 import MediaCardFrame from './MediaCardFrame'
@@ -73,6 +73,15 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
   const handleCardClick = () => {
     if (collapsedSeries) {
       router.push(`/library/${libraryItem.libraryId}/series/${collapsedSeries.id}`)
+    }
+  }
+
+  const handleCardKeyDown = (event: KeyboardEvent) => {
+    if (event.defaultPrevented) return
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      event.stopPropagation()
+      handleCardClick()
     }
   }
 
@@ -144,6 +153,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       width={coverWidth}
       height={coverHeight}
       onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       cardId={cardId}

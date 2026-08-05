@@ -14,8 +14,7 @@ import { mergeClasses } from '@/lib/merge-classes'
 import type { MediaProgress, Series } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { memo, useId, useMemo, useState } from 'react'
-
+import { memo, useId, useMemo, useState, type KeyboardEvent } from 'react'
 export interface SeriesCardProps {
   /** The series to display */
   series: Series
@@ -161,6 +160,15 @@ function SeriesCard(props: SeriesCardProps) {
     router.push(`/library/${libraryId}/series/${series.id}`)
   }
 
+  const handleCardKeyDown = (event: KeyboardEvent) => {
+    if (event.defaultPrevented) return
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      event.stopPropagation()
+      handleCardClick()
+    }
+  }
+
   const handleSelectClick = (event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
@@ -172,6 +180,7 @@ function SeriesCard(props: SeriesCardProps) {
       width={coverWidth}
       height={coverHeight}
       onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       cardId={cardId}
