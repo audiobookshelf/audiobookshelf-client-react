@@ -148,10 +148,12 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
               <GlobalSearchInput ref={mobileSearchInputRef} usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ) : (
-            <div className="hidden min-w-0 flex-1 md:block md:min-w-24">
+            <div className="hidden min-w-0 md:block md:w-80 md:shrink-0">
               <GlobalSearchInput usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ))}
+
+        <div className="min-w-0 flex-1 max-md:hidden" aria-hidden="true" />
 
         {!isSearchMode && currentLibrary && (
           <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="shrink-0 md:hidden">
