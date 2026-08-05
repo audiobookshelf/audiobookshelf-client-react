@@ -97,7 +97,7 @@ export default function Dropdown({
   useClickOutside(menuRef, buttonRef, closeMenu, true, isInsideSubmenu)
 
   const toggleMenu = () => {
-    if (disabled) return
+    if (disabled || menuItemsToShow.length === 0) return
     if (showMenu) {
       closeMenu()
     } else {
