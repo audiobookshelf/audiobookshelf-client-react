@@ -5,7 +5,7 @@ import SlateEditor from '@/components/ui/SlateEditor'
 import TextareaInput from '@/components/ui/TextareaInput'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { formatJsDate } from '@/lib/datefns'
+import { formatJsDate, pubDateToDatetimeLocal } from '@/lib/datefns'
 import type { PodcastEpisode, UpdatePodcastEpisodePayload } from '@/types/api'
 import { useCallback, useEffect, useImperativeHandle, useMemo, useReducer, useRef, useState } from 'react'
 
@@ -33,13 +33,6 @@ function episodeToDetails(episode: PodcastEpisode): EpisodeDetails {
     pubDate: episode.pubDate || null,
     publishedAt: episode.publishedAt ?? null
   }
-}
-
-function pubDateToDatetimeLocal(pubDate: string | null | undefined): string {
-  if (!pubDate) return ''
-  const date = new Date(pubDate)
-  if (isNaN(date.getTime())) return ''
-  return formatJsDate(date, "yyyy-MM-dd'T'HH:mm")
 }
 
 function datetimeLocalToPubDate(value: string): { pubDate: string | null; publishedAt: number | null } {

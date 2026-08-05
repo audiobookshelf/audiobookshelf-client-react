@@ -8,6 +8,7 @@ import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
 import MatchModal from '@/components/modals/MatchModal'
+import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
 import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
@@ -369,6 +370,7 @@ function MediaCard(props: MediaCardProps) {
     confirmState,
     rssFeedModalOpen,
     scheduleModalOpen,
+    checkNewEpisodesModalOpen,
     shareModalOpen,
     collectionsModalOpen,
     playlistsModalOpen,
@@ -376,6 +378,7 @@ function MediaCard(props: MediaCardProps) {
     closeConfirm,
     closeRssFeedModal,
     closeScheduleModal,
+    closeCheckNewEpisodesModal,
     closeShareModal,
     closeCollectionsModal,
     closePlaylistsModal,
@@ -651,6 +654,9 @@ function MediaCard(props: MediaCardProps) {
         />
       )}
       {isPodcast && scheduleModalOpen && <PodcastDownloadScheduleModal isOpen={scheduleModalOpen} onClose={closeScheduleModal} libraryItem={libraryItem} />}
+      {isPodcast && checkNewEpisodesModalOpen && (
+        <PodcastCheckNewEpisodesModal isOpen={checkNewEpisodesModalOpen} onClose={closeCheckNewEpisodesModal} libraryItem={libraryItem} />
+      )}
       {shareModalOpen && (
         <ShareModal
           isOpen={shareModalOpen}

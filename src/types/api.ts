@@ -1441,6 +1441,7 @@ export interface UpdateLibraryItemMediaPayload {
   url?: string
   autoDownloadEpisodes?: boolean
   autoDownloadSchedule?: string
+  lastEpisodeCheck?: number
   maxEpisodesToKeep?: number
   maxNewEpisodesToDownload?: number
 }

@@ -1,5 +1,7 @@
 import { format } from 'date-fns'
 
+const DATETIME_LOCAL_INPUT_FORMAT = "yyyy-MM-dd'T'HH:mm"
+
 export function formatJsDate(date: Date, fnsFormat: string = 'MM/dd/yyyy HH:mm') {
   if (!date || !(date instanceof Date)) {
     return ''
@@ -12,6 +14,22 @@ export function formatJsDatetime(date: Date, fnsDateFormat: string = 'MM/dd/yyyy
     return ''
   }
   return format(date, `${fnsDateFormat} ${fnsTimeFormat}`)
+}
+
+/** Format a millisecond timestamp for `type="datetime-local"` inputs. */
+export function timestampToDatetimeLocal(timestamp: number | undefined): string {
+  if (!timestamp) return ''
+  const date = new Date(timestamp)
+  if (isNaN(date.getTime())) return ''
+  return formatJsDate(date, DATETIME_LOCAL_INPUT_FORMAT)
+}
+
+/** Format an RSS/pub date string for `type="datetime-local"` inputs. */
+export function pubDateToDatetimeLocal(pubDate: string | null | undefined): string {
+  if (!pubDate) return ''
+  const date = new Date(pubDate)
+  if (isNaN(date.getTime())) return ''
+  return formatJsDate(date, DATETIME_LOCAL_INPUT_FORMAT)
 }
 
 /**
