@@ -15,6 +15,7 @@ import type { MediaProgress, Series } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { memo, useId, useMemo, useState, type KeyboardEvent } from 'react'
+
 export interface SeriesCardProps {
   /** The series to display */
   series: Series
@@ -162,7 +163,7 @@ function SeriesCard(props: SeriesCardProps) {
 
   const handleCardKeyDown = (event: KeyboardEvent) => {
     if (event.defaultPrevented) return
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       event.stopPropagation()
       handleCardClick()

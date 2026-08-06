@@ -78,7 +78,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
 
   const handleCardKeyDown = (event: KeyboardEvent) => {
     if (event.defaultPrevented) return
-    if (event.key === 'Enter') {
+    if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
       event.stopPropagation()
       handleCardClick()

@@ -126,7 +126,7 @@ function CollectionCard(props: CollectionCardProps) {
   const handleCardKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.defaultPrevented || processing) return
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         event.stopPropagation()
         handleCardClick()

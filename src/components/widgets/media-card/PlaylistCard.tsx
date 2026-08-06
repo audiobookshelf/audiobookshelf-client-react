@@ -103,7 +103,7 @@ function PlaylistCard(props: PlaylistCardProps) {
   const handleCardKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.defaultPrevented || processing) return
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         event.stopPropagation()
         handleCardClick()
@@ -111,13 +111,14 @@ function PlaylistCard(props: PlaylistCardProps) {
     },
     [handleCardClick, processing]
   )
+
   return (
     <>
       <MediaCardFrame
         width={coverWidth}
         height={coverHeight}
         onClick={!processing ? handleCardClick : undefined}
-        onKeyDown={handleCardKeyDown}     
+        onKeyDown={handleCardKeyDown}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
