@@ -102,16 +102,15 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
         className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
       >
         {showMobileSideRailToggle && (
-          <ButtonBase
+          <IconBtn
             borderless
-            size="custom"
             ariaLabel={isSideRailOpen ? t('ButtonClose') : t('ButtonMenu')}
             aria-expanded={isSideRailOpen}
-            className={mergeClasses(LOGO_BUTTON_CLASSES, 'md:hidden')}
+            className="shrink-0 md:hidden"
             onClick={toggleSideRail}
           >
-            {logoContent}
-          </ButtonBase>
+            menu
+          </IconBtn>
         )}
         <ButtonBase
           to={redirectUrl}

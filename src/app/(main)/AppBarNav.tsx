@@ -1,7 +1,6 @@
 'use client'
 
 import ButtonBase from '@/components/ui/ButtonBase'
-import IconBtn from '@/components/ui/IconBtn'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -10,8 +9,8 @@ import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { type AppBarNavMenuItemConfig, buildAppBarNavMenuItems } from './appBarNavMenuItems'
 import AppBarNavMenuItem from './AppBarNavMenuItem'
+import { type AppBarNavMenuItemConfig, buildAppBarNavMenuItems } from './appBarNavMenuItems'
 
 const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
 
@@ -276,17 +275,23 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
           </span>
         </ButtonBase>
 
-        {/* Mobile - Hamburger Menu Button */}
-        <IconBtn
-          borderless
-          ariaLabel={t('ButtonMenu')}
+        {/* Mobile - Account icon button */}
+        <ButtonBase
+          size="small"
+          ariaLabel={`${username}, ${t('ButtonMenu')}`}
           aria-expanded={menuOpen}
-          className="md:hidden"
+          aria-controls={menuId}
+          aria-haspopup="menu"
+          aria-activedescendant={activeDescendantId}
+          className="text-button-foreground inline-flex w-9 px-0 md:hidden"
           onClick={handleTriggerClick}
+          onKeyDown={handleDesktopTriggerKeyDown}
           onMouseDown={(e) => e.preventDefault()}
         >
-          menu
-        </IconBtn>
+          <span className="material-symbols text-xl" aria-hidden="true">
+            person
+          </span>
+        </ButtonBase>
       </div>
 
       {menuOpen &&
