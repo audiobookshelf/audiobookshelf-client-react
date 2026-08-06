@@ -1,4 +1,6 @@
 import Dropdown from '@/components/ui/Dropdown'
+import LibraryIcon from '@/components/ui/LibraryIcon'
+import React from 'react'
 
 // Define types for the dropdown items based on the component's interface
 interface DropdownSubitem {
@@ -10,6 +12,7 @@ interface DropdownItem {
   text: string
   value: string | number
   subtext?: string
+  leftIcon?: React.ReactNode
   subitems?: DropdownSubitem[]
 }
 
@@ -663,6 +666,49 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={mockItems} value="option2" displayText="Override Text" />)
       cy.get('button').should('contain.text', 'Override Text')
       cy.get('button').should('not.contain.text', 'Description')
+    })
+  })
+
+  describe('leftIcon Prop', () => {
+    const itemsWithIcons: DropdownItem[] = [
+      { text: 'Books', value: 'books', leftIcon: <LibraryIcon icon="books-1" decorative /> },
+      { text: 'Podcasts', value: 'podcasts', leftIcon: <LibraryIcon icon="podcast" decorative /> }
+    ]
+
+    it('displays leftIcon in the selected button value', () => {
+      cy.mount(<Dropdown items={itemsWithIcons} value="books" />)
+      cy.get('button [cy-id="library-icon-span"]').should('have.class', 'icon-books-1')
+      cy.get('button').should('contain.text', 'Books')
+    })
+
+    it('displays leftIcon in menu items', () => {
+      cy.mount(<Dropdown items={itemsWithIcons} value="books" />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').eq(0).find('[cy-id="library-icon-span"]').should('have.class', 'icon-books-1')
+      cy.get('[role="listbox"] > li').eq(1).find('[cy-id="library-icon-span"]').should('have.class', 'icon-podcast')
+    })
+
+    it('updates selected leftIcon when value changes', () => {
+      const TestComponent = () => {
+        const [value, setValue] = React.useState<string | number>('books')
+        return <Dropdown items={itemsWithIcons} value={value} onChange={setValue} />
+      }
+      cy.mount(<TestComponent />)
+      cy.get('button [cy-id="library-icon-span"]').should('have.class', 'icon-books-1')
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').eq(1).click()
+      cy.get('button [cy-id="library-icon-span"]').should('have.class', 'icon-podcast')
+      cy.get('button').should('contain.text', 'Podcasts')
+    })
+  })
+
+  describe('hideSelectedInMenu Prop', () => {
+    it('hides the selected item from the menu but keeps it in the button', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" hideSelectedInMenu />)
+      cy.get('button').should('contain.text', 'Option 2')
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').should('have.length', 3)
+      cy.get('[role="listbox"]').should('not.contain.text', 'Option 2')
     })
   })
 

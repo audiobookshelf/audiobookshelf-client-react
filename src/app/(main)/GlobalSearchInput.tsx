@@ -8,12 +8,11 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
 import { FlatResultItem, useGlobalSearchTransformer } from '@/hooks/useGlobalSearchTransformer'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type Ref } from 'react'
 import GlobalSearchMenu from './GlobalSearchMenu'
 
 interface GlobalSearchInputProps {
   libraryId?: string
-  autoFocus?: boolean
   onSubmit?: () => void
   /** Optional callback for when an item is selected. If provided, items become selectable instead of navigating. */
   onItemSelect?: (item: FlatResultItem) => void
@@ -21,9 +20,10 @@ interface GlobalSearchInputProps {
   onClear?: () => void
   /** Use portal to render the dropdown menu. Useful for avoiding clipping issues. */
   usePortal?: boolean
+  ref?: Ref<HTMLInputElement>
 }
 
-export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onItemSelect, onClear, usePortal = false }: GlobalSearchInputProps = {}) {
+export default function GlobalSearchInput({ libraryId, onSubmit, onItemSelect, onClear, usePortal = false, ref }: GlobalSearchInputProps) {
   const searchOptions = useMemo(() => ({ autoSelectFirst: false, libraryId }), [libraryId])
   const { searchQuery, setSearchQuery, isSearching, searchResults, selectedLibraryId, handleSearch, searchError, clearSelection } =
     useLibrarySearch(searchOptions)
@@ -54,6 +54,18 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const setInputRef = useCallback(
+    (node: HTMLInputElement | null) => {
+      inputRef.current = node
+      if (typeof ref === 'function') {
+        ref(node)
+      } else if (ref) {
+        ref.current = node
+      }
+    },
+    [ref]
+  )
 
   // Close menu when clicking outside
   useClickOutside(
@@ -157,7 +169,7 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
     <div className="relative w-full" ref={containerRef}>
       <InputWrapper size="small" className="w-full" inputRef={inputRef}>
         <input
-          ref={inputRef}
+          ref={setInputRef}
           type="text"
           className="h-full w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
           placeholder={t('PlaceholderSearch')}
@@ -176,7 +188,6 @@ export default function GlobalSearchInput({ libraryId, autoFocus, onSubmit, onIt
           autoCorrect="off"
           autoCapitalize="off"
           spellCheck="false"
-          autoFocus={autoFocus}
         />
       </InputWrapper>
 
