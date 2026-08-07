@@ -105,7 +105,7 @@ export default function LibraryItemActionButtons({
     media: libraryItem.media,
     title: libraryItem.media.metadata.title ?? '',
     author: 'authors' in libraryItem.media.metadata ? (libraryItem.media.metadata.authors ?? []).map((a) => a.name).join(', ') : null,
-    episodeForQueue: null,
+    episode: null,
     mediaProgress,
     itemIsFinished: isRead,
     userProgressPercent: mediaProgress?.progress ?? 0,

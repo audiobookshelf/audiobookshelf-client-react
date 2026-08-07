@@ -24,6 +24,7 @@ import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { openHardDeleteConfirm } from '@/lib/confirmDialogs'
 import { downloadLibraryItem } from '@/lib/download'
+import { getLibraryItemDownloadSize, openPodcastDeviceDownloadConfirm } from '@/lib/podcastDownload'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import {
   type BookMetadata,
@@ -45,7 +46,7 @@ interface UseMediaCardActionsProps {
   media: LibraryItem['media']
   title: string
   author: string | null
-  episodeForQueue: PodcastEpisode | null
+  episode: PodcastEpisode | null
   mediaProgress: MediaProgress | null | undefined
   itemIsFinished: boolean
   userProgressPercent: number
@@ -72,7 +73,7 @@ export function useMediaCardActions({
   media,
   title,
   author,
-  episodeForQueue,
+  episode,
   mediaProgress,
   itemIsFinished,
   userProgressPercent,
@@ -118,7 +119,7 @@ export function useMediaCardActions({
   }, [initialShare])
 
   const handlePlay = useCallback(() => {
-    if (isStreaming(libraryItem.id, episodeForQueue?.id ?? null)) {
+    if (isStreaming(libraryItem.id, episode?.id ?? null)) {
       playerControls.playPause()
       return
     }
@@ -132,20 +133,18 @@ export function useMediaCardActions({
 
         const queueItems = []
 
-        if (episodeForQueue) {
+        if (episode) {
           const caption =
-            episodeForQueue.publishedAt != null
-              ? t('LabelPublishedDate', { 0: new Date(episodeForQueue.publishedAt).toLocaleDateString() })
-              : t('LabelUnknownPublishDate')
+            episode.publishedAt != null ? t('LabelPublishedDate', { 0: new Date(episode.publishedAt).toLocaleDateString() }) : t('LabelUnknownPublishDate')
 
           queueItems.push({
             libraryItemId: libraryItem.id,
             libraryId: libraryItem.libraryId,
-            episodeId: episodeForQueue.id,
-            title: episodeForQueue.title,
+            episodeId: episode.id,
+            title: episode.title,
             subtitle: title,
             caption,
-            duration: episodeForQueue.audioFile?.duration ?? null,
+            duration: episode.audioFile?.duration ?? null,
             coverPath: (media as { coverPath?: string }).coverPath ?? null
           })
         } else {
@@ -163,7 +162,7 @@ export function useMediaCardActions({
 
         playItem({
           libraryItem: fullLibraryItem,
-          episodeId: episodeForQueue?.id ?? null,
+          episodeId: episode?.id ?? null,
           queueItems
         })
       } catch (error) {
@@ -173,7 +172,7 @@ export function useMediaCardActions({
         setProcessing(false)
       }
     })
-  }, [author, episodeForQueue, isStreaming, libraryItem, media, playItem, playerControls, showToast, t, title])
+  }, [author, episode, isStreaming, libraryItem, media, playItem, playerControls, showToast, t, title])
 
   const handleReadEBook = useCallback(() => {
     if (!isBookMedia(media)) return
@@ -209,7 +208,7 @@ export function useMediaCardActions({
           setProcessing(true)
           await toggleFinishedAction(libraryItem.id, {
             isFinished: !itemIsFinished,
-            episodeId: episodeForQueue?.id
+            episodeId: episode?.id
           })
         } catch (error) {
           console.error('Failed to toggle finished', error)
@@ -221,7 +220,7 @@ export function useMediaCardActions({
         }
       })
     },
-    [episodeForQueue, itemIsFinished, libraryItem.id, showToast, t, title, userProgressPercent]
+    [episode, itemIsFinished, libraryItem.id, showToast, t, title, userProgressPercent]
   )
 
   const handleMoreAction = useCallback(
@@ -230,16 +229,16 @@ export function useMediaCardActions({
         const queueItem = {
           libraryItemId: libraryItem.id,
           libraryId: libraryItem.libraryId,
-          episodeId: episodeForQueue ? episodeForQueue.id : null,
-          title: episodeForQueue ? episodeForQueue.title : title,
-          subtitle: episodeForQueue ? title : author || '',
+          episodeId: episode ? episode.id : null,
+          title: episode ? episode.title : title,
+          subtitle: episode ? title : author || '',
           caption: '',
-          duration: episodeForQueue?.audioFile?.duration ?? (media as { duration?: number }).duration ?? null,
+          duration: episode?.audioFile?.duration ?? (media as { duration?: number }).duration ?? null,
           coverPath: (media as { coverPath?: string }).coverPath ?? null
         }
         addItemToQueue(queueItem)
       } else if (action === 'removeFromQueue') {
-        const episodeId = episodeForQueue ? episodeForQueue.id : null
+        const episodeId = episode ? episode.id : null
         removeItemFromQueue({ libraryItemId: libraryItem.id, episodeId })
       } else if (action === 'openCollections') {
         setCollectionsModalOpen(true)
@@ -261,24 +260,24 @@ export function useMediaCardActions({
       } else if (action === 'showMatchModal') {
         onOpenMatch?.()
       } else if (action === 'downloadEpisode') {
-        const audioFile = episodeForQueue?.audioFile
+        const audioFile = episode?.audioFile
         if (!audioFile) return
         downloadFile(audioFile.ino, audioFile.metadata.filename)
       } else if (action === 'moreInfo') {
-        const audioFile = episodeForQueue?.audioFile
+        const audioFile = episode?.audioFile
         if (!audioFile) return
         showMoreInfo(audioFile)
       } else if (action === 'deleteEpisode') {
-        if (!episodeForQueue) return
+        if (!episode) return
         openHardDeleteConfirm({
-          message: t('MessageConfirmDeleteEpisode', { 0: episodeForQueue.title }),
+          message: t('MessageConfirmDeleteEpisode', { 0: episode.title }),
           t,
           setConfirmState,
           onDelete: (hardDelete) => {
             startTransition(async () => {
               try {
                 setProcessing(true)
-                await deleteLibraryItemMediaEpisodeAction(libraryItem.id, episodeForQueue.id, hardDelete)
+                await deleteLibraryItemMediaEpisodeAction(libraryItem.id, episode.id, hardDelete)
                 showToast(t('ToastItemDeletedSuccess'), { type: 'success' })
                 onDeleteSuccess?.()
               } catch (error) {
@@ -299,7 +298,16 @@ export function useMediaCardActions({
       } else if (action === 'embedMetadata') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tools?tool=embed`)
       } else if (action === 'download') {
-        downloadLibraryItem(libraryItem.id)
+        if (isPodcast && !episode) {
+          openPodcastDeviceDownloadConfirm({
+            items: [{ title, downloadSize: getLibraryItemDownloadSize(libraryItem) }],
+            t,
+            setConfirmState,
+            onConfirm: () => downloadLibraryItem(libraryItem.id)
+          })
+        } else {
+          downloadLibraryItem(libraryItem.id)
+        }
       } else if (action === 'sendToDevice') {
         const deviceName = data?.deviceName
         if (!deviceName) return
@@ -340,10 +348,10 @@ export function useMediaCardActions({
               await removeBookFromCollectionAction(ctx.compilationId, libraryItem.id)
               showToast(t('ToastRemoveItemFromCollectionSuccess'), { type: 'success' })
             } else {
-              await batchRemoveFromPlaylistAction(ctx.compilationId, [{ libraryItemId: libraryItem.id, episodeId: episodeForQueue?.id ?? null }])
+              await batchRemoveFromPlaylistAction(ctx.compilationId, [{ libraryItemId: libraryItem.id, episodeId: episode?.id ?? null }])
               showToast(t('ToastRemoveItemFromPlaylistSuccess'), { type: 'success' })
             }
-            ctx.onItemRemoved?.(libraryItem.id, episodeForQueue?.id ?? null)
+            ctx.onItemRemoved?.(libraryItem.id, episode?.id ?? null)
           } catch (error) {
             console.error('Failed to remove item from sortable list', error)
             showToast(ctx.compilationKind === 'collection' ? t('ToastRemoveItemFromCollectionFailed') : t('ToastRemoveItemFromPlaylistFailed'), {
@@ -431,11 +439,9 @@ export function useMediaCardActions({
     [
       addItemToQueue,
       author,
-      episodeForQueue,
-      libraryItem.id,
-      libraryItem.libraryId,
-      libraryItem.mediaType,
-      libraryItem.media.metadata,
+      isPodcast,
+      episode,
+      libraryItem,
       media,
       mediaProgress,
       removeItemFromQueue,
@@ -457,7 +463,7 @@ export function useMediaCardActions({
   const moreMenuItems = useMemo<MediaCardMoreMenuItem[]>(() => {
     const items: MediaCardMoreMenuItem[] = []
 
-    if (userCanUpdate && sortableCompilation && (!isPodcast || episodeForQueue)) {
+    if (userCanUpdate && sortableCompilation && (!isPodcast || episode)) {
       items.push({
         text: sortableCompilation.compilationKind === 'playlist' ? t('LabelRemoveFromPlaylist') : t('LabelRemoveFromCollection'),
         func: 'removeFromSortableList'
@@ -465,13 +471,13 @@ export function useMediaCardActions({
     }
 
     // Podcast episode
-    if (episodeForQueue) {
+    if (episode) {
       items.push({
         text: itemIsFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished'),
         func: 'toggleFinished'
       })
 
-      if (episodeForQueue.audioFile) {
+      if (episode.audioFile) {
         items.push({
           text: t('LabelAddToPlaylist'),
           func: 'openPlaylists'
@@ -485,14 +491,14 @@ export function useMediaCardActions({
         })
       }
 
-      if (userCanDownload && episodeForQueue.audioFile) {
+      if (userCanDownload && episode.audioFile) {
         items.push({
           text: t('LabelDownload'),
           func: 'downloadEpisode'
         })
       }
 
-      if (userIsAdminOrUp && episodeForQueue.audioFile) {
+      if (userIsAdminOrUp && episode.audioFile) {
         items.push({
           text: t('LabelMoreInfo'),
           func: 'moreInfo'
@@ -512,7 +518,7 @@ export function useMediaCardActions({
             text: t('ButtonQueueAddItem'),
             func: 'addToQueue'
           })
-        } else if (!isStreaming(libraryItem.id, episodeForQueue.id)) {
+        } else if (!isStreaming(libraryItem.id, episode.id)) {
           items.push({
             text: t('ButtonQueueRemoveItem'),
             func: 'removeFromQueue'
@@ -570,7 +576,7 @@ export function useMediaCardActions({
       }
     }
 
-    if (userCanUpdate && onOpenCoverEdit && !episodeForQueue) {
+    if (userCanUpdate && onOpenCoverEdit && !episode) {
       items.push({
         text: t('ButtonEditCover'),
         func: 'openCoverEdit'
@@ -633,7 +639,7 @@ export function useMediaCardActions({
       })
     }
 
-    if (userIsAdminOrUp && isPodcast && !episodeForQueue) {
+    if (userIsAdminOrUp && isPodcast && !episode) {
       items.push({
         text: t('ButtonCheckForNewEpisodes'),
         func: 'openCheckNewEpisodes'
@@ -651,7 +657,7 @@ export function useMediaCardActions({
       })
     }
 
-    if ((!isPodcast || episodeForQueue) && libraryItemIdStreaming && !isStreamingFromDifferentLib) {
+    if ((!isPodcast || episode) && libraryItemIdStreaming && !isStreamingFromDifferentLib) {
       if (!isQueued) {
         items.push({
           text: t('ButtonQueueAddItem'),
@@ -676,7 +682,7 @@ export function useMediaCardActions({
   }, [
     continueListeningShelf,
     continueSeriesShelf,
-    episodeForQueue,
+    episode,
     ereaderDevices,
     isPodcast,
     isQueued,
