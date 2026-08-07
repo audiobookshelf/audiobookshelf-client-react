@@ -57,7 +57,16 @@ function TextInputMatchFieldEditor({
       hasCurrentValue={hasCurrentValue}
       className={className}
     >
-      <TextInput value={value} onChange={onChange} disabled={disabled || !usageChecked} label={label} type={type} readOnly={readOnly} className={className} />
+      <TextInput
+        value={value}
+        onChange={onChange}
+        disabled={disabled || !usageChecked}
+        label={label}
+        type={type}
+        readOnly={readOnly}
+        className={className}
+        trimWhitespace={type !== 'password' && type !== 'number'}
+      />
     </BaseMatchFieldEditor>
   )
 }

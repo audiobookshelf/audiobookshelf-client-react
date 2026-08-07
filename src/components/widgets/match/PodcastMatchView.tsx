@@ -29,6 +29,8 @@ interface PodcastMatchUsage {
   [key: string]: boolean
 }
 
+const PODCAST_MATCH_STRING_METADATA_KEYS = ['title', 'description', 'language', 'feedUrl', 'itunesPageUrl', 'releaseDate', 'author']
+
 interface PodcastMatchViewProps {
   selectedMatchOrig: PodcastSearchResult
   libraryItemId: string
@@ -118,11 +120,13 @@ export default function PodcastMatchView({
         } else if (key === 'itunesId') {
           updatePayload.metadata!.itunesId = String(value)
         } else if (key === 'cover') {
-          updatePayload.url = value as string
+          updatePayload.url = (value as string).trim()
         } else if (key === 'explicit') {
           updatePayload.metadata!.explicit = value as boolean
-        } else if (['title', 'description', 'language', 'feedUrl', 'itunesPageUrl', 'releaseDate', 'author'].includes(key)) {
-          updatePayload.metadata![key] = value as string | undefined
+        } else if (PODCAST_MATCH_STRING_METADATA_KEYS.includes(key)) {
+          if (typeof value === 'string') {
+            updatePayload.metadata![key] = value.trim()
+          }
         }
       }
 

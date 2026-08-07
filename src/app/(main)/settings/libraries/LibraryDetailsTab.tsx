@@ -70,6 +70,7 @@ export default function LibraryDetailsTab({
           placeholder={t('LabelLibraryName')}
           onChange={(value) => onFormDataChange((prev) => ({ ...prev, name: value }))}
           className="w-full sm:flex-1"
+          trimWhitespace
         />
 
         {/* Icon */}

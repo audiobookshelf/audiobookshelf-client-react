@@ -81,8 +81,8 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
         slug: sanitized,
         metadataDetails: {
           preventIndexing: metadataDetails.preventIndexing,
-          ownerName: metadataDetails.ownerName || '',
-          ownerEmail: metadataDetails.ownerEmail || ''
+          ownerName: metadataDetails.ownerName.trim(),
+          ownerEmail: metadataDetails.ownerEmail.trim()
         }
       })
       setCurrentFeed(res.feed)
@@ -192,7 +192,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
             <p className="mb-4 text-lg font-semibold">{t('HeaderOpenRSSFeed')}</p>
             <div className="mb-2 space-y-2">
               <label className="text-foreground-subdued block text-xs uppercase">{t('LabelRSSFeedSlug')}</label>
-              <TextInput value={newFeedSlug} onChange={(value) => setNewFeedSlug(value)} className="text-sm" />
+              <TextInput value={newFeedSlug} onChange={(value) => setNewFeedSlug(value)} className="text-sm" trimWhitespace />
               <p className="text-foreground-muted text-xs">{t('MessageFeedURLWillBe', { 0: demoFeedUrl })}</p>
             </div>
             <div className="space-y-3 py-2">
@@ -207,6 +207,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
                   value={metadataDetails.ownerName}
                   onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerName: value }))}
                   className="text-sm"
+                  trimWhitespace
                 />
               </div>
               <div>
@@ -215,6 +216,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
                   value={metadataDetails.ownerEmail}
                   onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerEmail: value }))}
                   className="text-sm"
+                  trimWhitespace
                 />
               </div>
             </div>

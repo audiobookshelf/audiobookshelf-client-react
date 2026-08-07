@@ -34,6 +34,8 @@ interface BookMatchUsage {
   [key: string]: boolean
 }
 
+const BOOK_MATCH_STRING_METADATA_KEYS = ['title', 'subtitle', 'description', 'publisher', 'publishedYear', 'language', 'isbn', 'asin']
+
 interface BookMatchViewProps {
   selectedMatchOrig: BookSearchResult
   libraryItemId: string
@@ -221,11 +223,13 @@ export default function BookMatchView({
       } else if (key === 'tags') {
         updatePayload.tags = Array.isArray(value) ? value.filter((t): t is string => !!t) : [value].filter((t): t is string => !!t)
       } else if (key === 'cover') {
-        updatePayload.url = value as string
+        updatePayload.url = (value as string).trim()
       } else if (key === 'explicit' || key === 'abridged') {
         updatePayload.metadata![key] = value as boolean
-      } else if (['title', 'subtitle', 'description', 'publisher', 'publishedYear', 'language', 'isbn', 'asin'].includes(key)) {
-        updatePayload.metadata![key] = value as string | undefined
+      } else if (BOOK_MATCH_STRING_METADATA_KEYS.includes(key)) {
+        if (typeof value === 'string') {
+          updatePayload.metadata![key] = value.trim()
+        }
       }
     }
 

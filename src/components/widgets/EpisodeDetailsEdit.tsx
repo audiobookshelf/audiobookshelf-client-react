@@ -22,6 +22,8 @@ type EpisodeDetails = {
 
 export type EpisodeBatchDetails = Pick<EpisodeDetails, 'season' | 'episode' | 'episodeType' | 'subtitle'>
 
+const TRIM_FIELDS = new Set<keyof EpisodeDetails>(['season', 'episode', 'title', 'subtitle'])
+
 function episodeToDetails(episode: PodcastEpisode): EpisodeDetails {
   return {
     season: episode.season || '',
@@ -115,10 +117,12 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
     const payload: UpdatePodcastEpisodePayload = {}
     const keys: (keyof EpisodeDetails)[] = ['season', 'episode', 'episodeType', 'title', 'subtitle', 'description', 'pubDate', 'publishedAt']
     for (const key of keys) {
-      if (details[key] != initial[key]) {
-        const value = details[key]
-        if (value !== null && value !== undefined) {
-          ;(payload as Record<string, unknown>)[key] = value
+      const raw = details[key]
+      const currentValue = TRIM_FIELDS.has(key) && typeof raw === 'string' ? raw.trim() : raw
+      const initialValue = initial[key]
+      if (currentValue != initialValue) {
+        if (currentValue !== null && currentValue !== undefined) {
+          ;(payload as Record<string, unknown>)[key] = currentValue
         }
       }
     }
@@ -173,10 +177,10 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
     >
       <div className="-mx-1 flex flex-wrap">
         <div className="w-1/2 p-1 md:w-1/5">
-          <TextInput value={details.season} onChange={(v) => updateField('season', v)} label={t('LabelSeason')} />
+          <TextInput value={details.season} onChange={(v) => updateField('season', v)} label={t('LabelSeason')} trimWhitespace />
         </div>
         <div className="w-1/2 p-1 md:w-1/5">
-          <TextInput value={details.episode} onChange={(v) => updateField('episode', v)} label={t('LabelEpisode')} />
+          <TextInput value={details.episode} onChange={(v) => updateField('episode', v)} label={t('LabelEpisode')} trimWhitespace />
         </div>
         <div className="mt-2 w-28 p-1 md:mt-0 md:w-1/5">
           <Dropdown
@@ -197,10 +201,10 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
           />
         </div>
         <div className="mt-2 w-full p-1">
-          <TextInput value={details.title} onChange={(v) => updateField('title', v)} label={t('LabelTitle')} />
+          <TextInput value={details.title} onChange={(v) => updateField('title', v)} label={t('LabelTitle')} trimWhitespace />
         </div>
         <div className="mt-2 w-full p-1">
-          <TextareaInput value={details.subtitle} onChange={(v) => updateField('subtitle', v)} label={t('LabelSubtitle')} rows={3} />
+          <TextareaInput value={details.subtitle} onChange={(v) => updateField('subtitle', v)} label={t('LabelSubtitle')} rows={3} trimWhitespace />
         </div>
         <div className="mt-2 w-full p-1">
           <SlateEditor srcContent={initial.description || ''} onUpdate={(v) => updateField('description', v)} label={t('LabelDescription')} />

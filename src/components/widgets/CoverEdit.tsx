@@ -79,12 +79,10 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     const libraryFiles = (libraryItem.libraryFiles || []) as LibraryFile[]
     return libraryFiles
       .filter((f) => f.fileType === 'image')
-      .map(
-        (file): LocalCover => ({
-          ...file,
-          localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
-        })
-      )
+      .map((file): LocalCover => ({
+        ...file,
+        localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
+      }))
   }, [libraryItem.libraryFiles, libraryItem.id, libraryItem.updatedAt])
 
   const userCanUpload = user.permissions?.upload || false
@@ -180,7 +178,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
 
   const submitForm = (e: React.FormEvent) => {
     e.preventDefault()
-    handleUpdateCover(imageUrl)
+    handleUpdateCover(imageUrl.trim())
   }
 
   const persistProvider = () => {
@@ -199,8 +197,8 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
 
     // Initiate search via hook
     searchCovers({
-      title: searchTitle,
-      author: searchAuthor || '',
+      title: searchTitle.trim(),
+      author: searchAuthor.trim(),
       provider: provider,
       podcast: isPodcast
     })
@@ -279,8 +277,16 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
                 placeholder={t('LabelImageURLFromTheWeb')}
                 className="min-w-0 flex-1"
                 disabled={isPendingUpdate}
+                trimWhitespace
               />
-              <Btn size="small" color="bg-success" type="submit" disabled={!imageUrl || isPendingUpdate} loading={isPendingUpdate} className="w-24 shrink-0">
+              <Btn
+                size="small"
+                color="bg-success"
+                type="submit"
+                disabled={!imageUrl.trim() || isPendingUpdate}
+                loading={isPendingUpdate}
+                className="w-24 shrink-0"
+              >
                 {t('ButtonSubmit')}
               </Btn>
             </form>
@@ -337,6 +343,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
           label={searchTitleLabel}
           placeholder={t('PlaceholderSearch')}
           className="min-w-0 grow basis-48"
+          trimWhitespace
         />
         {showAuthorField && (
           <TextInput
@@ -346,6 +353,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
             disabled={searchInProgress}
             label={t('LabelAuthor')}
             className="min-w-0 grow basis-48"
+            trimWhitespace
           />
         )}
         {searchInProgress ? (
