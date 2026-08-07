@@ -52,7 +52,7 @@ export default function LibraryItemProgressPanel({ libraryItem, mediaProgress, d
       <div
         role="region"
         aria-label={t('LabelYourProgress')}
-        className="bg-primary relative mt-4 max-w-max rounded-md px-4 py-2 text-sm font-semibold text-gray-100"
+        className="bg-primary border-border text-foreground relative mt-4 max-w-max rounded-md border px-4 py-2 text-sm font-semibold"
       >
         {percent < 1 ? (
           <p className="leading-6">
@@ -63,9 +63,9 @@ export default function LibraryItemProgressPanel({ libraryItem, mediaProgress, d
             {t('LabelFinished')} {finishedAt ? formatJsDate(new Date(finishedAt), dateFormat) : ''}
           </p>
         )}
-        {timeRemainingLabel ? <p className="text-xs text-gray-200">{timeRemainingLabel}</p> : null}
+        {timeRemainingLabel ? <p className="text-foreground-muted text-xs">{timeRemainingLabel}</p> : null}
         {startedAt ? (
-          <p className="pt-1 text-xs text-gray-400">
+          <p className="text-foreground-subdued pt-1 text-xs">
             {t('LabelStarted')} {formatJsDate(new Date(startedAt), dateFormat)}
           </p>
         ) : null}
