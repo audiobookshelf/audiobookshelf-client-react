@@ -1,7 +1,7 @@
 'use client'
 
 import VersionFooter from '@/components/app/VersionFooter'
-import { useLibrary } from '@/contexts/LibraryContext'
+import { useLibraryOptional } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isLibraryIssuesPage, libraryIssuesPageHref } from '@/lib/libraryIssuesPage'
@@ -32,7 +32,8 @@ export default function SideRailContent({
   const pathname = usePathname()
   const t = useTypeSafeTranslations()
   const { userIsAdminOrUp } = useUser()
-  const { filterData } = useLibrary()
+  // Optional: AppBar mounts this drawer on settings/account/upload (no LibraryProvider)
+  const { filterData } = useLibraryOptional()
   const numIssues = filterData?.numIssues ?? 0
   const issuesHref = libraryIssuesPageHref(libraryId)
   const libraryHref = `/library/${libraryId}/items`
