@@ -27,6 +27,7 @@ function ChromecastLauncher({ libraryId }: ChromecastLauncherProps) {
     if (!container || !chromecastEnabled || !isChromecastInitialized || !isHttps) return
 
     const launcher = document.createElement('google-cast-launcher')
+    launcher.classList.add('h-6')
     container.appendChild(launcher)
 
     return () => {
@@ -39,7 +40,7 @@ function ChromecastLauncher({ libraryId }: ChromecastLauncherProps) {
   if (!isHttps) {
     return (
       <Tooltip text={t('MessageCastingRequiresHttps')} position="bottom">
-        <span className="material-symbols text-warning/50 text-2xl" aria-hidden>
+        <span className="material-symbols text-warning/50 text-2.5xl" aria-hidden>
           cast
         </span>
       </Tooltip>
