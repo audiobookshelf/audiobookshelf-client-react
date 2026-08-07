@@ -38,7 +38,7 @@ export default function ServerInitForm() {
       try {
         const payload = {
           newRoot: {
-            username,
+            username: username.trim(),
             password
           }
         }
@@ -67,7 +67,7 @@ export default function ServerInitForm() {
       <h2 className="text-foreground mb-6 text-center text-2xl font-bold">{t('HeaderServerInit')}</h2>
 
       <div className="mb-4 flex flex-col gap-4">
-        <TextInput label={t('LabelUsername')} value={username} onChange={setUsername} />
+        <TextInput label={t('LabelUsername')} value={username} trimWhitespace onChange={setUsername} />
         <TextInput label={t('LabelPassword')} value={password} type="password" onChange={setPassword} />
         <TextInput label={t('LabelConfirmPassword')} value={confirmPassword} type="password" onChange={setConfirmPassword} />
       </div>
