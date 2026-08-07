@@ -20,9 +20,21 @@ interface LibraryItemCoverProps {
   onEdit?: () => void
   mediaProgress?: MediaProgress | null
   className?: string
+  showPlayButton?: boolean
+  isItemPlaying?: boolean
+  onPlay?: () => void
 }
 
-export default function LibraryItemCover({ libraryItem, canUpdate = false, className, mediaProgress, onEdit }: LibraryItemCoverProps) {
+export default function LibraryItemCover({
+  libraryItem,
+  canUpdate = false,
+  className,
+  mediaProgress,
+  onEdit,
+  showPlayButton = false,
+  isItemPlaying = false,
+  onPlay
+}: LibraryItemCoverProps) {
   const coverAspectRatio = useBookCoverAspectRatio()
   const t = useTypeSafeTranslations()
   const [isHovering, setIsHovering] = useState(false)
@@ -113,20 +125,22 @@ export default function LibraryItemCover({ libraryItem, canUpdate = false, class
             )}
           >
             <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-              <IconBtn
-                borderless
-                outlined={false}
-                className="pointer-events-auto transform text-gray-200 duration-200 hover:scale-110 hover:text-white"
-                style={{ fontSize: '4rem' }}
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  // Implementation pending
-                }}
-                ariaLabel={t('ButtonPlay')}
-              >
-                play_arrow
-              </IconBtn>
+              {showPlayButton && onPlay && (
+                <IconBtn
+                  borderless
+                  outlined={false}
+                  className="pointer-events-auto transform text-gray-200 duration-200 hover:scale-110 hover:text-white"
+                  style={{ fontSize: '4rem' }}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    onPlay()
+                  }}
+                  ariaLabel={isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
+                >
+                  {isItemPlaying ? 'pause' : 'play_arrow'}
+                </IconBtn>
+              )}
             </div>
 
             {canUpdate && onEdit && (

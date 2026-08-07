@@ -930,6 +930,15 @@ export async function updateEbookProgress(libraryItemId: string, payload: { eboo
 }
 
 /**
+ * Remove media progress for the current user (reset progress)
+ */
+export async function deleteMediaProgress(progressId: string): Promise<void> {
+  return apiRequest<void>(`/api/me/progress/${progressId}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
  * Batch update media finished state for multiple items or episodes
  */
 export async function batchUpdateMediaFinished(payload: { libraryItemId: string; episodeId?: string; isFinished: boolean }[]): Promise<void> {

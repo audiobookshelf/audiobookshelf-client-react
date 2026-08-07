@@ -20,7 +20,7 @@ import { bytesPretty } from '@/lib/string'
 import { Backup, GetBackupsResponse, ServerSettings } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import { UpdateServerSettingsApiResponse } from '../actions'
+import { updateServerSettings } from '../actions'
 import SettingsContent from '../SettingsContent'
 import SettingsToggleSwitch from '../SettingsToggleSwitch'
 import { applyBackup, createBackup, deleteBackup } from './actions'
@@ -33,11 +33,10 @@ const LEGACY_BACKUP_UNSUPPORTED_HINT = 'This backup was created with an old vers
 
 interface BackupsClientProps {
   backupResponse: GetBackupsResponse
-  updateServerSettings: (settingsUpdatePayload: Partial<ServerSettings>) => Promise<UpdateServerSettingsApiResponse>
   appliedBackupToast?: boolean
 }
 
-export default function BackupsClient({ backupResponse, updateServerSettings, appliedBackupToast = false }: BackupsClientProps) {
+export default function BackupsClient({ backupResponse, appliedBackupToast = false }: BackupsClientProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -52,7 +51,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings, ap
   const [deletingBackupId, setDeletingBackupId] = useState<string | null>(null)
   const backupPendingDeleteRef = useRef<Backup | null>(null)
   const { showToast } = useGlobalToast()
-  const { serverSettings } = useUser()
+  const { serverSettings, mergeServerSettings } = useUser()
 
   const backups = useMemo(() => {
     return [...backupResponse.backups].sort((a, b) => b.createdAt - a.createdAt)
@@ -64,6 +63,11 @@ export default function BackupsClient({ backupResponse, updateServerSettings, ap
   const [maxBackupSize, setMaxBackupSize] = useState(serverSettings.maxBackupSize ? String(serverSettings.maxBackupSize) : '')
 
   const backupSchedule = serverSettings.backupSchedule // cron expression or false if disabled
+
+  useEffect(() => {
+    setBackupsToKeep(serverSettings.backupsToKeep ? String(serverSettings.backupsToKeep) : '')
+    setMaxBackupSize(serverSettings.maxBackupSize ? String(serverSettings.maxBackupSize) : '')
+  }, [serverSettings.backupsToKeep, serverSettings.maxBackupSize])
 
   useEffect(() => {
     if (!appliedBackupToast) return
@@ -81,6 +85,7 @@ export default function BackupsClient({ backupResponse, updateServerSettings, ap
 
     startTransition(async () => {
       const response = await updateServerSettings(settingsUpdatePayload)
+      mergeServerSettings(response?.serverSettings)
       if (!response?.serverSettings) {
         console.error('Failed to update server settings')
         showToast(t('ToastFailedToUpdate'), { type: 'error' })

@@ -442,7 +442,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
   if (entityType === 'authors') return null
 
   return (
-    <div className="relative h-9 w-36 sm:w-44 md:w-48">
+    <div className="relative h-9 max-w-48 min-w-0 flex-1 md:w-48 md:flex-none">
       <Dropdown
         value={currentFilter}
         items={filterItems}
@@ -452,6 +452,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         displayText={getSelectedText()}
         menuMaxHeight="calc(100vh - 120px)"
         usePortal
+        wrapText
       />
       {showClear && (
         <button

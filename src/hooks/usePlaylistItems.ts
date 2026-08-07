@@ -21,10 +21,20 @@ export function usePlaylistItems(playlist: Playlist) {
 
   const handleItemRemoved = useCallback(
     (libraryItemId: string, episodeId?: string | null) => {
-      setOrderedItems((prev) => prev.filter((item) => !matchesPlaylistItem(item, libraryItemId, episodeId)))
-      router.refresh()
+      let removedLastItem = false
+      setOrderedItems((prev) => {
+        const next = prev.filter((item) => !matchesPlaylistItem(item, libraryItemId, episodeId))
+        removedLastItem = prev.length > 0 && next.length === 0
+        return next
+      })
+      // Backend deletes playlists with no items left — navigate away instead of refreshing a dead page.
+      if (removedLastItem) {
+        router.push(`/library/${playlist.libraryId}/playlists`)
+      } else {
+        router.refresh()
+      }
     },
-    [router]
+    [playlist.libraryId, router]
   )
 
   useEffect(() => {

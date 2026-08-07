@@ -1,5 +1,6 @@
 'use client'
 
+import CollectionEditModal from '@/components/modals/CollectionEditModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
@@ -31,8 +32,6 @@ export interface CollectionCardProps {
   selected?: boolean
   /** Callback when the select button is clicked */
   onSelect?: (event: React.MouseEvent) => void
-  /** Callback when the edit button is clicked */
-  onEdit?: (collection: Collection) => void
   /** Callback to open RSS feed modal */
   onOpenRssFeedModal?: (collection: Collection) => void
   /** Whether to show the selection button */
@@ -47,7 +46,6 @@ function CollectionCard(props: CollectionCardProps) {
     isSelectionMode = false,
     selected = false,
     onSelect,
-    onEdit,
     onOpenRssFeedModal,
     showSelectedButton = false
   } = props
@@ -61,6 +59,7 @@ function CollectionCard(props: CollectionCardProps) {
 
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
@@ -87,14 +86,15 @@ function CollectionCard(props: CollectionCardProps) {
     router.push(`/library/${collection.libraryId}/collection/${collection.id}`)
   }, [collection.id, collection.libraryId, router])
 
-  const handleEditClick = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
-      onEdit?.(collection)
-    },
-    [collection, onEdit]
-  )
+  const handleEditClick = useCallback((event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setEditModalOpen(true)
+  }, [])
+
+  const handleCloseEditModal = useCallback(() => {
+    setEditModalOpen(false)
+  }, [])
 
   // Selection handler - kept for future use
   const handleSelectClick = useCallback(
@@ -226,6 +226,8 @@ function CollectionCard(props: CollectionCardProps) {
           )
         }
       />
+
+      {editModalOpen && <CollectionEditModal isOpen collection={collection} onClose={handleCloseEditModal} />}
 
       {/* Confirm dialog for delete */}
       {confirmState && (

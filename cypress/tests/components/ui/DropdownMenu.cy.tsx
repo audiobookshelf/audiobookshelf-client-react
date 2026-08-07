@@ -328,5 +328,22 @@ describe('<DropdownMenu />', () => {
       cy.get('[role="listbox"] > li').eq(1).should('contain.text', 'Short')
       cy.get('[role="listbox"] > li').eq(1).should('contain.text', 'This is a very long text')
     })
+
+    it('wraps long text when wrapText is set', () => {
+      const longText = 'This is a very long text that should wrap onto multiple lines in the dropdown menu item instead of truncating with an ellipsis'
+      const longItems: DropdownMenuItem[] = [{ text: longText, value: 'long1' }]
+      cy.mount(
+        <div className="w-48">
+          <DropdownMenu {...defaultProps} items={longItems} wrapText />
+        </div>
+      )
+      cy.get('[role="listbox"] > li')
+        .eq(0)
+        .find('span')
+        .first()
+        .should('have.class', 'line-clamp-2')
+        .and('have.class', 'break-words')
+        .and('not.have.class', 'truncate')
+    })
   })
 })
