@@ -1,6 +1,8 @@
+import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
+import { getLibrarySortFilterUpdates } from '@/lib/libraryMediaTypeSortFilter'
 import { LibrarySettingKey, useLibrary } from '@/contexts/LibraryContext'
 import { EntityType } from '@/types/api'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef } from 'react'
 
 export function useBookshelfQuery(entityType: EntityType, enabled = true) {
@@ -19,8 +21,10 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
     isSettingsLoaded
   } = useLibrary()
 
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const isPodcastLibrary = library.mediaType === 'podcast'
+  const isIssuesPage = isLibraryIssuesPage(pathname)
 
   const currentParamsString = searchParams.toString()
 
@@ -37,7 +41,7 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
     const isNavigation = prevParamsRef.current !== currentParamsString
 
     // Only override if params are present and it is a fresh mount or navigation
-    if (!hasParams && !isNavigation) return
+    if (!hasParams && !isNavigation && !(entityType === 'items' && isIssuesPage)) return
 
     // Helper to safely set setting if param exists
     const syncSetting = (paramKey: string, settingKey: LibrarySettingKey, isBool: boolean = false, resetValue?: string | boolean) => {
@@ -55,8 +59,24 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
       syncSetting('sort', 'orderBy')
       syncSetting('desc', 'orderDesc', true)
       syncSetting('filter', 'filterBy', false, 'all')
+      if (isIssuesPage) {
+        updateSetting('filterBy', 'issues')
+      }
       if (!isPodcastLibrary) {
         syncSetting('collapseseries', 'collapseSeries', true)
+      }
+
+      const resolvedOrderBy = params.get('sort') ?? orderBy
+      let resolvedFilterBy = params.get('filter') ?? filterBy
+      if (isIssuesPage) {
+        resolvedFilterBy = 'issues'
+      }
+      const sortFilterUpdates = getLibrarySortFilterUpdates({ orderBy: resolvedOrderBy, filterBy: resolvedFilterBy }, library.mediaType, { isIssuesPage })
+      if (sortFilterUpdates.orderBy !== undefined) {
+        updateSetting('orderBy', sortFilterUpdates.orderBy)
+      }
+      if (sortFilterUpdates.filterBy !== undefined) {
+        updateSetting('filterBy', sortFilterUpdates.filterBy)
       }
     } else if (entityType === 'series') {
       syncSetting('sort', 'seriesSortBy')
@@ -89,7 +109,7 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
         setParam('sort', orderBy)
         setParam('desc', orderDesc ? '1' : '0')
       }
-      if (filterBy && filterBy !== 'all') {
+      if (filterBy && filterBy !== 'all' && !isIssuesPage) {
         setParam('filter', filterBy)
       }
       if (collapseSeries && !isPodcastLibrary) {
@@ -134,7 +154,8 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
     authorSortDesc,
     isSettingsLoaded,
     searchParams,
-    currentParamsString
+    currentParamsString,
+    isIssuesPage
   ])
 
   // Build query string for API (separate from URL params, but often similar)

@@ -6,6 +6,7 @@ import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext, useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
+import { useLibraryRouteGuard } from '@/hooks/useLibraryRouteGuard'
 import { mergeClasses } from '@/lib/merge-classes'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
@@ -36,6 +37,8 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
     !pathname.endsWith('/stats') &&
     !pathname.endsWith('/narrators') &&
     !isBatchEditPage
+
+  useLibraryRouteGuard()
 
   useEffect(() => {
     if (library) {
