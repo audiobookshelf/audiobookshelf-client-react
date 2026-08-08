@@ -8,6 +8,7 @@
  * - Cannot detect dynamically built strings ('Error ' + status)
  * - May miss strings in template literals with expressions
  * - languages.ts native language names are excluded via path allowlist
+ * - IconBtn children are treated as Material icon names and skipped
  * - Some findings will be false positives — use // i18n-ignore on the line
  */
 import { createRequire } from 'module'
@@ -293,6 +294,30 @@ function hasI18nIgnore(sourceFile, node) {
   return lineText.includes('// i18n-ignore')
 }
 
+function getJsxElementTagName(node) {
+  if (!ts.isJsxElement(node)) {
+    return null
+  }
+
+  const tagName = node.openingElement.tagName
+  if (ts.isIdentifier(tagName)) {
+    return tagName.text
+  }
+
+  return null
+}
+
+function isInsideIconBtn(node) {
+  let current = node.parent
+  while (current) {
+    if (getJsxElementTagName(current) === 'IconBtn') {
+      return true
+    }
+    current = current.parent
+  }
+  return false
+}
+
 function getPropertyNameText(nameNode) {
   if (!nameNode) {
     return null
@@ -437,7 +462,7 @@ function scanFile(filePath, valueToKeys, minLength) {
 
     if (ts.isJsxText(node)) {
       const trimmed = node.text.trim()
-      if (trimmed && looksUserFacing(trimmed, minLength) && !hasI18nIgnore(sourceFile, node)) {
+      if (trimmed && looksUserFacing(trimmed, minLength) && !hasI18nIgnore(sourceFile, node) && !isInsideIconBtn(node)) {
         const parent = node.parent
         if (parent && ts.isJsxElement(parent)) {
           const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile))
