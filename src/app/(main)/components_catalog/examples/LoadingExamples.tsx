@@ -2,9 +2,12 @@
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import ProgressIndicator from '@/components/ui/ProgressIndicator'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function LoadingExamples() {
+  const t = useTypeSafeTranslations()
+
   return (
     <ComponentExamples title="Loading Indicators">
       <ComponentInfo component="LoadingIndicator" description="Loading indicator component with animated dots">
@@ -37,7 +40,7 @@ export function LoadingExamples() {
 
         <Example title="Loading Indicator with progress">
           <div className="relative h-40">
-            <LoadingIndicator label="MessageUploading">
+            <LoadingIndicator label={t('MessageUploading')}>
               <ProgressIndicator progress={45} />
             </LoadingIndicator>
           </div>
