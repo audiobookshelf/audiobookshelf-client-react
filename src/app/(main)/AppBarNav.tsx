@@ -2,6 +2,7 @@
 
 import ButtonBase from '@/components/ui/ButtonBase'
 import { useClickOutside } from '@/hooks/useClickOutside'
+import { useLogout } from '@/hooks/useLogout'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -23,6 +24,7 @@ interface AppBarNavProps {
 export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNavProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
+  const logout = useLogout()
   const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY, true)
   const menuId = useId()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -81,21 +83,13 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
 
   const handleLogout = useCallback(async () => {
     try {
-      // Calls the Abs server logout endpoint and clears the NextJS server cookies
-      const res = await fetch('/internal-api/logout', {
-        method: 'POST'
-      })
-      if (!res.ok) {
-        console.error('Logout error:', res.status, res.statusText)
-        return
-      }
-      router.replace('/login')
+      await logout()
     } catch (err) {
       console.error('Logout error:', err)
     } finally {
       closeMenu()
     }
-  }, [router, closeMenu])
+  }, [logout, closeMenu])
 
   const activateMenuItem = useCallback(
     (index: number) => {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getServerBaseUrl, setTokenCookies } from '../../../lib/api'
+import { getServerBaseUrl, setLanguageCookie, setTokenCookies } from '../../../lib/api'
 import { getTypeSafeTranslations } from '../../../lib/getTypeSafeTranslations'
 
 export async function POST(request: Request) {
@@ -36,17 +36,7 @@ export async function POST(request: Request) {
 
     const response = NextResponse.json(data)
     setTokenCookies(response, newAccessToken, newRefreshToken)
-
-    // Set language cookie from user's server settings
-    if (userLanguage) {
-      response.cookies.set('language', userLanguage, {
-        httpOnly: false,
-        secure: false,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 365 * 24 * 60 * 60 // 1 year
-      })
-    }
+    setLanguageCookie(response.cookies, userLanguage)
 
     return response
   } catch (error) {

@@ -12,10 +12,12 @@ import {
   AuthorQuickMatchPayload,
   AuthorResponse,
   AuthorUpdateResponse,
+  BatchGetLibraryItemsResponse,
+  BatchUpdateLibraryItemPayload,
+  BatchUpdateLibraryItemsResponse,
   BookSearchResult,
   Chapter,
   Collection,
-  OrderedTrackFileData,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
   CreateCustomMetadataProviderResponse,
@@ -33,6 +35,7 @@ import {
   GetCollectionsResponse,
   GetCustomMetadataProvidersResponse,
   GetEmailSettingsResponse,
+  GetEpisodeDownloadQueueResponse,
   GetFilesystemPathsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
@@ -42,9 +45,8 @@ import {
   GetNotificationsResponse,
   GetOpenListeningSessionsResponse,
   GetPlaylistsResponse,
-  GetEpisodeDownloadQueueResponse,
-  GetRecentEpisodesResponse,
   GetPodcastTitlesResponse,
+  GetRecentEpisodesResponse,
   GetRssFeedsResponse,
   GetSeriesResponse,
   GetUsersResponse,
@@ -65,6 +67,7 @@ import {
   OpenMediaItemSharePayload,
   OpenRssFeedPayload,
   OpenRssFeedResponse,
+  OrderedTrackFileData,
   ParseOpmlFeedsResponse,
   PersonalizedShelf,
   Playlist,
@@ -87,12 +90,9 @@ import {
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
-  BatchGetLibraryItemsResponse,
-  BatchUpdateLibraryItemPayload,
-  BatchUpdateLibraryItemsResponse,
   UpdatePodcastEpisodePayload,
-  UploadCoverResponse,
   UpdateUserResponse,
+  UploadCoverResponse,
   User,
   UserAccountPayload,
   UserLoginResponse
@@ -100,9 +100,9 @@ import {
 
 import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
 
-const publicEndpoints = ['/status']
-const RefreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
-const AccessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
+const PUBLIC_ENDPOINTS = ['/status']
+const refreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
+const accessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
 
 export function getServerBaseUrl() {
   let host = process.env.HOST || 'localhost'
@@ -114,14 +114,30 @@ export function getServerBaseUrl() {
 }
 
 /**
- * Client-facing origin from request headers (for redirects out of internal API routes).
+ * Client-facing origin from request headers (protocol + host, no ROUTER_BASE_PATH).
  * The server may use an internal hostname; the browser must be sent to the URL it used.
  */
-export function getClientBaseUrlFromRequest(request: Request): string {
-  const headers = new Headers(request.headers)
-  const host = headers.get('x-forwarded-host') || headers.get('host') || 'localhost'
-  const protocol = headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
+function getClientOriginFromHeaders(headerStore: { get(name: string): string | null }): string {
+  const host = headerStore.get('x-forwarded-host') || headerStore.get('host') || 'localhost'
+  const protocol = headerStore.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
   return `${protocol}://${host}`
+}
+
+export function getClientBaseUrlFromRequest(request: Request): string {
+  return getClientOriginFromHeaders(request.headers)
+}
+
+/**
+ * Browser-facing app base URL (origin + ROUTER_BASE_PATH), e.g. for OIDC callback URLs.
+ * Parallels the server's getRequestOrigin() plus global.RouterBasePath (see OidcAuthStrategy).
+ */
+export function getClientBaseUrlFromHeaders(headerStore: { get(name: string): string | null }): string {
+  const routerBasePath = process.env.ROUTER_BASE_PATH ?? ''
+  return `${getClientOriginFromHeaders(headerStore)}${routerBasePath}`
+}
+
+export async function getClientBaseUrl(): Promise<string> {
+  return getClientBaseUrlFromHeaders(await headers())
 }
 
 /**
@@ -158,14 +174,28 @@ function sessionCookieOptions(maxAgeSeconds: number) {
   }
 }
 
+const LANGUAGE_COOKIE_OPTIONS = {
+  httpOnly: false,
+  secure: false,
+  sameSite: 'lax' as const,
+  path: '/',
+  maxAge: 365 * 24 * 60 * 60 // 1 year
+}
+
 type SessionCookieSetter = {
-  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions>): void
+  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions> | typeof LANGUAGE_COOKIE_OPTIONS): void
 }
 
 function writeSessionCookies(store: SessionCookieSetter, accessToken: string, refreshToken: string | null) {
-  store.set('access_token', accessToken, sessionCookieOptions(AccessTokenExpiry))
+  store.set('access_token', accessToken, sessionCookieOptions(accessTokenExpiry))
   if (refreshToken) {
-    store.set('refresh_token', refreshToken, sessionCookieOptions(RefreshTokenExpiry))
+    store.set('refresh_token', refreshToken, sessionCookieOptions(refreshTokenExpiry))
+  }
+}
+
+export function setLanguageCookie(store: SessionCookieSetter, language: string | null | undefined) {
+  if (language) {
+    store.set('language', language, LANGUAGE_COOKIE_OPTIONS)
   }
 }
 
@@ -295,7 +325,7 @@ async function parseApiResponseBody<T>(response: Response): Promise<T> {
  */
 export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
-    const isPublic = publicEndpoints.includes(endpoint)
+    const isPublic = PUBLIC_ENDPOINTS.includes(endpoint)
     const cookieStore = await cookies()
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
@@ -400,6 +430,23 @@ export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
     next: { tags: ['current-user'] }
   })
 })
+
+/**
+ * Exchange an OIDC access token (from the Express post-login redirect) into Next.js session cookies.
+ * Returns the in-app path to redirect to, or null if authorization failed.
+ */
+export async function completeOidcLogin(accessToken: string, redirectParam?: string | null): Promise<string | null> {
+  try {
+    await persistAccessTokenInCookies(accessToken)
+    const data = await getCurrentUser()
+    setLanguageCookie(await cookies(), data.serverSettings?.language)
+
+    return redirectParam || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null, data.user?.type ?? 'user')
+  } catch (error) {
+    console.error('[completeOidcLogin] Error:', error)
+    return null
+  }
+}
 
 export const getListeningStats = cache(async (): Promise<ListeningStats> => {
   return apiRequest<ListeningStats>('/api/me/listening-stats')
