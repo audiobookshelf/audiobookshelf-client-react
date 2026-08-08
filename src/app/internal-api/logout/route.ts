@@ -7,8 +7,13 @@ export async function POST(request: Request) {
   try {
     const cookieStore = await cookies()
     const refreshToken = cookieStore.get('refresh_token')?.value
+    const authMethod = cookieStore.get('auth_method')?.value
+    const openidIdToken = cookieStore.get('openid_id_token')?.value
 
     const audiobookshelfServerUrl = getServerBaseUrl()
+
+    // Abs server reads auth_method and openid_id_token from cookies to build the OIDC end-session URL.
+    const oidcCookies = [authMethod ? `auth_method=${authMethod}` : null, openidIdToken ? `openid_id_token=${openidIdToken}` : null].filter(Boolean)
 
     // Make logout request to the Audiobookshelf server
     const logoutResponse = await fetch(`${audiobookshelfServerUrl}/logout`, {
@@ -16,7 +21,8 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
         // Pass refresh token so the session can be deleted on the Abs server
-        ...(refreshToken ? { 'x-refresh-token': refreshToken } : {})
+        ...(refreshToken ? { 'x-refresh-token': refreshToken } : {}),
+        ...(oidcCookies.length ? { Cookie: oidcCookies.join('; ') } : {})
       }
     })
 
@@ -28,6 +34,8 @@ export async function POST(request: Request) {
     // Delete token cookies
     response.cookies.delete('refresh_token')
     response.cookies.delete('access_token')
+    response.cookies.delete('auth_method')
+    response.cookies.delete('openid_id_token')
     // Clear language cookie on logout so it gets re-initialized on next login
     response.cookies.delete('language')
     return response
