@@ -4,7 +4,7 @@ import Modal from '@/components/modals/Modal'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
-import type { ReleaseInfo, VersionData } from '@/lib/version'
+import type { VersionData } from '@/lib/version'
 import { marked } from 'marked'
 import { useMemo } from 'react'
 
