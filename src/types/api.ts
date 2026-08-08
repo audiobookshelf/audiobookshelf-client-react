@@ -1165,6 +1165,11 @@ export interface UserLoginResponse {
   Source: string
 }
 
+/** Response from POST /logout on the Audiobookshelf server (and /internal-api/logout passthrough) */
+export interface ServerLogoutResponse {
+  redirect_url?: string | null
+}
+
 export interface ApiKey {
   createdAt: string
   createdByUser: {
