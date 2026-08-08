@@ -92,7 +92,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
     return name || '\u00A0'
   })()
 
-  const displaySubtitle = !booksInSeries ? '\u00A0' : `${booksInSeries} ${t('LabelBooks')}`
+  const displaySubtitle = !booksInSeries ? '\u00A0' : t('LabelXBooks', { count: booksInSeries })
 
   const titleCleaned = (() => {
     const title = collapsedSeries?.name || ''

@@ -28,6 +28,8 @@ const legacyTokenTags = {
   )
 }
 
+const strongTag = (chunks: React.ReactNode) => <strong>{chunks}</strong>
+
 const COVER_WIDTH = 50
 
 const EMPTY_LISTENING_STATS: ListeningStats = {
@@ -196,30 +198,36 @@ export default function UserClient({ user }: { user: User }) {
         <div className="py-2">
           <h2 className="mb-2 text-lg font-medium">{t('HeaderListeningStats')}</h2>
           <div className="flex items-center gap-2">
-            <p className="text-foreground-muted text-sm">
-              {listeningSessions.total} {t('HeaderListeningSessions')}
-            </p>
+            <p className="text-foreground-muted text-sm">{t('LabelListeningSessionsCount', { 0: listeningSessions.total })}</p>
             <Btn to={`/settings/listening-sessions?user=${encodeURIComponent(user.id)}`} size="small" className="h-7 text-xs">
               {t('ButtonViewAll')}
             </Btn>
           </div>
           <p className="text-foreground-muted text-sm">
-            {t('LabelTotalTimeListened')}:{' '}
-            <span className="text-foreground font-mono text-base">
-              {formatDuration(listeningStats.totalTime ?? 0, t, { showDays: true })}
-              {listeningStats.today ? <> ({formatDuration(listeningStats.today, t, { showDays: true })} today)</> : null}
-            </span>
+            {listeningStats.today
+              ? t.rich('LabelTotalTimeListenedWithToday', {
+                  0: formatDuration(listeningStats.totalTime ?? 0, t, { showDays: true }),
+                  1: formatDuration(listeningStats.today, t, { showDays: true, showSeconds: true }),
+                  duration: strongTag,
+                  todayDuration: strongTag
+                })
+              : t.rich('LabelTotalTimeListenedWithValue', {
+                  0: formatDuration(listeningStats.totalTime ?? 0, t, { showDays: true }),
+                  duration: strongTag
+                })}
           </p>
 
           {latestSession ? (
             <div className="mt-4">
               <h2 className="mb-2 text-lg font-medium">{t('HeaderLastListeningSession')}</h2>
               <p className="text-foreground-muted text-sm">
-                <strong className="text-foreground">{latestSession.displayTitle}</strong>{' '}
-                {formatDistanceToNow(new Date(latestSession.updatedAt), { addSuffix: true })} for{' '}
-                <span className="text-foreground font-mono text-base">
-                  {formatDuration(latestSession.timeListening, t, { showDays: true, showSeconds: true })}
-                </span>
+                {t.rich('MessageLastListeningSession', {
+                  displayTitle: latestSession.displayTitle,
+                  when: formatDistanceToNow(new Date(latestSession.updatedAt), { addSuffix: true }),
+                  listeningDuration: formatDuration(latestSession.timeListening, t, { showDays: true, showSeconds: true }),
+                  title: strongTag,
+                  duration: strongTag
+                })}
               </p>
             </div>
           ) : null}

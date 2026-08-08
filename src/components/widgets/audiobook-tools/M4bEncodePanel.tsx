@@ -53,9 +53,7 @@ export default function M4bEncodePanel({
             {t('ButtonStartM4BEncode')}
           </Btn>
         ) : taskFailed ? (
-          <p className="text-error text-lg font-semibold">
-            {t('MessageM4BFailed')} {taskError}
-          </p>
+          <p className="text-error text-lg font-semibold">{t('MessageM4BFailedWithError', { 0: taskError ?? '' })}</p>
         ) : (
           <p className="text-success text-lg font-semibold">{t('MessageM4BFinished')}</p>
         )}

@@ -92,8 +92,15 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
         onEditClick={() => setIsEditModalOpen(true)}
         trailing={
           <div className="flex justify-end">
-            <p className="hidden text-base md:block">{t('LabelDuration')}:</p>
-            <p className="ms-4 hidden font-mono text-base md:block">{secondsToTimestamp(mediaDurationRounded)}</p>
+            <p className="hidden text-base md:block">
+              {t.rich('LabelDurationWithValue', {
+                0: (
+                  <span key="duration" className="ms-4 font-mono">
+                    {secondsToTimestamp(mediaDurationRounded)}
+                  </span>
+                )
+              })}
+            </p>
           </div>
         }
       />

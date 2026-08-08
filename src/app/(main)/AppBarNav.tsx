@@ -253,7 +253,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
         <ButtonBase
           ref={desktopTriggerRef}
           size="small"
-          ariaLabel={`${username}, ${t('ButtonMenu')}`}
+          ariaLabel={t('AriaLabelAccountMenu')}
           aria-expanded={menuOpen}
           aria-controls={menuId}
           aria-haspopup="menu"
@@ -272,7 +272,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
         {/* Mobile - Account icon button */}
         <ButtonBase
           size="small"
-          ariaLabel={`${username}, ${t('ButtonMenu')}`}
+          ariaLabel={t('AriaLabelAccountMenu')}
           aria-expanded={menuOpen}
           aria-controls={menuId}
           aria-haspopup="menu"

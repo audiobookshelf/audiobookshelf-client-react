@@ -241,7 +241,7 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
     </div>
   )
 
-  const pathLabel = `${t('LabelPodcast')} ${t('LabelPath')}`
+  const pathLabel = t('LabelPodcastPath')
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
