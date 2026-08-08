@@ -26,16 +26,18 @@ function SlateEditorMatchFieldEditor({ usageChecked, onUsageChange, value, onCha
 
   const hasCurrentValue = currentValue !== undefined && currentValue !== null && currentValue !== ''
 
-  const formattedValue = currentValue ? String(currentValue).substring(0, 100) + (String(currentValue).length > 100 ? '...' : '') : ''
+  const formattedValue = currentValue ? String(currentValue).substring(0, 100) + (String(currentValue).length > 100 ? '…' : '') : ''
 
-  const currentValueDisplay = hasCurrentValue ? (
-    <>
-      {t('LabelCurrently')}{' '}
-      <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
-        {formattedValue}
-      </a>
-    </>
-  ) : null
+  const currentValueDisplay = hasCurrentValue
+    ? t.rich('MessageCurrentlyWithLink', {
+        0: formattedValue,
+        link: (chunks) => (
+          <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
+            {chunks}
+          </a>
+        )
+      })
+    : null
 
   return (
     <BaseMatchFieldEditor usageChecked={usageChecked} onUsageChange={onUsageChange} currentValueDisplay={currentValueDisplay} hasCurrentValue={hasCurrentValue}>

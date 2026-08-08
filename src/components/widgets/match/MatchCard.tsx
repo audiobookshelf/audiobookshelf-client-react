@@ -153,7 +153,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
                   book.matchConfidence! > 0.95 ? 'bg-success/80' : 'bg-info/80'
                 )}
               >
-                {t('LabelMatchConfidence')}: {matchConfidencePercentage}%
+                {t('LabelMatchConfidenceWithValue', { 0: matchConfidencePercentage })}
               </div>
             )}
           </div>
@@ -170,14 +170,10 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
             <div className="flex items-center">
               <div>
                 {book.author && <p className="text-foreground-muted text-xs md:text-sm">{t('LabelByAuthor', { 0: book.author })}</p>}
-                {narratorText && (
-                  <p className="text-foreground-subdued text-xs">
-                    {t('LabelNarrators')}: {narratorText}
-                  </p>
-                )}
+                {narratorText && <p className="text-foreground-subdued text-xs">{t('LabelNarratorsWithValue', { 0: narratorText })}</p>}
                 {bookDurationSeconds > 0 && (
                   <p className="text-foreground-subdued text-xs">
-                    {t('LabelDuration')}: {formatDuration(bookDurationSeconds, t)} {durationComparison}
+                    {t('LabelDurationWithValue', { 0: formatDuration(bookDurationSeconds, t) })} {durationComparison}
                   </p>
                 )}
               </div>
@@ -190,7 +186,7 @@ export default function MatchCard({ book, isPodcast = false, currentBookDuration
                     book.matchConfidence! > 0.95 ? 'bg-success/80' : 'bg-info/80'
                   )}
                 >
-                  {t('LabelMatchConfidence')}: {matchConfidencePercentage}%
+                  {t('LabelMatchConfidenceWithValue', { 0: matchConfidencePercentage })}
                 </div>
               )}
             </div>

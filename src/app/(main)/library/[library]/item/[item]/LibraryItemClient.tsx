@@ -204,7 +204,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                   {episodesDownloading.map((episode) => (
                     <div key={episode.id} className="flex items-center">
                       <LoadingSpinner />
-                      <p className="py-1 pl-4 text-sm">{`${t('MessageDownloadingEpisode')} "${episode.episodeDisplayTitle ?? ''}"`}</p>
+                      <p className="py-1 pl-4 text-sm">{t('MessageTaskDownloadingEpisodeDescription', { 0: episode.episodeDisplayTitle ?? '' })}</p>
                     </div>
                   ))}
                 </div>

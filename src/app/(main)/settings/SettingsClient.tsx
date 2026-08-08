@@ -277,9 +277,7 @@ export default function SettingsClient() {
               value={serverSettings?.dateFormat}
               onChange={(value) => handleSettingChanged('dateFormat', value as string)}
             />
-            <p className="text-foreground-muted mb-2 px-1 text-xs">
-              {t('LabelExample')}: {exampleDateFormat}
-            </p>
+            <p className="text-foreground-muted mb-2 px-1 text-xs">{t('LabelExampleWithValue', { 0: exampleDateFormat })}</p>
           </div>
           <div className="w-full max-w-72">
             <Dropdown
@@ -288,9 +286,7 @@ export default function SettingsClient() {
               value={serverSettings?.timeFormat}
               onChange={(value) => handleSettingChanged('timeFormat', value as string)}
             />
-            <p className="text-foreground-muted mb-2 px-1 text-xs">
-              {t('LabelExample')}: {exampleTimeFormat}
-            </p>
+            <p className="text-foreground-muted mb-2 px-1 text-xs">{t('LabelExampleWithValue', { 0: exampleTimeFormat })}</p>
           </div>
           <div className="w-full max-w-72">
             <LanguageDropdown value={serverSettings?.language} onChange={handleLanguageChanged} />

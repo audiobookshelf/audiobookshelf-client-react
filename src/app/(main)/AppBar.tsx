@@ -114,7 +114,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           to={redirectUrl}
           borderless
           size="custom"
-          ariaLabel={`audiobookshelf - ${t('ButtonHome')}`}
+          ariaLabel={t('AriaLabelAudiobookshelfHome')}
           className={mergeClasses(LOGO_BUTTON_CLASSES, showMobileSideRailToggle && 'hidden md:flex')}
         >
           {logoContent}

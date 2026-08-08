@@ -137,7 +137,7 @@ export default function EReaderDeviceModal({ isOpen, device, existingDevices, us
 
   const outerContentTitle = (
     <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{isEditing ? `${t('ButtonEdit')} ${t('LabelDevice')}` : t('ButtonAddDevice')}</h2>
+      <h2 className="text-xl text-white">{isEditing ? t('ButtonEditDevice') : t('ButtonAddDevice')}</h2>
     </div>
   )
 

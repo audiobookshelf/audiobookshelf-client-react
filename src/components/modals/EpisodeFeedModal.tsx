@@ -325,8 +325,9 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
               bgClass = 'bg-success/10'
             }
 
-            const publishedString = episode.publishedAt ? format.relativeTime(new Date(episode.publishedAt), { now: new Date() }) : t('LabelUnknown')
-            const publishedLabel = t('LabelPublished', { 0: publishedString })
+            const publishedLabel = episode.publishedAt
+              ? t('LabelPublished', { 0: format.relativeTime(new Date(episode.publishedAt), { now: new Date() }) })
+              : t('LabelUnknownPublishDate')
 
             return (
               <div
@@ -374,14 +375,10 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
                   <div className={`mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 ${subTextClass}`}>
                     <p className="w-40 text-xs">{publishedLabel}</p>
                     {episode.durationSeconds != null && episode.durationSeconds > 0 && (
-                      <p className="min-w-28 text-xs">
-                        {t('LabelDuration')}: {formatDuration(episode.durationSeconds, t)}
-                      </p>
+                      <p className="min-w-28 text-xs">{t('LabelDurationWithValue', { 0: formatDuration(episode.durationSeconds, t) })}</p>
                     )}
                     {episode.enclosure?.length && !isNaN(Number(episode.enclosure.length)) && Number(episode.enclosure.length) > 0 && (
-                      <p className="text-xs">
-                        {t('LabelSize')}: {bytesPretty(Number(episode.enclosure.length))}
-                      </p>
+                      <p className="text-xs">{t('LabelSizeWithValue', { 0: bytesPretty(Number(episode.enclosure.length)) })}</p>
                     )}
                   </div>
                 </div>

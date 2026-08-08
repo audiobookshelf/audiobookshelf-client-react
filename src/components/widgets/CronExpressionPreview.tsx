@@ -38,7 +38,7 @@ export default function CronExpressionPreview({ cronExpression, isValid: isValid
     <div className="grid grid-cols-1 gap-x-2 gap-y-1 sm:grid-cols-[auto_1fr] sm:gap-y-2">
       <div className="flex items-center">
         <span className="material-symbols text-foreground mr-2">schedule</span>
-        <p className="text-foreground font-medium">{t('LabelSchedule')}:</p>
+        <p className="text-foreground font-medium">{t('LabelScheduleHeading')}</p>
       </div>
       <p className="text-foreground" cy-id="cron-description">
         {verbalDescription}
@@ -46,7 +46,7 @@ export default function CronExpressionPreview({ cronExpression, isValid: isValid
 
       <div className="mt-2 flex items-center sm:mt-0">
         <span className="material-symbols text-foreground mr-2">event</span>
-        <p className="text-foreground font-medium">{t('LabelNextRun')}:</p>
+        <p className="text-foreground font-medium">{t('LabelNextRunHeading')}</p>
       </div>
       <p className="text-foreground">{nextRunDate || t('LabelNotAvailable')}</p>
     </div>

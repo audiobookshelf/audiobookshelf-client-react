@@ -62,7 +62,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
     return `${deviceInfo.manufacturer} ${deviceInfo.model}`
   }, [deviceInfo])
 
-  const sessionTitle = `${t('HeaderSession')} ${currentSession?.id || ''}`
+  const sessionTitle = t('HeaderSessionWithId', { 0: currentSession?.id || '' })
 
   const handleDeleteSession = async () => {
     if (!currentSession) return
@@ -133,9 +133,9 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
                 <DetailsRow label={t('LabelLastTime')} value={secondsToTimestamp(currentSession.currentTime)} />
 
                 <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase">{t('LabelItem')}</p>
-                {currentSession.libraryId && <DetailsRow label={`${t('LabelLibrary')} Id`} value={currentSession.libraryId} valueClassName="text-xs" />}
-                <DetailsRow label={`${t('LabelLibraryItem')} Id`} value={currentSession.libraryItemId} valueClassName="text-xs" />
-                {currentSession.episodeId && <DetailsRow label={`${t('LabelEpisode')} Id`} value={currentSession.episodeId} valueClassName="text-xs" />}
+                {currentSession.libraryId && <DetailsRow label={t('LabelLibraryId')} value={currentSession.libraryId} valueClassName="text-xs" />}
+                <DetailsRow label={t('LabelLibraryItemId')} value={currentSession.libraryItemId} valueClassName="text-xs" />
+                {currentSession.episodeId && <DetailsRow label={t('LabelEpisodeId')} value={currentSession.episodeId} valueClassName="text-xs" />}
                 <DetailsRow label={t('LabelMediaType')} value={currentSession.mediaType} />
                 <DetailsRow label={t('LabelDuration')} value={formatDuration(currentSession.duration, t, { showSeconds: true })} />
               </div>
@@ -160,16 +160,8 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
                     {osDisplayName && <p className="mb-1">{osDisplayName}</p>}
                     {deviceInfo.browserName && <p className="mb-1">{deviceInfo.browserName}</p>}
                     {deviceDisplayName && <p className="mb-1">{deviceDisplayName}</p>}
-                    {deviceInfo.sdkVersion && (
-                      <p className="mb-1">
-                        SDK {t('LabelVersion')}: {deviceInfo.sdkVersion}
-                      </p>
-                    )}
-                    {deviceInfo.deviceType && (
-                      <p className="mb-1">
-                        {t('LabelType')}: {deviceInfo.deviceType}
-                      </p>
-                    )}
+                    {deviceInfo.sdkVersion && <p className="mb-1">{t('LabelSdkVersionWithValue', { 0: deviceInfo.sdkVersion })}</p>}
+                    {deviceInfo.deviceType && <p className="mb-1">{t('LabelTypeWithValue', { 0: deviceInfo.deviceType })}</p>}
                   </>
                 )}
               </div>

@@ -2,6 +2,7 @@
 
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { useFormatter } from 'next-intl'
 import { memo, useCallback } from 'react'
 import { BaseMatchFieldEditor } from './BaseMatchFieldEditor'
 
@@ -33,6 +34,7 @@ function MultiSelectMatchFieldEditor({
   onReplaceAll
 }: MultiSelectMatchFieldEditorProps) {
   const t = useTypeSafeTranslations()
+  const format = useFormatter()
 
   const handleUseCurrentValue = useCallback(() => {
     if (currentValue && currentValue.length > 0) {
@@ -49,14 +51,16 @@ function MultiSelectMatchFieldEditor({
 
   const hasCurrentValue = currentValue !== undefined && currentValue.length > 0
 
-  const currentValueDisplay = hasCurrentValue ? (
-    <>
-      {t('LabelCurrently')}{' '}
-      <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
-        {currentValue.join(', ')}
-      </a>
-    </>
-  ) : null
+  const currentValueDisplay = hasCurrentValue
+    ? t.rich('MessageCurrentlyWithLink', {
+        0: format.list(currentValue, { type: 'unit' }),
+        link: (chunks) => (
+          <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
+            {chunks}
+          </a>
+        )
+      })
+    : null
 
   return (
     <BaseMatchFieldEditor usageChecked={usageChecked} onUsageChange={onUsageChange} currentValueDisplay={currentValueDisplay} hasCurrentValue={hasCurrentValue}>

@@ -15,15 +15,15 @@ interface EncoderOptionsCardProps {
 
 const CODEC_ITEMS = [
   { text: 'Copy', value: 'copy' },
-  { text: 'AAC', value: 'aac' },
-  { text: 'OPUS', value: 'opus' }
+  { text: 'AAC', value: 'aac' }, // i18n-ignore
+  { text: 'OPUS', value: 'opus' } // i18n-ignore
 ]
 
 const BITRATE_ITEMS = [
-  { text: '32k', value: '32k' },
-  { text: '64k', value: '64k' },
-  { text: '128k', value: '128k' },
-  { text: '192k', value: '192k' }
+  { text: '32k', value: '32k' }, // i18n-ignore
+  { text: '64k', value: '64k' }, // i18n-ignore
+  { text: '128k', value: '128k' }, // i18n-ignore
+  { text: '192k', value: '192k' } // i18n-ignore
 ]
 
 const CHANNELS_ITEMS = [
@@ -177,6 +177,18 @@ export default function EncoderOptionsCard({ audioTracks, disabled = false, onEn
     [showAdvancedView]
   )
 
+  const renderCurrentlyWithValue = useCallback(
+    (value: string) =>
+      t.rich('LabelCurrentlyWithValue', {
+        0: (
+          <span key="value" className="text-foreground">
+            {value}
+          </span>
+        )
+      }),
+    [t]
+  )
+
   return (
     <div className="w-full py-2">
       <div className="-mb-px flex">
@@ -194,26 +206,19 @@ export default function EncoderOptionsCard({ audioTracks, disabled = false, onEn
               <p className="w-40 text-sm font-semibold">{t('LabelCodec')}</p>
               <ToggleButtonGroup items={CODEC_ITEMS} value={selectedCodec} onChange={(value) => setSelectedCodec(String(value))} disabled={disabled} />
               <p className="text-foreground-muted text-xs">
-                {t('LabelCurrently')} <span className="text-foreground">{currentCodec}</span>
+                {renderCurrentlyWithValue(currentCodec)}
                 {isCodecsDifferent && <span className="text-warning"> (mixed)</span>}
               </p>
             </div>
             <div className="flex flex-col items-start gap-2">
               <p className="w-40 text-sm font-semibold">{t('LabelBitrate')}</p>
               <ToggleButtonGroup items={BITRATE_ITEMS} value={selectedBitrate} onChange={(value) => setSelectedBitrate(String(value))} disabled={disabled} />
-              <p className="text-foreground-muted text-xs">
-                {t('LabelCurrently')} <span className="text-foreground">{currentBitrate} KB/s</span>
-              </p>
+              <p className="text-foreground-muted text-xs">{renderCurrentlyWithValue(`${currentBitrate} KB/s`)}</p>
             </div>
             <div className="flex flex-col items-start gap-2">
               <p className="w-40 text-sm font-semibold">{t('LabelChannels')}</p>
               <ToggleButtonGroup items={CHANNELS_ITEMS} value={selectedChannels} onChange={(value) => setSelectedChannels(Number(value))} disabled={disabled} />
-              <p className="text-foreground-muted text-xs">
-                {t('LabelCurrently')}{' '}
-                <span className="text-foreground">
-                  {currentChannels} ({currentChannelLayout})
-                </span>
-              </p>
+              <p className="text-foreground-muted text-xs">{renderCurrentlyWithValue(`${currentChannels} (${currentChannelLayout})`)}</p>
             </div>
           </div>
         ) : (

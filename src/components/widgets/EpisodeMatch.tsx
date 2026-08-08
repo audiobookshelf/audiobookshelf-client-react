@@ -144,7 +144,9 @@ export default function EpisodeMatch({ libraryItem, episode, onEpisodeUpdated }:
               <p className="mb-1 break-words">{result.title}</p>
               {result.subtitle && <p className="text-foreground-muted mb-1 line-clamp-2 text-sm">{result.subtitle}</p>}
               <p className="text-foreground-subdued text-xs">
-                Published {result.publishedAt ? formatDistanceToNow(new Date(result.publishedAt), { addSuffix: true }) : 'Unknown'}
+                {result.publishedAt
+                  ? t('LabelPublishedDate', { 0: formatDistanceToNow(new Date(result.publishedAt), { addSuffix: true }) })
+                  : t('LabelUnknownPublishDate')}
               </p>
             </button>
           ))}

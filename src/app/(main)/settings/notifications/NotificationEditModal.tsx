@@ -166,9 +166,7 @@ export default function NotificationEditModal({ isOpen, notification, notificati
           />
 
           {selectedEvent?.variables?.length ? (
-            <p className="text-foreground-muted text-sm">
-              <strong>{t('LabelNotificationAvailableVariables')}:</strong> {selectedEvent.variables.join(', ')}
-            </p>
+            <p className="text-foreground-muted text-sm">{t('LabelNotificationAvailableVariablesWithValue', { 0: selectedEvent.variables.join(', ') })}</p>
           ) : null}
         </div>
 

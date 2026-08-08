@@ -55,19 +55,13 @@ export default function LibraryItemProgressPanel({ libraryItem, mediaProgress, d
         className="bg-primary border-border text-foreground relative mt-4 max-w-max rounded-md border px-4 py-2 text-sm font-semibold"
       >
         {percent < 1 ? (
-          <p className="leading-6">
-            {t('LabelYourProgress')}: {Math.round(percent * 100)}%
-          </p>
+          <p className="leading-6">{t('LabelYourProgressWithPercent', { 0: Math.round(percent * 100) })}</p>
         ) : (
-          <p className="text-xs">
-            {t('LabelFinished')} {finishedAt ? formatJsDate(new Date(finishedAt), dateFormat) : ''}
-          </p>
+          <p className="text-xs">{t('LabelFinishedDate', { 0: finishedAt ? formatJsDate(new Date(finishedAt), dateFormat) : '' })}</p>
         )}
         {timeRemainingLabel ? <p className="text-foreground-muted text-xs">{timeRemainingLabel}</p> : null}
         {startedAt ? (
-          <p className="text-foreground-subdued pt-1 text-xs">
-            {t('LabelStarted')} {formatJsDate(new Date(startedAt), dateFormat)}
-          </p>
+          <p className="text-foreground-subdued pt-1 text-xs">{t('LabelStartedDate', { 0: formatJsDate(new Date(startedAt), dateFormat) })}</p>
         ) : null}
 
         <ButtonBase

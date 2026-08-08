@@ -54,7 +54,7 @@ export default function ChangelogModal({ isOpen, versionData, onClose }: Changel
             </div>
           ))
         ) : (
-          <p className="text-foreground-muted py-8 text-center">No changelog available.</p>
+          <p className="text-foreground-muted py-8 text-center">No changelog available</p>
         )}
       </div>
     </Modal>

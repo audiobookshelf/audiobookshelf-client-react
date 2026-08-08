@@ -268,7 +268,7 @@ export default function EreaderOverlay({
           />
           {isLoading && (
             <div className="absolute inset-0 z-50 flex items-center justify-center">
-              <LoadingIndicator label="MessagePleaseWait" variant="inline" />
+              <LoadingIndicator label={t('MessagePleaseWait')} variant="inline" />
             </div>
           )}
           {!isLoading && (
