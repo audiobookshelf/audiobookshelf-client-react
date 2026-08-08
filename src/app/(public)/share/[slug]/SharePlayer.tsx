@@ -4,6 +4,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { usePlayerSettings } from '@/hooks/usePlayerSettings'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { AudioTrack } from '@/lib/player/AudioTrack'
@@ -20,6 +21,7 @@ interface SharePlayerProps {
 const PROGRESS_SYNC_INTERVAL = 30 // seconds
 
 export default function SharePlayer({ slug, startTime: startTimeParam }: SharePlayerProps) {
+  const t = useTypeSafeTranslations()
   // Share data
   const [shareData, setShareData] = useState<MediaItemShareResponse | null>(null)
   const [fetchError, setFetchError] = useState<string | null>(null)
@@ -565,7 +567,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
           {shareData.isDownloadable && (
             <div className="absolute top-0 left-0 m-4">
               <Tooltip text="Download" position="bottom">
-                <button aria-label="Download" className="cursor-pointer text-gray-300 hover:text-white" onClick={downloadShareItem}>
+                <button aria-label={t('LabelDownload')} className="cursor-pointer text-gray-300 hover:text-white" onClick={downloadShareItem}>
                   <span className="material-symbols text-2xl sm:text-3xl">download</span>
                 </button>
               </Tooltip>

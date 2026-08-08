@@ -116,7 +116,7 @@ export default function UserClient({ user }: { user: User }) {
               className="bg-primary text-foreground-muted flex items-center justify-center p-1 text-center text-xs"
               style={{ width: COVER_WIDTH, height: coverHeight }}
             >
-              No Cover
+              {t('LabelNoCover')}
             </div>
           )
         }

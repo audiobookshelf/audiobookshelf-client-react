@@ -187,7 +187,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     {userIsAdminOrUp && (
                       <button
                         type="button"
-                        aria-label="Clear episode download queue"
+                        aria-label={t('AriaLabelClearEpisodeDownloadQueue')}
                         className="material-symbols hover:text-error ml-3 cursor-pointer text-xl"
                         onClick={() => setIsClearQueueDialogOpen(true)}
                       >

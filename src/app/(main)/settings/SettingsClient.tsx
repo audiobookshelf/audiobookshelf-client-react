@@ -12,7 +12,7 @@ import { BookshelfView, ServerSettings } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import { updateServerSettings, updateSortingPrefixes } from './actions'
-import { dateFormats, timeFormats } from './settingsConstants'
+import { dateFormatOptions, timeFormatOptions } from './settingsConstants'
 import SettingsToggleSwitch from './SettingsToggleSwitch'
 
 export default function SettingsClient() {
@@ -23,6 +23,15 @@ export default function SettingsClient() {
   const { serverSettings, mergeServerSettings } = useUser()
 
   const [sortingPrefixes, setSortingPrefixes] = useState<string[]>(serverSettings.sortingPrefixes || [])
+
+  const timeFormats = useMemo(
+    () =>
+      timeFormatOptions.map((option) => ({
+        text: t(option.labelKey),
+        value: option.value
+      })),
+    [t]
+  )
 
   const corsAllowedItems = useMemo(() => {
     return (
@@ -272,7 +281,7 @@ export default function SettingsClient() {
           />
           <div className="w-full max-w-72">
             <Dropdown
-              items={dateFormats}
+              items={dateFormatOptions}
               label={t('LabelSettingsDateFormat')}
               value={serverSettings?.dateFormat}
               onChange={(value) => handleSettingChanged('dateFormat', value as string)}

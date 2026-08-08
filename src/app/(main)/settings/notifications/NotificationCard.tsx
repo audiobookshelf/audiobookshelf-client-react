@@ -147,11 +147,12 @@ export default function NotificationCard({ notification, onSettingsUpdated, onEd
           <p className="text-foreground-muted mb-2 text-xs md:text-sm">{notification.urls.join(', ')}</p>
           {notification.lastFiredAt && notification.lastAttemptFailed ? (
             <p className="text-error text-xs">
-              Last attempt failed {lastFiredLabel} ({notification.numConsecutiveFailedAttempts} attempt
-              {notification.numConsecutiveFailedAttempts === 1 ? '' : 's'})
+              {notification.numConsecutiveFailedAttempts === 1
+                ? t('LabelLastAttemptFailedOne', { 0: lastFiredLabel ?? '' })
+                : t('LabelLastAttemptFailedMany', { 0: lastFiredLabel ?? '', 1: notification.numConsecutiveFailedAttempts })}
             </p>
           ) : notification.lastFiredAt ? (
-            <p className="text-foreground-subdued text-xs">Last fired {lastFiredLabel}</p>
+            <p className="text-foreground-subdued text-xs">{t('LabelLastFired', { 0: lastFiredLabel ?? '' })}</p>
           ) : null}
         </div>
       </div>

@@ -1,8 +1,9 @@
 'use client'
 
-import { GroupCoverCell, GroupCoverEmptyState } from '@/components/widgets/media-card/GroupCoverParts'
+import { GroupCoverCell } from '@/components/widgets/media-card/GroupCoverParts'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useGroupCoverData } from '@/hooks/useGroupCoverData'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { LibraryItem } from '@/types/api'
 import { useMemo } from 'react'
 
@@ -20,6 +21,7 @@ interface CollectionGroupCoverProps {
  * Falls back to "Empty Collection" text when no books are available.
  */
 export default function CollectionGroupCover({ books, width, height }: CollectionGroupCoverProps) {
+  const t = useTypeSafeTranslations()
   const { sizeMultiplier } = useCardSize()
   const displayedBooks = useMemo(() => books.slice(0, 2), [books])
   const coverData = useGroupCoverData(displayedBooks)

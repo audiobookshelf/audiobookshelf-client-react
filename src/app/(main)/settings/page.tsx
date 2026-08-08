@@ -16,7 +16,7 @@ export default async function SettingsPage() {
 
   // TODO: Handle loading data error?
   if (!serverSettings) {
-    return <div>Placeholder error</div>
+    return <div>Placeholder error</div> // i18n-ignore
   }
 
   return (

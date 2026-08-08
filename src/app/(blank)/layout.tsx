@@ -1,9 +1,14 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import '../../assets/globals.css'
 
-export const metadata: Metadata = {
-  title: 'audiobookshelf - Login'
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
+
+  return {
+    title: t('TitleLogin')
+  }
 }
 
 export default function BlankLayout({

@@ -196,7 +196,11 @@ export default function GlobalSearchInput({ libraryId, onSubmit, onItemSelect, o
         {isSearching || isTyping ? (
           <LoadingSpinner size="la-sm" className="scale-50 text-gray-400" />
         ) : searchQuery ? (
-          <button onClick={handleClear} className="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label="Clear search">
+          <button
+            onClick={handleClear}
+            className="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            aria-label={t('AriaLabelClearSearch')}
+          >
             <span className="material-symbols text-lg" aria-hidden="true">
               close
             </span>

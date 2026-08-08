@@ -368,7 +368,7 @@ export function useMediaCardActions({
             const result = await rescanLibraryItemAction(libraryItem.id)
             const outcome = result?.result
             if (!outcome) {
-              showToast('Rescan failed', { type: 'error' })
+              showToast(t('ToastRescanFailedGeneric'), { type: 'error' })
             } else {
               refetchFilterDataSilently()
               if (outcome === 'UPDATED') {
