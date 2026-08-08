@@ -22,7 +22,7 @@ export default function SideNavContent({ handleItemClick, serverVersion, install
   const items = useMemo(
     () => [
       {
-        label: t('HeaderSettings'),
+        label: t('HeaderSettingsGeneral'),
         href: '/settings'
       },
       {
