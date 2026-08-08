@@ -60,9 +60,7 @@ export default function EmbedMetadataPanel({
           {t('ButtonStartMetadataEmbed')}
         </Btn>
       ) : taskFailed ? (
-        <p className="text-error text-lg font-semibold">
-          {t('MessageEmbedFailed')} {taskError}
-        </p>
+        <p className="text-error text-lg font-semibold">{t('MessageEmbedFailedWithError', { 0: taskError ?? '' })}</p>
       ) : (
         <p className="text-success text-lg font-semibold">{t('MessageEmbedFinished')}</p>
       )}

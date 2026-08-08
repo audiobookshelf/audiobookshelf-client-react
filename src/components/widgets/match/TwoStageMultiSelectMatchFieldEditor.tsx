@@ -4,6 +4,7 @@ import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import TwoStageMultiSelect from '@/components/ui/TwoStageMultiSelect'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Series } from '@/types/api'
+import { useFormatter } from 'next-intl'
 import { memo, useCallback } from 'react'
 import { BaseMatchFieldEditor } from './BaseMatchFieldEditor'
 
@@ -35,6 +36,7 @@ function TwoStageMultiSelectMatchFieldEditor({
   onReplaceAll
 }: TwoStageMultiSelectMatchFieldEditorProps) {
   const t = useTypeSafeTranslations()
+  const format = useFormatter()
 
   const handleUseCurrentValue = useCallback(() => {
     if (currentValue && currentValue.length > 0) {
@@ -54,16 +56,23 @@ function TwoStageMultiSelectMatchFieldEditor({
 
   const hasCurrentValue = currentValue !== undefined && currentValue.length > 0
 
-  const formattedValue = currentValue ? currentValue.map((s) => (s.sequence ? `${s.name} #${s.sequence}` : s.name)).join(', ') : ''
+  const formattedValue = currentValue
+    ? format.list(
+        currentValue.map((s) => (s.sequence ? `${s.name} #${s.sequence}` : s.name)),
+        { type: 'unit' }
+      )
+    : ''
 
-  const currentValueDisplay = hasCurrentValue ? (
-    <>
-      {t('LabelCurrently')}{' '}
-      <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
-        {formattedValue}
-      </a>
-    </>
-  ) : null
+  const currentValueDisplay = hasCurrentValue
+    ? t.rich('MessageCurrentlyWithLink', {
+        0: formattedValue,
+        link: (chunks) => (
+          <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
+            {chunks}
+          </a>
+        )
+      })
+    : null
 
   return (
     <BaseMatchFieldEditor usageChecked={usageChecked} onUsageChange={onUsageChange} currentValueDisplay={currentValueDisplay} hasCurrentValue={hasCurrentValue}>

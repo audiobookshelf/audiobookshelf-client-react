@@ -59,7 +59,7 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
             className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-10 flex items-center justify-center rounded-full bg-yellow-400 font-semibold text-black"
             style={{ width: '1.25em', height: '1.25em' }}
           >
-            <p style={{ fontSize: '0.8em' }} role="status" aria-label="Number of episodes">
+            <p style={{ fontSize: '0.8em' }} role="status" aria-label={t('AriaLabelNumberOfEpisodes')}>
               {numEpisodesIncomplete}
             </p>
           </div>
@@ -74,7 +74,7 @@ export default function PodcastMediaCard(props: PodcastMediaCardProps) {
             className="shadow-modal-content absolute end-[0.375em] top-[0.375em] z-10 flex items-center justify-center rounded-full bg-black/90 text-white"
             style={{ width: '1.25em', height: '1.25em' }}
           >
-            <p style={{ fontSize: '0.8em' }} role="status" aria-label="Number of episodes">
+            <p style={{ fontSize: '0.8em' }} role="status" aria-label={t('AriaLabelNumberOfEpisodes')}>
               {numEpisodes}
             </p>
           </div>

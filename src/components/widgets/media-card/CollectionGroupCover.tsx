@@ -1,6 +1,7 @@
 'use client'
 
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import type { LibraryItem } from '@/types/api'
 import { useMemo } from 'react'
@@ -19,6 +20,7 @@ interface CollectionGroupCoverProps {
  * Falls back to "Empty Collection" text when no books are available.
  */
 export default function CollectionGroupCover({ books, width, height }: CollectionGroupCoverProps) {
+  const t = useTypeSafeTranslations()
   const { sizeMultiplier } = useCardSize()
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
 
@@ -31,7 +33,7 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
       >
         <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
         <p className="z-10 text-center text-white/60" style={{ fontSize: `${Math.min(1, sizeMultiplier)}em` }}>
-          Empty Collection
+          {t('LabelEmptyCollection')}
         </p>
       </div>
     )

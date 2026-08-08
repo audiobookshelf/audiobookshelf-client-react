@@ -138,17 +138,17 @@ function SeriesCard(props: SeriesCardProps) {
           const duration = (book.media as { duration?: number })?.duration || 0
           return acc + duration
         }, 0)
-        return `${t('LabelDuration')} ${formatDuration(totalDuration, t, { showDays: true })}`
+        return t('LabelDurationValue', { 0: formatDuration(totalDuration, t, { showDays: true }) })
       }
       case 'lastBookUpdated': {
         const lastUpdated = Math.max(...seriesBooks.map((book) => book.updatedAt || 0), 0)
         if (!lastUpdated) return null
-        return `${t('LabelLastBookUpdated')} ${formatJsDate(new Date(lastUpdated), dateFormat)}`
+        return t('LabelLastBookUpdatedWithDate', { 0: formatJsDate(new Date(lastUpdated), dateFormat) })
       }
       case 'lastBookAdded': {
         const lastAdded = Math.max(...seriesBooks.map((book) => book.addedAt || 0), 0)
         if (!lastAdded) return null
-        return `${t('LabelLastBookAdded')} ${formatJsDate(new Date(lastAdded), dateFormat)}`
+        return t('LabelLastBookAddedWithDate', { 0: formatJsDate(new Date(lastAdded), dateFormat) })
       }
       default:
         return null

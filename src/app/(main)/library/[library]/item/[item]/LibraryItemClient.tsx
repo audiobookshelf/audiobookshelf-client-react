@@ -187,7 +187,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     {userIsAdminOrUp && (
                       <button
                         type="button"
-                        aria-label="Clear episode download queue"
+                        aria-label={t('AriaLabelClearEpisodeDownloadQueue')}
                         className="material-symbols hover:text-error ml-3 cursor-pointer text-xl"
                         onClick={() => setIsClearQueueDialogOpen(true)}
                       >
@@ -204,7 +204,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                   {episodesDownloading.map((episode) => (
                     <div key={episode.id} className="flex items-center">
                       <LoadingSpinner />
-                      <p className="py-1 pl-4 text-sm">{`${t('MessageDownloadingEpisode')} "${episode.episodeDisplayTitle ?? ''}"`}</p>
+                      <p className="py-1 pl-4 text-sm">{t('MessageTaskDownloadingEpisodeDescription', { 0: episode.episodeDisplayTitle ?? '' })}</p>
                     </div>
                   ))}
                 </div>

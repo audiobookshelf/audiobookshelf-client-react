@@ -24,8 +24,8 @@ import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { openHardDeleteConfirm } from '@/lib/confirmDialogs'
 import { downloadLibraryItem } from '@/lib/download'
-import { getLibraryItemDownloadSize, openPodcastDeviceDownloadConfirm } from '@/lib/podcastDownload'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
+import { getLibraryItemDownloadSize, openPodcastDeviceDownloadConfirm } from '@/lib/podcastDownload'
 import {
   type BookMetadata,
   type EReaderDevice,
@@ -368,7 +368,7 @@ export function useMediaCardActions({
             const result = await rescanLibraryItemAction(libraryItem.id)
             const outcome = result?.result
             if (!outcome) {
-              showToast('Rescan failed.', { type: 'error' })
+              showToast(t('ToastRescanFailedGeneric'), { type: 'error' })
             } else {
               refetchFilterDataSilently()
               if (outcome === 'UPDATED') {

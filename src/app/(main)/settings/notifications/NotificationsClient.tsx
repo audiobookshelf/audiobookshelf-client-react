@@ -123,7 +123,7 @@ export default function NotificationsClient({ initialSettings, notificationData 
     <>
       <SettingsContent title={t('HeaderAppriseNotificationSettings')} description={t.rich('MessageAppriseDescription', appriseDescriptionTags)}>
         <form onSubmit={handleSubmitAppriseSettings}>
-          <TextInput label="Apprise API Url" value={appriseApiUrl} disabled={isPending} className="mb-2" onChange={setAppriseApiUrl} />
+          <TextInput label={t('LabelAppriseAPIUrl')} value={appriseApiUrl} disabled={isPending} className="mb-2" onChange={setAppriseApiUrl} />
 
           <div className="flex items-center py-2">
             <TextInput type="number" value={maxNotificationQueue} disabled={isPending} className="w-16" onChange={setMaxNotificationQueue} />

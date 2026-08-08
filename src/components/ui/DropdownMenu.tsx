@@ -30,6 +30,7 @@ const PREFERRED_SUBMENU_WIDTH = 192
  * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
  */
 export function DropdownItemLabel({ text, subtext, className, wrapText = false }: { text: string; subtext?: string; className?: string; wrapText?: boolean }) {
+  const t = useTypeSafeTranslations()
   const textOverflowClass = wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate'
 
   if (!subtext) {
@@ -40,13 +41,22 @@ export function DropdownItemLabel({ text, subtext, className, wrapText = false }
     )
   }
 
-  const fullLabel = `${text}: ${subtext}`
+  const fullLabel = t('LabelTextWithSubtext', { 0: text, 1: subtext })
 
   return (
     <span className={mergeClasses('block min-w-0 font-sans', textOverflowClass, className)} title={fullLabel}>
-      <span className="font-semibold">{text}</span>
-      <span>:&nbsp;</span>
-      <span className="text-foreground-subdued font-normal">{subtext}</span>
+      {t.rich('LabelTextWithSubtext', {
+        0: (
+          <span key="text" className="font-semibold">
+            {text}
+          </span>
+        ),
+        1: (
+          <span key="subtext" className="text-foreground-subdued font-normal">
+            {subtext}
+          </span>
+        )
+      })}
     </span>
   )
 }

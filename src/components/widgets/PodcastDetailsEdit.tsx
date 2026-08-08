@@ -170,7 +170,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
             <TextInput
               value={details.itunesId || ''}
               onChange={handleFieldUpdate('itunesId') as (value: string | number) => void}
-              label="iTunes ID"
+              label={t('LabelItunesID')}
               trimWhitespace
             />
           </div>

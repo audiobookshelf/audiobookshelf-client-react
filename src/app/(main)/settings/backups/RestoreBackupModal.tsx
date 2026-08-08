@@ -26,7 +26,7 @@ export default function RestoreBackupModal({ isOpen, backup, dateFormat, timeFor
         <p className="text-error text-lg font-semibold">{t('MessageImportantNotice')}</p>
         <div className="text-foreground py-1 text-base">{t.rich('MessageRestoreBackupWarning', { br: () => <br /> })}</div>
         <p className="text-foreground my-8 text-center text-lg">
-          {t('MessageRestoreBackupConfirm')} {formatJsDatetime(new Date(backup.createdAt), dateFormat, timeFormat)}?
+          {t('MessageRestoreBackupConfirmWithDate', { 0: formatJsDatetime(new Date(backup.createdAt), dateFormat, timeFormat) })}
         </p>
         <div className="flex items-center">
           <Btn color="bg-primary" onClick={onClose}>

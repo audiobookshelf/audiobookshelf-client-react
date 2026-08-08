@@ -40,15 +40,16 @@ export default function AddMultipleChaptersModal({
 
           {detectedPattern && (
             <div className="bg-primary/25 text-foreground-muted rounded p-2 text-sm">
-              <strong>{t('LabelDetectedPattern')}</strong> &quot;{detectedPattern.before}
-              {formatNumberWithPadding(detectedPattern.startingNumber, detectedPattern)}
-              {detectedPattern.after}&quot;
+              {t.rich('MessageDetectedPatternWithValue', {
+                0: `${detectedPattern.before}${formatNumberWithPadding(detectedPattern.startingNumber, detectedPattern)}${detectedPattern.after}`,
+                strong: (chunks) => <strong>{chunks}</strong>
+              })}
               <br />
-              <strong>{t('LabelNextChapters')}</strong> &quot;{detectedPattern.before}
-              {formatNumberWithPadding(detectedPattern.startingNumber + 1, detectedPattern)}
-              {detectedPattern.after}&quot;, &quot;{detectedPattern.before}
-              {formatNumberWithPadding(detectedPattern.startingNumber + 2, detectedPattern)}
-              {detectedPattern.after}&quot;, etc.
+              {t.rich('MessageNextChaptersWithExamples', {
+                0: `${detectedPattern.before}${formatNumberWithPadding(detectedPattern.startingNumber + 1, detectedPattern)}${detectedPattern.after}`,
+                1: `${detectedPattern.before}${formatNumberWithPadding(detectedPattern.startingNumber + 2, detectedPattern)}${detectedPattern.after}`,
+                strong: (chunks) => <strong>{chunks}</strong>
+              })}
             </div>
           )}
 
