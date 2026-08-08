@@ -2,7 +2,7 @@ import { getCurrentUser, getData } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { purgeCache, purgeItemsCache } from './actions'
 import SettingsCachePurge from './SettingsCachePurge'
-import SettingsClient from './SettingsClient'
+import GeneralSettingsClient from './GeneralSettingsClient'
 import SettingsContent from './SettingsContent'
 import SettingsFooter from './SettingsFooter'
 
@@ -21,8 +21,8 @@ export default async function SettingsPage() {
 
   return (
     <>
-      <SettingsContent title={t('HeaderSettings')}>
-        <SettingsClient />
+      <SettingsContent title={t('HeaderSettingsGeneral')}>
+        <GeneralSettingsClient />
       </SettingsContent>
       <SettingsCachePurge purgeCache={purgeCache} purgeItemsCache={purgeItemsCache} />
       <SettingsFooter />
