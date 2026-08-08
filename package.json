@@ -6,6 +6,8 @@
   "scripts": {
     "sync-pdfjs": "node scripts/sync-pdfjs-vendor.mjs",
     "sync-unrar": "node scripts/sync-unrar-wasm.mjs",
+    "migrate-locales": "node scripts/migrate-locales-from-vue.mjs",
+    "migrate-locales:dry": "node scripts/migrate-locales-from-vue.mjs --dry-run",
     "postinstall": "node scripts/sync-pdfjs-vendor.mjs && node scripts/sync-unrar-wasm.mjs",
     "find-hardcoded-strings": "node scripts/find-hardcoded-strings.mjs",
     "dev": "next dev",
