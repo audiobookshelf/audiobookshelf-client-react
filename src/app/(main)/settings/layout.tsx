@@ -20,7 +20,7 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
   }
 
   // Redirect to library page if user is not admin or root
-  if (!isUserAdminOrUp(currentUser.user)) {
+  if (!isUserAdminOrUp(currentUser.user.type)) {
     return redirect('/library')
   }
 

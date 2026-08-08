@@ -1,4 +1,5 @@
-import { getClientBaseUrlFromRequest, getUserDefaultUrlPath, redirectToLogin, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
+import { getClientBaseUrlFromRequest, redirectToLogin, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
+import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 

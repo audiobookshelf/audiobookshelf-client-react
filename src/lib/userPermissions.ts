@@ -2,12 +2,20 @@ import type { User, UserPermissions } from '@/types/api'
 
 type UserWithPermissions = Pick<User, 'type' | 'permissions'>
 
-export function isUserAdminOrUp(user: Pick<User, 'type'>): boolean {
-  return user.type === 'admin' || user.type === 'root'
+export function isUserAdminOrUp(userType: string): boolean {
+  return userType === 'admin' || userType === 'root'
+}
+
+/**
+ * User "Home" page is the default library, or libraries settings for admin/root when none exist yet
+ * (Vue: `/config/libraries` for root with no libraries).
+ */
+export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userType: string) {
+  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : isUserAdminOrUp(userType) ? '/settings/libraries' : '/account'
 }
 
 function hasUserPermission(user: UserWithPermissions, permission: keyof UserPermissions): boolean {
-  return !!(user.permissions?.[permission] || isUserAdminOrUp(user))
+  return !!(user.permissions?.[permission] || isUserAdminOrUp(user.type))
 }
 
 export function userCanUpdate(user: UserWithPermissions): boolean {
@@ -23,7 +31,7 @@ export function userCanDownload(user: UserWithPermissions): boolean {
 }
 
 export function getUserPermissionFlags(user: User) {
-  const userIsAdminOrUp = isUserAdminOrUp(user)
+  const userIsAdminOrUp = isUserAdminOrUp(user.type)
 
   return {
     userCanUpdate: userCanUpdate(user),
