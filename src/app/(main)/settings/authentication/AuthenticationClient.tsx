@@ -87,7 +87,7 @@ export default function AuthenticationClient({ initialSettings, routerBasePath =
     if (isPending || !hasUpdates) return
 
     if (!enableLocalAuth && !enableOpenIDAuth) {
-      showToast('Must have at least one authentication method enabled', { type: 'error' })
+      showToast(t('ToastMustHaveAtLeastOneAuthMethod'), { type: 'error' })
       return
     }
 

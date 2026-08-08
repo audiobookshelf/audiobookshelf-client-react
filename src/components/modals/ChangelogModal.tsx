@@ -2,6 +2,7 @@
 
 import Modal from '@/components/modals/Modal'
 import { useUser } from '@/contexts/UserContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
 import type { ReleaseInfo, VersionData } from '@/lib/version'
 import { marked } from 'marked'
@@ -13,28 +14,27 @@ interface ChangelogModalProps {
   onClose: () => void
 }
 
-function getChangelogHtml(release: ReleaseInfo): string {
-  return marked.parse(release.changelog || 'No Changelog Available', { gfm: true, breaks: true }) as string
-}
-
 export default function ChangelogModal({ isOpen, versionData, onClose }: ChangelogModalProps) {
+  const t = useTypeSafeTranslations()
   const { serverSettings } = useUser()
   const dateFormat = serverSettings.dateFormat
 
   const outerContent = (
     <div className="absolute start-0 top-0 p-4">
-      <h1 className="text-foreground text-xl">Changelog</h1>
+      <h1 className="text-foreground text-xl">{t('HeaderChangelog')}</h1>
     </div>
   )
 
   const releaseSections = useMemo(() => {
     const releasesToShow = versionData?.releasesToShow ?? []
+    const noChangelogFallback = t('MessageNoChangelogAvailable')
+
     return releasesToShow.map((release, index) => ({
       release,
-      html: getChangelogHtml(release),
+      html: marked.parse(release.changelog || noChangelogFallback, { gfm: true, breaks: true }) as string,
       showDivider: index < releasesToShow.length - 1
     }))
-  }, [versionData?.releasesToShow])
+  }, [t, versionData?.releasesToShow])
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent}>
@@ -43,7 +43,7 @@ export default function ChangelogModal({ isOpen, versionData, onClose }: Changel
           releaseSections.map(({ release, html, showDivider }) => (
             <div key={release.name} className="min-w-0">
               <p className="pb-4 text-xl font-bold break-words">
-                Changelog{' '}
+                {t('HeaderChangelog')}{' '}
                 <a href={`https://github.com/advplyr/audiobookshelf/releases/tag/${release.name}`} target="_blank" rel="noopener noreferrer">
                   {release.name}
                 </a>{' '}
@@ -54,7 +54,7 @@ export default function ChangelogModal({ isOpen, versionData, onClose }: Changel
             </div>
           ))
         ) : (
-          <p className="text-foreground-muted py-8 text-center">No changelog available</p>
+          <p className="text-foreground-muted py-8 text-center">{t('MessageNoChangelogAvailable')}</p>
         )}
       </div>
     </Modal>

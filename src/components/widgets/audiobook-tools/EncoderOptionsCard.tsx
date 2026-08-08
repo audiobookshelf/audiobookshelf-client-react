@@ -13,22 +13,11 @@ interface EncoderOptionsCardProps {
   onEncodingOptionsChange: (options: M4bEncodeOptions) => void
 }
 
-const CODEC_ITEMS = [
-  { text: 'Copy', value: 'copy' },
-  { text: 'AAC', value: 'aac' }, // i18n-ignore
-  { text: 'OPUS', value: 'opus' } // i18n-ignore
-]
-
 const BITRATE_ITEMS = [
   { text: '32k', value: '32k' }, // i18n-ignore
   { text: '64k', value: '64k' }, // i18n-ignore
   { text: '128k', value: '128k' }, // i18n-ignore
   { text: '192k', value: '192k' } // i18n-ignore
-]
-
-const CHANNELS_ITEMS = [
-  { text: '1 (mono)', value: 1 },
-  { text: '2 (stereo)', value: 2 }
 ]
 
 function buildEncodingOptions(
@@ -57,6 +46,24 @@ function buildEncodingOptions(
 
 export default function EncoderOptionsCard({ audioTracks, disabled = false, onEncodingOptionsChange }: EncoderOptionsCardProps) {
   const t = useTypeSafeTranslations()
+
+  const codecItems = useMemo(
+    () => [
+      { text: t('LabelCodecCopy'), value: 'copy' },
+      { text: 'AAC', value: 'aac' }, // i18n-ignore
+      { text: 'OPUS', value: 'opus' } // i18n-ignore
+    ],
+    [t]
+  )
+
+  const channelsItems = useMemo(
+    () => [
+      { text: t('LabelMonoChannel'), value: 1 },
+      { text: t('LabelStereoChannel'), value: 2 }
+    ],
+    [t]
+  )
+
   const [showAdvancedView, setShowAdvancedView] = useState(false)
   const [selectedCodec, setSelectedCodec] = useState('aac')
   const [selectedBitrate, setSelectedBitrate] = useState('128k')
@@ -204,10 +211,10 @@ export default function EncoderOptionsCard({ audioTracks, disabled = false, onEn
           <div className="flex flex-wrap justify-start gap-4 sm:justify-center sm:gap-8">
             <div className="flex flex-col items-start gap-2">
               <p className="w-40 text-sm font-semibold">{t('LabelCodec')}</p>
-              <ToggleButtonGroup items={CODEC_ITEMS} value={selectedCodec} onChange={(value) => setSelectedCodec(String(value))} disabled={disabled} />
+              <ToggleButtonGroup items={codecItems} value={selectedCodec} onChange={(value) => setSelectedCodec(String(value))} disabled={disabled} />
               <p className="text-foreground-muted text-xs">
                 {renderCurrentlyWithValue(currentCodec)}
-                {isCodecsDifferent && <span className="text-warning"> (mixed)</span>}
+                {isCodecsDifferent && <span className="text-warning"> {t('LabelMixed')}</span>}
               </p>
             </div>
             <div className="flex flex-col items-start gap-2">
@@ -217,7 +224,7 @@ export default function EncoderOptionsCard({ audioTracks, disabled = false, onEn
             </div>
             <div className="flex flex-col items-start gap-2">
               <p className="w-40 text-sm font-semibold">{t('LabelChannels')}</p>
-              <ToggleButtonGroup items={CHANNELS_ITEMS} value={selectedChannels} onChange={(value) => setSelectedChannels(Number(value))} disabled={disabled} />
+              <ToggleButtonGroup items={channelsItems} value={selectedChannels} onChange={(value) => setSelectedChannels(Number(value))} disabled={disabled} />
               <p className="text-foreground-muted text-xs">{renderCurrentlyWithValue(`${currentChannels} (${currentChannelLayout})`)}</p>
             </div>
           </div>

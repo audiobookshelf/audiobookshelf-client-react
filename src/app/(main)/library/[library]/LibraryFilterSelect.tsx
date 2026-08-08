@@ -386,8 +386,14 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         text: t('LabelMissing'),
         value: 'missing',
         subitems: [
-          { text: 'ASIN', value: `missing.${filterEncode('asin')}` },
-          { text: 'ISBN', value: `missing.${filterEncode('isbn')}` },
+          {
+            text: 'ASIN', // i18n-ignore
+            value: `missing.${filterEncode('asin')}`
+          },
+          {
+            text: 'ISBN', // i18n-ignore
+            value: `missing.${filterEncode('isbn')}`
+          },
           { text: t('LabelAuthor'), value: `missing.${filterEncode('authors')}` },
           { text: t('LabelChapters'), value: `missing.${filterEncode('chapters')}` },
           { text: t('LabelCover'), value: `missing.${filterEncode('cover')}` },

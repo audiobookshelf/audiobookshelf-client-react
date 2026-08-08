@@ -143,7 +143,7 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
       <table className="w-full table-auto">
         <thead className="bg-primary/50 w-full">
           <tr>
-            <th className="px-3 py-2 text-left" title="Name">
+            <th className="px-3 py-2 text-left" title={t('LabelName')}>
               {t('LabelName')}
             </th>
             {showNumBooks && <th className="hidden md:table-cell">{t('LabelBooks')}</th>}

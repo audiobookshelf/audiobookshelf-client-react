@@ -83,7 +83,12 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
           </div>
 
           <div className="mt-4">
-            <TextInput label="URL" value={url} placeholder="URL" onChange={setUrl} />
+            <TextInput
+              label="URL" // i18n-ignore
+              value={url}
+              placeholder="URL" // i18n-ignore
+              onChange={setUrl}
+            />
           </div>
 
           <div className="mt-4">

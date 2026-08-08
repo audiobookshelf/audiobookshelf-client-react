@@ -381,7 +381,7 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
               style={{ paddingRight: hasScrollbar ? '1rem' : '0' }}
               onKeyDown={handleContainerKeyDown}
               role="listbox"
-              aria-label="Search results"
+              aria-label={t('AriaLabelSearchResults')}
             >
               {searchResults.map((result, index) => (
                 <MatchCard

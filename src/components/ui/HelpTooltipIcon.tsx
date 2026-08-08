@@ -6,8 +6,9 @@ import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { mergeClasses } from '@/lib/merge-classes'
 
 interface HelpTooltipIconProps {
-  text: string
+  text: React.ReactNode
   size?: 'sm' | 'lg'
+  ariaLabel?: string
 }
 
 const iconClassMap: Record<'sm' | 'lg', string> = {
@@ -15,9 +16,10 @@ const iconClassMap: Record<'sm' | 'lg', string> = {
   lg: 'text-lg'
 }
 
-export default function HelpTooltipIcon({ text, size = 'lg' }: HelpTooltipIconProps) {
+export default function HelpTooltipIcon({ text, size = 'lg', ariaLabel }: HelpTooltipIconProps) {
   const primaryInputCanHover = usePrimaryInputCanHover()
   const openOnClick = !primaryInputCanHover
+  const resolvedAriaLabel = ariaLabel ?? (typeof text === 'string' ? text : undefined)
 
   return (
     <TooltipCore
@@ -33,7 +35,7 @@ export default function HelpTooltipIcon({ text, size = 'lg' }: HelpTooltipIconPr
       <IconBtn
         borderless
         size="custom"
-        ariaLabel={text}
+        ariaLabel={resolvedAriaLabel ?? 'Help'}
         iconClass={iconClassMap[size]}
         className={mergeClasses('h-auto min-h-0 w-auto shadow-none', openOnClick ? 'cursor-pointer' : 'cursor-default')}
       >

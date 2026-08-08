@@ -57,7 +57,7 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
       </button>
       {hasUpdate && githubTagUrl ? (
         <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning text-xxs block text-center leading-3 hover:underline">
-          Update
+          {t('ButtonUpdate')}
         </a>
       ) : (
         <p className="text-xxs text-foreground-subdued text-center leading-3 italic">{installSource}</p>

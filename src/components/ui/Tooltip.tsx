@@ -14,7 +14,7 @@ const LAZY_ACTIVATION_DELAY_MS = 400
 const LAZY_UNMOUNT_DELAY_MS = 150
 
 interface TooltipProps {
-  text: string
+  text: React.ReactNode
   children: React.ReactNode
   position?: 'top' | 'bottom' | 'left' | 'right'
   maxWidth?: number

@@ -236,7 +236,7 @@ export default function PodcastMatchView({
               value={getStringValue('itunesId')}
               onChange={(val) => createFieldValueHandler('itunesId')(Number(val))}
               type="number"
-              label="iTunes ID"
+              label={t('LabelItunesID')}
               currentValue={mediaMetadata.itunesId}
             />
           )}
@@ -247,7 +247,7 @@ export default function PodcastMatchView({
               onUsageChange={createFieldUsageHandler('feedUrl')}
               value={getStringValue('feedUrl')}
               onChange={createFieldValueHandler('feedUrl')}
-              label="RSS Feed URL"
+              label={t('LabelRSSFeedURL')}
               currentValue={mediaMetadata.feedUrl}
             />
           )}
@@ -258,7 +258,7 @@ export default function PodcastMatchView({
               onUsageChange={createFieldUsageHandler('itunesPageUrl')}
               value={getStringValue('itunesPageUrl')}
               onChange={createFieldValueHandler('itunesPageUrl')}
-              label="iTunes Page URL"
+              label={t('LabelItunesPageURL')}
               currentValue={mediaMetadata.itunesPageUrl}
             />
           )}
