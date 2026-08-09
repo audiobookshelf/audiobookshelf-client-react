@@ -1,7 +1,8 @@
 'use client'
 
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getContainedCoverDimensions, shouldShowCoverBackground, useGroupCoverData } from '@/hooks/useGroupCoverData'
+import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
 import { useMemo } from 'react'
 
@@ -20,7 +21,37 @@ interface CollectionGroupCoverProps {
  */
 export default function CollectionGroupCover({ books, width, height }: CollectionGroupCoverProps) {
   const { sizeMultiplier } = useCardSize()
-  const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
+  const displayedBooks = useMemo(() => books.slice(0, 2), [books])
+  const coverData = useGroupCoverData(displayedBooks)
+  const cellWidth = width / 2
+
+  const renderCover = (index: number, containerWidth: number = cellWidth) => {
+    const cover = coverData[index]!
+    const showCoverBg = shouldShowCoverBackground(cover.imageAspectRatio, containerWidth, height)
+    const imageStyle = showCoverBg
+      ? getContainedCoverDimensions(containerWidth, height, cover.imageAspectRatio!)
+      : containerWidth > cellWidth
+        ? { width: `${cellWidth}px`, height: '100%' }
+        : undefined
+
+    return (
+      <div className="relative z-10 flex h-full items-center justify-center" style={{ width: `${containerWidth}px` }}>
+        {showCoverBg && (
+          <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden">
+            <div className="cover-bg absolute" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
+          </div>
+        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={cover.coverUrl}
+          alt=""
+          aria-hidden="true"
+          className={mergeClasses('relative z-10', showCoverBg ? 'object-contain' : 'h-full w-full object-cover')}
+          style={imageStyle}
+        />
+      </div>
+    )
+  }
 
   // No books - show empty collection message
   if (!books.length) {
@@ -43,10 +74,7 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
       <div className="relative overflow-hidden rounded-xs" style={{ width: `${width}px`, height: `${height}px` }}>
         <div className="bg-primary relative flex h-full items-center justify-center rounded-xs">
           <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
-          <div className="relative z-10 h-full" style={{ width: `${width / 2}px` }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={getLibraryItemCoverSrc(books[0], placeholderUrl)} alt="" aria-hidden="true" className="h-full w-full object-cover" />
-          </div>
+          {renderCover(0, width)}
         </div>
       </div>
     )
@@ -58,17 +86,8 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
       <div className="bg-primary/95 relative flex h-full justify-center rounded-xs">
         <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
 
-        {/* First book cover */}
-        <div className="relative h-full" style={{ width: `${width / 2}px` }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={getLibraryItemCoverSrc(books[0], placeholderUrl)} alt="" aria-hidden="true" className="h-full w-full object-cover" />
-        </div>
-
-        {/* Second book cover */}
-        <div className="relative h-full" style={{ width: `${width / 2}px` }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={getLibraryItemCoverSrc(books[1], placeholderUrl)} alt="" aria-hidden="true" className="h-full w-full object-cover" />
-        </div>
+        {renderCover(0)}
+        {renderCover(1)}
       </div>
     </div>
   )
