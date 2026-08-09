@@ -1,6 +1,6 @@
 'use client'
 
-import { GroupCoverCell, GroupCoverEmptyState } from '@/components/widgets/media-card/GroupCoverParts'
+import { GroupCoverEmptyState } from '@/components/widgets/media-card/GroupCoverParts'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useGroupCoverData } from '@/hooks/useGroupCoverData'
 import type { LibraryItem } from '@/types/api'
