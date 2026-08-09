@@ -11,16 +11,16 @@ import TextInput from './TextInput'
 
 type MetadataListType = 'Tag' | 'Genre' | 'Narrator'
 
-export interface MetadataTableItem {
+export interface MetadataEditTableItem {
   id: string
   name: string
   numBooks?: number
 }
 
-interface MetadataTableProps {
-  items: MetadataTableItem[]
-  onItemEditSaveClick: (item: MetadataTableItem, newName: string) => Promise<void>
-  onItemDeleteClick: (item: MetadataTableItem) => Promise<void>
+interface MetadataEditTableProps {
+  items: MetadataEditTableItem[]
+  onItemEditSaveClick: (item: MetadataEditTableItem, newName: string) => Promise<void>
+  onItemDeleteClick: (item: MetadataEditTableItem) => Promise<void>
   listType: MetadataListType
   libraryId?: string
 }
@@ -57,18 +57,18 @@ const LIST_TYPE_STRINGS: Record<MetadataListType, ListTypeStrings> = {
   }
 }
 
-export default function MetadataTable({ items, onItemEditSaveClick, onItemDeleteClick, listType, libraryId }: MetadataTableProps) {
+export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDeleteClick, listType, libraryId }: MetadataEditTableProps) {
   const t = useTypeSafeTranslations()
   const strings = LIST_TYPE_STRINGS[listType]
   const showNumBooks = listType === 'Narrator'
 
-  const [editedItem, setEditedItem] = useState<MetadataTableItem | null>(null)
+  const [editedItem, setEditedItem] = useState<MetadataEditTableItem | null>(null)
   const [newName, setNewName] = useState('')
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [hasSameName, setHasSameName] = useState(false)
   const [sameNameWithDifferentCase, setSameNameWithDifferentCase] = useState('')
-  const delRef = useRef<MetadataTableItem | null>(null)
+  const delRef = useRef<MetadataEditTableItem | null>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
 
   // Focus the input when a row switches into edit mode
@@ -79,7 +79,7 @@ export default function MetadataTable({ items, onItemEditSaveClick, onItemDelete
   }, [editedItem])
 
   // Switch a row into edit mode
-  const startEdit = (item: MetadataTableItem) => {
+  const startEdit = (item: MetadataEditTableItem) => {
     setEditedItem(item)
     setNewName(item.name)
   }
@@ -96,14 +96,14 @@ export default function MetadataTable({ items, onItemEditSaveClick, onItemDelete
   }
 
   // Open the confirm dialog for a delete
-  const requestDelete = (item: MetadataTableItem) => {
+  const requestDelete = (item: MetadataEditTableItem) => {
     delRef.current = item
     setIsDeleting(true)
     setShowConfirmDialog(true)
   }
 
   // Open the confirm dialog for a rename, computing merge/case warnings
-  const requestSave = (item: MetadataTableItem) => {
+  const requestSave = (item: MetadataEditTableItem) => {
     setEditedItem(item)
     const mergesWithExisting = items.some((existing) => existing.name === newName.trim())
     const caseConflict = mergesWithExisting ? null : items.find((existing) => existing.id !== item.id && existing.name.toLowerCase() === newName.toLowerCase())
@@ -150,9 +150,9 @@ export default function MetadataTable({ items, onItemEditSaveClick, onItemDelete
 
   // Only narrators are clickable; tags/genres have no library info attached.
   // href could be made an item prop if other pages start using this table.
-  const narratorHref = (item: MetadataTableItem) => `/library/${libraryId}/items?filter=narrators.${item.id}`
+  const narratorHref = (item: MetadataEditTableItem) => `/library/${libraryId}/items?filter=narrators.${item.id}`
 
-  const renderDisplayRow = (item: MetadataTableItem) => (
+  const renderDisplayRow = (item: MetadataEditTableItem) => (
     <tr className="group even:bg-primary/20 p-2">
       <td className="p-3.5">
         {showNumBooks ? (
@@ -199,7 +199,7 @@ export default function MetadataTable({ items, onItemEditSaveClick, onItemDelete
     </tr>
   )
 
-  const renderEditRow = (item: MetadataTableItem) => {
+  const renderEditRow = (item: MetadataEditTableItem) => {
     const trimmedName = newName.trim()
     return (
       <tr className="group even:bg-primary/20 p-2">
@@ -234,7 +234,7 @@ export default function MetadataTable({ items, onItemEditSaveClick, onItemDelete
     )
   }
 
-  const columns: DataTableColumn<MetadataTableItem>[] = [
+  const columns: DataTableColumn<MetadataEditTableItem>[] = [
     { label: t('LabelName') },
     ...(showNumBooks ? [{ label: t('LabelBooks'), headerClassName: 'text-center hidden md:table-cell' }] : []),
     { label: '' }

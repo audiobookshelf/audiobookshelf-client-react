@@ -1,7 +1,6 @@
 'use client'
 
-import type { EditListItem } from '@/components/ui/EditList'
-import EditList from '@/components/ui/EditList'
+import MetadataEditTable, { MetadataEditTableItem } from '@/components/ui/MetadataEditTable'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -22,7 +21,7 @@ export default function NarratorsClient({ libraryId, narrators }: { libraryId: s
     }
   }, [narrators.length, setItemCount])
 
-  const handleSave = async (item: EditListItem, newName: string) => {
+  const handleSave = async (item: MetadataEditTableItem, newName: string) => {
     if (isPending) return
 
     startTransition(async () => {
@@ -35,7 +34,7 @@ export default function NarratorsClient({ libraryId, narrators }: { libraryId: s
     })
   }
 
-  const handleDelete = async (item: EditListItem) => {
+  const handleDelete = async (item: MetadataEditTableItem) => {
     if (isPending) return
 
     startTransition(async () => {
@@ -50,7 +49,7 @@ export default function NarratorsClient({ libraryId, narrators }: { libraryId: s
 
   return (
     <div>
-      <EditList libraryId={libraryId} items={narrators} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Narrator" />
+      <MetadataEditTable libraryId={libraryId} items={narrators} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Narrator" />
     </div>
   )
 }
