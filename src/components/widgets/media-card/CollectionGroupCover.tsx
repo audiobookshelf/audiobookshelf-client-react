@@ -1,6 +1,6 @@
 'use client'
 
-import { GroupCoverCell } from '@/components/widgets/media-card/GroupCoverParts'
+import { GroupCoverCell, GroupCoverEmptyState } from '@/components/widgets/media-card/GroupCoverParts'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useGroupCoverData } from '@/hooks/useGroupCoverData'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -29,7 +29,7 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
 
   // No books - show empty collection message
   if (!books.length) {
-    return <GroupCoverEmptyState width={width} height={height} sizeMultiplier={sizeMultiplier} label="Empty Collection" />
+    return <GroupCoverEmptyState width={width} height={height} sizeMultiplier={sizeMultiplier} label={t('LabelEmptyCollection')} />
   }
 
   // Single book - center it with empty collection background

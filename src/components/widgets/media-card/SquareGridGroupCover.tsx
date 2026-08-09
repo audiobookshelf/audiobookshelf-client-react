@@ -10,7 +10,7 @@ interface SquareGridGroupCoverProps {
   libraryItems: LibraryItem[]
   width: number
   height: number
-  emptyLabel?: string
+  emptyLabel: string
 }
 
 /**
@@ -19,7 +19,7 @@ interface SquareGridGroupCoverProps {
  * - 2 items: checker pattern
  * - 3+ items: first 4 in 2x2 grid (cycles if fewer than 4 unique items passed)
  */
-export default function SquareGridGroupCover({ libraryItems, width, height, emptyLabel = 'Empty Playlist' }: SquareGridGroupCoverProps) {
+export default function SquareGridGroupCover({ libraryItems, width, height, emptyLabel }: SquareGridGroupCoverProps) {
   const { sizeMultiplier } = useCardSize()
 
   const itemCount = libraryItems.length

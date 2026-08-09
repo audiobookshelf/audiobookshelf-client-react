@@ -1,6 +1,7 @@
 'use client'
 
 import SquareGridGroupCover from '@/components/widgets/media-card/SquareGridGroupCover'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { PlaylistItem } from '@/types/api'
 import { useMemo } from 'react'
 
@@ -18,6 +19,7 @@ interface PlaylistGroupCoverProps {
  */
 export default function PlaylistGroupCover({ items, width, height }: PlaylistGroupCoverProps) {
   const libraryItems = useMemo(() => items.map((item) => item.libraryItem), [items])
+  const t = useTypeSafeTranslations()
 
-  return <SquareGridGroupCover libraryItems={libraryItems} width={width} height={height} emptyLabel="Empty Playlist" />
+  return <SquareGridGroupCover libraryItems={libraryItems} width={width} height={height} emptyLabel={t('LabelEmptyPlaylist')} />
 }
