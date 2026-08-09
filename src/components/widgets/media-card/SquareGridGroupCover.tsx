@@ -1,8 +1,8 @@
 'use client'
 
+import { GroupCoverCell, GroupCoverEmptyState } from '@/components/widgets/media-card/GroupCoverParts'
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { getContainedCoverDimensions, shouldShowCoverBackground, useGroupCoverData } from '@/hooks/useGroupCoverData'
-import { mergeClasses } from '@/lib/merge-classes'
+import { useGroupCoverData } from '@/hooks/useGroupCoverData'
 import type { LibraryItem } from '@/types/api'
 import { useMemo } from 'react'
 
@@ -51,41 +51,15 @@ export default function SquareGridGroupCover({ libraryItems, width, height, empt
   const coverData = useGroupCoverData(gridLibraryItems)
 
   if (!itemCount) {
-    return (
-      <div
-        className="bg-primary relative flex h-full w-full items-center justify-center rounded-xs"
-        style={{ width: `${width}px`, height: `${height}px`, padding: `${sizeMultiplier}em` }}
-      >
-        <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
-        <p className="z-10 text-center text-white/60" style={{ fontSize: `${Math.min(1, sizeMultiplier)}em` }}>
-          {emptyLabel}
-        </p>
-      </div>
-    )
+    return <GroupCoverEmptyState width={width} height={height} sizeMultiplier={sizeMultiplier} label={emptyLabel} />
   }
 
   if (itemCount === 1) {
-    const cover = coverData[0]!
-    const showCoverBg = shouldShowCoverBackground(cover.imageAspectRatio, cellWidth, cellHeight)
     return (
       <div className="relative overflow-hidden rounded-xs" style={{ width: `${width}px`, height: `${height}px` }}>
         <div className="bg-primary relative flex h-full items-center justify-center rounded-xs">
           <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
-          <div className="relative z-10 flex items-center justify-center" style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}>
-            {showCoverBg && (
-              <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs">
-                <div className="cover-bg absolute" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
-              </div>
-            )}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={cover.coverUrl}
-              alt=""
-              aria-hidden="true"
-              className={mergeClasses('relative z-10', showCoverBg ? 'object-contain' : 'h-full w-full object-cover')}
-              style={showCoverBg ? getContainedCoverDimensions(cellWidth, cellHeight, cover.imageAspectRatio!) : undefined}
-            />
-          </div>
+          <GroupCoverCell cover={coverData[0]!} width={cellWidth} height={cellHeight} coverBgClassName="rounded-xs" />
         </div>
       </div>
     )
@@ -96,31 +70,9 @@ export default function SquareGridGroupCover({ libraryItems, width, height, empt
       <div className="bg-primary/95 relative flex h-full flex-wrap rounded-xs">
         <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
 
-        {gridLibraryItems.map((libraryItem, index) => {
-          const cover = coverData[index]!
-          const showCoverBg = shouldShowCoverBackground(cover.imageAspectRatio, cellWidth, cellHeight)
-          return (
-            <div
-              key={`${libraryItem.id}-${index}`}
-              className="relative z-10 flex items-center justify-center"
-              style={{ width: `${cellWidth}px`, height: `${cellHeight}px` }}
-            >
-              {showCoverBg && (
-                <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden">
-                  <div className="cover-bg absolute" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
-                </div>
-              )}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={cover.coverUrl}
-                alt=""
-                aria-hidden="true"
-                className={mergeClasses('relative z-10', showCoverBg ? 'object-contain' : 'h-full w-full object-cover')}
-                style={showCoverBg ? getContainedCoverDimensions(cellWidth, cellHeight, cover.imageAspectRatio!) : undefined}
-              />
-            </div>
-          )
-        })}
+        {gridLibraryItems.map((libraryItem, index) => (
+          <GroupCoverCell key={`${libraryItem.id}-${index}`} cover={coverData[index]!} width={cellWidth} height={cellHeight} />
+        ))}
       </div>
     </div>
   )

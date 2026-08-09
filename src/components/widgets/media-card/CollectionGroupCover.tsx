@@ -1,8 +1,8 @@
 'use client'
 
+import { GroupCoverCell, GroupCoverEmptyState } from '@/components/widgets/media-card/GroupCoverParts'
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { getContainedCoverDimensions, shouldShowCoverBackground, useGroupCoverData } from '@/hooks/useGroupCoverData'
-import { mergeClasses } from '@/lib/merge-classes'
+import { useGroupCoverData } from '@/hooks/useGroupCoverData'
 import type { LibraryItem } from '@/types/api'
 import { useMemo } from 'react'
 
@@ -25,47 +25,9 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
   const coverData = useGroupCoverData(displayedBooks)
   const cellWidth = width / 2
 
-  const renderCover = (index: number, containerWidth: number = cellWidth) => {
-    const cover = coverData[index]!
-    const showCoverBg = shouldShowCoverBackground(cover.imageAspectRatio, containerWidth, height)
-    const imageStyle = showCoverBg
-      ? getContainedCoverDimensions(containerWidth, height, cover.imageAspectRatio!)
-      : containerWidth > cellWidth
-        ? { width: `${cellWidth}px`, height: '100%' }
-        : undefined
-
-    return (
-      <div className="relative z-10 flex h-full items-center justify-center" style={{ width: `${containerWidth}px` }}>
-        {showCoverBg && (
-          <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden">
-            <div className="cover-bg absolute" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
-          </div>
-        )}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={cover.coverUrl}
-          alt=""
-          aria-hidden="true"
-          className={mergeClasses('relative z-10', showCoverBg ? 'object-contain' : 'h-full w-full object-cover')}
-          style={imageStyle}
-        />
-      </div>
-    )
-  }
-
   // No books - show empty collection message
   if (!books.length) {
-    return (
-      <div
-        className="bg-primary relative flex h-full w-full items-center justify-center rounded-xs"
-        style={{ width: `${width}px`, height: `${height}px`, padding: `${sizeMultiplier}em` }}
-      >
-        <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
-        <p className="z-10 text-center text-white/60" style={{ fontSize: `${Math.min(1, sizeMultiplier)}em` }}>
-          Empty Collection
-        </p>
-      </div>
-    )
+    return <GroupCoverEmptyState width={width} height={height} sizeMultiplier={sizeMultiplier} label="Empty Collection" />
   }
 
   // Single book - center it with empty collection background
@@ -74,7 +36,7 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
       <div className="relative overflow-hidden rounded-xs" style={{ width: `${width}px`, height: `${height}px` }}>
         <div className="bg-primary relative flex h-full items-center justify-center rounded-xs">
           <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
-          {renderCover(0, width)}
+          <GroupCoverCell cover={coverData[0]!} width={width} height={height} fallbackImageStyle={{ width: `${cellWidth}px`, height: '100%' }} />
         </div>
       </div>
     )
@@ -86,8 +48,8 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
       <div className="bg-primary/95 relative flex h-full justify-center rounded-xs">
         <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
 
-        {renderCover(0)}
-        {renderCover(1)}
+        <GroupCoverCell cover={coverData[0]!} width={cellWidth} height={height} />
+        <GroupCoverCell cover={coverData[1]!} width={cellWidth} height={height} />
       </div>
     </div>
   )
