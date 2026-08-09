@@ -127,10 +127,12 @@ function createGithubVueStringsSource(github) {
   }
 }
 
+const normBr = (s) => s.replace(/<br\s*\/?>\s*(?:<\/br>)?/gi, '\n')
+
 function getCopyableKeys(reactEn, vueEn) {
   const keys = []
   for (const key of Object.keys(reactEn)) {
-    if (key in vueEn && reactEn[key] === vueEn[key]) {
+    if (key in vueEn && (reactEn[key] === vueEn[key] || normBr(reactEn[key]) === normBr(vueEn[key]))) {
       keys.push(key)
     }
   }
@@ -141,7 +143,7 @@ function buildLocaleFile(vueLocale, copyableKeys) {
   const out = {}
   for (const key of copyableKeys) {
     if (key in vueLocale) {
-      out[key] = vueLocale[key]
+      out[key] = vueLocale[key].replace(/<br\s*\/?>\s*(?:<\/br>)?/gi, '<br></br>')
     }
   }
   return out
