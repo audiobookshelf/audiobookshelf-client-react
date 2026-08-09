@@ -2,14 +2,26 @@
 
 import { useSyncExternalStore } from 'react'
 
-/** Touch-first UIs: no hover and/or coarse primary pointer. */
-export const COARSE_POINTER_MEDIA_QUERY = '(hover: none), (pointer: coarse)'
+const MEDIA_QUERIES = {
+  sm: '(min-width: 640px)',
+  md: '(min-width: 768px)',
+  lg: '(min-width: 1024px)',
+  xl: '(min-width: 1280px)',
+  '2xl': '(min-width: 1536px)',
 
-/** Primary input supports hover (e.g. mouse / trackpad). */
-export const HOVER_CAPABLE_MEDIA_QUERY = '(hover: hover)'
+  'max-sm': '(max-width: 639px)',
+  'max-md': '(max-width: 767px)',
+  'max-lg': '(max-width: 1023px)',
+  'max-xl': '(max-width: 1279px)',
+  'max-2xl': '(max-width: 1535px)',
 
-/** Tailwind `lg` breakpoint (desktop player layout) */
-export const LG_MEDIA_QUERY = '(min-width: 1024px)'
+  /** Touch-first UIs: no hover and/or coarse primary pointer. */
+  'coarse-pointer': '(hover: none), (pointer: coarse)',
+  /** Primary input supports hover (e.g. mouse / trackpad). */
+  hover: '(hover: hover)'
+} as const
+
+type MediaQueryKey = keyof typeof MEDIA_QUERIES
 
 function subscribeMediaQuery(query: string, onStoreChange: () => void) {
   const mq = window.matchMedia(query)
@@ -24,17 +36,18 @@ function getMediaQuerySnapshot(query: string) {
 /**
  * Subscribes to a `window.matchMedia` query. `serverSnapshot` is used for SSR and the first client paint.
  */
-export function useMediaQuery(query: string, serverSnapshot = false): boolean {
+export function useMediaQuery(query: MediaQueryKey, serverSnapshot = false): boolean {
+  const mediaQuery = MEDIA_QUERIES[query]
   return useSyncExternalStore(
-    (onStoreChange) => subscribeMediaQuery(query, onStoreChange),
-    () => getMediaQuerySnapshot(query),
+    (onStoreChange) => subscribeMediaQuery(mediaQuery, onStoreChange),
+    () => getMediaQuerySnapshot(mediaQuery),
     () => serverSnapshot
   )
 }
 
 /** True on touch-first devices (phones, most tablets). */
 export function useCoarsePointer(): boolean {
-  return useMediaQuery(COARSE_POINTER_MEDIA_QUERY, false)
+  return useMediaQuery('coarse-pointer', false)
 }
 
 /**
@@ -42,10 +55,10 @@ export function useCoarsePointer(): boolean {
  * where `(hover: hover)` does not match.
  */
 export function usePrimaryInputCanHover(): boolean {
-  return useMediaQuery(HOVER_CAPABLE_MEDIA_QUERY, true)
+  return useMediaQuery('hover', true)
 }
 
 /** True at Tailwind `lg` and above (desktop player layout) */
 export function useIsLgViewport(): boolean {
-  return useMediaQuery(LG_MEDIA_QUERY, false)
+  return useMediaQuery('lg', false)
 }

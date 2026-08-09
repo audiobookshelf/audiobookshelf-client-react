@@ -21,8 +21,6 @@ import GlobalSearchInput from './GlobalSearchInput'
 import LibrariesDropdown from './LibrariesDropdown'
 import SideRailMobileDrawer from './SideRailMobileDrawer'
 
-const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
-
 interface AppBarProps {
   libraries?: Library[]
   currentLibraryId?: string
@@ -30,7 +28,7 @@ interface AppBarProps {
 
 export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const t = useTypeSafeTranslations()
-  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
+  const isMobile = useMediaQuery('max-md')
   const [isSideRailOpen, setIsSideRailOpen] = useState(false)
   const { user, userDefaultLibraryId } = useUser()
   const userCanUpload = user.permissions.upload
