@@ -3,10 +3,10 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { TranslationKey } from '@/types/translations'
 import { Fragment, useEffect, useRef, useState } from 'react'
-import Modal from '../modals/Modal'
 import Btn from './Btn'
 import IconBtn from './IconBtn'
 import TextInput from './TextInput'
+import ConfirmDialog from '../widgets/ConfirmDialog'
 
 export interface EditListItem {
   id: string
@@ -241,28 +241,30 @@ export default function EditList({ items, onItemEditSaveClick, onItemDeleteClick
           ))}
         </tbody>
       </table>
-      <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} className="w-[500px]">
-        <div className="flex h-full flex-col p-6">
-          {isDeleting ? (
-            <p className="text-foreground mb-6 flex-1">{t(listTypeDeleteString, { 0: delRef.current?.name || '' })}</p>
+      <ConfirmDialog
+        isOpen={isProcessingModalOpen}
+        message={
+          isDeleting ? (
+            t(listTypeDeleteString, { 0: delRef.current?.name || '' })
           ) : (
             <>
-              <p className="text-foreground mb-6 flex-1">{t(listTypeEditString, { 0: editedItem.name, 1: newName })}</p>
-              {/* Show warning if the new value already exists or has a different casing*/}
-              {hasSameName && <p className="mb-6 flex-1 text-yellow-500">{t(listTypeMergeString)}</p>}
-              {sameNameWithDifferentCase !== '' && <p className="mb-6 flex-1 text-yellow-500">{t(listTypeWarningString, { 0: sameNameWithDifferentCase })}</p>}
+              <p>{t(listTypeEditString, { 0: editedItem.name, 1: newName })}</p>
+              {/* Show warning if the new value already exists or has a different casing. */}
+              {hasSameName && <p className="mt-4 text-yellow-500">{t(listTypeMergeString)}</p>}
+              {sameNameWithDifferentCase !== '' && <p className="mt-4 text-yellow-500">{t(listTypeWarningString, { 0: sameNameWithDifferentCase })}</p>}
             </>
-          )}
-          <div className="flex justify-end gap-3">
-            <Btn onClick={isDeleting ? handleDeleteModalClick : handleSaveModalClick} color="bg-success" disabled={isProcessing}>
-              {t('ButtonYes')}
-            </Btn>
-            <Btn onClick={handleCancelEditClick} disabled={isProcessing}>
-              {t('ButtonCancel')}
-            </Btn>
-          </div>
-        </div>
-      </Modal>
+          )
+        }
+        processing={isProcessing}
+        onClose={handleCancelEditClick}
+        onConfirm={() => {
+          if (isDeleting) {
+            handleDeleteModalClick()
+          } else {
+            handleSaveModalClick()
+          }
+        }}
+      />
     </div>
   )
 }
