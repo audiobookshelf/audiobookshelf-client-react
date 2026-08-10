@@ -5,11 +5,9 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import LogoutBtn from './LogoutBtn'
 
-const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
-
 export default function AccountActionsRow() {
   const t = useTypeSafeTranslations()
-  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
+  const isMobile = useMediaQuery('max-md')
   const size = isMobile ? 'small' : 'medium'
 
   return (

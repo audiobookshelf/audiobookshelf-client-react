@@ -5,8 +5,8 @@ import ContextMenuDropdown, { type ContextMenuDropdownItem } from '@/components/
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import AppBarBatchActionModals from '@/components/widgets/AppBarBatchActionModals'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useBookshelfSelectionOptional } from '@/contexts/BookshelfSelectionContext'
 import { useUser } from '@/contexts/UserContext'
 import { type AppBarBatchActionId, useAppBarBatchActions } from '@/hooks/useAppBarBatchActions'
@@ -16,7 +16,6 @@ import { getSelectionCountMessageKey, type SelectedMediaItem, type SelectionKind
 import type { MediaProgress } from '@/types/api'
 import { useMemo } from 'react'
 
-const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
 const countBadgeClasses = 'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
 const EMPTY_SELECTED_ITEMS: readonly SelectedMediaItem[] = []
 
@@ -79,7 +78,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
   const selectedItems = selection?.selectedItems ?? EMPTY_SELECTED_ITEMS
   const selectionKind = selection?.selectionKind ?? null
   const clearSelection = selection?.clearSelection
-  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
+  const isMobile = useMediaQuery('max-md')
 
   const { allPlayable, allFinished } = useSelectionBatchState(selectedItems, user.mediaProgress)
 

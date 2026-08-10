@@ -25,7 +25,7 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { isDragOnlyOverlay, useSortableBookshelfOverlay } from '@/contexts/SortableBookshelfOverlayContext'
-import { useCoarsePointer } from '@/hooks/useMediaQuery'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useShiftClickTextSelectionGuard } from '@/hooks/useShiftClickTextSelectionGuard'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
@@ -139,7 +139,7 @@ function MediaCard(props: MediaCardProps) {
 
   const sortableBookshelfOverlay = useSortableBookshelfOverlay()
   const overlayMode = dragOptions?.overlayMode ?? sortableBookshelfOverlay?.overlayMode ?? 'hover'
-  const isCoarsePointer = useCoarsePointer()
+  const isCoarsePointer = useMediaQuery('coarse-pointer')
   const longPressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const longPressTriggeredRef = useRef(false)
   const pointerStartRef = useRef<{ x: number; y: number } | null>(null)

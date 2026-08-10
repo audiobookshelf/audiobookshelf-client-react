@@ -13,8 +13,6 @@ import { createPortal } from 'react-dom'
 import AppBarNavMenuItem from './AppBarNavMenuItem'
 import { type AppBarNavMenuItemConfig, buildAppBarNavMenuItems } from './appBarNavMenuItems'
 
-const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
-
 interface AppBarNavProps {
   userCanUpload: boolean
   isAdmin: boolean
@@ -25,7 +23,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const logout = useLogout()
-  const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY, true)
+  const isDesktop = useMediaQuery('md', true)
   const menuId = useId()
   const [menuOpen, setMenuOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)

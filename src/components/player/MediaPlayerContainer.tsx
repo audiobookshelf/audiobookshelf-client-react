@@ -7,7 +7,7 @@ import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useMediaSession } from '@/hooks/useMediaSession'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
-import { useIsLgViewport } from '@/hooks/useMediaQuery'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
@@ -45,7 +45,7 @@ export default function MediaPlayerContainer() {
   const playerState = usePlayerState()
   const playerHandler = useMemo((): PlayerHandler => ({ state: playerState, controls: playerControls }), [playerControls, playerState])
   const coverAspectRatio = useBookCoverAspectRatio()
-  const isDesktop = useIsLgViewport()
+  const isDesktop = useMediaQuery('lg')
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
 
