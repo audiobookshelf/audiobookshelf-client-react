@@ -31,7 +31,7 @@ interface CoverEditProps {
 export default function CoverEdit({ libraryItem }: CoverEditProps) {
   const bookCoverAspectRatio = useBookCoverAspectRatio()
   const t = useTypeSafeTranslations()
-  const { user, userCanDelete } = useUser()
+  const { userCanDelete, userCanUpload } = useUser()
   const { showToast } = useGlobalToast()
 
   // Transitions for server actions
@@ -84,8 +84,6 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
       }))
   }, [libraryItem.libraryFiles, libraryItem.id, libraryItem.updatedAt])
-
-  const userCanUpload = user.permissions?.upload || false
 
   const searchTitleLabel = provider.startsWith('audible') ? t('LabelSearchTitleOrASIN') : provider === 'itunes' ? t('LabelSearchTerm') : t('LabelSearchTitle')
 

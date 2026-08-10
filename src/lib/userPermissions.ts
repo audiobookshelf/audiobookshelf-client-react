@@ -30,6 +30,10 @@ export function userCanDownload(user: UserWithPermissions): boolean {
   return hasUserPermission(user, 'download')
 }
 
+export function userCanUpload(user: UserWithPermissions): boolean {
+  return !!user.permissions?.upload
+}
+
 export function getUserPermissionFlags(user: User) {
   const userIsAdminOrUp = isUserAdminOrUp(user.type)
 
@@ -37,6 +41,7 @@ export function getUserPermissionFlags(user: User) {
     userCanUpdate: userCanUpdate(user),
     userCanDelete: userCanDelete(user),
     userCanDownload: userCanDownload(user),
+    userCanUpload: userCanUpload(user),
     userIsAdminOrUp
   }
 }

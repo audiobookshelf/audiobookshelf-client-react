@@ -17,6 +17,7 @@ export interface UserContextType {
   userCanUpdate: boolean
   userCanDelete: boolean
   userCanDownload: boolean
+  userCanUpload: boolean
   userIsAdminOrUp: boolean
   token: string
   serverSettings: ServerSettings
