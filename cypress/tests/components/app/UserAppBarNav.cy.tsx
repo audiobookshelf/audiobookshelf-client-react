@@ -1,10 +1,63 @@
-import AppBarNav from '@/app/(main)/AppBarNav'
+import UserAppBarNav from '@/app/(main)/UserAppBarNav'
+import { UserContext, type UserContextType } from '@/contexts/UserContext'
+import { User } from '@/types/api'
 import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import * as navigation from 'next/navigation'
 import { ReactNode } from 'react'
 
-function mountAppBarNav(props: { userCanUpload?: boolean; isAdmin?: boolean; username?: string } = {}, options?: { alignEnd?: boolean }) {
+const DEFAULT_MOCK_USER_PERMISSIONS: User['permissions'] = {
+  download: true,
+  update: true,
+  delete: true,
+  upload: false,
+  accessAllLibraries: true,
+  accessAllTags: true,
+  accessExplicitContent: true,
+  createEreader: true,
+  selectedTagsNotAccessible: false
+}
+
+function createMockUser(overrides: Partial<User> = {}): User {
+  return {
+    id: 'user-1',
+    username: 'testuser',
+    type: 'user',
+    token: 'test-token',
+    permissions: DEFAULT_MOCK_USER_PERMISSIONS,
+    mediaProgress: [],
+    seriesHideFromContinueListening: [],
+    bookmarks: [],
+    isActive: true,
+    isLocked: false,
+    createdAt: 1234567890,
+    librariesAccessible: [],
+    itemTagsSelected: [],
+    hasOpenIDLink: false,
+    ...overrides
+  }
+}
+
+function createMockUserContextValue(user: User): UserContextType {
+  return {
+    user,
+    userCanUpdate: true,
+    userCanDelete: true,
+    userCanDownload: true,
+    userCanUpload: user.permissions.upload,
+    userIsAdminOrUp: user.type === 'admin' || user.type === 'root',
+    token: user.token,
+    serverSettings: {} as UserContextType['serverSettings'],
+    userDefaultLibraryId: 'test-library-id',
+    ereaderDevices: [],
+    Source: 'test',
+    getMediaItemProgress: () => undefined,
+    getBookmarksForLibraryItem: () => [],
+    mergeServerSettings: () => {}
+  }
+}
+
+function mountUserAppBarNav(props: { userCanUpload?: boolean; username?: string } = {}, options?: { alignEnd?: boolean }) {
   const router = {
     back: cy.stub(),
     forward: cy.stub(),
@@ -16,10 +69,22 @@ function mountAppBarNav(props: { userCanUpload?: boolean; isAdmin?: boolean; use
 
   cy.stub(navigation, 'useRouter').callsFake(() => router)
 
-  const appBarNav = <AppBarNav username={props.username ?? 'testuser'} isAdmin={props.isAdmin ?? false} userCanUpload={props.userCanUpload ?? false} />
+  const user = createMockUser({
+    username: props.username ?? 'testuser',
+    permissions: {
+      ...DEFAULT_MOCK_USER_PERMISSIONS,
+      upload: props.userCanUpload ?? false
+    }
+  })
+
+  const userAppBarNav = <UserAppBarNav />
 
   const ui: ReactNode = (
-    <AppRouterContext.Provider value={router}>{options?.alignEnd ? <div className="absolute end-0">{appBarNav}</div> : appBarNav}</AppRouterContext.Provider>
+    <UserContext.Provider value={createMockUserContextValue(user)}>
+      <AppRouterContext.Provider value={router}>
+        {options?.alignEnd ? <div className="absolute end-0">{userAppBarNav}</div> : userAppBarNav}
+      </AppRouterContext.Provider>
+    </UserContext.Provider>
   )
 
   cy.mount(ui)
@@ -27,7 +92,7 @@ function mountAppBarNav(props: { userCanUpload?: boolean; isAdmin?: boolean; use
   return router
 }
 
-describe('<AppBarNav /> desktop keyboard navigation', () => {
+describe('<UserAppBarNav /> desktop keyboard navigation', () => {
   beforeEach(() => {
     cy.viewport(1024, 768)
   })
@@ -35,14 +100,14 @@ describe('<AppBarNav /> desktop keyboard navigation', () => {
   const desktopMenuTrigger = () => cy.get('button[aria-haspopup="menu"]')
 
   it('opens the menu with Enter on the desktop username button', () => {
-    mountAppBarNav()
+    mountUserAppBarNav()
     desktopMenuTrigger().focus()
     desktopMenuTrigger().type('{enter}')
     cy.get('[role="menu"]').should('be.visible')
   })
 
   it('highlights menu items with arrow keys while focus stays on the trigger', () => {
-    mountAppBarNav()
+    mountUserAppBarNav()
     desktopMenuTrigger().focus().type('{enter}')
     desktopMenuTrigger().should('have.focus')
     cy.get('[role="menuitem"]').eq(0).should('have.class', 'bg-dropdown-item-selected')
@@ -54,7 +119,7 @@ describe('<AppBarNav /> desktop keyboard navigation', () => {
   })
 
   it('closes the menu with Escape and returns focus to the trigger', () => {
-    mountAppBarNav()
+    mountUserAppBarNav()
     desktopMenuTrigger().focus().type('{enter}')
     cy.get('[role="menu"]').should('be.visible')
     desktopMenuTrigger().type('{esc}')
@@ -63,7 +128,7 @@ describe('<AppBarNav /> desktop keyboard navigation', () => {
   })
 
   it('jumps to the first and last items with Home and End', () => {
-    mountAppBarNav()
+    mountUserAppBarNav()
     desktopMenuTrigger().focus().type('{enter}')
     desktopMenuTrigger().type('{end}')
     cy.get('[role="menuitem"]').last().should('have.class', 'bg-dropdown-item-selected')
@@ -73,7 +138,7 @@ describe('<AppBarNav /> desktop keyboard navigation', () => {
   })
 
   it('excludes mobile-only items from the desktop menu', () => {
-    mountAppBarNav({ isAdmin: true, userCanUpload: true })
+    mountUserAppBarNav({ userCanUpload: true })
     desktopMenuTrigger().click()
     cy.get('[role="menuitem"]').should('have.length', 4)
     cy.get('[role="menu"]').should('not.contain.text', 'Settings')
@@ -81,7 +146,7 @@ describe('<AppBarNav /> desktop keyboard navigation', () => {
   })
 
   it('closes the menu when clicking outside', () => {
-    mountAppBarNav({}, { alignEnd: true })
+    mountUserAppBarNav({}, { alignEnd: true })
     desktopMenuTrigger().click()
     cy.get('[role="menu"]').should('be.visible')
     cy.get('html').click({ force: true })
@@ -89,7 +154,7 @@ describe('<AppBarNav /> desktop keyboard navigation', () => {
   })
 
   it('closes the menu on Tab without moving focus to the document start', () => {
-    mountAppBarNav()
+    mountUserAppBarNav()
     cy.document().then((doc) => {
       const sentinel = doc.createElement('button')
       sentinel.textContent = 'after menu'
