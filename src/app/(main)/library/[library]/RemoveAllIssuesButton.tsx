@@ -1,14 +1,14 @@
 'use client'
 
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { removeLibraryItemsWithIssuesAction } from '@/app/actions/libraryActions'
 import Btn from '@/components/ui/Btn'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { removeLibraryItemsWithIssuesAction } from '@/app/actions/libraryActions'
 import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useState, useTransition } from 'react'
 
@@ -17,7 +17,7 @@ export default function RemoveAllIssuesButton() {
   const router = useRouter()
   const pathname = usePathname()
   const { showToast } = useGlobalToast()
-  const { userCanDelete } = useUser()
+  const { userIsAdminOrUp } = useUser()
   const { isSelectionMode } = useBookshelfSelection()
   const { library, itemCount, refetchFilterDataSilently } = useLibrary()
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
@@ -40,7 +40,7 @@ export default function RemoveAllIssuesButton() {
     })
   }, [library.id, refetchFilterDataSilently, router, showToast, t])
 
-  if (!isIssuesPage || !userCanDelete || isSelectionMode || !itemCount) {
+  if (!isIssuesPage || !userIsAdminOrUp || isSelectionMode || !itemCount) {
     return null
   }
 

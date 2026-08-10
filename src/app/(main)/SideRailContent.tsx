@@ -3,8 +3,8 @@
 import VersionFooter from '@/components/app/VersionFooter'
 import { useLibraryOptional } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
-import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Link from 'next/link'
@@ -184,7 +184,7 @@ export default function SideRailContent({
           )
         })}
 
-        {numIssues > 0 && (
+        {numIssues > 0 && userIsAdminOrUp && (
           <Link
             href={issuesHref}
             onClick={onItemClick ?? undefined}
