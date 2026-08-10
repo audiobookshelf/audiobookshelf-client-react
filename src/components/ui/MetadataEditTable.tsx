@@ -243,7 +243,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
               borderless
               disabled={item.name === trimmedName || trimmedName === ''}
               onClick={() => requestSave(item)}
-              className="text-foreground-muted group-hover:text-foreground"
+              className="text-foreground-muted group-hover:text-foreground bg-success"
               ariaLabel={t('ButtonSaveEdit')}
             >
               save
