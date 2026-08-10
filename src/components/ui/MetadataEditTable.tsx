@@ -260,7 +260,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
         data={items}
         columns={columns}
         getRowKey={(item) => item.id}
-        renderRow={(item) => <Fragment key={item.id}>{item === editedItem ? renderEditRow(item) : renderDisplayRow(item)}</Fragment>}
+        renderRow={(item) => <Fragment key={item.id}>{item.id === editedItem?.id ? renderEditRow(item) : renderDisplayRow(item)}</Fragment>}
       />
       <ConfirmDialog
         isOpen={showConfirmDialog}
