@@ -4,7 +4,6 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { TranslationKey } from '@/types/translations'
 import { Fragment, useEffect, useRef, useState, useTransition } from 'react'
 import ConfirmDialog from '../widgets/ConfirmDialog'
-import Btn from './Btn'
 import IconBtn from './IconBtn'
 import SimpleDataTable, { DataTableColumn } from './SimpleDataTable'
 import TextInput from './TextInput'
@@ -229,13 +228,26 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
           </td>
         )}
         <td className="w-1/4">
-          <div className="mx-1 flex justify-end">
-            <Btn color="bg-success" size="small" className="mx-1" disabled={item.name === trimmedName || trimmedName === ''} onClick={() => requestSave(item)}>
-              {t('ButtonSave')}
-            </Btn>
-            <Btn size="small" className="mx-1" onClick={cancelEdit}>
-              {t('ButtonCancel')}
-            </Btn>
+          <div className="flex justify-end pe-2">
+            <IconBtn
+              size="small"
+              borderless
+              disabled={item.name === trimmedName || trimmedName === ''}
+              onClick={() => requestSave(item)}
+              className="text-foreground-muted group-hover:text-foreground"
+              ariaLabel={t('ButtonSaveEdit')}
+            >
+              save
+            </IconBtn>
+            <IconBtn
+              size="small"
+              borderless
+              onClick={cancelEdit}
+              className="text-foreground-muted group-hover:text-foreground"
+              ariaLabel={t('ButtonCancelEdit')}
+            >
+              cancel
+            </IconBtn>
           </div>
         </td>
       </tr>
