@@ -230,17 +230,10 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
         )}
         <td className="w-1/4">
           <div className="mx-1 flex justify-end">
-            <Btn
-              color="bg-success"
-              size="small"
-              className="mx-1"
-              disabled={item.name === trimmedName || trimmedName === ''}
-              onClick={() => requestSave(item)}
-              ariaLabel="Save"
-            >
+            <Btn color="bg-success" size="small" className="mx-1" disabled={item.name === trimmedName || trimmedName === ''} onClick={() => requestSave(item)}>
               {t('ButtonSave')}
             </Btn>
-            <Btn size="small" className="mx-1" onClick={cancelEdit} ariaLabel="Cancel">
+            <Btn size="small" className="mx-1" onClick={cancelEdit}>
               {t('ButtonCancel')}
             </Btn>
           </div>
