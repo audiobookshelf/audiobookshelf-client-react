@@ -1,14 +1,18 @@
 'use client'
 
-import { updatePlaylistAction } from '@/app/actions/playlistActions'
+import { deletePlaylistAction, updatePlaylistAction } from '@/app/actions/playlistActions'
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import TextareaInput from '@/components/ui/TextareaInput'
 import TextInput from '@/components/ui/TextInput'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Playlist } from '@/types/api'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState, useTransition } from 'react'
+import PlaylistGroupCover from '../widgets/media-card/PlaylistGroupCover'
 
 interface PlaylistEditModalProps {
   isOpen: boolean
@@ -19,10 +23,14 @@ interface PlaylistEditModalProps {
 
 export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }: PlaylistEditModalProps) {
   const t = useTypeSafeTranslations()
+  const { userCanDelete } = useUser()
+  const router = useRouter()
   const { showToast } = useGlobalToast()
   const [name, setName] = useState(playlist.name)
   const [description, setDescription] = useState(playlist.description ?? '')
   const [isPending, startTransition] = useTransition()
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
@@ -32,6 +40,9 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }
   }, [isOpen, playlist.name, playlist.description])
 
   const hasChanges = name.trim() !== playlist.name || (description.trim() || '') !== (playlist.description ?? '')
+  const coverWidth = 200
+  const coverHeight = 200
+  const isActionPending = isPending || isDeleting
 
   const handleSave = useCallback(() => {
     if (!name.trim()) {
@@ -58,6 +69,28 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }
     })
   }, [description, hasChanges, name, onClose, onSaved, playlist.id, showToast, t])
 
+  const handleRemove = useCallback(() => {
+    setConfirmOpen(true)
+  }, [])
+
+  const handleRemoveConfirm = useCallback(() => {
+    setConfirmOpen(false)
+    setIsDeleting(true)
+    startTransition(async () => {
+      try {
+        await deletePlaylistAction(playlist.id)
+        showToast(t('ToastPlaylistRemoveSuccess'), { type: 'success' })
+        onClose()
+        router.push(`/library/${playlist.libraryId}/playlists`)
+      } catch (error) {
+        console.error('Failed to delete playlist', error)
+        showToast(t('ToastRemoveFailed'), { type: 'error' })
+      } finally {
+        setIsDeleting(false)
+      }
+    })
+  }, [playlist.id, playlist.libraryId, onClose, router, showToast, t])
+
   const outerContent = (
     <div className="absolute start-0 top-0 p-4">
       <h2 className="text-xl text-white">{t('HeaderPlaylist')}</h2>
@@ -65,18 +98,48 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
-      <div className="flex max-h-[90vh] flex-col">
-        <div className="space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
-          <TextInput label={t('LabelName')} value={name} placeholder={t('PlaceholderNewPlaylist')} onChange={setName} />
-          <TextareaInput label={t('LabelDescription')} value={description} rows={4} onChange={setDescription} />
+    <>
+      <Modal isOpen={isOpen} onClose={onClose} processing={isActionPending} outerContent={outerContent}>
+        <div className="flex max-h-[90vh] flex-col">
+          <div className="space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
+            <div className="flex flex-col gap-4 sm:flex-row">
+              <div className="flex justify-center sm:justify-start">
+                <PlaylistGroupCover items={playlist.items ?? []} width={coverWidth} height={coverHeight} />
+              </div>
+              <div className="flex-1 space-y-4">
+                <TextInput label={t('LabelName')} value={name} placeholder={t('PlaceholderNewCollection')} onChange={setName} />
+                <TextareaInput label={t('LabelDescription')} value={description} rows={4} onChange={setDescription} />
+              </div>
+            </div>
+          </div>
+          <div className="border-border flex items-center justify-between gap-2 border-t px-4 py-4 sm:px-6">
+            {userCanDelete && (
+              <Btn color="bg-error" size="small" onClick={handleRemove} disabled={isActionPending}>
+                {t('ButtonRemove')}
+              </Btn>
+            )}
+            <div className="grow" />
+            <Btn
+              size="small"
+              color={hasChanges ? 'bg-success' : 'bg-black disabled:bg-black disabled:text-button-foreground'}
+              onClick={handleSave}
+              disabled={isPending || !hasChanges}
+            >
+              {t('ButtonSave')}
+            </Btn>
+          </div>
         </div>
-        <div className="border-border flex justify-end gap-2 border-t px-4 py-4 sm:px-6">
-          <Btn size="small" onClick={handleSave} disabled={isPending || !name.trim()}>
-            {t('ButtonSave')}
-          </Btn>
-        </div>
-      </div>
-    </Modal>
+      </Modal>
+
+      <ConfirmDialog
+        isOpen={confirmOpen}
+        message={t('MessageConfirmRemovePlaylist', { 0: playlist.name })}
+        yesButtonText={t('ButtonDelete')}
+        yesButtonClassName="bg-error"
+        processing={isDeleting}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={handleRemoveConfirm}
+      />
+    </>
   )
 }
