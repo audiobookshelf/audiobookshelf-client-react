@@ -48,7 +48,7 @@ export default function NarratorsClient({ libraryId, narrators }: { libraryId: s
   }
 
   return (
-    <div>
+    <div className="mx-auto max-w-2xl">
       <MetadataEditTable libraryId={libraryId} items={narrators} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Narrator" />
     </div>
   )
