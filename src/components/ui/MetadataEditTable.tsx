@@ -180,7 +180,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
         )}
       </td>
       {showNumBooks && (
-        <td className="hidden w-1/6 md:table-cell">
+        <td className="w-1/6 md:table-cell">
           <div className="flex justify-center">
             <a className="text-foreground text-sm hover:underline md:text-base" href={narratorHref(item)}>
               {item.numBooks}
@@ -221,7 +221,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
           <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5" trimWhitespace />
         </td>
         {showNumBooks && (
-          <td className="hidden w-1/6 md:table-cell">
+          <td className="w-1/6 md:table-cell">
             <div className="flex justify-center">
               <a className="text-sm hover:underline md:text-base">{item.numBooks}</a>
             </div>
@@ -256,7 +256,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
 
   const columns: DataTableColumn<MetadataEditTableItem>[] = [
     { label: t('LabelName') },
-    ...(showNumBooks ? [{ label: t('LabelBooks'), headerClassName: 'text-center hidden md:table-cell' }] : []),
+    ...(showNumBooks ? [{ label: t('LabelBooks'), headerClassName: 'text-center md:table-cell' }] : []),
     { label: '' }
   ]
 
