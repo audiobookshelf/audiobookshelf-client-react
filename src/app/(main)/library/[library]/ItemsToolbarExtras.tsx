@@ -3,7 +3,7 @@
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import RemoveAllIssuesButton from '@/app/(main)/library/[library]/RemoveAllIssuesButton'
-import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
+import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
 import { Library, User } from '@/types/api'
 import { usePathname } from 'next/navigation'
 

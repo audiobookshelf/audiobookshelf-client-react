@@ -1,10 +1,13 @@
 'use client'
 
 import { useLibrary } from '@/contexts/LibraryContext'
-import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
 import type { Library } from '@/types/api'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
+
+export function isLibraryIssuesPage(pathname: string): boolean {
+  return pathname.endsWith('/issues')
+}
 
 const LIBRARY_SHARED_PAGES = ['items', 'issues', 'playlists', 'search', 'playlist', 'item']
 const LIBRARY_BOOK_PAGES = ['series', 'collections', 'authors', 'narrators', 'stats', 'collection']
@@ -22,13 +25,20 @@ export function isLibraryPageAllowed(page: string, mediaType: Library['mediaType
 export function useLibraryRouteGuard() {
   const router = useRouter()
   const pathname = usePathname()
-  const { library, filterData, filterDataLoading, updateSetting } = useLibrary()
+  const searchParams = useSearchParams()
+  const { library, filterData, filterDataLoading } = useLibrary()
 
   useEffect(() => {
     const segments = pathname.split('/').filter(Boolean)
     if (segments[0] !== 'library' || segments[1] !== library.id) return
 
     const page = segments[2] ?? ''
+
+    // If manually navigated to filter by issues on items page, redirect to issues page
+    if (page === 'items' && searchParams.get('filter') === 'issues') {
+      router.replace(`/library/${library.id}/issues`)
+      return
+    }
 
     if (page && !isLibraryPageAllowed(page, library.mediaType)) {
       router.replace(`/library/${library.id}`)
@@ -38,10 +48,8 @@ export function useLibraryRouteGuard() {
     if (isLibraryIssuesPage(pathname)) {
       if (filterDataLoading || filterData === null) return
       if ((filterData.numIssues ?? 0) === 0) {
-        // Issues page sets filterBy to 'issues' and persists it; home redirect does not run useBookshelfQuery to reset it.
-        updateSetting('filterBy', 'all')
         router.replace(`/library/${library.id}`)
       }
     }
-  }, [pathname, library, filterData, filterDataLoading, router, updateSetting])
+  }, [pathname, library, filterData, filterDataLoading, router, searchParams])
 }

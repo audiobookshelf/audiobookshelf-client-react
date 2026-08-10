@@ -1,4 +1,3 @@
-import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
 import type { Library } from '@/types/api'
 
 const PODCAST_INVALID_FILTER_PREFIXES = [
@@ -20,25 +19,15 @@ export interface LibrarySortFilterSettings {
 
 export type LibrarySortFilterUpdates = Partial<LibrarySortFilterSettings>
 
-export interface LibrarySortFilterContext {
-  /** When true, preserve `filterBy: issues` on the dedicated issues page (`/issues`). */
-  isIssuesPage?: boolean
-}
-
 /**
  * Returns setting updates when sort/filter are invalid for the library media type.
  * Matches Vue `user/checkUpdateLibrarySortFilter`.
  *
  * @param settings - The current sort/filter settings.
  * @param mediaType - The media type of the library.
- * @param context - The context of the library sort/filter.
  * @returns The updates to the sort/filter settings. May be empty if no updates are needed.
  */
-export function getLibrarySortFilterUpdates(
-  settings: LibrarySortFilterSettings,
-  mediaType: Library['mediaType'],
-  context: LibrarySortFilterContext = {}
-): LibrarySortFilterUpdates {
+export function getLibrarySortFilterUpdates(settings: LibrarySortFilterSettings, mediaType: Library['mediaType']): LibrarySortFilterUpdates {
   const updates: LibrarySortFilterUpdates = {}
 
   if (mediaType === 'podcast') {
@@ -53,8 +42,7 @@ export function getLibrarySortFilterUpdates(
     }
 
     const filterByFirstPart = (settings.filterBy || '').split('.').shift() ?? ''
-    const issuesFilterAllowed = context.isIssuesPage && filterByFirstPart === 'issues'
-    if (!issuesFilterAllowed && PODCAST_INVALID_FILTER_PREFIXES.includes(filterByFirstPart)) {
+    if (PODCAST_INVALID_FILTER_PREFIXES.includes(filterByFirstPart)) {
       updates.filterBy = 'all'
     }
   } else {
@@ -63,6 +51,10 @@ export function getLibrarySortFilterUpdates(
     }
     if (settings.orderBy === 'media.numTracks') {
       updates.orderBy = 'media.duration'
+    }
+    // Prevent stale issues filter before it was removed from the item page filter dropdown
+    if (settings.filterBy === 'issues') {
+      updates.filterBy = 'all'
     }
   }
 
@@ -81,11 +73,14 @@ export function sanitizeLibrarySwitchSearch(pathname: string, search: string, me
   if (!search) return ''
 
   const params = new URLSearchParams(search.slice(1))
-  const isIssuesPage = isLibraryIssuesPage(pathname)
   const filter = params.get('filter')
   const sort = params.get('sort')
 
-  const updates = getLibrarySortFilterUpdates({ orderBy: sort ?? '', filterBy: filter ?? 'all' }, mediaType, { isIssuesPage })
+  if (pathname.endsWith('/issues') && filter === 'issues') {
+    params.delete('filter')
+  }
+
+  const updates = getLibrarySortFilterUpdates({ orderBy: sort ?? '', filterBy: filter ?? 'all' }, mediaType)
 
   if (filter && updates.filterBy === 'all') {
     params.delete('filter')

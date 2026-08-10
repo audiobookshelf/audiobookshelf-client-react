@@ -127,9 +127,6 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
         // Handled specially by LibraryEmptyState in BookshelfClient
         return ''
       }
-      if (filterBy === 'issues') {
-        return 'MessageNoIssues'
-      }
       return isPodcastLibrary ? 'MessageNoPodcastsFound' : 'MessageNoBooksFound'
     },
     SkeletonComponent: ({ bookshelfView, showSubtitles, orderBy }) => (

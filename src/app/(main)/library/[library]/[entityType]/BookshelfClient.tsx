@@ -10,7 +10,7 @@ import { useBookshelfUpdater } from '@/hooks/useBookshelfUpdater'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
 import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
+import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
 import { buildMediaItemProgressMap } from '@/lib/mediaProgress'
 import { BookshelfEntity, BookshelfView, EntityType } from '@/types/api'
 import { usePathname } from 'next/navigation'
@@ -272,6 +272,7 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
   // Get empty state message based on entity config
   const getEmptyMessage = () => {
     if (!config) return ''
+    if (onIssuesPage) return t('MessageNoIssues')
     const messageKey = config.getEmptyMessageKey(filterBy, isPodcastLibrary)
     return messageKey ? t(messageKey) : ''
   }
@@ -379,12 +380,12 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
           {/* Empty State */}
           {isInitialized && !isLoading && fetchedTotal === 0 && (
             <>
-              {entityType === 'items' && filterBy === 'all' ? (
+              {entityType === 'items' && !onIssuesPage && filterBy === 'all' ? (
                 <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
               ) : (
                 <div className="flex flex-col items-center justify-center py-16">
                   <p className="text-center text-xl">{getEmptyMessage()}</p>
-                  {entityType === 'items' && filterBy !== 'all' && (
+                  {entityType === 'items' && !onIssuesPage && filterBy !== 'all' && (
                     <div className="mt-2 flex justify-center">
                       <Btn size="small" color="bg-primary" onClick={() => updateSetting('filterBy', 'all')}>
                         {t('ButtonClearFilter')}

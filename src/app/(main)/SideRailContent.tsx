@@ -4,7 +4,7 @@ import VersionFooter from '@/components/app/VersionFooter'
 import { useLibraryOptional } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { isLibraryIssuesPage, libraryIssuesPageHref } from '@/lib/libraryIssuesPage'
+import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Link from 'next/link'
@@ -35,7 +35,7 @@ export default function SideRailContent({
   // Optional: AppBar mounts this drawer on settings/account/upload (no LibraryProvider)
   const { filterData } = useLibraryOptional()
   const numIssues = filterData?.numIssues ?? 0
-  const issuesHref = libraryIssuesPageHref(libraryId)
+  const issuesHref = `/library/${libraryId}/issues`
   const libraryHref = `/library/${libraryId}/items`
   const onIssuesPage = isLibraryIssuesPage(pathname)
 

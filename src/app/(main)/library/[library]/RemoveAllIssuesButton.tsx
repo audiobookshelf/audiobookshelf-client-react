@@ -8,7 +8,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { removeLibraryItemsWithIssuesAction } from '@/app/actions/libraryActions'
-import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
+import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
 import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useState, useTransition } from 'react'
 

@@ -4,7 +4,7 @@ import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { isLibraryIssuesPage } from '@/lib/libraryIssuesPage'
+import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
 import { usePathname, useSearchParams } from 'next/navigation'
 
 // Pages that should show item count and toolbar extras
