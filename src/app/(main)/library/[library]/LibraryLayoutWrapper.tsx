@@ -4,7 +4,8 @@ import { getCoverSizeWidgetBottomClass } from '@/components/player/MediaPlayerCo
 import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { useMediaContext, useMediaNavigation } from '@/contexts/MediaContext'
+import { useAppNavigation } from '@/contexts/AppNavigationContext'
+import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useLibraryRouteGuard } from '@/hooks/useLibraryRouteGuard'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -19,7 +20,7 @@ interface LibraryLayoutWrapperProps {
 
 export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperProps) {
   const { libraryItemIdStreaming } = useMediaContext()
-  const { setLastCurrentLibraryId } = useMediaNavigation()
+  const { setLastCurrentLibraryId } = useAppNavigation()
   const { Source, serverSettings } = useUser()
   const { library, boundModal, setBoundModal } = useLibrary()
   const { clearSelection, isSelectionMode } = useBookshelfSelection()

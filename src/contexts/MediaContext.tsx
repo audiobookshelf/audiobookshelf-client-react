@@ -19,11 +19,6 @@ export interface PlayerQueueItem {
   coverPath: string | null
 }
 
-interface MediaNavigationContextValue {
-  lastCurrentLibraryId: string | null
-  setLastCurrentLibraryId: (libraryId: string) => void
-}
-
 interface MediaContextValue {
   // Stream state
   streamLibraryItem: LibraryItem | null
@@ -61,7 +56,6 @@ interface MediaContextValue {
   playerLoadState: PlayerState
 }
 
-const MediaNavigationContext = createContext<MediaNavigationContextValue | undefined>(undefined)
 const MediaContext = createContext<MediaContextValue | undefined>(undefined)
 const PlayerStateContext = createContext<PlayerHandlerState | undefined>(undefined)
 
@@ -73,8 +67,6 @@ function readPlayerQueueAutoPlay(): boolean {
 }
 
 export function MediaProvider({ children }: { children: React.ReactNode }) {
-  // Current library state
-  const [lastCurrentLibraryId, setLastCurrentLibraryId] = useState<string | null>(null)
   // Stream state
   const [streamLibraryItem, setStreamLibraryItem] = useState<LibraryItem | null>(null)
   const [streamEpisodeId, setStreamEpisodeId] = useState<string | null>(null)
@@ -384,14 +376,6 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   // Context Value
   // ============================================================================
 
-  const navigationValue = useMemo(
-    (): MediaNavigationContextValue => ({
-      lastCurrentLibraryId,
-      setLastCurrentLibraryId
-    }),
-    [lastCurrentLibraryId, setLastCurrentLibraryId]
-  )
-
   const value: MediaContextValue = useMemo(
     () => ({
       // Stream state
@@ -456,23 +440,13 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   )
 
   return (
-    <MediaNavigationContext.Provider value={navigationValue}>
-      <MediaContext.Provider value={value}>
-        {children}
-        <PlayerStateContext.Provider value={playerHandlerState}>
-          <MediaPlayerContainer />
-        </PlayerStateContext.Provider>
-      </MediaContext.Provider>
-    </MediaNavigationContext.Provider>
+    <MediaContext.Provider value={value}>
+      {children}
+      <PlayerStateContext.Provider value={playerHandlerState}>
+        <MediaPlayerContainer />
+      </PlayerStateContext.Provider>
+    </MediaContext.Provider>
   )
-}
-
-export function useMediaNavigation(): MediaNavigationContextValue {
-  const ctx = useContext(MediaNavigationContext)
-  if (!ctx) {
-    throw new Error('useMediaNavigation must be used within a MediaProvider')
-  }
-  return ctx
 }
 
 export function useMediaContext(): MediaContextValue {
