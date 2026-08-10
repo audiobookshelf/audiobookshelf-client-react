@@ -2,7 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { TranslationKey } from '@/types/translations'
-import { Fragment, useEffect, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState, useTransition } from 'react'
 import ConfirmDialog from '../widgets/ConfirmDialog'
 import Btn from './Btn'
 import IconBtn from './IconBtn'
@@ -68,6 +68,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
   const [isDeleting, setIsDeleting] = useState(false)
   const [hasSameName, setHasSameName] = useState(false)
   const [sameNameWithDifferentCase, setSameNameWithDifferentCase] = useState('')
+  const [isPending, startTransition] = useTransition()
   const delRef = useRef<MetadataEditTableItem | null>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
 
@@ -113,27 +114,35 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
     setShowConfirmDialog(true)
   }
 
-  const confirmDelete = async () => {
-    if (!delRef.current) return
-    try {
-      await onItemDeleteClick(delRef.current)
-    } catch (error) {
-      console.error('MetadataTable: Error deleting item:', error)
-    } finally {
-      delRef.current = null
-      setShowConfirmDialog(false)
-    }
+  const confirmDelete = () => {
+    const itemToDelete = delRef.current
+    if (!itemToDelete || isPending) return
+
+    startTransition(async () => {
+      try {
+        await onItemDeleteClick(itemToDelete)
+      } catch (error) {
+        console.error('MetadataTable: Error deleting item:', error)
+      } finally {
+        delRef.current = null
+        setShowConfirmDialog(false)
+      }
+    })
   }
 
-  const confirmSave = async () => {
-    if (!editedItem) return
-    try {
-      await onItemEditSaveClick(editedItem, newName)
-    } catch (error) {
-      console.error('MetadataTable: Error saving edited item:', error)
-    } finally {
-      setShowConfirmDialog(false)
-    }
+  const confirmSave = () => {
+    const itemToSave = editedItem
+    if (!itemToSave || isPending) return
+
+    startTransition(async () => {
+      try {
+        await onItemEditSaveClick(itemToSave, newName)
+      } catch (error) {
+        console.error('MetadataTable: Error saving edited item:', error)
+      } finally {
+        setShowConfirmDialog(false)
+      }
+    })
   }
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -269,6 +278,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
         }
         yesButtonText={isDeleting ? t('ButtonDelete') : t('ButtonSave')}
         yesButtonClassName={isDeleting ? 'bg-error' : 'bg-success'}
+        processing={isPending}
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={isDeleting ? confirmDelete : confirmSave}
       />
