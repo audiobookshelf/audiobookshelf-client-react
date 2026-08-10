@@ -178,7 +178,7 @@ export default function LibraryItemActionButtons({
         )}
 
         {!showPlayButton && (libraryItem.isMissing || libraryItem.isInvalid) && (
-          <Btn color="bg-error" size="small" className="mr-2 flex h-9 items-center px-4" disabled>
+          <Btn color="bg-error" size="small" className="mr-2 flex h-9 cursor-default items-center px-4" aria-disabled>
             <span className="material-symbols -ml-2 pr-1 text-2xl text-white">error</span>
             {libraryItem.isMissing ? t('LabelMissing') : t('LabelIncomplete')}
           </Btn>

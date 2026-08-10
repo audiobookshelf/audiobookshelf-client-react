@@ -24,6 +24,8 @@ function getActionLink(task: Task): string {
       return libraryId && libraryItemId ? `/library/${libraryId}/item/${libraryItemId}/tools?tool=embed` : ''
     case 'scan-item':
       return libraryId && libraryItemId ? `/library/${libraryId}/item/${libraryItemId}` : ''
+    case 'batch-item-scan':
+      return libraryId ? `/library/${libraryId}/items` : ''
     default:
       return ''
   }

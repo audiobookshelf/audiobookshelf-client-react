@@ -114,10 +114,10 @@ export default function EpisodeRow({
   const contextMenuItems = useMemo(() => {
     const items: ContextMenuDropdownItem[] = []
     if (userCanUpdate && onMatch) items.push({ text: t('HeaderMatch'), action: 'match' })
-    if (userCanDownload) items.push({ text: t('LabelDownload'), action: 'download' })
+    if (userCanDownload && !libraryItem.isMissing && !libraryItem.isInvalid) items.push({ text: t('LabelDownload'), action: 'download' })
     if (userIsAdminOrUp && episode.audioFile) items.push({ text: t('LabelMoreInfo'), action: 'more' })
     return items
-  }, [userCanDownload, userCanUpdate, userIsAdminOrUp, episode.audioFile, onMatch, t])
+  }, [userCanDownload, userCanUpdate, userIsAdminOrUp, episode.audioFile, libraryItem.isInvalid, libraryItem.isMissing, onMatch, t])
 
   const closeDeleteConfirm = () => setDeleteConfirmState(null)
 

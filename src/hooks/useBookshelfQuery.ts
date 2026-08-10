@@ -1,6 +1,8 @@
 import { LibrarySettingKey, useLibrary } from '@/contexts/LibraryContext'
+import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
+import { getLibrarySortFilterUpdates } from '@/lib/libraryMediaTypeSortFilter'
 import { EntityType } from '@/types/api'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useRef } from 'react'
 
 export function useBookshelfQuery(entityType: EntityType, enabled = true) {
@@ -19,8 +21,10 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
     isSettingsLoaded
   } = useLibrary()
 
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const isPodcastLibrary = library.mediaType === 'podcast'
+  const isIssuesPage = isLibraryIssuesPage(pathname)
 
   const currentParamsString = searchParams.toString()
 
@@ -43,6 +47,7 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
     const syncSetting = (paramKey: string, settingKey: LibrarySettingKey, isBool: boolean = false, resetValue?: string | boolean) => {
       const val = params.get(paramKey)
       if (val !== null && val !== '') {
+        if (paramKey === 'filter' && val === 'issues') return
         // Convert '1'/'0' to boolean if needed
         const parsedVal = isBool ? val === '1' : val
         updateSetting(settingKey, parsedVal)
@@ -57,6 +62,16 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
       syncSetting('filter', 'filterBy', false, 'all')
       if (!isPodcastLibrary) {
         syncSetting('collapseseries', 'collapseSeries', true)
+      }
+
+      const resolvedOrderBy = params.get('sort') ?? orderBy
+      const resolvedFilterBy = params.get('filter') ?? filterBy
+      const sortFilterUpdates = getLibrarySortFilterUpdates({ orderBy: resolvedOrderBy, filterBy: resolvedFilterBy }, library.mediaType)
+      if (sortFilterUpdates.orderBy !== undefined) {
+        updateSetting('orderBy', sortFilterUpdates.orderBy)
+      }
+      if (sortFilterUpdates.filterBy !== undefined) {
+        updateSetting('filterBy', sortFilterUpdates.filterBy)
       }
     } else if (entityType === 'series') {
       syncSetting('sort', 'seriesSortBy')
@@ -89,7 +104,7 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
         setParam('sort', orderBy)
         setParam('desc', orderDesc ? '1' : '0')
       }
-      if (filterBy && filterBy !== 'all') {
+      if (filterBy && filterBy !== 'all' && filterBy !== 'issues') {
         setParam('filter', filterBy)
       }
       if (collapseSeries && !isPodcastLibrary) {
@@ -144,18 +159,20 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
     const params = new URLSearchParams()
 
     switch (entityType) {
-      case 'items':
+      case 'items': {
         if (orderBy) {
           params.set('sort', orderBy)
           params.set('desc', orderDesc ? '1' : '0')
         }
-        if (filterBy && filterBy !== 'all') {
-          params.set('filter', filterBy)
+        const effectiveFilter = isIssuesPage ? 'issues' : filterBy
+        if (effectiveFilter && effectiveFilter !== 'all') {
+          params.set('filter', effectiveFilter)
         }
         if (collapseSeries && !isPodcastLibrary) {
           params.set('collapseseries', '1')
         }
         break
+      }
       case 'series':
         if (seriesSortBy) {
           params.set('sort', seriesSortBy)
@@ -185,7 +202,8 @@ export function useBookshelfQuery(entityType: EntityType, enabled = true) {
     seriesSortDesc,
     seriesFilterBy,
     authorSortBy,
-    authorSortDesc
+    authorSortDesc,
+    isIssuesPage
   ])
 
   return { query }

@@ -147,7 +147,6 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
     // Simple filters
     const simpleLabels: Record<string, string> = {
       abridged: t('LabelAbridged'),
-      issues: t('ButtonIssues'),
       'feed-open': t('LabelRSSFeedOpen'),
       explicit: t('LabelExplicit'),
       'share-open': t('LabelShareOpen')
@@ -421,7 +420,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
     }
 
     // Simple filters
-    items.push({ text: t('ButtonIssues'), value: 'issues' }, { text: t('LabelRSSFeedOpen'), value: 'feed-open' })
+    items.push({ text: t('LabelRSSFeedOpen'), value: 'feed-open' })
 
     // Explicit filter - only show if user has accessExplicitContent permission
     if (user?.permissions?.accessExplicitContent) {

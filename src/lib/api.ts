@@ -1399,6 +1399,15 @@ export async function scanLibrary(libraryId: string, force: boolean = false): Pr
 }
 
 /**
+ * Remove all library items that are missing or invalid
+ */
+export async function removeLibraryItemsWithIssues(libraryId: string): Promise<void> {
+  return apiRequest<void>(`/api/libraries/${libraryId}/issues`, {
+    method: 'DELETE'
+  })
+}
+
+/**
  * Save the order of libraries
  * @param libraryItemId - Library item ID
  * Returns: void (success) or throws error TODO

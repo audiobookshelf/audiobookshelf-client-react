@@ -2,7 +2,9 @@
 
 import Dropdown from '@/components/ui/Dropdown'
 import LibraryIcon from '@/components/ui/LibraryIcon'
+import { isLibraryPageAllowed } from '@/hooks/useLibraryRouteGuard'
 import { attemptGuardedNavigation } from '@/hooks/useUnsavedNavigationGuard'
+import { sanitizeLibrarySwitchSearch } from '@/lib/libraryMediaTypeSortFilter'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -16,16 +18,15 @@ interface LibrariesDropdownProps {
   currentLibraryId: string
 }
 
-const sharedPages = ['items', 'playlists', 'search', 'playlist']
-const bookPages = ['series', 'collections', 'authors', 'narrators', 'stats', 'collection']
-const podcastPages = ['latest', 'add-podcast', 'download-queue']
-
-function pageAllowed(page: string, mediaType: Library['mediaType']) {
-  return !page || sharedPages.includes(page) || (mediaType === 'book' && bookPages.includes(page)) || (mediaType === 'podcast' && podcastPages.includes(page))
-}
-
-function getLibrarySwitchPath(pathname: string, search: string, currentLibraryId: string, targetLibraryId: string, targetMediaType: Library['mediaType']) {
+function getLibrarySwitchPath(
+  pathname: string,
+  search: string,
+  currentLibraryId: string,
+  targetLibraryId: string,
+  targetMediaType: Library['mediaType']
+): string {
   const home = `/library/${targetLibraryId}`
+  const sanitizedSearch = sanitizeLibrarySwitchSearch(pathname, search, targetMediaType)
   const fromPrefix = `/library/${currentLibraryId}`
 
   if (!pathname.startsWith(fromPrefix)) return home
@@ -35,16 +36,16 @@ function getLibrarySwitchPath(pathname: string, search: string, currentLibraryId
   const hasDetailId = parts.length > 3
 
   if (page === 'series' && hasDetailId) {
-    return targetMediaType === 'book' ? `${home}/series${search}` : home
+    return targetMediaType === 'book' ? `${home}/series${sanitizedSearch}` : home
   }
   if (page === 'authors' && hasDetailId) {
-    return targetMediaType === 'book' ? `${home}/authors${search}` : home
+    return targetMediaType === 'book' ? `${home}/authors${sanitizedSearch}` : home
   }
   if (page === 'collection' && hasDetailId) {
-    return targetMediaType === 'book' ? `${home}/collections${search}` : home
+    return targetMediaType === 'book' ? `${home}/collections${sanitizedSearch}` : home
   }
   if (page === 'playlist' && hasDetailId) {
-    return `${home}/playlists${search}`
+    return `${home}/playlists${sanitizedSearch}`
   }
   if (page === 'item' && hasDetailId) {
     return home
@@ -52,7 +53,7 @@ function getLibrarySwitchPath(pathname: string, search: string, currentLibraryId
 
   parts[1] = targetLibraryId
   const path = '/' + parts.join('/')
-  return pageAllowed(page ?? '', targetMediaType) ? `${path}${search}` : home
+  return isLibraryPageAllowed(page ?? '', targetMediaType) ? `${path}${sanitizedSearch}` : home
 }
 
 export default function LibrariesDropdown({ libraries, currentLibraryId }: LibrariesDropdownProps) {
