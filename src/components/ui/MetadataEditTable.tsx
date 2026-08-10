@@ -128,7 +128,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
       try {
         await onItemDeleteClick(itemToDelete)
       } catch (error) {
-        console.error('MetadataTable: Error deleting item:', error)
+        console.error('MetadataEditTable: Error deleting item:', error)
       } finally {
         delRef.current = null
         setShowConfirmDialog(false)
@@ -144,7 +144,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
       try {
         await onItemEditSaveClick(itemToSave, newName)
       } catch (error) {
-        console.error('MetadataTable: Error saving edited item:', error)
+        console.error('MetadataEditTable: Error saving edited item:', error)
       } finally {
         setShowConfirmDialog(false)
       }
