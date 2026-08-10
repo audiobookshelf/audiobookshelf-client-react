@@ -105,9 +105,15 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
 
   // Open the confirm dialog for a rename, computing merge/case warnings
   const requestSave = (item: MetadataEditTableItem) => {
+    const trimmedName = newName.trim()
+    if (!trimmedName || item.name === trimmedName) return
+
     setEditedItem(item)
-    const mergesWithExisting = items.some((existing) => existing.name === newName.trim())
-    const caseConflict = mergesWithExisting ? null : items.find((existing) => existing.id !== item.id && existing.name.toLowerCase() === newName.toLowerCase())
+    setNewName(trimmedName)
+    const mergesWithExisting = items.some((existing) => existing.name === trimmedName)
+    const caseConflict = mergesWithExisting
+      ? null
+      : items.find((existing) => existing.id !== item.id && existing.name.toLowerCase() === trimmedName.toLowerCase())
     setHasSameName(mergesWithExisting)
     setSameNameWithDifferentCase(caseConflict?.name ?? '')
     setIsDeleting(false)
@@ -132,7 +138,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
 
   const confirmSave = () => {
     const itemToSave = editedItem
-    if (!itemToSave || isPending) return
+    if (!itemToSave || !newName || isPending) return
 
     startTransition(async () => {
       try {
@@ -148,7 +154,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault()
-      if (editedItem && editedItem.name !== newName && newName.trim() !== '') {
+      if (editedItem) {
         requestSave(editedItem)
       }
     } else if (e.key === 'Escape') {
@@ -213,7 +219,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
     return (
       <tr className="group even:bg-primary/20 p-2">
         <td className="p-0.5 text-base">
-          <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5" />
+          <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5" trimWhitespace />
         </td>
         {showNumBooks && (
           <td className="hidden w-1/6 md:table-cell">
