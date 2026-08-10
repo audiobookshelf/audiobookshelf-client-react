@@ -1,6 +1,7 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
 import { TranslationKey } from '@/types/translations'
 import { Fragment, useEffect, useRef, useState, useTransition } from 'react'
 import ConfirmDialog from '../widgets/ConfirmDialog'
@@ -217,8 +218,16 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
     const trimmedName = newName.trim()
     return (
       <tr className="group even:bg-primary/20 p-2">
-        <td className="p-0.5 text-base">
-          <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} className="m-1 pe-5" trimWhitespace />
+        <td className={mergeClasses('px-[5px] py-1.5 text-sm md:text-base', showNumBooks ? 'md:pe-5' : 'pe-4')}>
+          <TextInput
+            value={newName}
+            onChange={setNewName}
+            onKeyDown={handleInputKeyDown}
+            ref={editInputRef}
+            trimWhitespace
+            customInputClass="p-0"
+            wrapperClassName="max-md:h-9"
+          />
         </td>
         {showNumBooks && (
           <td className="w-1/6 md:table-cell">
