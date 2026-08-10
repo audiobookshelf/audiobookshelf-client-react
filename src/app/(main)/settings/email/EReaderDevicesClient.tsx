@@ -54,7 +54,6 @@ export default function EReaderDevicesClient({ initialDevices, users }: EReaderD
           label: t('ButtonAddDevice'),
           onClick: handleAddClick
         }}
-        hideMobileMenu={true}
         className="-mt-4"
       >
         {devices.length > 0 ? (

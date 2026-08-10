@@ -1,4 +1,3 @@
-import { SettingsDrawerProvider } from '@/contexts/SettingsDrawerContext'
 import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
@@ -25,9 +24,9 @@ export default async function SettingsLayout({ children }: Readonly<{ children: 
   }
 
   return (
-    <SettingsDrawerProvider>
+    <>
       <AppBarLoader />
       <SettingsLayoutWrapper>{children}</SettingsLayoutWrapper>
-    </SettingsDrawerProvider>
+    </>
   )
 }
