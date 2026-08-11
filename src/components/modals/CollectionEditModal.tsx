@@ -103,8 +103,8 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
                 <CollectionGroupCover books={collection.books ?? []} width={coverWidth} height={coverHeight} />
               </div>
               <div className="flex-1 space-y-4">
-                <TextInput label={t('LabelName')} value={name} placeholder={t('PlaceholderNewCollection')} onChange={setName} />
-                <TextareaInput label={t('LabelDescription')} value={description} rows={4} onChange={setDescription} />
+                <TextInput label={t('LabelName')} value={name} placeholder={t('PlaceholderNewCollection')} onChange={setName} trimWhitespace />
+                <TextareaInput label={t('LabelDescription')} value={description} rows={4} onChange={setDescription} trimWhitespace />
               </div>
             </div>
           </div>
