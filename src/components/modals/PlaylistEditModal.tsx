@@ -107,7 +107,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }
                 <PlaylistGroupCover items={playlist.items ?? []} width={coverWidth} height={coverHeight} />
               </div>
               <div className="flex-1 space-y-4">
-                <TextInput label={t('LabelName')} value={name} placeholder={t('PlaceholderNewCollection')} onChange={setName} />
+                <TextInput label={t('LabelName')} value={name} placeholder={t('PlaceholderNewPlaylist')} onChange={setName} />
                 <TextareaInput label={t('LabelDescription')} value={description} rows={4} onChange={setDescription} />
               </div>
             </div>
