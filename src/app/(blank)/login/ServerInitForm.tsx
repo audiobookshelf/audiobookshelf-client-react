@@ -9,12 +9,7 @@ import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState, useTransition } from 'react'
 
-interface ServerInitFormProps {
-  configPath: string
-  metadataPath: string
-}
-
-export default function ServerInitForm({ configPath, metadataPath }: ServerInitFormProps) {
+export default function ServerInitForm() {
   const t = useTypeSafeTranslations()
   const locale = useLocale()
   const router = useRouter()
@@ -137,12 +132,6 @@ export default function ServerInitForm({ configPath, metadataPath }: ServerInitF
             disabled={formDisabled}
             onChange={setConfirmPassword}
           />
-        </div>
-
-        <p className="text-foreground mt-6 mb-2 text-center text-lg font-semibold">{t('HeaderDirectoryPaths')}</p>
-        <div className="mb-4 flex flex-col gap-4">
-          <TextInput label={t('LabelConfigPath')} value={configPath} disabled />
-          <TextInput label={t('LabelMetadataPath')} value={metadataPath} disabled />
         </div>
 
         {error && <div className="mb-4 text-center text-sm text-red-400">{error}</div>}
