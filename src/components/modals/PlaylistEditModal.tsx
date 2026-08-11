@@ -29,20 +29,19 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
   const [name, setName] = useState(playlist.name)
   const [description, setDescription] = useState(playlist.description ?? '')
   const [isPending, startTransition] = useTransition()
-  const [isDeleting, setIsDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       setName(playlist.name)
       setDescription(playlist.description ?? '')
+      setConfirmOpen(false)
     }
   }, [isOpen, playlist.name, playlist.description])
 
   const hasChanges = name.trim() !== playlist.name || (description.trim() || '') !== (playlist.description ?? '')
   const coverWidth = 200
   const coverHeight = 200
-  const isActionPending = isPending || isDeleting
 
   const handleSave = useCallback(() => {
     if (!name.trim()) {
@@ -74,19 +73,16 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
   }, [])
 
   const handleRemoveConfirm = useCallback(() => {
-    setConfirmOpen(false)
-    setIsDeleting(true)
     startTransition(async () => {
       try {
         await deletePlaylistAction(playlist.id)
         showToast(t('ToastPlaylistRemoveSuccess'), { type: 'success' })
+        setConfirmOpen(false)
         onClose()
         onDeleted?.()
       } catch (error) {
         console.error('Failed to delete playlist', error)
         showToast(t('ToastRemoveFailed'), { type: 'error' })
-      } finally {
-        setIsDeleting(false)
       }
     })
   }, [playlist.id, onClose, onDeleted, showToast, t])
@@ -99,7 +95,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} processing={isActionPending} outerContent={outerContent}>
+      <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
         <div className="flex max-h-[90vh] flex-col">
           <div className="space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -114,7 +110,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
           </div>
           <div className="border-border flex items-center justify-between gap-2 border-t px-4 py-4 sm:px-6">
             {userCanDelete && (
-              <Btn color="bg-error" size="small" onClick={handleRemove} disabled={isActionPending}>
+              <Btn color="bg-error" size="small" onClick={handleRemove} disabled={isPending}>
                 {t('ButtonRemove')}
               </Btn>
             )}
@@ -136,7 +132,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
         message={t('MessageConfirmRemovePlaylist', { 0: playlist.name })}
         yesButtonText={t('ButtonDelete')}
         yesButtonClassName="bg-error"
-        processing={isDeleting}
+        processing={isPending}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleRemoveConfirm}
       />

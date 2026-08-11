@@ -29,20 +29,19 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
   const [name, setName] = useState(collection.name)
   const [description, setDescription] = useState(collection.description ?? '')
   const [isPending, startTransition] = useTransition()
-  const [isDeleting, setIsDeleting] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
       setName(collection.name)
       setDescription(collection.description ?? '')
+      setConfirmOpen(false)
     }
   }, [isOpen, collection.name, collection.description])
 
   const hasChanges = name.trim() !== collection.name || (description.trim() || '') !== (collection.description ?? '')
   const coverWidth = 100
   const coverHeight = 50
-  const isActionPending = isPending || isDeleting
 
   const handleSave = useCallback(() => {
     if (!name.trim()) {
@@ -74,19 +73,16 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
   }, [])
 
   const handleRemoveConfirm = useCallback(() => {
-    setConfirmOpen(false)
-    setIsDeleting(true)
     startTransition(async () => {
       try {
         await deleteCollectionAction(collection.id)
         showToast(t('ToastCollectionRemoveSuccess'), { type: 'success' })
+        setConfirmOpen(false)
         onClose()
         onDeleted?.()
       } catch (error) {
         console.error('Failed to delete collection', error)
         showToast(t('ToastRemoveFailed'), { type: 'error' })
-      } finally {
-        setIsDeleting(false)
       }
     })
   }, [collection.id, onClose, onDeleted, showToast, t])
@@ -99,7 +95,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose} processing={isActionPending} outerContent={outerContent}>
+      <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
         <div className="flex max-h-[90vh] flex-col">
           <div className="space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
             <div className="flex flex-col gap-4 sm:flex-row">
@@ -114,7 +110,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
           </div>
           <div className="border-border flex items-center justify-between gap-2 border-t px-4 py-4 sm:px-6">
             {userCanDelete && (
-              <Btn color="bg-error" size="small" onClick={handleRemove} disabled={isActionPending}>
+              <Btn color="bg-error" size="small" onClick={handleRemove} disabled={isPending}>
                 {t('ButtonRemove')}
               </Btn>
             )}
@@ -136,7 +132,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
         message={t('MessageConfirmRemoveCollection', { 0: collection.name })}
         yesButtonText={t('ButtonDelete')}
         yesButtonClassName="bg-error"
-        processing={isDeleting}
+        processing={isPending}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleRemoveConfirm}
       />
