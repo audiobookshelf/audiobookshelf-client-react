@@ -29,7 +29,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     const authFormData: AuthFormData = status.authFormData ?? {}
 
     return (
-      <div className="-mt-[var(--header-height)] flex min-h-full items-center justify-center">
+      <div className="flex min-h-full items-center justify-center">
         {isServerInitialized ? <LoginForm authMethods={authMethods} authFormData={authFormData} serverUrl={serverUrl} /> : <ServerInitForm />}
       </div>
     )

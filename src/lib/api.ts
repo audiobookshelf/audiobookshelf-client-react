@@ -99,6 +99,8 @@ import {
 } from '../types/api'
 
 import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
+import { isNextRedirectError } from './nextErrors'
+import { getUserDefaultUrlPath } from './userPermissions'
 
 const PUBLIC_ENDPOINTS = ['/status']
 const refreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
@@ -141,22 +143,17 @@ export async function getClientBaseUrl(): Promise<string> {
 }
 
 /**
- * Send the browser to /login with an error hint and drop refresh cookie (session cannot continue).
+ * Send the browser to /login with an error hint and drop session cookies (session cannot continue).
+ * Must clear access_token too — proxy only checks JWT expiry, so a stale token after a DB wipe
+ * would otherwise bounce /login → /library forever.
  */
 export function redirectToLogin(request: Request, errorMessage: string): NextResponse {
   const login = new URL('/login', getClientBaseUrlFromRequest(request))
   login.searchParams.set('error', errorMessage)
   const response = NextResponse.redirect(login)
+  response.cookies.delete('access_token')
   response.cookies.delete('refresh_token')
   return response
-}
-
-/**
- * User "Home" page is the default library page, or settings/account page if no libraries are set yet
- */
-export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userType: string) {
-  const isAdmin = ['admin', 'root'].includes(userType)
-  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : isAdmin ? '/settings' : '/account'
 }
 
 /**
@@ -385,7 +382,7 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
 
     return parseApiResponseBody<T>(response)
   } catch (error) {
-    if (error && typeof error === 'object' && 'digest' in error && typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
+    if (isNextRedirectError(error)) {
       throw error
     }
     if (error instanceof UnauthorizedError || error instanceof ApiError) {

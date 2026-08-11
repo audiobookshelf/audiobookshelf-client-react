@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerStatus } from './lib/api'
 import { isSessionTokenValid } from './lib/jwt'
+import { matchAcceptLanguage } from './lib/languages'
 import Logger from './lib/Logger'
 
 /** Next.js App Router sends this on Server Action POSTs */
@@ -44,16 +45,26 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // Fetch server language if cookie doesn't exist
+  // Fetch server status when language cookie is missing, or when a session cookie may
+  // be stale after a fresh DB (server not initialized yet).
   let serverLanguage: string | null = null
-  if (!languageCookie) {
+  let isServerInitialized: boolean | null = null
+  if (!languageCookie || (pathname === '/login' && (hasValidAccessToken || hasValidRefreshToken))) {
     try {
       const statusResponse = await getServerStatus()
-      if (statusResponse.language) {
+      isServerInitialized = !!statusResponse.isInit
+      if (isServerInitialized && statusResponse.language) {
+        // Initialized server: seed from stored server default
         serverLanguage = statusResponse.language
+      } else if (!languageCookie) {
+        // Uninitialized / first visit: prefer Accept-Language over en-us default
+        serverLanguage = matchAcceptLanguage(request.headers.get('accept-language')) || statusResponse.language || 'en-us'
       }
     } catch (error) {
-      Logger.error('[proxy] failed to fetch server status for language:', error)
+      Logger.error('[proxy] failed to fetch server status:', error)
+      if (!languageCookie) {
+        serverLanguage = matchAcceptLanguage(request.headers.get('accept-language')) || 'en-us'
+      }
     }
   }
 
@@ -100,6 +111,16 @@ export async function proxy(request: NextRequest) {
 
   const isLoginRoute = pathname === '/login'
   if (isLoginRoute) {
+    // After a DB wipe, old JWTs may still pass the expiry check but the server is uninitialized.
+    // Clear them so the init form can render instead of bouncing to /library.
+    if (isServerInitialized === false) {
+      Logger.debug('[proxy] server not initialized; clearing stale session cookies')
+      const response = next()
+      response.cookies.delete('access_token')
+      response.cookies.delete('refresh_token')
+      return response
+    }
+
     if (hasValidAccessToken) {
       Logger.debug('[proxy] request has valid accessToken')
       const libraryUrl = createUrl('/library')

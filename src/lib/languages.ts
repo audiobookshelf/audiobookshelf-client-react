@@ -34,8 +34,44 @@ export const languageCodeMap: Record<string, { label: string; dateFnsLocale: str
   'zh-tw': { label: '正體中文 (Traditional Chinese)', dateFnsLocale: 'zhTW' }
 }
 
+const SUPPORTED_LANGUAGE_CODES = Object.keys(languageCodeMap)
+
+export function isSupportedLanguageCode(code: string): boolean {
+  return code in languageCodeMap
+}
+
+/**
+ * Best match from an Accept-Language header against supported locale codes.
+ * Tries exact tag, then language prefix (de-DE → de), then a regional variant (en → en-us).
+ */
+export function matchAcceptLanguage(acceptLanguageHeader: string | null | undefined): string | null {
+  if (!acceptLanguageHeader) return null
+
+  const preferences = acceptLanguageHeader
+    .split(',')
+    .map((part) => {
+      const [tag, ...params] = part.trim().toLowerCase().split(';')
+      const q = parseFloat(params.find((param) => param.trim().startsWith('q='))?.split('=')[1] ?? '1')
+      return { tag, q: Number.isFinite(q) ? q : 0 }
+    })
+    .filter((pref) => pref.tag && pref.tag !== '*')
+    .sort((a, b) => b.q - a.q)
+
+  for (const { tag } of preferences) {
+    if (isSupportedLanguageCode(tag)) return tag
+
+    const prefix = tag.split('-')[0]
+    if (isSupportedLanguageCode(prefix)) return prefix
+
+    const regional = SUPPORTED_LANGUAGE_CODES.find((code) => code.startsWith(`${prefix}-`))
+    if (regional) return regional
+  }
+
+  return null
+}
+
 export function getLanguageCodeOptions() {
-  return Object.keys(languageCodeMap).map((code) => {
+  return SUPPORTED_LANGUAGE_CODES.map((code) => {
     return {
       text: languageCodeMap[code].label,
       value: code

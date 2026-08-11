@@ -3,6 +3,7 @@
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { AuthFormData } from '@/types/api'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -74,15 +75,11 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
           return
         }
         const userResponse = await res.json()
-        const userDefaultLibraryId = userResponse?.userDefaultLibraryId
-
         const redirect = searchParams.get('redirect')
         if (redirect) {
           router.replace(redirect)
-        } else if (userDefaultLibraryId) {
-          router.replace(`/library/${userDefaultLibraryId}`)
         } else {
-          router.replace('/settings')
+          router.replace(getUserDefaultUrlPath(userResponse?.userDefaultLibraryId ?? null, userResponse?.user?.type ?? 'user'))
         }
       } catch (error) {
         console.error('[LoginForm] Error:', error)
@@ -111,7 +108,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
           </div>
           <div className="flex justify-end">
             <Btn type="submit" loading={loading}>
-              {t('LabelSubmit')}
+              {t('ButtonSubmit')}
             </Btn>
           </div>
         </form>
