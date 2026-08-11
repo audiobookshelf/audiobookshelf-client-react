@@ -1,11 +1,11 @@
 'use client'
 
-import EditList from '@/components/ui/EditList'
+import MetadataEditTable from '@/components/ui/MetadataEditTable'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
 import { ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
-export function EditListExamples() {
+export function MetadataEditTableExamples() {
   const { showToast } = useGlobalToast()
   const genreList = [
     'Mystery',
@@ -40,22 +40,23 @@ export function EditListExamples() {
   const [narrators, setNarrators] = useState(initialNarrators)
 
   return (
-    <ComponentExamples title="Edit List">
-      <ComponentInfo component="Edit List" description="Interactive list component for editing and deleting items">
+    <ComponentExamples title="Metadata Edit Table">
+      <ComponentInfo component="MetadataEditTable" description="Interactive list component for editing and deleting items">
         <p className="mb-2">
-          <span className="font-bold">Import:</span>{' '}
-          <code className="rounded bg-gray-700 px-2 py-1">import Edit List from &apos;@/components/ui/EditList&apos;</code>
-        </p>
-        <p className="mb-2">
-          <span className="font-bold">Props:</span> <code className="rounded bg-gray-700 px-2 py-1">items</code>,{' '}
-          <code className="rounded bg-gray-700 px-2 py-1">onItemEditSaveClick</code>,<code className="rounded bg-gray-700 px-2 py-1">onItemDeleteClick</code>,{' '}
-          <code className="rounded bg-gray-700 px-2 py-1">listType</code>,<code className="rounded bg-gray-700 px-2 py-1">libraryId (optional)</code>,
+          <span className="font-bold">Props: </span>
+          <code className="rounded bg-gray-700 p-1">items</code>
+          {', '}
+          <code className="rounded bg-gray-700 p-1">onItemEditSaveClick</code>
+          {', '}
+          <code className="rounded bg-gray-700 p-1">onItemDeleteClick</code>, <code className="rounded bg-gray-700 p-1">listType</code>
+          {', '}
+          <code className="rounded bg-gray-700 p-1">libraryId (optional)</code>.
         </p>
         <p className="mb-2 text-sm text-gray-400">Features: Automatically shows extra column for number of books for pages that support that info</p>
       </ComponentInfo>
       <ExamplesBlock className="mb-4">
         <Example title="List Without Books Column" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <EditList
+          <MetadataEditTable
             items={genresWithIds}
             listType="Genre"
             // Emulate api call delay and return updated item
@@ -81,12 +82,12 @@ export function EditListExamples() {
                 }, 1000)
               )
             }}
-          ></EditList>
+          />
         </Example>
       </ExamplesBlock>
       <ExamplesBlock>
         <Example title="List Books Column" className="col-span-1 md:col-span-2 lg:col-span-3">
-          <EditList
+          <MetadataEditTable
             items={narrators}
             libraryId="Some_Library"
             listType="Narrator"
@@ -115,7 +116,7 @@ export function EditListExamples() {
                 }, 1000)
               )
             }}
-          ></EditList>
+          />
         </Example>
       </ExamplesBlock>
     </ComponentExamples>

@@ -1,7 +1,6 @@
 'use client'
 
-import type { EditListItem } from '@/components/ui/EditList'
-import EditList from '@/components/ui/EditList'
+import MetadataEditTable, { MetadataEditTableItem } from '@/components/ui/MetadataEditTable'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useMemo, useTransition } from 'react'
@@ -19,7 +18,7 @@ export default function TagsClient({ tags }: { tags: string[] }) {
     }))
   }, [tags])
 
-  const handleDelete = async (item: EditListItem) => {
+  const handleDelete = async (item: MetadataEditTableItem) => {
     if (isPending) return
 
     startTransition(async () => {
@@ -32,7 +31,7 @@ export default function TagsClient({ tags }: { tags: string[] }) {
     })
   }
 
-  const handleSave = async (tagToUpdate: EditListItem, newTagName: string) => {
+  const handleSave = async (tagToUpdate: MetadataEditTableItem, newTagName: string) => {
     if (isPending) return
     startTransition(async () => {
       const response = await renameTag(tagToUpdate.name, newTagName)
@@ -46,7 +45,7 @@ export default function TagsClient({ tags }: { tags: string[] }) {
 
   return (
     <div className="py-4">
-      <EditList items={tagsList} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Tag" />
+      <MetadataEditTable items={tagsList} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Tag" />
     </div>
   )
 }

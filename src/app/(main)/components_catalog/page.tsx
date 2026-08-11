@@ -1,5 +1,5 @@
 import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
-import { EditListExamples } from './examples/EditListExamples'
+import { MetadataEditTableExamples } from './examples/MetadataEditTableExamples'
 import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
 
 export default function ComponentsCatalogPage() {
@@ -109,7 +109,7 @@ export default function ComponentsCatalogPage() {
         <CoverSizeWidgetExamples />
       </div>
       <div id="edit-list-examples">
-        <EditListExamples />
+        <MetadataEditTableExamples />
       </div>
     </div>
   )
