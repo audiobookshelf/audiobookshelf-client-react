@@ -162,11 +162,9 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
               className="h-6 w-6 md:h-7 md:w-7"
               onAction={({ action }) => {
                 if (action === 'download') {
-                  const fileIno = row.audioFile?.ino
-                  if (!fileIno) return
-                  downloadFile(fileIno, row.metadata.filename)
-                } else if (action === 'delete' && row.audioFile) {
-                  handleDeleteFile(row.audioFile)
+                  downloadFile(row.ino, row.metadata.filename)
+                } else if (action === 'delete') {
+                  handleDeleteFile(row)
                 } else if (action === 'more' && row.audioFile) {
                   showMoreInfo(row.audioFile)
                 }
