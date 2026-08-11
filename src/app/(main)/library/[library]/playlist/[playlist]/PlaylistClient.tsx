@@ -194,7 +194,13 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
       {!isListMode && playlistItems}
 
       {userCanUpdate && (
-        <PlaylistEditModal isOpen={editModalOpen} playlist={playlist} onClose={() => setEditModalOpen(false)} onSaved={() => router.refresh()} />
+        <PlaylistEditModal
+          isOpen={editModalOpen}
+          playlist={playlist}
+          onClose={() => setEditModalOpen(false)}
+          onSaved={() => router.refresh()}
+          onDeleted={handlePlaylistDeleted}
+        />
       )}
 
       {confirmState && (
