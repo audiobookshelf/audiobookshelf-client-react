@@ -115,12 +115,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
               </Btn>
             )}
             <div className="grow" />
-            <Btn
-              size="small"
-              color={hasChanges ? 'bg-success' : 'bg-black disabled:bg-black disabled:text-button-foreground'}
-              onClick={handleSave}
-              disabled={isPending || !hasChanges}
-            >
+            <Btn size="small" onClick={handleSave} disabled={isPending || !hasChanges}>
               {t('ButtonSave')}
             </Btn>
           </div>
