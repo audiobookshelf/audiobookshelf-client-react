@@ -218,16 +218,8 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
     const trimmedName = newName.trim()
     return (
       <tr className="group even:bg-primary/20 p-2">
-        <td className={mergeClasses('px-[5px] py-1.5 text-sm md:text-base', showNumBooks ? 'md:pe-5' : 'pe-4')}>
-          <TextInput
-            value={newName}
-            onChange={setNewName}
-            onKeyDown={handleInputKeyDown}
-            ref={editInputRef}
-            trimWhitespace
-            customInputClass="p-0"
-            wrapperClassName="max-md:h-9"
-          />
+        <td className={mergeClasses('px-1.5 py-1.5 text-sm md:py-2', showNumBooks && 'md:pe-5')}>
+          <TextInput value={newName} onChange={setNewName} onKeyDown={handleInputKeyDown} ref={editInputRef} trimWhitespace size="small" />
         </td>
         {showNumBooks && (
           <td className="w-1/6 md:table-cell">
