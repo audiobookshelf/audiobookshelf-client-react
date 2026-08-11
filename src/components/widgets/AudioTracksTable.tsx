@@ -44,7 +44,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const { showToast } = useGlobalToast()
-  const [, startDeleteTransition] = useTransition()
+  const [isDeleting, startDeleteTransition] = useTransition()
   const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
   const [expanded, setExpanded] = useState(expandedProp)
   const [showFullPath, setShowFullPath] = useState(false)
@@ -251,7 +251,13 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} />
       </CollapsibleSection>
 
-      <ConfirmDialog isOpen={!!fileToDelete} message={t('MessageConfirmDeleteFile')} onClose={() => setFileToDelete(null)} onConfirm={handleConfirmDelete} />
+      <ConfirmDialog
+        isOpen={!!fileToDelete}
+        message={t('MessageConfirmDeleteFile')}
+        processing={isDeleting}
+        onClose={() => setFileToDelete(null)}
+        onConfirm={handleConfirmDelete}
+      />
       <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
     </>
   )
