@@ -108,7 +108,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
           </div>
           <div className="flex justify-end">
             <Btn type="submit" loading={loading}>
-              {t('LabelSubmit')}
+              {t('ButtonSubmit')}
             </Btn>
           </div>
         </form>

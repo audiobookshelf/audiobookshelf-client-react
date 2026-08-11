@@ -50,7 +50,7 @@ export default function ChangePasswordClient({ changePassword }: ChangePasswordC
       <TextInput label={t('LabelConfirmPassword')} value={confirmPassword} type="password" onChange={setConfirmPassword} />
       <div className="flex justify-end">
         <Btn type="submit" loading={isPending} onClick={handleSubmit}>
-          {t('LabelSubmit')}
+          {t('ButtonSubmit')}
         </Btn>
       </div>
     </div>

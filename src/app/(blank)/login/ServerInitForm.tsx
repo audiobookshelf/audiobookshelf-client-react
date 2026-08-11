@@ -137,7 +137,7 @@ export default function ServerInitForm() {
         {error && <div className="mb-4 text-center text-sm text-red-400">{error}</div>}
         <div className="flex justify-end">
           <Btn type="submit" loading={isPending} disabled={formDisabled}>
-            {t('LabelSubmit')}
+            {t('ButtonSubmit')}
           </Btn>
         </div>
       </form>
@@ -145,7 +145,7 @@ export default function ServerInitForm() {
       <ConfirmDialog
         isOpen={showNoPasswordConfirm}
         message={t('MessageConfirmCreateRootUserNoPassword')}
-        yesButtonText={t('LabelSubmit')}
+        yesButtonText={t('ButtonSubmit')}
         processing={isPending}
         onClose={() => setShowNoPasswordConfirm(false)}
         onConfirm={handleConfirmNoPassword}
