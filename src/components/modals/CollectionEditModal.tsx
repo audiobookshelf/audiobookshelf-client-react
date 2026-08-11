@@ -11,7 +11,6 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Collection } from '@/types/api'
-import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState, useTransition } from 'react'
 
 interface CollectionEditModalProps {
@@ -19,13 +18,14 @@ interface CollectionEditModalProps {
   collection: Collection
   onClose: () => void
   onSaved?: (collection: Collection) => void
+  /** Called after the collection is deleted successfully (e.g. navigate away from the detail page). */
+  onDeleted?: () => void
 }
 
-export default function CollectionEditModal({ isOpen, collection, onClose, onSaved }: CollectionEditModalProps) {
+export default function CollectionEditModal({ isOpen, collection, onClose, onSaved, onDeleted }: CollectionEditModalProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { userCanDelete } = useUser()
-  const router = useRouter()
   const [name, setName] = useState(collection.name)
   const [description, setDescription] = useState(collection.description ?? '')
   const [isPending, startTransition] = useTransition()
@@ -81,7 +81,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
         await deleteCollectionAction(collection.id)
         showToast(t('ToastCollectionRemoveSuccess'), { type: 'success' })
         onClose()
-        router.push(`/library/${collection.libraryId}/collections`)
+        onDeleted?.()
       } catch (error) {
         console.error('Failed to delete collection', error)
         showToast(t('ToastRemoveFailed'), { type: 'error' })
@@ -89,7 +89,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
         setIsDeleting(false)
       }
     })
-  }, [collection.id, collection.libraryId, onClose, router, showToast, t])
+  }, [collection.id, onClose, onDeleted, showToast, t])
 
   const outerContent = (
     <div className="absolute start-0 top-0 p-4">

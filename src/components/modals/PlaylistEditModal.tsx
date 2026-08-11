@@ -10,7 +10,6 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Playlist } from '@/types/api'
-import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState, useTransition } from 'react'
 import PlaylistGroupCover from '../widgets/media-card/PlaylistGroupCover'
 
@@ -19,12 +18,13 @@ interface PlaylistEditModalProps {
   playlist: Playlist
   onClose: () => void
   onSaved?: (playlist: Playlist) => void
+  /** Called after the playlist is deleted successfully (e.g. navigate away from the detail page). */
+  onDeleted?: () => void
 }
 
-export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }: PlaylistEditModalProps) {
+export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, onDeleted }: PlaylistEditModalProps) {
   const t = useTypeSafeTranslations()
   const { userCanDelete } = useUser()
-  const router = useRouter()
   const { showToast } = useGlobalToast()
   const [name, setName] = useState(playlist.name)
   const [description, setDescription] = useState(playlist.description ?? '')
@@ -81,7 +81,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }
         await deletePlaylistAction(playlist.id)
         showToast(t('ToastPlaylistRemoveSuccess'), { type: 'success' })
         onClose()
-        router.push(`/library/${playlist.libraryId}/playlists`)
+        onDeleted?.()
       } catch (error) {
         console.error('Failed to delete playlist', error)
         showToast(t('ToastRemoveFailed'), { type: 'error' })
@@ -89,7 +89,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved }
         setIsDeleting(false)
       }
     })
-  }, [playlist.id, playlist.libraryId, onClose, router, showToast, t])
+  }, [playlist.id, onClose, onDeleted, showToast, t])
 
   const outerContent = (
     <div className="absolute start-0 top-0 p-4">
