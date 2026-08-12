@@ -56,9 +56,9 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
       showToast(t('ToastProviderCreatedSuccess'), { type: 'success' })
       handleClose()
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const errorMessage = error instanceof Error ? error.message : t('ToastUnknownError')
       console.error('Failed to add provider', error)
-      showToast(`${t('ToastProviderCreatedFailed')}: ${errorMessage}`, { type: 'error' })
+      showToast(t('ToastProviderCreatedFailedWithError', { 0: errorMessage }), { type: 'error' })
       setProcessing(false)
     }
   }
@@ -83,7 +83,12 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
           </div>
 
           <div className="mt-4">
-            <TextInput label="URL" value={url} placeholder="URL" onChange={setUrl} />
+            <TextInput
+              label="URL" // i18n-ignore
+              value={url}
+              placeholder="URL" // i18n-ignore
+              onChange={setUrl}
+            />
           </div>
 
           <div className="mt-4">

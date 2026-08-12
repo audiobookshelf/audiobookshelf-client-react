@@ -1,9 +1,11 @@
 'use client'
 
 import VersionFooter from '@/components/app/VersionFooter'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { useMemo } from 'react'
 
 interface SideNavContentProps {
   handleItemClick?: () => void
@@ -12,60 +14,64 @@ interface SideNavContentProps {
 }
 
 export default function SideNavContent({ handleItemClick, serverVersion, installSource }: SideNavContentProps) {
+  const t = useTypeSafeTranslations()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const isUserScopedListeningSessions = pathname === '/settings/listening-sessions' && searchParams.has('user')
 
-  const items = [
-    {
-      label: 'Settings',
-      href: '/settings'
-    },
-    {
-      label: 'Libraries',
-      href: '/settings/libraries'
-    },
-    {
-      label: 'Users',
-      href: '/settings/users'
-    },
-    {
-      label: 'API Keys',
-      href: '/settings/api-keys'
-    },
-    {
-      label: 'Listening Sessions',
-      href: '/settings/listening-sessions'
-    },
-    {
-      label: 'Backups',
-      href: '/settings/backups'
-    },
-    {
-      label: 'Logs',
-      href: '/settings/logs'
-    },
-    {
-      label: 'Notifications',
-      href: '/settings/notifications'
-    },
-    {
-      label: 'Email',
-      href: '/settings/email'
-    },
-    {
-      label: 'Item Metadata Utils',
-      href: '/settings/item-metadata-utils'
-    },
-    {
-      label: 'RSS Feeds',
-      href: '/settings/rss-feeds'
-    },
-    {
-      label: 'Authentication',
-      href: '/settings/authentication'
-    }
-  ]
+  const items = useMemo(
+    () => [
+      {
+        label: t('HeaderSettings'),
+        href: '/settings'
+      },
+      {
+        label: t('HeaderLibraries'),
+        href: '/settings/libraries'
+      },
+      {
+        label: t('HeaderUsers'),
+        href: '/settings/users'
+      },
+      {
+        label: t('HeaderApiKeys'),
+        href: '/settings/api-keys'
+      },
+      {
+        label: t('HeaderListeningSessions'),
+        href: '/settings/listening-sessions'
+      },
+      {
+        label: t('HeaderBackups'),
+        href: '/settings/backups'
+      },
+      {
+        label: t('HeaderLogs'),
+        href: '/settings/logs'
+      },
+      {
+        label: t('HeaderNotifications'),
+        href: '/settings/notifications'
+      },
+      {
+        label: t('HeaderEmail'),
+        href: '/settings/email'
+      },
+      {
+        label: t('HeaderItemMetadataUtils'),
+        href: '/settings/item-metadata-utils'
+      },
+      {
+        label: t('HeaderRSSFeeds'),
+        href: '/settings/rss-feeds'
+      },
+      {
+        label: t('HeaderAuthentication'),
+        href: '/settings/authentication'
+      }
+    ],
+    [t]
+  )
 
   return (
     <>

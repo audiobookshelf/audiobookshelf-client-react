@@ -1,7 +1,8 @@
 // Auto-generated types for translation keys
-// Run `npm run generate-translation-types` to update
+// Just change the en-us.json file to add keys
 
 import { RichTagsFunction } from 'next-intl'
+import type { ReactNode } from 'react'
 import type enUsMessages from '../locales/en-us.json'
 
 type Messages = typeof enUsMessages
@@ -16,6 +17,6 @@ export interface TypeSafeTranslations {
   (key: TranslationKey): string
   (key: TranslationKey, values: Record<string, string | number>): string
   rich: {
-    (key: TranslationKey, values: Record<string, string | number | RichTagsFunction>): string
+    (key: TranslationKey, values: Record<string, string | number | ReactNode | RichTagsFunction>): ReactNode
   }
 }

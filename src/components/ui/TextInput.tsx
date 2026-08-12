@@ -216,7 +216,7 @@ export default function TextInput({
               )}
               style={{ fontSize: '1.1rem' }}
               onClick={handleClear}
-              aria-label={t('ButtonClearInput')}
+              aria-label={t('ButtonClear')}
               cy-id="text-input-clear"
             >
               close

@@ -9,10 +9,13 @@ export default function SettingsFooter() {
     <div className="mx-auto mb-8 flex w-full max-w-4xl items-center px-2 md:px-6">
       <div className="grow" />
       <p className="pr-2 text-sm text-yellow-400">
-        {t('MessageReportBugsAndContribute')}{' '}
-        <a className="underline" href="https://github.com/advplyr/audiobookshelf" target="_blank" rel="noopener noreferrer">
-          github
-        </a>
+        {t.rich('MessageReportBugsAndContributeGithub', {
+          link: (chunks) => (
+            <a className="underline" href="https://github.com/advplyr/audiobookshelf" target="_blank" rel="noopener noreferrer">
+              {chunks}
+            </a>
+          )
+        })}
       </p>
       <a
         href="https://github.com/advplyr/audiobookshelf"
@@ -25,10 +28,13 @@ export default function SettingsFooter() {
         </svg>
       </a>
       <p className="pr-2 pl-4 text-sm text-yellow-400">
-        {t('MessageJoinUsOn')}{' '}
-        <a className="underline" href="https://discord.gg/HQgCbd6E75" target="_blank" rel="noopener noreferrer">
-          discord
-        </a>
+        {t.rich('MessageJoinUsOnDiscord', {
+          link: (chunks) => (
+            <a className="underline" href="https://discord.gg/HQgCbd6E75" target="_blank" rel="noopener noreferrer">
+              {chunks}
+            </a>
+          )
+        })}
       </p>
       <a href="https://discord.gg/HQgCbd6E75" target="_blank" rel="noopener noreferrer" className="transform duration-500 hover:scale-150 hover:rotate-6">
         <svg width="31" height="24" viewBox="0 0 71 55" fill="none" xmlns="http://www.w3.org/2000/svg">

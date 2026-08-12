@@ -1,6 +1,7 @@
 'use client'
 
 import ChangelogModal from '@/components/modals/ChangelogModal'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useVersionData } from '@/hooks/useVersionData'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useState } from 'react'
@@ -12,6 +13,7 @@ interface VersionFooterProps {
 }
 
 export default function VersionFooter({ serverVersion, installSource, variant = 'compact' }: VersionFooterProps) {
+  const t = useTypeSafeTranslations()
   const [showChangelogModal, setShowChangelogModal] = useState(false)
   const versionData = useVersionData(serverVersion)
 
@@ -34,7 +36,7 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
           </div>
           {hasUpdate && githubTagUrl ? (
             <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning text-xs hover:underline">
-              Latest: {versionData.latestVersion}
+              {t('LabelLatestVersionWithValue', { 0: versionData.latestVersion })}
             </a>
           ) : null}
         </div>
@@ -55,7 +57,7 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
       </button>
       {hasUpdate && githubTagUrl ? (
         <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning text-xxs block text-center leading-3 hover:underline">
-          Update
+          {t('ButtonUpdate')}
         </a>
       ) : (
         <p className="text-xxs text-foreground-subdued text-center leading-3 italic">{installSource}</p>

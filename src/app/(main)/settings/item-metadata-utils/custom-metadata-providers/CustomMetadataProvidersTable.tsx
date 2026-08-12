@@ -70,7 +70,7 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
         accessor: 'name'
       },
       {
-        label: 'URL',
+        label: 'URL', // i18n-ignore
         accessor: 'url'
       },
       {

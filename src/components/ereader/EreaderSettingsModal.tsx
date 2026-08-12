@@ -27,8 +27,8 @@ export default function EreaderSettingsModal({ isOpen, ebookFormat, settings, on
   ]
 
   const fontItems = [
-    { text: 'Sans', value: 'sans-serif' },
-    { text: 'Serif', value: 'serif' }
+    { text: t('LabelFontSans'), value: 'sans-serif' },
+    { text: t('LabelFontSerif'), value: 'serif' }
   ]
 
   const spreadItems = [

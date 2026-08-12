@@ -1,11 +1,10 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { TranslationKey } from '@/types/translations'
 import styles from './LoadingIndicator.module.css'
 
 interface LoadingIndicatorProps {
-  label?: TranslationKey
+  label?: string
   children?: React.ReactNode
   /**
    * `overlay` — full-bleed dimmed layer (`absolute inset-0 bg-black/50`), for covering a `relative` parent.
@@ -16,15 +15,12 @@ interface LoadingIndicatorProps {
 
 export default function LoadingIndicator({ label, children, variant = 'overlay' }: LoadingIndicatorProps) {
   const t = useTypeSafeTranslations()
-  if (!label) {
-    label = 'LabelLoadingIndicator'
-  }
-  const displayLabel = t(label)
+  const displayLabel = label ?? t('LabelLoadingIndicator')
 
   const rootClass = variant === 'inline' ? 'flex items-center justify-center' : 'absolute inset-0 z-50 flex items-center justify-center bg-black/50'
 
   return (
-    <div className={rootClass} role="status" aria-live="polite" aria-label={label}>
+    <div className={rootClass} role="status" aria-live="polite" aria-label={displayLabel}>
       <div className="w-40">
         <div className="bg-bg shadow-modal-content flex flex-col items-center rounded-lg border border-gray-500 px-5 py-2">
           <div cy-id="loading-indicator" className={`${styles['loader-dots']} relative mt-2 block h-5 w-20`} aria-hidden="true">

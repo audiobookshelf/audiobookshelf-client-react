@@ -130,7 +130,7 @@ export default function BookmarksModal({
                   <p className="text-foreground-muted font-mono text-sm">{secondsToTimestamp(roundedCurrentTime / playbackRate)}</p>
                 </div>
                 <div className="grow px-2">
-                  <TextInput value={newBookmarkTitle} placeholder="Note" onChange={setNewBookmarkTitle} className="w-full" />
+                  <TextInput value={newBookmarkTitle} placeholder={t('PlaceholderBookmarkNote')} onChange={setNewBookmarkTitle} className="w-full" />
                 </div>
                 <Btn type="submit" className="px-4">
                   {t('ButtonAdd')}

@@ -29,15 +29,15 @@ export function formatSortLine(orderBy: string, context: SortLineContext): strin
   }
   if (orderBy === 'media.duration') {
     const duration = (media as { duration?: number }).duration ?? 0
-    return `${t('LabelDuration')}: ${formatDuration(duration, t)}`
+    return t('LabelDurationWithValue', { 0: formatDuration(duration, t) })
   }
   if (orderBy === 'media.numTracks') {
     // For podcasts, the sort key is 'media.numTracks' but the actual field is 'numEpisodes'
     const numEpisodes = (media as { numEpisodes?: number }).numEpisodes ?? 0
-    return `${numEpisodes} ${t('LabelEpisodes')}`
+    return t('LabelXEpisodes', { count: numEpisodes })
   }
   if (orderBy === 'size') {
-    return `${t('LabelSize')}: ${bytesPretty(libraryItem.size ?? 0)}`
+    return t('LabelSizeWithValue', { 0: bytesPretty(libraryItem.size ?? 0) })
   }
   if (orderBy === 'progress' && lastUpdated) {
     return t('LabelLastProgressDate', {

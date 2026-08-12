@@ -36,20 +36,20 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
   )
 
   const subfolderOptions: DropdownItem[] = useMemo(() => {
-    const options: DropdownItem[] = [{ text: 'None', value: '' }]
+    const options: DropdownItem[] = [{ text: t('LabelNone'), value: '' }]
     if (routerBasePath) {
       options.push({ text: routerBasePath, value: routerBasePath })
     }
     return options
-  }, [routerBasePath])
+  }, [routerBasePath, t])
 
   const matchExistingOptions: DropdownItem[] = useMemo(
     () => [
-      { text: 'Do not match', value: '' },
-      { text: 'Match by email', value: 'email' },
-      { text: 'Match by username', value: 'username' }
+      { text: t('LabelDoNotMatch'), value: '' },
+      { text: t('LabelMatchByEmail'), value: 'email' },
+      { text: t('LabelMatchByUsername'), value: 'username' }
     ],
-    []
+    [t]
   )
 
   const signingAlgorithmItems: DropdownItem[] = useMemo(
@@ -98,7 +98,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
   const handleAutoPopulate = async () => {
     if (!settings.authOpenIDIssuerURL?.trim()) {
-      showToast('Issuer URL required', { type: 'error' })
+      showToast(t('ToastIssuerUrlRequired'), { type: 'error' })
       return
     }
 
@@ -131,7 +131,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
       <div className="mb-2 flex w-full items-center">
         <div className="grow">
           <TextInput
-            label="Issuer URL"
+            label={t('LabelIssuerURL')}
             value={settings.authOpenIDIssuerURL ?? ''}
             disabled={disabled}
             onChange={(value) => updateField('authOpenIDIssuerURL', value || null)}
@@ -146,14 +146,14 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
             onClick={handleAutoPopulate}
           >
             <span className="material-symbols text-base">auto_fix_high</span>
-            <span className="pl-1 break-keep whitespace-nowrap">Auto-populate</span>
+            <span className="pl-1 break-keep whitespace-nowrap">{t('ButtonAutoPopulate')}</span>
           </Btn>
         </div>
       </div>
 
       <div className="mb-2 w-full">
         <TextInput
-          label="Authorize URL"
+          label={t('LabelAuthorizeURL')}
           value={settings.authOpenIDAuthorizationURL ?? ''}
           disabled={disabled}
           onChange={(value) => updateField('authOpenIDAuthorizationURL', value || null)}
@@ -162,7 +162,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
       <div className="mb-2 w-full">
         <TextInput
-          label="Token URL"
+          label={t('LabelTokenURL')}
           value={settings.authOpenIDTokenURL ?? ''}
           disabled={disabled}
           onChange={(value) => updateField('authOpenIDTokenURL', value || null)}
@@ -171,7 +171,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
       <div className="mb-2 w-full">
         <TextInput
-          label="Userinfo URL"
+          label={t('LabelUserinfoURL')}
           value={settings.authOpenIDUserInfoURL ?? ''}
           disabled={disabled}
           onChange={(value) => updateField('authOpenIDUserInfoURL', value || null)}
@@ -180,7 +180,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
       <div className="mb-2 w-full">
         <TextInput
-          label="JWKS URL"
+          label={t('LabelJwksURL')}
           value={settings.authOpenIDJwksURL ?? ''}
           disabled={disabled}
           onChange={(value) => updateField('authOpenIDJwksURL', value || null)}
@@ -189,7 +189,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
       <div className="mb-2 w-full">
         <TextInput
-          label="Logout URL"
+          label={t('LabelLogoutURL')}
           value={settings.authOpenIDLogoutURL ?? ''}
           disabled={disabled}
           onChange={(value) => updateField('authOpenIDLogoutURL', value || null)}
@@ -198,7 +198,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
       <div className="mb-2 w-full">
         <TextInput
-          label="Client ID"
+          label={t('LabelClientID')}
           value={settings.authOpenIDClientID ?? ''}
           disabled={disabled}
           onChange={(value) => updateField('authOpenIDClientID', value || null)}
@@ -207,7 +207,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
       <div className="mb-2 w-full">
         <TextInput
-          label="Client Secret"
+          label={t('LabelClientSecret')}
           type="password"
           value={settings.authOpenIDClientSecret ?? ''}
           disabled={disabled}
@@ -219,7 +219,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
       <div className="mb-2 w-full">
         {signingAlgorithms.length > 0 ? (
           <Dropdown
-            label="Signing Algorithm"
+            label={t('LabelSigningAlgorithm')}
             items={signingAlgorithmItems}
             value={settings.authOpenIDTokenSigningAlgorithm}
             disabled={disabled}
@@ -227,7 +227,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
           />
         ) : (
           <TextInput
-            label="Signing Algorithm"
+            label={t('LabelSigningAlgorithm')}
             value={settings.authOpenIDTokenSigningAlgorithm ?? ''}
             disabled={disabled}
             onChange={(value) => updateField('authOpenIDTokenSigningAlgorithm', value)}
@@ -339,7 +339,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
       <div className="mb-4 flex w-full flex-col sm:flex-row">
         <div className="w-44 min-w-44 shrink-0">
           <TextInput
-            label="Group Claim"
+            label={t('LabelGroupClaim')}
             placeholder="groups"
             value={settings.authOpenIDGroupClaim ?? ''}
             disabled={disabled}
@@ -352,7 +352,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
       <div className="mb-4 flex w-full flex-col sm:flex-row">
         <div className="w-44 min-w-44 shrink-0">
           <TextInput
-            label="Advanced Permission Claim"
+            label={t('LabelAdvancedPermissionClaim')}
             placeholder="abspermissions"
             value={settings.authOpenIDAdvancedPermsClaim ?? ''}
             disabled={disabled}

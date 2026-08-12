@@ -283,10 +283,20 @@ const BookDetailsEdit = ({
             />
           </div>
           <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.isbn || ''} onChange={handleFieldUpdate('isbn')} label="ISBN" trimWhitespace />
+            <TextInput
+              value={details.isbn || ''}
+              onChange={handleFieldUpdate('isbn')}
+              label="ISBN" // i18n-ignore
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.asin || ''} onChange={handleFieldUpdate('asin')} label="ASIN" trimWhitespace />
+            <TextInput
+              value={details.asin || ''}
+              onChange={handleFieldUpdate('asin')}
+              label="ASIN" // i18n-ignore
+              trimWhitespace
+            />
           </div>
         </div>
 

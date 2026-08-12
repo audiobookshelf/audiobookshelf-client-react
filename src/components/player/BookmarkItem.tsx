@@ -90,7 +90,7 @@ export default function BookmarkItem({ bookmark, highlight, playbackRate, onSele
             <p className="text-foreground-muted font-mono text-sm">{displayTimestamp}</p>
           </div>
           <div className="min-w-0 flex-1">
-            <TextInput value={newBookmarkTitle} placeholder="Note" onChange={setNewBookmarkTitle} className="w-full" />
+            <TextInput value={newBookmarkTitle} placeholder={t('PlaceholderBookmarkNote')} onChange={setNewBookmarkTitle} className="w-full" />
           </div>
           <Btn type="submit" className="shrink-0 px-4">
             {t('ButtonSave')}
