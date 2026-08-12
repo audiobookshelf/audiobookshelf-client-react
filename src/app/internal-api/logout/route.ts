@@ -12,8 +12,12 @@ export async function POST(request: Request) {
 
     const audiobookshelfServerUrl = getServerBaseUrl()
 
-    // Abs server reads auth_method and openid_id_token from cookies to build the OIDC end-session URL.
-    const oidcCookies = [authMethod ? `auth_method=${authMethod}` : null, openidIdToken ? `openid_id_token=${openidIdToken}` : null].filter(Boolean)
+    // Only forward OIDC cookies when this session actually used OpenID (avoids stale auth_method=openid).
+    const isOpenIdAuth = authMethod === 'openid' || authMethod === 'openid-mobile'
+    const oidcCookies = [
+      isOpenIdAuth && authMethod ? `auth_method=${authMethod}` : null,
+      isOpenIdAuth && openidIdToken ? `openid_id_token=${openidIdToken}` : null
+    ].filter(Boolean)
 
     // Make logout request to the Audiobookshelf server
     const logoutResponse = await fetch(`${audiobookshelfServerUrl}/logout`, {

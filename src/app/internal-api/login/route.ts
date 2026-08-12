@@ -80,6 +80,15 @@ export async function POST(request: Request) {
     const response = NextResponse.json(data)
     setTokenCookies(response, newAccessToken, newRefreshToken ?? null)
     setLanguageCookie(response.cookies, effectiveLanguage)
+    // Local login must overwrite a stale auth_method=openid from another DB / prior OIDC session
+    response.cookies.set('auth_method', 'local', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 365 * 24 * 60 * 60 * 10
+    })
+    response.cookies.delete('openid_id_token')
 
     return response
   } catch (error) {
