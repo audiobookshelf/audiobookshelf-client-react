@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Impossibile rimuovere gli elementi della libreria con problemi",
   "ToastRemoveItemsWithIssuesSuccess": "Rimossi gli elementi della libreria con problemi",
   "ToastRenameFailed": "Impossibile rinominare",
-  "ToastRescanFailed": "Nuova scansione non riuscita per {0}",
   "ToastRescanRemoved": "L'articolo completo di Re-Scan è stato rimosso",
   "ToastRescanUpToDate": "La nuova scansione dell'articolo completo è stata aggiornata",
   "ToastRescanUpdated": "L'articolo completo di Re-Scan è stato aggiornato",

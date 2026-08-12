@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "无法删除有问题的库项目",
   "ToastRemoveItemsWithIssuesSuccess": "已删除有问题的库项目",
   "ToastRenameFailed": "重命名失败",
-  "ToastRescanFailed": "{0} 重新扫描失败",
   "ToastRescanRemoved": "重新扫描完成项目已删除",
   "ToastRescanUpToDate": "重新扫描完成，项目已是最新",
   "ToastRescanUpdated": "重新扫描完成，项目已更新",

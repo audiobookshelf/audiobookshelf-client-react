@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "சிக்கல்கள் உள்ள நூலகப் பொருட்களை அகற்ற முடியவில்லை",
   "ToastRemoveItemsWithIssuesSuccess": "சிக்கல்கள் உள்ள நூலகப் பொருட்கள் அகற்றப்பட்டன",
   "ToastRenameFailed": "மறுபெயரிடுவதில் தோல்வி",
-  "ToastRescanFailed": "{0}க்கு மீண்டும் வருடு செய்ய முடியவில்லை",
   "ToastRescanRemoved": "மீண்டும் வருடு முழு உருப்படி அகற்றப்பட்டது",
   "ToastRescanUpToDate": "முழுமையான உருப்படியை மீண்டும் வருடு செய்வது புதுப்பித்த நிலையில் உள்ளது",
   "ToastRescanUpdated": "முழுமையான உருப்படியை மீண்டும் வருடு செய்யவும்",

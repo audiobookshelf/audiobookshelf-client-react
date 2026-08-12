@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "이슈가 있는 라이브러리 항목을 제거하지 못했습니다.",
   "ToastRemoveItemsWithIssuesSuccess": "이슈가 있는 라이브러리 항목을 제거했습니다.",
   "ToastRenameFailed": "이름 바꾸기에 실패했습니다",
-  "ToastRescanFailed": "{0}에 대한 재스캔에 실패했습니다.",
   "ToastRescanRemoved": "재스캔 완료 항목이 제거되었습니다.",
   "ToastRescanUpToDate": "재스캔 완료 항목이 최신 상태였습니다.",
   "ToastRescanUpdated": "재스캔 완료 항목이 업데이트되었습니다.",

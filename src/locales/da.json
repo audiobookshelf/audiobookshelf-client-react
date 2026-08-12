@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Fejlede at slette genstande med fejl",
   "ToastRemoveItemsWithIssuesSuccess": "Slettede genstande med fejl",
   "ToastRenameFailed": "Fejlede at omdøbe",
-  "ToastRescanFailed": "Genscan fejlede for {0}",
   "ToastRescanRemoved": "Genscan gennemført, genstand blev fjernet",
   "ToastRescanUpToDate": "Genscan gennemført, genstand var opdateret",
   "ToastRescanUpdated": "Genscan gennemført, genstand blev opdateret",

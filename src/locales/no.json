@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Kunne ikke fjerne bibliotek-elementer med feil",
   "ToastRemoveItemsWithIssuesSuccess": "Fjernet bibliotek-elementer med feil",
   "ToastRenameFailed": "Kunne ikke endre navn",
-  "ToastRescanFailed": "Ny skanning feilet for {0}",
   "ToastRescanRemoved": "Ny skanning utført og element fjernet",
   "ToastRescanUpToDate": "Ny skanning utført og element var oppdatert",
   "ToastRescanUpdated": "Ny skanning utført og element oppdatert",

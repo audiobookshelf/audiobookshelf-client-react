@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Не ўдалося выдаліць элементы бібліятэкі з праблемамі",
   "ToastRemoveItemsWithIssuesSuccess": "Выдалены элементы бібліятэкі з праблемамі",
   "ToastRenameFailed": "Не ўдалося перайменаваць",
-  "ToastRescanFailed": "Не ўдалося паўторна прасканіраваць {0}",
   "ToastRescanRemoved": "Паўторнае сканаванне завершана, элемент быў выдалены",
   "ToastRescanUpToDate": "Паўторнае сканаванне завершана, элемент быў у актуальным стане",
   "ToastRescanUpdated": "Паўторнае сканаванне завершана, элемент быў абноўлены",

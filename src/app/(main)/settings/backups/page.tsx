@@ -10,7 +10,7 @@ export default async function BackupsPage({ searchParams }: { searchParams: Prom
   const [backupsResponse] = await getData(getBackups())
 
   if (!backupsResponse) {
-    return <div>{t('MessageErrorLoadingBackups')}</div>
+    return <div>{t('MessageFailedToLoadData')}</div>
   }
 
   return <BackupsClient backupResponse={backupsResponse} appliedBackupToast={sp.backup === '1'} />

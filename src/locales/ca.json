@@ -987,7 +987,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Error en eliminar elements incorrectes de la biblioteca",
   "ToastRemoveItemsWithIssuesSuccess": "S'han eliminat els elements incorrectes de la biblioteca",
   "ToastRenameFailed": "Error en canviar el nom",
-  "ToastRescanFailed": "Error en reescanejar per a {0}",
   "ToastRescanRemoved": "Element reescanejat eliminat",
   "ToastRescanUpToDate": "Reescaneig completat, l'element ja estava actualitzat",
   "ToastRescanUpdated": "Reescaneig completat, l'element ha estat actualitzat",

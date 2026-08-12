@@ -996,7 +996,6 @@
   "ToastRemoveItemsWithIssuesFailed": "সমস্যাযুক্ত লাইব্রেরি আইটেমগুলি সরাতে ব্যর্থ হয়েছে",
   "ToastRemoveItemsWithIssuesSuccess": "সমস্যাযুক্ত লাইব্রেরি আইটেম সরানো হয়েছে",
   "ToastRenameFailed": "পুনঃনামকরণ ব্যর্থ হয়েছে",
-  "ToastRescanFailed": "{0} এর জন্য পুনরায় স্ক্যান করা ব্যর্থ হয়েছে",
   "ToastRescanRemoved": "পুনরায় স্ক্যান সম্পূর্ণ,আইটেম সরানো হয়েছে",
   "ToastRescanUpToDate": "পুনরায় স্ক্যান সম্পূর্ণ, আইটেম সাম্প্রতিক ছিল",
   "ToastRescanUpdated": "পুনরায় স্ক্যান সম্পূর্ণ, আইটেম আপডেট করা হয়েছে",

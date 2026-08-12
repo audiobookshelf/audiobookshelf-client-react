@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Nem sikerült eltávolítani a hibás könyvtárelemeket",
   "ToastRemoveItemsWithIssuesSuccess": "Hibás könyvtárelemek eltávolítva",
   "ToastRenameFailed": "Sikertelen átnevezés",
-  "ToastRescanFailed": "Sikertelen újrakeresés a következőnél: {0}",
   "ToastRescanRemoved": "A teljes újrabeolvasás befejezve, elem eltávolítva",
   "ToastRescanUpToDate": "A teljes újrabeolvasás befejezve, elem naprakész volt",
   "ToastRescanUpdated": "A teljes újrabeolvasás befejezve, elem frissítve",

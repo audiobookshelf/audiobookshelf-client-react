@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Uklanjanje knjižničkih stavki s problemima nije uspjelo",
   "ToastRemoveItemsWithIssuesSuccess": "Uspješno uklonjene knjižničke stavke s problemima",
   "ToastRenameFailed": "Preimenovanje nije uspjelo",
-  "ToastRescanFailed": "Ponovno skeniranje nije uspjelo za {0}",
   "ToastRescanRemoved": "Ponovno skeniranje dovršene stavke je uklonjeno",
   "ToastRescanUpToDate": "Ponovno skeniranje dovršene stavke bilo je ažurno",
   "ToastRescanUpdated": "Ponovno skeniranje dovršene stavke je ažurirano",

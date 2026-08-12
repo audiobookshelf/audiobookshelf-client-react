@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Falha ao remover itens da biblioteca com problemas",
   "ToastRemoveItemsWithIssuesSuccess": "Itens da biblioteca com problemas foram removidos",
   "ToastRenameFailed": "Falha ao renomear",
-  "ToastRescanFailed": "Falha na nova verificação para {0}",
   "ToastRescanRemoved": "O item foi removido após a digitalização ser concluída",
   "ToastRescanUpToDate": "A nova verificação completou o item, que estava atualizado",
   "ToastRescanUpdated": "O item foi atualizado após a digitalização",

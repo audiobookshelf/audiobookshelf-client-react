@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Nie udało się usunąć wadliwych elementów z biblioteki",
   "ToastRemoveItemsWithIssuesSuccess": "Usunięto wadliwe elementy z biblioteki",
   "ToastRenameFailed": "Nie udało się zmienić nazwy",
-  "ToastRescanFailed": "Ponowne skanowanie nie powiodło się dla {0}",
   "ToastRescanRemoved": "Ponowne skanowanie powiodło się – element został usunięty",
   "ToastRescanUpToDate": "Ponowne skanowanie powiodło się – element był aktualny",
   "ToastRescanUpdated": "Ponowne skanowanie powiodło się – element został zaktualizowany",

@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Vikoja sisältävien kirjastokohteiden poistaminen epäonnistui",
   "ToastRemoveItemsWithIssuesSuccess": "Vikoja sisältäviä kirjastokohteita poistettu",
   "ToastRenameFailed": "Uudelleennimeäminen epäonnistui",
-  "ToastRescanFailed": "Uudelleenskannaus {0}n kohdalla epäonnistui",
   "ToastRescanRemoved": "Uudelleenskannauksen täydellinen kohde poistettiin",
   "ToastRescanUpToDate": "Uudelleenskannauksen täydellinen kohde oli ajan tasalla",
   "ToastRescanUpdated": "Uudelleenskannauksen täydellinen kohde päivitettiin",

@@ -128,7 +128,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
       onShareChange?.(null)
     } catch (error) {
       console.error('deleteShare', error)
-      showToast(t('ToastFailedToDeleteShare'), { type: 'error' })
+      showToast(t('ToastFailedToDelete'), { type: 'error' })
     } finally {
       setProcessing(false)
     }

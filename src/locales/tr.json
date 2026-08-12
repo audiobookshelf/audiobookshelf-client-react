@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Sorunlu kütüphane öğeleri kaldırılamadı",
   "ToastRemoveItemsWithIssuesSuccess": "Sorunlu kütüphane öğeleri kaldırıldı",
   "ToastRenameFailed": "Yeniden adlandırılamadı",
-  "ToastRescanFailed": "{0} için Yeniden Tarama Başarısız Oldu",
   "ToastRescanRemoved": "Yeniden Tarama tamamlandı, öğe kaldırıldı",
   "ToastRescanUpToDate": "Yeniden Tarama tamamlandı, öğe günceldi",
   "ToastRescanUpdated": "Yeniden Tarama tamamlandı, öğe güncellendi",

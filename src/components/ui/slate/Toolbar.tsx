@@ -211,12 +211,12 @@ export const Toolbar = () => {
         <MarkButton {...getButtonProps('strike')}>format_strikethrough</MarkButton>
         <LinkButton onOpenModal={openModal} {...getButtonProps('link')} />
       </div>
-      <div role="group" aria-label={t('AriaLabelLists')} className="border-border flex overflow-hidden rounded-sm border">
+      <div role="group" className="border-border flex overflow-hidden rounded-sm border">
         <BlockButton {...getButtonProps('bulleted-list')}>format_list_bulleted</BlockButton>
         <BlockButton {...getButtonProps('numbered-list')}>format_list_numbered</BlockButton>
       </div>
       <div className="flex-grow" />
-      <div role="group" aria-label={t('AriaLabelHistory')} className="border-border flex overflow-hidden rounded-sm border">
+      <div role="group" className="border-border flex overflow-hidden rounded-sm border">
         <UndoButton {...getButtonProps('undo')} isUndoAvailable={isUndoAvailable} />
         <RedoButton {...getButtonProps('redo')} isRedoAvailable={isRedoAvailable} />
       </div>

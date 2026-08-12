@@ -10,7 +10,7 @@ export default async function EmailSettingsPage() {
   const [emailSettingsResponse, usersResponse] = await getData(getEmailSettings(), getUsers())
 
   if (!emailSettingsResponse) {
-    return <div>{t('MessageErrorLoadingEmailSettings')}</div>
+    return <div>{t('MessageFailedToLoadData')}</div>
   }
 
   const users = [...(usersResponse?.users || [])].sort((a, b) => a.createdAt - b.createdAt)

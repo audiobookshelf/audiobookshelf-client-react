@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Verwijderen van bibliotheekitems met problemen mislukt",
   "ToastRemoveItemsWithIssuesSuccess": "Bibliotheekitems met problemen verwijderd",
   "ToastRenameFailed": "Hernoemen mislukt",
-  "ToastRescanFailed": "Opnieuw scannen mislukt voor {0}",
   "ToastRescanRemoved": "Opnieuw scannen voltooid, item is verwijderd",
   "ToastRescanUpToDate": "Rescan voltooid, item is up to date",
   "ToastRescanUpdated": "Rescan voltooid, item is geupdated",

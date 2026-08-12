@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Entfernen von fehlerhaften Bibliotheksartikeln fehlgeschlagenen",
   "ToastRemoveItemsWithIssuesSuccess": "Fehlerhafte Bibliotheksartikel entfernt",
   "ToastRenameFailed": "Umbenennen fehlgeschlagen",
-  "ToastRescanFailed": "Erneut scannen fehlgeschlagen für {0}",
   "ToastRescanRemoved": "Erneut scannen erledigt, Artikel wurde entfernt",
   "ToastRescanUpToDate": "Erneut scannen erledigt, Artikel war auf dem neusten Stand",
   "ToastRescanUpdated": "Erneut scannen erledigt, Artikel wurde verändert",

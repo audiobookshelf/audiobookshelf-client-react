@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "問題のあるライブラリーアイテムの削除に失敗しました",
   "ToastRemoveItemsWithIssuesSuccess": "問題のあるライブラリーアイテムを削除しました",
   "ToastRenameFailed": "名前変更に失敗しました",
-  "ToastRescanFailed": "{0}の再スキャンに失敗しました",
   "ToastRescanRemoved": "再スキャンが完了しました。アイテムが削除されました",
   "ToastRescanUpToDate": "再スキャンが完了しました。アイテムは最新です",
   "ToastRescanUpdated": "再スキャンが完了しました。アイテムが更新されました",

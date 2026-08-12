@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Échec de la suppression des éléments de bibliothèque présentant des problèmes",
   "ToastRemoveItemsWithIssuesSuccess": "Éléments de bibliothèque supprimés avec des problèmes",
   "ToastRenameFailed": "Échec du renommage",
-  "ToastRescanFailed": "Échec de la nouvelle analyse pour {0}",
   "ToastRescanRemoved": "Nouvelle analyse terminée, l’élément a été supprimé",
   "ToastRescanUpToDate": "Nouvelle analyse terminée, l’élément était déjà à jour",
   "ToastRescanUpdated": "Nouvelle analyse terminée, l’élément a été mis à jour",

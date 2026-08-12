@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Det gick inte att ta bort objekt med problem",
   "ToastRemoveItemsWithIssuesSuccess": "Objekten med problem har tagits bort",
   "ToastRenameFailed": "Det gick inte att ändra namn",
-  "ToastRescanFailed": "Skanningen misslyckades för {0}",
   "ToastRescanRemoved": "Skanningen har genomförts - objektet har tagits bort",
   "ToastRescanUpToDate": "Skanningen har genomförts - objektet behövde inte uppdateras",
   "ToastRescanUpdated": "Skanningen har genomförts - objektet har uppdaterats",

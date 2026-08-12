@@ -9,7 +9,7 @@ export default async function NotificationsPage() {
   const [notificationsResponse] = await getData(getNotifications())
 
   if (!notificationsResponse) {
-    return <div>{t('MessageErrorLoadingNotifications')}</div>
+    return <div>{t('MessageFailedToLoadData')}</div>
   }
 
   return <NotificationsClient initialSettings={notificationsResponse.settings} notificationData={notificationsResponse.data} />

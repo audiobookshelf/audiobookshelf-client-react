@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Odstránenie položiek s problémami zlyhalo",
   "ToastRemoveItemsWithIssuesSuccess": "Položky knižnice s problémami boli odstránené",
   "ToastRenameFailed": "Premenovanie zlyhalo",
-  "ToastRescanFailed": "Opakované skenovanie {0} zlyhalo",
   "ToastRescanRemoved": "Opakovane skenovaná položka bola odstránená",
   "ToastRescanUpToDate": "Opakovane skenovaná položka bola aktuálna",
   "ToastRescanUpdated": "Opakovane skenovaná položka bola aktualizovaná",

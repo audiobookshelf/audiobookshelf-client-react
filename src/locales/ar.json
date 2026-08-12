@@ -1025,7 +1025,6 @@
   "ToastRemoveItemsWithIssuesFailed": "فشل إزالة عناصر المكتبة التي بها مشاكل",
   "ToastRemoveItemsWithIssuesSuccess": "تمت إزالة عناصر المكتبة التي بها مشاكل",
   "ToastRenameFailed": "فشل إعادة التسمية",
-  "ToastRescanFailed": "فشل إعادة الفحص لـ {0}",
   "ToastRescanRemoved": "اكتملت إعادة الفحص، وتمت إزالة العنصر",
   "ToastRescanUpToDate": "اكتملت إعادة الفحص، العنصر كان محدثًا",
   "ToastRescanUpdated": "اكتملت إعادة الفحص، وتم تحديث العنصر",

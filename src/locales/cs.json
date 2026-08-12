@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Chyba při odstranění položek v knihovně s chybami",
   "ToastRemoveItemsWithIssuesSuccess": "Odstraněny položky knihovny s chybami",
   "ToastRenameFailed": "Chyba při přejmenování",
-  "ToastRescanFailed": "Znovu prohledání selhalo z důvodu {0}",
   "ToastRescanRemoved": "Znova skenování komplení - položka byla odsraněna",
   "ToastRescanUpToDate": "Znovu prohledání kompletní - položka aktualizována",
   "ToastRescanUpdated": "Znovu skenování komplení - položka byla aktualizována",

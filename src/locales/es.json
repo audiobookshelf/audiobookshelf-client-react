@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Error en la eliminación de artículos de biblioteca con incidencias",
   "ToastRemoveItemsWithIssuesSuccess": "Se eliminaron artículos de biblioteca con incidencias",
   "ToastRenameFailed": "Error al cambiar el nombre",
-  "ToastRescanFailed": "Error al volver a escanear para {0}",
   "ToastRescanRemoved": "Se eliminó el elemento reescaneado",
   "ToastRescanUpToDate": "Reescaneado del artículo completo, estaba actualizado",
   "ToastRescanUpdated": "Reescaneado completado, el artículo ha sido actualizado",

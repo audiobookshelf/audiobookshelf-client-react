@@ -1052,7 +1052,6 @@
   "ToastRemoveItemsWithIssuesFailed": "Elementov knjižnice s težavami ni bilo mogoče odstraniti",
   "ToastRemoveItemsWithIssuesSuccess": "Odstranjeni so bili elementi knjižnice s težavami",
   "ToastRenameFailed": "Preimenovanje ni uspelo",
-  "ToastRescanFailed": "Ponovni pregled ni uspel za {0}",
   "ToastRescanRemoved": "Ponovni pregled celotnega elementa je bil odstranjen",
   "ToastRescanUpToDate": "Ponovni pregled celotnega elementa je bil ažuren",
   "ToastRescanUpdated": "Ponovni pregled celotnega elementa je bil posodobljen",
