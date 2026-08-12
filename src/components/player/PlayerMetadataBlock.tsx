@@ -1,5 +1,6 @@
 'use client'
 
+import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { LibraryItem } from '@/types/api'
@@ -20,20 +21,49 @@ interface PlayerMetadataBlockProps {
   coverWidth?: number
   /** Smaller text for mobile collapsed bar */
   compact?: boolean
+  /**
+   * Makes the artwork open the fullscreen player. The cover is the target most audiobook and
+   * podcast players use for this, and it is far larger than an icon button.
+   */
+  onCoverActivate?: () => void
 }
 
-export default function PlayerMetadataBlock({ streamLibraryItem, metadata, coverAspectRatio, coverWidth = 77, compact = false }: PlayerMetadataBlockProps) {
+export default function PlayerMetadataBlock({
+  streamLibraryItem,
+  metadata,
+  coverAspectRatio,
+  coverWidth = 77,
+  compact = false,
+  onCoverActivate
+}: PlayerMetadataBlockProps) {
   const t = useTypeSafeTranslations()
   const { displayTitle, bookAuthors, podcastAuthor, durationLabel } = metadata
 
+  const cover = (
+    <PreviewCover
+      src={getLibraryItemCoverSrc(streamLibraryItem, getPlaceholderCoverUrl())}
+      bookCoverAspectRatio={coverAspectRatio}
+      showResolution={false}
+      width={coverWidth}
+    />
+  )
+
   return (
     <div className="flex min-w-0 flex-1 items-start gap-2">
-      <PreviewCover
-        src={getLibraryItemCoverSrc(streamLibraryItem, getPlaceholderCoverUrl())}
-        bookCoverAspectRatio={coverAspectRatio}
-        showResolution={false}
-        width={coverWidth}
-      />
+      {onCoverActivate ? (
+        <Tooltip text={t('LabelOpenFullscreenPlayer')} position="top">
+          <button
+            type="button"
+            onClick={onCoverActivate}
+            aria-label={t('LabelOpenFullscreenPlayer')}
+            className="focus-visible:outline-foreground-muted shrink-0 cursor-pointer rounded-sm focus-visible:outline-1"
+          >
+            {cover}
+          </button>
+        </Tooltip>
+      ) : (
+        cover
+      )}
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <Link
           href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`}

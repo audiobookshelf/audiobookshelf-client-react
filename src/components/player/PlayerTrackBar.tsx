@@ -2,6 +2,7 @@
 
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -11,6 +12,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 interface PlayerTrackBarProps {
   playerHandler: PlayerHandler
   variant?: 'full' | 'mobile-collapsed'
+  /**
+   * What the bar spans. `auto` follows the user's "use chapter track" setting; the explicit
+   * values let the fullscreen player stack a chapter bar and a whole-book bar at once.
+   */
+  scope?: 'auto' | 'chapter' | 'book'
+  /** Suppresses the chapter title so stacked bars don't print it twice */
+  hideChapterTitle?: boolean
+  className?: string
 }
 
 interface ChapterTick {
@@ -18,13 +27,20 @@ interface ChapterTick {
   left: number
 }
 
-export default function PlayerTrackBar({ playerHandler, variant = 'full' }: PlayerTrackBarProps) {
+export default function PlayerTrackBar({ playerHandler, variant = 'full', scope = 'auto', hideChapterTitle = false, className }: PlayerTrackBarProps) {
+  const t = useTypeSafeTranslations()
   const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
   const { seek } = playerHandler.controls
-  const { playbackRate, useChapterTrack } = settings
+  const { playbackRate } = settings
   const { currentTime, bufferedTime } = usePlayerProgress()
 
   const currentChapter = useMemo(() => chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null, [chapters, currentTime])
+
+  // Falls back to whole-book whenever there is no chapter under the playhead — at the end of the
+  // book, or in a gap between chapters. Without this the bar spans a zero-length range, and a tap
+  // seeks to 0 and throws the listener back to the start.
+  const requestedChapterScope = scope === 'auto' ? settings.useChapterTrack : scope === 'chapter'
+  const useChapterTrack = requestedChapterScope && currentChapter !== null
 
   const isLoading = playerState === PlayerState.LOADING
 
@@ -37,7 +53,6 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
 
   // State
   const [trackWidth, setTrackWidth] = useState(0)
-  const [trackOffsetLeft, setTrackOffsetLeft] = useState(16)
   const [isHovering, setIsHovering] = useState(false)
 
   // Chapter duration and start for chapter-mode display
@@ -78,12 +93,9 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
     })
   }, [chapters, duration, trackWidth])
 
-  // Measure track width on mount and resize
+  // Only the chapter tick positions still need this; pointer maths reads the live rect
   const measureTrack = useCallback(() => {
-    if (trackRef.current) {
-      setTrackWidth(trackRef.current.clientWidth)
-      setTrackOffsetLeft(trackRef.current.getBoundingClientRect().left)
-    }
+    if (trackRef.current) setTrackWidth(trackRef.current.clientWidth)
   }, [])
 
   useEffect(() => {
@@ -97,41 +109,91 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
     measureTrack()
   }, [playerState, measureTrack])
 
-  // Handle track click to seek
-  const handleTrackClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isLoading || !trackWidth) return
+  const baseTime = useChapterTrack ? currentChapterStart : 0
+  const scopeDuration = useChapterTrack ? currentChapterDuration : duration
 
-      const rect = trackRef.current?.getBoundingClientRect()
-      if (!rect) return
+  /** Fraction of the bar under the pointer, clamped so an overshoot cannot seek out of range */
+  const fractionAtClientX = useCallback((clientX: number): number | null => {
+    const rect = trackRef.current?.getBoundingClientRect()
+    // rect.width rather than the measured state: the state only refreshes on window resize,
+    // and the bar can be resized by layout changes that never fire one
+    if (!rect || !rect.width) return null
+    return Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
+  }, [])
 
-      const offsetX = e.clientX - rect.left
-      const perc = offsetX / trackWidth
-      const baseTime = useChapterTrack ? currentChapterStart : 0
-      const dur = useChapterTrack ? currentChapterDuration : duration
-      const time = baseTime + perc * dur
+  const seekToFraction = useCallback(
+    (fraction: number) => {
+      if (isLoading || !scopeDuration) return
 
-      if (isNaN(time) || time === null) {
-        console.error('Invalid seek time', perc, time)
-        return
-      }
+      const time = baseTime + fraction * scopeDuration
+      if (!Number.isFinite(time)) return
 
       seek(time)
     },
-    [isLoading, trackWidth, useChapterTrack, currentChapterStart, currentChapterDuration, duration, seek]
+    [isLoading, baseTime, scopeDuration, seek]
   )
 
-  // Handle mouse move over track
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
+  const isScrubbingRef = useRef(false)
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return
+
+      const fraction = fractionAtClientX(e.clientX)
+      if (fraction === null) return
+
+      isScrubbingRef.current = true
+      e.currentTarget.setPointerCapture(e.pointerId)
+      seekToFraction(fraction)
+    },
+    [fractionAtClientX, seekToFraction]
+  )
+
+  const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    isScrubbingRef.current = false
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId)
+    // Touch never fires pointerleave, so the readout would stay pinned over the bar forever
+    if (e.pointerType !== 'mouse') setIsHovering(false)
+  }, [])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!scopeDuration) return
+
+      const step = e.key === 'PageUp' || e.key === 'PageDown' ? 60 : 10
+      let time: number | null = null
+
+      if (e.key === 'ArrowRight' || e.key === 'PageUp') time = currentTime + step
+      else if (e.key === 'ArrowLeft' || e.key === 'PageDown') time = currentTime - step
+      else if (e.key === 'Home') time = baseTime
+      else if (e.key === 'End') time = baseTime + scopeDuration
+
+      if (time === null) return
+      e.preventDefault()
+      e.stopPropagation()
+      seek(Math.min(baseTime + scopeDuration, Math.max(baseTime, time)))
+    },
+    [baseTime, scopeDuration, currentTime, seek]
+  )
+
+  // Positions the hover readout. Pointer-based so a drag keeps updating it, but only a fine
+  // pointer reveals it — on touch the finger is covering the bar anyway.
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
       const rect = trackRef.current?.getBoundingClientRect()
-      if (!rect || !trackWidth) return
+      if (!rect || !rect.width) return
 
-      const offsetX = e.clientX - rect.left
+      if (isScrubbingRef.current) {
+        const fraction = fractionAtClientX(e.clientX)
+        if (fraction !== null) seekToFraction(fraction)
+      }
 
-      const baseTime = useChapterTrack ? currentChapterStart : 0
-      const dur = useChapterTrack ? currentChapterDuration : duration
-      const progressTime = (offsetX / trackWidth) * dur
+      if (e.pointerType !== 'mouse') return
+
+      const trackWidth = rect.width
+      const offsetX = Math.min(trackWidth, Math.max(0, e.clientX - rect.left))
+
+      const progressTime = (offsetX / trackWidth) * scopeDuration
       const totalTime = baseTime + progressTime
 
       // Position hover timestamp
@@ -139,11 +201,12 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
         const width = hoverTimestampRef.current.clientWidth
         let posLeft = offsetX - width / 2
 
-        // Keep within bounds
-        if (posLeft + width + trackOffsetLeft > window.innerWidth) {
-          posLeft = window.innerWidth - width - trackOffsetLeft
-        } else if (posLeft < -trackOffsetLeft) {
-          posLeft = -trackOffsetLeft
+        // Keep within bounds. Measured from the live rect, so it stays correct when the bar
+        // moves for a reason that never fired a window resize.
+        if (posLeft + width + rect.left > window.innerWidth) {
+          posLeft = window.innerWidth - width - rect.left
+        } else if (posLeft < -rect.left) {
+          posLeft = -rect.left
         }
 
         hoverTimestampRef.current.style.left = `${posLeft}px`
@@ -175,56 +238,67 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
 
       setIsHovering(true)
     },
-    [trackWidth, trackOffsetLeft, useChapterTrack, currentChapterStart, currentChapterDuration, duration, effectivePlaybackRate, chapters]
+    [fractionAtClientX, seekToFraction, baseTime, scopeDuration, effectivePlaybackRate, chapters]
   )
 
-  // Handle mouse leave
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false)
+  const handlePointerLeave = useCallback(() => {
+    if (!isScrubbingRef.current) setIsHovering(false)
   }, [])
 
   const isMobileCollapsed = variant === 'mobile-collapsed'
 
   return (
-    <div>
+    <div className={className}>
       <div className="relative">
-        {/* Track */}
+        {/* The padding widens the touch target without changing layout height, which the
+            negative margin cancels. The visual bar stays 8px. */}
         <div
-          ref={trackRef}
-          className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onClick={handleTrackClick}
+          role="slider"
+          tabIndex={0}
+          aria-label={t('LabelPlaybackPosition')}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(playedPercent)}
+          aria-valuetext={`${currentTimeFormatted} / ${timeRemainingFormatted}`}
+          className="group/track relative -my-2.5 w-full cursor-pointer touch-none py-2.5"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          onPointerLeave={handlePointerLeave}
+          onKeyDown={handleKeyDown}
         >
-          {/* HLS transcode ready track (server-side segment progress) */}
-          {isHlsTranscode && (
-            <div
-              className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-              style={{ width: `${transcodeReadyPercent}%` }}
-            />
-          )}
-          {/* Buffer track */}
-          <div
-            className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-            style={{ width: `${bufferedPercent}%` }}
-          />
-          {/* Played track */}
-          <div
-            className="bg-track-progress pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-            style={{ width: `${playedPercent}%` }}
-          />
-          {/* Track cursor (vertical line on hover) */}
-          <div
-            ref={trackCursorRef}
-            className={mergeClasses(
-              'bg-track-progress pointer-events-none absolute top-0 left-0 h-full w-0.5 transition-opacity duration-100',
-              isHovering ? 'opacity-100' : 'opacity-0'
+          <div ref={trackRef} className="bg-track-bg relative h-2 w-full overflow-hidden transition-transform duration-100 group-hover/track:scale-y-125">
+            {/* HLS transcode ready track (server-side segment progress) */}
+            {isHlsTranscode && (
+              <div
+                className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
+                style={{ width: `${transcodeReadyPercent}%` }}
+              />
             )}
-          />
-          {/* Loading animation - sliding shimmer effect */}
-          {isLoading && (
-            <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
-          )}
+            {/* Buffer track */}
+            <div
+              className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
+              style={{ width: `${bufferedPercent}%` }}
+            />
+            {/* Played track */}
+            <div
+              className="bg-track-progress pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
+              style={{ width: `${playedPercent}%` }}
+            />
+            {/* Track cursor (vertical line on hover) */}
+            <div
+              ref={trackCursorRef}
+              className={mergeClasses(
+                'bg-track-progress pointer-events-none absolute top-0 left-0 h-full w-0.5 transition-opacity duration-100',
+                isHovering ? 'opacity-100' : 'opacity-0'
+              )}
+            />
+            {/* Loading animation - sliding shimmer effect */}
+            {isLoading && (
+              <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
+            )}
+          </div>
         </div>
 
         {/* Chapter ticks */}
@@ -266,7 +340,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
           {' / '}
           {Math.round(playedPercent)}%
         </p>
-        {currentChapter ? (
+        {currentChapter && !hideChapterTitle ? (
           isMobileCollapsed ? (
             <div className="text-foreground-muted flex min-w-0 flex-1 items-center justify-center sm:max-w-none">
               <TruncatingTooltipText lazy text={currentChapter.title} className="min-w-0 text-xs" position="top" />

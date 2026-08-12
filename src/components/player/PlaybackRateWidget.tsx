@@ -11,11 +11,13 @@ import IconBtn from '../ui/IconBtn'
 
 interface PlaybackRateWidgetProps {
   playerHandler: PlayerHandler
+  /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
+  size?: 'default' | 'lg'
 }
 
 const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
 
-export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidgetProps) {
+export default function PlaybackRateWidget({ playerHandler, size = 'default' }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
   const { setPlaybackRate, incrementPlaybackRate, decrementPlaybackRate } = playerHandler.controls
@@ -77,12 +79,14 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
     }
   }, [refs])
 
-  // Close on mousedown outside
+  // Close on pointerdown outside. Pointer rather than mouse events, so a tap dismisses it on
+  // touch — synthesized mouse events are not guaranteed there.
   useEffect(() => {
     if (!isOpen) return
 
-    const handleMouseDown = (e: MouseEvent) => {
-      const target = e.target as Node
+    const handlePointerDown = (e: PointerEvent) => {
+      const target = e.target
+      if (!(target instanceof Node)) return
       // Don't close if clicking inside the popover or on the trigger
       if (popoverRef.current?.contains(target) || triggerRef.current?.contains(target)) {
         return
@@ -90,9 +94,8 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
       setIsOpen(false)
     }
 
-    // Use mousedown instead of click for more immediate response
-    document.addEventListener('mousedown', handleMouseDown)
-    return () => document.removeEventListener('mousedown', handleMouseDown)
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [isOpen])
 
   // Close on Escape key
@@ -206,7 +209,11 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
         ref={triggerRef}
         size="custom"
         borderless
-        className="min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base"
+        className={
+          size === 'lg'
+            ? 'h-11 min-w-11 shrink-0 px-1 text-lg font-medium tabular-nums'
+            : 'min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base'
+        }
         onClick={toggleOpen}
         onKeyDown={handlePlaybackRateKeyDown}
         aria-expanded={isOpen}

@@ -18,13 +18,15 @@ interface ChapterRowProps {
   chapter: Chapter
   isCurrentChapter: boolean
   isListened: boolean
+  playbackRate: number
   onSeek: (time: number) => void
 }
 
-const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListened, onSeek }: ChapterRowProps) {
-  const startTimestamp = secondsToTimestamp(chapter.start)
+const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListened, playbackRate, onSeek }: ChapterRowProps) {
+  // Scaled by rate to match every other timestamp the player shows
+  const startTimestamp = secondsToTimestamp(chapter.start / playbackRate)
   const duration = Math.max(0, chapter.end - chapter.start)
-  const durationTimestamp = secondsToTimestamp(duration)
+  const durationTimestamp = secondsToTimestamp(duration / playbackRate)
 
   const handleClick = useCallback(() => {
     onSeek(chapter.start)
@@ -89,8 +91,9 @@ export default function ChaptersModal({ isOpen, playerHandler, onClose }: Chapte
   const t = useTypeSafeTranslations()
   const listRef = useRef<HTMLDivElement>(null)
 
-  const { chapters, currentChapter } = playerHandler.state
+  const { chapters, currentChapter, settings } = playerHandler.state
   const { seek } = playerHandler.controls
+  const playbackRate = settings.playbackRate && !Number.isNaN(settings.playbackRate) ? settings.playbackRate : 1
 
   // Scroll to current chapter when modal opens
   useEffect(() => {
@@ -137,7 +140,16 @@ export default function ChaptersModal({ isOpen, playerHandler, onClose }: Chapte
               const isCurrentChapter = chapter.id === currentChapterId
               const isListened = chapter.id < currentChapterId
 
-              return <ChapterRow key={chapter.id} chapter={chapter} isCurrentChapter={isCurrentChapter} isListened={isListened} onSeek={handleSeek} />
+              return (
+                <ChapterRow
+                  key={chapter.id}
+                  chapter={chapter}
+                  isCurrentChapter={isCurrentChapter}
+                  isListened={isListened}
+                  playbackRate={playbackRate}
+                  onSeek={handleSeek}
+                />
+              )
             })
           )}
         </div>

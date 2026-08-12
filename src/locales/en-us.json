@@ -609,6 +609,7 @@
   "LabelPersonalYearReview": "Your Year in Review ({0})",
   "LabelPhotoPathURL": "Photo Path/URL",
   "LabelPlayMethod": "Play Method",
+  "LabelPlaybackPosition": "Playback position",
   "LabelPlaybackRate": "Playback Rate",
   "LabelPlaybackRateIncrementDecrement": "Playback Rate Increment/Decrement Amount",
   "LabelPlayerChapterNumberMarker": "{0} of {1}",

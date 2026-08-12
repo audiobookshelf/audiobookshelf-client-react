@@ -29,27 +29,33 @@ export default function PlayerMobileLayout({ controls, streamLibraryItem, metada
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-start gap-2">
-        <PlayerMetadataBlock streamLibraryItem={streamLibraryItem} metadata={metadata} coverAspectRatio={coverAspectRatio} coverWidth={56} compact />
-        <div className="flex shrink-0 items-center gap-0.5">
-          <IconBtn size="small" borderless iconClass="text-xl" onClick={onExpandFullscreen} ariaLabel={t('LabelOpenFullscreenPlayer')}>
-            open_in_full
-          </IconBtn>
+        {/* Tapping the artwork opens fullscreen — a 56px-wide target instead of a 36px icon */}
+        <PlayerMetadataBlock
+          streamLibraryItem={streamLibraryItem}
+          metadata={metadata}
+          coverAspectRatio={coverAspectRatio}
+          coverWidth={56}
+          compact
+          onCoverActivate={onExpandFullscreen}
+        />
+        <div className="flex shrink-0 items-center">
           <IconBtn
-            size="small"
+            size="custom"
             borderless
+            className="h-11 w-11"
             iconClass="text-3xl"
             onClick={toggleDetails}
             ariaLabel={isPlayerDetailsExpanded ? t('LabelLess') : t('LabelMoreInfo')}
           >
             {isPlayerDetailsExpanded ? 'expand_less' : 'expand_more'}
           </IconBtn>
-          <IconBtn size="small" borderless iconClass="text-2xl" onClick={onClose} ariaLabel={t('LabelClosePlayer')}>
+          <IconBtn size="custom" borderless className="h-11 w-11" iconClass="text-2xl" onClick={onClose} ariaLabel={t('LabelClosePlayer')}>
             close
           </IconBtn>
         </div>
       </div>
 
-      <PlayerTransportControls controls={controls} compact />
+      <PlayerTransportControls controls={controls} size="compact" />
 
       <div className="mt-2">
         <PlayerTrackBar playerHandler={controls.playerHandler} variant="mobile-collapsed" />

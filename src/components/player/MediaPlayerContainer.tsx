@@ -180,12 +180,17 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
         {isDesktop ? (
           <div className="relative z-[1]">
             <div className="absolute top-0 left-0 flex min-w-0 items-start gap-4">
-              <PlayerMetadataBlock streamLibraryItem={streamLibraryItem} metadata={metadata} coverAspectRatio={coverAspectRatio} coverWidth={77} />
+              <PlayerMetadataBlock
+                streamLibraryItem={streamLibraryItem}
+                metadata={metadata}
+                coverAspectRatio={coverAspectRatio}
+                coverWidth={77}
+                onCoverActivate={openFullscreen}
+              />
             </div>
+            {/* No expand button: the artwork opens fullscreen, the way audiobook and podcast
+                players usually do it, and it is a far larger target than an icon */}
             <div className="absolute top-0 right-0 flex items-center gap-1">
-              <IconBtn size="small" borderless onClick={openFullscreen} ariaLabel={t('LabelOpenFullscreenPlayer')}>
-                open_in_full
-              </IconBtn>
               <IconBtn size="small" borderless onClick={clearStreamMedia} ariaLabel={t('LabelClosePlayer')}>
                 close
               </IconBtn>
@@ -208,7 +213,7 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
         )}
       </div>
 
-      {isPlayerFullscreen && <PlayerFullscreen controls={controlsState} metadata={metadata} onMinimize={closeFullscreen} />}
+      {isPlayerFullscreen && <PlayerFullscreen controls={controlsState} metadata={metadata} onMinimize={closeFullscreen} onClosePlayer={clearStreamMedia} />}
 
       <PlayerModals controls={controlsState} />
     </>

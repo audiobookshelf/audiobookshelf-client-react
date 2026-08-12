@@ -11,9 +11,11 @@ import { createPortal } from 'react-dom'
 
 interface VolumeControlProps {
   playerHandler: PlayerHandler
+  /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
+  size?: 'default' | 'lg'
 }
 
-export default function VolumeControl({ playerHandler }: VolumeControlProps) {
+export default function VolumeControl({ playerHandler, size = 'default' }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const { volume } = playerHandler.state
@@ -294,7 +296,9 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
           aria-valuenow={volumePercentage}
           aria-valuetext={`${volumePercentage}%`}
           className="relative flex cursor-pointer items-center justify-center select-none"
-          style={{ height: trackHeight, width: 24 }}
+          // touchAction rather than preventDefault: only this stops the browser claiming a
+          // vertical drag as a scroll and firing pointercancel mid-drag
+          style={{ height: trackHeight, width: 24, touchAction: 'none' }}
           onPointerDown={handleTrackPointerDown}
           onKeyDown={handleVolumeKeyDown}
           onBlur={handleWidgetBlur}
@@ -353,7 +357,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
         ref={triggerRef}
         size="custom"
         borderless
-        className="w-9 text-2xl sm:w-10"
+        className={size === 'lg' ? 'h-11 w-11 shrink-0 text-3xl' : 'w-9 text-2xl sm:w-10'}
         onClick={handleTriggerClick}
         onMouseDown={handleTriggerMouseDown}
         onMouseEnter={primaryInputCanHover ? openPopover : undefined}
