@@ -70,7 +70,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const logoContent = (
     <>
       <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10" />
-      <span className="hidden text-xl hover:underline md:block">audiobookshelf</span>
+      <span className="hidden text-xl hover:underline lg:block">audiobookshelf</span>
     </>
   )
 

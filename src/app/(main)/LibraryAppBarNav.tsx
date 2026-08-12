@@ -59,7 +59,7 @@ export default function LibraryAppBarNav({ libraries, currentLibraryId, currentL
           <GlobalSearchInput ref={mobileSearchInputRef} usePortal onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
         </div>
       ) : (
-        <div className="hidden min-w-0 md:block md:w-80 md:shrink-0">
+        <div className="hidden min-w-0 md:block md:w-80">
           <GlobalSearchInput usePortal onSubmit={handleSearchSubmit} libraryId={currentLibraryId} />
         </div>
       )}
