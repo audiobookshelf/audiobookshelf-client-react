@@ -205,7 +205,7 @@ export const Toolbar = () => {
       aria-orientation="horizontal"
       onKeyDown={handleToolbarKeyDown}
     >
-      <div role="group" aria-label={t('AriaLabelTextEditorText')} className="border-border flex overflow-hidden rounded-sm border">
+      <div role="group" aria-label={t('LabelTextEditorText')} className="border-border flex overflow-hidden rounded-sm border">
         <MarkButton {...getButtonProps('bold')}>format_bold</MarkButton>
         <MarkButton {...getButtonProps('italic')}>format_italic</MarkButton>
         <MarkButton {...getButtonProps('strike')}>format_strikethrough</MarkButton>

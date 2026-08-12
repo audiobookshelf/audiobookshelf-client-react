@@ -16,7 +16,7 @@ interface LibraryFilterSelectProps {
 const FILTER_TYPE_MESSAGE_KEYS: Record<string, TranslationKey> = {
   genres: 'LabelFilterGenresWithValue',
   tags: 'LabelFilterTagsWithValue',
-  narrators: 'LabelFilterNarratorsWithValue',
+  narrators: 'LabelNarratorsWithValue',
   publishers: 'LabelFilterPublishersWithValue',
   languages: 'LabelFilterLanguagesWithValue'
 }
