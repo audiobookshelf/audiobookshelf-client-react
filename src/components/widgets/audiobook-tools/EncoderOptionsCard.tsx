@@ -214,7 +214,7 @@ export default function EncoderOptionsCard({ audioTracks, disabled = false, onEn
               <ToggleButtonGroup items={codecItems} value={selectedCodec} onChange={(value) => setSelectedCodec(String(value))} disabled={disabled} />
               <p className="text-foreground-muted text-xs">
                 {renderCurrentlyWithValue(currentCodec)}
-                {isCodecsDifferent && <span className="text-warning"> {t('LabelMixed')}</span>}
+                {isCodecsDifferent && <span className="text-warning"> {t('LabelMixedCodecs')}</span>}
               </p>
             </div>
             <div className="flex flex-col items-start gap-2">
