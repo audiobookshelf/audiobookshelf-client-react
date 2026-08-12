@@ -37,6 +37,8 @@ interface MediaContextValue {
   libraryItemIdStreaming: string | null
   isPlayerDetailsExpanded: boolean
   setPlayerDetailsExpanded: (expanded: boolean) => void
+  isPlayerFullscreen: boolean
+  setPlayerFullscreen: (fullscreen: boolean) => void
 
   // Stream utilities
   isStreaming: (libraryItemId: string, episodeId?: string | null) => boolean
@@ -81,6 +83,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const [playerQueueItems, setPlayerQueueItems] = useState<PlayerQueueItem[]>([])
   const [playerQueueAutoPlay, setPlayerQueueAutoPlayState] = useState<boolean>(() => readPlayerQueueAutoPlay())
   const [isPlayerDetailsExpanded, setPlayerDetailsExpanded] = useState(false)
+  const [isPlayerFullscreen, setPlayerFullscreen] = useState(false)
 
   const playerQueueItemsRef = useRef(playerQueueItems)
   playerQueueItemsRef.current = playerQueueItems
@@ -132,6 +135,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     setStreamEpisodeId(null)
     setPlayerQueueItems([])
     setPlayerDetailsExpanded(false)
+    setPlayerFullscreen(false)
   }, [playerControls])
 
   // ============================================================================
@@ -406,6 +410,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       libraryItemIdStreaming,
       isPlayerDetailsExpanded,
       setPlayerDetailsExpanded,
+      isPlayerFullscreen,
+      setPlayerFullscreen,
 
       // Stream utilities
       isStreaming,
@@ -439,6 +445,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       libraryItemIdStreaming,
       isPlayerDetailsExpanded,
       setPlayerDetailsExpanded,
+      isPlayerFullscreen,
+      setPlayerFullscreen,
       isStreaming,
       isStreamingFromDifferentLibrary,
       isPlaying,

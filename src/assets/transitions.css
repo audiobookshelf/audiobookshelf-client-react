@@ -133,6 +133,219 @@
     opacity 250ms ease-in;
 }
 
+/* Fullscreen player — controls beside the artwork, staggered out from behind it.
+   Reveal-on-hover only where there is a pointer to hover with; on touch they stay put. */
+@media (hover: hover) and (pointer: fine) {
+  .player-fab-stack > * {
+    opacity: 0;
+    transform: translateX(-14px) scale(0.9);
+    transition:
+      opacity 0.18s ease,
+      transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  .group:hover .player-fab-stack > *,
+  .group:focus-within .player-fab-stack > * {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(1),
+  .group:focus-within .player-fab-stack > *:nth-child(1) {
+    transition-delay: 0.02s;
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(2),
+  .group:focus-within .player-fab-stack > *:nth-child(2) {
+    transition-delay: 0.06s;
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(3),
+  .group:focus-within .player-fab-stack > *:nth-child(3) {
+    transition-delay: 0.1s;
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(4),
+  .group:focus-within .player-fab-stack > *:nth-child(4) {
+    transition-delay: 0.14s;
+  }
+
+  /* Minimize button only appears while the top corner is hovered or focused */
+  .player-fullscreen-corner-btn {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity 0.18s ease,
+      transform 0.22s ease,
+      background-color 0.15s ease;
+  }
+
+  .player-fullscreen-corner:hover .player-fullscreen-corner-btn,
+  .player-fullscreen-corner:focus-within .player-fullscreen-corner-btn {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Volume readout: slides out from behind the artwork, fill tracks the level */
+.player-volume-hud {
+  animation: player-volume-hud-in 0.34s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+
+.player-volume-hud-fill {
+  transition: height 0.16s cubic-bezier(0.22, 0.9, 0.24, 1);
+}
+
+@keyframes player-volume-hud-in {
+  from {
+    opacity: 0;
+    transform: translateX(14px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Speed pill: springs in when the rate leaves 1x */
+.player-speed-pill {
+  animation: player-speed-pill-in 0.32s cubic-bezier(0.34, 1.45, 0.64, 1);
+  transition:
+    background-color 0.15s ease,
+    transform 0.18s cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+
+/* Transition-driven rather than a keyframe: repeated presses hold the scale
+   instead of restarting an animation mid-flight */
+.player-speed-pill-pulse {
+  transform: scale(1.12);
+}
+
+@keyframes player-speed-pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Jump feedback: a scrim wipes in from the side jumped toward, the pill springs up
+   then fades. The whole thing is done in 0.6s and unmounts itself. */
+.player-jump-burst {
+  animation: player-jump-burst-scrim 0.6s ease forwards;
+}
+
+.player-jump-burst-back {
+  background: linear-gradient(to right, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0) 65%);
+}
+
+.player-jump-burst-fwd {
+  background: linear-gradient(to left, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0) 65%);
+}
+
+@keyframes player-jump-burst-scrim {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.player-jump-burst-pill {
+  animation: player-jump-burst-pill 0.6s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+}
+
+@keyframes player-jump-burst-pill {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  45% {
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+/* Icon spins in the direction of travel — reads as "time moved" at a glance */
+.player-jump-burst-icon {
+  animation: player-jump-burst-spin-back 0.55s cubic-bezier(0.22, 0.9, 0.24, 1);
+}
+
+.player-jump-burst-fwd .player-jump-burst-icon {
+  animation-name: player-jump-burst-spin-fwd;
+}
+
+@keyframes player-jump-burst-spin-back {
+  from {
+    transform: rotate(120deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes player-jump-burst-spin-fwd {
+  from {
+    transform: rotate(-120deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-fab-stack > *,
+  .group:hover .player-fab-stack > *,
+  .group:focus-within .player-fab-stack > *,
+  .player-fullscreen-corner-btn,
+  .player-fullscreen-corner:hover .player-fullscreen-corner-btn,
+  .player-fullscreen-corner:focus-within .player-fullscreen-corner-btn {
+    transform: none;
+  }
+
+  .player-volume-hud,
+  .player-speed-pill {
+    animation: none;
+  }
+
+  .player-volume-hud-fill {
+    transition: none;
+  }
+
+  .player-speed-pill-pulse {
+    transform: none;
+  }
+
+  .player-jump-burst-icon {
+    animation: none;
+  }
+
+  .player-jump-burst-pill {
+    animation: player-jump-burst-scrim 0.6s ease forwards;
+  }
+}
+
 /* Player track loading animation */
 .loading-track-slide {
   animation: loading-track-slide 1.5s ease-in-out infinite;

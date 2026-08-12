@@ -6,6 +6,7 @@ import { AudioTrack } from '@/lib/player/AudioTrack'
 import { CastPlayer } from '@/lib/player/CastPlayer'
 import { getCastRemotePlayerHandles } from '@/lib/player/chromecastConstants'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
+import { emitPlayerJump } from '@/lib/player/playerFeedbackStore'
 import { PLAYER_PROGRESS_POLL_MS, resetPlayerProgress, setPlayerProgress } from '@/lib/player/playerProgressStore'
 import { computeTranscodePercentReady } from '@/lib/player/streamProgressUtils'
 import type { Chapter, LibraryItem, PlaybackSession, PlayMethod, StreamProgressPayload } from '@/types/api'
@@ -498,15 +499,17 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
   const jumpForward = useCallback(() => {
     const player = playerRef.current
     if (!player) return
-    const newTime = Math.min(player.getCurrentTime() + jumpForwardAmountRef.current, player.getDuration())
-    seek(newTime)
+    const amount = jumpForwardAmountRef.current
+    emitPlayerJump({ direction: 'forward', amount })
+    seek(Math.min(player.getCurrentTime() + amount, player.getDuration()))
   }, [seek])
 
   const jumpBackward = useCallback(() => {
     const player = playerRef.current
     if (!player) return
-    const newTime = Math.max(player.getCurrentTime() - jumpBackwardAmountRef.current, 0)
-    seek(newTime)
+    const amount = jumpBackwardAmountRef.current
+    emitPlayerJump({ direction: 'backward', amount })
+    seek(Math.max(player.getCurrentTime() - amount, 0))
   }, [seek])
 
   const setVolume = useCallback(

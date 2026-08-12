@@ -1,3 +1,4 @@
+import { MAX_PLAYBACK_RATE, MIN_PLAYBACK_RATE } from '@/lib/player/constants'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface PlayerSettings {
@@ -48,10 +49,6 @@ const DEFAULT_SETTINGS: PlayerSettings = {
   playbackRateIncrementDecrement: 0.1,
   volume: 0.5
 }
-
-// Playback rate bounds
-const MIN_PLAYBACK_RATE = 0.5
-const MAX_PLAYBACK_RATE = 10.0
 
 // ============================================================================
 // Helper Functions
