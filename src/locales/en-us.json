@@ -1069,6 +1069,8 @@
   "MessageNoIssues": "No Issues",
   "MessageNoItems": "No Items",
   "MessageNoItemsFound": "No items found",
+  "MessageNoLibrariesAvailable": "No libraries are available. Ask an administrator to grant you access.",
+  "MessageNoLibrariesYet": "Add your first library to get started.",
   "MessageNoListeningSessions": "No Listening Sessions",
   "MessageNoLogs": "No Logs",
   "MessageNoMediaProgress": "No Media Progress",

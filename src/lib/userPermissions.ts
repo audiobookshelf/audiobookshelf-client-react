@@ -7,11 +7,11 @@ export function isUserAdminOrUp(userType: string): boolean {
 }
 
 /**
- * User "Home" page is the default library, or libraries settings for admin/root when none exist yet
- * (Vue: `/config/libraries` for root with no libraries).
+ * User "Home" page is the default library, or `/library` empty home when none exist yet
+ * (Vue: `/config/libraries` for root with no libraries; React uses `/library` empty state).
  */
-export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userType: string) {
-  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : isUserAdminOrUp(userType) ? '/settings/libraries' : '/account'
+export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, _userType?: string) {
+  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : '/library'
 }
 
 function hasUserPermission(user: UserWithPermissions, permission: keyof UserPermissions): boolean {

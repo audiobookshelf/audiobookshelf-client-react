@@ -59,7 +59,7 @@ export function getLibraryBackHref(lastCurrentLibraryId: string | null, userDefa
   if (libraryId) {
     return `/library/${libraryId}`
   }
-  return '/settings'
+  return '/library'
 }
 
 export function isUserScopedListeningSessionsPath(pathname: string): boolean {

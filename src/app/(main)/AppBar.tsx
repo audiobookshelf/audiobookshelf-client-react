@@ -56,8 +56,8 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const currentLibrary = useMemo(() => resolveEffectiveLibrary(libraries, preferredLibraryId), [libraries, preferredLibraryId])
   const effectiveLibraryId = currentLibrary?.id
   const redirectLibraryId = effectiveLibraryId
-  // New installs have no libraries, so redirect to settings
-  const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/settings'
+  // New installs have no libraries — logo goes to empty /library home
+  const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/library'
   const showMobileSideRailToggle = Boolean(effectiveLibraryId && currentLibrary && !isSettingsRoute)
 
   useEffect(() => {
@@ -109,7 +109,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           <LibraryAppBarNav libraries={libraries} currentLibraryId={effectiveLibraryId} currentLibrary={currentLibrary} />
         )}
 
-        <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
+        <div className="ms-auto flex shrink-0 items-center gap-0.5 md:gap-1">
           <ChromecastLauncher libraryId={currentLibraryId} />
           <NotificationWidget />
 
