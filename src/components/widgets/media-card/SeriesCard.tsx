@@ -138,7 +138,7 @@ function SeriesCard(props: SeriesCardProps) {
           const duration = (book.media as { duration?: number })?.duration || 0
           return acc + duration
         }, 0)
-        return t('LabelDurationValue', { 0: formatDuration(totalDuration, t, { showDays: true }) })
+        return t('LabelDurationWithValue', { 0: formatDuration(totalDuration, t, { showDays: true }) })
       }
       case 'lastBookUpdated': {
         const lastUpdated = Math.max(...seriesBooks.map((book) => book.updatedAt || 0), 0)
