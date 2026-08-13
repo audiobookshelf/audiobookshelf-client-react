@@ -26,19 +26,7 @@ export const TITLE_BLOCK_RESERVE = 96
  * Returns `null` until the first measurement lands, so callers can skip the paint rather
  * than flash a placeholder-sized cover that then jumps to its real size.
  */
-export function useFittedCoverWidth(
-  stageRef: RefObject<HTMLDivElement | null>,
-  coverAspectRatio: number,
-  belowReserve: number,
-  /** Room to keep free on each side of the artwork — the desktop hover rail and volume readout */
-  sideReserve = 0,
-  /**
-   * Extra cap as a fraction of the viewport height, matching the Vue client. Fitting the
-   * stage alone lets the artwork grow until it dominates the view on a tall window; this
-   * keeps it in proportion to the screen rather than to the space that happens to be free.
-   */
-  viewportHeightFraction = 0
-): number | null {
+export function useFittedCoverWidth(stageRef: RefObject<HTMLDivElement | null>, coverAspectRatio: number, belowReserve: number): number | null {
   const [coverWidth, setCoverWidth] = useState<number | null>(null)
 
   useLayoutEffect(() => {
@@ -50,26 +38,20 @@ export function useFittedCoverWidth(
       const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
       const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
 
-      const fitted = fitCoverWidth({
-        availableWidth: stage.clientWidth - paddingX - sideReserve * 2,
-        availableHeight: stage.clientHeight - paddingY - belowReserve,
-        coverAspectRatio
-      })
-
-      setCoverWidth(viewportHeightFraction > 0 ? Math.min(fitted, window.innerHeight * viewportHeightFraction) : fitted)
+      setCoverWidth(
+        fitCoverWidth({
+          availableWidth: stage.clientWidth - paddingX,
+          availableHeight: stage.clientHeight - paddingY - belowReserve,
+          coverAspectRatio
+        })
+      )
     }
 
     measure()
     const resizeObserver = new ResizeObserver(measure)
     resizeObserver.observe(stage)
-    // The stage does not resize when only the window height changes, but the cap does
-    window.addEventListener('resize', measure)
-
-    return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', measure)
-    }
-  }, [stageRef, coverAspectRatio, belowReserve, sideReserve, viewportHeightFraction])
+    return () => resizeObserver.disconnect()
+  }, [stageRef, coverAspectRatio, belowReserve])
 
   return coverWidth
 }
@@ -80,31 +62,16 @@ interface PlayerFullscreenArtworkProps {
   coverWidth: number | null
   coverAspectRatio: number
   jumpBurst: JumpBurst | null
-  /** Rendered under the cover — the desktop progress ring, which draws outside its bounds */
-  beforeCover?: (dimensions: { coverWidth: number; coverHeight: number }) => ReactNode
-  /** Overlays anchored to the artwork — the desktop volume readout and hover rail */
+  /** Overlays anchored to the artwork — the desktop volume readout */
   children?: ReactNode
-  className?: string
 }
 
 /** Fullscreen artwork with the jump feedback overlay. Purely presentational — it is not a control. */
-export default function PlayerFullscreenArtwork({
-  coverSrc,
-  coverWidth,
-  coverAspectRatio,
-  jumpBurst,
-  beforeCover,
-  children,
-  className
-}: PlayerFullscreenArtworkProps) {
+export default function PlayerFullscreenArtwork({ coverSrc, coverWidth, coverAspectRatio, jumpBurst, children }: PlayerFullscreenArtworkProps) {
   if (coverWidth === null) return null
 
-  const coverHeight = coverWidth * coverAspectRatio
-
   return (
-    <div className={mergeClasses('player-fullscreen-artwork relative shrink-0', className)} style={{ width: coverWidth, height: coverHeight }}>
-      {beforeCover?.({ coverWidth, coverHeight })}
-
+    <div className="player-fullscreen-artwork relative shrink-0" style={{ width: coverWidth, height: coverWidth * coverAspectRatio }}>
       <div className="h-full w-full overflow-hidden rounded-2xl shadow-2xl">
         <PreviewCover src={coverSrc} width={coverWidth} bookCoverAspectRatio={coverAspectRatio} showResolution={false} />
       </div>

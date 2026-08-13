@@ -19,9 +19,7 @@ interface PlayerTransportControlsProps {
 const SIZES = {
   compact: { jump: 'h-9 w-9 text-2xl', chapter: 'h-9 w-8 text-2xl', play: 'h-9 w-9 text-xl', gap: 'gap-2' },
   default: { jump: 'h-10 w-10 text-3xl', chapter: 'h-10 w-10 text-3xl', play: 'h-10 w-10 text-2xl', gap: 'gap-4' },
-  // Play is 56px, not the 64px it was: it still leads the row, but at 64 it read as a button
-  // sitting on the layout rather than part of it
-  hero: { jump: 'h-12 w-12 text-4xl', chapter: 'h-11 w-11 text-3xl', play: 'h-14 w-14 text-3xl', gap: 'gap-4 sm:gap-6' }
+  hero: { jump: 'h-12 w-12 text-4xl', chapter: 'h-11 w-11 text-3xl', play: 'h-16 w-16 text-4xl', gap: 'gap-4 sm:gap-6' }
 } as const
 
 export default function PlayerTransportControls({ controls, size = 'default', className }: PlayerTransportControlsProps) {
@@ -68,10 +66,7 @@ export default function PlayerTransportControls({ controls, size = 'default', cl
         size="custom"
         loading={isLoading}
         outlined={false}
-        // White rather than the accent: the play button is the one control that has to read
-        // instantly against artwork of any colour, and the accent competes with the cover.
-        // Matches the Vue client's `whitePlayButton`, which its fullscreen player also uses.
-        className={mergeClasses('cursor-pointer rounded-full bg-white text-black hover:text-black hover:not-disabled:text-black', sizes.play)}
+        className={mergeClasses('bg-accent text-primary hover:text-primary hover:not-disabled:text-primary cursor-pointer rounded-full', sizes.play)}
         onClick={playPause}
         ariaLabel={isPlaying ? t('ButtonPause') : t('ButtonPlay')}
       >

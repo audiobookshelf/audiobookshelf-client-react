@@ -14,11 +14,9 @@ interface VolumeControlProps {
   playerHandler: PlayerHandler
   /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
   size?: 'default' | 'lg'
-  /** `right` keeps the popover off the artwork when the trigger is on the fullscreen rail */
-  placement?: 'top' | 'right'
 }
 
-export default function VolumeControl({ playerHandler, size = 'default', placement = 'top' }: VolumeControlProps) {
+export default function VolumeControl({ playerHandler, size = 'default' }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const { volume } = playerHandler.state
@@ -55,7 +53,7 @@ export default function VolumeControl({ playerHandler, size = 'default', placeme
 
   const { refs, floatingStyles, update } = useFloating({
     open: isOpen,
-    placement,
+    placement: 'top',
     strategy: 'fixed',
     middleware,
     whileElementsMounted: autoUpdate

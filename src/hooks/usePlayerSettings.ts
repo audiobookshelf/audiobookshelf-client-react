@@ -14,32 +14,6 @@ export interface PlayerSettings {
   playbackRateIncrementDecrement: 0.1 | 0.05
   /** Current volume level (0-1) */
   volume: number
-  /**
-   * With the chapter track on, fullscreen stacks a whole-book bar above the chapter bar.
-   * Off leaves only the chapter bar.
-   */
-  showBookTrackWithChapterTrack: boolean
-  /** Scrub ring drawn around the fullscreen artwork (desktop only) */
-  showCoverProgressRing: boolean
-  /** Bookmarks button in the fullscreen control bar, beside settings */
-  showBookmarksInPlayerBar: boolean
-  /** Volume control in the fullscreen control bar, ahead of the chapters button */
-  showVolumeInPlayerBar: boolean
-  /** Opens the fullscreen player as soon as a new item starts playing */
-  autoOpenFullscreenOnPlay: boolean
-  /** Sleep timer opens the old centred modal instead of a popover on its own button */
-  useLegacySleepTimerDialog: boolean
-  /** Bookmarks open the old centred modal instead of a panel docked beside the artwork */
-  useLegacyBookmarksDialog: boolean
-  /** Queue button in the player toolbars — off by default, it is rarely used and adds clutter */
-  showQueueButton: boolean
-  /** Minimize and close buttons in the fullscreen corners */
-  showFullscreenCornerButtons: boolean
-  /**
-   * Pure black instead of the elevated surface, for the mini player shell and the fullscreen
-   * chapter panel. The fullscreen control bar is black either way.
-   */
-  amoledPlayerSurfaces: boolean
 }
 
 export interface UsePlayerSettingsReturn {
@@ -73,17 +47,7 @@ const DEFAULT_SETTINGS: PlayerSettings = {
   jumpBackwardAmount: 10,
   playbackRate: 1.0,
   playbackRateIncrementDecrement: 0.1,
-  volume: 0.5,
-  showBookTrackWithChapterTrack: true,
-  showCoverProgressRing: true,
-  showBookmarksInPlayerBar: false,
-  showVolumeInPlayerBar: false,
-  autoOpenFullscreenOnPlay: false,
-  useLegacySleepTimerDialog: false,
-  useLegacyBookmarksDialog: false,
-  showQueueButton: false,
-  showFullscreenCornerButtons: true,
-  amoledPlayerSurfaces: false
+  volume: 0.5
 }
 
 // ============================================================================

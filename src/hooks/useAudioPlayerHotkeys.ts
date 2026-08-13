@@ -10,25 +10,12 @@ const OPEN_COMBOBOX_SELECTOR = '[role="combobox"][aria-expanded="true"]'
  * Registers keyboard hotkeys for the audio player.
  * Disabled while streaming is off, an input has focus, a modal is open, or a combobox menu is open.
  */
-export function useAudioPlayerHotkeys(
-  state: PlayerHandlerState,
-  controls: PlayerHandlerControls,
-  enabled: boolean,
-  onClose: () => void,
-  onShowShortcuts: () => void,
-  onShowChapters: () => void
-) {
+export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: PlayerHandlerControls, enabled: boolean, onClose: () => void) {
   const volumeRef = useRef(state.volume)
   volumeRef.current = state.volume
 
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
-
-  const onShowShortcutsRef = useRef(onShowShortcuts)
-  onShowShortcutsRef.current = onShowShortcuts
-
-  const onShowChaptersRef = useRef(onShowChapters)
-  onShowChaptersRef.current = onShowChapters
 
   useEffect(() => {
     if (!enabled) return
@@ -48,14 +35,6 @@ export function useAudioPlayerHotkeys(
 
     function handleKeyDown(e: KeyboardEvent) {
       if (shouldIgnoreHotkeys()) return
-
-      // Matched on the printed character, not the code: `?` is Shift+/ on some layouts and a
-      // key of its own on others, and either way the user pressed the same thing
-      if (e.key === '?') {
-        e.preventDefault()
-        onShowShortcutsRef.current()
-        return
-      }
 
       const key = e.shiftKey ? `Shift-${e.code}` : e.code
 
@@ -78,19 +57,10 @@ export function useAudioPlayerHotkeys(
         case 'KeyM':
           controls.toggleMute()
           break
-        case 'KeyL':
-          onShowChaptersRef.current()
-          break
         case 'Shift-ArrowUp':
-        // `.` and `,` step the rate as well. The shifted aliases are here because `<` and `>`
-        // are the same physical keys and are easy to hit with shift still held.
-        case 'Period':
-        case 'Shift-Period':
           controls.incrementPlaybackRate()
           break
         case 'Shift-ArrowDown':
-        case 'Comma':
-        case 'Shift-Comma':
           controls.decrementPlaybackRate()
           break
         case 'Escape':

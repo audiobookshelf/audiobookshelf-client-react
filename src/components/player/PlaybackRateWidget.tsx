@@ -14,17 +14,11 @@ interface PlaybackRateWidgetProps {
   playerHandler: PlayerHandler
   /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
   size?: 'default' | 'lg'
-  /**
-   * Where the popover opens. The fullscreen hover rail sits against the artwork, and this
-   * panel is wide enough that opening upward puts it straight over the cover — `right` sends
-   * it out into the empty margin instead.
-   */
-  placement?: 'top' | 'right'
 }
 
 const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
 
-export default function PlaybackRateWidget({ playerHandler, size = 'default', placement = 'top' }: PlaybackRateWidgetProps) {
+export default function PlaybackRateWidget({ playerHandler, size = 'default' }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
   const { setPlaybackRate, incrementPlaybackRate, decrementPlaybackRate } = playerHandler.controls
@@ -64,7 +58,7 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default', pl
     middlewareData
   } = useFloating({
     open: isOpen,
-    placement,
+    placement: 'top',
     strategy: 'fixed',
     middleware,
     whileElementsMounted: autoUpdate,

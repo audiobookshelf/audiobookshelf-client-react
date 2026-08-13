@@ -58,7 +58,7 @@ export default function PlayerMobileLayout({ controls, streamLibraryItem, metada
       <PlayerTransportControls controls={controls} size="compact" />
 
       <div className="mt-2">
-        <PlayerTrackBar playerHandler={controls.playerHandler} variant="mobile-collapsed" rounded />
+        <PlayerTrackBar playerHandler={controls.playerHandler} variant="mobile-collapsed" />
       </div>
 
       <PlayerDetailsPanel controls={controls} isExpanded={isPlayerDetailsExpanded} />

@@ -1,10 +1,10 @@
 'use client'
 
+import ButtonBase from '@/components/ui/ButtonBase'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import { mergeClasses } from '@/lib/merge-classes'
 import PlaybackRateWidget from './PlaybackRateWidget'
-import SleepTimerWidget from './SleepTimerWidget'
 import type { PlayerControlsState } from './usePlayerControlsState'
 import VolumeControl from './VolumeControl'
 
@@ -25,6 +25,7 @@ export default function PlayerSecondaryToolbar({ controls, size = 'default', cla
     playerQueueItems,
     sleepTimer,
     t,
+    setIsSleepTimerModalOpen,
     setIsChaptersModalOpen,
     setIsQueueModalOpen,
     setIsSettingsModalOpen
@@ -46,7 +47,14 @@ export default function PlayerSecondaryToolbar({ controls, size = 'default', cla
       <VolumeControl playerHandler={playerHandler} size={size} />
       <PlaybackRateWidget playerHandler={playerHandler} size={size} />
       <Tooltip text={t('LabelSleepTimer')} position="top">
-        <SleepTimerWidget controls={controls} className={sleepBtnClass} ariaLabel={sleepAriaLabel}>
+        <ButtonBase
+          size="custom"
+          borderless
+          className={sleepBtnClass}
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => setIsSleepTimerModalOpen(true)}
+          ariaLabel={sleepAriaLabel}
+        >
           {!sleepTimerSet ? (
             <span className="material-symbols" aria-hidden="true">
               snooze
@@ -59,7 +67,7 @@ export default function PlayerSecondaryToolbar({ controls, size = 'default', cla
               <span className="text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg">{remainingString}</span>
             </div>
           )}
-        </SleepTimerWidget>
+        </ButtonBase>
       </Tooltip>
       {!isPodcast && (
         <Tooltip text={t('LabelViewBookmarks')} position="top">
@@ -75,7 +83,7 @@ export default function PlayerSecondaryToolbar({ controls, size = 'default', cla
           </IconBtn>
         </Tooltip>
       )}
-      {playerHandler.state.settings.showQueueButton && playerQueueItems.length > 0 && (
+      {playerQueueItems.length > 0 && (
         <Tooltip text={t('LabelViewQueue')} position="top">
           <IconBtn
             size="custom"

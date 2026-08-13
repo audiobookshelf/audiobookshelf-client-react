@@ -29,7 +29,6 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
   const [isBookmarksModalOpen, setIsBookmarksModalOpen] = useState(false)
   const [isSleepTimerModalOpen, setIsSleepTimerModalOpen] = useState(false)
   const [isQueueModalOpen, setIsQueueModalOpen] = useState(false)
-  const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState(false)
   const [bookmarkCurrentTime, setBookmarkCurrentTime] = useState(0)
 
   const { jumpBackward, jumpForward, playPause, seek, pause, getCurrentTime } = playerHandler.controls
@@ -97,8 +96,6 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
     setIsSleepTimerModalOpen,
     isQueueModalOpen,
     setIsQueueModalOpen,
-    isShortcutsModalOpen,
-    setIsShortcutsModalOpen,
     bookmarkCurrentTime,
     openBookmarksModal,
     playerQueueItems,

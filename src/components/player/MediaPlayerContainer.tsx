@@ -16,7 +16,7 @@ import { secondsToTimestamp } from '@/lib/datefns'
 import { getEpisodeDuration } from '@/lib/episode'
 import { mergeClasses } from '@/lib/merge-classes'
 import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMetadata, LibraryItem } from '@/types/api'
-import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { CSSProperties, useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import IconBtn from '../ui/IconBtn'
 import PlayerControls from './PlayerControls'
 import PlayerFullscreen from './PlayerFullscreen'
@@ -135,14 +135,10 @@ interface PlayerSurfaceProps {
  */
 function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle, hasAccentColor }: PlayerSurfaceProps) {
   const t = useTypeSafeTranslations()
-  const { clearStreamMedia, isPlayerDetailsExpanded, isPlayerFullscreen, setPlayerFullscreen, streamEpisodeId } = useMediaContext()
+  const { clearStreamMedia, isPlayerDetailsExpanded, isPlayerFullscreen, setPlayerFullscreen } = useMediaContext()
   const coverAspectRatio = useBookCoverAspectRatio()
   const isDesktop = useMediaQuery('lg')
   const controlsState = usePlayerControlsState(playerHandler, streamLibraryItem)
-
-  // Registered here rather than a level up so the hotkeys can reach the same modal state the
-  // toolbars use — `?` has to open the shortcuts sheet that PlayerModals renders
-  const { setIsShortcutsModalOpen } = controlsState
 
   // Escape leaves fullscreen before it closes the player
   const handleHotkeyClose = useCallback(() => {
@@ -153,12 +149,7 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
     clearStreamMedia()
   }, [clearStreamMedia, isPlayerFullscreen, setPlayerFullscreen])
 
-  const handleShowShortcuts = useCallback(() => setIsShortcutsModalOpen(true), [setIsShortcutsModalOpen])
-  const handleShowChapters = useCallback(() => {
-    if (controlsState.chapters.length > 0) controlsState.setIsChaptersModalOpen(true)
-  }, [controlsState])
-
-  useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, true, handleHotkeyClose, handleShowShortcuts, handleShowChapters)
+  useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, true, handleHotkeyClose)
 
   const playerShellRef = useRef<HTMLDivElement>(null)
 
@@ -182,19 +173,6 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
   // Back button dismisses the overlay instead of leaving the page behind it
   usePlayerFullscreenHistory(isPlayerFullscreen, closeFullscreen)
 
-  // Opt-in: opening fullscreen for every new item is right for people who listen with the
-  // player in front of them, and wrong for everyone reading the library while it plays.
-  // Keyed on the item, so pausing and resuming the same book does not reopen it.
-  const autoOpenFullscreen = playerHandler.state.settings.autoOpenFullscreenOnPlay
-  const streamId = `${streamLibraryItem.id}:${streamEpisodeId ?? ''}`
-  const autoOpenedStreamRef = useRef<string | null>(null)
-
-  useEffect(() => {
-    if (!autoOpenFullscreen || autoOpenedStreamRef.current === streamId) return
-    autoOpenedStreamRef.current = streamId
-    setPlayerFullscreen(true)
-  }, [autoOpenFullscreen, setPlayerFullscreen, streamId])
-
   // Held on screen just long enough to animate out
   const { isMounted: isFullscreenMounted, isExiting: isFullscreenExiting } = useExitTransition(isPlayerFullscreen, FULLSCREEN_EXIT_MS)
 
@@ -203,8 +181,7 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
       <div
         ref={playerShellRef}
         className={mergeClasses(
-          'shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full pt-2',
-          playerHandler.state.settings.amoledPlayerSurfaces ? 'bg-black' : 'bg-primary',
+          'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full pt-2',
           isDesktop ? 'h-40 px-4 pb-4' : mergeClasses('px-2 pb-1', isPlayerDetailsExpanded ? 'min-h-[11.875rem]' : 'min-h-[8.75rem]')
         )}
         style={accentStyle}
@@ -231,7 +208,7 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
             </div>
             <div className="flex flex-col gap-3">
               <PlayerControls controls={controlsState} />
-              <PlayerTrackBar playerHandler={playerHandler} variant="full" rounded />
+              <PlayerTrackBar playerHandler={playerHandler} variant="full" />
             </div>
           </div>
         ) : (

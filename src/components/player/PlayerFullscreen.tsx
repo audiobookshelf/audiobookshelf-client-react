@@ -45,8 +45,7 @@ const JUMP_BURST_MS = 600
  * scope and outside the inert subtrees, and stays on the app's own theme.
  */
 export default function PlayerFullscreen({ controls, metadata, onMinimize, onClosePlayer, isExiting = false }: PlayerFullscreenProps) {
-  const { streamLibraryItem, playerHandler, t } = controls
-  const { showFullscreenCornerButtons } = playerHandler.state.settings
+  const { streamLibraryItem, t } = controls
   const coverAspectRatio = useBookCoverAspectRatio()
   const isWideViewport = useMediaQuery('lg')
   const primaryInputCanHover = usePrimaryInputCanHover()
@@ -128,36 +127,33 @@ export default function PlayerFullscreen({ controls, metadata, onMinimize, onClo
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black" />
       </div>
 
-      {/* Only as large as the buttons. Minimize used to fade in on hover inside a wrapper far
-          larger than itself, which on touch swallowed corner taps. Close is here so ending
-          playback does not require minimizing first. Hiding them is a setting rather than a
-          hover reveal — Escape, the back button and the artwork all still work without them. */}
-      {showFullscreenCornerButtons && (
-        <div
-          className={mergeClasses('absolute top-0 z-20 flex w-full items-center justify-between', topBarClass)}
-          style={{ paddingTop: `calc(env(safe-area-inset-top) + ${isShortLandscape ? '0.5rem' : '1rem'})` }}
+      {/* Always visible, and only as large as the buttons. Minimize used to fade in on hover
+          inside a wrapper far larger than itself, which on touch swallowed corner taps.
+          Close is here so ending playback does not require minimizing first. */}
+      <div
+        className={mergeClasses('absolute top-0 z-20 flex w-full items-center justify-between', topBarClass)}
+        style={{ paddingTop: `calc(env(safe-area-inset-top) + ${isShortLandscape ? '0.5rem' : '1rem'})` }}
+      >
+        <IconBtn
+          size="custom"
+          borderless
+          className={mergeClasses('rounded-full bg-white/5 text-3xl hover:bg-white/15', topBarButtonClass)}
+          onClick={onMinimize}
+          ariaLabel={t('LabelExitFullscreenPlayer')}
         >
-          <IconBtn
-            size="custom"
-            borderless
-            className={mergeClasses('rounded-full bg-white/5 text-3xl hover:bg-white/15', topBarButtonClass)}
-            onClick={onMinimize}
-            ariaLabel={t('LabelExitFullscreenPlayer')}
-          >
-            keyboard_arrow_down
-          </IconBtn>
+          keyboard_arrow_down
+        </IconBtn>
 
-          <IconBtn
-            size="custom"
-            borderless
-            className={mergeClasses('rounded-full bg-white/5 text-2xl hover:bg-white/15', topBarButtonClass)}
-            onClick={onClosePlayer}
-            ariaLabel={t('LabelClosePlayer')}
-          >
-            close
-          </IconBtn>
-        </div>
-      )}
+        <IconBtn
+          size="custom"
+          borderless
+          className={mergeClasses('rounded-full bg-white/5 text-2xl hover:bg-white/15', topBarButtonClass)}
+          onClick={onClosePlayer}
+          ariaLabel={t('LabelClosePlayer')}
+        >
+          close
+        </IconBtn>
+      </div>
 
       {/* Keyed so switching orientation remounts the layout and it cross-fades in rather
           than snapping between two entirely different arrangements */}
