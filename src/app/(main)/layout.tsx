@@ -1,3 +1,4 @@
+import { AppNavigationProvider } from '@/contexts/AppNavigationContext'
 import { ChromecastProvider } from '@/contexts/ChromecastContext'
 import { EreaderProvider } from '@/contexts/EreaderContext'
 import { MediaProvider } from '@/contexts/MediaContext'
@@ -23,9 +24,11 @@ export default async function MainLayout({ children }: { children: React.ReactNo
         <ChromecastProvider>
           <TasksProvider>
             <MetadataProvider>
-              <MediaProvider>
-                <EreaderProvider>{children}</EreaderProvider>
-              </MediaProvider>
+              <AppNavigationProvider>
+                <MediaProvider>
+                  <EreaderProvider>{children}</EreaderProvider>
+                </MediaProvider>
+              </AppNavigationProvider>
             </MetadataProvider>
           </TasksProvider>
         </ChromecastProvider>

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerStatus } from './lib/api'
+import { getServerStatus, clearSessionCookies } from './lib/api'
 import { isSessionTokenValid } from './lib/jwt'
 import { matchAcceptLanguage } from './lib/languages'
 import Logger from './lib/Logger'
@@ -116,8 +116,7 @@ export async function proxy(request: NextRequest) {
     if (isServerInitialized === false) {
       Logger.debug('[proxy] server not initialized; clearing stale session cookies')
       const response = next()
-      response.cookies.delete('access_token')
-      response.cookies.delete('refresh_token')
+      clearSessionCookies(response)
       return response
     }
 

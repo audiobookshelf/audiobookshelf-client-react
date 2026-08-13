@@ -7,6 +7,7 @@ import { revalidatePath } from 'next/cache'
 export async function createLibrary(newLibrary: Library): Promise<Library> {
   const result = await api.createLibrary(newLibrary)
   revalidatePath('/settings/libraries')
+  revalidatePath('/library')
   return result
 }
 
@@ -19,7 +20,8 @@ export async function editLibrary(libraryId: string, updatedLibrary: Library): P
 export async function deleteLibrary(libraryId: string): Promise<Library> {
   const result = await api.deleteLibrary(libraryId)
   revalidatePath('/settings/libraries')
-  revalidatePath('/settings', 'layout')
+  revalidatePath('/settings/general', 'layout')
+  revalidatePath('/library')
   return result
 }
 

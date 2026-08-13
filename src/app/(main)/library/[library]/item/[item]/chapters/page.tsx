@@ -9,8 +9,8 @@ export default async function ChaptersPage({ params }: { params: Promise<{ item:
   const { item: itemId } = await params
   const [libraryItem, currentUser] = await getData(getLibraryItemOrNotFound(itemId, true), getCurrentUser())
 
-  if (!currentUser) {
-    redirect('/')
+  if (!libraryItem || !currentUser) {
+    redirect('/library')
   }
 
   const itemPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}`

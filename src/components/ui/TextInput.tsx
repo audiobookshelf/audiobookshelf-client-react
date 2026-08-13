@@ -203,6 +203,8 @@ export default function TextInput({
           // Accessibility attributes
           aria-invalid={ariaInvalid}
           aria-label={ariaLabel}
+          // Password managers inject attributes (e.g. aria-autocomplete) before hydration
+          suppressHydrationWarning={type === 'password'}
           cy-id="text-input-field"
         />
 

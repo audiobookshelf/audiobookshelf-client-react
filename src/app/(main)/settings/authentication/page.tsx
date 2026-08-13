@@ -8,7 +8,7 @@ export default async function AuthenticationSettingsPage() {
   const [authSettings] = await getData(getAuthSettings())
 
   if (!authSettings) {
-    redirect('/settings')
+    redirect('/settings/general')
   }
 
   // TODO: Find a better way to handle subfolders with nextjs

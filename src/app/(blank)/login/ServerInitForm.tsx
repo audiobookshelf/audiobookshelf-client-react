@@ -73,9 +73,9 @@ export default function ServerInitForm() {
           setError(data?.error || t('ErrorServerInitUnknown'))
           return
         }
-        // Navigate to a clean /login URL. reload() would keep query params like
-        // ?error=Token+refresh+failed from a stale-session redirect before init.
-        window.location.replace('/login')
+        // Navigate to login with a one-time redirect to library settings after first root login.
+        // reload() would keep query params like ?error=Token+refresh+failed from a stale-session redirect before init.
+        window.location.replace('/login?redirect=/settings/libraries')
       } catch {
         setError(t('ErrorNetwork'))
       }

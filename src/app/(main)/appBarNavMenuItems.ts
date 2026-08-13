@@ -1,5 +1,7 @@
 import type { TypeSafeTranslations } from '@/types/translations'
 
+// TODO: Move non-user-specific items (upload, components catalog) out of this menu builder.
+
 export type AppBarNavMenuItemType = 'link' | 'logout'
 
 export interface AppBarNavMenuItemConfig {
@@ -15,12 +17,11 @@ export interface AppBarNavMenuItemConfig {
 
 export interface BuildAppBarNavMenuItemsParams {
   username: string
-  isAdmin: boolean
   userCanUpload: boolean
   t: TypeSafeTranslations
 }
 
-export function buildAppBarNavMenuItems({ username, isAdmin, userCanUpload, t }: BuildAppBarNavMenuItemsParams): AppBarNavMenuItemConfig[] {
+export function buildAppBarNavMenuItems({ username, userCanUpload, t }: BuildAppBarNavMenuItemsParams): AppBarNavMenuItemConfig[] {
   const items: AppBarNavMenuItemConfig[] = [
     {
       id: 'account',
@@ -32,18 +33,6 @@ export function buildAppBarNavMenuItems({ username, isAdmin, userCanUpload, t }:
       className: 'border-border border-b'
     }
   ]
-
-  if (isAdmin) {
-    items.push({
-      id: 'settings',
-      type: 'link',
-      href: '/settings',
-      label: t('HeaderSettings'),
-      ariaLabel: t('HeaderSettings'),
-      icon: 'settings',
-      mobileOnly: true
-    })
-  }
 
   if (userCanUpload) {
     items.push({

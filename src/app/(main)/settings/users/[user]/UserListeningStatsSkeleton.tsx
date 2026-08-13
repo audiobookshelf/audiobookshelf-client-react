@@ -14,7 +14,7 @@ export default function UserListeningStatsSkeleton() {
       {/* Session count and view-all button */}
       <div className="flex items-center gap-2">
         <SkeletonBar className="h-4 w-36 rounded-sm" />
-        <SkeletonBar className="h-7 w-16 rounded-md" />
+        <SkeletonBar className="h-5 w-16 rounded-md" />
       </div>
 
       {/* Total time listened */}

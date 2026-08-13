@@ -32,15 +32,15 @@ export async function getOpenListeningSessionsData(): Promise<GetOpenListeningSe
 
 export async function batchDeleteListeningSessions(sessionIds: string[]): Promise<void> {
   await api.batchDeleteListeningSessions(sessionIds)
-  revalidatePath('/settings/listening-sessions')
+  revalidatePath('/settings/listening-sessions', 'layout')
 }
 
 export async function deleteListeningSession(sessionId: string): Promise<void> {
   await api.deleteListeningSession(sessionId)
-  revalidatePath('/settings/listening-sessions')
+  revalidatePath('/settings/listening-sessions', 'layout')
 }
 
 export async function closeListeningSession(sessionId: string): Promise<void> {
   await api.closeListeningSession(sessionId)
-  revalidatePath('/settings/listening-sessions')
+  revalidatePath('/settings/listening-sessions', 'layout')
 }

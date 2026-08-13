@@ -56,7 +56,7 @@ async function handleRefresh(request: Request) {
     }
 
     // Get redirect URL from query parameters or default to user default path
-    const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(session.userDefaultLibraryId, session.userType)
+    const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(session.userDefaultLibraryId)
     const redirectUrl = new URL(redirectUrlPath, clientBaseUrl)
 
     const response = NextResponse.redirect(redirectUrl)

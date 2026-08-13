@@ -20,7 +20,7 @@ export interface RecentListeningSessionsProps {
 
 export default function RecentListeningSessions({ sessions, userId, showViewAll }: RecentListeningSessionsProps) {
   const t = useTypeSafeTranslations()
-  const viewAllTo = `/settings/listening-sessions?user=${encodeURIComponent(userId)}`
+  const viewAllTo = `/settings/listening-sessions/${encodeURIComponent(userId)}`
 
   return (
     <div className="mx-auto w-full md:mx-0 md:w-80 md:shrink-0">

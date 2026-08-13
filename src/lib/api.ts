@@ -143,6 +143,18 @@ export async function getClientBaseUrl(): Promise<string> {
 }
 
 /**
+ * Drop session cookies so a wiped/rotated server cannot reuse them.
+ * Includes OIDC leftovers — a stale auth_method=openid from another DB will crash ABS logout
+ * when OpenID is not configured.
+ */
+export function clearSessionCookies(response: NextResponse) {
+  response.cookies.delete('access_token')
+  response.cookies.delete('refresh_token')
+  response.cookies.delete('auth_method')
+  response.cookies.delete('openid_id_token')
+}
+
+/**
  * Send the browser to /login with an error hint and drop session cookies (session cannot continue).
  * Must clear access_token too — proxy only checks JWT expiry, so a stale token after a DB wipe
  * would otherwise bounce /login → /library forever.
@@ -151,8 +163,7 @@ export function redirectToLogin(request: Request, errorMessage: string): NextRes
   const login = new URL('/login', getClientBaseUrlFromRequest(request))
   login.searchParams.set('error', errorMessage)
   const response = NextResponse.redirect(login)
-  response.cookies.delete('access_token')
-  response.cookies.delete('refresh_token')
+  clearSessionCookies(response)
   return response
 }
 
@@ -438,7 +449,7 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
     const data = await getCurrentUser()
     setLanguageCookie(await cookies(), data.serverSettings?.language)
 
-    return redirectParam || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null, data.user?.type ?? 'user')
+    return redirectParam || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null)
   } catch (error) {
     console.error('[completeOidcLogin] Error:', error)
     return null

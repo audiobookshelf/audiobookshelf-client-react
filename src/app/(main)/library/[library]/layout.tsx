@@ -26,7 +26,7 @@ export default async function LibraryLayout({
   const currentLibrary = libraries.find((library) => library.id === currentLibraryId)
   if (!currentLibrary) {
     console.error('Error getting library data')
-    redirect(`/`)
+    redirect('/library')
   }
 
   return (

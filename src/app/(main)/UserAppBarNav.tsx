@@ -1,6 +1,9 @@
 'use client'
 
+// TODO: Move non-user-specific menu items (e.g. upload, components catalog) out of this component and its menu builder.
+
 import ButtonBase from '@/components/ui/ButtonBase'
+import { useUser } from '@/contexts/UserContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { useLogout } from '@/hooks/useLogout'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -13,13 +16,9 @@ import { createPortal } from 'react-dom'
 import AppBarNavMenuItem from './AppBarNavMenuItem'
 import { type AppBarNavMenuItemConfig, buildAppBarNavMenuItems } from './appBarNavMenuItems'
 
-interface AppBarNavProps {
-  userCanUpload: boolean
-  isAdmin: boolean
-  username: string
-}
-
-export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNavProps) {
+export default function UserAppBarNav() {
+  const { user, userCanUpload } = useUser()
+  const username = user.username
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const logout = useLogout()
@@ -32,7 +31,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
   const desktopTriggerRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const allMenuItems = useMemo(() => buildAppBarNavMenuItems({ username, isAdmin, userCanUpload, t }), [isAdmin, t, userCanUpload, username])
+  const allMenuItems = useMemo(() => buildAppBarNavMenuItems({ username, userCanUpload, t }), [t, userCanUpload, username])
 
   const visibleMenuItems = useMemo(() => (isDesktop ? allMenuItems.filter((item) => !item.mobileOnly) : allMenuItems), [allMenuItems, isDesktop])
 
