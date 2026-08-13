@@ -252,7 +252,7 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default', pl
         onKeyDown={handlePlaybackRateKeyDown}
         aria-expanded={isOpen}
         aria-controls={`${widgetId}-popover`}
-        ariaLabel={`${t('LabelPlaybackRate')}: ${formatRate(playbackRate)}x`}
+        ariaLabel={t('AriaLabelPlaybackRateWithValue', { 0: formatRate(playbackRate) })}
       >
         {formatRate(playbackRate)}x
       </ButtonBase>

@@ -5,11 +5,20 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterDecode, filterEncode } from '@/lib/filterUtils'
 import { EntityType, User } from '@/types/api'
+import type { TranslationKey } from '@/types/translations'
 import { useCallback, useMemo } from 'react'
 
 interface LibraryFilterSelectProps {
   entityType?: EntityType
   user?: User
+}
+
+const FILTER_TYPE_MESSAGE_KEYS: Record<string, TranslationKey> = {
+  genres: 'LabelFilterGenresWithValue',
+  tags: 'LabelFilterTagsWithValue',
+  narrators: 'LabelNarratorsWithValue',
+  publishers: 'LabelFilterPublishersWithValue',
+  languages: 'LabelFilterLanguagesWithValue'
 }
 
 export default function LibraryFilterSelect({ entityType = 'items', user }: LibraryFilterSelectProps) {
@@ -68,7 +77,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
             tags: t('LabelTags')
           }
           const label = missingLabels[decodedValue] || decodedValue
-          return `${t('LabelMissing')}: ${label}`
+          return t('LabelMissingWithValue', { 0: label })
         } catch {
           return currentFilter
         }
@@ -114,7 +123,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
           }
           const series = filterData?.series?.find((s) => s.id === decodedId)
           if (series) {
-            return `${t('LabelSeries')}: ${series.name}`
+            return t('LabelSeriesWithValue', { 0: series.name })
           }
         } catch {
           // Fall through to default handling
@@ -127,7 +136,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
           const decodedId = filterDecode(encodedValue)
           const author = filterData?.authors?.find((a) => a.id === decodedId)
           if (author) {
-            return `${t('LabelAuthor')}: ${author.name}`
+            return t('LabelAuthorWithValue', { 0: author.name })
           }
         } catch {
           // Fall through to default handling
@@ -137,8 +146,9 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
       // Decode dynamic filter values (for genres, tags, narrators, publishers, etc.)
       try {
         const decodedValue = filterDecode(encodedValue)
-        const prefix = type.charAt(0).toUpperCase() + type.slice(1, -1)
-        return `${prefix}: ${decodedValue}`
+        if (type in FILTER_TYPE_MESSAGE_KEYS) {
+          return t(FILTER_TYPE_MESSAGE_KEYS[type], { 0: decodedValue })
+        }
       } catch {
         return currentFilter
       }
@@ -375,8 +385,14 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         text: t('LabelMissing'),
         value: 'missing',
         subitems: [
-          { text: 'ASIN', value: `missing.${filterEncode('asin')}` },
-          { text: 'ISBN', value: `missing.${filterEncode('isbn')}` },
+          {
+            text: 'ASIN', // i18n-ignore
+            value: `missing.${filterEncode('asin')}`
+          },
+          {
+            text: 'ISBN', // i18n-ignore
+            value: `missing.${filterEncode('isbn')}`
+          },
           { text: t('LabelAuthor'), value: `missing.${filterEncode('authors')}` },
           { text: t('LabelChapters'), value: `missing.${filterEncode('chapters')}` },
           { text: t('LabelCover'), value: `missing.${filterEncode('cover')}` },

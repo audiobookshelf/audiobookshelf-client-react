@@ -175,10 +175,12 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
                   </div>
                   <div className="w-full sm:w-1/4">
                     <label htmlFor="" className="mb-1 px-1 text-sm">
-                      ASIN
+                      {
+                        'ASIN' // i18n-ignore
+                      }
                     </label>
                     <TextInput
-                      placeholder="ASIN"
+                      placeholder="ASIN" // i18n-ignore
                       value={editedAuthor.asin || ''}
                       onChange={(value) => setEditedAuthor({ ...editedAuthor, asin: value })}
                       trimWhitespace

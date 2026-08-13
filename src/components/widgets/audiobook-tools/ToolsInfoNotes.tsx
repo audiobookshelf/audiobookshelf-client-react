@@ -21,6 +21,10 @@ function InfoNote({ children }: { children: ReactNode }) {
   )
 }
 
+function PathBadge({ children }: { children: ReactNode }) {
+  return <span className="rounded-md bg-neutral-600 px-1 py-0.5 font-mono text-sm text-white">{children}</span>
+}
+
 export default function ToolsInfoNotes({ selectedTool, libraryItemRelPath, libraryItemId, shouldBackupAudioFiles, trackCount }: ToolsInfoNotesProps) {
   const t = useTypeSafeTranslations()
   const isEmbedTool = selectedTool === 'embed'
@@ -32,15 +36,19 @@ export default function ToolsInfoNotes({ selectedTool, libraryItemRelPath, libra
         <InfoNote>{t('LabelEncodingInfoEmbedded')}</InfoNote>
       ) : (
         <InfoNote>
-          {t('LabelEncodingFinishedM4B')} <span className="rounded-md bg-neutral-600 px-1 py-0.5 font-mono text-sm text-white">.../{libraryItemRelPath}/</span>.
+          {t.rich('MessageEncodingFinishedM4BWithPath', {
+            0: `.../${libraryItemRelPath}/`,
+            path: (chunks) => <PathBadge>{chunks}</PathBadge>
+          })}
         </InfoNote>
       )}
 
       {(shouldBackupAudioFiles || isM4BTool) && (
         <InfoNote>
-          {t('LabelEncodingBackupLocation')}{' '}
-          <span className="rounded-md bg-neutral-600 px-1 py-0.5 font-mono text-sm text-white">/metadata/cache/items/{libraryItemId}/</span>.{' '}
-          {t('LabelEncodingClearItemCache')}
+          {t.rich('MessageEncodingBackupLocationWithPath', {
+            0: `/metadata/cache/items/${libraryItemId}/`,
+            path: (chunks) => <PathBadge>{chunks}</PathBadge>
+          })}
         </InfoNote>
       )}
 

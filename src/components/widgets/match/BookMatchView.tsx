@@ -399,7 +399,7 @@ export default function BookMatchView({
               onUsageChange={createFieldUsageHandler('isbn')}
               value={getStringValue('isbn')}
               onChange={createFieldValueHandler('isbn')}
-              label="ISBN"
+              label="ISBN" // i18n-ignore
               currentValue={mediaMetadata.isbn}
             />
           )}
@@ -410,7 +410,7 @@ export default function BookMatchView({
               onUsageChange={createFieldUsageHandler('asin')}
               value={getStringValue('asin')}
               onChange={createFieldValueHandler('asin')}
-              label="ASIN"
+              label="ASIN" // i18n-ignore
               currentValue={mediaMetadata.asin}
             />
           )}

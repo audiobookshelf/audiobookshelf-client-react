@@ -90,7 +90,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
         if (isOnline && onlineSession?.displayTitle) {
           return (
             <div className="flex flex-col text-xs">
-              <span>Listening: {onlineSession.displayTitle}</span>
+              <span>{t('LabelListeningWithValue', { 0: onlineSession.displayTitle })}</span>
               <span className="text-foreground-muted">{getDeviceInfoString(onlineSession.deviceInfo)}</span>
             </div>
           )
@@ -101,7 +101,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
 
         return (
           <div className="flex flex-col text-xs">
-            <span>Last: {latestSession.displayTitle}</span>
+            <span>{t('LabelLastWithValue', { 0: latestSession.displayTitle })}</span>
             <span className="text-foreground-muted">{getDeviceInfoString(latestSession.deviceInfo)}</span>
           </div>
         )

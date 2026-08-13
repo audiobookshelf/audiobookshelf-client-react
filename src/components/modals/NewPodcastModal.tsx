@@ -241,8 +241,6 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
     </div>
   )
 
-  const pathLabel = `${t('LabelPodcast')} ${t('LabelPath')}`
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
       <div className="flex max-h-[90vh] flex-col">
@@ -306,7 +304,7 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
 
           <div className="grid gap-2 md:grid-cols-2">
             <Dropdown label={t('LabelFolder')} value={selectedFolderId} items={folderItems} disabled={isPending} onChange={handleFolderChange} />
-            <TextInput label={pathLabel} value={fullPath} readOnly customInputClass="truncate" />
+            <TextInput label={t('LabelPath')} value={fullPath} readOnly customInputClass="truncate" />
           </div>
         </div>
 

@@ -112,7 +112,12 @@ export default function FindChaptersModal({
           <div className="flex flex-col items-center justify-center p-20">
             <div className="relative">
               <div className="flex items-end gap-2">
-                <TextInput value={asinInput} label="ASIN" className="grow" onChange={setAsinInput} />
+                <TextInput
+                  value={asinInput}
+                  label="ASIN" // i18n-ignore
+                  className="grow"
+                  onChange={setAsinInput}
+                />
                 <Dropdown
                   label={t('LabelRegion')}
                   value={regionInput}
@@ -153,13 +158,14 @@ export default function FindChaptersModal({
               </p>
               <div className="grow" />
               <p>
-                {t('LabelYourAudiobookDuration')}: <span className="font-semibold">{secondsToTimestamp(mediaDurationRounded)}</span>
+                {t('LabelYourAudiobookDurationWithValue', { 0: secondsToTimestamp(mediaDurationRounded) })}
                 <br />
-                Your audiobook has{' '}
-                <span className={savedChapterCount !== displayData.chapters.length ? 'text-warning font-semibold' : 'font-semibold'}>
-                  {savedChapterCount}
-                </span>{' '}
-                chapters
+                {t.rich('MessageYourAudiobookChapterCount', {
+                  0: savedChapterCount,
+                  count: (chunks) => (
+                    <span className={savedChapterCount !== displayData.chapters.length ? 'text-warning font-semibold' : 'font-semibold'}>{chunks}</span>
+                  )
+                })}
               </p>
             </div>
 

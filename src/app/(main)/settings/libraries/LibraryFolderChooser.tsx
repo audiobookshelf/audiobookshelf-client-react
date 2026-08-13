@@ -167,11 +167,11 @@ export default function LibraryFolderChooser({ paths, onSelect, onBack }: Librar
     }
     // Prevent selecting a parent directory of a folder already added
     if (paths.some((p) => p.startsWith(selectedPath))) {
-      showToast('Cannot add a parent directory of a folder already added', { type: 'error' })
+      showToast(t('ToastCannotAddParentDirectory'), { type: 'error' })
       return
     }
     onSelect(selectedPath)
-  }, [selectedPath, paths, onSelect, showToast])
+  }, [selectedPath, paths, onSelect, showToast, t])
 
   return (
     <div className="bg-bg absolute inset-0 z-10 flex flex-col px-4 py-4">
