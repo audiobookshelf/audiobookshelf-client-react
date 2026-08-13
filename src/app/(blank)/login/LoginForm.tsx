@@ -79,7 +79,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
         if (redirect) {
           router.replace(redirect)
         } else {
-          router.replace(getUserDefaultUrlPath(userResponse?.userDefaultLibraryId ?? null, userResponse?.user?.type ?? 'user'))
+          router.replace(getUserDefaultUrlPath(userResponse?.userDefaultLibraryId ?? null))
         }
       } catch (error) {
         console.error('[LoginForm] Error:', error)

@@ -10,7 +10,7 @@ export function isUserAdminOrUp(userType: string): boolean {
  * User "Home" page is the default library, or `/library` empty home when none exist yet
  * (Vue: `/config/libraries` for root with no libraries; React uses `/library` empty state).
  */
-export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, _userType?: string) {
+export function getUserDefaultUrlPath(userDefaultLibraryId: string | null) {
   return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : '/library'
 }
 
