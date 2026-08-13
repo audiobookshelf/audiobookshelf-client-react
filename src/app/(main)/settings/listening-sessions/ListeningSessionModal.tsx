@@ -9,6 +9,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime, secondsToTimestamp } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
 import { PlaybackSession, PlayMethod } from '@/types/api'
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { closeListeningSession, deleteListeningSession } from './actions'
 
@@ -116,7 +117,13 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         {currentSession && (
           <div className="bg-bg w-full overflow-x-hidden overflow-y-auto rounded-lg p-6" style={{ maxHeight: '80vh' }}>
             <div className="flex items-baseline gap-4">
-              <p className="text-foreground text-base">{currentSession.displayTitle}</p>
+              {currentSession.libraryId && currentSession.libraryItemId ? (
+                <Link href={`/library/${currentSession.libraryId}/item/${currentSession.libraryItemId}`} className="text-foreground text-base hover:underline" onClick={onClose}>
+                  {currentSession.displayTitle}
+                </Link>
+              ) : (
+                <p className="text-foreground text-base">{currentSession.displayTitle}</p>
+              )}
               {currentSession.displayAuthor && <p className="text-foreground-muted text-xs">{t('LabelByAuthor', { 0: currentSession.displayAuthor })}</p>}
             </div>
 
