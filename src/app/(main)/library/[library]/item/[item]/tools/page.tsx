@@ -1,14 +1,15 @@
 import AudiobookTools from '@/components/widgets/audiobook-tools/AudiobookTools'
-import { getCurrentUser, getData, getLibraryItem } from '@/lib/api'
+import { getCurrentUser, getData } from '@/lib/api'
+import { getLibraryItemOrNotFound } from '@/lib/notFound'
 import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { BookLibraryItem } from '@/types/api'
 import { redirect } from 'next/navigation'
 
 export default async function ToolsPage({ params }: { params: Promise<{ item: string; library: string }> }) {
   const { item: itemId } = await params
-  const [libraryItem, currentUser] = await getData(getLibraryItem(itemId, true), getCurrentUser())
+  const [libraryItem, currentUser] = await getData(getLibraryItemOrNotFound(itemId, true), getCurrentUser())
 
-  if (!libraryItem || !currentUser) {
+  if (!currentUser) {
     redirect('/')
   }
 
