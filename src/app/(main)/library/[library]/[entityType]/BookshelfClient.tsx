@@ -1,6 +1,7 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
+import PageMessage from '@/components/ui/PageMessage'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
@@ -383,16 +384,13 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
               {entityType === 'items' && !onIssuesPage && filterBy === 'all' ? (
                 <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
               ) : (
-                <div className="flex flex-col items-center justify-center py-16">
-                  <p className="text-center text-xl">{getEmptyMessage()}</p>
-                  {entityType === 'items' && !onIssuesPage && filterBy !== 'all' && (
-                    <div className="mt-2 flex justify-center">
-                      <Btn size="small" color="bg-primary" onClick={() => updateSetting('filterBy', 'all')}>
-                        {t('ButtonClearFilter')}
-                      </Btn>
-                    </div>
-                  )}
-                </div>
+                <PageMessage message={getEmptyMessage()}>
+                  {entityType === 'items' && !onIssuesPage && filterBy !== 'all' ? (
+                    <Btn size="small" color="bg-primary" onClick={() => updateSetting('filterBy', 'all')}>
+                      {t('ButtonClearFilter')}
+                    </Btn>
+                  ) : null}
+                </PageMessage>
               )}
             </>
           )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { searchLibraryAction } from '@/app/actions/searchActions'
+import PageMessage from '@/components/ui/PageMessage'
 import BookShelfRow from '@/components/widgets/BookShelfRow'
 import ItemSlider from '@/components/widgets/ItemSlider'
 import { AuthorCard } from '@/components/widgets/media-card/AuthorCard'
@@ -187,9 +188,7 @@ export default function SearchClient({ initialQuery, initialResults }: SearchCli
           )
         })
       ) : (
-        <div className="w-full py-16">
-          <p className="text-center text-xl">{t('MessageNoSearchResultsFor', { 0: query })}</p>
-        </div>
+        <PageMessage message={t('MessageNoSearchResultsFor', { 0: query })} />
       )}
     </div>
   )
