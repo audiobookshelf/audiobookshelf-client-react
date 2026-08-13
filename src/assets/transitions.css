@@ -133,6 +133,156 @@
     opacity 250ms ease-in;
 }
 
+/* Fullscreen hover rail — controls beside the artwork, staggered out from behind it.
+   Only opacity and transform move: pointer-events are never touched, so a control that is
+   painted is always clickable. The rail is rendered by the desktop layout alone, which is
+   already gated on the primary input being able to hover, so the media query here is a
+   second belt rather than the only one. */
+@media (hover: hover) and (pointer: fine) {
+  .player-fab-stack > * {
+    opacity: 0;
+    transform: translateX(-14px) scale(0.9);
+    transition:
+      opacity 0.18s ease,
+      transform 0.28s cubic-bezier(0.34, 1.4, 0.64, 1);
+  }
+
+  .group:hover .player-fab-stack > *,
+  .group:focus-within .player-fab-stack > * {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(1),
+  .group:focus-within .player-fab-stack > *:nth-child(1) {
+    transition-delay: 0.02s;
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(2),
+  .group:focus-within .player-fab-stack > *:nth-child(2) {
+    transition-delay: 0.06s;
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(3),
+  .group:focus-within .player-fab-stack > *:nth-child(3) {
+    transition-delay: 0.1s;
+  }
+
+  .group:hover .player-fab-stack > *:nth-child(4),
+  .group:focus-within .player-fab-stack > *:nth-child(4) {
+    transition-delay: 0.14s;
+  }
+}
+
+/* Fullscreen player: rises out of the mini player and drops back into it.
+   `player-fullscreen-exit` must stay in step with FULLSCREEN_EXIT_MS. */
+.player-fullscreen-enter {
+  animation: player-fullscreen-in 0.3s cubic-bezier(0.22, 0.9, 0.24, 1);
+}
+
+.player-fullscreen-exit {
+  animation: player-fullscreen-out 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes player-fullscreen-in {
+  from {
+    opacity: 0;
+    transform: translateY(6%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes player-fullscreen-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6%) scale(0.96);
+  }
+}
+
+/* Each pane fades up on its own, which is also what carries the portrait/landscape swap —
+   the layout is remounted on orientation change, so this replays instead of snapping */
+.player-fullscreen-pane {
+  animation: player-fullscreen-pane-in 0.26s ease-out both;
+}
+
+@keyframes player-fullscreen-pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The artwork paints only once the stage has been measured, so it fades in on its own */
+.player-fullscreen-artwork {
+  animation: player-fullscreen-artwork-in 0.28s ease-out both;
+}
+
+@keyframes player-fullscreen-artwork-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Playback rate pill: springs in when the rate leaves 1x, and nudges on each step.
+   Transition-driven rather than a keyframe, so a held key holds the scale instead of
+   restarting an animation mid-flight. */
+.player-speed-pill {
+  animation: player-speed-pill-in 0.32s cubic-bezier(0.34, 1.45, 0.64, 1);
+  transition:
+    background-color 0.15s ease,
+    transform 0.18s cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+
+.player-speed-pill-pulse {
+  transform: scale(1.12);
+}
+
+@keyframes player-speed-pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Volume popover: grows into place rather than appearing whole. Scale only, no directional
+   offset — the same panel opens above the trigger in the toolbars and beside it on the
+   fullscreen rail, and a translate that suits one reads backwards in the other. */
+.player-volume-popover {
+  animation: player-volume-popover-in 0.16s ease-out;
+}
+
+@keyframes player-volume-popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 /* Volume readout: slides out from behind the artwork, fill tracks the level */
 .player-volume-hud {
   animation: player-volume-hud-in 0.34s cubic-bezier(0.34, 1.4, 0.64, 1);
@@ -236,8 +386,34 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .player-volume-hud {
+  .player-fab-stack > * {
+    transition: none;
+  }
+
+  .player-fullscreen-enter,
+  .player-fullscreen-pane,
+  .player-fullscreen-artwork {
     animation: none;
+  }
+
+  .player-fullscreen-exit {
+    animation: player-fullscreen-fade-out 0.15s linear forwards;
+  }
+
+  @keyframes player-fullscreen-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  .player-volume-hud,
+  .player-volume-popover,
+  .player-speed-pill {
+    animation: none;
+  }
+
+  .player-speed-pill-pulse {
+    transform: none;
   }
 
   .player-volume-hud-fill {

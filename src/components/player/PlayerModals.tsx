@@ -3,6 +3,7 @@
 import BookmarksModal from './BookmarksModal'
 import ChaptersModal from './ChaptersModal'
 import PlayerSettingsModal from './PlayerSettingsModal'
+import PlayerShortcutsModal from './PlayerShortcutsModal'
 import QueueItemsModal from './QueueItemsModal'
 import SleepTimerModal from './SleepTimerModal'
 import type { PlayerControlsState } from './usePlayerControlsState'
@@ -30,6 +31,10 @@ export default function PlayerModals({ controls }: PlayerModalsProps) {
     setIsSleepTimerModalOpen,
     isQueueModalOpen,
     setIsQueueModalOpen,
+    isShortcutsModalOpen,
+    setIsShortcutsModalOpen,
+    jumpForwardTooltipText,
+    jumpBackwardTooltipText,
     sleepTimer
   } = controls
 
@@ -73,6 +78,12 @@ export default function PlayerModals({ controls }: PlayerModalsProps) {
         onDecrement={decrementSleepTimer}
       />
       <QueueItemsModal isOpen={isQueueModalOpen} onClose={() => setIsQueueModalOpen(false)} />
+      <PlayerShortcutsModal
+        isOpen={isShortcutsModalOpen}
+        jumpForwardLabel={jumpForwardTooltipText}
+        jumpBackwardLabel={jumpBackwardTooltipText}
+        onClose={() => setIsShortcutsModalOpen(false)}
+      />
     </>
   )
 }

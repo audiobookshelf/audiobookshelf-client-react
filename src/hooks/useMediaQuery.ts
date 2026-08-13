@@ -8,7 +8,9 @@ const MEDIA_QUERIES = {
   'max-sm': '(max-width: 639px)',
   'max-md': '(max-width: 767px)',
   'coarse-pointer': '(hover: none), (pointer: coarse)',
-  hover: '(hover: hover)'
+  hover: '(hover: hover)',
+  // A phone held sideways: wide but too short to stack artwork above the controls
+  'short-landscape': '(orientation: landscape) and (max-height: 600px)'
 } as const
 
 type MediaQueryKey = keyof typeof MEDIA_QUERIES

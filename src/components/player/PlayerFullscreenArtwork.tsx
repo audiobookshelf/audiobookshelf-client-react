@@ -1,6 +1,6 @@
 'use client'
 
-import { fitCoverWidth, MIN_COVER_WIDTH } from '@/lib/player/coverFit'
+import { fitCoverWidth } from '@/lib/player/coverFit'
 import type { PlayerJumpDirection } from '@/lib/player/playerFeedbackStore'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useLayoutEffect, useState, type ReactNode, type RefObject } from 'react'
@@ -22,9 +22,24 @@ export const TITLE_BLOCK_RESERVE = 96
  * `clientWidth`/`clientHeight` include the stage's own padding, which the artwork cannot
  * use, so the padding is subtracted before fitting — otherwise the artwork overflows a
  * padded stage and gets clipped by the overlay.
+ *
+ * Returns `null` until the first measurement lands, so callers can skip the paint rather
+ * than flash a placeholder-sized cover that then jumps to its real size.
  */
-export function useFittedCoverWidth(stageRef: RefObject<HTMLDivElement | null>, coverAspectRatio: number, belowReserve: number): number {
-  const [coverWidth, setCoverWidth] = useState(MIN_COVER_WIDTH)
+export function useFittedCoverWidth(
+  stageRef: RefObject<HTMLDivElement | null>,
+  coverAspectRatio: number,
+  belowReserve: number,
+  /** Room to keep free on each side of the artwork — the desktop hover rail and volume readout */
+  sideReserve = 0,
+  /**
+   * Extra cap as a fraction of the viewport height, matching the Vue client. Fitting the
+   * stage alone lets the artwork grow until it dominates the view on a tall window; this
+   * keeps it in proportion to the screen rather than to the space that happens to be free.
+   */
+  viewportHeightFraction = 0
+): number | null {
+  const [coverWidth, setCoverWidth] = useState<number | null>(null)
 
   useLayoutEffect(() => {
     const stage = stageRef.current
@@ -35,37 +50,61 @@ export function useFittedCoverWidth(stageRef: RefObject<HTMLDivElement | null>, 
       const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
       const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
 
-      setCoverWidth(
-        fitCoverWidth({
-          availableWidth: stage.clientWidth - paddingX,
-          availableHeight: stage.clientHeight - paddingY - belowReserve,
-          coverAspectRatio
-        })
-      )
+      const fitted = fitCoverWidth({
+        availableWidth: stage.clientWidth - paddingX - sideReserve * 2,
+        availableHeight: stage.clientHeight - paddingY - belowReserve,
+        coverAspectRatio
+      })
+
+      setCoverWidth(viewportHeightFraction > 0 ? Math.min(fitted, window.innerHeight * viewportHeightFraction) : fitted)
     }
 
     measure()
     const resizeObserver = new ResizeObserver(measure)
     resizeObserver.observe(stage)
-    return () => resizeObserver.disconnect()
-  }, [stageRef, coverAspectRatio, belowReserve])
+    // The stage does not resize when only the window height changes, but the cap does
+    window.addEventListener('resize', measure)
+
+    return () => {
+      resizeObserver.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [stageRef, coverAspectRatio, belowReserve, sideReserve, viewportHeightFraction])
 
   return coverWidth
 }
 
 interface PlayerFullscreenArtworkProps {
   coverSrc: string
-  coverWidth: number
+  /** `null` while the stage is still being measured — nothing is painted until it resolves */
+  coverWidth: number | null
   coverAspectRatio: number
   jumpBurst: JumpBurst | null
-  /** Overlays anchored to the artwork — the desktop volume readout */
+  /** Rendered under the cover — the desktop progress ring, which draws outside its bounds */
+  beforeCover?: (dimensions: { coverWidth: number; coverHeight: number }) => ReactNode
+  /** Overlays anchored to the artwork — the desktop volume readout and hover rail */
   children?: ReactNode
+  className?: string
 }
 
 /** Fullscreen artwork with the jump feedback overlay. Purely presentational — it is not a control. */
-export default function PlayerFullscreenArtwork({ coverSrc, coverWidth, coverAspectRatio, jumpBurst, children }: PlayerFullscreenArtworkProps) {
+export default function PlayerFullscreenArtwork({
+  coverSrc,
+  coverWidth,
+  coverAspectRatio,
+  jumpBurst,
+  beforeCover,
+  children,
+  className
+}: PlayerFullscreenArtworkProps) {
+  if (coverWidth === null) return null
+
+  const coverHeight = coverWidth * coverAspectRatio
+
   return (
-    <div className="relative shrink-0" style={{ width: coverWidth, height: coverWidth * coverAspectRatio }}>
+    <div className={mergeClasses('player-fullscreen-artwork relative shrink-0', className)} style={{ width: coverWidth, height: coverHeight }}>
+      {beforeCover?.({ coverWidth, coverHeight })}
+
       <div className="h-full w-full overflow-hidden rounded-2xl shadow-2xl">
         <PreviewCover src={coverSrc} width={coverWidth} bookCoverAspectRatio={coverAspectRatio} showResolution={false} />
       </div>

@@ -4,6 +4,7 @@ import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import ButtonBase from '@/components/ui/ButtonBase'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { useRegisterPlayerPopover } from '@/lib/player/playerPopoverStore'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -13,11 +14,17 @@ interface PlaybackRateWidgetProps {
   playerHandler: PlayerHandler
   /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
   size?: 'default' | 'lg'
+  /**
+   * Where the popover opens. The fullscreen hover rail sits against the artwork, and this
+   * panel is wide enough that opening upward puts it straight over the cover — `right` sends
+   * it out into the empty margin instead.
+   */
+  placement?: 'top' | 'right'
 }
 
 const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
 
-export default function PlaybackRateWidget({ playerHandler, size = 'default' }: PlaybackRateWidgetProps) {
+export default function PlaybackRateWidget({ playerHandler, size = 'default', placement = 'top' }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
   const { setPlaybackRate, incrementPlaybackRate, decrementPlaybackRate } = playerHandler.controls
@@ -52,11 +59,12 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
   const {
     refs,
     floatingStyles,
+    update,
     placement: resolvedPlacement,
     middlewareData
   } = useFloating({
     open: isOpen,
-    placement: 'top',
+    placement,
     strategy: 'fixed',
     middleware,
     whileElementsMounted: autoUpdate,
@@ -65,12 +73,23 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
     }
   })
 
-  // Sync popover ref with Floating UI
+  // The floating element only exists after the first paint of the open state, so the very
+  // first frame has no position yet and the panel would flash at the top-left corner before
+  // snapping into place. Stay hidden until the measurement lands.
+  const [isPositioned, setIsPositioned] = useState(false)
+
   useEffect(() => {
-    if (popoverRef.current) {
-      refs.setFloating(popoverRef.current)
-    }
-  }, [refs, isOpen])
+    if (!isOpen || !popoverRef.current) return
+
+    refs.setFloating(popoverRef.current)
+    update()
+    const frame = requestAnimationFrame(() => setIsPositioned(true))
+    return () => cancelAnimationFrame(frame)
+  }, [isOpen, refs, update])
+
+  useEffect(() => {
+    if (!isOpen) setIsPositioned(false)
+  }, [isOpen])
 
   // Update reference element when trigger ref is available
   useEffect(() => {
@@ -98,11 +117,20 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [isOpen])
 
-  // Close on Escape key
+  // Lets the global Escape hotkey know a popover owns the key while this is open
+  useRegisterPlayerPopover(widgetId, 'playbackRate', isOpen)
+
+  // Close on Escape key, returning focus to the trigger so the tab order does not restart
   useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false)
+      if (e.key !== 'Escape') return
+      e.stopPropagation()
+      e.preventDefault()
+
+      const focusWasInPopover = popoverRef.current?.contains(document.activeElement)
+      setIsOpen(false)
+      if (focusWasInPopover) triggerRef.current?.focus()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -160,7 +188,13 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
   }, [middlewareData.arrow, resolvedPlacement])
 
   const popoverContent = isOpen ? (
-    <div ref={popoverRef} id={`${widgetId}-popover`} role="dialog" style={floatingStyles} className="bg-background z-70 rounded-lg p-2 shadow-lg">
+    <div
+      ref={popoverRef}
+      id={`${widgetId}-popover`}
+      role="dialog"
+      style={{ ...floatingStyles, visibility: isPositioned ? 'visible' : 'hidden' }}
+      className="bg-background z-70 rounded-lg p-2 shadow-lg"
+    >
       {/* Preset buttons row */}
       <div className="mb-2 flex gap-0">
         {PRESET_RATES.map((rate, index) => (

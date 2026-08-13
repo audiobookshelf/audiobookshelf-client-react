@@ -5,7 +5,8 @@ import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
-import { autoUpdate, flip, offset, useFloating } from '@floating-ui/react-dom'
+import { useRegisterPlayerPopover } from '@/lib/player/playerPopoverStore'
+import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -13,9 +14,11 @@ interface VolumeControlProps {
   playerHandler: PlayerHandler
   /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
   size?: 'default' | 'lg'
+  /** `right` keeps the popover off the artwork when the trigger is on the fullscreen rail */
+  placement?: 'top' | 'right'
 }
 
-export default function VolumeControl({ playerHandler, size = 'default' }: VolumeControlProps) {
+export default function VolumeControl({ playerHandler, size = 'default', placement = 'top' }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const { volume } = playerHandler.state
@@ -45,11 +48,14 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
   }, [])
 
   // Floating UI positioning
-  const middleware = useMemo(() => [offset(12), flip({ fallbackAxisSideDirection: 'none' })], [])
+  // shift keeps the popover on screen without letting flip throw it to the other axis, and the
+  // gap is the popover's only separation from the trigger — the panel used to cancel it with a
+  // negative bottom margin, which left the slider sitting on top of the button
+  const middleware = useMemo(() => [offset(10), shift({ padding: 8 }), flip({ fallbackAxisSideDirection: 'none' })], [])
 
   const { refs, floatingStyles, update } = useFloating({
     open: isOpen,
-    placement: 'top',
+    placement,
     strategy: 'fixed',
     middleware,
     whileElementsMounted: autoUpdate
@@ -110,6 +116,28 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
     clearHideTimeout()
     setIsOpen(false)
   }, [clearHideTimeout])
+
+  // Lets the global Escape hotkey know a popover owns the key while this is open
+  useRegisterPlayerPopover(widgetId, 'volume', isOpen)
+
+  // Escape closes the popover rather than the player behind it. Focus only moves back to the
+  // trigger when it was inside the popover — on hover-open it is somewhere else entirely.
+  useEffect(() => {
+    if (!isOpen) return
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.stopPropagation()
+      e.preventDefault()
+
+      const focusWasInPopover = popoverRef.current?.contains(document.activeElement)
+      closePopover()
+      if (focusWasInPopover) triggerRef.current?.focus()
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [closePopover, isOpen])
 
   // Touch: dismiss popover when tapping outside
   useEffect(() => {
@@ -283,8 +311,11 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
       onMouseEnter={primaryInputCanHover ? openPopover : undefined}
       onMouseLeave={primaryInputCanHover ? closePopoverSoon : undefined}
     >
-      {/* Main popover content with background */}
-      <div className="bg-background flex flex-col items-center rounded-lg px-1 py-3 shadow-lg" style={{ marginBottom: -8 }}>
+      {/* The animation lives on the panel, not the positioned wrapper — Floating UI owns that
+          element's transform, and animating it there fights the positioning.
+          px matches py so the slider is optically centred rather than sitting in a tall narrow
+          box with no side breathing room. */}
+      <div className="player-volume-popover bg-background flex flex-col items-center rounded-xl px-3 py-3 shadow-lg">
         {/* Custom volume slider using div-based track */}
         <div
           ref={trackRef}

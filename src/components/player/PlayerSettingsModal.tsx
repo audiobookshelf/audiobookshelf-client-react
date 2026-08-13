@@ -36,6 +36,46 @@ export default function PlayerSettingsModal({ isOpen, settings, onClose, onUpdat
     onUpdateSettings({ useChapterTrack: value })
   }
 
+  const handleShowBookTrackWithChapterTrackChange = (value: boolean) => {
+    onUpdateSettings({ showBookTrackWithChapterTrack: value })
+  }
+
+  const handleShowCoverProgressRingChange = (value: boolean) => {
+    onUpdateSettings({ showCoverProgressRing: value })
+  }
+
+  const handleShowQueueButtonChange = (value: boolean) => {
+    onUpdateSettings({ showQueueButton: value })
+  }
+
+  const handleShowFullscreenCornerButtonsChange = (value: boolean) => {
+    onUpdateSettings({ showFullscreenCornerButtons: value })
+  }
+
+  const handleAmoledPlayerSurfacesChange = (value: boolean) => {
+    onUpdateSettings({ amoledPlayerSurfaces: value })
+  }
+
+  const handleShowBookmarksInPlayerBarChange = (value: boolean) => {
+    onUpdateSettings({ showBookmarksInPlayerBar: value })
+  }
+
+  const handleShowVolumeInPlayerBarChange = (value: boolean) => {
+    onUpdateSettings({ showVolumeInPlayerBar: value })
+  }
+
+  const handleAutoOpenFullscreenOnPlayChange = (value: boolean) => {
+    onUpdateSettings({ autoOpenFullscreenOnPlay: value })
+  }
+
+  const handleUseLegacySleepTimerDialogChange = (value: boolean) => {
+    onUpdateSettings({ useLegacySleepTimerDialog: value })
+  }
+
+  const handleUseLegacyBookmarksDialogChange = (value: boolean) => {
+    onUpdateSettings({ useLegacyBookmarksDialog: value })
+  }
+
   const handleJumpForwardChange = (value: string | number) => {
     onUpdateSettings({ jumpForwardAmount: value as number })
   }
@@ -61,6 +101,15 @@ export default function PlayerSettingsModal({ isOpen, settings, onClose, onUpdat
           {/* Use chapter track toggle */}
           <ToggleSwitch value={settings.useChapterTrack} label={t('LabelUseChapterTrack')} onChange={handleUseChapterTrackChange} />
 
+          {/* Only means anything while the chapter track is on */}
+          {settings.useChapterTrack && (
+            <ToggleSwitch
+              value={settings.showBookTrackWithChapterTrack}
+              label={t('LabelShowBookTrackWithChapterTrack')}
+              onChange={handleShowBookTrackWithChapterTrackChange}
+            />
+          )}
+
           {/* Jump forward amount dropdown */}
           <Dropdown label={t('LabelJumpForwardAmount')} value={settings.jumpForwardAmount} items={JUMP_VALUES} onChange={handleJumpForwardChange} usePortal />
 
@@ -81,6 +130,41 @@ export default function PlayerSettingsModal({ isOpen, settings, onClose, onUpdat
             onChange={handlePlaybackRateIncrementChange}
             usePortal
           />
+
+          {/* Appearance — everything below only changes what the player draws */}
+          <div className="border-border border-t pt-5">
+            <div className="flex flex-col gap-5">
+              <ToggleSwitch value={settings.showCoverProgressRing} label={t('LabelShowCoverProgressRing')} onChange={handleShowCoverProgressRingChange} />
+              <ToggleSwitch value={settings.showQueueButton} label={t('LabelShowQueueButton')} onChange={handleShowQueueButtonChange} />
+              <ToggleSwitch
+                value={settings.showBookmarksInPlayerBar}
+                label={t('LabelShowBookmarksInPlayerBar')}
+                onChange={handleShowBookmarksInPlayerBarChange}
+              />
+              <ToggleSwitch value={settings.showVolumeInPlayerBar} label={t('LabelShowVolumeInPlayerBar')} onChange={handleShowVolumeInPlayerBarChange} />
+              <ToggleSwitch
+                value={settings.autoOpenFullscreenOnPlay}
+                label={t('LabelAutoOpenFullscreenOnPlay')}
+                onChange={handleAutoOpenFullscreenOnPlayChange}
+              />
+              <ToggleSwitch
+                value={settings.showFullscreenCornerButtons}
+                label={t('LabelShowFullscreenCornerButtons')}
+                onChange={handleShowFullscreenCornerButtonsChange}
+              />
+              <ToggleSwitch value={settings.amoledPlayerSurfaces} label={t('LabelAmoledPlayerSurfaces')} onChange={handleAmoledPlayerSurfacesChange} />
+              <ToggleSwitch
+                value={settings.useLegacySleepTimerDialog}
+                label={t('LabelUseLegacySleepTimerDialog')}
+                onChange={handleUseLegacySleepTimerDialogChange}
+              />
+              <ToggleSwitch
+                value={settings.useLegacyBookmarksDialog}
+                label={t('LabelUseLegacyBookmarksDialog')}
+                onChange={handleUseLegacyBookmarksDialogChange}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </Modal>

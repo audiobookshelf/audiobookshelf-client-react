@@ -37,14 +37,17 @@ export default function PlayerFullscreenMobileLayout({
 
   return (
     <>
-      <div ref={stageRef} className="relative z-10 flex min-h-0 grow flex-col items-center justify-center gap-5 px-5 pt-16 pb-2">
+      <div ref={stageRef} className="player-fullscreen-pane relative z-10 flex min-h-0 grow flex-col items-center justify-center gap-5 px-5 pt-16 pb-2">
         <PlayerFullscreenArtwork coverSrc={coverSrc} coverWidth={coverWidth} coverAspectRatio={coverAspectRatio} jumpBurst={jumpBurst} />
         <PlayerFullscreenTitle streamLibraryItem={streamLibraryItem} metadata={metadata} onNavigate={onMinimize} />
       </div>
 
       {/* Inset on the bar itself, not the overlay root, so its background still reaches the
           bottom edge of the screen rather than leaving a strip of backdrop below it */}
-      <div className="bg-black-700 relative z-10 shrink-0 px-4 pt-3" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}>
+      <div
+        className="player-fullscreen-pane relative z-10 shrink-0 bg-black px-4 pt-3"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.25rem)' }}
+      >
         <PlayerFullscreenTrackStack playerHandler={playerHandler} />
         <PlayerTransportControls controls={controls} size="hero" className="mt-4" />
         {/* Same toolbar the mini player uses, so nothing reachable there is missing here */}
