@@ -482,7 +482,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
 
       {!lockedUserId && openShareListeningSessions.length > 0 && <div className="bg-border my-8 h-px w-full" />}
 
-      {!lockedUserId && openShareListeningSessions.length > 0 && <p className="my-4 text-lg">Open Share Listening Sessions</p>}
+      {!lockedUserId && openShareListeningSessions.length > 0 && <p className="my-4 text-lg">{t('HeaderOpenShareListeningSessions')}</p>}
       {!lockedUserId && openShareListeningSessions.length > 0 && (
         <SessionListTable
           sessions={openShareListeningSessions}

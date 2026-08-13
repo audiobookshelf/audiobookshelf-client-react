@@ -12,10 +12,12 @@ import {
   AuthorQuickMatchPayload,
   AuthorResponse,
   AuthorUpdateResponse,
+  BatchGetLibraryItemsResponse,
+  BatchUpdateLibraryItemPayload,
+  BatchUpdateLibraryItemsResponse,
   BookSearchResult,
   Chapter,
   Collection,
-  OrderedTrackFileData,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
   CreateCustomMetadataProviderResponse,
@@ -33,6 +35,7 @@ import {
   GetCollectionsResponse,
   GetCustomMetadataProvidersResponse,
   GetEmailSettingsResponse,
+  GetEpisodeDownloadQueueResponse,
   GetFilesystemPathsResponse,
   GetLibrariesResponse,
   GetLibraryItemsResponse,
@@ -42,9 +45,8 @@ import {
   GetNotificationsResponse,
   GetOpenListeningSessionsResponse,
   GetPlaylistsResponse,
-  GetEpisodeDownloadQueueResponse,
-  GetRecentEpisodesResponse,
   GetPodcastTitlesResponse,
+  GetRecentEpisodesResponse,
   GetRssFeedsResponse,
   GetSeriesResponse,
   GetUsersResponse,
@@ -65,6 +67,7 @@ import {
   OpenMediaItemSharePayload,
   OpenRssFeedPayload,
   OpenRssFeedResponse,
+  OrderedTrackFileData,
   ParseOpmlFeedsResponse,
   PersonalizedShelf,
   Playlist,
@@ -87,22 +90,21 @@ import {
   UpdateEReaderDevicesResponse,
   UpdateLibraryItemMediaPayload,
   UpdateLibraryItemMediaResponse,
-  BatchGetLibraryItemsResponse,
-  BatchUpdateLibraryItemPayload,
-  BatchUpdateLibraryItemsResponse,
   UpdatePodcastEpisodePayload,
-  UploadCoverResponse,
   UpdateUserResponse,
+  UploadCoverResponse,
   User,
   UserAccountPayload,
   UserLoginResponse
 } from '../types/api'
 
 import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
+import { isNextRedirectError } from './nextErrors'
+import { getUserDefaultUrlPath } from './userPermissions'
 
-const publicEndpoints = ['/status']
-const RefreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
-const AccessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
+const PUBLIC_ENDPOINTS = ['/status']
+const refreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7 * 24 * 60 * 60 // 7 days
+const accessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
 
 export function getServerBaseUrl() {
   let host = process.env.HOST || 'localhost'
@@ -114,33 +116,44 @@ export function getServerBaseUrl() {
 }
 
 /**
- * Client-facing origin from request headers (for redirects out of internal API routes).
+ * Client-facing origin from request headers (protocol + host, no ROUTER_BASE_PATH).
  * The server may use an internal hostname; the browser must be sent to the URL it used.
  */
-export function getClientBaseUrlFromRequest(request: Request): string {
-  const headers = new Headers(request.headers)
-  const host = headers.get('x-forwarded-host') || headers.get('host') || 'localhost'
-  const protocol = headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
+function getClientOriginFromHeaders(headerStore: { get(name: string): string | null }): string {
+  const host = headerStore.get('x-forwarded-host') || headerStore.get('host') || 'localhost'
+  const protocol = headerStore.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
   return `${protocol}://${host}`
 }
 
+export function getClientBaseUrlFromRequest(request: Request): string {
+  return getClientOriginFromHeaders(request.headers)
+}
+
 /**
- * Send the browser to /login with an error hint and drop refresh cookie (session cannot continue).
+ * Browser-facing app base URL (origin + ROUTER_BASE_PATH), e.g. for OIDC callback URLs.
+ * Parallels the server's getRequestOrigin() plus global.RouterBasePath (see OidcAuthStrategy).
+ */
+export function getClientBaseUrlFromHeaders(headerStore: { get(name: string): string | null }): string {
+  const routerBasePath = process.env.ROUTER_BASE_PATH ?? ''
+  return `${getClientOriginFromHeaders(headerStore)}${routerBasePath}`
+}
+
+export async function getClientBaseUrl(): Promise<string> {
+  return getClientBaseUrlFromHeaders(await headers())
+}
+
+/**
+ * Send the browser to /login with an error hint and drop session cookies (session cannot continue).
+ * Must clear access_token too — proxy only checks JWT expiry, so a stale token after a DB wipe
+ * would otherwise bounce /login → /library forever.
  */
 export function redirectToLogin(request: Request, errorMessage: string): NextResponse {
   const login = new URL('/login', getClientBaseUrlFromRequest(request))
   login.searchParams.set('error', errorMessage)
   const response = NextResponse.redirect(login)
+  response.cookies.delete('access_token')
   response.cookies.delete('refresh_token')
   return response
-}
-
-/**
- * User "Home" page is the default library page, or settings/account page if no libraries are set yet
- */
-export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userType: string) {
-  const isAdmin = ['admin', 'root'].includes(userType)
-  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : isAdmin ? '/settings' : '/account'
 }
 
 /**
@@ -158,14 +171,28 @@ function sessionCookieOptions(maxAgeSeconds: number) {
   }
 }
 
+const LANGUAGE_COOKIE_OPTIONS = {
+  httpOnly: false,
+  secure: false,
+  sameSite: 'lax' as const,
+  path: '/',
+  maxAge: 365 * 24 * 60 * 60 // 1 year
+}
+
 type SessionCookieSetter = {
-  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions>): void
+  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions> | typeof LANGUAGE_COOKIE_OPTIONS): void
 }
 
 function writeSessionCookies(store: SessionCookieSetter, accessToken: string, refreshToken: string | null) {
-  store.set('access_token', accessToken, sessionCookieOptions(AccessTokenExpiry))
+  store.set('access_token', accessToken, sessionCookieOptions(accessTokenExpiry))
   if (refreshToken) {
-    store.set('refresh_token', refreshToken, sessionCookieOptions(RefreshTokenExpiry))
+    store.set('refresh_token', refreshToken, sessionCookieOptions(refreshTokenExpiry))
+  }
+}
+
+export function setLanguageCookie(store: SessionCookieSetter, language: string | null | undefined) {
+  if (language) {
+    store.set('language', language, LANGUAGE_COOKIE_OPTIONS)
   }
 }
 
@@ -295,7 +322,7 @@ async function parseApiResponseBody<T>(response: Response): Promise<T> {
  */
 export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
   try {
-    const isPublic = publicEndpoints.includes(endpoint)
+    const isPublic = PUBLIC_ENDPOINTS.includes(endpoint)
     const cookieStore = await cookies()
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
@@ -355,7 +382,7 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
 
     return parseApiResponseBody<T>(response)
   } catch (error) {
-    if (error && typeof error === 'object' && 'digest' in error && typeof error.digest === 'string' && error.digest.includes('NEXT_REDIRECT')) {
+    if (isNextRedirectError(error)) {
       throw error
     }
     if (error instanceof UnauthorizedError || error instanceof ApiError) {
@@ -400,6 +427,23 @@ export const getCurrentUser = cache(async (): Promise<UserLoginResponse> => {
     next: { tags: ['current-user'] }
   })
 })
+
+/**
+ * Exchange an OIDC access token (from the Express post-login redirect) into Next.js session cookies.
+ * Returns the in-app path to redirect to, or null if authorization failed.
+ */
+export async function completeOidcLogin(accessToken: string, redirectParam?: string | null): Promise<string | null> {
+  try {
+    await persistAccessTokenInCookies(accessToken)
+    const data = await getCurrentUser()
+    setLanguageCookie(await cookies(), data.serverSettings?.language)
+
+    return redirectParam || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null, data.user?.type ?? 'user')
+  } catch (error) {
+    console.error('[completeOidcLogin] Error:', error)
+    return null
+  }
+}
 
 export const getListeningStats = cache(async (): Promise<ListeningStats> => {
   return apiRequest<ListeningStats>('/api/me/listening-stats')
@@ -930,6 +974,15 @@ export async function updateEbookProgress(libraryItemId: string, payload: { eboo
 }
 
 /**
+ * Remove media progress for the current user (reset progress)
+ */
+export async function deleteMediaProgress(progressId: string): Promise<void> {
+  return apiRequest<void>(`/api/me/progress/${progressId}`, {
+    method: 'DELETE'
+  })
+}
+
+/**
  * Batch update media finished state for multiple items or episodes
  */
 export async function batchUpdateMediaFinished(payload: { libraryItemId: string; episodeId?: string; isFinished: boolean }[]): Promise<void> {
@@ -1339,6 +1392,15 @@ export async function deleteLibrary(libraryId: string): Promise<Library> {
 export async function scanLibrary(libraryId: string, force: boolean = false): Promise<void> {
   return apiRequest<void>(`/api/libraries/${libraryId}/scan?force=${force ? 1 : 0}`, {
     method: 'POST'
+  })
+}
+
+/**
+ * Remove all library items that are missing or invalid
+ */
+export async function removeLibraryItemsWithIssues(libraryId: string): Promise<void> {
+  return apiRequest<void>(`/api/libraries/${libraryId}/issues`, {
+    method: 'DELETE'
   })
 }
 

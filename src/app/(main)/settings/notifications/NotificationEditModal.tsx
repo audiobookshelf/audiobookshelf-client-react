@@ -95,7 +95,12 @@ export default function NotificationEditModal({ isOpen, notification, notificati
 
     startTransition(async () => {
       try {
-        const updatedSettings = isEditing ? await updateNotification(formState.id!, formState) : await createNotification(formState)
+        const payload = {
+          ...formState,
+          titleTemplate: formState.titleTemplate.trim(),
+          bodyTemplate: formState.bodyTemplate.trim()
+        }
+        const updatedSettings = isEditing ? await updateNotification(payload.id!, payload) : await createNotification(payload)
         onSaved(updatedSettings)
         if (isEditing) {
           showToast(t('ToastNotificationUpdateSuccess'), { type: 'success' })
@@ -148,6 +153,7 @@ export default function NotificationEditModal({ isOpen, notification, notificati
             value={formState.titleTemplate}
             disabled={isPending}
             onChange={(value) => setFormState((prev) => ({ ...prev, titleTemplate: value }))}
+            trimWhitespace
           />
 
           <TextareaInput
@@ -156,12 +162,11 @@ export default function NotificationEditModal({ isOpen, notification, notificati
             rows={4}
             disabled={isPending}
             onChange={(value) => setFormState((prev) => ({ ...prev, bodyTemplate: value }))}
+            trimWhitespace
           />
 
           {selectedEvent?.variables?.length ? (
-            <p className="text-foreground-muted text-sm">
-              <strong>{t('LabelNotificationAvailableVariables')}:</strong> {selectedEvent.variables.join(', ')}
-            </p>
+            <p className="text-foreground-muted text-sm">{t('LabelNotificationAvailableVariablesWithValue', { 0: selectedEvent.variables.join(', ') })}</p>
           ) : null}
         </div>
 

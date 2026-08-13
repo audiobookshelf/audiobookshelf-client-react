@@ -94,6 +94,8 @@ interface UseDetailsEditOptions<TDetails> {
   batchAppendLogic?: (state: EditState<TDetails>, detailsToUpdate: Partial<TDetails>) => TDetails
   /** Use loose equality (!=) instead of strict equality (!==) for change detection */
   useLooseEquality?: boolean
+  /** Trim string values for these keys when diffing and building the update payload */
+  trimFields?: ReadonlyArray<keyof TDetails>
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -106,7 +108,8 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
   onChange,
   onSubmit,
   batchAppendLogic,
-  useLooseEquality = false
+  useLooseEquality = false,
+  trimFields
 }: UseDetailsEditOptions<TDetails>) {
   const reducer = useMemo(() => createDetailsReducer<TDetails>(batchAppendLogic), [batchAppendLogic])
 
@@ -148,10 +151,18 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 
   // Calculate changes
   const changes = useMemo(() => {
+    const effectiveValue = (key: keyof TDetails) => {
+      const value = details[key]
+      if (trimFields?.includes(key) && typeof value === 'string') {
+        return value.trim() as TDetails[typeof key]
+      }
+      return value
+    }
+
     const changedEntries = (Object.keys(details) as Array<keyof TDetails>)
       .filter((key) => {
         const initialValue = initialDetails[key]
-        const currentValue = details[key]
+        const currentValue = effectiveValue(key)
 
         if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
           return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
@@ -160,7 +171,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         // Use loose or strict equality based on option
         return useLooseEquality ? currentValue != initialValue : currentValue !== initialValue
       })
-      .map((key) => [key, details[key]])
+      .map((key) => [key, effectiveValue(key)])
 
     const metadataUpdate = Object.fromEntries(changedEntries) as Partial<TDetails>
 
@@ -177,7 +188,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
       updatePayload,
       hasChanges: Object.keys(updatePayload).length > 0
     }
-  }, [details, initialDetails, currentTags, initialTags, useLooseEquality])
+  }, [details, initialDetails, currentTags, initialTags, useLooseEquality, trimFields])
 
   // Notify parent of changes
   const handleInputChange = useCallback(() => {

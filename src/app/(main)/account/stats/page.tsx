@@ -19,7 +19,7 @@ export default async function AccountStatsPage() {
   const days = listeningStats.days ?? {}
   const daysListened = Object.values(days).length
   const minutesListening = Math.round((listeningStats.totalTime ?? 0) / 60)
-  const showViewAllSessions = isUserAdminOrUp(user)
+  const showViewAllSessions = isUserAdminOrUp(user.type)
 
   return (
     <div className="mx-auto w-full max-w-4xl p-8">

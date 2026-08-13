@@ -5,6 +5,7 @@ import React, { memo } from 'react'
 import Modal from '@/components/modals/Modal'
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
 // --- LinkModal Component ---
 
@@ -44,17 +45,19 @@ export const LinkModal = memo(
     isLinkActive,
     isValidUrl
   }: LinkModalProps) => {
+    const t = useTypeSafeTranslations()
+
     return (
       <Modal isOpen={isOpen} onClose={closeModal} className="w-[400px]">
         <div className="p-6">
-          <h3 className="mb-4 text-lg font-semibold">Insert Link</h3>
+          <h3 className="mb-4 text-lg font-semibold">{t('LabelTextEditorInsertLink')}</h3>
 
           <div className="space-y-4">
             <div>
               <TextInput
                 ref={textInputRef}
-                label="Text"
-                placeholder="Link text (optional)"
+                label={t('LabelTextEditorText')}
+                placeholder={t('PlaceholderLinkTextOptional')}
                 value={text}
                 onChange={setText}
                 onKeyDown={handleTextKeyDown}
@@ -65,7 +68,7 @@ export const LinkModal = memo(
             <div>
               <TextInput
                 ref={urlInputRef}
-                label="URL"
+                label="URL" // i18n-ignore
                 placeholder="https://example.com"
                 value={url}
                 onChange={setUrl}
@@ -77,17 +80,17 @@ export const LinkModal = memo(
 
             <div className="flex justify-end gap-2 pt-2">
               <Btn color="bg-button-selected-bg disabled:bg-button-selected-bg/80" onClick={handleLink} disabled={!isValidUrl}>
-                Link
+                {t('LabelTextEditorLink')}
               </Btn>
 
               {isLinkActive && (
                 <Btn color="bg-primary" onClick={handleUnlink}>
-                  Unlink
+                  {t('LabelTextEditorUnlink')}
                 </Btn>
               )}
 
               <Btn color="bg-primary" onClick={closeModal}>
-                Cancel
+                {t('ButtonCancel')}
               </Btn>
             </div>
           </div>

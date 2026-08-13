@@ -1,7 +1,6 @@
 import { getCurrentUser, getData } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
-import { ServerSettings } from '@/types/api'
-import { purgeCache, purgeItemsCache, updateServerSettings, updateSortingPrefixes } from './actions'
+import { purgeCache, purgeItemsCache } from './actions'
 import SettingsCachePurge from './SettingsCachePurge'
 import SettingsClient from './SettingsClient'
 import SettingsContent from './SettingsContent'
@@ -17,17 +16,13 @@ export default async function SettingsPage() {
 
   // TODO: Handle loading data error?
   if (!serverSettings) {
-    return <div>Placeholder error</div>
+    return <div>Placeholder error</div> // i18n-ignore
   }
 
   return (
     <>
       <SettingsContent title={t('HeaderSettings')}>
-        <SettingsClient
-          serverSettings={serverSettings as ServerSettings}
-          updateServerSettings={updateServerSettings}
-          updateSortingPrefixes={updateSortingPrefixes}
-        />
+        <SettingsClient />
       </SettingsContent>
       <SettingsCachePurge purgeCache={purgeCache} purgeItemsCache={purgeItemsCache} />
       <SettingsFooter />

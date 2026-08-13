@@ -10,7 +10,7 @@ import { computeProgress } from '@/lib/mediaProgress'
 import type { LibraryItem } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useId, useMemo, useState } from 'react'
+import { useId, useMemo, useState, type KeyboardEvent } from 'react'
 import { MediaCardProps } from './MediaCard'
 import MediaCardDetailView from './MediaCardDetailView'
 import MediaCardFrame from './MediaCardFrame'
@@ -76,6 +76,15 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
     }
   }
 
+  const handleCardKeyDown = (event: KeyboardEvent) => {
+    if (event.defaultPrevented) return
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      event.stopPropagation()
+      handleCardClick()
+    }
+  }
+
   const displayTitle = (() => {
     if (!collapsedSeries) return '\u00A0'
     const ignorePrefix = orderBy === 'media.metadata.title' && sortingIgnorePrefix
@@ -83,7 +92,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
     return name || '\u00A0'
   })()
 
-  const displaySubtitle = !booksInSeries ? '\u00A0' : `${booksInSeries} ${t('LabelBooks')}`
+  const displaySubtitle = !booksInSeries ? '\u00A0' : t('LabelXBooks', { count: booksInSeries })
 
   const titleCleaned = (() => {
     const title = collapsedSeries?.name || ''
@@ -144,6 +153,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
       width={coverWidth}
       height={coverHeight}
       onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       cardId={cardId}

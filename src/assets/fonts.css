@@ -18,6 +18,8 @@
   direction: ltr;
   -webkit-font-smoothing: antialiased;
   vertical-align: middle;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .material-symbols.fill {

@@ -231,7 +231,7 @@ export default function BatchLibraryItemMapDetailsPanel({
         case 'publishedYear':
         case 'publisher':
         case 'language':
-          payload[key] = details[key]
+          payload[key] = details[key].trim()
           break
         case 'explicit':
         case 'abridged':
@@ -319,6 +319,7 @@ export default function BatchLibraryItemMapDetailsPanel({
                 disabled={fieldDisabled('subtitle')}
                 label={t('LabelSubtitle')}
                 className={MAP_FIELD_INPUT_CLASS}
+                trimWhitespace
               />
             </div>
           )}
@@ -349,6 +350,7 @@ export default function BatchLibraryItemMapDetailsPanel({
                 disabled={fieldDisabled('publishedYear')}
                 label={t('LabelPublishYear')}
                 className={MAP_FIELD_INPUT_CLASS}
+                trimWhitespace
               />
             </div>
           )}
@@ -432,6 +434,7 @@ export default function BatchLibraryItemMapDetailsPanel({
                 disabled={fieldDisabled('publisher')}
                 label={t('LabelPublisher')}
                 className={MAP_FIELD_INPUT_CLASS}
+                trimWhitespace
               />
             </div>
           )}
@@ -446,6 +449,7 @@ export default function BatchLibraryItemMapDetailsPanel({
                   disabled={fieldDisabled('language')}
                   label={t('LabelLanguage')}
                   className={MAP_FIELD_INPUT_CLASS}
+                  trimWhitespace
                 />
               </div>
               <div className={MAP_FIELD_FLAGS_HALF_CLASS}>

@@ -21,8 +21,6 @@ import GlobalSearchInput from './GlobalSearchInput'
 import LibrariesDropdown from './LibrariesDropdown'
 import SideRailMobileDrawer from './SideRailMobileDrawer'
 
-const MOBILE_MEDIA_QUERY = '(max-width: 767px)'
-
 interface AppBarProps {
   libraries?: Library[]
   currentLibraryId?: string
@@ -30,7 +28,7 @@ interface AppBarProps {
 
 export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const t = useTypeSafeTranslations()
-  const isMobile = useMediaQuery(MOBILE_MEDIA_QUERY)
+  const isMobile = useMediaQuery('max-md')
   const [isSideRailOpen, setIsSideRailOpen] = useState(false)
   const { user, userDefaultLibraryId } = useUser()
   const userCanUpload = user.permissions.upload
@@ -102,22 +100,21 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
         className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
       >
         {showMobileSideRailToggle && (
-          <ButtonBase
+          <IconBtn
             borderless
-            size="custom"
             ariaLabel={isSideRailOpen ? t('ButtonClose') : t('ButtonMenu')}
             aria-expanded={isSideRailOpen}
-            className={mergeClasses(LOGO_BUTTON_CLASSES, 'md:hidden')}
+            className="shrink-0 md:hidden"
             onClick={toggleSideRail}
           >
-            {logoContent}
-          </ButtonBase>
+            menu
+          </IconBtn>
         )}
         <ButtonBase
           to={redirectUrl}
           borderless
           size="custom"
-          ariaLabel={`audiobookshelf - ${t('ButtonHome')}`}
+          ariaLabel={t('ButtonHome')}
           className={mergeClasses(LOGO_BUTTON_CLASSES, showMobileSideRailToggle && 'hidden md:flex')}
         >
           {logoContent}
@@ -148,10 +145,12 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
               <GlobalSearchInput ref={mobileSearchInputRef} usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ) : (
-            <div className="hidden min-w-0 flex-1 md:block md:min-w-24">
+            <div className="hidden min-w-0 md:block md:w-80 md:shrink-0">
               <GlobalSearchInput usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
             </div>
           ))}
+
+        <div className="min-w-0 flex-1 max-md:hidden" aria-hidden="true" />
 
         {!isSearchMode && currentLibrary && (
           <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="shrink-0 md:hidden">

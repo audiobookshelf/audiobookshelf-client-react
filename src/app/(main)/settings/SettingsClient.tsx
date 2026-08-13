@@ -5,29 +5,33 @@ import Dropdown from '@/components/ui/Dropdown'
 import { MultiSelect, MultiSelectItem } from '@/components/ui/MultiSelect'
 import LanguageDropdown from '@/components/widgets/LanguageDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useMemo, useState, useTransition } from 'react'
-import type { UpdateServerSettingsApiResponse, UpdateSortingPrefixesApiResponse } from './actions'
-import { dateFormats, timeFormats } from './settingsConstants'
+import { useEffect, useMemo, useState, useTransition } from 'react'
+import { updateServerSettings, updateSortingPrefixes } from './actions'
+import { dateFormatOptions, timeFormatOptions } from './settingsConstants'
 import SettingsToggleSwitch from './SettingsToggleSwitch'
 
-interface SettingsClientProps {
-  serverSettings: ServerSettings
-  updateServerSettings: (settingsUpdatePayload: Partial<ServerSettings>) => Promise<UpdateServerSettingsApiResponse>
-  updateSortingPrefixes: (sortingPrefixes: string[]) => Promise<UpdateSortingPrefixesApiResponse>
-}
-
-export default function SettingsClient(props: SettingsClientProps) {
-  const { serverSettings: initialServerSettings, updateServerSettings, updateSortingPrefixes } = props
+export default function SettingsClient() {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [serverSettings, setServerSettings] = useState(initialServerSettings)
-  const [sortingPrefixes, setSortingPrefixes] = useState<string[]>(initialServerSettings.sortingPrefixes || [])
   const { showToast } = useGlobalToast()
+  const { serverSettings, mergeServerSettings } = useUser()
+
+  const [sortingPrefixes, setSortingPrefixes] = useState<string[]>(serverSettings.sortingPrefixes || [])
+
+  const timeFormats = useMemo(
+    () =>
+      timeFormatOptions.map((option) => ({
+        text: t(option.labelKey),
+        value: option.value
+      })),
+    [t]
+  )
 
   const corsAllowedItems = useMemo(() => {
     return (
@@ -50,6 +54,11 @@ export default function SettingsClient(props: SettingsClientProps) {
     return sortingPrefixes.some((p) => !serverPrefixes.includes(p)) || serverPrefixes.some((p) => !sortingPrefixes.includes(p))
   }, [sortingPrefixes, serverSettings?.sortingPrefixes])
 
+  useEffect(() => {
+    if (hasPrefixesChanged) return
+    setSortingPrefixes(serverSettings.sortingPrefixes || [])
+  }, [serverSettings.sortingPrefixes, hasPrefixesChanged])
+
   const exampleDateFormat = useMemo(() => {
     if (!serverSettings?.dateFormat) {
       return ''
@@ -65,20 +74,18 @@ export default function SettingsClient(props: SettingsClientProps) {
   }, [serverSettings?.timeFormat])
 
   const handleSaveSettings = (updatedSettings: ServerSettings) => {
-    // Optimistically update the UI
-    setServerSettings(updatedSettings)
+    const previousSettings = serverSettings
 
-    // Send the update to the server
+    // Optimistic update: toggles and app chrome (e.g. Chromecast) react before PATCH completes
+    mergeServerSettings(updatedSettings)
+
     startTransition(async () => {
       try {
         const response = await updateServerSettings(updatedSettings)
-        if (response?.serverSettings) {
-          // Update with the actual server response
-          setServerSettings(response.serverSettings)
-        }
+        mergeServerSettings(response?.serverSettings)
       } catch (error) {
-        // Revert on error
-        setServerSettings(serverSettings)
+        // Revert optimistic update
+        mergeServerSettings(previousSettings)
         console.error('Failed to update server settings:', error)
       }
     })
@@ -97,18 +104,15 @@ export default function SettingsClient(props: SettingsClientProps) {
   }
 
   const handleLanguageChanged = async (language: string) => {
+    const previousSettings = serverSettings
     const updatedSettings = { ...serverSettings, language } as ServerSettings
 
     try {
-      // Optimistically update the UI
-      setServerSettings(updatedSettings)
+      // Optimistic update until PATCH and cookie/refresh complete
+      mergeServerSettings(updatedSettings)
 
-      // Update server settings
       const response = await updateServerSettings(updatedSettings)
-      if (response.serverSettings) {
-        // Update with the actual server response
-        setServerSettings(response.serverSettings)
-      }
+      mergeServerSettings(response?.serverSettings)
 
       // Set the language cookie
       await fetch('/internal-api/set-language', {
@@ -123,8 +127,8 @@ export default function SettingsClient(props: SettingsClientProps) {
       router.refresh()
     } catch (error) {
       console.error('Failed to update language:', error)
-      // Revert on error
-      setServerSettings(serverSettings)
+      // Revert optimistic update
+      mergeServerSettings(previousSettings)
       showToast(t('ToastFailedToUpdate'), { type: 'error' })
     }
   }
@@ -144,11 +148,11 @@ export default function SettingsClient(props: SettingsClientProps) {
     startTransition(async () => {
       try {
         const response = await updateSortingPrefixes(prefixes)
+        mergeServerSettings(response?.serverSettings)
         if (response.rowsUpdated) {
           const rowsUpdated = response.rowsUpdated.toString()
           showToast(t('ToastSortingPrefixesUpdateSuccess', { 0: rowsUpdated }), { type: 'success' })
           if (response.serverSettings) {
-            setServerSettings(response.serverSettings)
             setSortingPrefixes(response.serverSettings.sortingPrefixes || [])
           }
         }
@@ -277,14 +281,12 @@ export default function SettingsClient(props: SettingsClientProps) {
           />
           <div className="w-full max-w-72">
             <Dropdown
-              items={dateFormats}
+              items={dateFormatOptions}
               label={t('LabelSettingsDateFormat')}
               value={serverSettings?.dateFormat}
               onChange={(value) => handleSettingChanged('dateFormat', value as string)}
             />
-            <p className="text-foreground-muted mb-2 px-1 text-xs">
-              {t('LabelExample')}: {exampleDateFormat}
-            </p>
+            <p className="text-foreground-muted mb-2 px-1 text-xs">{t('LabelExampleWithValue', { 0: exampleDateFormat })}</p>
           </div>
           <div className="w-full max-w-72">
             <Dropdown
@@ -293,9 +295,7 @@ export default function SettingsClient(props: SettingsClientProps) {
               value={serverSettings?.timeFormat}
               onChange={(value) => handleSettingChanged('timeFormat', value as string)}
             />
-            <p className="text-foreground-muted mb-2 px-1 text-xs">
-              {t('LabelExample')}: {exampleTimeFormat}
-            </p>
+            <p className="text-foreground-muted mb-2 px-1 text-xs">{t('LabelExampleWithValue', { 0: exampleTimeFormat })}</p>
           </div>
           <div className="w-full max-w-72">
             <LanguageDropdown value={serverSettings?.language} onChange={handleLanguageChanged} />

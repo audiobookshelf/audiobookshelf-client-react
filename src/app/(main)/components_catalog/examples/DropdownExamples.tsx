@@ -59,6 +59,7 @@ export function DropdownExamples() {
   const [dropdownValue3, setDropdownValue3] = useState('option1')
   const [dropdownValue4, setDropdownValue4] = useState('option1')
   const [dropdownValue5, setDropdownValue5] = useState('option1')
+  const [dropdownValue6, setDropdownValue6] = useState('option1')
 
   // Dropdown change handlers
   const handleDropdownChange = (value: string | number) => {
@@ -81,6 +82,10 @@ export function DropdownExamples() {
     setDropdownValue5(String(value))
   }
 
+  const handleDropdownChange6 = (value: string | number) => {
+    setDropdownValue6(String(value))
+  }
+
   return (
     <ComponentExamples title="Dropdowns">
       <ComponentInfo component="Dropdown" description="Select dropdown component with labels, subtext, and various states">
@@ -89,7 +94,7 @@ export function DropdownExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>items</Code> (DropdownItem[]), <Code>label</Code>,{' '}
-          <Code>disabled</Code>, <Code>small</Code>, <Code>menuMaxHeight</Code>, <Code>className</Code>
+          <Code>disabled</Code>, <Code>small</Code>, <Code>menuMaxHeight</Code>, <Code>wrapText</Code>, <Code>className</Code>
         </p>
       </ComponentInfo>
 
@@ -135,6 +140,19 @@ export function DropdownExamples() {
           />
         </Example>
 
+        <Example title="Different item lengths with wrap">
+          <Dropdown
+            value={dropdownValue3}
+            onChange={handleDropdownChange3}
+            items={dropdownItemsWithDifferentLengths}
+            label="Dropdown with wrapping menu items"
+            wrapText
+          />
+        </Example>
+
+        <Example title="Dropdown with submenus">
+          <Dropdown value={dropdownValue5} onChange={handleDropdownChange5} items={dropdownItemsWithSubmenus} label="Dropdown with submenus" />
+        </Example>
         <Example title="Different item lengths and subtext">
           <Dropdown
             value={dropdownValue4}
@@ -143,8 +161,16 @@ export function DropdownExamples() {
             label="Dropdown with different item lengths and subtext"
           />
         </Example>
-        <Example title="Dropdown with submenus">
-          <Dropdown value={dropdownValue5} onChange={handleDropdownChange5} items={dropdownItemsWithSubmenus} label="Dropdown with submenus" />
+
+        <Example title="Submenu flips left near the right edge" className="md:col-span-2 lg:col-span-3">
+          <p className="text-foreground-muted mb-4 text-sm">
+            Open the menu and hover a submenu item — with the control at the right edge, the submenu flips left instead of clipping.
+          </p>
+          <div className="flex justify-end">
+            <div className="w-64">
+              <Dropdown value={dropdownValue6} onChange={handleDropdownChange6} items={dropdownItemsWithSubmenus} label="Submenu flips left" usePortal />
+            </div>
+          </div>
         </Example>
       </ExamplesBlock>
     </ComponentExamples>

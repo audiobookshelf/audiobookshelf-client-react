@@ -40,14 +40,16 @@ function TextInputMatchFieldEditor({
 
   const hasCurrentValue = currentValue !== undefined && currentValue !== null && currentValue !== ''
 
-  const currentValueDisplay = hasCurrentValue ? (
-    <>
-      {t('LabelCurrently')}{' '}
-      <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
-        {String(currentValue)}
-      </a>
-    </>
-  ) : null
+  const currentValueDisplay = hasCurrentValue
+    ? t.rich('MessageCurrentlyWithLink', {
+        0: String(currentValue),
+        link: (chunks) => (
+          <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
+            {chunks}
+          </a>
+        )
+      })
+    : null
 
   return (
     <BaseMatchFieldEditor
@@ -57,7 +59,16 @@ function TextInputMatchFieldEditor({
       hasCurrentValue={hasCurrentValue}
       className={className}
     >
-      <TextInput value={value} onChange={onChange} disabled={disabled || !usageChecked} label={label} type={type} readOnly={readOnly} className={className} />
+      <TextInput
+        value={value}
+        onChange={onChange}
+        disabled={disabled || !usageChecked}
+        label={label}
+        type={type}
+        readOnly={readOnly}
+        className={className}
+        trimWhitespace={type !== 'password' && type !== 'number'}
+      />
     </BaseMatchFieldEditor>
   )
 }

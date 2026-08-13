@@ -1,12 +1,13 @@
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
+import type { ReactNode } from 'react'
 
 interface SettingsToggleSwitchProps {
   label: string
   value: boolean
   onChange: (value: boolean) => void
   disabled?: boolean
-  tooltip?: string
+  tooltip?: ReactNode
 }
 
 export default function SettingsToggleSwitch(props: SettingsToggleSwitchProps) {

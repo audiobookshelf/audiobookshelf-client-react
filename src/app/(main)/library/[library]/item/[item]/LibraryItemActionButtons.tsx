@@ -17,10 +17,8 @@ import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCar
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { formatJsDate } from '@/lib/datefns'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
-import { buildBookQueueItem, getPodcastItemPagePlaybackParams } from '@/lib/playerQueue'
-import { PlayerState, type BookLibraryItem, type PodcastEpisode, type PodcastLibraryItem, type RssFeed } from '@/types/api'
+import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
 import { useCallback, useMemo, useState } from 'react'
 
 interface LibraryItemActionButtonsProps {
@@ -29,8 +27,9 @@ interface LibraryItemActionButtonsProps {
   onOpenCoverEdit?: () => void
   /** Current RSS feed state (from useItemPageSocket + initial server data). */
   rssFeed?: RssFeed | null
-  /** Filtered/sorted podcast episodes from EpisodeTable (item-page Play). */
-  getPodcastEpisodesInOrder?: () => PodcastEpisode[]
+  showPlayButton: boolean
+  isItemPlaying: boolean
+  onPlay: () => void
 }
 
 export default function LibraryItemActionButtons({
@@ -38,15 +37,15 @@ export default function LibraryItemActionButtons({
   onEdit,
   onOpenCoverEdit,
   rssFeed = null,
-  getPodcastEpisodesInOrder
+  showPlayButton,
+  isItemPlaying,
+  onPlay
 }: LibraryItemActionButtonsProps) {
-  const { userCanUpdate, getMediaItemProgress, ereaderDevices, user, serverSettings } = useUser()
+  const { userCanUpdate, getMediaItemProgress, ereaderDevices } = useUser()
   const {
-    playItem,
     libraryItemIdStreaming,
     streamLibraryItem,
     isStreaming: isStreamingFn,
-    isPlaying: isPlayingFn,
     isStreamingFromDifferentLibrary,
     getIsMediaQueued,
     addItemToQueue,
@@ -67,13 +66,9 @@ export default function LibraryItemActionButtons({
   const isBook = libraryItem.mediaType === 'book'
   const bookMedia = !isPodcast ? libraryItem.media : null
   const podcastMedia = isPodcast ? libraryItem.media : null
-  const tracks = useMemo(() => (isBook ? (bookMedia?.tracks ?? []) : []), [isBook, bookMedia?.tracks])
   const podcastEpisodes = useMemo(() => (isPodcast ? (podcastMedia?.episodes ?? []) : []), [isPodcast, podcastMedia?.episodes])
   const ebookFormat = bookMedia ? getEbookFormat(bookMedia) : undefined
 
-  const showPlayButton = !libraryItem.isMissing && !libraryItem.isInvalid && (isPodcast ? podcastEpisodes.length > 0 : tracks.length > 0)
-  const isStreaming = isStreamingFn(libraryItem.id, null)
-  const isItemPlaying = isPlayingFn(libraryItem.id, null)
   const showQueueBtn = isBook && !!streamLibraryItem && !isStreamingFromDifferentLibrary(libraryItem.libraryId)
   const isQueued = getIsMediaQueued(libraryItem.id, null)
   const showReadButton = !!ebookFormat
@@ -105,7 +100,7 @@ export default function LibraryItemActionButtons({
     media: libraryItem.media,
     title: libraryItem.media.metadata.title ?? '',
     author: 'authors' in libraryItem.media.metadata ? (libraryItem.media.metadata.authors ?? []).map((a) => a.name).join(', ') : null,
-    episodeForQueue: null,
+    episode: null,
     mediaProgress,
     itemIsFinished: isRead,
     userProgressPercent: mediaProgress?.progress ?? 0,
@@ -124,51 +119,6 @@ export default function LibraryItemActionButtons({
     onOpenCoverEdit,
     playerControls
   })
-
-  const handlePlay = useCallback(() => {
-    if (isStreaming) {
-      playerControls.playPause()
-      return
-    }
-
-    if (isPodcast) {
-      const dateFormat = serverSettings.dateFormat ?? 'MM/dd/yyyy'
-      const podcastEpisodesInOrder = getPodcastEpisodesInOrder?.() ?? []
-      const playback = getPodcastItemPagePlaybackParams(
-        podcastEpisodesInOrder.length > 0 ? podcastEpisodesInOrder : podcastEpisodes,
-        libraryItem as PodcastLibraryItem,
-        user.mediaProgress,
-        (episode) =>
-          episode.publishedAt ? t('LabelPublishedDate', { 0: formatJsDate(new Date(episode.publishedAt), dateFormat) }) : t('LabelUnknownPublishDate')
-      )
-      if (!playback) return
-
-      void playItem({
-        libraryItem,
-        episodeId: playback.episodeId,
-        queueItems: playback.queueItems
-      })
-      return
-    }
-
-    const queueItem = buildBookQueueItem(libraryItem)
-    void playItem({
-      libraryItem,
-      episodeId: null,
-      queueItems: queueItem ? [queueItem] : []
-    })
-  }, [
-    isPodcast,
-    isStreaming,
-    libraryItem,
-    playItem,
-    playerControls,
-    podcastEpisodes,
-    getPodcastEpisodesInOrder,
-    serverSettings.dateFormat,
-    t,
-    user.mediaProgress
-  ])
 
   const handleQueueClick = useCallback(() => {
     if (isQueued) {
@@ -221,20 +171,14 @@ export default function LibraryItemActionButtons({
     <>
       <div className="flex flex-wrap items-center justify-start gap-1 pt-4">
         {showPlayButton && (
-          <Btn
-            onClick={handlePlay}
-            loading={playerLoadState === PlayerState.LOADING}
-            color="bg-success"
-            size="small"
-            className="mr-2 flex h-9 items-center px-4"
-          >
+          <Btn onClick={onPlay} loading={playerLoadState === PlayerState.LOADING} color="bg-success" size="small" className="mr-2 flex h-9 items-center px-4">
             <span className="material-symbols fill -ml-2 pr-1 text-2xl text-white">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
             {isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
           </Btn>
         )}
 
         {!showPlayButton && (libraryItem.isMissing || libraryItem.isInvalid) && (
-          <Btn color="bg-error" size="small" className="mr-2 flex h-9 items-center px-4" disabled>
+          <Btn color="bg-error" size="small" className="mr-2 flex h-9 cursor-default items-center px-4" aria-disabled>
             <span className="material-symbols -ml-2 pr-1 text-2xl text-white">error</span>
             {libraryItem.isMissing ? t('LabelMissing') : t('LabelIncomplete')}
           </Btn>

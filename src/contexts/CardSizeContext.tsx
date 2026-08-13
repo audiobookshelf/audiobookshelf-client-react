@@ -1,9 +1,8 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
-/** Breakpoint for mobile view (matches Tailwind's sm breakpoint) */
-const MOBILE_BREAKPOINT = 640
 /** Maximum size multiplier allowed on mobile */
 const MOBILE_MAX_SIZE_MULTIPLIER = 5 / 6
 /** Default size multiplier */
@@ -24,23 +23,15 @@ interface CardSizeContextValue {
 const CardSizeContext = createContext<CardSizeContextValue | undefined>(undefined)
 
 export function CardSizeProvider({ children }: { children: React.ReactNode }) {
-  const [isMobile, setIsMobile] = useState(false)
   const [baseSizeMultiplier, setBaseSizeMultiplier] = useState(DEFAULT_SIZE_MULTIPLIER)
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    setIsMobile(mediaQuery.matches)
-
-    const handleChange = (e: MediaQueryListEvent) => setIsMobile(e.matches)
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
-  }, [])
+  const isMobile = useMediaQuery('max-sm')
 
   // Apply mobile cap to size multiplier
   const sizeMultiplier = useMemo(() => {
     if (isMobile) {
       return Math.min(baseSizeMultiplier, MOBILE_MAX_SIZE_MULTIPLIER)
     }
+
     return baseSizeMultiplier
   }, [isMobile, baseSizeMultiplier])
 

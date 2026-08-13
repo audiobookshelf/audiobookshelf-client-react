@@ -1,6 +1,48 @@
 import { NextResponse } from 'next/server'
-import { getServerBaseUrl, setTokenCookies } from '../../../lib/api'
+import { cookies } from 'next/headers'
+import { getServerBaseUrl, setLanguageCookie, setTokenCookies } from '../../../lib/api'
 import { getTypeSafeTranslations } from '../../../lib/getTypeSafeTranslations'
+import { isSupportedLanguageCode } from '../../../lib/languages'
+import { isUserAdminOrUp } from '../../../lib/userPermissions'
+import { UpdateServerSettingsResponse, UserLoginWithTokensResponse } from '../../../types/api'
+
+/**
+ * After init, the language cookie reflects the admin's choice but the DB default is still en-us.
+ * Persist via PATCH /api/settings on first login (no /init server change required).
+ */
+async function syncServerLanguageFromCookie(
+  audiobookshelfServerUrl: string,
+  accessToken: string,
+  data: UserLoginWithTokensResponse
+): Promise<string | undefined> {
+  const languageCookie = (await cookies()).get('language')?.value
+  const serverLanguage = data.serverSettings?.language
+
+  if (!languageCookie || !isSupportedLanguageCode(languageCookie) || languageCookie === serverLanguage || !isUserAdminOrUp(data.user?.type ?? 'user')) {
+    return serverLanguage
+  }
+
+  const patchResponse = await fetch(`${audiobookshelfServerUrl}/api/settings`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({ language: languageCookie })
+  })
+
+  if (!patchResponse.ok) {
+    console.error('Failed to sync server language from cookie:', patchResponse.status, patchResponse.statusText)
+    return languageCookie
+  }
+
+  const patchData: UpdateServerSettingsResponse = await patchResponse.json()
+  if (patchData.serverSettings) {
+    data.serverSettings = patchData.serverSettings
+  }
+
+  return patchData.serverSettings?.language ?? languageCookie
+}
 
 export async function POST(request: Request) {
   const t = await getTypeSafeTranslations()
@@ -25,28 +67,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: t('ErrorLoginFailed') }, { status: 401 })
     }
 
-    const data = await loginResponse.json()
+    const data: UserLoginWithTokensResponse = await loginResponse.json()
     const newAccessToken = data.user.accessToken
     const newRefreshToken = data.user.refreshToken
-    const userLanguage = data.serverSettings?.language
 
     if (!newAccessToken) {
       return NextResponse.json({ error: t('ErrorNoAccessTokenFound') }, { status: 401 })
     }
 
-    const response = NextResponse.json(data)
-    setTokenCookies(response, newAccessToken, newRefreshToken)
+    const effectiveLanguage = await syncServerLanguageFromCookie(audiobookshelfServerUrl, newAccessToken, data)
 
-    // Set language cookie from user's server settings
-    if (userLanguage) {
-      response.cookies.set('language', userLanguage, {
-        httpOnly: false,
-        secure: false,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 365 * 24 * 60 * 60 // 1 year
-      })
-    }
+    const response = NextResponse.json(data)
+    setTokenCookies(response, newAccessToken, newRefreshToken ?? null)
+    setLanguageCookie(response.cookies, effectiveLanguage)
 
     return response
   } catch (error) {

@@ -225,7 +225,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
           <div className="grow" />
           <Checkbox
             value={playerQueueAutoPlay}
-            label="Auto Play"
+            label={t('LabelAutoPlay')}
             onChange={setPlayerQueueAutoPlay}
             checkboxBgClass="bg-primary"
             borderColorClass="border-gray-600"

@@ -7,8 +7,8 @@ import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { timestampToDatetimeLocal } from '@/lib/datefns'
 import { ApiError } from '@/lib/apiErrors'
+import { timestampToDatetimeLocal } from '@/lib/datefns'
 import { isPodcastLibraryItem, type PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -116,42 +116,40 @@ export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryI
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-full md:max-w-[500px] lg:max-w-[500px]">
-      <div className="flex max-h-[90vh] flex-col">
-        <div className="overflow-y-auto px-4 py-6 sm:px-6">
-          <div className="flex flex-col gap-4">
-            <TextInput
-              type="datetime-local"
-              label={t('LabelLookForNewEpisodesAfterDate')}
-              value={lastEpisodeCheckInput}
-              onChange={setLastEpisodeCheckInput}
-              disabled={isChecking}
-            />
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="max-w-[400px] sm:max-w-[400px] md:max-w-[400px] lg:max-w-[400px]">
+      <div className="flex max-h-[90vh] w-full flex-col">
+        <div className="w-full space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
+          <TextInput
+            type="datetime-local"
+            label={t('LabelLookForNewEpisodesAfterDate')}
+            value={lastEpisodeCheckInput}
+            onChange={setLastEpisodeCheckInput}
+            disabled={isChecking}
+          />
 
-            <div className="flex items-center gap-x-4 py-1">
-              <TextInput
-                type="number"
-                min={0}
-                value={maxEpisodesToDownload}
-                onChange={handleMaxEpisodesChange}
-                disabled={isChecking}
-                size="small"
-                customInputClass="no-spinner text-center"
-                className="w-12 shrink-0"
-              />
-              <p className="min-w-0 flex-1 text-base leading-snug">
-                {t('LabelLimit')}
-                {'\u00A0'}
-                <HelpTooltipIcon text={t('LabelMaxEpisodesToDownload')} />
-              </p>
-            </div>
+          <div className="flex items-center gap-x-4 py-1">
+            <TextInput
+              type="number"
+              min={0}
+              value={maxEpisodesToDownload}
+              onChange={handleMaxEpisodesChange}
+              disabled={isChecking}
+              size="small"
+              customInputClass="no-spinner text-center"
+              className="w-12 shrink-0"
+            />
+            <p className="min-w-0 flex-1 text-base leading-snug">
+              {t('LabelLimit')}
+              {'\u00A0'}
+              <HelpTooltipIcon text={t('LabelMaxEpisodesToDownload')} />
+            </p>
           </div>
         </div>
 
         <div className="border-border border-t px-4 py-3">
           <div className="flex justify-end">
             <Btn disabled={isChecking} loading={isChecking} onClick={handleSubmit}>
-              {t('LabelDownload')}
+              {t('LabelDownloadEpisodes')}
             </Btn>
           </div>
         </div>

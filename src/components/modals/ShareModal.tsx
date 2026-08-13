@@ -128,11 +128,11 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
       onShareChange?.(null)
     } catch (error) {
       console.error('deleteShare', error)
-      showToast('Failed to delete share', { type: 'error' })
+      showToast(t('ToastFailedToDelete'), { type: 'error' })
     } finally {
       setProcessing(false)
     }
-  }, [currentShare, onShareChange, showToast])
+  }, [currentShare, onShareChange, showToast, t])
 
   const handleOpenShare = useCallback(async () => {
     if (!mediaItemId) {

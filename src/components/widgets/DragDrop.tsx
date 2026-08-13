@@ -1,6 +1,7 @@
 'use client'
 
 import { mergeClasses } from '@/lib/merge-classes'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useRef, useState } from 'react'
 
 interface DragDropProps {
@@ -11,6 +12,7 @@ interface DragDropProps {
 }
 
 export default function DragDrop({ onFilesDropped, children, className = '', dragActiveClassName = 'border-bg-hover bg-bg-hover' }: DragDropProps) {
+  const t = useTypeSafeTranslations()
   const [isDragActive, setIsDragActive] = useState(false)
   // drag counter is used to properly handle drag enter / leave events over child elements
   // without it, dragging over child elements would trigger drag leave on the parent (this comp) and the style would flicker
@@ -122,7 +124,7 @@ export default function DragDrop({ onFilesDropped, children, className = '', dra
       onDrop={handleDrop}
       className={mergeClasses('border-border rounded-lg border-2 border-dashed p-8 transition-colors', isDragActive ? dragActiveClassName : '', className)}
       role="region"
-      aria-label="File drop zone"
+      aria-label={t('AriaLabelFileDropZone')}
     >
       {children}
     </div>

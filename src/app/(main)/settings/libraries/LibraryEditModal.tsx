@@ -37,7 +37,7 @@ const defaultLibrarySettings: LibrarySettings = {
 const getInitialFormData = (library: Library | null): LibraryFormData => {
   if (library) {
     return {
-      name: library.name,
+      name: library.name.trim(),
       mediaType: library.mediaType,
       icon: library.icon || 'database',
       provider: library.provider || '',
@@ -53,6 +53,13 @@ const getInitialFormData = (library: Library | null): LibraryFormData => {
     provider: '',
     folders: [],
     settings: { ...defaultLibrarySettings }
+  }
+}
+
+function normalizeLibraryFormData(formData: LibraryFormData): LibraryFormData {
+  return {
+    ...formData,
+    name: formData.name.trim()
   }
 }
 
@@ -187,20 +194,21 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     if (!isEditing) return true
     const trimmedNew = newFolderPath.trim()
     if (trimmedNew && !formData.folders.some((f) => f.fullPath.trim() === trimmedNew)) return true
-    return JSON.stringify(formData) !== initialFormDataRef.current
+    return JSON.stringify(normalizeLibraryFormData(formData)) !== initialFormDataRef.current
   }, [formData, isEditing, newFolderPath])
 
   const handleSubmit = () => {
     if (!isValid || !hasChanges || processing) return
 
+    const normalizedFormData = normalizeLibraryFormData(formData)
     const trimmedNew = newFolderPath.trim()
-    if (trimmedNew && !formData.folders.some((f) => f.fullPath.trim() === trimmedNew)) {
+    if (trimmedNew && !normalizedFormData.folders.some((f) => f.fullPath.trim() === trimmedNew)) {
       onSubmit({
-        ...formData,
-        folders: [...formData.folders, { fullPath: trimmedNew }]
+        ...normalizedFormData,
+        folders: [...normalizedFormData.folders, { fullPath: trimmedNew }]
       })
     } else {
-      onSubmit(formData)
+      onSubmit(normalizedFormData)
     }
   }
 

@@ -1,16 +1,20 @@
 'use client'
 
+import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
+import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
+import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
-import { downloadLibraryItemFile } from '@/lib/download'
 import { bytesPretty } from '@/lib/string'
 import { AudioFile, AudioTrack, BookLibraryItem } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 const MIN_INDEX_WIDTH = 40
 const MIN_ACTIONS_WIDTH = 44
@@ -39,8 +43,12 @@ interface TrackWithAudioFile extends AudioTrack {
 export default function AudioTracksTable({ libraryItem, keepOpen = false, expanded: expandedProp = false, className }: AudioTracksTableProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
+  const { showToast } = useGlobalToast()
+  const [isDeleting, startDeleteTransition] = useTransition()
+  const { downloadFile, showMoreInfo, audioFileToShow, closeMoreInfo } = useLibraryFileActions(libraryItem.id)
   const [expanded, setExpanded] = useState(expandedProp)
   const [showFullPath, setShowFullPath] = useState(false)
+  const [fileToDelete, setFileToDelete] = useState<AudioFile | null>(null)
 
   // Sync expanded state with props
   useEffect(() => {
@@ -63,10 +71,25 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
     })
   }, [])
 
-  const handleShowMore = useCallback((audioFile: AudioFile) => {
-    // TODO: Show audio file data modal
-    console.log('Show more info for:', audioFile)
+  const handleDeleteFile = useCallback((audioFile: AudioFile) => {
+    setFileToDelete(audioFile)
   }, [])
+
+  const handleConfirmDelete = useCallback(() => {
+    if (!fileToDelete) return
+
+    startDeleteTransition(async () => {
+      try {
+        await deleteLibraryFileAction(libraryItem.id, fileToDelete.ino)
+        showToast(t('ToastDeleteFileSuccess'), { type: 'success' })
+      } catch (error) {
+        console.error('Failed to delete file', error)
+        showToast(t('ToastDeleteFileFailed'), { type: 'error' })
+      } finally {
+        setFileToDelete(null)
+      }
+    })
+  }, [fileToDelete, libraryItem.id, showToast, startDeleteTransition, t])
 
   const tracksWithAudioFile = useMemo<TrackWithAudioFile[]>(() => {
     const tracks = libraryItem.media.tracks || []
@@ -139,13 +162,11 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
               className="h-6 w-6 md:h-7 md:w-7"
               onAction={({ action }) => {
                 if (action === 'download') {
-                  const fileIno = row.audioFile?.ino
-                  if (!fileIno) return
-                  downloadLibraryItemFile(libraryItem.id, fileIno, row.metadata.filename)
+                  downloadFile(row.ino, row.metadata.filename)
                 } else if (action === 'delete') {
-                  console.log('Delete track:', row.audioFile?.ino)
+                  handleDeleteFile(row)
                 } else if (action === 'more' && row.audioFile) {
-                  handleShowMore(row.audioFile)
+                  showMoreInfo(row.audioFile)
                 }
               }}
               usePortal
@@ -156,7 +177,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         cellClassName: 'text-center py-1 align-middle'
       }
     ],
-    [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, libraryItem.id, handleShowMore]
+    [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, handleDeleteFile, downloadFile, showMoreInfo]
   )
 
   const headerActions = useMemo(() => {
@@ -215,16 +236,27 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
   }
 
   return (
-    <CollapsibleSection
-      title={t('LabelStatsAudioTracks')}
-      count={tracksWithAudioFile.length}
-      expanded={expanded}
-      onExpandedChange={setExpanded}
-      keepOpen={keepOpen}
-      headerActions={headerActions}
-      className={className}
-    >
-      <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} />
-    </CollapsibleSection>
+    <>
+      <CollapsibleSection
+        title={t('LabelStatsAudioTracks')}
+        count={tracksWithAudioFile.length}
+        expanded={expanded}
+        onExpandedChange={setExpanded}
+        keepOpen={keepOpen}
+        headerActions={headerActions}
+        className={className}
+      >
+        <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} />
+      </CollapsibleSection>
+
+      <ConfirmDialog
+        isOpen={!!fileToDelete}
+        message={t('MessageConfirmDeleteFile')}
+        processing={isDeleting}
+        onClose={() => setFileToDelete(null)}
+        onConfirm={handleConfirmDelete}
+      />
+      <AudioFileDataModal isOpen={!!audioFileToShow} audioFile={audioFileToShow} libraryItemId={libraryItem.id} onClose={closeMoreInfo} />
+    </>
   )
 }

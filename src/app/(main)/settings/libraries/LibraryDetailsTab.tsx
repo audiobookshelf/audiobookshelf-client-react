@@ -5,13 +5,9 @@ import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import MediaIconPicker from '@/components/ui/MediaIconPicker'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { useMemo } from 'react'
 import { LibraryFormData } from './LibraryEditModal'
 import LibraryFolderChooser from './LibraryFolderChooser'
-
-const mediaTypeItems: DropdownItem[] = [
-  { text: 'Books', value: 'book' },
-  { text: 'Podcasts', value: 'podcast' }
-]
 
 interface LibraryDetailsTabProps {
   formData: LibraryFormData
@@ -48,6 +44,14 @@ export default function LibraryDetailsTab({
 }: LibraryDetailsTabProps) {
   const t = useTypeSafeTranslations()
 
+  const mediaTypeItems = useMemo<DropdownItem[]>(
+    () => [
+      { text: t('LabelBooks'), value: 'book' },
+      { text: t('LabelPodcasts'), value: 'podcast' }
+    ],
+    [t]
+  )
+
   return (
     <>
       {/* Top Row: Media Type, Library Name, Icon, Metadata Provider */}
@@ -70,6 +74,7 @@ export default function LibraryDetailsTab({
           placeholder={t('LabelLibraryName')}
           onChange={(value) => onFormDataChange((prev) => ({ ...prev, name: value }))}
           className="w-full sm:flex-1"
+          trimWhitespace
         />
 
         {/* Icon */}

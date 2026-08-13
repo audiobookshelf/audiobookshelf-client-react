@@ -7,7 +7,8 @@ import {
   getLibraryItems,
   getLibraryPersonalized,
   getLibraryPlaylists,
-  getLibrarySeries
+  getLibrarySeries,
+  removeLibraryItemsWithIssues
 } from '@/lib/api'
 
 export async function fetchLibraryItemsAction(libraryId: string, query: string) {
@@ -36,4 +37,8 @@ export async function fetchCollectionsAction(libraryId: string, query: string) {
 
 export async function fetchPlaylistsAction(libraryId: string, query: string) {
   return getLibraryPlaylists(libraryId, query)
+}
+
+export async function removeLibraryItemsWithIssuesAction(libraryId: string) {
+  return removeLibraryItemsWithIssues(libraryId)
 }

@@ -3,10 +3,9 @@ import TextInput from '@/components/ui/TextInput'
 import { getCurrentUser } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 
-import Btn from '@/components/ui/Btn'
 import { getTheme } from '@/lib/theme'
 import { cookies } from 'next/headers'
-import LogoutBtn from './LogoutBtn'
+import AccountActionsRow from './AccountActionsRow'
 import ThemeSelector from './ThemeSelector'
 import UserLanguageSelector from './UserLanguageSelector'
 
@@ -48,10 +47,7 @@ export default async function AccountPage() {
           <ThemeSelector value={currentTheme} label={t('LabelTheme')} />
         </div>
         <div className="bg-border h-px w-full" />
-        <div className="flex w-full items-center justify-between">
-          <Btn to="/account/change-password">{t('LabelChangePassword')}</Btn>
-          <LogoutBtn />
-        </div>
+        <AccountActionsRow />
       </div>
     </div>
   )

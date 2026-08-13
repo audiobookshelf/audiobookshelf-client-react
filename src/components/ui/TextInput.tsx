@@ -35,6 +35,8 @@ export interface TextInputProps {
   ref?: React.Ref<HTMLInputElement>
   error?: boolean | string
   autocomplete?: 'off' | 'username' | 'current-password' | 'new-password' | 'email' | 'tel' | string
+  /** Trim leading/trailing whitespace on blur (Vue `trim-whitespace` parity). */
+  trimWhitespace?: boolean
 }
 
 export default function TextInput({
@@ -63,7 +65,8 @@ export default function TextInput({
   className,
   ref,
   error,
-  autocomplete = 'off'
+  autocomplete = 'off',
+  trimWhitespace = false
 }: TextInputProps) {
   const t = useTypeSafeTranslations()
   const generatedId = useId()
@@ -111,6 +114,12 @@ export default function TextInput({
   }
 
   const handleBlur = () => {
+    if (trimWhitespace && typeof value === 'string') {
+      const trimmed = value.trim()
+      if (trimmed !== value) {
+        onChange?.(trimmed)
+      }
+    }
     onBlur?.()
   }
 
@@ -207,7 +216,7 @@ export default function TextInput({
               )}
               style={{ fontSize: '1.1rem' }}
               onClick={handleClear}
-              aria-label={t('ButtonClearInput')}
+              aria-label={t('ButtonClear')}
               cy-id="text-input-clear"
             >
               close

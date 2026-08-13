@@ -12,6 +12,8 @@ import TextInput from '../ui/TextInput'
 
 type Details = Omit<PodcastMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'imageUrl' | 'itunesPageUrl' | 'itunesArtistId'>
 
+const PODCAST_TEXT_TRIM_FIELDS = ['title', 'author', 'feedUrl', 'releaseDate', 'itunesId', 'language'] as const satisfies readonly (keyof Details)[]
+
 export type PodcastDetailsEditRef = DetailsEditRef<Details>
 export type PodcastUpdatePayload = UpdatePayload<Details>
 
@@ -57,7 +59,8 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
     onChange,
     onSubmit,
     batchAppendLogic,
-    useLooseEquality: true
+    useLooseEquality: true,
+    trimFields: PODCAST_TEXT_TRIM_FIELDS
   })
 
   const podcastTypeItems = useMemo<DropdownItem[]>(
@@ -114,10 +117,10 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
       >
         <div className="-mx-1 flex flex-wrap">
           <div className="w-full px-1 md:w-1/2">
-            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title') as (value: string) => void} label={t('LabelTitle')} />
+            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title') as (value: string) => void} label={t('LabelTitle')} trimWhitespace />
           </div>
           <div className="mt-2 grow px-1 md:mt-0">
-            <TextInput value={details.author || ''} onChange={handleFieldUpdate('author') as (value: string) => void} label={t('LabelAuthor')} />
+            <TextInput value={details.author || ''} onChange={handleFieldUpdate('author') as (value: string) => void} label={t('LabelAuthor')} trimWhitespace />
           </div>
         </div>
 
@@ -126,6 +129,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
           onChange={handleFieldUpdate('feedUrl') as (value: string) => void}
           label={t('LabelRSSFeedURL')}
           className="mt-2"
+          trimWhitespace
         />
 
         <SlateEditor srcContent={initialDetails.description || ''} onUpdate={handleFieldUpdate('description')} label={t('LabelDescription')} className="mt-2" />
@@ -155,13 +159,28 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
         <div className="-mx-1 mt-2 flex flex-wrap">
           <div className="w-full px-1 md:w-1/4">
-            <TextInput value={details.releaseDate || ''} onChange={handleFieldUpdate('releaseDate') as (value: string) => void} label={t('LabelReleaseDate')} />
+            <TextInput
+              value={details.releaseDate || ''}
+              onChange={handleFieldUpdate('releaseDate') as (value: string) => void}
+              label={t('LabelReleaseDate')}
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 w-full px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.itunesId || ''} onChange={handleFieldUpdate('itunesId') as (value: string | number) => void} label="iTunes ID" />
+            <TextInput
+              value={details.itunesId || ''}
+              onChange={handleFieldUpdate('itunesId') as (value: string | number) => void}
+              label={t('LabelItunesID')}
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 w-full px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.language || ''} onChange={handleFieldUpdate('language') as (value: string) => void} label={t('LabelLanguage')} />
+            <TextInput
+              value={details.language || ''}
+              onChange={handleFieldUpdate('language') as (value: string) => void}
+              label={t('LabelLanguage')}
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 grow px-1 pt-6 md:mt-0">
             <div className="flex justify-center">

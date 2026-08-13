@@ -1,19 +1,27 @@
 'use client'
 
-import type { EditListItem } from '@/components/ui/EditList'
-import EditList from '@/components/ui/EditList'
+import MetadataEditTable, { MetadataEditTableItem } from '@/components/ui/MetadataEditTable'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { NarratorObject } from '@/types/api'
-import { useTransition } from 'react'
+import { useEffect, useTransition } from 'react'
 import { deleteNarrator, saveNarrator } from './actions'
 
 export default function NarratorsClient({ libraryId, narrators }: { libraryId: string; narrators: NarratorObject[] }) {
   const { showToast } = useGlobalToast()
+  const { setItemCount } = useLibrary()
   const t = useTypeSafeTranslations()
   const [isPending, startTransition] = useTransition()
 
-  const handleSave = async (item: EditListItem, newName: string) => {
+  useEffect(() => {
+    setItemCount(narrators.length)
+    return () => {
+      setItemCount(null)
+    }
+  }, [narrators.length, setItemCount])
+
+  const handleSave = async (item: MetadataEditTableItem, newName: string) => {
     if (isPending) return
 
     startTransition(async () => {
@@ -26,7 +34,7 @@ export default function NarratorsClient({ libraryId, narrators }: { libraryId: s
     })
   }
 
-  const handleDelete = async (item: EditListItem) => {
+  const handleDelete = async (item: MetadataEditTableItem) => {
     if (isPending) return
 
     startTransition(async () => {
@@ -40,8 +48,8 @@ export default function NarratorsClient({ libraryId, narrators }: { libraryId: s
   }
 
   return (
-    <div>
-      <EditList libraryId={libraryId} items={narrators} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Narrator" />
+    <div className="mx-auto max-w-2xl">
+      <MetadataEditTable libraryId={libraryId} items={narrators} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Narrator" />
     </div>
   )
 }

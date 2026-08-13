@@ -120,9 +120,9 @@ export default function ConfirmDialog({
         <h2 id={titleId} className="sr-only">
           {dialogTitle}
         </h2>
-        <p id={messageId} className="mt-2 mb-6 px-1 text-lg">
+        <div id={messageId} className="mt-2 mb-6 px-1 text-lg">
           {message}
-        </p>
+        </div>
 
         {checkboxLabel && (
           <div className="mb-6 px-1">

@@ -6,6 +6,7 @@ import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext, useMediaNavigation } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
+import { useLibraryRouteGuard } from '@/hooks/useLibraryRouteGuard'
 import { mergeClasses } from '@/lib/merge-classes'
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
@@ -27,6 +28,8 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   const installSource = Source || 'Unknown'
   const isLibraryItemPage = pathname.includes('/item/')
   const isBatchEditPage = pathname.endsWith('/batch')
+  const isStatsPage = pathname.endsWith('/stats')
+  const showToolbar = !isLibraryItemPage && !isBatchEditPage && !isStatsPage
   const showCoverSizeWidget =
     !isLibraryItemPage &&
     !pathname.endsWith('/latest') &&
@@ -34,6 +37,8 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
     !pathname.endsWith('/stats') &&
     !pathname.endsWith('/narrators') &&
     !isBatchEditPage
+
+  useLibraryRouteGuard()
 
   useEffect(() => {
     if (library) {
@@ -62,14 +67,14 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
     <div className={mergeClasses('page-wrapper relative flex overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
       <SideRail serverVersion={serverVersion} installSource={installSource} />
       <div className="page-bg-gradient min-w-0 flex-1 overflow-hidden">
-        {!isLibraryItemPage && !isBatchEditPage && <Toolbar />}
-        {/* subtract height of toolbar if not library item page */}
+        {showToolbar && <Toolbar />}
+        {/* subtract height of toolbar when it is shown */}
         <div
           className={mergeClasses(
             'w-full overflow-x-hidden',
-            isBatchEditPage && 'h-full overflow-hidden',
-            isLibraryItemPage && !isBatchEditPage && 'h-full overflow-y-auto',
-            !isLibraryItemPage && !isBatchEditPage && 'h-[calc(100%-2.5rem)] overflow-y-auto'
+            showToolbar && 'h-[calc(100%-2.5rem)] overflow-y-auto',
+            !showToolbar && isBatchEditPage && 'h-full overflow-hidden',
+            !showToolbar && !isBatchEditPage && 'h-full overflow-y-auto'
           )}
         >
           {children}

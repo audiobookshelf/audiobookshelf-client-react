@@ -41,11 +41,15 @@ function CheckboxMatchFieldEditor({
 
   const formattedValue = hasCurrentValue ? (currentValue ? t(checkedLabelKey) : t(uncheckedLabelKey)) : ''
 
-  const currentValueDisplay = hasCurrentValue ? (
-    <>
-      {t('LabelCurrently')} {formattedValue}
-    </>
-  ) : null
+  const currentValueDisplay = hasCurrentValue
+    ? t.rich('LabelCurrentlyWithValue', {
+        0: (
+          <span key="value" className="text-foreground">
+            {formattedValue}
+          </span>
+        )
+      })
+    : null
 
   return (
     <BaseMatchFieldEditor

@@ -2,6 +2,7 @@
 
 import type { AppBarBatchActionModalsProps } from '@/components/widgets/AppBarBatchActionModals'
 import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
+import { useLibraryOptional } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -17,21 +18,13 @@ import {
   toggleFinishedSelection
 } from '@/lib/batchSelection/selectionUtils'
 import { openHardDeleteConfirm, openSimpleConfirm } from '@/lib/confirmDialogs'
+import { openPodcastDeviceDownloadConfirm } from '@/lib/podcastDownload'
 import type { SelectedMediaItem, SelectionKind } from '@/lib/selectedMediaItem'
 import { usePathname, useRouter } from 'next/navigation'
 import { createElement, useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 export type AppBarBatchActionId =
-  | 'play'
-  | 'toggle-finished'
-  | 'add-to-collection'
-  | 'add-to-playlist'
-  | 'batch-edit'
-  | 'delete'
-  | 'quick-match'
-  | 'quick-embed'
-  | 'rescan'
-  | 'download'
+  'play' | 'toggle-finished' | 'add-to-collection' | 'add-to-playlist' | 'batch-edit' | 'delete' | 'quick-match' | 'quick-embed' | 'rescan' | 'download'
 
 interface UseAppBarBatchActionsParams {
   selectedItems: readonly SelectedMediaItem[]
@@ -61,6 +54,7 @@ export function useAppBarBatchActions({
   const pathname = usePathname()
   const { showToast } = useGlobalToast()
   const { playItem } = useMediaContext()
+  const { library, refetchFilterDataSilently } = useLibraryOptional()
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
@@ -151,11 +145,16 @@ export function useAppBarBatchActions({
           logLabel: 'Failed to batch delete library items',
           successToast: t('ToastBatchDeleteSuccess'),
           errorToast: t('ToastBatchDeleteFailed'),
-          onSuccess: finishBatchAction
+          onSuccess: () => {
+            finishBatchAction()
+            if (libraryId && library?.id === libraryId) {
+              refetchFilterDataSilently?.()
+            }
+          }
         })
       }
     })
-  }, [finishBatchAction, runBatch, selectedItems.length, t, uniqueLibraryItemIds])
+  }, [finishBatchAction, library?.id, libraryId, refetchFilterDataSilently, runBatch, selectedItems.length, t, uniqueLibraryItemIds])
 
   const handleDeleteEpisodes = useCallback(() => {
     openHardDeleteConfirm({
@@ -179,23 +178,40 @@ export function useAppBarBatchActions({
     if (selectionKind === 'episode') {
       runBatch(async () => downloadEpisodesSelection(selectedItems), {
         logLabel: 'Failed to download selected episodes',
-        successToast: t('ToastStartedDownloadingEpisodes'),
+        successToast: t('ToastStartedDownloadingEpisodeFiles'),
         errorToast: t('ToastFailedToLoadData'),
         onSuccess: finishBatchAction
       })
       return
     }
 
-    runBatch(
-      async () => {
-        downloadLibraryItemsSelection(libraryId, uniqueLibraryItemIds)
-      },
-      {
-        logLabel: 'Failed to batch download library items',
-        successToast: t('ToastBatchDownloadSuccess'),
-        onSuccess: finishBatchAction
-      }
-    )
+    const startLibraryItemsDownload = () => {
+      runBatch(
+        async () => {
+          downloadLibraryItemsSelection(libraryId, uniqueLibraryItemIds)
+        },
+        {
+          logLabel: 'Failed to batch download library items',
+          successToast: t('ToastBatchDownloadSuccess'),
+          onSuccess: finishBatchAction
+        }
+      )
+    }
+
+    if (selectionKind === 'podcast') {
+      openPodcastDeviceDownloadConfirm({
+        items: selectedItems.map((item) => ({
+          title: item.title ?? '',
+          downloadSize: item.downloadSize ?? 0
+        })),
+        t,
+        setConfirmState,
+        onConfirm: startLibraryItemsDownload
+      })
+      return
+    }
+
+    startLibraryItemsDownload()
   }, [finishBatchAction, libraryId, runBatch, selectedItems, selectionKind, t, uniqueLibraryItemIds])
 
   const handleRescan = useCallback(() => {

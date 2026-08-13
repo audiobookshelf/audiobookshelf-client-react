@@ -3,10 +3,11 @@
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
 import { useSocketEmit, useSocketEvent } from '@/contexts/SocketContext'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { LoggerDataLog, LogLevel, ServerSettings } from '@/types/api'
+import { LoggerDataLog, LogLevel } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import type { UpdateServerSettingsApiResponse } from '../actions'
+import { updateServerSettings } from '../actions'
 
 const MAX_LOGS = 5000
 const TRIM_AMOUNT = 1000 // Remove this many logs when we hit the max
@@ -21,7 +22,6 @@ const LOG_LEVEL_NAMES: Record<number, string> = {
 interface LogsContainerProps {
   currentDailyLogs: LoggerDataLog[]
   logLevel?: number
-  updateServerSettings: (settingsUpdatePayload: Partial<ServerSettings>) => Promise<UpdateServerSettingsApiResponse>
 }
 
 function getLogLevelColor(levelName: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'TRACE'): string {
@@ -39,8 +39,9 @@ function getLogLevelColor(levelName: 'DEBUG' | 'INFO' | 'WARN' | 'ERROR' | 'TRAC
   }
 }
 
-export default function LogsContainer({ currentDailyLogs, logLevel: initialLogLevel, updateServerSettings }: LogsContainerProps) {
+export default function LogsContainer({ currentDailyLogs, logLevel: initialLogLevel }: LogsContainerProps) {
   const t = useTypeSafeTranslations()
+  const { mergeServerSettings } = useUser()
   const [logs, setLogs] = useState<LoggerDataLog[]>(currentDailyLogs)
   const [searchQuery, setSearchQuery] = useState('')
   const [logLevel, setLogLevel] = useState<number>(initialLogLevel ?? LogLevel.INFO)
@@ -94,7 +95,8 @@ export default function LogsContainer({ currentDailyLogs, logLevel: initialLogLe
 
     startTransition(async () => {
       try {
-        await updateServerSettings({ logLevel: newLevel as LogLevel })
+        const response = await updateServerSettings({ logLevel: newLevel as LogLevel })
+        mergeServerSettings(response?.serverSettings)
       } catch (error) {
         setLogLevel(logLevel)
         console.error('Failed to update log level:', error)

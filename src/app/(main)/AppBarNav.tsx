@@ -1,8 +1,8 @@
 'use client'
 
 import ButtonBase from '@/components/ui/ButtonBase'
-import IconBtn from '@/components/ui/IconBtn'
 import { useClickOutside } from '@/hooks/useClickOutside'
+import { useLogout } from '@/hooks/useLogout'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -10,10 +10,8 @@ import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { type AppBarNavMenuItemConfig, buildAppBarNavMenuItems } from './appBarNavMenuItems'
 import AppBarNavMenuItem from './AppBarNavMenuItem'
-
-const DESKTOP_MEDIA_QUERY = '(min-width: 768px)'
+import { type AppBarNavMenuItemConfig, buildAppBarNavMenuItems } from './appBarNavMenuItems'
 
 interface AppBarNavProps {
   userCanUpload: boolean
@@ -24,7 +22,8 @@ interface AppBarNavProps {
 export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNavProps) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
-  const isDesktop = useMediaQuery(DESKTOP_MEDIA_QUERY, true)
+  const logout = useLogout()
+  const isDesktop = useMediaQuery('md', true)
   const menuId = useId()
   const [menuOpen, setMenuOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -82,21 +81,13 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
 
   const handleLogout = useCallback(async () => {
     try {
-      // Calls the Abs server logout endpoint and clears the NextJS server cookies
-      const res = await fetch('/internal-api/logout', {
-        method: 'POST'
-      })
-      if (!res.ok) {
-        console.error('Logout error:', res.status, res.statusText)
-        return
-      }
-      router.replace('/login')
+      await logout()
     } catch (err) {
       console.error('Logout error:', err)
     } finally {
       closeMenu()
     }
-  }, [router, closeMenu])
+  }, [logout, closeMenu])
 
   const activateMenuItem = useCallback(
     (index: number) => {
@@ -260,7 +251,7 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
         <ButtonBase
           ref={desktopTriggerRef}
           size="small"
-          ariaLabel={`${username}, ${t('ButtonMenu')}`}
+          ariaLabel={t('AriaLabelAccountMenu')}
           aria-expanded={menuOpen}
           aria-controls={menuId}
           aria-haspopup="menu"
@@ -276,17 +267,23 @@ export default function AppBarNav({ userCanUpload, isAdmin, username }: AppBarNa
           </span>
         </ButtonBase>
 
-        {/* Mobile - Hamburger Menu Button */}
-        <IconBtn
-          borderless
-          ariaLabel={t('ButtonMenu')}
+        {/* Mobile - Account icon button */}
+        <ButtonBase
+          size="small"
+          ariaLabel={t('AriaLabelAccountMenu')}
           aria-expanded={menuOpen}
-          className="md:hidden"
+          aria-controls={menuId}
+          aria-haspopup="menu"
+          aria-activedescendant={activeDescendantId}
+          className="text-button-foreground inline-flex w-9 px-0 md:hidden"
           onClick={handleTriggerClick}
+          onKeyDown={handleDesktopTriggerKeyDown}
           onMouseDown={(e) => e.preventDefault()}
         >
-          menu
-        </IconBtn>
+          <span className="material-symbols text-xl" aria-hidden="true">
+            person
+          </span>
+        </ButtonBase>
       </div>
 
       {menuOpen &&

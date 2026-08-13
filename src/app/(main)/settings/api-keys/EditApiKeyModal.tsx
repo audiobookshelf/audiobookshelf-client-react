@@ -83,7 +83,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
     if (expiresInSeconds) {
       formData.expiresIn = parseInt(expiresInSeconds)
     }
-    onSubmit(formData)
+    onSubmit({ ...formData, name: formData.name.trim() })
   }
 
   // Convert users to dropdown items with username:type format
@@ -114,6 +114,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
               placeholder={t('LabelName')}
               readOnly={isEditing}
               onChange={(value) => setFormData((prev) => ({ ...prev, name: value }))}
+              trimWhitespace={!isEditing}
             />
 
             {/* Expires In (seconds) - Hidden when editing */}

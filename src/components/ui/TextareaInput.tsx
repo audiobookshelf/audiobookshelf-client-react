@@ -16,6 +16,8 @@ export interface TextareaInputProps {
   onChange?: (value: string) => void
   className?: string
   fillHeight?: boolean
+  /** Trim leading/trailing whitespace on blur (Vue `trim-whitespace` parity). */
+  trimWhitespace?: boolean
 }
 
 /**
@@ -32,7 +34,8 @@ export default function TextareaInput({
   disabled = false,
   onChange,
   className,
-  fillHeight = false
+  fillHeight = false,
+  trimWhitespace = false
 }: TextareaInputProps) {
   const generatedId = useId()
   const textareaInputId = id || generatedId
@@ -41,6 +44,15 @@ export default function TextareaInput({
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange?.(e.target.value)
+  }
+
+  const handleBlur = () => {
+    if (trimWhitespace && typeof value === 'string') {
+      const trimmed = value.trim()
+      if (trimmed !== value) {
+        onChange?.(trimmed)
+      }
+    }
   }
 
   const textareaClass = mergeClasses('w-full', fillHeight && (label ? 'h-full grid grid-rows-[auto_1fr]' : 'h-full flex flex-col'), className)
@@ -73,6 +85,7 @@ export default function TextareaInput({
           aria-readonly={readOnly || undefined}
           aria-multiline="true"
           onChange={handleChange}
+          onBlur={handleBlur}
           cy-id="textarea-input-textarea"
         />
       </InputWrapper>

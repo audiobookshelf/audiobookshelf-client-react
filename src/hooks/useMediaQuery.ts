@@ -2,14 +2,16 @@
 
 import { useSyncExternalStore } from 'react'
 
-/** Touch-first UIs: no hover and/or coarse primary pointer. */
-export const COARSE_POINTER_MEDIA_QUERY = '(hover: none), (pointer: coarse)'
+const MEDIA_QUERIES = {
+  md: '(min-width: 768px)',
+  lg: '(min-width: 1024px)',
+  'max-sm': '(max-width: 639px)',
+  'max-md': '(max-width: 767px)',
+  'coarse-pointer': '(hover: none), (pointer: coarse)',
+  hover: '(hover: hover)'
+} as const
 
-/** Primary input supports hover (e.g. mouse / trackpad). */
-export const HOVER_CAPABLE_MEDIA_QUERY = '(hover: hover)'
-
-/** Tailwind `lg` breakpoint (desktop player layout) */
-export const LG_MEDIA_QUERY = '(min-width: 1024px)'
+type MediaQueryKey = keyof typeof MEDIA_QUERIES
 
 function subscribeMediaQuery(query: string, onStoreChange: () => void) {
   const mq = window.matchMedia(query)
@@ -24,17 +26,13 @@ function getMediaQuerySnapshot(query: string) {
 /**
  * Subscribes to a `window.matchMedia` query. `serverSnapshot` is used for SSR and the first client paint.
  */
-export function useMediaQuery(query: string, serverSnapshot = false): boolean {
+export function useMediaQuery(query: MediaQueryKey, serverSnapshot = false): boolean {
+  const mediaQuery = MEDIA_QUERIES[query]
   return useSyncExternalStore(
-    (onStoreChange) => subscribeMediaQuery(query, onStoreChange),
-    () => getMediaQuerySnapshot(query),
+    (onStoreChange) => subscribeMediaQuery(mediaQuery, onStoreChange),
+    () => getMediaQuerySnapshot(mediaQuery),
     () => serverSnapshot
   )
-}
-
-/** True on touch-first devices (phones, most tablets). */
-export function useCoarsePointer(): boolean {
-  return useMediaQuery(COARSE_POINTER_MEDIA_QUERY, false)
 }
 
 /**
@@ -42,10 +40,5 @@ export function useCoarsePointer(): boolean {
  * where `(hover: hover)` does not match.
  */
 export function usePrimaryInputCanHover(): boolean {
-  return useMediaQuery(HOVER_CAPABLE_MEDIA_QUERY, true)
-}
-
-/** True at Tailwind `lg` and above (desktop player layout) */
-export function useIsLgViewport(): boolean {
-  return useMediaQuery(LG_MEDIA_QUERY, false)
+  return useMediaQuery('hover', true)
 }

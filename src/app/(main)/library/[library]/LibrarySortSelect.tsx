@@ -189,7 +189,7 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
   }, [currentSortDesc, t])
 
   return (
-    <div className="h-9 w-36 sm:w-44 md:w-48">
+    <div className="h-9 max-w-48 min-w-0 flex-1 md:w-48 md:flex-none">
       <Dropdown
         value={currentSortBy}
         items={sortItems}
@@ -200,6 +200,7 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
         highlightSelected={true}
         menuMaxHeight="none"
         usePortal
+        wrapText
       />
     </div>
   )

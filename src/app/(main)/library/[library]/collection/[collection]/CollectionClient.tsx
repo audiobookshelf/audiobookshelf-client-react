@@ -185,7 +185,13 @@ export default function CollectionClient({ collection }: CollectionClientProps) 
       {!isListMode && collectionItems}
 
       {userCanUpdate && (
-        <CollectionEditModal isOpen={editModalOpen} collection={collection} onClose={() => setEditModalOpen(false)} onSaved={() => router.refresh()} />
+        <CollectionEditModal
+          isOpen={editModalOpen}
+          collection={collection}
+          onClose={() => setEditModalOpen(false)}
+          onSaved={() => router.refresh()}
+          onDeleted={handleCollectionDeleted}
+        />
       )}
 
       {userIsAdminOrUp && (

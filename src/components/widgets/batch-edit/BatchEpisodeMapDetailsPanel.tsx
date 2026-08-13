@@ -91,9 +91,11 @@ export default function BatchEpisodeMapDetailsPanel({ episodes, onApply, onHasSe
 
   const handleApply = useCallback(() => {
     const payload: Partial<EpisodeBatchDetails> = {}
+    const trimFields: EpisodeBatchFieldKey[] = ['season', 'episode', 'subtitle']
     for (const key of Object.keys(usage) as EpisodeBatchFieldKey[]) {
       if (!usage[key]) continue
-      payload[key] = details[key]
+      const value = details[key]
+      payload[key] = trimFields.includes(key) && typeof value === 'string' ? value.trim() : value
     }
     onApply(payload)
   }, [details, onApply, usage])
@@ -135,6 +137,7 @@ export default function BatchEpisodeMapDetailsPanel({ episodes, onApply, onHasSe
               disabled={fieldDisabled('season')}
               label={t('LabelSeason')}
               className={MAP_FIELD_INPUT_CLASS}
+              trimWhitespace
             />
           </div>
 
@@ -146,6 +149,7 @@ export default function BatchEpisodeMapDetailsPanel({ episodes, onApply, onHasSe
               disabled={fieldDisabled('episode')}
               label={t('LabelEpisode')}
               className={MAP_FIELD_INPUT_CLASS}
+              trimWhitespace
             />
           </div>
 
@@ -171,6 +175,7 @@ export default function BatchEpisodeMapDetailsPanel({ episodes, onApply, onHasSe
               label={t('LabelSubtitle')}
               rows={2}
               className={MAP_FIELD_INPUT_CLASS}
+              trimWhitespace
             />
           </div>
 

@@ -381,11 +381,11 @@ describe('<Dropdown />', () => {
   })
 
   describe('Edge Cases', () => {
-    it('handles empty items array', () => {
+    it('does not open when items array is empty', () => {
       cy.mount(<Dropdown items={[]} />)
       cy.get('button').should('exist')
       cy.get('button').click()
-      cy.get('[role="listbox"] > li').should('have.length', 0)
+      cy.get('[role="listbox"]').should('not.exist')
     })
 
     it('handles undefined value', () => {

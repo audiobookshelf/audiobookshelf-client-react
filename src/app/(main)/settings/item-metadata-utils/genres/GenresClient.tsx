@@ -1,7 +1,6 @@
 'use client'
 
-import type { EditListItem } from '@/components/ui/EditList'
-import EditList from '@/components/ui/EditList'
+import MetadataEditTable, { MetadataEditTableItem } from '@/components/ui/MetadataEditTable'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { useMemo, useTransition } from 'react'
@@ -19,7 +18,7 @@ export default function GenresClient({ genres }: { genres: string[] }) {
     }))
   }, [genres])
 
-  const handleDelete = async (item: EditListItem) => {
+  const handleDelete = async (item: MetadataEditTableItem) => {
     if (isPending) return
     startTransition(async () => {
       const response = await removeGenre(item.name)
@@ -31,7 +30,7 @@ export default function GenresClient({ genres }: { genres: string[] }) {
     })
   }
 
-  const handleSave = async (genreToUpdate: EditListItem, newGenreName: string) => {
+  const handleSave = async (genreToUpdate: MetadataEditTableItem, newGenreName: string) => {
     if (isPending) return
     startTransition(async () => {
       const response = await renameGenre(genreToUpdate.name, newGenreName)
@@ -45,7 +44,7 @@ export default function GenresClient({ genres }: { genres: string[] }) {
 
   return (
     <div className="py-4">
-      <EditList items={genresList} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Genre" />
+      <MetadataEditTable items={genresList} onItemEditSaveClick={handleSave} onItemDeleteClick={handleDelete} listType="Genre" />
     </div>
   )
 }

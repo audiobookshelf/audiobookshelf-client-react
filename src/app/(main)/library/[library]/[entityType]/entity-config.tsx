@@ -1,3 +1,4 @@
+import ItemsToolbarExtras from '@/app/(main)/library/[library]/ItemsToolbarExtras'
 import LibraryFilterSelect from '@/app/(main)/library/[library]/LibraryFilterSelect'
 import LibrarySortSelect from '@/app/(main)/library/[library]/LibrarySortSelect'
 import AuthorCard from '@/components/widgets/media-card/AuthorCard'
@@ -86,12 +87,7 @@ export interface EntityConfig {
 
 export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
   items: {
-    getToolbarExtras: (user, library) => (
-      <>
-        <LibraryFilterSelect user={user} entityType="items" />
-        <LibrarySortSelect entityType="items" libraryMediaType={library.mediaType} />
-      </>
-    ),
+    getToolbarExtras: (user, library) => <ItemsToolbarExtras user={user} library={library} />,
     getContextMenuItems: (user, library, settings) => {
       const menuItems: { textKey: TranslationKey; action: string }[] = []
       if (library.mediaType === 'podcast' && userCanDownload(user)) {

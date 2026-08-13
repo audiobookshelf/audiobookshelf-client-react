@@ -1,5 +1,6 @@
 'use client'
 
+import PlaylistEditModal from '@/components/modals/PlaylistEditModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardMoreMenu from '@/components/widgets/media-card/MediaCardMoreMenu'
@@ -15,7 +16,7 @@ import { mergeClasses } from '@/lib/merge-classes'
 import type { Playlist } from '@/types/api'
 import { BookshelfView } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { memo, useCallback, useId, useMemo, useState } from 'react'
+import { memo, useCallback, useId, useMemo, useState, type KeyboardEvent } from 'react'
 import LoadingSpinner from '../LoadingSpinner'
 
 export interface PlaylistCardProps {
@@ -30,14 +31,12 @@ export interface PlaylistCardProps {
   selected?: boolean
   /** Callback when the select button is clicked */
   onSelect?: (event: React.MouseEvent) => void
-  /** Callback when the edit button is clicked */
-  onEdit?: (playlist: Playlist) => void
   /** Whether to show the selection button */
   showSelectedButton?: boolean
 }
 
 function PlaylistCard(props: PlaylistCardProps) {
-  const { playlist, bookshelfView, sizeMultiplier, isSelectionMode = false, selected = false, onSelect, onEdit, showSelectedButton = false } = props
+  const { playlist, bookshelfView, sizeMultiplier, isSelectionMode = false, selected = false, onSelect, showSelectedButton = false } = props
 
   const router = useRouter()
   const { userCanUpdate } = useUser()
@@ -47,6 +46,7 @@ function PlaylistCard(props: PlaylistCardProps) {
 
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(false)
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
@@ -72,14 +72,15 @@ function PlaylistCard(props: PlaylistCardProps) {
     router.push(`/library/${playlist.libraryId}/playlist/${playlist.id}`)
   }, [playlist.libraryId, playlist.id, router])
 
-  const handleEditClick = useCallback(
-    (event: React.MouseEvent) => {
-      event.preventDefault()
-      event.stopPropagation()
-      onEdit?.(playlist)
-    },
-    [playlist, onEdit]
-  )
+  const handleEditClick = useCallback((event: React.MouseEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
+    setEditModalOpen(true)
+  }, [])
+
+  const handleCloseEditModal = useCallback(() => {
+    setEditModalOpen(false)
+  }, [])
 
   // Selection handler - kept for future use
   const handleSelectClick = useCallback(
@@ -100,12 +101,25 @@ function PlaylistCard(props: PlaylistCardProps) {
 
   const { processing, confirmState, closeConfirm, handleMoreAction, moreMenuItems } = usePlaylistCardActions({ playlist })
 
+  const handleCardKeyDown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.defaultPrevented || processing) return
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        event.stopPropagation()
+        handleCardClick()
+      }
+    },
+    [handleCardClick, processing]
+  )
+
   return (
     <>
       <MediaCardFrame
         width={coverWidth}
         height={coverHeight}
         onClick={!processing ? handleCardClick : undefined}
+        onKeyDown={handleCardKeyDown}
         onMouseEnter={() => setIsHovering(true)}
         onMouseLeave={() => setIsHovering(false)}
         cardId={cardId}
@@ -177,6 +191,8 @@ function PlaylistCard(props: PlaylistCardProps) {
           )
         }
       />
+
+      {editModalOpen && <PlaylistEditModal isOpen playlist={playlist} onClose={handleCloseEditModal} />}
 
       {/* Confirm dialog for delete */}
       {confirmState && (

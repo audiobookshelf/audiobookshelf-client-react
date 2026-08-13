@@ -9,6 +9,8 @@ export interface SelectedMediaItem {
   libraryItemId: string
   episodeId?: string
   hasTracks: boolean
+  title?: string
+  downloadSize?: number
 }
 
 export function getSelectionKind(libraryItem: LibraryItem, episode?: PodcastEpisode): SelectionKind {
@@ -54,7 +56,9 @@ export function libraryItemToSelectedMediaItem(item: LibraryItem): SelectedMedia
   return {
     selectionKey: libraryItemSelectionKey(item.id),
     libraryItemId: item.id,
-    hasTracks: isPlayableLibraryItem(item)
+    hasTracks: isPlayableLibraryItem(item),
+    title: item.media.metadata.title ?? '',
+    downloadSize: item.size ?? item.media.size ?? 0
   }
 }
 

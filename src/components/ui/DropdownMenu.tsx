@@ -24,25 +24,39 @@ export interface DropdownMenuItem {
   subitems?: DropdownMenuSubitem[]
 }
 
+const PREFERRED_SUBMENU_WIDTH = 192
+
 /**
- * Renders label + optional subtext as one truncating line
+ * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
  */
-export function DropdownItemLabel({ text, subtext, className }: { text: string; subtext?: string; className?: string }) {
+export function DropdownItemLabel({ text, subtext, className, wrapText = false }: { text: string; subtext?: string; className?: string; wrapText?: boolean }) {
+  const t = useTypeSafeTranslations()
+  const textOverflowClass = wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate'
+
   if (!subtext) {
     return (
-      <span className={mergeClasses('block min-w-0 truncate font-sans', className)} title={text}>
+      <span className={mergeClasses('block min-w-0 font-sans', textOverflowClass, className)} title={text}>
         {text}
       </span>
     )
   }
 
-  const fullLabel = `${text}: ${subtext}`
+  const fullLabel = t('LabelTextWithSubtext', { 0: text, 1: subtext })
 
   return (
-    <span className={mergeClasses('block min-w-0 truncate font-sans', className)} title={fullLabel}>
-      <span className="font-semibold">{text}</span>
-      <span>:&nbsp;</span>
-      <span className="text-foreground-subdued font-normal">{subtext}</span>
+    <span className={mergeClasses('block min-w-0 font-sans', textOverflowClass, className)} title={fullLabel}>
+      {t.rich('LabelTextWithSubtext', {
+        0: (
+          <span key="text" className="font-semibold">
+            {text}
+          </span>
+        ),
+        1: (
+          <span key="subtext" className="text-foreground-subdued font-normal">
+            {subtext}
+          </span>
+        )
+      })}
     </span>
   )
 }
@@ -58,9 +72,9 @@ function DropdownSubmenu({
   onSubitemClick,
   onMouseOver,
   onMouseLeave,
-  openLeft,
   referenceElement,
   filterText,
+  wrapText = false,
   t
 }: {
   subitems: DropdownMenuSubitem[]
@@ -70,46 +84,51 @@ function DropdownSubmenu({
   onSubitemClick?: (subitem: DropdownMenuSubitem) => void
   onMouseOver: () => void
   onMouseLeave: () => void
-  openLeft: boolean
   referenceElement: HTMLElement | null
   filterText: string
+  wrapText?: boolean
   t: ReturnType<typeof useTypeSafeTranslations>
 }) {
   const submenuRef = useRef<HTMLUListElement>(null)
 
-  const [scrollbarOffset, setScrollbarOffset] = useState(0)
-  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined)
+  const [parentScrollbarWidth, setParentScrollbarWidth] = useState(0)
+  const [floatingSize, setFloatingSize] = useState<{ width: number; maxHeight: number } | null>(null)
 
-  // Calculate scrollbar offset to prevent overlapping
+  // Parent menu scrollbar width — applied as offset only when the submenu opens to the right
   useLayoutEffect(() => {
     if (referenceElement?.parentElement) {
       const parent = referenceElement.parentElement
-      const width = parent.offsetWidth - parent.clientWidth
-      // Only apply offset if opening to the right and scrollbar is present
-      if (width > 0 && !openLeft) {
-        setScrollbarOffset(width)
-      } else {
-        setScrollbarOffset(0)
-      }
+      setParentScrollbarWidth(parent.offsetWidth - parent.clientWidth)
+    } else {
+      setParentScrollbarWidth(0)
     }
-  }, [referenceElement, openLeft])
+  }, [referenceElement])
 
-  // Floating UI setup
+  // Floating UI setup — prefer right; flip + size keep the menu fully on-screen
   const { refs, floatingStyles, isPositioned } = useFloating({
-    placement: openLeft ? 'left-start' : 'right-start',
+    placement: 'right-start',
     strategy: 'fixed', // Use fixed positioning for portals to avoid stacking context issues
     middleware: [
-      // mainAxis: scrollbar gap, crossAxis: -4 to align first item with parent (counteract py-1)
-      offset({ mainAxis: scrollbarOffset, crossAxis: -4 }),
+      // mainAxis: scrollbar gap when opening right; crossAxis: -4 to align first item with parent (counteract py-1)
+      offset(({ placement }) => ({
+        mainAxis: placement.startsWith('right') ? parentScrollbarWidth : 0,
+        crossAxis: -4
+      })),
       // Only allow horizontal flipping (left/right), keep -start alignment so submenu always opens downward
       flip({
-        fallbackPlacements: openLeft ? ['right-start'] : ['left-start']
+        fallbackPlacements: ['left-start']
       }),
       shift({ padding: 10 }),
       size({
         padding: 10,
-        apply({ availableHeight }) {
-          setMaxHeight(availableHeight)
+        apply({ availableWidth, availableHeight }) {
+          // Shrink to fit the viewport so the right edge (and scrollbar) stay on-screen
+          const width = Math.min(PREFERRED_SUBMENU_WIDTH, Math.max(0, availableWidth))
+          const maxHeight = Math.max(0, availableHeight)
+          setFloatingSize((prev) => {
+            if (prev && prev.width === width && prev.maxHeight === maxHeight) return prev
+            return { width, maxHeight }
+          })
         }
       })
     ],
@@ -150,8 +169,8 @@ function DropdownSubmenu({
       className="bg-primary border-dropdown-menu-border absolute z-[9999] overflow-y-auto rounded-md border py-1 shadow-lg"
       style={{
         ...floatingStyles,
-        width: '192px',
-        maxHeight: maxHeight ? `${maxHeight}px` : '300px', // Dynamic height based on available viewport space
+        width: `${floatingSize?.width ?? PREFERRED_SUBMENU_WIDTH}px`,
+        maxHeight: floatingSize ? `${floatingSize.maxHeight}px` : '300px',
         // Hide until positioned to prevent flicker at 0,0
         opacity: isPositioned ? 1 : 0,
         visibility: isPositioned ? 'visible' : 'hidden'
@@ -182,11 +201,12 @@ function DropdownSubmenu({
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <div className="flex min-w-0 items-center overflow-hidden">
-            <span className="ms-3 block min-w-0 flex-1 truncate font-sans text-sm" title={subitem.text}>
-              {subitem.text}
-            </span>
-          </div>
+          <span
+            className={mergeClasses('ms-3 block min-w-0 font-sans text-sm', wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate')}
+            title={subitem.text}
+          >
+            {subitem.text}
+          </span>
         </li>
       ))}
       {filteredSubitems.length === 0 && (
@@ -228,6 +248,7 @@ interface DropdownMenuProps {
   triggerRef?: React.RefObject<HTMLElement>
   highlightSelected?: boolean
   submenuFilterText?: string
+  wrapText?: boolean
 }
 
 /**
@@ -256,7 +277,8 @@ export default function DropdownMenu({
   usePortal: usePortalProp = false,
   triggerRef,
   highlightSelected = false,
-  submenuFilterText = ''
+  submenuFilterText = '',
+  wrapText = false
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -271,8 +293,6 @@ export default function DropdownMenu({
   })
   const [isMouseOver, setIsMouseOver] = useState(false)
 
-  // Track whether the submenu should open on the left
-  const [openSubmenuLeft, setOpenSubmenuLeft] = useState(false)
   // Track pending submenu closure with timeout
   const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -281,8 +301,6 @@ export default function DropdownMenu({
 
   // Store refs to menu items for submenu positioning
   const menuItemRefs = useRef<(HTMLLIElement | null)[]>([])
-
-  const submenuWidth = 192 // Fixed submenu width
 
   // Use portal if it is explicitly enabled or if the modalRef is not null
   // For the portal to work, triggerRef must be provided
@@ -306,22 +324,16 @@ export default function DropdownMenu({
     getElement: useCallback((container, index) => container.querySelector(`#${dropdownId}-item-${index}`) as HTMLElement, [dropdownId])
   })
 
-  // Update submenu position when menu opens
+  // Reset submenu hover/close state when menu closes
   useEffect(() => {
-    if (showMenu && menuRef.current) {
-      const boundingRect = menuRef.current.getBoundingClientRect()
-      if (boundingRect) {
-        setOpenSubmenuLeft(window.innerWidth - boundingRect.x < boundingRect.width + submenuWidth + 5)
-      }
-    } else if (!showMenu) {
-      // Reset internal state when menu closes
+    if (!showMenu) {
       isOverSubmenuRef.current = false
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current)
         closeTimeoutRef.current = null
       }
     }
-  }, [showMenu, menuRef])
+  }, [showMenu])
 
   // Clear timeout on unmount
   useEffect(() => {
@@ -426,7 +438,8 @@ export default function DropdownMenu({
               menuItemRefs.current[index] = el
             }}
             className={mergeClasses(
-              'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer overflow-hidden py-2',
+              'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
+              wrapText ? 'overflow-x-hidden' : 'overflow-hidden',
               focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-selected' : '',
               isSubmenuOpen ? 'bg-dropdown-item-hover' : '',
               highlightSelected && isItemSelected?.(item) ? 'text-yellow-400' : ''
@@ -444,11 +457,18 @@ export default function DropdownMenu({
             onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
             onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
-            <div className="flex min-w-0 items-center overflow-hidden">
+            <div
+              className={mergeClasses(
+                'flex min-w-0',
+                wrapText ? 'items-start' : 'items-center overflow-hidden',
+                wrapText && (hasSubitems || item.rightIcon || (showSelectedIndicator && isItemSelected?.(item))) && 'pe-8'
+              )}
+            >
               {item.leftIcon && <span className="ms-3 shrink-0">{item.leftIcon}</span>}
               <DropdownItemLabel
                 text={item.text}
                 subtext={item.subtext}
+                wrapText={wrapText}
                 className={mergeClasses(item.leftIcon ? 'ms-1.5' : 'ms-3', 'min-w-0 flex-1 text-sm')}
               />
             </div>
@@ -474,9 +494,9 @@ export default function DropdownMenu({
                 onSubitemClick={onSubitemClick}
                 onMouseOver={handleMouseoverSubmenu}
                 onMouseLeave={handleMouseleaveSubmenu}
-                openLeft={openSubmenuLeft}
                 referenceElement={menuItemRefs.current[index]}
                 filterText={submenuFilterText}
+                wrapText={wrapText}
                 t={t}
               />
             )}
@@ -498,8 +518,8 @@ export default function DropdownMenu({
       handleMouseleaveParent,
       handleMouseoverSubmenu,
       handleMouseleaveSubmenu,
-      openSubmenuLeft,
       submenuFilterText,
+      wrapText,
       t
     ]
   )
