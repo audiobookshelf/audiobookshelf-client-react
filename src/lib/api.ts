@@ -449,7 +449,8 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
     const data = await getCurrentUser()
     setLanguageCookie(await cookies(), data.serverSettings?.language)
 
-    return redirectParam || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null)
+    const safeRedirect = redirectParam?.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : null
+    return safeRedirect || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null)
   } catch (error) {
     console.error('[completeOidcLogin] Error:', error)
     return null

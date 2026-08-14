@@ -30,13 +30,14 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
   const loginCustomMessage = authFormData.authLoginCustomMessage || null
 
   const redirectParam = searchParams.get('redirect')
+  const safeRedirect = redirectParam?.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : null
   const openIdAuthUri = useMemo(() => {
     const callbackUrl = new URL(`${serverUrl}/login`)
-    if (redirectParam) {
-      callbackUrl.searchParams.set('redirect', redirectParam)
+    if (safeRedirect) {
+      callbackUrl.searchParams.set('redirect', safeRedirect)
     }
     return `${serverUrl}/auth/openid?callback=${encodeURIComponent(callbackUrl.href)}`
-  }, [serverUrl, redirectParam])
+  }, [serverUrl, safeRedirect])
 
   useEffect(() => {
     const errorParam = searchParams.get('error')
@@ -75,9 +76,8 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
           return
         }
         const userResponse = await res.json()
-        const redirect = searchParams.get('redirect')
-        if (redirect) {
-          router.replace(redirect)
+        if (safeRedirect) {
+          router.replace(safeRedirect)
         } else {
           router.replace(getUserDefaultUrlPath(userResponse?.userDefaultLibraryId ?? null))
         }
@@ -87,7 +87,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
         setLoading(false)
       }
     },
-    [username, password, t, router, searchParams]
+    [username, password, t, router, safeRedirect]
   )
 
   return (
