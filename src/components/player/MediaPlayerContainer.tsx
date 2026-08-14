@@ -140,17 +140,6 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
   const isDesktop = useMediaQuery('lg')
   const controlsState = usePlayerControlsState(playerHandler, streamLibraryItem)
 
-  // Escape leaves fullscreen before it closes the player
-  const handleHotkeyClose = useCallback(() => {
-    if (isPlayerFullscreen) {
-      setPlayerFullscreen(false)
-      return
-    }
-    clearStreamMedia()
-  }, [clearStreamMedia, isPlayerFullscreen, setPlayerFullscreen])
-
-  useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, true, handleHotkeyClose)
-
   const playerShellRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
@@ -170,11 +159,26 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
   const openFullscreen = useCallback(() => setPlayerFullscreen(true), [setPlayerFullscreen])
   const closeFullscreen = useCallback(() => setPlayerFullscreen(false), [setPlayerFullscreen])
 
-  // Back button dismisses the overlay instead of leaving the page behind it
-  usePlayerFullscreenHistory(isPlayerFullscreen, closeFullscreen)
-
   // Held on screen just long enough to animate out
   const { isMounted: isFullscreenMounted, isExiting: isFullscreenExiting } = useExitTransition(isPlayerFullscreen, FULLSCREEN_EXIT_MS)
+
+  // Back dismisses the overlay instead of the page underneath. The dummy entry stays until the
+  // overlay unmounts so a second Back during the exit animation does not navigate away.
+  usePlayerFullscreenHistory(isFullscreenMounted, closeFullscreen)
+
+  // Escape leaves fullscreen before it closes the player. While the overlay is still mounted
+  // (including the exit animation), a second Escape must not stop playback.
+  const handleHotkeyClose = useCallback(() => {
+    if (isFullscreenMounted) {
+      if (isPlayerFullscreen) {
+        setPlayerFullscreen(false)
+      }
+      return
+    }
+    clearStreamMedia()
+  }, [clearStreamMedia, isFullscreenMounted, isPlayerFullscreen, setPlayerFullscreen])
+
+  useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, true, handleHotkeyClose)
 
   return (
     <>
