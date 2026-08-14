@@ -3,6 +3,22 @@ import { buildEpisodeQueueItem } from '@/lib/playerQueue'
 import { getMediaItemProgress } from '@/lib/mediaProgress'
 import type { LibraryItem, MediaProgress, RecentPodcastEpisode } from '@/types/api'
 
+export const RECENT_EPISODES_PAGE_SIZE = 50
+
+/** Append episodes in source order while ignoring duplicates from offset pagination. */
+export function appendUniqueRecentEpisodes(current: RecentPodcastEpisode[], incoming: RecentPodcastEpisode[]): RecentPodcastEpisode[] {
+  if (!incoming.length) return current
+
+  const seen = new Set(current.map((episode) => episode.id))
+  const uniqueIncoming = incoming.filter((episode) => {
+    if (seen.has(episode.id)) return false
+    seen.add(episode.id)
+    return true
+  })
+
+  return uniqueIncoming.length ? [...current, ...uniqueIncoming] : current
+}
+
 /** Build minimal library item stubs for group cover rendering from recent episodes. */
 export function getUniqueCoverLibraryItems(episodes: RecentPodcastEpisode[]): LibraryItem[] {
   const seen = new Set<string>()

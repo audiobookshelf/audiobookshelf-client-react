@@ -1,20 +1,41 @@
 'use client'
 
+import { fetchRecentEpisodesAction } from '@/app/actions/libraryActions'
+import RecentEpisodesLoadMore from '@/components/widgets/RecentEpisodesLoadMore'
 import SquareGridGroupCover from '@/components/widgets/media-card/SquareGridGroupCover'
 import RecentEpisodeRow, { RecentEpisodeRowDivider } from '@/components/widgets/RecentEpisodeRow'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
+import { useRecentEpisodesPagination } from '@/hooks/useRecentEpisodesPagination'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getUniqueCoverLibraryItems } from '@/lib/recentEpisodes'
 import type { RecentPodcastEpisode } from '@/types/api'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 interface LatestClientProps {
-  episodes: RecentPodcastEpisode[]
+  libraryId: string
+  initialEpisodes: RecentPodcastEpisode[]
 }
 
-export default function LatestClient({ episodes }: LatestClientProps) {
+export default function LatestClient({ libraryId, initialEpisodes }: LatestClientProps) {
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
   const coverAspectRatio = useBookCoverAspectRatio()
+
+  const fetchPage = useCallback((page: number) => fetchRecentEpisodesAction(libraryId, page), [libraryId])
+  const handleLoadError = useCallback(
+    (error: unknown) => {
+      console.error('Failed to load recent episodes', error)
+      showToast(t('ToastFailedToLoadData'), { type: 'error' })
+    },
+    [showToast, t]
+  )
+
+  const { episodes, hasMore, isLoading, loadMore } = useRecentEpisodesPagination({
+    initialEpisodes,
+    fetchPage,
+    onError: handleLoadError
+  })
 
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio
@@ -25,11 +46,12 @@ export default function LatestClient({ episodes }: LatestClientProps) {
     <div className="min-w-0 px-2 py-2 md:px-0">
       {!episodes.length && <p className="text-foreground text-center text-xl">{t('MessageNoEpisodes')}</p>}
       {episodes.map((episode, index) => (
-        <div key={episode.id}>
+        <div key={episode.id} cy-id="recent-episode-row">
           <RecentEpisodeRow episode={episode} episodeIndex={index} episodes={episodes} />
           {index < episodes.length - 1 && <RecentEpisodeRowDivider />}
         </div>
       ))}
+      {episodes.length > 0 && hasMore && <RecentEpisodesLoadMore isLoading={isLoading} onLoadMore={loadMore} />}
     </div>
   )
 
