@@ -598,12 +598,11 @@ export function useMediaCardActions({
 
     if (userIsAdminOrUp && isBookMediaWithTracks(media)) {
       items.push({
-        text: t('LabelToolsMakeM4b'),
-        func: 'makeM4b'
-      })
-      items.push({
-        text: t('LabelToolsEmbedMetadata'),
-        func: 'embedMetadata'
+        text: t('HeaderTools'),
+        subitems: [
+          { text: t('LabelToolsMakeM4b'), func: 'makeM4b' },
+          { text: t('LabelToolsEmbedMetadata'), func: 'embedMetadata' }
+        ]
       })
     }
 
