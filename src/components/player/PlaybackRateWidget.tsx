@@ -1,31 +1,28 @@
 'use client'
 
-import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import ButtonBase from '@/components/ui/ButtonBase'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerPopover } from '@/hooks/usePlayerPopover'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useRegisterPlayerPopover } from '@/lib/player/playerPopoverStore'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
-import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import IconBtn from '../ui/IconBtn'
 
 interface PlaybackRateWidgetProps {
   playerHandler: PlayerHandler
-  /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
-  size?: 'default' | 'lg'
 }
 
-const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
+const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2]
 
-export default function PlaybackRateWidget({ playerHandler, size = 'default' }: PlaybackRateWidgetProps) {
+export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
   const { setPlaybackRate, incrementPlaybackRate, decrementPlaybackRate } = playerHandler.controls
 
   const widgetId = useId()
   const [isOpen, setIsOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
 
   const triggerRef = useRef<HTMLButtonElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -42,10 +39,7 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
     [playbackRateIncrementDecrement]
   )
 
-  // Ensure component is mounted before rendering popover
-  useEffect(() => {
-    setMounted(true)
-  }, [])
+  const formatRateLabel = useCallback((rate: number) => t('LabelPlaybackRateMultiplier', { rate: formatRate(rate) }), [formatRate, t])
 
   // Floating UI positioning
   const middleware = useMemo(() => [offset(8), shift({ padding: 8 }), flip({ fallbackAxisSideDirection: 'start' }), arrowMw({ element: arrowRef })], [])
@@ -61,74 +55,18 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
     placement: 'top',
     strategy: 'fixed',
     middleware,
-    whileElementsMounted: autoUpdate,
-    elements: {
-      reference: triggerRef.current
-    }
+    whileElementsMounted: autoUpdate
   })
 
-  // The floating element only exists after the first paint of the open state, so the very
-  // first frame has no position yet and the panel would flash at the top-left corner before
-  // snapping into place. Stay hidden until the measurement lands.
-  const [isPositioned, setIsPositioned] = useState(false)
-
-  useEffect(() => {
-    if (!isOpen || !popoverRef.current) return
-
-    refs.setFloating(popoverRef.current)
-    update()
-    const frame = requestAnimationFrame(() => setIsPositioned(true))
-    return () => cancelAnimationFrame(frame)
-  }, [isOpen, refs, update])
-
-  useEffect(() => {
-    if (!isOpen) setIsPositioned(false)
-  }, [isOpen])
-
-  // Update reference element when trigger ref is available
-  useEffect(() => {
-    if (triggerRef.current) {
-      refs.setReference(triggerRef.current)
-    }
-  }, [refs])
-
-  // Close on pointerdown outside. Pointer rather than mouse events, so a tap dismisses it on
-  // touch — synthesized mouse events are not guaranteed there.
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handlePointerDown = (e: PointerEvent) => {
-      const target = e.target
-      if (!(target instanceof Node)) return
-      // Don't close if clicking inside the popover or on the trigger
-      if (popoverRef.current?.contains(target) || triggerRef.current?.contains(target)) {
-        return
-      }
-      setIsOpen(false)
-    }
-
-    document.addEventListener('pointerdown', handlePointerDown)
-    return () => document.removeEventListener('pointerdown', handlePointerDown)
-  }, [isOpen])
-
-  // Lets the global Escape hotkey know a popover owns the key while this is open
-  useRegisterPlayerPopover(widgetId, 'playbackRate', isOpen)
-
-  // Close on Escape key, returning focus to the trigger so the tab order does not restart
-  useEffect(() => {
-    if (!isOpen) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      e.stopPropagation()
-      e.preventDefault()
-
-      const focusWasInPopover = popoverRef.current?.contains(document.activeElement)
-      setIsOpen(false)
-      if (focusWasInPopover) triggerRef.current?.focus()
-    }
-    window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
-  }, [isOpen])
+  const { mounted, isPositioned } = usePlayerPopover({
+    widgetId,
+    isOpen,
+    setIsOpen,
+    triggerRef,
+    popoverRef,
+    floatingRefs: refs,
+    update
+  })
 
   const toggleOpen = () => {
     setIsOpen((prev) => !prev)
@@ -181,11 +119,14 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
     } as React.CSSProperties
   }, [middlewareData.arrow, resolvedPlacement])
 
+  const rateStepLabel = formatRate(playbackRateIncrementDecrement)
+
   const popoverContent = isOpen ? (
     <div
       ref={popoverRef}
       id={`${widgetId}-popover`}
       role="dialog"
+      aria-label={t('LabelPlaybackRate')}
       style={{ ...floatingStyles, visibility: isPositioned ? 'visible' : 'hidden' }}
       className="bg-background z-70 rounded-lg p-2 shadow-lg"
     >
@@ -196,6 +137,8 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
             key={rate}
             type="button"
             onClick={() => handlePresetClick(rate)}
+            aria-label={t('AriaLabelSetPlaybackRatePreset', { 0: formatRate(rate) })}
+            aria-pressed={playbackRate === rate}
             className={mergeClasses(
               'px-3 py-1.5 text-sm font-medium transition-colors',
               'border-border border',
@@ -206,7 +149,7 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
                 : 'text-button-foreground-muted hover:bg-button-selected-bg hover:text-button-foreground bg-transparent'
             )}
           >
-            {rate}x
+            {formatRateLabel(rate)}
           </button>
         ))}
       </div>
@@ -214,15 +157,19 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
       {/* Increment/decrement row */}
       <div className="flex items-center gap-2">
         {/* Minus button */}
-        <IconBtn onClick={handleDecrement}>remove</IconBtn>
+        <IconBtn onClick={handleDecrement} ariaLabel={t('AriaLabelDecreasePlaybackRateBy', { 0: rateStepLabel })}>
+          remove
+        </IconBtn>
 
         {/* Current rate display */}
         <div className="text-foreground flex min-w-[100px] flex-1 items-center justify-center text-3xl font-semibold tabular-nums">
-          {formatRate(playbackRate)}x
+          {formatRateLabel(playbackRate)}
         </div>
 
         {/* Plus button */}
-        <IconBtn onClick={handleIncrement}>add</IconBtn>
+        <IconBtn onClick={handleIncrement} ariaLabel={t('AriaLabelIncreasePlaybackRateBy', { 0: rateStepLabel })}>
+          add
+        </IconBtn>
       </div>
 
       {/* Arrow */}
@@ -235,20 +182,16 @@ export default function PlaybackRateWidget({ playerHandler, size = 'default' }: 
       {/* toggle widget button showing current playback rate */}
       <ButtonBase
         ref={triggerRef}
-        size="custom"
+        size="large"
         borderless
-        className={
-          size === 'lg'
-            ? 'h-11 min-w-11 shrink-0 px-1 text-lg font-medium tabular-nums'
-            : 'min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base'
-        }
+        className="min-w-11 px-1 text-lg font-medium tabular-nums"
         onClick={toggleOpen}
         onKeyDown={handlePlaybackRateKeyDown}
         aria-expanded={isOpen}
         aria-controls={`${widgetId}-popover`}
         ariaLabel={t('AriaLabelPlaybackRateWithValue', { 0: formatRate(playbackRate) })}
       >
-        {formatRate(playbackRate)}x
+        {formatRateLabel(playbackRate)}
       </ButtonBase>
 
       {/* Popover rendered via portal */}

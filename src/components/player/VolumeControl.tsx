@@ -1,22 +1,20 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
+import { usePlayerPopover } from '@/hooks/usePlayerPopover'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
-import { useRegisterPlayerPopover } from '@/lib/player/playerPopoverStore'
+import { VOLUME_HOTKEY_STEP, getVolumeIcon } from '@/lib/player/constants'
 import { autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface VolumeControlProps {
   playerHandler: PlayerHandler
-  /** `lg` clears the 44px touch minimum, for the fullscreen player's toolbar */
-  size?: 'default' | 'lg'
 }
 
-export default function VolumeControl({ playerHandler, size = 'default' }: VolumeControlProps) {
+export default function VolumeControl({ playerHandler }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const { volume } = playerHandler.state
@@ -24,26 +22,12 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
 
   const widgetId = useId()
   const [isOpen, setIsOpen] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [isPositioned, setIsPositioned] = useState(false)
 
   const triggerRef = useRef<HTMLButtonElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
   const hideTimeoutRef = useRef<number | null>(null)
   const volumeRef = useRef(volume)
   volumeRef.current = volume
-
-  // Get the appropriate volume icon based on current level
-  const getVolumeIcon = useCallback(() => {
-    if (volume === 0) return 'volume_off'
-    if (volume < 0.5) return 'volume_down'
-    return 'volume_up'
-  }, [volume])
-
-  // Ensure component is mounted before rendering popover
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   // Floating UI positioning
   // shift keeps the popover on screen without letting flip throw it to the other axis, and the
@@ -59,31 +43,6 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
     whileElementsMounted: autoUpdate
   })
 
-  // Sync refs with Floating UI
-  useEffect(() => {
-    if (triggerRef.current) {
-      refs.setReference(triggerRef.current)
-    }
-  }, [refs])
-
-  useEffect(() => {
-    if (popoverRef.current && isOpen) {
-      refs.setFloating(popoverRef.current)
-      // Force an update and mark as positioned after next frame
-      update()
-      requestAnimationFrame(() => {
-        setIsPositioned(true)
-      })
-    }
-  }, [refs, isOpen, update])
-
-  // Reset positioned state when closing
-  useEffect(() => {
-    if (!isOpen) {
-      setIsPositioned(false)
-    }
-  }, [isOpen])
-
   // Clear any pending hide timeout
   const clearHideTimeout = useCallback(() => {
     if (hideTimeoutRef.current !== null) {
@@ -91,6 +50,26 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
       hideTimeoutRef.current = null
     }
   }, [])
+
+  const {
+    mounted,
+    isPositioned,
+    close: closePopoverFromHook
+  } = usePlayerPopover({
+    widgetId,
+    isOpen,
+    setIsOpen,
+    triggerRef,
+    popoverRef,
+    floatingRefs: refs,
+    update,
+    closeOnPointerDownOutside: !primaryInputCanHover
+  })
+
+  const closePopover = useCallback(() => {
+    clearHideTimeout()
+    closePopoverFromHook()
+  }, [clearHideTimeout, closePopoverFromHook])
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -109,49 +88,6 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
       setIsOpen(false)
     }, 100)
   }, [clearHideTimeout])
-
-  const closePopover = useCallback(() => {
-    clearHideTimeout()
-    setIsOpen(false)
-  }, [clearHideTimeout])
-
-  // Lets the global Escape hotkey know a popover owns the key while this is open
-  useRegisterPlayerPopover(widgetId, 'volume', isOpen)
-
-  // Escape closes the popover rather than the player behind it. Focus only moves back to the
-  // trigger when it was inside the popover — on hover-open it is somewhere else entirely.
-  useEffect(() => {
-    if (!isOpen) return
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
-      e.stopPropagation()
-      e.preventDefault()
-
-      const focusWasInPopover = popoverRef.current?.contains(document.activeElement)
-      closePopover()
-      if (focusWasInPopover) triggerRef.current?.focus()
-    }
-
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
-  }, [closePopover, isOpen])
-
-  // Touch: dismiss popover when tapping outside
-  useEffect(() => {
-    if (!isOpen || primaryInputCanHover) return
-
-    const onPointerDown = (event: PointerEvent) => {
-      const target = event.target
-      if (!(target instanceof Node)) return
-      if (triggerRef.current?.contains(target)) return
-      if (popoverRef.current?.contains(target)) return
-      closePopover()
-    }
-
-    document.addEventListener('pointerdown', onPointerDown)
-    return () => document.removeEventListener('pointerdown', onPointerDown)
-  }, [closePopover, isOpen, primaryInputCanHover])
 
   const trackRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
@@ -301,6 +237,7 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
       ref={popoverRef}
       id={`${widgetId}-popover`}
       role="dialog"
+      aria-label={t('LabelVolume')}
       style={{
         ...floatingStyles,
         visibility: isPositioned ? 'visible' : 'hidden'
@@ -313,7 +250,7 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
           element's transform, and animating it there fights the positioning.
           px matches py so the slider is optically centred rather than sitting in a tall narrow
           box with no side breathing room. */}
-      <div className="player-volume-popover bg-background flex flex-col items-center rounded-xl px-3 py-3 shadow-lg">
+      <div className="bg-background flex flex-col items-center rounded-xl px-3 py-3 shadow-lg">
         {/* Custom volume slider using div-based track */}
         <div
           ref={trackRef}
@@ -323,7 +260,6 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={volumePercentage}
-          aria-valuetext={`${volumePercentage}%`}
           className="relative flex cursor-pointer items-center justify-center select-none"
           // touchAction rather than preventDefault: only this stops the browser claiming a
           // vertical drag as a scroll and firing pointercancel mid-drag
@@ -384,9 +320,8 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
       {/* Volume icon button */}
       <IconBtn
         ref={triggerRef}
-        size="custom"
+        size="large"
         borderless
-        className={size === 'lg' ? 'h-11 w-11 shrink-0 text-3xl' : 'w-9 text-2xl sm:w-10'}
         onClick={handleTriggerClick}
         onMouseDown={handleTriggerMouseDown}
         onMouseEnter={primaryInputCanHover ? openPopover : undefined}
@@ -397,11 +332,8 @@ export default function VolumeControl({ playerHandler, size = 'default' }: Volum
         ariaLabel={t('LabelVolume')}
         aria-expanded={isOpen}
         aria-controls={`${widgetId}-popover`}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={volumePercentage}
       >
-        {getVolumeIcon()}
+        {getVolumeIcon(volume)}
       </IconBtn>
 
       {/* Popover rendered via portal */}
