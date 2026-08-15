@@ -39,7 +39,7 @@ import {
 } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
-import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
+import { MediaCardMoreMenuItem, MediaCardMoreMenuSubitem } from './MediaCardMoreMenu'
 
 interface UseMediaCardActionsProps {
   libraryItem: LibraryItem
@@ -293,6 +293,8 @@ export function useMediaCardActions({
         onOpenCoverEdit?.()
       } else if (action === 'editChapters') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`)
+      } else if (action === 'manageTracks') {
+        router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`)
       } else if (action === 'makeM4b') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tools?tool=m4b`)
       } else if (action === 'embedMetadata') {
@@ -582,27 +584,24 @@ export function useMediaCardActions({
       }
     }
 
+    const toolSubitems: MediaCardMoreMenuSubitem[] = []
+    if (userCanUpdate && isBookMediaWithTracks(media)) {
+      toolSubitems.push({ text: t('ButtonEditChapters'), func: 'editChapters' })
+    }
+    if (userCanUpdate && isBookMedia(media) && (media.numAudioFiles ?? 0) > 1) {
+      toolSubitems.push({ text: t('ButtonManageTracks'), func: 'manageTracks' })
+    }
+    if (userIsAdminOrUp && isBookMediaWithTracks(media)) {
+      toolSubitems.push({ text: t('LabelToolsMakeM4b'), func: 'makeM4b' }, { text: t('LabelToolsEmbedMetadata'), func: 'embedMetadata' })
+    }
+    if (toolSubitems.length) {
+      items.push({ text: t('HeaderTools'), subitems: toolSubitems })
+    }
+
     if (userCanUpdate && onOpenCoverEdit && !episode) {
       items.push({
         text: t('ButtonEditCover'),
         func: 'openCoverEdit'
-      })
-    }
-
-    if (userCanUpdate && isBookMediaWithTracks(media)) {
-      items.push({
-        text: t('ButtonEditChapters'),
-        func: 'editChapters'
-      })
-    }
-
-    if (userIsAdminOrUp && isBookMediaWithTracks(media)) {
-      items.push({
-        text: t('HeaderTools'),
-        subitems: [
-          { text: t('LabelToolsMakeM4b'), func: 'makeM4b' },
-          { text: t('LabelToolsEmbedMetadata'), func: 'embedMetadata' }
-        ]
       })
     }
 
