@@ -114,16 +114,21 @@
   background: #704922;
 }
 
-.no-scroll::-webkit-scrollbar {
-  display: none;
-  opacity: 0;
-}
-
-.no-scroll {
+/* no-scroll: hide scrollbar on the element. no-scroll-subtree: same for the whole subtree */
+.no-scroll,
+.no-scroll-subtree,
+.no-scroll-subtree * {
   -ms-overflow-style: none;
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
+}
+
+.no-scroll::-webkit-scrollbar,
+.no-scroll-subtree::-webkit-scrollbar,
+.no-scroll-subtree *::-webkit-scrollbar {
+  display: none;
+  opacity: 0;
 }
 
 /* Chrome, Safari, Edge, Opera */
