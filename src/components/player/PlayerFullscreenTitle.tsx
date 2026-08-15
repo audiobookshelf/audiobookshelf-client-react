@@ -1,9 +1,9 @@
 'use client'
 
 import { navigateAfterFullscreenClose } from '@/hooks/usePlayerFullscreenHistory'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { LibraryItem } from '@/types/api'
 import Link from 'next/link'
+import { useFormatter } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import type { MouseEvent, ReactNode } from 'react'
 import type { PlayerMetadataDisplay } from './PlayerMetadataBlock'
@@ -13,11 +13,6 @@ interface PlayerFullscreenTitleProps {
   metadata: PlayerMetadataDisplay
   /** Leaves fullscreen when a link is followed, so the destination is not left behind the overlay */
   onNavigate: () => void
-  /**
-   * Start-aligned and a size down, for the landscape layout — a phone held sideways has
-   * roughly a third of the vertical room, and the title block is what has to give.
-   */
-  compact?: boolean
 }
 
 interface FullscreenExitLinkProps {
@@ -45,33 +40,40 @@ function FullscreenExitLink({ href, onNavigate, className, children }: Fullscree
   )
 }
 
-export default function PlayerFullscreenTitle({ streamLibraryItem, metadata, onNavigate, compact = false }: PlayerFullscreenTitleProps) {
+export default function PlayerFullscreenTitle({ streamLibraryItem, metadata, onNavigate }: PlayerFullscreenTitleProps) {
+  const format = useFormatter()
+
+  const authorLinks =
+    metadata.bookAuthors.length > 0
+      ? metadata.bookAuthors.map((author) => (
+          <FullscreenExitLink
+            key={author.id}
+            href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`}
+            onNavigate={onNavigate}
+            className="hover:underline"
+          >
+            {author.name}
+          </FullscreenExitLink>
+        ))
+      : null
+
   return (
-    <div className={mergeClasses('w-full min-w-0', compact ? 'text-start' : 'max-w-xl text-center')}>
+    <div className="w-full min-w-0 text-center">
       <FullscreenExitLink
         href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`}
         onNavigate={onNavigate}
-        className={mergeClasses('block truncate font-bold hover:underline', compact ? 'text-base' : 'text-xl sm:text-2xl')}
+        className="block truncate text-xl font-bold hover:underline sm:text-2xl"
       >
         {metadata.displayTitle}
       </FullscreenExitLink>
       {metadata.podcastAuthor ? (
-        <p className={mergeClasses('text-foreground-muted truncate', compact ? 'text-sm' : 'mt-1 text-base')}>{metadata.podcastAuthor}</p>
-      ) : metadata.bookAuthors.length > 0 ? (
-        <p className={mergeClasses('text-foreground-muted truncate', compact ? 'text-sm' : 'mt-1 text-base')}>
-          {metadata.bookAuthors.map((author, index) => (
-            <span key={author.id}>
-              <FullscreenExitLink href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} onNavigate={onNavigate} className="hover:underline">
-                {author.name}
-              </FullscreenExitLink>
-              {index < metadata.bookAuthors.length - 1 && <span>, </span>}
-            </span>
-          ))}
-        </p>
+        <p className="text-foreground-muted mt-1 truncate text-base">{metadata.podcastAuthor}</p>
+      ) : authorLinks ? (
+        <p className="text-foreground-muted mt-1 truncate text-base">{format.list(authorLinks, { type: 'unit' })}</p>
       ) : null}
       {/* The track bars show elapsed and remaining, so total length would otherwise be missing */}
       {metadata.durationLabel && (
-        <p className={mergeClasses('text-foreground-subdued flex items-center gap-1 font-mono', compact ? 'text-xs' : 'mt-1 justify-center text-sm')}>
+        <p className="text-foreground-subdued mt-1 flex items-center justify-center gap-1 font-mono text-sm">
           <span className="material-symbols text-xs" aria-hidden="true">
             schedule
           </span>

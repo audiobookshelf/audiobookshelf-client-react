@@ -3,9 +3,9 @@
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
+import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -21,7 +21,6 @@ interface PlayerTrackBarProps {
   hideChapterTitle?: boolean
   /** Overrides the slider's accessible name — stacked bars must not share one */
   ariaLabel?: string
-  className?: string
 }
 
 interface ChapterTick {
@@ -29,14 +28,7 @@ interface ChapterTick {
   left: number
 }
 
-export default function PlayerTrackBar({
-  playerHandler,
-  variant = 'full',
-  scope = 'auto',
-  hideChapterTitle = false,
-  ariaLabel,
-  className
-}: PlayerTrackBarProps) {
+export default function PlayerTrackBar({ playerHandler, variant = 'full', scope = 'auto', hideChapterTitle = false, ariaLabel }: PlayerTrackBarProps) {
   const t = useTypeSafeTranslations()
   const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
   const { seek } = playerHandler.controls
@@ -229,15 +221,11 @@ export default function PlayerTrackBar({
 
       // Update hover text
       if (hoverTimestampTextRef.current) {
-        let hoverText = secondsToTimestamp(progressTime / effectivePlaybackRate)
-
-        // Find chapter at hover position and add title
+        const hoverTimestamp = secondsToTimestamp(progressTime / effectivePlaybackRate)
         const chapter = chapters.find((ch) => ch.start <= totalTime && totalTime < ch.end)
-        if (chapter?.title) {
-          hoverText += ` - ${chapter.title}`
-        }
-
-        hoverTimestampTextRef.current.innerText = hoverText
+        hoverTimestampTextRef.current.innerText = chapter?.title
+          ? t('LabelTrackHoverTimestampWithChapter', { timestamp: hoverTimestamp, chapterTitle: chapter.title })
+          : hoverTimestamp
       }
 
       // Position track cursor
@@ -247,7 +235,7 @@ export default function PlayerTrackBar({
 
       setIsHovering(true)
     },
-    [fractionAtClientX, seekToFraction, baseTime, scopeDuration, effectivePlaybackRate, chapters]
+    [fractionAtClientX, seekToFraction, baseTime, scopeDuration, effectivePlaybackRate, chapters, t]
   )
 
   const handlePointerLeave = useCallback(() => {
@@ -257,7 +245,7 @@ export default function PlayerTrackBar({
   const isMobileCollapsed = variant === 'mobile-collapsed'
 
   return (
-    <div className={className}>
+    <>
       <div className="relative">
         {/* The padding widens the touch target without changing layout height, which the
             negative margin cancels. The visual bar stays 8px. */}
@@ -268,7 +256,6 @@ export default function PlayerTrackBar({
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={Math.round(playedPercent)}
-          aria-valuetext={`${currentTimeFormatted} / ${timeRemainingFormatted}`}
           className="group/track relative -my-2.5 w-full cursor-pointer touch-none py-2.5"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -345,9 +332,7 @@ export default function PlayerTrackBar({
       </div>
       <div className={mergeClasses('flex items-center justify-between gap-3', isMobileCollapsed ? 'mt-0.5' : '')}>
         <p className={mergeClasses('text-foreground-muted shrink-0 font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>
-          {currentTimeFormatted}
-          {' / '}
-          {Math.round(playedPercent)}%
+          {t('LabelPlaybackPositionWithPercent', { elapsed: currentTimeFormatted, percent: Math.round(playedPercent) })}
         </p>
         {currentChapter && !hideChapterTitle ? (
           isMobileCollapsed ? (
@@ -355,16 +340,16 @@ export default function PlayerTrackBar({
               <TruncatingTooltipText lazy text={currentChapter.title} className="min-w-0 text-xs" position="top" />
               {useChapterTrack && currentChapterNumber !== null && (
                 <span className="text-foreground-subdued shrink-0 pl-1 text-xs">
-                  ({currentChapterNumber} of {chapters.length})
+                  {t('LabelPlayerChapterNumberMarkerInParens', { current: currentChapterNumber, total: chapters.length })}
                 </span>
               )}
             </div>
           ) : (
             <p className="text-foreground-muted max-w-[40%] truncate text-sm sm:max-w-none">
               {currentChapter.title}{' '}
-              {useChapterTrack && (
+              {useChapterTrack && currentChapterNumber !== null && (
                 <span className="text-foreground-subdued pl-1 text-xs">
-                  ({currentChapterNumber} of {chapters.length})
+                  {t('LabelPlayerChapterNumberMarkerInParens', { current: currentChapterNumber, total: chapters.length })}
                 </span>
               )}
             </p>
@@ -374,6 +359,6 @@ export default function PlayerTrackBar({
         )}
         <p className={mergeClasses('text-foreground-muted shrink-0 font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>{timeRemainingFormatted}</p>
       </div>
-    </div>
+    </>
   )
 }

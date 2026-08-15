@@ -5,6 +5,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { LibraryItem } from '@/types/api'
 import Link from 'next/link'
+import { useFormatter } from 'next-intl'
 import PreviewCover from '../covers/PreviewCover'
 
 export interface PlayerMetadataDisplay {
@@ -37,7 +38,17 @@ export default function PlayerMetadataBlock({
   onCoverActivate
 }: PlayerMetadataBlockProps) {
   const t = useTypeSafeTranslations()
+  const format = useFormatter()
   const { displayTitle, bookAuthors, podcastAuthor, durationLabel } = metadata
+
+  const authorLinks =
+    bookAuthors.length > 0
+      ? bookAuthors.map((author) => (
+          <Link key={author.id} href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} className="text-foreground-muted hover:underline">
+            {author.name}
+          </Link>
+        ))
+      : null
 
   const cover = (
     <PreviewCover
@@ -79,17 +90,8 @@ export default function PlayerMetadataBlock({
           <span className="material-symbols text-sm">person</span>
           {podcastAuthor ? (
             <span className="truncate ps-1">{podcastAuthor}</span>
-          ) : bookAuthors.length > 0 ? (
-            <div className="truncate ps-1">
-              {bookAuthors.map((author, index) => (
-                <span key={author.id}>
-                  <Link href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} className="text-foreground-muted hover:underline">
-                    {author.name}
-                  </Link>
-                  {index < bookAuthors.length - 1 && <span className="text-foreground-muted">, </span>}
-                </span>
-              ))}
-            </div>
+          ) : authorLinks ? (
+            <div className="truncate ps-1">{format.list(authorLinks, { type: 'unit' })}</div>
           ) : (
             <span className="ps-1">{t('LabelUnknown')}</span>
           )}
