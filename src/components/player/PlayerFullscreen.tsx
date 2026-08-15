@@ -11,8 +11,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { JumpBurst } from './PlayerFullscreenArtwork'
 import PlayerFullscreenDesktopLayout from './PlayerFullscreenDesktopLayout'
-import PlayerFullscreenLandscapeLayout from './PlayerFullscreenLandscapeLayout'
-import PlayerFullscreenMobileLayout from './PlayerFullscreenMobileLayout'
+import PlayerFullscreenTouchLayout from './PlayerFullscreenTouchLayout'
 import type { PlayerMetadataDisplay } from './PlayerMetadataBlock'
 import type { PlayerControlsState } from './usePlayerControlsState'
 
@@ -108,10 +107,11 @@ export default function PlayerFullscreen({ controls, metadata, onMinimize, onClo
   const overlay = (
     <div
       ref={dialogRef}
-      // h-dvh as well as inset-0: on mobile browsers the layout viewport can extend behind
-      // collapsing browser chrome, which would put the transport controls out of reach
+      // inset-0 covers the layout viewport (and the mini player). h-dvh on the inner shell keeps
+      // the controls in the visible area when the layout viewport extends behind browser chrome —
+      // putting both on this element lets a shorter dvh (Chrome's iPhone XR emulation) leave a gap.
       className={mergeClasses(
-        'theme-dark bg-primary text-foreground fixed inset-0 z-60 flex h-dvh flex-col overflow-hidden focus:outline-none',
+        'theme-dark no-scroll-subtree bg-primary text-foreground fixed inset-0 z-60 overflow-hidden overscroll-none focus:outline-none',
         isExiting ? 'player-fullscreen-exit' : 'player-fullscreen-enter'
       )}
       // role without aria-modal: the volume and speed popovers opened from here portal to
@@ -127,43 +127,43 @@ export default function PlayerFullscreen({ controls, metadata, onMinimize, onClo
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/40 to-black" />
       </div>
 
-      {/* Always visible, and only as large as the buttons. Minimize used to fade in on hover
-          inside a wrapper far larger than itself, which on touch swallowed corner taps.
-          Close is here so ending playback does not require minimizing first. */}
-      <div
-        className={mergeClasses('absolute top-0 z-20 flex w-full items-center justify-between', topBarClass)}
-        style={{ paddingTop: `calc(env(safe-area-inset-top) + ${isShortLandscape ? '0.5rem' : '1rem'})` }}
-      >
-        <IconBtn
-          size="custom"
-          borderless
-          className={mergeClasses('rounded-full bg-white/5 text-3xl hover:bg-white/15', topBarButtonClass)}
-          onClick={onMinimize}
-          ariaLabel={t('LabelExitFullscreenPlayer')}
+      <div className="relative flex h-dvh max-h-full min-h-0 w-full flex-col overflow-hidden">
+        {/* Always visible, and only as large as the buttons. Minimize used to fade in on hover
+            inside a wrapper far larger than itself, which on touch swallowed corner taps.
+            Close is here so ending playback does not require minimizing first. */}
+        <div
+          className={mergeClasses('absolute top-0 z-20 flex w-full items-center justify-between', topBarClass)}
+          style={{ paddingTop: `calc(env(safe-area-inset-top) + ${isShortLandscape ? '0.5rem' : '1rem'})` }}
         >
-          keyboard_arrow_down
-        </IconBtn>
+          <IconBtn
+            size="custom"
+            borderless
+            className={mergeClasses('rounded-full bg-white/5 text-3xl hover:bg-white/15', topBarButtonClass)}
+            onClick={onMinimize}
+            ariaLabel={t('LabelExitFullscreenPlayer')}
+          >
+            keyboard_arrow_down
+          </IconBtn>
 
-        <IconBtn
-          size="custom"
-          borderless
-          className={mergeClasses('rounded-full bg-white/5 text-2xl hover:bg-white/15', topBarButtonClass)}
-          onClick={onClosePlayer}
-          ariaLabel={t('LabelClosePlayer')}
-        >
-          close
-        </IconBtn>
+          <IconBtn
+            size="custom"
+            borderless
+            className={mergeClasses('rounded-full bg-white/5 text-2xl hover:bg-white/15', topBarButtonClass)}
+            onClick={onClosePlayer}
+            ariaLabel={t('LabelClosePlayer')}
+          >
+            close
+          </IconBtn>
+        </div>
+
+        {/* Keyed so switching orientation remounts the layout and it cross-fades in rather
+            than snapping between two entirely different arrangements */}
+        {isDesktop ? (
+          <PlayerFullscreenDesktopLayout key="desktop" {...layoutProps} />
+        ) : (
+          <PlayerFullscreenTouchLayout key={isShortLandscape ? 'landscape' : 'portrait'} {...layoutProps} isShortLandscape={isShortLandscape} />
+        )}
       </div>
-
-      {/* Keyed so switching orientation remounts the layout and it cross-fades in rather
-          than snapping between two entirely different arrangements */}
-      {isDesktop ? (
-        <PlayerFullscreenDesktopLayout key="desktop" {...layoutProps} />
-      ) : isShortLandscape ? (
-        <PlayerFullscreenLandscapeLayout key="landscape" {...layoutProps} />
-      ) : (
-        <PlayerFullscreenMobileLayout key="portrait" {...layoutProps} />
-      )}
     </div>
   )
 

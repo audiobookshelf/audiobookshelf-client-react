@@ -222,7 +222,7 @@ function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle
               streamLibraryItem={streamLibraryItem}
               metadata={metadata}
               onClose={clearStreamMedia}
-              onExpandFullscreen={openFullscreen}
+              onCoverActivate={openFullscreen}
             />
           </div>
         )}

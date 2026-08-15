@@ -24,7 +24,9 @@ export default function PlayerFullscreenTrackStack({ playerHandler }: PlayerFull
     <>
       {/* Book first, chapter below it — the chapter bar sits closest to the transport controls.
           Each carries its own label, so the two sliders are told apart without sight of them. */}
-      <PlayerTrackBar playerHandler={playerHandler} scope="book" hideChapterTitle ariaLabel={t('LabelPlaybackPositionInBook')} className="mb-2" />
+      <div className="mb-2">
+        <PlayerTrackBar playerHandler={playerHandler} scope="book" hideChapterTitle ariaLabel={t('LabelPlaybackPositionInBook')} />
+      </div>
       <PlayerTrackBar playerHandler={playerHandler} scope="chapter" ariaLabel={t('LabelPlaybackPositionInChapter')} />
     </>
   )

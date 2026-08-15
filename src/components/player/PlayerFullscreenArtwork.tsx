@@ -1,10 +1,17 @@
 'use client'
 
+import { mergeClasses } from '@/lib/merge-classes'
 import { fitCoverWidth } from '@/lib/player/coverFit'
 import type { PlayerJumpDirection } from '@/lib/player/playerFeedbackStore'
-import { mergeClasses } from '@/lib/merge-classes'
-import { useLayoutEffect, useState, type ReactNode, type RefObject } from 'react'
+import { useLayoutEffect, useState, type RefObject } from 'react'
 import PreviewCover from '../covers/PreviewCover'
+
+export interface UseFittedCoverWidthOptions {
+  /** Landscape controls column — its width is subtracted from the row */
+  lateralReserveRef?: RefObject<HTMLElement | null>
+  /** Horizontal inset around the artwork wrapper (e.g. p-4 on both sides) */
+  horizontalInset?: number
+}
 
 export interface JumpBurst {
   direction: PlayerJumpDirection
@@ -26,8 +33,15 @@ export const TITLE_BLOCK_RESERVE = 96
  * Returns `null` until the first measurement lands, so callers can skip the paint rather
  * than flash a placeholder-sized cover that then jumps to its real size.
  */
-export function useFittedCoverWidth(stageRef: RefObject<HTMLDivElement | null>, coverAspectRatio: number, belowReserve: number): number | null {
+export function useFittedCoverWidth(
+  stageRef: RefObject<HTMLDivElement | null>,
+  coverAspectRatio: number,
+  belowReserve: number,
+  options?: UseFittedCoverWidthOptions
+): number | null {
   const [coverWidth, setCoverWidth] = useState<number | null>(null)
+  const lateralReserveRef = options?.lateralReserveRef
+  const horizontalInset = options?.horizontalInset ?? 0
 
   useLayoutEffect(() => {
     const stage = stageRef.current
@@ -37,10 +51,11 @@ export function useFittedCoverWidth(stageRef: RefObject<HTMLDivElement | null>, 
       const style = getComputedStyle(stage)
       const paddingX = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
       const paddingY = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom)
+      const lateralReserve = lateralReserveRef?.current?.offsetWidth ?? 0
 
       setCoverWidth(
         fitCoverWidth({
-          availableWidth: stage.clientWidth - paddingX,
+          availableWidth: stage.clientWidth - paddingX - lateralReserve - horizontalInset,
           availableHeight: stage.clientHeight - paddingY - belowReserve,
           coverAspectRatio
         })
@@ -50,8 +65,9 @@ export function useFittedCoverWidth(stageRef: RefObject<HTMLDivElement | null>, 
     measure()
     const resizeObserver = new ResizeObserver(measure)
     resizeObserver.observe(stage)
+    if (lateralReserveRef?.current) resizeObserver.observe(lateralReserveRef.current)
     return () => resizeObserver.disconnect()
-  }, [stageRef, coverAspectRatio, belowReserve])
+  }, [stageRef, coverAspectRatio, belowReserve, lateralReserveRef, horizontalInset])
 
   return coverWidth
 }
@@ -62,18 +78,16 @@ interface PlayerFullscreenArtworkProps {
   coverWidth: number | null
   coverAspectRatio: number
   jumpBurst: JumpBurst | null
-  /** Overlays anchored to the artwork — the desktop volume readout */
-  children?: ReactNode
 }
 
 /** Fullscreen artwork with the jump feedback overlay. Purely presentational — it is not a control. */
-export default function PlayerFullscreenArtwork({ coverSrc, coverWidth, coverAspectRatio, jumpBurst, children }: PlayerFullscreenArtworkProps) {
+export default function PlayerFullscreenArtwork({ coverSrc, coverWidth, coverAspectRatio, jumpBurst }: PlayerFullscreenArtworkProps) {
   if (coverWidth === null) return null
 
   return (
     <div className="player-fullscreen-artwork relative shrink-0" style={{ width: coverWidth, height: coverWidth * coverAspectRatio }}>
       <div className="h-full w-full overflow-hidden rounded-2xl shadow-2xl">
-        <PreviewCover src={coverSrc} width={coverWidth} bookCoverAspectRatio={coverAspectRatio} showResolution={false} />
+        <PreviewCover src={coverSrc} fill bookCoverAspectRatio={coverAspectRatio} showResolution={false} />
       </div>
 
       {/* Jump feedback — the only visible confirmation when the jump came from a hotkey */}
@@ -97,8 +111,6 @@ export default function PlayerFullscreenArtwork({ coverSrc, coverWidth, coverAsp
           </div>
         </div>
       )}
-
-      {children}
     </div>
   )
 }
