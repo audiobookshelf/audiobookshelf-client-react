@@ -6,6 +6,7 @@ import SquareGridGroupCover from '@/components/widgets/media-card/SquareGridGrou
 import RecentEpisodeRow, { RecentEpisodeRowDivider } from '@/components/widgets/RecentEpisodeRow'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useDynamicListVirtualizer, type DynamicVirtualItem } from '@/hooks/useDynamicListVirtualizer'
 import { useRecentEpisodesPagination } from '@/hooks/useRecentEpisodesPagination'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getUniqueCoverLibraryItems } from '@/lib/recentEpisodes'
@@ -15,6 +16,33 @@ import { useCallback, useMemo } from 'react'
 interface LatestClientProps {
   libraryId: string
   initialEpisodes: RecentPodcastEpisode[]
+}
+
+const ESTIMATED_EPISODE_ROW_HEIGHT = 240
+
+interface VirtualRecentEpisodeRowProps {
+  virtualItem: DynamicVirtualItem
+  episodes: RecentPodcastEpisode[]
+  measureElement: (index: number, node: HTMLDivElement | null) => void
+}
+
+function VirtualRecentEpisodeRow({ virtualItem, episodes, measureElement }: VirtualRecentEpisodeRowProps) {
+  const { index, start } = virtualItem
+  const episode = episodes[index]
+  const setRowRef = useCallback((node: HTMLDivElement | null) => measureElement(index, node), [index, measureElement])
+
+  return (
+    <div
+      ref={setRowRef}
+      data-virtual-index={index}
+      cy-id="recent-episode-row"
+      className="absolute top-0 left-0 w-full"
+      style={{ transform: `translateY(${start}px)` }}
+    >
+      <RecentEpisodeRow episode={episode} episodeIndex={index} episodes={episodes} />
+      {index < episodes.length - 1 && <RecentEpisodeRowDivider />}
+    </div>
+  )
 }
 
 export default function LatestClient({ libraryId, initialEpisodes }: LatestClientProps) {
@@ -36,6 +64,7 @@ export default function LatestClient({ libraryId, initialEpisodes }: LatestClien
     fetchPage,
     onError: handleLoadError
   })
+  const { virtualItems, totalHeight, listContainerRef, measureElement } = useDynamicListVirtualizer(episodes.length, ESTIMATED_EPISODE_ROW_HEIGHT)
 
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio
@@ -45,12 +74,13 @@ export default function LatestClient({ libraryId, initialEpisodes }: LatestClien
   const episodeList = (
     <div className="min-w-0 px-2 py-2 md:px-0">
       {!episodes.length && <p className="text-foreground text-center text-xl">{t('MessageNoEpisodes')}</p>}
-      {episodes.map((episode, index) => (
-        <div key={episode.id} cy-id="recent-episode-row">
-          <RecentEpisodeRow episode={episode} episodeIndex={index} episodes={episodes} />
-          {index < episodes.length - 1 && <RecentEpisodeRowDivider />}
+      {episodes.length > 0 && (
+        <div ref={listContainerRef} className="relative w-full" style={{ height: `${totalHeight}px` }}>
+          {virtualItems.map((virtualItem) => (
+            <VirtualRecentEpisodeRow key={episodes[virtualItem.index].id} virtualItem={virtualItem} episodes={episodes} measureElement={measureElement} />
+          ))}
         </div>
-      ))}
+      )}
       {episodes.length > 0 && hasMore && <RecentEpisodesLoadMore isLoading={isLoading} onLoadMore={loadMore} />}
     </div>
   )
