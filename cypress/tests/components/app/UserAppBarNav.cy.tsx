@@ -97,7 +97,7 @@ describe('<UserAppBarNav /> desktop keyboard navigation', () => {
     cy.viewport(1024, 768)
   })
 
-  const desktopMenuTrigger = () => cy.get('button[aria-haspopup="menu"]')
+  const desktopMenuTrigger = () => cy.get('button[aria-haspopup="menu"]').filter(':visible')
 
   it('opens the menu with Enter on the desktop username button', () => {
     mountUserAppBarNav()
