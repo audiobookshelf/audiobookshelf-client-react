@@ -11,7 +11,6 @@ export function buildManifest(base: string): MetadataRoute.Manifest {
   return {
     name: 'audiobookshelf',
     short_name: 'audiobookshelf',
-    description: 'Self-hosted audiobook and podcast server',
     start_url: `${base}/`,
     scope: `${base}/`,
     display: 'standalone',
