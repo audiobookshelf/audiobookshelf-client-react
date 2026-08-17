@@ -176,5 +176,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|internal-api|_next/static|_next/image|.*\\.png|.*\\.ico|.*\\.svg|.*\\.json).*)']
+  // PWA files (sw.js, offline.html, manifest.webmanifest) are excluded so they stay publicly
+  // fetchable: otherwise the auth redirect would serve a /login HTML page in their place, breaking
+  // service-worker registration (wrong MIME type) and install from the login screen.
+  matcher: ['/((?!api|internal-api|_next/static|_next/image|sw\\.js|offline\\.html|manifest\\.webmanifest|.*\\.png|.*\\.ico|.*\\.svg|.*\\.json).*)']
 }
