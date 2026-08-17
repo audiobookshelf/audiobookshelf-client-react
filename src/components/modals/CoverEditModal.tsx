@@ -12,15 +12,23 @@ export type CoverEditModalProps = {
 type CoverEditModalBodyProps = {
   /** When true (navCtx), body height stays fixed so prev/next does not resize the panel. */
   stableBodyHeight: boolean
+  /** When true, fill a parent with a fixed height (e.g. SectionedModalBody). */
+  fillParent?: boolean
 }
 
-function CoverEditModalBody({ stableBodyHeight }: CoverEditModalBodyProps) {
+export function CoverEditModalBody({ stableBodyHeight, fillParent = false }: CoverEditModalBodyProps) {
   const { resolvedItem, fetchPending } = useLibraryItemModal()
   const showLoading = fetchPending && !resolvedItem
 
-  if (stableBodyHeight) {
+  if (fillParent || stableBodyHeight) {
     return (
-      <div className="flex h-[min(40rem,85vh)] max-h-[85vh] w-full flex-col overflow-hidden rounded-lg">
+      <div
+        className={
+          fillParent
+            ? 'flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg'
+            : 'flex h-[min(40rem,85vh)] max-h-[85vh] w-full flex-col overflow-hidden rounded-lg'
+        }
+      >
         {showLoading ? (
           <div className="flex flex-1 items-center justify-center">
             <LoadingIndicator variant="inline" />

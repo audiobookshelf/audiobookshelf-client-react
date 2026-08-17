@@ -1,6 +1,6 @@
 'use client'
 
-import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import LibraryItemMetadataEditModal from '@/components/modals/LibraryItemMetadataEditModal'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import LibraryItemSubpageHeader from '@/components/widgets/LibraryItemSubpageHeader'
@@ -203,7 +203,7 @@ export default function ChaptersEditClient({ libraryItem: initialLibraryItem }: 
 
       {confirmState && <ConfirmDialog isOpen message={confirmState.message} onClose={() => setConfirmState(null)} onConfirm={() => confirmState.onConfirm()} />}
 
-      {isEditModalOpen && <LibraryItemEditModal isOpen libraryItem={libraryItem} onClose={() => setIsEditModalOpen(false)} />}
+      {isEditModalOpen && <LibraryItemMetadataEditModal isOpen libraryItem={libraryItem} onClose={() => setIsEditModalOpen(false)} />}
     </div>
   )
 }

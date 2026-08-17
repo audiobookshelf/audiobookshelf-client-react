@@ -9,10 +9,10 @@ export type MatchModalProps = {
   onClose: () => void
 } & LibraryItemModalItemSource
 
-function MatchModalBody() {
+export function MatchModalBody({ fillParent = false }: { fillParent?: boolean }) {
   const { resolvedItem, fetchPending } = useLibraryItemModal()
   return (
-    <div className="flex h-[80vh] flex-col overflow-hidden">
+    <div className={fillParent ? 'flex h-full min-h-0 flex-col overflow-hidden' : 'flex h-[80vh] flex-col overflow-hidden'}>
       {fetchPending && !resolvedItem ? (
         <div className="flex flex-1 items-center justify-center">
           <LoadingIndicator variant="inline" />

@@ -1,6 +1,6 @@
 'use client'
 
-import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import LibraryItemMetadataEditModal from '@/components/modals/LibraryItemMetadataEditModal'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import LibraryItemSubpageHeader, { libraryItemSubpageMaxWidthClass } from '@/components/widgets/LibraryItemSubpageHeader'
 import TracksEditToolbar, { TracksEditActions } from '@/components/widgets/tracks-edit/TracksEditToolbar'
@@ -72,7 +72,7 @@ export default function TracksEditClient({ libraryItem: initialLibraryItem }: Tr
         }}
       />
 
-      {isEditModalOpen && <LibraryItemEditModal isOpen libraryItem={editor.libraryItem} onClose={() => setIsEditModalOpen(false)} />}
+      {isEditModalOpen && <LibraryItemMetadataEditModal isOpen libraryItem={editor.libraryItem} onClose={() => setIsEditModalOpen(false)} />}
     </div>
   )
 }

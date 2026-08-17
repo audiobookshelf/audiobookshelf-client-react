@@ -1,6 +1,6 @@
 'use client'
 
-import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import LibraryItemMetadataEditModal from '@/components/modals/LibraryItemMetadataEditModal'
 import Dropdown from '@/components/ui/Dropdown'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import LibraryItemSubpageHeader from '@/components/widgets/LibraryItemSubpageHeader'
@@ -121,7 +121,7 @@ export default function AudiobookTools({ libraryItem: initialLibraryItem }: Audi
         />
       )}
 
-      <LibraryItemEditModal isOpen={tools.isEditModalOpen} libraryItem={tools.libraryItem} onClose={() => tools.setIsEditModalOpen(false)} />
+      <LibraryItemMetadataEditModal isOpen={tools.isEditModalOpen} libraryItem={tools.libraryItem} onClose={() => tools.setIsEditModalOpen(false)} />
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import PreviewCover from '@/components/covers/PreviewCover'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
-import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import LibraryItemMetadataEditModal from '@/components/modals/LibraryItemMetadataEditModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
@@ -169,7 +169,7 @@ function CompilationItemListRowBody({
       return
     }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
-    setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+    setBoundModal(<LibraryItemMetadataEditModal key="library-item-metadata-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
 
   const handleMatch = useCallback(() => {

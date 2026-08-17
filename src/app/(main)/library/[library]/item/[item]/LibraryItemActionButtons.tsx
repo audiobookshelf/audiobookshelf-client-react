@@ -2,7 +2,6 @@
 
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
-import MatchModal from '@/components/modals/MatchModal'
 import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
 import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
@@ -19,12 +18,13 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 
 interface LibraryItemActionButtonsProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   onEdit: () => void
   onOpenCoverEdit?: () => void
+  onOpenMatch?: () => void
   /** Current RSS feed state (from useItemPageSocket + initial server data). */
   rssFeed?: RssFeed | null
   showPlayButton: boolean
@@ -36,6 +36,7 @@ export default function LibraryItemActionButtons({
   libraryItem,
   onEdit,
   onOpenCoverEdit,
+  onOpenMatch,
   rssFeed = null,
   showPlayButton,
   isItemPlaying,
@@ -54,10 +55,6 @@ export default function LibraryItemActionButtons({
     playerLoadState
   } = useMediaContext()
   const t = useTypeSafeTranslations()
-  const [matchModalOpen, setMatchModalOpen] = useState(false)
-  const handleOpenMatch = useCallback(() => {
-    setMatchModalOpen(true)
-  }, [])
 
   const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
   const isRead = mediaProgress?.isFinished ?? false
@@ -115,7 +112,7 @@ export default function LibraryItemActionButtons({
     onDeleteSuccess: () => {
       window.location.href = `/library/${libraryItem.libraryId}`
     },
-    onOpenMatch: handleOpenMatch,
+    onOpenMatch,
     onOpenCoverEdit,
     playerControls
   })
@@ -291,7 +288,6 @@ export default function LibraryItemActionButtons({
           headerTitle={libraryItem.media.metadata.title ?? ''}
         />
       )}
-      <MatchModal isOpen={matchModalOpen} onClose={() => setMatchModalOpen(false)} libraryItem={libraryItem} />
     </>
   )
 }
