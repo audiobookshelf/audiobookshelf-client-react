@@ -52,12 +52,9 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        // Let the browser pick up service-worker updates promptly, and allow root scope.
+        // Let the browser pick up service-worker updates promptly.
         source: '/sw.js',
-        headers: [
-          { key: 'Cache-Control', value: 'no-cache' },
-          { key: 'Service-Worker-Allowed', value: '/' }
-        ]
+        headers: [{ key: 'Cache-Control', value: 'no-cache' }]
       }
     ]
   }
