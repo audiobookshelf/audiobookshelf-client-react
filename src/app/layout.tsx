@@ -23,6 +23,10 @@ export const metadata: Metadata = {
     title: 'audiobookshelf',
     statusBarStyle: 'black'
   },
+  // iOS < 16.4 still needs legacy `apple-mobile-web-app-capable` to launch standalone from the home screen.
+  other: {
+    'apple-mobile-web-app-capable': 'yes'
+  },
   icons: {
     // Dedicated iOS icon (iOS ignores transparency — the circular icon192 would
     // render as a circle floating on black). iOS applies its own rounded-corner mask.
