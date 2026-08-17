@@ -48,6 +48,18 @@ const nextConfig: NextConfig = {
   },
   images: {
     localPatterns: [{ pathname: '/api/**' }, { pathname: '/images/**' }]
+  },
+  async headers() {
+    return [
+      {
+        // Let the browser pick up service-worker updates promptly, and allow root scope.
+        source: '/sw.js',
+        headers: [
+          { key: 'Cache-Control', value: 'no-cache' },
+          { key: 'Service-Worker-Allowed', value: '/' }
+        ]
+      }
+    ]
   }
 }
 
