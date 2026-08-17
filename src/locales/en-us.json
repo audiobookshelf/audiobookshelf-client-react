@@ -3,6 +3,7 @@
   "AriaLabelFileDropZone": "File drop zone",
   "AriaLabelJumpBackwardWithDuration": "Jump Backward, {0}",
   "AriaLabelJumpForwardWithDuration": "Jump Forward, {0}",
+  "AriaLabelModalSections": "Modal sections",
   "AriaLabelNumberOfEpisodes": "Number of episodes",
   "AriaLabelPlaybackRateWithValue": "Playback Rate: {0}x",
   "AriaLabelSearchResults": "Search results",

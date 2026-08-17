@@ -1,8 +1,7 @@
 'use client'
 
 import { clearPodcastDownloadQueueAction } from '@/app/actions/mediaActions'
-import CoverEditModal from '@/components/modals/CoverEditModal'
-import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import LibraryItemMetadataEditModal, { type MetadataEditSection } from '@/components/modals/LibraryItemMetadataEditModal'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
@@ -39,8 +38,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   const t = useTypeSafeTranslations()
 
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isCoverEditModalOpen, setIsCoverEditModalOpen] = useState(false)
+  const [metadataEditSection, setMetadataEditSection] = useState<MetadataEditSection | null>(null)
   const [isClearQueueDialogOpen, setIsClearQueueDialogOpen] = useState(false)
   const [podcastEpisodesInOrder, setPodcastEpisodesInOrder] = useState<PodcastEpisode[]>([])
   const handlePodcastEpisodesInOrderChange = useCallback((episodes: PodcastEpisode[]) => {
@@ -68,12 +66,12 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     return computeProgress({ progress: userProgress, useSeriesProgress: false }).percent > 0
   }, [isPodcast, userProgress])
 
-  const handleOpenEditModal = () => {
-    setIsEditModalOpen(true)
+  const handleOpenMetadataEdit = (section: MetadataEditSection) => {
+    setMetadataEditSection(section)
   }
 
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false)
+  const handleCloseMetadataEdit = () => {
+    setMetadataEditSection(null)
   }
 
   const handleItemUpdated = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
@@ -133,7 +131,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 libraryItem={libraryItem}
                 canUpdate={userCanUpdate}
                 mediaProgress={userProgress}
-                onEdit={() => setIsCoverEditModalOpen(true)}
+                onEdit={() => handleOpenMetadataEdit('cover')}
                 showPlayButton={showPlayButton}
                 isItemPlaying={isItemPlaying}
                 onPlay={handlePlay}
@@ -220,8 +218,9 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
 
               <LibraryItemActionButtons
                 libraryItem={libraryItem}
-                onEdit={handleOpenEditModal}
-                onOpenCoverEdit={() => setIsCoverEditModalOpen(true)}
+                onEdit={() => handleOpenMetadataEdit('details')}
+                onOpenCoverEdit={() => handleOpenMetadataEdit('cover')}
+                onOpenMatch={() => handleOpenMetadataEdit('match')}
                 rssFeed={rssFeed ?? null}
                 showPlayButton={showPlayButton}
                 isItemPlaying={isItemPlaying}
@@ -259,8 +258,12 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
           </div>
         </div>
 
-        <LibraryItemEditModal isOpen={isEditModalOpen} libraryItem={libraryItem} onClose={handleCloseEditModal} />
-        <CoverEditModal isOpen={isCoverEditModalOpen} libraryItem={libraryItem} onClose={() => setIsCoverEditModalOpen(false)} />
+        <LibraryItemMetadataEditModal
+          isOpen={metadataEditSection !== null}
+          initialSection={metadataEditSection ?? 'details'}
+          libraryItem={libraryItem}
+          onClose={handleCloseMetadataEdit}
+        />
         <ConfirmDialog
           isOpen={isClearQueueDialogOpen}
           message={t('MessageConfirmClearEpisodeFetchQueue')}

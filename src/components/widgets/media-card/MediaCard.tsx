@@ -3,11 +3,9 @@
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
-import CoverEditModal from '@/components/modals/CoverEditModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
-import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
-import MatchModal from '@/components/modals/MatchModal'
+import LibraryItemMetadataEditModal, { type MetadataEditSection } from '@/components/modals/LibraryItemMetadataEditModal'
 import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
 import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
@@ -201,34 +199,35 @@ function MediaCard(props: MediaCardProps) {
     setIsHovering(false)
   }, [])
 
-  const handleOpenMatch = useCallback(() => {
-    closeMoreMenu()
-    if (episode) {
-      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
-      setBoundModal(<EpisodeMatchModal key={`episode-match-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-      return
-    }
-    const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
-    setBoundModal(<MatchModal key="match-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, closeMoreMenu, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal])
+  const handleOpenMetadataEdit = useCallback(
+    (section: MetadataEditSection) => {
+      closeMoreMenu()
+      if (episode) {
+        const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
+        if (section === 'match') {
+          setBoundModal(<EpisodeMatchModal key={`episode-match-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+          return
+        }
+        setBoundModal(<EpisodeEditModal key={`episode-edit-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+        return
+      }
+      const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
+      setBoundModal(
+        <LibraryItemMetadataEditModal
+          key={`metadata-edit-modal-${section}`}
+          isOpen
+          initialSection={section}
+          navCtx={navCtx}
+          onClose={clearBoundModal}
+        />
+      )
+    },
+    [clearBoundModal, closeMoreMenu, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal]
+  )
 
-  const handleOpenEdit = useCallback(() => {
-    closeMoreMenu()
-    if (episode) {
-      const navCtx = getMediaCardEpisodeEditNavigationContext(episode.id, libraryItem.id, shelfEntities, entityIndex)
-      setBoundModal(<EpisodeEditModal key={`episode-edit-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-      return
-    }
-    const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
-    setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, closeMoreMenu, episode, libraryItem, shelfEntities, entityIndex, setBoundModal])
-
-  const handleOpenCoverEdit = useCallback(() => {
-    closeMoreMenu()
-    if (episode) return
-    const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
-    setBoundModal(<CoverEditModal key={`cover-edit-modal-${libraryItem.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
-  }, [clearBoundModal, closeMoreMenu, episode, libraryItem.id, shelfEntities, entityIndex, setBoundModal])
+  const handleOpenEdit = useCallback(() => handleOpenMetadataEdit('details'), [handleOpenMetadataEdit])
+  const handleOpenCoverEdit = useCallback(() => handleOpenMetadataEdit('cover'), [handleOpenMetadataEdit])
+  const handleOpenMatch = useCallback(() => handleOpenMetadataEdit('match'), [handleOpenMetadataEdit])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
