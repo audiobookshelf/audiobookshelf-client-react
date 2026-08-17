@@ -102,10 +102,11 @@ export function SectionedModalBody({ sections, selectedSection, onSectionChange,
               type="button"
               onClick={() => onSectionChange(item.id)}
               className={mergeClasses(
-                'flex items-center gap-3 px-4 py-2.5 text-start text-sm font-medium transition-colors',
-                isActive ? 'bg-bg text-foreground border-s-warning border-s-4' : 'text-foreground-muted hover:text-foreground border-s-4 border-s-transparent'
+                'relative flex items-center gap-3 px-4 py-2.5 text-start text-sm font-medium transition-colors',
+                isActive ? 'bg-bg text-foreground' : 'text-foreground-muted hover:text-foreground'
               )}
             >
+              {isActive ? <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400" aria-hidden /> : null}
               <span className="material-symbols text-xl" aria-hidden>
                 {item.icon}
               </span>
