@@ -1,7 +1,7 @@
 /**
  * Not currently wired into the production app (components catalog only).
  * Migrated from the Vue Edit modal Chapters tab; superseded by item-page
- * ChaptersTable and the /chapters edit page.
+ * ChaptersTable and the metadata-edit Chapters section.
  */
 'use client'
 
@@ -30,7 +30,7 @@ export default function Chapters({ libraryItem }: ChaptersProps) {
         ) : (
           <div className="py-4 text-center" role="status">
             <p className="mb-8 text-xl">{t('MessageNoChapters')}</p>
-            {userCanUpdate && <Btn to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`}>{t('ButtonAddChapters')}</Btn>}
+            {userCanUpdate && <Btn>{t('ButtonAddChapters')}</Btn>}
           </div>
         )}
       </div>

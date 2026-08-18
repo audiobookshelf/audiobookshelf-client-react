@@ -7,15 +7,16 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { BookLibraryItem, Chapter } from '@/types/api'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from 'react'
 
 interface ChaptersTableProps {
   libraryItem: BookLibraryItem
   keepOpen?: boolean
   expanded?: boolean
+  onEditChapters?: () => void
 }
 
-export default function ChaptersTable({ libraryItem, keepOpen = false, expanded: expandedProp = false }: ChaptersTableProps) {
+export default function ChaptersTable({ libraryItem, keepOpen = false, expanded: expandedProp = false, onEditChapters }: ChaptersTableProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate } = useUser()
   const [expanded, setExpanded] = useState(expandedProp)
@@ -82,24 +83,22 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
     [t, handleGoToTimestamp]
   )
 
-  const chaptersPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`
+  const handleEditChapters = useCallback(
+    (e: MouseEvent) => {
+      e.stopPropagation()
+      onEditChapters?.()
+    },
+    [onEditChapters]
+  )
 
   const headerActions = useMemo(
     () =>
       userCanUpdate ? (
-        <Btn
-          to={chaptersPath}
-          color="bg-primary"
-          size="small"
-          className="me-2"
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        >
+        <Btn color="bg-primary" size="small" className="me-2" onClick={handleEditChapters}>
           {isEmpty ? t('ButtonAddChapters') : t('ButtonEditChapters')}
         </Btn>
       ) : null,
-    [userCanUpdate, chaptersPath, isEmpty, t]
+    [userCanUpdate, handleEditChapters, isEmpty, t]
   )
 
   if (isEmpty && !userCanUpdate) {

@@ -220,6 +220,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 libraryItem={libraryItem}
                 onEdit={() => handleOpenMetadataEdit('details')}
                 onOpenMatch={() => handleOpenMetadataEdit('match')}
+                onOpenChaptersEdit={() => handleOpenMetadataEdit('chapters')}
                 rssFeed={rssFeed ?? null}
                 showPlayButton={showPlayButton}
                 isItemPlaying={isItemPlaying}
@@ -229,7 +230,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
               <div className="mt-6 flex flex-col gap-4">
-                {isBookWithAudio && <ChaptersTable libraryItem={libraryItem as BookLibraryItem} />}
+                {isBookWithAudio && <ChaptersTable libraryItem={libraryItem as BookLibraryItem} onEditChapters={() => handleOpenMetadataEdit('chapters')} />}
 
                 {/* audio tracks table */}
                 {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
