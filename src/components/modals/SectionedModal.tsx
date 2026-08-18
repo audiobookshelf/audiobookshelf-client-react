@@ -93,7 +93,7 @@ export function SectionedModalBody({ sections, selectedSection, onSectionChange,
 
   return (
     <div className={mergeClasses('flex min-w-0 flex-1 flex-row overflow-hidden rounded-lg', SECTIONED_MODAL_STABLE_HEIGHT_CLASS, className)}>
-      <nav className="border-border bg-primary flex w-36 shrink-0 flex-col border-e py-3" aria-label={t('AriaLabelModalSections')}>
+      <nav className="border-border bg-bg flex w-20 min-w-20 shrink-0 flex-col border-e" aria-label={t('AriaLabelModalSections')}>
         {sections.map((item) => {
           const isActive = item.id === selectedSection
           return (
@@ -102,15 +102,15 @@ export function SectionedModalBody({ sections, selectedSection, onSectionChange,
               type="button"
               onClick={() => onSectionChange(item.id)}
               className={mergeClasses(
-                'relative flex items-center gap-3 px-4 py-2.5 text-start text-sm font-medium transition-colors',
-                isActive ? 'bg-bg text-foreground' : 'text-foreground-muted hover:text-foreground'
+                'text-foreground hover:bg-nav-item-hover border-primary/30 relative flex h-20 w-full flex-col items-center justify-center border-b transition-colors',
+                isActive && 'bg-nav-item-selected'
               )}
             >
               {isActive ? <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400" aria-hidden /> : null}
-              <span className="material-symbols text-xl" aria-hidden>
+              <span className="material-symbols text-2xl" aria-hidden>
                 {item.icon}
               </span>
-              {item.label}
+              <span className="text-sm">{item.label}</span>
             </button>
           )
         })}
