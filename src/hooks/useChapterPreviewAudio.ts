@@ -16,7 +16,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   const tracksRef = useRef(tracks)
   tracksRef.current = tracks
 
-  const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null)
+  const [selectedChapterId, setSelectedChapterId] = useState<number | string | null>(null)
   const [isPlayingChapter, setIsPlayingChapter] = useState(false)
   const [isLoadingChapter, setIsLoadingChapter] = useState(false)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -98,7 +98,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   )
 
   const playChapter = useCallback(
-    (chapterId: number, chapterStart: number) => {
+    (chapterId: number | string, chapterStart: number) => {
       if (selectedChapterId === chapterId) {
         if (isLoadingChapter) return
         if (isPlayingChapter) {

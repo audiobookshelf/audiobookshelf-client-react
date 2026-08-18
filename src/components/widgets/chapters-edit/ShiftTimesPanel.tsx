@@ -1,38 +1,43 @@
 'use client'
 
-import Btn from '@/components/ui/Btn'
-import IconBtn from '@/components/ui/IconBtn'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import ChaptersToolbarPanel from './ChaptersToolbarPanel'
+
+interface ShiftTimesFieldsProps {
+  shiftAmount: number
+  onShiftAmountChange: (value: number) => void
+  showHelp?: boolean
+}
+
+export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, showHelp = false }: ShiftTimesFieldsProps) {
+  const t = useTypeSafeTranslations()
+
+  return (
+    <div className="flex flex-nowrap items-center gap-2">
+      <p className="text-sm font-semibold whitespace-nowrap">{showHelp ? t('LabelTimeToShiftShort') : t('LabelTimeToShift')}</p>
+      <TextInput type="number" value={String(shiftAmount)} size="small" className="max-w-20" onChange={(value) => onShiftAmountChange(Number(value))} />
+      {showHelp ? <HelpTooltipIcon text={t('NoteChapterEditorTimes')} /> : null}
+    </div>
+  )
+}
 
 interface ShiftTimesPanelProps {
   shiftAmount: number
   onShiftAmountChange: (value: number) => void
-  onShift: () => void
   onClose: () => void
 }
 
-export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onShift, onClose }: ShiftTimesPanelProps) {
+export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onClose }: ShiftTimesPanelProps) {
   const t = useTypeSafeTranslations()
 
   return (
-    <div className="mb-4 flex">
-      <div className="hidden w-12 xl:block" />
-      <div className="grow">
-        <div className="flex items-center">
-          <p className="mb-1 pr-2 text-sm font-semibold">{t('LabelTimeToShift')}</p>
-          <TextInput type="number" value={String(shiftAmount)} size="small" className="max-w-20" onChange={(value) => onShiftAmountChange(Number(value))} />
-          <Btn color="bg-primary" size="small" className="mx-1" onClick={onShift}>
-            {t('ButtonAdd')}
-          </Btn>
-          <div className="grow" />
-          <IconBtn ariaLabel={t('ButtonClose')} borderless size="small" onClick={onClose}>
-            expand_less
-          </IconBtn>
-        </div>
-        <p className="text-foreground-muted max-w-md py-1.5 text-xs">{t('NoteChapterEditorTimes')}</p>
+    <ChaptersToolbarPanel onClose={onClose}>
+      <div className="flex h-full flex-col justify-between gap-2">
+        <ShiftTimesFields shiftAmount={shiftAmount} onShiftAmountChange={onShiftAmountChange} />
+        <p className="text-foreground-muted max-w-md text-xs">{t('NoteChapterEditorTimes')}</p>
       </div>
-      <div className="hidden w-52 xl:block" />
-    </div>
+    </ChaptersToolbarPanel>
   )
 }
