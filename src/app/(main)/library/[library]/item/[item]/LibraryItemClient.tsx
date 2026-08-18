@@ -219,7 +219,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               <LibraryItemActionButtons
                 libraryItem={libraryItem}
                 onEdit={() => handleOpenMetadataEdit('details')}
-                onOpenCoverEdit={() => handleOpenMetadataEdit('cover')}
                 onOpenMatch={() => handleOpenMetadataEdit('match')}
                 rssFeed={rssFeed ?? null}
                 showPlayButton={showPlayButton}

@@ -23,7 +23,6 @@ import { useCallback, useMemo } from 'react'
 interface LibraryItemActionButtonsProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   onEdit: () => void
-  onOpenCoverEdit?: () => void
   onOpenMatch?: () => void
   /** Current RSS feed state (from useItemPageSocket + initial server data). */
   rssFeed?: RssFeed | null
@@ -35,7 +34,6 @@ interface LibraryItemActionButtonsProps {
 export default function LibraryItemActionButtons({
   libraryItem,
   onEdit,
-  onOpenCoverEdit,
   onOpenMatch,
   rssFeed = null,
   showPlayButton,
@@ -113,7 +111,6 @@ export default function LibraryItemActionButtons({
       window.location.href = `/library/${libraryItem.libraryId}`
     },
     onOpenMatch,
-    onOpenCoverEdit,
     playerControls
   })
 

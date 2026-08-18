@@ -226,7 +226,6 @@ function MediaCard(props: MediaCardProps) {
   )
 
   const handleOpenEdit = useCallback(() => handleOpenMetadataEdit('details'), [handleOpenMetadataEdit])
-  const handleOpenCoverEdit = useCallback(() => handleOpenMetadataEdit('cover'), [handleOpenMetadataEdit])
   const handleOpenMatch = useCallback(() => handleOpenMetadataEdit('match'), [handleOpenMetadataEdit])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
@@ -407,7 +406,6 @@ function MediaCard(props: MediaCardProps) {
     isQueued,
     initialShare: libraryItem.mediaItemShare ?? null,
     onOpenMatch: handleOpenMatch,
-    onOpenCoverEdit: handleOpenCoverEdit,
     onDeleteSuccess,
     playerControls
   })
