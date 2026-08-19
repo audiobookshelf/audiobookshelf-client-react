@@ -15,7 +15,7 @@ interface ServiceWorkerRegisterProps {
 /**
  * Registers the app-shell service worker (public/sw.js) once on mount.
  *
- * The url and scope are base-path aware so subfolder deploys (ROUTER_BASE_PATH) register the
+ * The url and scope are base-path aware so Next subfolder deploys register the
  * SW under the correct scope rather than the origin root.
  */
 export default function ServiceWorkerRegister({ basePath, enabled = process.env.NODE_ENV === 'production' }: ServiceWorkerRegisterProps) {

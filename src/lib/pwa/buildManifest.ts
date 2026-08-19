@@ -3,7 +3,7 @@ import type { MetadataRoute } from 'next'
 /**
  * Build the web app manifest with every URL prefixed by the runtime base path.
  *
- * `base` is `ROUTER_BASE_PATH` (empty for root deploys, e.g. '/audiobookshelf' for a subfolder).
+ * `base` is the Next app base path (empty for root deploys, e.g. '/abs' for a Next subfolder).
  * Kept as a pure function — separate from the route handler's NextResponse wrapper — so the
  * base-path prefixing can be unit-tested without pulling in `next/server`.
  */

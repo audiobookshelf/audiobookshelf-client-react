@@ -7,10 +7,10 @@ import ServiceWorkerRegister from '../components/ServiceWorkerRegister'
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
 import { CardSizeProvider } from '../contexts/CardSizeContext'
 import { ToastProvider } from '../contexts/ToastContext'
+import { getNextBasePath } from '../lib/nextBasePath'
 import { getTheme } from '../lib/theme'
 
-/** Base path for subfolder deploys (empty for root). */
-const basePath = process.env.ROUTER_BASE_PATH ?? ''
+const basePath = getNextBasePath()
 
 export const metadata: Metadata = {
   title: 'audiobookshelf',
