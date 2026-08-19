@@ -2,7 +2,7 @@ import { useRecentEpisodesPagination } from '@/hooks/useRecentEpisodesPagination
 import { RECENT_EPISODES_PAGE_SIZE } from '@/lib/recentEpisodes'
 import type { GetRecentEpisodesResponse, RecentPodcastEpisode } from '@/types/api'
 
-type FetchPage = (page: number, limit: number) => Promise<GetRecentEpisodesResponse>
+type FetchPage = (page: number) => Promise<GetRecentEpisodesResponse>
 
 function makeEpisode(index: number): RecentPodcastEpisode {
   return { id: `episode-${index}` } as RecentPodcastEpisode
@@ -62,7 +62,7 @@ describe('useRecentEpisodesPagination', () => {
     cy.mount(<PaginationProbe initialEpisodes={initialEpisodes} fetchPage={fetchPage} onError={cy.stub()} />)
     cy.get('[data-cy="load-more"]').click()
 
-    cy.wrap(fetchPage).should('have.been.calledOnceWith', 1, RECENT_EPISODES_PAGE_SIZE)
+    cy.wrap(fetchPage).should('have.been.calledOnceWith', 1)
     cy.get('[data-cy="episode-count"]').should('have.text', '52')
     cy.get('[data-cy="episode-ids"]').should('contain.text', 'episode-50,episode-51')
     cy.get('[data-cy="has-more"]').should('have.text', 'false')
@@ -81,7 +81,7 @@ describe('useRecentEpisodesPagination', () => {
 
     cy.wrap(fetchPage)
       .should('have.been.calledTwice')
-      .then(() => expect(fetchPage.secondCall.args).to.deep.equal([2, RECENT_EPISODES_PAGE_SIZE]))
+      .then(() => expect(fetchPage.secondCall.args).to.deep.equal([2]))
     cy.get('[data-cy="episode-count"]').should('have.text', '101')
     cy.get('[data-cy="has-more"]').should('have.text', 'false')
   })
@@ -104,7 +104,7 @@ describe('useRecentEpisodesPagination', () => {
 
     cy.wrap(fetchPage)
       .should('have.been.calledTwice')
-      .then(() => expect(fetchPage.secondCall.args).to.deep.equal([1, RECENT_EPISODES_PAGE_SIZE]))
+      .then(() => expect(fetchPage.secondCall.args).to.deep.equal([1]))
     cy.get('[data-cy="episode-count"]').should('have.text', '51')
   })
 
@@ -118,7 +118,7 @@ describe('useRecentEpisodesPagination', () => {
     cy.mount(<PaginationProbe initialEpisodes={initialEpisodes} fetchPage={fetchPage} onError={cy.stub()} />)
     cy.get('[data-cy="load-more-twice"]').click()
 
-    cy.wrap(fetchPage).should('have.been.calledOnceWith', 1, RECENT_EPISODES_PAGE_SIZE)
+    cy.wrap(fetchPage).should('have.been.calledOnceWith', 1)
     cy.get('[data-cy="is-loading"]').should('have.text', 'true')
     cy.then(() => resolveRequest(makeResponse([makeEpisode(50)], 1)))
     cy.get('[data-cy="episode-count"]').should('have.text', '51')

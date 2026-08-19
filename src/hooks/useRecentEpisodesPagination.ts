@@ -1,8 +1,8 @@
 import { appendUniqueRecentEpisodes, RECENT_EPISODES_PAGE_SIZE } from '@/lib/recentEpisodes'
 import type { GetRecentEpisodesResponse, RecentPodcastEpisode } from '@/types/api'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef, useState, useTransition } from 'react'
 
-type FetchRecentEpisodesPage = (page: number, limit: number) => Promise<GetRecentEpisodesResponse>
+type FetchRecentEpisodesPage = (page: number) => Promise<GetRecentEpisodesResponse>
 
 interface UseRecentEpisodesPaginationProps {
   initialEpisodes: RecentPodcastEpisode[]
@@ -13,42 +13,41 @@ interface UseRecentEpisodesPaginationProps {
 export function useRecentEpisodesPagination({ initialEpisodes, fetchPage, onError }: UseRecentEpisodesPaginationProps) {
   const [episodes, setEpisodes] = useState(() => appendUniqueRecentEpisodes([], initialEpisodes))
   const [hasMore, setHasMore] = useState(initialEpisodes.length >= RECENT_EPISODES_PAGE_SIZE)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
   const nextPageRef = useRef(1)
   const hasMoreRef = useRef(hasMore)
+  // Ref-based guard because isPending is not synchronously true before the first
+  // await, so two rapid calls would both pass the check without this.
   const inFlightRef = useRef(false)
 
-  const loadMore = useCallback(async () => {
-    if (inFlightRef.current || !hasMoreRef.current) return false
+  const loadMore = useCallback(() => {
+    if (inFlightRef.current || !hasMoreRef.current) return
 
     inFlightRef.current = true
-    setIsLoading(true)
+    startTransition(async () => {
+      try {
+        const page = nextPageRef.current
+        const response = await fetchPage(page)
+        const incoming = response.episodes ?? []
 
-    try {
-      const page = nextPageRef.current
-      const response = await fetchPage(page, RECENT_EPISODES_PAGE_SIZE)
-      const incoming = response.episodes ?? []
+        setEpisodes((current) => appendUniqueRecentEpisodes(current, incoming))
+        nextPageRef.current = page + 1
 
-      setEpisodes((current) => appendUniqueRecentEpisodes(current, incoming))
-      nextPageRef.current = page + 1
-
-      const nextHasMore = incoming.length >= RECENT_EPISODES_PAGE_SIZE
-      hasMoreRef.current = nextHasMore
-      setHasMore(nextHasMore)
-      return true
-    } catch (error) {
-      onError(error)
-      return false
-    } finally {
-      inFlightRef.current = false
-      setIsLoading(false)
-    }
-  }, [fetchPage, onError])
+        const nextHasMore = incoming.length >= RECENT_EPISODES_PAGE_SIZE
+        hasMoreRef.current = nextHasMore
+        setHasMore(nextHasMore)
+      } catch (error) {
+        onError(error)
+      } finally {
+        inFlightRef.current = false
+      }
+    })
+  }, [fetchPage, onError, startTransition])
 
   return {
     episodes,
     hasMore,
-    isLoading,
+    isLoading: isPending,
     loadMore
   }
 }
