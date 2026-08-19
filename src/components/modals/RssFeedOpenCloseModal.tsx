@@ -2,6 +2,7 @@
 
 import { closeRssFeed, openEntityRssFeed } from '@/app/actions/rssFeedActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import TextInput from '@/components/ui/TextInput'
@@ -115,13 +116,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
 
   if (!entity) return null
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white" title={entityName}>
-        {entityName}
-      </p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent title={entityName}>{entityName}</ModalOuterContent>
 
   const fullFeedUrl = typeof window !== 'undefined' && currentFeed ? `${window.location.origin}${currentFeed.feedUrl}` : ''
   const meta = currentFeed?.meta

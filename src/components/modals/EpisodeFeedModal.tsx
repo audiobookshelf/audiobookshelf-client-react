@@ -1,5 +1,6 @@
 import { downloadPodcastEpisodesAction } from '@/app/actions/mediaActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import TextInput from '@/components/ui/TextInput'
@@ -280,11 +281,7 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      outerContent={
-        <div className="pointer-events-none absolute top-0 left-0 w-2/3 overflow-hidden p-5">
-          <p className="truncate text-3xl text-white drop-shadow-md">{libraryItem.media.metadata.title}</p>
-        </div>
-      }
+      outerContent={<ModalOuterContent title={libraryItem.media.metadata.title}>{libraryItem.media.metadata.title}</ModalOuterContent>}
       style={{ maxWidth: 1200 }}
     >
       <div className="flex h-[80vh] min-h-[400px] flex-col px-4 sm:px-6">

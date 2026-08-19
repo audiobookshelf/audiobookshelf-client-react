@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import SectionedModal from '@/components/modals/SectionedModal'
 import TabbedModal from '@/components/modals/TabbedModal'
 import Btn from '@/components/ui/Btn'
@@ -36,11 +37,7 @@ function SectionedModalExample() {
         selectedSection={selectedSection}
         onSectionChange={setSelectedSection}
         className="md:max-w-[min(95vw,48rem)]"
-        outerContent={
-          <div className="absolute start-0 top-0 p-4">
-            <h2 className="max-w-[calc(100vw-4rem)] truncate text-xl text-white">Example Item</h2>
-          </div>
-        }
+        outerContent={<ModalOuterContent>Example Item</ModalOuterContent>}
       >
         <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto p-6">

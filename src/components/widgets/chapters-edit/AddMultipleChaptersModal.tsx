@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -26,11 +27,7 @@ export default function AddMultipleChaptersModal({
 }: AddMultipleChaptersModalProps) {
   const t = useTypeSafeTranslations()
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="max-w-[calc(100vw-4rem)] truncate text-xl text-white">{t('HeaderBulkChapterModal')}</p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderBulkChapterModal')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} style={{ width: 400 }} outerContent={outerContent}>

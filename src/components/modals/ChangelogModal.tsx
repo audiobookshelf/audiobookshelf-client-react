@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
@@ -19,11 +20,7 @@ export default function ChangelogModal({ isOpen, versionData, onClose }: Changel
   const { serverSettings } = useUser()
   const dateFormat = serverSettings.dateFormat
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <h1 className="text-foreground text-xl">{t('HeaderChangelog')}</h1>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderChangelog')}</ModalOuterContent>
 
   const releaseSections = useMemo(() => {
     const releasesToShow = versionData?.releasesToShow ?? []

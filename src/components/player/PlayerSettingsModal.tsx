@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import type { PlayerSettings } from '@/hooks/usePlayerSettings'
@@ -48,11 +49,7 @@ export default function PlayerSettingsModal({ isOpen, settings, onClose, onUpdat
     onUpdateSettings({ playbackRateIncrementDecrement: value as 0.1 | 0.05 })
   }
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="text-xl text-white">{t('HeaderPlayerSettings')}</p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderPlayerSettings')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-md md:max-w-md lg:max-w-md">

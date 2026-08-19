@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
@@ -118,11 +119,7 @@ export default function ChaptersModal({ isOpen, playerHandler, onClose }: Chapte
 
   const currentChapterId = currentChapter?.id ?? -1
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="text-xl text-white">{t('HeaderChapters')}</p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderChapters')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="overflow-hidden sm:max-w-lg md:max-w-lg lg:max-w-lg">

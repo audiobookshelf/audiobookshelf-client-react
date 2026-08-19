@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -108,11 +109,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         processing={isProcessing}
         onClose={onClose}
         className="w-[calc(100vw-1rem)] md:max-w-[700px]"
-        outerContent={
-          <div className="absolute top-0 left-0 w-2/3 overflow-hidden p-4">
-            <p className="truncate text-xl text-white">{sessionTitle}</p>
-          </div>
-        }
+        outerContent={<ModalOuterContent title={sessionTitle}>{sessionTitle}</ModalOuterContent>}
       >
         {currentSession && (
           <div className="bg-bg w-full overflow-x-hidden overflow-y-auto rounded-lg p-6" style={{ maxHeight: '80vh' }}>

@@ -2,6 +2,7 @@
 
 import { createBookmarkAction, removeBookmarkAction } from '@/app/actions/playbackActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import BookmarkItem from '@/components/player/BookmarkItem'
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
@@ -94,11 +95,7 @@ export default function BookmarksModal({
     [roundedCurrentTime, libraryItemId, newBookmarkTitle, serverSettings.dateFormat, serverSettings.timeFormat, showToast, t]
   )
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="text-xl text-white">{t('LabelYourBookmarks')}</p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('LabelYourBookmarks')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="overflow-hidden sm:max-w-[600px] md:max-w-[600px] lg:max-w-[600px]">
