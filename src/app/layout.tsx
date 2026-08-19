@@ -13,14 +13,14 @@ import { getTheme } from '../lib/theme'
 const basePath = getNextBasePath()
 
 export const metadata: Metadata = {
-  title: 'audiobookshelf',
+  title: 'audiobookshelf', // i18n-ignore
   description: 'audiobookshelf',
   applicationName: 'Audiobookshelf',
   // NB: the manifest <link> is rendered manually below, not via `metadata.manifest`. Next forces
   // that field to the root-relative /manifest.webmanifest, which 404s under a subfolder deploy.
   appleWebApp: {
     capable: true,
-    title: 'Audiobookshelf',
+    title: 'Audiobookshelf', // i18n-ignore
     statusBarStyle: 'black'
   },
   // iOS < 16.4 still needs legacy `apple-mobile-web-app-capable` to launch standalone from the home screen.
