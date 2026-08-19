@@ -108,9 +108,11 @@ function measuredLayout(totalItems: number, rowHeight: number, rowHeights: Map<n
  *   computes which rows are inside the viewport (plus overscan).
  * - `virtualItems` is exposed so the consumer renders only those rows,
  *   positioned absolutely inside a `totalHeight` container.
- * - `rowHeight` is the exact height for fixed-height lists and the estimate for
- *   rows the consumer measures through `measureElement`. Measured heights are
- *   remembered after a row unmounts, so offsets stay stable while scrolling back.
+ * - `rowHeight` is the exact height for fixed-height lists and the initial
+ *   estimate for rows measured through `measureElement`. Once any rows are
+ *   measured, unmeasured rows use the average measured height instead.
+ *   Measured heights are remembered after a row unmounts, so offsets stay
+ *   stable while scrolling back.
  */
 export function useListVirtualizer(totalItems: number, rowHeight: number): UseListVirtualizerReturn {
   const [listElement, setListElement] = useState<HTMLDivElement | null>(null)
@@ -128,9 +130,16 @@ export function useListVirtualizer(totalItems: number, rowHeight: number): UseLi
   const lastContainerWidthRef = useRef<number | null>(null)
   const [visibleRange, setVisibleRange] = useState(() => ({ start: 0, end: Math.min(totalItems, INITIAL_ROWS) }))
 
+  const estimatedRowHeight = useMemo(() => {
+    if (!rowHeights.size) return rowHeight
+    let sum = 0
+    for (const height of rowHeights.values()) sum += height
+    return sum / rowHeights.size
+  }, [rowHeight, rowHeights])
+
   const layout = useMemo(
-    () => (rowHeights.size ? measuredLayout(totalItems, rowHeight, rowHeights) : uniformLayout(totalItems, rowHeight)),
-    [rowHeight, rowHeights, totalItems]
+    () => (rowHeights.size ? measuredLayout(totalItems, estimatedRowHeight, rowHeights) : uniformLayout(totalItems, rowHeight)),
+    [estimatedRowHeight, rowHeight, rowHeights, totalItems]
   )
   const layoutRef = useRef(layout)
 

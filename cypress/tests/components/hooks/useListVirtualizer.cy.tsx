@@ -25,8 +25,21 @@ function VirtualRow({ index, start, height, measureElement }: VirtualRowProps) {
 }
 
 /** `measure` off mirrors a fixed-height consumer such as EpisodeTable, which never wires `measureElement`. */
-function VirtualListHarness({ totalItems = 100, firstRowHeight = 40, measure = true }: { totalItems?: number; firstRowHeight?: number; measure?: boolean }) {
-  const { virtualItems, totalHeight, listContainerRef, measureElement } = useListVirtualizer(totalItems, 40)
+function VirtualListHarness({
+  totalItems = 100,
+  estimatedRowHeight = 40,
+  renderedRowHeight = 40,
+  firstRowHeight,
+  measure = true
+}: {
+  totalItems?: number
+  estimatedRowHeight?: number
+  renderedRowHeight?: number
+  firstRowHeight?: number
+  measure?: boolean
+}) {
+  const { virtualItems, totalHeight, listContainerRef, measureElement } = useListVirtualizer(totalItems, estimatedRowHeight)
+  const firstHeight = firstRowHeight ?? renderedRowHeight
 
   return (
     <div data-cy="scroll-root" className="relative h-[200px] overflow-y-auto">
@@ -36,7 +49,7 @@ function VirtualListHarness({ totalItems = 100, firstRowHeight = 40, measure = t
             key={index}
             index={index}
             start={start}
-            height={index === 0 ? firstRowHeight : 40}
+            height={index === 0 ? firstHeight : renderedRowHeight}
             measureElement={measure ? measureElement : undefined}
           />
         ))}
@@ -85,6 +98,12 @@ describe('useListVirtualizer', () => {
 
     cy.get('[data-cy="virtual-list"]').should('have.css', 'height', '400px')
     cy.get('[data-virtual-index="1"]').should('have.css', 'transform', 'matrix(1, 0, 0, 1, 0, 40)')
+  })
+
+  it('uses the average measured height for unmeasured rows', () => {
+    cy.mount(<VirtualListHarness totalItems={100} estimatedRowHeight={100} renderedRowHeight={50} />)
+
+    cy.get('[data-cy="virtual-list"]').should('have.css', 'height', '5000px')
   })
 
   it('clears unmounted row heights when the scroll container width changes', () => {
