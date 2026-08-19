@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 /** Number of rows to render above and below the visible window */
 const OVERSCAN_ROWS = 3
 
+/** Ignore sub-layout width noise such as scrollbar gutters */
+const WIDTH_CHANGE_PX = 24
+
 /**
  * Fallback number of rows to render before layout is calculated.
  * Must be large enough that the viewport is filled.
@@ -122,6 +125,7 @@ export function useListVirtualizer(totalItems: number, rowHeight: number): UseLi
   const rowNodesRef = useRef(new Map<number, HTMLElement>())
   const rowIndexesRef = useRef(new WeakMap<Element, number>())
   const [rowHeights, setRowHeights] = useState(() => new Map<number, number>())
+  const lastContainerWidthRef = useRef<number | null>(null)
   const [visibleRange, setVisibleRange] = useState(() => ({ start: 0, end: Math.min(totalItems, INITIAL_ROWS) }))
 
   const layout = useMemo(
@@ -181,8 +185,7 @@ export function useListVirtualizer(totalItems: number, rowHeight: number): UseLi
     }
   }, [updateRowHeight])
 
-  // Reads geometry through refs so the identity stays stable: row measurements must
-  // not resubscribe the scroll listener or re-walk the ancestors for a scroll container.
+  // Reads geometry through refs so row measurements must not resubscribe the scroll listener or re-walk the ancestors for a scroll container.
   const computeRange = useCallback(() => {
     const listEl = listElementRef.current
     const scrollContainer = scrollContainerRef.current
@@ -223,9 +226,40 @@ export function useListVirtualizer(totalItems: number, rowHeight: number): UseLi
     // A container-sized viewport still changes height with the window
     window.addEventListener('resize', computeRange, { passive: true })
 
+    // If the list width changes, clear stale heights for rows that are no longer
+    // mounted; they'll be re-measured on remount.
+    lastContainerWidthRef.current = listElement.clientWidth
+    let widthRaf = 0
+    const listWidthObserver = new ResizeObserver(() => {
+      const newWidth = listElement.clientWidth
+      const previousWidth = lastContainerWidthRef.current
+      if (previousWidth != null && Math.abs(newWidth - previousWidth) < WIDTH_CHANGE_PX) return
+      lastContainerWidthRef.current = newWidth
+      if (previousWidth == null) return
+
+      cancelAnimationFrame(widthRaf)
+      widthRaf = requestAnimationFrame(() => {
+        setRowHeights((current) => {
+          if (!current.size) return current
+          // Skip while rows are remounting so a width tick cannot wipe the cache.
+          const mounted = rowNodesRef.current
+          if (!mounted.size) return current
+          // Keep entries for mounted rows; the per-row observer will update them.
+          const next = new Map<number, number>()
+          for (const [index, height] of current) {
+            if (mounted.has(index)) next.set(index, height)
+          }
+          return next.size === current.size ? current : next
+        })
+      })
+    })
+    listWidthObserver.observe(listElement)
+
     return () => {
       eventTarget.removeEventListener('scroll', computeRange)
       window.removeEventListener('resize', computeRange)
+      cancelAnimationFrame(widthRaf)
+      listWidthObserver.disconnect()
       scrollContainerRef.current = null
     }
   }, [computeRange, listElement])

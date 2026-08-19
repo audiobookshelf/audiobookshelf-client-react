@@ -86,4 +86,19 @@ describe('useListVirtualizer', () => {
     cy.get('[data-cy="virtual-list"]').should('have.css', 'height', '400px')
     cy.get('[data-virtual-index="1"]').should('have.css', 'transform', 'matrix(1, 0, 0, 1, 0, 40)')
   })
+
+  it('clears unmounted row heights when the scroll container width changes', () => {
+    cy.mount(<VirtualListHarness totalItems={10} firstRowHeight={80} />)
+
+    cy.get('[data-virtual-index="1"]').should('have.css', 'transform', 'matrix(1, 0, 0, 1, 0, 80)')
+
+    cy.get('[data-cy="scroll-root"]').scrollTo(0, 800)
+
+    cy.get('[data-cy="scroll-root"]').invoke('css', 'width', '300px')
+
+    cy.get('[data-cy="scroll-root"]').scrollTo(0, 0)
+
+    cy.get('[data-virtual-index="1"]').should('have.css', 'transform', 'matrix(1, 0, 0, 1, 0, 80)')
+    cy.get('[data-cy="virtual-list"]').should('have.css', 'height', '440px')
+  })
 })
