@@ -14,7 +14,7 @@ import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
-import { useEpisodeTableVirtualizer } from '@/hooks/useEpisodeTableVirtualizer'
+import { useListVirtualizer } from '@/hooks/useListVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getPodcastEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
@@ -101,8 +101,8 @@ export default function EpisodeTable({
     setViewedEpisode(null)
   }, [viewedEpisode])
 
-  // Virtualizer — lazy render only visible rows
-  const { visibleStart, visibleEnd, totalHeight, listContainerRef } = useEpisodeTableVirtualizer(filteredEpisodes.length, EPISODE_ROW_HEIGHT_PX)
+  // Virtualizer — lazy render only visible rows. Rows are a fixed height, so `measureElement` stays unwired.
+  const { virtualItems, totalHeight, listContainerRef } = useListVirtualizer(filteredEpisodes.length, EPISODE_ROW_HEIGHT_PX)
 
   // Selection mode
   const isSelectionMode = selectedEpisodes.size > 0
@@ -383,10 +383,10 @@ export default function EpisodeTable({
           {filteredEpisodes.length === 0 && !isSearching ? (
             <p className="text-foreground py-8 text-center text-lg">{t('MessageNoEpisodes')}</p>
           ) : (
-            filteredEpisodes.slice(visibleStart, visibleEnd).map((episode, i) => {
-              const rowIndex = visibleStart + i
+            virtualItems.map(({ index: rowIndex, start }) => {
+              const episode = filteredEpisodes[rowIndex]
               return (
-                <div key={episode.id} className="absolute w-full" style={{ top: rowIndex * EPISODE_ROW_HEIGHT_PX }}>
+                <div key={episode.id} className="absolute w-full" style={{ top: start }}>
                   <EpisodeRow
                     episode={episode}
                     libraryItem={libraryItem}

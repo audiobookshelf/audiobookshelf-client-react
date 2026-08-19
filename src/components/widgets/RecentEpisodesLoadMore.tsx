@@ -2,21 +2,12 @@
 
 import Btn from '@/components/ui/Btn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { findScrollContainer } from '@/lib/scrollContainer'
 import { useEffect, useRef } from 'react'
 
 interface RecentEpisodesLoadMoreProps {
   isLoading: boolean
   onLoadMore: () => void | Promise<unknown>
-}
-
-function findScrollContainer(element: Element): Element | null {
-  let parent = element.parentElement
-  while (parent) {
-    const { overflow, overflowY } = window.getComputedStyle(parent)
-    if (/auto|scroll/.test(`${overflow}${overflowY}`)) return parent
-    parent = parent.parentElement
-  }
-  return null
 }
 
 export default function RecentEpisodesLoadMore({ isLoading, onLoadMore }: RecentEpisodesLoadMoreProps) {
