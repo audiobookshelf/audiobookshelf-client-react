@@ -1,15 +1,11 @@
-import { getCurrentUser, getData, getPlaylist } from '@/lib/api'
+import { getCurrentUser, getData } from '@/lib/api'
+import { getPlaylistOrNotFound } from '@/lib/notFound'
 import { redirect } from 'next/navigation'
 import PlaylistClient from './PlaylistClient'
 
 export default async function PlaylistPage({ params }: { params: Promise<{ playlist: string; library: string }> }) {
   const { playlist: playlistId, library: libraryIdFromRoute } = await params
-  const [playlist, currentUser] = await getData(getPlaylist(playlistId), getCurrentUser())
-
-  if (!playlist || !currentUser) {
-    console.error('Error getting playlist or user data')
-    return null
-  }
+  const [playlist] = await getData(getPlaylistOrNotFound(playlistId), getCurrentUser())
 
   if (playlist.libraryId !== libraryIdFromRoute) {
     redirect(`/library/${playlist.libraryId}/playlist/${playlistId}`)

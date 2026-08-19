@@ -1,0 +1,8 @@
+import PageMessage from '@/components/ui/PageMessage'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+
+export default async function AuthorNotFound() {
+  const t = await getTypeSafeTranslations()
+
+  return <PageMessage message={t('MessageAuthorNotFound')} description={t('MessageAuthorMayHaveBeenRemoved')} />
+}

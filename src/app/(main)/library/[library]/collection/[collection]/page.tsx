@@ -1,15 +1,11 @@
-import { getCollection, getCurrentUser, getData } from '@/lib/api'
+import { getCurrentUser, getData } from '@/lib/api'
+import { getCollectionOrNotFound } from '@/lib/notFound'
 import { redirect } from 'next/navigation'
 import CollectionClient from './CollectionClient'
 
 export default async function CollectionPage({ params }: { params: Promise<{ collection: string; library: string }> }) {
   const { collection: collectionId, library: libraryIdFromRoute } = await params
-  const [collection, currentUser] = await getData(getCollection(collectionId), getCurrentUser())
-
-  if (!collection || !currentUser) {
-    console.error('Error getting collection or user data')
-    return null
-  }
+  const [collection] = await getData(getCollectionOrNotFound(collectionId), getCurrentUser())
 
   if (collection.libraryId !== libraryIdFromRoute) {
     redirect(`/library/${collection.libraryId}/collection/${collectionId}`)
