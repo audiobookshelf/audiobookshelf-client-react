@@ -15,12 +15,12 @@ const basePath = getNextBasePath()
 export const metadata: Metadata = {
   title: 'audiobookshelf',
   description: 'audiobookshelf',
-  applicationName: 'audiobookshelf',
+  applicationName: 'Audiobookshelf',
   // NB: the manifest <link> is rendered manually below, not via `metadata.manifest`. Next forces
   // that field to the root-relative /manifest.webmanifest, which 404s under a subfolder deploy.
   appleWebApp: {
     capable: true,
-    title: 'audiobookshelf',
+    title: 'Audiobookshelf',
     statusBarStyle: 'black'
   },
   // iOS < 16.4 still needs legacy `apple-mobile-web-app-capable` to launch standalone from the home screen.

@@ -5,10 +5,7 @@ import { useEffect } from 'react'
 interface ServiceWorkerRegisterProps {
   /** Subfolder base path for the SW url + scope (empty for root deploys). */
   basePath: string
-  /**
-   * Whether to register at all. Defaults to production-only: in dev the SW would fight Next's HMR
-   * and serve stale assets. Used to test at (cypress/tests/components/ServiceWorkerRegister.cy.tsx).
-   */
+  /** Whether to register. Defaults to production-only. Override in tests to force on or off. */
   enabled?: boolean
 }
 

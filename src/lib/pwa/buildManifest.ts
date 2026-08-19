@@ -9,8 +9,8 @@ import type { MetadataRoute } from 'next'
  */
 export function buildManifest(base: string): MetadataRoute.Manifest {
   return {
-    name: 'audiobookshelf',
-    short_name: 'audiobookshelf',
+    name: 'Audiobookshelf',
+    short_name: 'Audiobookshelf',
     start_url: `${base}/`,
     scope: `${base}/`,
     display: 'standalone',

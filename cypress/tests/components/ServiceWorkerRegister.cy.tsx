@@ -25,8 +25,8 @@ describe('<ServiceWorkerRegister />', () => {
 
   it('does not register when disabled (mirrors the production-only guard)', () => {
     cy.mount(<ServiceWorkerRegister basePath="" enabled={false} />)
-    // Let the mount effect flush, then assert no registration was attempted.
-    cy.wait(50)
+    // Same gate as register(): only then would an enabled worker call register().
+    cy.document().its('readyState').should('eq', 'complete')
     cy.get('@swRegister').should('not.have.been.called')
   })
 })
