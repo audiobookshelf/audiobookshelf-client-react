@@ -2,10 +2,8 @@
 
 import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import PreviewCover from '@/components/covers/PreviewCover'
-import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import BonusIndicator from '@/components/widgets/BonusIndicator'
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import PodcastEpisodeListenActions from '@/components/widgets/episode/PodcastEpisodeListenActions'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
 import TrailerIndicator from '@/components/widgets/TrailerIndicator'
@@ -80,14 +78,10 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
     showQueueButton,
     playButtonLabel,
     isProcessingFinished,
-    playlistsModalOpen,
-    confirmState,
     handlePlay,
     handleQueueToggle,
     handleToggleFinished,
-    handleOpenPlaylist,
-    closePlaylistsModal,
-    closeConfirm
+    handleOpenPlaylist
   } = useEpisodeListenActions({
     libraryItemId: episode.libraryItemId,
     episode,
@@ -125,118 +119,92 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
   const itemHref = `/library/${episode.libraryId}/item/${episode.libraryItemId}`
 
   return (
-    <>
-      <div className="relative flex min-w-0 cursor-pointer py-5" onClick={handleRowClick}>
-        <div className="hidden shrink-0 md:block">
-          <PreviewCover src={coverSrc} width={96} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />
-        </div>
+    <div className="relative flex min-w-0 cursor-pointer py-5" onClick={handleRowClick}>
+      <div className="hidden shrink-0 md:block">
+        <PreviewCover src={coverSrc} width={96} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />
+      </div>
 
-        <div className="w-full min-w-0 grow md:max-w-2xl md:ps-4">
-          <div className="mb-2 flex min-w-0 md:hidden">
-            <PreviewCover src={coverSrc} width={48} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />
-            <div className="min-w-0 flex-1 px-2">
-              <div className="flex min-w-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                <Link href={itemHref} className="text-foreground-muted hover:text-foreground min-w-0 flex-1 text-sm break-words hover:underline">
-                  {podcastTitle}
-                </Link>
-                {isExplicit && <ExplicitIndicator className="shrink-0" />}
-              </div>
-              <p className="text-foreground-subdued mb-1 text-xs">{publishedDateLabel}</p>
-            </div>
-          </div>
-
-          <div className="hidden md:block">
+      <div className="w-full min-w-0 grow md:max-w-2xl md:ps-4">
+        <div className="mb-2 flex min-w-0 md:hidden">
+          <PreviewCover src={coverSrc} width={48} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />
+          <div className="min-w-0 flex-1 px-2">
             <div className="flex min-w-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
-              <Link href={itemHref} className="text-foreground-muted hover:text-foreground min-w-0 text-sm break-words hover:underline">
+              <Link href={itemHref} className="text-foreground-muted hover:text-foreground min-w-0 flex-1 text-sm break-words hover:underline">
                 {podcastTitle}
               </Link>
               {isExplicit && <ExplicitIndicator className="shrink-0" />}
             </div>
             <p className="text-foreground-subdued mb-1 text-xs">{publishedDateLabel}</p>
           </div>
-
-          {(episode.season || episode.episode) && (
-            <div className="text-foreground flex items-center font-semibold">
-              <span>#</span>
-              {episode.season && <span>{episode.season}x</span>}
-              {episode.episode && <span>{episode.episode}</span>}
-            </div>
-          )}
-
-          <div dir="auto" className="mb-2 flex min-w-0 items-start gap-1">
-            <button
-              type="button"
-              disabled={openingItem}
-              className="focus-visible:outline-foreground-muted min-w-0 flex-1 cursor-pointer rounded-sm text-start text-sm font-semibold break-words focus-visible:outline-1 focus-visible:outline-offset-4 md:text-base"
-              onClick={(e) => {
-                e.stopPropagation()
-                handleRowClick()
-              }}
-            >
-              {episode.title}
-            </button>
-            {episode.episodeType === 'bonus' && <BonusIndicator className="ms-1 shrink-0" />}
-            {episode.episodeType === 'trailer' && <TrailerIndicator className="ms-1 shrink-0" />}
-          </div>
-
-          {descriptionHtml && (
-            <div
-              dir="auto"
-              className="text-foreground-muted mb-4 line-clamp-4 min-w-0 text-sm break-words [&_*]:break-words"
-              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-              onClick={(e) => {
-                if ((e.target as HTMLElement).tagName.toLowerCase() === 'a') {
-                  e.stopPropagation()
-                }
-              }}
-            />
-          )}
-
-          <div onClick={(e) => e.stopPropagation()}>
-            <PodcastEpisodeListenActions
-              playButtonLabel={playButtonLabel}
-              isPlaying={episodeIsPlaying}
-              isFinished={userIsFinished}
-              isProcessingFinished={isProcessingFinished}
-              showQueueButton={showQueueButton}
-              isQueued={isQueued}
-              onPlay={handlePlay}
-              onQueueToggle={handleQueueToggle}
-              onToggleFinished={handleToggleFinished}
-              onAddToPlaylist={handleOpenPlaylist}
-            />
-          </div>
         </div>
 
-        {!userIsFinished && userProgressPercent > 0 && (
-          <div className="bg-warning pointer-events-none absolute bottom-0 left-0 h-0.5" style={{ width: `${userProgressPercent * 100}%` }} />
+        <div className="hidden md:block">
+          <div className="flex min-w-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
+            <Link href={itemHref} className="text-foreground-muted hover:text-foreground min-w-0 text-sm break-words hover:underline">
+              {podcastTitle}
+            </Link>
+            {isExplicit && <ExplicitIndicator className="shrink-0" />}
+          </div>
+          <p className="text-foreground-subdued mb-1 text-xs">{publishedDateLabel}</p>
+        </div>
+
+        {(episode.season || episode.episode) && (
+          <div className="text-foreground flex items-center font-semibold">
+            <span>#</span>
+            {episode.season && <span>{episode.season}x</span>}
+            {episode.episode && <span>{episode.episode}</span>}
+          </div>
         )}
+
+        <div dir="auto" className="mb-2 flex min-w-0 items-start gap-1">
+          <button
+            type="button"
+            disabled={openingItem}
+            className="focus-visible:outline-foreground-muted min-w-0 flex-1 cursor-pointer rounded-sm text-start text-sm font-semibold break-words focus-visible:outline-1 focus-visible:outline-offset-4 md:text-base"
+            onClick={(e) => {
+              e.stopPropagation()
+              handleRowClick()
+            }}
+          >
+            {episode.title}
+          </button>
+          {episode.episodeType === 'bonus' && <BonusIndicator className="ms-1 shrink-0" />}
+          {episode.episodeType === 'trailer' && <TrailerIndicator className="ms-1 shrink-0" />}
+        </div>
+
+        {descriptionHtml && (
+          <div
+            dir="auto"
+            className="text-foreground-muted mb-4 line-clamp-4 min-w-0 text-sm break-words [&_*]:break-words"
+            dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+            onClick={(e) => {
+              if ((e.target as HTMLElement).tagName.toLowerCase() === 'a') {
+                e.stopPropagation()
+              }
+            }}
+          />
+        )}
+
+        <div onClick={(e) => e.stopPropagation()}>
+          <PodcastEpisodeListenActions
+            playButtonLabel={playButtonLabel}
+            isPlaying={episodeIsPlaying}
+            isFinished={userIsFinished}
+            isProcessingFinished={isProcessingFinished}
+            showQueueButton={showQueueButton}
+            isQueued={isQueued}
+            onPlay={handlePlay}
+            onQueueToggle={handleQueueToggle}
+            onToggleFinished={handleToggleFinished}
+            onAddToPlaylist={handleOpenPlaylist}
+          />
+        </div>
       </div>
 
-      {playlistsModalOpen && (
-        <AddToPlaylistModal
-          isOpen={playlistsModalOpen}
-          onClose={closePlaylistsModal}
-          libraryId={episode.libraryId}
-          items={[{ libraryItemId: episode.libraryItemId, episodeId: episode.id }]}
-          headerTitle={episode.title}
-        />
+      {!userIsFinished && userProgressPercent > 0 && (
+        <div className="bg-warning pointer-events-none absolute bottom-0 left-0 h-0.5" style={{ width: `${userProgressPercent * 100}%` }} />
       )}
-
-      {confirmState && (
-        <ConfirmDialog
-          isOpen={confirmState.isOpen}
-          message={confirmState.message}
-          checkboxLabel={confirmState.checkboxLabel}
-          yesButtonText={confirmState.yesButtonText}
-          yesButtonClassName={confirmState.yesButtonClassName}
-          onClose={closeConfirm}
-          onConfirm={(value) => {
-            confirmState.onConfirm(value)
-          }}
-        />
-      )}
-    </>
+    </div>
   )
 }
 
