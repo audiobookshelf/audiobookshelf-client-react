@@ -23,28 +23,36 @@ function makeResponse(episodes: RecentPodcastEpisode[], page: number): GetRecent
 function PaginationProbe({
   initialEpisodes,
   fetchPage,
-  onError
+  onError,
+  autoLoadTrigger
 }: {
   initialEpisodes: RecentPodcastEpisode[]
   fetchPage: FetchPage
   onError: (error: unknown) => void
+  autoLoadTrigger?: boolean
 }) {
-  const { episodes, hasMore, isLoading, loadMore } = useRecentEpisodesPagination({ initialEpisodes, fetchPage, onError })
+  const { episodes, hasMore, autoLoadEnabled, isLoading, loadMore } = useRecentEpisodesPagination({ initialEpisodes, fetchPage, onError })
 
   return (
     <div>
       <span data-cy="episode-ids">{episodes.map((episode) => episode.id).join(',')}</span>
       <span data-cy="episode-count">{episodes.length}</span>
       <span data-cy="has-more">{String(hasMore)}</span>
+      <span data-cy="auto-load-enabled">{String(autoLoadEnabled)}</span>
       <span data-cy="is-loading">{String(isLoading)}</span>
-      <button data-cy="load-more" onClick={() => void loadMore()}>
+      {autoLoadTrigger && (
+        <button data-cy="auto-load" onClick={() => void loadMore()}>
+          Auto load
+        </button>
+      )}
+      <button data-cy="load-more" onClick={() => void loadMore({ manual: true })}>
         Load more
       </button>
       <button
         data-cy="load-more-twice"
         onClick={() => {
-          void loadMore()
-          void loadMore()
+          void loadMore({ manual: true })
+          void loadMore({ manual: true })
         }}
       >
         Load more twice
@@ -66,6 +74,24 @@ describe('useRecentEpisodesPagination', () => {
     cy.get('[data-cy="episode-count"]').should('have.text', '52')
     cy.get('[data-cy="episode-ids"]').should('contain.text', 'episode-50,episode-51')
     cy.get('[data-cy="has-more"]').should('have.text', 'false')
+  })
+
+  it('advances through duplicate full pages until new episodes are appended', () => {
+    const fetchPage = cy.stub()
+    fetchPage.onFirstCall().resolves(makeResponse(makeEpisodes(0, RECENT_EPISODES_PAGE_SIZE), 1))
+    fetchPage.onSecondCall().resolves(makeResponse(makeEpisodes(50, RECENT_EPISODES_PAGE_SIZE), 2))
+
+    cy.mount(<PaginationProbe initialEpisodes={initialEpisodes} fetchPage={fetchPage} onError={cy.stub()} />)
+    cy.get('[data-cy="load-more"]').click()
+
+    cy.wrap(fetchPage)
+      .should('have.been.calledTwice')
+      .then(() => {
+        expect(fetchPage.firstCall.args).to.deep.equal([1])
+        expect(fetchPage.secondCall.args).to.deep.equal([2])
+      })
+    cy.get('[data-cy="episode-count"]').should('have.text', '100')
+    cy.get('[data-cy="has-more"]').should('have.text', 'true')
   })
 
   it('advances the page only after a successful full response', () => {
@@ -93,13 +119,17 @@ describe('useRecentEpisodesPagination', () => {
     fetchPage.onFirstCall().rejects(error)
     fetchPage.onSecondCall().resolves(makeResponse([makeEpisode(50)], 1))
 
-    cy.mount(<PaginationProbe initialEpisodes={initialEpisodes} fetchPage={fetchPage} onError={onError} />)
+    cy.mount(<PaginationProbe initialEpisodes={initialEpisodes} fetchPage={fetchPage} onError={onError} autoLoadTrigger />)
     cy.get('[data-cy="load-more"]').click()
 
     cy.wrap(onError).should('have.been.calledOnceWith', error)
     cy.get('[data-cy="episode-count"]').should('have.text', String(RECENT_EPISODES_PAGE_SIZE))
     cy.get('[data-cy="has-more"]').should('have.text', 'true')
+    cy.get('[data-cy="auto-load-enabled"]').should('have.text', 'false')
     cy.get('[data-cy="is-loading"]').should('have.text', 'false')
+    cy.get('[data-cy="auto-load"]').click()
+
+    cy.wrap(fetchPage).should('have.been.calledOnceWith', 1)
     cy.get('[data-cy="load-more"]').click()
 
     cy.wrap(fetchPage)

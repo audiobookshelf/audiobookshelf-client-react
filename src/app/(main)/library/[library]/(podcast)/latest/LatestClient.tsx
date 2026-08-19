@@ -1,9 +1,9 @@
 'use client'
 
 import { fetchRecentEpisodesAction } from '@/app/actions/libraryActions'
-import RecentEpisodesLoadMore from '@/components/widgets/RecentEpisodesLoadMore'
 import SquareGridGroupCover from '@/components/widgets/media-card/SquareGridGroupCover'
 import RecentEpisodeRow, { RecentEpisodeRowDivider } from '@/components/widgets/RecentEpisodeRow'
+import RecentEpisodesLoadMore from '@/components/widgets/RecentEpisodesLoadMore'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useListVirtualizer, type VirtualListItem } from '@/hooks/useListVirtualizer'
@@ -53,7 +53,7 @@ export default function LatestClient({ libraryId, initialEpisodes }: LatestClien
     [showToast, t]
   )
 
-  const { episodes, hasMore, isLoading, loadMore } = useRecentEpisodesPagination({
+  const { episodes, hasMore, autoLoadEnabled, isLoading, loadMore } = useRecentEpisodesPagination({
     initialEpisodes,
     fetchPage,
     onError: handleLoadError
@@ -75,7 +75,7 @@ export default function LatestClient({ libraryId, initialEpisodes }: LatestClien
           ))}
         </div>
       )}
-      {hasMore && <RecentEpisodesLoadMore isLoading={isLoading} onLoadMore={loadMore} />}
+      {hasMore && <RecentEpisodesLoadMore isLoading={isLoading} autoLoadEnabled={autoLoadEnabled} onLoadMore={loadMore} />}
     </div>
   )
 
