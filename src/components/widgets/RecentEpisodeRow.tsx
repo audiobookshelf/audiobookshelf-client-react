@@ -15,10 +15,10 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { sanitizeEpisodeDescriptionHtml } from '@/lib/episode'
 import { buildRecentEpisodesQueueFromIndex } from '@/lib/playerQueue'
-import type { PodcastLibraryItem, RecentPodcastEpisode } from '@/types/api'
+import type { LibraryItem, PodcastLibraryItem, RecentPodcastEpisode } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
-import { useCallback, useMemo, useState, useTransition } from 'react'
+import { useCallback, useMemo, useTransition } from 'react'
 
 interface RecentEpisodeRowProps {
   episode: RecentPodcastEpisode
@@ -32,20 +32,19 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
   const { user } = useUser()
   const { showToast } = useGlobalToast()
   const bookCoverAspectRatio = useBookCoverAspectRatio()
-  const [, startTransition] = useTransition()
-  const [openingItem, setOpeningItem] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const podcastTitle = episode.podcast.metadata?.title ?? ''
   const isExplicit = !!episode.podcast.metadata?.explicit
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
 
   const coverLibraryItem = useMemo(
-    () => ({
+    (): LibraryItem => ({
       id: episode.libraryItemId,
       libraryId: episode.libraryId,
       updatedAt: episode.updatedAt,
       media: episode.podcast,
-      mediaType: 'podcast' as const,
+      mediaType: 'podcast',
       ino: '',
       path: '',
       relPath: '',
@@ -92,9 +91,8 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 
   const handleRowClick = useCallback(() => {
-    if (openingItem) return
+    if (isPending) return
 
-    setOpeningItem(true)
     startTransition(async () => {
       try {
         const fullLibraryItem = await getExpandedLibraryItemAction(episode.libraryItemId)
@@ -110,11 +108,9 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
       } catch (error) {
         console.error('Failed to get library item', error)
         showToast(t('ToastFailedToLoadData'), { type: 'error' })
-      } finally {
-        setOpeningItem(false)
       }
     })
-  }, [clearBoundModal, episode, openingItem, setBoundModal, showToast, t])
+  }, [clearBoundModal, episode, isPending, setBoundModal, showToast, t])
 
   const itemHref = `/library/${episode.libraryId}/item/${episode.libraryItemId}`
 
@@ -159,7 +155,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
         <div dir="auto" className="mb-2 flex min-w-0 items-start gap-1">
           <button
             type="button"
-            disabled={openingItem}
+            disabled={isPending}
             className="focus-visible:outline-foreground-muted min-w-0 flex-1 cursor-pointer rounded-sm text-start text-sm font-semibold break-words focus-visible:outline-1 focus-visible:outline-offset-4 md:text-base"
             onClick={(e) => {
               e.stopPropagation()
