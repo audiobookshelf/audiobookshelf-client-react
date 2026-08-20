@@ -1,4 +1,5 @@
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import CronExpressionBuilder from '@/components/widgets/CronExpressionBuilder'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
@@ -30,11 +31,7 @@ export default function BackupScheduleModal({ isOpen, onClose, isPending, cronEx
 
   const hasChanges = cronExpressionValue !== cronExpression
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{t('HeaderSetBackupSchedule')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{t('HeaderSetBackupSchedule')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-full md:max-w-[700px] lg:max-w-[700px]">

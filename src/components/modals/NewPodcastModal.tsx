@@ -2,6 +2,7 @@
 
 import { createPodcastAction } from '@/app/(main)/library/[library]/(podcast)/add-podcast/actions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
@@ -235,11 +236,7 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
     })
   }, [fullPath, library.folders, library.id, onClose, onCreated, podcast, selectedFolderId, showToast, t])
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 max-w-[75%] p-4">
-      <h2 className="truncate text-xl text-white">{modalTitle}</h2>
-    </div>
-  )
+  const outerContent = <ModalOuterContent title={modalTitle}>{modalTitle}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>

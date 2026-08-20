@@ -2,6 +2,7 @@
 
 import { checkPodcastNewEpisodesAction, updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
@@ -109,11 +110,7 @@ export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryI
     }
   }, [feedUrl, isChecking, lastEpisodeCheckInput, libraryItem, maxEpisodesToDownload, onClose, savedLastEpisodeCheck, showToast, t])
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{t('ButtonCheckForNewEpisodes')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{t('ButtonCheckForNewEpisodes')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="max-w-[400px] sm:max-w-[400px] md:max-w-[400px] lg:max-w-[400px]">

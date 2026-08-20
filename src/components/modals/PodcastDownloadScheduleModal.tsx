@@ -2,6 +2,7 @@
 
 import { updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
@@ -180,11 +181,7 @@ export default function PodcastDownloadScheduleModal({ isOpen, onClose, libraryI
 
   const isProcessing = isSaving || isDisabling
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{t('HeaderScheduleEpisodeDownloads')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{t('HeaderScheduleEpisodeDownloads')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isProcessing} outerContent={outerContentTitle} className="w-full md:max-w-[700px] lg:max-w-[700px]">

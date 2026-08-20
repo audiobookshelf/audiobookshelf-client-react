@@ -2,6 +2,7 @@
 
 import PreviewCover from '@/components/covers/PreviewCover'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import Checkbox from '@/components/ui/Checkbox'
 import IconBtn from '@/components/ui/IconBtn'
@@ -211,11 +212,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
     [isStreaming]
   )
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="text-xl text-white">{t('HeaderPlayerQueue')}</p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderPlayerQueue')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-[800px] md:max-w-[800px] lg:max-w-[800px]">

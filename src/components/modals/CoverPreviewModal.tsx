@@ -2,6 +2,7 @@
 
 import PreviewCover from '@/components/covers/PreviewCover'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -111,13 +112,14 @@ export default function CoverPreviewModal({
   }, [isLandscape, currentWindowWidth, availableImageHeight, bookCoverAspectRatio])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className={modalClassName} style={modalStyle}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      className={modalClassName}
+      style={modalStyle}
+      outerContent={<ModalOuterContent>{t('HeaderPreviewCover')}</ModalOuterContent>}
+    >
       <div className="flex h-full w-full flex-col overflow-hidden">
-        {/* Header */}
-        <div className="flex-shrink-0 p-3 text-center">
-          <p className="text-base font-semibold">{t('HeaderPreviewCover')}</p>
-        </div>
-
         {/* Image area - takes remaining space */}
         <div className="flex min-h-0 flex-1 items-center justify-center px-6">
           {selectedCover && <PreviewCover src={selectedCover} width={previewCoverWidth} showResolution={false} />}

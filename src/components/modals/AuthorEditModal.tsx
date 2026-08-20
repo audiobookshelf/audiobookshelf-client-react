@@ -6,6 +6,7 @@ import { Author, User } from '@/types/api'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import AuthorImage from '../covers/AuthorImage'
 import Modal from '../modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '../ui/Btn'
 import IconBtn from '../ui/IconBtn'
 import SlateEditor from '../ui/SlateEditor'
@@ -120,6 +121,7 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
           onClose()
         }}
         processing={isPending}
+        outerContent={<ModalOuterContent title={author.name}>{author.name}</ModalOuterContent>}
       >
         <div className="flex max-h-[90vh] flex-col">
           <div className="overflow-y-auto px-4 py-6 sm:px-6">

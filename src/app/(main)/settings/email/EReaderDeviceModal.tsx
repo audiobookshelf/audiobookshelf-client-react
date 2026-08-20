@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
@@ -135,11 +136,7 @@ export default function EReaderDeviceModal({ isOpen, device, existingDevices, us
     })
   }
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{isEditing ? t('ButtonEditDevice') : t('ButtonAddDevice')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{isEditing ? t('ButtonEditDevice') : t('ButtonAddDevice')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} processing={isPending} onClose={onClose} outerContent={outerContentTitle} className="w-[800px]">

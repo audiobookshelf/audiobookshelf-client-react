@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import { MultiSelect, MultiSelectItem } from '@/components/ui/MultiSelect'
@@ -260,11 +261,7 @@ export default function UserAccountModal({ isOpen, user, processing = false, onC
     { key: 'accessExplicitContent', label: t('LabelPermissionsAccessExplicitContent') }
   ]
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{isEditing ? t('HeaderUpdateAccount') : t('HeaderNewAccount')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{isEditing ? t('HeaderUpdateAccount') : t('HeaderNewAccount')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} processing={processing} onClose={onClose} outerContent={outerContentTitle}>
