@@ -3,6 +3,7 @@
 import { getExpandedLibraryItemAction, getPodcastEpisodeAction } from '@/app/actions/mediaActions'
 import type { ModalProps } from '@/components/modals/Modal'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import ModalSideNavigation from '@/components/modals/ModalSideNavigation'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useEpisodeNavigationContext } from '@/hooks/useEpisodeNavigationContext'
@@ -154,13 +155,7 @@ export default function EpisodeModal(props: EpisodeModalProps) {
   const mediaTitle = resolvedLibraryItem?.media.metadata.title ?? ''
   const outerContent = useMemo(() => {
     if (!mediaTitle) return undefined
-    return (
-      <div className="absolute start-0 top-0 p-4">
-        <h2 className="max-w-[calc(100vw-4rem)] truncate text-xl text-white" title={mediaTitle}>
-          {mediaTitle}
-        </h2>
-      </div>
-    )
+    return <ModalOuterContent title={mediaTitle}>{mediaTitle}</ModalOuterContent>
   }, [mediaTitle])
 
   const showRails = navCtxMode && slots.length > 1

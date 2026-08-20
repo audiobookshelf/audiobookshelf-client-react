@@ -3,6 +3,7 @@
 import { fetchPlaylistsAction } from '@/app/actions/libraryActions'
 import { batchAddToPlaylistAction, batchRemoveFromPlaylistAction, createPlaylistAction } from '@/app/actions/playlistActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
@@ -183,13 +184,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
 
   const outerHeaderText = isBatch ? t(getSelectionCountMessageKey(selectionKind ?? 'book'), { count: itemCount }) : (headerTitle ?? '')
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white" title={outerHeaderText}>
-        {outerHeaderText}
-      </p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent title={outerHeaderText}>{outerHeaderText}</ModalOuterContent>
 
   const controlsDisabled = loadingInitial || isMutating
 

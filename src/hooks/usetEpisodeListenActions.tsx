@@ -1,7 +1,8 @@
 'use client'
 
 import { getExpandedLibraryItemAction, toggleFinishedAction } from '@/app/actions/mediaActions'
-import type { ConfirmState } from '@/components/widgets/ConfirmDialog'
+import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useLibrary } from '@/contexts/LibraryContext'
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { useMediaContext } from '@/contexts/MediaContext'
@@ -24,10 +25,11 @@ export interface UseEpisodeListenActionsParams {
 
 export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, getQueueItems, buildQueueItem }: UseEpisodeListenActionsParams) {
   const t = useTypeSafeTranslations()
-  const { library } = useLibrary()
+  const { library, setBoundModal } = useLibrary()
   const libraryId = library.id
   const { user } = useUser()
   const { showToast } = useGlobalToast()
+  const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
   const {
     playItem,
     isPlaying,
@@ -42,8 +44,6 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
 
   const [, startTransition] = useTransition()
   const [isProcessingFinished, setIsProcessingFinished] = useState(false)
-  const [playlistsModalOpen, setPlaylistsModalOpen] = useState(false)
-  const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
 
   const progress = useMemo(() => getMediaItemProgress(user.mediaProgress, libraryItemId, episode.id), [episode.id, libraryItemId, user.mediaProgress])
 
@@ -66,8 +66,6 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     const remaining = Math.floor(duration - currentTime)
     return t('LabelTimeLeft', { 0: formatDuration(remaining, t) })
   }, [durationSeconds, episodeIsPlaying, progress, t])
-
-  const closeConfirm = useCallback(() => setConfirmState(null), [])
 
   const handlePlay = useCallback(
     (e: React.MouseEvent) => {
@@ -119,53 +117,68 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     [addItemToQueue, buildQueueItem, episode.id, getQueueItems, isQueued, libraryItemId, removeItemFromQueue]
   )
 
-  const toggleFinished = useCallback(
-    (confirmed: boolean) => {
-      if (!userIsFinished && userProgressPercent > 0 && !confirmed) {
-        setConfirmState({
-          isOpen: true,
-          message: t('MessageConfirmMarkItemFinished', { 0: itemTitle }),
-          yesButtonText: t('ButtonYes'),
-          yesButtonClassName: 'bg-success',
-          onConfirm: () => {
-            toggleFinished(true)
-            setConfirmState(null)
-          }
+  const runToggleFinished = useCallback(() => {
+    setIsProcessingFinished(true)
+    startTransition(async () => {
+      try {
+        await toggleFinishedAction(libraryItemId, {
+          isFinished: !userIsFinished,
+          episodeId: episode.id
         })
-        return
+      } catch (error) {
+        console.error('Failed to toggle finished', error)
+        showToast(!userIsFinished ? t('ToastItemMarkedAsFinishedFailed') : t('ToastItemMarkedAsNotFinishedFailed'), {
+          type: 'error'
+        })
+      } finally {
+        setIsProcessingFinished(false)
       }
-
-      setIsProcessingFinished(true)
-      startTransition(async () => {
-        try {
-          await toggleFinishedAction(libraryItemId, {
-            isFinished: !userIsFinished,
-            episodeId: episode.id
-          })
-        } catch (error) {
-          console.error('Failed to toggle finished', error)
-          showToast(!userIsFinished ? t('ToastItemMarkedAsFinishedFailed') : t('ToastItemMarkedAsNotFinishedFailed'), {
-            type: 'error'
-          })
-        } finally {
-          setIsProcessingFinished(false)
-        }
-      })
-    },
-    [episode.id, itemTitle, libraryItemId, showToast, t, userIsFinished, userProgressPercent]
-  )
+    })
+  }, [episode.id, libraryItemId, showToast, startTransition, t, userIsFinished])
 
   const handleToggleFinished = useCallback(() => {
-    toggleFinished(false)
-  }, [toggleFinished])
+    if (!userIsFinished && userProgressPercent > 0) {
+      const episodeId = episode.id
+      setBoundModal(
+        <ConfirmDialog
+          key={`mark-finished-${libraryItemId}-${episodeId}`}
+          isOpen
+          message={t('MessageConfirmMarkItemFinished', { 0: itemTitle })}
+          yesButtonText={t('ButtonYes')}
+          yesButtonClassName="bg-success"
+          onClose={clearBoundModal}
+          onConfirm={() => {
+            clearBoundModal()
+            void toggleFinishedAction(libraryItemId, { isFinished: true, episodeId }).catch((error) => {
+              console.error('Failed to toggle finished', error)
+              showToast(t('ToastItemMarkedAsFinishedFailed'), { type: 'error' })
+            })
+          }}
+        />
+      )
+      return
+    }
 
-  const handleOpenPlaylist = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    e.preventDefault()
-    setPlaylistsModalOpen(true)
-  }, [])
+    runToggleFinished()
+  }, [clearBoundModal, episode.id, itemTitle, libraryItemId, runToggleFinished, setBoundModal, showToast, t, userIsFinished, userProgressPercent])
 
-  const closePlaylistsModal = useCallback(() => setPlaylistsModalOpen(false), [])
+  const handleOpenPlaylist = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      e.preventDefault()
+      setBoundModal(
+        <AddToPlaylistModal
+          key={`add-to-playlist-${libraryItemId}-${episode.id}`}
+          isOpen
+          onClose={clearBoundModal}
+          libraryId={libraryId}
+          items={[{ libraryItemId, episodeId: episode.id }]}
+          headerTitle={itemTitle}
+        />
+      )
+    },
+    [clearBoundModal, episode.id, itemTitle, libraryId, libraryItemId, setBoundModal]
+  )
 
   return {
     libraryId,
@@ -177,14 +190,10 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     showQueueButton,
     playButtonLabel,
     isProcessingFinished,
-    playlistsModalOpen,
-    confirmState,
     handlePlay,
     handleQueueToggle,
     handleToggleFinished,
-    handleOpenPlaylist,
-    closePlaylistsModal,
-    closeConfirm
+    handleOpenPlaylist
   }
 }
 

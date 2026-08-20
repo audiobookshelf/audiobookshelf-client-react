@@ -2,6 +2,7 @@
 
 import { createPodcastsFromOpmlAction } from '@/app/(main)/library/[library]/(podcast)/add-podcast/actions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
@@ -64,11 +65,7 @@ export default function OpmlFeedsModal({ isOpen, feeds, onClose }: OpmlFeedsModa
     })
   }, [autoDownloadEpisodes, feeds, library.id, onClose, selectedFolderId, showToast, t])
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{t('MessageTaskOpmlImport')}</h2>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('MessageTaskOpmlImport')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>

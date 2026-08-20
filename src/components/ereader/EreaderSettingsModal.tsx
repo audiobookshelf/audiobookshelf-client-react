@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import RangeInput from '@/components/ui/RangeInput'
 import ToggleButtonGroup from '@/components/ui/ToggleButtonGroup'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -41,11 +42,7 @@ export default function EreaderSettingsModal({ isOpen, ebookFormat, settings, on
       isOpen={isOpen}
       onClose={onClose}
       zIndexClass="z-[90]"
-      outerContent={
-        <div className="absolute start-0 top-0 p-4">
-          <p className="text-xl text-white">{t('HeaderEreaderSettings')}</p>
-        </div>
-      }
+      outerContent={<ModalOuterContent>{t('HeaderEreaderSettings')}</ModalOuterContent>}
       className="w-[500px]"
     >
       <div className="relative max-h-[80vh] w-full overflow-x-hidden overflow-y-auto p-4 md:p-8">

@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
@@ -95,11 +96,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
     }))
   }, [users])
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{isEditing ? t('HeaderUpdateApiKey') : t('HeaderNewApiKey')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{isEditing ? t('HeaderUpdateApiKey') : t('HeaderNewApiKey')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">

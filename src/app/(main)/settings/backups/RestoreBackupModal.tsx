@@ -1,4 +1,5 @@
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime } from '@/lib/datefns'
@@ -21,7 +22,12 @@ export default function RestoreBackupModal({ isOpen, backup, dateFormat, timeFor
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} className="w-full max-w-[675px] md:max-w-[675px]">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      className="w-full max-w-[675px] md:max-w-[675px]"
+      outerContent={<ModalOuterContent>{t('ButtonRestore')}</ModalOuterContent>}
+    >
       <div className="max-h-[90vh] overflow-y-auto px-4 py-6 sm:px-6">
         <p className="text-error text-lg font-semibold">{t('MessageImportantNotice')}</p>
         <div className="text-foreground py-1 text-base">{t.rich('MessageRestoreBackupWarning', { br: () => <br /> })}</div>

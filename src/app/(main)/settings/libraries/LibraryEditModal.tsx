@@ -1,6 +1,7 @@
 'use client'
 
 import TabbedModal from '@/components/modals/TabbedModal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
@@ -212,11 +213,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
     }
   }
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{isEditing ? t('HeaderUpdateLibrary') : t('HeaderNewLibrary')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{isEditing ? t('HeaderUpdateLibrary') : t('HeaderNewLibrary')}</ModalOuterContent>
 
   return (
     <TabbedModal

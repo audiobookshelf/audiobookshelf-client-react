@@ -2,6 +2,7 @@
 
 import { deletePlaylistAction, updatePlaylistAction } from '@/app/actions/playlistActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import TextareaInput from '@/components/ui/TextareaInput'
 import TextInput from '@/components/ui/TextInput'
@@ -87,11 +88,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
     })
   }, [playlist.id, onClose, onDeleted, showToast, t])
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{t('HeaderPlaylist')}</h2>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderPlaylist')}</ModalOuterContent>
 
   return (
     <>

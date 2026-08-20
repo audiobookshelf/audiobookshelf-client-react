@@ -12,7 +12,6 @@ import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
 import { useLibrary } from '@/contexts/LibraryContext'
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
@@ -475,20 +474,6 @@ function CompilationItemListRowBody({
           </div>
         )}
       </div>
-
-      {episodeListenActions?.confirmState && (
-        <ConfirmDialog
-          isOpen={episodeListenActions.confirmState.isOpen}
-          message={episodeListenActions.confirmState.message}
-          checkboxLabel={episodeListenActions.confirmState.checkboxLabel}
-          yesButtonText={episodeListenActions.confirmState.yesButtonText}
-          yesButtonClassName={episodeListenActions.confirmState.yesButtonClassName}
-          onClose={episodeListenActions.closeConfirm}
-          onConfirm={(value) => {
-            episodeListenActions.confirmState?.onConfirm(value)
-          }}
-        />
-      )}
     </div>
   )
 }

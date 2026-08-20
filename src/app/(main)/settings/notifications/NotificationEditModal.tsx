@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { MultiSelect } from '@/components/ui/MultiSelect'
@@ -113,11 +114,7 @@ export default function NotificationEditModal({ isOpen, notification, notificati
     })
   }
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="truncate text-xl text-white">{isEditing ? t('HeaderNotificationUpdate') : t('HeaderNotificationCreate')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{isEditing ? t('HeaderNotificationUpdate') : t('HeaderNotificationCreate')}</ModalOuterContent>
 
   const urlItems = formState.urls.map((url) => ({ value: url, content: url }))
 

@@ -2,6 +2,7 @@
 
 import { searchChaptersAction } from '@/app/actions/chapterActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown from '@/components/ui/Dropdown'
@@ -101,11 +102,7 @@ export default function FindChaptersModal({
       processing={isPending}
       onClose={onClose}
       style={{ width: 500 }}
-      outerContent={
-        <div className="absolute start-0 top-0 p-4">
-          <p className="max-w-[calc(100vw-4rem)] truncate text-xl text-white">{t('HeaderFindChapters')}</p>
-        </div>
-      }
+      outerContent={<ModalOuterContent>{t('HeaderFindChapters')}</ModalOuterContent>}
     >
       <div className="bg-bg border-border relative max-h-full w-full rounded-lg border text-sm shadow-lg">
         {!displayData ? (

@@ -3,8 +3,17 @@ import { formatBookAuthorNames, getBookDuration, isPlayableBook } from '@/lib/bo
 import { getEpisodeDuration, isPlayableEpisode } from '@/lib/episode'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { getMediaItemProgress } from '@/lib/mediaProgress'
-import type { LibraryItem, MediaProgress, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
+import type { LibraryItem, MediaProgress, PodcastEpisode, PodcastLibraryItem, RecentPodcastEpisode } from '@/types/api'
 import { isBookMedia, isBookMetadata } from '@/types/api'
+
+/** Max items put in the player queue when playing from a list. */
+export const MAX_PLAYER_QUEUE_ITEMS = 100
+
+function pushQueueItem(queueItems: PlayerQueueItem[], item: PlayerQueueItem | null): boolean {
+  if (!item) return false
+  queueItems.push(item)
+  return queueItems.length >= MAX_PLAYER_QUEUE_ITEMS
+}
 
 export function buildBookQueueItem(libraryItem: LibraryItem): PlayerQueueItem | null {
   if (!isPlayableBook(libraryItem)) return null
@@ -99,7 +108,39 @@ export function buildPodcastEpisodesQueueFromIndex(
       coverPath,
       caption: captionForEpisode?.(episode) ?? ''
     })
-    if (queueItem) queueItems.push(queueItem)
+    if (pushQueueItem(queueItems, queueItem)) break
+  }
+
+  return queueItems
+}
+
+/** Queue from clicked episode through newer items (lower indices), skipping finished. */
+export function buildRecentEpisodesQueueFromIndex(
+  episodes: RecentPodcastEpisode[],
+  mediaProgress: MediaProgress[],
+  startIndex: number,
+  captionForEpisode?: (episode: RecentPodcastEpisode) => string
+): PlayerQueueItem[] {
+  const queueItems: PlayerQueueItem[] = []
+
+  for (let i = startIndex; i >= 0; i--) {
+    const episode = episodes[i]
+    const progress = getMediaItemProgress(mediaProgress, episode.libraryItemId, episode.id)
+    if (progress?.isFinished) continue
+
+    const queueItem = buildEpisodeQueueItem({
+      libraryItem: {
+        id: episode.libraryItemId,
+        libraryId: episode.libraryId,
+        isMissing: false,
+        isInvalid: false
+      },
+      episode,
+      podcastTitle: episode.podcast.metadata?.title ?? '',
+      coverPath: episode.podcast.coverPath ?? null,
+      caption: captionForEpisode?.(episode) ?? ''
+    })
+    if (pushQueueItem(queueItems, queueItem)) break
   }
 
   return queueItems
