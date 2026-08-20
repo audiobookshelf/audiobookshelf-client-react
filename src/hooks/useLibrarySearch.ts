@@ -3,7 +3,7 @@
 import { getCollectionsAction, getPlaylistsAction, searchLibraryAction } from '@/app/actions/searchActions'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { Author, BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, SearchLibraryResponse, Series } from '@/types/api'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseLibrarySearchOptions {
   autoSelectFirst?: boolean
@@ -66,8 +66,8 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
 
   // Cached collections and playlists for client-side filtering
-  const [cachedCollections, setCachedCollections] = useState<Collection[]>([])
-  const [cachedPlaylists, setCachedPlaylists] = useState<Playlist[]>([])
+  const cachedCollectionsRef = useRef<Collection[]>([])
+  const cachedPlaylistsRef = useRef<Playlist[]>([])
 
   // Listen for item updates via WebSocket
   const handleItemUpdated = useCallback(
@@ -92,14 +92,14 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
   }, [libraryId])
 
   // Track if collections/playlists have been fetched for current library
-  const [hasFetchedExtras, setHasFetchedExtras] = useState(false)
+  const hasFetchedExtrasRef = useRef(false)
 
   // Reset fetch flag when library changes
   useEffect(() => {
     if (selectedLibraryId) {
-      setHasFetchedExtras(false)
-      setCachedCollections([])
-      setCachedPlaylists([])
+      hasFetchedExtrasRef.current = false
+      cachedCollectionsRef.current = []
+      cachedPlaylistsRef.current = []
     }
   }, [selectedLibraryId])
 
@@ -107,7 +107,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
   const handleExtrasUpdated = useCallback(
     (entity: Collection | Playlist) => {
       if (entity.libraryId !== selectedLibraryId) return
-      setHasFetchedExtras(false)
+      hasFetchedExtrasRef.current = false
     },
     [selectedLibraryId]
   )
@@ -121,22 +121,22 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
 
   // Fetch collections and playlists on-demand (called before first search)
   const fetchCollectionsAndPlaylists = useCallback(async () => {
-    if (hasFetchedExtras || !selectedLibraryId) return
+    if (hasFetchedExtrasRef.current || !selectedLibraryId) return
 
     try {
       const [collectionsResponse, playlistsResponse] = await Promise.all([getCollectionsAction(selectedLibraryId), getPlaylistsAction(selectedLibraryId)])
 
-      setCachedCollections(collectionsResponse?.results || [])
-      setCachedPlaylists(playlistsResponse?.results || [])
-      setHasFetchedExtras(true)
+      cachedCollectionsRef.current = collectionsResponse?.results || []
+      cachedPlaylistsRef.current = playlistsResponse?.results || []
+      hasFetchedExtrasRef.current = true
     } catch (error) {
       // Silently fail - collections/playlists are supplementary search data
       console.error('Failed to fetch collections/playlists:', error)
-      setCachedCollections([])
-      setCachedPlaylists([])
-      setHasFetchedExtras(true) // Don't retry on failure
+      cachedCollectionsRef.current = []
+      cachedPlaylistsRef.current = []
+      hasFetchedExtrasRef.current = true // Don't retry on failure
     }
-  }, [selectedLibraryId, hasFetchedExtras])
+  }, [selectedLibraryId])
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim() || !selectedLibraryId) return
@@ -160,8 +160,8 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
       if (result) {
         // Client-side filter collections and playlists by name
         const queryLower = searchQuery.trim().toLowerCase()
-        const filteredCollections = cachedCollections.filter((c) => c.name.toLowerCase().includes(queryLower))
-        const filteredPlaylists = cachedPlaylists.filter((p) => p.name.toLowerCase().includes(queryLower))
+        const filteredCollections = cachedCollectionsRef.current.filter((c) => c.name.toLowerCase().includes(queryLower))
+        const filteredPlaylists = cachedPlaylistsRef.current.filter((p) => p.name.toLowerCase().includes(queryLower))
 
         // Merge server results with client-side filtered collections/playlists
         const mergedResults: SearchLibraryResponse = {
@@ -219,7 +219,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     } finally {
       setIsSearching(false)
     }
-  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes, cachedCollections, cachedPlaylists, fetchCollectionsAndPlaylists])
+  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes, fetchCollectionsAndPlaylists])
 
   const clearSelection = useCallback(() => {
     setSelectedBook(null)
