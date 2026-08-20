@@ -1,11 +1,16 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import type { Metadata } from 'next'
 import '../../../assets/globals.css'
 import AppBarLoader from '../AppBarLoader'
 import UploadLayoutWrapper from './UploadLayoutWrapper'
 
-export const metadata: Metadata = {
-  title: 'audiobookshelf',
-  description: 'audiobookshelf'
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
+
+  return {
+    title: t('TitleUpload'),
+    description: 'Upload page for audiobookshelf client'
+  }
 }
 
 export default async function UploadLayout({

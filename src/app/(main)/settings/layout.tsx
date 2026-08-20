@@ -1,3 +1,4 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
@@ -6,9 +7,13 @@ import { getCurrentUser, getData } from '../../../lib/api'
 import AppBarLoader from '../AppBarLoader'
 import SettingsLayoutWrapper from './SettingsLayoutWrapper'
 
-export const metadata: Metadata = {
-  title: 'audiobookshelf',
-  description: 'audiobookshelf'
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
+
+  return {
+    title: t('TitleSettings'),
+    description: 'Settings page for audiobookshelf client'
+  }
 }
 
 export default async function SettingsLayout({ children }: Readonly<{ children: React.ReactNode }>) {
