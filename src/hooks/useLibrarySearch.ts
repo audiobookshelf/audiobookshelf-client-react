@@ -103,6 +103,22 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     }
   }, [selectedLibraryId])
 
+  // Refetch collections/playlists on the next search when they change
+  const handleExtrasUpdated = useCallback(
+    (entity: Collection | Playlist) => {
+      if (entity.libraryId !== selectedLibraryId) return
+      setHasFetchedExtras(false)
+    },
+    [selectedLibraryId]
+  )
+
+  useSocketEvent<Collection>('collection_added', handleExtrasUpdated, [handleExtrasUpdated])
+  useSocketEvent<Collection>('collection_updated', handleExtrasUpdated, [handleExtrasUpdated])
+  useSocketEvent<Collection>('collection_removed', handleExtrasUpdated, [handleExtrasUpdated])
+  useSocketEvent<Playlist>('playlist_added', handleExtrasUpdated, [handleExtrasUpdated])
+  useSocketEvent<Playlist>('playlist_updated', handleExtrasUpdated, [handleExtrasUpdated])
+  useSocketEvent<Playlist>('playlist_removed', handleExtrasUpdated, [handleExtrasUpdated])
+
   // Fetch collections and playlists on-demand (called before first search)
   const fetchCollectionsAndPlaylists = useCallback(async () => {
     if (hasFetchedExtras || !selectedLibraryId) return
