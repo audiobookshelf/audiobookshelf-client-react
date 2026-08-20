@@ -297,7 +297,17 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     [syncChapterNav]
   )
 
+  const handleItemsUpdated = useCallback(
+    (libraryItems: LibraryItem[]) => {
+      for (const libraryItem of libraryItems) {
+        handleItemUpdated(libraryItem)
+      }
+    },
+    [handleItemUpdated]
+  )
+
   useSocketEvent<LibraryItem>('item_updated', handleItemUpdated, [handleItemUpdated])
+  useSocketEvent<LibraryItem[]>('items_updated', handleItemsUpdated, [handleItemsUpdated])
 
   const isRetryingTranscodeRef = useRef(false)
   const retryWithForceTranscodeRef = useRef<() => Promise<void>>(async () => {})
