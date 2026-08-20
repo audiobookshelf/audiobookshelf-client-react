@@ -43,6 +43,14 @@ function normalizeChapters(chapters: Chapter[] | undefined): Chapter[] {
   }))
 }
 
+function chaptersEqual(a: Chapter[], b: Chapter[]): boolean {
+  if (a.length !== b.length) return false
+  return a.every((chapter, index) => {
+    const other = b[index]
+    return chapter.id === other.id && chapter.title === other.title && chapter.start === other.start && chapter.end === other.end
+  })
+}
+
 interface UsePlayerHandlerOptions {
   isCasting?: boolean
 }
@@ -289,6 +297,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       libraryItemRef.current = mergedItem
 
       const updatedChapters = normalizeChapters(libraryItem.media.chapters)
+      if (chaptersEqual(chaptersRef.current, updatedChapters)) return
 
       chaptersRef.current = updatedChapters
       setChapters(updatedChapters)
