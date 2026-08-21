@@ -193,12 +193,12 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     [selectedLibraryId, fetchPlaylists]
   )
 
-  useSocketEvent<Collection>('collection_added', handleCollectionsUpdated, [handleCollectionsUpdated])
-  useSocketEvent<Collection>('collection_updated', handleCollectionsUpdated, [handleCollectionsUpdated])
-  useSocketEvent<Collection>('collection_removed', handleCollectionsUpdated, [handleCollectionsUpdated])
-  useSocketEvent<Playlist>('playlist_added', handlePlaylistsUpdated, [handlePlaylistsUpdated])
-  useSocketEvent<Playlist>('playlist_updated', handlePlaylistsUpdated, [handlePlaylistsUpdated])
-  useSocketEvent<Playlist>('playlist_removed', handlePlaylistsUpdated, [handlePlaylistsUpdated])
+  useSocketEvent<Collection>('collection_added', handleCollectionsUpdated)
+  useSocketEvent<Collection>('collection_updated', handleCollectionsUpdated)
+  useSocketEvent<Collection>('collection_removed', handleCollectionsUpdated)
+  useSocketEvent<Playlist>('playlist_added', handlePlaylistsUpdated)
+  useSocketEvent<Playlist>('playlist_updated', handlePlaylistsUpdated)
+  useSocketEvent<Playlist>('playlist_removed', handlePlaylistsUpdated)
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim() || !selectedLibraryId) return
