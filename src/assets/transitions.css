@@ -133,6 +133,181 @@
     opacity 250ms ease-in;
 }
 
+/* Fullscreen player: rises out of the mini player and drops back into it.
+   `player-fullscreen-exit` must stay in step with FULLSCREEN_EXIT_MS. */
+.player-fullscreen-enter {
+  animation: player-fullscreen-in 0.3s cubic-bezier(0.22, 0.9, 0.24, 1);
+}
+
+.player-fullscreen-exit {
+  animation: player-fullscreen-out 0.22s cubic-bezier(0.4, 0, 1, 1) forwards;
+  pointer-events: none;
+}
+
+@keyframes player-fullscreen-in {
+  from {
+    opacity: 0;
+    transform: translateY(6%) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes player-fullscreen-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(6%) scale(0.96);
+  }
+}
+
+/* Each pane fades up on its own, which is also what carries the portrait/landscape swap —
+   the layout is remounted on orientation change, so this replays instead of snapping */
+.player-fullscreen-pane {
+  animation: player-fullscreen-pane-in 0.26s ease-out both;
+}
+
+@keyframes player-fullscreen-pane-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The artwork paints only once the stage has been measured, so it fades in on its own */
+.player-fullscreen-artwork {
+  animation: player-fullscreen-artwork-in 0.28s ease-out both;
+}
+
+@keyframes player-fullscreen-artwork-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Jump feedback: a scrim wipes in from the side jumped toward, the pill springs up
+   then fades. The whole thing is done in 0.6s and unmounts itself. */
+.player-jump-burst {
+  animation: player-jump-burst-scrim 0.6s ease forwards;
+}
+
+.player-jump-burst-back {
+  background: linear-gradient(to right, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0) 65%);
+}
+
+.player-jump-burst-fwd {
+  background: linear-gradient(to left, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0) 65%);
+}
+
+@keyframes player-jump-burst-scrim {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.player-jump-burst-pill {
+  animation: player-jump-burst-pill 0.6s cubic-bezier(0.34, 1.45, 0.64, 1) forwards;
+}
+
+@keyframes player-jump-burst-pill {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  25% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  45% {
+    transform: scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.12);
+  }
+}
+
+/* Icon spins in the direction of travel — reads as "time moved" at a glance */
+.player-jump-burst-icon {
+  animation: player-jump-burst-spin-back 0.55s cubic-bezier(0.22, 0.9, 0.24, 1);
+}
+
+.player-jump-burst-fwd .player-jump-burst-icon {
+  animation-name: player-jump-burst-spin-fwd;
+}
+
+@keyframes player-jump-burst-spin-back {
+  from {
+    transform: rotate(120deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes player-jump-burst-spin-fwd {
+  from {
+    transform: rotate(-120deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player-fullscreen-enter,
+  .player-fullscreen-pane,
+  .player-fullscreen-artwork {
+    animation: none;
+  }
+
+  .player-fullscreen-exit {
+    animation: player-fullscreen-fade-out 0.15s linear forwards;
+  }
+
+  @keyframes player-fullscreen-fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  .player-jump-burst,
+  .player-jump-burst-icon {
+    animation: none;
+  }
+
+  .player-jump-burst-pill {
+    animation: player-jump-burst-scrim 0.6s ease forwards;
+  }
+}
+
 /* Player track loading animation */
 .loading-track-slide {
   animation: loading-track-slide 1.5s ease-in-out infinite;

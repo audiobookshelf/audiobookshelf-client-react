@@ -1,6 +1,7 @@
 import { isAbsModalOpen } from '@/components/modals/Modal'
 import type { PlayerHandlerControls, PlayerHandlerState } from '@/hooks/usePlayerHandler'
 import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
+import { isPlayerPopoverOpen } from '@/lib/player/playerPopoverStore'
 import { useEffect, useRef } from 'react'
 
 const OPEN_COMBOBOX_SELECTOR = '[role="combobox"][aria-expanded="true"]'
@@ -63,6 +64,9 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
           controls.decrementPlaybackRate()
           break
         case 'Escape':
+          // A player popover (volume, speed) closes itself on Escape. Only the outermost
+          // layer may act on one press, so the player stays put while one is open.
+          if (isPlayerPopoverOpen()) return
           onCloseRef.current()
           break
         default:
