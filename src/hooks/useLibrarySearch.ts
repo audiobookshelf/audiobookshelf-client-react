@@ -3,7 +3,7 @@
 import { getCollectionsAction, getPlaylistsAction, searchLibraryAction } from '@/app/actions/searchActions'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { Author, BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, SearchLibraryResponse, Series } from '@/types/api'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 export interface UseLibrarySearchOptions {
   autoSelectFirst?: boolean
@@ -46,6 +46,52 @@ export interface UseLibrarySearchReturn {
 
 const DEFAULT_MEDIA_TYPES: ('book' | 'podcast')[] = ['book', 'podcast']
 
+type EntityCache<T> = {
+  items: T[]
+  hasFetched: boolean
+  generation: number
+}
+
+function createEntityCache<T>(): EntityCache<T> {
+  return { items: [], hasFetched: false, generation: 0 }
+}
+
+function invalidateEntityCache<T>(cache: EntityCache<T>, clearItems = false) {
+  cache.generation += 1
+  cache.hasFetched = false
+  if (clearItems) cache.items = []
+}
+
+async function fetchEntityCache<T>(
+  cache: EntityCache<T>,
+  libraryId: string,
+  load: (libraryId: string) => Promise<{ results?: T[] } | null | undefined>,
+  label: string
+): Promise<boolean> {
+  if (cache.hasFetched || !libraryId) return true
+
+  const generation = cache.generation
+  try {
+    const response = await load(libraryId)
+    if (generation !== cache.generation) return false
+    cache.items = response?.results || []
+    cache.hasFetched = true
+    return true
+  } catch (error) {
+    if (generation !== cache.generation) return false
+    // Silently fail - collections/playlists are supplementary search data
+    console.error(`Failed to fetch ${label}:`, error)
+    cache.items = []
+    cache.hasFetched = true // Don't retry on failure
+    return true
+  }
+}
+
+function filterEntitiesByName<T extends { name: string }>(items: T[], query: string): T[] {
+  const queryLower = query.trim().toLowerCase()
+  return items.filter((item) => item.name.toLowerCase().includes(queryLower))
+}
+
 export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibrarySearchReturn {
   const { autoSelectFirst = true, mediaTypes = DEFAULT_MEDIA_TYPES, libraryId } = options
 
@@ -66,8 +112,10 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
   const [selectedAuthor, setSelectedAuthor] = useState<Author | null>(null)
 
   // Cached collections and playlists for client-side filtering
-  const [cachedCollections, setCachedCollections] = useState<Collection[]>([])
-  const [cachedPlaylists, setCachedPlaylists] = useState<Playlist[]>([])
+  const collectionsCacheRef = useRef(createEntityCache<Collection>())
+  const playlistsCacheRef = useRef(createEntityCache<Playlist>())
+  const searchQueryRef = useRef(searchQuery)
+  searchQueryRef.current = searchQuery
 
   // Listen for item updates via WebSocket
   const handleItemUpdated = useCallback(
@@ -91,36 +139,66 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     }
   }, [libraryId])
 
-  // Track if collections/playlists have been fetched for current library
-  const [hasFetchedExtras, setHasFetchedExtras] = useState(false)
-
-  // Reset fetch flag when library changes
+  // Reset caches when library changes
   useEffect(() => {
     if (selectedLibraryId) {
-      setHasFetchedExtras(false)
-      setCachedCollections([])
-      setCachedPlaylists([])
+      invalidateEntityCache(collectionsCacheRef.current, true)
+      invalidateEntityCache(playlistsCacheRef.current, true)
     }
   }, [selectedLibraryId])
 
-  // Fetch collections and playlists on-demand (called before first search)
-  const fetchCollectionsAndPlaylists = useCallback(async () => {
-    if (hasFetchedExtras || !selectedLibraryId) return
+  const fetchCollections = useCallback(async () => {
+    return fetchEntityCache(collectionsCacheRef.current, selectedLibraryId, getCollectionsAction, 'collections')
+  }, [selectedLibraryId])
 
-    try {
-      const [collectionsResponse, playlistsResponse] = await Promise.all([getCollectionsAction(selectedLibraryId), getPlaylistsAction(selectedLibraryId)])
+  const fetchPlaylists = useCallback(async () => {
+    return fetchEntityCache(playlistsCacheRef.current, selectedLibraryId, getPlaylistsAction, 'playlists')
+  }, [selectedLibraryId])
 
-      setCachedCollections(collectionsResponse?.results || [])
-      setCachedPlaylists(playlistsResponse?.results || [])
-      setHasFetchedExtras(true)
-    } catch (error) {
-      // Silently fail - collections/playlists are supplementary search data
-      console.error('Failed to fetch collections/playlists:', error)
-      setCachedCollections([])
-      setCachedPlaylists([])
-      setHasFetchedExtras(true) // Don't retry on failure
-    }
-  }, [selectedLibraryId, hasFetchedExtras])
+  const handleCollectionsUpdated = useCallback(
+    (collection: Collection) => {
+      if (collection.libraryId !== selectedLibraryId) return
+      invalidateEntityCache(collectionsCacheRef.current)
+
+      const query = searchQueryRef.current.trim()
+      if (!query) return
+
+      void (async () => {
+        const committed = await fetchCollections()
+        if (!committed || searchQueryRef.current.trim() !== query) return
+
+        const collections = filterEntitiesByName(collectionsCacheRef.current.items, query)
+        setSearchResults((prev) => (prev ? { ...prev, collections } : prev))
+      })()
+    },
+    [selectedLibraryId, fetchCollections]
+  )
+
+  const handlePlaylistsUpdated = useCallback(
+    (playlist: Playlist) => {
+      if (playlist.libraryId !== selectedLibraryId) return
+      invalidateEntityCache(playlistsCacheRef.current)
+
+      const query = searchQueryRef.current.trim()
+      if (!query) return
+
+      void (async () => {
+        const committed = await fetchPlaylists()
+        if (!committed || searchQueryRef.current.trim() !== query) return
+
+        const playlists = filterEntitiesByName(playlistsCacheRef.current.items, query)
+        setSearchResults((prev) => (prev ? { ...prev, playlists } : prev))
+      })()
+    },
+    [selectedLibraryId, fetchPlaylists]
+  )
+
+  useSocketEvent<Collection>('collection_added', handleCollectionsUpdated)
+  useSocketEvent<Collection>('collection_updated', handleCollectionsUpdated)
+  useSocketEvent<Collection>('collection_removed', handleCollectionsUpdated)
+  useSocketEvent<Playlist>('playlist_added', handlePlaylistsUpdated)
+  useSocketEvent<Playlist>('playlist_updated', handlePlaylistsUpdated)
+  useSocketEvent<Playlist>('playlist_removed', handlePlaylistsUpdated)
 
   const handleSearch = useCallback(async () => {
     if (!searchQuery.trim() || !selectedLibraryId) return
@@ -136,16 +214,15 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     setSelectedAuthor(null)
 
     try {
-      // Fetch collections/playlists on-demand if not yet fetched
-      await fetchCollectionsAndPlaylists()
+      // Fetch collections and playlists on-demand if not yet fetched
+      await Promise.all([fetchCollections(), fetchPlaylists()])
 
       const result = await searchLibraryAction(selectedLibraryId, searchQuery.trim(), 10)
 
       if (result) {
         // Client-side filter collections and playlists by name
-        const queryLower = searchQuery.trim().toLowerCase()
-        const filteredCollections = cachedCollections.filter((c) => c.name.toLowerCase().includes(queryLower))
-        const filteredPlaylists = cachedPlaylists.filter((p) => p.name.toLowerCase().includes(queryLower))
+        const filteredCollections = filterEntitiesByName(collectionsCacheRef.current.items, searchQuery)
+        const filteredPlaylists = filterEntitiesByName(playlistsCacheRef.current.items, searchQuery)
 
         // Merge server results with client-side filtered collections/playlists
         const mergedResults: SearchLibraryResponse = {
@@ -203,7 +280,7 @@ export function useLibrarySearch(options: UseLibrarySearchOptions = {}): UseLibr
     } finally {
       setIsSearching(false)
     }
-  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes, cachedCollections, cachedPlaylists, fetchCollectionsAndPlaylists])
+  }, [searchQuery, selectedLibraryId, autoSelectFirst, mediaTypes, fetchCollections, fetchPlaylists])
 
   const clearSelection = useCallback(() => {
     setSelectedBook(null)

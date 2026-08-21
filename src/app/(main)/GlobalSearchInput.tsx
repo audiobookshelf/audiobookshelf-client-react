@@ -8,7 +8,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 
 import { FlatResultItem, useGlobalSearchTransformer } from '@/hooks/useGlobalSearchTransformer'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useRef, useState, type Ref } from 'react'
+import { useCallback, useEffect, useEffectEvent, useMemo, useRef, useState, type Ref } from 'react'
 import GlobalSearchMenu from './GlobalSearchMenu'
 
 interface GlobalSearchInputProps {
@@ -35,7 +35,12 @@ export default function GlobalSearchInput({ libraryId, onSubmit, onItemSelect, o
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const [isTyping, setIsTyping] = useState(false) // Local typing state for "Thinking..."
 
-  // Debounce search
+  const onSearch = useEffectEvent(() => {
+    handleSearch()
+  })
+
+  // Debounce on the query only. handleSearch is an event — including it re-fires
+  // search when the callback identity changes (e.g. extras cache updates).
   useEffect(() => {
     if (!searchQuery) {
       setIsTyping(false)
@@ -45,11 +50,11 @@ export default function GlobalSearchInput({ libraryId, onSubmit, onItemSelect, o
     setIsTyping(true)
     const timeoutId = setTimeout(() => {
       setIsTyping(false)
-      handleSearch()
+      onSearch()
     }, 500) // 500ms debounce
 
     return () => clearTimeout(timeoutId)
-  }, [searchQuery, handleSearch])
+  }, [searchQuery])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
