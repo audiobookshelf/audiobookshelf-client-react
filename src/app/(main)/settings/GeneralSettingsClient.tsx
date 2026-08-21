@@ -15,7 +15,7 @@ import { updateServerSettings, updateSortingPrefixes } from './actions'
 import { dateFormatOptions, timeFormatOptions } from './settingsConstants'
 import SettingsToggleSwitch from './SettingsToggleSwitch'
 
-export default function SettingsClient() {
+export default function GeneralSettingsClient() {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
@@ -167,7 +167,7 @@ export default function SettingsClient() {
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <div className="flex flex-col gap-4 py-4">
         <div className="flex flex-col gap-2">
-          <h2 className="text-base font-semibold">{t('HeaderSettingsGeneral')}</h2>
+          <h2 className="text-base font-semibold">{t('HeaderSettingsStorage')}</h2>
           <SettingsToggleSwitch
             label={t('LabelSettingsStoreCoversWithItem')}
             value={serverSettings?.storeCoverWithItem}
@@ -180,42 +180,6 @@ export default function SettingsClient() {
             onChange={(value) => handleSettingChanged('storeMetadataWithItem', value)}
             tooltip={t('LabelSettingsStoreMetadataWithItemHelp')}
           />
-          <SettingsToggleSwitch
-            label={t('LabelSettingsSortingIgnorePrefixes')}
-            value={serverSettings?.sortingIgnorePrefix}
-            onChange={(value) => handleSettingChanged('sortingIgnorePrefix', value)}
-            tooltip={t('LabelSettingsSortingIgnorePrefixesHelp')}
-          />
-          {serverSettings?.sortingIgnorePrefix && (
-            <div className="mb-2 ml-14 w-full max-w-72">
-              <MultiSelect
-                label={t('LabelPrefixesToIgnore')}
-                items={sortingPrefixItems}
-                showEdit
-                onItemEdited={(value: MultiSelectItem<string>) => {
-                  const updatedPrefixes = sortingPrefixes.map((item) => (item === value.value ? value.content : item))
-                  handleSortingPrefixesChanged(updatedPrefixes.map((p) => ({ content: p, value: p })))
-                }}
-                onItemRemoved={(value: MultiSelectItem<string>) => {
-                  const updatedPrefixes = sortingPrefixes.filter((item) => item !== value.content)
-                  handleSortingPrefixesChanged(updatedPrefixes.map((p) => ({ content: p, value: p })))
-                }}
-                onItemAdded={(value: MultiSelectItem<string>) => {
-                  if (!sortingPrefixes.includes(value.content)) {
-                    handleSortingPrefixesChanged([...sortingPrefixes, value.content].map((p) => ({ content: p, value: p })))
-                  }
-                }}
-                selectedItems={sortingPrefixItems}
-              />
-              {hasPrefixesChanged && (
-                <div className="flex justify-end py-1">
-                  <Btn onClick={handleSaveSortingPrefixes} disabled={isPending} loading={isPending} color="bg-success text-white" size="small">
-                    {t('ButtonSave')}
-                  </Btn>
-                </div>
-              )}
-            </div>
-          )}
         </div>
         <div className="flex flex-col gap-2">
           <h2 className="text-base font-semibold">{t('HeaderSettingsScanner')}</h2>
@@ -279,6 +243,42 @@ export default function SettingsClient() {
             onChange={(value) => handleSettingChanged('bookshelfView', value)}
             tooltip={t('LabelSettingsBookshelfViewHelp')}
           />
+          <SettingsToggleSwitch
+            label={t('LabelSettingsSortingIgnorePrefixes')}
+            value={serverSettings?.sortingIgnorePrefix}
+            onChange={(value) => handleSettingChanged('sortingIgnorePrefix', value)}
+            tooltip={t('LabelSettingsSortingIgnorePrefixesHelp')}
+          />
+          {serverSettings?.sortingIgnorePrefix && (
+            <div className="mb-2 ml-14 w-full max-w-72">
+              <MultiSelect
+                label={t('LabelPrefixesToIgnore')}
+                items={sortingPrefixItems}
+                showEdit
+                onItemEdited={(value: MultiSelectItem<string>) => {
+                  const updatedPrefixes = sortingPrefixes.map((item) => (item === value.value ? value.content : item))
+                  handleSortingPrefixesChanged(updatedPrefixes.map((p) => ({ content: p, value: p })))
+                }}
+                onItemRemoved={(value: MultiSelectItem<string>) => {
+                  const updatedPrefixes = sortingPrefixes.filter((item) => item !== value.content)
+                  handleSortingPrefixesChanged(updatedPrefixes.map((p) => ({ content: p, value: p })))
+                }}
+                onItemAdded={(value: MultiSelectItem<string>) => {
+                  if (!sortingPrefixes.includes(value.content)) {
+                    handleSortingPrefixesChanged([...sortingPrefixes, value.content].map((p) => ({ content: p, value: p })))
+                  }
+                }}
+                selectedItems={sortingPrefixItems}
+              />
+              {hasPrefixesChanged && (
+                <div className="flex justify-end py-1">
+                  <Btn onClick={handleSaveSortingPrefixes} disabled={isPending} loading={isPending} color="bg-success text-white" size="small">
+                    {t('ButtonSave')}
+                  </Btn>
+                </div>
+              )}
+            </div>
+          )}
           <div className="w-full max-w-72">
             <Dropdown
               items={dateFormatOptions}

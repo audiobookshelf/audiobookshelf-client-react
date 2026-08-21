@@ -6,13 +6,12 @@ import { batchRemoveFromPlaylistAction } from '@/app/actions/playlistActions'
 import PreviewCover from '@/components/covers/PreviewCover'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
-import LibraryItemEditModal from '@/components/modals/LibraryItemEditModal'
+import LibraryItemMetadataEditModal from '@/components/modals/LibraryItemMetadataEditModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import ContextMenuDropdown from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
 import Tooltip from '@/components/ui/Tooltip'
-import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import type { SortableListDragHandleProps } from '@/components/widgets/SortableList'
 import { useLibrary } from '@/contexts/LibraryContext'
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
@@ -169,7 +168,7 @@ function CompilationItemListRowBody({
       return
     }
     const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
-    setBoundModal(<LibraryItemEditModal key="library-item-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
+    setBoundModal(<LibraryItemMetadataEditModal key="library-item-metadata-edit-modal" isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
 
   const handleMatch = useCallback(() => {
@@ -475,20 +474,6 @@ function CompilationItemListRowBody({
           </div>
         )}
       </div>
-
-      {episodeListenActions?.confirmState && (
-        <ConfirmDialog
-          isOpen={episodeListenActions.confirmState.isOpen}
-          message={episodeListenActions.confirmState.message}
-          checkboxLabel={episodeListenActions.confirmState.checkboxLabel}
-          yesButtonText={episodeListenActions.confirmState.yesButtonText}
-          yesButtonClassName={episodeListenActions.confirmState.yesButtonClassName}
-          onClose={episodeListenActions.closeConfirm}
-          onConfirm={(value) => {
-            episodeListenActions.confirmState?.onConfirm(value)
-          }}
-        />
-      )}
     </div>
   )
 }

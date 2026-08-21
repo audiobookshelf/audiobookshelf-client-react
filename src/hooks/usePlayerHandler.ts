@@ -2,6 +2,7 @@ import { subscribeCastSessionActive } from '@/contexts/ChromecastContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { usePlaybackSession, type StartSessionOptions } from '@/hooks/usePlaybackSession'
 import { usePlayerSettings, type PlayerSettings, type UsePlayerSettingsReturn } from '@/hooks/usePlayerSettings'
+import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { CastPlayer } from '@/lib/player/CastPlayer'
 import { getCastRemotePlayerHandles } from '@/lib/player/chromecastConstants'
@@ -10,7 +11,7 @@ import { emitPlayerJump } from '@/lib/player/playerFeedbackStore'
 import { PLAYER_PROGRESS_POLL_MS, resetPlayerProgress, setPlayerProgress } from '@/lib/player/playerProgressStore'
 import { computeTranscodePercentReady } from '@/lib/player/streamProgressUtils'
 import type { Chapter, LibraryItem, PlaybackSession, PlayMethod, StreamProgressPayload } from '@/types/api'
-import { PlayerState } from '@/types/api'
+import { isBookMedia, PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 type PlayerBackend = LocalAudioPlayer | CastPlayer
@@ -33,6 +34,22 @@ function getSessionOptions(kind: PlayerKind): StartSessionOptions {
     mediaPlayer: kind === 'cast' ? 'chromecast' : 'html5',
     forceDirectPlay: kind === 'cast'
   }
+}
+
+function normalizeChapters(chapters: Chapter[] | undefined): Chapter[] {
+  return (chapters ?? []).map((chapter) => ({
+    ...chapter,
+    start: parseFloat((chapter.start ?? 0).toFixed(6)),
+    end: parseFloat((chapter.end ?? 0).toFixed(6))
+  }))
+}
+
+function chaptersEqual(a: Chapter[], b: Chapter[]): boolean {
+  if (a.length !== b.length) return false
+  return a.every((chapter, index) => {
+    const other = b[index]
+    return chapter.id === other.id && chapter.title === other.title && chapter.start === other.start && chapter.end === other.end
+  })
 }
 
 interface UsePlayerHandlerOptions {
@@ -168,9 +185,9 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     const next = chapterList.find((chapter) => chapter.start > time && chapter.end > time) ?? null
     const previous = chapterList.findLast((chapter) => chapter.end <= time && chapter.start < time) ?? null
 
-    setCurrentChapter((prev) => (prev?.start === current?.start ? prev : current))
-    setNextChapter((prev) => (prev?.start === next?.start ? prev : next))
-    setPreviousChapter((prev) => (prev?.start === previous?.start ? prev : previous))
+    setCurrentChapter((prev) => (prev === current ? prev : current))
+    setNextChapter((prev) => (prev === next ? prev : next))
+    setPreviousChapter((prev) => (prev === previous ? prev : previous))
   }, [])
 
   const setPlaybackTime = useCallback(
@@ -218,17 +235,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     setSessionId(session.id)
     setDisplayTitle(session.displayTitle)
     setDisplayAuthor(session.displayAuthor)
-    setChapters(
-      (session.chapters ?? []).map((chapter) => {
-        const start = parseFloat((chapter.start ?? 0).toFixed(6))
-        const end = parseFloat((chapter.end ?? 0).toFixed(6))
-        return {
-          ...chapter,
-          start,
-          end
-        }
-      })
-    )
+    setChapters(normalizeChapters(session.chapters))
     setPlayMethod(session.playMethod)
     isHlsTranscodeRef.current = hlsTranscode
     setIsHlsTranscode(hlsTranscode)
@@ -280,6 +287,37 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   useSocketEvent<StreamProgressPayload>('stream_progress', handleStreamProgress, [handleStreamProgress])
   useSocketEvent('stream_ready', handleStreamReady, [handleStreamReady])
+
+  const handleItemUpdated = useCallback(
+    (libraryItem: LibraryItem) => {
+      const currentItem = libraryItemRef.current
+      if (!currentItem || libraryItem.id !== currentItem.id) return
+      if (!isBookMedia(libraryItem.media)) return
+
+      const mergedItem = mergeLibraryItemUpdate(currentItem, libraryItem)
+      libraryItemRef.current = mergedItem
+
+      const updatedChapters = normalizeChapters(libraryItem.media.chapters)
+      if (chaptersEqual(chaptersRef.current, updatedChapters)) return
+
+      chaptersRef.current = updatedChapters
+      setChapters(updatedChapters)
+      syncChapterNav(currentTimeRef.current)
+    },
+    [syncChapterNav]
+  )
+
+  const handleItemsUpdated = useCallback(
+    (libraryItems: LibraryItem[]) => {
+      for (const libraryItem of libraryItems) {
+        handleItemUpdated(libraryItem)
+      }
+    },
+    [handleItemUpdated]
+  )
+
+  useSocketEvent<LibraryItem>('item_updated', handleItemUpdated, [handleItemUpdated])
+  useSocketEvent<LibraryItem[]>('items_updated', handleItemsUpdated, [handleItemsUpdated])
 
   const isRetryingTranscodeRef = useRef(false)
   const retryWithForceTranscodeRef = useRef<() => Promise<void>>(async () => {})

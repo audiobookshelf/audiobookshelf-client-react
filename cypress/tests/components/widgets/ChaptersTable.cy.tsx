@@ -35,6 +35,7 @@ const mockUserContextValue: UserContextType = {
   userCanUpdate: true,
   userCanDelete: true,
   userCanDownload: true,
+  userCanUpload: true,
   userIsAdminOrUp: true,
   token: mockUser.token,
   serverSettings: {} as UserContextType['serverSettings'],

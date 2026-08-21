@@ -375,7 +375,8 @@ export class LocalAudioPlayer {
 
   setVolume(volume: number): void {
     if (this.player) {
-      this.player.volume = volume
+      // Keep slider values linear while giving listeners finer control at low volumes.
+      this.player.volume = volume ** 2
     }
   }
 

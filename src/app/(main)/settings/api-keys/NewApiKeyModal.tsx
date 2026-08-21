@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -16,7 +17,7 @@ export default function NewApiKeyModal({ isOpen, apiKeyName, apiKeyValue, onClos
   const t = useTypeSafeTranslations()
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={<ModalOuterContent>{t('HeaderNewApiKey')}</ModalOuterContent>}>
       <div className="px-6 py-8">
         <h2 className="text-foreground mb-4 text-xl">{t('LabelApiKeyCreated', { 0: apiKeyName })}</h2>
 

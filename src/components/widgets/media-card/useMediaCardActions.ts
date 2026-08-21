@@ -39,7 +39,7 @@ import {
 } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
-import { MediaCardMoreMenuItem } from './MediaCardMoreMenu'
+import { MediaCardMoreMenuItem, MediaCardMoreMenuSubitem } from './MediaCardMoreMenu'
 
 interface UseMediaCardActionsProps {
   libraryItem: LibraryItem
@@ -63,8 +63,6 @@ interface UseMediaCardActionsProps {
   onDeleteSuccess?: () => void
   /** Invoked for the Match menu action. Host owns modal state (card, page, bookshelf, etc.). */
   onOpenMatch?: () => void
-  /** Invoked for the Edit Cover menu action. Host owns modal state (card, page, bookshelf, etc.). */
-  onOpenCoverEdit?: () => void
   playerControls: PlayerHandlerControls
 }
 
@@ -89,7 +87,6 @@ export function useMediaCardActions({
   onShareChange,
   onDeleteSuccess,
   onOpenMatch,
-  onOpenCoverEdit,
   playerControls
 }: UseMediaCardActionsProps) {
   const sortableCompilation = useSortableCompilation()
@@ -289,10 +286,10 @@ export function useMediaCardActions({
             })
           }
         })
-      } else if (action === 'openCoverEdit') {
-        onOpenCoverEdit?.()
       } else if (action === 'editChapters') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`)
+      } else if (action === 'manageTracks') {
+        router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`)
       } else if (action === 'makeM4b') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tools?tool=m4b`)
       } else if (action === 'embedMetadata') {
@@ -455,7 +452,6 @@ export function useMediaCardActions({
       toggleFinished,
       onDeleteSuccess,
       onOpenMatch,
-      onOpenCoverEdit,
       downloadFile,
       showMoreInfo,
       router,
@@ -582,29 +578,18 @@ export function useMediaCardActions({
       }
     }
 
-    if (userCanUpdate && onOpenCoverEdit && !episode) {
-      items.push({
-        text: t('ButtonEditCover'),
-        func: 'openCoverEdit'
-      })
-    }
-
+    const toolSubitems: MediaCardMoreMenuSubitem[] = []
     if (userCanUpdate && isBookMediaWithTracks(media)) {
-      items.push({
-        text: t('ButtonEditChapters'),
-        func: 'editChapters'
-      })
+      toolSubitems.push({ text: t('ButtonEditChapters'), func: 'editChapters' })
     }
-
+    if (userCanUpdate && isBookMedia(media) && (media.numAudioFiles ?? 0) > 1) {
+      toolSubitems.push({ text: t('ButtonManageTracks'), func: 'manageTracks' })
+    }
     if (userIsAdminOrUp && isBookMediaWithTracks(media)) {
-      items.push({
-        text: t('LabelToolsMakeM4b'),
-        func: 'makeM4b'
-      })
-      items.push({
-        text: t('LabelToolsEmbedMetadata'),
-        func: 'embedMetadata'
-      })
+      toolSubitems.push({ text: t('LabelToolsMakeM4b'), func: 'makeM4b' }, { text: t('LabelToolsEmbedMetadata'), func: 'embedMetadata' })
+    }
+    if (toolSubitems.length) {
+      items.push({ text: t('HeaderTools'), subitems: toolSubitems })
     }
 
     if (userCanUpdate && onOpenMatch) {
@@ -710,7 +695,6 @@ export function useMediaCardActions({
     userCanUpdate,
     userIsAdminOrUp,
     onOpenMatch,
-    onOpenCoverEdit,
     sortableCompilation
   ])
 

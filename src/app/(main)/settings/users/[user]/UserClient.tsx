@@ -199,7 +199,7 @@ export default function UserClient({ user }: { user: User }) {
           <h2 className="mb-2 text-lg font-medium">{t('HeaderListeningStats')}</h2>
           <div className="flex items-center gap-2">
             <p className="text-foreground-muted text-sm">{t('LabelListeningSessionsCount', { 0: listeningSessions.total })}</p>
-            <Btn to={`/settings/listening-sessions?user=${encodeURIComponent(user.id)}`} size="small" className="h-7 text-xs">
+            <Btn to={`/settings/listening-sessions/${encodeURIComponent(user.id)}`} size="small" className="h-5 text-xs">
               {t('ButtonViewAll')}
             </Btn>
           </div>

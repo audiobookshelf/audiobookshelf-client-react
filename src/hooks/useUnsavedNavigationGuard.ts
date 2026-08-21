@@ -16,7 +16,7 @@ export function allowProgrammaticNavigationWithoutTrapCleanup() {
 }
 
 export interface UseUnsavedNavigationGuardOptions {
-  /** When true, soft navigation is converted to a full reload so beforeunload can prompt. */
+  /** When true, link clicks and browser back are converted to a full document load so beforeunload can prompt. */
   enabled: boolean
   /** Where browser back should attempt to go (session return path). */
   backLeavePath?: string
@@ -127,21 +127,6 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
     }
 
     const originalPushState = history.pushState.bind(history)
-    const originalReplaceState = history.replaceState.bind(history)
-
-    const interceptHistoryNavigation = (original: typeof history.pushState, state: unknown, title: string, url?: string | URL | null) => {
-      const resolved = resolveSameOriginUrl(url)
-      if (resolved && leaveViaFullReload(resolved)) return
-      original(state, title, url ?? '')
-    }
-
-    history.pushState = (state, title, url) => {
-      interceptHistoryNavigation(originalPushState, state, title, url)
-    }
-
-    history.replaceState = (state, title, url) => {
-      interceptHistoryNavigation(originalReplaceState, state, title, url)
-    }
 
     if (!trapActiveRef.current) {
       originalPushState({ __unsavedGuard: true }, '', window.location.href)
@@ -179,8 +164,6 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
       window.removeEventListener('beforeunload', onBeforeUnload)
       document.removeEventListener('click', onClick, true)
       window.removeEventListener('popstate', onPopState, true)
-      history.pushState = originalPushState
-      history.replaceState = originalReplaceState
 
       if (skipHistoryTrapRemoval) {
         trapActiveRef.current = false

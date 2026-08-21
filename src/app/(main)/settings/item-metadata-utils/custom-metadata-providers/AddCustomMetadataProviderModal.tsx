@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -63,11 +64,7 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
     }
   }
 
-  const outerContentTitle = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{t('HeaderAddCustomMetadataProvider')}</h2>
-    </div>
-  )
+  const outerContentTitle = <ModalOuterContent>{t('HeaderAddCustomMetadataProvider')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} processing={processing} onClose={handleClose} outerContent={outerContentTitle} className="w-[700px]">

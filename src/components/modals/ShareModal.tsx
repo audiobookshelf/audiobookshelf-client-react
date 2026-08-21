@@ -2,6 +2,7 @@
 
 import { closeMediaItemShareAction, openMediaItemShareAction } from '@/app/actions/shareActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
@@ -165,9 +166,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
   }, [expireDurationSeconds, isDownloadable, mediaItemId, newShareSlug, onShareChange, showToast, t])
 
   const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white">{t('LabelShare')}</p>
-    </div>
+    <ModalOuterContent title={t('LabelShare')}>{t('LabelShare')}</ModalOuterContent>
   )
 
   return (

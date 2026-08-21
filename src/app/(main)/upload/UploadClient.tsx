@@ -1,6 +1,6 @@
 'use client'
 
-import { useMediaNavigation } from '@/contexts/MediaContext'
+import { useAppNavigation } from '@/contexts/AppNavigationContext'
 import { useBookProviders, useMetadata } from '@/contexts/MetadataContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -78,7 +78,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
     }))
   const currentLibraryMediaType = libraries.find((lib) => lib.id === selectedLibrary)?.mediaType
 
-  const { lastCurrentLibraryId } = useMediaNavigation()
+  const { lastCurrentLibraryId } = useAppNavigation()
   const { userDefaultLibraryId } = useUser()
 
   useEffect(() => {

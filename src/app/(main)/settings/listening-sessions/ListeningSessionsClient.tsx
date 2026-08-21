@@ -26,7 +26,10 @@ export default function ListeningSessionsClient({ users, sessionsResponse, openS
     return (
       <div className="mx-auto w-full max-w-4xl p-2 md:p-6">
         <div className="bg-bg mb-8 rounded-md border border-white/5 p-2 shadow-lg sm:p-4">
-          <Link href={`/settings/users/${userFilter}`} className="text-foreground-muted hover:text-foreground flex w-fit items-center gap-2 px-2 sm:px-0">
+          <Link
+            href={`/settings/users/${userFilter}`}
+            className="text-foreground-muted hover:text-foreground hidden w-fit items-center gap-2 px-2 sm:px-0 md:flex"
+          >
             <span className="material-symbols text-2xl">arrow_back</span>
             <span>{t('LabelBackToUser')}</span>
           </Link>

@@ -5,7 +5,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import ChromecastLauncher from '@/components/widgets/ChromecastLauncher'
 import NotificationWidget from '@/components/widgets/NotificationWidget'
-import { useMediaNavigation } from '@/contexts/MediaContext'
+import { useAppNavigation } from '@/contexts/AppNavigationContext'
 import { useUser } from '@/contexts/UserContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -13,13 +13,13 @@ import { resolveEffectiveLibrary } from '@/lib/libraries'
 import { mergeClasses } from '@/lib/merge-classes'
 import { Library } from '@/types/api'
 import Image from 'next/image'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
-import AppBarNav from './AppBarNav'
+import { usePathname } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import AppBarSelectionOverlay from './AppBarSelectionOverlay'
-import GlobalSearchInput from './GlobalSearchInput'
-import LibrariesDropdown from './LibrariesDropdown'
+import LibraryAppBarNav from './LibraryAppBarNav'
+import SettingsAppBarNav from './settings/SettingsAppBarNav'
 import SideRailMobileDrawer from './SideRailMobileDrawer'
+import UserAppBarNav from './UserAppBarNav'
 
 interface AppBarProps {
   libraries?: Library[]
@@ -28,30 +28,13 @@ interface AppBarProps {
 
 export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const t = useTypeSafeTranslations()
+  const pathname = usePathname()
+  const isSettingsRoute = pathname.startsWith('/settings')
   const isMobile = useMediaQuery('max-md')
   const [isSideRailOpen, setIsSideRailOpen] = useState(false)
-  const { user, userDefaultLibraryId } = useUser()
-  const userCanUpload = user.permissions.upload
-  const [isSearchMode, setIsSearchMode] = useState(false)
-  const mobileSearchInputRef = useRef<HTMLInputElement>(null)
+  const { user, userDefaultLibraryId, userCanUpload } = useUser()
   // When not on a library page, use the last current library id when navigating home
-  const { lastCurrentLibraryId, setLastCurrentLibraryId } = useMediaNavigation()
-
-  const handleSearchModeToggle = useCallback(() => {
-    if (isSearchMode) {
-      setIsSearchMode(false)
-      return
-    }
-    // Render the search input before focus() so the ref exists and mobile browsers treat focus as part of this tap (keyboard opens).
-    flushSync(() => {
-      setIsSearchMode(true)
-    })
-    mobileSearchInputRef.current?.focus({ preventScroll: true })
-  }, [isSearchMode])
-
-  const handleSearchSubmit = useCallback(() => {
-    setIsSearchMode(false)
-  }, [])
+  const { lastCurrentLibraryId, setLastCurrentLibraryId } = useAppNavigation()
 
   const toggleSideRail = useCallback(() => {
     setIsSideRailOpen((prev) => !prev)
@@ -73,9 +56,9 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const currentLibrary = useMemo(() => resolveEffectiveLibrary(libraries, preferredLibraryId), [libraries, preferredLibraryId])
   const effectiveLibraryId = currentLibrary?.id
   const redirectLibraryId = effectiveLibraryId
-  // New installs have no libraries, so redirect to settings
-  const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/settings'
-  const showMobileSideRailToggle = Boolean(effectiveLibraryId && currentLibrary)
+  // New installs have no libraries — logo goes to empty /library home
+  const redirectUrl = redirectLibraryId ? `/library/${redirectLibraryId}` : '/library'
+  const showMobileSideRailToggle = Boolean(effectiveLibraryId && currentLibrary && !isSettingsRoute)
 
   useEffect(() => {
     if (!effectiveLibraryId || currentLibraryId) return
@@ -87,7 +70,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const logoContent = (
     <>
       <Image src="/images/icon.svg" alt="" width={40} height={40} priority className="h-8 w-8 min-w-8 sm:h-10 sm:w-10 sm:min-w-10" />
-      <span className="hidden text-xl hover:underline md:block">audiobookshelf</span>
+      <span className="hidden text-xl hover:underline lg:block">audiobookshelf</span>
     </>
   )
 
@@ -120,64 +103,33 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
           {logoContent}
         </ButtonBase>
 
-        {libraries && effectiveLibraryId && currentLibrary && (
-          <>
-            <div className={mergeClasses('min-w-0 flex-1 md:w-fit md:flex-none md:shrink-0', isSearchMode && 'hidden md:block')}>
-              <LibrariesDropdown currentLibraryId={effectiveLibraryId} libraries={libraries} />
-            </div>
+        {isSettingsRoute && <SettingsAppBarNav />}
 
-            {isSearchMode && currentLibrary && (
-              <div className="shrink-0 md:hidden">
-                <Tooltip text={currentLibrary.name} position="bottom">
-                  <IconBtn borderless ariaLabel={t('ButtonLibrary')} onClick={handleSearchModeToggle} className="text-foreground hover:text-foreground/80">
-                    library_books
-                  </IconBtn>
-                </Tooltip>
-              </div>
-            )}
-          </>
+        {!isSettingsRoute && libraries && effectiveLibraryId && currentLibrary && (
+          <LibraryAppBarNav libraries={libraries} currentLibraryId={effectiveLibraryId} currentLibrary={currentLibrary} />
         )}
 
-        {/* Search Input — only mount flex slot when search is visible (avoids min-width on mobile) */}
-        {currentLibrary &&
-          (isSearchMode ? (
-            <div className="min-w-0 flex-1">
-              <GlobalSearchInput ref={mobileSearchInputRef} usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
-            </div>
-          ) : (
-            <div className="hidden min-w-0 md:block md:w-80 md:shrink-0">
-              <GlobalSearchInput usePortal onSubmit={handleSearchSubmit} libraryId={effectiveLibraryId} />
-            </div>
-          ))}
-
-        <div className="min-w-0 flex-1 max-md:hidden" aria-hidden="true" />
-
-        {!isSearchMode && currentLibrary && (
-          <IconBtn borderless ariaLabel={t('ButtonSearch')} onClick={handleSearchModeToggle} className="shrink-0 md:hidden">
-            search
-          </IconBtn>
-        )}
-
-        <div className="flex shrink-0 items-center gap-0.5 md:gap-1">
+        <div className="ms-auto flex shrink-0 items-center gap-0.5 md:gap-1">
           <ChromecastLauncher libraryId={currentLibraryId} />
           <NotificationWidget />
 
-          {isAdmin && (
-            <div className="hidden items-center gap-1 md:flex">
-              <Tooltip text={t('ButtonUpload')} position="bottom">
-                <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload">
-                  upload
-                </IconBtn>
-              </Tooltip>
-              <Tooltip text={t('HeaderSettings')} position="bottom">
-                <IconBtn borderless ariaLabel={t('HeaderSettings')} to="/settings">
-                  settings
-                </IconBtn>
-              </Tooltip>
-            </div>
+          {isAdmin && !isSettingsRoute && (
+            <Tooltip text={t('HeaderSettings')} position="bottom">
+              <IconBtn borderless ariaLabel={t('HeaderSettings')} to={isMobile ? '/settings' : '/settings/general'}>
+                settings
+              </IconBtn>
+            </Tooltip>
           )}
 
-          <AppBarNav userCanUpload={userCanUpload} isAdmin={isAdmin} username={user.username} />
+          {userCanUpload && effectiveLibraryId && currentLibrary && !isSettingsRoute && (
+            <Tooltip text={t('ButtonUpload')} position="bottom">
+              <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload" className="hidden md:inline-flex">
+                upload
+              </IconBtn>
+            </Tooltip>
+          )}
+
+          <UserAppBarNav />
         </div>
       </header>
       <AppBarSelectionOverlay libraryId={effectiveLibraryId} />

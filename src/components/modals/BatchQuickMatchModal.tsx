@@ -2,6 +2,7 @@
 
 import { batchQuickMatchLibraryItemsAction } from '@/app/actions/batchActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
@@ -60,11 +61,7 @@ export default function BatchQuickMatchModal({ isOpen, onClose, libraryItemIds, 
     })
   }, [isPending, libraryItemIds, onClose, onSuccess, overrideCover, overrideDetails, provider, showToast, t])
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="max-w-[calc(100vw-4rem)] truncate text-xl font-semibold text-white">{t('MessageBooksSelected', { count: libraryItemIds.length })}</p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('MessageBooksSelected', { count: libraryItemIds.length })}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent} className="max-w-lg sm:max-w-lg md:max-w-lg lg:max-w-lg">

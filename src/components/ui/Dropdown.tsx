@@ -37,8 +37,6 @@ interface DropdownProps {
   highlightSelected?: boolean
   /** Override the display text shown in the dropdown button */
   displayText?: string
-  /** Hide the selected value from the menu while still showing it in the button */
-  hideSelectedInMenu?: boolean
   /** Use portal to render the dropdown menu. Useful for avoiding clipping issues. */
   usePortal?: boolean
   /** When true, menu item labels wrap up to two lines then truncate */
@@ -62,7 +60,6 @@ export default function Dropdown({
   rightIcon,
   highlightSelected = false,
   displayText,
-  hideSelectedInMenu = false,
   usePortal = false,
   wrapText = false
 }: DropdownProps) {
@@ -156,11 +153,6 @@ export default function Dropdown({
     [items]
   )
 
-  const menuItemsToShow = useMemo(() => {
-    if (!hideSelectedInMenu || value === undefined) return itemsToShow
-    return itemsToShow.filter((item) => item.value !== value)
-  }, [itemsToShow, hideSelectedInMenu, value])
-
   const selectedItem = itemsToShow.find((item) => item.value === value)
   // Use displayText if provided, otherwise fall back to selected item text
   const selectedText = displayText || selectedItem?.text || ''
@@ -180,11 +172,11 @@ export default function Dropdown({
   // Helper to get filtered subitems for the currently open submenu
   const getFilteredSubitems = useCallback(() => {
     if (openSubmenuIndex === null) return []
-    const currentItem = menuItemsToShow[openSubmenuIndex]
+    const currentItem = itemsToShow[openSubmenuIndex]
     if (!currentItem?.subitems) return []
     if (!submenuFilterText) return currentItem.subitems
     return currentItem.subitems.filter((subitem) => subitem.text.toLowerCase().startsWith(submenuFilterText.toLowerCase()))
-  }, [menuItemsToShow, openSubmenuIndex, submenuFilterText])
+  }, [itemsToShow, openSubmenuIndex, submenuFilterText])
 
   // Keyboard navigation handlers
   const handleVerticalNavigation = (direction: 'up' | 'down') => {
@@ -199,11 +191,11 @@ export default function Dropdown({
         }
       } else {
         closeSubMenu()
-        setFocusedIndex((prev) => (prev < menuItemsToShow.length - 1 ? prev + 1 : prev))
+        setFocusedIndex((prev) => (prev < itemsToShow.length - 1 ? prev + 1 : prev))
       }
     } else {
       if (!showMenu) {
-        openMenu(menuItemsToShow.length - 1)
+        openMenu(itemsToShow.length - 1)
       } else if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
         // Navigating within submenu - use filtered list
         const filteredSubitems = getFilteredSubitems()
@@ -221,9 +213,9 @@ export default function Dropdown({
     if (direction === 'right') {
       // Open submenu if current item has subitems
       if (showMenu && focusedSubIndex === -1 && focusedIndex >= 0) {
-        const currentItem = menuItemsToShow[focusedIndex]
+        const currentItem = itemsToShow[focusedIndex]
         if (currentItem?.subitems) {
-          openSubMenu(focusedIndex, menuItemsToShow)
+          openSubMenu(focusedIndex, itemsToShow)
         }
       }
     } else {
@@ -246,17 +238,17 @@ export default function Dropdown({
           handleSubitemClick(subitem.value)
         }
       }
-    } else if (focusedIndex >= 0 && focusedIndex < menuItemsToShow.length) {
-      const currentItem = menuItemsToShow[focusedIndex]
+    } else if (focusedIndex >= 0 && focusedIndex < itemsToShow.length) {
+      const currentItem = itemsToShow[focusedIndex]
       if (currentItem?.subitems) {
         // Toggle submenu
         if (openSubmenuIndex === focusedIndex) {
           closeSubMenu()
         } else {
-          openSubMenu(focusedIndex, menuItemsToShow)
+          openSubMenu(focusedIndex, itemsToShow)
         }
       } else {
-        handleOptionClick(menuItemsToShow[focusedIndex].value)
+        handleOptionClick(itemsToShow[focusedIndex].value)
       }
     }
   }
@@ -287,7 +279,7 @@ export default function Dropdown({
           }
         } else {
           closeSubMenu()
-          setFocusedIndex(menuItemsToShow.length - 1)
+          setFocusedIndex(itemsToShow.length - 1)
         }
       }
     }
@@ -381,7 +373,7 @@ export default function Dropdown({
     }
   }
 
-  const dropdownMenuItems: DropdownMenuItem[] = menuItemsToShow.map((item) => ({
+  const dropdownMenuItems: DropdownMenuItem[] = itemsToShow.map((item) => ({
     text: item.text,
     value: item.value,
     subtext: item.subtext,
@@ -458,7 +450,7 @@ export default function Dropdown({
               if (openSubmenuIndex === idx) {
                 closeSubMenu()
               } else {
-                openSubMenu(idx, menuItemsToShow)
+                openSubMenu(idx, itemsToShow)
               }
             }
           } else {

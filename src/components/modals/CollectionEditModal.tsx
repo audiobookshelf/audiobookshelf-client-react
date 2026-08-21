@@ -2,6 +2,7 @@
 
 import { deleteCollectionAction, updateCollectionAction } from '@/app/actions/collectionActions'
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import TextareaInput from '@/components/ui/TextareaInput'
 import TextInput from '@/components/ui/TextInput'
@@ -87,11 +88,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
     })
   }, [collection.id, onClose, onDeleted, showToast, t])
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className="text-xl text-white">{t('HeaderCollection')}</h2>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderCollection')}</ModalOuterContent>
 
   return (
     <>

@@ -1,9 +1,9 @@
-import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
 import Checkbox from '@/components/ui/Checkbox'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
-import ConfirmDialog, { type ConfirmState } from '@/components/widgets/ConfirmDialog'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import PodcastEpisodeListenActions from '@/components/widgets/episode/PodcastEpisodeListenActions'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeListenActions } from '@/hooks/usetEpisodeListenActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -55,9 +55,10 @@ export default function EpisodeRow({
   rowIndex
 }: EpisodeRowProps) {
   const t = useTypeSafeTranslations()
+  const { setBoundModal } = useLibrary()
   const { user, userCanUpdate, userCanDelete, userCanDownload, userIsAdminOrUp } = useUser()
   const [isHovering, setIsHovering] = useState(false)
-  const [deleteConfirmState, setDeleteConfirmState] = useState<ConfirmState | null>(null)
+  const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 
   const libraryItemId = libraryItem.id
   const podcastTitle = libraryItem.media.metadata?.title ?? ''
@@ -94,15 +95,10 @@ export default function EpisodeRow({
     showQueueButton,
     playButtonLabel,
     isProcessingFinished,
-    playlistsModalOpen,
-    confirmState: finishedConfirmState,
     handlePlay,
     handleQueueToggle,
     handleToggleFinished,
-    handleOpenPlaylist,
-    closePlaylistsModal,
-    closeConfirm: closeFinishedConfirm,
-    libraryId
+    handleOpenPlaylist
   } = useEpisodeListenActions({
     libraryItemId,
     episode,
@@ -119,14 +115,32 @@ export default function EpisodeRow({
     return items
   }, [userCanDownload, userCanUpdate, userIsAdminOrUp, episode.audioFile, libraryItem.isInvalid, libraryItem.isMissing, onMatch, t])
 
-  const closeDeleteConfirm = () => setDeleteConfirmState(null)
-
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.stopPropagation()
     openHardDeleteConfirm({
       message: t('MessageConfirmDeleteEpisode', { 0: episode.title }),
       t,
-      setConfirmState: setDeleteConfirmState,
+      setConfirmState: (state) => {
+        if (!state) {
+          clearBoundModal()
+          return
+        }
+        setBoundModal(
+          <ConfirmDialog
+            key={`delete-episode-${episode.id}`}
+            isOpen={state.isOpen}
+            message={state.message}
+            checkboxLabel={state.checkboxLabel}
+            yesButtonText={state.yesButtonText}
+            yesButtonClassName={state.yesButtonClassName}
+            onClose={clearBoundModal}
+            onConfirm={(value) => {
+              clearBoundModal()
+              state.onConfirm(value)
+            }}
+          />
+        )
+      },
       onDelete: (hardDelete) => onRemove?.(episode, hardDelete)
     })
   }
@@ -140,170 +154,130 @@ export default function EpisodeRow({
   }
 
   return (
-    <>
-      <div
-        className="border-foreground/10 hover:bg-foreground/5 relative h-44 w-full overflow-hidden border-b px-2 py-2 transition-colors"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
-        <div className="flex h-full flex-col rounded-sm" onClick={handleRowClick}>
-          <div className="flex min-h-0 w-full flex-1">
-            <div className="flex min-w-0 grow flex-col justify-start">
-              <div dir="auto" className="relative flex h-10 w-full flex-shrink-0 items-center pe-2 break-words whitespace-normal">
-                <button
-                  id={`btn-episode-${episode.id}`}
-                  type="button"
-                  className={`focus-visible:outline-foreground-muted line-clamp-2 cursor-pointer rounded-sm text-start text-sm leading-tight font-semibold focus-visible:outline-1 focus-visible:outline-offset-4 ${userIsFinished ? 'text-foreground-muted' : ''}`}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    handleRowClick()
-                  }}
-                >
-                  {episode.title}
-                </button>
-              </div>
-
-              <div className="relative mt-1.5 mb-0.5 flex h-10 min-h-0 items-start overflow-hidden pe-12">
-                <div
-                  dir="auto"
-                  className="text-foreground-muted line-clamp-2 w-full text-sm leading-snug break-words whitespace-normal"
-                  dangerouslySetInnerHTML={{ __html: descriptionHtml }}
-                  onClick={(e) => {
-                    if ((e.target as HTMLElement).tagName.toLowerCase() === 'a') {
-                      e.stopPropagation()
-                    }
-                  }}
-                />
-              </div>
-
-              <div className="flex h-7 w-full flex-shrink-0 items-center">
-                {sortKey === 'audioFile.metadata.filename' ? (
-                  <p className="text-foreground-muted truncate text-sm font-light">
-                    <strong className="font-bold">{t('LabelFilename')}</strong>: {episode.audioFile?.metadata?.filename}
-                  </p>
-                ) : (
-                  <div className="flex w-full max-w-xl min-w-0 items-center gap-x-3 overflow-hidden pr-12">
-                    {episode.season && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
-                    {episode.episode && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
-                    {publishedDate && (
-                      <p className="text-foreground-muted shrink-0 text-sm">
-                        <span className="sm:hidden">{publishedDate}</span>
-                        <span className="hidden sm:inline">{t('LabelPublishedDate', { 0: publishedDate })}</span>
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div
-              className={`absolute top-1/2 right-2 z-10 flex flex-shrink-0 -translate-y-1/2 items-center justify-center transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 has-[:focus-visible]:opacity-100 md:opacity-0 md:has-[:focus-visible]:opacity-100'}`}
-              onKeyDown={(e) => {
-                if (e.key === ' ') {
+    <div
+      className="border-foreground/10 hover:bg-foreground/5 relative h-44 w-full overflow-hidden border-b px-2 py-2 transition-colors"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      <div className="flex h-full flex-col rounded-sm" onClick={handleRowClick}>
+        <div className="flex min-h-0 w-full flex-1">
+          <div className="flex min-w-0 grow flex-col justify-start">
+            <div dir="auto" className="relative flex h-10 w-full flex-shrink-0 items-center pe-2 break-words whitespace-normal">
+              <button
+                id={`btn-episode-${episode.id}`}
+                type="button"
+                className={`focus-visible:outline-foreground-muted line-clamp-2 cursor-pointer rounded-sm text-start text-sm leading-tight font-semibold focus-visible:outline-1 focus-visible:outline-offset-4 ${userIsFinished ? 'text-foreground-muted' : ''}`}
+                onClick={(e) => {
                   e.stopPropagation()
-                }
-              }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <Checkbox value={isSelected} checkboxBgClass="bg-primary" onChange={(checked, shiftKey) => onSelect(episode, checked, shiftKey, rowIndex)} />
+                  handleRowClick()
+                }}
+              >
+                {episode.title}
+              </button>
             </div>
-          </div>
 
-          <div className="@container mt-auto flex w-full items-center justify-between gap-1">
-            <div className="flex w-full items-center gap-1" onClick={(e) => e.stopPropagation()}>
-              <PodcastEpisodeListenActions
-                playButtonLabel={playButtonLabel}
-                isPlaying={episodeIsPlaying}
-                isFinished={userIsFinished}
-                isProcessingFinished={isProcessingFinished}
-                showQueueButton={showQueueButton}
-                isQueued={isQueued}
-                onPlay={handlePlay}
-                onQueueToggle={handleQueueToggle}
-                onToggleFinished={handleToggleFinished}
-                onAddToPlaylist={handleOpenPlaylist}
-              />
-
-              {userCanUpdate && (
-                <IconBtn
-                  borderless
-                  className="flex-shrink-0"
-                  onClick={(e) => {
+            <div className="relative mt-1.5 mb-0.5 flex h-10 min-h-0 items-start overflow-hidden pe-12">
+              <div
+                dir="auto"
+                className="text-foreground-muted line-clamp-2 w-full text-sm leading-snug break-words whitespace-normal"
+                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                onClick={(e) => {
+                  if ((e.target as HTMLElement).tagName.toLowerCase() === 'a') {
                     e.stopPropagation()
-                    onEdit?.(episode)
-                  }}
-                >
-                  edit
-                </IconBtn>
-              )}
+                  }
+                }}
+              />
+            </div>
 
-              {userCanDelete && (
-                <IconBtn borderless className="flex-shrink-0" onClick={handleDeleteClick}>
-                  delete
-                </IconBtn>
-              )}
-
-              {contextMenuItems.length > 0 && (
-                <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
-                  <ContextMenuDropdown
-                    items={contextMenuItems}
-                    autoWidth
-                    borderless
-                    onAction={({ action }) => {
-                      if (action === 'match') onMatch?.(episode)
-                      else if (action === 'download') onDownloadFile?.(episode)
-                      else if (action === 'more') onShowMoreInfo?.(episode)
-                    }}
-                    usePortal
-                  />
+            <div className="flex h-7 w-full flex-shrink-0 items-center">
+              {sortKey === 'audioFile.metadata.filename' ? (
+                <p className="text-foreground-muted truncate text-sm font-light">
+                  <strong className="font-bold">{t('LabelFilename')}</strong>: {episode.audioFile?.metadata?.filename}
+                </p>
+              ) : (
+                <div className="flex w-full max-w-xl min-w-0 items-center gap-x-3 overflow-hidden pr-12">
+                  {episode.season && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
+                  {episode.episode && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
+                  {publishedDate && (
+                    <p className="text-foreground-muted shrink-0 text-sm">
+                      <span className="sm:hidden">{publishedDate}</span>
+                      <span className="hidden sm:inline">{t('LabelPublishedDate', { 0: publishedDate })}</span>
+                    </p>
+                  )}
                 </div>
               )}
             </div>
           </div>
+
+          <div
+            className={`absolute top-1/2 right-2 z-10 flex flex-shrink-0 -translate-y-1/2 items-center justify-center transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 has-[:focus-visible]:opacity-100 md:opacity-0 md:has-[:focus-visible]:opacity-100'}`}
+            onKeyDown={(e) => {
+              if (e.key === ' ') {
+                e.stopPropagation()
+              }
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Checkbox value={isSelected} checkboxBgClass="bg-primary" onChange={(checked, shiftKey) => onSelect(episode, checked, shiftKey, rowIndex)} />
+          </div>
         </div>
 
-        {!userIsFinished && userProgressPercent > 0 && (
-          <div className="bg-warning absolute bottom-0 left-0 h-0.5" style={{ width: `${userProgressPercent * 100}%` }} />
-        )}
+        <div className="@container mt-auto flex w-full items-center justify-between gap-1">
+          <div className="flex w-full items-center gap-1" onClick={(e) => e.stopPropagation()}>
+            <PodcastEpisodeListenActions
+              playButtonLabel={playButtonLabel}
+              isPlaying={episodeIsPlaying}
+              isFinished={userIsFinished}
+              isProcessingFinished={isProcessingFinished}
+              showQueueButton={showQueueButton}
+              isQueued={isQueued}
+              onPlay={handlePlay}
+              onQueueToggle={handleQueueToggle}
+              onToggleFinished={handleToggleFinished}
+              onAddToPlaylist={handleOpenPlaylist}
+            />
+
+            {userCanUpdate && (
+              <IconBtn
+                borderless
+                className="flex-shrink-0"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onEdit?.(episode)
+                }}
+              >
+                edit
+              </IconBtn>
+            )}
+
+            {userCanDelete && (
+              <IconBtn borderless className="flex-shrink-0" onClick={handleDeleteClick}>
+                delete
+              </IconBtn>
+            )}
+
+            {contextMenuItems.length > 0 && (
+              <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
+                <ContextMenuDropdown
+                  items={contextMenuItems}
+                  autoWidth
+                  borderless
+                  onAction={({ action }) => {
+                    if (action === 'match') onMatch?.(episode)
+                    else if (action === 'download') onDownloadFile?.(episode)
+                    else if (action === 'more') onShowMoreInfo?.(episode)
+                  }}
+                  usePortal
+                />
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
-      {playlistsModalOpen && (
-        <AddToPlaylistModal
-          isOpen={playlistsModalOpen}
-          onClose={closePlaylistsModal}
-          libraryId={libraryId}
-          items={[{ libraryItemId, episodeId: episode.id }]}
-          headerTitle={episode.title}
-        />
+      {!userIsFinished && userProgressPercent > 0 && (
+        <div className="bg-warning absolute bottom-0 left-0 h-0.5" style={{ width: `${userProgressPercent * 100}%` }} />
       )}
-
-      {finishedConfirmState && (
-        <ConfirmDialog
-          isOpen={finishedConfirmState.isOpen}
-          message={finishedConfirmState.message}
-          checkboxLabel={finishedConfirmState.checkboxLabel}
-          yesButtonText={finishedConfirmState.yesButtonText}
-          yesButtonClassName={finishedConfirmState.yesButtonClassName}
-          onClose={closeFinishedConfirm}
-          onConfirm={(value) => {
-            finishedConfirmState.onConfirm(value)
-          }}
-        />
-      )}
-
-      {deleteConfirmState && (
-        <ConfirmDialog
-          isOpen={deleteConfirmState.isOpen}
-          message={deleteConfirmState.message}
-          checkboxLabel={deleteConfirmState.checkboxLabel}
-          yesButtonText={deleteConfirmState.yesButtonText}
-          yesButtonClassName={deleteConfirmState.yesButtonClassName}
-          onClose={closeDeleteConfirm}
-          onConfirm={(value) => {
-            deleteConfirmState.onConfirm(value)
-          }}
-        />
-      )}
-    </>
+    </div>
   )
 }

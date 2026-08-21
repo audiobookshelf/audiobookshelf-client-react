@@ -1,4 +1,5 @@
 import Btn from '@/components/ui/Btn'
+import PageMessage from '@/components/ui/PageMessage'
 import { useTasks } from '@/contexts/TasksContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library } from '@/types/api'
@@ -36,25 +37,21 @@ export default function LibraryEmptyState({ library, showScanButton, variant = '
     const browseLabel = library.mediaType === 'podcast' ? t('LabelPodcasts') : t('LabelBooks')
 
     return (
-      <div className="flex flex-col items-center justify-center gap-4 py-10">
-        <p className="mb-2 max-w-lg text-center text-xl">{t('MessageNoHomeShelves')}</p>
+      <PageMessage message={t('MessageNoHomeShelves')}>
         <Btn size="small" color="bg-success" to={`/library/${library.id}/items`}>
           {browseLabel}
         </Btn>
-      </div>
+      </PageMessage>
     )
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-10">
-      <p className="mb-2 text-xl">{t('MessageXLibraryIsEmpty', { 0: library.name })}</p>
-      {showScanButton && (
-        <div className="flex items-center justify-center gap-2">
-          <Btn size="small" color="bg-success" onClick={handleScanLibrary} loading={isPending || isLibraryTaskRunning}>
-            {t('ButtonScanLibrary')}
-          </Btn>
-        </div>
-      )}
-    </div>
+    <PageMessage message={t('MessageXLibraryIsEmpty', { 0: library.name })}>
+      {showScanButton ? (
+        <Btn size="small" color="bg-success" onClick={handleScanLibrary} loading={isPending || isLibraryTaskRunning}>
+          {t('ButtonScanLibrary')}
+        </Btn>
+      ) : null}
+    </PageMessage>
   )
 }

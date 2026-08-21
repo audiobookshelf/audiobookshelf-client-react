@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerStatus } from './lib/api'
+import { clearSessionCookies, getServerStatus } from './lib/api'
 import { isSessionTokenValid } from './lib/jwt'
 import { matchAcceptLanguage } from './lib/languages'
 import Logger from './lib/Logger'
@@ -116,8 +116,7 @@ export async function proxy(request: NextRequest) {
     if (isServerInitialized === false) {
       Logger.debug('[proxy] server not initialized; clearing stale session cookies')
       const response = next()
-      response.cookies.delete('access_token')
-      response.cookies.delete('refresh_token')
+      clearSessionCookies(response)
       return response
     }
 
@@ -177,5 +176,8 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|internal-api|_next/static|_next/image|.*\\.png|.*\\.ico|.*\\.svg|.*\\.json).*)']
+  // PWA files (sw.js, manifest.webmanifest) are excluded so they stay publicly fetchable:
+  // otherwise the auth redirect would serve a /login HTML page in their place, breaking
+  // service-worker registration and install from the login screen.
+  matcher: ['/((?!api|internal-api|_next/static|_next/image|sw\\.js|manifest\\.webmanifest|.*\\.png|.*\\.ico|.*\\.svg|.*\\.json).*)']
 }

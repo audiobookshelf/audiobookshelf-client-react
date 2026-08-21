@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
@@ -163,11 +164,7 @@ export default function SleepTimerModal({
     onDecrement(adjustedAmount)
   }
 
-  const outerContent = (
-    <div className="absolute start-0 top-0 p-4">
-      <p className="text-xl text-white">{t('HeaderSleepTimer')}</p>
-    </div>
-  )
+  const outerContent = <ModalOuterContent>{t('HeaderSleepTimer')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-[350px] md:max-w-[350px] lg:max-w-[350px]">

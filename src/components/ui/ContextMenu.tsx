@@ -214,7 +214,7 @@ export default function ContextMenu<T = string>({
           aria-label={`${item.text}, submenu`}
           id={`${menuId}-item-${index}`}
           className={mergeClasses(
-            'hover:bg-foreground/5 text-foreground flex w-full cursor-default items-center px-2 py-1.5 text-xs',
+            'hover:bg-foreground/5 text-foreground flex w-full cursor-default items-center justify-between gap-2 px-2 py-1.5 text-xs',
             openSubmenuIndex === index ? 'bg-foreground/5' : '',
             focusedIndex === index && focusedSubIndex === -1 ? 'bg-foreground/10' : ''
           )}
@@ -225,6 +225,9 @@ export default function ContextMenu<T = string>({
           tabIndex={-1}
         >
           <p className={mergeClasses(autoWidth && 'whitespace-nowrap')}>{item.text}</p>
+          <span className="material-symbols shrink-0 text-sm leading-none" aria-hidden>
+            arrow_right
+          </span>
         </button>
         {openSubmenuIndex === index && (
           <div

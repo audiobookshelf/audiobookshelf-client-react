@@ -1,12 +1,62 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
+import SectionedModal from '@/components/modals/SectionedModal'
 import TabbedModal from '@/components/modals/TabbedModal'
 import Btn from '@/components/ui/Btn'
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
 import { ComponentExamples, Example, ExamplesBlock } from '../ComponentExamples'
+
+const DEMO_SECTIONS = [
+  { id: 'alpha', label: 'Alpha', icon: 'edit' },
+  { id: 'beta', label: 'Beta', icon: 'image' },
+  { id: 'gamma', label: 'Gamma', icon: 'travel_explore' }
+]
+
+function SectionedModalExample() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [selectedSection, setSelectedSection] = useState('alpha')
+
+  return (
+    <>
+      <Btn
+        onClick={() => {
+          setSelectedSection('alpha')
+          setIsOpen(true)
+        }}
+      >
+        Open Sectioned Modal
+      </Btn>
+      <SectionedModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        sections={DEMO_SECTIONS}
+        selectedSection={selectedSection}
+        onSectionChange={setSelectedSection}
+        className="md:max-w-[min(95vw,48rem)]"
+        outerContent={<ModalOuterContent>Example Item</ModalOuterContent>}
+      >
+        <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col">
+          <div className="min-h-0 flex-1 overflow-y-auto p-6">
+            <p className="text-foreground-muted text-sm">
+              Placeholder content for the <strong className="text-foreground">{DEMO_SECTIONS.find((s) => s.id === selectedSection)!.label}</strong> section.
+              Each section can define its own layout, actions, and footer.
+            </p>
+          </div>
+          {selectedSection === 'alpha' ? (
+            <div className="border-border flex shrink-0 justify-end gap-3 border-t px-4 py-3">
+              <Btn size="small">Save</Btn>
+              <Btn size="small">Save & Close</Btn>
+            </div>
+          ) : null}
+        </div>
+      </SectionedModal>
+    </>
+  )
+}
 
 export function AdvancedModalExamples() {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -186,6 +236,12 @@ export function AdvancedModalExamples() {
                 </div>
               )}
             </TabbedModal>
+          </div>
+        </Example>
+        <Example title="Modal with Section Navigation">
+          <div>
+            <p className="mb-4 text-sm text-gray-400">One modal with multiple sections, each with its own actions.</p>
+            <SectionedModalExample />
           </div>
         </Example>
       </ExamplesBlock>

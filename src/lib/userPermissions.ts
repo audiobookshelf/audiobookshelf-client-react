@@ -7,11 +7,11 @@ export function isUserAdminOrUp(userType: string): boolean {
 }
 
 /**
- * User "Home" page is the default library, or libraries settings for admin/root when none exist yet
- * (Vue: `/config/libraries` for root with no libraries).
+ * User "Home" page is the default library, or `/library` empty home when none exist yet
+ * (Vue: `/config/libraries` for root with no libraries; React uses `/library` empty state).
  */
-export function getUserDefaultUrlPath(userDefaultLibraryId: string | null, userType: string) {
-  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : isUserAdminOrUp(userType) ? '/settings/libraries' : '/account'
+export function getUserDefaultUrlPath(userDefaultLibraryId: string | null) {
+  return userDefaultLibraryId ? `/library/${userDefaultLibraryId}` : '/library'
 }
 
 function hasUserPermission(user: UserWithPermissions, permission: keyof UserPermissions): boolean {
@@ -30,6 +30,10 @@ export function userCanDownload(user: UserWithPermissions): boolean {
   return hasUserPermission(user, 'download')
 }
 
+export function userCanUpload(user: UserWithPermissions): boolean {
+  return !!user.permissions?.upload
+}
+
 export function getUserPermissionFlags(user: User) {
   const userIsAdminOrUp = isUserAdminOrUp(user.type)
 
@@ -37,6 +41,7 @@ export function getUserPermissionFlags(user: User) {
     userCanUpdate: userCanUpdate(user),
     userCanDelete: userCanDelete(user),
     userCanDownload: userCanDownload(user),
+    userCanUpload: userCanUpload(user),
     userIsAdminOrUp
   }
 }

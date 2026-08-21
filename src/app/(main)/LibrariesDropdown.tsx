@@ -97,7 +97,6 @@ export default function LibrariesDropdown({ libraries, currentLibraryId }: Libra
       <div className="col-start-1 row-start-1 min-w-0">
         <Dropdown
           items={libraryItems}
-          hideSelectedInMenu
           menuMaxHeight="80vh"
           size="small"
           disabled={isPending}

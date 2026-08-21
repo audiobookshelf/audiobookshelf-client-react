@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -9,6 +10,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime, secondsToTimestamp } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
 import { PlaybackSession, PlayMethod } from '@/types/api'
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { closeListeningSession, deleteListeningSession } from './actions'
 
@@ -107,16 +109,18 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         processing={isProcessing}
         onClose={onClose}
         className="w-[calc(100vw-1rem)] md:max-w-[700px]"
-        outerContent={
-          <div className="absolute top-0 left-0 w-2/3 overflow-hidden p-4">
-            <p className="truncate text-xl text-white">{sessionTitle}</p>
-          </div>
-        }
+        outerContent={<ModalOuterContent title={sessionTitle}>{sessionTitle}</ModalOuterContent>}
       >
         {currentSession && (
           <div className="bg-bg w-full overflow-x-hidden overflow-y-auto rounded-lg p-6" style={{ maxHeight: '80vh' }}>
             <div className="flex items-baseline gap-4">
-              <p className="text-foreground text-base">{currentSession.displayTitle}</p>
+              {currentSession.libraryId && currentSession.libraryItemId ? (
+                <Link href={`/library/${currentSession.libraryId}/item/${currentSession.libraryItemId}`} className="text-foreground text-base hover:underline" onClick={onClose}>
+                  {currentSession.displayTitle}
+                </Link>
+              ) : (
+                <p className="text-foreground text-base">{currentSession.displayTitle}</p>
+              )}
               {currentSession.displayAuthor && <p className="text-foreground-muted text-xs">{t('LabelByAuthor', { 0: currentSession.displayAuthor })}</p>}
             </div>
 
