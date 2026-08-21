@@ -1,8 +1,8 @@
 'use client'
 
 import TabbedModal from '@/components/modals/TabbedModal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -225,11 +225,14 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       onTabChange={setSelectedTab}
       contentClassName="relative px-4 sm:px-6 py-6 max-h-[70vh] min-h-[440px] overflow-y-auto"
       footer={
-        <div className="flex items-center justify-end">
-          <Btn disabled={!isValid || !hasChanges} loading={processing} onClick={handleSubmit}>
-            {isEditing ? t('ButtonSave') : t('ButtonCreate')}
-          </Btn>
-        </div>
+        <ModalFooter
+          primary={{
+            label: isEditing ? t('ButtonSave') : t('ButtonCreate'),
+            onClick: handleSubmit,
+            disabled: !isValid || !hasChanges,
+            loading: processing
+          }}
+        />
       }
     >
       {selectedTab === 'details' && (

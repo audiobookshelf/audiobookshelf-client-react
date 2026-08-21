@@ -1,5 +1,6 @@
 'use client'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import Btn from '@/components/ui/Btn'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useState } from 'react'
@@ -48,16 +49,14 @@ export function ModalExamples() {
             <Btn onClick={() => setIsBasicModalOpen(true)}>Open Basic Modal</Btn>
 
             <Modal isOpen={isBasicModalOpen} onClose={() => setIsBasicModalOpen(false)} className="w-[500px]">
-              <div className="p-6">
-                <h3 className="mb-4 text-xl font-semibold text-white">Basic Modal Example</h3>
-                <p className="mb-6 text-gray-300">
-                  This is a basic modal dialog. You can close it by clicking the close button, pressing Escape, or clicking outside the modal content.
-                </p>
-                <div className="flex justify-end gap-3">
-                  <Btn onClick={() => setIsBasicModalOpen(false)} color="bg-gray-600">
-                    Close
-                  </Btn>
+              <div className="flex flex-col">
+                <div className="p-6">
+                  <h3 className="mb-4 text-xl font-semibold text-white">Basic Modal Example</h3>
+                  <p className="text-gray-300">
+                    This is a basic modal dialog. You can close it by clicking the close button, pressing Escape, or clicking outside the modal content.
+                  </p>
                 </div>
+                <ModalFooter primary={{ label: 'Close', onClick: () => setIsBasicModalOpen(false) }} />
               </div>
             </Modal>
           </div>
@@ -69,19 +68,21 @@ export function ModalExamples() {
             <Btn onClick={() => setIsProcessingModalOpen(true)}>Open Processing Modal</Btn>
 
             <Modal isOpen={isProcessingModalOpen} onClose={() => setIsProcessingModalOpen(false)} processing={isProcessing} className="h-[300px] w-[500px]">
-              <div className="flex h-full flex-col p-6">
-                <h3 className="mb-4 text-xl font-semibold text-white">Processing Example</h3>
-                <p className="mb-6 flex-1 text-gray-300">
-                  Click the &quot;Start Processing&quot; button to see the processing overlay in action. The modal will be disabled during processing.
-                </p>
-                <div className="flex justify-end gap-3">
-                  <Btn onClick={() => setIsProcessingModalOpen(false)} color="bg-gray-600">
-                    Cancel
-                  </Btn>
-                  <Btn onClick={handleProcessingDemo} color="bg-blue-600" disabled={isProcessing}>
-                    {isProcessing ? 'Processing...' : 'Start Processing'}
-                  </Btn>
+              <div className="flex h-full flex-col">
+                <div className="flex-1 p-6">
+                  <h3 className="mb-4 text-xl font-semibold text-white">Processing Example</h3>
+                  <p className="text-gray-300">
+                    Click the &quot;Start Processing&quot; button to see the processing overlay in action. The modal will be disabled during processing.
+                  </p>
                 </div>
+                <ModalFooter
+                  secondary={{ label: 'Cancel', onClick: () => setIsProcessingModalOpen(false) }}
+                  primary={{
+                    label: isProcessing ? 'Processing...' : 'Start Processing',
+                    onClick: handleProcessingDemo,
+                    disabled: isProcessing
+                  }}
+                />
               </div>
             </Modal>
           </div>
@@ -99,16 +100,14 @@ export function ModalExamples() {
               bgOpacityClass="bg-primary/90"
               className="h-[250px] w-[500px]"
             >
-              <div className="flex h-full flex-col p-6">
-                <h3 className="mb-4 text-xl font-semibold text-white">Persistent Modal</h3>
-                <p className="mb-6 flex-1 text-gray-300">
-                  This modal is persistent - you can only close it by clicking the &quot;Close&quot; button. Background clicks and Escape key are disabled.
-                </p>
-                <div className="flex justify-end">
-                  <Btn onClick={() => setIsPersistentModalOpen(false)} color="bg-red-600">
-                    Close Modal
-                  </Btn>
+              <div className="flex h-full flex-col">
+                <div className="flex-1 p-6">
+                  <h3 className="mb-4 text-xl font-semibold text-white">Persistent Modal</h3>
+                  <p className="text-gray-300">
+                    This modal is persistent - you can only close it by clicking the &quot;Close&quot; button. Background clicks and Escape key are disabled.
+                  </p>
                 </div>
+                <ModalFooter primary={{ label: 'Close Modal', onClick: () => setIsPersistentModalOpen(false) }} />
               </div>
             </Modal>
           </div>
@@ -126,9 +125,9 @@ export function ModalExamples() {
               bgOpacityClass="bg-primary/50"
               className="mt-[20px]"
             >
-              <div className="flex h-full flex-col rounded-lg bg-gradient-to-br from-blue-900 to-purple-900 p-8">
-                <h3 className="mb-6 text-2xl font-bold text-white">Custom Styled Modal</h3>
-                <div className="flex-1 space-y-4">
+              <div className="flex flex-col rounded-lg bg-gradient-to-br from-blue-900 to-purple-900">
+                <div className="space-y-4 p-8">
+                  <h3 className="text-2xl font-bold text-white">Custom Styled Modal</h3>
                   <p className="text-blue-100">This modal demonstrates custom styling options:</p>
                   <ul className="list-inside list-disc space-y-2 text-blue-100">
                     <li>Custom width, height, and margin via className</li>
@@ -137,18 +136,14 @@ export function ModalExamples() {
                     <li>Custom margin top (20px) via className</li>
                     <li>Gradient background styling</li>
                   </ul>
-                  <div className="mt-4 rounded bg-blue-800/30 p-4">
+                  <div className="rounded bg-blue-800/30 p-4">
                     <h4 className="mb-2 text-lg font-semibold text-white">Modal Features</h4>
                     <p className="text-sm text-blue-100">
                       The Modal component supports focus management, keyboard navigation, smooth animations, and portal rendering for proper z-index handling.
                     </p>
                   </div>
                 </div>
-                <div className="flex justify-end gap-3 border-t border-blue-700 pt-6">
-                  <Btn onClick={() => setIsCustomModalOpen(false)} color="bg-blue-600">
-                    Close Custom Modal
-                  </Btn>
-                </div>
+                <ModalFooter primary={{ label: 'Close Custom Modal', onClick: () => setIsCustomModalOpen(false) }} />
               </div>
             </Modal>
           </div>
@@ -165,16 +160,14 @@ export function ModalExamples() {
               outerContent={<div className="absolute start-10 top-10 rounded bg-yellow-500 px-3 py-1 text-sm font-semibold text-black">Outer Content!</div>}
               className="w-[500px]"
             >
-              <div className="flex h-full flex-col p-6">
-                <h3 className="mb-4 text-xl font-semibold text-white">Modal with Outer Content</h3>
-                <p className="mb-6 flex-1 text-gray-300">
-                  This modal has additional content rendered outside the main modal container. Check the yellow badge in the top-left corner.
-                </p>
-                <div className="flex justify-end">
-                  <Btn onClick={() => setIsOuterContentModalOpen(false)} color="bg-gray-600">
-                    Close
-                  </Btn>
+              <div className="flex flex-col">
+                <div className="p-6">
+                  <h3 className="mb-4 text-xl font-semibold text-white">Modal with Outer Content</h3>
+                  <p className="text-gray-300">
+                    This modal has additional content rendered outside the main modal container. Check the yellow badge in the top-left corner.
+                  </p>
                 </div>
+                <ModalFooter primary={{ label: 'Close', onClick: () => setIsOuterContentModalOpen(false) }} />
               </div>
             </Modal>
           </div>
@@ -186,9 +179,9 @@ export function ModalExamples() {
             <Btn onClick={() => setIsResponsiveModalOpen(true)}>Open Responsive Modal</Btn>
 
             <Modal isOpen={isResponsiveModalOpen} onClose={() => setIsResponsiveModalOpen(false)} className="h-[80vh] w-[90vw]">
-              <div className="flex h-full flex-col p-6">
-                <h3 className="mb-4 text-xl font-semibold text-white">Responsive Modal</h3>
-                <div className="flex-1 space-y-4">
+              <div className="flex h-full flex-col">
+                <div className="flex-1 space-y-4 overflow-y-auto p-6">
+                  <h3 className="text-xl font-semibold text-white">Responsive Modal</h3>
                   <p className="text-gray-300">This modal uses viewport units for its dimensions:</p>
                   <ul className="list-inside list-disc space-y-2 text-gray-300">
                     <li>Width: 90vw (90% of viewport width)</li>
@@ -200,11 +193,7 @@ export function ModalExamples() {
                     <p className="text-sm text-gray-300">Try resizing your browser window to see how the modal adapts to different screen sizes.</p>
                   </div>
                 </div>
-                <div className="border-border flex justify-end border-t pt-4">
-                  <Btn onClick={() => setIsResponsiveModalOpen(false)} color="bg-gray-600">
-                    Close
-                  </Btn>
-                </div>
+                <ModalFooter primary={{ label: 'Close', onClick: () => setIsResponsiveModalOpen(false) }} />
               </div>
             </Modal>
           </div>

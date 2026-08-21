@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import SectionedModal from '@/components/modals/SectionedModal'
 import TabbedModal from '@/components/modals/TabbedModal'
@@ -47,10 +48,10 @@ function SectionedModalExample() {
             </p>
           </div>
           {selectedSection === 'alpha' ? (
-            <div className="border-border flex shrink-0 justify-end gap-3 border-t px-4 py-3">
-              <Btn size="small">Save</Btn>
-              <Btn size="small">Save & Close</Btn>
-            </div>
+            <ModalFooter
+              secondary={{ label: 'Save', onClick: () => {} }}
+              primary={{ label: 'Save & Close', onClick: () => setIsOpen(false) }}
+            />
           ) : null}
         </div>
       </SectionedModal>
@@ -111,40 +112,35 @@ export function AdvancedModalExamples() {
             <Btn onClick={() => setIsModalOpen(true)}>Open Modal with MultiSelect</Btn>
 
             <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} className="w-[600px]">
-              <div className="flex h-full flex-col p-6">
-                {/* Header */}
-                <div className="border-border mb-6 flex items-center justify-between border-b pb-4">
-                  <h3 className="text-xl font-semibold text-white">Edit Tags</h3>
-                </div>
+              <div className="flex flex-col">
+                <div className="p-6">
+                  <div className="border-border mb-6 flex items-center justify-between border-b pb-4">
+                    <h3 className="text-xl font-semibold text-white">Edit Tags</h3>
+                  </div>
 
-                {/* Content */}
-                <div className="flex-1 space-y-4">
-                  <p className="text-sm text-gray-300">Select or add tags for this item.</p>
+                  <div className="space-y-4">
+                    <p className="text-sm text-gray-300">Select or add tags for this item.</p>
 
-                  <MultiSelect
-                    selectedItems={multiSelectValue}
-                    onItemAdded={handleMultiSelectItemAdded}
-                    onItemRemoved={handleMultiSelectItemRemoved}
-                    onItemEdited={handleMultiSelectItemEdited}
-                    items={multiSelectItems}
-                    label="Item Tags"
-                    showEdit
-                  />
+                    <MultiSelect
+                      selectedItems={multiSelectValue}
+                      onItemAdded={handleMultiSelectItemAdded}
+                      onItemRemoved={handleMultiSelectItemRemoved}
+                      onItemEdited={handleMultiSelectItemEdited}
+                      items={multiSelectItems}
+                      label="Item Tags"
+                      showEdit
+                    />
 
-                  <div className="mt-2 text-xs text-gray-400">
-                    Current selection: {multiSelectValue.length > 0 ? multiSelectValue.map((i) => i.content).join(', ') : 'None'}
+                    <div className="mt-2 text-xs text-gray-400">
+                      Current selection: {multiSelectValue.length > 0 ? multiSelectValue.map((i) => i.content).join(', ') : 'None'}
+                    </div>
                   </div>
                 </div>
 
-                {/* Footer */}
-                <div className="border-border flex items-center justify-end gap-3 border-t pt-4">
-                  <Btn onClick={() => setIsModalOpen(false)} color="bg-gray-600">
-                    Cancel
-                  </Btn>
-                  <Btn onClick={() => setIsModalOpen(false)} color="bg-blue-600">
-                    Save Changes
-                  </Btn>
-                </div>
+                <ModalFooter
+                  secondary={{ label: 'Cancel', onClick: () => setIsModalOpen(false) }}
+                  primary={{ label: 'Save Changes', onClick: () => setIsModalOpen(false) }}
+                />
               </div>
             </Modal>
           </div>
@@ -174,20 +170,16 @@ export function AdvancedModalExamples() {
               onTabChange={setSelectedTab}
               contentClassName="p-6"
               footer={
-                <div className="flex justify-end gap-3">
-                  <Btn onClick={() => setIsTabbedModalOpen(false)} color="bg-gray-600">
-                    Cancel
-                  </Btn>
-                  <Btn
-                    onClick={() => {
+                <ModalFooter
+                  secondary={{ label: 'Cancel', onClick: () => setIsTabbedModalOpen(false) }}
+                  primary={{
+                    label: 'Save',
+                    onClick: () => {
                       showToast(`Saved from "${selectedTab}" tab!`, { type: 'success', title: 'Tabbed Modal' })
                       setIsTabbedModalOpen(false)
-                    }}
-                    color="bg-success"
-                  >
-                    Save
-                  </Btn>
-                </div>
+                    }
+                  }}
+                />
               }
             >
               {selectedTab === 'details' && (

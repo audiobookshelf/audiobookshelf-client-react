@@ -87,7 +87,7 @@ export default function TabbedModal({
         </div>
 
         {/* Footer */}
-        {footer && <div className="border-border border-t px-4 py-3">{footer}</div>}
+        {footer}
       </div>
     </Modal>
   )
