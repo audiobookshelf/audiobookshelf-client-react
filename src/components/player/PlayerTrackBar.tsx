@@ -2,9 +2,9 @@
 
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
-import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
+import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -43,26 +43,28 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
   // Chapter duration and start for chapter-mode display
   const currentChapterDuration = currentChapter ? currentChapter.end - currentChapter.start : 0
   const currentChapterStart = currentChapter ? currentChapter.start : 0
+  // Preference alone is not enough — fall back to full-track math when there is no usable chapter
+  const isUsingChapterTrack = useChapterTrack && !!currentChapter && currentChapterDuration > 0
 
   // Effective playback rate
   const effectivePlaybackRate = playbackRate && !isNaN(playbackRate) ? playbackRate : 1
 
   // Time remaining timestamp
-  const timeRemainingToShow = (useChapterTrack ? currentChapterDuration - (currentTime - currentChapterStart) : duration - currentTime) / effectivePlaybackRate
+  const timeRemainingToShow = (isUsingChapterTrack ? currentChapterDuration - (currentTime - currentChapterStart) : duration - currentTime) / effectivePlaybackRate
   // time remaining could be negative when the audio track is actually longer than the probed duration
   const timeRemainingFormatted = timeRemainingToShow < 0 ? secondsToTimestamp(timeRemainingToShow * -1) : `-${secondsToTimestamp(timeRemainingToShow)}`
 
   // Current time timestamp
-  const currentTimeToShow = useChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
+  const currentTimeToShow = isUsingChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
   const currentTimeFormatted = secondsToTimestamp(currentTimeToShow / effectivePlaybackRate)
   const currentChapterNumber = currentChapter ? chapters.findIndex((ch) => ch.id === currentChapter.id) + 1 : null
 
   // Calculate track widths as percentages
-  const effectiveDuration = useChapterTrack ? currentChapterDuration : duration
-  const playedTime = useChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
+  const effectiveDuration = isUsingChapterTrack ? currentChapterDuration : duration
+  const playedTime = isUsingChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
   const playedPercent = effectiveDuration ? Math.min(100, (playedTime / effectiveDuration) * 100) : 0
 
-  const bufferedTimeAdjusted = useChapterTrack ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
+  const bufferedTimeAdjusted = isUsingChapterTrack ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
   const bufferedPercent = effectiveDuration ? Math.min(100, (bufferedTimeAdjusted / effectiveDuration) * 100) : 0
   const transcodeReadyPercent = isHlsTranscode ? Math.min(100, transcodePercentReady * 100) : 0
 
@@ -107,8 +109,8 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
 
       const offsetX = e.clientX - rect.left
       const perc = offsetX / trackWidth
-      const baseTime = useChapterTrack ? currentChapterStart : 0
-      const dur = useChapterTrack ? currentChapterDuration : duration
+      const baseTime = isUsingChapterTrack ? currentChapterStart : 0
+      const dur = isUsingChapterTrack ? currentChapterDuration : duration
       const time = baseTime + perc * dur
 
       if (isNaN(time) || time === null) {
@@ -118,7 +120,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
 
       seek(time)
     },
-    [isLoading, trackWidth, useChapterTrack, currentChapterStart, currentChapterDuration, duration, seek]
+    [isLoading, trackWidth, isUsingChapterTrack, currentChapterStart, currentChapterDuration, duration, seek]
   )
 
   // Handle mouse move over track
@@ -129,8 +131,8 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
 
       const offsetX = e.clientX - rect.left
 
-      const baseTime = useChapterTrack ? currentChapterStart : 0
-      const dur = useChapterTrack ? currentChapterDuration : duration
+      const baseTime = isUsingChapterTrack ? currentChapterStart : 0
+      const dur = isUsingChapterTrack ? currentChapterDuration : duration
       const progressTime = (offsetX / trackWidth) * dur
       const totalTime = baseTime + progressTime
 
@@ -175,7 +177,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
 
       setIsHovering(true)
     },
-    [trackWidth, trackOffsetLeft, useChapterTrack, currentChapterStart, currentChapterDuration, duration, effectivePlaybackRate, chapters]
+    [trackWidth, trackOffsetLeft, isUsingChapterTrack, currentChapterStart, currentChapterDuration, duration, effectivePlaybackRate, chapters]
   )
 
   // Handle mouse leave
@@ -228,7 +230,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
         </div>
 
         {/* Chapter ticks */}
-        <div className={mergeClasses('relative h-2 w-full overflow-hidden', useChapterTrack ? 'opacity-0' : '')}>
+        <div className={mergeClasses('relative h-2 w-full overflow-hidden', isUsingChapterTrack ? 'opacity-0' : '')}>
           {chapterTicks.map((tick, index) => (
             <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
           ))}
@@ -270,7 +272,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
           isMobileCollapsed ? (
             <div className="text-foreground-muted flex min-w-0 flex-1 items-center justify-center sm:max-w-none">
               <TruncatingTooltipText lazy text={currentChapter.title} className="min-w-0 text-xs" position="top" />
-              {useChapterTrack && currentChapterNumber !== null && (
+              {isUsingChapterTrack && currentChapterNumber !== null && (
                 <span className="text-foreground-subdued shrink-0 pl-1 text-xs">
                   ({currentChapterNumber} of {chapters.length})
                 </span>
@@ -279,7 +281,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
           ) : (
             <p className="text-foreground-muted max-w-[40%] truncate text-sm sm:max-w-none">
               {currentChapter.title}{' '}
-              {useChapterTrack && (
+              {isUsingChapterTrack && (
                 <span className="text-foreground-subdued pl-1 text-xs">
                   ({currentChapterNumber} of {chapters.length})
                 </span>
