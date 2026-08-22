@@ -281,10 +281,9 @@ export function applyMatchedClientKeys(existing: EditableChapter[], incomingRows
 }
 
 function buildAudibleIncomingChapters(audibleData: AudibleChapterSearchResult, mediaDuration: number): EditableChapter[] {
-  let index = 0
   return audibleData.chapters
     .filter((chap) => audibleMsToChapterStartSec(chap.startOffsetMs) < mediaDuration)
-    .map((chap) => ({
+    .map((chap, index) => ({
       id: index,
       start: audibleMsToChapterStartSec(chap.startOffsetMs),
       end: Math.min(mediaDuration, audibleMsToChapterStartSec(chap.startOffsetMs + chap.lengthMs)),
