@@ -2,8 +2,8 @@
 
 import { deletePlaylistAction, updatePlaylistAction } from '@/app/actions/playlistActions'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import TextareaInput from '@/components/ui/TextareaInput'
 import TextInput from '@/components/ui/TextInput'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
@@ -105,17 +105,22 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
               </div>
             </div>
           </div>
-          <div className="border-border flex items-center justify-between gap-2 border-t px-4 py-4 sm:px-6">
-            {userCanDelete && (
-              <Btn color="bg-error" size="small" onClick={handleRemove} disabled={isPending}>
-                {t('ButtonRemove')}
-              </Btn>
-            )}
-            <div className="grow" />
-            <Btn size="small" onClick={handleSave} disabled={isPending || !hasChanges}>
-              {t('ButtonSave')}
-            </Btn>
-          </div>
+          <ModalFooter
+            destructive={
+              userCanDelete
+                ? {
+                    label: t('ButtonRemove'),
+                    onClick: handleRemove,
+                    disabled: isPending
+                  }
+                : undefined
+            }
+            primary={{
+              label: t('ButtonSave'),
+              onClick: handleSave,
+              disabled: isPending || !hasChanges
+            }}
+          />
         </div>
       </Modal>
 

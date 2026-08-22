@@ -2,8 +2,8 @@
 
 import { createPodcastAction } from '@/app/(main)/library/[library]/(podcast)/add-podcast/actions'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import MultiSelect, { MultiSelectItem } from '@/components/ui/MultiSelect'
@@ -305,19 +305,22 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
           </div>
         </div>
 
-        <div className="border-border border-t px-4 py-3 sm:px-6">
-          <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
+        <ModalFooter
+          start={
             <Checkbox
               value={podcast.autoDownloadEpisodes}
               onChange={(autoDownloadEpisodes) => setPodcast((prev) => ({ ...prev, autoDownloadEpisodes }))}
               label={t('LabelAutoDownloadEpisodes')}
               checkboxBgClass="bg-primary"
             />
-            <Btn disabled={isPending} loading={isPending} onClick={handleSubmit}>
-              {t('ButtonSubmit')}
-            </Btn>
-          </div>
-        </div>
+          }
+          primary={{
+            label: t('ButtonSubmit'),
+            onClick: handleSubmit,
+            disabled: isPending,
+            loading: isPending
+          }}
+        />
       </div>
     </Modal>
   )

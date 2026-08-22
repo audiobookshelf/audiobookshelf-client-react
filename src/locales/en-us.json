@@ -315,7 +315,7 @@
   "LabelAuthorWithValue": "Author: {0}",
   "LabelAuthorizeURL": "Authorize URL",
   "LabelAuthors": "Authors",
-  "LabelAutoDownloadEpisodes": "Automstically Fetch Episodes",
+  "LabelAutoDownloadEpisodes": "Automatically Fetch Episodes",
   "LabelAutoFetchMetadata": "Auto Fetch Metadata",
   "LabelAutoFetchMetadataHelp": "Fetches metadata for title, author, and series to streamline uploading. Additional metadata may have to be matched after upload.",
   "LabelAutoLaunch": "Auto Launch",

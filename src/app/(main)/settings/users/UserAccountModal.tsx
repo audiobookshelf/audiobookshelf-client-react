@@ -1,6 +1,7 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
@@ -425,23 +426,22 @@ export default function UserAccountModal({ isOpen, user, processing = false, onC
           )}
         </div>
 
-        {/* Footer Actions */}
-        <div className="border-border border-t px-4 py-3">
-          <div className="flex items-center justify-end gap-4">
-            {/* Unlink OpenID button */}
-            {isEditing && user?.hasOpenIDLink && (
+        <ModalFooter
+          start={
+            isEditing && user?.hasOpenIDLink ? (
               <Btn disabled={processing} onClick={handleUnlinkOpenIdClick} className="mr-auto">
                 {t('ButtonUnlinkOpenId')}
               </Btn>
-            )}
-
-            {isRootUser && <Btn to="/account/change-password">{t('ButtonChangeRootPassword')}</Btn>}
-
-            <Btn loading={processing} disabled={processing} onClick={handleSubmit}>
-              {isEditing ? t('ButtonSave') : t('ButtonCreate')}
-            </Btn>
-          </div>
-        </div>
+            ) : undefined
+          }
+          secondary={isRootUser ? { label: t('ButtonChangeRootPassword'), to: '/account/change-password' } : undefined}
+          primary={{
+            label: isEditing ? t('ButtonSave') : t('ButtonCreate'),
+            onClick: handleSubmit,
+            loading: processing,
+            disabled: processing
+          }}
+        />
       </div>
 
       <ConfirmDialog

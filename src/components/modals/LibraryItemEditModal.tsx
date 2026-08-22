@@ -2,7 +2,7 @@
 
 import { updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
 import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource } from '@/components/modals/LibraryItemModal'
-import Btn from '@/components/ui/Btn'
+import ModalFooter from '@/components/modals/ModalFooter'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
@@ -301,16 +301,19 @@ export function LibraryItemEditModalContent({
         {formInner}
       </div>
 
-      <div
-        className={`bg-bg border-border flex shrink-0 justify-end gap-3 border-t px-4 py-3 transition-shadow duration-200 ${footerShadow ? 'box-shadow-md-up' : ''}`}
-      >
-        <Btn onClick={() => handleSave(false)} disabled={saveDisabled}>
-          {t('ButtonSave')}
-        </Btn>
-        <Btn onClick={() => handleSave(true)} disabled={saveDisabled}>
-          {t('ButtonSaveAndClose')}
-        </Btn>
-      </div>
+      <ModalFooter
+        shadow={footerShadow}
+        secondary={{
+          label: t('ButtonSave'),
+          onClick: () => handleSave(false),
+          disabled: saveDisabled
+        }}
+        primary={{
+          label: t('ButtonSaveAndClose'),
+          onClick: () => handleSave(true),
+          disabled: saveDisabled
+        }}
+      />
     </div>
   )
 }

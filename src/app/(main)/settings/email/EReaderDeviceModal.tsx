@@ -1,8 +1,8 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import MultiSelectDropdown from '@/components/ui/MultiSelectDropdown'
@@ -185,13 +185,14 @@ export default function EReaderDeviceModal({ isOpen, device, existingDevices, us
           </div>
         </div>
 
-        <div className="border-border border-t px-4 py-3">
-          <div className="flex items-center justify-end">
-            <Btn loading={isPending} disabled={isPending} onClick={handleSubmit}>
-              {t('ButtonSubmit')}
-            </Btn>
-          </div>
-        </div>
+        <ModalFooter
+          primary={{
+            label: t('ButtonSubmit'),
+            onClick: handleSubmit,
+            loading: isPending,
+            disabled: isPending
+          }}
+        />
       </div>
     </Modal>
   )

@@ -47,6 +47,8 @@ function renderFooterButton(config: ModalFooterButton, { color, className }: { c
 }
 
 export default function ModalFooter({ primary, secondary, destructive, start, shadow = false, className }: ModalFooterProps) {
+  const hasRightActions = !!(secondary || primary)
+
   return (
     <div
       className={mergeClasses(
@@ -60,7 +62,7 @@ export default function ModalFooter({ primary, secondary, destructive, start, sh
         {destructive &&
           renderFooterButton(destructive, {
             color: 'bg-error',
-            className: 'mr-auto'
+            className: mergeClasses(hasRightActions && 'mr-auto', destructive.className)
           })}
         {secondary && renderFooterButton(secondary, {})}
         {primary && renderFooterButton(primary, {})}

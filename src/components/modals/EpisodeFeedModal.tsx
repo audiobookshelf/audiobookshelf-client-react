@@ -1,5 +1,6 @@
 import { downloadPodcastEpisodesAction } from '@/app/actions/mediaActions'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
@@ -384,18 +385,19 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
           })}
         </div>
 
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 py-4">
-          {!allDownloaded ? (
-            <>
-              <Checkbox value={selectAll} onChange={toggleSelectAll} label={selectAllLabel} size="small" labelClass="whitespace-nowrap" />
-              <Btn className="shrink-0 whitespace-nowrap" disabled={selectedEpisodes.size === 0 || isPending} onClick={handleSubmit} size="small">
-                {buttonText}
-              </Btn>
-            </>
-          ) : (
-            <p className="text-success px-2 py-4 text-base">{t('LabelAllEpisodesDownloaded')}</p>
-          )}
-        </div>
+        {allDownloaded ? (
+          <ModalFooter start={<p className="text-success text-base">{t('LabelAllEpisodesDownloaded')}</p>} />
+        ) : (
+          <ModalFooter
+            start={<Checkbox value={selectAll} onChange={toggleSelectAll} label={selectAllLabel} labelClass="whitespace-nowrap" />}
+            primary={{
+              label: buttonText,
+              onClick: handleSubmit,
+              disabled: selectedEpisodes.size === 0 || isPending,
+              className: 'shrink-0 whitespace-nowrap'
+            }}
+          />
+        )}
       </div>
     </Modal>
   )

@@ -2,8 +2,8 @@
 
 import { batchQuickMatchLibraryItemsAction } from '@/app/actions/batchActions'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
@@ -65,49 +65,51 @@ export default function BatchQuickMatchModal({ isOpen, onClose, libraryItemIds, 
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent} className="max-w-lg sm:max-w-lg md:max-w-lg lg:max-w-lg">
-      <div className="max-h-[80vh] w-full overflow-x-hidden overflow-y-auto rounded-lg px-4 py-4">
+      <div className="flex max-h-[80vh] flex-col">
         {isOpen && (
           <>
-            <div className="flex items-center py-2">
-              <p className="pe-4">{t('LabelProvider')}</p>
-              <Dropdown
-                items={providerItems}
-                value={provider}
-                onChange={(value) => setProvider(String(value))}
-                size="small"
-                disabled={isPending || providerItems.length === 0}
-              />
+            <div className="overflow-y-auto px-4 py-4">
+              <div className="flex items-center py-2">
+                <p className="pe-4">{t('LabelProvider')}</p>
+                <Dropdown
+                  items={providerItems}
+                  value={provider}
+                  onChange={(value) => setProvider(String(value))}
+                  size="small"
+                  disabled={isPending || providerItems.length === 0}
+                />
+              </div>
+
+              <p className="px-1 py-2 text-base">{t('MessageBatchQuickMatchDescription')}</p>
+
+              <div className="flex items-center gap-4 px-1 py-2">
+                <ToggleSwitch value={overrideCover} onChange={setOverrideCover} disabled={isPending} className="h-auto px-0" />
+                <p>
+                  {t('LabelUpdateCover')}
+                  {'\u00A0'}
+                  <HelpTooltipIcon text={t('LabelUpdateCoverHelp')} />
+                </p>
+              </div>
+
+              <div className="flex items-center gap-4 px-1 py-2">
+                <ToggleSwitch value={overrideDetails} onChange={setOverrideDetails} disabled={isPending} className="h-auto px-0" />
+                <p>
+                  {t('LabelUpdateDetails')}
+                  {'\u00A0'}
+                  <HelpTooltipIcon text={t('LabelUpdateDetailsHelp')} />
+                </p>
+              </div>
             </div>
 
-            <p className="px-1 py-2 text-base">{t('MessageBatchQuickMatchDescription')}</p>
-
-            <div className="flex items-center gap-4 px-1 py-2">
-              <ToggleSwitch value={overrideCover} onChange={setOverrideCover} disabled={isPending} className="h-auto px-0" />
-              <p>
-                {t('LabelUpdateCover')}
-                {'\u00A0'}
-                <HelpTooltipIcon text={t('LabelUpdateCoverHelp')} />
-              </p>
-            </div>
-
-            <div className="flex items-center gap-4 px-1 py-2">
-              <ToggleSwitch value={overrideDetails} onChange={setOverrideDetails} disabled={isPending} className="h-auto px-0" />
-              <p>
-                {t('LabelUpdateDetails')}
-                {'\u00A0'}
-                <HelpTooltipIcon text={t('LabelUpdateDetailsHelp')} />
-              </p>
-            </div>
-
-            <div className="border-border mt-4 flex items-center border-t pt-4">
-              <Btn type="button" onClick={onClose} disabled={isPending}>
-                {t('ButtonCancel')}
-              </Btn>
-              <div className="grow" />
-              <Btn color="bg-success" onClick={handleSubmit} loading={isPending} disabled={!libraryItemIds.length}>
-                {t('ButtonSubmit')}
-              </Btn>
-            </div>
+            <ModalFooter
+              secondary={{ label: t('ButtonCancel'), onClick: onClose, disabled: isPending, type: 'button' }}
+              primary={{
+                label: t('ButtonSubmit'),
+                onClick: handleSubmit,
+                loading: isPending,
+                disabled: !libraryItemIds.length
+              }}
+            />
           </>
         )}
       </div>

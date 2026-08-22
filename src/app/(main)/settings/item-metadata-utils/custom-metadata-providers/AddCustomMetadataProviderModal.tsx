@@ -1,8 +1,8 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -99,13 +99,13 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
           </div>
         </div>
 
-        <div className="border-border border-t px-4 py-3">
-          <div className="flex items-center justify-end">
-            <Btn color="bg-success" disabled={processing} onClick={handleSubmit}>
-              {t('ButtonAdd')}
-            </Btn>
-          </div>
-        </div>
+        <ModalFooter
+          primary={{
+            label: t('ButtonAdd'),
+            onClick: handleSubmit,
+            disabled: processing
+          }}
+        />
       </div>
     </Modal>
   )

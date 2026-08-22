@@ -1,8 +1,8 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
@@ -112,78 +112,86 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         outerContent={<ModalOuterContent title={sessionTitle}>{sessionTitle}</ModalOuterContent>}
       >
         {currentSession && (
-          <div className="bg-bg w-full overflow-x-hidden overflow-y-auto rounded-lg p-6" style={{ maxHeight: '80vh' }}>
-            <div className="flex items-baseline gap-4">
-              {currentSession.libraryId && currentSession.libraryItemId ? (
-                <Link href={`/library/${currentSession.libraryId}/item/${currentSession.libraryItemId}`} className="text-foreground text-base hover:underline" onClick={onClose}>
-                  {currentSession.displayTitle}
-                </Link>
-              ) : (
-                <p className="text-foreground text-base">{currentSession.displayTitle}</p>
-              )}
-              {currentSession.displayAuthor && <p className="text-foreground-muted text-xs">{t('LabelByAuthor', { 0: currentSession.displayAuthor })}</p>}
-            </div>
-
-            <div className="bg-border my-4 h-px w-full" />
-
-            <div className="mb-4 flex flex-wrap">
-              <div className="w-full md:w-2/3">
-                <p className="text-foreground-subdued mb-2 text-xs font-semibold tracking-wide uppercase">{t('HeaderDetails')}</p>
-
-                <DetailsRow label={t('LabelStartedAt')} value={formatJsDatetime(new Date(currentSession.startedAt), dateFormat, timeFormat)} />
-                <DetailsRow label={t('LabelUpdatedAt')} value={formatJsDatetime(new Date(currentSession.updatedAt), dateFormat, timeFormat)} />
-                <DetailsRow label={t('LabelTimeListened')} value={formatDuration(currentSession.timeListening, t, { showSeconds: true })} />
-                <DetailsRow label={t('LabelStartTime')} value={secondsToTimestamp(currentSession.startTime)} />
-                <DetailsRow label={t('LabelLastTime')} value={secondsToTimestamp(currentSession.currentTime)} />
-
-                <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase">{t('LabelItem')}</p>
-                {currentSession.libraryId && <DetailsRow label={t('LabelLibraryId')} value={currentSession.libraryId} valueClassName="text-xs" />}
-                <DetailsRow label={t('LabelLibraryItemId')} value={currentSession.libraryItemId} valueClassName="text-xs" />
-                {currentSession.episodeId && <DetailsRow label={t('LabelEpisodeId')} value={currentSession.episodeId} valueClassName="text-xs" />}
-                <DetailsRow label={t('LabelMediaType')} value={currentSession.mediaType} />
-                <DetailsRow label={t('LabelDuration')} value={formatDuration(currentSession.duration, t, { showSeconds: true })} />
+          <div className="flex max-h-[80vh] flex-col">
+            <div className="overflow-y-auto p-6">
+              <div className="flex items-baseline gap-4">
+                {currentSession.libraryId && currentSession.libraryItemId ? (
+                  <Link
+                    href={`/library/${currentSession.libraryId}/item/${currentSession.libraryItemId}`}
+                    className="text-foreground text-base hover:underline"
+                    onClick={onClose}
+                  >
+                    {currentSession.displayTitle}
+                  </Link>
+                ) : (
+                  <p className="text-foreground text-base">{currentSession.displayTitle}</p>
+                )}
+                {currentSession.displayAuthor && <p className="text-foreground-muted text-xs">{t('LabelByAuthor', { 0: currentSession.displayAuthor })}</p>}
               </div>
 
-              <div className="w-full md:w-1/3">
-                {!isMediaItemShareSession && (
-                  <>
-                    <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase md:mt-0">{t('LabelUser')}</p>
-                    <p className="mb-1">{currentSession.user?.username || currentSession.userId || ''}</p>
-                  </>
-                )}
+              <div className="bg-border my-4 h-px w-full" />
 
-                <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase">{t('LabelMediaPlayer')}</p>
-                <p className="mb-1">{playMethodName}</p>
-                <p className="mb-1">{currentSession.mediaPlayer}</p>
+              <div className="mb-4 flex flex-wrap">
+                <div className="w-full md:w-2/3">
+                  <p className="text-foreground-subdued mb-2 text-xs font-semibold tracking-wide uppercase">{t('HeaderDetails')}</p>
 
-                {deviceInfo && (
-                  <>
-                    <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase">{t('LabelDevice')}</p>
-                    {clientDisplayName && <p className="mb-1">{clientDisplayName}</p>}
-                    {deviceInfo.ipAddress && <p className="mb-1">{deviceInfo.ipAddress}</p>}
-                    {osDisplayName && <p className="mb-1">{osDisplayName}</p>}
-                    {deviceInfo.browserName && <p className="mb-1">{deviceInfo.browserName}</p>}
-                    {deviceDisplayName && <p className="mb-1">{deviceDisplayName}</p>}
-                    {deviceInfo.sdkVersion && <p className="mb-1">{t('LabelSdkVersionWithValue', { 0: deviceInfo.sdkVersion })}</p>}
-                    {deviceInfo.deviceType && <p className="mb-1">{t('LabelTypeWithValue', { 0: deviceInfo.deviceType })}</p>}
-                  </>
-                )}
+                  <DetailsRow label={t('LabelStartedAt')} value={formatJsDatetime(new Date(currentSession.startedAt), dateFormat, timeFormat)} />
+                  <DetailsRow label={t('LabelUpdatedAt')} value={formatJsDatetime(new Date(currentSession.updatedAt), dateFormat, timeFormat)} />
+                  <DetailsRow label={t('LabelTimeListened')} value={formatDuration(currentSession.timeListening, t, { showSeconds: true })} />
+                  <DetailsRow label={t('LabelStartTime')} value={secondsToTimestamp(currentSession.startTime)} />
+                  <DetailsRow label={t('LabelLastTime')} value={secondsToTimestamp(currentSession.currentTime)} />
+
+                  <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase">{t('LabelItem')}</p>
+                  {currentSession.libraryId && <DetailsRow label={t('LabelLibraryId')} value={currentSession.libraryId} valueClassName="text-xs" />}
+                  <DetailsRow label={t('LabelLibraryItemId')} value={currentSession.libraryItemId} valueClassName="text-xs" />
+                  {currentSession.episodeId && <DetailsRow label={t('LabelEpisodeId')} value={currentSession.episodeId} valueClassName="text-xs" />}
+                  <DetailsRow label={t('LabelMediaType')} value={currentSession.mediaType} />
+                  <DetailsRow label={t('LabelDuration')} value={formatDuration(currentSession.duration, t, { showSeconds: true })} />
+                </div>
+
+                <div className="w-full md:w-1/3">
+                  {!isMediaItemShareSession && (
+                    <>
+                      <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase md:mt-0">{t('LabelUser')}</p>
+                      <p className="mb-1">{currentSession.user?.username || currentSession.userId || ''}</p>
+                    </>
+                  )}
+
+                  <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase">{t('LabelMediaPlayer')}</p>
+                  <p className="mb-1">{playMethodName}</p>
+                  <p className="mb-1">{currentSession.mediaPlayer}</p>
+
+                  {deviceInfo && (
+                    <>
+                      <p className="text-foreground-subdued mt-6 mb-2 text-xs font-semibold tracking-wide uppercase">{t('LabelDevice')}</p>
+                      {clientDisplayName && <p className="mb-1">{clientDisplayName}</p>}
+                      {deviceInfo.ipAddress && <p className="mb-1">{deviceInfo.ipAddress}</p>}
+                      {osDisplayName && <p className="mb-1">{osDisplayName}</p>}
+                      {deviceInfo.browserName && <p className="mb-1">{deviceInfo.browserName}</p>}
+                      {deviceDisplayName && <p className="mb-1">{deviceDisplayName}</p>}
+                      {deviceInfo.sdkVersion && <p className="mb-1">{t('LabelSdkVersionWithValue', { 0: deviceInfo.sdkVersion })}</p>}
+                      {deviceInfo.deviceType && <p className="mb-1">{t('LabelTypeWithValue', { 0: deviceInfo.deviceType })}</p>}
+                    </>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center">
-              <div className="grow" />
-              {!isOpenSession && !isMediaItemShareSession && (
-                <Btn size="small" color="bg-error" onClick={() => setShowDeleteConfirmDialog(true)}>
-                  {t('ButtonDelete')}
-                </Btn>
-              )}
-              {isOpenSession && !isMediaItemShareSession && (
-                <Btn size="small" color="bg-error" onClick={handleCloseSession}>
-                  {t('ButtonCloseSession')}
-                </Btn>
-              )}
-            </div>
+            {!isMediaItemShareSession && (
+              <ModalFooter
+                destructive={
+                  !isOpenSession
+                    ? {
+                        label: t('ButtonDelete'),
+                        onClick: () => setShowDeleteConfirmDialog(true)
+                      }
+                    : {
+                        label: t('ButtonCloseSession'),
+                        onClick: handleCloseSession
+                      }
+                }
+              />
+            )}
           </div>
         )}
       </Modal>

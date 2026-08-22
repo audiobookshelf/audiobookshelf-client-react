@@ -6,6 +6,7 @@ import { Author, User } from '@/types/api'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 import AuthorImage from '../covers/AuthorImage'
 import Modal from '../modals/Modal'
+import ModalFooter from '../modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '../ui/Btn'
 import IconBtn from '../ui/IconBtn'
@@ -203,20 +204,25 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="border-border border-t px-4 py-3 sm:px-6">
-            <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
-              {user.permissions.delete && (
-                <Btn color="bg-error" className="mr-auto" onClick={handleOnDelete}>
-                  {t('ButtonRemove')}
-                </Btn>
-              )}
-              <Btn onClick={handleQuickMatchWrapper}>{t('ButtonQuickMatch')}</Btn>
-              <Btn disabled={saveDisabled} onClick={handleSaveClick}>
-                {t('ButtonSave')}
-              </Btn>
-            </div>
-          </div>
+          <ModalFooter
+            destructive={
+              user.permissions.delete
+                ? {
+                    label: t('ButtonRemove'),
+                    onClick: handleOnDelete
+                  }
+                : undefined
+            }
+            secondary={{
+              label: t('ButtonQuickMatch'),
+              onClick: handleQuickMatchWrapper
+            }}
+            primary={{
+              label: t('ButtonSave'),
+              onClick: handleSaveClick,
+              disabled: saveDisabled
+            }}
+          />
         </div>
       </Modal>
       <ConfirmDialog

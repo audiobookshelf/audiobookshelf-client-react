@@ -2,8 +2,8 @@
 
 import { checkPodcastNewEpisodesAction, updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -143,13 +143,14 @@ export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryI
           </div>
         </div>
 
-        <div className="border-border border-t px-4 py-3">
-          <div className="flex justify-end">
-            <Btn disabled={isChecking} loading={isChecking} onClick={handleSubmit}>
-              {t('LabelDownloadEpisodes')}
-            </Btn>
-          </div>
-        </div>
+        <ModalFooter
+          primary={{
+            label: t('LabelDownloadEpisodes'),
+            onClick: handleSubmit,
+            disabled: isChecking,
+            loading: isChecking
+          }}
+        />
       </div>
     </Modal>
   )

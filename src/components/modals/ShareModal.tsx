@@ -2,8 +2,8 @@
 
 import { closeMediaItemShareAction, openMediaItemShareAction } from '@/app/actions/shareActions'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
@@ -165,87 +165,95 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
     }
   }, [expireDurationSeconds, isDownloadable, mediaItemId, newShareSlug, onShareChange, showToast, t])
 
-  const outerContent = (
-    <ModalOuterContent title={t('LabelShare')}>{t('LabelShare')}</ModalOuterContent>
-  )
+  const outerContent = <ModalOuterContent title={t('LabelShare')}>{t('LabelShare')}</ModalOuterContent>
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} processing={processing} className="sm:max-w-[520px] md:max-w-[560px] lg:max-w-[560px]">
-      <div className="max-h-[80vh] overflow-x-hidden overflow-y-auto px-4 py-6 text-sm sm:px-6">
-        <div className="absolute end-0 top-0 p-4">
-          <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/media-item-shares" size="xl" />
-        </div>
+      <div className="flex max-h-[80vh] flex-col text-sm">
+        <div className="overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6">
+          <div className="absolute end-0 top-0 p-4">
+            <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/media-item-shares" size="xl" />
+          </div>
 
-        {currentShare ? (
-          <>
-            <div className="w-full py-2">
-              <label className="block px-1 text-sm font-semibold">{t('LabelShareURL')}</label>
-              <TextInput value={currentShareUrl} showCopy readOnly />
-            </div>
-            <div className="w-full space-y-1 px-1 py-2">
-              {currentShare.isDownloadable && <p className="text-sm">{t('LabelDownloadable')}</p>}
-              {currentShare.expiresAt ? <p>{t('MessageShareExpiresIn', { 0: currentShareTimeRemaining })}</p> : <p>{t('LabelPermanent')}</p>}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="mb-2 grid grid-cols-1 gap-y-3 sm:grid-cols-[12rem_auto] sm:items-end sm:gap-x-4">
-              <div className="w-full sm:w-48">
-                <label className="block px-1 text-sm font-semibold">{t('LabelSlug')}</label>
-                <TextInput value={newShareSlug} onChange={setNewShareSlug} className="h-10 text-base" />
+          {currentShare ? (
+            <>
+              <div className="w-full py-2">
+                <label className="block px-1 text-sm font-semibold">{t('LabelShareURL')}</label>
+                <TextInput value={currentShareUrl} showCopy readOnly />
               </div>
-              <div className="w-full sm:w-auto">
-                <label className="block px-1 text-sm font-semibold">{t('LabelDuration')}</label>
-                <div className="inline-flex items-center gap-2">
-                  <TextInput
-                    value={newShareDuration}
-                    onChange={handleDurationChange}
-                    type="number"
-                    step={1}
-                    min={0}
-                    className="h-10 max-w-20 min-w-20 text-center text-base sm:max-w-16 sm:min-w-16"
-                    customInputClass="text-center"
-                  />
-                  <div className="w-28">
-                    <Dropdown value={shareDurationUnit} items={durationUnits} onChange={(value) => setShareDurationUnit(value as ShareDurationUnit)} />
+              <div className="w-full space-y-1 px-1 py-2">
+                {currentShare.isDownloadable && <p className="text-sm">{t('LabelDownloadable')}</p>}
+                {currentShare.expiresAt ? <p>{t('MessageShareExpiresIn', { 0: currentShareTimeRemaining })}</p> : <p>{t('LabelPermanent')}</p>}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-2 grid grid-cols-1 gap-y-3 sm:grid-cols-[12rem_auto] sm:items-end sm:gap-x-4">
+                <div className="w-full sm:w-48">
+                  <label className="block px-1 text-sm font-semibold">{t('LabelSlug')}</label>
+                  <TextInput value={newShareSlug} onChange={setNewShareSlug} className="h-10 text-base" />
+                </div>
+                <div className="w-full sm:w-auto">
+                  <label className="block px-1 text-sm font-semibold">{t('LabelDuration')}</label>
+                  <div className="inline-flex items-center gap-2">
+                    <TextInput
+                      value={newShareDuration}
+                      onChange={handleDurationChange}
+                      type="number"
+                      step={1}
+                      min={0}
+                      className="h-10 max-w-20 min-w-20 text-center text-base sm:max-w-16 sm:min-w-16"
+                      customInputClass="text-center"
+                    />
+                    <div className="w-28">
+                      <Dropdown value={shareDurationUnit} items={durationUnits} onChange={(value) => setShareDurationUnit(value as ShareDurationUnit)} />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="mb-4 flex w-full items-center md:w-1/2">
-              <p className="text-foreground-muted px-1 py-1 text-sm">{t('LabelDownloadable')}</p>
-              <ToggleSwitch size="medium" value={isDownloadable} onChange={setIsDownloadable} />
-              <HelpTooltipIcon text={t('LabelShareDownloadableHelp')} />
-            </div>
+              <div className="mb-4 flex w-full items-center md:w-1/2">
+                <p className="text-foreground-muted px-1 py-1 text-sm">{t('LabelDownloadable')}</p>
+                <ToggleSwitch size="medium" value={isDownloadable} onChange={setIsDownloadable} />
+                <HelpTooltipIcon text={t('LabelShareDownloadableHelp')} />
+              </div>
 
-            <p className="text-foreground-muted px-1 py-1 text-sm">
-              {t.rich('MessageShareURLWillBe', {
-                0: demoShareUrl,
-                strong: (chunks) => <strong>{chunks}</strong>
-              })}
-            </p>
-            <p className="text-foreground-muted px-1 py-1 text-sm">
-              {t.rich('MessageShareExpirationWillBe', {
-                0: expirationDateString,
-                strong: (chunks) => <strong>{chunks}</strong>
-              })}
-            </p>
-          </>
-        )}
-
-        <div className="flex items-center pt-6">
-          <div className="grow" />
-          {currentShare ? (
-            <Btn color="bg-error" size="small" onClick={handleDeleteShare} disabled={processing}>
-              {t('ButtonDelete')}
-            </Btn>
-          ) : (
-            <Btn color="bg-success" size="small" onClick={handleOpenShare} disabled={processing}>
-              {t('ButtonShare')}
-            </Btn>
+              <p className="text-foreground-muted px-1 py-1 text-sm">
+                {t.rich('MessageShareURLWillBe', {
+                  0: demoShareUrl,
+                  strong: (chunks) => <strong>{chunks}</strong>
+                })}
+              </p>
+              <p className="text-foreground-muted px-1 py-1 text-sm">
+                {t.rich('MessageShareExpirationWillBe', {
+                  0: expirationDateString,
+                  strong: (chunks) => <strong>{chunks}</strong>
+                })}
+              </p>
+            </>
           )}
         </div>
+
+        <ModalFooter
+          destructive={
+            currentShare
+              ? {
+                  label: t('ButtonDelete'),
+                  onClick: handleDeleteShare,
+                  disabled: processing
+                }
+              : undefined
+          }
+          primary={
+            !currentShare
+              ? {
+                  label: t('ButtonShare'),
+                  onClick: handleOpenShare,
+                  disabled: processing
+                }
+              : undefined
+          }
+        />
       </div>
     </Modal>
   )

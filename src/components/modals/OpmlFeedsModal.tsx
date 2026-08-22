@@ -2,8 +2,8 @@
 
 import { createPodcastsFromOpmlAction } from '@/app/(main)/library/[library]/(podcast)/add-podcast/actions'
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -108,13 +108,14 @@ export default function OpmlFeedsModal({ isOpen, feeds, onClose }: OpmlFeedsModa
           </div>
         </div>
 
-        <div className="border-border border-t px-4 py-3 sm:px-6">
-          <div className="flex justify-end">
-            <Btn disabled={isPending || !selectedFolderId} loading={isPending} onClick={handleSubmit}>
-              {t('ButtonAddPodcasts')}
-            </Btn>
-          </div>
-        </div>
+        <ModalFooter
+          primary={{
+            label: t('ButtonAddPodcasts'),
+            onClick: handleSubmit,
+            disabled: isPending || !selectedFolderId,
+            loading: isPending
+          }}
+        />
       </div>
     </Modal>
   )

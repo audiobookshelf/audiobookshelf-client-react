@@ -1,8 +1,8 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { BulkChapterPattern } from '@/lib/chapters/chapterEditorUtils'
@@ -31,8 +31,8 @@ export default function AddMultipleChaptersModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} style={{ width: 400 }} outerContent={outerContent}>
-      <div className="bg-bg border-border relative max-h-full w-full rounded-lg border p-6 text-sm shadow-lg">
-        <div className="flex flex-col gap-8">
+      <div className="bg-bg border-border flex w-full flex-col rounded-lg border text-sm shadow-lg">
+        <div className="flex flex-col gap-8 p-6">
           <p className="text-base">{t('MessageBulkChapterPattern')}</p>
 
           {detectedPattern && (
@@ -63,17 +63,9 @@ export default function AddMultipleChaptersModal({
               }}
             />
           </div>
-
-          <div className="flex items-center px-1">
-            <Btn size="small" onClick={onClose}>
-              {t('ButtonCancel')}
-            </Btn>
-            <div className="grow" />
-            <Btn size="small" color="bg-success" onClick={onConfirm}>
-              {t('ButtonAddChapters')}
-            </Btn>
-          </div>
         </div>
+
+        <ModalFooter secondary={{ label: t('ButtonCancel'), onClick: onClose }} primary={{ label: t('ButtonAddChapters'), onClick: onConfirm }} />
       </div>
     </Modal>
   )

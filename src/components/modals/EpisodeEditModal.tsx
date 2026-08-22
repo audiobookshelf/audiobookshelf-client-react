@@ -2,7 +2,7 @@
 
 import { updatePodcastEpisodeAction } from '@/app/actions/mediaActions'
 import EpisodeModal, { useEpisodeModal, type EpisodeModalItemSource } from '@/components/modals/EpisodeModal'
-import Btn from '@/components/ui/Btn'
+import ModalFooter from '@/components/modals/ModalFooter'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import EpisodeDetailsEdit, { type EpisodeDetailsEditRef, type EpisodeDetailsEditSubmitResult } from '@/components/widgets/EpisodeDetailsEdit'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -195,17 +195,25 @@ function EpisodeEditModalContent({ isOpen, startSaveTransition, isSavePending, o
         {formInner}
       </div>
 
-      <div
-        className={`bg-bg border-border flex shrink-0 justify-end gap-3 border-t px-4 py-3 transition-shadow duration-200 ${footerShadow ? 'box-shadow-md-up' : ''}`}
-      >
-        <Btn onClick={() => handleSave(false)} disabled={saveDisabled} className="hidden md:inline-flex">
-          {t('ButtonSave')}
-        </Btn>
-        <Btn onClick={() => handleSave(true)} disabled={saveDisabled}>
-          <span className="hidden md:inline">{t('ButtonSaveAndClose')}</span>
-          <span className="md:hidden">{t('ButtonSave')}</span>
-        </Btn>
-      </div>
+      <ModalFooter
+        shadow={footerShadow}
+        secondary={{
+          label: t('ButtonSave'),
+          onClick: () => handleSave(false),
+          disabled: saveDisabled,
+          className: 'hidden md:inline-flex'
+        }}
+        primary={{
+          label: (
+            <>
+              <span className="hidden md:inline">{t('ButtonSaveAndClose')}</span>
+              <span className="md:hidden">{t('ButtonSave')}</span>
+            </>
+          ),
+          onClick: () => handleSave(true),
+          disabled: saveDisabled
+        }}
+      />
     </div>
   )
 }

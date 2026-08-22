@@ -1,8 +1,8 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { MultiSelect } from '@/components/ui/MultiSelect'
 import TextareaInput from '@/components/ui/TextareaInput'
@@ -167,20 +167,22 @@ export default function NotificationEditModal({ isOpen, notification, notificati
           ) : null}
         </div>
 
-        {/* Footer */}
-        <div className="border-border border-t px-4 py-3 sm:px-6">
-          <div className="flex justify-between">
+        <ModalFooter
+          start={
             <SettingsToggleSwitch
               label={t('LabelEnable')}
               value={formState.enabled}
               disabled={isPending}
               onChange={(enabled) => setFormState((prev) => ({ ...prev, enabled }))}
             />
-            <Btn loading={isPending} disabled={isPending} onClick={handleSubmit}>
-              {t('ButtonSubmit')}
-            </Btn>
-          </div>
-        </div>
+          }
+          primary={{
+            label: t('ButtonSubmit'),
+            onClick: handleSubmit,
+            loading: isPending,
+            disabled: isPending
+          }}
+        />
       </div>
     </Modal>
   )

@@ -1,8 +1,8 @@
 'use client'
 
 import Modal from '@/components/modals/Modal'
+import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
-import Btn from '@/components/ui/Btn'
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
 import ToggleSwitch from '@/components/ui/ToggleSwitch'
@@ -154,14 +154,13 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="border-border border-t px-4 py-3">
-          <div className="flex items-center justify-end">
-            <Btn disabled={!isValid} onClick={handleSubmit}>
-              {isEditing ? t('ButtonSave') : t('ButtonCreate')}
-            </Btn>
-          </div>
-        </div>
+        <ModalFooter
+          primary={{
+            label: isEditing ? t('ButtonSave') : t('ButtonCreate'),
+            onClick: handleSubmit,
+            disabled: !isValid
+          }}
+        />
       </div>
     </Modal>
   )
