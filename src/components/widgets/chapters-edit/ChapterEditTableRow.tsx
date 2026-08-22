@@ -1,5 +1,6 @@
 'use client'
 
+import Checkbox from '@/components/ui/Checkbox'
 import DurationPicker from '@/components/ui/DurationPicker'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
@@ -68,106 +69,74 @@ export interface ChapterEditTableRowProps {
   chapter: EditableChapter
   chapterCount: number
   mediaDuration: number
-  showSecondInputs: boolean
   startDirty?: boolean
   baselineTitle?: string
-  isSelected: boolean
+  isChecked: boolean
+  isPlaySelected: boolean
   isPlayingChapter: boolean
   isLoadingChapter: boolean
   elapsedTime: number
   canPlay: boolean
+  overflow?: 'start' | 'end' | null
+  onCheckedChange: (checked: boolean) => void
   onStartChange: (start: number) => void
   onTitleDraft: (title: string) => void
   onTitleCommit: (title: string) => void
-  onIncrementTime: (amount: number) => void
   onRemove: () => void
   onInsertBelow: () => void
   onPlay: () => void
   onAdjustStartTime: () => void
 }
 
-const TIME_INCREMENT = 1
-
 function ChapterEditTableRow({
   chapter,
   chapterCount,
   mediaDuration,
-  showSecondInputs,
   startDirty = false,
   baselineTitle,
-  isSelected,
+  isChecked,
+  isPlaySelected,
   isPlayingChapter,
   isLoadingChapter,
   elapsedTime,
   canPlay,
+  overflow = null,
+  onCheckedChange,
   onStartChange,
   onTitleDraft,
   onTitleCommit,
-  onIncrementTime,
   onRemove,
   onInsertBelow,
   onPlay,
   onAdjustStartTime
 }: ChapterEditTableRowProps) {
   const t = useTypeSafeTranslations()
-  const cannotDecrement = chapter.id === 0 && chapter.start - TIME_INCREMENT < 0
-  const cannotIncrement = chapter.start + TIME_INCREMENT >= mediaDuration
+  const overflowTooltip = overflow === 'start' ? t('MessageChapterStartIsAfter') : overflow === 'end' ? t('MessageChapterEndIsAfter') : undefined
+  const startTimeCellClass =
+    mediaDuration >= 360000 ? 'w-[8.75rem] min-w-[8.75rem] px-2 py-2 align-middle' : 'w-[7.25rem] min-w-[7.25rem] px-2 py-2 align-middle'
 
   return (
-    <tr className="border-border even:bg-table-row-bg-even hover:bg-table-row-bg-hover border-b">
-      <td className="w-[9.5rem] min-w-[9.5rem] px-2 py-2 align-middle md:w-40 md:min-w-40">
-        <div className="flex w-full items-center gap-1">
-          <Tooltip lazy text={t('TooltipSubtractOneSecond')} position="bottom">
-            <button
-              type="button"
-              aria-label={t('TooltipSubtractOneSecond')}
-              className={mergeClasses(
-                'text-foreground-muted hover:text-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110',
-                cannotDecrement && 'cursor-not-allowed opacity-50'
-              )}
-              disabled={cannotDecrement}
-              onClick={() => onIncrementTime(-TIME_INCREMENT)}
-            >
-              <span className="material-symbols text-sm">remove</span>
-            </button>
-          </Tooltip>
-
-          <div className="min-w-0 flex-1">
-            {showSecondInputs ? (
-              <TextInput
-                type="number"
-                value={String(chapter.start)}
-                size="small"
-                className="text-xs"
-                customInputClass={startDirty ? 'text-info' : undefined}
-                onChange={(value) => onStartChange(Number(value))}
-              />
-            ) : (
-              <DurationPicker
-                value={chapter.start}
-                showThreeDigitHour={mediaDuration >= 360000}
-                size="small"
-                className={mergeClasses('w-full', startDirty && 'text-info')}
-                onChange={onStartChange}
-              />
-            )}
-          </div>
-
-          <Tooltip lazy text={t('TooltipAddOneSecond')} position="bottom">
-            <button
-              type="button"
-              aria-label={t('TooltipAddOneSecond')}
-              className={mergeClasses(
-                'text-foreground-muted hover:text-foreground flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition-transform duration-150 hover:scale-110',
-                cannotIncrement && 'cursor-not-allowed opacity-50'
-              )}
-              disabled={cannotIncrement}
-              onClick={() => onIncrementTime(TIME_INCREMENT)}
-            >
-              <span className="material-symbols text-sm">add</span>
-            </button>
-          </Tooltip>
+    <tr
+      title={overflowTooltip}
+      className={mergeClasses(
+        'border-border hover:bg-table-row-bg-hover border-b',
+        overflow === 'start' ? 'bg-error/20' : overflow === 'end' ? 'bg-warning/20' : 'even:bg-table-row-bg-even'
+      )}
+    >
+      <td className="w-10 min-w-10 px-2 py-2 text-center align-middle">
+        <div className="flex items-center justify-center">
+          <Checkbox value={isChecked} size="small" ariaLabel={chapter.title.trim() || t('LabelTitle')} onChange={onCheckedChange} />
         </div>
+      </td>
+
+      <td className={startTimeCellClass}>
+        <DurationPicker
+          value={chapter.start}
+          showThreeDigitHour={mediaDuration >= 360000}
+          size="small"
+          className={startDirty ? 'text-info' : undefined}
+          onChange={onStartChange}
+        />
       </td>
 
       <td className="min-w-0 px-2 py-2 align-middle">
@@ -202,17 +171,17 @@ function ChapterEditTableRow({
             </IconBtn>
           </Tooltip>
 
-          <Tooltip lazy text={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
+          <Tooltip lazy text={isPlaySelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
             <IconBtn
-              ariaLabel={isSelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')}
+              ariaLabel={isPlaySelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')}
               borderless
               size="small"
-              loading={isSelected && isLoadingChapter}
+              loading={isPlaySelected && isLoadingChapter}
               className="text-foreground-muted hover:not-disabled:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!canPlay}
               onClick={onPlay}
             >
-              {isSelected && isPlayingChapter ? 'pause' : 'play_arrow'}
+              {isPlaySelected && isPlayingChapter ? 'pause' : 'play_arrow'}
             </IconBtn>
           </Tooltip>
 
@@ -224,7 +193,7 @@ function ChapterEditTableRow({
                 </span>
               </Tooltip>
             ) : (
-              isSelected &&
+              isPlaySelected &&
               (isPlayingChapter || isLoadingChapter) && (
                 <Tooltip lazy text={t('TooltipAdjustChapterStart')} position="bottom">
                   <button

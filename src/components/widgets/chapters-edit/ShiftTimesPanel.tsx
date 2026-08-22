@@ -1,43 +1,50 @@
 'use client'
 
+import Btn from '@/components/ui/Btn'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
+import Label from '@/components/ui/Label'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import ChaptersToolbarPanel from './ChaptersToolbarPanel'
+import { useId } from 'react'
 
 interface ShiftTimesFieldsProps {
   shiftAmount: number
   onShiftAmountChange: (value: number) => void
+  onApplyShift: () => void
+  applyDisabled?: boolean
   showHelp?: boolean
 }
 
-export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, showHelp = false }: ShiftTimesFieldsProps) {
+export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShift, applyDisabled = false, showHelp = false }: ShiftTimesFieldsProps) {
   const t = useTypeSafeTranslations()
+  const fieldId = useId()
+  const inputId = `${fieldId}-input`
 
   return (
-    <div className="flex flex-nowrap items-center gap-2">
-      <p className="text-sm font-semibold whitespace-nowrap">{showHelp ? t('LabelTimeToShiftShort') : t('LabelTimeToShift')}</p>
-      <TextInput type="number" value={String(shiftAmount)} size="small" className="max-w-20" onChange={(value) => onShiftAmountChange(Number(value))} />
-      {showHelp ? <HelpTooltipIcon text={t('NoteChapterEditorTimes')} /> : null}
-    </div>
-  )
-}
-
-interface ShiftTimesPanelProps {
-  shiftAmount: number
-  onShiftAmountChange: (value: number) => void
-  onClose: () => void
-}
-
-export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onClose }: ShiftTimesPanelProps) {
-  const t = useTypeSafeTranslations()
-
-  return (
-    <ChaptersToolbarPanel onClose={onClose}>
-      <div className="flex h-full flex-col justify-between gap-2">
-        <ShiftTimesFields shiftAmount={shiftAmount} onShiftAmountChange={onShiftAmountChange} />
-        <p className="text-foreground-muted max-w-md text-xs">{t('NoteChapterEditorTimes')}</p>
+    <div className="w-fit shrink-0">
+      <div className="mb-1 flex items-center gap-1">
+        <Label htmlFor={inputId} className="mb-0">
+          {showHelp ? t('LabelTimeToShiftShort') : t('LabelTimeToShift')}
+        </Label>
+        {showHelp ? <HelpTooltipIcon text={t('NoteChapterEditorTimes')} size="sm" /> : null}
       </div>
-    </ChaptersToolbarPanel>
+      <div className="flex items-center gap-2">
+        <TextInput
+          id={fieldId}
+          type="number"
+          value={String(shiftAmount)}
+          size="small"
+          className="w-fit"
+          wrapperClassName="w-20"
+          onChange={(value) => onShiftAmountChange(Number(value))}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !applyDisabled) onApplyShift()
+          }}
+        />
+        <Btn color="bg-primary" size="small" disabled={applyDisabled} onClick={onApplyShift}>
+          {t('ButtonAdd')}
+        </Btn>
+      </div>
+    </div>
   )
 }

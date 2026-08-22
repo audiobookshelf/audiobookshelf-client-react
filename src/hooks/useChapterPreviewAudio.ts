@@ -46,6 +46,8 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   }, [stopElapsedTimeTracking])
 
   const startElapsedTimeTracking = useCallback(() => {
+    if (elapsedIntervalRef.current) return
+
     setElapsedTime(0)
     playStartTimeRef.current = Date.now()
     elapsedIntervalRef.current = setInterval(() => {
@@ -56,9 +58,11 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   }, [])
 
   const playTrackAtTime = useCallback(
-    (audioTrack: AudioTrack, trackOffset: number) => {
+    (audioTrack: AudioTrack, trackOffset: number, continueChapterPlayback = false) => {
       setCurrentTrackIndex(audioTrack.index)
-      setIsLoadingChapter(true)
+      if (!continueChapterPlayback) {
+        setIsLoadingChapter(true)
+      }
 
       const audioEl = document.createElement('audio')
       audioEl.src = `${audioTrack.contentUrl}?token=${token}`
@@ -84,7 +88,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
           audioElRef.current = null
         }
         if (nextTrack) {
-          playTrackAtTime(nextTrack, 0)
+          playTrackAtTime(nextTrack, 0, true)
         } else {
           destroyAudioEl()
         }

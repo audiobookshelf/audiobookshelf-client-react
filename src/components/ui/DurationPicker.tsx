@@ -255,7 +255,8 @@ export default function DurationPicker({
   }, [hText, mText, sText, hoursMax, t])
 
   const wrapperClass = mergeClasses(
-    'flex w-full items-center justify-center gap-0 border-0 p-0 m-0 min-w-0 font-mono',
+    'flex items-center justify-center gap-0 border-0 p-0 m-0 font-mono',
+    size === 'small' ? 'w-fit' : 'min-w-0 w-full',
     disabled ? 'cursor-not-allowed' : 'cursor-text'
   )
   const inputClass = mergeClasses(

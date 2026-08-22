@@ -1,4 +1,4 @@
-import type { AudioFile, AudibleChapterSearchResult, AudibleSearchChapter, Chapter } from '@/types/api'
+import type { AudioFile, AudibleChapterSearchResult, Chapter } from '@/types/api'
 
 export interface EditableChapter extends Chapter {
   error?: string | null
@@ -9,6 +9,16 @@ export function createChapterClientKey(): string {
   return `ch-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
 }
 
+export function createStableChapterClientKey(index: number): string {
+  return `ch-${index}`
+}
+
+function getStableChapterSavedIndex(clientKey: string): number | null {
+  const match = /^ch-(\d+)$/.exec(clientKey)
+  if (!match) return null
+  return Number(match[1])
+}
+
 export function ensureClientKeys(chapters: EditableChapter[]): EditableChapter[] {
   if (chapters.every((chapter) => chapter.clientKey)) {
     return chapters
@@ -16,7 +26,7 @@ export function ensureClientKeys(chapters: EditableChapter[]): EditableChapter[]
   return chapters.map((chapter) => (chapter.clientKey ? chapter : { ...chapter, clientKey: createChapterClientKey() }))
 }
 
-export function computeHasChanges(chapters: EditableChapter[], existingChapters: Chapter[]): boolean {
+export function computeHasChanges(chapters: EditableChapter[], existingChapters: Chapter[], mediaDuration: number): boolean {
   if (isEmptyListPlaceholderState(chapters, existingChapters)) {
     return false
   }
@@ -29,9 +39,11 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
     if (!existingChapter) {
       return true
     }
+    const chapterEnd = chapters[i + 1] ? chapters[i + 1].start : mediaDuration
+    const existingEnd = existingChapters[i + 1] ? existingChapters[i + 1].start : mediaDuration
     if (
       !chapterTimesEqual(chapter.start, existingChapter.start) ||
-      !chapterTimesEqual(chapter.end, existingChapter.end) ||
+      !chapterTimesEqual(chapterEnd, existingEnd) ||
       (chapter.title || '').trim() !== (existingChapter.title || '').trim()
     ) {
       return true
@@ -57,16 +69,32 @@ export interface ChapterDirtyFields {
   duration: boolean
 }
 
-export function buildChapterDirtyBaseline(chapters: EditableChapter[], mediaDuration: number): Map<string, ChapterDirtySnapshot> {
+export function buildChapterDirtyBaseline(
+  editorChapters: EditableChapter[],
+  savedChapters: Chapter[],
+  mediaDuration: number
+): Map<string, ChapterDirtySnapshot> {
   const baseline = new Map<string, ChapterDirtySnapshot>()
-  for (let i = 0; i < chapters.length; i++) {
-    const chapter = chapters[i]
-    if (!chapter?.clientKey) continue
-    const nextChapter = chapters[i + 1]
+
+  if (savedChapters.length === 0 && isSingleEmptyPlaceholderRow(editorChapters)) {
+    const chapter = editorChapters[0]
+    if (chapter?.clientKey) {
+      baseline.set(chapter.clientKey, { start: 0, title: '', end: mediaDuration })
+    }
+    return baseline
+  }
+
+  for (const chapter of editorChapters) {
+    if (!chapter.clientKey) continue
+    const savedIndex = getStableChapterSavedIndex(chapter.clientKey)
+    if (savedIndex === null || savedIndex >= savedChapters.length) continue
+
+    const saved = savedChapters[savedIndex]
+    const nextSaved = savedChapters[savedIndex + 1]
     baseline.set(chapter.clientKey, {
-      start: chapter.start,
-      title: (chapter.title || '').trim(),
-      end: nextChapter ? nextChapter.start : mediaDuration
+      start: saved.start,
+      title: (saved.title || '').trim(),
+      end: nextSaved ? nextSaved.start : mediaDuration
     })
   }
   return baseline
@@ -86,47 +114,30 @@ export function getChapterDirtyFields(chapter: EditableChapter, baseline: Map<st
   }
 }
 
-export function getChapterPreviewDirtyFields(current: EditableChapter | undefined, after: EditableChapter | undefined): { start: boolean; title: boolean } {
-  if (!after) {
-    return { start: false, title: false }
-  }
-  if (!current) {
-    return { start: true, title: true }
-  }
-  return {
-    start: !chapterTimesEqual(after.start, current.start),
-    title: (after.title || '').trim() !== (current.title || '').trim()
-  }
-}
-
 export interface ChapterValidationMessages {
   firstNotZero: string
   startLtPrev: string
   startGteDuration: string
 }
 
-export interface BulkChapterPattern {
-  before: string
-  after: string
-  startingNumber: number
-  originalPadding: number
-  hasLeadingZeros: boolean
-}
-
 export function initChapters(existing: Chapter[], mediaDuration: number): EditableChapter[] {
-  const chapters = existing.map((c) => ({ ...c, error: null as string | null }))
-  if (chapters.length === 0) {
-    return ensureClientKeys([
+  if (existing.length === 0) {
+    return [
       {
         id: 0,
         start: 0,
         end: mediaDuration,
         title: '',
-        error: null
+        error: null,
+        clientKey: createStableChapterClientKey(0)
       }
-    ])
+    ]
   }
-  return ensureClientKeys(chapters)
+  return existing.map((chapter, index) => ({
+    ...chapter,
+    error: null as string | null,
+    clientKey: createStableChapterClientKey(index)
+  }))
 }
 
 /** True when the editor shows a single empty row at start time 0 (no title). */
@@ -151,23 +162,6 @@ export function isClearAllChaptersState(chapters: EditableChapter[], existingCha
 /** True when the list shows real chapters rather than only the empty placeholder row. */
 export function hasNonPlaceholderChapters(chapters: EditableChapter[]): boolean {
   return chapters.length > 0 && !isSingleEmptyPlaceholderRow(chapters)
-}
-
-export function chapterListsEqual(a: EditableChapter[], b: EditableChapter[]): boolean {
-  if (a.length !== b.length) {
-    return false
-  }
-  for (let i = 0; i < a.length; i++) {
-    const left = a[i]
-    const right = b[i]
-    if (!left || !right) {
-      return false
-    }
-    if (left.start !== right.start || (left.title || '').trim() !== (right.title || '').trim()) {
-      return false
-    }
-  }
-  return true
 }
 
 export function validateChapters(
@@ -198,7 +192,7 @@ export function validateChapters(
     return { ...chapter, id: i, start, error }
   })
 
-  return { chapters: ensureClientKeys(updated), hasChanges: computeHasChanges(updated, existingChapters) }
+  return { chapters: ensureClientKeys(updated), hasChanges: computeHasChanges(updated, existingChapters, mediaDuration) }
 }
 
 export function computeChapterEnds(chapters: EditableChapter[], mediaDuration: number): Chapter[] {
@@ -213,36 +207,21 @@ export function computeChapterEnds(chapters: EditableChapter[], mediaDuration: n
   })
 }
 
-export function setChaptersFromTracks(tracks: AudioFile[]): EditableChapter[] {
-  let currentStartTime = 0
-  let index = 0
-  const chapters: EditableChapter[] = []
-
-  for (const track of tracks) {
-    const filename = track.metadata?.filename ?? ''
-    const ext = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : ''
-    const title = ext ? filename.slice(0, -ext.length) : filename
-
-    chapters.push({
-      id: index++,
-      title,
-      start: currentStartTime,
-      end: currentStartTime + track.duration,
-      error: null
-    })
-    currentStartTime += track.duration
-  }
-
-  return ensureClientKeys(chapters)
-}
-
-export function shiftChapterTimes(chapters: EditableChapter[], amount: number, lockedIds: Set<number>, mediaDuration: number): EditableChapter[] {
-  if (!amount || isNaN(amount) || chapters.length <= 1) {
+/** Empty or omitted `idsToShift` shifts every chapter. Chapter 0 start stays at 0:00. */
+export function shiftChapterTimes(
+  chapters: EditableChapter[],
+  amount: number,
+  idsToShift: Set<number> | null | undefined,
+  mediaDuration: number
+): EditableChapter[] {
+  if (!amount || isNaN(amount)) {
     return chapters
   }
 
+  const selectedIds = idsToShift && idsToShift.size > 0 ? idsToShift : null
+
   return chapters.map((chap, i) => {
-    if (lockedIds.has(chap.id)) {
+    if (selectedIds && !selectedIds.has(chap.id)) {
       return chap
     }
     const next = { ...chap }
@@ -254,46 +233,34 @@ export function shiftChapterTimes(chapters: EditableChapter[], amount: number, l
   })
 }
 
-export function mergeAudibleChapterTitles(chapters: EditableChapter[], audibleData: AudibleChapterSearchResult, lockedIds: Set<number>): EditableChapter[] {
+export function mergeAudibleChapterTitles(chapters: EditableChapter[], audibleData: AudibleChapterSearchResult): EditableChapter[] {
   return chapters.map((chapter, index) => {
-    if (lockedIds.has(chapter.id) || !audibleData.chapters[index]) {
+    if (!audibleData.chapters[index]) {
       return chapter
     }
     return { ...chapter, title: audibleData.chapters[index].title }
   })
 }
 
-export function mergeAudibleChapterData(
-  chapters: EditableChapter[],
-  audibleData: AudibleChapterSearchResult,
-  lockedIds: Set<number>,
-  mediaDuration: number
-): EditableChapter[] {
-  let index = 0
-  const audibleChapters: EditableChapter[] = audibleData.chapters
-    .filter((chap) => chap.startOffsetSec < mediaDuration)
-    .map((chap) => ({
-      id: index++,
-      start: chap.startOffsetMs / 1000,
-      end: Math.min(mediaDuration, (chap.startOffsetMs + chap.lengthMs) / 1000),
-      title: chap.title,
-      error: null,
-      clientKey: createChapterClientKey()
-    }))
+/** Title-only mapping is index-based; require the same chapter count on both sides. */
+export function canMapAudibleChapterTitles(baselineChapterCount: number, foundChapterCount: number): boolean {
+  return baselineChapterCount > 0 && baselineChapterCount === foundChapterCount
+}
 
-  const merged: EditableChapter[] = []
-  let audibleIdx = 0
-  for (let i = 0; i < Math.max(chapters.length, audibleChapters.length); i++) {
-    const isLocked = lockedIds.has(i)
-    if (isLocked && chapters[i]) {
-      merged.push({ ...chapters[i], id: i })
-    } else if (audibleChapters[audibleIdx]) {
-      merged.push({ ...audibleChapters[audibleIdx], id: i })
-      audibleIdx++
-    }
-    // Do not keep unlocked leftovers past the found list — those are dropped.
-  }
-  return merged
+export function mergeAudibleChapterData(audibleData: AudibleChapterSearchResult, mediaDuration: number): EditableChapter[] {
+  let index = 0
+  return ensureClientKeys(
+    audibleData.chapters
+      .filter((chap) => chap.startOffsetSec < mediaDuration)
+      .map((chap) => ({
+        id: index,
+        start: chap.startOffsetMs / 1000,
+        end: Math.min(mediaDuration, (chap.startOffsetMs + chap.lengthMs) / 1000),
+        title: chap.title,
+        error: null,
+        clientKey: createStableChapterClientKey(index++)
+      }))
+  )
 }
 
 export function removeBrandingFromAudibleData(data: AudibleChapterSearchResult): AudibleChapterSearchResult {
@@ -325,62 +292,6 @@ export function removeBrandingFromAudibleData(data: AudibleChapterSearchResult):
   } catch {
     return data
   }
-}
-
-export function detectBulkChapterPattern(input: string): BulkChapterPattern | null {
-  const numberMatch = input.match(/(\d+)/)
-  if (!numberMatch || numberMatch.index === undefined) {
-    return null
-  }
-
-  const originalNumberString = numberMatch[1]
-  const foundNumber = parseInt(originalNumberString, 10)
-  const numberIndex = numberMatch.index
-  const beforeNumber = input.substring(0, numberIndex)
-  const afterNumber = input.substring(numberIndex + originalNumberString.length)
-
-  return {
-    before: beforeNumber,
-    after: afterNumber,
-    startingNumber: foundNumber,
-    originalPadding: originalNumberString.length,
-    hasLeadingZeros: originalNumberString.length > 1 && originalNumberString.startsWith('0')
-  }
-}
-
-export function formatNumberWithPadding(number: number, pattern: BulkChapterPattern): string {
-  if (!pattern.hasLeadingZeros || pattern.originalPadding <= 1) {
-    return number.toString()
-  }
-  return number.toString().padStart(pattern.originalPadding, '0')
-}
-
-export function buildBulkChapters(pattern: BulkChapterPattern, count: number, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
-  const { before, after, startingNumber, hasLeadingZeros, originalPadding } = pattern
-  const lastChapter = existingChapters[existingChapters.length - 1]
-  const baseStart = lastChapter ? lastChapter.start + 1 : 0
-  const newChapters: EditableChapter[] = []
-
-  for (let i = 0; i < count; i++) {
-    const chapterNumber = startingNumber + i
-    let formattedNumber = chapterNumber.toString()
-    if (hasLeadingZeros && originalPadding > 1) {
-      formattedNumber = chapterNumber.toString().padStart(originalPadding, '0')
-    }
-
-    const newStart = baseStart + i
-    const newEnd = Math.min(newStart + i + i, mediaDuration)
-
-    newChapters.push({
-      id: existingChapters.length + i,
-      start: newStart,
-      end: newEnd,
-      title: `${before}${formattedNumber}${after}`,
-      error: null
-    })
-  }
-
-  return newChapters
 }
 
 export function addSingleChapterFromInput(title: string, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
@@ -430,14 +341,6 @@ export function applyChapterTitleDrafts(chapters: EditableChapter[], drafts: Rea
   return changed ? updated : chapters
 }
 
-export function incrementChapterTime(chapters: EditableChapter[], id: number, amount: number, mediaDuration: number): EditableChapter[] | null {
-  const chapter = chapters.find((c) => c.id === id)
-  if (!chapter) return null
-  if (chapter.id === 0 && chapter.start + amount < 0) return null
-  if (chapter.start + amount >= mediaDuration) return null
-  return chapters.map((c) => (c.id === id ? { ...c, start: Math.max(0, c.start + amount) } : c))
-}
-
 export function removeChapterAt(chapters: EditableChapter[], id: number): EditableChapter[] {
   return chapters.filter((c) => c.id !== id)
 }
@@ -459,6 +362,31 @@ export function adjustChapterStartTime(chapters: EditableChapter[], id: number, 
   return chapters.map((c) => (c.id === id ? { ...c, start: c.start + elapsedTime } : c))
 }
 
+export function setChaptersFromTracks(audioFiles: AudioFile[]): EditableChapter[] {
+  let currentStartTime = 0
+  let index = 0
+  const chapters: EditableChapter[] = []
+
+  for (const track of audioFiles) {
+    if (track.exclude) continue
+    const filename = track.metadata?.filename ?? ''
+    const ext = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : ''
+    const title = ext ? filename.slice(0, -ext.length) : filename
+
+    chapters.push({
+      id: index,
+      title,
+      start: currentStartTime,
+      end: currentStartTime + track.duration,
+      error: null,
+      clientKey: createStableChapterClientKey(index++)
+    })
+    currentStartTime += track.duration
+  }
+
+  return chapters
+}
+
 export function getAudioTrackForTime<T extends { startOffset: number; duration: number }>(tracks: T[], time: number): T | null {
   if (typeof time !== 'number') {
     return null
@@ -472,15 +400,4 @@ export function getChapterTimeOverflow(start: number, end: number, mediaDuration
   if (start > mediaDuration) return 'start'
   if (end > mediaDuration) return 'end'
   return null
-}
-
-export function getAudibleChapterOverflow(chapter: AudibleSearchChapter, mediaDuration: number): AudibleChapterOverflow {
-  return getChapterTimeOverflow(chapter.startOffsetSec, chapter.startOffsetSec + chapter.lengthMs / 1000, mediaDuration)
-}
-
-export function audibleChapterRowClass(chapter: AudibleSearchChapter, index: number, mediaDuration: number): string {
-  const overflow = getAudibleChapterOverflow(chapter, mediaDuration)
-  if (overflow === 'start') return 'bg-error/20'
-  if (overflow === 'end') return 'bg-warning/20'
-  return index % 2 === 0 ? 'bg-primary/30' : ''
 }

@@ -107,6 +107,8 @@ export interface DataTableProps<T> {
   bulkActions?: DataTableBulkActionsProps
   /** Optional sortable columns configuration */
   sorting?: DataTableSortingProps
+  /** Keep column headers visible while the table scrolls vertically */
+  stickyHeader?: boolean
 }
 
 function DataTablePagination({
@@ -164,7 +166,8 @@ export default function DataTable<T>({
   onRowClick,
   selection,
   bulkActions,
-  sorting
+  sorting,
+  stickyHeader = false
 }: DataTableProps<T>) {
   const id = useId()
   const containerRef = useRef<HTMLDivElement>(null)
@@ -317,6 +320,11 @@ export default function DataTable<T>({
     </tr>
   )
 
+  const bulkSelectedLabel =
+    typeof bulkActions?.selectedLabel === 'function' ? bulkActions.selectedLabel(numSelectedRows) : bulkActions?.selectedLabel || `${numSelectedRows} selected`
+
+  const stickyHeaderCellClass = stickyHeader ? 'sticky top-0 z-10 bg-table-header-bg' : ''
+
   const renderHeaderCell = (column: DataTableColumn<T>, index: number) => {
     const sortKey = column.sortKey || (typeof column.accessor === 'string' ? String(column.accessor) : undefined)
     const isSortable = !!sorting && !!column.sortable && !!sortKey
@@ -328,6 +336,7 @@ export default function DataTable<T>({
           key={`${id}-header-${index}`}
           className={mergeClasses(
             'text-foreground-muted px-2 py-2 text-start text-xs font-semibold',
+            stickyHeaderCellClass,
             column.headerClassName,
             getResponsiveHiddenClass(column.hiddenBelow)
           )}
@@ -343,6 +352,7 @@ export default function DataTable<T>({
         key={`${id}-header-${index}`}
         className={mergeClasses(
           'text-foreground-muted group cursor-pointer px-2 py-2 text-start text-xs font-semibold select-none',
+          stickyHeaderCellClass,
           column.headerClassName,
           getResponsiveHiddenClass(column.hiddenBelow)
         )}
@@ -359,9 +369,6 @@ export default function DataTable<T>({
     )
   }
 
-  const bulkSelectedLabel =
-    typeof bulkActions?.selectedLabel === 'function' ? bulkActions.selectedLabel(numSelectedRows) : bulkActions?.selectedLabel || `${numSelectedRows} selected`
-
   const renderSelectionHeaderCell = () => {
     if (!selection) return null
 
@@ -369,6 +376,7 @@ export default function DataTable<T>({
       <th
         className={mergeClasses(
           'h-11 w-12 min-w-12 px-0 text-center align-middle',
+          stickyHeaderCellClass,
           getResponsiveHiddenClass(selection.hideCheckboxBelow),
           selection.checkboxColumnClassName
         )}
@@ -391,8 +399,8 @@ export default function DataTable<T>({
 
   return (
     <div ref={containerRef} className={mergeClasses('w-full', className)}>
-      <div className="border-border relative overflow-x-auto rounded-md border">
-        <table className={mergeClasses('w-full border-collapse text-sm', tableClassName)}>
+      <div className={mergeClasses('border-border relative rounded-md border', stickyHeader ? 'overflow-visible' : 'overflow-x-auto')}>
+        <table className={mergeClasses('w-full text-sm', stickyHeader ? 'border-separate border-spacing-0' : 'border-collapse', tableClassName)}>
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead className="bg-table-header-bg">
             <tr ref={headerRowRef} className="border-border border-b">

@@ -3,22 +3,18 @@
 import { useLibraryItemModal } from '@/components/modals/LibraryItemModal'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
-import BulkChapterPatternPanel from '@/components/widgets/chapters-edit/BulkChapterPatternPanel'
-import ChapterTransformPreview from '@/components/widgets/chapters-edit/ChapterTransformPreview'
 import ChaptersModalTable from '@/components/widgets/chapters-edit/ChaptersModalTable'
-import ChaptersModalToolbar from '@/components/widgets/chapters-edit/ChaptersModalToolbar'
 import FindChaptersPanel from '@/components/widgets/chapters-edit/FindChaptersPanel'
-import FindChaptersResults from '@/components/widgets/chapters-edit/FindChaptersResults'
-import FindChaptersStatsPanel from '@/components/widgets/chapters-edit/FindChaptersStatsPanel'
-import SetChaptersFromTracksPanel from '@/components/widgets/chapters-edit/SetChaptersFromTracksPanel'
-import ShiftTimesPanel from '@/components/widgets/chapters-edit/ShiftTimesPanel'
+import { ShiftTimesFields } from '@/components/widgets/chapters-edit/ShiftTimesPanel'
 import { useChapterEditor } from '@/hooks/useChapterEditor'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { hasNonPlaceholderChapters } from '@/lib/chapters/chapterEditorUtils'
+import { secondsToTimestamp } from '@/lib/datefns'
+import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
-import { isBookMediaWithTracks, type BookLibraryItem } from '@/types/api'
+import { isBookMediaWithTracks, type AudibleChapterSearchResult, type BookLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type Ref } from 'react'
 
 export type ChaptersEditCloseHandle = {
@@ -35,6 +31,45 @@ interface ChaptersEditContentProps {
   closeRequestRef?: Ref<ChaptersEditCloseHandle | null>
   onPendingChange?: (pending: boolean) => void
   onItemUpdated?: (item: BookLibraryItem) => void
+}
+
+function LookupComparison({
+  lookupResult,
+  baselineCount,
+  mediaDurationRounded
+}: {
+  lookupResult: AudibleChapterSearchResult
+  baselineCount: number
+  mediaDurationRounded: number
+}) {
+  const t = useTypeSafeTranslations()
+  const foundChapterCount = lookupResult.chapters.length
+  const foundDurationSec = lookupResult.runtimeLengthSec
+  const countsDiffer = baselineCount !== foundChapterCount
+  const durationShorter = foundDurationSec > mediaDurationRounded
+  const durationLonger = foundDurationSec < mediaDurationRounded
+  const durationMatches = !durationShorter && !durationLonger
+  const durationDiffSec = Math.abs(foundDurationSec - mediaDurationRounded)
+  const durationDiffDescription = formatDuration(durationDiffSec, t, { style: 'long', showSeconds: true })
+  const durationDiffText = durationShorter
+    ? ` ${t('LabelDurationComparisonShorter', { 0: durationDiffDescription })}`
+    : durationLonger
+      ? ` ${t('LabelDurationComparisonLonger', { 0: durationDiffDescription })}`
+      : ` ${t('LabelLookupComparisonSame')}`
+  const chapterWasText = countsDiffer ? t('MessageLookupChaptersWas', { 0: baselineCount }) : ` ${t('LabelLookupComparisonSame')}`
+
+  return (
+    <p className="text-sm" role="status">
+      {t.rich('MessageLookupComparison', {
+        0: secondsToTimestamp(foundDurationSec),
+        1: durationDiffText,
+        2: foundChapterCount,
+        3: chapterWasText,
+        durationDiff: (chunks) => (durationMatches ? chunks : <span className="text-warning font-semibold">{chunks}</span>),
+        chapterWas: (chunks) => (countsDiffer ? <span className="text-warning font-semibold">{chunks}</span> : chunks)
+      })}
+    </p>
+  )
 }
 
 function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, onItemUpdated }: ChaptersEditContentProps) {
@@ -56,57 +91,36 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     tracks,
     newChapters,
     dirtyBaseline,
-    displayCurrentChapters,
-    stagedChapters,
-    isTransformPreviewOpen,
-    canApplyStagedTransform,
     hasChanges,
-    showSecondInputs,
-    activeToolbarPanel,
     lookupResult,
     lookupResultForPreview,
-    isLookupPending,
-    lookupAsinError,
+    lookupBaselineCount,
+    canMapChapterTitles,
     shiftAmount,
-    previewShiftAmount,
-    bulkChapterInput,
+    addChapterInput,
     removeBranding,
     mapChapterTitles,
-    showBulkPatternPanel,
-    showShiftTimes,
-    detectedPattern,
-    bulkChapterCount,
-    isTableEditMode,
+    selectedKeys,
     confirmState,
     isPending,
     preview,
-    setShowSecondInputs,
-    toggleToolbarPanel,
-    closeToolbarPanel,
-    closeShiftTimesPanel,
-    toggleShiftTimesPanel,
     handleShiftAmountChange,
-    setPreviewShiftAmount,
-    setLookupResult,
+    handleApplyShift,
     handleLookupResult,
-    setBulkChapterInput,
-    setRemoveBranding,
-    setMapChapterTitles,
-    setShowBulkPatternPanel,
-    setBulkChapterCount,
-    setDetectedPattern,
-    toggleTableEditMode,
+    setAddChapterInput,
+    handleMapChapterTitlesChange,
+    handleRemoveBrandingChange,
+    handleChapterCheckedChange,
+    handleToggleAllChaptersSelected,
+    handleRemoveSelected,
+    handleSetChaptersFromTracks,
     setConfirmState,
     handleSave,
-    applyStagedTransform,
-    handleRemoveAll,
-    handleBulkChapterAdd,
-    handleAddBulkChapters,
+    handleAddChapterFromInput,
     handleAdjustChapterStartTime,
     handleChapterStartChange,
     handleChapterTitleDraft,
     handleChapterTitleCommit,
-    handleChapterIncrementTime,
     handleChapterRemove,
     handleChapterInsertBelow,
     resetEditorChapters
@@ -138,7 +152,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
 
   useLayoutEffect(() => {
     updateFooterShadow()
-  }, [updateFooterShadow, isTableEditMode, activeToolbarPanel, lookupResult, showBulkPatternPanel, showShiftTimes, newChapters.length, isTransformPreviewOpen])
+  }, [updateFooterShadow, lookupResult, newChapters.length])
 
   useEffect(() => {
     onPendingChange?.(isPending)
@@ -195,136 +209,51 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
   useImperativeHandle(closeRequestRef, () => ({ requestLeave }), [requestLeave])
 
   const footerDisabled = !hasChanges || isPending
-  const showTable = hasNonPlaceholderChapters(newChapters)
-  const currentChapterCount = showTable ? newChapters.length : 0
-  const lookupResultsOpen = !!lookupResult
-
-  const handleLookupBack = useCallback(() => {
-    destroyAudioEl()
-    setLookupResult(null)
-    setMapChapterTitles(false)
-    setRemoveBranding(false)
-  }, [destroyAudioEl, setLookupResult, setMapChapterTitles, setRemoveBranding])
 
   return (
     <>
       <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg">
-        <div
-          ref={scrollContainerRef}
-          className={mergeClasses(
-            'relative min-h-0 flex-1 px-4 py-4',
-            isTransformPreviewOpen ? 'flex flex-col overflow-hidden' : 'overflow-x-hidden overflow-y-auto'
-          )}
-        >
-          <div className="mb-3 flex shrink-0 flex-wrap items-center gap-2">
-            {!isTableEditMode && <ChaptersModalToolbar activePanel={activeToolbarPanel} isLookupPending={isLookupPending} onTogglePanel={toggleToolbarPanel} />}
-            {isTableEditMode && (
-              <>
-                {showTable && (
-                  <Btn color="bg-primary" size="small" onClick={handleRemoveAll}>
-                    {t('ButtonRemoveAll')}
-                  </Btn>
-                )}
-                {showTable && newChapters.length > 1 && (
-                  <Btn color={showShiftTimes ? 'bg-bg' : 'bg-primary'} size="small" onClick={toggleShiftTimesPanel}>
-                    {t('ButtonShiftTimes')}
-                  </Btn>
-                )}
-                <Checkbox value={showSecondInputs} label={t('LabelShowSeconds')} size="small" onChange={setShowSecondInputs} />
-              </>
-            )}
-            <div className="grow" />
-            <Btn color="bg-primary" size="small" onClick={toggleTableEditMode}>
-              {isTableEditMode ? t('ButtonDoneEditing') : showTable ? t('ButtonManualEdit') : t('ButtonAddChapters')}
-            </Btn>
+        <div className="bg-bg border-border shrink-0 border-b px-4 py-3">
+          <div className="flex w-full flex-wrap items-end justify-between gap-3">
+            <FindChaptersPanel metadata={media.metadata} onResult={handleLookupResult} />
+            <ShiftTimesFields
+              shiftAmount={shiftAmount}
+              showHelp
+              applyDisabled={!shiftAmount || newChapters.length <= 1}
+              onShiftAmountChange={handleShiftAmountChange}
+              onApplyShift={handleApplyShift}
+            />
+            <div className="flex items-center gap-2">
+              <Btn size="small" onClick={handleSetChaptersFromTracks}>
+                {t('ButtonSetChaptersFromTracks')}
+              </Btn>
+              <HelpTooltipIcon text={t('MessageSetChaptersFromTracksDescription')} />
+            </div>
           </div>
+        </div>
 
-          {!isTableEditMode && activeToolbarPanel === 'setFromTracks' && (
-            <SetChaptersFromTracksPanel currentChapterCount={currentChapterCount} trackChapterCount={tracks.length} onClose={closeToolbarPanel} />
-          )}
-
-          {isTableEditMode && showShiftTimes && (
-            <ShiftTimesPanel shiftAmount={shiftAmount} onShiftAmountChange={handleShiftAmountChange} onClose={closeShiftTimesPanel} />
-          )}
-
-          {!isTableEditMode && activeToolbarPanel === 'lookup' && !lookupResultsOpen && !isLookupPending && (
-            <FindChaptersPanel metadata={media.metadata} initialError={lookupAsinError} onClose={closeToolbarPanel} onResult={handleLookupResult} />
-          )}
-
-          {!isTableEditMode && lookupResultsOpen && lookupResult && (
-            <FindChaptersStatsPanel
-              lookupResult={lookupResultForPreview ?? lookupResult}
-              currentChapterCount={currentChapterCount}
-              mediaDurationRounded={mediaDurationRounded}
-              onBack={handleLookupBack}
-              onClose={closeToolbarPanel}
-            />
-          )}
-
-          {isTransformPreviewOpen && stagedChapters && lookupResult ? (
-            <FindChaptersResults
-              lookupResult={lookupResultForPreview ?? lookupResult}
-              currentChapters={displayCurrentChapters}
-              afterChapters={stagedChapters}
-              mediaDuration={mediaDuration}
-              preview={preview}
-              tracks={tracks}
-              mapChapterTitles={mapChapterTitles}
-              removeBranding={removeBranding}
-              applyDisabled={!canApplyStagedTransform}
-              previewShiftAmount={previewShiftAmount}
-              onPreviewShiftAmountChange={setPreviewShiftAmount}
-              onMapChapterTitlesChange={setMapChapterTitles}
-              onRemoveBrandingChange={setRemoveBranding}
-              onApply={applyStagedTransform}
-            />
-          ) : isTransformPreviewOpen && stagedChapters ? (
-            <ChapterTransformPreview
-              currentChapters={displayCurrentChapters}
-              afterChapters={stagedChapters}
-              preview={preview}
-              tracks={tracks}
-              applyDisabled={!canApplyStagedTransform}
-              previewShiftAmount={previewShiftAmount}
-              onPreviewShiftAmountChange={setPreviewShiftAmount}
-              onApply={applyStagedTransform}
-            />
-          ) : (
-            <>
-              <ChaptersModalTable
-                isEditMode={isTableEditMode}
-                chapters={newChapters}
-                dirtyBaseline={dirtyBaseline}
-                mediaDuration={mediaDuration}
-                showSecondInputs={showSecondInputs}
-                bulkChapterInput={bulkChapterInput}
-                preview={preview}
-                tracks={tracks}
-                onBulkChapterInputChange={setBulkChapterInput}
-                onBulkChapterAdd={handleBulkChapterAdd}
-                onChapterStartChange={handleChapterStartChange}
-                onChapterTitleDraft={handleChapterTitleDraft}
-                onChapterTitleCommit={handleChapterTitleCommit}
-                onChapterIncrementTime={handleChapterIncrementTime}
-                onChapterRemove={handleChapterRemove}
-                onChapterInsertBelow={handleChapterInsertBelow}
-                onAdjustChapterStartTime={handleAdjustChapterStartTime}
-              />
-
-              {isTableEditMode && showBulkPatternPanel && (
-                <BulkChapterPatternPanel
-                  detectedPattern={detectedPattern}
-                  bulkChapterCount={bulkChapterCount}
-                  onBulkChapterCountChange={setBulkChapterCount}
-                  onClose={() => {
-                    setShowBulkPatternPanel(false)
-                    setDetectedPattern(null)
-                  }}
-                  onConfirm={handleAddBulkChapters}
-                />
-              )}
-            </>
-          )}
+        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4">
+          <ChaptersModalTable
+            scrollContainerRef={scrollContainerRef}
+            chapters={newChapters}
+            dirtyBaseline={dirtyBaseline}
+            mediaDuration={mediaDuration}
+            addChapterInput={addChapterInput}
+            selectedKeys={selectedKeys}
+            preview={preview}
+            tracks={tracks}
+            onAddChapterInputChange={setAddChapterInput}
+            onAddChapter={handleAddChapterFromInput}
+            onToggleAllSelected={handleToggleAllChaptersSelected}
+            onChapterCheckedChange={handleChapterCheckedChange}
+            onChapterStartChange={handleChapterStartChange}
+            onChapterTitleDraft={handleChapterTitleDraft}
+            onChapterTitleCommit={handleChapterTitleCommit}
+            onChapterRemove={handleChapterRemove}
+            onChapterInsertBelow={handleChapterInsertBelow}
+            onAdjustChapterStartTime={handleAdjustChapterStartTime}
+            onRemoveSelected={handleRemoveSelected}
+          />
 
           {isPending && (
             <div className="bg-bg/50 absolute inset-0 z-10 flex items-center justify-center">
@@ -335,28 +264,48 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
 
         <div
           className={mergeClasses(
-            'bg-bg border-border flex shrink-0 justify-end gap-3 border-t px-4 py-3 transition-shadow duration-200',
+            'bg-bg border-border flex shrink-0 flex-wrap items-end gap-x-4 gap-y-3 border-t px-4 py-3 transition-shadow duration-200',
             footerShadow && 'box-shadow-md-up'
           )}
         >
-          <Btn
-            size="small"
-            disabled={footerDisabled}
-            onClick={() =>
-              setConfirmState({
-                message: t('MessageDiscardChaptersConfirm'),
-                onConfirm: () => {
-                  setConfirmState(null)
-                  resetEditorChapters()
-                }
-              })
-            }
-          >
-            {t('ButtonDiscardChanges')}
-          </Btn>
-          <Btn color="bg-success" size="small" loading={isPending} disabled={footerDisabled} onClick={() => handleSave()}>
-            {t('ButtonSave')}
-          </Btn>
+          {lookupResult && lookupResultForPreview && (
+            <div className="min-w-0 flex-1">
+              <LookupComparison lookupResult={lookupResultForPreview} baselineCount={lookupBaselineCount} mediaDurationRounded={mediaDurationRounded} />
+              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+                {canMapChapterTitles && (
+                  <div className="flex items-center gap-2">
+                    <Checkbox value={mapChapterTitles} label={t('ButtonMapChapterTitles')} size="small" onChange={handleMapChapterTitlesChange} />
+                    <HelpTooltipIcon text={t('MessageMapChapterTitles')} />
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Checkbox value={removeBranding} label={t('LabelRemoveAudibleBrandingShort')} size="small" onChange={handleRemoveBrandingChange} />
+                  <HelpTooltipIcon text={t('LabelRemoveAudibleBranding')} />
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="ms-auto flex shrink-0 gap-3">
+            <Btn
+              size="small"
+              disabled={footerDisabled}
+              onClick={() => {
+                destroyAudioEl()
+                setConfirmState({
+                  message: t('MessageDiscardChaptersConfirm'),
+                  onConfirm: () => {
+                    setConfirmState(null)
+                    resetEditorChapters()
+                  }
+                })
+              }}
+            >
+              {t('ButtonDiscardChanges')}
+            </Btn>
+            <Btn color="bg-success" size="small" loading={isPending} disabled={footerDisabled} onClick={() => handleSave()}>
+              {t('ButtonSave')}
+            </Btn>
+          </div>
         </div>
       </div>
 
