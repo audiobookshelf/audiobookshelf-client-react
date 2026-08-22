@@ -15,9 +15,12 @@ interface ConfirmDialogProps {
   checkboxLabel?: string
   yesButtonText?: string
   yesButtonClassName?: string
+  altButtonText?: string
+  altButtonClassName?: string
   processing?: boolean // Sets modal to persistent & yes button to loading
   onClose: () => void
   onConfirm: (checkboxValue?: boolean) => void
+  onAlt?: () => void
   className?: string
 }
 
@@ -47,9 +50,12 @@ export default function ConfirmDialog({
   checkboxLabel,
   yesButtonText,
   yesButtonClassName = 'bg-success text-white',
+  altButtonText,
+  altButtonClassName = 'bg-primary',
   processing = false,
   onClose,
   onConfirm,
+  onAlt,
   className
 }: ConfirmDialogProps) {
   const t = useTypeSafeTranslations()
@@ -63,6 +69,12 @@ export default function ConfirmDialog({
     onConfirm(checkboxValue)
     setCheckboxValue(false)
   }, [checkboxValue, onConfirm])
+
+  const handleAlt = useCallback(() => {
+    if (processing) return
+    setCheckboxValue(false)
+    onAlt?.()
+  }, [onAlt, processing])
 
   const handleClose = useCallback(() => {
     if (processing) return
@@ -135,6 +147,11 @@ export default function ConfirmDialog({
           <Btn color="bg-primary" disabled={processing} onClick={handleClose} ariaLabel={t('ButtonCancel')} type="button">
             {t('ButtonCancel')}
           </Btn>
+          {onAlt && altButtonText ? (
+            <Btn color={altButtonClassName} disabled={processing} onClick={handleAlt} ariaLabel={altButtonText} type="button">
+              {altButtonText}
+            </Btn>
+          ) : null}
           <Btn
             color={yesButtonClassName}
             disabled={processing}

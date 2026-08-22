@@ -213,19 +213,14 @@ function MediaCard(props: MediaCardProps) {
       }
       const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
       setBoundModal(
-        <LibraryItemMetadataEditModal
-          key={`metadata-edit-modal-${section}`}
-          isOpen
-          initialSection={section}
-          navCtx={navCtx}
-          onClose={clearBoundModal}
-        />
+        <LibraryItemMetadataEditModal key={`metadata-edit-modal-${section}`} isOpen initialSection={section} navCtx={navCtx} onClose={clearBoundModal} />
       )
     },
     [clearBoundModal, closeMoreMenu, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal]
   )
 
   const handleOpenEdit = useCallback(() => handleOpenMetadataEdit('details'), [handleOpenMetadataEdit])
+  const handleOpenChaptersEdit = useCallback(() => handleOpenMetadataEdit('chapters'), [handleOpenMetadataEdit])
   const handleOpenMatch = useCallback(() => handleOpenMetadataEdit('match'), [handleOpenMetadataEdit])
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
@@ -406,6 +401,7 @@ function MediaCard(props: MediaCardProps) {
     isQueued,
     initialShare: libraryItem.mediaItemShare ?? null,
     onOpenMatch: handleOpenMatch,
+    onOpenChaptersEdit: handleOpenChaptersEdit,
     onDeleteSuccess,
     playerControls
   })

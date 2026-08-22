@@ -132,4 +132,19 @@ describe('ChaptersTable', () => {
     cy.viewport(768, 1024)
     cy.contains('th', 'Duration').should('be.visible')
   })
+
+  it('calls onEditChapters when edit button is clicked', () => {
+    const onEditChapters = cy.stub().as('onEditChapters')
+    const libraryItem = { ...mockLibraryItem }
+    libraryItem.media.chapters = [{ id: 1, start: 0, end: 60, title: 'Chapter 1' }]
+
+    cy.mount(
+      <UserContext.Provider value={mockUserContextValue}>
+        <ChaptersTable libraryItem={libraryItem} expanded onEditChapters={onEditChapters} />
+      </UserContext.Provider>
+    )
+
+    cy.contains('button', 'Edit Chapters').click()
+    cy.get('@onEditChapters').should('have.been.calledOnce')
+  })
 })

@@ -2,8 +2,8 @@
 
 import DurationPicker from '@/components/ui/DurationPicker'
 import IconBtn from '@/components/ui/IconBtn'
-import Tooltip from '@/components/ui/Tooltip'
 import TextInput from '@/components/ui/TextInput'
+import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EditableChapter } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -11,14 +11,17 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
 interface ChapterTitleInputProps {
   title: string
+  /** Saved title for dirty comparison. Omit for unsaved rows (always dirty). */
+  baselineTitle?: string
   onDraft: (title: string) => void
   onCommit: (title: string) => void
 }
 
-const ChapterTitleInput = memo(function ChapterTitleInput({ title, onDraft, onCommit }: ChapterTitleInputProps) {
+const ChapterTitleInput = memo(function ChapterTitleInput({ title, baselineTitle, onDraft, onCommit }: ChapterTitleInputProps) {
   const [localTitle, setLocalTitle] = useState(title)
   const localTitleRef = useRef(title)
   const isEditingRef = useRef(false)
+  const isDirty = baselineTitle === undefined || localTitle.trim() !== baselineTitle
 
   useEffect(() => {
     if (!isEditingRef.current) {
@@ -48,15 +51,26 @@ const ChapterTitleInput = memo(function ChapterTitleInput({ title, onDraft, onCo
     onCommit(trimmedTitle)
   }, [onCommit])
 
-  return <TextInput value={localTitle} size="small" className="w-full min-w-0 text-sm" onChange={handleChange} onFocus={handleFocus} onBlur={handleBlur} />
+  return (
+    <TextInput
+      value={localTitle}
+      size="small"
+      className="w-full min-w-0 text-sm"
+      customInputClass={isDirty ? 'text-info' : undefined}
+      onChange={handleChange}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+    />
+  )
 })
 
-interface ChapterRowProps {
+export interface ChapterEditTableRowProps {
   chapter: EditableChapter
   chapterCount: number
   mediaDuration: number
   showSecondInputs: boolean
-  isLocked: boolean
+  startDirty?: boolean
+  baselineTitle?: string
   isSelected: boolean
   isPlayingChapter: boolean
   isLoadingChapter: boolean
@@ -66,7 +80,6 @@ interface ChapterRowProps {
   onTitleDraft: (title: string) => void
   onTitleCommit: (title: string) => void
   onIncrementTime: (amount: number) => void
-  onToggleLock: (shiftKey: boolean) => void
   onRemove: () => void
   onInsertBelow: () => void
   onPlay: () => void
@@ -75,12 +88,13 @@ interface ChapterRowProps {
 
 const TIME_INCREMENT = 1
 
-function ChapterRow({
+function ChapterEditTableRow({
   chapter,
   chapterCount,
   mediaDuration,
   showSecondInputs,
-  isLocked,
+  startDirty = false,
+  baselineTitle,
   isSelected,
   isPlayingChapter,
   isLoadingChapter,
@@ -90,22 +104,19 @@ function ChapterRow({
   onTitleDraft,
   onTitleCommit,
   onIncrementTime,
-  onToggleLock,
   onRemove,
   onInsertBelow,
   onPlay,
   onAdjustStartTime
-}: ChapterRowProps) {
+}: ChapterEditTableRowProps) {
   const t = useTypeSafeTranslations()
   const cannotDecrement = chapter.id === 0 && chapter.start - TIME_INCREMENT < 0
   const cannotIncrement = chapter.start + TIME_INCREMENT >= mediaDuration
 
   return (
-    <div className="contents">
-      <div className="flex items-center py-1">#{chapter.id + 1}</div>
-
-      <div className="min-w-0 px-1 py-1">
-        <div className="flex items-center gap-1">
+    <tr className="border-border even:bg-table-row-bg-even hover:bg-table-row-bg-hover border-b">
+      <td className="w-[9.5rem] min-w-[9.5rem] px-2 py-2 align-middle md:w-40 md:min-w-40">
+        <div className="flex w-full items-center gap-1">
           <Tooltip lazy text={t('TooltipSubtractOneSecond')} position="bottom">
             <button
               type="button"
@@ -123,9 +134,22 @@ function ChapterRow({
 
           <div className="min-w-0 flex-1">
             {showSecondInputs ? (
-              <TextInput type="number" value={String(chapter.start)} size="small" className="text-xs" onChange={(value) => onStartChange(Number(value))} />
+              <TextInput
+                type="number"
+                value={String(chapter.start)}
+                size="small"
+                className="text-xs"
+                customInputClass={startDirty ? 'text-info' : undefined}
+                onChange={(value) => onStartChange(Number(value))}
+              />
             ) : (
-              <DurationPicker value={chapter.start} showThreeDigitHour={mediaDuration >= 360000} size="small" className="w-full" onChange={onStartChange} />
+              <DurationPicker
+                value={chapter.start}
+                showThreeDigitHour={mediaDuration >= 360000}
+                size="small"
+                className={mergeClasses('w-full', startDirty && 'text-info')}
+                onChange={onStartChange}
+              />
             )}
           </div>
 
@@ -144,27 +168,13 @@ function ChapterRow({
             </button>
           </Tooltip>
         </div>
-      </div>
+      </td>
 
-      <div className="min-w-0 px-1 py-1">
-        <ChapterTitleInput title={chapter.title} onDraft={onTitleDraft} onCommit={onTitleCommit} />
-      </div>
+      <td className="min-w-0 px-2 py-2 align-middle">
+        <ChapterTitleInput title={chapter.title} baselineTitle={baselineTitle} onDraft={onTitleDraft} onCommit={onTitleCommit} />
+      </td>
 
-      <div className="flex items-center justify-center px-1 py-1">
-        <Tooltip lazy text={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')} position="bottom" maxWidth={300}>
-          <IconBtn
-            ariaLabel={isLocked ? t('TooltipUnlockChapter') : t('TooltipLockChapter')}
-            borderless
-            size="small"
-            className={mergeClasses(isLocked ? 'text-warning hover:not-disabled:text-warning' : 'text-foreground-muted hover:not-disabled:text-foreground')}
-            onClick={(e) => onToggleLock(e.shiftKey)}
-          >
-            {isLocked ? 'lock' : 'lock_open'}
-          </IconBtn>
-        </Tooltip>
-      </div>
-
-      <div className="flex items-center px-2 py-1">
+      <td className="w-52 min-w-52 px-2 py-2 align-middle">
         <div className="flex shrink-0 items-center">
           {chapterCount > 1 && (
             <Tooltip lazy text={t('MessageRemoveChapter')} position="bottom">
@@ -206,7 +216,7 @@ function ChapterRow({
             </IconBtn>
           </Tooltip>
 
-          <div className="ml-2 w-10 shrink-0 text-center">
+          <div className="ms-2 min-w-10 shrink-0 text-center">
             {chapter.error ? (
               <Tooltip lazy text={chapter.error} position="left" maxWidth={300}>
                 <span className="material-symbols text-error text-lg" aria-label={chapter.error}>
@@ -229,9 +239,9 @@ function ChapterRow({
             )}
           </div>
         </div>
-      </div>
-    </div>
+      </td>
+    </tr>
   )
 }
 
-export default memo(ChapterRow)
+export default memo(ChapterEditTableRow)

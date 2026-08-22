@@ -30,14 +30,73 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
       return true
     }
     if (
-      chapter.start !== existingChapter.start ||
-      chapter.end !== existingChapter.end ||
+      !chapterTimesEqual(chapter.start, existingChapter.start) ||
+      !chapterTimesEqual(chapter.end, existingChapter.end) ||
       (chapter.title || '').trim() !== (existingChapter.title || '').trim()
     ) {
       return true
     }
   }
   return false
+}
+
+/** DurationPicker and timestamps are whole seconds; ignore sub-second float leftovers. */
+function chapterTimesEqual(a: number, b: number): boolean {
+  return Math.round(a) === Math.round(b)
+}
+
+export interface ChapterDirtySnapshot {
+  start: number
+  title: string
+  end: number
+}
+
+export interface ChapterDirtyFields {
+  start: boolean
+  title: boolean
+  duration: boolean
+}
+
+export function buildChapterDirtyBaseline(chapters: EditableChapter[], mediaDuration: number): Map<string, ChapterDirtySnapshot> {
+  const baseline = new Map<string, ChapterDirtySnapshot>()
+  for (let i = 0; i < chapters.length; i++) {
+    const chapter = chapters[i]
+    if (!chapter?.clientKey) continue
+    const nextChapter = chapters[i + 1]
+    baseline.set(chapter.clientKey, {
+      start: chapter.start,
+      title: (chapter.title || '').trim(),
+      end: nextChapter ? nextChapter.start : mediaDuration
+    })
+  }
+  return baseline
+}
+
+export function getChapterDirtyFields(chapter: EditableChapter, baseline: Map<string, ChapterDirtySnapshot>): ChapterDirtyFields {
+  const snapshot = chapter.clientKey ? baseline.get(chapter.clientKey) : undefined
+  if (!snapshot) {
+    return { start: true, title: true, duration: true }
+  }
+  const startDirty = !chapterTimesEqual(chapter.start, snapshot.start)
+  const titleDirty = (chapter.title || '').trim() !== snapshot.title
+  return {
+    start: startDirty,
+    title: titleDirty,
+    duration: startDirty || !chapterTimesEqual(chapter.end, snapshot.end)
+  }
+}
+
+export function getChapterPreviewDirtyFields(current: EditableChapter | undefined, after: EditableChapter | undefined): { start: boolean; title: boolean } {
+  if (!after) {
+    return { start: false, title: false }
+  }
+  if (!current) {
+    return { start: true, title: true }
+  }
+  return {
+    start: !chapterTimesEqual(after.start, current.start),
+    title: (after.title || '').trim() !== (current.title || '').trim()
+  }
 }
 
 export interface ChapterValidationMessages {
@@ -92,6 +151,23 @@ export function isClearAllChaptersState(chapters: EditableChapter[], existingCha
 /** True when the list shows real chapters rather than only the empty placeholder row. */
 export function hasNonPlaceholderChapters(chapters: EditableChapter[]): boolean {
   return chapters.length > 0 && !isSingleEmptyPlaceholderRow(chapters)
+}
+
+export function chapterListsEqual(a: EditableChapter[], b: EditableChapter[]): boolean {
+  if (a.length !== b.length) {
+    return false
+  }
+  for (let i = 0; i < a.length; i++) {
+    const left = a[i]
+    const right = b[i]
+    if (!left || !right) {
+      return false
+    }
+    if (left.start !== right.start || (left.title || '').trim() !== (right.title || '').trim()) {
+      return false
+    }
+  }
+  return true
 }
 
 export function validateChapters(
@@ -214,9 +290,8 @@ export function mergeAudibleChapterData(
     } else if (audibleChapters[audibleIdx]) {
       merged.push({ ...audibleChapters[audibleIdx], id: i })
       audibleIdx++
-    } else if (chapters[i]) {
-      merged.push({ ...chapters[i], id: i })
     }
+    // Do not keep unlocked leftovers past the found list — those are dropped.
   }
   return merged
 }
@@ -391,12 +466,21 @@ export function getAudioTrackForTime<T extends { startOffset: number; duration: 
   return tracks.find((at) => time >= at.startOffset && time < at.startOffset + at.duration) ?? null
 }
 
+export type AudibleChapterOverflow = 'start' | 'end' | null
+
+export function getChapterTimeOverflow(start: number, end: number, mediaDuration: number): AudibleChapterOverflow {
+  if (start > mediaDuration) return 'start'
+  if (end > mediaDuration) return 'end'
+  return null
+}
+
+export function getAudibleChapterOverflow(chapter: AudibleSearchChapter, mediaDuration: number): AudibleChapterOverflow {
+  return getChapterTimeOverflow(chapter.startOffsetSec, chapter.startOffsetSec + chapter.lengthMs / 1000, mediaDuration)
+}
+
 export function audibleChapterRowClass(chapter: AudibleSearchChapter, index: number, mediaDuration: number): string {
-  if (chapter.startOffsetSec > mediaDuration) {
-    return 'bg-error/20'
-  }
-  if (chapter.startOffsetSec + chapter.lengthMs / 1000 > mediaDuration) {
-    return 'bg-warning/20'
-  }
+  const overflow = getAudibleChapterOverflow(chapter, mediaDuration)
+  if (overflow === 'start') return 'bg-error/20'
+  if (overflow === 'end') return 'bg-warning/20'
   return index % 2 === 0 ? 'bg-primary/30' : ''
 }

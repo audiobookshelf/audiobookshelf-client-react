@@ -24,6 +24,7 @@ interface LibraryItemActionButtonsProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   onEdit: () => void
   onOpenMatch?: () => void
+  onOpenChaptersEdit?: () => void
   /** Current RSS feed state (from useItemPageSocket + initial server data). */
   rssFeed?: RssFeed | null
   showPlayButton: boolean
@@ -35,6 +36,7 @@ export default function LibraryItemActionButtons({
   libraryItem,
   onEdit,
   onOpenMatch,
+  onOpenChaptersEdit,
   rssFeed = null,
   showPlayButton,
   isItemPlaying,
@@ -111,6 +113,7 @@ export default function LibraryItemActionButtons({
       window.location.href = `/library/${libraryItem.libraryId}`
     },
     onOpenMatch,
+    onOpenChaptersEdit,
     playerControls
   })
 
