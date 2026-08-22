@@ -1,4 +1,18 @@
 import type { AudioFile, AudibleChapterSearchResult, Chapter } from '@/types/api'
+import {
+  buildChapterMatchDebugByIncomingIndex,
+  matchChaptersMonotonic,
+  toChapterMatchInput,
+  type ChapterMatchDebug,
+  type ChapterMatchResult
+} from '@/lib/chapters/chapterMatching'
+
+export type { ChapterMatchDebug } from '@/lib/chapters/chapterMatching'
+
+export interface ChapterMergeWithMatchResult {
+  chapters: EditableChapter[]
+  matchDebug: Map<number, ChapterMatchDebug>
+}
 
 export interface EditableChapter extends Chapter {
   error?: string | null
@@ -52,9 +66,28 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
   return false
 }
 
-/** DurationPicker and timestamps are whole seconds; ignore sub-second float leftovers. */
+/** Whole seconds for editor display; matches DurationPicker rounding. */
+export function normalizeChapterStartSec(start: number): number {
+  if (start == null || Number.isNaN(start)) {
+    return 0
+  }
+  return Math.round(start)
+}
+
+/** Audible/API timestamps are ms; Vue uses floor when converting to seconds. */
+export function audibleMsToChapterStartSec(ms: number): number {
+  if (ms == null || Number.isNaN(ms)) {
+    return 0
+  }
+  return Math.floor(ms / 1000)
+}
+
+/** Starts within this many seconds compare equal (Audible ms rounding vs saved whole seconds). */
+const CHAPTER_START_TOLERANCE_SEC = 1
+
+/** DurationPicker and timestamps are whole seconds; ignore sub-second and ±1s Audible drift. */
 function chapterTimesEqual(a: number, b: number): boolean {
-  return Math.round(a) === Math.round(b)
+  return Math.abs(normalizeChapterStartSec(a) - normalizeChapterStartSec(b)) <= CHAPTER_START_TOLERANCE_SEC
 }
 
 export interface ChapterDirtySnapshot {
@@ -172,7 +205,7 @@ export function validateChapters(
 ): { chapters: EditableChapter[]; hasChanges: boolean } {
   let previousStart = 0
   const updated = chapters.map((chapter, i) => {
-    const start = Number(chapter.start)
+    const start = normalizeChapterStartSec(Number(chapter.start))
 
     let error: string | null
     if (i === 0 && start !== 0) {
@@ -233,34 +266,121 @@ export function shiftChapterTimes(
   })
 }
 
-export function mergeAudibleChapterTitles(chapters: EditableChapter[], audibleData: AudibleChapterSearchResult): EditableChapter[] {
-  return chapters.map((chapter, index) => {
-    if (!audibleData.chapters[index]) {
-      return chapter
+export function applyMatchedClientKeys(existing: EditableChapter[], incomingRows: EditableChapter[], matchResult: ChapterMatchResult): EditableChapter[] {
+  return incomingRows.map((row, incomingIndex) => {
+    const incomingStart = normalizeChapterStartSec(row.start)
+    const existingIndex = matchResult.matches.get(incomingIndex)
+    if (existingIndex === undefined) {
+      return { ...row, start: incomingStart, clientKey: createChapterClientKey() }
     }
-    return { ...chapter, title: audibleData.chapters[index].title }
+    const matched = existing[existingIndex]
+    const clientKey = matched?.clientKey ?? createChapterClientKey()
+    const start = matched && chapterTimesEqual(incomingStart, matched.start) ? matched.start : incomingStart
+    return { ...row, clientKey, start }
   })
 }
 
-/** Title-only mapping is index-based; require the same chapter count on both sides. */
-export function canMapAudibleChapterTitles(baselineChapterCount: number, foundChapterCount: number): boolean {
-  return baselineChapterCount > 0 && baselineChapterCount === foundChapterCount
+function buildAudibleIncomingChapters(audibleData: AudibleChapterSearchResult, mediaDuration: number): EditableChapter[] {
+  let index = 0
+  return audibleData.chapters
+    .filter((chap) => audibleMsToChapterStartSec(chap.startOffsetMs) < mediaDuration)
+    .map((chap) => ({
+      id: index,
+      start: audibleMsToChapterStartSec(chap.startOffsetMs),
+      end: Math.min(mediaDuration, audibleMsToChapterStartSec(chap.startOffsetMs + chap.lengthMs)),
+      title: chap.title,
+      error: null as string | null
+    }))
 }
 
-export function mergeAudibleChapterData(audibleData: AudibleChapterSearchResult, mediaDuration: number): EditableChapter[] {
-  let index = 0
-  return ensureClientKeys(
-    audibleData.chapters
-      .filter((chap) => chap.startOffsetSec < mediaDuration)
-      .map((chap) => ({
-        id: index,
-        start: chap.startOffsetMs / 1000,
-        end: Math.min(mediaDuration, (chap.startOffsetMs + chap.lengthMs) / 1000),
-        title: chap.title,
-        error: null,
-        clientKey: createStableChapterClientKey(index++)
+/**
+ * Keep existing start times: result follows found (Audible) chapters.
+ * - Matched: found title + existing start (and clientKey)
+ * - Unmatched found: keep as-is (new clientKey)
+ * - Unmatched existing: dropped
+ */
+export function mergeAudibleChapterTitles(
+  chapters: EditableChapter[],
+  audibleData: AudibleChapterSearchResult,
+  mediaDuration: number
+): ChapterMergeWithMatchResult {
+  const incomingRows = buildAudibleIncomingChapters(audibleData, mediaDuration).map((chapter, index) => ({
+    ...chapter,
+    id: index
+  }))
+
+  if (chapters.length === 0) {
+    const result = ensureClientKeys(
+      incomingRows.map((chapter, index) => ({
+        ...chapter,
+        clientKey: createStableChapterClientKey(index)
       }))
-  )
+    )
+    return { chapters: result, matchDebug: new Map() }
+  }
+
+  const existingInputs = chapters.map(toChapterMatchInput)
+  const incomingInputs = incomingRows.map(toChapterMatchInput)
+  const matchResult = matchChaptersMonotonic(existingInputs, incomingInputs)
+
+  const merged = incomingRows.map((row, incomingIndex) => {
+    const existingIndex = matchResult.matches.get(incomingIndex)
+    if (existingIndex === undefined) {
+      return {
+        ...row,
+        start: normalizeChapterStartSec(row.start),
+        clientKey: createChapterClientKey()
+      }
+    }
+
+    const matched = chapters[existingIndex]
+    return {
+      ...row,
+      start: matched?.start ?? normalizeChapterStartSec(row.start),
+      clientKey: matched?.clientKey ?? createChapterClientKey()
+    }
+  })
+
+  return {
+    chapters: ensureClientKeys(merged),
+    matchDebug: buildChapterMatchDebugByIncomingIndex(existingInputs, matchResult)
+  }
+}
+
+/** Partial title mapping when baseline has real chapters. */
+export function canMapAudibleChapterTitles(baselineChapterCount: number): boolean {
+  return baselineChapterCount > 0
+}
+
+export function mergeAudibleChapterData(
+  audibleData: AudibleChapterSearchResult,
+  mediaDuration: number,
+  existingChapters: EditableChapter[] = []
+): ChapterMergeWithMatchResult {
+  const incomingRows = buildAudibleIncomingChapters(audibleData, mediaDuration).map((chapter, index) => ({
+    ...chapter,
+    id: index
+  }))
+
+  if (existingChapters.length === 0) {
+    const chapters = ensureClientKeys(
+      incomingRows.map((chapter, index) => ({
+        ...chapter,
+        clientKey: createStableChapterClientKey(index)
+      }))
+    )
+    return { chapters, matchDebug: new Map() }
+  }
+
+  const existingInputs = existingChapters.map(toChapterMatchInput)
+  const incomingInputs = incomingRows.map(toChapterMatchInput)
+  const matchResult = matchChaptersMonotonic(existingInputs, incomingInputs)
+  const chapters = ensureClientKeys(applyMatchedClientKeys(existingChapters, incomingRows, matchResult))
+
+  return {
+    chapters,
+    matchDebug: buildChapterMatchDebugByIncomingIndex(existingInputs, matchResult)
+  }
 }
 
 export function removeBrandingFromAudibleData(data: AudibleChapterSearchResult): AudibleChapterSearchResult {
@@ -271,11 +391,13 @@ export function removeBrandingFromAudibleData(data: AudibleChapterSearchResult):
     const chapters = data.chapters.map((chapter, i) => {
       const next = { ...chapter }
       if (next.startOffsetMs < introDuration) {
+        // Intro overlap on the first chapter(s); align to whole-second placeholders (Vue parity).
         next.startOffsetMs = i * 1000
         next.startOffsetSec = i
       } else {
         next.startOffsetMs -= introDuration
-        next.startOffsetSec = Math.floor(next.startOffsetMs / 1000)
+        next.startOffsetSec = audibleMsToChapterStartSec(next.startOffsetMs)
+        next.startOffsetMs = next.startOffsetSec * 1000
       }
       return next
     })
@@ -362,10 +484,10 @@ export function adjustChapterStartTime(chapters: EditableChapter[], id: number, 
   return chapters.map((c) => (c.id === id ? { ...c, start: c.start + elapsedTime } : c))
 }
 
-export function setChaptersFromTracks(audioFiles: AudioFile[]): EditableChapter[] {
+export function setChaptersFromTracks(audioFiles: AudioFile[], existingChapters: EditableChapter[] = []): ChapterMergeWithMatchResult {
   let currentStartTime = 0
   let index = 0
-  const chapters: EditableChapter[] = []
+  const incomingRows: EditableChapter[] = []
 
   for (const track of audioFiles) {
     if (track.exclude) continue
@@ -373,18 +495,36 @@ export function setChaptersFromTracks(audioFiles: AudioFile[]): EditableChapter[
     const ext = filename.includes('.') ? filename.slice(filename.lastIndexOf('.')) : ''
     const title = ext ? filename.slice(0, -ext.length) : filename
 
-    chapters.push({
+    incomingRows.push({
       id: index,
       title,
       start: currentStartTime,
       end: currentStartTime + track.duration,
-      error: null,
-      clientKey: createStableChapterClientKey(index++)
+      error: null
     })
     currentStartTime += track.duration
+    index++
   }
 
-  return chapters
+  if (existingChapters.length === 0) {
+    const chapters = ensureClientKeys(
+      incomingRows.map((chapter, rowIndex) => ({
+        ...chapter,
+        clientKey: createStableChapterClientKey(rowIndex)
+      }))
+    )
+    return { chapters, matchDebug: new Map() }
+  }
+
+  const existingInputs = existingChapters.map(toChapterMatchInput)
+  const incomingInputs = incomingRows.map(toChapterMatchInput)
+  const matchResult = matchChaptersMonotonic(existingInputs, incomingInputs)
+  const chapters = ensureClientKeys(applyMatchedClientKeys(existingChapters, incomingRows, matchResult))
+
+  return {
+    chapters,
+    matchDebug: buildChapterMatchDebugByIncomingIndex(existingInputs, matchResult)
+  }
 }
 
 export function getAudioTrackForTime<T extends { startOffset: number; duration: number }>(tracks: T[], time: number): T | null {

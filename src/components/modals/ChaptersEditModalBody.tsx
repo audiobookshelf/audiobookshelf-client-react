@@ -101,6 +101,9 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     removeBranding,
     mapChapterTitles,
     selectedKeys,
+    chapterMatchDebug,
+    chapterMatchDebugActive,
+    showChapterMatchDebug,
     confirmState,
     isPending,
     preview,
@@ -242,6 +245,8 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
             selectedKeys={selectedKeys}
             preview={preview}
             tracks={tracks}
+            showMatchDebug={showChapterMatchDebug && chapterMatchDebugActive}
+            chapterMatchDebug={chapterMatchDebug}
             onAddChapterInputChange={setAddChapterInput}
             onAddChapter={handleAddChapterFromInput}
             onToggleAllSelected={handleToggleAllChaptersSelected}

@@ -1058,7 +1058,7 @@
   "MessageLookupComparison": "Duration found {0}<durationDiff>{1}</durationDiff>. {2} chapters found<chapterWas>{3}</chapterWas>.",
   "MessageM4BFailedWithError": "M4B Failed! {0}",
   "MessageM4BFinished": "M4B Finished!",
-  "MessageMapChapterTitles": "Keep your chapter start times and apply titles from the lookup",
+  "MessageMapChapterTitles": "Use lookup chapters and titles, but keep your start times where chapters match",
   "MessageMarkAllEpisodesFinished": "Mark all episodes finished",
   "MessageMarkAllEpisodesNotFinished": "Mark all episodes not finished",
   "MessageMarkAsFinished": "Mark as Finished",

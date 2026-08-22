@@ -12,6 +12,7 @@ import {
   getChapterDirtyFields,
   getChapterTimeOverflow,
   type ChapterDirtySnapshot,
+  type ChapterMatchDebug,
   type EditableChapter
 } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -44,6 +45,8 @@ interface ChaptersModalTableProps {
   selectedKeys: ReadonlySet<string>
   preview: ChapterPreviewState
   tracks: { startOffset: number; duration: number }[]
+  showMatchDebug?: boolean
+  chapterMatchDebug?: Map<number, ChapterMatchDebug>
   onAddChapterInputChange: (value: string) => void
   onAddChapter: () => void
   onToggleAllSelected: (checked: boolean) => void
@@ -66,6 +69,8 @@ export default function ChaptersModalTable({
   selectedKeys,
   preview,
   tracks,
+  showMatchDebug = false,
+  chapterMatchDebug,
   onAddChapterInputChange,
   onAddChapter,
   onToggleAllSelected,
@@ -134,6 +139,7 @@ export default function ChaptersModalTable({
       const clientKey = chapter.clientKey ?? ''
       const ended = chapterEnds[index]
       const overflow = ended ? getChapterTimeOverflow(ended.start, ended.end, mediaDuration) : null
+      const matchDebug = chapterMatchDebug?.get(index) ?? null
       return (
         <ChapterEditTableRow
           key={chapter.clientKey}
@@ -142,6 +148,8 @@ export default function ChaptersModalTable({
           mediaDuration={mediaDuration}
           startDirty={dirty.start}
           baselineTitle={chapter.clientKey ? dirtyBaseline.get(chapter.clientKey)?.title : undefined}
+          showMatchDebug={showMatchDebug}
+          matchDebug={matchDebug}
           isChecked={!!clientKey && selectedKeys.has(clientKey)}
           isPlaySelected={isPlaySelected}
           isPlayingChapter={isPlaySelected && preview.isPlayingChapter}
@@ -165,6 +173,7 @@ export default function ChaptersModalTable({
     [
       canPlayByChapterId,
       chapterEnds,
+      chapterMatchDebug,
       chapters.length,
       dirtyBaseline,
       mediaDuration,
@@ -176,7 +185,8 @@ export default function ChaptersModalTable({
       onChapterTitleCommit,
       onChapterTitleDraft,
       preview,
-      selectedKeys
+      selectedKeys,
+      showMatchDebug
     ]
   )
 

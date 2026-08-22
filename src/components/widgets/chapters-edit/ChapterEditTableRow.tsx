@@ -6,7 +6,8 @@ import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { EditableChapter } from '@/lib/chapters/chapterEditorUtils'
+import type { ChapterMatchDebug, EditableChapter } from '@/lib/chapters/chapterEditorUtils'
+import { secondsToHmsTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
 import { memo, useCallback, useEffect, useRef, useState } from 'react'
 
@@ -78,6 +79,8 @@ export interface ChapterEditTableRowProps {
   elapsedTime: number
   canPlay: boolean
   overflow?: 'start' | 'end' | null
+  showMatchDebug?: boolean
+  matchDebug?: ChapterMatchDebug | null
   onCheckedChange: (checked: boolean) => void
   onStartChange: (start: number) => void
   onTitleDraft: (title: string) => void
@@ -87,6 +90,10 @@ export interface ChapterEditTableRowProps {
   onPlay: () => void
   onAdjustStartTime: () => void
 }
+
+const MATCH_DEBUG_CLASS = 'text-foreground-muted text-[9px] leading-none ps-3'
+const MATCH_DEBUG_PREFIX = 'was: '
+const MATCH_DEBUG_NONE = '—'
 
 function ChapterEditTableRow({
   chapter,
@@ -101,6 +108,8 @@ function ChapterEditTableRow({
   elapsedTime,
   canPlay,
   overflow = null,
+  showMatchDebug = false,
+  matchDebug = null,
   onCheckedChange,
   onStartChange,
   onTitleDraft,
@@ -130,17 +139,62 @@ function ChapterEditTableRow({
       </td>
 
       <td className={startTimeCellClass}>
-        <DurationPicker
-          value={chapter.start}
-          showThreeDigitHour={mediaDuration >= 360000}
-          size="small"
-          className={startDirty ? 'text-info' : undefined}
-          onChange={onStartChange}
-        />
+        <div className="flex flex-col gap-0.5">
+          <DurationPicker
+            value={chapter.start}
+            showThreeDigitHour={mediaDuration >= 360000}
+            size="small"
+            className={startDirty ? 'text-info' : undefined}
+            onChange={onStartChange}
+          />
+          {showMatchDebug ? (
+            matchDebug ? (
+              <Tooltip
+                lazy
+                text={`${MATCH_DEBUG_PREFIX}${secondsToHmsTimestamp(matchDebug.oldStart)} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
+                position="bottom"
+              >
+                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'font-mono')}>
+                  {MATCH_DEBUG_PREFIX}
+                  {secondsToHmsTimestamp(matchDebug.oldStart)}
+                </span>
+              </Tooltip>
+            ) : (
+              <span className={MATCH_DEBUG_CLASS}>
+                {MATCH_DEBUG_PREFIX}
+                {MATCH_DEBUG_NONE}
+              </span>
+            )
+          ) : null}
+        </div>
       </td>
 
       <td className="min-w-0 px-2 py-2 align-middle">
-        <ChapterTitleInput title={chapter.title} baselineTitle={baselineTitle} onDraft={onTitleDraft} onCommit={onTitleCommit} />
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <ChapterTitleInput title={chapter.title} baselineTitle={baselineTitle} onDraft={onTitleDraft} onCommit={onTitleCommit} />
+          {showMatchDebug ? (
+            matchDebug ? (
+              <Tooltip
+                lazy
+                text={`${MATCH_DEBUG_PREFIX}${matchDebug.oldTitle || MATCH_DEBUG_NONE} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
+                position="bottom"
+              >
+                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'flex min-w-0 items-baseline gap-1')}>
+                  <span className="min-w-0 truncate">
+                    {MATCH_DEBUG_PREFIX}
+                    {matchDebug.oldTitle || MATCH_DEBUG_NONE}
+                  </span>
+                  <span className="shrink-0 font-mono">({matchDebug.matchCost.toFixed(3)})</span>
+                </span>
+              </Tooltip>
+            ) : (
+              <span className={mergeClasses(MATCH_DEBUG_CLASS, 'block min-w-0 truncate')}>
+                {MATCH_DEBUG_PREFIX}
+                {MATCH_DEBUG_NONE}
+              </span>
+            )
+          ) : null}
+        </div>
       </td>
 
       <td className="w-52 min-w-52 px-2 py-2 align-middle">

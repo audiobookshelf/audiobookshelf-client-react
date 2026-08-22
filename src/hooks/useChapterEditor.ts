@@ -28,8 +28,10 @@ import {
   updateChapterStart,
   updateChapterTitle,
   validateChapters,
-  type EditableChapter
+  type EditableChapter,
+  type ChapterMatchDebug
 } from '@/lib/chapters/chapterEditorUtils'
+import { showChapterMatchDebug } from '@/lib/chapters/chapterMatching'
 import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
 import type { AudibleChapterSearchResult, BookLibraryItem, Chapter } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
@@ -74,10 +76,16 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const [removeBranding, setRemoveBranding] = useState(false)
   const [mapChapterTitles, setMapChapterTitles] = useState(false)
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set())
+  const [chapterMatchDebug, setChapterMatchDebug] = useState<Map<number, ChapterMatchDebug>>(() => new Map())
+  const [chapterMatchDebugActive, setChapterMatchDebugActive] = useState(false)
   const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null)
   const titleDraftsRef = useRef<Map<number, string>>(new Map())
   const shiftBaseChaptersRef = useRef<EditableChapter[]>(initChapters(savedChapters, mediaDuration).map((chapter) => ({ ...chapter })))
-  const lookupSnapshotRef = useRef<EditableChapter[] | null>(null)
+
+  /** Saved chapters as editable rows — always the identity baseline for matching (not current editor). */
+  const matchBaselineChapters = useMemo(() => initChapters(savedChapters, mediaDuration), [mediaDuration, savedChapters])
+
+  const cloneMatchBaseline = useCallback(() => matchBaselineChapters.map((chapter) => ({ ...chapter })), [matchBaselineChapters])
 
   const clearTitleDrafts = useCallback(() => {
     titleDraftsRef.current.clear()
@@ -85,13 +93,18 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
 
   const preview = useChapterPreviewAudio({ tracks, token })
 
+  const clearChapterMatchDebug = useCallback(() => {
+    setChapterMatchDebug(new Map())
+    setChapterMatchDebugActive(false)
+  }, [])
+
   const clearLookupUi = useCallback(() => {
-    lookupSnapshotRef.current = null
     setLookupResult(null)
     setLookupBaselineCount(0)
     setMapChapterTitles(false)
     setRemoveBranding(false)
-  }, [])
+    clearChapterMatchDebug()
+  }, [clearChapterMatchDebug])
 
   const validationMessages = useMemo(
     () => ({
@@ -109,7 +122,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
 
   const canMapChapterTitles = useMemo(() => {
     if (!lookupResultForPreview) return false
-    return canMapAudibleChapterTitles(lookupBaselineCount, lookupResultForPreview.chapters.length)
+    return canMapAudibleChapterTitles(lookupBaselineCount)
   }, [lookupBaselineCount, lookupResultForPreview])
 
   const runValidation = useCallback(
@@ -239,14 +252,18 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   )
 
   const applyLookupMerge = useCallback(
-    (data: AudibleChapterSearchResult, snapshot: EditableChapter[], nextMapTitles: boolean, nextRemoveBranding: boolean) => {
+    (data: AudibleChapterSearchResult, matchBaseline: EditableChapter[], nextMapTitles: boolean, nextRemoveBranding: boolean) => {
       const processed = nextRemoveBranding ? removeBrandingFromAudibleData(data) : data
-      const baselineCount = hasNonPlaceholderChapters(snapshot) ? snapshot.length : 0
-      const useMapTitles = nextMapTitles && canMapAudibleChapterTitles(baselineCount, processed.chapters.length)
+      const baselineCount = hasNonPlaceholderChapters(matchBaseline) ? matchBaseline.length : 0
+      const useMapTitles = nextMapTitles && canMapAudibleChapterTitles(baselineCount)
       setMapChapterTitles(useMapTitles)
-      const merged = useMapTitles ? mergeAudibleChapterTitles(snapshot, processed) : mergeAudibleChapterData(processed, mediaDuration)
+      const mergeResult = useMapTitles
+        ? mergeAudibleChapterTitles(matchBaseline, processed, mediaDuration)
+        : mergeAudibleChapterData(processed, mediaDuration, matchBaseline)
+      setChapterMatchDebug(mergeResult.matchDebug)
+      setChapterMatchDebugActive(true)
       preview.destroyAudioEl()
-      replaceChapterList(merged.length ? merged : initChapters([], mediaDuration))
+      replaceChapterList(mergeResult.chapters.length ? mergeResult.chapters : initChapters([], mediaDuration))
     },
     [mediaDuration, preview, replaceChapterList]
   )
@@ -254,41 +271,38 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const handleLookupResult = useCallback(
     (data: AudibleChapterSearchResult) => {
       blurActiveChapterEditorField()
-      const snapshot = applyChapterTitleDrafts(newChapters, titleDraftsRef.current)
-      lookupSnapshotRef.current = snapshot.map((chapter) => ({ ...chapter }))
+      const matchBaseline = cloneMatchBaseline()
       setLookupResult(data)
-      setLookupBaselineCount(hasNonPlaceholderChapters(snapshot) ? snapshot.length : 0)
+      setLookupBaselineCount(hasNonPlaceholderChapters(matchBaseline) ? matchBaseline.length : 0)
       setMapChapterTitles(false)
       setRemoveBranding(false)
       setSelectedKeys(new Set())
-      applyLookupMerge(data, snapshot, false, false)
+      applyLookupMerge(data, matchBaseline, false, false)
     },
-    [applyLookupMerge, newChapters]
+    [applyLookupMerge, cloneMatchBaseline]
   )
 
   const handleMapChapterTitlesChange = useCallback(
     (value: boolean) => {
-      const snapshot = lookupSnapshotRef.current
-      if (!lookupResult || !snapshot) {
+      if (!lookupResult) {
         setMapChapterTitles(value)
         return
       }
-      applyLookupMerge(lookupResult, snapshot, value, removeBranding)
+      applyLookupMerge(lookupResult, cloneMatchBaseline(), value, removeBranding)
     },
-    [applyLookupMerge, lookupResult, removeBranding]
+    [applyLookupMerge, cloneMatchBaseline, lookupResult, removeBranding]
   )
 
   const handleRemoveBrandingChange = useCallback(
     (value: boolean) => {
-      const snapshot = lookupSnapshotRef.current
-      if (!lookupResult || !snapshot) {
+      if (!lookupResult) {
         setRemoveBranding(value)
         return
       }
       setRemoveBranding(value)
-      applyLookupMerge(lookupResult, snapshot, mapChapterTitles, value)
+      applyLookupMerge(lookupResult, cloneMatchBaseline(), mapChapterTitles, value)
     },
-    [applyLookupMerge, lookupResult, mapChapterTitles]
+    [applyLookupMerge, cloneMatchBaseline, lookupResult, mapChapterTitles]
   )
 
   const handleChapterCheckedChange = useCallback(
@@ -322,9 +336,11 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     preview.destroyAudioEl()
     clearLookupUi()
     setSelectedKeys(new Set())
-    const chapters = setChaptersFromTracks(tracks)
-    replaceChapterList(chapters.length ? chapters : initChapters([], mediaDuration))
-  }, [clearLookupUi, mediaDuration, preview, replaceChapterList, tracks])
+    const mergeResult = setChaptersFromTracks(tracks, cloneMatchBaseline())
+    setChapterMatchDebug(mergeResult.matchDebug)
+    setChapterMatchDebugActive(true)
+    replaceChapterList(mergeResult.chapters.length ? mergeResult.chapters : initChapters([], mediaDuration))
+  }, [clearLookupUi, cloneMatchBaseline, mediaDuration, preview, replaceChapterList, tracks])
 
   const handleAddChapterFromInput = useCallback(() => {
     const input = addChapterInput.trim()
@@ -423,6 +439,9 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     removeBranding,
     mapChapterTitles,
     selectedKeys,
+    chapterMatchDebug,
+    chapterMatchDebugActive,
+    showChapterMatchDebug,
     confirmState,
     isPending,
     preview,
