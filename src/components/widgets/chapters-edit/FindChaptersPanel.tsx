@@ -30,7 +30,6 @@ export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPa
 
   const [asinInput, setAsinInput] = useState(() => getInitialAsinFromMetadata(metadata))
   const [regionInput, setRegionInput] = useState<AudibleRegion>(() => getStoredAudibleRegion())
-  const [asinError, setAsinError] = useState<string | null>(null)
 
   useEffect(() => {
     setRegionInput(getStoredAudibleRegion())
@@ -48,14 +47,13 @@ export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPa
       }
 
       setStoredAudibleRegion(region)
-      setAsinError(null)
 
       startTransition(async () => {
         try {
           const data = await searchChaptersAction(trimmedAsin, region)
           const errorMessage = getAudibleChapterLookupErrorMessage(data, t)
           if (errorMessage) {
-            setAsinError(errorMessage)
+            showToast(t('MessageAsinCheck'), { type: 'error', title: errorMessage })
           } else {
             onResult(data)
           }
@@ -74,33 +72,25 @@ export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPa
   }, [asinInput, regionInput, runSearch])
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap items-end gap-2">
-        <TextInput
-          value={asinInput}
-          label="ASIN" // i18n-ignore
-          size="small"
-          className="w-26"
-          onChange={setAsinInput}
-        />
-        <Dropdown
-          label={t('LabelRegion')}
-          value={regionInput}
-          items={regionItems}
-          size="small"
-          className="w-24 min-w-24 shrink-0"
-          onChange={(v) => setRegionInput(String(v) as AudibleRegion)}
-        />
-        <Btn color="bg-primary" size="small" loading={isPending} onClick={handleSearch}>
-          {t('ButtonSearch')}
-        </Btn>
-      </div>
-      {asinError && (
-        <div className="text-error text-sm" role="alert">
-          <p>{asinError}</p>
-          <p>{t('MessageAsinCheck')}</p>
-        </div>
-      )}
+    <div className="flex flex-wrap items-end gap-2">
+      <TextInput
+        value={asinInput}
+        label="ASIN" // i18n-ignore
+        size="small"
+        className="w-26"
+        onChange={setAsinInput}
+      />
+      <Dropdown
+        label={t('LabelRegion')}
+        value={regionInput}
+        items={regionItems}
+        size="small"
+        className="w-24 min-w-24 shrink-0"
+        onChange={(v) => setRegionInput(String(v) as AudibleRegion)}
+      />
+      <Btn color="bg-primary" size="small" loading={isPending} onClick={handleSearch}>
+        {t('ButtonSearch')}
+      </Btn>
     </div>
   )
 }
