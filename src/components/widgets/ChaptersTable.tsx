@@ -1,7 +1,8 @@
 'use client'
 
-import Btn from '@/components/ui/Btn'
+import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
+import Tooltip from '@/components/ui/Tooltip'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -84,22 +85,27 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
 
   const chaptersPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`
 
+  const chaptersActionLabel = isEmpty ? t('ButtonAddChapters') : t('ButtonEditChapters')
+
   const headerActions = useMemo(
     () =>
       userCanUpdate ? (
-        <Btn
-          to={chaptersPath}
-          color="bg-primary"
-          size="small"
-          className="me-2"
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        >
-          {isEmpty ? t('ButtonAddChapters') : t('ButtonEditChapters')}
-        </Btn>
+        <Tooltip text={chaptersActionLabel} position="top">
+          <span className="me-2 inline-flex">
+            <IconBtn
+              to={chaptersPath}
+              size="small"
+              ariaLabel={chaptersActionLabel}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            >
+              {isEmpty ? 'add' : 'edit'}
+            </IconBtn>
+          </span>
+        </Tooltip>
       ) : null,
-    [userCanUpdate, chaptersPath, isEmpty, t]
+    [userCanUpdate, chaptersPath, chaptersActionLabel, isEmpty]
   )
 
   if (isEmpty && !userCanUpdate) {

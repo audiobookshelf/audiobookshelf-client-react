@@ -2,9 +2,10 @@
 
 import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
-import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
+import Tooltip from '@/components/ui/Tooltip'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
@@ -179,23 +180,27 @@ export default function LibraryFilesTable({ libraryItem, keepOpen = false, inMod
     [t, showFullPath, userCanDownload, canDownloadItem, userCanDelete, userIsAdminOrUp, inModal, handleDeleteFile, downloadFile, showMoreInfo]
   )
 
-  const headerActions = useMemo(
-    () =>
-      userIsAdminOrUp ? (
-        <Btn
-          color={showFullPath ? 'bg-button-selected-bg' : ''}
-          size="small"
-          className="mr-2 hidden md:inline-flex"
-          onClick={(e) => {
-            e.stopPropagation()
-            toggleFullPath()
-          }}
-        >
-          {t('ButtonFullPath')}
-        </Btn>
-      ) : null,
-    [userIsAdminOrUp, showFullPath, toggleFullPath, t]
-  )
+  const headerActions = useMemo(() => {
+    const pathToggleLabel = showFullPath ? t('ButtonRelativePath') : t('ButtonFullPath')
+    return userIsAdminOrUp ? (
+      <Tooltip text={pathToggleLabel} position="top">
+        <span className="me-2 hidden md:inline-flex">
+          <IconBtn
+            size="small"
+            ariaLabel={pathToggleLabel}
+            aria-pressed={showFullPath}
+            className={showFullPath ? 'bg-button-selected-bg' : undefined}
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleFullPath()
+            }}
+          >
+            {showFullPath ? 'folder_off' : 'folder'}
+          </IconBtn>
+        </span>
+      </Tooltip>
+    ) : null
+  }, [userIsAdminOrUp, showFullPath, toggleFullPath, t])
 
   return (
     <>

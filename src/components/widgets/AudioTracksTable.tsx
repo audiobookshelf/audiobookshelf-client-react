@@ -2,9 +2,10 @@
 
 import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
-import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
+import Tooltip from '@/components/ui/Tooltip'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -110,8 +111,8 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         cellClassName: 'text-center px-2 py-1 align-middle'
       },
       {
-        label: t('LabelFilename'),
-        accessor: (row: TrackWithAudioFile) => <span className="font-sans text-sm break-all">{showFullPath ? row.metadata.path : row.metadata.filename}</span>,
+        label: t('LabelPath'),
+        accessor: (row: TrackWithAudioFile) => <span className="font-sans text-sm break-all">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>,
         headerClassName: 'text-start px-2 min-w-[300px]',
         cellClassName: 'text-start px-2 py-1 align-middle'
       },
@@ -182,35 +183,43 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
 
   const headerActions = useMemo(() => {
     const audioFileCount = libraryItem.media.audioFiles?.length ?? 0
+    const tracksPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`
     const manageTracksBtn =
       userCanUpdate && !libraryItem.isFile && audioFileCount > 1 ? (
-        <Btn
-          key="manage-tracks"
-          to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`}
-          color="bg-primary"
-          size="small"
-          className="me-2"
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        >
-          {t('ButtonManageTracks')}
-        </Btn>
+        <Tooltip key="manage-tracks" text={t('ButtonManageTracks')} position="top">
+          <span className="me-2 inline-flex">
+            <IconBtn
+              to={tracksPath}
+              size="small"
+              ariaLabel={t('ButtonManageTracks')}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            >
+              edit
+            </IconBtn>
+          </span>
+        </Tooltip>
       ) : null
 
+    const pathToggleLabel = showFullPath ? t('ButtonRelativePath') : t('ButtonFullPath')
     const fullPathBtn = userIsAdminOrUp ? (
-      <Btn
-        key="full-path"
-        color={showFullPath ? 'bg-button-selected-bg' : ''}
-        size="small"
-        className="me-2 hidden md:inline-flex"
-        onClick={(e) => {
-          e.stopPropagation()
-          handleToggleFullPath()
-        }}
-      >
-        {t('ButtonFullPath')}
-      </Btn>
+      <Tooltip key="full-path" text={pathToggleLabel} position="top">
+        <span className="me-2 hidden md:inline-flex">
+          <IconBtn
+            size="small"
+            ariaLabel={pathToggleLabel}
+            aria-pressed={showFullPath}
+            className={showFullPath ? 'bg-button-selected-bg' : undefined}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleToggleFullPath()
+            }}
+          >
+            {showFullPath ? 'folder_off' : 'folder'}
+          </IconBtn>
+        </span>
+      </Tooltip>
     ) : null
 
     return (

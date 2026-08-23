@@ -2,7 +2,6 @@
 
 import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import { updateEbookFileStatusAction } from '@/app/actions/ebookActions'
-import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import IconBtn from '@/components/ui/IconBtn'
@@ -241,23 +240,27 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
     ]
   )
 
-  const headerActions = useMemo(
-    () =>
-      userIsAdminOrUp ? (
-        <Btn
-          color={showFullPath ? 'bg-button-selected-bg' : ''}
-          size="small"
-          className="mr-2 hidden md:inline-flex"
-          onClick={(e) => {
-            e.stopPropagation()
-            toggleFullPath()
-          }}
-        >
-          {t('ButtonFullPath')}
-        </Btn>
-      ) : null,
-    [userIsAdminOrUp, showFullPath, toggleFullPath, t]
-  )
+  const headerActions = useMemo(() => {
+    const pathToggleLabel = showFullPath ? t('ButtonRelativePath') : t('ButtonFullPath')
+    return userIsAdminOrUp ? (
+      <Tooltip text={pathToggleLabel} position="top">
+        <span className="me-2 hidden md:inline-flex">
+          <IconBtn
+            size="small"
+            ariaLabel={pathToggleLabel}
+            aria-pressed={showFullPath}
+            className={showFullPath ? 'bg-button-selected-bg' : undefined}
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleFullPath()
+            }}
+          >
+            {showFullPath ? 'folder_off' : 'folder'}
+          </IconBtn>
+        </span>
+      </Tooltip>
+    ) : null
+  }, [userIsAdminOrUp, showFullPath, toggleFullPath, t])
 
   if (ebookFiles.length === 0) {
     return null
