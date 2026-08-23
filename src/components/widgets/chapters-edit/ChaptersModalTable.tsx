@@ -133,8 +133,8 @@ export default function ChaptersModalTable({
             <Checkbox value={allSelected} partial={someSelected && !allSelected} size="small" ariaLabel={t('LabelSelectAll')} onChange={onToggleAllSelected} />
           </div>
         ),
-        headerClassName: 'text-center px-2 w-10 min-w-10',
-        cellClassName: 'px-2 w-10 min-w-10'
+        headerClassName: 'text-center ps-3 pe-2 w-12 min-w-12',
+        cellClassName: 'ps-3 pe-2 w-12 min-w-12'
       },
       {
         label: t('LabelStart'),
@@ -240,7 +240,7 @@ export default function ChaptersModalTable({
         </table>
         {showBulkHeader && (
           <div className="border-border bg-table-header-bg absolute inset-0 z-20 flex items-center border-b">
-            <div className="flex h-full w-10 min-w-10 items-center justify-center px-2">
+            <div className="flex h-full w-12 min-w-12 items-center justify-center ps-3 pe-2">
               <Checkbox
                 value={allSelected}
                 partial={someSelected && !allSelected}

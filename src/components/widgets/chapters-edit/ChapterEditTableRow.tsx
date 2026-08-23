@@ -132,7 +132,7 @@ function ChapterEditTableRow({
         overflow === 'start' ? 'bg-error/20' : overflow === 'end' ? 'bg-warning/20' : 'even:bg-table-row-bg-even'
       )}
     >
-      <td className="w-10 min-w-10 px-2 py-2 text-center align-middle">
+      <td className="w-12 min-w-12 py-2 ps-3 pe-2 text-center align-middle">
         <div className="flex items-center justify-center">
           <Checkbox value={isChecked} size="small" ariaLabel={chapter.title.trim() || t('LabelTitle')} onChange={onCheckedChange} />
         </div>
