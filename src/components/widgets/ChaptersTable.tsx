@@ -41,7 +41,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
   const columns = useMemo(
     () => [
       {
-        label: 'Id',
+        label: t('LabelId'),
         accessor: 'id' as const,
         headerClassName: 'w-12 min-w-12 px-2 text-start md:w-16 md:min-w-16 md:px-4',
         cellClassName: 'w-12 min-w-12 px-2 text-start md:w-16 md:min-w-16 md:px-4',

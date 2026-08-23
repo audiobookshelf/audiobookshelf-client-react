@@ -501,6 +501,7 @@
   "LabelHoursPlural": "{count, plural, one {# hour} other {# hours}}",
   "LabelIcon": "Icon",
   "LabelIconOptions": "{label} options",
+  "LabelId": "Id",
   "LabelImageURLFromTheWeb": "Image URL from the web",
   "LabelInProgress": "In Progress",
   "LabelInclude": "Include",
