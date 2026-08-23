@@ -415,6 +415,89 @@ export function removeBrandingFromAudibleData(data: AudibleChapterSearchResult):
   }
 }
 
+export interface BulkChapterPattern {
+  before: string
+  after: string
+  startingNumber: number
+  originalPadding: number
+  hasLeadingZeros: boolean
+}
+
+export const BULK_CHAPTER_COUNT_MIN = 1
+export const BULK_CHAPTER_COUNT_MAX = 150
+
+export function clampBulkChapterCount(count: number): number {
+  if (!Number.isFinite(count)) {
+    return BULK_CHAPTER_COUNT_MIN
+  }
+  return Math.min(BULK_CHAPTER_COUNT_MAX, Math.max(BULK_CHAPTER_COUNT_MIN, Math.floor(count)))
+}
+
+export function detectBulkChapterPattern(input: string): BulkChapterPattern | null {
+  const numberMatch = input.match(/(\d+)/)
+  if (!numberMatch || numberMatch.index === undefined) {
+    return null
+  }
+
+  const originalNumberString = numberMatch[1]
+  const foundNumber = parseInt(originalNumberString, 10)
+  const numberIndex = numberMatch.index
+  const beforeNumber = input.substring(0, numberIndex)
+  const afterNumber = input.substring(numberIndex + originalNumberString.length)
+
+  return {
+    before: beforeNumber,
+    after: afterNumber,
+    startingNumber: foundNumber,
+    originalPadding: originalNumberString.length,
+    hasLeadingZeros: originalNumberString.length > 1 && originalNumberString.startsWith('0')
+  }
+}
+
+export function formatNumberWithPadding(number: number, pattern: BulkChapterPattern): string {
+  if (!pattern.hasLeadingZeros || pattern.originalPadding <= 1) {
+    return number.toString()
+  }
+  return number.toString().padStart(pattern.originalPadding, '0')
+}
+
+function appendChaptersWithStaggeredStarts(titles: string[], existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
+  const lastChapter = existingChapters[existingChapters.length - 1]
+  const baseStart = lastChapter ? lastChapter.start + 1 : 0
+
+  const newChapters = titles.map((title, i) => {
+    const newStart = baseStart + i
+    const newEnd = Math.min(newStart + i + i, mediaDuration)
+    return {
+      id: existingChapters.length + i,
+      start: newStart,
+      end: newEnd,
+      title,
+      error: null as string | null
+    }
+  })
+
+  return [...existingChapters, ...newChapters]
+}
+
+export function buildBulkChapters(pattern: BulkChapterPattern, count: number, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
+  const clampedCount = clampBulkChapterCount(count)
+  const titles: string[] = []
+
+  for (let i = 0; i < clampedCount; i++) {
+    const chapterNumber = pattern.startingNumber + i
+    titles.push(`${pattern.before}${formatNumberWithPadding(chapterNumber, pattern)}${pattern.after}`)
+  }
+
+  return appendChaptersWithStaggeredStarts(titles, existingChapters, mediaDuration)
+}
+
+export function buildIdenticalChapters(title: string, count: number, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
+  const clampedCount = clampBulkChapterCount(count)
+  const titles = Array.from({ length: clampedCount }, () => title)
+  return appendChaptersWithStaggeredStarts(titles, existingChapters, mediaDuration)
+}
+
 export function addSingleChapterFromInput(title: string, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
   const lastChapter = existingChapters[existingChapters.length - 1]
   const newStart = lastChapter ? lastChapter.end : 0

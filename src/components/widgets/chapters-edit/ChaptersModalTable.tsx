@@ -7,6 +7,9 @@ import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import {
+  BULK_CHAPTER_COUNT_MAX,
+  BULK_CHAPTER_COUNT_MIN,
+  clampBulkChapterCount,
   computeChapterEnds,
   getAudioTrackForTime,
   getChapterDirtyFields,
@@ -17,7 +20,7 @@ import {
 } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import { CHAPTERS_EDIT_TABLE_ATTR } from '@/lib/chapterEditorFocus'
-import { useCallback, useMemo, type RefObject } from 'react'
+import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react'
 import ChapterEditTableRow from './ChapterEditTableRow'
 
 const TABLE_CLASS = 'table-fixed w-full border-collapse text-sm'
@@ -42,12 +45,14 @@ interface ChaptersModalTableProps {
   dirtyBaseline: Map<string, ChapterDirtySnapshot>
   mediaDuration: number
   addChapterInput: string
+  bulkChapterCount: number
   selectedKeys: ReadonlySet<string>
   preview: ChapterPreviewState
   tracks: { startOffset: number; duration: number }[]
   showMatchDebug?: boolean
   chapterMatchDebug?: Map<number, ChapterMatchDebug>
   onAddChapterInputChange: (value: string) => void
+  onBulkChapterCountChange: (count: number) => void
   onAddChapter: () => void
   onToggleAllSelected: (checked: boolean) => void
   onChapterCheckedChange: (clientKey: string, checked: boolean) => void
@@ -66,12 +71,14 @@ export default function ChaptersModalTable({
   dirtyBaseline,
   mediaDuration,
   addChapterInput,
+  bulkChapterCount,
   selectedKeys,
   preview,
   tracks,
   showMatchDebug = false,
   chapterMatchDebug,
   onAddChapterInputChange,
+  onBulkChapterCountChange,
   onAddChapter,
   onToggleAllSelected,
   onChapterCheckedChange,
@@ -84,6 +91,33 @@ export default function ChaptersModalTable({
   onRemoveSelected
 }: ChaptersModalTableProps) {
   const t = useTypeSafeTranslations()
+  const [countInput, setCountInput] = useState(() => String(bulkChapterCount))
+
+  useEffect(() => {
+    setCountInput(String(bulkChapterCount))
+  }, [bulkChapterCount])
+
+  const handleCountChange = useCallback(
+    (value: string) => {
+      if (value === '') {
+        setCountInput('')
+        return
+      }
+      if (!/^\d+$/.test(value)) {
+        return
+      }
+      const next = clampBulkChapterCount(Number(value))
+      setCountInput(String(next))
+      onBulkChapterCountChange(next)
+    },
+    [onBulkChapterCountChange]
+  )
+
+  const handleCountBlur = useCallback(() => {
+    const next = clampBulkChapterCount(countInput === '' ? BULK_CHAPTER_COUNT_MIN : Number(countInput))
+    setCountInput(String(next))
+    onBulkChapterCountChange(next)
+  }, [countInput, onBulkChapterCountChange])
 
   const selectableKeys = useMemo(() => chapters.map((chapter) => chapter.clientKey).filter((key): key is string => !!key), [chapters])
   const numSelected = selectedKeys.size
@@ -230,13 +264,30 @@ export default function ChaptersModalTable({
         <table className={TABLE_CLASS}>
           <tbody>{chapters.map((chapter, index) => renderEditRow(chapter, index))}</tbody>
         </table>
-        <div className="mt-3 flex items-center gap-2">
+        <div className="mt-3 flex items-end gap-2 px-2 pb-2">
           <TextInput
             value={addChapterInput}
-            placeholder={t('PlaceholderAddChapterTitle')}
+            label={t('LabelAddChapters')}
+            placeholder={t('PlaceholderBulkChapterInput')}
             size="small"
             className="min-w-0 grow text-xs"
             onChange={onAddChapterInputChange}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') onAddChapter()
+            }}
+          />
+          <TextInput
+            type="number"
+            value={countInput}
+            label={t('LabelHowMany')}
+            size="small"
+            min={BULK_CHAPTER_COUNT_MIN}
+            max={BULK_CHAPTER_COUNT_MAX}
+            step={1}
+            className="w-fit shrink-0 text-xs"
+            wrapperClassName="w-16"
+            onChange={handleCountChange}
+            onBlur={handleCountBlur}
             onKeyDown={(e) => {
               if (e.key === 'Enter') onAddChapter()
             }}
@@ -246,7 +297,7 @@ export default function ChaptersModalTable({
               ariaLabel={t('TooltipAddChapters')}
               borderless
               size="small"
-              className={!addChapterInput.trim() ? 'cursor-not-allowed opacity-50' : undefined}
+              className={!addChapterInput.trim() ? 'mb-0.5 cursor-not-allowed opacity-50' : 'mb-0.5'}
               disabled={!addChapterInput.trim()}
               onClick={onAddChapter}
             >

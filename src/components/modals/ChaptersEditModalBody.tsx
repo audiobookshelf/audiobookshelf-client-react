@@ -98,6 +98,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     canMapChapterTitles,
     shiftAmount,
     addChapterInput,
+    bulkChapterCount,
     removeBranding,
     mapChapterTitles,
     selectedKeys,
@@ -111,6 +112,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     handleApplyShift,
     handleLookupResult,
     setAddChapterInput,
+    setBulkChapterCount,
     handleMapChapterTitlesChange,
     handleRemoveBrandingChange,
     handleChapterCheckedChange,
@@ -242,12 +244,14 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
             dirtyBaseline={dirtyBaseline}
             mediaDuration={mediaDuration}
             addChapterInput={addChapterInput}
+            bulkChapterCount={bulkChapterCount}
             selectedKeys={selectedKeys}
             preview={preview}
             tracks={tracks}
             showMatchDebug={showChapterMatchDebug && chapterMatchDebugActive}
             chapterMatchDebug={chapterMatchDebug}
             onAddChapterInputChange={setAddChapterInput}
+            onBulkChapterCountChange={setBulkChapterCount}
             onAddChapter={handleAddChapterFromInput}
             onToggleAllSelected={handleToggleAllChaptersSelected}
             onChapterCheckedChange={handleChapterCheckedChange}

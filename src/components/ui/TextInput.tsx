@@ -21,6 +21,7 @@ export interface TextInputProps {
   showCopy?: boolean
   step?: string | number
   min?: string | number
+  max?: string | number
   customInputClass?: string
   wrapperClassName?: string
   size?: 'small' | 'medium' | 'large' | 'auto'
@@ -52,6 +53,7 @@ export default function TextInput({
   showCopy = false,
   step,
   min,
+  max,
   customInputClass,
   wrapperClassName,
   size = 'medium',
@@ -189,6 +191,7 @@ export default function TextInput({
           type={actualType}
           step={step?.toString()}
           min={min?.toString()}
+          max={max?.toString()}
           readOnly={readOnly}
           disabled={disabled}
           placeholder={placeholder}

@@ -8,13 +8,16 @@ import { useChapterPreviewAudio } from '@/hooks/useChapterPreviewAudio'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import {
-  addSingleChapterFromInput,
   adjustChapterStartTime,
   applyChapterTitleDrafts,
+  buildBulkChapters,
   buildChapterDirtyBaseline,
+  buildIdenticalChapters,
+  clampBulkChapterCount,
   computeChapterEnds,
   computeHasChanges,
   canMapAudibleChapterTitles,
+  detectBulkChapterPattern,
   hasNonPlaceholderChapters,
   initChapters,
   insertChapterBelow,
@@ -73,6 +76,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const [lookupBaselineCount, setLookupBaselineCount] = useState(0)
   const [shiftAmount, setShiftAmount] = useState(0)
   const [addChapterInput, setAddChapterInput] = useState('')
+  const [bulkChapterCount, setBulkChapterCountState] = useState(1)
   const [removeBranding, setRemoveBranding] = useState(false)
   const [mapChapterTitles, setMapChapterTitles] = useState(false)
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set())
@@ -342,12 +346,24 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     replaceChapterList(mergeResult.chapters.length ? mergeResult.chapters : initChapters([], mediaDuration))
   }, [clearLookupUi, cloneMatchBaseline, mediaDuration, preview, replaceChapterList, tracks])
 
+  const setBulkChapterCount = useCallback((count: number) => {
+    setBulkChapterCountState(clampBulkChapterCount(count))
+  }, [])
+
   const handleAddChapterFromInput = useCallback(() => {
     const input = addChapterInput.trim()
     if (!input) return
-    replaceChapterList(addSingleChapterFromInput(input, newChapters, mediaDuration))
+
+    const count = clampBulkChapterCount(bulkChapterCount)
+    const pattern = detectBulkChapterPattern(input)
+    const nextChapters = pattern
+      ? buildBulkChapters(pattern, count, newChapters, mediaDuration)
+      : buildIdenticalChapters(input, count, newChapters, mediaDuration)
+
+    replaceChapterList(nextChapters)
     setAddChapterInput('')
-  }, [addChapterInput, mediaDuration, newChapters, replaceChapterList])
+    setBulkChapterCountState(1)
+  }, [addChapterInput, bulkChapterCount, mediaDuration, newChapters, replaceChapterList])
 
   const handleAdjustChapterStartTime = useCallback(
     (chapterId: number) => {
@@ -436,6 +452,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     canMapChapterTitles,
     shiftAmount,
     addChapterInput,
+    bulkChapterCount,
     removeBranding,
     mapChapterTitles,
     selectedKeys,
@@ -449,6 +466,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     handleApplyShift,
     handleLookupResult,
     setAddChapterInput,
+    setBulkChapterCount,
     handleMapChapterTitlesChange,
     handleRemoveBrandingChange,
     handleChapterCheckedChange,
