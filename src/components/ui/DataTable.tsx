@@ -7,7 +7,7 @@ import Dropdown from './Dropdown'
 import IconBtn from './IconBtn'
 
 /** Tailwind responsive breakpoints */
-export type TailwindBreakpoint = 'sm' | 'md' | 'lg'
+export type TailwindBreakpoint = 'sm' | 'md' | 'lg' | 'xl'
 
 export interface DataTableColumn<T> {
   /** Header label to display */
@@ -216,7 +216,8 @@ export default function DataTable<T>({
     const hiddenClasses: Record<TailwindBreakpoint, string> = {
       sm: 'hidden sm:table-cell',
       md: 'hidden md:table-cell',
-      lg: 'hidden lg:table-cell'
+      lg: 'hidden lg:table-cell',
+      xl: 'hidden xl:table-cell'
     }
     return hiddenClasses[breakpoint]
   }

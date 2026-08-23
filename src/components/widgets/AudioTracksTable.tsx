@@ -17,19 +17,6 @@ import { bytesPretty } from '@/lib/string'
 import { AudioFile, AudioTrack, BookLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
-const MIN_INDEX_WIDTH = 40
-const MIN_ACTIONS_WIDTH = 44
-const MIN_HIDEABLE_COLUMN_WIDTH = 80
-const TABLE_BORDER = 2
-const PATH_MIN_WIDTH = 300
-
-// Calculate minTableWidth for columns
-const BASE_WIDTH = PATH_MIN_WIDTH + TABLE_BORDER + MIN_ACTIONS_WIDTH + MIN_INDEX_WIDTH
-const DURATION_MIN_TABLE_WIDTH = BASE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
-const SIZE_MIN_TABLE_WIDTH = DURATION_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
-const BITRATE_MIN_TABLE_WIDTH = SIZE_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
-const CODEC_MIN_TABLE_WIDTH = BITRATE_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
-
 interface AudioTracksTableProps {
   libraryItem: BookLibraryItem
   keepOpen?: boolean
@@ -107,42 +94,47 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
       {
         label: '#',
         accessor: 'index' as const,
-        headerClassName: 'text-center w-10 px-2 min-w-10',
-        cellClassName: 'text-center px-2 py-1 align-middle'
+        headerClassName: 'w-10 min-w-10 px-2 text-center',
+        cellClassName: 'px-2 py-1 text-center align-middle',
+        hiddenBelow: 'sm' as const
       },
       {
         label: t('LabelPath'),
-        accessor: (row: TrackWithAudioFile) => <span className="font-sans text-sm break-all">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>,
-        headerClassName: 'text-start px-2 min-w-[300px]',
-        cellClassName: 'text-start px-2 py-1 align-middle'
+        accessor: (row: TrackWithAudioFile) => (
+          <>
+            <span className="font-sans text-sm break-all md:hidden">{row.metadata.relPath}</span>
+            <span className="hidden font-sans text-sm break-all md:inline">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>
+          </>
+        ),
+        headerClassName: 'min-w-0 px-2 text-start',
+        cellClassName: 'max-w-0 min-w-0 px-2 py-1 text-start align-middle'
       },
       {
         label: t('LabelCodec'),
         accessor: (row: TrackWithAudioFile) => row.audioFile?.codec || '',
-        headerClassName: 'text-start w-20 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: CODEC_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle',
+        hiddenBelow: 'lg' as const
       },
       {
         label: t('LabelBitrate'),
         accessor: (row: TrackWithAudioFile) => (row.audioFile?.bitRate ? bytesPretty(row.audioFile.bitRate, 0) : ''),
-        headerClassName: 'text-start w-22 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: BITRATE_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle',
+        hiddenBelow: 'xl' as const
       },
       {
         label: t('LabelSize'),
         accessor: (row: TrackWithAudioFile) => bytesPretty(row.metadata.size),
-        headerClassName: 'text-start w-22 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: SIZE_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle',
+        hiddenBelow: 'md' as const
       },
       {
         label: t('LabelDuration'),
         accessor: (row: TrackWithAudioFile) => secondsToTimestamp(row.duration),
-        headerClassName: 'text-start w-22 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: DURATION_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle'
       },
       {
         label: '',
@@ -174,8 +166,8 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
             />
           )
         },
-        headerClassName: 'w-12 min-w-11',
-        cellClassName: 'text-center py-1 align-middle'
+        headerClassName: 'w-11 min-w-11',
+        cellClassName: 'w-11 min-w-11 py-1 text-center align-middle'
       }
     ],
     [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, handleDeleteFile, downloadFile, showMoreInfo]
@@ -255,7 +247,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         headerActions={headerActions}
         className={className}
       >
-        <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} />
+        <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} tableClassName="table-fixed" />
       </CollapsibleSection>
 
       <ConfirmDialog

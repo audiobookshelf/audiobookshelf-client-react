@@ -41,15 +41,22 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
   const columns = useMemo(
     () => [
       {
+        label: 'Id',
+        accessor: 'id' as const,
+        headerClassName: 'w-12 min-w-12 px-2 text-start md:w-16 md:min-w-16 md:px-4',
+        cellClassName: 'w-12 min-w-12 px-2 text-start md:w-16 md:min-w-16 md:px-4',
+        hiddenBelow: 'sm' as const
+      },
+      {
         label: t('LabelTitle'),
-        accessor: 'title' as const,
-        headerClassName: 'text-start px-4',
-        cellClassName: 'px-4'
+        accessor: (row: Chapter) => <span className="break-words">{row.title}</span>,
+        headerClassName: 'min-w-0 px-2 text-start md:px-4',
+        cellClassName: 'max-w-0 min-w-0 px-2 md:px-4'
       },
       {
         label: t('LabelStart'),
-        headerClassName: 'text-center px-2',
-        cellClassName: 'text-center px-2',
+        headerClassName: 'w-20 min-w-20 px-2 text-center md:w-24 md:min-w-24',
+        cellClassName: 'w-20 min-w-20 px-2 text-center md:w-24 md:min-w-24',
         accessor: (row: Chapter) => (
           <div
             className="cursor-pointer text-center font-mono hover:underline"
@@ -74,10 +81,9 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
       },
       {
         label: t('LabelDuration'),
-        headerClassName: 'text-center px-2 w-16 md:w-24 min-w-16 md:min-w-24',
-        cellClassName: 'text-center px-2 font-mono',
-        accessor: (row: Chapter) => secondsToTimestamp(Math.max(0, row.end - row.start)),
-        hiddenBelow: 'md' as const
+        headerClassName: 'w-24 min-w-24 px-2 pe-3 text-center',
+        cellClassName: 'w-24 min-w-24 px-2 pe-3 text-center font-mono',
+        accessor: (row: Chapter) => secondsToTimestamp(Math.max(0, row.end - row.start))
       }
     ],
     [t, handleGoToTimestamp]
@@ -126,7 +132,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
           <p className="text-foreground-muted">{t('MessageNoChapters')}</p>
         </div>
       ) : (
-        <SimpleDataTable data={chapters} columns={columns} getRowKey={(row) => row.id} />
+        <SimpleDataTable data={chapters} columns={columns} getRowKey={(row) => row.id} tableClassName="table-fixed" />
       )}
     </CollapsibleSection>
   )
