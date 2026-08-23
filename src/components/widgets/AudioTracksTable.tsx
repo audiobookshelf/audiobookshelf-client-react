@@ -2,9 +2,10 @@
 
 import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
-import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
+import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable from '@/components/ui/SimpleDataTable'
+import Tooltip from '@/components/ui/Tooltip'
 import CollapsibleSection from '@/components/widgets/CollapsibleSection'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -15,19 +16,6 @@ import { secondsToTimestamp } from '@/lib/datefns'
 import { bytesPretty } from '@/lib/string'
 import { AudioFile, AudioTrack, BookLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
-
-const MIN_INDEX_WIDTH = 40
-const MIN_ACTIONS_WIDTH = 44
-const MIN_HIDEABLE_COLUMN_WIDTH = 80
-const TABLE_BORDER = 2
-const PATH_MIN_WIDTH = 300
-
-// Calculate minTableWidth for columns
-const BASE_WIDTH = PATH_MIN_WIDTH + TABLE_BORDER + MIN_ACTIONS_WIDTH + MIN_INDEX_WIDTH
-const DURATION_MIN_TABLE_WIDTH = BASE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
-const SIZE_MIN_TABLE_WIDTH = DURATION_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
-const BITRATE_MIN_TABLE_WIDTH = SIZE_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
-const CODEC_MIN_TABLE_WIDTH = BITRATE_MIN_TABLE_WIDTH + MIN_HIDEABLE_COLUMN_WIDTH
 
 interface AudioTracksTableProps {
   libraryItem: BookLibraryItem
@@ -106,42 +94,47 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
       {
         label: '#',
         accessor: 'index' as const,
-        headerClassName: 'text-center w-10 px-2 min-w-10',
-        cellClassName: 'text-center px-2 py-1 align-middle'
+        headerClassName: 'w-10 min-w-10 px-2 text-center',
+        cellClassName: 'px-2 py-1 text-center align-middle',
+        hiddenBelow: 'sm' as const
       },
       {
-        label: t('LabelFilename'),
-        accessor: (row: TrackWithAudioFile) => <span className="font-sans text-sm break-all">{showFullPath ? row.metadata.path : row.metadata.filename}</span>,
-        headerClassName: 'text-start px-2 min-w-[300px]',
-        cellClassName: 'text-start px-2 py-1 align-middle'
+        label: t('LabelPath'),
+        accessor: (row: TrackWithAudioFile) => (
+          <>
+            <span className="font-sans text-sm break-all md:hidden">{row.metadata.relPath}</span>
+            <span className="hidden font-sans text-sm break-all md:inline">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>
+          </>
+        ),
+        headerClassName: 'min-w-0 px-2 text-start',
+        cellClassName: 'max-w-0 min-w-0 px-2 py-1 text-start align-middle'
       },
       {
         label: t('LabelCodec'),
         accessor: (row: TrackWithAudioFile) => row.audioFile?.codec || '',
-        headerClassName: 'text-start w-20 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: CODEC_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle',
+        hiddenBelow: 'lg' as const
       },
       {
         label: t('LabelBitrate'),
         accessor: (row: TrackWithAudioFile) => (row.audioFile?.bitRate ? bytesPretty(row.audioFile.bitRate, 0) : ''),
-        headerClassName: 'text-start w-22 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: BITRATE_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle',
+        hiddenBelow: 'xl' as const
       },
       {
         label: t('LabelSize'),
         accessor: (row: TrackWithAudioFile) => bytesPretty(row.metadata.size),
-        headerClassName: 'text-start w-22 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: SIZE_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle',
+        hiddenBelow: 'md' as const
       },
       {
         label: t('LabelDuration'),
         accessor: (row: TrackWithAudioFile) => secondsToTimestamp(row.duration),
-        headerClassName: 'text-start w-22 px-2 min-w-20',
-        cellClassName: 'text-start px-2 py-1 text-sm align-middle',
-        minTableWidth: DURATION_MIN_TABLE_WIDTH
+        headerClassName: 'w-20 min-w-20 px-2 text-start',
+        cellClassName: 'px-2 py-1 text-start text-sm align-middle'
       },
       {
         label: '',
@@ -173,8 +166,8 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
             />
           )
         },
-        headerClassName: 'w-12 min-w-11',
-        cellClassName: 'text-center py-1 align-middle'
+        headerClassName: 'w-11 min-w-11',
+        cellClassName: 'w-11 min-w-11 py-1 text-center align-middle'
       }
     ],
     [t, showFullPath, userCanDownload, userCanDelete, userIsAdminOrUp, handleDeleteFile, downloadFile, showMoreInfo]
@@ -182,35 +175,43 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
 
   const headerActions = useMemo(() => {
     const audioFileCount = libraryItem.media.audioFiles?.length ?? 0
+    const tracksPath = `/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`
     const manageTracksBtn =
       userCanUpdate && !libraryItem.isFile && audioFileCount > 1 ? (
-        <Btn
-          key="manage-tracks"
-          to={`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`}
-          color="bg-primary"
-          size="small"
-          className="me-2"
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
-        >
-          {t('ButtonManageTracks')}
-        </Btn>
+        <Tooltip key="manage-tracks" text={t('ButtonManageTracks')} position="top">
+          <span className="me-2 inline-flex">
+            <IconBtn
+              to={tracksPath}
+              size="small"
+              ariaLabel={t('ButtonManageTracks')}
+              onClick={(e) => {
+                e.stopPropagation()
+              }}
+            >
+              edit
+            </IconBtn>
+          </span>
+        </Tooltip>
       ) : null
 
+    const pathToggleLabel = showFullPath ? t('ButtonRelativePath') : t('ButtonFullPath')
     const fullPathBtn = userIsAdminOrUp ? (
-      <Btn
-        key="full-path"
-        color={showFullPath ? 'bg-button-selected-bg' : ''}
-        size="small"
-        className="me-2 hidden md:inline-flex"
-        onClick={(e) => {
-          e.stopPropagation()
-          handleToggleFullPath()
-        }}
-      >
-        {t('ButtonFullPath')}
-      </Btn>
+      <Tooltip key="full-path" text={pathToggleLabel} position="top">
+        <span className="me-2 hidden md:inline-flex">
+          <IconBtn
+            size="small"
+            ariaLabel={pathToggleLabel}
+            aria-pressed={showFullPath}
+            className={showFullPath ? 'bg-button-selected-bg' : undefined}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleToggleFullPath()
+            }}
+          >
+            {showFullPath ? 'folder_off' : 'folder'}
+          </IconBtn>
+        </span>
+      </Tooltip>
     ) : null
 
     return (
@@ -246,7 +247,7 @@ export default function AudioTracksTable({ libraryItem, keepOpen = false, expand
         headerActions={headerActions}
         className={className}
       >
-        <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} />
+        <SimpleDataTable data={tracksWithAudioFile} columns={columns} getRowKey={(row) => row.index} tableClassName="table-fixed" />
       </CollapsibleSection>
 
       <ConfirmDialog

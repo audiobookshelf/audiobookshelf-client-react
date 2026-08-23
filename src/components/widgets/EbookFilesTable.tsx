@@ -2,7 +2,6 @@
 
 import { deleteLibraryFileAction } from '@/app/actions/audioFileActions'
 import { updateEbookFileStatusAction } from '@/app/actions/ebookActions'
-import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import IconBtn from '@/components/ui/IconBtn'
@@ -19,16 +18,6 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { bytesPretty } from '@/lib/string'
 import { BookLibraryItem, LibraryFile } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
-
-const MIN_ACTIONS_WIDTH = 44
-const MIN_SIZE_WIDTH = 80
-const MIN_READ_WIDTH = 48
-const TABLE_BORDER = 2
-const PATH_MIN_WIDTH = 300
-
-const BASE_WIDTH = PATH_MIN_WIDTH + TABLE_BORDER + MIN_ACTIONS_WIDTH
-const SIZE_MIN_TABLE_WIDTH = BASE_WIDTH + MIN_SIZE_WIDTH
-const READ_MIN_TABLE_WIDTH = SIZE_MIN_TABLE_WIDTH + MIN_READ_WIDTH
 
 interface EbookFilesTableProps {
   libraryItem: BookLibraryItem
@@ -138,7 +127,8 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
           const isPrimary = !row.isSupplementary
           return (
             <span className="break-all">
-              {showFullPath ? row.metadata.path : row.metadata.relPath}
+              <span className="md:hidden">{row.metadata.relPath}</span>
+              <span className="hidden md:inline">{showFullPath ? row.metadata.path : row.metadata.relPath}</span>
               {isPrimary && (
                 <span className="ms-1 inline-block">
                   <Tooltip text={t('LabelPrimaryEbook')} position="top">
@@ -149,21 +139,22 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
             </span>
           )
         },
-        headerClassName: 'text-start px-2 md:px-4 min-w-[300px]',
-        cellClassName: 'text-start px-2 md:px-4 py-1 align-middle'
+        headerClassName: 'min-w-0 px-2 text-start md:px-4',
+        cellClassName: 'max-w-0 min-w-0 px-2 py-1 text-start align-middle md:px-4'
       },
       {
         label: t('LabelSize'),
         accessor: (row: LibraryFile) => bytesPretty(row.metadata.size),
-        headerClassName: 'text-start w-22 min-w-20 px-2',
-        cellClassName: 'text-start py-1 text-xs md:text-sm whitespace-nowrap px-2 align-middle',
-        minTableWidth: SIZE_MIN_TABLE_WIDTH
+        headerClassName: 'w-16 min-w-16 px-1 text-start sm:w-20 sm:min-w-20 sm:px-2',
+        cellClassName: 'w-16 min-w-16 whitespace-nowrap px-1 py-1 text-start text-xs align-middle sm:w-20 sm:min-w-20 sm:px-2 md:text-sm'
       },
       {
         label: (
           <span className="inline-flex items-center gap-1">
             {t('LabelRead')}
-            <HelpTooltipIcon text={t('LabelReadEbookWithoutProgress')} size="sm" />
+            <span className="hidden sm:inline-flex">
+              <HelpTooltipIcon text={t('LabelReadEbookWithoutProgress')} size="sm" />
+            </span>
           </span>
         ),
         accessor: (row: LibraryFile) => (
@@ -180,9 +171,8 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
             auto_stories
           </IconBtn>
         ),
-        headerClassName: 'text-start w-24 min-w-24 px-2',
-        cellClassName: 'text-start py-1 px-2 align-middle',
-        minTableWidth: READ_MIN_TABLE_WIDTH
+        headerClassName: 'w-14 min-w-14 px-1 text-start sm:w-24 sm:min-w-24 sm:px-2',
+        cellClassName: 'w-14 min-w-14 px-1 py-1 text-start align-middle sm:w-24 sm:min-w-24 sm:px-2'
       },
       ...(showMoreColumn
         ? [
@@ -219,8 +209,8 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
                   />
                 )
               },
-              headerClassName: 'w-12 min-w-11',
-              cellClassName: 'text-center py-1 align-middle'
+              headerClassName: 'w-11 min-w-11',
+              cellClassName: 'w-11 min-w-11 py-1 text-center align-middle'
             }
           ]
         : [])
@@ -241,23 +231,27 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
     ]
   )
 
-  const headerActions = useMemo(
-    () =>
-      userIsAdminOrUp ? (
-        <Btn
-          color={showFullPath ? 'bg-button-selected-bg' : ''}
-          size="small"
-          className="mr-2 hidden md:inline-flex"
-          onClick={(e) => {
-            e.stopPropagation()
-            toggleFullPath()
-          }}
-        >
-          {t('ButtonFullPath')}
-        </Btn>
-      ) : null,
-    [userIsAdminOrUp, showFullPath, toggleFullPath, t]
-  )
+  const headerActions = useMemo(() => {
+    const pathToggleLabel = showFullPath ? t('ButtonRelativePath') : t('ButtonFullPath')
+    return userIsAdminOrUp ? (
+      <Tooltip text={pathToggleLabel} position="top">
+        <span className="me-2 hidden md:inline-flex">
+          <IconBtn
+            size="small"
+            ariaLabel={pathToggleLabel}
+            aria-pressed={showFullPath}
+            className={showFullPath ? 'bg-button-selected-bg' : undefined}
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleFullPath()
+            }}
+          >
+            {showFullPath ? 'folder_off' : 'folder'}
+          </IconBtn>
+        </span>
+      </Tooltip>
+    ) : null
+  }, [userIsAdminOrUp, showFullPath, toggleFullPath, t])
 
   if (ebookFiles.length === 0) {
     return null
@@ -273,7 +267,7 @@ export default function EbookFilesTable({ libraryItem, keepOpen = false, expande
         keepOpen={keepOpen}
         headerActions={headerActions}
       >
-        <SimpleDataTable data={ebookFiles} columns={columns} getRowKey={(row) => row.ino} />
+        <SimpleDataTable data={ebookFiles} columns={columns} getRowKey={(row) => row.ino} tableClassName="table-fixed" />
       </CollapsibleSection>
 
       <ConfirmDialog isOpen={!!fileToDelete} message={t('MessageConfirmDeleteFile')} onClose={() => setFileToDelete(null)} onConfirm={handleConfirmDelete} />
