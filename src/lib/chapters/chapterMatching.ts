@@ -31,7 +31,8 @@ export interface ChapterMatchDebug {
   matchCost: number
 }
 
-export const showChapterMatchDebug = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_CHAPTER_MATCH_DEBUG === '1'
+/** Flip to true to show matched-saved start/title (`was: …`) under chapter fields after lookup or Set from Tracks. */
+export const SHOW_CHAPTER_MATCH_DEBUG = false
 
 function normalizeTitle(title: string): string {
   return (title || '').trim().toLowerCase()

@@ -34,7 +34,7 @@ import {
   type EditableChapter,
   type ChapterMatchDebug
 } from '@/lib/chapters/chapterEditorUtils'
-import { showChapterMatchDebug } from '@/lib/chapters/chapterMatching'
+import { SHOW_CHAPTER_MATCH_DEBUG } from '@/lib/chapters/chapterMatching'
 import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
 import type { AudibleChapterSearchResult, BookLibraryItem, Chapter } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
@@ -458,7 +458,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     selectedKeys,
     chapterMatchDebug,
     chapterMatchDebugActive,
-    showChapterMatchDebug,
+    showChapterMatchDebug: SHOW_CHAPTER_MATCH_DEBUG,
     confirmState,
     isPending,
     preview,

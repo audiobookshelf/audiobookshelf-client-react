@@ -93,6 +93,7 @@ export interface ChapterEditTableRowProps {
   onAdjustStartTime: () => void
 }
 
+/** Shown when `SHOW_CHAPTER_MATCH_DEBUG` is true (`src/lib/chapters/chapterMatching.ts`). */
 const MATCH_DEBUG_CLASS = 'text-foreground-muted text-[9px] leading-none ps-3'
 const MATCH_DEBUG_PREFIX = 'was: '
 const MATCH_DEBUG_NONE = '—'
