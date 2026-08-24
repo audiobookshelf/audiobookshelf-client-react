@@ -220,7 +220,6 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 libraryItem={libraryItem}
                 onEdit={() => handleOpenMetadataEdit('details')}
                 onOpenMatch={() => handleOpenMetadataEdit('match')}
-                onOpenChaptersEdit={() => handleOpenMetadataEdit('chapters')}
                 rssFeed={rssFeed ?? null}
                 showPlayButton={showPlayButton}
                 isItemPlaying={isItemPlaying}

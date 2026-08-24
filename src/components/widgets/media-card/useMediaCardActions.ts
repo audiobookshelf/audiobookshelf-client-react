@@ -63,8 +63,6 @@ interface UseMediaCardActionsProps {
   onDeleteSuccess?: () => void
   /** Invoked for the Match menu action. Host owns modal state (card, page, bookshelf, etc.). */
   onOpenMatch?: () => void
-  /** Invoked for the Edit Chapters menu action. Host owns modal state (card, page, bookshelf, etc.). */
-  onOpenChaptersEdit?: () => void
   playerControls: PlayerHandlerControls
 }
 
@@ -89,7 +87,6 @@ export function useMediaCardActions({
   onShareChange,
   onDeleteSuccess,
   onOpenMatch,
-  onOpenChaptersEdit,
   playerControls
 }: UseMediaCardActionsProps) {
   const sortableCompilation = useSortableCompilation()
@@ -289,8 +286,6 @@ export function useMediaCardActions({
             })
           }
         })
-      } else if (action === 'editChapters') {
-        onOpenChaptersEdit?.()
       } else if (action === 'manageTracks') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`)
       } else if (action === 'makeM4b') {
@@ -455,7 +450,6 @@ export function useMediaCardActions({
       toggleFinished,
       onDeleteSuccess,
       onOpenMatch,
-      onOpenChaptersEdit,
       downloadFile,
       showMoreInfo,
       router,
@@ -583,9 +577,6 @@ export function useMediaCardActions({
     }
 
     const toolSubitems: MediaCardMoreMenuSubitem[] = []
-    if (userCanUpdate && isBookMediaWithTracks(media) && onOpenChaptersEdit) {
-      toolSubitems.push({ text: t('ButtonEditChapters'), func: 'editChapters' })
-    }
     if (userCanUpdate && isBookMedia(media) && (media.numAudioFiles ?? 0) > 1) {
       toolSubitems.push({ text: t('ButtonManageTracks'), func: 'manageTracks' })
     }
@@ -699,7 +690,6 @@ export function useMediaCardActions({
     userCanUpdate,
     userIsAdminOrUp,
     onOpenMatch,
-    onOpenChaptersEdit,
     sortableCompilation
   ])
 
