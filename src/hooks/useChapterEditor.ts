@@ -26,6 +26,7 @@ import {
   mergeAudibleChapterTitles,
   removeBrandingFromAudibleData,
   removeChapterAt,
+  savedChapterListsMatch,
   setChaptersFromTracks,
   shiftChapterTimes,
   updateChapterStart,
@@ -36,7 +37,7 @@ import {
 } from '@/lib/chapters/chapterEditorUtils'
 import { SHOW_CHAPTER_MATCH_DEBUG } from '@/lib/chapters/chapterMatching'
 import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
-import type { AudibleChapterSearchResult, BookLibraryItem, Chapter } from '@/types/api'
+import type { AudibleChapterSearchResult, BookLibraryItem, Chapter, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
 interface UseChapterEditorOptions {
@@ -72,6 +73,8 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const [newChapters, setNewChapters] = useState<EditableChapter[]>(() => initChapters(savedChapters, mediaDuration))
   const dirtyBaseline = useMemo(() => buildChapterDirtyBaseline(newChapters, savedChapters, mediaDuration), [mediaDuration, newChapters, savedChapters])
   const [hasChanges, setHasChanges] = useState(false)
+  const hasChangesRef = useRef(hasChanges)
+  hasChangesRef.current = hasChanges
   const [lookupResult, setLookupResult] = useState<AudibleChapterSearchResult | null>(null)
   const [lookupBaselineCount, setLookupBaselineCount] = useState(0)
   const [shiftAmount, setShiftAmount] = useState(0)
@@ -162,13 +165,25 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     [clearTitleDrafts, runValidation]
   )
 
+  const loadSavedChapters = useCallback(
+    (saved: Chapter[], duration: number) => {
+      preview.destroyAudioEl()
+      clearLookupUi()
+      setSelectedKeys(new Set())
+      clearTitleDrafts()
+      const chapters = initChapters(saved, duration)
+      const result = validateChapters(chapters, saved, duration, validationMessages)
+      setNewChapters(result.chapters)
+      setHasChanges(result.hasChanges)
+      shiftBaseChaptersRef.current = result.chapters.map((chapter) => ({ ...chapter }))
+      setShiftAmount(0)
+    },
+    [clearLookupUi, clearTitleDrafts, preview, validationMessages]
+  )
+
   const resetEditorChapters = useCallback(() => {
-    preview.destroyAudioEl()
-    clearLookupUi()
-    setSelectedKeys(new Set())
-    const chapters = initChapters(savedChapters, mediaDuration)
-    replaceChapterList(chapters)
-  }, [clearLookupUi, mediaDuration, preview, replaceChapterList, savedChapters])
+    loadSavedChapters(savedChapters, mediaDuration)
+  }, [loadSavedChapters, mediaDuration, savedChapters])
 
   const refreshAfterChapterUpdate = useCallback(
     async (successToast: string) => {
@@ -177,25 +192,37 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
       if (refreshed.mediaType === 'book') {
         const book = refreshed as BookLibraryItem
         setLibraryItem(book)
-        const saved = book.media.chapters || []
-        const chapters = initChapters(saved, mediaDuration)
-        clearLookupUi()
-        setSelectedKeys(new Set())
-        replaceChapterList(chapters, saved)
+        loadSavedChapters(book.media.chapters || [], book.media.duration ?? 0)
         onItemUpdated?.(book)
       }
     },
-    [clearLookupUi, libraryItem.id, mediaDuration, onItemUpdated, replaceChapterList, showToast]
+    [libraryItem.id, loadSavedChapters, onItemUpdated, showToast]
+  )
+
+  const handleSocketItemUpdated = useCallback(
+    (updated: BookLibraryItem | PodcastLibraryItem) => {
+      if (updated.id !== libraryItem.id || updated.mediaType !== 'book') return
+      if (hasChangesRef.current) return
+
+      const book = updated as BookLibraryItem
+      const nextSaved = book.media.chapters || []
+      const nextDuration = book.media.duration ?? 0
+      const chaptersChanged = nextDuration !== mediaDuration || !savedChapterListsMatch(savedChapters, nextSaved)
+
+      setLibraryItem(book)
+      if (chaptersChanged) {
+        loadSavedChapters(nextSaved, nextDuration)
+      }
+      onItemUpdated?.(book)
+    },
+    [libraryItem.id, loadSavedChapters, mediaDuration, onItemUpdated, savedChapters]
   )
 
   useItemPageSocket({
     libraryItemId: libraryItem.id,
     mediaId: media.id,
     isPodcast: false,
-    onItemUpdated: (updated) => {
-      if (updated.id !== libraryItem.id || updated.mediaType !== 'book') return
-      setLibraryItem(updated as BookLibraryItem)
-    }
+    onItemUpdated: handleSocketItemUpdated
   })
 
   const handleSave = useCallback(

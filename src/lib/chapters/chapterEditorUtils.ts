@@ -66,6 +66,16 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
   return false
 }
 
+/** True when two saved chapter lists match for editor identity (start + title). */
+export function savedChapterListsMatch(a: Chapter[], b: Chapter[]): boolean {
+  if (a.length !== b.length) return false
+  for (let i = 0; i < a.length; i++) {
+    if (!chapterTimesEqual(a[i].start, b[i].start)) return false
+    if ((a[i].title || '').trim() !== (b[i].title || '').trim()) return false
+  }
+  return true
+}
+
 /** Whole seconds for editor display; matches DurationPicker rounding. */
 export function normalizeChapterStartSec(start: number): number {
   if (start == null || Number.isNaN(start)) {

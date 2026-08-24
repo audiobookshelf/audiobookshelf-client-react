@@ -8,7 +8,8 @@ import {
   insertChapterBelow,
   mergeAudibleChapterData,
   mergeAudibleChapterTitles,
-  removeBrandingFromAudibleData
+  removeBrandingFromAudibleData,
+  savedChapterListsMatch
 } from '@/lib/chapters/chapterEditorUtils'
 import type { AudibleChapterSearchResult, Chapter } from '@/types/api'
 
@@ -212,5 +213,27 @@ describe('insertChapterBelow', () => {
     expect(result).to.have.length(3)
     expect(result[2].start).to.equal(101)
     expect(result[2].title).to.equal('')
+  })
+})
+
+describe('savedChapterListsMatch', () => {
+  it('treats the same starts and titles as a match', () => {
+    const a: Chapter[] = [
+      { id: 0, start: 0, end: 100, title: 'Intro' },
+      { id: 1, start: 100, end: 500, title: 'Chapter 1' }
+    ]
+    const b: Chapter[] = [
+      { id: 0, start: 0, end: 100, title: 'Intro' },
+      { id: 1, start: 100, end: 500, title: 'Chapter 1' }
+    ]
+
+    expect(savedChapterListsMatch(a, b)).to.equal(true)
+  })
+
+  it('treats a title change as a mismatch', () => {
+    const a: Chapter[] = [{ id: 0, start: 0, end: 100, title: 'Intro' }]
+    const b: Chapter[] = [{ id: 0, start: 0, end: 100, title: 'Opening' }]
+
+    expect(savedChapterListsMatch(a, b)).to.equal(false)
   })
 })
