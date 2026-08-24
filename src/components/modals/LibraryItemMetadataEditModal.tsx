@@ -34,6 +34,15 @@ function isBookWithAudioTracks(item: BookLibraryItem | PodcastLibraryItem | null
   return !!item && item.mediaType === 'book' && isBookMediaWithTracks(item.media)
 }
 
+/** If the chapters editor is mounted, confirm unsaved edits first; otherwise run `proceed` now. */
+function requestChaptersLeaveOrProceed(handle: ChaptersEditCloseHandle | null, proceed: () => void) {
+  if (handle) {
+    handle.requestLeave(proceed)
+    return
+  }
+  proceed()
+}
+
 interface LibraryItemMetadataEditModalBodyProps {
   isOpen: boolean
   onClose: () => void
@@ -138,33 +147,18 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
     (sectionId: string) => {
       const next = sectionId as MetadataEditSection
       if (next === selectedSection) return
-      if (selectedSection === 'chapters' && chaptersCloseRef.current) {
-        chaptersCloseRef.current.requestLeave(() => setSelectedSection(next))
-        return
-      }
-      setSelectedSection(next)
+      requestChaptersLeaveOrProceed(chaptersCloseRef.current, () => setSelectedSection(next))
     },
     [selectedSection]
   )
 
-  const handleHubBack = useCallback(
-    (proceed: () => void) => {
-      if (selectedSection === 'chapters' && chaptersCloseRef.current) {
-        chaptersCloseRef.current.requestLeave(proceed)
-        return
-      }
-      proceed()
-    },
-    [selectedSection]
-  )
+  const handleHubBack = useCallback((proceed: () => void) => {
+    requestChaptersLeaveOrProceed(chaptersCloseRef.current, proceed)
+  }, [])
 
   const handleClose = useCallback(() => {
-    if (selectedSection === 'chapters' && chaptersCloseRef.current) {
-      chaptersCloseRef.current.requestLeave(onClose)
-      return
-    }
-    onClose()
-  }, [onClose, selectedSection])
+    requestChaptersLeaveOrProceed(chaptersCloseRef.current, onClose)
+  }, [onClose])
 
   return (
     <LibraryItemModal

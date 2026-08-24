@@ -18,11 +18,14 @@ import { isBookMediaWithTracks, type AudibleChapterSearchResult, type BookLibrar
 import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type Ref } from 'react'
 
 export type ChaptersEditCloseHandle = {
+  /** Confirm unsaved chapter edits, then run `onAllow` (e.g. switch section or close). */
   requestLeave: (onAllow: () => void) => void
 }
 
 interface ChaptersEditModalBodyProps {
+  /** Lets the parent intercept leave (section change, hub back, close) while chapters are dirty. */
   closeRequestRef?: Ref<ChaptersEditCloseHandle | null>
+  /** True while a chapter save is in flight, so the parent can show processing on the shell. */
   onPendingChange?: (pending: boolean) => void
 }
 
