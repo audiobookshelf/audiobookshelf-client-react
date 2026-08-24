@@ -66,9 +66,10 @@ export default function ConfirmDialog({
   const previousActiveElementRef = useRef<HTMLElement | null>(null)
 
   const handleConfirm = useCallback(() => {
+    if (processing) return
     onConfirm(checkboxValue)
     setCheckboxValue(false)
-  }, [checkboxValue, onConfirm])
+  }, [checkboxValue, onConfirm, processing])
 
   const handleAlt = useCallback(() => {
     if (processing) return

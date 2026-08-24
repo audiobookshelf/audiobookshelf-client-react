@@ -225,8 +225,12 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     onItemUpdated: handleSocketItemUpdated
   })
 
+  const isSavingRef = useRef(false)
+
   const handleSave = useCallback(
     (onSaved?: () => void) => {
+      if (isSavingRef.current) return false
+
       preview.destroyAudioEl()
       const withDrafts = applyChapterTitleDrafts(newChapters, titleDraftsRef.current)
       clearTitleDrafts()
@@ -250,19 +254,22 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
 
       const successToast = payload.length === 0 ? t('ToastChaptersRemoved') : t('ToastChaptersUpdated')
 
+      isSavingRef.current = true
       startTransition(async () => {
         try {
           const data = await updateChaptersAction(libraryItem.id, payload)
           if (data.updated) {
             await refreshAfterChapterUpdate(successToast)
+            onSaved?.()
           } else {
             showToast(t('MessageNoUpdatesWereNecessary'), { type: 'info' })
             clearLookupUi()
           }
-          onSaved?.()
         } catch (error) {
           console.error('Failed to update chapters', error)
           showToast(t('ToastFailedToUpdate'), { type: 'error' })
+        } finally {
+          isSavingRef.current = false
         }
       })
       return true

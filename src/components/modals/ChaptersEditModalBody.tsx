@@ -204,16 +204,12 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
 
   const handleSaveAndLeave = useCallback(() => {
     const onAllow = pendingLeaveRef.current
-    const started = handleSave(() => {
+    handleSave(() => {
       pendingLeaveRef.current = null
       setShowCloseConfirm(false)
       destroyAudioEl()
       onAllow?.()
     })
-    if (!started) {
-      pendingLeaveRef.current = null
-      setShowCloseConfirm(false)
-    }
   }, [destroyAudioEl, handleSave])
 
   useImperativeHandle(closeRequestRef, () => ({ requestLeave }), [requestLeave])
