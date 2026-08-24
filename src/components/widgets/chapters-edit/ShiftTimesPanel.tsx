@@ -86,7 +86,8 @@ export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShif
           value={inputValue === '-' ? '' : inputValue}
           size="small"
           className="w-fit"
-          wrapperClassName="w-20"
+          wrapperClassName="w-14"
+          customInputClass="no-spinner"
           onChange={handleChange}
           onFocus={() => {
             isFocusedRef.current = true

@@ -27,8 +27,9 @@ const TABLE_CLASS = 'table-fixed w-full border-collapse text-sm'
 const HEADER_CELL_CLASS = 'text-foreground-muted px-2 py-2 text-start text-xs font-semibold'
 
 function startTimeColumnClass(mediaDuration: number, base: 'header' | 'cell'): string {
-  const width = mediaDuration >= 360000 ? 'w-[8.75rem] min-w-[8.75rem]' : 'w-[7.25rem] min-w-[7.25rem]'
-  return base === 'header' ? mergeClasses('text-start px-2', width) : mergeClasses('px-2 align-middle', width)
+  const width =
+    mediaDuration >= 360000 ? 'w-[7.5rem] min-w-[7.5rem] md:w-[8.75rem] md:min-w-[8.75rem]' : 'w-[6.5rem] min-w-[6.5rem] md:w-[7.25rem] md:min-w-[7.25rem]'
+  return base === 'header' ? mergeClasses('text-start px-1 md:px-2', width) : mergeClasses('px-1 align-top md:px-2', width)
 }
 
 interface ChapterPreviewState {
@@ -148,8 +149,8 @@ export default function ChaptersModalTable({
       },
       {
         label: '',
-        headerClassName: 'w-52 min-w-52 px-2',
-        cellClassName: 'w-52 min-w-52 px-2'
+        headerClassName: 'hidden w-44 min-w-44 px-2 md:table-cell',
+        cellClassName: 'hidden w-44 min-w-44 px-2 md:table-cell'
       }
     ],
     [allSelected, mediaDuration, onToggleAllSelected, someSelected, t]
@@ -185,6 +186,7 @@ export default function ChaptersModalTable({
           showMatchDebug={showMatchDebug}
           matchDebug={matchDebug}
           isChecked={!!clientKey && selectedKeys.has(clientKey)}
+          isEvenRow={index % 2 === 1}
           isPlaySelected={isPlaySelected}
           isPlayingChapter={isPlaySelected && preview.isPlayingChapter}
           isLoadingChapter={isPlaySelected && preview.isLoadingChapter}

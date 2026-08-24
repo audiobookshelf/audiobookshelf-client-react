@@ -219,20 +219,24 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     <>
       <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg">
         <div className="bg-bg border-border shrink-0 border-b px-4 py-3">
-          <div className="flex w-full flex-wrap items-end justify-between gap-3">
-            <FindChaptersPanel metadata={media.metadata} onResult={handleLookupResult} />
-            <ShiftTimesFields
-              shiftAmount={shiftAmount}
-              showHelp
-              applyDisabled={!shiftAmount || newChapters.length <= 1}
-              onShiftAmountChange={handleShiftAmountChange}
-              onApplyShift={handleApplyShift}
-            />
-            <div className="flex items-center gap-2">
-              <Btn size="small" onClick={handleSetChaptersFromTracks}>
-                {t('ButtonSetChaptersFromTracks')}
-              </Btn>
-              <HelpTooltipIcon text={t('MessageSetChaptersFromTracksDescription')} />
+          <div className="flex w-full flex-wrap items-end justify-between gap-x-2 gap-y-3">
+            <div className="w-full min-w-0 md:w-auto">
+              <FindChaptersPanel metadata={media.metadata} onResult={handleLookupResult} />
+            </div>
+            <div className="flex w-full shrink-0 items-end justify-between gap-2 md:contents">
+              <ShiftTimesFields
+                shiftAmount={shiftAmount}
+                showHelp
+                applyDisabled={!shiftAmount || newChapters.length <= 1}
+                onShiftAmountChange={handleShiftAmountChange}
+                onApplyShift={handleApplyShift}
+              />
+              <div className="flex shrink-0 items-center gap-1">
+                <Btn size="small" onClick={handleSetChaptersFromTracks}>
+                  {t('ButtonSetChaptersFromTracks')}
+                </Btn>
+                <HelpTooltipIcon text={t('MessageSetChaptersFromTracksDescription')} />
+              </div>
             </div>
           </div>
         </div>
@@ -278,9 +282,11 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
           )}
         >
           {lookupResult && lookupResultForPreview && (
-            <div className="min-w-0 flex-1">
-              <LookupComparison lookupResult={lookupResultForPreview} baselineCount={lookupBaselineCount} mediaDurationRounded={mediaDurationRounded} />
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
+            <div className="grid w-full min-w-0 basis-full grid-cols-2 items-start gap-3 md:flex md:w-auto md:min-w-0 md:flex-1 md:basis-auto md:flex-col md:gap-0">
+              <div className="min-w-0 md:w-full">
+                <LookupComparison lookupResult={lookupResultForPreview} baselineCount={lookupBaselineCount} mediaDurationRounded={mediaDurationRounded} />
+              </div>
+              <div className="flex min-w-0 flex-col gap-y-1 md:mt-2 md:w-full md:flex-row md:flex-wrap md:items-center md:gap-x-4">
                 {canMapChapterTitles && (
                   <div className="flex items-center gap-2">
                     <Checkbox value={mapChapterTitles} label={t('ButtonMapChapterTitles')} size="small" onChange={handleMapChapterTitlesChange} />
@@ -294,7 +300,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
               </div>
             </div>
           )}
-          <div className="ms-auto flex shrink-0 gap-3">
+          <div className="ms-auto flex w-full shrink-0 justify-end gap-3 md:w-auto">
             <Btn
               size="small"
               disabled={footerDisabled}

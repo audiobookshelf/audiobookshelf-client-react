@@ -5,6 +5,7 @@ import DurationPicker from '@/components/ui/DurationPicker'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
+import Indicator from '@/components/widgets/Indicator'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { ChapterMatchDebug, EditableChapter } from '@/lib/chapters/chapterEditorUtils'
 import { secondsToHmsTimestamp } from '@/lib/datefns'
@@ -73,6 +74,7 @@ export interface ChapterEditTableRowProps {
   startDirty?: boolean
   baselineTitle?: string
   isChecked: boolean
+  isEvenRow?: boolean
   isPlaySelected: boolean
   isPlayingChapter: boolean
   isLoadingChapter: boolean
@@ -102,6 +104,7 @@ function ChapterEditTableRow({
   startDirty = false,
   baselineTitle,
   isChecked,
+  isEvenRow = false,
   isPlaySelected,
   isPlayingChapter,
   isLoadingChapter,
@@ -122,148 +125,155 @@ function ChapterEditTableRow({
   const t = useTypeSafeTranslations()
   const overflowTooltip = overflow === 'start' ? t('MessageChapterStartIsAfter') : overflow === 'end' ? t('MessageChapterEndIsAfter') : undefined
   const startTimeCellClass =
-    mediaDuration >= 360000 ? 'w-[8.75rem] min-w-[8.75rem] px-2 py-2 align-middle' : 'w-[7.25rem] min-w-[7.25rem] px-2 py-2 align-middle'
+    mediaDuration >= 360000
+      ? 'w-[7.5rem] min-w-[7.5rem] px-1 py-2 align-top md:w-[8.75rem] md:min-w-[8.75rem] md:px-2'
+      : 'w-[6.5rem] min-w-[6.5rem] px-1 py-2 align-top md:w-[7.25rem] md:min-w-[7.25rem] md:px-2'
+  const rowBgClass = overflow === 'start' ? 'bg-error/20' : overflow === 'end' ? 'bg-warning/20' : isEvenRow ? 'bg-table-row-bg-even' : undefined
+  const rowClass = mergeClasses('border-border hover:bg-table-row-bg-hover', rowBgClass)
+
+  const actions = (
+    <div className="flex max-w-full flex-nowrap items-center">
+      {chapterCount > 1 && (
+        <Tooltip lazy text={t('MessageRemoveChapter')} position="bottom">
+          <IconBtn
+            ariaLabel={t('MessageRemoveChapter')}
+            borderless
+            size="small"
+            className="text-foreground-muted hover:not-disabled:text-error"
+            onClick={onRemove}
+          >
+            delete
+          </IconBtn>
+        </Tooltip>
+      )}
+
+      <Tooltip lazy text={t('MessageInsertChapterBelow')} position="bottom">
+        <IconBtn
+          ariaLabel={t('MessageInsertChapterBelow')}
+          borderless
+          size="small"
+          className="text-foreground-muted hover:not-disabled:text-success"
+          onClick={onInsertBelow}
+        >
+          add_row_below
+        </IconBtn>
+      </Tooltip>
+
+      <Tooltip lazy text={isPlaySelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
+        <IconBtn
+          ariaLabel={isPlaySelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')}
+          borderless
+          size="small"
+          loading={isPlaySelected && isLoadingChapter}
+          className="text-foreground-muted hover:not-disabled:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={!canPlay}
+          onClick={onPlay}
+        >
+          {isPlaySelected && isPlayingChapter ? 'pause' : 'play_arrow'}
+        </IconBtn>
+      </Tooltip>
+
+      <div className="flex min-w-[4ch] shrink-0 items-center justify-end px-1">
+        {chapter.error ? (
+          <span className="inline-flex h-9 items-center justify-center">
+            <Indicator tooltipText={chapter.error} position="left" className="text-error text-lg" ariaLabel={chapter.error}>
+              error_outline
+            </Indicator>
+          </span>
+        ) : (
+          isPlaySelected &&
+          (isPlayingChapter || isLoadingChapter) && (
+            <Tooltip lazy text={t('TooltipAdjustChapterStart')} position="bottom">
+              <button
+                type="button"
+                className="text-foreground-muted hover:text-foreground cursor-pointer font-mono text-xs whitespace-nowrap transition-colors"
+                onClick={onAdjustStartTime}
+              >
+                {elapsedTime}s
+              </button>
+            </Tooltip>
+          )
+        )}
+      </div>
+    </div>
+  )
 
   return (
-    <tr
-      title={overflowTooltip}
-      className={mergeClasses(
-        'border-border hover:bg-table-row-bg-hover border-b',
-        overflow === 'start' ? 'bg-error/20' : overflow === 'end' ? 'bg-warning/20' : 'even:bg-table-row-bg-even'
-      )}
-    >
-      <td className="w-12 min-w-12 py-2 ps-3 pe-2 text-center align-middle">
-        <div className="flex items-center justify-center">
-          <Checkbox value={isChecked} size="small" ariaLabel={chapter.title.trim() || t('LabelTitle')} onChange={onCheckedChange} />
-        </div>
-      </td>
-
-      <td className={startTimeCellClass}>
-        <div className="flex flex-col gap-0.5">
-          <DurationPicker
-            value={chapter.start}
-            showThreeDigitHour={mediaDuration >= 360000}
-            size="small"
-            className={startDirty ? 'text-info' : undefined}
-            onChange={onStartChange}
-          />
-          {showMatchDebug ? (
-            matchDebug ? (
-              <Tooltip
-                lazy
-                text={`${MATCH_DEBUG_PREFIX}${secondsToHmsTimestamp(matchDebug.oldStart)} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
-                position="bottom"
-              >
-                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'font-mono')}>
-                  {MATCH_DEBUG_PREFIX}
-                  {secondsToHmsTimestamp(matchDebug.oldStart)}
-                </span>
-              </Tooltip>
-            ) : (
-              <span className={MATCH_DEBUG_CLASS}>
-                {MATCH_DEBUG_PREFIX}
-                {MATCH_DEBUG_NONE}
-              </span>
-            )
-          ) : null}
-        </div>
-      </td>
-
-      <td className="min-w-0 px-2 py-2 align-middle">
-        <div className="flex min-w-0 flex-col gap-0.5">
-          <ChapterTitleInput title={chapter.title} baselineTitle={baselineTitle} onDraft={onTitleDraft} onCommit={onTitleCommit} />
-          {showMatchDebug ? (
-            matchDebug ? (
-              <Tooltip
-                lazy
-                text={`${MATCH_DEBUG_PREFIX}${matchDebug.oldTitle || MATCH_DEBUG_NONE} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
-                position="bottom"
-              >
-                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'flex min-w-0 items-baseline gap-1')}>
-                  <span className="min-w-0 truncate">
-                    {MATCH_DEBUG_PREFIX}
-                    {matchDebug.oldTitle || MATCH_DEBUG_NONE}
-                  </span>
-                  <span className="shrink-0 font-mono">({matchDebug.matchCost.toFixed(3)})</span>
-                </span>
-              </Tooltip>
-            ) : (
-              <span className={mergeClasses(MATCH_DEBUG_CLASS, 'block min-w-0 truncate')}>
-                {MATCH_DEBUG_PREFIX}
-                {MATCH_DEBUG_NONE}
-              </span>
-            )
-          ) : null}
-        </div>
-      </td>
-
-      <td className="w-52 min-w-52 px-2 py-2 align-middle">
-        <div className="flex shrink-0 items-center">
-          {chapterCount > 1 && (
-            <Tooltip lazy text={t('MessageRemoveChapter')} position="bottom">
-              <IconBtn
-                ariaLabel={t('MessageRemoveChapter')}
-                borderless
-                size="small"
-                className="text-foreground-muted hover:not-disabled:text-error"
-                onClick={onRemove}
-              >
-                delete
-              </IconBtn>
-            </Tooltip>
-          )}
-
-          <Tooltip lazy text={t('MessageInsertChapterBelow')} position="bottom">
-            <IconBtn
-              ariaLabel={t('MessageInsertChapterBelow')}
-              borderless
-              size="small"
-              className="text-foreground-muted hover:not-disabled:text-success"
-              onClick={onInsertBelow}
-            >
-              add_row_below
-            </IconBtn>
-          </Tooltip>
-
-          <Tooltip lazy text={isPlaySelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')} position="bottom">
-            <IconBtn
-              ariaLabel={isPlaySelected && isPlayingChapter ? t('MessagePauseChapter') : t('MessagePlayChapter')}
-              borderless
-              size="small"
-              loading={isPlaySelected && isLoadingChapter}
-              className="text-foreground-muted hover:not-disabled:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-              disabled={!canPlay}
-              onClick={onPlay}
-            >
-              {isPlaySelected && isPlayingChapter ? 'pause' : 'play_arrow'}
-            </IconBtn>
-          </Tooltip>
-
-          <div className="ms-2 min-w-10 shrink-0 text-center">
-            {chapter.error ? (
-              <Tooltip lazy text={chapter.error} position="left" maxWidth={300}>
-                <span className="material-symbols text-error text-lg" aria-label={chapter.error}>
-                  error_outline
-                </span>
-              </Tooltip>
-            ) : (
-              isPlaySelected &&
-              (isPlayingChapter || isLoadingChapter) && (
-                <Tooltip lazy text={t('TooltipAdjustChapterStart')} position="bottom">
-                  <button
-                    type="button"
-                    className="text-foreground-muted hover:text-foreground cursor-pointer font-mono text-xs transition-colors"
-                    onClick={onAdjustStartTime}
-                  >
-                    {elapsedTime}s
-                  </button>
-                </Tooltip>
-              )
-            )}
+    <>
+      <tr title={overflowTooltip} className={mergeClasses(rowClass, 'border-b-0 md:border-b')}>
+        <td className="w-12 min-w-12 py-2 ps-3 pe-2 text-center align-top">
+          <div className="flex items-center justify-center">
+            <Checkbox value={isChecked} size="small" ariaLabel={chapter.title.trim() || t('LabelTitle')} onChange={onCheckedChange} />
           </div>
-        </div>
-      </td>
-    </tr>
+        </td>
+
+        <td className={startTimeCellClass}>
+          <div className="flex flex-col gap-0.5">
+            <DurationPicker
+              value={chapter.start}
+              showThreeDigitHour={mediaDuration >= 360000}
+              size="small"
+              className={startDirty ? 'text-info' : undefined}
+              onChange={onStartChange}
+            />
+            {showMatchDebug ? (
+              matchDebug ? (
+                <Tooltip
+                  lazy
+                  text={`${MATCH_DEBUG_PREFIX}${secondsToHmsTimestamp(matchDebug.oldStart)} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
+                  position="bottom"
+                >
+                  <span className={mergeClasses(MATCH_DEBUG_CLASS, 'font-mono')}>
+                    {MATCH_DEBUG_PREFIX}
+                    {secondsToHmsTimestamp(matchDebug.oldStart)}
+                  </span>
+                </Tooltip>
+              ) : (
+                <span className={MATCH_DEBUG_CLASS}>
+                  {MATCH_DEBUG_PREFIX}
+                  {MATCH_DEBUG_NONE}
+                </span>
+              )
+            ) : null}
+          </div>
+        </td>
+
+        <td className="min-w-0 px-1 py-2 align-top md:px-2">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <ChapterTitleInput title={chapter.title} baselineTitle={baselineTitle} onDraft={onTitleDraft} onCommit={onTitleCommit} />
+            {showMatchDebug ? (
+              matchDebug ? (
+                <Tooltip
+                  lazy
+                  text={`${MATCH_DEBUG_PREFIX}${matchDebug.oldTitle || MATCH_DEBUG_NONE} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
+                  position="bottom"
+                >
+                  <span className={mergeClasses(MATCH_DEBUG_CLASS, 'flex min-w-0 items-baseline gap-1')}>
+                    <span className="min-w-0 truncate">
+                      {MATCH_DEBUG_PREFIX}
+                      {matchDebug.oldTitle || MATCH_DEBUG_NONE}
+                    </span>
+                    <span className="shrink-0 font-mono">({matchDebug.matchCost.toFixed(3)})</span>
+                  </span>
+                </Tooltip>
+              ) : (
+                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'block min-w-0 truncate')}>
+                  {MATCH_DEBUG_PREFIX}
+                  {MATCH_DEBUG_NONE}
+                </span>
+              )
+            ) : null}
+          </div>
+        </td>
+
+        <td className="hidden w-40 min-w-40 px-2 py-2 align-top md:table-cell">{actions}</td>
+      </tr>
+      <tr title={overflowTooltip} className={mergeClasses(rowClass, 'border-b md:hidden')}>
+        <td colSpan={3} className="px0 pt-0 pb-2 align-top">
+          <div className="flex justify-end">{actions}</div>
+        </td>
+      </tr>
+    </>
   )
 }
 
