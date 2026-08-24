@@ -79,10 +79,12 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
     const libraryFiles = (libraryItem.libraryFiles || []) as LibraryFile[]
     return libraryFiles
       .filter((f) => f.fileType === 'image')
-      .map((file): LocalCover => ({
-        ...file,
-        localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
-      }))
+      .map(
+        (file): LocalCover => ({
+          ...file,
+          localPath: getLibraryFileUrl(libraryItem.id, file.ino, libraryItem.updatedAt)
+        })
+      )
   }, [libraryItem.libraryFiles, libraryItem.id, libraryItem.updatedAt])
 
   const searchTitleLabel = provider.startsWith('audible') ? t('LabelSearchTitleOrASIN') : provider === 'itunes' ? t('LabelSearchTerm') : t('LabelSearchTitle')
@@ -323,55 +325,54 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
         </div>
       </div>
 
-      <form onSubmit={submitSearchForm} className="flex flex-wrap items-end gap-2">
-        <Dropdown
-          value={provider}
-          items={providers}
-          disabled={searchInProgress}
-          label={t('LabelProvider')}
-          size="small"
-          className="w-full min-w-40 shrink-0 md:w-48"
-          onChange={(val) => setProvider(String(val))}
-        />
-        <TextInput
-          size="small"
-          value={searchTitle}
-          onChange={setSearchTitle}
-          disabled={searchInProgress}
-          label={searchTitleLabel}
-          placeholder={t('PlaceholderSearch')}
-          className="min-w-0 grow basis-48"
-          trimWhitespace
-        />
-        {showAuthorField && (
+      <form onSubmit={submitSearchForm}>
+        <div
+          className={mergeClasses(
+            'grid items-end gap-x-2 gap-y-3',
+            showAuthorField
+              ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-[10rem_minmax(0,1fr)_minmax(0,1fr)_auto]'
+              : 'grid-cols-1 sm:grid-cols-[10rem_minmax(0,1fr)_auto]'
+          )}
+        >
+          <Dropdown
+            value={provider}
+            items={providers}
+            disabled={searchInProgress}
+            label={t('LabelProvider')}
+            size="small"
+            onChange={(val) => setProvider(String(val))}
+          />
           <TextInput
             size="small"
-            value={searchAuthor}
-            onChange={setSearchAuthor}
+            value={searchTitle}
+            onChange={setSearchTitle}
             disabled={searchInProgress}
-            label={t('LabelAuthor')}
-            className="min-w-0 grow basis-48"
+            label={searchTitleLabel}
+            placeholder={t('PlaceholderSearch')}
             trimWhitespace
           />
-        )}
-        {searchInProgress ? (
-          <Btn
-            size="small"
-            type="button"
-            color="bg-error"
-            onClick={(e) => {
-              e.preventDefault()
-              cancelSearch()
-            }}
-            className="w-24 shrink-0"
-          >
-            {t('ButtonCancel')}
-          </Btn>
-        ) : (
-          <Btn size="small" type="submit" className="w-24 shrink-0">
-            {t('ButtonSearch')}
-          </Btn>
-        )}
+          {showAuthorField && (
+            <TextInput size="small" value={searchAuthor} onChange={setSearchAuthor} disabled={searchInProgress} label={t('LabelAuthor')} trimWhitespace />
+          )}
+          {searchInProgress ? (
+            <Btn
+              size="small"
+              type="button"
+              color="bg-error"
+              onClick={(e) => {
+                e.preventDefault()
+                cancelSearch()
+              }}
+              className="w-full md:w-24"
+            >
+              {t('ButtonCancel')}
+            </Btn>
+          ) : (
+            <Btn size="small" type="submit" className="w-full md:w-24">
+              {t('ButtonSearch')}
+            </Btn>
+          )}
+        </div>
       </form>
 
       {hasSearched && (
