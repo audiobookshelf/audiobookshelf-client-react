@@ -36,6 +36,12 @@ interface ChaptersEditContentProps {
   onItemUpdated?: (item: BookLibraryItem) => void
 }
 
+function lookupDurationMessageKey(durationShorter: boolean, durationLonger: boolean) {
+  if (durationShorter) return 'MessageLookupComparisonDurationShorter'
+  if (durationLonger) return 'MessageLookupComparisonDurationLonger'
+  return 'MessageLookupComparisonDurationMatch'
+}
+
 function LookupComparison({
   lookupResult,
   baselineCount,
@@ -49,26 +55,22 @@ function LookupComparison({
   const foundChapterCount = lookupResult.chapters.length
   const foundDurationSec = lookupResult.runtimeLengthSec
   const countsDiffer = baselineCount !== foundChapterCount
-  const durationShorter = foundDurationSec > mediaDurationRounded
-  const durationLonger = foundDurationSec < mediaDurationRounded
+  const durationShorter = foundDurationSec < mediaDurationRounded
+  const durationLonger = foundDurationSec > mediaDurationRounded
   const durationMatches = !durationShorter && !durationLonger
   const durationDiffSec = Math.abs(foundDurationSec - mediaDurationRounded)
   const durationDiffDescription = formatDuration(durationDiffSec, t, { style: 'long', showSeconds: true })
-  const durationDiffText = durationShorter
-    ? ` ${t('LabelDurationComparisonShorter', { 0: durationDiffDescription })}`
-    : durationLonger
-      ? ` ${t('LabelDurationComparisonLonger', { 0: durationDiffDescription })}`
-      : ` ${t('LabelLookupComparisonSame')}`
-  const chapterWasText = countsDiffer ? t('MessageLookupChaptersWas', { 0: baselineCount }) : ` ${t('LabelLookupComparisonSame')}`
 
   return (
     <p className="text-sm" role="status">
-      {t.rich('MessageLookupComparison', {
-        0: secondsToTimestamp(foundDurationSec),
-        1: durationDiffText,
-        2: foundChapterCount,
-        3: chapterWasText,
-        durationDiff: (chunks) => (durationMatches ? chunks : <span className="text-warning font-semibold">{chunks}</span>),
+      {t.rich(lookupDurationMessageKey(durationShorter, durationLonger), {
+        foundDuration: secondsToTimestamp(foundDurationSec),
+        durationDifference: durationDiffDescription,
+        durationDiff: (chunks) => (durationMatches ? chunks : <span className="text-warning font-semibold">{chunks}</span>)
+      })}{' '}
+      {t.rich(countsDiffer ? 'MessageLookupComparisonChaptersDiffer' : 'MessageLookupComparisonChaptersMatch', {
+        foundCount: foundChapterCount,
+        previousCount: baselineCount,
         chapterWas: (chunks) => (countsDiffer ? <span className="text-warning font-semibold">{chunks}</span> : chunks)
       })}
     </p>
