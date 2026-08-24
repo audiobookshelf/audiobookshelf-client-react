@@ -93,7 +93,7 @@ export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPa
         items={regionItems}
         size="small"
         className="w-24 min-w-24 shrink-0"
-        onChange={(v) => setRegionInput(String(v) as AudibleRegion)}
+        onChange={(v) => setRegionInput(String(v))}
       />
       <Btn type="submit" color="bg-primary" size="small" loading={isPending}>
         {t('ButtonSearch')}

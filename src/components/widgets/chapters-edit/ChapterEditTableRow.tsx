@@ -279,4 +279,4 @@ function ChapterEditTableRow({
   )
 }
 
-export default memo(ChapterEditTableRow)
+export default ChapterEditTableRow
