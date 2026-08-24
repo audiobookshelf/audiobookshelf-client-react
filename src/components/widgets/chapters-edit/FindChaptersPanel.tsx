@@ -72,7 +72,14 @@ export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPa
   }, [asinInput, regionInput, runSearch])
 
   return (
-    <div className="flex flex-wrap items-end gap-2">
+    <form
+      className="flex flex-wrap items-end gap-2"
+      onSubmit={(e) => {
+        e.preventDefault()
+        if (isPending) return
+        handleSearch()
+      }}
+    >
       <TextInput
         value={asinInput}
         label="ASIN" // i18n-ignore
@@ -88,9 +95,9 @@ export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPa
         className="w-24 min-w-24 shrink-0"
         onChange={(v) => setRegionInput(String(v) as AudibleRegion)}
       />
-      <Btn color="bg-primary" size="small" loading={isPending} onClick={handleSearch}>
+      <Btn type="submit" color="bg-primary" size="small" loading={isPending}>
         {t('ButtonSearch')}
       </Btn>
-    </div>
+    </form>
   )
 }
