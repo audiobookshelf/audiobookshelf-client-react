@@ -1,7 +1,11 @@
 import {
+  buildBulkChapters,
   buildChapterDirtyBaseline,
+  buildIdenticalChapters,
+  detectBulkChapterPattern,
   getChapterDirtyFields,
   initChapters,
+  insertChapterBelow,
   mergeAudibleChapterData,
   mergeAudibleChapterTitles,
   removeBrandingFromAudibleData
@@ -130,5 +134,83 @@ describe('mergeAudibleChapterData after remove branding', () => {
     expect(merged[1].clientKey).to.equal('ch-1')
     expect(getChapterDirtyFields(merged[0], baseline).start).to.equal(false)
     expect(getChapterDirtyFields(merged[1], baseline).start).to.equal(false)
+  })
+})
+
+describe('buildIdenticalChapters', () => {
+  it('replaces the empty placeholder instead of appending', () => {
+    const mediaDuration = 500
+    const existing = initChapters([], mediaDuration)
+    const result = buildIdenticalChapters('Chapter 1', 3, existing, mediaDuration)
+
+    expect(existing).to.have.length(1)
+    expect(existing[0].title).to.equal('')
+    expect(result).to.have.length(3)
+    expect(result.map((chapter) => chapter.title)).to.deep.equal(['Chapter 1', 'Chapter 1', 'Chapter 1'])
+    expect(result[0].start).to.equal(0)
+    expect(result[1].start).to.equal(1)
+    expect(result[2].start).to.equal(2)
+  })
+
+  it('appends after existing real chapters', () => {
+    const mediaDuration = 500
+    const existing = initChapters(
+      [
+        { id: 0, start: 0, end: 100, title: 'Intro' },
+        { id: 1, start: 100, end: 500, title: 'Chapter 1' }
+      ],
+      mediaDuration
+    )
+    const result = buildIdenticalChapters('Extra', 2, existing, mediaDuration)
+
+    expect(result).to.have.length(4)
+    expect(result[2].title).to.equal('Extra')
+    expect(result[2].start).to.equal(101)
+    expect(result[3].start).to.equal(102)
+  })
+})
+
+describe('buildBulkChapters', () => {
+  it('replaces the empty placeholder with numbered titles starting at 0:00', () => {
+    const mediaDuration = 500
+    const existing = initChapters([], mediaDuration)
+    const pattern = detectBulkChapterPattern('Episode 1')
+    expect(pattern).to.not.equal(null)
+
+    const result = buildBulkChapters(pattern!, 2, existing, mediaDuration)
+
+    expect(result).to.have.length(2)
+    expect(result[0].title).to.equal('Episode 1')
+    expect(result[0].start).to.equal(0)
+    expect(result[1].title).to.equal('Episode 2')
+    expect(result[1].start).to.equal(1)
+  })
+})
+
+describe('insertChapterBelow', () => {
+  it('inserts at the midpoint so the new start is strictly between neighbors', () => {
+    const chapters = [
+      { id: 0, start: 0, end: 100, title: 'A', error: null, clientKey: 'ch-0' },
+      { id: 1, start: 100, end: 500, title: 'B', error: null, clientKey: 'ch-1' }
+    ]
+    const result = insertChapterBelow(chapters, chapters[0])
+
+    expect(result).to.have.length(3)
+    expect(result[1].title).to.equal('')
+    expect(result[1].start).to.equal(50)
+    expect(result[1].start).to.be.greaterThan(result[0].start)
+    expect(result[1].start).to.be.lessThan(result[2].start)
+  })
+
+  it('inserts one second after the last chapter', () => {
+    const chapters = [
+      { id: 0, start: 0, end: 100, title: 'A', error: null, clientKey: 'ch-0' },
+      { id: 1, start: 100, end: 500, title: 'B', error: null, clientKey: 'ch-1' }
+    ]
+    const result = insertChapterBelow(chapters, chapters[1])
+
+    expect(result).to.have.length(3)
+    expect(result[2].start).to.equal(101)
+    expect(result[2].title).to.equal('')
   })
 })

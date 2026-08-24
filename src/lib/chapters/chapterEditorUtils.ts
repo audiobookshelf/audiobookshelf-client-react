@@ -462,14 +462,15 @@ export function formatNumberWithPadding(number: number, pattern: BulkChapterPatt
 }
 
 function appendChaptersWithStaggeredStarts(titles: string[], existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
-  const lastChapter = existingChapters[existingChapters.length - 1]
+  const baseChapters = isSingleEmptyPlaceholderRow(existingChapters) ? [] : existingChapters
+  const lastChapter = baseChapters[baseChapters.length - 1]
   const baseStart = lastChapter ? lastChapter.start + 1 : 0
 
   const newChapters = titles.map((title, i) => {
     const newStart = baseStart + i
-    const newEnd = Math.min(newStart + i + i, mediaDuration)
+    const newEnd = Math.min(newStart + 1, mediaDuration)
     return {
-      id: existingChapters.length + i,
+      id: baseChapters.length + i,
       start: newStart,
       end: newEnd,
       title,
@@ -477,7 +478,7 @@ function appendChaptersWithStaggeredStarts(titles: string[], existingChapters: E
     }
   })
 
-  return [...existingChapters, ...newChapters]
+  return [...baseChapters, ...newChapters]
 }
 
 export function buildBulkChapters(pattern: BulkChapterPattern, count: number, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
@@ -550,10 +551,12 @@ export function removeChapterAt(chapters: EditableChapter[], id: number): Editab
 }
 
 export function insertChapterBelow(chapters: EditableChapter[], chapter: EditableChapter): EditableChapter[] {
+  const nextChapter = chapters[chapter.id + 1]
+  const start = nextChapter && nextChapter.start > chapter.start + 1 ? Math.floor((chapter.start + nextChapter.start) / 2) : chapter.start + 1
   const insert: EditableChapter = {
     id: chapter.id + 1,
-    start: chapter.start,
-    end: chapter.end,
+    start,
+    end: nextChapter ? nextChapter.start : start,
     title: '',
     error: null
   }
