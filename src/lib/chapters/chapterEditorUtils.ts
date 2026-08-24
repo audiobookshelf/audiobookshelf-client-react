@@ -575,10 +575,6 @@ export function insertChapterBelow(chapters: EditableChapter[], chapter: Editabl
   return updated
 }
 
-export function adjustChapterStartTime(chapters: EditableChapter[], id: number, elapsedTime: number): EditableChapter[] {
-  return chapters.map((c) => (c.id === id ? { ...c, start: c.start + elapsedTime } : c))
-}
-
 export function setChaptersFromTracks(audioFiles: AudioFile[], existingChapters: EditableChapter[] = []): ChapterMergeWithMatchResult {
   let currentStartTime = 0
   let index = 0

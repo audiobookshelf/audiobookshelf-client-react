@@ -94,7 +94,6 @@ export interface ChapterEditTableRowProps {
   onRemove: () => void
   onInsertBelow: () => void
   onPlay: () => void
-  onAdjustStartTime: () => void
 }
 
 /** Shown when `SHOW_CHAPTER_MATCH_DEBUG` is true (`src/lib/chapters/chapterMatching.ts`). */
@@ -126,8 +125,7 @@ function ChapterEditTableRow({
   onTitleCommit,
   onRemove,
   onInsertBelow,
-  onPlay,
-  onAdjustStartTime
+  onPlay
 }: ChapterEditTableRowProps) {
   const t = useTypeSafeTranslations()
   const overflowTooltip = overflow === 'start' ? t('MessageChapterStartIsAfter') : overflow === 'end' ? t('MessageChapterEndIsAfter') : undefined
@@ -189,17 +187,7 @@ function ChapterEditTableRow({
           </span>
         ) : (
           isPlaySelected &&
-          (isPlayingChapter || isLoadingChapter) && (
-            <Tooltip lazy text={t('TooltipAdjustChapterStart')} position="bottom">
-              <button
-                type="button"
-                className="text-foreground-muted hover:text-foreground cursor-pointer font-mono text-xs whitespace-nowrap transition-colors"
-                onClick={onAdjustStartTime}
-              >
-                {elapsedTime}s
-              </button>
-            </Tooltip>
-          )
+          (isPlayingChapter || isLoadingChapter) && <span className="text-foreground-muted font-mono text-xs whitespace-nowrap">{elapsedTime}s</span>
         )}
       </div>
     </div>

@@ -8,7 +8,6 @@ import { useChapterPreviewAudio } from '@/hooks/useChapterPreviewAudio'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import {
-  adjustChapterStartTime,
   applyChapterTitleDrafts,
   buildBulkChapters,
   buildChapterDirtyBaseline,
@@ -399,17 +398,6 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     setBulkChapterCountState(1)
   }, [addChapterInput, bulkChapterCount, mediaDuration, newChapters, replaceChapterList])
 
-  const handleAdjustChapterStartTime = useCallback(
-    (chapterId: number) => {
-      const chapter = newChapters.find((c) => c.id === chapterId)
-      if (!chapter) return
-      runValidation(adjustChapterStartTime(newChapters, chapterId, preview.elapsedTime))
-      showToast(t('ToastChapterStartTimeAdjusted', { 0: preview.elapsedTime }), { type: 'success' })
-      preview.destroyAudioEl()
-    },
-    [newChapters, preview, runValidation, showToast, t]
-  )
-
   const handleChapterStartChange = useCallback(
     (chapterId: number, start: number) => {
       runValidation(updateChapterStart(newChapters, chapterId, start))
@@ -510,7 +498,6 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     setConfirmState,
     handleSave,
     handleAddChapterFromInput,
-    handleAdjustChapterStartTime,
     handleChapterStartChange,
     handleChapterTitleDraft,
     handleChapterTitleCommit,

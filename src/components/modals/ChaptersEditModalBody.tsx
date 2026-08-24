@@ -127,7 +127,6 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     setConfirmState,
     handleSave,
     handleAddChapterFromInput,
-    handleAdjustChapterStartTime,
     handleChapterStartChange,
     handleChapterTitleDraft,
     handleChapterTitleCommit,
@@ -218,62 +217,63 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
 
   return (
     <>
-      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg">
-        <div className="bg-bg border-border shrink-0 border-b px-4 py-3">
-          <div className="flex w-full flex-wrap items-end justify-between gap-x-2 gap-y-3">
-            <div className="w-full min-w-0 md:w-auto">
-              <FindChaptersPanel metadata={media.metadata} onResult={handleLookupResult} />
-            </div>
-            <div className="flex w-full shrink-0 items-end justify-between gap-2 md:contents">
-              <ShiftTimesFields
-                shiftAmount={shiftAmount}
-                showHelp
-                applyDisabled={!shiftAmount || newChapters.length <= 1}
-                onShiftAmountChange={handleShiftAmountChange}
-                onApplyShift={handleApplyShift}
-              />
-              <div className="flex shrink-0 items-center gap-1">
-                <Btn size="small" onClick={handleSetChaptersFromTracks}>
-                  {t('ButtonSetChaptersFromTracks')}
-                </Btn>
-                <HelpTooltipIcon text={t('MessageSetChaptersFromTracksDescription')} />
+      <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg" aria-busy={isPending || undefined}>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden" inert={isPending || undefined}>
+          <div className="bg-bg border-border shrink-0 border-b px-4 py-3">
+            <div className="flex w-full flex-wrap items-end justify-between gap-x-2 gap-y-3">
+              <div className="w-full min-w-0 md:w-auto">
+                <FindChaptersPanel metadata={media.metadata} onResult={handleLookupResult} />
+              </div>
+              <div className="flex w-full shrink-0 items-end justify-between gap-2 md:contents">
+                <ShiftTimesFields
+                  shiftAmount={shiftAmount}
+                  showHelp
+                  applyDisabled={!shiftAmount || newChapters.length <= 1}
+                  onShiftAmountChange={handleShiftAmountChange}
+                  onApplyShift={handleApplyShift}
+                />
+                <div className="flex shrink-0 items-center gap-1">
+                  <Btn size="small" onClick={handleSetChaptersFromTracks}>
+                    {t('ButtonSetChaptersFromTracks')}
+                  </Btn>
+                  <HelpTooltipIcon text={t('MessageSetChaptersFromTracksDescription')} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4">
-          <ChaptersModalTable
-            scrollContainerRef={scrollContainerRef}
-            chapters={newChapters}
-            dirtyBaseline={dirtyBaseline}
-            mediaDuration={mediaDuration}
-            addChapterInput={addChapterInput}
-            bulkChapterCount={bulkChapterCount}
-            selectedKeys={selectedKeys}
-            preview={preview}
-            tracks={tracks}
-            showMatchDebug={showChapterMatchDebug && chapterMatchDebugActive}
-            chapterMatchDebug={chapterMatchDebug}
-            onAddChapterInputChange={setAddChapterInput}
-            onBulkChapterCountChange={setBulkChapterCount}
-            onAddChapter={handleAddChapterFromInput}
-            onToggleAllSelected={handleToggleAllChaptersSelected}
-            onChapterCheckedChange={handleChapterCheckedChange}
-            onChapterStartChange={handleChapterStartChange}
-            onChapterTitleDraft={handleChapterTitleDraft}
-            onChapterTitleCommit={handleChapterTitleCommit}
-            onChapterRemove={handleChapterRemove}
-            onChapterInsertBelow={handleChapterInsertBelow}
-            onAdjustChapterStartTime={handleAdjustChapterStartTime}
-            onRemoveSelected={handleRemoveSelected}
-          />
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4">
+            <ChaptersModalTable
+              scrollContainerRef={scrollContainerRef}
+              chapters={newChapters}
+              dirtyBaseline={dirtyBaseline}
+              mediaDuration={mediaDuration}
+              addChapterInput={addChapterInput}
+              bulkChapterCount={bulkChapterCount}
+              selectedKeys={selectedKeys}
+              preview={preview}
+              tracks={tracks}
+              showMatchDebug={showChapterMatchDebug && chapterMatchDebugActive}
+              chapterMatchDebug={chapterMatchDebug}
+              onAddChapterInputChange={setAddChapterInput}
+              onBulkChapterCountChange={setBulkChapterCount}
+              onAddChapter={handleAddChapterFromInput}
+              onToggleAllSelected={handleToggleAllChaptersSelected}
+              onChapterCheckedChange={handleChapterCheckedChange}
+              onChapterStartChange={handleChapterStartChange}
+              onChapterTitleDraft={handleChapterTitleDraft}
+              onChapterTitleCommit={handleChapterTitleCommit}
+              onChapterRemove={handleChapterRemove}
+              onChapterInsertBelow={handleChapterInsertBelow}
+              onRemoveSelected={handleRemoveSelected}
+            />
 
-          {isPending && (
-            <div className="bg-bg/50 absolute inset-0 z-10 flex items-center justify-center">
-              <LoadingIndicator variant="inline" />
-            </div>
-          )}
+            {isPending && (
+              <div className="bg-bg/50 absolute inset-0 z-10 flex items-center justify-center">
+                <LoadingIndicator variant="inline" />
+              </div>
+            )}
+          </div>
         </div>
 
         <div

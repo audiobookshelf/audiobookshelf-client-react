@@ -62,7 +62,6 @@ interface ChaptersModalTableProps {
   onChapterTitleCommit: (chapterId: number, title: string) => void
   onChapterRemove: (chapterId: number) => void
   onChapterInsertBelow: (chapter: EditableChapter) => void
-  onAdjustChapterStartTime: (chapterId: number) => void
   onRemoveSelected: () => void
 }
 
@@ -88,7 +87,6 @@ export default function ChaptersModalTable({
   onChapterTitleCommit,
   onChapterRemove,
   onChapterInsertBelow,
-  onAdjustChapterStartTime,
   onRemoveSelected
 }: ChaptersModalTableProps) {
   const t = useTypeSafeTranslations()
@@ -209,7 +207,6 @@ export default function ChaptersModalTable({
           onRemove={() => onChapterRemove(chapter.id)}
           onInsertBelow={() => onChapterInsertBelow(chapter)}
           onPlay={() => preview.playChapter(chapter.clientKey ?? chapter.id, chapter.start)}
-          onAdjustStartTime={() => onAdjustChapterStartTime(chapter.id)}
         />
       )
     },
@@ -220,7 +217,6 @@ export default function ChaptersModalTable({
       chapters.length,
       dirtyBaseline,
       mediaDuration,
-      onAdjustChapterStartTime,
       onChapterCheckedChange,
       onChapterInsertBelow,
       onChapterRemove,
