@@ -37,12 +37,6 @@ export function getInitialAsinFromMetadata(metadata: Pick<BookMetadata, 'asin'> 
   return typeof asin === 'string' ? asin.trim() : ''
 }
 
-const ASIN_PATTERN = /^[A-Z0-9]{10}$/
-
-export function isValidAsin(value: string): boolean {
-  return ASIN_PATTERN.test(value.trim().toUpperCase())
-}
-
 export function getAudibleChapterLookupErrorMessage(
   data: { error?: string; stringKey?: string },
   t: (key: 'MessageChaptersNotFound' | 'MessageInvalidAsin') => string

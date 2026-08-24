@@ -509,23 +509,6 @@ export function buildIdenticalChapters(title: string, count: number, existingCha
   return appendChaptersWithStaggeredStarts(titles, existingChapters, mediaDuration)
 }
 
-export function addSingleChapterFromInput(title: string, existingChapters: EditableChapter[], mediaDuration: number): EditableChapter[] {
-  const lastChapter = existingChapters[existingChapters.length - 1]
-  const newStart = lastChapter ? lastChapter.end : 0
-  const newEnd = Math.min(newStart + 300, mediaDuration)
-
-  return [
-    ...existingChapters,
-    {
-      id: existingChapters.length,
-      start: newStart,
-      end: newEnd,
-      title,
-      error: null
-    }
-  ]
-}
-
 export function updateChapterStart(chapters: EditableChapter[], id: number, start: number): EditableChapter[] {
   return chapters.map((c) => (c.id === id ? { ...c, start } : c))
 }

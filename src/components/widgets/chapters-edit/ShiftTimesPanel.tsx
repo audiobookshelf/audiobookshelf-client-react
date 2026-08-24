@@ -115,7 +115,7 @@ export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShif
           }}
         />
         <Btn color="bg-primary" size="small" disabled={applyDisabled} onClick={onApplyShift}>
-          {t('ButtonAdd')}
+          {t('ButtonApply')}
         </Btn>
       </div>
     </div>
