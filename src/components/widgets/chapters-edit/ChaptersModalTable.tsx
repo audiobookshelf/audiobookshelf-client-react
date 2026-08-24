@@ -20,7 +20,7 @@ import {
 } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
 import { CHAPTERS_EDIT_TABLE_ATTR } from '@/lib/chapterEditorFocus'
-import { useCallback, useEffect, useMemo, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useId, useMemo, useState, type RefObject } from 'react'
 import ChapterEditTableRow from './ChapterEditTableRow'
 
 const TABLE_CLASS = 'table-fixed w-full border-collapse text-sm'
@@ -92,6 +92,9 @@ export default function ChaptersModalTable({
   onRemoveSelected
 }: ChaptersModalTableProps) {
   const t = useTypeSafeTranslations()
+  const headerIdPrefix = useId()
+  const startHeaderId = `${headerIdPrefix}-start`
+  const titleHeaderId = `${headerIdPrefix}-title`
   const [countInput, setCountInput] = useState(() => String(bulkChapterCount))
 
   useEffect(() => {
@@ -138,11 +141,13 @@ export default function ChaptersModalTable({
         cellClassName: 'ps-3 pe-2 w-12 min-w-12'
       },
       {
+        id: startHeaderId,
         label: t('LabelStart'),
         headerClassName: startTimeColumnClass(mediaDuration, 'header'),
         cellClassName: startTimeColumnClass(mediaDuration, 'cell')
       },
       {
+        id: titleHeaderId,
         label: t('LabelTitle'),
         headerClassName: 'text-start px-2',
         cellClassName: 'px-2'
@@ -153,7 +158,7 @@ export default function ChaptersModalTable({
         cellClassName: 'hidden w-44 min-w-44 px-2 md:table-cell'
       }
     ],
-    [allSelected, mediaDuration, onToggleAllSelected, someSelected, t]
+    [allSelected, mediaDuration, onToggleAllSelected, someSelected, startHeaderId, t, titleHeaderId]
   )
 
   const canPlayByChapterId = useMemo(() => {
@@ -193,6 +198,8 @@ export default function ChaptersModalTable({
           elapsedTime={isPlaySelected ? preview.elapsedTime : 0}
           canPlay={canPlayByChapterId.get(chapter.id) ?? false}
           overflow={overflow}
+          startHeaderId={startHeaderId}
+          titleHeaderId={titleHeaderId}
           onCheckedChange={(checked) => {
             if (clientKey) onChapterCheckedChange(clientKey, checked)
           }}
@@ -222,7 +229,9 @@ export default function ChaptersModalTable({
       onChapterTitleDraft,
       preview,
       selectedKeys,
-      showMatchDebug
+      showMatchDebug,
+      startHeaderId,
+      titleHeaderId
     ]
   )
 
@@ -230,10 +239,11 @@ export default function ChaptersModalTable({
     <div className="flex min-h-0 flex-1 flex-col" {...{ [CHAPTERS_EDIT_TABLE_ATTR]: true }}>
       <div className="border-border relative shrink-0 overflow-x-auto rounded-t-md border border-b-0">
         <table className={TABLE_CLASS}>
+          <caption className="sr-only">{t('LabelChapters')}</caption>
           <thead className="bg-table-header-bg">
             <tr className="border-border border-b">
               {columns.map((column, index) => (
-                <th key={index} className={mergeClasses(HEADER_CELL_CLASS, column.headerClassName)} scope="col">
+                <th key={index} id={column.id} className={mergeClasses(HEADER_CELL_CLASS, column.headerClassName)} scope="col">
                   {column.label}
                 </th>
               ))}

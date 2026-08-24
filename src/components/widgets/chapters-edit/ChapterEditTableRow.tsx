@@ -16,11 +16,12 @@ interface ChapterTitleInputProps {
   title: string
   /** Saved title for dirty comparison. Omit for unsaved rows (always dirty). */
   baselineTitle?: string
+  ariaLabelledBy?: string
   onDraft: (title: string) => void
   onCommit: (title: string) => void
 }
 
-const ChapterTitleInput = memo(function ChapterTitleInput({ title, baselineTitle, onDraft, onCommit }: ChapterTitleInputProps) {
+const ChapterTitleInput = memo(function ChapterTitleInput({ title, baselineTitle, ariaLabelledBy, onDraft, onCommit }: ChapterTitleInputProps) {
   const [localTitle, setLocalTitle] = useState(title)
   const localTitleRef = useRef(title)
   const isEditingRef = useRef(false)
@@ -60,6 +61,7 @@ const ChapterTitleInput = memo(function ChapterTitleInput({ title, baselineTitle
       size="small"
       className="w-full min-w-0 text-sm"
       customInputClass={isDirty ? 'text-info' : undefined}
+      ariaLabelledBy={ariaLabelledBy}
       onChange={handleChange}
       onFocus={handleFocus}
       onBlur={handleBlur}
@@ -83,6 +85,8 @@ export interface ChapterEditTableRowProps {
   overflow?: 'start' | 'end' | null
   showMatchDebug?: boolean
   matchDebug?: ChapterMatchDebug | null
+  startHeaderId: string
+  titleHeaderId: string
   onCheckedChange: (checked: boolean) => void
   onStartChange: (start: number) => void
   onTitleDraft: (title: string) => void
@@ -114,6 +118,8 @@ function ChapterEditTableRow({
   overflow = null,
   showMatchDebug = false,
   matchDebug = null,
+  startHeaderId,
+  titleHeaderId,
   onCheckedChange,
   onStartChange,
   onTitleDraft,
@@ -215,6 +221,7 @@ function ChapterEditTableRow({
               showThreeDigitHour={mediaDuration >= 360000}
               size="small"
               className={startDirty ? 'text-info' : undefined}
+              ariaLabelledBy={startHeaderId}
               onChange={onStartChange}
             />
             {showMatchDebug ? (
@@ -241,7 +248,13 @@ function ChapterEditTableRow({
 
         <td className="min-w-0 px-1 py-2 align-top md:px-2">
           <div className="flex min-w-0 flex-col gap-0.5">
-            <ChapterTitleInput title={chapter.title} baselineTitle={baselineTitle} onDraft={onTitleDraft} onCommit={onTitleCommit} />
+            <ChapterTitleInput
+              title={chapter.title}
+              baselineTitle={baselineTitle}
+              ariaLabelledBy={titleHeaderId}
+              onDraft={onTitleDraft}
+              onCommit={onTitleCommit}
+            />
             {showMatchDebug ? (
               matchDebug ? (
                 <Tooltip
