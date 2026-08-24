@@ -25,14 +25,23 @@ export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShif
   const fieldId = useId()
   const inputId = `${fieldId}-input`
   const [inputValue, setInputValue] = useState(() => String(shiftAmount))
+  const inputValueRef = useRef(inputValue)
   const isFocusedRef = useRef(false)
   const minusPrefixRef = useRef(false)
 
+  inputValueRef.current = inputValue
+
   useEffect(() => {
-    if (!isFocusedRef.current) {
-      setInputValue(String(shiftAmount))
-      minusPrefixRef.current = false
+    // Incomplete drafts ("", "-") map to parent 0 while focused — don't clobber them.
+    // External resets (apply shift, add/edit chapters, etc.) must still sync the display.
+    if (isFocusedRef.current) {
+      const draft = inputValueRef.current
+      if ((draft === '' || draft === '-') && shiftAmount === 0) {
+        return
+      }
     }
+    setInputValue(String(shiftAmount))
+    minusPrefixRef.current = false
   }, [shiftAmount])
 
   const commitInputValue = (value: string) => {
