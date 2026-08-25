@@ -20,6 +20,7 @@ import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import { BookLibraryItem, BookMetadata, PodcastEpisode, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
+import Link from 'next/link'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import LibraryItemActionButtons from './LibraryItemActionButtons'
 import LibraryItemCover from './LibraryItemCover'
@@ -147,10 +148,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     {bookSeries.map((series, index) => {
                       return (
                         <Fragment key={series.id}>
-                          <a href={`/library/${library.id}/series/${series.id}`} className="text-foreground-muted text-lg hover:underline">
+                          <Link href={`/library/${library.id}/series/${series.id}`} className="text-foreground-muted text-lg hover:underline">
                             {series.name}
                             {series.sequence && <span className="text-foreground-muted text-lg"> #{series.sequence}</span>}
-                          </a>
+                          </Link>
                           {index < bookSeries.length - 1 && <span className="text-foreground-muted text-lg">, </span>}
                         </Fragment>
                       )
@@ -164,9 +165,9 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     {bookAuthors.map((author, index) => {
                       return (
                         <Fragment key={author.id}>
-                          <a href={`/library/${library.id}/authors/${author.id}`} className="text-foreground text-lg hover:underline md:text-xl">
+                          <Link href={`/library/${library.id}/authors/${author.id}`} className="text-foreground text-lg hover:underline md:text-xl">
                             {author.name}
-                          </a>
+                          </Link>
                           {index < bookAuthors.length - 1 && <span className="text-foreground text-lg md:text-xl">, </span>}
                         </Fragment>
                       )

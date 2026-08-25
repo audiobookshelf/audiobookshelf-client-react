@@ -7,6 +7,7 @@ import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
 import { bytesPretty } from '@/lib/string'
 import { LibraryStatsResponse } from '@/types/api'
+import Link from 'next/link'
 import React from 'react'
 
 interface StatCardProps {
@@ -43,7 +44,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
     .map((stat) => ({
       label: stat.genre,
       percentage: Math.round((stat.count / stats.totalItems) * 100),
-      linkHref: `items?filter=genres.${filterEncode(stat.genre)}`
+      linkHref: `/library/${library.id}/items?filter=genres.${filterEncode(stat.genre)}`
     }))
 
   const topAuthors =
@@ -53,21 +54,21 @@ export default function StatsClient({ stats }: StatsClientProps) {
       .map((stat) => ({
         label: `${stat.name}`,
         numBooks: stat.count,
-        linkHref: `authors/${stat.id}`
+        linkHref: `/library/${library.id}/authors/${stat.id}`
       })) ?? []
 
   const longestItems = stats.longestItems
     .sort((a, b) => b.duration - a.duration)
     .map((stat) => ({
       label: stat.title,
-      linkHref: `item/${stat.id}`
+      linkHref: `/library/${library.id}/item/${stat.id}`
     }))
 
   const largestItems = stats.largestItems
     .sort((a, b) => b.size - a.size)
     .map((stat) => ({
       label: stat.title,
-      linkHref: `item/${stat.id}`,
+      linkHref: `/library/${library.id}/item/${stat.id}`,
       size: bytesPretty(stat.size)
     }))
 
@@ -100,9 +101,9 @@ export default function StatsClient({ stats }: StatsClientProps) {
               <div className="mb-1 flex items-end">
                 <p className="text-2xl font-bold">{`${stat.percentage}%`}</p>
                 <div className="grow"></div>
-                <a href={stat.linkHref} className="text-foreground-subdued ml-2 hover:underline">
+                <Link href={stat.linkHref} className="text-foreground-subdued ml-2 hover:underline">
                   {stat.label}
-                </a>
+                </Link>
               </div>
               <div className="bg-primary/50 h-3 w-full overflow-hidden rounded-full">
                 <div className="h-full rounded-full bg-yellow-400" style={{ width: `${stat.percentage}%` }}></div>
@@ -118,9 +119,9 @@ export default function StatsClient({ stats }: StatsClientProps) {
             {topAuthors.map((stat, index) => (
               <div key={index} className="mb-1 flex w-full items-center py-2 last:border-b-0">
                 <span className="text-foreground-subdued pr-1 text-sm">{`${index + 1}. `}</span>
-                <a href={stat.linkHref} className="text-foreground-subdued truncate pr-2 text-sm hover:underline">
+                <Link href={stat.linkHref} className="text-foreground-subdued truncate pr-2 text-sm hover:underline">
                   {stat.label}
-                </a>
+                </Link>
                 <div className="h-2.5 grow overflow-hidden rounded-full"></div>
                 <div className="ml-3 w-4">
                   <p className="text-sm font-bold">{Math.round(stat.numBooks)}</p>
@@ -139,9 +140,9 @@ export default function StatsClient({ stats }: StatsClientProps) {
           {longestItems.map((stat, index) => (
             <div key={index} className="mb-1 flex w-full items-center justify-between py-2 last:border-b-0">
               <span className="text-foreground-subdued pr-1 text-sm">{`${index + 1}. `}</span>
-              <a href={stat.linkHref} className="text-foreground-subdued w-3/4 truncate pr-2 text-sm hover:underline">
+              <Link href={stat.linkHref} className="text-foreground-subdued w-3/4 truncate pr-2 text-sm hover:underline">
                 {`${stat.label}`}
-              </a>
+              </Link>
               <div className="w-1/4 flex-shrink-0 text-right">
                 <p className="text-sm font-bold">{formatDuration(stats.longestItems[index].duration, t)}</p>
               </div>
@@ -155,9 +156,9 @@ export default function StatsClient({ stats }: StatsClientProps) {
           {largestItems.map((stat, index) => (
             <div key={index} className="mb-1 flex w-full items-center justify-between py-2 last:border-b-0">
               <span className="text-foreground-subdued pr-1 text-sm">{`${index + 1}. `}</span>
-              <a href={stat.linkHref} className="text-foreground-subdued w-3/4 truncate pr-2 text-sm hover:underline">
+              <Link href={stat.linkHref} className="text-foreground-subdued w-3/4 truncate pr-2 text-sm hover:underline">
                 {`${stat.label}`}
-              </a>
+              </Link>
               <div className="w-1/4 flex-shrink-0 text-right">
                 {/* Displaying the absolute size directly */}
                 <p className="text-sm font-bold whitespace-nowrap">{stat.size}</p>

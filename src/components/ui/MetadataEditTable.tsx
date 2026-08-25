@@ -3,6 +3,7 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { TranslationKey } from '@/types/translations'
+import Link from 'next/link'
 import { Fragment, useEffect, useRef, useState, useTransition } from 'react'
 import ConfirmDialog from '../widgets/ConfirmDialog'
 import IconBtn from './IconBtn'
@@ -171,9 +172,9 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
     <tr className="group even:bg-primary/20 p-2">
       <td className="p-3.5">
         {showNumBooks ? (
-          <a className="text-foreground text-sm hover:underline md:text-base" title={item.name} href={narratorHref(item)}>
+          <Link className="text-foreground text-sm hover:underline md:text-base" title={item.name} href={narratorHref(item)}>
             {item.name}
-          </a>
+          </Link>
         ) : (
           <span className="text-foreground text-sm md:text-base" title={item.name}>
             {item.name}
@@ -183,9 +184,9 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
       {showNumBooks && (
         <td className="w-1/6 md:table-cell">
           <div className="flex justify-center">
-            <a className="text-foreground text-sm hover:underline md:text-base" href={narratorHref(item)}>
+            <Link className="text-foreground text-sm hover:underline md:text-base" href={narratorHref(item)}>
               {item.numBooks}
-            </a>
+            </Link>
           </div>
         </td>
       )}

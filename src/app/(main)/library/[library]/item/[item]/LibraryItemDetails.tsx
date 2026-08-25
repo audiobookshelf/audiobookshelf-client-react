@@ -5,6 +5,7 @@ import { filterEncode } from '@/lib/filterUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import { bytesPretty } from '@/lib/string'
 import { BookLibraryItem, BookMetadata, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
+import Link from 'next/link'
 import { Fragment } from 'react'
 
 interface LibraryItemDetailsProps {
@@ -27,17 +28,17 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
     if (Array.isArray(value)) {
       displayValue = (value as string[]).map((v, index) => (
         <Fragment key={v}>
-          <a href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(v)}`} className="text-foreground hover:underline">
+          <Link href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(v)}`} className="text-foreground hover:underline">
             {v}
-          </a>
+          </Link>
           {index < (value as string[]).length - 1 && <span className="text-foreground">, </span>}
         </Fragment>
       ))
     } else {
       displayValue = (
-        <a href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(value)}`} className="text-foreground hover:underline">
+        <Link href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(value)}`} className="text-foreground hover:underline">
           {value}
-        </a>
+        </Link>
       )
     }
   } else {
