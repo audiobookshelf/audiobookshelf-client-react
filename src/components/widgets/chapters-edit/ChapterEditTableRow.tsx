@@ -274,7 +274,7 @@ function ChapterEditTableRow({
         <td className="hidden w-40 min-w-40 px-2 py-2 align-top md:table-cell">{actions}</td>
       </tr>
       <tr title={overflowTooltip} className={mergeClasses(rowClass, 'border-b md:hidden')}>
-        <td colSpan={3} className="px0 pt-0 pb-2 align-top">
+        <td colSpan={3} className="pt-0 pb-2 align-top">
           <div className="flex justify-end">{actions}</div>
         </td>
       </tr>

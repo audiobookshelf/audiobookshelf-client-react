@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "rimuovi {0} episodio(i)",
   "MessageRemoveFromPlayerQueue": "Rimuovi dalla coda di riproduzione",
   "MessageRemoveUserWarning": "Sei sicuro di voler eliminare definitivamente l'utente \"{0}\"?",
-  "MessageResetChaptersConfirm": "Sei sicuro di voler reimpostare i capitoli e annullare le modifiche ?",
   "MessageRestoreBackupWarning": "Il ripristino di un backup sovrascriverà l'intero database situato in /config e sovrascrive le immagini in /metadata/items & /metadata/authors.<br></br><br></br>I backup non modificano alcun file nelle cartelle della libreria. Se hai abilitato le impostazioni del server per archiviare copertine e metadati nelle cartelle della libreria, questi non vengono sottoposti a backup o sovrascritti.<br></br><br></br>Tutti i client che utilizzano il tuo server verranno aggiornati automaticamente.",
   "MessageScheduleRunEveryWeekdayAtTime": "Esegui ogni {0} alle {1}",
   "MessageSearchResultsFor": "cerca risultati per",

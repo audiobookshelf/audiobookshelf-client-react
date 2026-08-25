@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Verwijder {0} aflevering(en)",
   "MessageRemoveFromPlayerQueue": "Verwijder uit afspeelwachtrij",
   "MessageRemoveUserWarning": "Weet je zeker dat je gebruiker \"{0}\" permanent wil verwijderen?",
-  "MessageResetChaptersConfirm": "Weet je zeker dat je de hoofdstukken wil resetten en de wijzigingen die je gemaakt hebt ongedaan wil maken?",
   "MessageRestoreBackupWarning": "Een back-up herstellen zal de volledige database in /config en de omslagen in /metadata/items & /metadata/authors overschrijven.<br></br><br></br>Back-ups wijzigen geen bestanden in je bibliotheekmappen. Als je de serverinstelling gebruikt om omslagen en metadata in je bibliotheekmappen te bewaren dan worden deze niet geback-upt of overschreven.<br></br><br></br>Alle apparaten die je server gebruiken, worden automatisch ververst.",
   "MessageScheduleRunEveryWeekdayAtTime": "Elke {0} uitvoeren op {1}",
   "MessageSearchResultsFor": "Zoekresultaten voor",

@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Poista {0} jakso(a)",
   "MessageRemoveFromPlayerQueue": "Poista soittimen jonosta",
   "MessageRemoveUserWarning": "Oletko varma, että haluat poistaa käyttäjän \"{0}\" pysyvästi?",
-  "MessageResetChaptersConfirm": "Oletko varma, että haluat nollata luvut ja kumota tekemäsi muutokset?",
   "MessageRestoreBackupWarning": "Varmuuskopion palauttaminen korvaa koko /config:ssa sijaitsevan tietokannan, ja kansikuvat /metadata/items & /metadata/authors:ssa.<br></br><br></br>Varmuuskopiot eivät muuta kirjastokansioissasi olevia tiedostoja. Jos olet ottanut käyttöön palvelinasetuksissa kansikuvien ja metatietojen tallentamisen kirjaston kansioihin, niitä ei varmuuskopioida tai korvata.<br></br><br></br>Kaikki palvelintasi käyttävät asiakkaat virkistetään automaattisesti.",
   "MessageScheduleRunEveryWeekdayAtTime": "Suorita joka {0} klo {1}",
   "MessageSearchResultsFor": "Hakutulokset haulle",

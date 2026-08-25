@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Usuń {0} odcinków",
   "MessageRemoveFromPlayerQueue": "Usuń z kolejki odtwarzacza",
   "MessageRemoveUserWarning": "Czy na pewno chcesz trwale usunąć użytkownika \"{0}\"?",
-  "MessageResetChaptersConfirm": "Czy na pewno chcesz zresetować rozdziały i cofnąć wprowadzone zmiany?",
   "MessageRestoreBackupWarning": "Przywrócenie kopii zapasowej spowoduje nadpisanie bazy danych w folderze /config oraz okładek w folderze /metadata/items & /metadata/authors.<br></br><br></br>Kopie zapasowe nie modyfikują żadnego pliku w folderach z plikami audio. Jeśli włączyłeś ustawienia serwera, aby przechowywać okładki i metadane w folderach biblioteki, to nie są one zapisywane w kopii zapasowej lub nadpisywane<br></br><br></br>Wszyscy klienci korzystający z Twojego serwera będą automatycznie odświeżani.",
   "MessageScheduleRunEveryWeekdayAtTime": "Uruchom w każdy {0} o {1}",
   "MessageSearchResultsFor": "Wyniki wyszukiwania dla",

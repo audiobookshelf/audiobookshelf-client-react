@@ -623,7 +623,6 @@
   "MessageRemoveEpisodes": "Xóa {0} tập",
   "MessageRemoveFromPlayerQueue": "Xóa khỏi hàng đợi phát",
   "MessageRemoveUserWarning": "Bạn có chắc chắn muốn xóa người dùng \"{0}\" một cách vĩnh viễn không?",
-  "MessageResetChaptersConfirm": "Bạn có chắc chắn muốn đặt lại các chương và hủy những thay đổi bạn đã thực hiện không?",
   "MessageRestoreBackupWarning": "Việc khôi phục bản sao lưu sẽ ghi đè lên toàn bộ cơ sở dữ liệu được đặt tại /config và ảnh bìa trong /metadata/items & /metadata/authors.<br></br><br></br>Bản sao lưu không sửa đổi bất kỳ tệp nào trong các thư mục thư viện của bạn. Nếu bạn đã bật các cài đặt máy chủ để lưu ảnh bìa và dữ liệu phần mềm trong các thư mục thư viện của mình thì chúng sẽ không được sao lưu hoặc ghi đè.<br></br><br></br>Tất cả các máy khách sử dụng máy chủ của bạn sẽ được làm mới tự động.",
   "MessageSearchResultsFor": "Kết quả tìm kiếm cho",
   "MessageSelected": "{0} đã được chọn",
