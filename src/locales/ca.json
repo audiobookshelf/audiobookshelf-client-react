@@ -776,7 +776,6 @@
   "MessageRemoveEpisodes": "Elimina {0} episodi(s)",
   "MessageRemoveFromPlayerQueue": "Elimina de la cua del reproductor",
   "MessageRemoveUserWarning": "Segur que voleu suprimir permanentment l'usuari «{0}»?",
-  "MessageResetChaptersConfirm": "Segur que voleu desfer els canvis i revertir els capítols al seu estat original?",
   "MessageRestoreBackupWarning": "Restaurar sobreescriurà tota la base de dades situada a /config i les imatges de portades a /metadata/items i /metadata/authors.<br></br><br></br>La còpia de seguretat no modifica cap fitxer a les carpetes de la teva biblioteca. Si has activat l'opció del servidor per guardar portades i metadades a les carpetes de la biblioteca, aquests fitxers no es guarden ni sobreescriuen.<br></br><br></br>Tots els clients que utilitzin el teu servidor s'actualitzaran automàticament.",
   "MessageScheduleRunEveryWeekdayAtTime": "Executa cada {0} a les {1}",
   "MessageSearchResultsFor": "Resultats de la cerca de",

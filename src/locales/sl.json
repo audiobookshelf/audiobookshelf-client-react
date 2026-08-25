@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Odstrani toliko epizod: {0}",
   "MessageRemoveFromPlayerQueue": "Odstrani iz čakalne vrste predvajalnika",
   "MessageRemoveUserWarning": "Ali ste prepričani, da želite trajno izbrisati uporabnika \"{0}\"?",
-  "MessageResetChaptersConfirm": "Ali ste prepričani, da želite ponastaviti poglavja in razveljaviti spremembe, ki ste jih naredili?",
   "MessageRestoreBackupWarning": "Obnovitev varnostne kopije bo prepisala celotno zbirko podatkov, ki se nahaja v /config, in zajema slike v /metadata/items in /metadata/authors.<br></br><br></br>Varnostne kopije ne spreminjajo nobenih datotek v mapah vaše knjižnice. Če ste omogočili nastavitve strežnika za shranjevanje naslovnic in metapodatkov v mapah vaše knjižnice, potem ti niso varnostno kopirani ali prepisani.<br></br><br></br>Vsi odjemalci, ki uporabljajo vaš strežnik, bodo samodejno osveženi.",
   "MessageScheduleRunEveryWeekdayAtTime": "Zaženi vsakih {0} ob {1}",
   "MessageSearchResultsFor": "Rezultati iskanja za",

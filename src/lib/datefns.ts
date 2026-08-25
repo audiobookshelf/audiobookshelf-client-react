@@ -57,3 +57,18 @@ export function secondsToTimestamp(seconds: number): string {
   }
   return `${pad(minutes)}:${pad(secs)}`
 }
+
+/** Always HH:MM:SS, including leading hours (e.g. 125 → "00:02:05"). */
+export function secondsToHmsTimestamp(seconds: number): string {
+  if (seconds == null || isNaN(seconds) || seconds < 0) {
+    return '00:00:00'
+  }
+
+  const total = Math.floor(seconds)
+  const hours = Math.floor(total / 3600)
+  const minutes = Math.floor((total % 3600) / 60)
+  const secs = total % 60
+  const pad = (num: number) => num.toString().padStart(2, '0')
+
+  return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`
+}

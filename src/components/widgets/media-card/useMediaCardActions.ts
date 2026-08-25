@@ -286,8 +286,6 @@ export function useMediaCardActions({
             })
           }
         })
-      } else if (action === 'editChapters') {
-        router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/chapters`)
       } else if (action === 'manageTracks') {
         router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}/tracks`)
       } else if (action === 'makeM4b') {
@@ -579,9 +577,6 @@ export function useMediaCardActions({
     }
 
     const toolSubitems: MediaCardMoreMenuSubitem[] = []
-    if (userCanUpdate && isBookMediaWithTracks(media)) {
-      toolSubitems.push({ text: t('ButtonEditChapters'), func: 'editChapters' })
-    }
     if (userCanUpdate && isBookMedia(media) && (media.numAudioFiles ?? 0) > 1) {
       toolSubitems.push({ text: t('ButtonManageTracks'), func: 'manageTracks' })
     }

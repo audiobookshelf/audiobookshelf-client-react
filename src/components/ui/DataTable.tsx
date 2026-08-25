@@ -317,6 +317,9 @@ export default function DataTable<T>({
     </tr>
   )
 
+  const bulkSelectedLabel =
+    typeof bulkActions?.selectedLabel === 'function' ? bulkActions.selectedLabel(numSelectedRows) : bulkActions?.selectedLabel || `${numSelectedRows} selected`
+
   const renderHeaderCell = (column: DataTableColumn<T>, index: number) => {
     const sortKey = column.sortKey || (typeof column.accessor === 'string' ? String(column.accessor) : undefined)
     const isSortable = !!sorting && !!column.sortable && !!sortKey
@@ -358,9 +361,6 @@ export default function DataTable<T>({
       </th>
     )
   }
-
-  const bulkSelectedLabel =
-    typeof bulkActions?.selectedLabel === 'function' ? bulkActions.selectedLabel(numSelectedRows) : bulkActions?.selectedLabel || `${numSelectedRows} selected`
 
   const renderSelectionHeaderCell = () => {
     if (!selection) return null

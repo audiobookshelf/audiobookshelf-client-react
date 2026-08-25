@@ -1,6 +1,6 @@
 import type { BookMetadata } from '@/types/api'
 
-export const AUDIBLE_REGIONS = ['US', 'CA', 'UK', 'AU', 'FR', 'DE', 'JP', 'IT', 'IN', 'ES'] as const
+export const AUDIBLE_REGIONS: string[] = ['US', 'CA', 'UK', 'AU', 'FR', 'DE', 'JP', 'IT', 'IN', 'ES']
 
 export type AudibleRegion = (typeof AUDIBLE_REGIONS)[number]
 
@@ -14,8 +14,8 @@ export function getStoredAudibleRegion(): AudibleRegion {
   }
 
   const stored = localStorage.getItem(AUDIBLE_REGION_STORAGE_KEY)
-  if (stored && (AUDIBLE_REGIONS as readonly string[]).includes(stored)) {
-    return stored as AudibleRegion
+  if (stored && AUDIBLE_REGIONS.includes(stored)) {
+    return stored
   }
 
   return DEFAULT_AUDIBLE_REGION
@@ -26,7 +26,7 @@ export function setStoredAudibleRegion(region: string): void {
     return
   }
 
-  if ((AUDIBLE_REGIONS as readonly string[]).includes(region)) {
+  if (AUDIBLE_REGIONS.includes(region)) {
     localStorage.setItem(AUDIBLE_REGION_STORAGE_KEY, region)
   }
 }
@@ -35,4 +35,14 @@ export function setStoredAudibleRegion(region: string): void {
 export function getInitialAsinFromMetadata(metadata: Pick<BookMetadata, 'asin'> | undefined): string {
   const asin = metadata?.asin
   return typeof asin === 'string' ? asin.trim() : ''
+}
+
+export function getAudibleChapterLookupErrorMessage(
+  data: { error?: string; stringKey?: string },
+  t: (key: 'MessageChaptersNotFound' | 'MessageInvalidAsin') => string
+): string | null {
+  if (!data.error) return null
+  if (data.stringKey === 'MessageChaptersNotFound') return t('MessageChaptersNotFound')
+  if (data.stringKey === 'MessageInvalidAsin') return t('MessageInvalidAsin')
+  return data.error
 }

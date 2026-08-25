@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Fjern {0} episode(r)",
   "MessageRemoveFromPlayerQueue": "Fjern fra afspillingskøen",
   "MessageRemoveUserWarning": "Er du sikker på, at du vil slette brugeren permanent \"{0}\"?",
-  "MessageResetChaptersConfirm": "Er du sikker på, at du vil nulstille kapitler og annullere ændringerne, du har foretaget?",
   "MessageRestoreBackupWarning": "Gendannelse af en sikkerhedskopi vil overskrive hele databasen, som er placeret på /config, og omslagsbilleder i /metadata/items & /metadata/authors.<br></br><br></br>Sikkerhedskopier ændrer ikke nogen filer i dine biblioteksmapper. Hvis du har aktiveret serverindstillinger for at gemme omslagskunst og metadata i dine biblioteksmapper, sikkerhedskopieres eller overskrives disse ikke.<br></br><br></br>Alle klienter, der bruger din server, opdateres automatisk.",
   "MessageScheduleRunEveryWeekdayAtTime": "Kør hvert {0} af {1}",
   "MessageSearchResultsFor": "Søgeresultater for",

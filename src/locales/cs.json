@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Odstranit {0} epizodu",
   "MessageRemoveFromPlayerQueue": "Odstranit z fronty přehrávače",
   "MessageRemoveUserWarning": "Opravdu chcete trvale smazat uživatele \"{0}\"?",
-  "MessageResetChaptersConfirm": "Opravdu chcete resetovat kapitoly a vrátit zpět provedené změny?",
   "MessageRestoreBackupWarning": "Obnovení zálohy přepíše celou databázi umístěnou v /config a obálku obrázků v /metadata/items & /metadata/authors.<br></br><br></br>Backups nezmění žádné soubory ve složkách knihovny. Pokud jste povolili nastavení serveru pro ukládání obrázků obalu a metadat do složek knihovny, nebudou zálohovány ani přepsány.<br></br><br></br>Všichni klienti používající váš server budou automaticky obnoveni.",
   "MessageScheduleRunEveryWeekdayAtTime": "Spusť každý {0} v {1}",
   "MessageSearchResultsFor": "Výsledky hledání pro",

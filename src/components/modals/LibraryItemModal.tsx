@@ -44,6 +44,8 @@ export type LibraryItemModalProps = Omit<ModalProps, 'outerContent' | 'sideNavig
   LibraryItemModalItemSource & {
     additionalProcessing?: boolean
     children: ReactNode
+    /** If set, prev/next wait for `proceed()` (e.g. confirm unsaved chapter edits). */
+    onBeforeNavigate?: (proceed: () => void) => void
   }
 
 /**
@@ -52,7 +54,7 @@ export type LibraryItemModalProps = Omit<ModalProps, 'outerContent' | 'sideNavig
  * Descendants read `resolvedItem` / `fetchPending` / `pendingEntityId` / `syncResolvedItem` via {@link useLibraryItemModal}.
  */
 export default function LibraryItemModal(props: LibraryItemModalProps) {
-  const { additionalProcessing = false, children, isOpen, onClose, persistent, zIndexClass, bgOpacityClass, className, style } = props
+  const { additionalProcessing = false, children, isOpen, onClose, persistent, zIndexClass, bgOpacityClass, className, style, onBeforeNavigate } = props
 
   const navCtxMode = 'navCtx' in props
   const navCtx = navCtxMode ? props.navCtx : undefined
@@ -128,13 +130,17 @@ export default function LibraryItemModal(props: LibraryItemModalProps) {
 
   const handleGoPrev = useCallback(() => {
     blurActiveElement()
-    goPrev()
-  }, [blurActiveElement, goPrev])
+    const proceed = () => goPrev()
+    if (onBeforeNavigate) onBeforeNavigate(proceed)
+    else proceed()
+  }, [blurActiveElement, goPrev, onBeforeNavigate])
 
   const handleGoNext = useCallback(() => {
     blurActiveElement()
-    goNext()
-  }, [blurActiveElement, goNext])
+    const proceed = () => goNext()
+    if (onBeforeNavigate) onBeforeNavigate(proceed)
+    else proceed()
+  }, [blurActiveElement, goNext, onBeforeNavigate])
 
   const mediaTitle = resolvedItem?.media.metadata.title ?? ''
   const outerContent = useMemo(() => {

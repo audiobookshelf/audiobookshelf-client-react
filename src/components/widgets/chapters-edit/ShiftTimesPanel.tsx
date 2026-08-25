@@ -1,38 +1,122 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
-import IconBtn from '@/components/ui/IconBtn'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
+import Label from '@/components/ui/Label'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { useEffect, useId, useRef, useState } from 'react'
 
-interface ShiftTimesPanelProps {
+interface ShiftTimesFieldsProps {
   shiftAmount: number
   onShiftAmountChange: (value: number) => void
-  onShift: () => void
-  onClose: () => void
+  onApplyShift: () => void
+  applyDisabled?: boolean
 }
 
-export default function ShiftTimesPanel({ shiftAmount, onShiftAmountChange, onShift, onClose }: ShiftTimesPanelProps) {
+/** Allow optional leading minus and digits while typing (e.g. "-" before "-30"). */
+function isValidShiftInput(value: string): boolean {
+  return value === '' || value === '-' || /^-?\d+$/.test(value)
+}
+
+export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShift, applyDisabled = false }: ShiftTimesFieldsProps) {
   const t = useTypeSafeTranslations()
+  const fieldId = useId()
+  const inputId = `${fieldId}-input`
+  const [inputValue, setInputValue] = useState(() => String(shiftAmount))
+  const inputValueRef = useRef(inputValue)
+  const isFocusedRef = useRef(false)
+  const minusPrefixRef = useRef(false)
+
+  inputValueRef.current = inputValue
+
+  useEffect(() => {
+    // Incomplete drafts ("", "-") map to parent 0 while focused — don't clobber them.
+    // External resets (apply shift, add/edit chapters, etc.) must still sync the display.
+    if (isFocusedRef.current) {
+      const draft = inputValueRef.current
+      if ((draft === '' || draft === '-') && shiftAmount === 0) {
+        return
+      }
+    }
+    setInputValue(String(shiftAmount))
+    minusPrefixRef.current = false
+  }, [shiftAmount])
+
+  const commitInputValue = (value: string) => {
+    if (!isValidShiftInput(value)) {
+      return
+    }
+
+    setInputValue(value)
+
+    if (value === '' || value === '-') {
+      onShiftAmountChange(0)
+      return
+    }
+
+    onShiftAmountChange(Number(value))
+  }
+
+  const handleChange = (value: string) => {
+    if (minusPrefixRef.current && value !== '' && value !== '-') {
+      minusPrefixRef.current = false
+      commitInputValue(value.startsWith('-') ? value : `-${value}`)
+      return
+    }
+
+    minusPrefixRef.current = false
+    commitInputValue(value)
+  }
+
+  const handleBlur = () => {
+    isFocusedRef.current = false
+    minusPrefixRef.current = false
+    if (inputValue === '' || inputValue === '-') {
+      setInputValue('0')
+      onShiftAmountChange(0)
+    }
+  }
 
   return (
-    <div className="mb-4 flex">
-      <div className="hidden w-12 xl:block" />
-      <div className="grow">
-        <div className="flex items-center">
-          <p className="mb-1 pr-2 text-sm font-semibold">{t('LabelTimeToShift')}</p>
-          <TextInput type="number" value={String(shiftAmount)} size="small" className="max-w-20" onChange={(value) => onShiftAmountChange(Number(value))} />
-          <Btn color="bg-primary" size="small" className="mx-1" onClick={onShift}>
-            {t('ButtonAdd')}
-          </Btn>
-          <div className="grow" />
-          <IconBtn ariaLabel={t('ButtonClose')} borderless size="small" onClick={onClose}>
-            expand_less
-          </IconBtn>
-        </div>
-        <p className="text-foreground-muted max-w-md py-1.5 text-xs">{t('NoteChapterEditorTimes')}</p>
+    <div className="w-fit shrink-0">
+      <div className="mb-1 flex items-center gap-1">
+        <Label htmlFor={inputId} className="mb-0">
+          {t('LabelTimeToShiftShort')}
+        </Label>
+        <HelpTooltipIcon text={t('NoteChapterEditorTimes')} size="sm" />
       </div>
-      <div className="hidden w-52 xl:block" />
+      <div className="flex items-center gap-2">
+        <TextInput
+          id={fieldId}
+          type="number"
+          step={1}
+          value={inputValue === '-' ? '' : inputValue}
+          size="small"
+          className="w-fit"
+          wrapperClassName="w-14"
+          customInputClass="no-spinner"
+          onChange={handleChange}
+          onFocus={() => {
+            isFocusedRef.current = true
+          }}
+          onBlur={handleBlur}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !applyDisabled) {
+              onApplyShift()
+              return
+            }
+            if (e.key === '-' && !e.currentTarget.value.includes('-')) {
+              minusPrefixRef.current = true
+              setInputValue('')
+              onShiftAmountChange(0)
+            }
+          }}
+        />
+        <Btn color="bg-primary" size="small" disabled={applyDisabled} onClick={onApplyShift}>
+          {t('ButtonApply')}
+        </Btn>
+      </div>
     </div>
   )
 }

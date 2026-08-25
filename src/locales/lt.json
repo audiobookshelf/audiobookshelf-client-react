@@ -582,7 +582,6 @@
   "MessageRemoveEpisodes": "Pašalinti {0} epizodų (-ą)",
   "MessageRemoveFromPlayerQueue": "Pašalinti iš grojaraščio",
   "MessageRemoveUserWarning": "Ar tikrai norite visam laikui ištrinti naudotoją „{0}“?",
-  "MessageResetChaptersConfirm": "Ar tikrai norite atkurti skyrius ir atšaukti pakeitimus, kuriuos atlikote?",
   "MessageRestoreBackupWarning": "Atkurdami atsarginę kopiją perrašysite visą duomenų bazę, esančią /config ir viršelių vaizdus /metadata/items ir /metadata/authors.<br></br><br></br>Atsarginės kopijos nekeičia jokių failų jūsų bibliotekos aplankuose. Jei esate įgalinę serverio nustatymus, kad viršelio meną ir metaduomenis saugotumėte savo bibliotekos aplankuose, šie neperrašomi ar atkuriami.<br></br><br></br>Visi klientai, naudojantys jūsų serverį, bus automatiškai atnaujinti.",
   "MessageSearchResultsFor": "Paieškos rezultatai „{0}“",
   "MessageServerCouldNotBeReached": "Nepavyko pasiekti serverio",

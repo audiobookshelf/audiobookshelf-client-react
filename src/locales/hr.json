@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Ukloni {0} nastavaka",
   "MessageRemoveFromPlayerQueue": "Ukloni iz redoslijeda izvođenja",
   "MessageRemoveUserWarning": "Sigurno želite trajno izbrisati korisnika \"{0}\"?",
-  "MessageResetChaptersConfirm": "Sigurno želite vratiti poglavlja na prethodno stanje i poništiti učinjene promjene?",
   "MessageRestoreBackupWarning": "Vraćanjem sigurnosne kopije prepisat ćete cijelu bazu podataka koja se nalazi u /config i slike naslovnice u /metadata/items i /metadata/authors.<br></br><br></br>Sigurnosne kopije ne mijenjaju datoteke koje se nalaze u mapama vaših knjižnica. Ako ste u postavkama poslužitelja uključili mogućnost spremanja naslovnica i meta-podataka u mape knjižnice, te se datoteke neće niti sigurnosno pohraniti niti prepisati. <br></br><br></br>Svi klijenti koji se spajaju na vaš poslužitelj automatski će se osvježiti.",
   "MessageScheduleRunEveryWeekdayAtTime": "Pokreni svaki {0} u {1}",
   "MessageSearchResultsFor": "Rezultati pretrage za",

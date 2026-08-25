@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "{0} bölümü kaldır",
   "MessageRemoveFromPlayerQueue": "Oynatma sırasından kaldır",
   "MessageRemoveUserWarning": "\"{0}\" kullanıcısını kalıcı olarak silmek istediğinizden emin misiniz?",
-  "MessageResetChaptersConfirm": "Bölümleri sıfırlamak ve yaptığınız değişiklikleri geri almak istediğinizden emin misiniz?",
   "MessageRestoreBackupWarning": "Bir yedeği geri yüklemek, /config konumundaki tüm veritabanının ve /metadata/items & /metadata/authors içindeki kapak resimlerinin üzerine yazacaktır.<br></br><br></br>Yedekler, kütüphane klasörlerinizdeki hiçbir dosyayı değiştirmez. Sunucu ayarlarını kütüphane klasörlerinizde kapak resmi ve üst veri saklamak için etkinleştirdiyseniz, bunlar yedeklenmez veya üzerine yazılmaz.<br></br><br></br>Sunucunuzu kullanan tüm istemciler otomatik olarak yenilenecektir.",
   "MessageScheduleRunEveryWeekdayAtTime": "Her {0} günü saat {1}'de çalıştır",
   "MessageSearchResultsFor": "Arama sonuçları",

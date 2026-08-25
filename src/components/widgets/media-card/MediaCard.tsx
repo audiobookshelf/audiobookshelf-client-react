@@ -213,13 +213,7 @@ function MediaCard(props: MediaCardProps) {
       }
       const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
       setBoundModal(
-        <LibraryItemMetadataEditModal
-          key={`metadata-edit-modal-${section}`}
-          isOpen
-          initialSection={section}
-          navCtx={navCtx}
-          onClose={clearBoundModal}
-        />
+        <LibraryItemMetadataEditModal key={`metadata-edit-modal-${section}`} isOpen initialSection={section} navCtx={navCtx} onClose={clearBoundModal} />
       )
     },
     [clearBoundModal, closeMoreMenu, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal]

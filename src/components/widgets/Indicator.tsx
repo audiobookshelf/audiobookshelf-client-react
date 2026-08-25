@@ -11,14 +11,23 @@ interface IndicatorProps {
   className?: string
   ariaLabel?: string
   role?: string
+  position?: 'top' | 'bottom' | 'left' | 'right'
 }
 
-const Indicator = ({ tooltipText, children, className, ariaLabel, role = 'note' }: IndicatorProps) => {
+const Indicator = ({ tooltipText, children, className, ariaLabel, role = 'note', position = 'top' }: IndicatorProps) => {
   const effectiveAriaLabel = ariaLabel || tooltipText
   const primaryInputCanHover = usePrimaryInputCanHover()
 
   return (
-    <TooltipCore lazy text={tooltipText} position="top" openOnClick={!primaryInputCanHover} className="inline-flex items-center">
+    <TooltipCore
+      lazy
+      text={tooltipText}
+      position={position}
+      openOnClick={!primaryInputCanHover}
+      maxWidth={200}
+      tooltipClassName="text-start"
+      className="inline-flex items-center"
+    >
       {typeof children === 'string' ? (
         <span className={mergeClasses('material-symbols text-sm', className)} role={role} aria-label={effectiveAriaLabel}>
           {children}
