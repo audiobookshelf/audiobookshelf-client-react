@@ -340,7 +340,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
             <p className="px-6 pt-6 text-2xl">{t('LabelUploaderDragAndDrop')}</p>
             <p className="p-6">{t('MessageOr')}</p>
             <div className="flex justify-center gap-4">
-              <FilePicker accept={supFileTypes} onFilesSelected={handleDialogFileSelected}>
+              <FilePicker accept={supFileTypes} multiple={true} onFilesSelected={handleDialogFileSelected}>
                 {t('ButtonChooseFiles')}
               </FilePicker>
               <FilePicker multiple={true} directory={true} onFilesSelected={handleDialogFileSelected}>
