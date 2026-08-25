@@ -252,7 +252,6 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
               <div className="flex w-full shrink-0 items-end justify-between gap-2 md:contents">
                 <ShiftTimesFields
                   shiftAmount={shiftAmount}
-                  showHelp
                   applyDisabled={!shiftAmount || newChapters.length <= 1}
                   onShiftAmountChange={handleShiftAmountChange}
                   onApplyShift={handleApplyShift}

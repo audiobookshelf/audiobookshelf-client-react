@@ -12,7 +12,6 @@ interface ShiftTimesFieldsProps {
   onShiftAmountChange: (value: number) => void
   onApplyShift: () => void
   applyDisabled?: boolean
-  showHelp?: boolean
 }
 
 /** Allow optional leading minus and digits while typing (e.g. "-" before "-30"). */
@@ -20,7 +19,7 @@ function isValidShiftInput(value: string): boolean {
   return value === '' || value === '-' || /^-?\d+$/.test(value)
 }
 
-export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShift, applyDisabled = false, showHelp = false }: ShiftTimesFieldsProps) {
+export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShift, applyDisabled = false }: ShiftTimesFieldsProps) {
   const t = useTypeSafeTranslations()
   const fieldId = useId()
   const inputId = `${fieldId}-input`
@@ -83,9 +82,9 @@ export function ShiftTimesFields({ shiftAmount, onShiftAmountChange, onApplyShif
     <div className="w-fit shrink-0">
       <div className="mb-1 flex items-center gap-1">
         <Label htmlFor={inputId} className="mb-0">
-          {showHelp ? t('LabelTimeToShiftShort') : t('LabelTimeToShift')}
+          {t('LabelTimeToShiftShort')}
         </Label>
-        {showHelp ? <HelpTooltipIcon text={t('NoteChapterEditorTimes')} size="sm" /> : null}
+        <HelpTooltipIcon text={t('NoteChapterEditorTimes')} size="sm" />
       </div>
       <div className="flex items-center gap-2">
         <TextInput
