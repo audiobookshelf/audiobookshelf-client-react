@@ -15,7 +15,7 @@ export function getUserDefaultUrlPath(userDefaultLibraryId: string | null) {
 }
 
 function hasUserPermission(user: UserWithPermissions, permission: keyof UserPermissions): boolean {
-  return !!(user.permissions?.[permission] || isUserAdminOrUp(user.type))
+  return !!user.permissions?.[permission]
 }
 
 export function userCanUpdate(user: UserWithPermissions): boolean {
