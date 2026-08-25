@@ -11,7 +11,7 @@ export interface ChapterMatchOptions {
 }
 
 export const DEFAULT_CHAPTER_MATCH_OPTIONS: ChapterMatchOptions = {
-  maxStartDeltaSec: 60,
+  maxStartDeltaSec: 45,
   /** Start time is the identity signal; titles are often unrelated (filename vs Audible). */
   maxCost: 1,
   startWeight: 0.85,
