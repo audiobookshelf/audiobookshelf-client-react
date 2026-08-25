@@ -52,6 +52,7 @@ interface ChaptersModalTableProps {
   tracks: { startOffset: number; duration: number }[]
   showMatchDebug?: boolean
   chapterMatchDebug?: Map<number, ChapterMatchDebug>
+  titleResetKey?: number
   onAddChapterInputChange: (value: string) => void
   onBulkChapterCountChange: (count: number) => void
   onAddChapter: () => void
@@ -77,6 +78,7 @@ export default function ChaptersModalTable({
   tracks,
   showMatchDebug = false,
   chapterMatchDebug,
+  titleResetKey = 0,
   onAddChapterInputChange,
   onBulkChapterCountChange,
   onAddChapter,
@@ -180,7 +182,7 @@ export default function ChaptersModalTable({
       const matchDebug = chapterMatchDebug?.get(index) ?? null
       return (
         <ChapterEditTableRow
-          key={chapter.clientKey}
+          key={`${chapter.clientKey ?? chapter.id}-${titleResetKey}`}
           chapter={chapter}
           chapterCount={chapters.length}
           mediaDuration={mediaDuration}
@@ -198,6 +200,7 @@ export default function ChaptersModalTable({
           overflow={overflow}
           startHeaderId={startHeaderId}
           titleHeaderId={titleHeaderId}
+          titleResetKey={titleResetKey}
           onCheckedChange={(checked) => {
             if (clientKey) onChapterCheckedChange(clientKey, checked)
           }}
@@ -227,7 +230,8 @@ export default function ChaptersModalTable({
       selectedKeys,
       showMatchDebug,
       startHeaderId,
-      titleHeaderId
+      titleHeaderId,
+      titleResetKey
     ]
   )
 

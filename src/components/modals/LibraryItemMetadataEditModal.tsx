@@ -167,6 +167,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
       {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}
       additionalProcessing={isSavePending || filterDataLoading || isChaptersPending}
       className="md:max-w-[min(95vw,60rem)]"
+      onBeforeNavigate={(proceed) => requestChaptersLeaveOrProceed(chaptersCloseRef.current, proceed)}
     >
       <LibraryItemMetadataEditModalBody
         isOpen={isOpen}

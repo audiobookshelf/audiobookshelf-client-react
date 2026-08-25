@@ -11,6 +11,7 @@ import FindChaptersPanel from '@/components/widgets/chapters-edit/FindChaptersPa
 import { ShiftTimesFields } from '@/components/widgets/chapters-edit/ShiftTimesPanel'
 import { useChapterEditor } from '@/hooks/useChapterEditor'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -111,6 +112,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     chapterMatchDebugActive,
     showChapterMatchDebug,
     confirmState,
+    titleResetKey,
     isPending,
     preview,
     handleShiftAmountChange,
@@ -132,7 +134,8 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
     handleChapterTitleCommit,
     handleChapterRemove,
     handleChapterInsertBelow,
-    resetEditorChapters
+    resetEditorChapters,
+    discardFocusedChapterFields
   } = editor
 
   const updateFooterShadow = useCallback(() => {
@@ -215,6 +218,28 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
 
   const footerDisabled = !hasChanges || isPending
 
+  const requestConfirmIfDirty = useCallback(
+    (proceed: () => void) => {
+      if (!hasChanges) {
+        proceed()
+        return
+      }
+      setConfirmState({
+        message: t.rich('MessageConfirmContinueWithUnsavedChapters', { br: () => <br /> }),
+        onConfirm: () => {
+          discardFocusedChapterFields()
+          setConfirmState(null)
+          proceed()
+        }
+      })
+    },
+    [discardFocusedChapterFields, hasChanges, setConfirmState, t]
+  )
+
+  const handleSetChaptersFromTracksClick = useCallback(() => {
+    requestConfirmIfDirty(handleSetChaptersFromTracks)
+  }, [handleSetChaptersFromTracks, requestConfirmIfDirty])
+
   return (
     <>
       <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg" aria-busy={isPending || undefined}>
@@ -222,7 +247,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
           <div className="bg-bg border-border shrink-0 border-b px-4 py-3">
             <div className="flex w-full flex-wrap items-end justify-between gap-x-2 gap-y-3">
               <div className="w-full min-w-0 md:w-auto">
-                <FindChaptersPanel metadata={media.metadata} onResult={handleLookupResult} />
+                <FindChaptersPanel metadata={media.metadata} onResult={handleLookupResult} requestProceed={requestConfirmIfDirty} />
               </div>
               <div className="flex w-full shrink-0 items-end justify-between gap-2 md:contents">
                 <ShiftTimesFields
@@ -233,7 +258,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
                   onApplyShift={handleApplyShift}
                 />
                 <div className="flex shrink-0 items-center gap-1">
-                  <Btn size="small" onClick={handleSetChaptersFromTracks}>
+                  <Btn size="small" onClick={handleSetChaptersFromTracksClick}>
                     {t('ButtonSetChaptersFromTracks')}
                   </Btn>
                   <HelpTooltipIcon text={t('MessageSetChaptersFromTracksDescription')} />
@@ -255,6 +280,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
               tracks={tracks}
               showMatchDebug={showChapterMatchDebug && chapterMatchDebugActive}
               chapterMatchDebug={chapterMatchDebug}
+              titleResetKey={titleResetKey}
               onAddChapterInputChange={setAddChapterInput}
               onBulkChapterCountChange={setBulkChapterCount}
               onAddChapter={handleAddChapterFromInput}
@@ -306,6 +332,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
               size="small"
               disabled={footerDisabled}
               onClick={() => {
+                blurActiveChapterEditorField()
                 destroyAudioEl()
                 setConfirmState({
                   message: t('MessageDiscardChaptersConfirm'),

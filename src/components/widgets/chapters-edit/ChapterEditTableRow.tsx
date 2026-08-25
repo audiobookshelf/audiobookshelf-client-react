@@ -87,6 +87,7 @@ export interface ChapterEditTableRowProps {
   matchDebug?: ChapterMatchDebug | null
   startHeaderId: string
   titleHeaderId: string
+  titleResetKey?: number
   onCheckedChange: (checked: boolean) => void
   onStartChange: (start: number) => void
   onTitleDraft: (title: string) => void
@@ -119,6 +120,7 @@ function ChapterEditTableRow({
   matchDebug = null,
   startHeaderId,
   titleHeaderId,
+  titleResetKey = 0,
   onCheckedChange,
   onStartChange,
   onTitleDraft,
@@ -237,6 +239,7 @@ function ChapterEditTableRow({
         <td className="min-w-0 px-1 py-2 align-top md:px-2">
           <div className="flex min-w-0 flex-col gap-0.5">
             <ChapterTitleInput
+              key={`${chapter.clientKey ?? chapter.id}-${titleResetKey}`}
               title={chapter.title}
               baselineTitle={baselineTitle}
               ariaLabelledBy={titleHeaderId}

@@ -21,9 +21,10 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 interface FindChaptersPanelProps {
   metadata: BookMetadata
   onResult: (data: AudibleChapterSearchResult) => void
+  requestProceed?: (proceed: () => void) => void
 }
 
-export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPanelProps) {
+export default function FindChaptersPanel({ metadata, onResult, requestProceed }: FindChaptersPanelProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [isPending, startTransition] = useTransition()
@@ -67,9 +68,14 @@ export default function FindChaptersPanel({ metadata, onResult }: FindChaptersPa
   )
 
   const handleSearch = useCallback(() => {
-    blurActiveChapterEditorField()
-    runSearch(asinInput, regionInput)
-  }, [asinInput, regionInput, runSearch])
+    const proceed = () => runSearch(asinInput, regionInput)
+    if (requestProceed) {
+      requestProceed(proceed)
+    } else {
+      blurActiveChapterEditorField()
+      proceed()
+    }
+  }, [asinInput, regionInput, requestProceed, runSearch])
 
   return (
     <form

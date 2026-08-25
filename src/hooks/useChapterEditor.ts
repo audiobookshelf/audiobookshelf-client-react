@@ -37,7 +37,7 @@ import {
 import { SHOW_CHAPTER_MATCH_DEBUG } from '@/lib/chapters/chapterMatching'
 import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
 import type { AudibleChapterSearchResult, BookLibraryItem, Chapter, PodcastLibraryItem } from '@/types/api'
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
 
 interface UseChapterEditorOptions {
   initialLibraryItem: BookLibraryItem
@@ -70,10 +70,13 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const tracks = useMemo(() => media.tracks ?? [], [media.tracks])
 
   const [newChapters, setNewChapters] = useState<EditableChapter[]>(() => initChapters(savedChapters, mediaDuration))
+  const newChaptersRef = useRef(newChapters)
+  newChaptersRef.current = newChapters
   const dirtyBaseline = useMemo(() => buildChapterDirtyBaseline(newChapters, savedChapters, mediaDuration), [mediaDuration, newChapters, savedChapters])
   const [hasChanges, setHasChanges] = useState(false)
   const hasChangesRef = useRef(hasChanges)
   hasChangesRef.current = hasChanges
+  const [titleResetKey, setTitleResetKey] = useState(0)
   const [lookupResult, setLookupResult] = useState<AudibleChapterSearchResult | null>(null)
   const [lookupBaselineCount, setLookupBaselineCount] = useState(0)
   const [shiftAmount, setShiftAmount] = useState(0)
@@ -84,7 +87,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set())
   const [chapterMatchDebug, setChapterMatchDebug] = useState<Map<number, ChapterMatchDebug>>(() => new Map())
   const [chapterMatchDebugActive, setChapterMatchDebugActive] = useState(false)
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null)
+  const [confirmState, setConfirmState] = useState<{ message: ReactNode; onConfirm: () => void } | null>(null)
   const titleDraftsRef = useRef<Map<number, string>>(new Map())
   const shiftBaseChaptersRef = useRef<EditableChapter[]>(initChapters(savedChapters, mediaDuration).map((chapter) => ({ ...chapter })))
 
@@ -159,10 +162,16 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const replaceChapterList = useCallback(
     (chapters: EditableChapter[], existingOverride?: Chapter[]) => {
       clearTitleDrafts()
+      setTitleResetKey((key) => key + 1)
       return runValidation(chapters, existingOverride)
     },
     [clearTitleDrafts, runValidation]
   )
+
+  const discardFocusedChapterFields = useCallback(() => {
+    clearTitleDrafts()
+    setTitleResetKey((key) => key + 1)
+  }, [clearTitleDrafts])
 
   const loadSavedChapters = useCallback(
     (saved: Chapter[], duration: number) => {
@@ -174,6 +183,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
       const result = validateChapters(chapters, saved, duration, validationMessages)
       setNewChapters(result.chapters)
       setHasChanges(result.hasChanges)
+      setTitleResetKey((key) => key + 1)
       shiftBaseChaptersRef.current = result.chapters.map((chapter) => ({ ...chapter }))
       setShiftAmount(0)
     },
@@ -307,7 +317,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
 
   const handleLookupResult = useCallback(
     (data: AudibleChapterSearchResult) => {
-      blurActiveChapterEditorField()
+      discardFocusedChapterFields()
       const matchBaseline = cloneMatchBaseline()
       setLookupResult(data)
       setLookupBaselineCount(hasNonPlaceholderChapters(matchBaseline) ? matchBaseline.length : 0)
@@ -316,7 +326,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
       setSelectedKeys(new Set())
       applyLookupMerge(data, matchBaseline, false, false)
     },
-    [applyLookupMerge, cloneMatchBaseline]
+    [applyLookupMerge, cloneMatchBaseline, discardFocusedChapterFields]
   )
 
   const handleMapChapterTitlesChange = useCallback(
@@ -369,7 +379,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   }, [mediaDuration, newChapters, preview, replaceChapterList, selectedKeys])
 
   const handleSetChaptersFromTracks = useCallback(() => {
-    blurActiveChapterEditorField()
+    discardFocusedChapterFields()
     preview.destroyAudioEl()
     clearLookupUi()
     setSelectedKeys(new Set())
@@ -377,7 +387,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     setChapterMatchDebug(mergeResult.matchDebug)
     setChapterMatchDebugActive(true)
     replaceChapterList(mergeResult.chapters.length ? mergeResult.chapters : initChapters([], mediaDuration))
-  }, [clearLookupUi, cloneMatchBaseline, mediaDuration, preview, replaceChapterList, tracks])
+  }, [clearLookupUi, cloneMatchBaseline, discardFocusedChapterFields, mediaDuration, preview, replaceChapterList, tracks])
 
   const setBulkChapterCount = useCallback((count: number) => {
     setBulkChapterCountState(clampBulkChapterCount(count))
@@ -417,19 +427,18 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     (chapterId: number, chapterTitle: string) => {
       titleDraftsRef.current.delete(chapterId)
       const trimmedTitle = chapterTitle.trim()
-      let nextChapters = newChapters
-      setNewChapters((prev) => {
-        const existing = prev[chapterId]
-        nextChapters = !existing || existing.title === trimmedTitle ? prev : updateChapterTitle(prev, chapterId, trimmedTitle)
-        return nextChapters
-      })
-      setHasChanges(computeHasChanges(nextChapters, savedChapters, mediaDuration))
-      if (nextChapters !== newChapters) {
+      const prev = newChaptersRef.current
+      const existing = prev[chapterId]
+      const nextChapters = !existing || existing.title === trimmedTitle ? prev : updateChapterTitle(prev, chapterId, trimmedTitle)
+      if (nextChapters !== prev) {
+        setNewChapters(nextChapters)
+        newChaptersRef.current = nextChapters
         shiftBaseChaptersRef.current = nextChapters.map((chapter) => ({ ...chapter }))
         setShiftAmount(0)
       }
+      setHasChanges(computeHasChanges(nextChapters, savedChapters, mediaDuration))
     },
-    [mediaDuration, newChapters, savedChapters]
+    [mediaDuration, savedChapters]
   )
 
   const handleChapterRemove = useCallback(
@@ -482,6 +491,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     chapterMatchDebugActive,
     showChapterMatchDebug: SHOW_CHAPTER_MATCH_DEBUG,
     confirmState,
+    titleResetKey,
     isPending,
     preview,
     handleShiftAmountChange,
@@ -503,6 +513,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     handleChapterTitleCommit,
     handleChapterRemove,
     handleChapterInsertBelow,
-    resetEditorChapters
+    resetEditorChapters,
+    discardFocusedChapterFields
   }
 }
