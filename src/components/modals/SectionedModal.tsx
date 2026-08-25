@@ -21,6 +21,7 @@ export interface SectionedModalBodyProps {
   selectedSection: string
   onSectionChange: (sectionId: string) => void
   isOpen: boolean
+  /** When set, mobile opens this section instead of the hub (e.g. Match from the context menu). */
   initialSection?: string
   children?: ReactNode
   className?: string
@@ -32,12 +33,8 @@ export function SectionedModalBody({ sections, selectedSection, onSectionChange,
   const [mobileScreen, setMobileScreen] = useState<'hub' | string>(initialSection ?? 'hub')
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
       setMobileScreen(initialSection ?? 'hub')
-      return
-    }
-    if (initialSection) {
-      setMobileScreen(initialSection)
     }
   }, [isOpen, initialSection])
 

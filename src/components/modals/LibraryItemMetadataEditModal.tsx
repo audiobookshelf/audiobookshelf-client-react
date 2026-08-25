@@ -14,6 +14,10 @@ export type MetadataEditSection = 'details' | 'cover' | 'match'
 export type LibraryItemMetadataEditModalProps = {
   isOpen: boolean
   onClose: () => void
+  /**
+   * Desktop rail tab to select. On mobile, generic Edit (`details` / omitted) opens the hub;
+   * `cover` and `match` open that section (e.g. Match from the context menu).
+   */
   initialSection?: MetadataEditSection
 } & LibraryItemModalItemSource
 
@@ -42,6 +46,8 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
     [t]
   )
 
+  const mobileInitialSection = initialSection === 'details' ? undefined : initialSection
+
   return (
     <LibraryItemModal
       isOpen={isOpen}
@@ -55,7 +61,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
         selectedSection={selectedSection}
         onSectionChange={(sectionId) => setSelectedSection(sectionId as MetadataEditSection)}
         isOpen={isOpen}
-        initialSection={initialSection}
+        initialSection={mobileInitialSection}
       >
         {selectedSection === 'details' ? (
           <LibraryItemEditModalContent
