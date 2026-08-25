@@ -39,7 +39,12 @@ function useSelectionBatchState(selectedItems: readonly SelectedMediaItem[], med
   }, [selectedItems, mediaProgress])
 }
 
-function useLibraryItemAdminMenuItems(selectionKind: SelectionKind, selectedCount: number, userIsAdminOrUp: boolean): ContextMenuDropdownItem[] {
+function useLibraryItemAdminMenuItems(
+  selectionKind: SelectionKind,
+  selectedCount: number,
+  userIsAdminOrUp: boolean,
+  userCanDownload: boolean
+): ContextMenuDropdownItem[] {
   const t = useTypeSafeTranslations()
 
   return useMemo(() => {
@@ -53,12 +58,12 @@ function useLibraryItemAdminMenuItems(selectionKind: SelectionKind, selectedCoun
 
     items.push({ text: t('ButtonReScan'), action: 'rescan' })
 
-    if (selectedCount <= 40) {
+    if (userCanDownload && selectedCount <= 40) {
       items.push({ text: t('LabelDownload'), action: 'download' })
     }
 
     return items
-  }, [selectionKind, selectedCount, t, userIsAdminOrUp])
+  }, [selectionKind, selectedCount, t, userCanDownload, userIsAdminOrUp])
 }
 
 function useEpisodeBatchMenuItems(userCanDownload: boolean): ContextMenuDropdownItem[] {
@@ -94,7 +99,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
     onBatchAction(action)
   }
 
-  const libraryItemAdminMenuItems = useLibraryItemAdminMenuItems(selectionKind ?? 'book', selectedItems.length, userIsAdminOrUp)
+  const libraryItemAdminMenuItems = useLibraryItemAdminMenuItems(selectionKind ?? 'book', selectedItems.length, userIsAdminOrUp, userCanDownload)
   const episodeBatchMenuItems = useEpisodeBatchMenuItems(userCanDownload)
 
   const showAddToCollection = selectionKind === 'book' && userCanUpdate
