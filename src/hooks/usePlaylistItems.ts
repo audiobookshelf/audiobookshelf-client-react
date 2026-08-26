@@ -1,10 +1,12 @@
 'use client'
 
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useUser } from '@/contexts/UserContext'
 import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatDuration } from '@/lib/formatDuration'
 import { applyLibraryItemUpdateToPlaylistItems } from '@/lib/libraryItemUpdatedUtils'
+import { getMediaItemProgress } from '@/lib/mediaProgress'
 import { getPlaylistItemDuration, matchesPlaylistItem } from '@/lib/playlistItems'
 import type { Playlist, PlaylistItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -14,6 +16,7 @@ export function usePlaylistItems(playlist: Playlist) {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const { setItemCount, setItemCountSupplement } = useLibrary()
+  const { user } = useUser()
 
   const serverItemKeys = useMemo(() => (playlist.items ?? []).map((i) => `${i.libraryItemId}:${i.episodeId ?? ''}`).join(','), [playlist.items])
 
@@ -51,7 +54,7 @@ export function usePlaylistItems(playlist: Playlist) {
 
   const totalEntities = orderedItems.length
 
-  const totalDurationSeconds = useMemo(() => {
+    const totalDurationSeconds = useMemo(() => {
     let sum = 0
     for (const item of orderedItems) {
       sum += getPlaylistItemDuration(item)
@@ -59,15 +62,33 @@ export function usePlaylistItems(playlist: Playlist) {
     return sum
   }, [orderedItems])
 
+  const totalListenedSeconds = useMemo(() => {
+    let sum = 0
+    for (const item of orderedItems) {
+      const duration = getPlaylistItemDuration(item)
+      const progress = getMediaItemProgress(user.mediaProgress, item.libraryItemId, item.episodeId)
+      if (!progress) continue
+      sum += progress.isFinished ? duration : progress.currentTime || 0
+    }
+    return sum
+  }, [orderedItems, user.mediaProgress])
+
   const totalDurationLabel = totalDurationSeconds > 0 ? formatDuration(totalDurationSeconds, t, { showDays: true }) : null
+  const totalListenedLabel = totalListenedSeconds > 0 ? formatDuration(totalListenedSeconds, t, { showDays: true }) : null
+
+  const itemCountSupplementLabel = useMemo(() => {
+    if (!totalDurationLabel) return null
+    if (totalListenedLabel) return ` (${totalListenedLabel} / ${totalDurationLabel} total)`
+    return ` (${totalDurationLabel})`
+  }, [totalDurationLabel, totalListenedLabel])
 
   useEffect(() => {
     setItemCount(totalEntities)
-    setItemCountSupplement(totalDurationLabel ? ` (${totalDurationLabel})` : null)
+    setItemCountSupplement(itemCountSupplementLabel)
     return () => {
       setItemCount(null)
     }
-  }, [totalEntities, totalDurationLabel, setItemCount, setItemCountSupplement])
+  }, [totalEntities, itemCountSupplementLabel, setItemCount, setItemCountSupplement])
 
   return {
     orderedItems,
