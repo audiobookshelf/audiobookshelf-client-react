@@ -2,9 +2,10 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import { useCardSize } from '@/contexts/CardSizeContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 
 /** Available cover sizes in pixels */
 export const AVAILABLE_COVER_SIZES = [60, 80, 100, 120, 140, 160, 180, 200, 220]
@@ -14,6 +15,16 @@ export const NUM_AVAILABLE_MOBILE_COVER_SIZES = 3
 const DEFAULT_MOBILE_SIZE_INDEX = 2
 const BASE_COVER_SIZE = 120
 
+function coverSizeToIndex(width: number, numAvailable: number, fallbackIndex: number): number {
+  const index = AVAILABLE_COVER_SIZES.indexOf(width)
+  return index === -1 || index >= numAvailable ? fallbackIndex : index
+}
+
+function coverSizeAtOffset(sizeIndex: number, offset: number, numAvailable: number): number {
+  const index = Math.max(0, Math.min(numAvailable - 1, sizeIndex + offset))
+  return AVAILABLE_COVER_SIZES[index]
+}
+
 interface CoverSizeWidgetProps {
   className?: string
 }
@@ -21,30 +32,33 @@ interface CoverSizeWidgetProps {
 export default function CoverSizeWidget({ className }: CoverSizeWidgetProps) {
   const t = useTypeSafeTranslations()
   const { isMobile, setSizeMultiplier } = useCardSize()
-  const [sizeIndex, setSizeIndex] = useState(isMobile ? DEFAULT_MOBILE_SIZE_INDEX : DEFAULT_SIZE_INDEX)
+  const { bookshelfCoverSize, bookshelfCoverSizeMobile, updateSetting, isSettingsLoaded } = useLibrary()
   const numAvailableCoverSizes = isMobile ? NUM_AVAILABLE_MOBILE_COVER_SIZES : NUM_AVAILABLE_COVER_SIZES
-  const [coverWidth, setCoverWidth] = useState(AVAILABLE_COVER_SIZES[sizeIndex])
 
-  useEffect(() => {
-    setSizeIndex(isMobile ? DEFAULT_MOBILE_SIZE_INDEX : DEFAULT_SIZE_INDEX)
-  }, [isMobile])
-
-  useEffect(() => {
-    setCoverWidth(AVAILABLE_COVER_SIZES[sizeIndex])
-  }, [sizeIndex])
+  const settingKey = isMobile ? 'bookshelfCoverSizeMobile' : 'bookshelfCoverSize'
+  const savedSize = isMobile ? bookshelfCoverSizeMobile : bookshelfCoverSize
+  const sizeIndex = coverSizeToIndex(savedSize, numAvailableCoverSizes, isMobile ? DEFAULT_MOBILE_SIZE_INDEX : DEFAULT_SIZE_INDEX)
+  const coverWidth = AVAILABLE_COVER_SIZES[sizeIndex]
 
   useEffect(() => {
     const multiplier = coverWidth / BASE_COVER_SIZE
     setSizeMultiplier(multiplier)
   }, [coverWidth, setSizeMultiplier])
 
+  const setBookshelfCoverSize = useCallback(
+    (size: number) => {
+      updateSetting(settingKey, size)
+    },
+    [updateSetting, settingKey]
+  )
+
   const increaseSize = useCallback(() => {
-    setSizeIndex((prev) => Math.min(numAvailableCoverSizes - 1, prev + 1))
-  }, [numAvailableCoverSizes])
+    setBookshelfCoverSize(coverSizeAtOffset(sizeIndex, 1, numAvailableCoverSizes))
+  }, [numAvailableCoverSizes, sizeIndex, setBookshelfCoverSize])
 
   const decreaseSize = useCallback(() => {
-    setSizeIndex((prev) => Math.max(0, prev - 1))
-  }, [])
+    setBookshelfCoverSize(coverSizeAtOffset(sizeIndex, -1, numAvailableCoverSizes))
+  }, [numAvailableCoverSizes, sizeIndex, setBookshelfCoverSize])
 
   const isAtMinSize = sizeIndex === 0
   const isAtMaxSize = sizeIndex === numAvailableCoverSizes - 1
@@ -55,6 +69,8 @@ export default function CoverSizeWidget({ className }: CoverSizeWidgetProps) {
     []
   )
   const textClass = useMemo(() => 'w-10 px-2 text-center font-mono text-base', [])
+
+  if (!isSettingsLoaded) return null
 
   return (
     <div className={className}>
