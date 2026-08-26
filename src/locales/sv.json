@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Ta bort {0} avsnitt",
   "MessageRemoveFromPlayerQueue": "Ta bort från uppspelningskön",
   "MessageRemoveUserWarning": "Är du säker på att du vill ta bort användaren \"{0}\"?",
-  "MessageResetChaptersConfirm": "Vill du återställa kapitlen och ångra ändringarna?",
   "MessageRestoreBackupWarning": "När en säkerhetskopia återställs skrivs hela databasen i /config och omslagsbilderna i /metadata/items och /metadata/authors över.<br></br><br></br>Filerna i biblioteksmapparna ändras inte. Omslag och metadata som enligt serverinställningarna lagras i biblioteksmapparna säkerhetskopieras eller skrivs inte över.<br></br><br></br>Alla klienter som använder servern uppdateras automatiskt.",
   "MessageScheduleRunEveryWeekdayAtTime": "Startar varje {0} klockan {1}",
   "MessageSearchResultsFor": "Sökresultat för",

@@ -16,6 +16,10 @@ export interface DurationPickerProps {
   borderless?: boolean
   size?: 'small' | 'medium' | 'large'
   className?: string
+  /** Accessible name for the time group. Defaults to LabelDuration. Ignored when ariaLabelledBy is set. */
+  ariaLabel?: string
+  /** When set, names the time group from that element (e.g. a column header) instead of the legend. */
+  ariaLabelledBy?: string
   onChange?: (value: number) => void
 }
 
@@ -37,6 +41,8 @@ export default function DurationPicker({
   borderless = false,
   size = 'medium',
   className,
+  ariaLabel,
+  ariaLabelledBy,
   onChange
 }: DurationPickerProps) {
   const t = useTypeSafeTranslations()
@@ -255,7 +261,8 @@ export default function DurationPicker({
   }, [hText, mText, sText, hoursMax, t])
 
   const wrapperClass = mergeClasses(
-    'flex w-full items-center justify-center gap-0 border-0 p-0 m-0 min-w-0 font-mono',
+    'flex items-center justify-center gap-0 border-0 p-0 m-0 font-mono',
+    size === 'small' ? 'w-fit' : 'min-w-0 w-full',
     disabled ? 'cursor-not-allowed' : 'cursor-text'
   )
   const inputClass = mergeClasses(
@@ -270,8 +277,14 @@ export default function DurationPicker({
   return (
     <div className={mergeClasses(size === 'small' && 'w-fit', sizeText, className)}>
       <InputWrapper disabled={disabled} readOnly={readOnly} borderless={borderless} size={size} className="items-center px-2.5">
-        <fieldset cy-id="duration-picker-wrapper" className={wrapperClass} onClick={handleWrapperClick}>
-          <legend className="sr-only">{t('LabelDuration')}</legend>
+        <fieldset
+          cy-id="duration-picker-wrapper"
+          className={wrapperClass}
+          aria-labelledby={ariaLabelledBy}
+          aria-label={!ariaLabelledBy ? ariaLabel : undefined}
+          onClick={handleWrapperClick}
+        >
+          {!ariaLabelledBy ? <legend className="sr-only">{ariaLabel ?? t('LabelDuration')}</legend> : null}
           {/* HOURS */}
           <div className="flex min-w-0 shrink items-center">
             <label htmlFor={hoursId} className="sr-only">

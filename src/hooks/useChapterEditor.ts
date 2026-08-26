@@ -2,49 +2,65 @@
 
 import { updateChaptersAction } from '@/app/actions/chapterActions'
 import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useChapterPreviewAudio } from '@/hooks/useChapterPreviewAudio'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import {
-  addSingleChapterFromInput,
-  adjustChapterStartTime,
   applyChapterTitleDrafts,
   buildBulkChapters,
+  buildChapterDirtyBaseline,
+  buildIdenticalChapters,
+  clampBulkChapterCount,
   computeChapterEnds,
   computeHasChanges,
+  canMapAudibleChapterTitles,
   detectBulkChapterPattern,
-  incrementChapterTime,
+  hasNonPlaceholderChapters,
   initChapters,
   insertChapterBelow,
   isClearAllChaptersState,
   mergeAudibleChapterData,
   mergeAudibleChapterTitles,
+  removeBrandingFromAudibleData,
   removeChapterAt,
+  savedChapterListsMatch,
   setChaptersFromTracks,
   shiftChapterTimes,
   updateChapterStart,
   updateChapterTitle,
   validateChapters,
-  type BulkChapterPattern,
-  type EditableChapter
+  type EditableChapter,
+  type ChapterMatchDebug
 } from '@/lib/chapters/chapterEditorUtils'
-import type { AudibleChapterSearchResult, BookLibraryItem, Chapter } from '@/types/api'
-import { useCallback, useMemo, useRef, useState, useTransition } from 'react'
+import { SHOW_CHAPTER_MATCH_DEBUG } from '@/lib/chapters/chapterMatching'
+import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
+import type { AudibleChapterSearchResult, BookLibraryItem, Chapter, PodcastLibraryItem } from '@/types/api'
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
 
 interface UseChapterEditorOptions {
   initialLibraryItem: BookLibraryItem
+  onItemUpdated?: (item: BookLibraryItem) => void
 }
 
-export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions) {
+function selectedChapterIds(chapters: EditableChapter[], selectedKeys: Set<string>): Set<number> | null {
+  if (selectedKeys.size === 0) return null
+  const ids = new Set<number>()
+  for (const chapter of chapters) {
+    if (chapter.clientKey && selectedKeys.has(chapter.clientKey)) {
+      ids.add(chapter.id)
+    }
+  }
+  return ids
+}
+
+export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapterEditorOptions) {
   const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
 
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const { token } = useUser()
-  const { streamLibraryItem } = useMediaContext()
   const [isPending, startTransition] = useTransition()
 
   const media = libraryItem.media
@@ -52,28 +68,52 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
   const mediaDurationRounded = Math.round(mediaDuration)
   const savedChapters = useMemo(() => media.chapters || [], [media.chapters])
   const tracks = useMemo(() => media.tracks ?? [], [media.tracks])
-  const title = media.metadata.title ?? ''
 
   const [newChapters, setNewChapters] = useState<EditableChapter[]>(() => initChapters(savedChapters, mediaDuration))
+  const newChaptersRef = useRef(newChapters)
+  newChaptersRef.current = newChapters
+  const dirtyBaseline = useMemo(() => buildChapterDirtyBaseline(newChapters, savedChapters, mediaDuration), [mediaDuration, newChapters, savedChapters])
   const [hasChanges, setHasChanges] = useState(false)
-  const [lockedChapters, setLockedChapters] = useState<Set<number>>(() => new Set())
-  const [lastSelectedLockIndex, setLastSelectedLockIndex] = useState<number | null>(null)
-  const [showSecondInputs, setShowSecondInputs] = useState(false)
-  const [showShiftTimes, setShowShiftTimes] = useState(false)
+  const hasChangesRef = useRef(hasChanges)
+  hasChangesRef.current = hasChanges
+  const [titleResetKey, setTitleResetKey] = useState(0)
+  const [lookupResult, setLookupResult] = useState<AudibleChapterSearchResult | null>(null)
+  const [lookupBaselineCount, setLookupBaselineCount] = useState(0)
   const [shiftAmount, setShiftAmount] = useState(0)
-  const [bulkChapterInput, setBulkChapterInput] = useState('')
-  const [showFindChaptersModal, setShowFindChaptersModal] = useState(false)
+  const [addChapterInput, setAddChapterInput] = useState('')
+  const [bulkChapterCount, setBulkChapterCountState] = useState(1)
   const [removeBranding, setRemoveBranding] = useState(false)
-  const [showAddMultipleChaptersModal, setShowAddMultipleChaptersModal] = useState(false)
-  const [detectedPattern, setDetectedPattern] = useState<BulkChapterPattern | null>(null)
-  const [bulkChapterCount, setBulkChapterCount] = useState(1)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [confirmState, setConfirmState] = useState<{ message: string; onConfirm: () => void } | null>(null)
+  const [mapChapterTitles, setMapChapterTitles] = useState(false)
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(() => new Set())
+  const [chapterMatchDebug, setChapterMatchDebug] = useState<Map<number, ChapterMatchDebug>>(() => new Map())
+  const [chapterMatchDebugActive, setChapterMatchDebugActive] = useState(false)
+  const [confirmState, setConfirmState] = useState<{ message: ReactNode; onConfirm: () => void } | null>(null)
   const titleDraftsRef = useRef<Map<number, string>>(new Map())
+  const shiftBaseChaptersRef = useRef<EditableChapter[]>(initChapters(savedChapters, mediaDuration).map((chapter) => ({ ...chapter })))
+
+  /** Saved chapters as editable rows — always the identity baseline for matching (not current editor). */
+  const matchBaselineChapters = useMemo(() => initChapters(savedChapters, mediaDuration), [mediaDuration, savedChapters])
+
+  const cloneMatchBaseline = useCallback(() => matchBaselineChapters.map((chapter) => ({ ...chapter })), [matchBaselineChapters])
 
   const clearTitleDrafts = useCallback(() => {
     titleDraftsRef.current.clear()
   }, [])
+
+  const preview = useChapterPreviewAudio({ tracks, token })
+
+  const clearChapterMatchDebug = useCallback(() => {
+    setChapterMatchDebug(new Map())
+    setChapterMatchDebugActive(false)
+  }, [])
+
+  const clearLookupUi = useCallback(() => {
+    setLookupResult(null)
+    setLookupBaselineCount(0)
+    setMapChapterTitles(false)
+    setRemoveBranding(false)
+    clearChapterMatchDebug()
+  }, [clearChapterMatchDebug])
 
   const validationMessages = useMemo(
     () => ({
@@ -84,32 +124,75 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     [t]
   )
 
-  const preview = useChapterPreviewAudio({ tracks, token })
+  const lookupResultForPreview = useMemo(() => {
+    if (!lookupResult) return null
+    return removeBranding ? removeBrandingFromAudibleData(lookupResult) : lookupResult
+  }, [lookupResult, removeBranding])
 
-  const allChaptersLocked = newChapters.length > 0 && newChapters.every((chapter) => lockedChapters.has(chapter.id))
+  const canMapChapterTitles = useMemo(() => {
+    if (!lookupResultForPreview) return false
+    return canMapAudibleChapterTitles(lookupBaselineCount)
+  }, [lookupBaselineCount, lookupResultForPreview])
 
   const runValidation = useCallback(
     (chapters: EditableChapter[], existingOverride?: Chapter[]) => {
       const result = validateChapters(chapters, existingOverride ?? savedChapters, mediaDuration, validationMessages)
       setNewChapters(result.chapters)
       setHasChanges(result.hasChanges)
+      shiftBaseChaptersRef.current = result.chapters.map((chapter) => ({ ...chapter }))
+      setShiftAmount(0)
       return result.chapters
     },
     [mediaDuration, savedChapters, validationMessages]
   )
 
+  const handleShiftAmountChange = useCallback((amount: number) => {
+    setShiftAmount(amount)
+  }, [])
+
+  const handleApplyShift = useCallback(() => {
+    blurActiveChapterEditorField()
+    const amount = shiftAmount
+    if (!amount || Number.isNaN(amount) || newChapters.length <= 1) return
+
+    const base = shiftBaseChaptersRef.current
+    runValidation(shiftChapterTimes(base, amount, selectedChapterIds(base, selectedKeys), mediaDuration))
+  }, [mediaDuration, newChapters.length, runValidation, selectedKeys, shiftAmount])
+
   const replaceChapterList = useCallback(
     (chapters: EditableChapter[], existingOverride?: Chapter[]) => {
       clearTitleDrafts()
+      setTitleResetKey((key) => key + 1)
       return runValidation(chapters, existingOverride)
     },
     [clearTitleDrafts, runValidation]
   )
 
+  const discardFocusedChapterFields = useCallback(() => {
+    clearTitleDrafts()
+    setTitleResetKey((key) => key + 1)
+  }, [clearTitleDrafts])
+
+  const loadSavedChapters = useCallback(
+    (saved: Chapter[], duration: number) => {
+      preview.destroyAudioEl()
+      clearLookupUi()
+      setSelectedKeys(new Set())
+      clearTitleDrafts()
+      const chapters = initChapters(saved, duration)
+      const result = validateChapters(chapters, saved, duration, validationMessages)
+      setNewChapters(result.chapters)
+      setHasChanges(result.hasChanges)
+      setTitleResetKey((key) => key + 1)
+      shiftBaseChaptersRef.current = result.chapters.map((chapter) => ({ ...chapter }))
+      setShiftAmount(0)
+    },
+    [clearLookupUi, clearTitleDrafts, preview, validationMessages]
+  )
+
   const resetEditorChapters = useCallback(() => {
-    setLockedChapters(new Set())
-    replaceChapterList(initChapters(savedChapters, mediaDuration))
-  }, [mediaDuration, replaceChapterList, savedChapters])
+    loadSavedChapters(savedChapters, mediaDuration)
+  }, [loadSavedChapters, mediaDuration, savedChapters])
 
   const refreshAfterChapterUpdate = useCallback(
     async (successToast: string) => {
@@ -118,167 +201,212 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
       if (refreshed.mediaType === 'book') {
         const book = refreshed as BookLibraryItem
         setLibraryItem(book)
-        const saved = book.media.chapters || []
-        replaceChapterList(initChapters(saved, mediaDuration), saved)
-        setLockedChapters(new Set())
+        loadSavedChapters(book.media.chapters || [], book.media.duration ?? 0)
+        onItemUpdated?.(book)
       }
     },
-    [libraryItem.id, mediaDuration, replaceChapterList, showToast]
+    [libraryItem.id, loadSavedChapters, onItemUpdated, showToast]
+  )
+
+  const handleSocketItemUpdated = useCallback(
+    (updated: BookLibraryItem | PodcastLibraryItem) => {
+      if (updated.id !== libraryItem.id || updated.mediaType !== 'book') return
+      if (hasChangesRef.current) return
+
+      const book = updated as BookLibraryItem
+      const nextSaved = book.media.chapters || []
+      const nextDuration = book.media.duration ?? 0
+      const chaptersChanged = nextDuration !== mediaDuration || !savedChapterListsMatch(savedChapters, nextSaved)
+
+      setLibraryItem(book)
+      if (chaptersChanged) {
+        loadSavedChapters(nextSaved, nextDuration)
+      }
+      onItemUpdated?.(book)
+    },
+    [libraryItem.id, loadSavedChapters, mediaDuration, onItemUpdated, savedChapters]
   )
 
   useItemPageSocket({
     libraryItemId: libraryItem.id,
     mediaId: media.id,
     isPodcast: false,
-    onItemUpdated: (updated) => {
-      if (updated.id !== libraryItem.id || updated.mediaType !== 'book') return
-      setLibraryItem(updated as BookLibraryItem)
-    }
+    onItemUpdated: handleSocketItemUpdated
   })
 
-  const handleSave = useCallback(() => {
-    const withDrafts = applyChapterTitleDrafts(newChapters, titleDraftsRef.current)
-    clearTitleDrafts()
-    const validated = runValidation(withDrafts)
-    const clearingAllChapters = isClearAllChaptersState(validated, savedChapters)
+  const isSavingRef = useRef(false)
 
-    if (!clearingAllChapters) {
-      for (const chapter of validated) {
-        if (chapter.error) {
-          showToast(t('ToastChaptersHaveErrors'), { type: 'error' })
-          return
-        }
-        if (!(chapter.title || '').trim()) {
-          showToast(t('ToastChaptersMustHaveTitles'), { type: 'error' })
-          return
-        }
-      }
-    }
+  const handleSave = useCallback(
+    (onSaved?: () => void) => {
+      if (isSavingRef.current) return false
 
-    const payload = clearingAllChapters ? [] : computeChapterEnds(validated, mediaDuration)
+      preview.destroyAudioEl()
+      const withDrafts = applyChapterTitleDrafts(newChapters, titleDraftsRef.current)
+      clearTitleDrafts()
+      const validated = runValidation(withDrafts)
+      const clearingAllChapters = isClearAllChaptersState(validated, savedChapters)
 
-    const successToast = payload.length === 0 ? t('ToastChaptersRemoved') : t('ToastChaptersUpdated')
-
-    startTransition(async () => {
-      try {
-        const data = await updateChaptersAction(libraryItem.id, payload)
-        if (data.updated) {
-          await refreshAfterChapterUpdate(successToast)
-        } else {
-          showToast(t('MessageNoUpdatesWereNecessary'), { type: 'info' })
-        }
-      } catch (error) {
-        console.error('Failed to update chapters', error)
-        showToast(t('ToastFailedToUpdate'), { type: 'error' })
-      }
-    })
-  }, [clearTitleDrafts, libraryItem.id, mediaDuration, newChapters, refreshAfterChapterUpdate, runValidation, savedChapters, showToast, t])
-
-  const handleRemoveAll = useCallback(() => {
-    replaceChapterList(initChapters([], mediaDuration))
-    setLockedChapters(new Set())
-  }, [mediaDuration, replaceChapterList])
-
-  const handleShiftChapterTimes = useCallback(() => {
-    if (!shiftAmount || isNaN(shiftAmount) || newChapters.length <= 1) return
-
-    const unlocked = newChapters.filter((ch) => !lockedChapters.has(ch.id))
-    if (unlocked.length === 0) {
-      showToast(t('ToastChaptersAllLocked'), { type: 'warning' })
-      return
-    }
-
-    runValidation(shiftChapterTimes(newChapters, shiftAmount, lockedChapters, mediaDuration))
-  }, [lockedChapters, mediaDuration, newChapters, runValidation, shiftAmount, showToast, t])
-
-  const toggleChapterLock = useCallback(
-    (chapterId: number, shiftKey: boolean) => {
-      setLockedChapters((prev) => {
-        const next = new Set(prev)
-        if (shiftKey && lastSelectedLockIndex !== null) {
-          const startIndex = Math.min(lastSelectedLockIndex, chapterId)
-          const endIndex = Math.max(lastSelectedLockIndex, chapterId)
-          const shouldLock = !prev.has(chapterId)
-          for (let i = startIndex; i <= endIndex; i++) {
-            if (shouldLock) next.add(i)
-            else next.delete(i)
+      if (!clearingAllChapters) {
+        for (const chapter of validated) {
+          if (chapter.error) {
+            showToast(t('ToastChaptersHaveErrors'), { type: 'error' })
+            return false
           }
-        } else if (next.has(chapterId)) {
-          next.delete(chapterId)
-        } else {
-          next.add(chapterId)
+          if (!(chapter.title || '').trim()) {
+            showToast(t('ToastChaptersMustHaveTitles'), { type: 'error' })
+            return false
+          }
         }
-        return next
+      }
+
+      const payload = clearingAllChapters ? [] : computeChapterEnds(validated, mediaDuration)
+
+      const successToast = payload.length === 0 ? t('ToastChaptersRemoved') : t('ToastChaptersUpdated')
+
+      isSavingRef.current = true
+      startTransition(async () => {
+        try {
+          const data = await updateChaptersAction(libraryItem.id, payload)
+          if (data.updated) {
+            await refreshAfterChapterUpdate(successToast)
+            onSaved?.()
+          } else {
+            showToast(t('MessageNoUpdatesWereNecessary'), { type: 'info' })
+            clearLookupUi()
+          }
+        } catch (error) {
+          console.error('Failed to update chapters', error)
+          showToast(t('ToastFailedToUpdate'), { type: 'error' })
+        } finally {
+          isSavingRef.current = false
+        }
       })
-      setLastSelectedLockIndex(chapterId)
+      return true
     },
-    [lastSelectedLockIndex]
+    [
+      clearLookupUi,
+      clearTitleDrafts,
+      libraryItem.id,
+      mediaDuration,
+      newChapters,
+      preview,
+      refreshAfterChapterUpdate,
+      runValidation,
+      savedChapters,
+      showToast,
+      t
+    ]
   )
 
-  const toggleAllChaptersLock = useCallback(() => {
-    if (allChaptersLocked) {
-      setLockedChapters(new Set())
-    } else {
-      setLockedChapters(new Set(newChapters.map((c) => c.id)))
-    }
-  }, [allChaptersLocked, newChapters])
+  const applyLookupMerge = useCallback(
+    (data: AudibleChapterSearchResult, matchBaseline: EditableChapter[], nextMapTitles: boolean, nextRemoveBranding: boolean) => {
+      const processed = nextRemoveBranding ? removeBrandingFromAudibleData(data) : data
+      const baselineCount = hasNonPlaceholderChapters(matchBaseline) ? matchBaseline.length : 0
+      const useMapTitles = nextMapTitles && canMapAudibleChapterTitles(baselineCount)
+      setMapChapterTitles(useMapTitles)
+      const mergeResult = useMapTitles
+        ? mergeAudibleChapterTitles(matchBaseline, processed, mediaDuration)
+        : mergeAudibleChapterData(processed, mediaDuration, matchBaseline)
+      setChapterMatchDebug(mergeResult.matchDebug)
+      setChapterMatchDebugActive(true)
+      preview.destroyAudioEl()
+      replaceChapterList(mergeResult.chapters.length ? mergeResult.chapters : initChapters([], mediaDuration))
+    },
+    [mediaDuration, preview, replaceChapterList]
+  )
 
-  const handleBulkChapterAdd = useCallback(() => {
-    const input = bulkChapterInput.trim()
+  const handleLookupResult = useCallback(
+    (data: AudibleChapterSearchResult) => {
+      discardFocusedChapterFields()
+      const matchBaseline = cloneMatchBaseline()
+      setLookupResult(data)
+      setLookupBaselineCount(hasNonPlaceholderChapters(matchBaseline) ? matchBaseline.length : 0)
+      setMapChapterTitles(false)
+      setRemoveBranding(false)
+      setSelectedKeys(new Set())
+      applyLookupMerge(data, matchBaseline, false, false)
+    },
+    [applyLookupMerge, cloneMatchBaseline, discardFocusedChapterFields]
+  )
+
+  const handleMapChapterTitlesChange = useCallback(
+    (value: boolean) => {
+      if (!lookupResult) {
+        setMapChapterTitles(value)
+        return
+      }
+      applyLookupMerge(lookupResult, cloneMatchBaseline(), value, removeBranding)
+    },
+    [applyLookupMerge, cloneMatchBaseline, lookupResult, removeBranding]
+  )
+
+  const handleRemoveBrandingChange = useCallback(
+    (value: boolean) => {
+      if (!lookupResult) {
+        setRemoveBranding(value)
+        return
+      }
+      setRemoveBranding(value)
+      applyLookupMerge(lookupResult, cloneMatchBaseline(), mapChapterTitles, value)
+    },
+    [applyLookupMerge, cloneMatchBaseline, lookupResult, mapChapterTitles]
+  )
+
+  const handleChapterCheckedChange = useCallback(
+    (clientKey: string, checked: boolean) => {
+      const next = new Set(selectedKeys)
+      if (checked) next.add(clientKey)
+      else next.delete(clientKey)
+      setSelectedKeys(next)
+    },
+    [selectedKeys]
+  )
+
+  const handleToggleAllChaptersSelected = useCallback(
+    (checked: boolean) => {
+      const next = checked ? new Set(newChapters.map((chapter) => chapter.clientKey).filter((key): key is string => !!key)) : new Set<string>()
+      setSelectedKeys(next)
+    },
+    [newChapters]
+  )
+
+  const handleRemoveSelected = useCallback(() => {
+    if (selectedKeys.size === 0) return
+    preview.destroyAudioEl()
+    const remaining = newChapters.filter((chapter) => !chapter.clientKey || !selectedKeys.has(chapter.clientKey))
+    replaceChapterList(remaining.length ? remaining : initChapters([], mediaDuration))
+    setSelectedKeys(new Set())
+  }, [mediaDuration, newChapters, preview, replaceChapterList, selectedKeys])
+
+  const handleSetChaptersFromTracks = useCallback(() => {
+    discardFocusedChapterFields()
+    preview.destroyAudioEl()
+    clearLookupUi()
+    setSelectedKeys(new Set())
+    const mergeResult = setChaptersFromTracks(tracks, cloneMatchBaseline())
+    setChapterMatchDebug(mergeResult.matchDebug)
+    setChapterMatchDebugActive(true)
+    replaceChapterList(mergeResult.chapters.length ? mergeResult.chapters : initChapters([], mediaDuration))
+  }, [clearLookupUi, cloneMatchBaseline, discardFocusedChapterFields, mediaDuration, preview, replaceChapterList, tracks])
+
+  const setBulkChapterCount = useCallback((count: number) => {
+    setBulkChapterCountState(clampBulkChapterCount(count))
+  }, [])
+
+  const handleAddChapterFromInput = useCallback(() => {
+    const input = addChapterInput.trim()
     if (!input) return
 
+    const count = clampBulkChapterCount(bulkChapterCount)
     const pattern = detectBulkChapterPattern(input)
-    if (pattern) {
-      setDetectedPattern(pattern)
-      setBulkChapterCount(1)
-      setShowAddMultipleChaptersModal(true)
-    } else {
-      replaceChapterList(addSingleChapterFromInput(input, newChapters, mediaDuration))
-      setBulkChapterInput('')
-    }
-  }, [bulkChapterInput, mediaDuration, newChapters, replaceChapterList])
+    const nextChapters = pattern
+      ? buildBulkChapters(pattern, count, newChapters, mediaDuration)
+      : buildIdenticalChapters(input, count, newChapters, mediaDuration)
 
-  const handleAddBulkChapters = useCallback(() => {
-    if (!detectedPattern) return
-    const count = parseInt(String(bulkChapterCount), 10)
-    if (!count || count < 1 || count > 150) {
-      showToast(t('ToastBulkChapterInvalidCount'), { type: 'error' })
-      return
-    }
-
-    const merged = [...newChapters, ...buildBulkChapters(detectedPattern, count, newChapters, mediaDuration)]
-    replaceChapterList(merged)
-    setBulkChapterInput('')
-    setShowAddMultipleChaptersModal(false)
-    setDetectedPattern(null)
-  }, [bulkChapterCount, detectedPattern, mediaDuration, newChapters, replaceChapterList, showToast, t])
-
-  const handleApplyTitles = useCallback(
-    (data: AudibleChapterSearchResult) => {
-      replaceChapterList(mergeAudibleChapterTitles(newChapters, data, lockedChapters))
-      setShowFindChaptersModal(false)
-    },
-    [lockedChapters, newChapters, replaceChapterList]
-  )
-
-  const handleApplyChapters = useCallback(
-    (data: AudibleChapterSearchResult) => {
-      replaceChapterList(mergeAudibleChapterData(newChapters, data, lockedChapters, mediaDuration))
-      setShowFindChaptersModal(false)
-    },
-    [lockedChapters, mediaDuration, newChapters, replaceChapterList]
-  )
-
-  const handleAdjustChapterStartTime = useCallback(
-    (chapterId: number) => {
-      const chapter = newChapters.find((c) => c.id === chapterId)
-      if (!chapter) return
-      runValidation(adjustChapterStartTime(newChapters, chapterId, preview.elapsedTime))
-      showToast(t('ToastChapterStartTimeAdjusted', { 0: preview.elapsedTime }), { type: 'success' })
-      preview.destroyAudioEl()
-    },
-    [newChapters, preview, runValidation, showToast, t]
-  )
+    replaceChapterList(nextChapters)
+    setAddChapterInput('')
+    setBulkChapterCountState(1)
+  }, [addChapterInput, bulkChapterCount, mediaDuration, newChapters, replaceChapterList])
 
   const handleChapterStartChange = useCallback(
     (chapterId: number, start: number) => {
@@ -287,42 +415,37 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     [newChapters, runValidation]
   )
 
-  const handleChapterTitleDraft = useCallback((chapterId: number, chapterTitle: string) => {
-    titleDraftsRef.current.set(chapterId, chapterTitle)
-  }, [])
+  const handleChapterTitleDraft = useCallback(
+    (chapterId: number, chapterTitle: string) => {
+      titleDraftsRef.current.set(chapterId, chapterTitle)
+      setHasChanges(computeHasChanges(applyChapterTitleDrafts(newChapters, titleDraftsRef.current), savedChapters, mediaDuration))
+    },
+    [mediaDuration, newChapters, savedChapters]
+  )
 
   const handleChapterTitleCommit = useCallback(
     (chapterId: number, chapterTitle: string) => {
       titleDraftsRef.current.delete(chapterId)
       const trimmedTitle = chapterTitle.trim()
-      let nextChapters = newChapters
-      setNewChapters((prev) => {
-        const existing = prev[chapterId]
-        nextChapters = !existing || existing.title === trimmedTitle ? prev : updateChapterTitle(prev, chapterId, trimmedTitle)
-        return nextChapters
-      })
-      setHasChanges(computeHasChanges(nextChapters, savedChapters))
+      const prev = newChaptersRef.current
+      const existing = prev[chapterId]
+      const nextChapters = !existing || existing.title === trimmedTitle ? prev : updateChapterTitle(prev, chapterId, trimmedTitle)
+      if (nextChapters !== prev) {
+        setNewChapters(nextChapters)
+        newChaptersRef.current = nextChapters
+        shiftBaseChaptersRef.current = nextChapters.map((chapter) => ({ ...chapter }))
+        setShiftAmount(0)
+      }
+      setHasChanges(computeHasChanges(nextChapters, savedChapters, mediaDuration))
     },
-    [newChapters, savedChapters]
-  )
-
-  const handleChapterIncrementTime = useCallback(
-    (chapterId: number, amount: number) => {
-      const updated = incrementChapterTime(newChapters, chapterId, amount, mediaDuration)
-      if (updated) runValidation(updated)
-    },
-    [mediaDuration, newChapters, runValidation]
+    [mediaDuration, savedChapters]
   )
 
   const handleChapterRemove = useCallback(
     (chapterId: number) => {
-      if (lockedChapters.has(chapterId)) {
-        showToast(t('ToastChapterLocked'), { type: 'warning' })
-        return
-      }
       runValidation(removeChapterAt(newChapters, chapterId))
     },
-    [lockedChapters, newChapters, runValidation, showToast, t]
+    [newChapters, runValidation]
   )
 
   const handleChapterInsertBelow = useCallback(
@@ -332,66 +455,65 @@ export function useChapterEditor({ initialLibraryItem }: UseChapterEditorOptions
     [newChapters, runValidation]
   )
 
-  const handleSetChaptersFromTracks = useCallback(() => {
-    replaceChapterList(setChaptersFromTracks(tracks))
-    setLockedChapters(new Set())
-  }, [tracks, replaceChapterList])
-
-  const isStreaming = !!streamLibraryItem
+  useEffect(() => {
+    setSelectedKeys((prev) => {
+      if (prev.size === 0) return prev
+      const validKeys = new Set(newChapters.map((chapter) => chapter.clientKey).filter((key): key is string => !!key))
+      let changed = false
+      const next = new Set<string>()
+      for (const key of prev) {
+        if (validKeys.has(key)) next.add(key)
+        else changed = true
+      }
+      return changed ? next : prev
+    })
+  }, [newChapters])
 
   return {
-    libraryItem,
-    title,
     media,
     mediaDuration,
     mediaDurationRounded,
-    savedChapters,
     tracks,
     newChapters,
+    dirtyBaseline,
     hasChanges,
-    lockedChapters,
-    showSecondInputs,
-    showShiftTimes,
+    lookupResult,
+    lookupResultForPreview,
+    lookupBaselineCount,
+    canMapChapterTitles,
     shiftAmount,
-    bulkChapterInput,
-    showFindChaptersModal,
-    removeBranding,
-    showAddMultipleChaptersModal,
-    detectedPattern,
+    addChapterInput,
     bulkChapterCount,
-    isEditModalOpen,
+    removeBranding,
+    mapChapterTitles,
+    selectedKeys,
+    chapterMatchDebug,
+    chapterMatchDebugActive,
+    showChapterMatchDebug: SHOW_CHAPTER_MATCH_DEBUG,
     confirmState,
+    titleResetKey,
     isPending,
     preview,
-    allChaptersLocked,
-    isStreaming,
-    setShowSecondInputs,
-    setShowShiftTimes,
-    setShiftAmount,
-    setBulkChapterInput,
-    setShowFindChaptersModal,
-    setRemoveBranding,
-    setShowAddMultipleChaptersModal,
+    handleShiftAmountChange,
+    handleApplyShift,
+    handleLookupResult,
+    setAddChapterInput,
     setBulkChapterCount,
-    setIsEditModalOpen,
+    handleMapChapterTitlesChange,
+    handleRemoveBrandingChange,
+    handleChapterCheckedChange,
+    handleToggleAllChaptersSelected,
+    handleRemoveSelected,
+    handleSetChaptersFromTracks,
     setConfirmState,
     handleSave,
-    handleRemoveAll,
-    handleShiftChapterTimes,
-    toggleChapterLock,
-    toggleAllChaptersLock,
-    handleBulkChapterAdd,
-    handleAddBulkChapters,
-    handleApplyTitles,
-    handleApplyChapters,
-    handleAdjustChapterStartTime,
+    handleAddChapterFromInput,
     handleChapterStartChange,
     handleChapterTitleDraft,
     handleChapterTitleCommit,
-    handleChapterIncrementTime,
     handleChapterRemove,
     handleChapterInsertBelow,
-    handleSetChaptersFromTracks,
-    resetEditorChapters
+    resetEditorChapters,
+    discardFocusedChapterFields
   }
 }

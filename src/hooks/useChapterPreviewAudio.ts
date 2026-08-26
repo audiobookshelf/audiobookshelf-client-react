@@ -16,7 +16,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   const tracksRef = useRef(tracks)
   tracksRef.current = tracks
 
-  const [selectedChapterId, setSelectedChapterId] = useState<number | null>(null)
+  const [selectedChapterId, setSelectedChapterId] = useState<number | string | null>(null)
   const [isPlayingChapter, setIsPlayingChapter] = useState(false)
   const [isLoadingChapter, setIsLoadingChapter] = useState(false)
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0)
@@ -46,6 +46,8 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   }, [stopElapsedTimeTracking])
 
   const startElapsedTimeTracking = useCallback(() => {
+    if (elapsedIntervalRef.current) return
+
     setElapsedTime(0)
     playStartTimeRef.current = Date.now()
     elapsedIntervalRef.current = setInterval(() => {
@@ -56,9 +58,11 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   }, [])
 
   const playTrackAtTime = useCallback(
-    (audioTrack: AudioTrack, trackOffset: number) => {
+    (audioTrack: AudioTrack, trackOffset: number, continueChapterPlayback = false) => {
       setCurrentTrackIndex(audioTrack.index)
-      setIsLoadingChapter(true)
+      if (!continueChapterPlayback) {
+        setIsLoadingChapter(true)
+      }
 
       const audioEl = document.createElement('audio')
       audioEl.src = `${audioTrack.contentUrl}?token=${token}`
@@ -84,7 +88,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
           audioElRef.current = null
         }
         if (nextTrack) {
-          playTrackAtTime(nextTrack, 0)
+          playTrackAtTime(nextTrack, 0, true)
         } else {
           destroyAudioEl()
         }
@@ -98,7 +102,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
   )
 
   const playChapter = useCallback(
-    (chapterId: number, chapterStart: number) => {
+    (chapterId: number | string, chapterStart: number) => {
       if (selectedChapterId === chapterId) {
         if (isLoadingChapter) return
         if (isPlayingChapter) {

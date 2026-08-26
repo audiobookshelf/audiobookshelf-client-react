@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Quitar {0} episodio(s)",
   "MessageRemoveFromPlayerQueue": "Quitar de la cola de reproducción",
   "MessageRemoveUserWarning": "¿Confirma que quiere eliminar permanentemente el usuario «{0}»?",
-  "MessageResetChaptersConfirm": "¿Confirma que quiere deshacer los cambios y restablecer los capítulos a su estado original?",
   "MessageRestoreBackupWarning": "Restaurar sobrescribirá toda la base de datos localizada en /config y las imágenes de portadas en /metadata/items y /metadata/authors.<br></br><br></br>El respaldo no modifica ningún archivo en las carpetas de su biblioteca. Si ha habilitado la opción del servidor para almacenar portadas y metadata en las carpetas de su biblioteca, esos archivos no se respaldan o sobrescriben.<br></br><br></br>Todos los clientes que usen su servidor se actualizarán automáticamente.",
   "MessageScheduleRunEveryWeekdayAtTime": "Ejecutar cada {0} a las {1}",
   "MessageSearchResultsFor": "Resultados de la búsqueda de",

@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Epizód(ok) eltávolítása: {0}",
   "MessageRemoveFromPlayerQueue": "Eltávolítás a lejátszási sorból",
   "MessageRemoveUserWarning": "Biztosan véglegesen törölni szeretné a(z) \"{0}\" felhasználót?",
-  "MessageResetChaptersConfirm": "Biztosan alaphelyzetbe szeretné állítani a fejezeteket és visszavonni a módosításokat?",
   "MessageRestoreBackupWarning": "A biztonsági mentés visszaállítása felülírja az egész adatbázist, amely a /config mappában található, valamint a borítóképeket a /metadata/items és /metadata/authors mappákban.<br></br><br></br>A biztonsági mentések nem módosítják a könyvtár mappáiban található fájlokat. Ha engedélyezte a szerverbeállításokat a borítóképek és a metaadatok könyvtármappákban való tárolására, akkor ezek nem kerülnek biztonsági mentésre vagy felülírásra.<br></br><br></br>A szerver használó összes kliens automatikusan frissül.",
   "MessageScheduleRunEveryWeekdayAtTime": "Futás minden {1} óra {0}-kor",
   "MessageSearchResultsFor": "Keresési eredmények",

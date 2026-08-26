@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "Suppression de {0} épisode(s)",
   "MessageRemoveFromPlayerQueue": "Supprimer de la liste d’écoute",
   "MessageRemoveUserWarning": "Êtes-vous sûr·e de vouloir supprimer définitivement l’utilisateur « {0} » ?",
-  "MessageResetChaptersConfirm": "Êtes-vous sûr·e de vouloir réinitialiser les chapitres et annuler les changements effectués ?",
   "MessageRestoreBackupWarning": "Restaurer la sauvegarde écrasera la base de donnée située dans le dossier /config ainsi que les images sur /metadata/items et /metadata/authors.<br></br><br></br>Les sauvegardes ne touchent pas aux fichiers de la bibliothèque. Si vous avez activé le paramètre pour sauvegarder les métadonnées et les images de couverture dans le même dossier que les fichiers, ceux-ci ne ni sauvegardés, ni écrasés lors de la restauration.<br></br><br></br>Tous les clients utilisant votre serveur seront automatiquement mis à jour.",
   "MessageScheduleRunEveryWeekdayAtTime": "Exécuté tous les {0} à {1}",
   "MessageSearchResultsFor": "Résultats de recherche pour",

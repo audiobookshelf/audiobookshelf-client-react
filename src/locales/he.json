@@ -809,7 +809,6 @@
   "MessageRemoveEpisodes": "הסר {0} פרקים",
   "MessageRemoveFromPlayerQueue": "הסר מתור ההשמעה של הנגן",
   "MessageRemoveUserWarning": "האם אתה בטוח שברצונך למחוק לצמיתות את המשתמש \"{0}\"?",
-  "MessageResetChaptersConfirm": "האם אתה בטוח שברצונך לאפס את הפרקים ולבטל את השינויים שביצעת?",
   "MessageRestoreBackupWarning": "שחזור גיבוי ימחק את כל מסד הנתונים הנוכחי השוכן ב /config ואת תמונות הכריכה ב- /metadata/items & /metadata/authors.<br></br><br></br>גיבויים אינם משנים קבצים בתיקיות הספרייה שלך. אם הגדרות השרת לאחסן תמונות כריכה ומטא-נתונים בתיקיות הספרייה שלך מופעלות אז אלה לא יגובו או ימחקו.<br></br><br></br>כל האפליקציות המשתמשות בשרת שלך יתעדכנו באופן אוטומטי.",
   "MessageSearchResultsFor": "תוצאות חיפוש עבור",
   "MessageSelected": "{0} נבחרו",

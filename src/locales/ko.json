@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "{0}개의 에피소드를 제거합니다.",
   "MessageRemoveFromPlayerQueue": "플레이어 대기열에서 제거",
   "MessageRemoveUserWarning": "사용자 \"{0}\"을 영구적으로 삭제하시겠습니까?",
-  "MessageResetChaptersConfirm": "챕터를 재설정하고 변경 사항을 취소하시겠습니까?",
   "MessageRestoreBackupWarning": "백업을 복원하면 /config에 있는 전체 데이터베이스와 /metadata/items 및 /metadata/authors에 있는 표지 이미지가 덮어씌워집니다.<br></br><br></br>백업은 라이브러리 폴더의 어떤 파일도 수정하지 않습니다. 라이브러리 폴더에 표지 그림과 메타데이터를 저장하도록 서버 설정을 활성화한 경우, 해당 내용은 백업되거나 덮어씌워지지 않습니다.<br></br><br></br>서버를 사용하는 모든 클라이언트는 자동으로 새로 고쳐집니다.",
   "MessageScheduleRunEveryWeekdayAtTime": "{1}에서 {0}마다 실행",
   "MessageSearchResultsFor": "검색 결과",

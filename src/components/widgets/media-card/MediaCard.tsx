@@ -24,6 +24,7 @@ import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { isDragOnlyOverlay, useSortableBookshelfOverlay } from '@/contexts/SortableBookshelfOverlayContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useMergedRef } from '@/hooks/useMergedRef'
 import { useShiftClickTextSelectionGuard } from '@/hooks/useShiftClickTextSelectionGuard'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
@@ -35,7 +36,20 @@ import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
 import { BookshelfView, isBookMedia, isBookMediaWithTracks, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { memo, useCallback, useEffect, useId, useMemo, useRef, useState, type KeyboardEvent, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
+  type ReactNode
+} from 'react'
 import { useMediaCardActions } from './useMediaCardActions'
 
 export interface MediaCardProps {
@@ -191,12 +205,20 @@ function MediaCard(props: MediaCardProps) {
 
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
+  const [cardFrameRef, setCardFrameRef] = useMergedRef<HTMLDivElement>(dragOptions?.cardActivatorRef)
+
+  // Overlay children unmount when selection ends; mouseenter does not re-fire for a stationary pointer.
+  useLayoutEffect(() => {
+    if (isSelectionMode) return
+    if (cardFrameRef.current?.matches(':hover')) {
+      setIsHovering(true)
+    }
+  }, [cardFrameRef, isSelectionMode])
 
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 
   const closeMoreMenu = useCallback(() => {
     setIsMoreMenuOpen(false)
-    setIsHovering(false)
   }, [])
 
   const handleOpenMetadataEdit = useCallback(
@@ -213,13 +235,7 @@ function MediaCard(props: MediaCardProps) {
       }
       const navCtx = getMediaCardModalNavigationContext(libraryItem.id, shelfEntities, entityIndex)
       setBoundModal(
-        <LibraryItemMetadataEditModal
-          key={`metadata-edit-modal-${section}`}
-          isOpen
-          initialSection={section}
-          navCtx={navCtx}
-          onClose={clearBoundModal}
-        />
+        <LibraryItemMetadataEditModal key={`metadata-edit-modal-${section}`} isOpen initialSection={section} navCtx={navCtx} onClose={clearBoundModal} />
       )
     },
     [clearBoundModal, closeMoreMenu, episode, entityIndex, libraryItem.id, shelfEntities, setBoundModal]
@@ -230,9 +246,9 @@ function MediaCard(props: MediaCardProps) {
 
   const handleMoreMenuOpenChange = (isOpen: boolean) => {
     setIsMoreMenuOpen(isOpen)
-    // Clear hovering state when menu closes to prevent overlay from staying open
+    // Keep overlay if the pointer is still on the card; otherwise hide it (menu is portaled).
     if (!isOpen) {
-      setIsHovering(false)
+      setIsHovering(!!cardFrameRef.current?.matches(':hover'))
     }
   }
 
@@ -532,7 +548,7 @@ function MediaCard(props: MediaCardProps) {
       <MediaCardFrame
         width={coverWidth}
         height={coverHeight}
-        rootRef={dragOptions?.cardActivatorRef}
+        rootRef={setCardFrameRef}
         sortableFrameProps={dragOptions?.sortableFrameProps}
         className={dragOptions ? 'group' : undefined}
         aria-selected={hasSelectionHandler && isSelectionMode ? selected : undefined}
@@ -546,14 +562,12 @@ function MediaCard(props: MediaCardProps) {
         onKeyDown={cardKeyDownHandler}
         onFocus={cardFocusHandler}
         onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        onMouseOver={
-          dragOptions
-            ? () => {
-                setIsHovering(true)
-              }
-            : undefined
-        }
+        onMouseLeave={(event) => {
+          // Child unmount (e.g. overlay after leaving selection) can fire mouseleave
+          // even when the pointer is still over the card.
+          if (event.currentTarget.matches(':hover')) return
+          setIsHovering(false)
+        }}
         cardId={cardId}
         cy-id="MediaCard"
         footer={

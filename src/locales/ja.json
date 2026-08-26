@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "{0}件のエピソードを削除",
   "MessageRemoveFromPlayerQueue": "「次に再生」から削除",
   "MessageRemoveUserWarning": "ユーザー \"{0}\" を完全に削除してもよろしいですか？",
-  "MessageResetChaptersConfirm": "チャプターをリセットして変更を元に戻してもよろしいですか？",
   "MessageRestoreBackupWarning": "バックアップを復元すると、/config にあるデータベース全体と /metadata/items および /metadata/authors のカバー画像が上書きされます。<br></br><br></br>バックアップはライブラリーフォルダー内のファイルを変更しません。カバーアートとメタデータをライブラリーフォルダーに保存するサーバー設定を有効にしている場合、それらはバックアップされず上書きもされません。<br></br><br></br>サーバーを使用しているすべてのクライアントは自動的に更新されます。",
   "MessageScheduleRunEveryWeekdayAtTime": "毎{0} {1} に実行",
   "MessageSearchResultsFor": "検索結果:",

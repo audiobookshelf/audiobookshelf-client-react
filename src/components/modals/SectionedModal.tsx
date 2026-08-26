@@ -20,6 +20,8 @@ export interface SectionedModalBodyProps {
   sections: Section[]
   selectedSection: string
   onSectionChange: (sectionId: string) => void
+  /** Called instead of immediately returning to the mobile hub. Invoke `proceed` to go back. */
+  onRequestHubBack?: (proceed: () => void) => void
   isOpen: boolean
   /** When set, mobile opens this section instead of the hub (e.g. Match from the context menu). */
   initialSection?: string
@@ -27,7 +29,16 @@ export interface SectionedModalBodyProps {
   className?: string
 }
 
-export function SectionedModalBody({ sections, selectedSection, onSectionChange, isOpen, initialSection, children, className }: SectionedModalBodyProps) {
+export function SectionedModalBody({
+  sections,
+  selectedSection,
+  onSectionChange,
+  onRequestHubBack,
+  isOpen,
+  initialSection,
+  children,
+  className
+}: SectionedModalBodyProps) {
   const t = useTypeSafeTranslations()
   const isMobile = useMediaQuery('max-md')
   const [mobileScreen, setMobileScreen] = useState<'hub' | string>(initialSection ?? 'hub')
@@ -44,8 +55,10 @@ export function SectionedModalBody({ sections, selectedSection, onSectionChange,
   }
 
   if (isMobile) {
-    // List of sections displayed on mobile
-    if (mobileScreen === 'hub') {
+    const section = mobileScreen === 'hub' ? undefined : sections.find((item) => item.id === mobileScreen)
+
+    // Hub list. A missing section (removed after load) also falls back to the hub.
+    if (!section) {
       return (
         <div className={mergeClasses('flex min-h-0 flex-1 flex-col overflow-y-auto p-2', className)}>
           <nav className="flex flex-col gap-2 px-2 py-2">
@@ -74,11 +87,18 @@ export function SectionedModalBody({ sections, selectedSection, onSectionChange,
       )
     }
 
-    const section = sections.find((item) => item.id === mobileScreen)!
     return (
       <div className={mergeClasses('flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden', SECTIONED_MODAL_STABLE_HEIGHT_CLASS, className)}>
         <div className="border-border flex shrink-0 items-center gap-1 border-b px-2 py-2">
-          <IconBtn borderless ariaLabel={t('ButtonBack')} onClick={() => setMobileScreen('hub')} className="shrink-0">
+          <IconBtn
+            borderless
+            ariaLabel={t('ButtonBack')}
+            onClick={() => {
+              if (onRequestHubBack) onRequestHubBack(() => setMobileScreen('hub'))
+              else setMobileScreen('hub')
+            }}
+            className="shrink-0"
+          >
             arrow_back
           </IconBtn>
           <span className="min-w-0 truncate text-xl font-semibold">{section.label}</span>
@@ -140,6 +160,7 @@ export default function SectionedModal({
   sections,
   selectedSection,
   onSectionChange,
+  onRequestHubBack,
   initialSection,
   children,
   bodyClassName
@@ -161,6 +182,7 @@ export default function SectionedModal({
         sections={sections}
         selectedSection={selectedSection}
         onSectionChange={onSectionChange}
+        onRequestHubBack={onRequestHubBack}
         isOpen={isOpen}
         initialSection={initialSection}
         className={bodyClassName}

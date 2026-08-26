@@ -831,7 +831,6 @@
   "MessageRemoveEpisodes": "fjerne {0} kapitler",
   "MessageRemoveFromPlayerQueue": "fjerne fra avspillingskø",
   "MessageRemoveUserWarning": "Er du sikker på at du vil slette bruker \"{0}\" for godt?",
-  "MessageResetChaptersConfirm": "Er du sikker på at du vil nullstille kapitler og angre endringene du har gjort?",
   "MessageRestoreBackupWarning": "gjenoppretting av sikkerhetskopi vil overskrive hele databasen under /config og omslagsbilde under /metadata/items og /metadata/authors.<br></br><br></br>Sikkerhetskopier endrer ikke noen filer under dine bibliotekmapper. Hvis du har aktivert tjenerinstillingen for å lagre omslagsbilder og metadata i bibliotekmapper så vil ikke de filene bli tatt sikkerhetskopi eller overskrevet.<br></br><br></br>Alle klientene som bruker din tjener vil bli fornyet automatisk.",
   "MessageScheduleRunEveryWeekdayAtTime": "Kjør hver {0} kl. {1}",
   "MessageSearchResultsFor": "Søk resultat for",

@@ -631,7 +631,6 @@
   "MessageRemoveEpisodes": "Eemalda {0} episood(i)",
   "MessageRemoveFromPlayerQueue": "Eemalda esitusjärjekorrast",
   "MessageRemoveUserWarning": "Olete kindel, et soovite kasutaja \"{0}\" lõplikult kustutada?",
-  "MessageResetChaptersConfirm": "Olete kindel, et soovite peatükkide lähtestada ja tehtud muudatused tagasi võtta?",
   "MessageRestoreBackupWarning": "Varukoopia taastamine kirjutab üle kogu /config ja /metadata/items & /metadata/authors kaustas oleva andmebaasi. <br></br><br></br>Varukoopiad ei muuda teie raamatukogukaustades olevaid faile. Kui olete lubanud serveri sätetel salvestada kaane kunsti ja metaandmed teie raamatukogu kaustadesse, siis neid ei varundata ega kirjutata üle.<br></br><br></br>Kõik teie serveri kasutavad kliendid värskendatakse automaatselt.",
   "MessageSearchResultsFor": "Otsingutulemused märksõnale",
   "MessageSelected": "{0} valitud",
