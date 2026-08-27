@@ -1,6 +1,7 @@
 'use client'
 
 import LanguageDropdown from '@/components/widgets/LanguageDropdown'
+import { withBasePath } from '@/lib/basePath'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -18,7 +19,7 @@ export default function UserLanguageSelector({ value, label }: UserLanguageSelec
 
     setIsLoading(true)
     try {
-      const res = await fetch('/internal-api/set-language', {
+      const res = await fetch(withBasePath('/internal-api/set-language'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

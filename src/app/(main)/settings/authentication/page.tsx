@@ -1,4 +1,5 @@
 import { getAuthSettings, getData } from '@/lib/api'
+import { getBasePath } from '@/lib/basePath'
 import { redirect } from 'next/navigation'
 import AuthenticationClient from './AuthenticationClient'
 
@@ -11,8 +12,5 @@ export default async function AuthenticationSettingsPage() {
     redirect('/settings/general')
   }
 
-  // TODO: Find a better way to handle subfolders with nextjs
-  const routerBasePath = process.env.ROUTER_BASE_PATH ?? ''
-
-  return <AuthenticationClient initialSettings={authSettings} routerBasePath={routerBasePath} />
+  return <AuthenticationClient initialSettings={authSettings} routerBasePath={getBasePath()} />
 }

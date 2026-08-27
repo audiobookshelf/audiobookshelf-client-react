@@ -1,3 +1,4 @@
+import { withBasePath } from '@/lib/basePath'
 import type { AudioTrackData } from '@/types/api'
 
 /**
@@ -26,10 +27,12 @@ export class AudioTrack {
 
     this.sessionId = sessionId
 
+    // Track URLs come from the server without the base path, and the browser requests them
+    // directly rather than through Next.
     if (this.contentUrl?.startsWith('/hls') || !sessionId) {
-      this.sessionTrackUrl = this.contentUrl
+      this.sessionTrackUrl = withBasePath(this.contentUrl)
     } else {
-      this.sessionTrackUrl = `/public/session/${sessionId}/track/${this.index}`
+      this.sessionTrackUrl = withBasePath(`/public/session/${sessionId}/track/${this.index}`)
     }
   }
 

@@ -9,6 +9,7 @@ import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { getBasePath, withBasePath } from '@/lib/basePath'
 import { RssFeed } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -54,7 +55,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
   const entityFeed = entity?.feed ?? null
   const hasEpisodesWithoutPubDate = entity?.hasEpisodesWithoutPubDate ?? false
   const isHttp = typeof window !== 'undefined' && window.location.origin.startsWith('http://')
-  const demoFeedUrl = typeof window !== 'undefined' ? `${window.location.origin}/feed/${newFeedSlug || entityId}` : ''
+  const demoFeedUrl = typeof window !== 'undefined' ? `${window.location.origin}${withBasePath(`/feed/${newFeedSlug || entityId}`)}` : ''
 
   useEffect(() => {
     if (isOpen && entity) {
@@ -78,7 +79,9 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
     setProcessing(true)
     try {
       const res = await openEntityRssFeed(entity.type, entityId, {
-        serverAddress: window.location.origin,
+        // The server stores this verbatim and builds absolute feed urls from it, so it has to
+        // carry the base path the listener will use.
+        serverAddress: `${window.location.origin}${getBasePath()}`,
         slug: sanitized,
         metadataDetails: {
           preventIndexing: metadataDetails.preventIndexing,
@@ -118,7 +121,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
 
   const outerContent = <ModalOuterContent title={entityName}>{entityName}</ModalOuterContent>
 
-  const fullFeedUrl = typeof window !== 'undefined' && currentFeed ? `${window.location.origin}${currentFeed.feedUrl}` : ''
+  const fullFeedUrl = typeof window !== 'undefined' && currentFeed ? `${window.location.origin}${withBasePath(currentFeed.feedUrl)}` : ''
   const meta = currentFeed?.meta
   const hasOwnerName = meta && meta.ownerName != null && String(meta.ownerName).trim() !== ''
   const hasOwnerEmail = meta && meta.ownerEmail != null && String(meta.ownerEmail).trim() !== ''

@@ -99,6 +99,7 @@ import {
 } from '../types/api'
 
 import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
+import { getBasePath, withBasePath } from './basePath'
 import { isNextRedirectError } from './nextErrors'
 import { getUserDefaultUrlPath } from './userPermissions'
 
@@ -134,8 +135,7 @@ export function getClientBaseUrlFromRequest(request: Request): string {
  * Parallels the server's getRequestOrigin() plus global.RouterBasePath (see OidcAuthStrategy).
  */
 export function getClientBaseUrlFromHeaders(headerStore: { get(name: string): string | null }): string {
-  const routerBasePath = process.env.ROUTER_BASE_PATH ?? ''
-  return `${getClientOriginFromHeaders(headerStore)}${routerBasePath}`
+  return `${getClientOriginFromHeaders(headerStore)}${getBasePath()}`
 }
 
 export async function getClientBaseUrl(): Promise<string> {
@@ -160,7 +160,8 @@ export function clearSessionCookies(response: NextResponse) {
  * would otherwise bounce /login → /library forever.
  */
 export function redirectToLogin(request: Request, errorMessage: string): NextResponse {
-  const login = new URL('/login', getClientBaseUrlFromRequest(request))
+  // Route handler redirects are sent verbatim, so the base path has to be added here.
+  const login = new URL(withBasePath('/login'), getClientBaseUrlFromRequest(request))
   login.searchParams.set('error', errorMessage)
   const response = NextResponse.redirect(login)
   clearSessionCookies(response)

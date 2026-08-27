@@ -1,6 +1,7 @@
 'use client'
 
 import ThemeDropdown from '@/components/widgets/ThemeDropdown'
+import { withBasePath } from '@/lib/basePath'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -18,7 +19,7 @@ export default function ThemeSelector({ value, label }: ThemeSelectorProps) {
 
     setIsLoading(true)
     try {
-      const res = await fetch('/internal-api/set-theme', {
+      const res = await fetch(withBasePath('/internal-api/set-theme'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

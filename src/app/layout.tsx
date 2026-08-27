@@ -7,10 +7,10 @@ import ServiceWorkerRegister from '../components/ServiceWorkerRegister'
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
 import { CardSizeProvider } from '../contexts/CardSizeContext'
 import { ToastProvider } from '../contexts/ToastContext'
-import { getNextBasePath } from '../lib/nextBasePath'
+import { BASE_PATH_ATTRIBUTE, getBasePath } from '../lib/basePath'
 import { getTheme } from '../lib/theme'
 
-const basePath = getNextBasePath()
+const basePath = getBasePath()
 
 export const metadata: Metadata = {
   title: 'audiobookshelf', // i18n-ignore
@@ -41,12 +41,15 @@ export const viewport: Viewport = {
   themeColor: '#232323'
 }
 
+// Stylesheets cannot know the base path, so the one asset URL in CSS is overridden here.
+const rootStyle = { '--bookshelf-texture-img': `url(${basePath}/images/wood_default.jpg)` } as React.CSSProperties
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
   const theme = await getTheme()
 
   return (
-    <html lang={locale} className={`theme-${theme}`}>
+    <html lang={locale} className={`theme-${theme}`} style={rootStyle} {...{ [BASE_PATH_ATTRIBUTE]: basePath }}>
       <head>
         <link rel="manifest" href={`${basePath}/manifest.webmanifest`} />
       </head>

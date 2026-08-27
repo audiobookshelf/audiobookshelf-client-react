@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clearSessionCookies, getServerStatus } from './lib/api'
+import { withBasePath } from './lib/basePath'
 import { isSessionTokenValid } from './lib/jwt'
 import { matchAcceptLanguage } from './lib/languages'
 import Logger from './lib/Logger'
@@ -31,17 +32,19 @@ export async function proxy(request: NextRequest) {
   }
 
   // Helper to create URLs with correct host/port from request headers.
-  // nextUrl/url don't always containt the right host/port,
+  // nextUrl/url don't always contain the right host/port,
   // but nextjs populates the x-forwarded-host and x-forwarded-proto headers correctly.
+  // Middleware redirects are sent verbatim, so the base path has to be added here.
   const createUrl = (path: string) => {
+    const absolutePath = withBasePath(path)
     try {
       const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || request.nextUrl.host
       const protocol = request.headers.get('x-forwarded-proto') || (host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https')
-      return new URL(path, `${protocol}://${host}`)
+      return new URL(absolutePath, `${protocol}://${host}`)
     } catch (error) {
       Logger.error('[proxy] failed to create URL:', { path, error })
       // Fallback: use the current request's URL as base
-      return new URL(path, request.nextUrl.origin)
+      return new URL(absolutePath, request.nextUrl.origin)
     }
   }
 
@@ -176,8 +179,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
+  // '/' is listed separately: the catch-all below does not match the origin-root path, which is
+  // what the browser hits for both `https://host/` and `https://host/abs/` (Next strips basePath
+  // before matching). Without it the home URL 404s instead of redirecting to /library.
   // PWA files (sw.js, manifest.webmanifest) are excluded so they stay publicly fetchable:
   // otherwise the auth redirect would serve a /login HTML page in their place, breaking
   // service-worker registration and install from the login screen.
-  matcher: ['/((?!api|internal-api|_next/static|_next/image|sw\\.js|manifest\\.webmanifest|.*\\.png|.*\\.ico|.*\\.svg|.*\\.json).*)']
+  matcher: ['/', '/((?!api|internal-api|_next/static|_next/image|sw\\.js|manifest\\.webmanifest|.*\\.png|.*\\.ico|.*\\.svg|.*\\.json).*)']
 }

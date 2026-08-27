@@ -1,3 +1,5 @@
+import { withBasePath } from '@/lib/basePath'
+
 interface DownloadByUrlOptions {
   filename?: string
   openInNewTab?: boolean
@@ -6,7 +8,7 @@ interface DownloadByUrlOptions {
 export function downloadByUrl(url: string, { filename, openInNewTab = false }: DownloadByUrlOptions = {}) {
   const link = document.createElement('a')
   link.style.display = 'none'
-  link.href = url
+  link.href = withBasePath(url)
 
   if (filename != null) {
     link.download = filename

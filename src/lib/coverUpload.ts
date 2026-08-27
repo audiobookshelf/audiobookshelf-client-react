@@ -1,3 +1,4 @@
+import { withBasePath } from '@/lib/basePath'
 import { parseUploadErrorMessage } from '@/lib/uploadErrors'
 import { UploadCoverResponse } from '@/types/api'
 
@@ -9,7 +10,7 @@ export async function uploadCoverFile(libraryItemId: string, file: File): Promis
   const form = new FormData()
   form.set('cover', file, file.name)
 
-  const response = await fetch(`/internal-api/items/${libraryItemId}/cover`, {
+  const response = await fetch(withBasePath(`/internal-api/items/${libraryItemId}/cover`), {
     method: 'POST',
     body: form
   })

@@ -1,3 +1,4 @@
+import { withBasePath } from '@/lib/basePath'
 import { parseUploadErrorMessage } from '@/lib/uploadErrors'
 import type { UploadProgressInfo } from '@/types/upload'
 
@@ -11,7 +12,7 @@ export async function uploadBackupArchive(file: File, onProgress?: (progress: Up
 
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/internal-api/backups/upload', true)
+    xhr.open('POST', withBasePath('/internal-api/backups/upload'), true)
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && onProgress) {
