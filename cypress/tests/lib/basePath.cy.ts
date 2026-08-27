@@ -1,4 +1,4 @@
-import { BASE_PATH_ATTRIBUTE, BASE_PATH_PLACEHOLDER, getClientBasePath, normalizeBasePath, replaceBasePathPlaceholder, withBasePath } from '@/lib/basePath'
+import { BASE_PATH_ATTRIBUTE, BASE_PATH_PLACEHOLDER, getBasePath, normalizeBasePath, replaceBasePathPlaceholder, withBasePath } from '@/lib/basePath'
 
 /** The browser reads the base path off the root element the server layout renders. */
 function serveFrom(basePath: string | null) {
@@ -29,17 +29,17 @@ describe('normalizeBasePath', () => {
   })
 })
 
-describe('getClientBasePath', () => {
+describe('getBasePath', () => {
   afterEach(() => serveFrom(null))
 
   it('is empty when the root element carries no base path', () => {
     serveFrom(null)
-    expect(getClientBasePath()).to.equal('')
+    expect(getBasePath()).to.equal('')
   })
 
-  it('normalizes whatever the layout rendered', () => {
-    serveFrom('/audiobookshelf/')
-    expect(getClientBasePath()).to.equal('/audiobookshelf')
+  it('returns the attribute the layout rendered', () => {
+    serveFrom('/audiobookshelf')
+    expect(getBasePath()).to.equal('/audiobookshelf')
   })
 })
 

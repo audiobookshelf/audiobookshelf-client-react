@@ -48,9 +48,9 @@ export function getConfiguredBasePath(): string {
  */
 export const BASE_PATH_ATTRIBUTE = 'data-base-path'
 
-export function getClientBasePath(): string {
+export function getBasePath(): string {
   if (typeof document !== 'undefined') {
-    return normalizeBasePath(document.documentElement.getAttribute(BASE_PATH_ATTRIBUTE))
+    return document.documentElement.getAttribute(BASE_PATH_ATTRIBUTE) ?? ''
   }
   return getConfiguredBasePath()
 }
@@ -61,7 +61,7 @@ export function getClientBasePath(): string {
  */
 export function withBasePath(url: string): string {
   if (!url.startsWith('/') || url.startsWith('//')) return url
-  return `${getClientBasePath()}${url}`
+  return `${getBasePath()}${url}`
 }
 
 /**
