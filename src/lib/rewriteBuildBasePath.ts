@@ -108,11 +108,17 @@ export function rewriteBuildBasePath(distDir: string, basePath: string): boolean
 
   const state = readJsonFile<AppliedState>(stateFile)
   const isUpToDate = state?.version === REWRITE_VERSION && state.buildId === buildId && state.basePath === basePath
-  if (isUpToDate && existsSync(snapshotDir)) return false
+  // Same path/build/version: live files are already correct. Do not rebuild the snapshot (even if missing snapshot dir)
+  if (isUpToDate) return false
 
   let manifest = readJsonFile<SnapshotManifest>(path.join(snapshotDir, SNAPSHOT_MANIFEST_NAME))
-  if (manifest?.buildId !== buildId) {
+  if (manifest?.buildId !== buildId || !manifest.files.length) {
     manifest = createSnapshot(distDir, snapshotDir, buildId)
+  }
+  if (!manifest.files.length) {
+    throw new Error(
+      `Cannot apply base path "${basePath || '/'}" to the client build at ${distDir}. The original placeholder files are gone (missing or empty snapshot). Run a new production build.`
+    )
   }
 
   try {
