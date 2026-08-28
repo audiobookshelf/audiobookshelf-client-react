@@ -1,8 +1,9 @@
 'use client'
 
+import { updateClientSettingsAction } from '@/app/actions/clientSettingsActions'
 import { getUserPermissionFlags } from '@/lib/userPermissions'
-import { AudioBookmark, EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react'
+import { AudioBookmark, ClientSettings, EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
+import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
 
 interface UserItemProgressUpdatedPayload {
@@ -28,6 +29,8 @@ export interface UserContextType {
   getMediaItemProgress: (mediaItemId: string) => MediaProgress | undefined
   getBookmarksForLibraryItem: (libraryItemId: string) => AudioBookmark[]
   mergeServerSettings: (settings: ServerSettings | null | undefined) => void
+  clientSettings: ClientSettings
+  updateClientSetting: <K extends keyof ClientSettings>(key: K, value: ClientSettings[K]) => void
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -78,6 +81,31 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     setCurrentUserData(initialUser)
   }, [initialUser])
 
+  const clientSettings = user.clientSettings ?? {}
+  const clientSettingsSaveIdRef = useRef(0)
+
+  const updateClientSetting = useCallback(<K extends keyof ClientSettings>(key: K, value: ClientSettings[K]) => {
+    // Applied locally first so the widget responds without waiting for the request
+    setCurrentUserData((prev) => ({
+      ...prev,
+      user: { ...prev.user, clientSettings: { ...prev.user.clientSettings, [key]: value } }
+    }))
+
+    const saveId = ++clientSettingsSaveIdRef.current
+    updateClientSettingsAction({ [key]: value })
+      .then((response) => {
+        // Rapid changes are concurrent requests, so ignore all but the newest to stop an older one landing last
+        if (saveId !== clientSettingsSaveIdRef.current || !response?.clientSettings) return
+        setCurrentUserData((prev) => ({
+          ...prev,
+          user: { ...prev.user, clientSettings: { ...prev.user.clientSettings, ...response.clientSettings } }
+        }))
+      })
+      .catch((error) => {
+        console.error('Failed to save client settings', error)
+      })
+  }, [])
+
   const mergeServerSettings = useCallback((settings: ServerSettings | null | undefined) => {
     if (!settings) {
       return
@@ -98,7 +126,9 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     Source: currentUserData.Source,
     getMediaItemProgress: (mediaItemId: string) => user.mediaProgress.find((p) => p.mediaItemId === mediaItemId),
     getBookmarksForLibraryItem: (libraryItemId: string) => user.bookmarks?.filter((bm) => bm.libraryItemId === libraryItemId) ?? [],
-    mergeServerSettings
+    mergeServerSettings,
+    clientSettings,
+    updateClientSetting
   }
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>

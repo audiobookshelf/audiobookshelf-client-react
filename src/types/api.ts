@@ -984,6 +984,13 @@ export interface UserPermissions {
   selectedTagsNotAccessible: boolean
 }
 
+export interface ClientSettings {
+  /** Bookshelf cover width in pixels */
+  bookshelfCoverSize?: number
+  /** Bookshelf cover width in pixels used on mobile viewports */
+  bookshelfCoverSizeMobile?: number
+}
+
 export interface User {
   id: string
   username: string
@@ -995,6 +1002,7 @@ export interface User {
   mediaProgress: MediaProgress[]
   /** Series IDs to hide from continue listening */
   seriesHideFromContinueListening: string[]
+  clientSettings?: ClientSettings
   bookmarks: AudioBookmark[]
   isActive: boolean
   isLocked: boolean

@@ -44,7 +44,9 @@ const mockUserContextValue: UserContextType = {
   Source: 'test',
   getMediaItemProgress: () => undefined,
   getBookmarksForLibraryItem: () => [],
-  mergeServerSettings: () => {}
+  mergeServerSettings: () => {},
+  clientSettings: {},
+  updateClientSetting: () => {}
 }
 
 const mockLibraryItem: BookLibraryItem = {

@@ -25,8 +25,6 @@ interface GlobalSettings {
   collapseSeries: boolean
   collapseBookSeries: boolean
   showSubtitles: boolean
-  bookshelfCoverSize: number
-  bookshelfCoverSizeMobile: number
 }
 
 export interface LibrarySettings extends PerLibrarySettings, GlobalSettings {}
@@ -49,9 +47,7 @@ const DEFAULT_PER_LIBRARY_SETTINGS: PerLibrarySettings = {
 const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   collapseSeries: false,
   collapseBookSeries: false,
-  showSubtitles: false,
-  bookshelfCoverSize: 120,
-  bookshelfCoverSizeMobile: 100
+  showSubtitles: false
 }
 
 const DEFAULT_SETTINGS: LibrarySettings = {

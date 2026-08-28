@@ -17,6 +17,7 @@ import {
   BatchUpdateLibraryItemsResponse,
   BookSearchResult,
   Chapter,
+  ClientSettings,
   Collection,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
@@ -455,6 +456,13 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
     console.error('[completeOidcLogin] Error:', error)
     return null
   }
+}
+
+export async function updateClientSettings(settings: ClientSettings): Promise<{ clientSettings: ClientSettings }> {
+  return apiRequest<{ clientSettings: ClientSettings }>('/api/me/client-settings', {
+    method: 'PATCH',
+    body: JSON.stringify(settings)
+  })
 }
 
 export const getListeningStats = cache(async (): Promise<ListeningStats> => {
