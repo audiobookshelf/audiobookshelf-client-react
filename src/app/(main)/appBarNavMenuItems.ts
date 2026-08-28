@@ -1,6 +1,6 @@
 import type { TypeSafeTranslations } from '@/types/translations'
 
-// TODO: Move non-user-specific items (upload, components catalog) out of this menu builder.
+// TODO: Move non-user-specific items (components catalog) out of this menu builder.
 
 export type AppBarNavMenuItemType = 'link' | 'logout'
 
@@ -17,12 +17,11 @@ export interface AppBarNavMenuItemConfig {
 
 export interface BuildAppBarNavMenuItemsParams {
   username: string
-  userCanUpload: boolean
   t: TypeSafeTranslations
 }
 
-export function buildAppBarNavMenuItems({ username, userCanUpload, t }: BuildAppBarNavMenuItemsParams): AppBarNavMenuItemConfig[] {
-  const items: AppBarNavMenuItemConfig[] = [
+export function buildAppBarNavMenuItems({ username, t }: BuildAppBarNavMenuItemsParams): AppBarNavMenuItemConfig[] {
+  return [
     {
       id: 'account',
       type: 'link',
@@ -31,22 +30,7 @@ export function buildAppBarNavMenuItems({ username, userCanUpload, t }: BuildApp
       ariaLabel: t('HeaderAccount'),
       icon: 'person',
       className: 'border-border border-b'
-    }
-  ]
-
-  if (userCanUpload) {
-    items.push({
-      id: 'upload',
-      type: 'link',
-      href: '/upload',
-      label: t('ButtonUpload'),
-      ariaLabel: t('ButtonUpload'),
-      icon: 'upload',
-      mobileOnly: true
-    })
-  }
-
-  items.push(
+    },
     {
       id: 'stats',
       type: 'link',
@@ -70,7 +54,5 @@ export function buildAppBarNavMenuItems({ username, userCanUpload, t }: BuildApp
       ariaLabel: t('ButtonLogout'),
       icon: 'logout'
     }
-  )
-
-  return items
+  ]
 }

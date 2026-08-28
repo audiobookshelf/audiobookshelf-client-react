@@ -1,6 +1,6 @@
 'use client'
 
-// TODO: Move non-user-specific menu items (e.g. upload, components catalog) out of this component and its menu builder.
+// TODO: Move non-user-specific menu items (e.g. components catalog) out of this component and its menu builder.
 
 import ButtonBase from '@/components/ui/ButtonBase'
 import { useUser } from '@/contexts/UserContext'
@@ -17,7 +17,7 @@ import AppBarNavMenuItem from './AppBarNavMenuItem'
 import { type AppBarNavMenuItemConfig, buildAppBarNavMenuItems } from './appBarNavMenuItems'
 
 export default function UserAppBarNav() {
-  const { user, userCanUpload } = useUser()
+  const { user } = useUser()
   const username = user.username
   const t = useTypeSafeTranslations()
   const router = useRouter()
@@ -31,7 +31,7 @@ export default function UserAppBarNav() {
   const desktopTriggerRef = useRef<HTMLButtonElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const allMenuItems = useMemo(() => buildAppBarNavMenuItems({ username, userCanUpload, t }), [t, userCanUpload, username])
+  const allMenuItems = useMemo(() => buildAppBarNavMenuItems({ username, t }), [t, username])
 
   const visibleMenuItems = useMemo(() => (isDesktop ? allMenuItems.filter((item) => !item.mobileOnly) : allMenuItems), [allMenuItems, isDesktop])
 

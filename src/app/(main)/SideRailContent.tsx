@@ -31,8 +31,8 @@ export default function SideRailContent({
 }: SideRailContentProps) {
   const pathname = usePathname()
   const t = useTypeSafeTranslations()
-  const { userIsAdminOrUp } = useUser()
-  // Optional: AppBar mounts this drawer on settings/account/upload (no LibraryProvider)
+  const { userIsAdminOrUp, userCanUpload } = useUser()
+  // Optional: AppBar mounts this drawer on settings/account (no LibraryProvider)
   const { filterData } = useLibraryOptional()
   const numIssues = filterData?.numIssues ?? 0
   const issuesHref = `/library/${libraryId}/issues`
@@ -145,10 +145,18 @@ export default function SideRailContent({
       href: `/library/${libraryId}/download-queue`,
       mediaType: 'podcast' as const,
       adminOnly: true
+    },
+    {
+      icon: <span className="material-symbols text-2xl">upload</span>,
+      label: t('ButtonUpload'),
+      href: `/library/${libraryId}/upload`,
+      uploadOnly: true
     }
   ]
 
-  const filteredButtons = buttons.filter((button) => (!button.mediaType || button.mediaType === mediaType) && (!button.adminOnly || userIsAdminOrUp))
+  const filteredButtons = buttons.filter(
+    (button) => (!button.mediaType || button.mediaType === mediaType) && (!button.adminOnly || userIsAdminOrUp) && (!button.uploadOnly || userCanUpload)
+  )
 
   const isDrawer = variant === 'drawer'
 
