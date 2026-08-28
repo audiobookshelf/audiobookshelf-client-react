@@ -21,8 +21,8 @@ interface MediaCardFrameProps {
   onPointerUp?: (event: ReactPointerEvent) => void
   onPointerCancel?: (event: ReactPointerEvent) => void
   onPointerMove?: (event: ReactPointerEvent) => void
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
+  onMouseEnter?: (event: ReactMouseEvent) => void
+  onMouseLeave?: (event: ReactMouseEvent) => void
   /** Fires on bubble (unlike mouseenter); use when descendants need to drive hover reliably. */
   onMouseOver?: (event: ReactMouseEvent) => void
   onKeyDown?: (event: React.KeyboardEvent) => void

@@ -3,7 +3,7 @@
 import { ChaptersEditModalBody, type ChaptersEditCloseHandle } from '@/components/modals/ChaptersEditModalBody'
 import { CoverEditModalBody } from '@/components/modals/CoverEditModal'
 import { LibraryItemEditModalContent } from '@/components/modals/LibraryItemEditModal'
-import LibraryItemModal, { type LibraryItemModalItemSource, useLibraryItemModal } from '@/components/modals/LibraryItemModal'
+import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource } from '@/components/modals/LibraryItemModal'
 import { MatchModalBody } from '@/components/modals/MatchModal'
 import { SectionedModalBody, type Section } from '@/components/modals/SectionedModal'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -27,6 +27,10 @@ export type MetadataEditSection = 'details' | 'cover' | 'chapters' | 'match'
 export type LibraryItemMetadataEditModalProps = {
   isOpen: boolean
   onClose: () => void
+  /**
+   * Desktop rail tab to select. On mobile, generic Edit (`details` / omitted) opens the hub;
+   * `cover` and `match` open that section (e.g. Match from the context menu).
+   */
   initialSection?: MetadataEditSection
 } & LibraryItemModalItemSource
 
@@ -160,6 +164,8 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
     requestChaptersLeaveOrProceed(chaptersCloseRef.current, onClose)
   }, [onClose])
 
+  const mobileInitialSection = initialSection === 'details' ? undefined : initialSection
+
   return (
     <LibraryItemModal
       isOpen={isOpen}
@@ -172,7 +178,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
       <LibraryItemMetadataEditModalBody
         isOpen={isOpen}
         onClose={handleClose}
-        initialSection={initialSection}
+        initialSection={mobileInitialSection}
         selectedSection={selectedSection}
         setSelectedSection={setSelectedSection}
         onSectionChange={handleSectionChange}

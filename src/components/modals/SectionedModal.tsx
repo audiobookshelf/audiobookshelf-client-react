@@ -23,6 +23,7 @@ export interface SectionedModalBodyProps {
   /** Called instead of immediately returning to the mobile hub. Invoke `proceed` to go back. */
   onRequestHubBack?: (proceed: () => void) => void
   isOpen: boolean
+  /** When set, mobile opens this section instead of the hub (e.g. Match from the context menu). */
   initialSection?: string
   children?: ReactNode
   className?: string
@@ -43,12 +44,8 @@ export function SectionedModalBody({
   const [mobileScreen, setMobileScreen] = useState<'hub' | string>(initialSection ?? 'hub')
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
       setMobileScreen(initialSection ?? 'hub')
-      return
-    }
-    if (initialSection) {
-      setMobileScreen(initialSection)
     }
   }, [isOpen, initialSection])
 
