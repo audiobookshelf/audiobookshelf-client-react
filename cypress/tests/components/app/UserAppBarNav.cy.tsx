@@ -64,7 +64,8 @@ function mountUserAppBarNav(props: { userCanUpload?: boolean; username?: string 
     refresh: cy.stub(),
     push: cy.stub(),
     replace: cy.stub(),
-    prefetch: cy.stub()
+    prefetch: cy.stub(),
+    bfcacheId: 'test-bfcache-id'
   } as AppRouterInstance
 
   cy.stub(navigation, 'useRouter').callsFake(() => router)
