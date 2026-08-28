@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AudioTrack } from '@/types/api'
+import { withBasePath } from '@/lib/basePath'
 import { getAudioTrackForTime } from '@/lib/chapters/chapterEditorUtils'
 
 interface UseChapterPreviewAudioOptions {
@@ -65,7 +66,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
       }
 
       const audioEl = document.createElement('audio')
-      audioEl.src = `${audioTrack.contentUrl}?token=${token}`
+      audioEl.src = `${withBasePath(audioTrack.contentUrl)}?token=${token}`
       audioEl.id = 'chapter-audio'
       document.body.appendChild(audioEl)
       audioElRef.current = audioEl

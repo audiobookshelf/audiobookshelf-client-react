@@ -12,6 +12,7 @@ import ToggleSwitch from '@/components/ui/ToggleSwitch'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
+import { withBasePath } from '@/lib/basePath'
 import { formatDuration } from '@/lib/formatDuration'
 import type { MediaItemShare } from '@/types/api'
 import { useLocale } from 'next-intl'
@@ -97,12 +98,12 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
 
   const demoShareUrl = useMemo(() => {
     if (typeof window === 'undefined') return ''
-    return `${window.location.origin}/share/${newShareSlug}`
+    return `${window.location.origin}${withBasePath(`/share/${newShareSlug}`)}`
   }, [newShareSlug])
 
   const currentShareUrl = useMemo(() => {
     if (!currentShare || typeof window === 'undefined') return ''
-    return `${window.location.origin}/share/${currentShare.slug}`
+    return `${window.location.origin}${withBasePath(`/share/${currentShare.slug}`)}`
   }, [currentShare])
 
   const currentShareTimeRemaining = useMemo(() => {

@@ -5,6 +5,7 @@ import TextInput from '@/components/ui/TextInput'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import LanguageDropdown from '@/components/widgets/LanguageDropdown'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { useLocale } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState, useTransition } from 'react'
@@ -33,7 +34,7 @@ export default function ServerInitForm() {
       setLanguage(newLanguage)
       startLanguageTransition(async () => {
         try {
-          const res = await fetch('/internal-api/set-language', {
+          const res = await fetch(withBasePath('/internal-api/set-language'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ language: newLanguage, scope: 'server' })
@@ -63,7 +64,7 @@ export default function ServerInitForm() {
             password
           }
         }
-        const res = await fetch('/init', {
+        const res = await fetch(withBasePath('/init'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -75,7 +76,7 @@ export default function ServerInitForm() {
         }
         // Navigate to login with a one-time redirect to library settings after first root login.
         // reload() would keep query params like ?error=Token+refresh+failed from a stale-session redirect before init.
-        window.location.replace('/login?redirect=/settings/libraries')
+        window.location.replace(withBasePath('/login?redirect=/settings/libraries'))
       } catch {
         setError(t('ErrorNetwork'))
       }

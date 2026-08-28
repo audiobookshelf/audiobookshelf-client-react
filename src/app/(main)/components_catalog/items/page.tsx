@@ -6,6 +6,7 @@ import { LibraryProvider } from '@/contexts/LibraryContext'
 import { FlatResultItem } from '@/hooks/useGlobalSearchTransformer'
 import { Author, BookLibraryItem, Collection, LibraryItem, Playlist, PodcastLibraryItem, Series } from '@/types/api'
 import { useCallback, useState } from 'react'
+import Link from 'next/link'
 import GlobalSearchInput from '../../GlobalSearchInput'
 import { BookDetailsEditExamples } from '../examples/BookDetailsEditExamples'
 import { ChaptersExamples } from '../examples/ChaptersExamples'
@@ -93,9 +94,9 @@ export default function ItemDetailsExamplesPage() {
             This page showcases the item details editing components and cover management components for library items. Use the search box below to find and
             select books or podcasts to see the relevant components in action with real data.
           </p>
-          <a href="/components_catalog" className="text-blue-400 transition-colors hover:text-blue-300">
+          <Link href="/components_catalog" className="text-blue-400 transition-colors hover:text-blue-300">
             ← Back to Components Catalog
-          </a>
+          </Link>
         </div>
 
         {/* Search Section */}

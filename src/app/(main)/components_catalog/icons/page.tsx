@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { InlineIndicatorExamples } from '../examples/InlineIndicatorExamples'
 import { LibraryIconExamples } from '../examples/LibraryIconExamples'
 import { LoadingExamples } from '../examples/LoadingExamples'
@@ -9,9 +10,9 @@ export default function IconComponentsPage() {
       <div className="mb-8">
         <h1 className="mb-4 text-3xl font-bold">Icon & Indicator Components</h1>
         <p className="mb-6 text-gray-300">This page showcases all the icon and indicator components available in the audiobookshelf client.</p>
-        <a href="/components_catalog" className="text-blue-400 transition-colors hover:text-blue-300">
+        <Link href="/components_catalog" className="text-blue-400 transition-colors hover:text-blue-300">
           ← Back to Components Catalog
-        </a>
+        </Link>
       </div>
 
       {/* Table of Contents */}

@@ -5,7 +5,8 @@ import Tooltip from '@/components/ui/Tooltip'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { usePlayerSettings } from '@/hooks/usePlayerSettings'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getCoverAspectRatio } from '@/lib/coverUtils'
+import { withBasePath } from '@/lib/basePath'
+import { getCoverAspectRatio, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
@@ -56,7 +57,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
     async function fetchShareData() {
       try {
-        let endpoint = `/public/share/${slug}`
+        let endpoint = withBasePath(`/public/share/${slug}`)
         if (startTimeParam != null) {
           endpoint += `?t=${startTimeParam}`
         }
@@ -103,9 +104,9 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
   const hasLoaded = playerState !== PlayerState.IDLE && playerState !== PlayerState.LOADING
   const coverAspectRatio = getCoverAspectRatio(playbackSession?.coverAspectRatio)
 
-  const coverUrl = playbackSession?.coverPath ? `/public/share/${slug}/cover` : '/images/book_placeholder.jpg'
+  const coverUrl = playbackSession?.coverPath ? withBasePath(`/public/share/${slug}/cover`) : getPlaceholderCoverUrl()
 
-  const downloadUrl = `/public/share/${slug}/download`
+  const downloadUrl = withBasePath(`/public/share/${slug}/download`)
 
   const audioTracks: AudioTrack[] = useMemo(() => {
     if (!playbackSession?.audioTracks) return []
@@ -142,7 +143,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
   const sendProgressSync = useCallback(
     (time: number) => {
-      fetch(`/public/share/${slug}/progress`, {
+      fetch(withBasePath(`/public/share/${slug}/progress`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentTime: time }),

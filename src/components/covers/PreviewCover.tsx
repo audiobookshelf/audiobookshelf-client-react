@@ -2,6 +2,7 @@
 
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { mergeClasses } from '@/lib/merge-classes'
 import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -169,7 +170,9 @@ export default function PreviewCover({
       {imageFailed && (
         <div className="absolute start-0 end-0 top-0 bottom-0 h-full w-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
           <div className="border-error flex h-full w-full flex-col items-center justify-center border-2">
-            {width > 100 && <Image src="/images/Logo.png" alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />}
+            {width > 100 && (
+              <Image src={withBasePath('/images/Logo.png')} alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />
+            )}
             <p className="text-error text-center" style={{ fontSize: `${invalidCoverFontSize}rem` }}>
               {t('MessageInvalidCover')}
             </p>

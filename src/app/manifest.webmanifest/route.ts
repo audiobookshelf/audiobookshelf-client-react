@@ -1,4 +1,4 @@
-import { getNextBasePath } from '@/lib/nextBasePath'
+import { getBasePath } from '@/lib/basePath'
 import { buildManifest } from '@/lib/pwa/buildManifest'
 import { NextResponse } from 'next/server'
 
@@ -15,7 +15,7 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 
 export function GET() {
-  const base = getNextBasePath()
+  const base = getBasePath()
 
   return NextResponse.json(buildManifest(base), {
     headers: { 'Content-Type': 'application/manifest+json' }

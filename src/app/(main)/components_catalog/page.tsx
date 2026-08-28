@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { CoverSizeWidgetExamples } from './examples/CoverSizeWidgetExamples'
 import { MetadataEditTableExamples } from './examples/MetadataEditTableExamples'
 import { SideBySideControlsExamples } from './examples/SideBySideControlsExamples'
@@ -16,64 +17,64 @@ export default function ComponentsCatalogPage() {
         <div className="rounded-lg bg-gray-800 p-6">
           <div className="mb-6 border-gray-700">
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-4">
-              <a href="/components_catalog/items" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
+              <Link href="/components_catalog/items" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
                 <span className="material-symbols text-xl">arrow_forward</span>
                 Item Components
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="mb-6 border-gray-700">
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-4">
-              <a href="/components_catalog/buttons" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
+              <Link href="/components_catalog/buttons" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
                 <span className="material-symbols text-xl">arrow_forward</span>
                 Button Components
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="mb-6 border-gray-700">
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-4">
-              <a href="/components_catalog/icons" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
+              <Link href="/components_catalog/icons" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
                 <span className="material-symbols text-xl">arrow_forward</span>
                 Icon & Indicator Components
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="mb-6 border-gray-700">
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-4">
-              <a href="/components_catalog/inputs" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
+              <Link href="/components_catalog/inputs" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
                 <span className="material-symbols text-xl">arrow_forward</span>
                 Input & Selection Components
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="mb-6 border-gray-700">
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-4">
-              <a href="/components_catalog/modals" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
+              <Link href="/components_catalog/modals" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
                 <span className="material-symbols text-xl">arrow_forward</span>
                 Modal Components
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="mb-6 border-gray-700">
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-4">
-              <a href="/components_catalog/checkboxes" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
+              <Link href="/components_catalog/checkboxes" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
                 <span className="material-symbols text-xl">arrow_forward</span>
                 Checkbox & Switch Components
-              </a>
+              </Link>
             </div>
           </div>
 
           <div className="mb-6 border-gray-700">
             <div className="rounded-lg border border-blue-500/30 bg-blue-900/20 p-4">
-              <a href="/components_catalog/alerts" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
+              <Link href="/components_catalog/alerts" className="flex items-center gap-2 font-medium text-blue-400 transition-colors hover:text-blue-300">
                 <span className="material-symbols text-xl">arrow_forward</span>
                 Alert, Toast & Tooltip Components
-              </a>
+              </Link>
             </div>
           </div>
 

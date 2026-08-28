@@ -16,6 +16,7 @@ import { useMediaCardActions } from '@/components/widgets/media-card/useMediaCar
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
 import { useCallback, useMemo } from 'react'
@@ -108,7 +109,7 @@ export default function LibraryItemActionButtons({
     isQueued,
     initialShare: libraryItem.mediaItemShare ?? null,
     onDeleteSuccess: () => {
-      window.location.href = `/library/${libraryItem.libraryId}`
+      window.location.href = withBasePath(`/library/${libraryItem.libraryId}`)
     },
     onOpenMatch,
     playerControls

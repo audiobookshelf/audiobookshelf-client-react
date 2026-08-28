@@ -1,5 +1,6 @@
 'use client'
 
+import { withBasePath } from '@/lib/basePath'
 import { OnlineUser } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
@@ -47,7 +48,8 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
   const [usersOnline, setUsersOnline] = useState<OnlineUser[]>([])
 
   useEffect(() => {
-    const socketInstance = io()
+    // Socket.IO attaches to the raw HTTP server, so the base path is not applied for us.
+    const socketInstance = io({ path: withBasePath('/socket.io') })
     setSocket(socketInstance)
 
     const handleConnect = () => {
@@ -85,7 +87,7 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
     const handleAuthFailed = async () => {
       console.log('Socket auth failed. Attempting silent token refresh.')
       try {
-        const res = await fetch('/internal-api/refresh', {
+        const res = await fetch(withBasePath('/internal-api/refresh'), {
           headers: {
             Accept: 'application/json'
           }

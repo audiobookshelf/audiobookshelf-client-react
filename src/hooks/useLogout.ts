@@ -1,5 +1,6 @@
 'use client'
 
+import { withBasePath } from '@/lib/basePath'
 import type { ServerLogoutResponse } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
@@ -9,14 +10,14 @@ export function useLogout() {
   const router = useRouter()
 
   return useCallback(async () => {
-    const res = await fetch('/internal-api/logout', { method: 'POST' })
+    const res = await fetch(withBasePath('/internal-api/logout'), { method: 'POST' })
     if (!res.ok) {
       throw new Error(`Logout failed: ${res.status} ${res.statusText}`)
     }
 
     const data = (await res.json()) as ServerLogoutResponse
     if (data.redirect_url) {
-      window.location.href = data.redirect_url
+      window.location.href = withBasePath(data.redirect_url)
     } else {
       router.replace('/login')
     }

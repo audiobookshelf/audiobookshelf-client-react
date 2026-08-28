@@ -3,6 +3,7 @@
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { AuthFormData } from '@/types/api'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -63,7 +64,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
       setError('')
       setLoading(true)
       try {
-        const res = await fetch('/internal-api/login', {
+        const res = await fetch(withBasePath('/internal-api/login'), {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })

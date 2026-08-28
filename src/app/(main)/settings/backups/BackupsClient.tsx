@@ -14,6 +14,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
 import { uploadBackupArchive } from '@/lib/backupUpload'
+import { withBasePath } from '@/lib/basePath'
 import { formatJsDatetime } from '@/lib/datefns'
 import { downloadBackup } from '@/lib/download'
 import { bytesPretty } from '@/lib/string'
@@ -191,7 +192,7 @@ export default function BackupsClient({ backupResponse, appliedBackupToast = fal
       } catch {
         /* ignore */
       }
-      window.location.replace(`${window.location.origin}/settings/backups?backup=1`)
+      window.location.replace(`${window.location.origin}${withBasePath('/settings/backups?backup=1')}`)
     } catch (error) {
       console.error('Failed to apply backup', error)
       const message = error instanceof ApiError && error.message ? error.message : t('ToastBackupRestoreFailed')

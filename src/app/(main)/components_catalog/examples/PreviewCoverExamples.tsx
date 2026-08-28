@@ -2,7 +2,7 @@
 
 import PreviewCover from '@/components/covers/PreviewCover'
 import CoverPreviewModal from '@/components/modals/CoverPreviewModal'
-import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
@@ -136,7 +136,7 @@ export function PreviewCoverExamples({ selectedBook, selectedPodcast }: PreviewC
 
         <Example title="Invalid Cover Error State">
           <div className="flex flex-col items-center gap-4">
-            <PreviewCover src="/images/book_placeholder.jpg" width={120} forceErrorState={true} />
+            <PreviewCover src={getPlaceholderCoverUrl()} width={120} forceErrorState={true} />
             <p className="text-xs text-gray-400">Shows error state when image fails to load</p>
           </div>
         </Example>
