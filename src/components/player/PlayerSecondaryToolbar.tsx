@@ -3,17 +3,15 @@
 import ButtonBase from '@/components/ui/ButtonBase'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
-import { mergeClasses } from '@/lib/merge-classes'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import type { PlayerControlsState } from './usePlayerControlsState'
 import VolumeControl from './VolumeControl'
 
 interface PlayerSecondaryToolbarProps {
   controls: PlayerControlsState
-  className?: string
 }
 
-export default function PlayerSecondaryToolbar({ controls, className }: PlayerSecondaryToolbarProps) {
+export default function PlayerSecondaryToolbar({ controls }: PlayerSecondaryToolbarProps) {
   const {
     playerHandler,
     isPodcast,
@@ -32,17 +30,17 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
   const { sleepTimerSet, remainingString } = sleepTimer
 
   return (
-    <div className={mergeClasses('flex flex-nowrap items-center justify-center gap-3 sm:gap-4', className)}>
+    <div className="flex shrink-0 flex-nowrap items-center justify-center gap-1">
       <VolumeControl playerHandler={playerHandler} />
       <PlaybackRateWidget playerHandler={playerHandler} />
       <Tooltip text={t('LabelSleepTimer')} position="top">
         <ButtonBase
-          size="custom"
+          size="large"
           borderless
-          className="min-w-9 text-2xl sm:min-w-10"
+          className="min-w-11 text-2xl"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setIsSleepTimerModalOpen(true)}
-          ariaLabel={t('LabelSleepTimer')}
+          ariaLabel={sleepTimerSet ? t('AriaLabelSleepTimerActive') : t('LabelSleepTimer')}
         >
           {!sleepTimerSet ? (
             <span className="material-symbols" aria-hidden="true">
@@ -60,14 +58,14 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
       </Tooltip>
       {!isPodcast && (
         <Tooltip text={t('LabelViewBookmarks')} position="top">
-          <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={openBookmarksModal} ariaLabel={t('LabelViewBookmarks')}>
+          <IconBtn size="large" borderless onClick={openBookmarksModal} ariaLabel={t('LabelViewBookmarks')}>
             {bookmarks.length ? 'bookmarks' : 'bookmark_border'}
           </IconBtn>
         </Tooltip>
       )}
       {chapters.length > 0 && (
         <Tooltip text={t('LabelViewChapters')} position="top">
-          <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={() => setIsChaptersModalOpen(true)} ariaLabel={t('LabelViewChapters')}>
+          <IconBtn size="large" borderless onClick={() => setIsChaptersModalOpen(true)} ariaLabel={t('LabelViewChapters')}>
             format_list_bulleted
           </IconBtn>
         </Tooltip>
@@ -75,9 +73,11 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
       {playerQueueItems.length > 0 && (
         <Tooltip text={t('LabelViewQueue')} position="top">
           <IconBtn
-            size="custom"
+            size="large"
             borderless
-            className="w-9 text-2xl sm:w-10 sm:text-3xl"
+            // Same box as its neighbours; only the glyph is a size up, since `playlist_play`
+            // draws smaller than the rest at the same font size
+            iconClass="text-3xl"
             onClick={() => setIsQueueModalOpen(true)}
             ariaLabel={t('LabelViewQueue')}
           >
@@ -86,13 +86,7 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
         </Tooltip>
       )}
       <Tooltip text={t('LabelViewPlayerSettings')} position="top">
-        <IconBtn
-          size="custom"
-          borderless
-          className="w-9 text-2xl sm:w-10"
-          onClick={() => setIsSettingsModalOpen(true)}
-          ariaLabel={t('LabelViewPlayerSettings')}
-        >
+        <IconBtn size="large" borderless onClick={() => setIsSettingsModalOpen(true)} ariaLabel={t('LabelViewPlayerSettings')}>
           settings_slow_motion
         </IconBtn>
       </Tooltip>

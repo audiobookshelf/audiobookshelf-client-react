@@ -51,13 +51,11 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
   const isPlaying = playerState === PlayerState.PLAYING
   const isLoading = playerState === PlayerState.LOADING
 
-  const getJumpTooltipText = (prefix: string, jumpTime: number) => {
-    const timeText = jumpTime <= 60 ? t('LabelTimeDurationXSeconds', { 0: jumpTime }) : t('LabelTimeDurationXMinutes', { 0: jumpTime / 60 })
-    return `${prefix} - ${timeText}`
-  }
+  const formatJumpDuration = (jumpTime: number) =>
+    jumpTime <= 60 ? t('LabelTimeDurationXSeconds', { 0: jumpTime }) : t('LabelTimeDurationXMinutes', { 0: jumpTime / 60 })
 
-  const jumpBackwardTooltipText = getJumpTooltipText(t('ButtonJumpBackward'), settings.jumpBackwardAmount)
-  const jumpForwardTooltipText = getJumpTooltipText(t('ButtonJumpForward'), settings.jumpForwardAmount)
+  const jumpBackwardTooltipText = t('LabelJumpBackwardWithDuration', { 0: formatJumpDuration(settings.jumpBackwardAmount) })
+  const jumpForwardTooltipText = t('LabelJumpForwardWithDuration', { 0: formatJumpDuration(settings.jumpForwardAmount) })
   const hasNext = !!nextChapter || hasNextItemInQueue
   const nextButtonTooltipText = hasNextItemInQueue && !nextChapter ? t('ButtonNextItemInQueue') : t('ButtonNextChapter')
   const previousButtonTooltipText = hasPreviousItemInQueue && !previousChapter ? t('ButtonPreviousItemInQueue') : t('ButtonPreviousChapter')

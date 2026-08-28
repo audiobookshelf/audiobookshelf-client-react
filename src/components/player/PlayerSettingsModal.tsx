@@ -14,6 +14,9 @@ interface PlayerSettingsModalProps {
   onUpdateSettings: (updates: Partial<PlayerSettings>) => void
 }
 
+// Default dropdown cap (224px) is one item short for six py-2 options
+const JUMP_MENU_MAX_HEIGHT = '15rem'
+
 // Playback rate increment/decrement values
 const PLAYBACK_RATE_INCREMENT_VALUES: DropdownItem[] = [
   { text: '0.1', value: 0.1 },
@@ -59,7 +62,14 @@ export default function PlayerSettingsModal({ isOpen, settings, onClose, onUpdat
           <ToggleSwitch value={settings.useChapterTrack} label={t('LabelUseChapterTrack')} onChange={handleUseChapterTrackChange} />
 
           {/* Jump forward amount dropdown */}
-          <Dropdown label={t('LabelJumpForwardAmount')} value={settings.jumpForwardAmount} items={JUMP_VALUES} onChange={handleJumpForwardChange} usePortal />
+          <Dropdown
+            label={t('LabelJumpForwardAmount')}
+            value={settings.jumpForwardAmount}
+            items={JUMP_VALUES}
+            onChange={handleJumpForwardChange}
+            menuMaxHeight={JUMP_MENU_MAX_HEIGHT}
+            usePortal
+          />
 
           {/* Jump backward amount dropdown */}
           <Dropdown
@@ -67,6 +77,7 @@ export default function PlayerSettingsModal({ isOpen, settings, onClose, onUpdat
             value={settings.jumpBackwardAmount}
             items={JUMP_VALUES}
             onChange={handleJumpBackwardChange}
+            menuMaxHeight={JUMP_MENU_MAX_HEIGHT}
             usePortal
           />
 

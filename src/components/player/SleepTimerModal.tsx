@@ -180,7 +180,7 @@ export default function SleepTimerModal({
                         size="small"
                         disabled={remaining < 30 * 60}
                         className="px-2"
-                        ariaLabel={t('AriaLabelJumpBackwardWithDuration', { 0: thirtyMinutesLabel })}
+                        ariaLabel={t('LabelJumpBackwardWithDuration', { 0: thirtyMinutesLabel })}
                         onClick={() => handleDecrement(30 * 60)}
                       >
                         <span className="material-symbols text-lg">remove</span>
@@ -190,7 +190,7 @@ export default function SleepTimerModal({
                       <IconBtn
                         className="min-w-9"
                         size="small"
-                        ariaLabel={t('AriaLabelJumpBackwardWithDuration', { 0: fiveMinutesLabel })}
+                        ariaLabel={t('LabelJumpBackwardWithDuration', { 0: fiveMinutesLabel })}
                         onClick={() => handleDecrement(60 * 5)}
                       >
                         remove
@@ -203,7 +203,7 @@ export default function SleepTimerModal({
                       <IconBtn
                         className="min-w-9"
                         size="small"
-                        ariaLabel={t('AriaLabelJumpForwardWithDuration', { 0: fiveMinutesLabel })}
+                        ariaLabel={t('LabelJumpForwardWithDuration', { 0: fiveMinutesLabel })}
                         onClick={() => onIncrement(60 * 5)}
                       >
                         add
@@ -212,7 +212,7 @@ export default function SleepTimerModal({
                       <Btn
                         size="small"
                         className="px-2"
-                        ariaLabel={t('AriaLabelJumpForwardWithDuration', { 0: thirtyMinutesLabel })}
+                        ariaLabel={t('LabelJumpForwardWithDuration', { 0: thirtyMinutesLabel })}
                         onClick={() => onIncrement(30 * 60)}
                       >
                         <span className="material-symbols text-lg">add</span>

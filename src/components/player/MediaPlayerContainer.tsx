@@ -4,6 +4,8 @@ import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useMediaContext, usePlayerState } from '@/contexts/MediaContext'
 import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
 import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
+import { useExitTransition } from '@/hooks/useExitTransition'
+import { usePlayerFullscreenHistory } from '@/hooks/usePlayerFullscreenHistory'
 import { useMediaSession } from '@/hooks/useMediaSession'
 import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
@@ -13,13 +15,19 @@ import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { getEpisodeDuration } from '@/lib/episode'
 import { mergeClasses } from '@/lib/merge-classes'
-import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMetadata } from '@/types/api'
-import { CSSProperties, useLayoutEffect, useMemo, useRef } from 'react'
+import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMetadata, LibraryItem } from '@/types/api'
+import { CSSProperties, useCallback, useLayoutEffect, useMemo, useRef } from 'react'
 import IconBtn from '../ui/IconBtn'
 import PlayerControls from './PlayerControls'
-import PlayerMetadataBlock from './PlayerMetadataBlock'
+import PlayerFullscreen from './PlayerFullscreen'
+import PlayerMetadataBlock, { type PlayerMetadataDisplay } from './PlayerMetadataBlock'
 import PlayerMobileLayout from './PlayerMobileLayout'
+import PlayerModals from './PlayerModals'
 import PlayerTrackBar from './PlayerTrackBar'
+import { usePlayerControlsState } from './usePlayerControlsState'
+
+/** Must match the `player-fullscreen-exit` animation in transitions.css */
+const FULLSCREEN_EXIT_MS = 220
 
 export function getPlayerBottomInsetClass(): string {
   return 'bottom-[var(--media-player-height,10rem)] lg:bottom-40'
@@ -41,13 +49,9 @@ function clearMediaPlayerHeightCssVar() {
 
 export default function MediaPlayerContainer() {
   const t = useTypeSafeTranslations()
-  const { streamLibraryItem, streamEpisodeId, clearStreamMedia, playerControls, isPlayerDetailsExpanded } = useMediaContext()
+  const { streamLibraryItem, streamEpisodeId, playerControls } = useMediaContext()
   const playerState = usePlayerState()
   const playerHandler = useMemo((): PlayerHandler => ({ state: playerState, controls: playerControls }), [playerControls, playerState])
-  const coverAspectRatio = useBookCoverAspectRatio()
-  const isDesktop = useMediaQuery('lg')
-
-  useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
 
   const { handleNext, handlePrevious } = usePlayerChapterQueueNavigation(playerHandler, streamLibraryItem)
 
@@ -101,14 +105,44 @@ export default function MediaPlayerContainer() {
     }
   }, [playerHandler.state.displayTitle, playerHandler.state.duration, playerHandler.state.settings.playbackRate, streamEpisodeId, streamLibraryItem, t])
 
+  if (!streamLibraryItem || !playerMetadata) {
+    return null
+  }
+
+  return (
+    <PlayerSurface
+      playerHandler={playerHandler}
+      streamLibraryItem={streamLibraryItem}
+      metadata={playerMetadata}
+      accentStyle={playerAccentStyle}
+      hasAccentColor={accentRgb !== null}
+    />
+  )
+}
+
+interface PlayerSurfaceProps {
+  playerHandler: PlayerHandler
+  streamLibraryItem: LibraryItem
+  metadata: PlayerMetadataDisplay
+  accentStyle?: CSSProperties
+  hasAccentColor: boolean
+}
+
+/**
+ * Owns the single controls state shared by the mini player, the fullscreen player and the
+ * player modals. Keeping one instance means transient state like the sleep timer survives
+ * moving between layouts.
+ */
+function PlayerSurface({ playerHandler, streamLibraryItem, metadata, accentStyle, hasAccentColor }: PlayerSurfaceProps) {
+  const t = useTypeSafeTranslations()
+  const { clearStreamMedia, isPlayerDetailsExpanded, isPlayerFullscreen, setPlayerFullscreen } = useMediaContext()
+  const coverAspectRatio = useBookCoverAspectRatio()
+  const isDesktop = useMediaQuery('lg')
+  const controlsState = usePlayerControlsState(playerHandler, streamLibraryItem)
+
   const playerShellRef = useRef<HTMLDivElement>(null)
 
   useLayoutEffect(() => {
-    if (!streamLibraryItem) {
-      clearMediaPlayerHeightCssVar()
-      return
-    }
-
     const el = playerShellRef.current
     if (!el) return
 
@@ -120,43 +154,91 @@ export default function MediaPlayerContainer() {
       resizeObserver.disconnect()
       clearMediaPlayerHeightCssVar()
     }
-  }, [streamLibraryItem, isPlayerDetailsExpanded, isDesktop])
+  }, [isPlayerDetailsExpanded, isDesktop])
 
-  if (!streamLibraryItem || !playerMetadata) {
-    return null
-  }
+  const openFullscreen = useCallback(() => setPlayerFullscreen(true), [setPlayerFullscreen])
+  const closeFullscreen = useCallback(() => setPlayerFullscreen(false), [setPlayerFullscreen])
+
+  // Held on screen just long enough to animate out
+  const { isMounted: isFullscreenMounted, isExiting: isFullscreenExiting } = useExitTransition(isPlayerFullscreen, FULLSCREEN_EXIT_MS)
+
+  // Back dismisses the overlay instead of the page underneath. The dummy entry stays until the
+  // overlay unmounts so a second Back during the exit animation does not navigate away.
+  usePlayerFullscreenHistory(isFullscreenMounted, closeFullscreen)
+
+  // Escape leaves fullscreen before it closes the player. While the overlay is still mounted
+  // (including the exit animation), a second Escape must not stop playback.
+  const handleHotkeyClose = useCallback(() => {
+    if (isFullscreenMounted) {
+      if (isPlayerFullscreen) {
+        setPlayerFullscreen(false)
+      }
+      return
+    }
+    clearStreamMedia()
+  }, [clearStreamMedia, isFullscreenMounted, isPlayerFullscreen, setPlayerFullscreen])
+
+  useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, true, handleHotkeyClose)
 
   return (
-    <div
-      ref={playerShellRef}
-      className={mergeClasses(
-        'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full pt-2',
-        isDesktop ? 'h-40 px-4 pb-4' : mergeClasses('px-2 pb-1', isPlayerDetailsExpanded ? 'min-h-[11.875rem]' : 'min-h-[8.75rem]')
-      )}
-      style={playerAccentStyle}
-    >
-      {accentRgb !== null ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
+    <>
+      <div
+        ref={playerShellRef}
+        className={mergeClasses(
+          'bg-primary shadow-media-player fixed right-0 bottom-0 left-0 isolate z-50 w-full pt-2',
+          isDesktop ? 'h-40 px-4 pb-4' : mergeClasses('px-2 pb-1', isPlayerDetailsExpanded ? 'min-h-[11.875rem]' : 'min-h-[8.75rem]')
+        )}
+        style={accentStyle}
+      >
+        {hasAccentColor ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
 
-      {isDesktop ? (
-        <div className="relative z-[1]">
-          <div className="absolute top-0 left-0 flex min-w-0 items-start gap-4">
-            <PlayerMetadataBlock streamLibraryItem={streamLibraryItem} metadata={playerMetadata} coverAspectRatio={coverAspectRatio} coverWidth={77} />
+        {isDesktop ? (
+          <div className="relative z-[1]">
+            <div className="absolute top-0 left-0 flex min-w-0 items-start gap-4">
+              <PlayerMetadataBlock
+                streamLibraryItem={streamLibraryItem}
+                metadata={metadata}
+                coverAspectRatio={coverAspectRatio}
+                coverWidth={77}
+                onCoverActivate={openFullscreen}
+              />
+            </div>
+            {/* No expand button: the artwork opens fullscreen, the way audiobook and podcast
+                players usually do it, and it is a far larger target than an icon */}
+            <div className="absolute top-0 right-0 flex items-center gap-1">
+              <IconBtn size="small" borderless onClick={clearStreamMedia} ariaLabel={t('LabelClosePlayer')}>
+                close
+              </IconBtn>
+            </div>
+            <div className="flex flex-col gap-3">
+              <PlayerControls controls={controlsState} />
+              <PlayerTrackBar playerHandler={playerHandler} variant="full" />
+            </div>
           </div>
-          <div className="absolute top-0 right-0 flex items-center gap-1">
-            <IconBtn size="small" borderless onClick={clearStreamMedia} ariaLabel={t('LabelClosePlayer')}>
-              close
-            </IconBtn>
+        ) : (
+          <div className="relative z-[1]">
+            <PlayerMobileLayout
+              controls={controlsState}
+              streamLibraryItem={streamLibraryItem}
+              metadata={metadata}
+              onClose={clearStreamMedia}
+              onCoverActivate={openFullscreen}
+            />
           </div>
-          <div className="flex flex-col gap-3">
-            <PlayerControls playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} />
-            <PlayerTrackBar playerHandler={playerHandler} variant="full" />
-          </div>
-        </div>
-      ) : (
-        <div className="relative z-[1]">
-          <PlayerMobileLayout playerHandler={playerHandler} streamLibraryItem={streamLibraryItem} metadata={playerMetadata} onClose={clearStreamMedia} />
-        </div>
+        )}
+      </div>
+
+      {isFullscreenMounted && (
+        <PlayerFullscreen
+          controls={controlsState}
+          metadata={metadata}
+          onMinimize={closeFullscreen}
+          onClosePlayer={clearStreamMedia}
+          isExiting={isFullscreenExiting}
+        />
       )}
-    </div>
+
+      <PlayerModals controls={controlsState} />
+    </>
   )
 }

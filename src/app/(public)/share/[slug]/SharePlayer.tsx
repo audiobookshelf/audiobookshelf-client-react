@@ -9,6 +9,7 @@ import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
+import { getVolumeIcon } from '@/lib/player/constants'
 import type { AudioTrackData, Chapter, MediaItemShareResponse } from '@/types/api'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -420,7 +421,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
   // Volume icon
   // ============================================================================
 
-  const volumeIcon = settings.volume === 0 ? 'volume_off' : settings.volume < 0.5 ? 'volume_down' : 'volume_up'
+  const volumeIcon = getVolumeIcon(settings.volume)
 
   const toggleMute = useCallback(() => {
     const newVol = playerSettings.toggleMute()
