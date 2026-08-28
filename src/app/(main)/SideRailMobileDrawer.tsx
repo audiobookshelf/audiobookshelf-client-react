@@ -5,6 +5,7 @@ import LibraryIcon from '@/components/ui/LibraryIcon'
 import { useAppNavigation } from '@/contexts/AppNavigationContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { resolveEffectiveLibrary } from '@/lib/libraries'
 import { Library } from '@/types/api'
 import Image from 'next/image'
@@ -69,7 +70,7 @@ export default function SideRailMobileDrawer({ isOpen, onClose, libraries, curre
       >
         <div className="border-primary/30 shrink-0 border-b px-4 py-3">
           <div className="text-foreground flex items-center gap-2 p-1">
-            <Image src="/images/icon.svg" alt="" width={40} height={40} className="h-8 w-8 min-w-8" />
+            <Image src={withBasePath('/images/icon.svg')} alt="" width={40} height={40} className="h-8 w-8 min-w-8" />
             <span className="text-xl">audiobookshelf</span>
           </div>
         </div>

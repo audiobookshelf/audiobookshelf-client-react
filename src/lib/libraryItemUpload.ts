@@ -1,3 +1,4 @@
+import { withBasePath } from '@/lib/basePath'
 import { parseUploadErrorMessage } from '@/lib/uploadErrors'
 import type { Library } from '@/types/api'
 import type { UploadProgressInfo } from '@/types/upload'
@@ -36,7 +37,7 @@ export async function uploadLibraryItem(
 
   await new Promise<void>((resolve, reject) => {
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/internal-api/items/upload', true)
+    xhr.open('POST', withBasePath('/internal-api/items/upload'), true)
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable && onProgress) {

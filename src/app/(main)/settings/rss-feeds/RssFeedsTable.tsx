@@ -9,6 +9,7 @@ import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { RssFeed } from '@/types/api'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -102,12 +103,12 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
           {rssFeed.coverPath ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={`/feed/${rssFeed.slug}/cover`} alt={t('LabelCover')} className="h-auto w-full" />
+              <img src={withBasePath(`/feed/${rssFeed.slug}/cover`)} alt={t('LabelCover')} className="h-auto w-full" />
             </>
           ) : (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/images/Logo.png" alt={t('LabelLogo')} className="h-auto w-full" />
+              <img src={withBasePath('/images/Logo.png')} alt={t('LabelLogo')} className="h-auto w-full" />
             </>
           )}
         </>

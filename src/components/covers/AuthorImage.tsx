@@ -1,5 +1,6 @@
 'use client'
 
+import { withBasePath } from '@/lib/basePath'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Author } from '@/types/api'
 import { useEffect, useState } from 'react'
@@ -16,7 +17,7 @@ export default function AuthorImage({ author, className }: AuthorImageProps) {
   const [imageError, setImageError] = useState(false)
   const [showCoverBg, setShowCoverBg] = useState(false)
 
-  const imageSrc = author.imagePath ? `/api/authors/${author.id}/image?ts=${author.updatedAt || Date.now()}` : null
+  const imageSrc = author.imagePath ? withBasePath(`/api/authors/${author.id}/image?ts=${author.updatedAt || Date.now()}`) : null
 
   // Reset state when author or image source changes
   useEffect(() => {

@@ -7,6 +7,7 @@ import LanguageDropdown from '@/components/widgets/LanguageDropdown'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -115,7 +116,7 @@ export default function GeneralSettingsClient() {
       mergeServerSettings(response?.serverSettings)
 
       // Set the language cookie
-      await fetch('/internal-api/set-language', {
+      await fetch(withBasePath('/internal-api/set-language'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

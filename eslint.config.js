@@ -26,7 +26,7 @@ module.exports = [
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
       parserOptions: {
-        project: './tsconfig.json',
+        project: ['./tsconfig.json', './cypress/tsconfig.json'],
         tsconfigRootDir: __dirname
       }
     },

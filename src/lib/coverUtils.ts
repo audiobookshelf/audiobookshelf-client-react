@@ -1,3 +1,4 @@
+import { withBasePath } from '@/lib/basePath'
 import type { LibraryItem } from '@/types/api'
 
 /**
@@ -13,7 +14,7 @@ export function getLibraryItemCoverUrl(libraryItemId: string, timestamp?: number
   if (raw) {
     params.set('raw', '1')
   }
-  return `/api/items/${libraryItemId}/cover?${params.toString()}`
+  return withBasePath(`/api/items/${libraryItemId}/cover?${params.toString()}`)
 }
 
 /**
@@ -33,14 +34,14 @@ export function getLibraryFileUrl(libraryItemId: string, fileIno: string, timest
   if (timestamp) {
     params.set('ts', String(timestamp))
   }
-  return `/internal-api/items/${libraryItemId}/file/${fileIno}?${params.toString()}`
+  return withBasePath(`/internal-api/items/${libraryItemId}/file/${fileIno}?${params.toString()}`)
 }
 
 /**
  * Get placeholder cover image URL
  */
 export function getPlaceholderCoverUrl(): string {
-  return '/images/book_placeholder.jpg'
+  return withBasePath('/images/book_placeholder.jpg')
 }
 
 /**

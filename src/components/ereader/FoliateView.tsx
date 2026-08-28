@@ -21,6 +21,7 @@ import {
   usesPageBasedProgress,
   type EbookProgressUpdate
 } from '@/lib/ereader/ereaderEbook'
+import { withBasePath } from '@/lib/basePath'
 import { FixedLayoutZoomController, getFixedLayoutPageSize } from '@/lib/ereader/ereaderFixedLayoutZoom'
 import { attachEpubSecurity } from '@/lib/ereader/ereaderSecurity'
 import { applyEreaderSettingsToView, type EreaderSettings } from '@/lib/ereader/ereaderSettings'
@@ -380,7 +381,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
           if (handleKeydown) document.removeEventListener('keydown', handleKeydown)
         }
 
-        const ebookUrl = fileId ? `/internal-api/items/${libraryItemId}/ebook/${fileId}` : `/internal-api/items/${libraryItemId}/ebook`
+        const ebookUrl = withBasePath(fileId ? `/internal-api/items/${libraryItemId}/ebook/${fileId}` : `/internal-api/items/${libraryItemId}/ebook`)
         const response = await fetch(ebookUrl, {
           credentials: 'include',
           headers: { Accept: 'application/json' }

@@ -1,4 +1,5 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { withBasePath } from '@/lib/basePath'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { filterEncode } from '@/lib/filterUtils'
 import { SearchLibraryResponse } from '@/types/api'
@@ -143,7 +144,7 @@ export function useGlobalSearchTransformer({
       // Use series cover or fallback to first book cover
       let imageSrc = ''
       if (item.series.coverPath) {
-        imageSrc = `/api/series/${item.series.id}/cover?ts=${item.series.updatedAt || 0}`
+        imageSrc = withBasePath(`/api/series/${item.series.id}/cover?ts=${item.series.updatedAt || 0}`)
       } else if (item.books.length > 0) {
         imageSrc = getLibraryItemCoverSrc(item.books[0], getPlaceholderCoverUrl())
       }
