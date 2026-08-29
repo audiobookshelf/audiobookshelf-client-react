@@ -12,8 +12,7 @@ const projectDir = process.env.REACT_CLIENT_PATH ? path.resolve(process.env.REAC
 // fixes that. Explicit `.ts` works because Next's config loader registers a require hook for the
 // duration of this evaluation.
 const requireFromProject = createRequire(path.join(projectDir, 'package.json'))
-const { BASE_PATH_PLACEHOLDER, getConfiguredBasePath } = requireFromProject('./src/lib/basePath.ts')
-const { rewriteBuildBasePath } = requireFromProject('./src/lib/rewriteBuildBasePath.ts')
+const { BASE_PATH_PLACEHOLDER, getConfiguredBasePath, rewriteBuildBasePath } = requireFromProject('./scripts/rewriteBuildBasePath.ts')
 
 type BasePathPhase = typeof PHASE_PRODUCTION_BUILD | typeof PHASE_PRODUCTION_SERVER | typeof PHASE_DEVELOPMENT_SERVER
 
@@ -51,8 +50,6 @@ function runWithProjectCwd<T>(fn: () => T): T {
     }
   }
 }
-
-const withNextIntl = createNextIntlPlugin('./src/lib/i18n.ts')
 
 /**
  * Pick the Next `basePath` for the current phase.
@@ -109,7 +106,10 @@ const nextConfig: NextConfig = {
 const configForPhase = (phase: string) => {
   // Next also passes phases we do not care about (export, test, …); treat them like development.
   const basePath = isBasePathPhase(phase) ? basePathForPhase(phase) : getConfiguredBasePath()
-  return runWithProjectCwd(() => withNextIntl({ ...nextConfig, basePath, images: { localPatterns: localImagePatterns(basePath) } }))
+  const config = { ...nextConfig, basePath, images: { localPatterns: localImagePatterns(basePath) } }
+  // next-intl is a build/dev plugin (aliases, config path check). Production already has that baked into `.next`.
+  if (phase === PHASE_PRODUCTION_SERVER) return config
+  return runWithProjectCwd(() => createNextIntlPlugin('./src/lib/i18n.ts')(config))
 }
 
 export default configForPhase
