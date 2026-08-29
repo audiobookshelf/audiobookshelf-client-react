@@ -9,7 +9,7 @@ export function isLibraryIssuesPage(pathname: string): boolean {
   return pathname.endsWith('/issues')
 }
 
-const LIBRARY_SHARED_PAGES = ['items', 'issues', 'playlists', 'search', 'playlist', 'item', 'batch']
+const LIBRARY_SHARED_PAGES = ['items', 'issues', 'playlists', 'search', 'playlist', 'item', 'batch', 'upload']
 const LIBRARY_BOOK_PAGES = ['series', 'collections', 'authors', 'narrators', 'stats', 'collection']
 const LIBRARY_PODCAST_PAGES = ['latest', 'add-podcast', 'download-queue']
 
