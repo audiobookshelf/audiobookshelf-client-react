@@ -1,8 +1,6 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 
-import { BASE_PATH_PLACEHOLDER, replaceBasePathPlaceholder } from './basePath.ts'
-
 /**
  * Swap the compiled-in base path placeholder for the configured path.
  *
@@ -14,9 +12,12 @@ import { BASE_PATH_PLACEHOLDER, replaceBasePathPlaceholder } from './basePath.ts
  * Must run before Next loads any build chunk, otherwise already-required modules keep the
  * placeholder. `next.config.ts` is the earliest hook available for that.
  *
- * Kept in this file (not `basePath.ts`) because it uses Node `fs`. Client components import
- * `withBasePath` from `basePath.ts`; a top-level `node:fs` import there would break the browser bundle.
+ * Kept next to `next.config.ts` (not under `src/`) so Docker can ship the helper without the app
+ * source. Keep `BASE_PATH_PLACEHOLDER` in sync with `src/lib/basePath.ts`.
  */
+
+/** Keep in sync with `src/lib/basePath.ts`. */
+export const BASE_PATH_PLACEHOLDER = '/__ABS_BASE_PATH__'
 
 const SNAPSHOT_DIR_NAME = 'abs-base-path-snapshot'
 const SNAPSHOT_MANIFEST_NAME = 'snapshot-manifest.json'
@@ -40,6 +41,29 @@ interface AppliedState {
   version: number
   buildId: string
   basePath: string
+}
+
+const PLACEHOLDER_PATTERN = new RegExp(`(\\\\*)${BASE_PATH_PLACEHOLDER}`, 'g')
+
+function normalizeBasePath(basePath: string | null | undefined): string {
+  if (!basePath) return ''
+
+  const trimmed = basePath.trim()
+  if (!trimmed || trimmed === '/') return ''
+
+  const withLeadingSlash = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  return withLeadingSlash.endsWith('/') ? withLeadingSlash.slice(0, -1) : withLeadingSlash
+}
+
+export function getConfiguredBasePath(): string {
+  if (typeof globalThis.RouterBasePath === 'string') {
+    return normalizeBasePath(globalThis.RouterBasePath)
+  }
+  return normalizeBasePath(process.env.ROUTER_BASE_PATH)
+}
+
+function replaceBasePathPlaceholder(content: string, basePath: string): string {
+  return content.replace(PLACEHOLDER_PATTERN, (_match, backslashes: string) => basePath.split('/').join(`${backslashes}/`))
 }
 
 function readBuildId(distDir: string): string {

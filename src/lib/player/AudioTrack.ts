@@ -27,11 +27,13 @@ export class AudioTrack {
 
     this.sessionId = sessionId
 
-    // Track URLs come from the server without the base path, and the browser requests them
-    // directly rather than through Next.
-    if (this.contentUrl?.startsWith('/hls') || !sessionId) {
+    if (!sessionId) {
+      // Share pages: ShareController embeds RouterBasePath in contentUrl (Vue uses it as-is).
+      this.sessionTrackUrl = this.contentUrl
+    } else if (this.contentUrl?.startsWith('/hls')) {
       this.sessionTrackUrl = withBasePath(this.contentUrl)
     } else {
+      // Session track URLs are built client-side; prefix with the configured base path.
       this.sessionTrackUrl = withBasePath(`/public/session/${sessionId}/track/${this.index}`)
     }
   }

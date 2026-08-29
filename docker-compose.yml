@@ -19,6 +19,8 @@ services:
         abs-server: ../audiobookshelf
     ports:
       - '13378:80'
+    environment:
+      ROUTER_BASE_PATH: ''
     volumes:
       - abs-config:/config
       - abs-metadata:/metadata
