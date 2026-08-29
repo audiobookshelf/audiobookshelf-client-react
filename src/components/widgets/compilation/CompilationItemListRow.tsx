@@ -39,7 +39,9 @@ import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMedia } fro
 import Link from 'next/link'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
-const COMPILATION_ROW_LINK_FOCUS = 'rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
+// z-[2] sits above the mobile full-row hit target (z-[1]) so series/author taps are not captured.
+const COMPILATION_ROW_LINK_FOCUS =
+  'relative z-2 rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
 
 export type CompilationItemListRowContext = { kind: 'collection'; collectionId: string } | { kind: 'playlist'; playlistId: string }
 
@@ -306,7 +308,7 @@ function CompilationItemListRowBody({
                 type="button"
                 onClick={handleViewEpisode}
                 className={mergeClasses(
-                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] cursor-pointer rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-1 cursor-pointer rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
                   isDragging && 'pointer-events-none'
                 )}
                 aria-label={itemTitle}
@@ -315,7 +317,7 @@ function CompilationItemListRowBody({
               <Link
                 href={itemHref}
                 className={mergeClasses(
-                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-1 rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
                   isDragging && 'pointer-events-none'
                 )}
                 aria-label={itemTitle}
@@ -416,7 +418,7 @@ function CompilationItemListRowBody({
         </div>
 
         {showMobilePlayBtn && (
-          <div className="pe-1e relative z-[2] flex shrink-0 items-center">
+          <div className="pe-1e relative z-2 flex shrink-0 items-center">
             <IconBtn borderless size="custom" className={EPISODE_ROW_ACTION_BTN_CLASS} ariaLabel={t('ButtonPlay')} onClick={handlePlayClick}>
               play_arrow
             </IconBtn>
