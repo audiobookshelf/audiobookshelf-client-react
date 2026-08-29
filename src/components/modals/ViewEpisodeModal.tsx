@@ -92,7 +92,7 @@ function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
 
   if (fetchPending && !episode) {
     return (
-      <div className="flex min-h-[200px] items-center justify-center">
+      <div className="flex min-h-50 items-center justify-center">
         <LoadingIndicator variant="inline" />
       </div>
     )
@@ -105,7 +105,7 @@ function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
   return (
     <>
       <div className="mb-4 flex">
-        <div className="relative h-12 w-12 flex-shrink-0">
+        <div className="relative h-12 w-12 shrink-0">
           <PreviewCover src={coverUrl} fill bookCoverAspectRatio={1} showResolution={false} />
         </div>
         <div className="min-w-0 grow px-2">
@@ -127,7 +127,7 @@ function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
       {parsedDescription ? (
         <div
           dir="auto"
-          className="default-style less-spacing break-words"
+          className="default-style less-spacing wrap-break-word"
           onClick={handleDescriptionClick}
           dangerouslySetInnerHTML={{ __html: parsedDescription }}
         />
@@ -170,7 +170,7 @@ export default function ViewEpisodeModal(props: ViewEpisodeModalProps) {
       isOpen={isOpen}
       onClose={onClose}
       {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem, episode: props.episode })}
-      className="bg-bg relative max-h-[80vh] w-[calc(100vw-1rem)] overflow-y-auto rounded-lg p-4 text-sm shadow-lg sm:w-[600px] md:w-[700px] lg:w-[800px]"
+      className="bg-bg relative max-h-[80vh] w-[calc(100vw-1rem)] overflow-y-auto rounded-lg p-4 text-sm shadow-lg sm:w-150 md:w-175 lg:w-200"
     >
       <ViewEpisodeModalBody onClose={onClose} />
     </EpisodeModal>

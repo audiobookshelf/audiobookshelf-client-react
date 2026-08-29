@@ -143,7 +143,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
               <Link href={stat.linkHref} className="text-foreground-subdued link-underline w-3/4 truncate pr-2 text-sm">
                 {`${stat.label}`}
               </Link>
-              <div className="w-1/4 flex-shrink-0 text-right">
+              <div className="w-1/4 shrink-0 text-right">
                 <p className="text-sm font-bold">{formatDuration(stats.longestItems[index].duration, t)}</p>
               </div>
             </div>
@@ -159,7 +159,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
               <Link href={stat.linkHref} className="text-foreground-subdued link-underline w-3/4 truncate pr-2 text-sm">
                 {`${stat.label}`}
               </Link>
-              <div className="w-1/4 flex-shrink-0 text-right">
+              <div className="w-1/4 shrink-0 text-right">
                 {/* Displaying the absolute size directly */}
                 <p className="text-sm font-bold whitespace-nowrap">{stat.size}</p>
               </div>
