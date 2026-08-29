@@ -48,7 +48,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
           return onGoToTimestamp ? (
             <button
               type="button"
-              className="cursor-pointer bg-transparent p-0 font-mono hover:underline"
+              className="link-underline cursor-pointer bg-transparent p-0 font-mono"
               onClick={(e) => {
                 e.stopPropagation()
                 onGoToTimestamp(row.start)

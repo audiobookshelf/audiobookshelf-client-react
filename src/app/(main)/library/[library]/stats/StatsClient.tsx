@@ -101,7 +101,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
               <div className="mb-1 flex items-end">
                 <p className="text-2xl font-bold">{`${stat.percentage}%`}</p>
                 <div className="grow"></div>
-                <Link href={stat.linkHref} className="text-foreground-subdued ml-2 hover:underline">
+                <Link href={stat.linkHref} className="text-foreground-subdued link-underline ml-2">
                   {stat.label}
                 </Link>
               </div>
@@ -119,7 +119,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
             {topAuthors.map((stat, index) => (
               <div key={index} className="mb-1 flex w-full items-center py-2 last:border-b-0">
                 <span className="text-foreground-subdued pr-1 text-sm">{`${index + 1}. `}</span>
-                <Link href={stat.linkHref} className="text-foreground-subdued truncate pr-2 text-sm hover:underline">
+                <Link href={stat.linkHref} className="text-foreground-subdued link-underline truncate pr-2 text-sm">
                   {stat.label}
                 </Link>
                 <div className="h-2.5 grow overflow-hidden rounded-full"></div>
@@ -140,7 +140,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
           {longestItems.map((stat, index) => (
             <div key={index} className="mb-1 flex w-full items-center justify-between py-2 last:border-b-0">
               <span className="text-foreground-subdued pr-1 text-sm">{`${index + 1}. `}</span>
-              <Link href={stat.linkHref} className="text-foreground-subdued w-3/4 truncate pr-2 text-sm hover:underline">
+              <Link href={stat.linkHref} className="text-foreground-subdued link-underline w-3/4 truncate pr-2 text-sm">
                 {`${stat.label}`}
               </Link>
               <div className="w-1/4 flex-shrink-0 text-right">
@@ -156,7 +156,7 @@ export default function StatsClient({ stats }: StatsClientProps) {
           {largestItems.map((stat, index) => (
             <div key={index} className="mb-1 flex w-full items-center justify-between py-2 last:border-b-0">
               <span className="text-foreground-subdued pr-1 text-sm">{`${index + 1}. `}</span>
-              <Link href={stat.linkHref} className="text-foreground-subdued w-3/4 truncate pr-2 text-sm hover:underline">
+              <Link href={stat.linkHref} className="text-foreground-subdued link-underline w-3/4 truncate pr-2 text-sm">
                 {`${stat.label}`}
               </Link>
               <div className="w-1/4 flex-shrink-0 text-right">

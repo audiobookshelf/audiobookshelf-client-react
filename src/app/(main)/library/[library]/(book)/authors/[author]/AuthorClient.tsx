@@ -107,11 +107,11 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
         <div className="mt-8e -ms-2e">
           <ItemSlider
             title={
-              <Link href={`/library/${library.id}/items?filter=authors.${filterEncode(author.id)}`} className="transition-colors hover:underline">
+              <Link href={`/library/${library.id}/items?filter=authors.${filterEncode(author.id)}`} className="link-underline transition-colors">
                 {t('LabelXBooks', { count: libraryItems.length })}
               </Link>
             }
-            className="!ps-0"
+            className="ps-0!"
           >
             {libraryItems.map((libraryItem, entityIndex) => {
               const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
@@ -141,7 +141,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
       {series.map((bookSeries) => {
         const seriesTitle = (
           <>
-            <Link href={`/library/${library.id}/series/${bookSeries.id}`} className="transition-colors hover:underline">
+            <Link href={`/library/${library.id}/series/${bookSeries.id}`} className="link-underline transition-colors">
               {bookSeries.name}
             </Link>
             <span className="text-foreground-subdued ps-2e">{t('LabelSeries')}</span>
@@ -149,7 +149,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
         )
         return (
           <div key={bookSeries.id} className="-ms-2e shrink-0">
-            <ItemSlider title={seriesTitle} className="!ps-0">
+            <ItemSlider title={seriesTitle} className="ps-0!">
               {bookSeries.items?.map((libraryItem, entityIndex) => {
                 const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
                 const seriesItems = bookSeries.items ?? []

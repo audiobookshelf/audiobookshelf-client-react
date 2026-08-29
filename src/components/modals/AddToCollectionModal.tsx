@@ -55,12 +55,10 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
 
   const sortedCollections = useMemo((): CollectionRow[] => {
     return [...collections]
-      .map(
-        (collection): CollectionRow => ({
-          ...collection,
-          allBooksIncluded: collectionIncludesAllBooks(collection, libraryItemIds)
-        })
-      )
+      .map((collection): CollectionRow => ({
+        ...collection,
+        allBooksIncluded: collectionIncludesAllBooks(collection, libraryItemIds)
+      }))
       .sort((a, b) => {
         if (a.allBooksIncluded !== b.allBooksIncluded) {
           return a.allBooksIncluded ? -1 : 1
@@ -215,7 +213,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                       <div className="min-w-0 flex-1 overflow-hidden px-2">
                         <Link
                           href={`/library/${libraryId}/collection/${collection.id}`}
-                          className="cursor-pointer truncate ps-2 pe-2 hover:underline"
+                          className="link-underline cursor-pointer truncate ps-2 pe-2"
                           onClick={() => onClose()}
                         >
                           {collection.name}

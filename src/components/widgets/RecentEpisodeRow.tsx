@@ -125,7 +125,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
           <PreviewCover src={coverSrc} width={48} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />
           <div className="min-w-0 flex-1 px-2">
             <div className="flex min-w-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
-              <Link href={itemHref} className="text-foreground-muted hover:text-foreground min-w-0 flex-1 text-sm break-words hover:underline">
+              <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline min-w-0 flex-1 text-sm break-words">
                 {podcastTitle}
               </Link>
               {isExplicit && <ExplicitIndicator className="shrink-0" />}
@@ -136,7 +136,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
 
         <div className="hidden md:block">
           <div className="flex min-w-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            <Link href={itemHref} className="text-foreground-muted hover:text-foreground min-w-0 text-sm break-words hover:underline">
+            <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline min-w-0 text-sm break-words">
               {podcastTitle}
             </Link>
             {isExplicit && <ExplicitIndicator className="shrink-0" />}

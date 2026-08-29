@@ -118,7 +118,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
                 {currentSession.libraryId && currentSession.libraryItemId ? (
                   <Link
                     href={`/library/${currentSession.libraryId}/item/${currentSession.libraryItemId}`}
-                    className="text-foreground text-base hover:underline"
+                    className="text-foreground link-underline text-base"
                     onClick={onClose}
                   >
                     {currentSession.displayTitle}

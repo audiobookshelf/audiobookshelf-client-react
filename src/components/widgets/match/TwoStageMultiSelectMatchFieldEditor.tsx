@@ -67,7 +67,7 @@ function TwoStageMultiSelectMatchFieldEditor({
     ? t.rich('MessageCurrentlyWithLink', {
         0: formattedValue,
         link: (chunks) => (
-          <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
+          <a title={t('LabelClickToUseCurrentValue')} className="link-underline cursor-pointer" onClick={handleUseCurrentValue}>
             {chunks}
           </a>
         )

@@ -57,12 +57,10 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
 
   const sortedPlaylists = useMemo((): PlaylistRow[] => {
     return [...playlists]
-      .map(
-        (playlist): PlaylistRow => ({
-          ...playlist,
-          allItemsIncluded: playlistIncludesAllItems(playlist, items)
-        })
-      )
+      .map((playlist): PlaylistRow => ({
+        ...playlist,
+        allItemsIncluded: playlistIncludesAllItems(playlist, items)
+      }))
       .sort((a, b) => {
         if (a.allItemsIncluded !== b.allItemsIncluded) {
           return a.allItemsIncluded ? -1 : 1
@@ -219,7 +217,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
                       <div className="min-w-0 flex-1 overflow-hidden px-2">
                         <Link
                           href={`/library/${libraryId}/playlist/${playlist.id}`}
-                          className="cursor-pointer truncate ps-2 pe-2 hover:underline"
+                          className="link-underline cursor-pointer truncate ps-2 pe-2"
                           onClick={() => onClose()}
                         >
                           {playlist.name}

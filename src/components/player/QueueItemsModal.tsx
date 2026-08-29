@@ -94,7 +94,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   const renderQueueItemText = useCallback(
     (item: PlayerQueueItem) => {
       const title = item.title || ''
-      const titleClassName = 'text-foreground text-sm hover:underline'
+      const titleClassName = 'text-foreground link-underline text-sm'
       const titleFocusClassName = 'rounded-sm focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-2'
       const titleWrapperClassName = mergeClasses('block w-fit max-w-full min-w-0 px-0.5 text-start', titleFocusClassName)
 

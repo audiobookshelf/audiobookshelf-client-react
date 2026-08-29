@@ -111,7 +111,7 @@ function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
         <div className="min-w-0 grow px-2">
           <Link
             href={podcastHref}
-            className="focus-visible:outline-foreground-muted mb-1 inline-block max-w-full rounded-sm text-base underline focus-visible:outline-1 focus-visible:outline-offset-2 md:no-underline md:hover:underline"
+            className="focus-visible:outline-foreground-muted link-underline mb-1 inline-block max-w-full rounded-sm text-base focus-visible:outline-1 focus-visible:outline-offset-2"
             onClick={onClose}
           >
             <span className="block truncate">{podcastTitle}</span>
