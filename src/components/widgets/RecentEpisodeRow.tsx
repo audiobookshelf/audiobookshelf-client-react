@@ -125,7 +125,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
           <PreviewCover src={coverSrc} width={48} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />
           <div className="min-w-0 flex-1 px-2">
             <div className="flex min-w-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
-              <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline min-w-0 flex-1 text-sm break-words">
+              <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline min-w-0 flex-1 text-sm wrap-break-word">
                 {podcastTitle}
               </Link>
               {isExplicit && <ExplicitIndicator className="shrink-0" />}
@@ -136,7 +136,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
 
         <div className="hidden md:block">
           <div className="flex min-w-0 items-center gap-1" onClick={(e) => e.stopPropagation()}>
-            <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline min-w-0 text-sm break-words">
+            <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline min-w-0 text-sm wrap-break-word">
               {podcastTitle}
             </Link>
             {isExplicit && <ExplicitIndicator className="shrink-0" />}
@@ -156,7 +156,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
           <button
             type="button"
             disabled={isPending}
-            className="focus-visible:outline-foreground-muted min-w-0 flex-1 cursor-pointer rounded-sm text-start text-sm font-semibold break-words focus-visible:outline-1 focus-visible:outline-offset-4 md:text-base"
+            className="focus-visible:outline-foreground-muted min-w-0 flex-1 cursor-pointer rounded-sm text-start text-sm font-semibold wrap-break-word focus-visible:outline-1 focus-visible:outline-offset-4 md:text-base"
             onClick={(e) => {
               e.stopPropagation()
               handleRowClick()
@@ -171,7 +171,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
         {descriptionHtml && (
           <div
             dir="auto"
-            className="text-foreground-muted mb-4 line-clamp-4 min-w-0 text-sm break-words [&_*]:break-words"
+            className="text-foreground-muted mb-4 line-clamp-4 min-w-0 text-sm wrap-break-word **:wrap-break-word"
             dangerouslySetInnerHTML={{ __html: descriptionHtml }}
             onClick={(e) => {
               if ((e.target as HTMLElement).tagName.toLowerCase() === 'a') {
