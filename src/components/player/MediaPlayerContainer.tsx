@@ -4,10 +4,9 @@ import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useMediaContext, usePlayerState } from '@/contexts/MediaContext'
 import { useAudioPlayerHotkeys } from '@/hooks/useAudioPlayerHotkeys'
 import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
-import { useMediaSession } from '@/hooks/useMediaSession'
-import { usePlayerChapterQueueNavigation } from '@/hooks/usePlayerChapterQueueNavigation'
-import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
+import { useMediaSession } from '@/hooks/useMediaSession'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
@@ -49,13 +48,9 @@ export default function MediaPlayerContainer() {
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, clearStreamMedia)
 
-  const { handleNext, handlePrevious } = usePlayerChapterQueueNavigation(playerHandler, streamLibraryItem)
-
   useMediaSession({
     libraryItem: streamLibraryItem,
     playerHandler,
-    onPreviousTrack: handlePrevious,
-    onNextTrack: handleNext,
     enabled: !!streamLibraryItem
   })
 

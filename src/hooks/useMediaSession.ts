@@ -10,8 +10,6 @@ const MEDIA_SESSION_ACTIONS = ['play', 'pause', 'stop', 'seekbackward', 'seekfor
 interface UseMediaSessionOptions {
   libraryItem: LibraryItem | null
   playerHandler: PlayerHandler
-  onPreviousTrack?: () => void
-  onNextTrack?: () => void
   enabled?: boolean
 }
 
@@ -125,14 +123,9 @@ function setMediaSessionPositionState(positionState: MediaPositionState | null) 
 }
 
 /** Wire lock-screen / OS media controls via the Media Session API (parity with Vue MediaPlayerContainer). */
-export function useMediaSession({ libraryItem, playerHandler, onPreviousTrack, onNextTrack, enabled = true }: UseMediaSessionOptions) {
+export function useMediaSession({ libraryItem, playerHandler, enabled = true }: UseMediaSessionOptions) {
   const t = useTypeSafeTranslations()
   const unknownLabel = t('LabelUnknown')
-
-  const onPreviousTrackRef = useRef(onPreviousTrack)
-  onPreviousTrackRef.current = onPreviousTrack
-  const onNextTrackRef = useRef(onNextTrack)
-  onNextTrackRef.current = onNextTrack
 
   const controlsRef = useRef(playerHandler.controls)
   controlsRef.current = playerHandler.controls
@@ -195,8 +188,9 @@ export function useMediaSession({ libraryItem, playerHandler, onPreviousTrack, o
 
       controlsRef.current.seek(details.seekTime)
     })
-    navigator.mediaSession.setActionHandler('previoustrack', () => onPreviousTrackRef.current?.())
-    navigator.mediaSession.setActionHandler('nexttrack', () => onNextTrackRef.current?.())
+    // Vue parity: prev/next track also jump (compact lock-screen UIs usually show seek OR track buttons, not both).
+    navigator.mediaSession.setActionHandler('previoustrack', () => controlsRef.current.jumpBackward())
+    navigator.mediaSession.setActionHandler('nexttrack', () => controlsRef.current.jumpForward())
 
     return () => {
       for (const action of MEDIA_SESSION_ACTIONS) {
