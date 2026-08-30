@@ -15,9 +15,10 @@ interface ChaptersTableProps {
   keepOpen?: boolean
   expanded?: boolean
   onEditChapters?: () => void
+  onGoToTimestamp?: (time: number) => void
 }
 
-export default function ChaptersTable({ libraryItem, keepOpen = false, expanded: expandedProp = false, onEditChapters }: ChaptersTableProps) {
+export default function ChaptersTable({ libraryItem, keepOpen = false, expanded: expandedProp = false, onEditChapters, onGoToTimestamp }: ChaptersTableProps) {
   const t = useTypeSafeTranslations()
   const { userCanUpdate } = useUser()
   const [expanded, setExpanded] = useState(expandedProp)
@@ -29,15 +30,6 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
   useEffect(() => {
     setExpanded(keepOpen || expandedProp)
   }, [keepOpen, expandedProp])
-
-  const handleGoToTimestamp = useCallback((time: number) => {
-    // TODO: Implement playback at timestamp
-    // Original functionality:
-    // - Check if media is currently streaming
-    // - If streaming: emit play-item event with startTime
-    // - If not streaming: show confirmation prompt, then emit play-item event with startTime
-    console.log('Go to timestamp:', time)
-  }, [])
 
   const columns = useMemo(
     () => [
@@ -51,27 +43,30 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
         label: t('LabelStart'),
         headerClassName: 'w-20 min-w-20 px-2 text-center md:w-24 md:min-w-24',
         cellClassName: 'w-20 min-w-20 px-2 text-center md:w-24 md:min-w-24',
-        accessor: (row: Chapter) => (
-          <div
-            className="cursor-pointer text-center font-mono hover:underline"
-            onClick={(e) => {
-              e.stopPropagation()
-              handleGoToTimestamp(row.start)
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
+        accessor: (row: Chapter) =>
+          onGoToTimestamp ? (
+            <div
+              className="cursor-pointer text-center font-mono hover:underline"
+              onClick={(e) => {
                 e.stopPropagation()
-                handleGoToTimestamp(row.start)
-              }
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label={`Go to timestamp ${secondsToTimestamp(row.start)}`}
-          >
-            {secondsToTimestamp(row.start)}
-          </div>
-        )
+                onGoToTimestamp(row.start)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  onGoToTimestamp(row.start)
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              aria-label={t('LabelGoToTimestamp', { 0: secondsToTimestamp(row.start) })}
+            >
+              {secondsToTimestamp(row.start)}
+            </div>
+          ) : (
+            <div className="text-center font-mono">{secondsToTimestamp(row.start)}</div>
+          )
       },
       {
         label: t('LabelDuration'),
@@ -80,7 +75,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
         accessor: (row: Chapter) => secondsToTimestamp(Math.max(0, row.end - row.start))
       }
     ],
-    [t, handleGoToTimestamp]
+    [t, onGoToTimestamp]
   )
 
   const handleEditChapters = useCallback(
