@@ -145,8 +145,8 @@ describe('<DropdownMenu />', () => {
       const isItemSelected = (item: DropdownMenuItem) => item.value === 'option2'
       cy.mount(<DropdownMenu {...defaultProps} focusedIndex={0} highlightSelected isItemSelected={isItemSelected} />)
       cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-selected')
-      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-yellow-400')
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-dropdown-item-highlight')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-highlight')
       cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'bg-dropdown-item-selected')
     })
 
@@ -166,10 +166,10 @@ describe('<DropdownMenu />', () => {
       cy.mount(
         <DropdownMenu {...defaultProps} items={itemsWithSubmenu} focusedIndex={-1} openSubmenuIndex={1} highlightSelected isItemSelected={isItemSelected} />
       )
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
-      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-yellow-400')
-      cy.get('[role="menu"] li[role="option"]').eq(1).should('have.class', 'text-yellow-400')
-      cy.get('[role="menu"] li[role="option"]').eq(0).should('not.have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-highlight')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-dropdown-item-highlight')
+      cy.get('[role="menu"] li[role="option"]').eq(1).should('have.class', 'text-dropdown-item-highlight')
+      cy.get('[role="menu"] li[role="option"]').eq(0).should('not.have.class', 'text-dropdown-item-highlight')
     })
 
     it('scrolls focused item into view', () => {
@@ -183,7 +183,7 @@ describe('<DropdownMenu />', () => {
       const isItemSelected = (item: DropdownMenuItem) => item.value === 'option2'
       cy.mount(<DropdownMenu {...defaultProps} showSelectedIndicator={true} isItemSelected={isItemSelected} />)
       cy.get('[role="listbox"] > li').eq(1).find('.material-symbols').should('contain.text', 'check')
-      cy.get('[role="listbox"] > li').eq(1).find('.material-symbols').should('have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).find('.material-symbols').should('have.class', 'text-dropdown-item-highlight')
     })
 
     it('does not show selected indicator when showSelectedIndicator is false', () => {
