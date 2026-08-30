@@ -47,7 +47,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     setPodcastEpisodesInOrder(episodes)
   }, [])
 
-  const { handlePlay, showPlayButton, isItemPlaying, handleGoToTimestamp, pendingStartTime, setPendingStartTime, handleConfirmStartTime } =
+  const { handlePlay, showPlayButton, isItemPlaying, handleGoToTimestamp, pendingStartTime, handleCloseStartTime, handleConfirmStartTime } =
     useLibraryItemPagePlay({
       libraryItem,
       podcastEpisodesInOrder
@@ -287,7 +287,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
             0: metadata.title ?? '',
             1: secondsToTimestamp(pendingStartTime ?? 0)
           })}
-          onClose={() => setPendingStartTime(null)}
+          onClose={handleCloseStartTime}
           onConfirm={handleConfirmStartTime}
         />
       </div>

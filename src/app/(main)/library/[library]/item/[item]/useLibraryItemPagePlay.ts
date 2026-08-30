@@ -98,13 +98,17 @@ export function useLibraryItemPagePlay({ libraryItem, podcastEpisodesInOrder = [
     setPendingStartTime(null)
   }, [isStreaming, libraryItem, pendingStartTime, playItem, playerControls])
 
+  const handleCloseStartTime = useCallback(() => {
+    setPendingStartTime(null)
+  }, [])
+
   return {
     handlePlay,
     showPlayButton,
     isItemPlaying,
     handleGoToTimestamp,
     pendingStartTime,
-    setPendingStartTime,
+    handleCloseStartTime,
     handleConfirmStartTime
   }
 }
