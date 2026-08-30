@@ -7,7 +7,7 @@ import { withBasePath } from '@/lib/basePath'
 import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { AuthFormData } from '@/types/api'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 
 interface LoginFormProps {
   authMethods: string[]
@@ -22,7 +22,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
   const showLocalLogin = authMethods.includes('local') || authMethods.length === 0
   const showOpenIdLogin = authMethods.includes('openid')
@@ -33,7 +33,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
   const redirectParam = searchParams.get('redirect')
   const safeRedirect = redirectParam?.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : null
   const openIdAuthUri = useMemo(() => {
-    const callbackUrl = new URL(`${serverUrl}/login`)
+    const callbackUrl = new URL(withBasePath('/login'), new URL(serverUrl).origin)
     if (safeRedirect) {
       callbackUrl.searchParams.set('redirect', safeRedirect)
     }
@@ -59,34 +59,33 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
   }, [searchParams, showOpenIdLogin, authFormData.authOpenIDAutoLaunch, openIdAuthUri])
 
   const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
+    (e: React.FormEvent) => {
       e.preventDefault()
       setError('')
-      setLoading(true)
-      try {
-        const res = await fetch(withBasePath('/internal-api/login'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password })
-        })
-        if (!res.ok) {
-          const data = await res.json()
-          console.error('[LoginForm] Error:', res.statusText, data?.error)
-          setError(data?.error || t('ErrorLoginFailed'))
-          setLoading(false)
-          return
+      startTransition(async () => {
+        try {
+          const res = await fetch(withBasePath('/internal-api/login'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          })
+          if (!res.ok) {
+            const data = await res.json()
+            console.error('[LoginForm] Error:', res.statusText, data?.error)
+            setError(data?.error || t('ErrorLoginFailed'))
+            return
+          }
+          const userResponse = await res.json()
+          if (safeRedirect) {
+            router.replace(safeRedirect)
+          } else {
+            router.replace(getUserDefaultUrlPath(userResponse?.userDefaultLibraryId ?? null))
+          }
+        } catch (error) {
+          console.error('[LoginForm] Error:', error)
+          setError(t('ErrorNetwork'))
         }
-        const userResponse = await res.json()
-        if (safeRedirect) {
-          router.replace(safeRedirect)
-        } else {
-          router.replace(getUserDefaultUrlPath(userResponse?.userDefaultLibraryId ?? null))
-        }
-      } catch (error) {
-        console.error('[LoginForm] Error:', error)
-        setError(t('ErrorNetwork'))
-        setLoading(false)
-      }
+      })
     },
     [username, password, t, router, safeRedirect]
   )
@@ -108,7 +107,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
             <TextInput label={t('LabelPassword')} value={password} type="password" autocomplete="current-password" onChange={setPassword} />
           </div>
           <div className="flex justify-end">
-            <Btn type="submit" loading={loading}>
+            <Btn type="submit" loading={isPending} disabled={isPending}>
               {t('ButtonSubmit')}
             </Btn>
           </div>

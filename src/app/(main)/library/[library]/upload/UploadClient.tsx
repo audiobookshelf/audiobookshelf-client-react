@@ -1,8 +1,7 @@
 'use client'
 
-import { useAppNavigation } from '@/contexts/AppNavigationContext'
+import { useLibrary } from '@/contexts/LibraryContext'
 import { useBookProviders, useMetadata } from '@/contexts/MetadataContext'
-import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { startTransition, useEffect, useMemo, useState } from 'react'
 
@@ -23,7 +22,6 @@ import FilePicker from '@/components/widgets/FilePicker'
 import { sanitizeFileName, SupportedFileTypes } from '@/lib/fileUtils'
 import { uploadLibraryItem } from '@/lib/libraryItemUpload'
 import { bytesPretty } from '@/lib/string'
-import { Library } from '@/types/api'
 import type { UploadProgressInfo } from '@/types/upload'
 import path from 'path'
 import { CleanedItem, FileWithMetadata, getItemsFromFilelist } from './UploadHelper'
@@ -41,23 +39,20 @@ export interface ItemToUpload extends CleanedItem {
   uploadFailed?: boolean
 }
 
-interface LibraryClientProps {
-  libraries: Library[]
-}
-
-export default function UploadClient({ libraries }: LibraryClientProps) {
+export default function UploadClient() {
   const t = useTypeSafeTranslations()
+  const { library } = useLibrary()
   const { ensureProvidersLoaded } = useMetadata()
   const bookProviders = useBookProviders()
+  const currentLibraryMediaType = library.mediaType
 
   useEffect(() => {
     ensureProvidersLoaded()
   }, [ensureProvidersLoaded])
 
-  const [selectedLibrary, setSelectedLibrary] = useState<string>()
-  const [selectedFolder, setSelectedFolder] = useState<string>()
+  const [selectedFolder, setSelectedFolder] = useState<string | undefined>(library.folders?.[0]?.id)
   const [autoFetch, setAutoFetch] = useState<boolean>(false)
-  const [selectedProvider, setSelectedProvider] = useState<string>()
+  const [selectedProvider, setSelectedProvider] = useState<string | undefined>(library.provider)
   const [uploadProcessing, setUploadProcessing] = useState<boolean>(false)
   const [uploadFinished, setUploadFinished] = useState<boolean>(false)
   const [uploadItems, setUploadItems] = useState<ItemToUpload[]>([])
@@ -65,44 +60,24 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
   const [errors, setErrors] = useState<string>('')
   const [expandedTables, setExpandedTables] = useState<Record<string, boolean>>({})
 
-  const libraryItems = libraries.map((lib) => ({
-    value: lib.id,
-    text: lib.name
+  const folderItems = library.folders?.map((folder) => ({
+    value: folder.id,
+    text: folder.fullPath
   }))
-
-  const folderItems = libraries
-    .find((lib) => lib.id === selectedLibrary)
-    ?.folders?.map((folder) => ({
-      value: folder.id,
-      text: folder.fullPath
-    }))
-  const currentLibraryMediaType = libraries.find((lib) => lib.id === selectedLibrary)?.mediaType
-
-  const { lastCurrentLibraryId } = useAppNavigation()
-  const { userDefaultLibraryId } = useUser()
+  const firstFolderId = library.folders?.[0]?.id
+  const libraryId = library.id
+  const libraryProvider = library.provider
 
   useEffect(() => {
-    if (libraries.length === 0) return
-    if (selectedLibrary) return
-
-    let defaultLibrary: Library | undefined
-
-    if (lastCurrentLibraryId) {
-      defaultLibrary = libraries.find((l) => l.id === lastCurrentLibraryId)
-    }
-
-    if (!defaultLibrary && userDefaultLibraryId) {
-      defaultLibrary = libraries.find((l) => l.id === userDefaultLibraryId)
-    }
-
-    if (!defaultLibrary) {
-      defaultLibrary = libraries[0]
-    }
-
-    setSelectedLibrary(defaultLibrary.id)
-    setSelectedFolder(defaultLibrary.folders?.[0]?.id)
-    setSelectedProvider(defaultLibrary.provider)
-  }, [libraries, lastCurrentLibraryId, userDefaultLibraryId, selectedLibrary])
+    setSelectedFolder(firstFolderId)
+    setSelectedProvider(libraryProvider)
+    setUploadItems([])
+    setIgnoredFiles([])
+    setErrors('')
+    setUploadProcessing(false)
+    setUploadFinished(false)
+    setExpandedTables({})
+  }, [libraryId, firstFolderId, libraryProvider])
 
   const supFileTypes = useMemo(() => {
     let extensions: string[] = []
@@ -257,7 +232,7 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       item.uploadBytesTotal = item.itemFiles.reduce((sum, file) => sum + file.size, 0)
 
       try {
-        await uploadLibraryItem(item, selectedLibrary!, selectedFolder!, currentLibraryMediaType!, (progress: UploadProgressInfo) => {
+        await uploadLibraryItem(item, library.id, selectedFolder!, currentLibraryMediaType, (progress: UploadProgressInfo) => {
           item.uploadProgress = progress.percent
           item.uploadBytesLoaded = progress.loaded
           item.uploadBytesTotal = progress.total
@@ -286,23 +261,8 @@ export default function UploadClient({ libraries }: LibraryClientProps) {
       onDragEnd={preventDef}
       onDrop={preventDef}
     >
-      {/* First row: Library, Folder, Media Type */}
+      {/* First row: Folder, Media Type */}
       <div className="flex flex-wrap items-end gap-4">
-        <div className="min-w-[200px] flex-1">
-          <label htmlFor="library" className="mb-1 block px-1 text-sm font-medium">
-            {t('LabelLibrary')}
-          </label>
-          <Dropdown
-            items={libraryItems}
-            value={selectedLibrary}
-            onChange={(value) => {
-              const lib = libraries.find((l) => l.id === value)
-              setSelectedLibrary(value as string)
-              setSelectedFolder(lib?.folders?.[0]?.id)
-            }}
-          />
-        </div>
-
         <div className="w-full min-w-[200px] md:flex-3">
           <label htmlFor="folder" className="mb-1 block px-1 text-sm font-medium">
             {t('LabelFolder')}
