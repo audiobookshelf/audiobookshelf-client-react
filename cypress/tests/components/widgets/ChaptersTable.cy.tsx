@@ -91,9 +91,6 @@ const mockLibraryItem: BookLibraryItem = {
 
 describe('ChaptersTable', () => {
   it('renders correctly', () => {
-    // Ensure viewport is large enough to show all columns (Duration hides below md)
-    cy.viewport(1024, 768)
-
     // Add chapters to the test item
     const libraryItem = { ...mockLibraryItem }
     libraryItem.media.chapters = [
@@ -114,7 +111,7 @@ describe('ChaptersTable', () => {
     cy.contains('01:00').should('be.visible') // Duration
   })
 
-  it('hides Duration column below md breakpoint', () => {
+  it('keeps the Duration column visible at narrow widths', () => {
     const libraryItem = { ...mockLibraryItem }
     libraryItem.media.chapters = [{ id: 1, start: 0, end: 60, title: 'Chapter 1' }]
 
@@ -124,11 +121,9 @@ describe('ChaptersTable', () => {
       </UserContext.Provider>
     )
 
-    // Mobile (xs) - Duration should be hidden
     cy.viewport(375, 667)
-    cy.contains('th', 'Duration').should('have.class', 'hidden')
+    cy.contains('th', 'Duration').should('be.visible')
 
-    // Desktop (md) - Duration becomes visible
     cy.viewport(768, 1024)
     cy.contains('th', 'Duration').should('be.visible')
   })
@@ -144,7 +139,55 @@ describe('ChaptersTable', () => {
       </UserContext.Provider>
     )
 
-    cy.contains('button', 'Edit Chapters').click()
+    cy.get('button[aria-label="Edit Chapters"]').click()
     cy.get('@onEditChapters').should('have.been.calledOnce')
+  })
+
+  it('calls onGoToTimestamp with the chapter start when a timestamp is clicked', () => {
+    const onGoToTimestamp = cy.stub().as('onGoToTimestamp')
+    const libraryItem = { ...mockLibraryItem }
+    libraryItem.media.chapters = [
+      { id: 1, start: 0, end: 60, title: 'Chapter 1' },
+      { id: 2, start: 60, end: 120, title: 'Chapter 2' }
+    ]
+
+    cy.mount(
+      <UserContext.Provider value={mockUserContextValue}>
+        <ChaptersTable libraryItem={libraryItem} expanded onGoToTimestamp={onGoToTimestamp} />
+      </UserContext.Provider>
+    )
+
+    cy.contains('button', '01:00').click()
+    cy.get('@onGoToTimestamp').should('have.been.calledOnceWith', 60)
+  })
+
+  it('activates a timestamp with the keyboard', () => {
+    const onGoToTimestamp = cy.stub().as('onGoToTimestamp')
+    const libraryItem = { ...mockLibraryItem }
+    libraryItem.media.chapters = [{ id: 1, start: 60, end: 120, title: 'Chapter 1' }]
+
+    cy.mount(
+      <UserContext.Provider value={mockUserContextValue}>
+        <ChaptersTable libraryItem={libraryItem} expanded onGoToTimestamp={onGoToTimestamp} />
+      </UserContext.Provider>
+    )
+
+    cy.contains('button', '01:00').focus()
+    cy.realPress('Enter')
+    cy.get('@onGoToTimestamp').should('have.been.calledOnceWith', 60)
+  })
+
+  it('renders timestamps as plain text when onGoToTimestamp is not provided', () => {
+    const libraryItem = { ...mockLibraryItem }
+    libraryItem.media.chapters = [{ id: 1, start: 60, end: 120, title: 'Chapter 1' }]
+
+    cy.mount(
+      <UserContext.Provider value={mockUserContextValue}>
+        <ChaptersTable libraryItem={libraryItem} expanded />
+      </UserContext.Provider>
+    )
+
+    cy.contains('01:00').should('be.visible')
+    cy.contains('button', '01:00').should('not.exist')
   })
 })

@@ -7,7 +7,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
 import { buildBookQueueItem, getPodcastItemPagePlaybackParams } from '@/lib/playerQueue'
 import type { BookLibraryItem, PodcastEpisode, PodcastLibraryItem } from '@/types/api'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 interface UseLibraryItemPagePlayOptions {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -18,6 +18,7 @@ interface UseLibraryItemPagePlayOptions {
 export function useLibraryItemPagePlay({ libraryItem, podcastEpisodesInOrder = [] }: UseLibraryItemPagePlayOptions) {
   const { user, serverSettings } = useUser()
   const { playItem, isStreaming: isStreamingFn, isPlaying: isPlayingFn, playerControls } = useMediaContext()
+  const [pendingStartTime, setPendingStartTime] = useState<number | null>(null)
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
@@ -67,5 +68,47 @@ export function useLibraryItemPagePlay({ libraryItem, podcastEpisodesInOrder = [
     })
   }, [isPodcast, isStreaming, libraryItem, playItem, playerControls, podcastEpisodesInOrder, serverSettings.dateFormat, showToast, t, user.mediaProgress])
 
-  return { handlePlay, showPlayButton, isItemPlaying }
+  const handleGoToTimestamp = useCallback(
+    (time: number) => {
+      if (!isBook) return
+      if (isStreaming) {
+        playerControls.seek(time)
+        return
+      }
+      setPendingStartTime(time)
+    },
+    [isBook, isStreaming, playerControls]
+  )
+
+  const handleConfirmStartTime = useCallback(() => {
+    if (pendingStartTime !== null) {
+      if (isStreaming) {
+        // Playback started while the dialog was open; seek rather than restart the session.
+        playerControls.seek(pendingStartTime)
+      } else {
+        const queueItem = buildBookQueueItem(libraryItem)
+        void playItem({
+          libraryItem,
+          episodeId: null,
+          startTime: pendingStartTime,
+          queueItems: queueItem ? [queueItem] : []
+        })
+      }
+    }
+    setPendingStartTime(null)
+  }, [isStreaming, libraryItem, pendingStartTime, playItem, playerControls])
+
+  const handleCloseStartTime = useCallback(() => {
+    setPendingStartTime(null)
+  }, [])
+
+  return {
+    handlePlay,
+    showPlayButton,
+    isItemPlaying,
+    handleGoToTimestamp,
+    pendingStartTime,
+    handleCloseStartTime,
+    handleConfirmStartTime
+  }
 }
