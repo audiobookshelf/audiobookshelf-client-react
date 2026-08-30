@@ -493,6 +493,7 @@
   "LabelFull": "Full",
   "LabelGenre": "Genre",
   "LabelGenres": "Genres",
+  "LabelGoToTimestamp": "Go to timestamp {0}",
   "LabelGroupClaim": "Group Claim",
   "LabelHardDeleteFile": "Hard delete file",
   "LabelHasEbook": "Has ebook",
