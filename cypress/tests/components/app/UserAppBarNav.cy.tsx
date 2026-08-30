@@ -57,7 +57,7 @@ function createMockUserContextValue(user: User): UserContextType {
   }
 }
 
-function mountUserAppBarNav(props: { userCanUpload?: boolean; username?: string } = {}, options?: { alignEnd?: boolean }) {
+function mountUserAppBarNav(props: { username?: string } = {}, options?: { alignEnd?: boolean }) {
   const router = {
     back: cy.stub(),
     forward: cy.stub(),
@@ -71,11 +71,7 @@ function mountUserAppBarNav(props: { userCanUpload?: boolean; username?: string 
   cy.stub(navigation, 'useRouter').callsFake(() => router)
 
   const user = createMockUser({
-    username: props.username ?? 'testuser',
-    permissions: {
-      ...DEFAULT_MOCK_USER_PERMISSIONS,
-      upload: props.userCanUpload ?? false
-    }
+    username: props.username ?? 'testuser'
   })
 
   const userAppBarNav = <UserAppBarNav />
@@ -139,7 +135,7 @@ describe('<UserAppBarNav /> desktop keyboard navigation', () => {
   })
 
   it('excludes mobile-only items from the desktop menu', () => {
-    mountUserAppBarNav({ userCanUpload: true })
+    mountUserAppBarNav()
     desktopMenuTrigger().click()
     cy.get('[role="menuitem"]').should('have.length', 4)
     cy.get('[role="menu"]').should('not.contain.text', 'Settings')
