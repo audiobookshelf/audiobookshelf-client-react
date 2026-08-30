@@ -43,30 +43,24 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
         label: t('LabelStart'),
         headerClassName: 'w-20 min-w-20 px-2 text-center md:w-24 md:min-w-24',
         cellClassName: 'w-20 min-w-20 px-2 text-center md:w-24 md:min-w-24',
-        accessor: (row: Chapter) =>
-          onGoToTimestamp ? (
-            <div
-              className="cursor-pointer text-center font-mono hover:underline"
+        accessor: (row: Chapter) => {
+          const startTimestamp = secondsToTimestamp(row.start)
+          return onGoToTimestamp ? (
+            <button
+              type="button"
+              className="cursor-pointer bg-transparent p-0 font-mono hover:underline"
               onClick={(e) => {
                 e.stopPropagation()
                 onGoToTimestamp(row.start)
               }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  onGoToTimestamp(row.start)
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label={t('LabelGoToTimestamp', { 0: secondsToTimestamp(row.start) })}
+              aria-label={t('LabelGoToTimestamp', { 0: startTimestamp })}
             >
-              {secondsToTimestamp(row.start)}
-            </div>
+              {startTimestamp}
+            </button>
           ) : (
-            <div className="text-center font-mono">{secondsToTimestamp(row.start)}</div>
+            <div className="text-center font-mono">{startTimestamp}</div>
           )
+        }
       },
       {
         label: t('LabelDuration'),

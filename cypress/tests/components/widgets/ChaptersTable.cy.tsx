@@ -160,7 +160,7 @@ describe('ChaptersTable', () => {
       </UserContext.Provider>
     )
 
-    cy.contains('[role="button"]', '01:00').click()
+    cy.contains('button', '01:00').click()
     cy.get('@onGoToTimestamp').should('have.been.calledOnceWith', 60)
   })
 
@@ -175,7 +175,8 @@ describe('ChaptersTable', () => {
       </UserContext.Provider>
     )
 
-    cy.contains('[role="button"]', '01:00').focus().type('{enter}')
+    cy.contains('button', '01:00').focus()
+    cy.realPress('Enter')
     cy.get('@onGoToTimestamp').should('have.been.calledOnceWith', 60)
   })
 
@@ -190,6 +191,6 @@ describe('ChaptersTable', () => {
     )
 
     cy.contains('01:00').should('be.visible')
-    cy.get('[role="button"]').should('not.exist')
+    cy.contains('button', '01:00').should('not.exist')
   })
 })
