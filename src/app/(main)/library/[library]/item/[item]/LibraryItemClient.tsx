@@ -129,10 +129,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
       {accentRgb !== null ? (
         <div aria-hidden className="library-item-cover-accent-backdrop pointer-events-none absolute inset-0 z-0 h-[calc(100vh-var(--header-height))]" />
       ) : null}
-      <div className="relative z-[1] p-6 sm:p-8">
+      <div className="relative z-1 p-6 sm:p-8">
         <div className="mx-auto w-full max-w-6xl">
           <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-            <div className="mx-auto flex w-full max-w-72 flex-shrink-0 items-start justify-center md:w-52 md:max-w-52 md:justify-start">
+            <div className="mx-auto flex w-full max-w-72 shrink-0 items-start justify-center md:w-52 md:max-w-52 md:justify-start">
               <LibraryItemCover
                 libraryItem={libraryItem}
                 canUpdate={userCanUpdate}
@@ -153,7 +153,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     {bookSeries.map((series, index) => {
                       return (
                         <Fragment key={series.id}>
-                          <Link href={`/library/${library.id}/series/${series.id}`} className="text-foreground-muted text-lg hover:underline">
+                          <Link href={`/library/${library.id}/series/${series.id}`} className="text-foreground-muted link-underline text-lg">
                             {series.name}
                             {series.sequence && <span className="text-foreground-muted text-lg"> #{series.sequence}</span>}
                           </Link>
@@ -170,7 +170,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                     {bookAuthors.map((author, index) => {
                       return (
                         <Fragment key={author.id}>
-                          <Link href={`/library/${library.id}/authors/${author.id}`} className="text-foreground text-lg hover:underline md:text-xl">
+                          <Link href={`/library/${library.id}/authors/${author.id}`} className="text-foreground link-underline text-lg md:text-xl">
                             {author.name}
                           </Link>
                           {index < bookAuthors.length - 1 && <span className="text-foreground text-lg md:text-xl">, </span>}

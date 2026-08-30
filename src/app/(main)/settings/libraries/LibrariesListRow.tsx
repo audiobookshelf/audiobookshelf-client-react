@@ -80,7 +80,7 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
   return (
     <div className="hover:bg-primary/20 text-foreground/50 hover:text-foreground flex items-center gap-4 px-4 py-1">
       {isLibraryTaskRunning ? <LoadingSpinner /> : <LibraryIcon icon={item.icon} />}
-      <Link className="text-foreground py-2 hover:underline" href={`/library/${item.id}`}>
+      <Link className="text-foreground link-underline py-2" href={`/library/${item.id}`}>
         {item.name}
       </Link>
       <div className="grow" />

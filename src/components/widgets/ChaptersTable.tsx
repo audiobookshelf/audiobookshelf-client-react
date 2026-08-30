@@ -35,7 +35,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
     () => [
       {
         label: t('LabelTitle'),
-        accessor: (row: Chapter) => <span className="break-words">{row.title}</span>,
+        accessor: (row: Chapter) => <span className="wrap-break-word">{row.title}</span>,
         headerClassName: 'min-w-0 px-2 text-start md:px-4',
         cellClassName: 'max-w-0 min-w-0 px-2 md:px-4'
       },
@@ -48,7 +48,7 @@ export default function ChaptersTable({ libraryItem, keepOpen = false, expanded:
           return onGoToTimestamp ? (
             <button
               type="button"
-              className="cursor-pointer bg-transparent p-0 font-mono hover:underline"
+              className="link-underline cursor-pointer bg-transparent p-0 font-mono"
               onClick={(e) => {
                 e.stopPropagation()
                 onGoToTimestamp(row.start)

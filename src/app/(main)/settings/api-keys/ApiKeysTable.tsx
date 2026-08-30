@@ -67,7 +67,7 @@ export default function ApiKeysTable({ apiKeys, onEditClick }: ApiKeysTableProps
     {
       label: t('LabelApiKeyUser'),
       accessor: (apiKey) => (
-        <Link href={`/settings/users/${apiKey.user.id}`} className="text-foreground hover:underline">
+        <Link href={`/settings/users/${apiKey.user.id}`} className="text-foreground link-underline">
           {apiKey.user.username}
         </Link>
       )

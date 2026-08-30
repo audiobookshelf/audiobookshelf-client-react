@@ -22,7 +22,7 @@ import UserListeningStatsSkeleton from './UserListeningStatsSkeleton'
 
 const legacyTokenTags = {
   apiKeysLink: (chunks: React.ReactNode) => (
-    <Link href="/settings/api-keys" className="text-blue-400 hover:text-blue-300 hover:underline">
+    <Link href="/settings/api-keys" className="link-underline text-blue-400 hover:text-blue-300">
       {chunks}
     </Link>
   )

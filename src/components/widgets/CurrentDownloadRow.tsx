@@ -34,7 +34,7 @@ export default function CurrentDownloadRow({ episode }: CurrentDownloadRowProps)
           <PreviewCover src={coverSrc} width={48} bookCoverAspectRatio={bookCoverAspectRatio} showResolution={false} />
           <div className="grow px-2">
             <div className="flex items-center">
-              <Link href={itemHref} className="text-foreground-muted hover:text-foreground text-sm hover:underline">
+              <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline text-sm">
                 {episode.podcastTitle}
               </Link>
               {episode.podcastExplicit && <ExplicitIndicator className="ms-1 shrink-0" />}
@@ -45,7 +45,7 @@ export default function CurrentDownloadRow({ episode }: CurrentDownloadRowProps)
 
         <div className="hidden md:block">
           <div className="flex items-center">
-            <Link href={itemHref} className="text-foreground-muted hover:text-foreground text-sm hover:underline">
+            <Link href={itemHref} className="text-foreground-muted hover:text-foreground link-underline text-sm">
               {episode.podcastTitle}
             </Link>
             {episode.podcastExplicit && <ExplicitIndicator className="ms-1 shrink-0" />}

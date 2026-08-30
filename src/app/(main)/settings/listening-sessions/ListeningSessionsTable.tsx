@@ -371,7 +371,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         accessor: (session) => (
           <button
             type="button"
-            className="w-full cursor-pointer text-center font-mono text-xs hover:underline"
+            className="link-underline w-full cursor-pointer text-center font-mono text-xs"
             onClick={(e) => {
               e.stopPropagation()
               handlePromptResumePlayback(session)
@@ -596,7 +596,7 @@ function SessionListTable({
         accessor: (session) => (
           <button
             type="button"
-            className="w-full cursor-pointer text-center font-mono text-xs hover:underline"
+            className="link-underline w-full cursor-pointer text-center font-mono text-xs"
             onClick={(e) => {
               e.stopPropagation()
               onPromptResumePlayback(session)
