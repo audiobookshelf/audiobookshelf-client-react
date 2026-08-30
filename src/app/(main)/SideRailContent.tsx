@@ -31,8 +31,8 @@ export default function SideRailContent({
 }: SideRailContentProps) {
   const pathname = usePathname()
   const t = useTypeSafeTranslations()
-  const { userIsAdminOrUp } = useUser()
-  // Optional: AppBar mounts this drawer on settings/account/upload (no LibraryProvider)
+  const { userIsAdminOrUp, userCanUpload } = useUser()
+  // Optional: AppBar mounts this drawer on settings/account (no LibraryProvider)
   const { filterData } = useLibraryOptional()
   const numIssues = filterData?.numIssues ?? 0
   const issuesHref = `/library/${libraryId}/issues`
@@ -103,7 +103,7 @@ export default function SideRailContent({
       mediaType: 'book' as const
     },
     {
-      icon: <span className="material-symbols text-2.5xl">&#xe03d;</span>,
+      icon: <span className="material-symbols text-2xl">&#xe03d;</span>,
       label: t('ButtonPlaylists'),
       href: `/library/${libraryId}/playlists`
     },
@@ -145,12 +145,24 @@ export default function SideRailContent({
       href: `/library/${libraryId}/download-queue`,
       mediaType: 'podcast' as const,
       adminOnly: true
+    },
+    {
+      icon: <span className="material-symbols text-2xl">upload</span>,
+      label: t('ButtonUpload'),
+      href: `/library/${libraryId}/upload`,
+      uploadOnly: true
     }
   ]
 
-  const filteredButtons = buttons.filter((button) => (!button.mediaType || button.mediaType === mediaType) && (!button.adminOnly || userIsAdminOrUp))
+  const filteredButtons = buttons.filter(
+    (button) => (!button.mediaType || button.mediaType === mediaType) && (!button.adminOnly || userIsAdminOrUp) && (!button.uploadOnly || userCanUpload)
+  )
 
   const isDrawer = variant === 'drawer'
+  const itemLayoutClass = isDrawer
+    ? 'border-border flex items-center justify-start px-4 py-3'
+    : 'border-primary/30 flex h-18 shrink-0 flex-col items-center justify-center gap-0.5'
+  const itemLabelClass = isDrawer ? 'text-sm font-semibold' : 'w-full px-0.5 text-center text-sm leading-tight'
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -165,7 +177,7 @@ export default function SideRailContent({
               onClick={onItemClick ?? undefined}
               className={mergeClasses(
                 'text-foreground hover:bg-nav-item-hover relative w-full cursor-pointer border-b transition-colors',
-                isDrawer ? 'border-border flex items-center justify-start px-4 py-3' : 'border-primary/30 flex h-20 flex-col items-center justify-center',
+                itemLayoutClass,
                 isActive && (isDrawer ? 'bg-nav-item-hover' : 'bg-nav-item-selected')
               )}
             >
@@ -177,7 +189,7 @@ export default function SideRailContent({
               >
                 {button.icon}
               </span>
-              <span className={mergeClasses(isDrawer ? 'text-sm font-semibold' : 'text-sm')}>{button.label}</span>
+              <span className={itemLabelClass}>{button.label}</span>
 
               {!isDrawer && isActive && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
             </Link>
@@ -190,14 +202,14 @@ export default function SideRailContent({
             onClick={onItemClick ?? undefined}
             className={mergeClasses(
               'text-foreground relative w-full cursor-pointer border-b transition-colors',
-              isDrawer ? 'border-border flex items-center justify-start px-4 py-3' : 'border-primary/30 flex h-20 flex-col items-center justify-center',
+              itemLayoutClass,
               onIssuesPage ? 'bg-error/40 hover:bg-error/40' : 'bg-error/20 hover:bg-error/40'
             )}
           >
             <span className={mergeClasses('shrink-0', isDrawer ? 'me-3 flex items-center [&_.material-symbols]:text-xl' : '')}>
               <span className="material-symbols text-2xl">warning</span>
             </span>
-            <span className={mergeClasses(isDrawer ? 'text-sm font-semibold' : 'text-sm')}>{t('ButtonIssues')}</span>
+            <span className={itemLabelClass}>{t('ButtonIssues')}</span>
 
             {!isDrawer && onIssuesPage && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
             <div

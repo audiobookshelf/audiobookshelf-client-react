@@ -33,7 +33,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const isSettingsRoute = pathname.startsWith('/settings')
   const isMobile = useMediaQuery('max-md')
   const [isSideRailOpen, setIsSideRailOpen] = useState(false)
-  const { user, userDefaultLibraryId, userCanUpload } = useUser()
+  const { user, userDefaultLibraryId } = useUser()
   // When not on a library page, use the last current library id when navigating home
   const { lastCurrentLibraryId, setLastCurrentLibraryId } = useAppNavigation()
 
@@ -118,14 +118,6 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
             <Tooltip text={t('HeaderSettings')} position="bottom">
               <IconBtn borderless ariaLabel={t('HeaderSettings')} to={isMobile ? '/settings' : '/settings/general'}>
                 settings
-              </IconBtn>
-            </Tooltip>
-          )}
-
-          {userCanUpload && effectiveLibraryId && currentLibrary && !isSettingsRoute && (
-            <Tooltip text={t('ButtonUpload')} position="bottom">
-              <IconBtn borderless ariaLabel={t('ButtonUpload')} to="/upload" className="hidden md:inline-flex">
-                upload
               </IconBtn>
             </Tooltip>
           )}
