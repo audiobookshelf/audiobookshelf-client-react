@@ -113,7 +113,7 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
   const [, startScanTransition] = useTransition()
   const { sizeMultiplier } = useCardSize()
   const { user, serverSettings, ereaderDevices, userIsAdminOrUp, getMediaItemProgress } = useUser()
-  const { library, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView } = useLibrary()
+  const { library, showSubtitles, updateSetting, setContextMenuItems, setContextMenuActionHandler, homeBookshelfView } = useLibrary()
 
   const [shelves, setShelves] = useState(personalized)
   const [libraryItemCount, setLibraryItemCount] = useState(libraryItemCountProp)
@@ -336,8 +336,34 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
     setShelves((prev) => applyUserUpdatedToShelves(prev, user.mediaProgress, user.seriesHideFromContinueListening))
   }, [user.mediaProgress, user.seriesHideFromContinueListening])
 
+  const handleToolbarMenuAction = useCallback(
+    (action: string) => {
+      if (action === 'show-subtitles') {
+        updateSetting('showSubtitles', true)
+      } else if (action === 'hide-subtitles') {
+        updateSetting('showSubtitles', false)
+      } else if (action === 'scan') {
+        startScanTransition(async () => {
+          try {
+            await requestScanLibrary(library.id)
+          } catch (error) {
+            console.error('Failed to start library scan', error)
+          }
+        })
+      }
+    },
+    [library.id, startScanTransition, updateSetting]
+  )
+
   useEffect(() => {
-    const items = []
+    const items: { text: string; action: string }[] = []
+
+    if (library.mediaType === 'book') {
+      items.push({
+        text: t(showSubtitles ? 'LabelHideSubtitles' : 'LabelShowSubtitles'),
+        action: showSubtitles ? 'hide-subtitles' : 'show-subtitles'
+      })
+    }
 
     if (userIsAdminOrUp) {
       items.push({
@@ -348,23 +374,15 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
 
     setContextMenuItems(items)
 
-    setContextMenuActionHandler((action) => {
-      if (action === 'scan') {
-        startScanTransition(async () => {
-          try {
-            await requestScanLibrary(library.id)
-          } catch (error) {
-            console.error('Failed to start library scan', error)
-          }
-        })
-      }
-    })
-
     return () => {
       setContextMenuItems([])
-      setContextMenuActionHandler(() => {})
     }
-  }, [userIsAdminOrUp, library.id, setContextMenuItems, setContextMenuActionHandler, t, startScanTransition])
+  }, [library.mediaType, setContextMenuItems, showSubtitles, t, userIsAdminOrUp])
+
+  useEffect(() => {
+    setContextMenuActionHandler(handleToolbarMenuAction)
+    return () => setContextMenuActionHandler(() => {})
+  }, [handleToolbarMenuAction, setContextMenuActionHandler])
 
   return (
     <div className="pb-20" style={{ fontSize: sizeMultiplier + 'rem' }}>
@@ -419,7 +437,7 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
                       timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
                       userPermissions={user.permissions}
                       ereaderDevices={ereaderDevices}
-                      showSubtitles
+                      showSubtitles={showSubtitles}
                       mediaProgress={mediaProgress}
                       shelfEntities={shelf.entities}
                       entityIndex={entityIndex}
