@@ -30,16 +30,8 @@ function buildChapterInfo(chapters: Chapter[]) {
   }))
 }
 
-function buildMediaMetadata(
-  libraryItem: LibraryItem,
-  displayTitle: string | null,
-  displayAuthor: string | null,
-  chapters: Chapter[],
-  unknownLabel: string
-): MediaMetadata {
+function buildMediaMetadata(libraryItem: LibraryItem, title: string, artist: string, chapters: Chapter[]): MediaMetadata {
   const metadata = libraryItem.media.metadata
-  const title = displayTitle || metadata.title || unknownLabel
-  const artist = displayAuthor || (isBookMetadata(metadata) ? metadata.authorName : undefined) || unknownLabel
   const album = isBookMetadata(metadata) ? (metadata.seriesName ?? '') : ''
   const coverUrl = getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, true)
   const chapterInfo = buildChapterInfo(chapters)
@@ -53,27 +45,6 @@ function buildMediaMetadata(
   }
 
   return new MediaMetadata(init)
-}
-
-function buildChapterMediaMetadata(
-  libraryItem: LibraryItem,
-  displayTitle: string | null,
-  displayAuthor: string | null,
-  currentChapter: Chapter,
-  unknownLabel: string
-): MediaMetadata {
-  const metadata = libraryItem.media.metadata
-  const bookTitle = displayTitle || metadata.title || unknownLabel
-  const author = displayAuthor || (isBookMetadata(metadata) ? metadata.authorName : undefined) || unknownLabel
-  const coverUrl = getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, true)
-
-  // Audible-style lock screen: book title primary, chapter name secondary; author in album (expanded views).
-  return new MediaMetadata({
-    title: bookTitle,
-    artist: currentChapter.title || unknownLabel,
-    album: author,
-    artwork: [{ src: coverUrl }]
-  })
 }
 
 function getMediaSessionPositionState({
@@ -155,16 +126,17 @@ export function useMediaSession({ libraryItem, playerHandler, enabled = true }: 
   useEffect(() => {
     if (!enabled || !libraryItem || !('mediaSession' in navigator)) return
 
-    if (useChapterTrack && currentChapter) {
-      navigator.mediaSession.metadata = buildChapterMediaMetadata(libraryItem, displayTitle, displayAuthor, currentChapter, unknownLabel)
-    } else {
-      navigator.mediaSession.metadata = buildMediaMetadata(libraryItem, displayTitle, displayAuthor, chapters, unknownLabel)
-    }
+    const bookTitle = displayTitle || libraryItem.media.metadata.title || unknownLabel
+    const chapterTitle = currentChapter?.title
+    const title = chapterTitle ? t('LabelMediaSessionTitleWithChapter', { title: bookTitle, chapter: chapterTitle }) : bookTitle
+    const artist = displayAuthor || (isBookMetadata(libraryItem.media.metadata) ? libraryItem.media.metadata.authorName : undefined) || unknownLabel
+
+    navigator.mediaSession.metadata = buildMediaMetadata(libraryItem, title, artist, chapters)
 
     return () => {
       navigator.mediaSession.metadata = null
     }
-  }, [enabled, libraryItem, displayAuthor, displayTitle, chapters, useChapterTrack, currentChapter, unknownLabel])
+  }, [enabled, libraryItem, displayAuthor, displayTitle, chapters, currentChapter, unknownLabel, t])
 
   // Action handlers use refs so seek/jump callbacks changing with currentTime do not reset metadata.
   useEffect(() => {
