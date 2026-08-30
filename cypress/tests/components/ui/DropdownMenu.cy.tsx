@@ -133,6 +133,22 @@ describe('<DropdownMenu />', () => {
       cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'bg-dropdown-item-selected')
     })
 
+    it('calls onItemMouseOver when an item is hovered', () => {
+      const onItemMouseOver = cy.stub().as('onItemMouseOver')
+      cy.mount(<DropdownMenu {...defaultProps} onItemMouseOver={onItemMouseOver} />)
+      cy.get('[role="listbox"] > li').eq(2).trigger('mouseover')
+      cy.get('@onItemMouseOver').should('have.been.calledWith', 2)
+    })
+
+    it('applies selected highlight independently of focused styling', () => {
+      const isItemSelected = (item: DropdownMenuItem) => item.value === 'option2'
+      cy.mount(<DropdownMenu {...defaultProps} focusedIndex={0} highlightSelected isItemSelected={isItemSelected} />)
+      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'bg-dropdown-item-selected')
+    })
+
     it('scrolls focused item into view', () => {
       // This test verifies the useEffect behavior for scrolling
       cy.mount(<DropdownMenu {...defaultProps} focusedIndex={3} />)

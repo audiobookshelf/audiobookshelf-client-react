@@ -74,6 +74,7 @@ function DropdownSubmenu({
   focusedSubIndex,
   onSubitemClick,
   onMouseOver,
+  onSubitemMouseOver,
   onMouseLeave,
   referenceElement,
   filterText,
@@ -86,6 +87,7 @@ function DropdownSubmenu({
   focusedSubIndex: number
   onSubitemClick?: (subitem: DropdownMenuSubitem) => void
   onMouseOver: () => void
+  onSubitemMouseOver?: (subIndex: number) => void
   onMouseLeave: () => void
   referenceElement: HTMLElement | null
   filterText: string
@@ -181,7 +183,7 @@ function DropdownSubmenu({
       ref={submenuRef}
       role="menu"
       data-dropdown-id={dropdownId}
-      className="bg-primary border-dropdown-menu-border absolute z-[9999] overflow-y-auto rounded-md border py-1 shadow-lg"
+      className="bg-primary border-dropdown-menu-border absolute z-9999 overflow-y-auto rounded-md border py-1 shadow-lg"
       style={{
         ...floatingStyles,
         width: `${floatingSize?.width ?? PREFERRED_SUBMENU_WIDTH}px`,
@@ -215,9 +217,10 @@ function DropdownSubmenu({
             onSubitemClick?.(subitem)
           }}
           onMouseDown={(e) => e.preventDefault()}
+          onMouseOver={() => onSubitemMouseOver?.(subitemIndex)}
         >
           <span
-            className={mergeClasses('ms-3 block min-w-0 font-sans text-sm', wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate')}
+            className={mergeClasses('ms-3 block min-w-0 font-sans text-sm', wrapText ? 'line-clamp-2 wrap-break-word whitespace-normal' : 'truncate')}
             title={subitem.text}
           >
             {subitem.text}
@@ -250,6 +253,8 @@ interface DropdownMenuProps {
   dropdownId: string
   onItemClick?: (item: DropdownMenuItem) => void
   onSubitemClick?: (subitem: DropdownMenuSubitem) => void
+  onItemMouseOver?: (index: number) => void
+  onSubitemMouseOver?: (subIndex: number) => void
   onOpenSubmenu?: (index: number) => void
   onCloseSubmenu?: () => void
   isItemSelected?: (item: DropdownMenuItem) => boolean
@@ -282,6 +287,8 @@ export default function DropdownMenu({
   dropdownId,
   onItemClick,
   onSubitemClick,
+  onItemMouseOver,
+  onSubitemMouseOver,
   onOpenSubmenu,
   onCloseSubmenu,
   isItemSelected,
@@ -473,7 +480,10 @@ export default function DropdownMenu({
               onItemClick?.(item)
             }}
             onMouseDown={(e) => e.preventDefault()}
-            onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
+            onMouseOver={() => {
+              onItemMouseOver?.(index)
+              if (hasSubitems) handleMouseoverParent(index)
+            }}
             onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
             <div
@@ -498,7 +508,7 @@ export default function DropdownMenu({
             )}
             {item.rightIcon && !hasSubitems && <div className="pointer-events-none absolute inset-y-0 right-2 flex h-full items-center">{item.rightIcon}</div>}
             {showSelectedIndicator && isItemSelected && isItemSelected(item) && !hasSubitems && (
-              <span className="absolute inset-y-0 end-0 flex items-center pe-4">
+              <span className="absolute inset-y-0 inset-e-0 flex items-center pe-4">
                 <span className="material-symbols text-xl text-yellow-400">check</span>
               </span>
             )}
@@ -512,6 +522,7 @@ export default function DropdownMenu({
                 focusedSubIndex={focusedSubIndex}
                 onSubitemClick={onSubitemClick}
                 onMouseOver={handleMouseoverSubmenu}
+                onSubitemMouseOver={onSubitemMouseOver}
                 onMouseLeave={handleMouseleaveSubmenu}
                 referenceElement={menuItemRefs.current[index]}
                 filterText={submenuFilterText}
@@ -532,6 +543,8 @@ export default function DropdownMenu({
       showSelectedIndicator,
       onItemClick,
       onSubitemClick,
+      onItemMouseOver,
+      onSubitemMouseOver,
       highlightSelected,
       handleMouseoverParent,
       handleMouseleaveParent,
@@ -571,7 +584,9 @@ export default function DropdownMenu({
       aria-activedescendant={
         focusedSubIndex !== -1 && openSubmenuIndex !== null
           ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
-          : `${dropdownId}-item-${focusedIndex}`
+          : focusedIndex >= 0
+            ? `${dropdownId}-item-${focusedIndex}`
+            : undefined
       }
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
