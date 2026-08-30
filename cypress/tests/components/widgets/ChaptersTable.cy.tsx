@@ -91,9 +91,6 @@ const mockLibraryItem: BookLibraryItem = {
 
 describe('ChaptersTable', () => {
   it('renders correctly', () => {
-    // Ensure viewport is large enough to show all columns (Duration hides below md)
-    cy.viewport(1024, 768)
-
     // Add chapters to the test item
     const libraryItem = { ...mockLibraryItem }
     libraryItem.media.chapters = [
