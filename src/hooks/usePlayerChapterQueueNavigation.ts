@@ -1,5 +1,6 @@
 import { useMediaContext } from '@/contexts/MediaContext'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { resolveNextTarget, resolvePreviousTarget } from '@/lib/chapters/chapterPlayback'
 import { isPodcastLibraryItem, type LibraryItem } from '@/types/api'
 import { useCallback } from 'react'
 
@@ -7,42 +8,29 @@ import { useCallback } from 'react'
 export function usePlayerChapterQueueNavigation(playerHandler: PlayerHandler, streamLibraryItem: LibraryItem | null) {
   const { hasNextItemInQueue, hasPreviousItemInQueue, playNextInQueue, playPreviousInQueue } = useMediaContext()
   const { seek, getCurrentTime } = playerHandler.controls
-  const { nextChapter, previousChapter, currentChapter, chapters } = playerHandler.state
+  const { chapters } = playerHandler.state
   const isPodcast = streamLibraryItem ? isPodcastLibraryItem(streamLibraryItem) : false
 
   const handleNext = useCallback(() => {
-    if (nextChapter) {
-      seek(nextChapter.start)
+    const target = resolveNextTarget(chapters, getCurrentTime())
+
+    if (target !== null) {
+      seek(target)
     } else if (hasNextItemInQueue) {
       void playNextInQueue()
     }
-  }, [hasNextItemInQueue, nextChapter, playNextInQueue, seek])
+  }, [chapters, getCurrentTime, hasNextItemInQueue, playNextInQueue, seek])
 
   const handlePrevious = useCallback(() => {
-    const currentTime = getCurrentTime()
+    const target = resolvePreviousTarget(chapters, getCurrentTime())
 
-    if (chapters.length > 0) {
-      if (previousChapter) {
-        const currentChapterStart = currentChapter?.start ?? 0
-        const timeInCurrentChapter = currentTime - currentChapterStart
-        if (timeInCurrentChapter <= 3) {
-          seek(previousChapter.start)
-        } else {
-          seek(currentChapterStart)
-        }
-      } else {
-        seek(0)
-      }
-      return
-    }
-
-    if (hasPreviousItemInQueue && currentTime <= 3) {
+    if (target === null && hasPreviousItemInQueue) {
       void playPreviousInQueue()
       return
     }
 
-    seek(0)
-  }, [chapters.length, currentChapter?.start, getCurrentTime, hasPreviousItemInQueue, playPreviousInQueue, previousChapter, seek])
+    seek(target ?? 0)
+  }, [chapters, getCurrentTime, hasPreviousItemInQueue, playPreviousInQueue, seek])
 
   return { handleNext, handlePrevious, hasNextItemInQueue, hasPreviousItemInQueue, isPodcast, chapters }
 }
