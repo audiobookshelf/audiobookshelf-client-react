@@ -17,6 +17,7 @@ import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
 import { computeProgress } from '@/lib/mediaProgress'
 import { BookLibraryItem, BookMetadata, PodcastEpisode, PodcastLibraryItem, PodcastMetadata } from '@/types/api'
@@ -46,7 +47,11 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     setPodcastEpisodesInOrder(episodes)
   }, [])
 
-  const { handlePlay, showPlayButton, isItemPlaying } = useLibraryItemPagePlay({ libraryItem, podcastEpisodesInOrder })
+  const { handlePlay, showPlayButton, isItemPlaying, handleGoToTimestamp, pendingStartTime, handleCloseStartTime, handleConfirmStartTime } =
+    useLibraryItemPagePlay({
+      libraryItem,
+      podcastEpisodesInOrder
+    })
 
   useEffect(() => {
     setLibraryItem(initialLibraryItem)
@@ -230,7 +235,13 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
               {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}
 
               <div className="mt-6 flex flex-col gap-4">
-                {isBookWithAudio && <ChaptersTable libraryItem={libraryItem as BookLibraryItem} onEditChapters={() => handleOpenMetadataEdit('chapters')} />}
+                {isBookWithAudio && (
+                  <ChaptersTable
+                    libraryItem={libraryItem as BookLibraryItem}
+                    onEditChapters={() => handleOpenMetadataEdit('chapters')}
+                    onGoToTimestamp={handleGoToTimestamp}
+                  />
+                )}
 
                 {/* audio tracks table */}
                 {libraryItem.mediaType === 'book' && (libraryItem.media.tracks?.length ?? 0) > 0 && (
@@ -269,6 +280,15 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
           message={t('MessageConfirmClearEpisodeFetchQueue')}
           onClose={() => setIsClearQueueDialogOpen(false)}
           onConfirm={handleClearDownloadQueue}
+        />
+        <ConfirmDialog
+          isOpen={pendingStartTime !== null}
+          message={t('MessageStartPlaybackAtTime', {
+            0: metadata.title ?? '',
+            1: secondsToTimestamp(pendingStartTime ?? 0)
+          })}
+          onClose={handleCloseStartTime}
+          onConfirm={handleConfirmStartTime}
         />
       </div>
     </div>
