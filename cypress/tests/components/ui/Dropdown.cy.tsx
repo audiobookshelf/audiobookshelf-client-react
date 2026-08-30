@@ -504,6 +504,16 @@ describe('<Dropdown />', () => {
       cy.get('[role="menu"] li').should('have.length', 3)
     })
 
+    it('highlights the selected subitem and its parent', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} value="sub2" />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
+      cy.get('[role="menu"] li[role="option"]').eq(1).should('have.class', 'text-yellow-400')
+      cy.get('[role="menu"] li[role="option"]').eq(0).should('not.have.class', 'text-yellow-400')
+    })
+
     it('selects subitem on click', () => {
       const onChangeSpy = cy.spy().as('onChangeSpy')
       cy.mount(<Dropdown items={itemsWithSubmenus} onChange={onChangeSpy} />)

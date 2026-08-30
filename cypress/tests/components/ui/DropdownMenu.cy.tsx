@@ -8,6 +8,7 @@ interface DropdownMenuItem {
   value: string | number
   subtext?: string
   leftIcon?: React.ReactNode
+  subitems?: { text: string; value: string | number }[]
 }
 
 describe('<DropdownMenu />', () => {
@@ -147,6 +148,28 @@ describe('<DropdownMenu />', () => {
       cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-yellow-400')
       cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
       cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'bg-dropdown-item-selected')
+    })
+
+    it('highlights a submenu parent when a subitem is selected', () => {
+      const itemsWithSubmenu: DropdownMenuItem[] = [
+        { text: 'Simple', value: 'simple' },
+        {
+          text: 'Parent',
+          value: 'parent',
+          subitems: [
+            { text: 'Sub 1', value: 'sub1' },
+            { text: 'Sub 2', value: 'sub2' }
+          ]
+        }
+      ]
+      const isItemSelected = (item: DropdownMenuItem) => item.value === 'sub2'
+      cy.mount(
+        <DropdownMenu {...defaultProps} items={itemsWithSubmenu} focusedIndex={-1} openSubmenuIndex={1} highlightSelected isItemSelected={isItemSelected} />
+      )
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-yellow-400')
+      cy.get('[role="menu"] li[role="option"]').eq(1).should('have.class', 'text-yellow-400')
+      cy.get('[role="menu"] li[role="option"]').eq(0).should('not.have.class', 'text-yellow-400')
     })
 
     it('scrolls focused item into view', () => {

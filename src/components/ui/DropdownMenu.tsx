@@ -26,6 +26,15 @@ export interface DropdownMenuItem {
   subitems?: DropdownMenuSubitem[]
 }
 
+function isSelectedValue(isItemSelected: ((item: DropdownMenuItem) => boolean) | undefined, item: { text: string; value: string | number }) {
+  return Boolean(isItemSelected?.(item))
+}
+
+function isParentOrSubitemSelected(isItemSelected: ((item: DropdownMenuItem) => boolean) | undefined, item: DropdownMenuItem) {
+  if (isSelectedValue(isItemSelected, item)) return true
+  return Boolean(item.subitems?.some((subitem) => isSelectedValue(isItemSelected, subitem)))
+}
+
 const PREFERRED_SUBMENU_WIDTH = 192
 const CONTENT_SIZED_MENU_MAX_WIDTH = '50vw'
 
@@ -79,6 +88,8 @@ function DropdownSubmenu({
   referenceElement,
   filterText,
   wrapText = false,
+  highlightSelected = false,
+  isItemSelected,
   t
 }: {
   subitems: DropdownMenuSubitem[]
@@ -92,6 +103,8 @@ function DropdownSubmenu({
   referenceElement: HTMLElement | null
   filterText: string
   wrapText?: boolean
+  highlightSelected?: boolean
+  isItemSelected?: (item: DropdownMenuItem) => boolean
   t: ReturnType<typeof useTypeSafeTranslations>
 }) {
   const submenuRef = useRef<HTMLUListElement>(null)
@@ -207,11 +220,12 @@ function DropdownSubmenu({
           id={`${dropdownId}-subitem-${parentIndex}-${subitemIndex}`}
           className={mergeClasses(
             'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
-            focusedSubIndex === subitemIndex ? 'bg-dropdown-item-selected' : ''
+            focusedSubIndex === subitemIndex ? 'bg-dropdown-item-selected' : '',
+            highlightSelected && isSelectedValue(isItemSelected, subitem) ? 'text-yellow-400' : ''
           )}
           role="option"
           tabIndex={-1}
-          aria-selected={focusedSubIndex === subitemIndex}
+          aria-selected={isItemSelected ? isSelectedValue(isItemSelected, subitem) : focusedSubIndex === subitemIndex}
           onClick={(e) => {
             e.stopPropagation()
             onSubitemClick?.(subitem)
@@ -467,7 +481,7 @@ export default function DropdownMenu({
               wrapText ? 'overflow-x-hidden' : 'overflow-hidden',
               focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-selected' : '',
               isSubmenuOpen ? 'bg-dropdown-item-hover' : '',
-              highlightSelected && isItemSelected?.(item) ? 'text-yellow-400' : ''
+              highlightSelected && isParentOrSubitemSelected(isItemSelected, item) ? 'text-yellow-400' : ''
             )}
             role={hasSubitems ? 'menuitem' : 'option'}
             tabIndex={-1}
@@ -527,6 +541,8 @@ export default function DropdownMenu({
                 referenceElement={menuItemRefs.current[index]}
                 filterText={submenuFilterText}
                 wrapText={wrapText}
+                highlightSelected={highlightSelected}
+                isItemSelected={isItemSelected}
                 t={t}
               />
             )}
