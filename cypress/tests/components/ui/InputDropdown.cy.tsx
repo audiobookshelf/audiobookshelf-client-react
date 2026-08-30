@@ -104,7 +104,7 @@ describe('<InputDropdown />', () => {
       cy.get('input').focus()
       cy.get('input').type('a')
       cy.get('input').type('{downarrow}')
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('opens menu with ArrowUp', () => {
@@ -113,7 +113,7 @@ describe('<InputDropdown />', () => {
       cy.get('input').type('a')
       cy.get('[role="listbox"]').should('be.visible')
       cy.get('input').type('{uparrow}')
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('forces open menu on empty input with ArrowDown even when showAllWhenEmpty is false', () => {
@@ -123,7 +123,7 @@ describe('<InputDropdown />', () => {
       cy.get('input').type('{downarrow}')
       cy.get('[role="listbox"]').should('be.visible')
       cy.get('[role="listbox"] > li').should('have.length', mockItems.length)
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('forces open menu on empty input with ArrowUp even when showAllWhenEmpty is false', () => {
@@ -133,7 +133,7 @@ describe('<InputDropdown />', () => {
       cy.get('input').type('{uparrow}')
       cy.get('[role="listbox"]').should('be.visible')
       cy.get('[role="listbox"] > li').should('have.length', mockItems.length)
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('navigates through items with ArrowDown', () => {
@@ -141,9 +141,9 @@ describe('<InputDropdown />', () => {
       cy.get('input').focus()
       cy.get('input').type('a')
       cy.get('input').type('{downarrow}')
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
       cy.get('input').type('{downarrow}')
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('navigates through items with ArrowUp', () => {
@@ -152,9 +152,9 @@ describe('<InputDropdown />', () => {
       cy.get('input').type('a')
       cy.get('input').type('{uparrow}')
       cy.get('[role="listbox"]').should('be.visible')
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
       cy.get('input').type('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('selects item with Enter', () => {
@@ -192,7 +192,7 @@ describe('<InputDropdown />', () => {
       cy.get('input').type('{downarrow}')
       cy.get('input').type('{downarrow}')
       cy.get('input').type('{home}')
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('navigates to last item with End', () => {
@@ -200,7 +200,7 @@ describe('<InputDropdown />', () => {
       cy.get('input').focus()
       cy.get('input').type('a')
       cy.get('input').type('{end}')
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('closes menu with Tab', () => {

@@ -220,8 +220,8 @@ function DropdownSubmenu({
           id={`${dropdownId}-subitem-${parentIndex}-${subitemIndex}`}
           className={mergeClasses(
             'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
-            focusedSubIndex === subitemIndex ? 'bg-dropdown-item-selected' : '',
-            highlightSelected && isSelectedValue(isItemSelected, subitem) ? 'text-dropdown-item-highlight' : ''
+            focusedSubIndex === subitemIndex ? 'bg-dropdown-item-focused' : '',
+            highlightSelected && isSelectedValue(isItemSelected, subitem) ? 'text-dropdown-item-selected' : ''
           )}
           role="option"
           tabIndex={-1}
@@ -479,9 +479,9 @@ export default function DropdownMenu({
             className={mergeClasses(
               'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
               wrapText ? 'overflow-x-hidden' : 'overflow-hidden',
-              focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-selected' : '',
+              focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-focused' : '',
               isSubmenuOpen ? 'bg-dropdown-item-hover' : '',
-              highlightSelected && isParentOrSubitemSelected(isItemSelected, item) ? 'text-dropdown-item-highlight' : ''
+              highlightSelected && isParentOrSubitemSelected(isItemSelected, item) ? 'text-dropdown-item-selected' : ''
             )}
             role={hasSubitems ? 'menuitem' : 'option'}
             tabIndex={-1}
@@ -523,7 +523,7 @@ export default function DropdownMenu({
             {item.rightIcon && !hasSubitems && <div className="pointer-events-none absolute inset-y-0 right-2 flex h-full items-center">{item.rightIcon}</div>}
             {showSelectedIndicator && isItemSelected && isItemSelected(item) && !hasSubitems && (
               <span className="absolute inset-y-0 inset-e-0 flex items-center pe-4">
-                <span className="material-symbols text-dropdown-item-highlight text-xl">check</span>
+                <span className="material-symbols text-dropdown-item-selected text-xl">check</span>
               </span>
             )}
 
