@@ -112,7 +112,7 @@ body {
 }
 * {
   color: ${color} !important;
-  line-height: ${lineSpacing * fontScale}rem !important;
+  line-height: ${lineSpacing} !important;
   -webkit-text-stroke: ${textStroke}px ${color} !important;
 }
 a, a:link, a:visited {
