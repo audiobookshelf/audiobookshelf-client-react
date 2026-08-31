@@ -199,7 +199,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={t('LabelAddToCollection')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={t('LabelAddToCollection')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-collection')}
@@ -214,7 +213,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={t('LabelAddToPlaylist')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={t('LabelAddToPlaylist')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-playlist')}
@@ -229,7 +227,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={t('LabelEdit')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={t('LabelEdit')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('batch-edit')}
@@ -244,7 +241,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('delete')}
@@ -258,7 +254,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           {selectionKind !== 'episode' && libraryItemContextMenuItems.length > 0 && (
             <ContextMenuDropdown
               items={libraryItemContextMenuItems}
-              borderless
               size="small"
               className="mx-0.5"
               disabled={controlsDisabled}
@@ -269,7 +264,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           {selectionKind === 'episode' && episodeContextMenuItems.length > 0 && (
             <ContextMenuDropdown
               items={episodeContextMenuItems}
-              borderless
               size="small"
               className="mx-0.5"
               disabled={controlsDisabled}
