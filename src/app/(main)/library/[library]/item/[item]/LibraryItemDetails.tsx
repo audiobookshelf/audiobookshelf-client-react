@@ -28,7 +28,7 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
     if (Array.isArray(value)) {
       displayValue = (value as string[]).map((v, index) => (
         <Fragment key={v}>
-          <Link href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(v)}`} className="text-foreground hover:underline">
+          <Link href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(v)}`} className="text-foreground link-underline">
             {v}
           </Link>
           {index < (value as string[]).length - 1 && <span className="text-foreground">, </span>}
@@ -36,7 +36,7 @@ function DetailRow({ label, value, filterKey, libraryId }: DetailRowProps) {
       ))
     } else {
       displayValue = (
-        <Link href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(value)}`} className="text-foreground hover:underline">
+        <Link href={`/library/${libraryId}/items?filter=${filterKey}.${filterEncode(value)}`} className="text-foreground link-underline">
           {value}
         </Link>
       )

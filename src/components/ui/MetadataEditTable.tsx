@@ -172,7 +172,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
     <tr className="group even:bg-primary/20 p-2">
       <td className="p-3.5">
         {showNumBooks ? (
-          <Link className="text-foreground text-sm hover:underline md:text-base" title={item.name} href={narratorHref(item)}>
+          <Link className="text-foreground link-underline text-sm md:text-base" title={item.name} href={narratorHref(item)}>
             {item.name}
           </Link>
         ) : (
@@ -184,7 +184,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
       {showNumBooks && (
         <td className="w-1/6 md:table-cell">
           <div className="flex justify-center">
-            <Link className="text-foreground text-sm hover:underline md:text-base" href={narratorHref(item)}>
+            <Link className="text-foreground link-underline text-sm md:text-base" href={narratorHref(item)}>
               {item.numBooks}
             </Link>
           </div>
@@ -225,7 +225,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
         {showNumBooks && (
           <td className="w-1/6 md:table-cell">
             <div className="flex justify-center">
-              <a className="text-sm hover:underline md:text-base">{item.numBooks}</a>
+              <a className="link-underline text-sm md:text-base">{item.numBooks}</a>
             </div>
           </td>
         )}

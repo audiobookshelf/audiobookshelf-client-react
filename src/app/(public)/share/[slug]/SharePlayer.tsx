@@ -24,6 +24,7 @@ const PROGRESS_SYNC_INTERVAL = 30 // seconds
 
 export default function SharePlayer({ slug, startTime: startTimeParam }: SharePlayerProps) {
   const t = useTypeSafeTranslations()
+  const unknownLabel = t('LabelUnknown')
   // Share data
   const [shareData, setShareData] = useState<MediaItemShareResponse | null>(null)
   const [fetchError, setFetchError] = useState<string | null>(null)
@@ -311,9 +312,14 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
   useEffect(() => {
     if (!playbackSession || !('mediaSession' in navigator)) return
 
+    const bookTitle = playbackSession.displayTitle || unknownLabel
+    const chapterTitle = currentChapter?.title
+    const title = chapterTitle ? t('LabelMediaSessionTitleWithChapter', { title: bookTitle, chapter: chapterTitle }) : bookTitle
+    const artist = playbackSession.displayAuthor || unknownLabel
+
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: playbackSession.displayTitle || 'No title',
-      artist: playbackSession.displayAuthor || 'Unknown',
+      title,
+      artist,
       artwork: playbackSession.coverPath ? [{ src: coverUrl }] : []
     })
 
@@ -327,7 +333,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
     })
     navigator.mediaSession.setActionHandler('previoustrack', jumpBackward)
     navigator.mediaSession.setActionHandler('nexttrack', jumpForward)
-  }, [playbackSession, coverUrl, play, pause, jumpBackward, jumpForward, seek])
+  }, [playbackSession, coverUrl, play, pause, jumpBackward, jumpForward, seek, currentChapter, unknownLabel, t])
 
   // Update media session playback state
   useEffect(() => {

@@ -593,6 +593,7 @@
   "LabelMaxEpisodesToKeep": "Max # of episodes to keep",
   "LabelMaxEpisodesToKeepHelp": "Value of 0 sets no max limit. After a new episode is auto-fetched this will delete the oldest episode if you have more than X episodes. This will only delete 1 episode per new fetch.",
   "LabelMediaPlayer": "Media Player",
+  "LabelMediaSessionTitleWithChapter": "{title}: {chapter}",
   "LabelMediaType": "Media Type",
   "LabelMetaTag": "Meta Tag",
   "LabelMetaTags": "Meta Tags",

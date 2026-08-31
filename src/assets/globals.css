@@ -150,11 +150,22 @@ body {
   outline-color: var(--heatmap-outline-fill);
 }
 
+/* Underline when hover is unavailable; underline on hover when it is (issue #219). */
+@utility link-underline {
+  text-decoration-line: underline;
+
+  @media (hover: hover) {
+    &:not(:hover) {
+      text-decoration-line: none;
+    }
+  }
+}
+
 /* SortableList: vertical-axis modifier can leave the pointer off the handle while dragging; keep grabbing cursor (see DND_POINTER_DRAG_HTML_CLASS). */
 @layer utilities {
   html.abs-dnd-pointer-dragging,
   html.abs-dnd-pointer-dragging * {
-    @apply !cursor-grabbing;
+    @apply cursor-grabbing!;
   }
 }
 

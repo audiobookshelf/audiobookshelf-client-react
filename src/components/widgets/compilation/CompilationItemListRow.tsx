@@ -39,7 +39,9 @@ import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMedia } fro
 import Link from 'next/link'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
-const COMPILATION_ROW_LINK_FOCUS = 'rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
+// z-[2] sits above the mobile full-row hit target (z-[1]) so series/author taps are not captured.
+const COMPILATION_ROW_LINK_FOCUS =
+  'relative z-2 rounded-sm px-1e py-0.5e focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-0'
 
 export type CompilationItemListRowContext = { kind: 'collection'; collectionId: string } | { kind: 'playlist'; playlistId: string }
 
@@ -306,7 +308,7 @@ function CompilationItemListRowBody({
                 type="button"
                 onClick={handleViewEpisode}
                 className={mergeClasses(
-                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] cursor-pointer rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-1 cursor-pointer rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
                   isDragging && 'pointer-events-none'
                 )}
                 aria-label={itemTitle}
@@ -315,7 +317,7 @@ function CompilationItemListRowBody({
               <Link
                 href={itemHref}
                 className={mergeClasses(
-                  'focus-visible:outline-foreground-muted absolute inset-0 z-[1] rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
+                  'focus-visible:outline-foreground-muted absolute inset-0 z-1 rounded-sm focus-visible:outline-1 focus-visible:outline-offset-0 md:hidden',
                   isDragging && 'pointer-events-none'
                 )}
                 aria-label={itemTitle}
@@ -348,7 +350,7 @@ function CompilationItemListRowBody({
                     type="button"
                     onClick={handleViewEpisode}
                     className={mergeClasses(
-                      'text-foreground inline-block w-fit max-w-full cursor-pointer text-start text-[0.875em] hover:underline md:text-[1em]',
+                      'text-foreground link-underline inline-block w-fit max-w-full cursor-pointer text-start text-[0.875em] md:text-[1em]',
                       COMPILATION_ROW_LINK_FOCUS
                     )}
                     title={itemTitle}
@@ -359,7 +361,7 @@ function CompilationItemListRowBody({
                   <Link
                     href={itemHref}
                     className={mergeClasses(
-                      'text-foreground inline-block w-fit max-w-full text-[0.875em] hover:underline md:text-[1em]',
+                      'text-foreground link-underline inline-block w-fit max-w-full text-[0.875em] md:text-[1em]',
                       COMPILATION_ROW_LINK_FOCUS
                     )}
                     title={itemTitle}
@@ -374,13 +376,9 @@ function CompilationItemListRowBody({
               )}
               {episode && mediaMetadata?.title && (
                 <div className="text-foreground-muted min-w-0 text-[0.75em] md:text-[0.875em]">
-                  {isMdUp ? (
-                    <Link href={itemHref} className={mergeClasses('inline-block hover:underline', COMPILATION_ROW_LINK_FOCUS)}>
-                      {mediaMetadata.title}
-                    </Link>
-                  ) : (
-                    <span className="inline-block">{mediaMetadata.title}</span>
-                  )}
+                  <Link href={itemHref} className={mergeClasses('link-underline inline-block', COMPILATION_ROW_LINK_FOCUS)}>
+                    {mediaMetadata.title}
+                  </Link>
                 </div>
               )}
               {bookSeries.length > 0 && (
@@ -388,20 +386,13 @@ function CompilationItemListRowBody({
                   {bookSeries.map((series, idx) => (
                     <span key={series.id}>
                       {idx > 0 && ' '}
-                      {isMdUp ? (
-                        <Link
-                          href={`/library/${libraryItem.libraryId}/series/${series.id}`}
-                          className={mergeClasses('inline-block font-sans hover:underline', COMPILATION_ROW_LINK_FOCUS)}
-                        >
-                          {series.name}
-                          {series.sequence && ` #${series.sequence}`}
-                        </Link>
-                      ) : (
-                        <span className="inline-block font-sans">
-                          {series.name}
-                          {series.sequence && ` #${series.sequence}`}
-                        </span>
-                      )}
+                      <Link
+                        href={`/library/${libraryItem.libraryId}/series/${series.id}`}
+                        className={mergeClasses('link-underline inline-block font-sans', COMPILATION_ROW_LINK_FOCUS)}
+                      >
+                        {series.name}
+                        {series.sequence && ` #${series.sequence}`}
+                      </Link>
                     </span>
                   ))}
                 </div>
@@ -410,16 +401,12 @@ function CompilationItemListRowBody({
                 <div className="text-foreground-muted min-w-0 text-[0.75em] md:text-[0.875em]">
                   {bookAuthors.map((author, index) => (
                     <span key={author.id}>
-                      {isMdUp ? (
-                        <Link
-                          href={`/library/${libraryItem.libraryId}/authors/${author.id}`}
-                          className={mergeClasses('inline-block hover:underline', COMPILATION_ROW_LINK_FOCUS)}
-                        >
-                          {author.name}
-                        </Link>
-                      ) : (
-                        <span className="inline-block">{author.name}</span>
-                      )}
+                      <Link
+                        href={`/library/${libraryItem.libraryId}/authors/${author.id}`}
+                        className={mergeClasses('link-underline inline-block', COMPILATION_ROW_LINK_FOCUS)}
+                      >
+                        {author.name}
+                      </Link>
                       {index < bookAuthors.length - 1 && <>,&nbsp;</>}
                     </span>
                   ))}
@@ -431,7 +418,7 @@ function CompilationItemListRowBody({
         </div>
 
         {showMobilePlayBtn && (
-          <div className="pe-1e relative z-[2] flex shrink-0 items-center">
+          <div className="pe-1e relative z-2 flex shrink-0 items-center">
             <IconBtn borderless size="custom" className={EPISODE_ROW_ACTION_BTN_CLASS} ariaLabel={t('ButtonPlay')} onClick={handlePlayClick}>
               play_arrow
             </IconBtn>

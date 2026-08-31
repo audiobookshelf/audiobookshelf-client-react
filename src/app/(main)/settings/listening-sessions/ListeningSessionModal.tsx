@@ -108,7 +108,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         isOpen={isOpen}
         processing={isProcessing}
         onClose={onClose}
-        className="w-[calc(100vw-1rem)] md:max-w-[700px]"
+        className="w-[calc(100vw-1rem)] md:max-w-175"
         outerContent={<ModalOuterContent title={sessionTitle}>{sessionTitle}</ModalOuterContent>}
       >
         {currentSession && (
@@ -118,7 +118,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
                 {currentSession.libraryId && currentSession.libraryItemId ? (
                   <Link
                     href={`/library/${currentSession.libraryId}/item/${currentSession.libraryItemId}`}
-                    className="text-foreground text-base hover:underline"
+                    className="text-foreground link-underline text-base"
                     onClick={onClose}
                   >
                     {currentSession.displayTitle}

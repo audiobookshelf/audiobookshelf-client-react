@@ -28,7 +28,7 @@ function toAppriseSettingsPatch(appriseApiUrl: string, maxNotificationQueue: str
 
 const appriseDescriptionTags = {
   appriseLink: (chunks: React.ReactNode) => (
-    <a href="https://github.com/caronc/apprise-api" target="_blank" className="text-blue-400 hover:text-blue-300 hover:underline" rel="noopener noreferrer">
+    <a href="https://github.com/caronc/apprise-api" target="_blank" className="link-underline text-blue-400 hover:text-blue-300" rel="noopener noreferrer">
       {chunks}
     </a>
   ),

@@ -94,7 +94,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   const renderQueueItemText = useCallback(
     (item: PlayerQueueItem) => {
       const title = item.title || ''
-      const titleClassName = 'text-foreground text-sm hover:underline'
+      const titleClassName = 'text-foreground link-underline text-sm'
       const titleFocusClassName = 'rounded-sm focus-visible:outline-1 focus-visible:outline-foreground-muted focus-visible:outline-offset-2'
       const titleWrapperClassName = mergeClasses('block w-fit max-w-full min-w-0 px-0.5 text-start', titleFocusClassName)
 
@@ -189,7 +189,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
           <p className="text-foreground-subdued text-sm whitespace-nowrap transition-opacity group-focus-within:opacity-0 group-hover:opacity-0">
             {durationLabel}
           </p>
-          <div className="absolute inset-y-0 end-0 flex items-center justify-end opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+          <div className="absolute inset-y-0 inset-e-0 flex items-center justify-end opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             {actionButtons}
           </div>
         </div>
@@ -215,7 +215,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   const outerContent = <ModalOuterContent>{t('HeaderPlayerQueue')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-[800px] md:max-w-[800px] lg:max-w-[800px]">
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-200 md:max-w-200 lg:max-w-200">
       <div className="max-h-[80vh] w-full min-w-0 overflow-x-hidden overflow-y-auto py-4">
         <div className="flex items-center px-4 pb-4">
           <p className="text-foreground-muted shrink-0 text-base">{queueCountLabel}</p>

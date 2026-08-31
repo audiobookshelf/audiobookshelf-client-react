@@ -13,7 +13,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, BookSearchResult, isBookMedia, isPodcastMedia, PodcastLibraryItem, PodcastSearchResult } from '@/types/api'
-import React, { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
 interface MatchProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -25,6 +25,21 @@ interface MatchProps {
 }
 
 type MatchResult = BookSearchResult | PodcastSearchResult
+
+function getDefaultBookProvider(providers: { value: string }[]): string {
+  try {
+    const savedProvider = localStorage.getItem('book-provider')
+    if (!savedProvider) return 'google'
+    if (!providers.some((p) => p.value === savedProvider)) {
+      console.error('Stored book provider does not exist', savedProvider)
+      localStorage.removeItem('book-provider')
+      return 'google'
+    }
+    return savedProvider
+  } catch {
+    return 'google'
+  }
+}
 
 export default function Match({ libraryItem, availableNarrators = [], availableGenres = [], availableTags = [], availableSeries = [] }: MatchProps) {
   const t = useTypeSafeTranslations()
@@ -52,7 +67,8 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
   const [hasSearched, setHasSearched] = useState(false)
   const [selectedMatchOrig, setSelectedMatchOrig] = useState<MatchResult | null>(null)
   const [focusedCardIndex, setFocusedCardIndex] = useState<number | null>(null)
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const searchInitItemIdRef = useRef<string | null>(null)
   const [hasScrollbar, setHasScrollbar] = useState(false)
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
@@ -91,7 +107,7 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
     return t('LabelSearchTitle')
   }, [validProvider, t])
 
-  // Initialize component when library item changes
+  // Initialize search fields when library item changes (Vue `init`)
   useEffect(() => {
     ensureProvidersLoaded()
 
@@ -99,6 +115,7 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
       setSearchResults([])
       setHasSearched(false)
       setSelectedMatchOrig(null)
+      searchInitItemIdRef.current = null
 
       setSearchTitle(mediaMetadata.title || '')
 
@@ -119,33 +136,22 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
     }
   }, [libraryItem.id, mediaMetadata, isPodcast, ensureProvidersLoaded, media])
 
-  // Set provider when providers are loaded or change
+  // Set provider and ASIN default once per item after providers load (Vue `initProviderAndSearch`)
   useEffect(() => {
-    if (!providersLoaded || providers.length === 0) return
+    if (!providersLoaded || providers.length === 0 || !libraryItem.id) return
+    if (searchInitItemIdRef.current === libraryItem.id) return
 
-    if (isPodcast) {
-      setProvider('itunes')
-    } else {
-      try {
-        const savedProvider = localStorage.getItem('book-provider')
-        if (savedProvider && providers.some((p) => p.value === savedProvider)) {
-          setProvider(savedProvider)
-        } else {
-          setProvider('google')
-        }
-      } catch {
-        setProvider('google')
-      }
-    }
-  }, [providersLoaded, providers, isPodcast])
+    const nextProvider = isPodcast ? 'itunes' : getDefaultBookProvider(providers)
+    setProvider(nextProvider)
 
-  // Prefer using ASIN if set and using audible provider
-  useEffect(() => {
-    if (!isPodcast && validProvider.startsWith('audible') && 'asin' in mediaMetadata && mediaMetadata.asin) {
+    // Prefer using ASIN if set and using audible provider — init only, not on later provider changes
+    if (!isPodcast && nextProvider.startsWith('audible') && 'asin' in mediaMetadata && mediaMetadata.asin) {
       setSearchTitle(mediaMetadata.asin)
       setSearchAuthor('')
     }
-  }, [validProvider, isPodcast, mediaMetadata])
+
+    searchInitItemIdRef.current = libraryItem.id
+  }, [providersLoaded, providers, isPodcast, libraryItem.id, mediaMetadata])
 
   // Auto-search if providers are loaded and we have a title (only on initial load)
   useEffect(() => {

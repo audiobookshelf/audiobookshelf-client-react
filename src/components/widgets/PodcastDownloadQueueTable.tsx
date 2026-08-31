@@ -68,7 +68,7 @@ export default function PodcastDownloadQueueTable({ queue }: PodcastDownloadQueu
           <div className="flex items-center">
             <Link
               href={`/library/${library.id}/item/${item.libraryItemId}`}
-              className="text-foreground-muted hover:text-foreground text-start text-sm hover:underline"
+              className="text-foreground-muted hover:text-foreground link-underline text-start text-sm"
             >
               {item.podcastTitle}
             </Link>

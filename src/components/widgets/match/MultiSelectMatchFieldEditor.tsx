@@ -55,7 +55,7 @@ function MultiSelectMatchFieldEditor({
     ? t.rich('MessageCurrentlyWithLink', {
         0: format.list(currentValue, { type: 'unit' }),
         link: (chunks) => (
-          <a title={t('LabelClickToUseCurrentValue')} className="cursor-pointer hover:underline" onClick={handleUseCurrentValue}>
+          <a title={t('LabelClickToUseCurrentValue')} className="link-underline cursor-pointer" onClick={handleUseCurrentValue}>
             {chunks}
           </a>
         )

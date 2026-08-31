@@ -5,8 +5,14 @@ import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { BookLibraryItem } from '@/types/api'
 import { redirect } from 'next/navigation'
 
-export default async function ToolsPage({ params }: { params: Promise<{ item: string; library: string }> }) {
-  const { item: itemId } = await params
+interface ToolsPageProps {
+  params: Promise<{ item: string; library: string }>
+  searchParams: Promise<{ tool?: string }>
+}
+
+export default async function ToolsPage({ params, searchParams }: ToolsPageProps) {
+  const { item: itemId, library: libraryIdFromRoute } = await params
+  const { tool } = await searchParams
   const [libraryItem, currentUser] = await getData(getLibraryItemOrNotFound(itemId, true), getCurrentUser())
 
   if (!libraryItem || !currentUser) {
@@ -18,6 +24,11 @@ export default async function ToolsPage({ params }: { params: Promise<{ item: st
 
   if (!isUserAdminOrUp(currentUser.user.type) || !bookItem || !bookItem.media.tracks?.length) {
     redirect(itemPath)
+  }
+
+  if (libraryItem.libraryId !== libraryIdFromRoute) {
+    const toolQuery = tool ? `?tool=${encodeURIComponent(tool)}` : ''
+    redirect(`${itemPath}/tools${toolQuery}`)
   }
 
   return <AudiobookTools libraryItem={bookItem} />
