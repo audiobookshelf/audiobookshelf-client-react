@@ -154,12 +154,12 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
         <h1 className="hidden px-4 text-lg md:block md:text-2xl">{selectionLabel}</h1>
         <div className="grow" />
 
-        <div className="flex items-center gap-1 md:gap-1.5">
+        <div className="flex items-center gap-2">
           {showPlay && (
             <Btn
               color="bg-success"
               size="small"
-              className="me-1 hidden h-9 items-center sm:inline-flex"
+              className="hidden h-9 items-center sm:inline-flex"
               disabled={controlsDisabled}
               onClick={() => handleBatchAction('play')}
             >
@@ -190,7 +190,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 isRead={allFinished}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('toggle-finished')}
-                className="mx-0.5"
               />
             </Tooltip>
           )}
@@ -202,7 +201,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 ariaLabel={t('LabelAddToCollection')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-collection')}
-                className="mx-0.5 hidden md:inline-flex"
+                className="hidden md:inline-flex"
               >
                 collections_bookmark
               </IconBtn>
@@ -216,7 +215,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 ariaLabel={t('LabelAddToPlaylist')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-playlist')}
-                className="mx-0.5 hidden md:inline-flex"
+                className="hidden md:inline-flex"
               >
                 playlist_add
               </IconBtn>
@@ -230,7 +229,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 ariaLabel={t('LabelEdit')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('batch-edit')}
-                className="bg-warning mx-0.5 text-white"
+                className="bg-warning text-white"
               >
                 edit
               </IconBtn>
@@ -244,7 +243,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 ariaLabel={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('delete')}
-                className="bg-error mx-0.5 text-white"
+                className="bg-error text-white"
               >
                 delete
               </IconBtn>
@@ -255,7 +254,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <ContextMenuDropdown
               items={libraryItemContextMenuItems}
               size="small"
-              className="mx-0.5"
               disabled={controlsDisabled}
               onAction={({ action }) => handleBatchAction(action as AppBarBatchActionId)}
             />
@@ -265,7 +263,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <ContextMenuDropdown
               items={episodeContextMenuItems}
               size="small"
-              className="mx-0.5"
               disabled={controlsDisabled}
               onAction={({ action }) => handleBatchAction(action as AppBarBatchActionId)}
             />
