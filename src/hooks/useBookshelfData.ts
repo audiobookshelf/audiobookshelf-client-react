@@ -85,6 +85,7 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
   const pagesLoadedRef = useRef<Set<number>>(new Set())
   const loadingPagesRef = useRef<Set<number>>(new Set())
   const itemsPerPageRef = useRef(itemsPerPage)
+  const itemsPerPageVersionRef = useRef(0)
   const activeQueryRef = useRef(query)
 
   const invalidate = useCallback(() => {
@@ -105,23 +106,15 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
     invalidate()
   }, [libraryId, entityType, query, invalidate])
 
-  // When itemsPerPage changes, page boundaries shift — clear loaded pages and wipe the sparse
-  // array so stale slots cannot overlap with newly fetched pages (duplicate item ids).
+  // Page-size changes invalidate page tracking, but loaded items remain valid at their absolute indices.
   useEffect(() => {
     if (itemsPerPage <= 0) return
 
     const prevItemsPerPage = itemsPerPageRef.current
     if (prevItemsPerPage > 0 && prevItemsPerPage !== itemsPerPage) {
+      itemsPerPageVersionRef.current++
       pagesLoadedRef.current.clear()
       loadingPagesRef.current.clear()
-      setState((prev) => {
-        if (prev.items.length === 0) return prev
-        return {
-          ...prev,
-          items: prev.totalEntities > 0 ? new Array(prev.totalEntities).fill(null) : [],
-          isLoading: true
-        }
-      })
     }
     itemsPerPageRef.current = itemsPerPage
   }, [itemsPerPage])
@@ -136,6 +129,7 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
   const reconcilePagesAfterUpdate = useCallback(
     async (pageNumbers: number[], changedIds?: Set<string>): Promise<{ total: number } | null> => {
       const limit = itemsPerPageRef.current
+      const itemsPerPageVersion = itemsPerPageVersionRef.current
       if (limit <= 0 || pageNumbers.length === 0) return null
 
       const sortedPages = [...new Set(pageNumbers)].filter((p) => p >= 0).sort((a, b) => a - b)
@@ -147,13 +141,14 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
           newPageResults.push(await fetchBookshelfPageData(entityType, libraryId, query, page, limit))
         }
       } catch (err) {
+        if (query !== activeQueryRef.current || itemsPerPageVersion !== itemsPerPageVersionRef.current) return null
         const error = err instanceof Error ? err : new Error('Failed to reconcile bookshelf')
         console.error('reconcilePagesAfterUpdate', error)
         setState((prev) => ({ ...prev, error }))
         return null
       }
 
-      if (query !== activeQueryRef.current) return null
+      if (query !== activeQueryRef.current || itemsPerPageVersion !== itemsPerPageVersionRef.current) return null
 
       const total = newPageResults[0]?.total ?? 0
 
@@ -244,6 +239,7 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
     async (page: number) => {
       // Use ref to get current itemsPerPage - this keeps callback identity stable
       const currentItemsPerPage = itemsPerPageRef.current
+      const itemsPerPageVersion = itemsPerPageVersionRef.current
 
       // Skip if itemsPerPage is not yet set (layout not ready)
       if (currentItemsPerPage <= 0) return
@@ -258,7 +254,7 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
       try {
         const { results, total } = await fetchBookshelfPageData(entityType, libraryId, query, page, currentItemsPerPage)
 
-        if (query !== activeQueryRef.current) return
+        if (query !== activeQueryRef.current || itemsPerPageVersion !== itemsPerPageVersionRef.current) return
 
         setState((prev) => {
           let newItems = [...prev.items]
@@ -281,12 +277,12 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
         })
         pagesLoadedRef.current.add(page)
       } catch (err) {
-        if (query !== activeQueryRef.current) return
+        if (query !== activeQueryRef.current || itemsPerPageVersion !== itemsPerPageVersionRef.current) return
         const error = err instanceof Error ? err : new Error('Failed to load page')
         console.error('Failed to load page', page, error)
         setState((prev) => ({ ...prev, error, isLoading: false }))
       } finally {
-        if (query === activeQueryRef.current) {
+        if (query === activeQueryRef.current && itemsPerPageVersion === itemsPerPageVersionRef.current) {
           loadingPagesRef.current.delete(page)
         }
       }
