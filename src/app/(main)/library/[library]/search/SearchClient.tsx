@@ -31,7 +31,7 @@ export default function SearchClient({ initialQuery, initialResults }: SearchCli
   const urlQuery = searchParams.get('q')?.trim() ?? ''
   const { sizeMultiplier } = useCardSize()
   const { user, serverSettings, ereaderDevices, getMediaItemProgress } = useUser()
-  const { library, homeBookshelfView } = useLibrary()
+  const { library, homeBookshelfView, showSubtitles } = useLibrary()
 
   const [query, setQuery] = useState(initialQuery)
   const [shelves, setShelves] = useState<SearchShelf[]>(() => searchResultsToShelves(initialResults, t))
@@ -112,7 +112,7 @@ export default function SearchClient({ initialQuery, initialResults }: SearchCli
                         timeFormat={serverSettings?.timeFormat ?? 'HH:mm'}
                         userPermissions={user.permissions}
                         ereaderDevices={ereaderDevices}
-                        showSubtitles
+                        showSubtitles={showSubtitles}
                         mediaProgress={mediaProgress}
                         shelfEntities={shelfLibraryItems}
                         entityIndex={entityIndex}

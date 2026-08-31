@@ -38,9 +38,7 @@ export default function PlayerMetadataBlock({ streamLibraryItem, metadata, cover
         <Link
           href={`/library/${streamLibraryItem.libraryId}/item/${streamLibraryItem.id}`}
           className={
-            compact
-              ? 'text-foreground block truncate text-sm font-medium hover:underline'
-              : 'text-foreground block truncate text-lg font-medium hover:underline'
+            compact ? 'text-foreground link-underline block truncate text-sm font-medium' : 'text-foreground link-underline block truncate text-lg font-medium'
           }
         >
           {displayTitle}
@@ -53,7 +51,7 @@ export default function PlayerMetadataBlock({ streamLibraryItem, metadata, cover
             <div className="truncate ps-1">
               {bookAuthors.map((author, index) => (
                 <span key={author.id}>
-                  <Link href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} className="text-foreground-muted hover:underline">
+                  <Link href={`/library/${streamLibraryItem.libraryId}/authors/${author.id}`} className="text-foreground-muted link-underline">
                     {author.name}
                   </Link>
                   {index < bookAuthors.length - 1 && <span className="text-foreground-muted">, </span>}

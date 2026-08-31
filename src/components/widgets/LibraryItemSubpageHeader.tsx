@@ -35,7 +35,7 @@ export default function LibraryItemSubpageHeader({ libraryItem, libraryId, itemI
           <div className="me-3 shrink-0">
             <PreviewCover src={coverSrc} width={COVER_HEIGHT / bookCoverAspectRatio} showResolution={false} />
           </div>
-          <Link href={`/library/${libraryId}/item/${itemId}`} className="hover:underline">
+          <Link href={`/library/${libraryId}/item/${itemId}`} className="link-underline">
             <h1 className="text-lg lg:text-xl">{title}</h1>
           </Link>
           <IconBtn ariaLabel={t('ButtonEdit')} borderless size="small" className="ml-2" onClick={onEditClick}>

@@ -274,7 +274,7 @@ export default function AddPodcastClient() {
                   {podcast.pageUrl ? (
                     <a
                       href={podcast.pageUrl}
-                      className="text-foreground hover:text-foreground-muted text-base hover:underline md:text-lg"
+                      className="text-foreground hover:text-foreground-muted link-underline text-base md:text-lg"
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}

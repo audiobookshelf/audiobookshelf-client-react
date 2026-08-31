@@ -35,7 +35,7 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
             <p className="text-xxs text-foreground-subdued text-center italic">{installSource}</p>
           </div>
           {hasUpdate && githubTagUrl ? (
-            <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning text-xs hover:underline">
+            <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning link-underline text-xs">
               {t('LabelLatestVersionWithValue', { 0: versionData.latestVersion })}
             </a>
           ) : null}
@@ -56,7 +56,7 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
         v{serverVersion}
       </button>
       {hasUpdate && githubTagUrl ? (
-        <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning text-xxs block text-center leading-3 hover:underline">
+        <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning link-underline text-xxs block text-center leading-3">
           {t('ButtonUpdate')}
         </a>
       ) : (
