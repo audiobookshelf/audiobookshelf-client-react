@@ -986,10 +986,13 @@ export interface UserPermissions {
 
 export interface ClientSettings {
   /** Bookshelf cover width in pixels */
-  bookshelfCoverSize?: number
+  bookshelfCoverSize?: number | null
   /** Bookshelf cover width in pixels used on mobile viewports */
-  bookshelfCoverSizeMobile?: number
+  bookshelfCoverSizeMobile?: number | null
 }
+
+/** Keyed by client id */
+export type ClientSettingsStore = Record<string, ClientSettings | undefined>
 
 export interface User {
   id: string
@@ -1002,7 +1005,7 @@ export interface User {
   mediaProgress: MediaProgress[]
   /** Series IDs to hide from continue listening */
   seriesHideFromContinueListening: string[]
-  clientSettings?: ClientSettings
+  clientSettings?: ClientSettingsStore
   bookmarks: AudioBookmark[]
   isActive: boolean
   isLocked: boolean

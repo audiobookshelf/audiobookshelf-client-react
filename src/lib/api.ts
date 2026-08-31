@@ -1,3 +1,4 @@
+import { CLIENT_ID } from '@/lib/clientIdentity'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
@@ -459,8 +460,8 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
   }
 }
 
-export async function updateClientSettings(settings: ClientSettings): Promise<{ clientSettings: ClientSettings }> {
-  return apiRequest<{ clientSettings: ClientSettings }>('/api/me/client-settings', {
+export async function updateClientSettings(settings: ClientSettings): Promise<{ clientId: string; settings: ClientSettings }> {
+  return apiRequest<{ clientId: string; settings: ClientSettings }>(`/api/me/client-settings/${CLIENT_ID}`, {
     method: 'PATCH',
     body: JSON.stringify(settings)
   })

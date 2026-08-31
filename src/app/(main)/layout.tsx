@@ -8,6 +8,7 @@ import { SocketProvider } from '@/contexts/SocketContext'
 import { TasksProvider } from '@/contexts/TasksContext'
 import { UserProvider } from '@/contexts/UserContext'
 import { getAccessToken, getCurrentUser, getData } from '@/lib/api'
+import { getClientSettings } from '@/lib/clientSettings'
 import { coverSizeToMultiplier } from '@/lib/coverSizes'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -23,15 +24,15 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   }
 
   // Seeded here so the first server-rendered paint already uses the saved sizes
-  const clientSettings = currentUser.user.clientSettings
+  const clientSettings = getClientSettings(currentUser.user.clientSettings)
   const { device } = userAgent({ headers: await headers() })
 
   return (
     <SocketProvider accessToken={accesstoken}>
       <UserProvider initialUser={currentUser}>
         <CardSizeProvider
-          initialSizeMultiplier={coverSizeToMultiplier(clientSettings?.bookshelfCoverSize, false)}
-          initialMobileSizeMultiplier={coverSizeToMultiplier(clientSettings?.bookshelfCoverSizeMobile, true)}
+          initialSizeMultiplier={coverSizeToMultiplier(clientSettings.bookshelfCoverSize, false)}
+          initialMobileSizeMultiplier={coverSizeToMultiplier(clientSettings.bookshelfCoverSizeMobile, true)}
           initialIsMobile={device.type === 'mobile'}
         >
           <ChromecastProvider>
