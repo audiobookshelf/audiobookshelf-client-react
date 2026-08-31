@@ -4,9 +4,8 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { formatDuration } from '@/lib/formatDuration'
 import { applyLibraryItemUpdateToPlaylistItems } from '@/lib/libraryItemUpdatedUtils'
-import { getMediaItemProgress } from '@/lib/mediaProgress'
+import { getDurationSupplementLabel, getMediaItemProgress } from '@/lib/mediaProgress'
 import { getPlaylistItemDuration, matchesPlaylistItem } from '@/lib/playlistItems'
 import type { Playlist, PlaylistItem } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -54,7 +53,7 @@ export function usePlaylistItems(playlist: Playlist) {
 
   const totalEntities = orderedItems.length
 
-    const totalDurationSeconds = useMemo(() => {
+  const totalDurationSeconds = useMemo(() => {
     let sum = 0
     for (const item of orderedItems) {
       sum += getPlaylistItemDuration(item)
@@ -73,14 +72,10 @@ export function usePlaylistItems(playlist: Playlist) {
     return sum
   }, [orderedItems, user.mediaProgress])
 
-  const totalDurationLabel = totalDurationSeconds > 0 ? formatDuration(totalDurationSeconds, t, { showDays: true }) : null
-  const totalListenedLabel = totalListenedSeconds > 0 ? formatDuration(totalListenedSeconds, t, { showDays: true }) : null
-
-  const itemCountSupplementLabel = useMemo(() => {
-    if (!totalDurationLabel) return null
-    if (totalListenedLabel) return ` (${totalListenedLabel} / ${totalDurationLabel} total)`
-    return ` (${totalDurationLabel})`
-  }, [totalDurationLabel, totalListenedLabel])
+  const itemCountSupplementLabel = useMemo(
+    () => getDurationSupplementLabel(totalDurationSeconds, totalListenedSeconds, t),
+    [totalDurationSeconds, totalListenedSeconds, t]
+  )
 
   useEffect(() => {
     setItemCount(totalEntities)

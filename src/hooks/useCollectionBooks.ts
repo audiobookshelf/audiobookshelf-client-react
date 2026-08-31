@@ -4,10 +4,11 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { formatDuration } from '@/lib/formatDuration'
+import { getBookDuration } from '@/lib/book'
 import { applyLibraryItemUpdateToList } from '@/lib/libraryItemUpdatedUtils'
-import { getMediaItemProgress } from '@/lib/mediaProgress'
+import { getDurationSupplementLabel, getMediaItemProgress } from '@/lib/mediaProgress'
 import type { Collection, LibraryItem } from '@/types/api'
+import { isBookMedia } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -46,8 +47,7 @@ export function useCollectionBooks(collection: Collection) {
   const totalDurationSeconds = useMemo(() => {
     let sum = 0
     for (const book of orderedBooks) {
-      const d = book.media && 'duration' in book.media ? book.media.duration : 0
-      sum += typeof d === 'number' && Number.isFinite(d) ? d : 0
+      sum += book.media && isBookMedia(book.media) ? getBookDuration(book.media) : 0
     }
     return sum
   }, [orderedBooks])
@@ -55,22 +55,18 @@ export function useCollectionBooks(collection: Collection) {
   const totalListenedSeconds = useMemo(() => {
     let sum = 0
     for (const book of orderedBooks) {
-      const duration = book.media && 'duration' in book.media ? book.media.duration : 0
+      const duration = book.media && isBookMedia(book.media) ? getBookDuration(book.media) : 0
       const progress = getMediaItemProgress(user.mediaProgress, book.id)
       if (!progress) continue
-      sum += progress.isFinished ? typeof duration === 'number' ? duration : 0 : progress.currentTime || 0
+      sum += progress.isFinished ? duration : progress.currentTime || 0
     }
     return sum
   }, [orderedBooks, user.mediaProgress])
 
-  const totalDurationLabel = totalDurationSeconds > 0 ? formatDuration(totalDurationSeconds, t, { showDays: true }) : null
-  const totalListenedLabel = totalListenedSeconds > 0 ? formatDuration(totalListenedSeconds, t, { showDays: true }) : null
-
-  const itemCountSupplementLabel = useMemo(() => {
-    if (!totalDurationLabel) return null
-    if (totalListenedLabel) return ` (${totalListenedLabel} / ${totalDurationLabel} total)`
-    return ` (${totalDurationLabel})`
-  }, [totalDurationLabel, totalListenedLabel])
+  const itemCountSupplementLabel = useMemo(
+    () => getDurationSupplementLabel(totalDurationSeconds, totalListenedSeconds, t),
+    [totalDurationSeconds, totalListenedSeconds, t]
+  )
 
   useEffect(() => {
     setItemCount(totalEntities)

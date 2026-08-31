@@ -1,4 +1,6 @@
 import type { MediaProgress } from '@/types/api'
+import { formatDuration } from '@/lib/formatDuration'
+import type { TypeSafeTranslations } from '@/types/translations'
 
 export function buildMediaItemProgressMap(mediaProgress: MediaProgress[]): Map<string, MediaProgress> {
   const map = new Map<string, MediaProgress>()
@@ -64,6 +66,15 @@ export function buildPodcastEpisodeProgressMap(podcastLibraryItemId: string, med
     map.set(key, p)
   }
   return map
+}
+
+export function getDurationSupplementLabel(totalDurationSeconds: number, totalListenedSeconds: number, t: TypeSafeTranslations): string | null {
+  const totalDurationLabel = totalDurationSeconds > 0 ? formatDuration(totalDurationSeconds, t, { showDays: true }) : null
+  const totalListenedLabel = totalListenedSeconds > 0 ? formatDuration(totalListenedSeconds, t, { showDays: true }) : null
+
+  if (!totalDurationLabel) return null
+  if (totalListenedLabel) return t('LabelDurationProgressSupplement', { listened: totalListenedLabel, total: totalDurationLabel })
+  return t('LabelDurationTotalSupplement', { total: totalDurationLabel })
 }
 
 export interface ProgressComputationOptions {
