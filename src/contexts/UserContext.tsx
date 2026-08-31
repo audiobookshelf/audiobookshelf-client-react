@@ -38,6 +38,9 @@ export const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children, initialUser }: { children: ReactNode; initialUser: UserLoginResponse }) {
   const [currentUserData, setCurrentUserData] = useState<UserLoginResponse>(initialUser)
+  /** Settings changed while a save is in flight, sent once it finishes */
+  const pendingClientSettingsRef = useRef<ClientSettings | null>(null)
+  const clientSettingsSavingRef = useRef(false)
   const user = currentUserData.user
   const permissionFlags = getUserPermissionFlags(user)
 
@@ -45,7 +48,8 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     if (updatedUser.id === currentUserData.user.id) {
       setCurrentUserData((prev) => ({
         ...prev,
-        user: updatedUser
+        // This event echoes our own saves back, so keep the local settings until they land
+        user: pendingClientSettingsRef.current ? { ...updatedUser, clientSettings: prev.user.clientSettings } : updatedUser
       }))
     }
   })
@@ -83,9 +87,6 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
   }, [initialUser])
 
   const clientSettings = getClientSettings(user.clientSettings)
-  /** Settings changed while a save is in flight, sent once it finishes */
-  const pendingClientSettingsRef = useRef<ClientSettings | null>(null)
-  const clientSettingsSavingRef = useRef(false)
 
   /**
    * Sends pending settings one request at a time. Rapid changes such as dragging the cover
