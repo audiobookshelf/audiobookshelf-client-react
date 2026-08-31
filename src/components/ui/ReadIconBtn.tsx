@@ -26,7 +26,7 @@ export default function ReadIconBtn({ isRead, size = 'medium', disabled = false,
     onClick?.()
   }
 
-  const classes = mergeClasses(isRead ? 'text-green-400' : 'text-gray-400', className)
+  const classes = mergeClasses(isRead ? 'text-green-400' : 'text-foreground', className)
 
   return (
     <IconBtn
