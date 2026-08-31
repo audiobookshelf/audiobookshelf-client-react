@@ -11,8 +11,8 @@ import Tooltip from '../ui/Tooltip'
 import ItemTaskRunningCard from './ItemTaskRunningCard'
 import LoadingSpinner from './LoadingSpinner'
 
-function getActionLink(task: Task): string {
-  const libraryId = task.data?.libraryId
+function getTaskActionLink(task: Task, fallbackLibraryId?: string): string {
+  const libraryId = task.data?.libraryId || fallbackLibraryId
   const libraryItemId = task.data?.libraryItemId
 
   switch (task.action) {
@@ -33,9 +33,10 @@ function getActionLink(task: Task): string {
 
 interface NotificationWidgetProps {
   className?: string
+  fallbackLibraryId?: string
 }
 
-export default function NotificationWidget({ className = '' }: NotificationWidgetProps) {
+export default function NotificationWidget({ className = '', fallbackLibraryId }: NotificationWidgetProps) {
   const t = useTypeSafeTranslations()
   const { tasks } = useTasks()
   const [showMenu, setShowMenu] = useState(false)
@@ -125,7 +126,7 @@ export default function NotificationWidget({ className = '' }: NotificationWidge
         >
           <ul className="h-full w-full" role="listbox" aria-label={t('LabelTasks')}>
             {tasksToShow.map((task) => {
-              const actionLink = getActionLink(task)
+              const actionLink = getTaskActionLink(task, fallbackLibraryId)
 
               if (actionLink) {
                 return (

@@ -6,8 +6,8 @@ import Modal from '@/components/modals/Modal'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
-import TextInput from '@/components/ui/TextInput'
 import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
+import TextInput from '@/components/ui/TextInput'
 import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCover'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -57,12 +57,10 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
 
   const sortedPlaylists = useMemo((): PlaylistRow[] => {
     return [...playlists]
-      .map(
-        (playlist): PlaylistRow => ({
-          ...playlist,
-          allItemsIncluded: playlistIncludesAllItems(playlist, items)
-        })
-      )
+      .map((playlist): PlaylistRow => ({
+        ...playlist,
+        allItemsIncluded: playlistIncludesAllItems(playlist, items)
+      }))
       .sort((a, b) => {
         if (a.allItemsIncluded !== b.allItemsIncluded) {
           return a.allItemsIncluded ? -1 : 1
@@ -212,14 +210,14 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
                   const playlistItems = playlist.items ?? []
                   return (
                     <div key={playlist.id} className="hover:bg-dropdown-item-hover relative flex items-center justify-start px-4 py-2">
-                      {included && <div className="bg-success absolute start-0 top-0 z-10 h-full w-1" aria-hidden />}
+                      {included && <div className="bg-success absolute inset-s-0 top-0 z-10 h-full w-1" aria-hidden />}
                       <div className="w-20 max-w-20 shrink-0 text-center">
                         <PlaylistGroupCover items={playlistItems} width={coverWidth} height={coverHeight} />
                       </div>
                       <div className="min-w-0 flex-1 overflow-hidden px-2">
                         <Link
                           href={`/library/${libraryId}/playlist/${playlist.id}`}
-                          className="cursor-pointer truncate ps-2 pe-2 hover:underline"
+                          className="link-underline cursor-pointer truncate ps-2 pe-2"
                           onClick={() => onClose()}
                         >
                           {playlist.name}

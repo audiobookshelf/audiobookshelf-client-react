@@ -14,8 +14,14 @@
 }
 
 .default-style a {
-  text-decoration: none;
   color: #5985ff;
+  text-decoration-line: underline;
+}
+
+@media (hover: hover) {
+  .default-style a:not(:hover) {
+    text-decoration-line: none;
+  }
 }
 
 .default-style ul {

@@ -7,8 +7,8 @@ import Modal from '@/components/modals/Modal'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
-import TextInput from '@/components/ui/TextInput'
 import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
+import TextInput from '@/components/ui/TextInput'
 import CollectionGroupCover from '@/components/widgets/media-card/CollectionGroupCover'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -55,12 +55,10 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
 
   const sortedCollections = useMemo((): CollectionRow[] => {
     return [...collections]
-      .map(
-        (collection): CollectionRow => ({
-          ...collection,
-          allBooksIncluded: collectionIncludesAllBooks(collection, libraryItemIds)
-        })
-      )
+      .map((collection): CollectionRow => ({
+        ...collection,
+        allBooksIncluded: collectionIncludesAllBooks(collection, libraryItemIds)
+      }))
       .sort((a, b) => {
         if (a.allBooksIncluded !== b.allBooksIncluded) {
           return a.allBooksIncluded ? -1 : 1
@@ -208,14 +206,14 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                   const books = collection.books ?? []
                   return (
                     <div key={collection.id} className="hover:bg-dropdown-item-hover relative flex items-center justify-start px-4 py-2">
-                      {included && <div className="bg-success absolute start-0 top-0 z-10 h-full w-1" aria-hidden />}
+                      {included && <div className="bg-success absolute inset-s-0 top-0 z-10 h-full w-1" aria-hidden />}
                       <div className="w-20 max-w-20 shrink-0 text-center">
                         <CollectionGroupCover books={books} width={coverWidth} height={coverHeight} />
                       </div>
                       <div className="min-w-0 flex-1 overflow-hidden px-2">
                         <Link
                           href={`/library/${libraryId}/collection/${collection.id}`}
-                          className="cursor-pointer truncate ps-2 pe-2 hover:underline"
+                          className="link-underline cursor-pointer truncate ps-2 pe-2"
                           onClick={() => onClose()}
                         >
                           {collection.name}

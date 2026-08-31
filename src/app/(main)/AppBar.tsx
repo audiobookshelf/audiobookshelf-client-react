@@ -112,7 +112,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
         <div className="ms-auto flex shrink-0 items-center gap-0.5 md:gap-1">
           <ChromecastLauncher libraryId={currentLibraryId} />
-          <NotificationWidget />
+          <NotificationWidget fallbackLibraryId={effectiveLibraryId} />
 
           {isAdmin && !isSettingsRoute && (
             <Tooltip text={t('HeaderSettings')} position="bottom">
