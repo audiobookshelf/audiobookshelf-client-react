@@ -154,32 +154,22 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
         <h1 className="hidden px-4 text-lg md:block md:text-2xl">{selectionLabel}</h1>
         <div className="grow" />
 
-        <div className="flex items-center gap-2">
-          {showPlay && (
-            <Btn
-              color="bg-success"
-              size="small"
-              className="hidden h-9 items-center sm:inline-flex"
-              disabled={controlsDisabled}
-              onClick={() => handleBatchAction('play')}
-            >
-              <span className="material-symbols fill -ms-2 pe-1 text-2xl text-white">play_arrow</span>
-              {t('ButtonPlay')}
-            </Btn>
-          )}
-
+        <div className="flex items-center gap-1 md:gap-2">
           {showPlay && (
             <Tooltip text={t('ButtonPlay')} position="bottom">
-              <IconBtn
+              <Btn
+                color="bg-success"
                 size="small"
-                borderless
-                className="bg-success text-white sm:hidden"
+                className="h-9 w-9 items-center px-0 sm:w-auto sm:px-4"
                 ariaLabel={t('ButtonPlay')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('play')}
               >
-                play_arrow
-              </IconBtn>
+                <span className="material-symbols fill text-2xl text-white sm:-ms-2 sm:pe-1" aria-hidden>
+                  play_arrow
+                </span>
+                <span className="hidden sm:inline">{t('ButtonPlay')}</span>
+              </Btn>
             </Tooltip>
           )}
 
@@ -201,7 +191,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 ariaLabel={t('LabelAddToCollection')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-collection')}
-                className="hidden md:inline-flex"
               >
                 collections_bookmark
               </IconBtn>
@@ -215,7 +204,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 ariaLabel={t('LabelAddToPlaylist')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-playlist')}
-                className="hidden md:inline-flex"
               >
                 playlist_add
               </IconBtn>
@@ -269,7 +257,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           )}
 
           <Tooltip text={t('LabelDeselectAll')} position="bottom">
-            <IconBtn borderless ariaLabel={t('LabelDeselectAll')} disabled={processing} onClick={() => clearSelection?.()} className="ms-1 text-3xl">
+            <IconBtn borderless ariaLabel={t('LabelDeselectAll')} disabled={processing} onClick={() => clearSelection?.()} className="sm:ms-1 text-3xl">
               close
             </IconBtn>
           </Tooltip>
