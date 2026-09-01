@@ -85,7 +85,7 @@ export default function Dropdown({
 
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
-  const isMobile = useIsMobile() && mobileIcon
+  const isMobile = useIsMobile() && !!mobileIcon
 
   const openMenu = (index: number = 0) => {
     setShowMenu(true)
@@ -530,7 +530,7 @@ export default function Dropdown({
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}
         menuWidthOverride={isMobile ? mobileMenuWidth : undefined}
-        isMobile={isMobile as boolean}
+        isMobile={isMobile}
       />
     </div>
   )
