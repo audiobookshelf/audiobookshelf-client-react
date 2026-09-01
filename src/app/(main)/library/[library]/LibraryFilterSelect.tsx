@@ -18,7 +18,8 @@ const FILTER_TYPE_MESSAGE_KEYS: Record<string, TranslationKey> = {
   tags: 'LabelFilterTagsWithValue',
   narrators: 'LabelNarratorsWithValue',
   publishers: 'LabelFilterPublishersWithValue',
-  languages: 'LabelFilterLanguagesWithValue'
+  languages: 'LabelFilterLanguagesWithValue',
+  publishedDecades: 'LabelFilterPublishedDecadesWithValue'
 }
 
 export default function LibraryFilterSelect({ entityType = 'items', user }: LibraryFilterSelectProps) {
@@ -179,9 +180,6 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
 
   const filterItems = useMemo(() => {
     const items: DropdownItem[] = []
-    if (currentFilter !== 'all' && isMobile) {
-      items.push({ text: getSelectedText(), value: 'all', isCurrentSelectedItem: true })
-    }
 
     // For series page, show reduced set of filters
     if (isSeries) {
@@ -453,7 +451,11 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
     }
 
     return items
-  }, [t, filterData, isBook, isSeries, user, isMobile, currentFilter, getSelectedText])
+  }, [t, filterData, isBook, isSeries, user])
+
+  const handleClear = useCallback(() => {
+    updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')
+  }, [isSeries, updateSetting])
 
   // Clear button logic
   const showClear = currentFilter !== 'all' && !isMobile
@@ -469,9 +471,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         size="auto"
         className="h-full text-xs"
         displayText={getSelectedText()}
-        onClear={() => {
-          updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')
-        }}
+        onClear={isMobile && currentFilter !== 'all' ? handleClear : undefined}
         menuMaxHeight="calc(100vh - 120px)"
         usePortal
         wrapText
@@ -482,7 +482,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
           className="absolute inset-y-0 right-8 z-10 flex items-center text-gray-400 hover:text-white"
           onClick={(e) => {
             e.stopPropagation()
-            updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')
+            handleClear()
           }}
           title={t('ButtonClearFilter')}
         >

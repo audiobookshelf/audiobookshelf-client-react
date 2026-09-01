@@ -474,6 +474,7 @@
   "LabelFilterByUser": "Filter by User",
   "LabelFilterGenresWithValue": "Genres: {0}",
   "LabelFilterLanguagesWithValue": "Languages: {0}",
+  "LabelFilterPublishedDecadesWithValue": "Published Decade: {0}s",
   "LabelFilterPublishersWithValue": "Publishers: {0}",
   "LabelFilterTagsWithValue": "Tags: {0}",
   "LabelFindEpisodes": "Find Episodes",
