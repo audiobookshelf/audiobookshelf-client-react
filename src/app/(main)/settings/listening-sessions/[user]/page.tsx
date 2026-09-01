@@ -1,8 +1,6 @@
 import ListeningSessionsClient from '@/app/(main)/settings/listening-sessions/ListeningSessionsClient'
 import { getData, getListeningSessions, getUsers } from '@/lib/api'
 import { getUserOrNotFound } from '@/lib/notFound'
-import { redirect } from 'next/navigation'
-
 export const dynamic = 'force-dynamic'
 
 export default async function UserListeningSessionsPage({ params }: { params: Promise<{ user: string }> }) {
