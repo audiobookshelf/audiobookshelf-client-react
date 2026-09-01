@@ -180,7 +180,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
   const filterItems = useMemo(() => {
     const items: DropdownItem[] = []
     if (currentFilter !== 'all' && isMobile) {
-      items.push({ text: getSelectedText(), value: currentFilter, isCurrentSelectedItem: true })
+      items.push({ text: getSelectedText(), value: 'all', isCurrentSelectedItem: true })
     }
 
     // For series page, show reduced set of filters
