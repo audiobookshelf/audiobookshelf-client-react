@@ -453,7 +453,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
     }
 
     return items
-  }, [t, filterData, isBook, isSeries, user, isMobile])
+  }, [t, filterData, isBook, isSeries, user, isMobile, currentFilter, getSelectedText])
 
   // Clear button logic
   const showClear = currentFilter !== 'all' && !isMobile
