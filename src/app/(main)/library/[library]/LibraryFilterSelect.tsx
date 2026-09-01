@@ -7,6 +7,7 @@ import { filterDecode, filterEncode } from '@/lib/filterUtils'
 import { EntityType, User } from '@/types/api'
 import type { TranslationKey } from '@/types/translations'
 import { useCallback, useMemo } from 'react'
+import { useIsMobile } from '../../../../../cypress/tests/components/hooks/useMediaQuery'
 
 interface LibraryFilterSelectProps {
   entityType?: EntityType
@@ -28,6 +29,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
   const isSeries = entityType === 'series'
   const currentFilter = isSeries ? seriesFilterBy : filterBy
   const isBook = library?.mediaType === 'book'
+  const isMobile = useIsMobile()
 
   /**
    * Get the display text for the current filter value
@@ -177,7 +179,10 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
   )
 
   const filterItems = useMemo(() => {
-    const items: DropdownItem[] = [{ text: t('LabelAll'), value: 'all' }]
+    const items: DropdownItem[] = []
+    if (currentFilter !== 'all' && isMobile) {
+      items.push({ text: getSelectedText(), value: currentFilter, isCurrentSelectedItem: true })
+    }
 
     // For series page, show reduced set of filters
     if (isSeries) {
@@ -449,15 +454,15 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
     }
 
     return items
-  }, [t, filterData, isBook, isSeries, user])
-
+  }, [t, filterData, isBook, isSeries, user, isMobile])
+  
   // Clear button logic
-  const showClear = currentFilter !== 'all'
+  const showClear = currentFilter !== 'all' && !isMobile
 
   if (entityType === 'authors') return null
 
   return (
-    <div className="relative h-9 max-w-48 min-w-0 flex-1 md:w-48 md:flex-none">
+    <div className="relative h-9 min-w-0 max-sm:w-auto max-sm:max-w-none max-sm:flex-none sm:w-48 sm:max-w-48 sm:flex-none">
       <Dropdown
         value={currentFilter}
         items={filterItems}
@@ -465,9 +470,13 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         size="auto"
         className="h-full text-xs"
         displayText={getSelectedText()}
+        onClear={() => {
+          updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')
+        }}
         menuMaxHeight="calc(100vh - 120px)"
         usePortal
         wrapText
+        mobileIcon={'filter_alt'}
       />
       {showClear && (
         <button

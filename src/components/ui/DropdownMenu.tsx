@@ -22,6 +22,7 @@ export interface DropdownMenuItem {
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   subitems?: DropdownMenuSubitem[]
+  isCurrentSelectedItem?: boolean
 }
 
 const PREFERRED_SUBMENU_WIDTH = 192
@@ -29,14 +30,34 @@ const PREFERRED_SUBMENU_WIDTH = 192
 /**
  * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
  */
-export function DropdownItemLabel({ text, subtext, className, wrapText = false }: { text: string; subtext?: string; className?: string; wrapText?: boolean }) {
+export function DropdownItemLabel({
+  text,
+  subtext,
+  className,
+  wrapText = false,
+  isCurrentSelectedItem
+}: {
+  text: string
+  subtext?: string
+  className?: string
+  wrapText?: boolean
+  isCurrentSelectedItem?: boolean
+}) {
   const t = useTypeSafeTranslations()
   const textOverflowClass = wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate'
 
   if (!subtext) {
     return (
-      <span className={mergeClasses('block min-w-0 font-sans', textOverflowClass, className)} title={text}>
-        {text}
+      <span dir="auto" className={mergeClasses('flex w-full min-w-0 items-center justify-between gap-2 font-sans', className)}>
+        <span className={mergeClasses('min-w-0', textOverflowClass)} title={text}>
+          {text}
+        </span>
+
+        {isCurrentSelectedItem && (
+          <span className="material-symbols shrink-0 ps-3 pe-3 text-base" aria-hidden="true">
+            close
+          </span>
+        )}
       </span>
     )
   }
@@ -249,6 +270,8 @@ interface DropdownMenuProps {
   highlightSelected?: boolean
   submenuFilterText?: string
   wrapText?: boolean
+  isMobile?: boolean
+  menuWidthOverride?: string
 }
 
 /**
@@ -278,7 +301,9 @@ export default function DropdownMenu({
   triggerRef,
   highlightSelected = false,
   submenuFilterText = '',
-  wrapText = false
+  wrapText = false,
+  menuWidthOverride,
+  isMobile,
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -454,8 +479,8 @@ export default function DropdownMenu({
               onItemClick?.(item)
             }}
             onMouseDown={(e) => e.preventDefault()}
-            onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
-            onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
+            onMouseOver={hasSubitems && !isMobile ? () => handleMouseoverParent(index) : undefined}
+            onMouseLeave={hasSubitems && !isMobile ? handleMouseleaveParent : undefined}
           >
             <div
               className={mergeClasses(
@@ -470,6 +495,7 @@ export default function DropdownMenu({
                 subtext={item.subtext}
                 wrapText={wrapText}
                 className={mergeClasses(item.leftIcon ? 'ms-1.5' : 'ms-3', 'min-w-0 flex-1 text-sm')}
+                isCurrentSelectedItem={item.isCurrentSelectedItem}
               />
             </div>
             {hasSubitems && (
@@ -492,8 +518,8 @@ export default function DropdownMenu({
                 parentIndex={index}
                 focusedSubIndex={focusedSubIndex}
                 onSubitemClick={onSubitemClick}
-                onMouseOver={handleMouseoverSubmenu}
-                onMouseLeave={handleMouseleaveSubmenu}
+                onMouseOver={isMobile ? () => {} : handleMouseoverSubmenu}
+                onMouseLeave={isMobile ? () => {} : handleMouseleaveSubmenu}
                 referenceElement={menuItemRefs.current[index]}
                 filterText={submenuFilterText}
                 wrapText={wrapText}
@@ -528,7 +554,8 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 w-full max-w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 max-w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        menuWidthOverride ? '' : 'w-full',
         className
       )}
       role="listbox"
@@ -536,12 +563,13 @@ export default function DropdownMenu({
       tabIndex={-1}
       style={{
         maxHeight: `min(${menuMaxHeight}, calc(100vh - 100px))`,
+        ...(menuWidthOverride ? { width: menuWidthOverride } : {}),
         ...(usePortal
           ? {
               position: 'absolute',
               top: menuPosition.top,
               left: menuPosition.left,
-              width: menuPosition.width,
+              width: menuWidthOverride ?? menuPosition.width,
               zIndex: 9999
             }
           : {})

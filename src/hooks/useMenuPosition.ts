@@ -15,6 +15,8 @@ interface UseMenuPositionOptions {
   portalContainerRef?: RefObject<HTMLElement>
 }
 
+const VIEWPORT_PADDING = 8
+
 /**
  * Hook to calculate and manage menu positioning relative to a trigger element
  */
@@ -43,17 +45,31 @@ export const useMenuPosition = ({
     }
 
     const triggerBoundingBox = triggerRef.current.getBoundingClientRect()
-    let left: string, top: string
+
+    // Use the menu's own rendered width when available (accounts for any width override
+    // applied to the menu, e.g. a fixed mobile menu width that differs from the trigger's
+    // width). Fall back to the trigger's width before the menu has painted.
+    const menuBoundingBox = menuRef.current.getBoundingClientRect()
+    const menuWidth = menuBoundingBox.width || triggerBoundingBox.width
     const width = `${triggerBoundingBox.width}px`
+
+    // Compute the horizontal position in viewport space first, clamp it so the menu never
+    // extends past the right (or left) edge of the viewport, then convert to
+    // portal-relative coordinates if needed.
+    let viewportLeft = triggerBoundingBox.x
+    const maxViewportLeft = Math.max(VIEWPORT_PADDING, window.innerWidth - menuWidth - VIEWPORT_PADDING)
+    viewportLeft = Math.min(Math.max(viewportLeft, VIEWPORT_PADDING), maxViewportLeft)
+
+    let left: string, top: string
 
     if (portalContainerRef?.current) {
       const portalRect = portalContainerRef.current.getBoundingClientRect()
       // Position relative to the portal container
-      left = `${triggerBoundingBox.left - portalRect.left + portalContainerRef.current.scrollLeft}px`
+      left = `${viewportLeft - portalRect.left + portalContainerRef.current.scrollLeft}px`
       top = `${triggerBoundingBox.bottom - portalRect.top + portalContainerRef.current.scrollTop}px`
     } else {
       // Position relative to the window/document
-      left = `${triggerBoundingBox.x}px`
+      left = `${viewportLeft}px`
       top = `${triggerBoundingBox.bottom + window.scrollY}px`
     }
 

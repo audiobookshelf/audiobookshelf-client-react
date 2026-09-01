@@ -3,6 +3,7 @@
 import { createAdditionalInsideCheck, useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
+import { useIsMobile } from '../../../cypress/tests/components/hooks/useMediaQuery'
 import DropdownMenu, { DropdownItemLabel, DropdownMenuItem } from './DropdownMenu'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
@@ -22,6 +23,7 @@ export interface DropdownItem {
   disabled?: boolean
   /** Subitems for two-level menu support */
   subitems?: DropdownSubitem[]
+  isCurrentSelectedItem?: boolean
 }
 
 interface DropdownProps {
@@ -41,6 +43,13 @@ interface DropdownProps {
   usePortal?: boolean
   /** When true, menu item labels wrap up to two lines then truncate */
   wrapText?: boolean
+  /** Icon shown instead of the full box on mobile widths */
+  mobileIcon?: React.ReactNode
+  /** px width below which the icon-only variant is used. Default 640 (Tailwind `sm`). */
+  mobileBreakpoint?: number
+  /** Fixed width used for the menu when the icon-only mobile trigger is active (e.g. '240px') */
+  mobileMenuWidth?: string
+  onClear?: () => void
 }
 
 /**
@@ -61,7 +70,11 @@ export default function Dropdown({
   highlightSelected = false,
   displayText,
   usePortal = false,
-  wrapText = false
+  wrapText = false,
+  mobileIcon,
+  mobileBreakpoint = 640,
+  mobileMenuWidth = '240px',
+  onClear
 }: DropdownProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
@@ -75,6 +88,7 @@ export default function Dropdown({
 
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
+  const isMobile = useIsMobile(mobileBreakpoint) && mobileIcon
 
   const openMenu = (index: number = 0) => {
     setShowMenu(true)
@@ -122,14 +136,22 @@ export default function Dropdown({
     setSubmenuFilterText('')
   }
 
-  const handleOptionClick = (itemValue: string | number) => {
-    onChange?.(itemValue)
+  const handleOptionClick = (item: DropdownItem) => {
+    if (item.isCurrentSelectedItem) {
+      handleOnClearClick()
+      return
+    }
+    onChange?.(item.value)
 
-    const clickedItem = items.find((i) => (typeof i === 'object' ? i.value === itemValue : i === itemValue))
+    const clickedItem = items.find((i) => (typeof i === 'object' ? i.value === item.value : i === item.value))
     if (typeof clickedItem === 'object' && clickedItem.keepOpen) {
       return
     }
 
+    closeMenu()
+  }
+  const handleOnClearClick = () => {
+    onClear?.()
     closeMenu()
   }
 
@@ -248,7 +270,7 @@ export default function Dropdown({
           openSubMenu(focusedIndex, itemsToShow)
         }
       } else {
-        handleOptionClick(itemsToShow[focusedIndex].value)
+        handleOptionClick(itemsToShow[focusedIndex])
       }
     }
   }
@@ -383,7 +405,8 @@ export default function Dropdown({
     subitems: item.subitems?.map((sub) => ({
       text: sub.text,
       value: sub.value
-    }))
+    })),
+    isCurrentSelectedItem: item.isCurrentSelectedItem
   }))
 
   const dropdownButtonId = `${dropdownId}-button`
@@ -395,45 +418,77 @@ export default function Dropdown({
           {label}
         </Label>
       )}
-
-      <InputWrapper disabled={disabled} size={size} inputRef={buttonRef} wrapperRef={controlWrapperRef}>
-        <button
-          ref={buttonRef}
-          id={dropdownButtonId}
-          type="button"
-          role="combobox"
-          aria-label={longLabel}
-          disabled={disabled}
-          className={mergeClasses(
-            'text-foreground relative w-full cursor-pointer text-left',
-            'flex h-full items-center justify-between border-none bg-transparent ps-1 outline-none',
-            'disabled:text-disabled disabled:cursor-not-allowed',
-            size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : size === 'medium' ? 'text-base' : ''
-          )}
-          aria-haspopup="listbox"
-          aria-expanded={showMenu}
-          aria-activedescendant={
-            focusedSubIndex !== -1 && openSubmenuIndex !== null
-              ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
-              : focusedIndex >= 0
-                ? `${dropdownId}-item-${focusedIndex}`
-                : undefined
-          }
-          aria-controls={`${dropdownId}-listbox`}
-          onClick={handleButtonClick}
-          onKeyDown={handleKeyDown}
-        >
-          <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-start" title={longLabel.trim() || undefined}>
-            {selectedItem?.leftIcon && <span className="shrink-0">{selectedItem.leftIcon}</span>}
-            <span className="min-w-0 flex-1">
-              <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
+      {isMobile ? (
+        <div ref={controlWrapperRef} className="inline-flex">
+          <button
+            ref={buttonRef}
+            id={dropdownButtonId}
+            type="button"
+            role="combobox"
+            aria-label={longLabel || label}
+            disabled={disabled}
+            className={mergeClasses(
+              'flex h-9 w-9 items-center justify-center rounded-full',
+              'text-foreground bg-transparent outline-none',
+              'hover:bg-black/5 active:bg-black/10',
+              'disabled:text-disabled disabled:cursor-not-allowed'
+            )}
+            aria-haspopup="listbox"
+            aria-expanded={showMenu}
+            aria-activedescendant={
+              focusedSubIndex !== -1 && openSubmenuIndex !== null
+                ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
+                : focusedIndex >= 0
+                  ? `${dropdownId}-item-${focusedIndex}`
+                  : undefined
+            }
+            aria-controls={`${dropdownId}-listbox`}
+            onClick={handleButtonClick}
+            onKeyDown={handleKeyDown}
+          >
+            <span className="material-symbols text-2xl">{mobileIcon || 'tune'}</span>
+          </button>
+        </div>
+      ) : (
+        <InputWrapper disabled={disabled} size={size} inputRef={buttonRef} wrapperRef={controlWrapperRef}>
+          <button
+            ref={buttonRef}
+            id={dropdownButtonId}
+            type="button"
+            role="combobox"
+            aria-label={longLabel}
+            disabled={disabled}
+            className={mergeClasses(
+              'text-foreground relative w-full cursor-pointer text-left',
+              'flex h-full items-center justify-between border-none bg-transparent ps-1 outline-none',
+              'disabled:text-disabled disabled:cursor-not-allowed',
+              size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : size === 'medium' ? 'text-base' : ''
+            )}
+            aria-haspopup="listbox"
+            aria-expanded={showMenu}
+            aria-activedescendant={
+              focusedSubIndex !== -1 && openSubmenuIndex !== null
+                ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
+                : focusedIndex >= 0
+                  ? `${dropdownId}-item-${focusedIndex}`
+                  : undefined
+            }
+            aria-controls={`${dropdownId}-listbox`}
+            onClick={handleButtonClick}
+            onKeyDown={handleKeyDown}
+          >
+            <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-start" title={longLabel.trim() || undefined}>
+              {selectedItem?.leftIcon && <span className="shrink-0">{selectedItem.leftIcon}</span>}
+              <span className="min-w-0 flex-1">
+                <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
+              </span>
             </span>
-          </span>
-          <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
-            {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}
-          </span>
-        </button>
-      </InputWrapper>
+            <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
+              {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}
+            </span>
+          </button>
+        </InputWrapper>
+      )}
 
       <DropdownMenu
         showMenu={showMenu}
@@ -454,7 +509,7 @@ export default function Dropdown({
               }
             }
           } else {
-            handleOptionClick(item.value)
+            handleOptionClick(item)
           }
         }}
         onSubitemClick={(subitem) => handleSubitemClick(subitem.value)}
@@ -477,6 +532,8 @@ export default function Dropdown({
         usePortal={usePortal}
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}
+        menuWidthOverride={isMobile ? mobileMenuWidth : undefined}
+        isMobile={isMobile as boolean}
       />
     </div>
   )
