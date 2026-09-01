@@ -2,13 +2,12 @@
 
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useIsMobile } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterDecode, filterEncode } from '@/lib/filterUtils'
 import { EntityType, User } from '@/types/api'
 import type { TranslationKey } from '@/types/translations'
 import { useCallback, useMemo } from 'react'
-import { useIsMobile } from '../../../../../cypress/tests/components/hooks/useMediaQuery'
-
 interface LibraryFilterSelectProps {
   entityType?: EntityType
   user?: User
@@ -455,7 +454,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
 
     return items
   }, [t, filterData, isBook, isSeries, user, isMobile])
-  
+
   // Clear button logic
   const showClear = currentFilter !== 'all' && !isMobile
 

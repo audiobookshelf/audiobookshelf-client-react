@@ -3,10 +3,10 @@
 import { createAdditionalInsideCheck, useClickOutside } from '@/hooks/useClickOutside'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
-import { useIsMobile } from '../../../cypress/tests/components/hooks/useMediaQuery'
 import DropdownMenu, { DropdownItemLabel, DropdownMenuItem } from './DropdownMenu'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
+import { useIsMobile } from '@/hooks/useMediaQuery'
 
 export interface DropdownSubitem {
   text: string
@@ -45,8 +45,6 @@ interface DropdownProps {
   wrapText?: boolean
   /** Icon shown instead of the full box on mobile widths */
   mobileIcon?: React.ReactNode
-  /** px width below which the icon-only variant is used. Default 640 (Tailwind `sm`). */
-  mobileBreakpoint?: number
   /** Fixed width used for the menu when the icon-only mobile trigger is active (e.g. '240px') */
   mobileMenuWidth?: string
   onClear?: () => void
@@ -72,7 +70,7 @@ export default function Dropdown({
   usePortal = false,
   wrapText = false,
   mobileIcon,
-  mobileBreakpoint = 640,
+
   mobileMenuWidth = '240px',
   onClear
 }: DropdownProps) {
@@ -88,7 +86,7 @@ export default function Dropdown({
 
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
-  const isMobile = useIsMobile(mobileBreakpoint) && mobileIcon
+  const isMobile = useIsMobile() && mobileIcon
 
   const openMenu = (index: number = 0) => {
     setShowMenu(true)
