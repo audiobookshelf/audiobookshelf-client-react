@@ -530,7 +530,6 @@ export default function Dropdown({
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}
         menuWidthOverride={isMobile ? mobileMenuWidth : undefined}
-        isMobile={isMobile}
       />
     </div>
   )

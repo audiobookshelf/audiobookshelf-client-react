@@ -269,7 +269,6 @@ interface DropdownMenuProps {
   highlightSelected?: boolean
   submenuFilterText?: string
   wrapText?: boolean
-  isMobile?: boolean
   menuWidthOverride?: string
 }
 
@@ -301,8 +300,7 @@ export default function DropdownMenu({
   highlightSelected = false,
   submenuFilterText = '',
   wrapText = false,
-  menuWidthOverride,
-  isMobile,
+  menuWidthOverride
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -478,8 +476,8 @@ export default function DropdownMenu({
               onItemClick?.(item)
             }}
             onMouseDown={(e) => e.preventDefault()}
-            onMouseOver={hasSubitems && !isMobile ? () => handleMouseoverParent(index) : undefined}
-            onMouseLeave={hasSubitems && !isMobile ? handleMouseleaveParent : undefined}
+            onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
+            onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
             <div
               className={mergeClasses(
@@ -517,8 +515,8 @@ export default function DropdownMenu({
                 parentIndex={index}
                 focusedSubIndex={focusedSubIndex}
                 onSubitemClick={onSubitemClick}
-                onMouseOver={isMobile ? () => {} : handleMouseoverSubmenu}
-                onMouseLeave={isMobile ? () => {} : handleMouseleaveSubmenu}
+                onMouseOver={handleMouseoverSubmenu}
+                onMouseLeave={handleMouseleaveSubmenu}
                 referenceElement={menuItemRefs.current[index]}
                 filterText={submenuFilterText}
                 wrapText={wrapText}
