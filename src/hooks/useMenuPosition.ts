@@ -29,6 +29,7 @@ export const useMenuPosition = ({
 }: UseMenuPositionOptions): (() => void) => {
   const positionRef = useRef<MenuPosition>({} as MenuPosition)
   const menuHeightRef = useRef<number>(0)
+  const menuWidthRef = useRef<number>(0)
   const triggerWidthRef = useRef<number>(0)
   const triggerHeightRef = useRef<number>(0)
   const menuObserverRef = useRef<ResizeObserver | null>(null)
@@ -44,9 +45,8 @@ export const useMenuPosition = ({
     }
 
     const triggerBoundingBox = triggerRef.current.getBoundingClientRect()
-    // Use the menu's own rendered width when available (accounts for any width override
-    // applied to the menu, e.g. a fixed mobile menu width that differs from the trigger's
-    // width). Fall back to the trigger's width before the menu has painted.
+    // Use the menu's own rendered width when available so clamping is correct when the
+    // menu is content-sized (icon trigger) rather than matching the trigger.
     const menuBoundingBox = menuRef.current.getBoundingClientRect()
     const menuWidth = menuBoundingBox.width || triggerBoundingBox.width
     const width = `${triggerBoundingBox.width}px`
@@ -93,12 +93,14 @@ export const useMenuPosition = ({
       window.addEventListener('resize', recalcMenuPos)
       scrollTarget.addEventListener('scroll', handleScroll, true)
 
-      // Set up ResizeObserver to track menu height changes
+      // Set up ResizeObserver to track menu size changes
       if (menuRef.current) {
         menuObserverRef.current = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           for (const entry of entries) {
+            const newWidth = entry.borderBoxSize[0]?.inlineSize || entry.target.clientWidth
             const newHeight = entry.borderBoxSize[0]?.blockSize || entry.target.clientHeight
-            if (newHeight !== menuHeightRef.current) {
+            if (newWidth !== menuWidthRef.current || newHeight !== menuHeightRef.current) {
+              menuWidthRef.current = newWidth
               menuHeightRef.current = newHeight
               recalcMenuPos()
             }

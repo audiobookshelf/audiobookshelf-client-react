@@ -26,6 +26,7 @@ export interface DropdownMenuItem {
 }
 
 const PREFERRED_SUBMENU_WIDTH = 192
+const CONTENT_SIZED_MENU_MAX_WIDTH = '50vw'
 
 /**
  * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
@@ -269,7 +270,8 @@ interface DropdownMenuProps {
   highlightSelected?: boolean
   submenuFilterText?: string
   wrapText?: boolean
-  menuWidthOverride?: string
+  /** Size the menu to its items instead of matching the trigger width (icon-only triggers) */
+  fitContent?: boolean
 }
 
 /**
@@ -300,7 +302,7 @@ export default function DropdownMenu({
   highlightSelected = false,
   submenuFilterText = '',
   wrapText = false,
-  menuWidthOverride
+  fitContent = false
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -551,8 +553,8 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 max-w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
-        menuWidthOverride ? '' : 'w-full',
+        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        fitContent ? 'w-max' : 'w-full max-w-full',
         className
       )}
       role="listbox"
@@ -560,13 +562,13 @@ export default function DropdownMenu({
       tabIndex={-1}
       style={{
         maxHeight: `min(${menuMaxHeight}, calc(100vh - 100px))`,
-        ...(menuWidthOverride ? { width: menuWidthOverride } : {}),
+        ...(fitContent ? { maxWidth: CONTENT_SIZED_MENU_MAX_WIDTH } : {}),
         ...(usePortal
           ? {
               position: 'absolute',
               top: menuPosition.top,
               left: menuPosition.left,
-              width: menuWidthOverride ?? menuPosition.width,
+              ...(fitContent ? {} : { width: menuPosition.width }),
               zIndex: 9999
             }
           : {})

@@ -45,8 +45,6 @@ interface DropdownProps {
   wrapText?: boolean
   /** Icon shown instead of the full box on mobile widths */
   mobileIcon?: React.ReactNode
-  /** Fixed width used for the menu when the icon-only mobile trigger is active (e.g. '240px') */
-  mobileMenuWidth?: string
   onClear?: () => void
 }
 
@@ -70,7 +68,6 @@ export default function Dropdown({
   usePortal = false,
   wrapText = false,
   mobileIcon,
-  mobileMenuWidth = '240px',
   onClear
 }: DropdownProps) {
   const [showMenu, setShowMenu] = useState(false)
@@ -529,7 +526,7 @@ export default function Dropdown({
         usePortal={usePortal}
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}
-        menuWidthOverride={isMobile ? mobileMenuWidth : undefined}
+        fitContent={isMobile}
       />
     </div>
   )
