@@ -203,13 +203,14 @@ describe('<Dropdown />', () => {
       cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
     })
 
-    it('moves visual focus to the hovered item without losing the selected highlight', () => {
+    it('does not move keyboard focus when an item is hovered', () => {
       cy.mount(<Dropdown items={mockItems} value="option1" />)
       cy.get('button').click()
-      cy.get('[role="listbox"] > li').should('not.have.class', 'bg-dropdown-item-focused')
+      cy.realType('{downarrow}')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
       cy.get('[role="listbox"] > li').eq(2).trigger('mouseover')
-      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-dropdown-item-focused')
-      cy.get('[role="listbox"] > li').first().should('not.have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(2).should('not.have.class', 'bg-dropdown-item-focused')
       cy.get('[role="listbox"] > li').first().should('have.class', 'text-dropdown-item-selected')
       cy.get('[role="listbox"] > li').eq(2).should('not.have.class', 'text-dropdown-item-selected')
     })

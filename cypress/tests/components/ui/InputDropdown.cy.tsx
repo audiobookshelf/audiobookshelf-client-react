@@ -48,6 +48,7 @@ describe('<InputDropdown />', () => {
     cy.get('input').focus()
     cy.get('[role="listbox"]').should('be.visible')
     cy.get('[role="listbox"] > li').should('have.length', mockItems.length)
+    cy.get('[role="listbox"] > li').should('not.have.class', 'bg-dropdown-item-focused')
   })
 
   it('filters items based on input', () => {
@@ -84,11 +85,14 @@ describe('<InputDropdown />', () => {
     cy.get('[role="listbox"]').should('not.exist')
   })
 
-  it('shows selected item with checkmark', () => {
+  it('highlights the selected item without a check indicator', () => {
     cy.mount(<InputDropdown items={mockItems} value="Banana" />)
     cy.get('input').focus()
+    cy.get('input').clear().type('a')
     cy.get('[role="listbox"]').should('be.visible')
-    cy.get('[role="listbox"] > li').first().find('.material-symbols').should('have.text', 'check')
+    cy.contains('[role="listbox"] > li', 'Banana').should('have.class', 'text-dropdown-item-selected')
+    cy.contains('[role="listbox"] > li', 'Apple').should('not.have.class', 'text-dropdown-item-selected')
+    cy.get('[role="listbox"] > li .material-symbols').should('not.exist')
   })
 
   it('shows "No items" when no matches found', () => {
@@ -99,6 +103,16 @@ describe('<InputDropdown />', () => {
   })
 
   describe('Keyboard Navigation', () => {
+    it('does not move keyboard focus when an item is hovered', () => {
+      cy.mount(<InputDropdown items={mockItems} showAllWhenEmpty />)
+      cy.get('input').focus()
+      cy.get('input').type('{downarrow}')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(2).trigger('mouseover')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(2).should('not.have.class', 'bg-dropdown-item-focused')
+    })
+
     it('opens menu with ArrowDown', () => {
       cy.mount(<InputDropdown items={mockItems} />)
       cy.get('input').focus()

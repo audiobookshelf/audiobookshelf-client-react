@@ -510,7 +510,6 @@ export default function Dropdown({
         }}
         onSubitemClick={(subitem) => handleSubitemClick(subitem.value)}
         onOpenSubmenu={(index) => {
-          setFocusedIndex(index)
           if (openSubmenuIndex !== index) {
             setOpenSubmenuIndex(index)
             setSubmenuFilterText('')
