@@ -52,7 +52,6 @@ export function DropdownItemLabel({
         <span className={mergeClasses('min-w-0', textOverflowClass)} title={text}>
           {text}
         </span>
-
         {isCurrentSelectedItem && (
           <span className="material-symbols shrink-0 ps-3 pe-3 text-base" aria-hidden="true">
             close

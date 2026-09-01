@@ -70,7 +70,6 @@ export default function Dropdown({
   usePortal = false,
   wrapText = false,
   mobileIcon,
-
   mobileMenuWidth = '240px',
   onClear
 }: DropdownProps) {

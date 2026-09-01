@@ -16,7 +16,6 @@ interface UseMenuPositionOptions {
 }
 
 const VIEWPORT_PADDING = 8
-
 /**
  * Hook to calculate and manage menu positioning relative to a trigger element
  */
@@ -45,7 +44,6 @@ export const useMenuPosition = ({
     }
 
     const triggerBoundingBox = triggerRef.current.getBoundingClientRect()
-
     // Use the menu's own rendered width when available (accounts for any width override
     // applied to the menu, e.g. a fixed mobile menu width that differs from the trigger's
     // width). Fall back to the trigger's width before the menu has painted.
@@ -59,9 +57,7 @@ export const useMenuPosition = ({
     let viewportLeft = triggerBoundingBox.x
     const maxViewportLeft = Math.max(VIEWPORT_PADDING, window.innerWidth - menuWidth - VIEWPORT_PADDING)
     viewportLeft = Math.min(Math.max(viewportLeft, VIEWPORT_PADDING), maxViewportLeft)
-
     let left: string, top: string
-
     if (portalContainerRef?.current) {
       const portalRect = portalContainerRef.current.getBoundingClientRect()
       // Position relative to the portal container
