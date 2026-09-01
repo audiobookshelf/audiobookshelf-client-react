@@ -22,7 +22,6 @@ export interface DropdownMenuItem {
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   subitems?: DropdownMenuSubitem[]
-  isCurrentSelectedItem?: boolean
 }
 
 const PREFERRED_SUBMENU_WIDTH = 192
@@ -31,33 +30,14 @@ const CONTENT_SIZED_MENU_MAX_WIDTH = '50vw'
 /**
  * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
  */
-export function DropdownItemLabel({
-  text,
-  subtext,
-  className,
-  wrapText = false,
-  isCurrentSelectedItem
-}: {
-  text: string
-  subtext?: string
-  className?: string
-  wrapText?: boolean
-  isCurrentSelectedItem?: boolean
-}) {
+export function DropdownItemLabel({ text, subtext, className, wrapText = false }: { text: string; subtext?: string; className?: string; wrapText?: boolean }) {
   const t = useTypeSafeTranslations()
   const textOverflowClass = wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate'
 
   if (!subtext) {
     return (
-      <span dir="auto" className={mergeClasses('flex w-full min-w-0 items-center justify-between gap-2 font-sans', className)}>
-        <span className={mergeClasses('min-w-0', textOverflowClass)} title={text}>
-          {text}
-        </span>
-        {isCurrentSelectedItem && (
-          <span className="material-symbols shrink-0 ps-3 pe-3 text-base" aria-hidden="true">
-            close
-          </span>
-        )}
+      <span className={mergeClasses('block min-w-0 font-sans', textOverflowClass, className)} title={text}>
+        {text}
       </span>
     )
   }
@@ -494,7 +474,6 @@ export default function DropdownMenu({
                 subtext={item.subtext}
                 wrapText={wrapText}
                 className={mergeClasses(item.leftIcon ? 'ms-1.5' : 'ms-3', 'min-w-0 flex-1 text-sm')}
-                isCurrentSelectedItem={item.isCurrentSelectedItem}
               />
             </div>
             {hasSubitems && (

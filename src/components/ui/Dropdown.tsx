@@ -8,6 +8,8 @@ import InputWrapper from './InputWrapper'
 import Label from './Label'
 import { useIsMobile } from '@/hooks/useMediaQuery'
 
+const CLEAR_ITEM_VALUE = '__dropdown_clear__'
+
 export interface DropdownSubitem {
   text: string
   value: string | number
@@ -23,7 +25,6 @@ export interface DropdownItem {
   disabled?: boolean
   /** Subitems for two-level menu support */
   subitems?: DropdownSubitem[]
-  isCurrentSelectedItem?: boolean
 }
 
 interface DropdownProps {
@@ -131,8 +132,9 @@ export default function Dropdown({
   }
 
   const handleOptionClick = (item: DropdownItem) => {
-    if (item.isCurrentSelectedItem) {
-      handleOnClearClick()
+    if (onClear && item.value === CLEAR_ITEM_VALUE) {
+      onClear()
+      closeMenu()
       return
     }
     onChange?.(item.value)
@@ -144,18 +146,13 @@ export default function Dropdown({
 
     closeMenu()
   }
-  const handleOnClearClick = () => {
-    onClear?.()
-    closeMenu()
-  }
 
   const handleSubitemClick = (subitemValue: string | number) => {
     onChange?.(subitemValue)
     closeMenu()
   }
 
-  // Keep useMemo for itemsToShow since it maps an array
-  const itemsToShow = useMemo(
+  const mappedItems = useMemo(
     () =>
       items.map((item) => {
         if (typeof item === 'string' || typeof item === 'number') {
@@ -169,10 +166,26 @@ export default function Dropdown({
     [items]
   )
 
-  const selectedItem = itemsToShow.find((item) => item.value === value)
+  const selectedItem = mappedItems.find((item) => item.value === value)
   // Use displayText if provided, otherwise fall back to selected item text
   const selectedText = displayText || selectedItem?.text || ''
   const selectedSubtext = displayText ? '' : selectedItem?.subtext || ''
+
+  const itemsToShow = useMemo((): DropdownItem[] => {
+    if (!onClear) return mappedItems
+    return [
+      {
+        text: selectedText,
+        value: CLEAR_ITEM_VALUE,
+        rightIcon: (
+          <span className="material-symbols text-base" aria-hidden="true">
+            close
+          </span>
+        )
+      },
+      ...mappedItems
+    ]
+  }, [onClear, mappedItems, selectedText])
 
   let longLabel = ''
   if (label) longLabel += label + ': '
@@ -399,8 +412,7 @@ export default function Dropdown({
     subitems: item.subitems?.map((sub) => ({
       text: sub.text,
       value: sub.value
-    })),
-    isCurrentSelectedItem: item.isCurrentSelectedItem
+    }))
   }))
 
   const dropdownButtonId = `${dropdownId}-button`
