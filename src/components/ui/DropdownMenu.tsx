@@ -119,13 +119,25 @@ function DropdownSubmenu({
       flip({
         fallbackPlacements: ['left-start']
       }),
-      shift({ padding: 10 }),
+      shift({
+        padding: 10,
+        limiter: {
+          fn({ x, y, elements }) {
+            const mainMenu = elements.reference instanceof HTMLElement ? elements.reference.parentElement : null
+            if (!mainMenu) return { x, y }
+            // Do not shift the flyout above the main menu (e.g. over the toolbar)
+            return { x, y: Math.max(y, mainMenu.getBoundingClientRect().top) }
+          }
+        }
+      }),
       size({
         padding: 10,
-        apply({ availableWidth, availableHeight }) {
+        apply({ availableWidth, availableHeight, elements }) {
           // Shrink to fit the viewport so the right edge (and scrollbar) stay on-screen
           const width = Math.min(PREFERRED_SUBMENU_WIDTH, Math.max(0, availableWidth))
-          const maxHeight = Math.max(0, availableHeight)
+          const mainMenu = elements.reference instanceof HTMLElement ? elements.reference.parentElement : null
+          const heightBelowMainMenu = mainMenu ? window.innerHeight - mainMenu.getBoundingClientRect().top - 10 : availableHeight
+          const maxHeight = Math.max(0, Math.min(availableHeight, heightBelowMainMenu))
           setFloatingSize((prev) => {
             if (prev && prev.width === width && prev.maxHeight === maxHeight) return prev
             return { width, maxHeight }
