@@ -1,6 +1,7 @@
 import ListeningSessionsClient from '@/app/(main)/settings/listening-sessions/ListeningSessionsClient'
 import { getData, getListeningSessions, getUsers } from '@/lib/api'
 import { getUserOrNotFound } from '@/lib/notFound'
+
 export const dynamic = 'force-dynamic'
 
 export default async function UserListeningSessionsPage({ params }: { params: Promise<{ user: string }> }) {
@@ -12,8 +13,6 @@ export default async function UserListeningSessionsPage({ params }: { params: Pr
   const [usersResponse, sessionsResponse, filteredUser] = await getData(getUsers(), getListeningSessions(sessionsQuery), getUserOrNotFound(userId))
 
   const users = [...(usersResponse?.users || [])].sort((a, b) => a.createdAt - b.createdAt)
-
-  
 
   return (
     <ListeningSessionsClient

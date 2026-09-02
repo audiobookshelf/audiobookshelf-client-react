@@ -4,13 +4,5 @@ import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 export default async function ListeningSessionsUserNotFound() {
   const t = await getTypeSafeTranslations()
 
-  return (
-    <PageMessage
-      message={t('MessageUserNotFound')}
-      description={t('MessageUserMayHaveBeenRemoved')}
-    />
-  )
+  return <PageMessage message={t('MessageUserNotFound')} description={t('MessageUserMayHaveBeenRemoved')} />
 }
-
-
-
