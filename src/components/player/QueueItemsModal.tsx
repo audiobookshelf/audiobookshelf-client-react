@@ -148,7 +148,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
             borderless
             outlined={false}
             size="large"
-            className="text-success w-auto shrink-0"
+            className={mergeClasses("w-auto shrink-0", isCurrentlyPlaying && isItemPlaying ? '' : 'text-success')}
             ariaLabel={isCurrentlyPlaying && isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
             onClick={isCurrentlyPlaying ? handlePause : () => handlePlay(index)}
           >
