@@ -141,15 +141,13 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
     (item: PlayerQueueItem, index: number) => {
       const isCurrentlyPlaying = isStreaming(item.libraryItemId, item.episodeId)
       const isItemPlaying = isPlaying(item.libraryItemId, item.episodeId)
-      const actionBtnSize = primaryInputCanHover ? 'medium' : 'large'
-      const actionBtnGap = primaryInputCanHover ? 'gap-0' : 'gap-1'
 
       const actionButtons = (
         <>
           <IconBtn
             borderless
             outlined={false}
-            size={actionBtnSize}
+            size="large"
             className="text-success w-auto shrink-0"
             ariaLabel={isCurrentlyPlaying && isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
             onClick={isCurrentlyPlaying ? handlePause : () => handlePlay(index)}
@@ -158,7 +156,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
           </IconBtn>
           <IconBtn
             borderless
-            size={actionBtnSize}
+            size="large"
             className="text-error w-auto shrink-0"
             ariaLabel={t('ButtonQueueRemoveItem')}
             onClick={() => handleRemove(item)}
@@ -174,14 +172,14 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
       if (!primaryInputCanHover) {
         return (
           <div className="flex flex-col items-end gap-0.5">
-            <div className={mergeClasses('flex items-center justify-end', actionBtnGap)}>{actionButtons}</div>
+            <div className="flex items-center justify-end gap-1">{actionButtons}</div>
             <p className="text-foreground-subdued text-xs whitespace-nowrap">{statusLabel}</p>
           </div>
         )
       }
 
       if (isCurrentlyPlaying) {
-        return <div className={mergeClasses('flex items-center justify-end', actionBtnGap)}>{actionButtons}</div>
+        return <div className="flex items-center justify-end gap-1">{actionButtons}</div>
       }
 
       return (
@@ -189,7 +187,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
           <p className="text-foreground-subdued text-sm whitespace-nowrap transition-opacity group-focus-within:opacity-0 group-hover:opacity-0">
             {durationLabel}
           </p>
-          <div className="absolute inset-y-0 inset-e-0 flex items-center justify-end opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+          <div className="absolute inset-y-0 inset-e-0 flex items-center justify-end gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             {actionButtons}
           </div>
         </div>
