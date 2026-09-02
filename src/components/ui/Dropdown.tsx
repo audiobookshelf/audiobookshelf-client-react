@@ -526,7 +526,7 @@ export default function Dropdown({
         showNoItemsMessage={false}
         ref={menuRef}
         highlightSelected={highlightSelected}
-        isItemSelected={(item) => item.value === value}
+        isItemSelected={(item) => item.value === value || item.value === CLEAR_ITEM_VALUE}
         usePortal={usePortal}
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}

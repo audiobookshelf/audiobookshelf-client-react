@@ -824,6 +824,7 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={mockItems} value="option2" onClear={onClear} onChange={onChange} />)
       cy.get('button').click()
       cy.get('[role="listbox"] > li').first().should('contain.text', 'Option 2').and('have.attr', 'aria-label', 'Clear Filter')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'text-dropdown-item-selected')
       cy.get('[role="listbox"] > li').first().find('.material-symbols').should('contain', 'close')
       cy.get('[role="listbox"] > li').first().click()
       cy.get('@onClear').should('have.been.calledOnce')
