@@ -727,4 +727,27 @@ describe('<Dropdown />', () => {
       })
     })
   })
+
+  describe('mobile icon trigger', () => {
+    it('renders an icon button instead of the select value on a mobile viewport', () => {
+      cy.viewport(375, 667)
+      cy.mount(<Dropdown items={mockItems} value="option2" mobileIcon="filter_alt" />)
+      cy.get('button').should('not.contain.text', 'Option 2')
+      cy.get('[cy-id="icon-btn-icon"]').should('contain', 'filter_alt')
+    })
+  })
+
+  describe('onClear row', () => {
+    it('shows the selected text and close icon as the first row and calls onClear, not onChange', () => {
+      const onClear = cy.stub().as('onClear')
+      const onChange = cy.stub().as('onChange')
+      cy.mount(<Dropdown items={mockItems} value="option2" onClear={onClear} onChange={onChange} />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').first().should('contain.text', 'Option 2').and('have.attr', 'aria-label', 'Clear Filter')
+      cy.get('[role="listbox"] > li').first().find('.material-symbols').should('contain', 'close')
+      cy.get('[role="listbox"] > li').first().click()
+      cy.get('@onClear').should('have.been.calledOnce')
+      cy.get('@onChange').should('not.have.been.called')
+    })
+  })
 })

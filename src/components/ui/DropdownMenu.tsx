@@ -21,10 +21,13 @@ export interface DropdownMenuItem {
   keepOpen?: boolean
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
+  /** Accessible name for the menu row (e.g. when visible text is not enough) */
+  ariaLabel?: string
   subitems?: DropdownMenuSubitem[]
 }
 
 const PREFERRED_SUBMENU_WIDTH = 192
+const CONTENT_SIZED_MENU_MAX_WIDTH = '50vw'
 
 /**
  * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
@@ -118,13 +121,25 @@ function DropdownSubmenu({
       flip({
         fallbackPlacements: ['left-start']
       }),
-      shift({ padding: 10 }),
+      shift({
+        padding: 10,
+        limiter: {
+          fn({ x, y, elements }) {
+            const mainMenu = elements.reference instanceof HTMLElement ? elements.reference.parentElement : null
+            if (!mainMenu) return { x, y }
+            // Do not shift the flyout above the main menu (e.g. over the toolbar)
+            return { x, y: Math.max(y, mainMenu.getBoundingClientRect().top) }
+          }
+        }
+      }),
       size({
         padding: 10,
-        apply({ availableWidth, availableHeight }) {
+        apply({ availableWidth, availableHeight, elements }) {
           // Shrink to fit the viewport so the right edge (and scrollbar) stay on-screen
           const width = Math.min(PREFERRED_SUBMENU_WIDTH, Math.max(0, availableWidth))
-          const maxHeight = Math.max(0, availableHeight)
+          const mainMenu = elements.reference instanceof HTMLElement ? elements.reference.parentElement : null
+          const heightBelowMainMenu = mainMenu ? window.innerHeight - mainMenu.getBoundingClientRect().top - 10 : availableHeight
+          const maxHeight = Math.max(0, Math.min(availableHeight, heightBelowMainMenu))
           setFloatingSize((prev) => {
             if (prev && prev.width === width && prev.maxHeight === maxHeight) return prev
             return { width, maxHeight }
@@ -249,6 +264,8 @@ interface DropdownMenuProps {
   highlightSelected?: boolean
   submenuFilterText?: string
   wrapText?: boolean
+  /** Size the menu to its items instead of matching the trigger width (icon-only triggers) */
+  fitContent?: boolean
 }
 
 /**
@@ -278,7 +295,8 @@ export default function DropdownMenu({
   triggerRef,
   highlightSelected = false,
   submenuFilterText = '',
-  wrapText = false
+  wrapText = false,
+  fitContent = false
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -446,6 +464,7 @@ export default function DropdownMenu({
             )}
             role={hasSubitems ? 'menuitem' : 'option'}
             tabIndex={-1}
+            aria-label={item.ariaLabel}
             aria-selected={!hasSubitems && (isItemSelected ? isItemSelected(item) : focusedIndex === index)}
             aria-haspopup={hasSubitems ? 'menu' : undefined}
             aria-expanded={hasSubitems ? isSubmenuOpen : undefined}
@@ -528,7 +547,8 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 w-full max-w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        fitContent ? 'w-max' : 'w-full max-w-full',
         className
       )}
       role="listbox"
@@ -536,12 +556,13 @@ export default function DropdownMenu({
       tabIndex={-1}
       style={{
         maxHeight: `min(${menuMaxHeight}, calc(100vh - 100px))`,
+        ...(fitContent ? { maxWidth: CONTENT_SIZED_MENU_MAX_WIDTH } : {}),
         ...(usePortal
           ? {
               position: 'absolute',
               top: menuPosition.top,
               left: menuPosition.left,
-              width: menuPosition.width,
+              ...(fitContent ? {} : { width: menuPosition.width }),
               zIndex: 9999
             }
           : {})

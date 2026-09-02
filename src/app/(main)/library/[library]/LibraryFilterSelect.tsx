@@ -2,12 +2,12 @@
 
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import { useLibrary } from '@/contexts/LibraryContext'
+import { useIsMobile } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterDecode, filterEncode } from '@/lib/filterUtils'
 import { EntityType, User } from '@/types/api'
 import type { TranslationKey } from '@/types/translations'
 import { useCallback, useMemo } from 'react'
-
 interface LibraryFilterSelectProps {
   entityType?: EntityType
   user?: User
@@ -18,7 +18,8 @@ const FILTER_TYPE_MESSAGE_KEYS: Record<string, TranslationKey> = {
   tags: 'LabelFilterTagsWithValue',
   narrators: 'LabelNarratorsWithValue',
   publishers: 'LabelFilterPublishersWithValue',
-  languages: 'LabelFilterLanguagesWithValue'
+  languages: 'LabelFilterLanguagesWithValue',
+  publishedDecades: 'LabelFilterPublishedDecadesWithValue'
 }
 
 export default function LibraryFilterSelect({ entityType = 'items', user }: LibraryFilterSelectProps) {
@@ -28,6 +29,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
   const isSeries = entityType === 'series'
   const currentFilter = isSeries ? seriesFilterBy : filterBy
   const isBook = library?.mediaType === 'book'
+  const isMobile = useIsMobile()
 
   /**
    * Get the display text for the current filter value
@@ -177,7 +179,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
   )
 
   const filterItems = useMemo(() => {
-    const items: DropdownItem[] = [{ text: t('LabelAll'), value: 'all' }]
+    const items: DropdownItem[] = []
 
     // For series page, show reduced set of filters
     if (isSeries) {
@@ -264,6 +266,10 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
           { text: t('LabelNotFinished'), value: `progress.${filterEncode('not-finished')}` }
         ]
       })
+
+      if (!isMobile) {
+        items.unshift({ text: t('LabelAll'), value: 'all' })
+      }
 
       return items
     }
@@ -448,16 +454,24 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
       items.push({ text: t('LabelShareOpen'), value: 'share-open' })
     }
 
+    if (!isMobile) {
+      items.unshift({ text: t('LabelAll'), value: 'all' })
+    }
+
     return items
-  }, [t, filterData, isBook, isSeries, user])
+  }, [t, filterData, isBook, isSeries, user, isMobile])
+
+  const handleClear = useCallback(() => {
+    updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')
+  }, [isSeries, updateSetting])
 
   // Clear button logic
-  const showClear = currentFilter !== 'all'
+  const showClear = currentFilter !== 'all' && !isMobile
 
   if (entityType === 'authors') return null
 
   return (
-    <div className="relative h-9 max-w-48 min-w-0 flex-1 md:w-48 md:flex-none">
+    <div className="relative h-9 min-w-0 max-sm:w-auto max-sm:max-w-none max-sm:flex-none sm:w-48 sm:max-w-48 sm:flex-none">
       <Dropdown
         value={currentFilter}
         items={filterItems}
@@ -465,16 +479,19 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         size="auto"
         className="h-full text-xs"
         displayText={getSelectedText()}
+        ariaLabel={t('LabelFilter')}
+        onClear={isMobile && currentFilter !== 'all' ? handleClear : undefined}
         menuMaxHeight="calc(100vh - 120px)"
         usePortal
         wrapText
+        mobileIcon={'filter_alt'}
       />
       {showClear && (
         <button
           className="absolute inset-y-0 right-8 z-10 flex items-center text-gray-400 hover:text-white"
           onClick={(e) => {
             e.stopPropagation()
-            updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')
+            handleClear()
           }}
           title={t('ButtonClearFilter')}
         >
