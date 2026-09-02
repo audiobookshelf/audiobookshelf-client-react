@@ -8,6 +8,7 @@ interface DropdownMenuItem {
   value: string | number
   subtext?: string
   leftIcon?: React.ReactNode
+  subitems?: { text: string; value: string | number }[]
 }
 
 describe('<DropdownMenu />', () => {
@@ -129,8 +130,46 @@ describe('<DropdownMenu />', () => {
   describe('Focus and Selection', () => {
     it('applies focused styling to focused item', () => {
       cy.mount(<DropdownMenu {...defaultProps} focusedIndex={1} />)
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
-      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'bg-dropdown-item-focused')
+    })
+
+    it('calls onItemMouseOver when an item is hovered', () => {
+      const onItemMouseOver = cy.stub().as('onItemMouseOver')
+      cy.mount(<DropdownMenu {...defaultProps} onItemMouseOver={onItemMouseOver} />)
+      cy.get('[role="listbox"] > li').eq(2).trigger('mouseover')
+      cy.get('@onItemMouseOver').should('have.been.calledWith', 2)
+    })
+
+    it('applies selected highlight independently of focused styling', () => {
+      const isItemSelected = (item: DropdownMenuItem) => item.value === 'option2'
+      cy.mount(<DropdownMenu {...defaultProps} focusedIndex={0} highlightSelected isItemSelected={isItemSelected} />)
+      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'bg-dropdown-item-focused')
+    })
+
+    it('highlights a submenu parent when a subitem is selected', () => {
+      const itemsWithSubmenu: DropdownMenuItem[] = [
+        { text: 'Simple', value: 'simple' },
+        {
+          text: 'Parent',
+          value: 'parent',
+          subitems: [
+            { text: 'Sub 1', value: 'sub1' },
+            { text: 'Sub 2', value: 'sub2' }
+          ]
+        }
+      ]
+      const isItemSelected = (item: DropdownMenuItem) => item.value === 'sub2'
+      cy.mount(
+        <DropdownMenu {...defaultProps} items={itemsWithSubmenu} focusedIndex={-1} openSubmenuIndex={1} highlightSelected isItemSelected={isItemSelected} />
+      )
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-dropdown-item-selected')
+      cy.get('[role="menu"] li[role="option"]').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="menu"] li[role="option"]').eq(0).should('not.have.class', 'text-dropdown-item-selected')
     })
 
     it('scrolls focused item into view', () => {
@@ -144,7 +183,7 @@ describe('<DropdownMenu />', () => {
       const isItemSelected = (item: DropdownMenuItem) => item.value === 'option2'
       cy.mount(<DropdownMenu {...defaultProps} showSelectedIndicator={true} isItemSelected={isItemSelected} />)
       cy.get('[role="listbox"] > li').eq(1).find('.material-symbols').should('contain.text', 'check')
-      cy.get('[role="listbox"] > li').eq(1).find('.material-symbols').should('have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).find('.material-symbols').should('have.class', 'text-dropdown-item-selected')
     })
 
     it('does not show selected indicator when showSelectedIndicator is false', () => {

@@ -170,11 +170,59 @@ describe('<Dropdown />', () => {
       cy.get('[role="listbox"]').should('be.visible')
     })
 
-    it('has visual focus on the first item when menu is open', () => {
-      cy.mount(<Dropdown items={mockItems} />)
+    it('does not focus a menu item when opened by click', () => {
+      cy.mount(<Dropdown items={mockItems} value="option3" />)
       cy.get('button').click()
       cy.get('[role="listbox"]').should('be.visible')
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').each(($el) => {
+        cy.wrap($el).should('not.have.class', 'bg-dropdown-item-focused')
+      })
+      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'text-dropdown-item-selected')
+    })
+
+    it('focuses the first item when opened with ArrowDown', () => {
+      cy.mount(<Dropdown items={mockItems} value="option3" />)
+      cy.get('button').focus()
+      cy.get('button').type('{downarrow}')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(2).should('not.have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'text-dropdown-item-selected')
+    })
+
+    it('focuses the first item when opened with Enter', () => {
+      cy.mount(<Dropdown items={mockItems} />)
+      cy.get('button').focus()
+      cy.get('button').type('{enter}')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+    })
+
+    it('focuses the last item when ArrowUp is pressed after opening by click', () => {
+      cy.mount(<Dropdown items={mockItems} />)
+      cy.get('button').click()
+      cy.realType('{uparrow}')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
+    })
+
+    it('does not move keyboard focus when an item is hovered', () => {
+      cy.mount(<Dropdown items={mockItems} value="option1" />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(2).trigger('mouseover')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(2).should('not.have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(2).should('not.have.class', 'text-dropdown-item-selected')
+    })
+
+    it('keeps selected highlight distinct from keyboard focus', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" />)
+      cy.get('button').click()
+      cy.realType('{downarrow}')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').first().should('not.have.class', 'text-dropdown-item-selected')
     })
 
     it('navigates through menu items with ArrowDown', () => {
@@ -182,20 +230,22 @@ describe('<Dropdown />', () => {
       cy.get('button').click()
       cy.get('[role="listbox"]').should('be.visible')
 
-      // First item should be focused
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
+      // Click-open has no focused item; first ArrowDown focuses the first item
+      cy.get('[role="listbox"] > li').should('not.have.class', 'bg-dropdown-item-focused')
+      cy.realType('{downarrow}')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
 
       // Navigate to second item
       cy.realType('{downarrow}')
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-focused')
 
       // Navigate to third item
       cy.realType('{downarrow}')
-      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-dropdown-item-focused')
 
       // Should stay on last item when pressing down again
       cy.realType('{downarrow}')
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('navigates through menu items with ArrowUp', () => {
@@ -205,23 +255,23 @@ describe('<Dropdown />', () => {
       cy.get('[role="listbox"]').should('be.visible')
 
       // Last item should be focused when opening with up arrow
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
 
       // Navigate to third item
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(2).should('have.class', 'bg-dropdown-item-focused')
 
       // Navigate to second item
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'bg-dropdown-item-focused')
 
       // Navigate to first item
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-focused')
 
       // Should stay on first item when pressing up again
       cy.realType('{uparrow}')
-      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(0).should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('activates menu item with Enter', () => {
@@ -255,7 +305,7 @@ describe('<Dropdown />', () => {
       cy.get('button').type('{downarrow}') // Navigate to second item
       cy.get('button').type('{home}') // Go to first item
 
-      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('navigates to last item with End key', () => {
@@ -264,7 +314,7 @@ describe('<Dropdown />', () => {
       cy.get('button').type('{downarrow}') // Open menu
       cy.get('button').type('{end}') // Go to last item
 
-      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').last().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('closes menu with Escape key', () => {
@@ -373,9 +423,11 @@ describe('<Dropdown />', () => {
       cy.get('[role="listbox"]').should('have.attr', 'id')
     })
 
-    it('has proper ARIA active descendant', () => {
+    it('has no ARIA active descendant until an item is focused', () => {
       cy.mount(<Dropdown items={mockItems} />)
       cy.get('button').click()
+      cy.get('button').should('not.have.attr', 'aria-activedescendant')
+      cy.realType('{downarrow}')
       cy.get('button').should('have.attr', 'aria-activedescendant')
     })
   })
@@ -453,6 +505,16 @@ describe('<Dropdown />', () => {
       cy.get('[role="menu"] li').should('have.length', 3)
     })
 
+    it('highlights the selected subitem and its parent', () => {
+      cy.mount(<Dropdown items={itemsWithSubmenus} value="sub2" />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(0).should('not.have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').eq(1).trigger('mouseover')
+      cy.get('[role="menu"] li[role="option"]').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="menu"] li[role="option"]').eq(0).should('not.have.class', 'text-dropdown-item-selected')
+    })
+
     it('selects subitem on click', () => {
       const onChangeSpy = cy.spy().as('onChangeSpy')
       cy.mount(<Dropdown items={itemsWithSubmenus} onChange={onChangeSpy} />)
@@ -485,19 +547,21 @@ describe('<Dropdown />', () => {
     it('navigates to submenu with ArrowRight key', () => {
       cy.mount(<Dropdown items={itemsWithSubmenus} />)
       cy.get('button').click()
-      // Navigate to item with subitems
+      // Click-open has no focused item; move to the submenu parent
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       // Open submenu with right arrow
       cy.realType('{rightarrow}')
       // Submenu should be visible
       cy.get('[role="menu"]').should('exist')
       // First subitem should be focused
-      cy.get('[role="menu"] li').first().should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').first().should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('closes submenu with ArrowLeft key', () => {
       cy.mount(<Dropdown items={itemsWithSubmenus} />)
       cy.get('button').click()
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       cy.get('[role="menu"]').should('exist')
@@ -509,21 +573,23 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={itemsWithSubmenus} />)
       cy.get('button').click()
       cy.realType('{downarrow}')
+      cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       // First subitem focused
-      cy.get('[role="menu"] li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').eq(0).should('have.class', 'bg-dropdown-item-focused')
       // Navigate down
       cy.realType('{downarrow}')
-      cy.get('[role="menu"] li').eq(1).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').eq(1).should('have.class', 'bg-dropdown-item-focused')
       // Navigate up
       cy.realType('{uparrow}')
-      cy.get('[role="menu"] li').eq(0).should('have.class', 'bg-dropdown-item-selected')
+      cy.get('[role="menu"] li').eq(0).should('have.class', 'bg-dropdown-item-focused')
     })
 
     it('selects subitem with Enter key', () => {
       const onChangeSpy = cy.spy().as('onChangeSpy')
       cy.mount(<Dropdown items={itemsWithSubmenus} onChange={onChangeSpy} />)
       cy.get('button').click()
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       cy.realType('{enter}')
@@ -534,6 +600,7 @@ describe('<Dropdown />', () => {
     it('closes submenu with Escape without closing main menu', () => {
       cy.mount(<Dropdown items={itemsWithSubmenus} />)
       cy.get('button').click()
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       cy.get('[role="menu"]').should('exist')
@@ -572,7 +639,8 @@ describe('<Dropdown />', () => {
     it('filters submenu items when typing characters', () => {
       cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
       cy.get('button').click()
-      // Navigate to item with submenu
+      // Click-open has no focused item; move to the submenu parent
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       // Open submenu
       cy.realType('{rightarrow}')
@@ -585,6 +653,7 @@ describe('<Dropdown />', () => {
     it('shows filter text indicator in submenu', () => {
       cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
       cy.get('button').click()
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       // Type 'ban' to filter
@@ -599,6 +668,7 @@ describe('<Dropdown />', () => {
     it('clears filter with Backspace key', () => {
       cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
       cy.get('button').click()
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       // Type 'ch' to filter to Cherry only
@@ -618,6 +688,7 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
       cy.get('button').click()
       cy.realType('{downarrow}')
+      cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       // Type 'xyz' which matches nothing
       cy.realType('xyz')
@@ -630,6 +701,7 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={itemsWithLargeSubmenu} onChange={onChangeSpy} />)
       cy.get('button').click()
       cy.realType('{downarrow}')
+      cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       // Type 'ban' to filter to Banana
       cy.realType('ban')
@@ -641,6 +713,7 @@ describe('<Dropdown />', () => {
     it('clears filter when closing submenu', () => {
       cy.mount(<Dropdown items={itemsWithLargeSubmenu} />)
       cy.get('button').click()
+      cy.realType('{downarrow}')
       cy.realType('{downarrow}')
       cy.realType('{rightarrow}')
       // Type 'ch' to filter
@@ -702,20 +775,27 @@ describe('<Dropdown />', () => {
     })
   })
   describe('highlightSelected Prop', () => {
+    it('highlights selected item by default', () => {
+      cy.mount(<Dropdown items={mockItems} value="option2" />)
+      cy.get('button').click()
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="listbox"] > li').first().should('not.have.class', 'text-dropdown-item-selected')
+    })
+
     it('highlights selected item when highlightSelected is true', () => {
       cy.mount(<Dropdown items={mockItems} value="option2" highlightSelected={true} />)
       cy.get('button').click()
       // The selected item (option2, index 1) should have yellow text
-      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).should('have.class', 'text-dropdown-item-selected')
       // Other items should not have yellow text
-      cy.get('[role="listbox"] > li').first().should('not.have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').first().should('not.have.class', 'text-dropdown-item-selected')
     })
 
     it('does not highlight selected item when highlightSelected is false', () => {
       cy.mount(<Dropdown items={mockItems} value="option2" highlightSelected={false} />)
       cy.get('button').click()
       // The selected item should not have yellow text
-      cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'text-yellow-400')
+      cy.get('[role="listbox"] > li').eq(1).should('not.have.class', 'text-dropdown-item-selected')
     })
 
     it('does not highlight when no value is selected', () => {
@@ -723,7 +803,7 @@ describe('<Dropdown />', () => {
       cy.get('button').click()
       // No items should have yellow text
       cy.get('[role="listbox"] > li').each(($el) => {
-        cy.wrap($el).should('not.have.class', 'text-yellow-400')
+        cy.wrap($el).should('not.have.class', 'text-dropdown-item-selected')
       })
     })
   })
@@ -744,6 +824,7 @@ describe('<Dropdown />', () => {
       cy.mount(<Dropdown items={mockItems} value="option2" onClear={onClear} onChange={onChange} />)
       cy.get('button').click()
       cy.get('[role="listbox"] > li').first().should('contain.text', 'Option 2').and('have.attr', 'aria-label', 'Clear Filter')
+      cy.get('[role="listbox"] > li').first().should('have.class', 'text-dropdown-item-selected')
       cy.get('[role="listbox"] > li').first().find('.material-symbols').should('contain', 'close')
       cy.get('[role="listbox"] > li').first().click()
       cy.get('@onClear').should('have.been.calledOnce')
