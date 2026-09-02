@@ -13,7 +13,7 @@ export default async function UserListeningSessionsPage({ params }: { params: Pr
 
   const users = [...(usersResponse?.users || [])].sort((a, b) => a.createdAt - b.createdAt)
 
-  // `getUserOrNotFound` will call `notFound()` on a 404, so no manual redirect needed.
+  
 
   return (
     <ListeningSessionsClient

@@ -8,7 +8,8 @@ export default async function ListeningSessionsUserNotFound() {
     <PageMessage
       message={t('MessageUserNotFound')}
       description={t('MessageUserMayHaveBeenRemoved')}
-  )/>
+    />
+  )
 }
 
 
