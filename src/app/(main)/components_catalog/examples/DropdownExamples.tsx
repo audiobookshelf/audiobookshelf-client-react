@@ -94,7 +94,7 @@ export function DropdownExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>value</Code>, <Code>onChange</Code>, <Code>items</Code> (DropdownItem[]), <Code>label</Code>,{' '}
-          <Code>disabled</Code>, <Code>small</Code>, <Code>menuMaxHeight</Code>, <Code>wrapText</Code>, <Code>className</Code>
+          <Code>disabled</Code>, <Code>small</Code>, <Code>menuMaxHeight</Code>, <Code>wrapText</Code>, <Code>highlightSelected</Code>, <Code>className</Code>
         </p>
       </ComponentInfo>
 

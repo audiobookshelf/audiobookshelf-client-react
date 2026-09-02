@@ -55,6 +55,8 @@ interface DropdownProps {
   onClear?: () => void
 }
 
+const UNICODE_LETTER_OR_NUMBER = new RegExp('[\\p{L}\\p{N}]', 'u')
+
 /**
  * A dropdown component that displays a list of selectable items.
  * The dropdown shows the selected item and allows users to choose from a list of options.
@@ -71,7 +73,7 @@ export default function Dropdown({
   onChange,
   className,
   rightIcon,
-  highlightSelected = false,
+  highlightSelected = true,
   displayText,
   usePortal = false,
   wrapText = false,
@@ -93,7 +95,7 @@ export default function Dropdown({
   const dropdownId = useId()
   const isMobile = useIsMobile() && !!mobileIcon
 
-  const openMenu = (index: number = 0) => {
+  const openMenu = (index: number = -1) => {
     setShowMenu(true)
     setFocusedIndex(index)
     setFocusedSubIndex(-1)
@@ -220,7 +222,7 @@ export default function Dropdown({
   const handleVerticalNavigation = (direction: 'up' | 'down') => {
     if (direction === 'down') {
       if (!showMenu) {
-        openMenu()
+        openMenu(0)
       } else if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
         // Navigating within submenu - use filtered list
         const filteredSubitems = getFilteredSubitems()
@@ -229,7 +231,7 @@ export default function Dropdown({
         }
       } else {
         closeSubMenu()
-        setFocusedIndex((prev) => (prev < itemsToShow.length - 1 ? prev + 1 : prev))
+        setFocusedIndex((prev) => (prev === -1 ? 0 : prev < itemsToShow.length - 1 ? prev + 1 : prev))
       }
     } else {
       if (!showMenu) {
@@ -242,7 +244,7 @@ export default function Dropdown({
         }
       } else {
         closeSubMenu()
-        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+        setFocusedIndex((prev) => (prev === -1 ? itemsToShow.length - 1 : prev > 0 ? prev - 1 : prev))
       }
     }
   }
@@ -266,7 +268,7 @@ export default function Dropdown({
 
   const handleEnterSpace = () => {
     if (!showMenu) {
-      openMenu()
+      openMenu(0)
     } else if (focusedSubIndex !== -1 && focusedSubIndex >= 0 && openSubmenuIndex !== null) {
       // Select subitem from filtered list
       const filteredSubitems = getFilteredSubitems()
@@ -403,7 +405,7 @@ export default function Dropdown({
 
       default:
         // Handle letters and numbers for type-to-filter in submenu (supports Unicode)
-        if (e.key.length === 1 && /[\p{L}\p{N}]/u.test(e.key)) {
+        if (e.key.length === 1 && UNICODE_LETTER_OR_NUMBER.test(e.key)) {
           e.preventDefault()
           handleTypeToFilter(e.key)
         }
@@ -477,7 +479,7 @@ export default function Dropdown({
                 <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
               </span>
             </span>
-            <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
+            <span className="pointer-events-none ms-3 flex shrink-0 items-center">
               {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}
             </span>
           </button>
@@ -511,18 +513,20 @@ export default function Dropdown({
           if (openSubmenuIndex !== index) {
             setOpenSubmenuIndex(index)
             setSubmenuFilterText('')
+            setFocusedSubIndex(-1)
           }
         }}
         onCloseSubmenu={() => {
           setOpenSubmenuIndex(null)
           setSubmenuFilterText('')
+          setFocusedSubIndex(-1)
         }}
         submenuFilterText={submenuFilterText}
         menuMaxHeight={menuMaxHeight}
         showNoItemsMessage={false}
         ref={menuRef}
         highlightSelected={highlightSelected}
-        isItemSelected={(item) => item.value === value}
+        isItemSelected={(item) => item.value === value || item.value === CLEAR_ITEM_VALUE}
         usePortal={usePortal}
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}

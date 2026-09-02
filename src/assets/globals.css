@@ -71,6 +71,7 @@
   --color-button-foreground: var(--tc-button-foreground);
   --color-button-foreground-muted: var(--tc-button-foreground-muted);
   --color-dropdown-item-hover: var(--tc-dropdown-item-hover);
+  --color-dropdown-item-focused: var(--tc-dropdown-item-focused);
   --color-dropdown-item-selected: var(--tc-dropdown-item-selected);
   --color-dropdown-menu-border: var(--tc-dropdown-menu-border);
   --color-nav-item-hover: var(--tc-nav-item-hover);
