@@ -21,6 +21,8 @@ export interface DropdownMenuItem {
   keepOpen?: boolean
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
+  /** Accessible name for the menu row (e.g. when visible text is not enough) */
+  ariaLabel?: string
   subitems?: DropdownMenuSubitem[]
 }
 
@@ -462,6 +464,7 @@ export default function DropdownMenu({
             )}
             role={hasSubitems ? 'menuitem' : 'option'}
             tabIndex={-1}
+            aria-label={item.ariaLabel}
             aria-selected={!hasSubitems && (isItemSelected ? isItemSelected(item) : focusedIndex === index)}
             aria-haspopup={hasSubitems ? 'menu' : undefined}
             aria-expanded={hasSubitems ? isSubmenuOpen : undefined}
