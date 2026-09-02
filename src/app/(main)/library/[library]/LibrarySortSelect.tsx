@@ -201,6 +201,7 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
         menuMaxHeight="none"
         usePortal
         wrapText
+        ariaLabel={t('LabelSortBy')}
         mobileIcon={'sort'}
       />
     </div>

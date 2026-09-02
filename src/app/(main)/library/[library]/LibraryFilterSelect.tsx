@@ -267,6 +267,10 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         ]
       })
 
+      if (!isMobile) {
+        items.unshift({ text: t('LabelAll'), value: 'all' })
+      }
+
       return items
     }
 
@@ -450,8 +454,12 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
       items.push({ text: t('LabelShareOpen'), value: 'share-open' })
     }
 
+    if (!isMobile) {
+      items.unshift({ text: t('LabelAll'), value: 'all' })
+    }
+
     return items
-  }, [t, filterData, isBook, isSeries, user])
+  }, [t, filterData, isBook, isSeries, user, isMobile])
 
   const handleClear = useCallback(() => {
     updateSetting(isSeries ? 'seriesFilterBy' : 'filterBy', 'all')
@@ -471,6 +479,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         size="auto"
         className="h-full text-xs"
         displayText={getSelectedText()}
+        ariaLabel={t('LabelFilter')}
         onClear={isMobile && currentFilter !== 'all' ? handleClear : undefined}
         menuMaxHeight="calc(100vh - 120px)"
         usePortal

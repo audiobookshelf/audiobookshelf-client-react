@@ -471,6 +471,7 @@
   "LabelFileModified": "File Modified",
   "LabelFileModifiedDate": "Modified {0}",
   "LabelFilename": "Filename",
+  "LabelFilter": "Filter",
   "LabelFilterByUser": "Filter by User",
   "LabelFilterGenresWithValue": "Genres: {0}",
   "LabelFilterLanguagesWithValue": "Languages: {0}",
