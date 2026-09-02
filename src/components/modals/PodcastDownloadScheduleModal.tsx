@@ -184,7 +184,7 @@ export default function PodcastDownloadScheduleModal({ isOpen, onClose, libraryI
   const outerContentTitle = <ModalOuterContent>{t('HeaderScheduleEpisodeDownloads')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} processing={isProcessing} outerContent={outerContentTitle} className="w-full md:max-w-[700px] lg:max-w-[700px]">
+    <Modal isOpen={isOpen} onClose={onClose} processing={isProcessing} outerContent={outerContentTitle} className="w-[700px] md:max-w-[700px] lg:max-w-[700px]">
       <div className="flex max-h-[90vh] flex-col">
         <div className="overflow-y-auto px-4 py-6 sm:px-6">
           {!feedUrl && (
