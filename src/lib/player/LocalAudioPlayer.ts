@@ -20,6 +20,16 @@ type EventListeners = {
 }
 
 /**
+ * Track ranges are half-open, so seeking to the very end of the book matches no track. Resolve
+ * it to the final track; otherwise the caller would seek within whichever track is loaded.
+ */
+function findTrackIndexAtTime(tracks: AudioTrack[], time: number): number {
+  const index = tracks.findIndex((track) => track.containsTime(time))
+  if (index >= 0 || tracks.length === 0) return index
+  return time >= tracks[tracks.length - 1].startOffset ? tracks.length - 1 : -1
+}
+
+/**
  * HTML5 Audio Player with HLS support
  * Manages audio playback for both direct play and HLS transcoded streams
  */
@@ -35,6 +45,7 @@ export class LocalAudioPlayer {
   private isHlsTranscode = false
   private startTime = 0
   private trackStartTime = 0
+  private isTrackLoading = false
   private playWhenReady = false
 
   // Supported MIME types (detected on init)
@@ -72,6 +83,7 @@ export class LocalAudioPlayer {
     this.player.addEventListener('ended', this.handleEnded)
     this.player.addEventListener('error', this.handleError)
     this.player.addEventListener('loadedmetadata', this.handleLoadedMetadata)
+    this.player.addEventListener('seeked', this.handleSeeked)
     this.player.addEventListener('timeupdate', this.handleTimeUpdate)
 
     // Detect supported MIME types
@@ -133,23 +145,40 @@ export class LocalAudioPlayer {
   }
 
   private handleError = (event: Event): void => {
+    this.isTrackLoading = false
     const error = new Error('Audio playback error')
     console.error('[LocalAudioPlayer] Error:', event)
     this.emit('stateChange', PlayerState.ERROR)
     this.emit('error', error)
   }
 
+  private handleSeeked = (): void => {
+    if (!this.isTrackLoading) return
+    this.finishTrackLoad()
+  }
+
+  private finishTrackLoad(): void {
+    this.isTrackLoading = false
+    if (this.playWhenReady) {
+      this.playWhenReady = false
+      this.play()
+    }
+  }
+
   private handleLoadedMetadata = (): void => {
-    if (!this.isHlsTranscode && this.player) {
-      this.player.currentTime = this.trackStartTime
+    const needsSeek = !this.isHlsTranscode && !!this.player && this.player.currentTime !== this.trackStartTime
+    if (needsSeek) {
+      // Setting currentTime is async; keep reporting the requested time until 'seeked' lands.
+      this.player!.currentTime = this.trackStartTime
     }
 
     this.emit('stateChange', PlayerState.LOADED)
     this.emit('durationChange', this.getDuration())
 
-    if (this.playWhenReady) {
-      this.playWhenReady = false
-      this.play()
+    // With a pending seek, finishTrackLoad resumes once 'seeked' lands; playing before then
+    // would start from the end of the buffered range and immediately fire 'ended'.
+    if (!needsSeek) {
+      this.finishTrackLoad()
     }
   }
 
@@ -184,6 +213,7 @@ export class LocalAudioPlayer {
    * Set up HLS streaming
    */
   private setHlsStream(): void {
+    this.isTrackLoading = false
     this.trackStartTime = 0
     this.currentTrackIndex = 0
 
@@ -261,7 +291,7 @@ export class LocalAudioPlayer {
    */
   private setDirectPlay(): void {
     // Find the track that contains the start time
-    const trackIndex = this.audioTracks.findIndex((track) => track.containsTime(this.startTime))
+    const trackIndex = findTrackIndexAtTime(this.audioTracks, this.startTime)
 
     this.currentTrackIndex = trackIndex >= 0 ? trackIndex : 0
     this.loadCurrentTrack()
@@ -275,6 +305,7 @@ export class LocalAudioPlayer {
     if (!track || !this.player) return
 
     // Calculate time offset within the track
+    this.isTrackLoading = true
     this.trackStartTime = Math.max(0, this.startTime - track.startOffset)
     this.player.src = track.relativeContentUrl
 
@@ -305,6 +336,7 @@ export class LocalAudioPlayer {
       this.player.removeEventListener('ended', this.handleEnded)
       this.player.removeEventListener('error', this.handleError)
       this.player.removeEventListener('loadedmetadata', this.handleLoadedMetadata)
+      this.player.removeEventListener('seeked', this.handleSeeked)
       this.player.removeEventListener('timeupdate', this.handleTimeUpdate)
       this.player.remove()
       this.player = null
@@ -313,6 +345,7 @@ export class LocalAudioPlayer {
     this.listeners = {}
     this.audioTracks = []
     this.libraryItem = null
+    this.isTrackLoading = false
   }
 
   /**
@@ -340,6 +373,10 @@ export class LocalAudioPlayer {
 
   play(): void {
     this.playWhenReady = true
+    if (this.isTrackLoading) {
+      // A cross-track load is in flight; handleLoadedMetadata resumes once the seek lands.
+      return
+    }
     const playPromise = this.player?.play()
     // play() returns a promise that rejects on failure; the 'error' event handler covers recovery
     playPromise?.catch(() => {})
@@ -354,6 +391,7 @@ export class LocalAudioPlayer {
    * Get current global playback time (across all tracks)
    */
   getCurrentTime(): number {
+    if (this.isTrackLoading) return this.startTime
     const trackOffset = this.currentTrack?.startOffset ?? 0
     return this.player ? trackOffset + this.player.currentTime : 0
   }
@@ -387,32 +425,37 @@ export class LocalAudioPlayer {
     if (!this.player) return
 
     this.playWhenReady = playWhenReady
+    const duration = this.getDuration()
+    const boundedTime = Math.max(0, Math.min(time, duration))
 
     if (this.isHlsTranscode) {
       // HLS: just seek within the stream
-      const offsetTime = time - (this.currentTrack?.startOffset ?? 0)
+      const offsetTime = boundedTime - (this.currentTrack?.startOffset ?? 0)
       this.player.currentTime = Math.max(0, offsetTime)
     } else {
       // Direct play: may need to switch tracks
       const currentTrack = this.currentTrack
       if (!currentTrack) return
 
-      if (time < currentTrack.startOffset || time > currentTrack.startOffset + currentTrack.duration) {
+      const trackIndex = findTrackIndexAtTime(this.audioTracks, boundedTime)
+      if (trackIndex >= 0 && trackIndex !== this.currentTrackIndex) {
         // Need to change track
-        const trackIndex = this.audioTracks.findIndex((t) => t.containsTime(time))
-        if (trackIndex >= 0) {
-          this.startTime = time
-          this.currentTrackIndex = trackIndex
-
-          if (!this.player.paused) {
-            this.playWhenReady = true
-          }
-          this.loadCurrentTrack()
+        this.startTime = boundedTime
+        this.currentTrackIndex = trackIndex
+        if (!this.player.paused) {
+          this.playWhenReady = true
         }
+        this.loadCurrentTrack()
       } else {
         // Seek within current track
-        const offsetTime = time - currentTrack.startOffset
-        this.player.currentTime = Math.max(0, offsetTime)
+        const offsetTime = Math.max(0, Math.min(boundedTime - currentTrack.startOffset, currentTrack.duration))
+        if (this.isTrackLoading) {
+          // A load is in flight; retarget it so 'loadedmetadata' seeks to the newest position.
+          // If metadata already arrived, the currentTime assignment below is what re-seeks.
+          this.startTime = currentTrack.startOffset + offsetTime
+          this.trackStartTime = offsetTime
+        }
+        this.player.currentTime = offsetTime
       }
     }
   }
