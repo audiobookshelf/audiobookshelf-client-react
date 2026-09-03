@@ -1,8 +1,10 @@
 'use client'
 
+import { updateClientSettingsAction } from '@/app/actions/clientSettingsActions'
+import { getClientSettings, withClientSettings } from '@/lib/clientSettings'
 import { getUserPermissionFlags } from '@/lib/userPermissions'
-import { AudioBookmark, EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
-import { createContext, ReactNode, useCallback, useContext, useEffect, useState } from 'react'
+import { AudioBookmark, ClientSettings, EReaderDevice, MediaProgress, ServerSettings, User, UserLoginResponse } from '@/types/api'
+import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { useSocketEvent } from './SocketContext'
 
 interface UserItemProgressUpdatedPayload {
@@ -28,12 +30,17 @@ export interface UserContextType {
   getMediaItemProgress: (mediaItemId: string) => MediaProgress | undefined
   getBookmarksForLibraryItem: (libraryItemId: string) => AudioBookmark[]
   mergeServerSettings: (settings: ServerSettings | null | undefined) => void
+  clientSettings: ClientSettings
+  updateClientSetting: <K extends keyof ClientSettings>(key: K, value: ClientSettings[K]) => void
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined)
 
 export function UserProvider({ children, initialUser }: { children: ReactNode; initialUser: UserLoginResponse }) {
   const [currentUserData, setCurrentUserData] = useState<UserLoginResponse>(initialUser)
+  /** Settings changed while a save is in flight, sent once it finishes */
+  const pendingClientSettingsRef = useRef<ClientSettings | null>(null)
+  const clientSettingsSavingRef = useRef(false)
   const user = currentUserData.user
   const permissionFlags = getUserPermissionFlags(user)
 
@@ -41,7 +48,8 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     if (updatedUser.id === currentUserData.user.id) {
       setCurrentUserData((prev) => ({
         ...prev,
-        user: updatedUser
+        // This event echoes our own saves back, so keep the local settings until they land
+        user: pendingClientSettingsRef.current ? { ...updatedUser, clientSettings: prev.user.clientSettings } : updatedUser
       }))
     }
   })
@@ -78,6 +86,47 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     setCurrentUserData(initialUser)
   }, [initialUser])
 
+  const clientSettings = getClientSettings(user.clientSettings)
+
+  /**
+   * Sends pending settings one request at a time. Rapid changes such as dragging the cover
+   * size collapse into the latest value rather than queueing a request per change, so the
+   * server ends up holding what is on screen without a round trip for every step.
+   */
+  const flushClientSettings = useCallback(async () => {
+    if (clientSettingsSavingRef.current) return
+    clientSettingsSavingRef.current = true
+
+    try {
+      while (pendingClientSettingsRef.current) {
+        const settings = pendingClientSettingsRef.current
+        pendingClientSettingsRef.current = null
+
+        // The response is not applied to state: the value is already there optimistically,
+        // and writing it back would fight whatever the user has changed since
+        await updateClientSettingsAction(settings)
+      }
+    } catch (error) {
+      console.error('Failed to save client settings', error)
+    } finally {
+      clientSettingsSavingRef.current = false
+    }
+  }, [])
+
+  const updateClientSetting = useCallback(
+    <K extends keyof ClientSettings>(key: K, value: ClientSettings[K]) => {
+      // Applied locally first so the widget responds without waiting for the request
+      setCurrentUserData((prev) => ({
+        ...prev,
+        user: { ...prev.user, clientSettings: withClientSettings(prev.user.clientSettings, { ...getClientSettings(prev.user.clientSettings), [key]: value }) }
+      }))
+
+      pendingClientSettingsRef.current = { ...pendingClientSettingsRef.current, [key]: value }
+      flushClientSettings()
+    },
+    [flushClientSettings]
+  )
+
   const mergeServerSettings = useCallback((settings: ServerSettings | null | undefined) => {
     if (!settings) {
       return
@@ -98,7 +147,9 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
     Source: currentUserData.Source,
     getMediaItemProgress: (mediaItemId: string) => user.mediaProgress.find((p) => p.mediaItemId === mediaItemId),
     getBookmarksForLibraryItem: (libraryItemId: string) => user.bookmarks?.filter((bm) => bm.libraryItemId === libraryItemId) ?? [],
-    mergeServerSettings
+    mergeServerSettings,
+    clientSettings,
+    updateClientSetting
   }
 
   return <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
