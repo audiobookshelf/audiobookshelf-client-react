@@ -34,7 +34,7 @@ import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { computeProgress } from '@/lib/mediaProgress'
 import type { ShelfNavigationEntity } from '@/lib/shelfNavigationEntity'
 import type { BookMedia, EReaderDevice, LibraryItem, MediaProgress, PodcastEpisode, PodcastMedia, UserPermissions } from '@/types/api'
-import { BookshelfView, isBookMedia, isBookMediaWithTracks, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
+import { BookshelfView, isBookMedia, isBookMediaWithTracks, isBookMetadata, isPodcastLibraryItem, PlayerState } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import {
   memo,
@@ -195,7 +195,8 @@ function MediaCard(props: MediaCardProps) {
   const router = useRouter()
   const { setBoundModal } = useLibrary()
   const coverAspect = useBookCoverAspectRatio()
-  const { libraryItemIdStreaming, isStreaming, isPlaying, isStreamingFromDifferentLibrary, getIsMediaQueued, playerControls } = useMediaContext()
+  const { libraryItemIdStreaming, isStreaming, isPlaying, isStreamingFromDifferentLibrary, getIsMediaQueued, playerControls, playerLoadState } =
+    useMediaContext()
   const { sizeMultiplier: contextSizeMultiplier } = useCardSize()
   const cardId = useId()
   const t = useTypeSafeTranslations()
@@ -609,7 +610,7 @@ function MediaCard(props: MediaCardProps) {
             isHovering={isHovering}
             isSelectionMode={isSelectionMode}
             selected={selected}
-            processing={processing}
+            processing={processing || (playerLoadState === PlayerState.LOADING && isStreaming(libraryItem.id, episode?.id ?? null))}
             isPending={isPending}
             isMoreMenuOpen={isMoreMenuOpen}
             showPlayButton={showPlayButton}
