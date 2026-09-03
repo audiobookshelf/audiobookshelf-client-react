@@ -42,6 +42,7 @@ export default function PlayerModals({ controls }: PlayerModalsProps) {
       <PlayerSettingsModal
         isOpen={isSettingsModalOpen}
         settings={settings}
+        hasChapters={chapters.length > 0}
         onClose={() => setIsSettingsModalOpen(false)}
         onUpdateSettings={playerHandler.controls.updateSettings}
       />

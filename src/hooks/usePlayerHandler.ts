@@ -82,7 +82,7 @@ export interface PlayerHandlerState {
   nextChapter: Chapter | null
   /** Previous chapter */
   previousChapter: Chapter | null
-  /** Player settings (persisted in local storage) */
+  /** Player settings (persisted in local storage). useChapterTrack is forced off when the current item has no chapters. */
   settings: PlayerSettings
 }
 
@@ -613,6 +613,14 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     playerKindRef.current = 'local'
   }, [closeSession, stopSyncInterval])
 
+  // Keep the saved chapter-track preference, but treat it as off when this item has no chapters
+  const effectiveSettings = useMemo(() => {
+    if (chapters.length > 0 || !settings.useChapterTrack) {
+      return settings
+    }
+    return { ...settings, useChapterTrack: false }
+  }, [settings, chapters.length])
+
   const controls = useMemo(
     (): PlayerHandlerControls => ({
       load,
@@ -665,7 +673,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       currentChapter,
       nextChapter,
       previousChapter,
-      settings
+      settings: effectiveSettings
     },
     controls,
     setOnPlaybackFinished

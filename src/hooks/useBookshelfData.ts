@@ -106,7 +106,7 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
     invalidate()
   }, [libraryId, entityType, query, invalidate])
 
-  // Page-size changes invalidate page tracking, but loaded items remain valid at their absolute indices.
+  // When itemsPerPage changes, API page boundaries shift. Clear loaded-page tracking so the visible window is fetched with the new page size. Keep already-loaded entities
   useEffect(() => {
     if (itemsPerPage <= 0) return
 

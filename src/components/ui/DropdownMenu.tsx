@@ -21,10 +21,22 @@ export interface DropdownMenuItem {
   keepOpen?: boolean
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
+  /** Accessible name for the menu row (e.g. when visible text is not enough) */
+  ariaLabel?: string
   subitems?: DropdownMenuSubitem[]
 }
 
+function isSelectedValue(isItemSelected: ((item: DropdownMenuItem) => boolean) | undefined, item: { text: string; value: string | number }) {
+  return Boolean(isItemSelected?.(item))
+}
+
+function isParentOrSubitemSelected(isItemSelected: ((item: DropdownMenuItem) => boolean) | undefined, item: DropdownMenuItem) {
+  if (isSelectedValue(isItemSelected, item)) return true
+  return Boolean(item.subitems?.some((subitem) => isSelectedValue(isItemSelected, subitem)))
+}
+
 const PREFERRED_SUBMENU_WIDTH = 192
+const CONTENT_SIZED_MENU_MAX_WIDTH = '50vw'
 
 /**
  * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
@@ -71,10 +83,13 @@ function DropdownSubmenu({
   focusedSubIndex,
   onSubitemClick,
   onMouseOver,
+  onSubitemMouseOver,
   onMouseLeave,
   referenceElement,
   filterText,
   wrapText = false,
+  highlightSelected = false,
+  isItemSelected,
   t
 }: {
   subitems: DropdownMenuSubitem[]
@@ -83,10 +98,13 @@ function DropdownSubmenu({
   focusedSubIndex: number
   onSubitemClick?: (subitem: DropdownMenuSubitem) => void
   onMouseOver: () => void
+  onSubitemMouseOver?: (subIndex: number) => void
   onMouseLeave: () => void
   referenceElement: HTMLElement | null
   filterText: string
   wrapText?: boolean
+  highlightSelected?: boolean
+  isItemSelected?: (item: DropdownMenuItem) => boolean
   t: ReturnType<typeof useTypeSafeTranslations>
 }) {
   const submenuRef = useRef<HTMLUListElement>(null)
@@ -118,13 +136,25 @@ function DropdownSubmenu({
       flip({
         fallbackPlacements: ['left-start']
       }),
-      shift({ padding: 10 }),
+      shift({
+        padding: 10,
+        limiter: {
+          fn({ x, y, elements }) {
+            const mainMenu = elements.reference instanceof HTMLElement ? elements.reference.parentElement : null
+            if (!mainMenu) return { x, y }
+            // Do not shift the flyout above the main menu (e.g. over the toolbar)
+            return { x, y: Math.max(y, mainMenu.getBoundingClientRect().top) }
+          }
+        }
+      }),
       size({
         padding: 10,
-        apply({ availableWidth, availableHeight }) {
+        apply({ availableWidth, availableHeight, elements }) {
           // Shrink to fit the viewport so the right edge (and scrollbar) stay on-screen
           const width = Math.min(PREFERRED_SUBMENU_WIDTH, Math.max(0, availableWidth))
-          const maxHeight = Math.max(0, availableHeight)
+          const mainMenu = elements.reference instanceof HTMLElement ? elements.reference.parentElement : null
+          const heightBelowMainMenu = mainMenu ? window.innerHeight - mainMenu.getBoundingClientRect().top - 10 : availableHeight
+          const maxHeight = Math.max(0, Math.min(availableHeight, heightBelowMainMenu))
           setFloatingSize((prev) => {
             if (prev && prev.width === width && prev.maxHeight === maxHeight) return prev
             return { width, maxHeight }
@@ -166,7 +196,7 @@ function DropdownSubmenu({
       ref={submenuRef}
       role="menu"
       data-dropdown-id={dropdownId}
-      className="bg-primary border-dropdown-menu-border absolute z-[9999] overflow-y-auto rounded-md border py-1 shadow-lg"
+      className="bg-primary border-dropdown-menu-border absolute z-9999 overflow-y-auto rounded-md border py-1 shadow-lg"
       style={{
         ...floatingStyles,
         width: `${floatingSize?.width ?? PREFERRED_SUBMENU_WIDTH}px`,
@@ -190,19 +220,21 @@ function DropdownSubmenu({
           id={`${dropdownId}-subitem-${parentIndex}-${subitemIndex}`}
           className={mergeClasses(
             'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
-            focusedSubIndex === subitemIndex ? 'bg-dropdown-item-selected' : ''
+            focusedSubIndex === subitemIndex ? 'bg-dropdown-item-focused' : '',
+            highlightSelected && isSelectedValue(isItemSelected, subitem) ? 'text-dropdown-item-selected' : ''
           )}
           role="option"
           tabIndex={-1}
-          aria-selected={focusedSubIndex === subitemIndex}
+          aria-selected={isItemSelected ? isSelectedValue(isItemSelected, subitem) : focusedSubIndex === subitemIndex}
           onClick={(e) => {
             e.stopPropagation()
             onSubitemClick?.(subitem)
           }}
           onMouseDown={(e) => e.preventDefault()}
+          onMouseOver={() => onSubitemMouseOver?.(subitemIndex)}
         >
           <span
-            className={mergeClasses('ms-3 block min-w-0 font-sans text-sm', wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate')}
+            className={mergeClasses('ms-3 block min-w-0 font-sans text-sm', wrapText ? 'line-clamp-2 wrap-break-word whitespace-normal' : 'truncate')}
             title={subitem.text}
           >
             {subitem.text}
@@ -235,6 +267,8 @@ interface DropdownMenuProps {
   dropdownId: string
   onItemClick?: (item: DropdownMenuItem) => void
   onSubitemClick?: (subitem: DropdownMenuSubitem) => void
+  onItemMouseOver?: (index: number) => void
+  onSubitemMouseOver?: (subIndex: number) => void
   onOpenSubmenu?: (index: number) => void
   onCloseSubmenu?: () => void
   isItemSelected?: (item: DropdownMenuItem) => boolean
@@ -249,6 +283,8 @@ interface DropdownMenuProps {
   highlightSelected?: boolean
   submenuFilterText?: string
   wrapText?: boolean
+  /** Size the menu to its items instead of matching the trigger width (icon-only triggers) */
+  fitContent?: boolean
 }
 
 /**
@@ -265,6 +301,8 @@ export default function DropdownMenu({
   dropdownId,
   onItemClick,
   onSubitemClick,
+  onItemMouseOver,
+  onSubitemMouseOver,
   onOpenSubmenu,
   onCloseSubmenu,
   isItemSelected,
@@ -278,7 +316,8 @@ export default function DropdownMenu({
   triggerRef,
   highlightSelected = false,
   submenuFilterText = '',
-  wrapText = false
+  wrapText = false,
+  fitContent = false
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -440,12 +479,13 @@ export default function DropdownMenu({
             className={mergeClasses(
               'text-foreground hover:bg-dropdown-item-hover relative cursor-pointer py-2',
               wrapText ? 'overflow-x-hidden' : 'overflow-hidden',
-              focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-selected' : '',
+              focusedIndex === index && focusedSubIndex === -1 ? 'bg-dropdown-item-focused' : '',
               isSubmenuOpen ? 'bg-dropdown-item-hover' : '',
-              highlightSelected && isItemSelected?.(item) ? 'text-yellow-400' : ''
+              highlightSelected && isParentOrSubitemSelected(isItemSelected, item) ? 'text-dropdown-item-selected' : ''
             )}
             role={hasSubitems ? 'menuitem' : 'option'}
             tabIndex={-1}
+            aria-label={item.ariaLabel}
             aria-selected={!hasSubitems && (isItemSelected ? isItemSelected(item) : focusedIndex === index)}
             aria-haspopup={hasSubitems ? 'menu' : undefined}
             aria-expanded={hasSubitems ? isSubmenuOpen : undefined}
@@ -454,7 +494,10 @@ export default function DropdownMenu({
               onItemClick?.(item)
             }}
             onMouseDown={(e) => e.preventDefault()}
-            onMouseOver={hasSubitems ? () => handleMouseoverParent(index) : undefined}
+            onMouseOver={() => {
+              onItemMouseOver?.(index)
+              if (hasSubitems) handleMouseoverParent(index)
+            }}
             onMouseLeave={hasSubitems ? handleMouseleaveParent : undefined}
           >
             <div
@@ -479,8 +522,8 @@ export default function DropdownMenu({
             )}
             {item.rightIcon && !hasSubitems && <div className="pointer-events-none absolute inset-y-0 right-2 flex h-full items-center">{item.rightIcon}</div>}
             {showSelectedIndicator && isItemSelected && isItemSelected(item) && !hasSubitems && (
-              <span className="absolute inset-y-0 end-0 flex items-center pe-4">
-                <span className="material-symbols text-xl text-yellow-400">check</span>
+              <span className="absolute inset-y-0 inset-e-0 flex items-center pe-4">
+                <span className="material-symbols text-dropdown-item-selected text-xl">check</span>
               </span>
             )}
 
@@ -493,10 +536,13 @@ export default function DropdownMenu({
                 focusedSubIndex={focusedSubIndex}
                 onSubitemClick={onSubitemClick}
                 onMouseOver={handleMouseoverSubmenu}
+                onSubitemMouseOver={onSubitemMouseOver}
                 onMouseLeave={handleMouseleaveSubmenu}
                 referenceElement={menuItemRefs.current[index]}
                 filterText={submenuFilterText}
                 wrapText={wrapText}
+                highlightSelected={highlightSelected}
+                isItemSelected={isItemSelected}
                 t={t}
               />
             )}
@@ -513,6 +559,8 @@ export default function DropdownMenu({
       showSelectedIndicator,
       onItemClick,
       onSubitemClick,
+      onItemMouseOver,
+      onSubitemMouseOver,
       highlightSelected,
       handleMouseoverParent,
       handleMouseleaveParent,
@@ -528,7 +576,8 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 w-full max-w-full min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        fitContent ? 'w-max' : 'w-full max-w-full',
         className
       )}
       role="listbox"
@@ -536,12 +585,13 @@ export default function DropdownMenu({
       tabIndex={-1}
       style={{
         maxHeight: `min(${menuMaxHeight}, calc(100vh - 100px))`,
+        ...(fitContent ? { maxWidth: CONTENT_SIZED_MENU_MAX_WIDTH } : {}),
         ...(usePortal
           ? {
               position: 'absolute',
               top: menuPosition.top,
               left: menuPosition.left,
-              width: menuPosition.width,
+              ...(fitContent ? {} : { width: menuPosition.width }),
               zIndex: 9999
             }
           : {})
@@ -550,7 +600,9 @@ export default function DropdownMenu({
       aria-activedescendant={
         focusedSubIndex !== -1 && openSubmenuIndex !== null
           ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
-          : `${dropdownId}-item-${focusedIndex}`
+          : focusedIndex >= 0
+            ? `${dropdownId}-item-${focusedIndex}`
+            : undefined
       }
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}

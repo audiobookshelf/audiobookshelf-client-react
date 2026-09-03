@@ -189,7 +189,7 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
   }, [currentSortDesc, t])
 
   return (
-    <div className="h-9 max-w-48 min-w-0 flex-1 md:w-48 md:flex-none">
+    <div className="relative h-9 min-w-0 max-sm:w-auto max-sm:max-w-none max-sm:flex-none sm:w-48 sm:max-w-48 sm:flex-none">
       <Dropdown
         value={currentSortBy}
         items={sortItems}
@@ -201,6 +201,8 @@ export default function LibrarySortSelect({ entityType = 'items', libraryMediaTy
         menuMaxHeight="none"
         usePortal
         wrapText
+        ariaLabel={t('LabelSortBy')}
+        mobileIcon={'sort'}
       />
     </div>
   )

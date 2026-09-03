@@ -1,14 +1,10 @@
-import { getData, getSeries } from '@/lib/api'
+import { getData } from '@/lib/api'
+import { getSeriesOrNotFound } from '@/lib/notFound'
 import SeriesClient from './SeriesClient'
 
 export default async function SeriesPage({ params }: { params: Promise<{ series: string; library: string }> }) {
   const { series: seriesId, library: libraryId } = await params
-  const [series] = await getData(getSeries(libraryId, seriesId))
-
-  if (!series) {
-    console.error('Error getting series data')
-    return null
-  }
+  const [series] = await getData(getSeriesOrNotFound(libraryId, seriesId))
 
   return (
     <div className="h-full w-full">

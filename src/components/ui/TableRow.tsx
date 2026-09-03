@@ -9,7 +9,7 @@ interface TableRowProps {
 }
 
 export default function TableRow({ children, className }: TableRowProps) {
-  const rowClasses = mergeClasses('bg-bg odd:bg-primary-hover hover:bg-dropdown-item-selected h-9', className)
+  const rowClasses = mergeClasses('bg-bg odd:bg-primary-hover hover:bg-dropdown-item-focused h-9', className)
 
   return <tr className={rowClasses}>{children}</tr>
 }

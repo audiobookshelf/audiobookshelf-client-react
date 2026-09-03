@@ -1,11 +1,16 @@
 'use client'
 
 import { createAdditionalInsideCheck, useClickOutside } from '@/hooks/useClickOutside'
+import { useIsMobile } from '@/hooks/useMediaQuery'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { useCallback, useId, useMemo, useRef, useState } from 'react'
 import DropdownMenu, { DropdownItemLabel, DropdownMenuItem } from './DropdownMenu'
+import IconBtn from './IconBtn'
 import InputWrapper from './InputWrapper'
 import Label from './Label'
+
+const CLEAR_ITEM_VALUE = '__dropdown_clear__'
 
 export interface DropdownSubitem {
   text: string
@@ -20,6 +25,8 @@ export interface DropdownItem {
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
   disabled?: boolean
+  /** Accessible name for the menu row (e.g. when visible text is not enough) */
+  ariaLabel?: string
   /** Subitems for two-level menu support */
   subitems?: DropdownSubitem[]
 }
@@ -27,6 +34,8 @@ export interface DropdownItem {
 interface DropdownProps {
   value?: string | number
   label?: string
+  /** Accessible name for the trigger (does not render a visible label) */
+  ariaLabel?: string
   items?: DropdownItem[]
   disabled?: boolean
   size?: 'small' | 'medium' | 'large' | 'auto'
@@ -41,7 +50,12 @@ interface DropdownProps {
   usePortal?: boolean
   /** When true, menu item labels wrap up to two lines then truncate */
   wrapText?: boolean
+  /** Icon shown instead of the full box on mobile widths */
+  mobileIcon?: string
+  onClear?: () => void
 }
+
+const UNICODE_LETTER_OR_NUMBER = new RegExp('[\\p{L}\\p{N}]', 'u')
 
 /**
  * A dropdown component that displays a list of selectable items.
@@ -51,6 +65,7 @@ interface DropdownProps {
 export default function Dropdown({
   value,
   label = '',
+  ariaLabel,
   items = [],
   disabled = false,
   size = 'medium',
@@ -58,11 +73,14 @@ export default function Dropdown({
   onChange,
   className,
   rightIcon,
-  highlightSelected = false,
+  highlightSelected = true,
   displayText,
   usePortal = false,
-  wrapText = false
+  wrapText = false,
+  mobileIcon,
+  onClear
 }: DropdownProps) {
+  const t = useTypeSafeTranslations()
   const [showMenu, setShowMenu] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const [focusedSubIndex, setFocusedSubIndex] = useState(-1)
@@ -75,8 +93,9 @@ export default function Dropdown({
 
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
+  const isMobile = useIsMobile() && !!mobileIcon
 
-  const openMenu = (index: number = 0) => {
+  const openMenu = (index: number = -1) => {
     setShowMenu(true)
     setFocusedIndex(index)
     setFocusedSubIndex(-1)
@@ -122,10 +141,15 @@ export default function Dropdown({
     setSubmenuFilterText('')
   }
 
-  const handleOptionClick = (itemValue: string | number) => {
-    onChange?.(itemValue)
+  const handleOptionClick = (item: DropdownItem) => {
+    if (onClear && item.value === CLEAR_ITEM_VALUE) {
+      onClear()
+      closeMenu()
+      return
+    }
+    onChange?.(item.value)
 
-    const clickedItem = items.find((i) => (typeof i === 'object' ? i.value === itemValue : i === itemValue))
+    const clickedItem = items.find((i) => (typeof i === 'object' ? i.value === item.value : i === item.value))
     if (typeof clickedItem === 'object' && clickedItem.keepOpen) {
       return
     }
@@ -138,8 +162,7 @@ export default function Dropdown({
     closeMenu()
   }
 
-  // Keep useMemo for itemsToShow since it maps an array
-  const itemsToShow = useMemo(
+  const mappedItems = useMemo(
     () =>
       items.map((item) => {
         if (typeof item === 'string' || typeof item === 'number') {
@@ -153,10 +176,27 @@ export default function Dropdown({
     [items]
   )
 
-  const selectedItem = itemsToShow.find((item) => item.value === value)
+  const selectedItem = mappedItems.find((item) => item.value === value)
   // Use displayText if provided, otherwise fall back to selected item text
   const selectedText = displayText || selectedItem?.text || ''
   const selectedSubtext = displayText ? '' : selectedItem?.subtext || ''
+
+  const itemsToShow = useMemo((): DropdownItem[] => {
+    if (!onClear) return mappedItems
+    return [
+      {
+        text: selectedText,
+        value: CLEAR_ITEM_VALUE,
+        ariaLabel: t('ButtonClearFilter'),
+        rightIcon: (
+          <span className="material-symbols text-base" aria-hidden="true">
+            close
+          </span>
+        )
+      },
+      ...mappedItems
+    ]
+  }, [onClear, mappedItems, selectedText, t])
 
   let longLabel = ''
   if (label) longLabel += label + ': '
@@ -182,7 +222,7 @@ export default function Dropdown({
   const handleVerticalNavigation = (direction: 'up' | 'down') => {
     if (direction === 'down') {
       if (!showMenu) {
-        openMenu()
+        openMenu(0)
       } else if (focusedSubIndex !== -1 && openSubmenuIndex !== null) {
         // Navigating within submenu - use filtered list
         const filteredSubitems = getFilteredSubitems()
@@ -191,7 +231,7 @@ export default function Dropdown({
         }
       } else {
         closeSubMenu()
-        setFocusedIndex((prev) => (prev < itemsToShow.length - 1 ? prev + 1 : prev))
+        setFocusedIndex((prev) => (prev === -1 ? 0 : prev < itemsToShow.length - 1 ? prev + 1 : prev))
       }
     } else {
       if (!showMenu) {
@@ -204,7 +244,7 @@ export default function Dropdown({
         }
       } else {
         closeSubMenu()
-        setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev))
+        setFocusedIndex((prev) => (prev === -1 ? itemsToShow.length - 1 : prev > 0 ? prev - 1 : prev))
       }
     }
   }
@@ -228,7 +268,7 @@ export default function Dropdown({
 
   const handleEnterSpace = () => {
     if (!showMenu) {
-      openMenu()
+      openMenu(0)
     } else if (focusedSubIndex !== -1 && focusedSubIndex >= 0 && openSubmenuIndex !== null) {
       // Select subitem from filtered list
       const filteredSubitems = getFilteredSubitems()
@@ -248,7 +288,7 @@ export default function Dropdown({
           openSubMenu(focusedIndex, itemsToShow)
         }
       } else {
-        handleOptionClick(itemsToShow[focusedIndex].value)
+        handleOptionClick(itemsToShow[focusedIndex])
       }
     }
   }
@@ -365,7 +405,7 @@ export default function Dropdown({
 
       default:
         // Handle letters and numbers for type-to-filter in submenu (supports Unicode)
-        if (e.key.length === 1 && /[\p{L}\p{N}]/u.test(e.key)) {
+        if (e.key.length === 1 && UNICODE_LETTER_OR_NUMBER.test(e.key)) {
           e.preventDefault()
           handleTypeToFilter(e.key)
         }
@@ -380,6 +420,7 @@ export default function Dropdown({
     keepOpen: item.keepOpen,
     leftIcon: item.leftIcon,
     rightIcon: item.rightIcon,
+    ariaLabel: item.ariaLabel,
     subitems: item.subitems?.map((sub) => ({
       text: sub.text,
       value: sub.value
@@ -387,6 +428,23 @@ export default function Dropdown({
   }))
 
   const dropdownButtonId = `${dropdownId}-button`
+  const triggerAriaLabel = ariaLabel || longLabel || undefined
+  const triggerButtonProps = {
+    id: dropdownButtonId,
+    disabled,
+    role: 'combobox' as const,
+    'aria-haspopup': 'listbox' as const,
+    'aria-expanded': showMenu,
+    'aria-activedescendant':
+      focusedSubIndex !== -1 && openSubmenuIndex !== null
+        ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
+        : focusedIndex >= 0
+          ? `${dropdownId}-item-${focusedIndex}`
+          : undefined,
+    'aria-controls': `${dropdownId}-listbox`,
+    onClick: handleButtonClick,
+    onKeyDown: handleKeyDown
+  }
 
   return (
     <div className={mergeClasses('relative w-full min-w-0', className)}>
@@ -395,45 +453,38 @@ export default function Dropdown({
           {label}
         </Label>
       )}
-
-      <InputWrapper disabled={disabled} size={size} inputRef={buttonRef} wrapperRef={controlWrapperRef}>
-        <button
-          ref={buttonRef}
-          id={dropdownButtonId}
-          type="button"
-          role="combobox"
-          aria-label={longLabel}
-          disabled={disabled}
-          className={mergeClasses(
-            'text-foreground relative w-full cursor-pointer text-left',
-            'flex h-full items-center justify-between border-none bg-transparent ps-1 outline-none',
-            'disabled:text-disabled disabled:cursor-not-allowed',
-            size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : size === 'medium' ? 'text-base' : ''
-          )}
-          aria-haspopup="listbox"
-          aria-expanded={showMenu}
-          aria-activedescendant={
-            focusedSubIndex !== -1 && openSubmenuIndex !== null
-              ? `${dropdownId}-subitem-${openSubmenuIndex}-${focusedSubIndex}`
-              : focusedIndex >= 0
-                ? `${dropdownId}-item-${focusedIndex}`
-                : undefined
-          }
-          aria-controls={`${dropdownId}-listbox`}
-          onClick={handleButtonClick}
-          onKeyDown={handleKeyDown}
-        >
-          <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-start" title={longLabel.trim() || undefined}>
-            {selectedItem?.leftIcon && <span className="shrink-0">{selectedItem.leftIcon}</span>}
-            <span className="min-w-0 flex-1">
-              <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
+      {isMobile ? (
+        <div ref={controlWrapperRef} className="inline-flex">
+          <IconBtn ref={buttonRef} size="small" borderless ariaLabel={triggerAriaLabel} {...triggerButtonProps}>
+            {mobileIcon || 'tune'}
+          </IconBtn>
+        </div>
+      ) : (
+        <InputWrapper disabled={disabled} size={size} inputRef={buttonRef} wrapperRef={controlWrapperRef}>
+          <button
+            ref={buttonRef}
+            type="button"
+            aria-label={triggerAriaLabel}
+            className={mergeClasses(
+              'text-foreground relative w-full cursor-pointer text-left',
+              'flex h-full items-center justify-between border-none bg-transparent ps-1 outline-none',
+              'disabled:text-disabled disabled:cursor-not-allowed',
+              size === 'small' ? 'text-sm' : size === 'large' ? 'text-lg' : size === 'medium' ? 'text-base' : ''
+            )}
+            {...triggerButtonProps}
+          >
+            <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden text-start" title={longLabel.trim() || undefined}>
+              {selectedItem?.leftIcon && <span className="shrink-0">{selectedItem.leftIcon}</span>}
+              <span className="min-w-0 flex-1">
+                <DropdownItemLabel text={selectedText} subtext={selectedSubtext || undefined} />
+              </span>
             </span>
-          </span>
-          <span className="pointer-events-none ms-3 flex flex-shrink-0 items-center">
-            {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}
-          </span>
-        </button>
-      </InputWrapper>
+            <span className="pointer-events-none ms-3 flex shrink-0 items-center">
+              {rightIcon || <span className="material-symbols text-2xl">expand_more</span>}
+            </span>
+          </button>
+        </InputWrapper>
+      )}
 
       <DropdownMenu
         showMenu={showMenu}
@@ -454,7 +505,7 @@ export default function Dropdown({
               }
             }
           } else {
-            handleOptionClick(item.value)
+            handleOptionClick(item)
           }
         }}
         onSubitemClick={(subitem) => handleSubitemClick(subitem.value)}
@@ -462,21 +513,24 @@ export default function Dropdown({
           if (openSubmenuIndex !== index) {
             setOpenSubmenuIndex(index)
             setSubmenuFilterText('')
+            setFocusedSubIndex(-1)
           }
         }}
         onCloseSubmenu={() => {
           setOpenSubmenuIndex(null)
           setSubmenuFilterText('')
+          setFocusedSubIndex(-1)
         }}
         submenuFilterText={submenuFilterText}
         menuMaxHeight={menuMaxHeight}
         showNoItemsMessage={false}
         ref={menuRef}
         highlightSelected={highlightSelected}
-        isItemSelected={(item) => item.value === value}
+        isItemSelected={(item) => item.value === value || item.value === CLEAR_ITEM_VALUE}
         usePortal={usePortal}
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}
+        fitContent={isMobile}
       />
     </div>
   )

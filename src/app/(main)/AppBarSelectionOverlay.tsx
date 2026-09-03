@@ -154,32 +154,22 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
         <h1 className="hidden px-4 text-lg md:block md:text-2xl">{selectionLabel}</h1>
         <div className="grow" />
 
-        <div className="flex items-center gap-1 md:gap-1.5">
-          {showPlay && (
-            <Btn
-              color="bg-success"
-              size="small"
-              className="me-1 hidden h-9 items-center sm:inline-flex"
-              disabled={controlsDisabled}
-              onClick={() => handleBatchAction('play')}
-            >
-              <span className="material-symbols fill -ms-2 pe-1 text-2xl text-white">play_arrow</span>
-              {t('ButtonPlay')}
-            </Btn>
-          )}
-
+        <div className="flex items-center gap-1 md:gap-2">
           {showPlay && (
             <Tooltip text={t('ButtonPlay')} position="bottom">
-              <IconBtn
+              <Btn
+                color="bg-success"
                 size="small"
-                borderless
-                className="bg-success text-white sm:hidden"
+                className="h-9 w-9 items-center px-0 sm:w-auto sm:px-4"
                 ariaLabel={t('ButtonPlay')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('play')}
               >
-                play_arrow
-              </IconBtn>
+                <span className="material-symbols fill text-2xl text-white sm:-ms-2 sm:pe-1" aria-hidden>
+                  play_arrow
+                </span>
+                <span className="hidden sm:inline">{t('ButtonPlay')}</span>
+              </Btn>
             </Tooltip>
           )}
 
@@ -190,7 +180,6 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 isRead={allFinished}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('toggle-finished')}
-                className="mx-0.5"
               />
             </Tooltip>
           )}
@@ -199,11 +188,9 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={t('LabelAddToCollection')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={t('LabelAddToCollection')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-collection')}
-                className="mx-0.5 hidden md:inline-flex"
               >
                 collections_bookmark
               </IconBtn>
@@ -214,11 +201,9 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={t('LabelAddToPlaylist')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={t('LabelAddToPlaylist')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('add-to-playlist')}
-                className="mx-0.5 hidden md:inline-flex"
               >
                 playlist_add
               </IconBtn>
@@ -229,11 +214,10 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={t('LabelEdit')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={t('LabelEdit')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('batch-edit')}
-                className="bg-warning mx-0.5 text-white"
+                className="bg-warning text-white"
               >
                 edit
               </IconBtn>
@@ -244,11 +228,10 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
             <Tooltip text={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')} position="bottom">
               <IconBtn
                 size="small"
-                borderless
                 ariaLabel={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('delete')}
-                className="bg-error mx-0.5 text-white"
+                className="bg-error text-white"
               >
                 delete
               </IconBtn>
@@ -258,9 +241,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           {selectionKind !== 'episode' && libraryItemContextMenuItems.length > 0 && (
             <ContextMenuDropdown
               items={libraryItemContextMenuItems}
-              borderless
               size="small"
-              className="mx-0.5"
               disabled={controlsDisabled}
               onAction={({ action }) => handleBatchAction(action as AppBarBatchActionId)}
             />
@@ -269,16 +250,14 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           {selectionKind === 'episode' && episodeContextMenuItems.length > 0 && (
             <ContextMenuDropdown
               items={episodeContextMenuItems}
-              borderless
               size="small"
-              className="mx-0.5"
               disabled={controlsDisabled}
               onAction={({ action }) => handleBatchAction(action as AppBarBatchActionId)}
             />
           )}
 
           <Tooltip text={t('LabelDeselectAll')} position="bottom">
-            <IconBtn borderless ariaLabel={t('LabelDeselectAll')} disabled={processing} onClick={() => clearSelection?.()} className="ms-1 text-3xl">
+            <IconBtn borderless ariaLabel={t('LabelDeselectAll')} disabled={processing} onClick={() => clearSelection?.()} className="sm:ms-1 text-3xl">
               close
             </IconBtn>
           </Tooltip>
