@@ -12,7 +12,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getEpisodeDuration } from '@/lib/episode'
 import { formatDuration } from '@/lib/formatDuration'
 import { getMediaItemProgress } from '@/lib/mediaProgress'
-import type { PodcastEpisode } from '@/types/api'
+import { PlayerState, type PodcastEpisode } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
 export interface UseEpisodeListenActionsParams {
@@ -39,17 +39,20 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     getIsMediaQueued,
     addItemToQueue,
     removeItemFromQueue,
-    playerControls
+    playerControls,
+    playerLoadState
   } = useMediaContext()
 
   const [, startTransition] = useTransition()
   const [isProcessingFinished, setIsProcessingFinished] = useState(false)
+  const [isStartingPlay, setIsStartingPlay] = useState(false)
 
   const progress = useMemo(() => getMediaItemProgress(user.mediaProgress, libraryItemId, episode.id), [episode.id, libraryItemId, user.mediaProgress])
 
   const userIsFinished = !!progress?.isFinished
   const userProgressPercent = progress?.progress ?? 0
   const episodeIsPlaying = isPlaying(libraryItemId, episode.id)
+  const episodeIsLoading = isStartingPlay || (isStreaming(libraryItemId, episode.id) && playerLoadState === PlayerState.LOADING)
   const isQueued = getIsMediaQueued(libraryItemId, episode.id)
   const showQueueButton = !!libraryItemIdStreaming && !isStreamingFromDifferentLibrary(libraryId)
 
@@ -77,6 +80,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
         return
       }
 
+      setIsStartingPlay(true)
       startTransition(async () => {
         try {
           const fullLibraryItem = await getExpandedLibraryItemAction(libraryItemId)
@@ -93,6 +97,8 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
         } catch (error) {
           console.error('Failed to load library item for playback', error)
           showToast(t('ToastFailedToLoadData'), { type: 'error' })
+        } finally {
+          setIsStartingPlay(false)
         }
       })
     },
@@ -186,6 +192,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     userIsFinished,
     userProgressPercent,
     episodeIsPlaying,
+    episodeIsLoading,
     isQueued,
     showQueueButton,
     playButtonLabel,

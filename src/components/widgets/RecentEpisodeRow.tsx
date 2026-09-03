@@ -73,6 +73,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
     userIsFinished,
     userProgressPercent,
     episodeIsPlaying,
+    episodeIsLoading,
     isQueued,
     showQueueButton,
     playButtonLabel,
@@ -186,6 +187,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
             playButtonLabel={playButtonLabel}
             isPlaying={episodeIsPlaying}
             isFinished={userIsFinished}
+            isLoading={episodeIsLoading}
             isProcessingFinished={isProcessingFinished}
             showQueueButton={showQueueButton}
             isQueued={isQueued}
