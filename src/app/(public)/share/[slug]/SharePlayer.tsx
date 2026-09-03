@@ -13,6 +13,7 @@ import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
 import type { AudioTrackData, Chapter, MediaItemShareResponse } from '@/types/api'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { findChapterAtTime, normalizeChapters } from '@/lib/chapters/chapterPlayback'
 
 interface SharePlayerProps {
   slug: string
@@ -100,7 +101,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
   // ============================================================================
 
   const playbackSession = shareData?.playbackSession ?? null
-  const chapters = useMemo<Chapter[]>(() => playbackSession?.chapters ?? [], [playbackSession?.chapters])
+  const chapters = useMemo<Chapter[]>(() => normalizeChapters(playbackSession?.chapters), [playbackSession?.chapters])
   const isPlaying = playerState === PlayerState.PLAYING
   const hasLoaded = playerState !== PlayerState.IDLE && playerState !== PlayerState.LOADING
   const coverAspectRatio = getCoverAspectRatio(playbackSession?.coverAspectRatio)
@@ -114,7 +115,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
     return playbackSession.audioTracks.map((track: AudioTrackData) => new AudioTrack(track))
   }, [playbackSession?.audioTracks])
 
-  const currentChapter = useMemo(() => chapters.find((ch) => ch.start <= currentTime && currentTime < ch.end) ?? null, [chapters, currentTime])
+  const currentChapter = useMemo(() => findChapterAtTime(chapters, currentTime), [chapters, currentTime])
 
   // Cover size calculations
   const isMobileLandscape = windowWidth > windowHeight && windowHeight < 450

@@ -2,6 +2,7 @@
 
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { findChapterAtTime } from '@/lib/chapters/chapterPlayback'
 import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -24,9 +25,9 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
   const { playbackRate, useChapterTrack } = settings
   const { currentTime, bufferedTime } = usePlayerProgress()
 
-  const currentChapter = useMemo(() => chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null, [chapters, currentTime])
-
   const isLoading = playerState === PlayerState.LOADING
+
+  const currentChapter = useMemo(() => findChapterAtTime(chapters, currentTime), [chapters, currentTime])
 
   // Refs for DOM elements
   const trackRef = useRef<HTMLDivElement>(null)
@@ -160,7 +161,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
         let hoverText = secondsToTimestamp(progressTime / effectivePlaybackRate)
 
         // Find chapter at hover position and add title
-        const chapter = chapters.find((ch) => ch.start <= totalTime && totalTime < ch.end)
+        const chapter = findChapterAtTime(chapters, totalTime)
         if (chapter?.title) {
           hoverText += ` - ${chapter.title}`
         }
@@ -266,7 +267,8 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
           {' / '}
           {Math.round(playedPercent)}%
         </p>
-        {currentChapter ? (
+        {/* While loading the position is not yet meaningful, so the chapter name would be wrong. */}
+        {!isLoading && currentChapter ? (
           isMobileCollapsed ? (
             <div className="text-foreground-muted flex min-w-0 flex-1 items-center justify-center sm:max-w-none">
               <TruncatingTooltipText lazy text={currentChapter.title} className="min-w-0 text-xs" position="top" />
