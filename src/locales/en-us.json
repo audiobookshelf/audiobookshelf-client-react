@@ -411,6 +411,8 @@
   "LabelDurationComparisonLonger": "({0} longer)",
   "LabelDurationComparisonShorter": "({0} shorter)",
   "LabelDurationFound": "Duration found:",
+  "LabelDurationProgressSupplement": " ({listened} / {total})",
+  "LabelDurationTotalSupplement": " ({total})",
   "LabelDurationWithValue": "Duration: {0}",
   "LabelEbook": "Ebook",
   "LabelEbooks": "Ebooks",
