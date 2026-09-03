@@ -30,7 +30,7 @@ export default function ModalSideNavigation({ canGoPrev, canGoNext, onPrevAction
             }}
             onMouseDown={(e) => e.preventDefault()}
           >
-            arrow_back_ios
+            arrow_back_ios_new
           </button>
         </div>
       ) : null}
