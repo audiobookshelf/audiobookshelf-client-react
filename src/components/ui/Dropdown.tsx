@@ -52,6 +52,14 @@ interface DropdownProps {
   wrapText?: boolean
   /** Icon shown instead of the full box on mobile widths */
   mobileIcon?: string
+  /** Always render an icon-button trigger (all viewports), instead of the full select box */
+  icon?: string
+  /** Extra classes for the icon-button trigger */
+  iconClass?: string
+  /** Horizontal alignment of the menu relative to the trigger */
+  menuAlign?: 'start' | 'end'
+  /** Render item subtext on a second line instead of inline after the title */
+  stackedSubtext?: boolean
   onClear?: () => void
 }
 
@@ -78,6 +86,10 @@ export default function Dropdown({
   usePortal = false,
   wrapText = false,
   mobileIcon,
+  icon,
+  iconClass,
+  menuAlign = 'start',
+  stackedSubtext = false,
   onClear
 }: DropdownProps) {
   const t = useTypeSafeTranslations()
@@ -94,6 +106,8 @@ export default function Dropdown({
   // Generate unique ID for this dropdown instance
   const dropdownId = useId()
   const isMobile = useIsMobile() && !!mobileIcon
+  const triggerIcon = icon || (isMobile ? mobileIcon || 'tune' : undefined)
+  const useIconTrigger = !!triggerIcon
 
   const openMenu = (index: number = -1) => {
     setShowMenu(true)
@@ -447,16 +461,16 @@ export default function Dropdown({
   }
 
   return (
-    <div className={mergeClasses('relative w-full min-w-0', className)}>
+    <div className={mergeClasses(useIconTrigger ? 'relative inline-flex' : 'relative w-full min-w-0', className)}>
       {label && (
         <Label htmlFor={dropdownButtonId} disabled={disabled}>
           {label}
         </Label>
       )}
-      {isMobile ? (
-        <div ref={controlWrapperRef} className="inline-flex">
-          <IconBtn ref={buttonRef} size="small" borderless ariaLabel={triggerAriaLabel} {...triggerButtonProps}>
-            {mobileIcon || 'tune'}
+      {useIconTrigger ? (
+        <div ref={controlWrapperRef} className="inline-flex h-full">
+          <IconBtn ref={buttonRef} size={icon ? size : 'small'} borderless={!icon} ariaLabel={triggerAriaLabel} className={iconClass} {...triggerButtonProps}>
+            {triggerIcon}
           </IconBtn>
         </div>
       ) : (
@@ -530,7 +544,9 @@ export default function Dropdown({
         usePortal={usePortal}
         triggerRef={controlWrapperRef as React.RefObject<HTMLElement>}
         wrapText={wrapText}
-        fitContent={isMobile}
+        fitContent={useIconTrigger}
+        menuAlign={menuAlign}
+        stackedSubtext={stackedSubtext}
       />
     </div>
   )

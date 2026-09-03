@@ -22,6 +22,7 @@ export interface ContextMenuDropdownItem<T = string> {
 
 interface ContextMenuDropdownProps<T = string> {
   items?: ContextMenuDropdownItem<T>[]
+  icon?: string
   iconClass?: string
   menuWidth?: number
   processing?: boolean
@@ -34,6 +35,7 @@ interface ContextMenuDropdownProps<T = string> {
   size?: 'small' | 'medium' | 'large'
   borderless?: boolean
   className?: string
+  ariaLabel?: string
   usePortal?: boolean
   /** Extra click targets that should not close the menu (e.g. sibling overlay buttons on a media card). */
   isAdditionalInside?: (target: Node) => boolean
@@ -46,6 +48,7 @@ interface ContextMenuDropdownProps<T = string> {
  */
 export default function ContextMenuDropdown<T = string>({
   items = [],
+  icon = 'more_vert',
   iconClass = '',
   menuWidth = 96,
   processing = false,
@@ -58,6 +61,7 @@ export default function ContextMenuDropdown<T = string>({
   size = 'medium',
   borderless = false,
   className,
+  ariaLabel,
   usePortal = false,
   isAdditionalInside
 }: ContextMenuDropdownProps<T>) {
@@ -324,7 +328,7 @@ export default function ContextMenuDropdown<T = string>({
   const buttonClass = mergeClasses(size === 'small' ? 'w-9' : size === 'large' ? 'w-11' : 'w-10', className)
 
   return (
-    <div cy-id="wrapper" className="relative">
+    <div cy-id="wrapper" className="relative flex">
       {!processing ? (
         <IconBtn
           ref={buttonRef}
@@ -333,7 +337,7 @@ export default function ContextMenuDropdown<T = string>({
           iconClass={iconClass}
           disabled={disabled}
           className={buttonClass}
-          ariaLabel={t('LabelMoreOptions')}
+          ariaLabel={ariaLabel || t('LabelMoreOptions')}
           aria-haspopup="true"
           aria-expanded={showMenu}
           aria-controls={dropdownId}
@@ -347,7 +351,7 @@ export default function ContextMenuDropdown<T = string>({
           onClick={handleButtonClick}
           onKeyDown={handleKeyDown}
         >
-          more_vert
+          {icon}
         </IconBtn>
       ) : (
         <div className="flex h-full w-full items-center justify-center">

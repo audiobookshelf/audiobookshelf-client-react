@@ -1,6 +1,7 @@
 'use client'
 
 import { useLibraryItemModal } from '@/components/modals/LibraryItemModal'
+import { MetadataEditFooterEnd, useMetadataEditFooter } from '@/components/modals/MetadataEditFooterContext'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
@@ -217,6 +218,19 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
   useImperativeHandle(closeRequestRef, () => ({ requestLeave }), [requestLeave])
 
   const footerDisabled = !hasChanges || isPending
+  const sharedFooter = useMetadataEditFooter()
+
+  const handleDiscardChanges = useCallback(() => {
+    blurActiveChapterEditorField()
+    destroyAudioEl()
+    setConfirmState({
+      message: t('MessageDiscardChaptersConfirm'),
+      onConfirm: () => {
+        setConfirmState(null)
+        resetEditorChapters()
+      }
+    })
+  }, [destroyAudioEl, resetEditorChapters, setConfirmState, t])
 
   const requestConfirmIfDirty = useCallback(
     (proceed: () => void) => {
@@ -301,13 +315,13 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
           </div>
         </div>
 
-        <div
-          className={mergeClasses(
-            'bg-bg border-border flex shrink-0 flex-wrap items-end gap-x-4 gap-y-3 border-t px-4 py-3 transition-shadow duration-200',
-            footerShadow && 'box-shadow-md-up'
-          )}
-        >
-          {lookupResult && lookupResultForPreview && (
+        {lookupResult && lookupResultForPreview ? (
+          <div
+            className={mergeClasses(
+              'bg-bg border-border flex shrink-0 flex-wrap items-end gap-x-4 gap-y-3 border-t px-4 py-3 transition-shadow duration-200',
+              footerShadow && 'box-shadow-md-up'
+            )}
+          >
             <div className="grid w-full min-w-0 basis-full grid-cols-2 items-start gap-3 md:flex md:w-auto md:min-w-0 md:flex-1 md:basis-auto md:flex-col md:gap-0">
               <div className="min-w-0 md:w-full">
                 <LookupComparison lookupResult={lookupResultForPreview} baselineCount={lookupBaselineCount} mediaDurationRounded={mediaDurationRounded} />
@@ -325,30 +339,32 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
                 </div>
               </div>
             </div>
-          )}
-          <div className="ms-auto flex w-full shrink-0 justify-end gap-3 md:w-auto">
-            <Btn
-              size="small"
-              disabled={footerDisabled}
-              onClick={() => {
-                blurActiveChapterEditorField()
-                destroyAudioEl()
-                setConfirmState({
-                  message: t('MessageDiscardChaptersConfirm'),
-                  onConfirm: () => {
-                    setConfirmState(null)
-                    resetEditorChapters()
-                  }
-                })
-              }}
-            >
+          </div>
+        ) : null}
+        {sharedFooter ? (
+          <MetadataEditFooterEnd>
+            <Btn disabled={footerDisabled} onClick={handleDiscardChanges}>
+              {t('ButtonDiscardChanges')}
+            </Btn>
+            <Btn color="bg-success" loading={isPending} disabled={footerDisabled} onClick={() => handleSave()}>
+              {t('ButtonSave')}
+            </Btn>
+          </MetadataEditFooterEnd>
+        ) : (
+          <div
+            className={mergeClasses(
+              'bg-bg border-border flex shrink-0 flex-wrap items-end justify-end gap-x-4 gap-y-3 border-t px-4 py-3 transition-shadow duration-200',
+              footerShadow && 'box-shadow-md-up'
+            )}
+          >
+            <Btn size="small" disabled={footerDisabled} onClick={handleDiscardChanges}>
               {t('ButtonDiscardChanges')}
             </Btn>
             <Btn color="bg-success" size="small" loading={isPending} disabled={footerDisabled} onClick={() => handleSave()}>
               {t('ButtonSave')}
             </Btn>
           </div>
-        </div>
+        )}
       </div>
 
       {confirmState && <ConfirmDialog isOpen message={confirmState.message} onClose={() => setConfirmState(null)} onConfirm={() => confirmState.onConfirm()} />}

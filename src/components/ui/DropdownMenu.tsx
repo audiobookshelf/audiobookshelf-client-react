@@ -37,12 +37,40 @@ function isParentOrSubitemSelected(isItemSelected: ((item: DropdownMenuItem) => 
 
 const PREFERRED_SUBMENU_WIDTH = 192
 const CONTENT_SIZED_MENU_MAX_WIDTH = '50vw'
+const STACKED_SUBTEXT_MENU_MAX_WIDTH = 'min(90vw, 24rem)'
 
 /**
- * Renders label + optional subtext as one truncating line, or up to two wrapping lines when `wrapText` is set
+ * Renders label + optional subtext as one truncating line, up to two wrapping lines when `wrapText` is set,
+ * or title above description when `stackedSubtext` is set.
  */
-export function DropdownItemLabel({ text, subtext, className, wrapText = false }: { text: string; subtext?: string; className?: string; wrapText?: boolean }) {
+export function DropdownItemLabel({
+  text,
+  subtext,
+  className,
+  wrapText = false,
+  stackedSubtext = false
+}: {
+  text: string
+  subtext?: string
+  className?: string
+  wrapText?: boolean
+  stackedSubtext?: boolean
+}) {
   const t = useTypeSafeTranslations()
+
+  if (stackedSubtext && subtext) {
+    return (
+      <span className={mergeClasses('flex min-w-0 flex-col pe-3 font-sans', className)}>
+        <span className="truncate font-semibold" title={text}>
+          {text}
+        </span>
+        <span className="text-foreground-subdued truncate text-sm font-normal" title={subtext}>
+          {subtext}
+        </span>
+      </span>
+    )
+  }
+
   const textOverflowClass = wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate'
 
   if (!subtext) {
@@ -285,6 +313,10 @@ interface DropdownMenuProps {
   wrapText?: boolean
   /** Size the menu to its items instead of matching the trigger width (icon-only triggers) */
   fitContent?: boolean
+  /** Horizontal alignment of the menu relative to the trigger */
+  menuAlign?: 'start' | 'end'
+  /** Render item subtext on a second line instead of inline after the title */
+  stackedSubtext?: boolean
 }
 
 /**
@@ -317,7 +349,9 @@ export default function DropdownMenu({
   highlightSelected = false,
   submenuFilterText = '',
   wrapText = false,
-  fitContent = false
+  fitContent = false,
+  menuAlign = 'start',
+  stackedSubtext = false
 }: DropdownMenuProps) {
   const t = useTypeSafeTranslations()
   const defaultNoItemsText = noItemsText || t('LabelNoItems')
@@ -352,7 +386,8 @@ export default function DropdownMenu({
     isOpen: showMenu,
     onPositionChange: setMenuPosition,
     disable: !usePortal,
-    portalContainerRef
+    portalContainerRef,
+    align: menuAlign
   })
 
   // Scroll focused item into view
@@ -503,8 +538,8 @@ export default function DropdownMenu({
             <div
               className={mergeClasses(
                 'flex min-w-0',
-                wrapText ? 'items-start' : 'items-center overflow-hidden',
-                wrapText && (hasSubitems || item.rightIcon || (showSelectedIndicator && isItemSelected?.(item))) && 'pe-8'
+                wrapText || stackedSubtext ? 'items-start' : 'items-center overflow-hidden',
+                (wrapText || stackedSubtext) && (hasSubitems || item.rightIcon || (showSelectedIndicator && isItemSelected?.(item))) && 'pe-8'
               )}
             >
               {item.leftIcon && <span className="ms-3 shrink-0">{item.leftIcon}</span>}
@@ -512,6 +547,7 @@ export default function DropdownMenu({
                 text={item.text}
                 subtext={item.subtext}
                 wrapText={wrapText}
+                stackedSubtext={stackedSubtext}
                 className={mergeClasses(item.leftIcon ? 'ms-1.5' : 'ms-3', 'min-w-0 flex-1 text-sm')}
               />
             </div>
@@ -568,6 +604,7 @@ export default function DropdownMenu({
       handleMouseleaveSubmenu,
       submenuFilterText,
       wrapText,
+      stackedSubtext,
       t
     ]
   )
@@ -576,8 +613,10 @@ export default function DropdownMenu({
     <ul
       ref={menuRef}
       className={mergeClasses(
-        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 min-w-0 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        'bg-primary border-dropdown-menu-border absolute z-10 mt-0.5 overflow-x-hidden overflow-y-auto rounded-md border py-1 shadow-lg ring-1 ring-black/5 sm:text-sm',
+        stackedSubtext ? 'min-w-72' : 'min-w-0',
         fitContent ? 'w-max' : 'w-full max-w-full',
+        !usePortal && menuAlign === 'end' ? 'end-0' : '',
         className
       )}
       role="listbox"
@@ -585,7 +624,7 @@ export default function DropdownMenu({
       tabIndex={-1}
       style={{
         maxHeight: `min(${menuMaxHeight}, calc(100vh - 100px))`,
-        ...(fitContent ? { maxWidth: CONTENT_SIZED_MENU_MAX_WIDTH } : {}),
+        ...(fitContent ? { maxWidth: stackedSubtext ? STACKED_SUBTEXT_MENU_MAX_WIDTH : CONTENT_SIZED_MENU_MAX_WIDTH } : {}),
         ...(usePortal
           ? {
               position: 'absolute',
