@@ -43,7 +43,8 @@ function useLibraryItemAdminMenuItems(
   selectionKind: SelectionKind,
   selectedCount: number,
   userIsAdminOrUp: boolean,
-  userCanDownload: boolean
+  userCanDownload: boolean,
+  allPlayable: boolean
 ): ContextMenuDropdownItem[] {
   const t = useTypeSafeTranslations()
 
@@ -52,7 +53,7 @@ function useLibraryItemAdminMenuItems(
 
     const items: ContextMenuDropdownItem[] = [{ text: t('ButtonQuickMatch'), action: 'quick-match' }]
 
-    if (selectionKind === 'book') {
+    if (selectionKind === 'book' && allPlayable) {
       items.push({ text: t('ButtonQuickEmbedMetadata'), action: 'quick-embed' })
     }
 
@@ -63,7 +64,7 @@ function useLibraryItemAdminMenuItems(
     }
 
     return items
-  }, [selectionKind, selectedCount, t, userCanDownload, userIsAdminOrUp])
+  }, [allPlayable, selectionKind, selectedCount, t, userCanDownload, userIsAdminOrUp])
 }
 
 function useEpisodeBatchMenuItems(userCanDownload: boolean): ContextMenuDropdownItem[] {
@@ -99,7 +100,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
     onBatchAction(action)
   }
 
-  const libraryItemAdminMenuItems = useLibraryItemAdminMenuItems(selectionKind ?? 'book', selectedItems.length, userIsAdminOrUp, userCanDownload)
+  const libraryItemAdminMenuItems = useLibraryItemAdminMenuItems(selectionKind ?? 'book', selectedItems.length, userIsAdminOrUp, userCanDownload, allPlayable)
   const episodeBatchMenuItems = useEpisodeBatchMenuItems(userCanDownload)
 
   const showAddToCollection = selectionKind === 'book' && userCanUpdate
@@ -175,23 +176,13 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
 
           {showMarkFinished && (
             <Tooltip text={allFinished ? t('MessageMarkAsNotFinished') : t('MessageMarkAsFinished')} position="bottom">
-              <ReadIconBtn
-                size="small"
-                isRead={allFinished}
-                disabled={controlsDisabled}
-                onClick={() => handleBatchAction('toggle-finished')}
-              />
+              <ReadIconBtn size="small" isRead={allFinished} disabled={controlsDisabled} onClick={() => handleBatchAction('toggle-finished')} />
             </Tooltip>
           )}
 
           {showAddToCollection && (
             <Tooltip text={t('LabelAddToCollection')} position="bottom">
-              <IconBtn
-                size="small"
-                ariaLabel={t('LabelAddToCollection')}
-                disabled={controlsDisabled}
-                onClick={() => handleBatchAction('add-to-collection')}
-              >
+              <IconBtn size="small" ariaLabel={t('LabelAddToCollection')} disabled={controlsDisabled} onClick={() => handleBatchAction('add-to-collection')}>
                 collections_bookmark
               </IconBtn>
             </Tooltip>
@@ -199,12 +190,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
 
           {showAddToPlaylist && (
             <Tooltip text={t('LabelAddToPlaylist')} position="bottom">
-              <IconBtn
-                size="small"
-                ariaLabel={t('LabelAddToPlaylist')}
-                disabled={controlsDisabled}
-                onClick={() => handleBatchAction('add-to-playlist')}
-              >
+              <IconBtn size="small" ariaLabel={t('LabelAddToPlaylist')} disabled={controlsDisabled} onClick={() => handleBatchAction('add-to-playlist')}>
                 playlist_add
               </IconBtn>
             </Tooltip>
@@ -257,7 +243,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           )}
 
           <Tooltip text={t('LabelDeselectAll')} position="bottom">
-            <IconBtn borderless ariaLabel={t('LabelDeselectAll')} disabled={processing} onClick={() => clearSelection?.()} className="sm:ms-1 text-3xl">
+            <IconBtn borderless ariaLabel={t('LabelDeselectAll')} disabled={processing} onClick={() => clearSelection?.()} className="text-3xl sm:ms-1">
               close
             </IconBtn>
           </Tooltip>
