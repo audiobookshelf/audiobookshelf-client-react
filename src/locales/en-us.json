@@ -959,6 +959,7 @@
   "MessageCollectionNotFound": "Collection not found",
   "MessageConfirmClearEpisodeFetchQueue": "Are you sure you want to clear the episode fetch queue?",
   "MessageConfirmCloseChaptersWithChanges": "You have unsaved chapter changes.",
+  "MessageConfirmCloseDetailsWithChanges": "You have unsaved changes.",
   "MessageConfirmCloseFeed": "Are you sure you want to close this feed?",
   "MessageConfirmContinueWithUnsavedChapters": "You have unsaved chapter changes.<br></br>Continue anyway?",
   "MessageConfirmCreateRootUserNoPassword": "Are you sure you want to create the root user with no password?",
