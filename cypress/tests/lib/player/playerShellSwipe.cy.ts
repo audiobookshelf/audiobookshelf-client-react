@@ -31,4 +31,13 @@ describe('playerShellSwipe', () => {
     slider.setAttribute('role', 'slider')
     expect(isPlayerShellSwipeBlockedTarget(slider)).to.equal(false)
   })
+
+  it('blocks author row targets for shell swipes', () => {
+    const authorRow = document.createElement('div')
+    authorRow.className = 'player-author'
+    const text = document.createElement('span')
+    text.textContent = 'Author Name'
+    authorRow.append(text)
+    expect(isPlayerShellSwipeBlockedTarget(text)).to.equal(true)
+  })
 })
