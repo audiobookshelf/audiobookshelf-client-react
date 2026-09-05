@@ -20,14 +20,14 @@ interface TooltipProps {
   maxWidth?: number
   /** Defer mounting the portaled label until hover (after a delay). Use in dense UIs or long lists. */
   lazy?: boolean
+  /** Classes for the reference/trigger wrapper. */
+  className?: string
 }
 
 /** Extra interaction options used by HelpTooltipIcon, TruncatingTooltipText, and similar wrappers. */
 interface TooltipCoreProps extends TooltipProps {
   /** Suppress the tooltip and skip rendering the portaled label — internal wrappers only (e.g. TruncatingTooltipText). */
   disabled?: boolean
-  /** Classes for the reference/trigger wrapper — internal wrappers only; use a layout div at call sites. */
-  className?: string
   /** Classes for the portaled floating label — internal wrappers only. */
   tooltipClassName?: string
   /** Use a span reference element so the trigger is valid inside phrasing content (e.g. `<p>`). */
