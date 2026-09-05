@@ -2,17 +2,15 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { PlayerControlsState } from './usePlayerControlsState'
 
 interface PlayerTransportControlsProps {
   controls: PlayerControlsState
-  /** Tighter spacing and icons for mobile collapsed bar */
-  compact?: boolean
-  className?: string
+  /** Mobile mini bar: jump back + play only, beside the title row. */
+  variant?: 'mini' | 'full'
 }
 
-export default function PlayerTransportControls({ controls, compact = false, className }: PlayerTransportControlsProps) {
+export default function PlayerTransportControls({ controls, variant = 'full' }: PlayerTransportControlsProps) {
   const {
     isLoading,
     isPlaying,
@@ -28,18 +26,21 @@ export default function PlayerTransportControls({ controls, compact = false, cla
     previousButtonTooltipText
   } = controls
 
-  const iconClass = compact ? 'w-8 text-2xl' : 'w-10 text-3xl'
-  const gapClass = compact ? 'gap-2' : 'gap-4'
+  const isMini = variant === 'mini'
 
   return (
-    <div className={mergeClasses('flex items-center justify-center', gapClass, className)}>
-      <Tooltip text={previousButtonTooltipText} position="top">
-        <IconBtn borderless size="custom" className={mergeClasses(iconClass, 'cursor-pointer')} onClick={handlePreviousChapter}>
-          first_page
-        </IconBtn>
-      </Tooltip>
+    <div className={isMini ? 'player-transport player-transport--mini' : 'player-transport'}>
+      {!isMini && (
+        <div className="player-chapter-slot">
+          <Tooltip text={previousButtonTooltipText} position="top">
+            <IconBtn borderless size="custom" className="player-jump-btn cursor-pointer" onClick={handlePreviousChapter}>
+              first_page
+            </IconBtn>
+          </Tooltip>
+        </div>
+      )}
       <Tooltip text={jumpBackwardTooltipText} position="top">
-        <IconBtn borderless size="custom" className={mergeClasses(iconClass, 'cursor-pointer')} onClick={jumpBackward}>
+        <IconBtn borderless size="custom" className="player-jump-btn player-transport-jump-back cursor-pointer" onClick={jumpBackward}>
           replay
         </IconBtn>
       </Tooltip>
@@ -48,24 +49,27 @@ export default function PlayerTransportControls({ controls, compact = false, cla
         size="custom"
         loading={isLoading}
         outlined={false}
-        className={mergeClasses(
-          'bg-accent text-primary hover:text-primary hover:not-disabled:text-primary cursor-pointer rounded-full',
-          compact ? 'h-9 w-9 text-xl' : 'h-10 w-10 text-2xl'
-        )}
+        className="player-play-btn bg-accent text-primary hover:text-primary hover:not-disabled:text-primary cursor-pointer rounded-full"
         onClick={playPause}
       >
         {isPlaying ? 'pause' : 'play_arrow'}
       </IconBtn>
-      <Tooltip text={jumpForwardTooltipText} position="top">
-        <IconBtn borderless size="custom" className={mergeClasses(iconClass, 'cursor-pointer')} onClick={jumpForward}>
-          forward_media
-        </IconBtn>
-      </Tooltip>
-      <Tooltip text={nextButtonTooltipText} position="top">
-        <IconBtn borderless size="custom" className={mergeClasses(iconClass, 'cursor-pointer')} disabled={!hasNext} onClick={handleNextChapter}>
-          last_page
-        </IconBtn>
-      </Tooltip>
+      {!isMini && (
+        <>
+          <Tooltip text={jumpForwardTooltipText} position="top">
+            <IconBtn borderless size="custom" className="player-jump-btn cursor-pointer" onClick={jumpForward}>
+              forward_media
+            </IconBtn>
+          </Tooltip>
+          <div className="player-chapter-slot">
+            <Tooltip text={nextButtonTooltipText} position="top">
+              <IconBtn borderless size="custom" className="player-jump-btn cursor-pointer" disabled={!hasNext} onClick={handleNextChapter}>
+                last_page
+              </IconBtn>
+            </Tooltip>
+          </div>
+        </>
+      )}
     </div>
   )
 }

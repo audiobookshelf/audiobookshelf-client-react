@@ -11,6 +11,7 @@ interface PlayerSettingsModalProps {
   isOpen: boolean
   settings: PlayerSettings
   hasChapters: boolean
+  zIndexClass?: string
   onClose: () => void
   onUpdateSettings: (updates: Partial<PlayerSettings>) => void
 }
@@ -21,7 +22,7 @@ const PLAYBACK_RATE_INCREMENT_VALUES: DropdownItem[] = [
   { text: '0.05', value: 0.05 }
 ]
 
-export default function PlayerSettingsModal({ isOpen, settings, hasChapters, onClose, onUpdateSettings }: PlayerSettingsModalProps) {
+export default function PlayerSettingsModal({ isOpen, settings, hasChapters, zIndexClass, onClose, onUpdateSettings }: PlayerSettingsModalProps) {
   const t = useTypeSafeTranslations()
 
   // Jump time values in seconds
@@ -53,9 +54,9 @@ export default function PlayerSettingsModal({ isOpen, settings, hasChapters, onC
   const outerContent = <ModalOuterContent>{t('HeaderPlayerSettings')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-md md:max-w-md lg:max-w-md">
-      <div className="max-h-[80vh] w-full overflow-y-auto p-4 sm:p-6">
-        <div className="flex flex-col gap-4">
+    <Modal isOpen={isOpen} onClose={onClose} zIndexClass={zIndexClass} outerContent={outerContent} className="sm:max-w-md md:max-w-md lg:max-w-md">
+      <div className="max-h-[80vh] w-full overflow-y-auto p-4">
+        <div className="flex flex-col gap-5">
           {/* Use chapter track toggle — hidden when the current item has no chapters */}
           {hasChapters && <ToggleSwitch value={settings.useChapterTrack} label={t('LabelUseChapterTrack')} onChange={handleUseChapterTrackChange} />}
 

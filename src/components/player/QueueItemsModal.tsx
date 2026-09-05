@@ -21,10 +21,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface QueueItemsModalProps {
   isOpen: boolean
+  zIndexClass?: string
   onClose: () => void
 }
 
-export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProps) {
+export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueItemsModalProps) {
   const t = useTypeSafeTranslations()
   const { playerQueueItems, playerQueueAutoPlay, setPlayerQueueAutoPlay, isStreaming, isPlaying, playQueueItemAtIndex, removeItemFromQueue, playerControls } =
     useMediaContext()
@@ -148,19 +149,13 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
             borderless
             outlined={false}
             size="large"
-            className={mergeClasses("w-auto shrink-0", isCurrentlyPlaying && isItemPlaying ? '' : 'text-success')}
+            className={mergeClasses('w-auto shrink-0', isCurrentlyPlaying && isItemPlaying ? '' : 'text-success')}
             ariaLabel={isCurrentlyPlaying && isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
             onClick={isCurrentlyPlaying ? handlePause : () => handlePlay(index)}
           >
             {isCurrentlyPlaying && isItemPlaying ? 'pause' : 'play_arrow'}
           </IconBtn>
-          <IconBtn
-            borderless
-            size="large"
-            className="text-error w-auto shrink-0"
-            ariaLabel={t('ButtonQueueRemoveItem')}
-            onClick={() => handleRemove(item)}
-          >
+          <IconBtn borderless size="large" className="text-error w-auto shrink-0" ariaLabel={t('ButtonQueueRemoveItem')} onClick={() => handleRemove(item)}>
             close
           </IconBtn>
         </>
@@ -213,7 +208,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   const outerContent = <ModalOuterContent>{t('HeaderPlayerQueue')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-200 md:max-w-200 lg:max-w-200">
+    <Modal isOpen={isOpen} onClose={onClose} zIndexClass={zIndexClass} outerContent={outerContent} className="sm:max-w-200 md:max-w-200 lg:max-w-200">
       <div className="max-h-[80vh] w-full min-w-0 overflow-x-hidden overflow-y-auto py-4">
         <div className="flex items-center px-4 pb-4">
           <p className="text-foreground-muted shrink-0 text-base">{queueCountLabel}</p>
