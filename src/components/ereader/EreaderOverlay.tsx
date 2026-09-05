@@ -46,7 +46,7 @@ export default function EreaderOverlay({
 }: EreaderOverlayProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { streamLibraryItem } = useMediaContext()
+  const { streamLibraryItem, isPlayerFullscreen } = useMediaContext()
   const { settings, updateSettings } = useEreaderSettings()
   const playerOpen = !!streamLibraryItem
   const playerBottomInsetClass = playerOpen ? getPlayerBottomInsetClass() : 'bottom-0'
@@ -175,7 +175,7 @@ export default function EreaderOverlay({
   const canZoomIn = zoomScale === null || zoomScale < FIXED_LAYOUT_ZOOM_MAX
 
   return createPortal(
-    <div className={mergeClasses('fixed inset-x-0 top-0 z-80 flex flex-col', playerBottomInsetClass, shellClass)}>
+    <div inert={isPlayerFullscreen} className={mergeClasses('fixed inset-x-0 top-0 z-80 flex flex-col', playerBottomInsetClass, shellClass)}>
       <header className="flex h-12 shrink-0 items-center gap-3 px-3">
         <button
           type="button"
