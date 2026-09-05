@@ -4,6 +4,7 @@ import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
 import { useEffect, useRef } from 'react'
 
 const OPEN_COMBOBOX_SELECTOR = '[role="combobox"][aria-expanded="true"]'
+const PLAYER_POPOVER_SELECTOR = '[role="dialog"][id$="-popover"]'
 
 /**
  * Registers keyboard hotkeys for the audio player.
@@ -29,7 +30,12 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
     }
 
     function shouldIgnoreHotkeys(): boolean {
-      return isInputFocused() || isAbsModalOpen() || document.querySelector(OPEN_COMBOBOX_SELECTOR) !== null
+      return (
+        isInputFocused() ||
+        isAbsModalOpen() ||
+        document.querySelector(OPEN_COMBOBOX_SELECTOR) !== null ||
+        document.querySelector(PLAYER_POPOVER_SELECTOR) !== null
+      )
     }
 
     function handleKeyDown(e: KeyboardEvent) {
