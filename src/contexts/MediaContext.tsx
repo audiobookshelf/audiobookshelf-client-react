@@ -5,8 +5,10 @@ import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
 import { useChromecast } from '@/contexts/ChromecastContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { usePlayerHandler, type PlayerHandlerControls, type PlayerHandlerState } from '@/hooks/usePlayerHandler'
+import { startViewTransition } from '@/lib/startViewTransition'
 import { isPodcastLibraryItem, LibraryItem, LibraryItemRemovedPayload, PlayerState } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 
 export interface PlayerQueueItem {
   libraryItemId: string
@@ -30,8 +32,8 @@ interface MediaContextValue {
   hasNextItemInQueue: boolean
   hasPreviousItemInQueue: boolean
   libraryItemIdStreaming: string | null
-  isPlayerDetailsExpanded: boolean
-  setPlayerDetailsExpanded: (expanded: boolean) => void
+  isPlayerFullscreen: boolean
+  setPlayerFullscreen: (fullscreen: boolean) => void
 
   // Stream utilities
   isStreaming: (libraryItemId: string, episodeId?: string | null) => boolean
@@ -72,7 +74,24 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const [streamEpisodeId, setStreamEpisodeId] = useState<string | null>(null)
   const [playerQueueItems, setPlayerQueueItems] = useState<PlayerQueueItem[]>([])
   const [playerQueueAutoPlay, setPlayerQueueAutoPlayState] = useState<boolean>(() => readPlayerQueueAutoPlay())
-  const [isPlayerDetailsExpanded, setPlayerDetailsExpanded] = useState(false)
+  const [isPlayerFullscreen, setIsPlayerFullscreen] = useState(false)
+  const isPlayerFullscreenRef = useRef(isPlayerFullscreen)
+  isPlayerFullscreenRef.current = isPlayerFullscreen
+
+  const setPlayerFullscreen = useCallback((fullscreen: boolean) => {
+    if (isPlayerFullscreenRef.current === fullscreen) return
+
+    const apply = () => {
+      flushSync(() => setIsPlayerFullscreen(fullscreen))
+    }
+
+    const canMorphCover = typeof document !== 'undefined' && document.querySelector('[data-cy="player-cover"]')
+    if (canMorphCover) {
+      startViewTransition(apply)
+    } else {
+      apply()
+    }
+  }, [])
 
   const playerQueueItemsRef = useRef(playerQueueItems)
   playerQueueItemsRef.current = playerQueueItems
@@ -123,7 +142,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     setStreamLibraryItem(null)
     setStreamEpisodeId(null)
     setPlayerQueueItems([])
-    setPlayerDetailsExpanded(false)
+    flushSync(() => setIsPlayerFullscreen(false))
   }, [playerControls])
 
   // ============================================================================
@@ -388,8 +407,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       hasNextItemInQueue,
       hasPreviousItemInQueue,
       libraryItemIdStreaming,
-      isPlayerDetailsExpanded,
-      setPlayerDetailsExpanded,
+      isPlayerFullscreen,
+      setPlayerFullscreen,
 
       // Stream utilities
       isStreaming,
@@ -421,8 +440,8 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       hasNextItemInQueue,
       hasPreviousItemInQueue,
       libraryItemIdStreaming,
-      isPlayerDetailsExpanded,
-      setPlayerDetailsExpanded,
+      isPlayerFullscreen,
+      setPlayerFullscreen,
       isStreaming,
       isStreamingFromDifferentLibrary,
       isPlaying,
@@ -441,7 +460,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <MediaContext.Provider value={value}>
-      {children}
+      <div inert={isPlayerFullscreen}>{children}</div>
       <PlayerStateContext.Provider value={playerHandlerState}>
         <MediaPlayerContainer />
       </PlayerStateContext.Provider>

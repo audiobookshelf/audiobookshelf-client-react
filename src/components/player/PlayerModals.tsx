@@ -1,5 +1,7 @@
 'use client'
 
+import { useMediaContext } from '@/contexts/MediaContext'
+import { PLAYER_OVERLAY_Z_CLASS } from '@/lib/player/constants'
 import BookmarksModal from './BookmarksModal'
 import ChaptersModal from './ChaptersModal'
 import PlayerSettingsModal from './PlayerSettingsModal'
@@ -12,6 +14,9 @@ interface PlayerModalsProps {
 }
 
 export default function PlayerModals({ controls }: PlayerModalsProps) {
+  const { isPlayerFullscreen } = useMediaContext()
+  const playerOverlayZIndex = isPlayerFullscreen ? PLAYER_OVERLAY_Z_CLASS : undefined
+
   const {
     playerHandler,
     streamLibraryItem,
@@ -43,10 +48,16 @@ export default function PlayerModals({ controls }: PlayerModalsProps) {
         isOpen={isSettingsModalOpen}
         settings={settings}
         hasChapters={chapters.length > 0}
+        zIndexClass={playerOverlayZIndex}
         onClose={() => setIsSettingsModalOpen(false)}
         onUpdateSettings={playerHandler.controls.updateSettings}
       />
-      <ChaptersModal isOpen={isChaptersModalOpen} playerHandler={playerHandler} onClose={() => setIsChaptersModalOpen(false)} />
+      <ChaptersModal
+        isOpen={isChaptersModalOpen}
+        playerHandler={playerHandler}
+        zIndexClass={playerOverlayZIndex}
+        onClose={() => setIsChaptersModalOpen(false)}
+      />
       {!isPodcast && (
         <BookmarksModal
           isOpen={isBookmarksModalOpen}
@@ -54,6 +65,7 @@ export default function PlayerModals({ controls }: PlayerModalsProps) {
           currentTime={bookmarkCurrentTime}
           libraryItemId={libraryItemId}
           playbackRate={settings.playbackRate}
+          zIndexClass={playerOverlayZIndex}
           onClose={() => setIsBookmarksModalOpen(false)}
           onSelect={(bookmark) => seek(bookmark.time)}
         />
@@ -64,6 +76,7 @@ export default function PlayerModals({ controls }: PlayerModalsProps) {
         timerType={sleepTimerType}
         remaining={sleepTimerRemaining}
         hasChapters={chapters.length > 0}
+        zIndexClass={playerOverlayZIndex}
         onClose={() => setIsSleepTimerModalOpen(false)}
         onSet={setSleepTimer}
         onCancel={() => {
@@ -73,7 +86,7 @@ export default function PlayerModals({ controls }: PlayerModalsProps) {
         onIncrement={incrementSleepTimer}
         onDecrement={decrementSleepTimer}
       />
-      <QueueItemsModal isOpen={isQueueModalOpen} onClose={() => setIsQueueModalOpen(false)} />
+      <QueueItemsModal isOpen={isQueueModalOpen} zIndexClass={playerOverlayZIndex} onClose={() => setIsQueueModalOpen(false)} />
     </>
   )
 }

@@ -128,7 +128,7 @@ export default function PreviewCover({
   )
 
   const containerStyle = useMemo(() => {
-    if (fill) return { width: '100%' }
+    if (fill) return { width: '100%', height: '100%' }
     return {
       height: `${finalDimensions.height}px`,
       width: `${finalDimensions.width}px`,
@@ -139,7 +139,7 @@ export default function PreviewCover({
 
   return (
     <div
-      className="relative rounded-xs"
+      className="relative h-full rounded-xs"
       style={containerStyle}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
@@ -147,8 +147,8 @@ export default function PreviewCover({
       onKeyDown={handleKeyDown}
     >
       <div
-        className="relative w-full overflow-hidden"
-        style={fill ? { aspectRatio: `${1 / bookCoverAspectRatio}` } : { height: `${finalDimensions.imageHeight}px` }}
+        className={mergeClasses('relative w-full overflow-hidden', fill && 'h-full')}
+        style={fill ? undefined : { height: `${finalDimensions.imageHeight}px` }}
       >
         {showCoverBg && (
           <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs">
@@ -163,7 +163,7 @@ export default function PreviewCover({
           alt={t('LabelCoverPreview')}
           fill
           unoptimized
-          className={mergeClasses(showCoverBg ? 'object-contain' : 'object-fill')}
+          className={mergeClasses(showCoverBg ? 'object-contain' : fill ? 'object-cover' : 'object-fill')}
         />
       </div>
 
