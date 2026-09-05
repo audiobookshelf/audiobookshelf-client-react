@@ -5,6 +5,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useFilterData } from '@/hooks/useFilterData'
 import { getCoverAspectRatio } from '@/lib/coverUtils'
 import { getLibrarySortFilterUpdates } from '@/lib/libraryMediaTypeSortFilter'
+import { registerLibraryCoverAspectRatio } from '@/lib/player/libraryCoverAspectRatioRegistry'
 import { BookshelfView, Library, LibraryFilterData } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
@@ -164,6 +165,10 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
     }
   }, [library.id, library.mediaType])
 
+  useEffect(() => {
+    registerLibraryCoverAspectRatio(library.id, library.settings?.coverAspectRatio)
+  }, [library.id, library.settings?.coverAspectRatio])
+
   const updateSetting = useCallback(
     (key: LibrarySettingKey, value: LibrarySettings[LibrarySettingKey]) => {
       setSettings((prev) => {
@@ -262,5 +267,5 @@ export function useLibraryOptional(): Partial<LibraryContextType> {
 /** Numeric height/width ratio for covers from library setting. Square (1) or standard (1.6) */
 export function useBookCoverAspectRatio(): number {
   const context = useContext(LibraryContext)
-  return getCoverAspectRatio((context?.library.settings?.coverAspectRatio ?? 1) as 0 | 1)
+  return getCoverAspectRatio((context?.library.settings?.coverAspectRatio ?? 0) as 0 | 1)
 }
