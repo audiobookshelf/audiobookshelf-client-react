@@ -488,7 +488,7 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
       />
       {showClear && (
         <button
-          className="absolute inset-y-0 right-8 z-10 flex items-center text-gray-400 hover:text-white"
+          className="text-foreground-muted hover:text-foreground absolute inset-y-0 right-8 z-10 flex items-center"
           onClick={(e) => {
             e.stopPropagation()
             handleClear()
