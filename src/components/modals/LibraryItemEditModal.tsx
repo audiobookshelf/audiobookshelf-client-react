@@ -2,8 +2,11 @@
 
 import { updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
 import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource } from '@/components/modals/LibraryItemModal'
+import { MetadataEditFooterEnd, useMetadataEditFooter } from '@/components/modals/MetadataEditFooterContext'
 import ModalFooter from '@/components/modals/ModalFooter'
+import Btn from '@/components/ui/Btn'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
+import EmbedMetadataFooterControl from '@/components/widgets/EmbedMetadataFooterControl'
 import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -197,18 +200,22 @@ export function LibraryItemEditModalContent({
     [onClose, resolvedItem?.id, showToast, startSaveTransition, t]
   )
 
-  const handleSave = (close: boolean = false) => {
-    saveAndCloseRef.current = close
-    if (!resolvedItem) return
-    if (resolvedItem.mediaType === 'podcast') {
-      podcastDetailsRef.current?.submit()
-    } else {
-      bookDetailsRef.current?.submit()
-    }
-  }
+  const handleSave = useCallback(
+    (close: boolean = false) => {
+      saveAndCloseRef.current = close
+      if (!resolvedItem) return
+      if (resolvedItem.mediaType === 'podcast') {
+        podcastDetailsRef.current?.submit()
+      } else {
+        bookDetailsRef.current?.submit()
+      }
+    },
+    [resolvedItem]
+  )
 
   const isPodcast = resolvedItem?.mediaType === 'podcast'
   const saveDisabled = !hasChanges || isSavePending || !resolvedItem || fetchPending
+  const sharedFooter = useMetadataEditFooter()
 
   const libraryId = library.id
   const showPlaceholderShell = fetchPending && !resolvedItem && pendingEntityId !== null
@@ -301,19 +308,31 @@ export function LibraryItemEditModalContent({
         {formInner}
       </div>
 
-      <ModalFooter
-        shadow={footerShadow}
-        secondary={{
-          label: t('ButtonSave'),
-          onClick: () => handleSave(false),
-          disabled: saveDisabled
-        }}
-        primary={{
-          label: t('ButtonSaveAndClose'),
-          onClick: () => handleSave(true),
-          disabled: saveDisabled
-        }}
-      />
+      {sharedFooter ? (
+        <MetadataEditFooterEnd>
+          <Btn disabled={saveDisabled} onClick={() => handleSave(false)}>
+            {t('ButtonSave')}
+          </Btn>
+          <Btn disabled={saveDisabled} onClick={() => handleSave(true)}>
+            {t('ButtonSaveAndClose')}
+          </Btn>
+        </MetadataEditFooterEnd>
+      ) : (
+        <ModalFooter
+          shadow={footerShadow}
+          start={<EmbedMetadataFooterControl libraryItem={resolvedItem} onClose={onClose} />}
+          secondary={{
+            label: t('ButtonSave'),
+            onClick: () => handleSave(false),
+            disabled: saveDisabled
+          }}
+          primary={{
+            label: t('ButtonSaveAndClose'),
+            onClick: () => handleSave(true),
+            disabled: saveDisabled
+          }}
+        />
+      )}
     </div>
   )
 }

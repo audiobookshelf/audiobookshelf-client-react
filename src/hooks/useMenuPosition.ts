@@ -13,6 +13,8 @@ interface UseMenuPositionOptions {
   onPositionChange: (position: MenuPosition) => void
   disable?: boolean
   portalContainerRef?: RefObject<HTMLElement>
+  /** Horizontal alignment relative to the trigger. Defaults to start (left in LTR). */
+  align?: 'start' | 'end'
 }
 
 const VIEWPORT_PADDING = 8
@@ -25,7 +27,8 @@ export const useMenuPosition = ({
   isOpen,
   onPositionChange,
   disable = false,
-  portalContainerRef
+  portalContainerRef,
+  align = 'start'
 }: UseMenuPositionOptions): (() => void) => {
   const positionRef = useRef<MenuPosition>({} as MenuPosition)
   const menuHeightRef = useRef<number>(0)
@@ -54,22 +57,28 @@ export const useMenuPosition = ({
     // Compute the horizontal position in viewport space first, clamp it so the menu never
     // extends past the right (or left) edge of the viewport, then convert to
     // portal-relative coordinates if needed.
-    let viewportLeft = triggerBoundingBox.x
     const maxViewportLeft = Math.max(VIEWPORT_PADDING, window.innerWidth - menuWidth - VIEWPORT_PADDING)
+    let viewportLeft = align === 'end' ? triggerBoundingBox.right - menuWidth : triggerBoundingBox.x
     viewportLeft = Math.min(Math.max(viewportLeft, VIEWPORT_PADDING), maxViewportLeft)
+
+    const menuHeight = menuBoundingBox.height
+    const spaceBelow = window.innerHeight - triggerBoundingBox.bottom - VIEWPORT_PADDING
+    const placeAbove = menuHeight > 0 && menuHeight > spaceBelow && triggerBoundingBox.top > spaceBelow
+    const gap = 2
+    const viewportTop = placeAbove ? triggerBoundingBox.top - menuHeight - gap : triggerBoundingBox.bottom + gap
+
     let left: string, top: string
     if (portalContainerRef?.current) {
       const portalRect = portalContainerRef.current.getBoundingClientRect()
       // Position relative to the portal container
       left = `${viewportLeft - portalRect.left + portalContainerRef.current.scrollLeft}px`
-      top = `${triggerBoundingBox.bottom - portalRect.top + portalContainerRef.current.scrollTop}px`
+      top = `${viewportTop - portalRect.top + portalContainerRef.current.scrollTop}px`
     } else {
       // Position relative to the window/document
       left = `${viewportLeft}px`
-      top = `${triggerBoundingBox.bottom + window.scrollY}px`
+      top = `${viewportTop + window.scrollY}px`
     }
 
-    // Always position below trigger for now
     const position: MenuPosition = { top, left, width }
 
     // Only update if position has changed
@@ -77,7 +86,7 @@ export const useMenuPosition = ({
       positionRef.current = position
       onPositionChange(position)
     }
-  }, [onPositionChange, menuRef, triggerRef, portalContainerRef, disable])
+  }, [onPositionChange, menuRef, triggerRef, portalContainerRef, disable, align])
 
   // Set up event listeners and ResizeObserver when menu is open
   useLayoutEffect(() => {

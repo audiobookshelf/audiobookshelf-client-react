@@ -1,6 +1,7 @@
 'use client'
 
 import { applyMatchAction } from '@/app/actions/matchActions'
+import { MetadataEditFooterEnd, useMetadataEditFooter } from '@/components/modals/MetadataEditFooterContext'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import IconBtn from '@/components/ui/IconBtn'
@@ -35,6 +36,7 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
 }: BaseMatchViewProps<TUsage, TMatch>) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+  const sharedFooter = useMetadataEditFooter()
   const [isPendingApply, startApplyTransition] = useTransition()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showShadow, setShowShadow] = useState(false)
@@ -116,6 +118,8 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
   }, [])
 
   useEffect(() => {
+    if (sharedFooter) return
+
     const container = scrollContainerRef.current
     if (!container) return
 
@@ -133,7 +137,7 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
       container.removeEventListener('scroll', checkScroll)
       resizeObserver.disconnect()
     }
-  }, [checkScroll])
+  }, [checkScroll, sharedFooter])
 
   return (
     <div className="flex h-full max-h-full w-full flex-col">
@@ -165,13 +169,21 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
           })}
         </form>
       </div>
-      <div
-        className={`border-border flex flex-shrink-0 items-center justify-end border-t px-4 py-3 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}
-      >
-        <Btn type="submit" disabled={isPendingApply} loading={isPendingApply} onClick={handleSubmitMatchUpdate}>
-          {t('ButtonSubmit')}
-        </Btn>
-      </div>
+      {sharedFooter ? (
+        <MetadataEditFooterEnd>
+          <Btn disabled={isPendingApply} loading={isPendingApply} onClick={handleSubmitMatchUpdate}>
+            {t('ButtonSubmit')}
+          </Btn>
+        </MetadataEditFooterEnd>
+      ) : (
+        <div
+          className={`border-border flex flex-shrink-0 items-center justify-end border-t px-4 py-3 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}
+        >
+          <Btn type="submit" disabled={isPendingApply} loading={isPendingApply} onClick={handleSubmitMatchUpdate}>
+            {t('ButtonSubmit')}
+          </Btn>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,8 +1,11 @@
 'use client'
 
 import LibraryItemModal, { type LibraryItemModalItemSource, useLibraryItemModal } from '@/components/modals/LibraryItemModal'
+import { useMetadataEditFooter } from '@/components/modals/MetadataEditFooterContext'
+import ModalFooter from '@/components/modals/ModalFooter'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import CoverEdit from '@/components/widgets/CoverEdit'
+import EmbedMetadataFooterControl from '@/components/widgets/EmbedMetadataFooterControl'
 
 export type CoverEditModalProps = {
   isOpen: boolean
@@ -14,11 +17,14 @@ type CoverEditModalBodyProps = {
   stableBodyHeight: boolean
   /** When true, fill a parent with a fixed height (e.g. SectionedModalBody). */
   fillParent?: boolean
+  onClose?: () => void
 }
 
-export function CoverEditModalBody({ stableBodyHeight, fillParent = false }: CoverEditModalBodyProps) {
+export function CoverEditModalBody({ stableBodyHeight, fillParent = false, onClose }: CoverEditModalBodyProps) {
   const { resolvedItem, fetchPending } = useLibraryItemModal()
+  const sharedFooter = useMetadataEditFooter()
   const showLoading = fetchPending && !resolvedItem
+  const footer = !sharedFooter && resolvedItem ? <ModalFooter start={<EmbedMetadataFooterControl libraryItem={resolvedItem} onClose={onClose} />} /> : null
 
   if (fillParent || stableBodyHeight) {
     return (
@@ -38,19 +44,23 @@ export function CoverEditModalBody({ stableBodyHeight, fillParent = false }: Cov
             <CoverEdit libraryItem={resolvedItem} />
           </div>
         ) : null}
+        {footer}
       </div>
     )
   }
 
   return (
-    <div className="max-h-[85vh] overflow-y-auto">
-      {showLoading ? (
-        <div className="flex min-h-[24rem] items-center justify-center">
-          <LoadingIndicator variant="inline" />
-        </div>
-      ) : resolvedItem ? (
-        <CoverEdit libraryItem={resolvedItem} />
-      ) : null}
+    <div className="flex max-h-[85vh] w-full flex-col">
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {showLoading ? (
+          <div className="flex min-h-[24rem] items-center justify-center">
+            <LoadingIndicator variant="inline" />
+          </div>
+        ) : resolvedItem ? (
+          <CoverEdit libraryItem={resolvedItem} />
+        ) : null}
+      </div>
+      {footer}
     </div>
   )
 }
@@ -65,7 +75,7 @@ export default function CoverEditModal(props: CoverEditModalProps) {
 
   return (
     <LibraryItemModal isOpen={isOpen} onClose={onClose} {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}>
-      <CoverEditModalBody stableBodyHeight={navCtxMode} />
+      <CoverEditModalBody stableBodyHeight={navCtxMode} onClose={onClose} />
     </LibraryItemModal>
   )
 }
