@@ -12,5 +12,8 @@ export const SUBSEQUENT_SYNC_INTERVAL = 10 // seconds - subsequent syncs every t
 // Volume step for keyboard hotkeys (0-1 range, so 0.05 = 5%)
 export const VOLUME_HOTKEY_STEP = 0.05
 
+/** Above `.player-shell.fullscreen` (z-index 90) so player modals/popovers stay interactive. */
+export const PLAYER_OVERLAY_Z_CLASS = 'z-[100]'
+
 // Playable MIME types that we check browser support for
 export const AUDIO_MIME_TYPES = ['audio/flac', 'audio/mpeg', 'audio/mp4', 'audio/ogg', 'audio/aac', 'audio/x-ms-wma', 'audio/x-aiff', 'audio/webm'] as const

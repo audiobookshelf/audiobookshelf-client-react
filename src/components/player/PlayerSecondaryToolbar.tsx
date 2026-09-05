@@ -11,9 +11,11 @@ import VolumeControl from './VolumeControl'
 interface PlayerSecondaryToolbarProps {
   controls: PlayerControlsState
   className?: string
+  onPlaybackRateOpenChange?: (open: boolean) => void
+  onVolumeOpenChange?: (open: boolean) => void
 }
 
-export default function PlayerSecondaryToolbar({ controls, className }: PlayerSecondaryToolbarProps) {
+export default function PlayerSecondaryToolbar({ controls, className, onPlaybackRateOpenChange, onVolumeOpenChange }: PlayerSecondaryToolbarProps) {
   const {
     playerHandler,
     isPodcast,
@@ -32,9 +34,9 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
   const { sleepTimerSet, remainingString } = sleepTimer
 
   return (
-    <div className={mergeClasses('flex flex-nowrap items-center justify-center gap-3 sm:gap-4', className)}>
-      <VolumeControl playerHandler={playerHandler} />
-      <PlaybackRateWidget playerHandler={playerHandler} />
+    <div className={mergeClasses('player-secondary-toolbar flex flex-nowrap items-center justify-center gap-3 sm:gap-4', className)}>
+      <VolumeControl playerHandler={playerHandler} onOpenChange={onVolumeOpenChange} />
+      <PlaybackRateWidget playerHandler={playerHandler} onOpenChange={onPlaybackRateOpenChange} />
       <Tooltip text={t('LabelSleepTimer')} position="top">
         <ButtonBase
           size="custom"
@@ -53,7 +55,9 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
               <span className="material-symbols text-warning text-lg" aria-hidden="true">
                 snooze
               </span>
-              <span className="text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg">{remainingString}</span>
+              <span className="player-sleep-timer-remaining text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg">
+                {remainingString}
+              </span>
             </div>
           )}
         </ButtonBase>

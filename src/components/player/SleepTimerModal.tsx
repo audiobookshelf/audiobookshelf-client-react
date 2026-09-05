@@ -32,6 +32,7 @@ interface SleepTimerModalProps {
   timerType: SleepTimerType | null
   remaining: number
   hasChapters: boolean
+  zIndexClass?: string
   onClose: () => void
   onSet: (time: SleepTimerTime) => void
   onCancel: () => void
@@ -57,6 +58,7 @@ export default function SleepTimerModal({
   timerType,
   remaining,
   hasChapters,
+  zIndexClass,
   onClose,
   onSet,
   onCancel,
@@ -167,7 +169,13 @@ export default function SleepTimerModal({
   const outerContent = <ModalOuterContent>{t('HeaderSleepTimer')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-[350px] md:max-w-[350px] lg:max-w-[350px]">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      zIndexClass={zIndexClass}
+      outerContent={outerContent}
+      className="sm:max-w-[350px] md:max-w-[350px] lg:max-w-[350px]"
+    >
       <div className="max-h-[80vh] w-full overflow-y-auto px-1 py-0.5">
         {timerSet ? (
           <>
