@@ -2,7 +2,7 @@
 
 import { ChaptersEditModalBody, type ChaptersEditCloseHandle } from '@/components/modals/ChaptersEditModalBody'
 import { CoverEditModalBody } from '@/components/modals/CoverEditModal'
-import { LibraryItemEditModalContent } from '@/components/modals/LibraryItemEditModal'
+import { LibraryItemEditModalContent, type LibraryItemEditModalContentHandle } from '@/components/modals/LibraryItemEditModal'
 import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource } from '@/components/modals/LibraryItemModal'
 import { MatchModalBody } from '@/components/modals/MatchModal'
 import { SectionedModalBody, type Section } from '@/components/modals/SectionedModal'
@@ -38,10 +38,17 @@ function isBookWithAudioTracks(item: BookLibraryItem | PodcastLibraryItem | null
   return !!item && item.mediaType === 'book' && isBookMediaWithTracks(item.media)
 }
 
-/** If the chapters editor is mounted, confirm unsaved edits first; otherwise run `proceed` now. */
-function requestChaptersLeaveOrProceed(handle: ChaptersEditCloseHandle | null, proceed: () => void) {
-  if (handle) {
-    handle.requestLeave(proceed)
+/**
+ * Only one section (details/chapters) is mounted at a time, so at most one of these handles
+ * is non-null. If that section has unsaved edits, confirm first; otherwise run `proceed` now.
+ */
+function requestSectionLeaveOrProceed(
+  handles: Array<{ requestLeave: (onAllow: () => void) => void } | null>,
+  proceed: () => void
+) {
+  const activeHandle = handles.find((handle) => handle != null)
+  if (activeHandle) {
+    activeHandle.requestLeave(proceed)
     return
   }
   proceed()
@@ -58,6 +65,7 @@ interface LibraryItemMetadataEditModalBodyProps {
   startSaveTransition: TransitionStartFunction
   isSavePending: boolean
   chaptersCloseRef: Ref<ChaptersEditCloseHandle | null>
+  detailsCloseRef: Ref<LibraryItemEditModalContentHandle | null>
   onChaptersPendingChange: (pending: boolean) => void
 }
 
@@ -72,6 +80,7 @@ function LibraryItemMetadataEditModalBody({
   startSaveTransition,
   isSavePending,
   chaptersCloseRef,
+  detailsCloseRef,
   onChaptersPendingChange
 }: LibraryItemMetadataEditModalBodyProps) {
   const t = useTypeSafeTranslations()
@@ -118,6 +127,7 @@ function LibraryItemMetadataEditModalBody({
           onClose={onClose}
           stableBodyHeight={false}
           fillParent
+          closeRequestRef={detailsCloseRef}
         />
       ) : selectedSection === 'cover' ? (
         <CoverEditModalBody stableBodyHeight={false} fillParent />
@@ -141,6 +151,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
   const [selectedSection, setSelectedSection] = useState<MetadataEditSection>(initialSection ?? 'details')
   const [isChaptersPending, setIsChaptersPending] = useState(false)
   const chaptersCloseRef = useRef<ChaptersEditCloseHandle | null>(null)
+  const detailsCloseRef = useRef<LibraryItemEditModalContentHandle | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -151,17 +162,17 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
     (sectionId: string) => {
       const next = sectionId as MetadataEditSection
       if (next === selectedSection) return
-      requestChaptersLeaveOrProceed(chaptersCloseRef.current, () => setSelectedSection(next))
+      requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], () => setSelectedSection(next))
     },
     [selectedSection]
   )
 
   const handleHubBack = useCallback((proceed: () => void) => {
-    requestChaptersLeaveOrProceed(chaptersCloseRef.current, proceed)
+    requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], proceed)
   }, [])
 
   const handleClose = useCallback(() => {
-    requestChaptersLeaveOrProceed(chaptersCloseRef.current, onClose)
+    requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], onClose)
   }, [onClose])
 
   const mobileInitialSection = initialSection === 'details' ? undefined : initialSection
@@ -173,7 +184,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
       {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}
       additionalProcessing={isSavePending || filterDataLoading || isChaptersPending}
       className="md:max-w-[min(95vw,60rem)]"
-      onBeforeNavigate={(proceed) => requestChaptersLeaveOrProceed(chaptersCloseRef.current, proceed)}
+      onBeforeNavigate={(proceed) => requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], proceed)}
     >
       <LibraryItemMetadataEditModalBody
         isOpen={isOpen}
@@ -186,6 +197,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
         startSaveTransition={startSaveTransition}
         isSavePending={isSavePending}
         chaptersCloseRef={chaptersCloseRef}
+        detailsCloseRef={detailsCloseRef}
         onChaptersPendingChange={setIsChaptersPending}
       />
     </LibraryItemModal>

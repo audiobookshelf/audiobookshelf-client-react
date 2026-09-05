@@ -5,13 +5,25 @@ import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource 
 import ModalFooter from '@/components/modals/ModalFooter'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { BookMedia, BookMetadata, PodcastMedia, PodcastMetadata } from '@/types/api'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type TransitionStartFunction } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  type Ref,
+  type TransitionStartFunction
+} from 'react'
 
 function createPlaceholderBookLibraryItem(id: string, libraryId: string): BookLibraryItem {
   const metadata: BookMetadata = {
@@ -73,6 +85,11 @@ export type LibraryItemEditModalProps = {
   onClose: () => void
 } & LibraryItemModalItemSource
 
+export type LibraryItemEditModalContentHandle = {
+  /** Confirm unsaved detail edits, then run `onAllow` (e.g. switch section or close). */
+  requestLeave: (onAllow: () => void) => void
+}
+
 export type LibraryItemEditModalContentProps = {
   isOpen: boolean
   startSaveTransition: TransitionStartFunction
@@ -82,6 +99,8 @@ export type LibraryItemEditModalContentProps = {
   stableBodyHeight: boolean
   /** When true, fill a parent with a fixed height (e.g. SectionedModalBody). */
   fillParent?: boolean
+  /** Lets the parent intercept leave (section change, hub back, close) while details are dirty. */
+  closeRequestRef?: Ref<LibraryItemEditModalContentHandle | null>
 }
 
 export function LibraryItemEditModalContent({
@@ -90,7 +109,8 @@ export function LibraryItemEditModalContent({
   isSavePending,
   onClose,
   stableBodyHeight,
-  fillParent = false
+  fillParent = false,
+  closeRequestRef
 }: LibraryItemEditModalContentProps) {
   const { resolvedItem, fetchPending, pendingEntityId } = useLibraryItemModal()
   const t = useTypeSafeTranslations()
@@ -98,6 +118,8 @@ export function LibraryItemEditModalContent({
   const { filterData, library } = useLibrary()
   const [hasChanges, setHasChanges] = useState(false)
   const saveAndCloseRef = useRef(false)
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
+  const pendingLeaveRef = useRef<(() => void) | null>(null)
 
   const bookDetailsRef = useRef<BookDetailsEditRef>(null)
   const podcastDetailsRef = useRef<PodcastDetailsEditRef>(null)
@@ -171,7 +193,12 @@ export function LibraryItemEditModalContent({
       if (!itemId) return
 
       if (!details.hasChanges) {
-        if (saveAndCloseRef.current) {
+        if (pendingLeaveRef.current) {
+          const onAllow = pendingLeaveRef.current
+          pendingLeaveRef.current = null
+          setShowCloseConfirm(false)
+          onAllow()
+        } else if (saveAndCloseRef.current) {
           onClose()
         }
         return
@@ -185,7 +212,12 @@ export function LibraryItemEditModalContent({
           })
           showToast(t('ToastItemUpdateSuccess'), { type: 'success' })
           setHasChanges(false)
-          if (saveAndCloseRef.current) {
+          if (pendingLeaveRef.current) {
+            const onAllow = pendingLeaveRef.current
+            pendingLeaveRef.current = null
+            setShowCloseConfirm(false)
+            onAllow()
+          } else if (saveAndCloseRef.current) {
             onClose()
           }
         } catch (error) {
@@ -197,15 +229,48 @@ export function LibraryItemEditModalContent({
     [onClose, resolvedItem?.id, showToast, startSaveTransition, t]
   )
 
-  const handleSave = (close: boolean = false) => {
-    saveAndCloseRef.current = close
-    if (!resolvedItem) return
-    if (resolvedItem.mediaType === 'podcast') {
-      podcastDetailsRef.current?.submit()
-    } else {
-      bookDetailsRef.current?.submit()
-    }
-  }
+  const handleSave = useCallback(
+    (close: boolean = false) => {
+      saveAndCloseRef.current = close
+      if (!resolvedItem) return
+      if (resolvedItem.mediaType === 'podcast') {
+        podcastDetailsRef.current?.submit()
+      } else {
+        bookDetailsRef.current?.submit()
+      }
+    },
+    [resolvedItem]
+  )
+
+  const requestLeave = useCallback(
+    (onAllow: () => void) => {
+      if (!hasChanges) {
+        onAllow()
+        return
+      }
+      pendingLeaveRef.current = onAllow
+      setShowCloseConfirm(true)
+    },
+    [hasChanges]
+  )
+
+  const handleCancelLeave = useCallback(() => {
+    pendingLeaveRef.current = null
+    setShowCloseConfirm(false)
+  }, [])
+
+  const handleDiscardAndLeave = useCallback(() => {
+    const onAllow = pendingLeaveRef.current
+    pendingLeaveRef.current = null
+    setShowCloseConfirm(false)
+    onAllow?.()
+  }, [])
+
+  const handleSaveAndLeave = useCallback(() => {
+    handleSave(false)
+  }, [handleSave])
+
+  useImperativeHandle(closeRequestRef, () => ({ requestLeave }), [requestLeave])
 
   const isPodcast = resolvedItem?.mediaType === 'podcast'
   const saveDisabled = !hasChanges || isSavePending || !resolvedItem || fetchPending
@@ -313,6 +378,17 @@ export function LibraryItemEditModalContent({
           onClick: () => handleSave(true),
           disabled: saveDisabled
         }}
+      />
+
+      <ConfirmDialog
+        isOpen={showCloseConfirm}
+        message={t('MessageConfirmCloseDetailsWithChanges')}
+        altButtonText={t('ButtonDiscard')}
+        yesButtonText={t('ButtonSave')}
+        processing={isSavePending}
+        onClose={handleCancelLeave}
+        onAlt={handleDiscardAndLeave}
+        onConfirm={handleSaveAndLeave}
       />
     </div>
   )
