@@ -5,7 +5,7 @@ export type PlayerShellSwipeAction = 'expand' | 'collapse' | 'close'
 
 export function isPlayerShellSwipeBlockedTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false
-  return Boolean(target.closest('button, input, textarea, select'))
+  return Boolean(target.closest('button, input, textarea, select, a, .player-author'))
 }
 
 export function shouldLockPlayerShellHorizontalSeek(dx: number, dy: number): boolean {
