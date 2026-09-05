@@ -186,6 +186,7 @@ export default function ChaptersModalTable({
           chapter={chapter}
           chapterCount={chapters.length}
           mediaDuration={mediaDuration}
+          isFirstChapter={index === 0}
           startDirty={dirty.start}
           baselineTitle={chapter.clientKey ? dirtyBaseline.get(chapter.clientKey)?.title : undefined}
           showMatchDebug={showMatchDebug}
