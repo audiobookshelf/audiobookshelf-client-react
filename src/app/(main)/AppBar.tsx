@@ -12,6 +12,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { withBasePath } from '@/lib/basePath'
 import { resolveEffectiveLibrary } from '@/lib/libraries'
 import { mergeClasses } from '@/lib/merge-classes'
+import { registerLibrariesCoverAspectRatio } from '@/lib/player/libraryCoverAspectRatioRegistry'
 import { Library } from '@/types/api'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -50,6 +51,12 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
       setIsSideRailOpen(false)
     }
   }, [isMobile, isSideRailOpen])
+
+  useEffect(() => {
+    if (libraries?.length) {
+      registerLibrariesCoverAspectRatio(libraries)
+    }
+  }, [libraries])
 
   const isAdmin = ['admin', 'root'].includes(user.type)
 

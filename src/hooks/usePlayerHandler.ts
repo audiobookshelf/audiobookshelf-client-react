@@ -113,6 +113,8 @@ export interface PlayerHandlerControls {
   decrementPlaybackRate: () => void
   /** Update player settings */
   updateSettings: UsePlayerSettingsReturn['updateSettings']
+  /** Stop local/cast output immediately without ending the playback session. */
+  stopPlaybackImmediately: () => void
   /** Close the player and end session */
   closePlayer: () => Promise<void>
   /** Read playback time from the player instance (for handlers without tick subscriptions). */
@@ -585,15 +587,23 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const getCurrentTime = useCallback(() => playerRef.current?.getCurrentTime() ?? currentTimeRef.current, [])
 
-  const closePlayer = useCallback(async () => {
+  const stopPlaybackImmediately = useCallback(() => {
     stopSyncInterval()
-    await closeSession(() => playerRef.current?.getCurrentTime() ?? 0)
 
-    // Destroy player
     if (playerRef.current) {
       playerRef.current.destroy()
       playerRef.current = null
     }
+
+    if (playerStateRef.current !== PlayerState.IDLE) {
+      setPlayerState(PlayerState.IDLE)
+    }
+  }, [stopSyncInterval])
+
+  const closePlayer = useCallback(async () => {
+    const savedTime = playerRef.current?.getCurrentTime() ?? currentTimeRef.current
+    stopPlaybackImmediately()
+    await closeSession(() => savedTime)
 
     // Reset state
     setPlayerState(PlayerState.IDLE)
@@ -616,7 +626,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     libraryItemRef.current = null
     episodeIdRef.current = null
     playerKindRef.current = 'local'
-  }, [closeSession, stopSyncInterval])
+  }, [closeSession, stopPlaybackImmediately])
 
   // Keep the saved chapter-track preference, but treat it as off when this item has no chapters
   const effectiveSettings = useMemo(() => {
@@ -641,6 +651,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       incrementPlaybackRate,
       decrementPlaybackRate,
       updateSettings,
+      stopPlaybackImmediately,
       closePlayer,
       getCurrentTime
     }),
@@ -658,6 +669,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       incrementPlaybackRate,
       decrementPlaybackRate,
       updateSettings,
+      stopPlaybackImmediately,
       closePlayer,
       getCurrentTime
     ]
