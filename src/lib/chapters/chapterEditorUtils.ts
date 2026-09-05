@@ -56,8 +56,8 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
     const chapterEnd = chapters[i + 1] ? chapters[i + 1].start : mediaDuration
     const existingEnd = existingChapters[i + 1] ? existingChapters[i + 1].start : mediaDuration
     if (
-      !chapterTimesEqual(chapter.start, existingChapter.start) ||
-      !chapterTimesEqual(chapterEnd, existingEnd) ||
+      !normalizedChapterTimesEqual(chapter.start, existingChapter.start) ||
+      !normalizedChapterTimesEqual(chapterEnd, existingEnd) ||
       (chapter.title || '').trim() !== (existingChapter.title || '').trim()
     ) {
       return true
@@ -95,7 +95,12 @@ export function audibleMsToChapterStartSec(ms: number): number {
 /** Starts within this many seconds compare equal (Audible ms rounding vs saved whole seconds). */
 const CHAPTER_START_TOLERANCE_SEC = 1
 
-/** DurationPicker and timestamps are whole seconds; ignore sub-second and ±1s Audible drift. */
+/** Exact whole-second equality after DurationPicker-style rounding. Used for editor dirty state. */
+function normalizedChapterTimesEqual(a: number, b: number): boolean {
+  return normalizeChapterStartSec(a) === normalizeChapterStartSec(b)
+}
+
+/** ±1s after rounding. Used for Audible/import matching, not user-edit dirty detection. */
 function chapterTimesEqual(a: number, b: number): boolean {
   return Math.abs(normalizeChapterStartSec(a) - normalizeChapterStartSec(b)) <= CHAPTER_START_TOLERANCE_SEC
 }
@@ -148,12 +153,12 @@ export function getChapterDirtyFields(chapter: EditableChapter, baseline: Map<st
   if (!snapshot) {
     return { start: true, title: true, duration: true }
   }
-  const startDirty = !chapterTimesEqual(chapter.start, snapshot.start)
+  const startDirty = !normalizedChapterTimesEqual(chapter.start, snapshot.start)
   const titleDirty = (chapter.title || '').trim() !== snapshot.title
   return {
     start: startDirty,
     title: titleDirty,
-    duration: startDirty || !chapterTimesEqual(chapter.end, snapshot.end)
+    duration: startDirty || !normalizedChapterTimesEqual(chapter.end, snapshot.end)
   }
 }
 
