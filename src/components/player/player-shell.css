@@ -144,7 +144,7 @@ html.player-inset-animate .page-wrapper * {
 
 .player-title-author {
   position: absolute;
-  z-index: 2;
+  z-index: 3;
   inset-inline-start: calc(0.5rem + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + 0.5rem);
   inset-inline-end: calc(var(--player-mini-transport-width) + 0.25rem + var(--player-safe-inline-end));
   top: var(--player-mini-content-top);
@@ -171,6 +171,17 @@ html.player-inset-animate .page-wrapper * {
   line-height: 1.25;
   transition-property: font-size, opacity, height, margin;
   transition-duration: var(--player-dur);
+}
+
+.player-author {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.player-author-marquee {
+  width: 100%;
+  min-width: 0;
+  padding-inline-start: 0.25rem;
 }
 
 .player-shell.fullscreen .player-title-author {
@@ -745,7 +756,9 @@ html.player-inset-animate .page-wrapper * {
     grid-column: 1;
     grid-row: 2;
     min-width: 0;
-    justify-self: start;
+    max-width: 100%;
+    overflow: hidden;
+    justify-self: stretch;
     text-align: start;
   }
 
