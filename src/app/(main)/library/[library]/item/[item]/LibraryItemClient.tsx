@@ -7,6 +7,7 @@ import ChaptersTable from '@/components/widgets/ChaptersTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import EbookFilesTable from '@/components/widgets/EbookFilesTable'
 import EpisodeTable from '@/components/widgets/EpisodeTable'
+import AuthorLinks from '@/components/widgets/AuthorLinks'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
@@ -167,16 +168,9 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 {bookAuthors.length > 0 && (
                   <div>
                     <span className="text-foreground text-lg">{t('LabelByAuthor', { 0: '' })}</span>
-                    {bookAuthors.map((author, index) => {
-                      return (
-                        <Fragment key={author.id}>
-                          <Link href={`/library/${library.id}/authors/${author.id}`} className="text-foreground link-underline text-lg md:text-xl">
-                            {author.name}
-                          </Link>
-                          {index < bookAuthors.length - 1 && <span className="text-foreground text-lg md:text-xl">, </span>}
-                        </Fragment>
-                      )
-                    })}
+                    <span className="text-foreground text-lg md:text-xl">
+                      <AuthorLinks libraryId={library.id} authors={bookAuthors} />
+                    </span>
                   </div>
                 )}
               </div>
