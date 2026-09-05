@@ -681,6 +681,40 @@ html.player-inset-animate .page-wrapper * {
   }
 }
 
+/* Compact mini chrome between lg and xl so centered transport and the
+   right-hand toolbar do not overlap around ~1100px. */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .player-shell:not(.fullscreen) .player-title-author {
+    width: 24%;
+  }
+
+  .player-shell:not(.fullscreen) .player-transport-slot {
+    padding-inline-end: 2.5rem;
+  }
+
+  .player-shell:not(.fullscreen) .player-transport {
+    gap: 0.5rem;
+  }
+
+  .player-shell:not(.fullscreen) .player-jump-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    font-size: 1.625rem;
+  }
+
+  .player-shell:not(.fullscreen) .player-play-btn {
+    width: 2.375rem;
+    height: 2.375rem;
+    font-size: 1.375rem;
+  }
+
+  .player-shell:not(.fullscreen) .player-secondary-toolbar {
+    gap: 0.5rem;
+  }
+}
+
 @media (orientation: landscape) and (max-height: 600px) {
   .player-shell.fullscreen {
     --player-landscape-inline-pad: 1rem;
