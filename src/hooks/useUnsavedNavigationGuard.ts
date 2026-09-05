@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { handleModalPopState, removeHistoryEntrySilently, whenModalHistoryIdle } from '@/hooks/useModalHistory'
 
 const BACK_COOLDOWN_MS = 400
 
@@ -75,17 +76,7 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
   backLeavePathRef.current = backLeavePath
   const trapActiveRef = useRef(false)
   const backHandlingRef = useRef(false)
-  const removingTrapRef = useRef(false)
-
-  const removeHistoryTrapSilently = () => {
-    if (!trapActiveRef.current) return
-    trapActiveRef.current = false
-    removingTrapRef.current = true
-    window.history.back()
-    queueMicrotask(() => {
-      removingTrapRef.current = false
-    })
-  }
+  const generationRef = useRef(0)
 
   useEffect(() => {
     guardEnabled = enabled
@@ -95,6 +86,8 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
   }, [enabled])
 
   useEffect(() => {
+    const generation = ++generationRef.current
+    const isCurrentGeneration = () => generationRef.current === generation
     if (!enabled) return
 
     guardLocationKeyRef.current = getCurrentLocationKey()
@@ -128,22 +121,21 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
 
     const originalPushState = history.pushState.bind(history)
 
-    if (!trapActiveRef.current) {
-      originalPushState({ __unsavedGuard: true }, '', window.location.href)
-      trapActiveRef.current = true
-    }
+    const cancelTrapSetup = whenModalHistoryIdle(() => {
+      if (!trapActiveRef.current) {
+        originalPushState({ ...history.state, __unsavedGuard: true }, '', window.location.href)
+        trapActiveRef.current = true
+      }
+    })
 
     const onPopState = (event: PopStateEvent) => {
-      if (removingTrapRef.current) {
-        removingTrapRef.current = false
-        return
-      }
+      if (handleModalPopState(event)) return
       if (!enabledRef.current || backHandlingRef.current) return
 
       event.stopImmediatePropagation()
       backHandlingRef.current = true
 
-      originalPushState({ __unsavedGuard: true }, '', guardHref())
+      originalPushState({ ...history.state, __unsavedGuard: true }, '', guardHref())
 
       const leavePath = backLeavePathRef.current
       if (!leavePath || !leaveViaFullReload(leavePath)) {
@@ -161,6 +153,7 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
     window.addEventListener('popstate', onPopState, true)
 
     return () => {
+      cancelTrapSetup()
       window.removeEventListener('beforeunload', onBeforeUnload)
       document.removeEventListener('click', onClick, true)
       window.removeEventListener('popstate', onPopState, true)
@@ -169,7 +162,14 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
         trapActiveRef.current = false
         skipHistoryTrapRemoval = false
       } else {
-        removeHistoryTrapSilently()
+        // The trap can only be popped after modal cleanup, and only if still on this page.
+        whenModalHistoryIdle(() => {
+          if (!trapActiveRef.current || (!isCurrentGeneration() && enabledRef.current)) return
+          trapActiveRef.current = false
+          if (getCurrentLocationKey() === guardLocationKeyRef.current && history.state?.__unsavedGuard) {
+            removeHistoryEntrySilently()
+          }
+        })
       }
 
       backHandlingRef.current = false
