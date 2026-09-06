@@ -35,6 +35,10 @@
   overflow: hidden;
 }
 
+.player-shell:not(.fullscreen) {
+  cursor: pointer;
+}
+
 :dir(rtl) .player-shell {
   --player-safe-inline-start: env(safe-area-inset-right, 0px);
   --player-safe-inline-end: env(safe-area-inset-left, 0px);
@@ -127,6 +131,7 @@
 }
 
 .player-title-link {
+  display: block;
   text-decoration: none;
 }
 
@@ -175,6 +180,28 @@
   width: 100%;
   min-width: 0;
   padding-inline-start: 0.25rem;
+}
+
+.player-shell:not(.fullscreen) .player-title-link {
+  align-self: start;
+  width: max-content;
+  max-width: 100%;
+}
+
+.player-shell:not(.fullscreen) .player-author {
+  align-self: start;
+  width: auto;
+  max-width: 100%;
+}
+
+.player-shell:not(.fullscreen) .player-author-marquee {
+  flex: 0 1 auto;
+  width: auto;
+  max-width: 100%;
+}
+
+.player-shell:not(.fullscreen) .player-duration {
+  align-self: start;
 }
 
 .player-shell.fullscreen .player-title-author {
