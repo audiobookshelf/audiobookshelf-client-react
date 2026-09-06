@@ -1,11 +1,11 @@
-export const PLAYER_SWIPE_THRESHOLD_MINI_PX = 48
+export const PLAYER_SWIPE_THRESHOLD_MINI_PX = 32
 export const PLAYER_SWIPE_LOCK_PX = 12
 
 export type PlayerShellSwipeAction = 'expand' | 'collapse' | 'close'
 
 export function isPlayerShellSwipeBlockedTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false
-  return Boolean(target.closest('button, input, textarea, select, a, .player-author'))
+  return Boolean(target.closest('input, textarea, select'))
 }
 
 export function shouldLockPlayerShellHorizontalSeek(dx: number, dy: number): boolean {
