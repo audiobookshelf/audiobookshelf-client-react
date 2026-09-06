@@ -9,16 +9,15 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { getEpisodeDuration } from '@/lib/episode'
-import { clearMediaPlayerHeightCssVar, getPlayerMiniCloseDurationMs } from '@/lib/player/miniPlayerCloseAnimation'
 import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMetadata } from '@/types/api'
-import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { CSSProperties, useCallback, useMemo } from 'react'
 import PlayerShell from './PlayerShell'
 
 export function getPlayerBottomInsetClass(): string {
   return 'bottom-[var(--media-player-height,0px)]'
 }
 
-/** 1rem gap above the player — uses live `--media-player-height` when streaming. */
+/** 1rem gap above the player — uses `--media-player-height` when streaming. */
 export function getCoverSizeWidgetBottomClass(isStreaming: boolean): string {
   if (!isStreaming) return 'bottom-4'
   return 'bottom-[calc(var(--media-player-height,0px)+1rem)]'
@@ -29,67 +28,10 @@ export default function MediaPlayerContainer() {
   const { streamLibraryItem, streamEpisodeId, clearStreamMedia, playerControls, isPlayerFullscreen, setPlayerFullscreen } = useMediaContext()
   const playerState = usePlayerState()
   const playerHandler = useMemo((): PlayerHandler => ({ state: playerState, controls: playerControls }), [playerControls, playerState])
-  const [isClosing, setIsClosing] = useState(false)
-  const closingRef = useRef(false)
-  const finalizeOnceRef = useRef(false)
-  const finalizeMiniCloseRef = useRef<() => void>(() => {})
-
-  const resetCloseState = useCallback(() => {
-    closingRef.current = false
-    finalizeOnceRef.current = false
-    setIsClosing(false)
-  }, [])
-
-  const finalizeMiniClose = useCallback(async () => {
-    if (!closingRef.current || finalizeOnceRef.current) return
-
-    finalizeOnceRef.current = true
-    closingRef.current = false
-
-    try {
-      await clearStreamMedia()
-    } finally {
-      finalizeOnceRef.current = false
-      setIsClosing(false)
-    }
-  }, [clearStreamMedia])
-
-  finalizeMiniCloseRef.current = () => {
-    void finalizeMiniClose()
-  }
 
   const handleClosePlayer = useCallback(() => {
-    if (isPlayerFullscreen) {
-      void clearStreamMedia()
-      return
-    }
-
-    if (closingRef.current) return
-
-    const durationMs = getPlayerMiniCloseDurationMs()
-    if (durationMs <= 0) {
-      void clearStreamMedia()
-      return
-    }
-
-    playerControls.stopPlaybackImmediately()
-    closingRef.current = true
-    setIsClosing(true)
-  }, [clearStreamMedia, isPlayerFullscreen, playerControls])
-
-  useEffect(() => {
-    if (!isClosing) return
-
-    const durationMs = getPlayerMiniCloseDurationMs()
-
-    const fallbackTimeout = window.setTimeout(() => {
-      finalizeMiniCloseRef.current()
-    }, durationMs + 50)
-
-    return () => {
-      window.clearTimeout(fallbackTimeout)
-    }
-  }, [isClosing])
+    void clearStreamMedia()
+  }, [clearStreamMedia])
 
   const handleHotkeyClose = useCallback(() => {
     if (isPlayerFullscreen) {
@@ -149,13 +91,6 @@ export default function MediaPlayerContainer() {
     }
   }, [playerHandler.state.displayTitle, playerHandler.state.duration, playerHandler.state.settings.playbackRate, streamEpisodeId, streamLibraryItem, t])
 
-  useLayoutEffect(() => {
-    if (!streamLibraryItem) {
-      clearMediaPlayerHeightCssVar()
-      resetCloseState()
-    }
-  }, [resetCloseState, streamLibraryItem])
-
   if (!streamLibraryItem || !playerMetadata) {
     return null
   }
@@ -167,9 +102,7 @@ export default function MediaPlayerContainer() {
       metadata={playerMetadata}
       accentStyle={playerAccentStyle}
       showAccentBackdrop={accentRgb !== null}
-      isClosing={isClosing}
       onClose={handleClosePlayer}
-      onCloseAnimationEnd={finalizeMiniClose}
     />
   )
 }
