@@ -15,7 +15,7 @@ function PlayerMarqueeTitle({ href, text, onNavigate }: PlayerMarqueeTitleProps)
   const marqueeRef = useWrappingMarquee(text)
 
   return (
-    <Link href={href} className="player-title-link block min-w-0" onClick={onNavigate} aria-label={text}>
+    <Link href={href} className="player-title-link min-w-0" onClick={onNavigate} aria-label={text}>
       <div ref={marqueeRef} className="player-title-marquee relative min-w-0 overflow-hidden">
         <span className="player-title text-foreground block w-max max-w-none font-medium whitespace-nowrap">
           <span className={`${MARQUEE_SEGMENT_CLASS} link-underline`}>{text}</span>

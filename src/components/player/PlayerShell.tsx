@@ -11,6 +11,7 @@ import { usePlayerShellSwipe } from '@/hooks/usePlayerShellSwipe'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { landscapeDensityFlags } from '@/lib/player/landscapeDensity'
+import { isPlayerShellExpandIgnoredTarget } from '@/lib/player/playerShellSwipe'
 import { closePlayerSecondaryPopovers } from '@/lib/player/secondaryPopovers'
 import { LibraryItem } from '@/types/api'
 import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -105,6 +106,19 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     expand()
   }, [expand])
 
+  const handleMiniBackgroundClick = useCallback(
+    (event: React.MouseEvent<HTMLDivElement>) => {
+      if (isPlayerFullscreen) return
+      if (swipeHandledRef.current) {
+        swipeHandledRef.current = false
+        return
+      }
+      if (isPlayerShellExpandIgnoredTarget(event.target)) return
+      expand()
+    },
+    [expand, isPlayerFullscreen]
+  )
+
   const shellStyle = useMemo(
     () => ({
       ...accentStyle,
@@ -122,6 +136,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       data-landscape-density={landscapeDensityLevel}
       role={isPlayerFullscreen ? 'dialog' : undefined}
       aria-label={isPlayerFullscreen ? metadata.displayTitle : undefined}
+      onClick={isPlayerFullscreen ? undefined : handleMiniBackgroundClick}
     >
       {showAccentBackdrop ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
 
