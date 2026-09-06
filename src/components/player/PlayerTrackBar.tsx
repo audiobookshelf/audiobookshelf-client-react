@@ -50,6 +50,7 @@ export default function PlayerTrackBar({
 
   const [trackWidth, setTrackWidth] = useState(0)
   const [isHovering, setIsHovering] = useState(false)
+  const [dragPreviewTime, setDragPreviewTime] = useState<number | null>(null)
 
   const currentChapterDuration = currentChapter ? currentChapter.end - currentChapter.start : 0
   const currentChapterStart = currentChapter ? currentChapter.start : 0
@@ -58,15 +59,16 @@ export default function PlayerTrackBar({
 
   const effectivePlaybackRate = playbackRate && !isNaN(playbackRate) ? playbackRate : 1
 
-  const timeRemainingToShow = (inChapterScope ? currentChapterDuration - (currentTime - currentChapterStart) : duration - currentTime) / effectivePlaybackRate
+  const displayTime = dragPreviewTime ?? currentTime
+  const timeRemainingToShow = (inChapterScope ? currentChapterDuration - (displayTime - currentChapterStart) : duration - displayTime) / effectivePlaybackRate
   const timeRemainingFormatted = timeRemainingToShow < 0 ? secondsToTimestamp(timeRemainingToShow * -1) : `-${secondsToTimestamp(timeRemainingToShow)}`
 
-  const currentTimeToShow = inChapterScope ? Math.max(0, currentTime - currentChapterStart) : currentTime
+  const currentTimeToShow = inChapterScope ? Math.max(0, displayTime - currentChapterStart) : displayTime
   const currentTimeFormatted = secondsToTimestamp(currentTimeToShow / effectivePlaybackRate)
   const currentChapterNumber = currentChapter ? chapters.findIndex((ch) => ch.id === currentChapter.id) + 1 : null
 
   const effectiveDuration = inChapterScope ? currentChapterDuration : duration
-  const playedTime = inChapterScope ? Math.max(0, currentTime - currentChapterStart) : currentTime
+  const playedTime = inChapterScope ? Math.max(0, displayTime - currentChapterStart) : displayTime
   const playedPercent = effectiveDuration ? Math.min(100, (playedTime / effectiveDuration) * 100) : 0
 
   const bufferedTimeAdjusted = inChapterScope ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
@@ -156,22 +158,41 @@ export default function PlayerTrackBar({
     [chapters, currentChapterDuration, currentChapterStart, duration, effectivePlaybackRate, inChapterScope]
   )
 
-  const seekFromClientX = useCallback(
+  const timeFromClientX = useCallback(
     (clientX: number) => {
-      if (isLoading) return
+      if (isLoading) return null
       const rect = trackRef.current?.getBoundingClientRect()
-      if (!rect || rect.width <= 0) return
+      if (!rect || rect.width <= 0) return null
 
       const perc = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
       const baseTime = inChapterScope ? currentChapterStart : 0
       const dur = inChapterScope ? currentChapterDuration : duration
-      if (dur <= 0) return
+      if (dur <= 0) return null
 
       const time = baseTime + perc * dur
-      if (isNaN(time)) return
+      if (isNaN(time)) return null
+      return time
+    },
+    [currentChapterDuration, currentChapterStart, duration, inChapterScope, isLoading]
+  )
+
+  const previewFromClientX = useCallback(
+    (clientX: number) => {
+      const time = timeFromClientX(clientX)
+      if (time == null) return
+      setDragPreviewTime(time)
+      updateHoverUi(clientX)
+    },
+    [timeFromClientX, updateHoverUi]
+  )
+
+  const seekFromClientX = useCallback(
+    (clientX: number) => {
+      const time = timeFromClientX(clientX)
+      if (time == null) return
       seek(time)
     },
-    [currentChapterDuration, currentChapterStart, duration, inChapterScope, isLoading, seek]
+    [seek, timeFromClientX]
   )
 
   const clearTouchGesture = useCallback(() => {
@@ -195,10 +216,9 @@ export default function PlayerTrackBar({
       event.preventDefault()
       draggingRef.current = true
       event.currentTarget.setPointerCapture(event.pointerId)
-      seekFromClientX(event.clientX)
-      updateHoverUi(event.clientX)
+      previewFromClientX(event.clientX)
     },
-    [deferTouchSeekToShellGestures, seekFromClientX, updateHoverUi]
+    [deferTouchSeekToShellGestures, previewFromClientX]
   )
 
   const handlePointerMove = useCallback(
@@ -219,31 +239,30 @@ export default function PlayerTrackBar({
           event.preventDefault()
           draggingRef.current = true
           event.currentTarget.setPointerCapture(event.pointerId)
-          seekFromClientX(event.clientX)
-          updateHoverUi(event.clientX)
+          previewFromClientX(event.clientX)
         }
         return
       }
 
-      if (event.pointerType === 'mouse' || draggingRef.current) {
+      if (draggingRef.current) {
+        previewFromClientX(event.clientX)
+      } else if (event.pointerType === 'mouse') {
         updateHoverUi(event.clientX)
       }
-      if (draggingRef.current) {
-        seekFromClientX(event.clientX)
-      }
     },
-    [deferTouchSeekToShellGestures, seekFromClientX, updateHoverUi]
+    [deferTouchSeekToShellGestures, previewFromClientX, updateHoverUi]
   )
 
-  const endDrag = useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
+  const finishPointerGesture = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>, shouldSeek: boolean) => {
       const touchGesture = touchGestureRef.current
-      if (touchGesture?.pending && !touchGesture.aborted) {
-        const dx = event.clientX - touchGesture.startX
-        const dy = event.clientY - touchGesture.startY
-        if (Math.hypot(dx, dy) <= PLAYER_SWIPE_LOCK_PX) {
-          seekFromClientX(event.clientX)
-        }
+      const isTap = Boolean(
+        touchGesture?.pending &&
+        !touchGesture.aborted &&
+        Math.hypot(event.clientX - touchGesture.startX, event.clientY - touchGesture.startY) <= PLAYER_SWIPE_LOCK_PX
+      )
+      if (shouldSeek && (draggingRef.current || isTap)) {
+        seekFromClientX(event.clientX)
       }
       clearTouchGesture()
 
@@ -251,11 +270,26 @@ export default function PlayerTrackBar({
         event.currentTarget.releasePointerCapture(event.pointerId)
       }
       draggingRef.current = false
+      setDragPreviewTime(null)
       if (event.pointerType !== 'mouse') {
         setIsHovering(false)
       }
     },
     [clearTouchGesture, seekFromClientX]
+  )
+
+  const endDrag = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      finishPointerGesture(event, true)
+    },
+    [finishPointerGesture]
+  )
+
+  const cancelDrag = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      finishPointerGesture(event, false)
+    },
+    [finishPointerGesture]
   )
 
   const handlePointerLeave = useCallback(() => {
@@ -333,7 +367,7 @@ export default function PlayerTrackBar({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={endDrag}
-          onPointerCancel={endDrag}
+          onPointerCancel={cancelDrag}
           onPointerLeave={handlePointerLeave}
           onKeyDown={handleKeyDown}
         >
@@ -348,7 +382,10 @@ export default function PlayerTrackBar({
             style={{ width: `${bufferedPercent}%` }}
           />
           <div
-            className="bg-track-progress pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
+            className={mergeClasses(
+              'bg-track-progress pointer-events-none absolute top-0 left-0 h-full',
+              dragPreviewTime == null && 'transition-[width] duration-75'
+            )}
             style={{ width: `${playedPercent}%` }}
           />
           <div
