@@ -21,7 +21,7 @@
   --cover-image-height: 320px;
   --cover-image-width-collapsed: 56px;
   --cover-image-height-collapsed: 56px;
-  --player-mini-transport-width: 5.75rem;
+  --player-mini-transport-width: 8.75rem;
   --player-mini-top-pad: 0.5rem;
   --player-mini-content-top: 0.5rem;
   --player-mini-track-block: 3.75rem;
@@ -392,7 +392,7 @@
   text-align: center;
 }
 
-/* Mobile mini: transport beside title row; play flush to the screen edge */
+/* Mobile mini: transport beside title row; jump forward flush to the screen edge */
 .player-transport-slot {
   position: absolute;
   z-index: 2;
@@ -469,6 +469,11 @@
 
 .player-transport-jump-back {
   view-transition-name: player-jump-back;
+  transition-property: none;
+}
+
+.player-transport-jump-forward {
+  view-transition-name: player-jump-forward;
   transition-property: none;
 }
 
@@ -848,6 +853,7 @@
 
   .player-cover,
   .player-transport-jump-back,
+  .player-transport-jump-forward,
   .player-play-btn {
     view-transition-name: none;
   }
@@ -878,6 +884,7 @@
   }
 
   ::view-transition-group(player-jump-back),
+  ::view-transition-group(player-jump-forward),
   ::view-transition-group(player-play-btn) {
     z-index: 98;
     overflow: clip;
@@ -887,6 +894,8 @@
 
   ::view-transition-old(player-jump-back),
   ::view-transition-new(player-jump-back),
+  ::view-transition-old(player-jump-forward),
+  ::view-transition-new(player-jump-forward),
   ::view-transition-old(player-play-btn),
   ::view-transition-new(player-play-btn) {
     animation-duration: var(--player-morph-dur);
@@ -894,6 +903,7 @@
   }
 
   ::view-transition-image-pair(player-jump-back),
+  ::view-transition-image-pair(player-jump-forward),
   ::view-transition-image-pair(player-play-btn) {
     isolation: isolate;
   }
