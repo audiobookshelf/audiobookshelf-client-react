@@ -30,6 +30,8 @@ export function usePlayerShellSwipe(shellRef: RefObject<HTMLDivElement | null>, 
     let startY: number | null = null
     let blocked = false
     let lockedVertical = false
+    let suppressClick = false
+    let suppressClickTimeout = 0
 
     const reset = () => {
       startX = null
@@ -38,8 +40,17 @@ export function usePlayerShellSwipe(shellRef: RefObject<HTMLDivElement | null>, 
       lockedVertical = false
     }
 
+    const armClickSuppress = () => {
+      suppressClick = true
+      window.clearTimeout(suppressClickTimeout)
+      suppressClickTimeout = window.setTimeout(() => {
+        suppressClick = false
+      }, 400)
+    }
+
     const runAction = (action: PlayerShellSwipeAction) => {
       const { onExpand, onCollapse, onClose, onSwipeHandled } = optionsRef.current
+      armClickSuppress()
       onSwipeHandled()
       if (action === 'expand') onExpand()
       else if (action === 'collapse') onCollapse()
@@ -105,16 +116,27 @@ export function usePlayerShellSwipe(shellRef: RefObject<HTMLDivElement | null>, 
       runAction(action)
     }
 
+    const onClickCapture = (event: MouseEvent) => {
+      if (!suppressClick) return
+      event.preventDefault()
+      event.stopPropagation()
+      suppressClick = false
+      window.clearTimeout(suppressClickTimeout)
+    }
+
     shell.addEventListener('touchstart', onTouchStart, { capture: true })
     shell.addEventListener('touchmove', onTouchMove, { capture: true, passive: false })
     shell.addEventListener('touchend', onTouchEnd, { capture: true })
     shell.addEventListener('touchcancel', reset, { capture: true })
+    shell.addEventListener('click', onClickCapture, { capture: true })
 
     return () => {
+      window.clearTimeout(suppressClickTimeout)
       shell.removeEventListener('touchstart', onTouchStart, { capture: true })
       shell.removeEventListener('touchmove', onTouchMove, { capture: true })
       shell.removeEventListener('touchend', onTouchEnd, { capture: true })
       shell.removeEventListener('touchcancel', reset, { capture: true })
+      shell.removeEventListener('click', onClickCapture, { capture: true })
     }
   }, [shellRef])
 }
