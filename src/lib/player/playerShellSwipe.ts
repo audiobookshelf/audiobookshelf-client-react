@@ -3,9 +3,23 @@ export const PLAYER_SWIPE_LOCK_PX = 12
 
 export type PlayerShellSwipeAction = 'expand' | 'collapse' | 'close'
 
+function eventTargetElement(target: EventTarget | null): Element | null {
+  if (target instanceof Element) return target
+  if (target instanceof CharacterData) return target.parentElement
+  return null
+}
+
 export function isPlayerShellSwipeBlockedTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof Element)) return false
-  return Boolean(target.closest('input, textarea, select'))
+  const el = eventTargetElement(target)
+  if (!el) return false
+  return Boolean(el.closest('input, textarea, select'))
+}
+
+/** Mini-player background tap should not steal clicks from controls, links, or the seek bar. */
+export function isPlayerShellExpandIgnoredTarget(target: EventTarget | null): boolean {
+  const el = eventTargetElement(target)
+  if (!el) return false
+  return Boolean(el.closest('button, a, input, textarea, select, [role="button"], [role="slider"]'))
 }
 
 export function shouldLockPlayerShellHorizontalSeek(dx: number, dy: number): boolean {
