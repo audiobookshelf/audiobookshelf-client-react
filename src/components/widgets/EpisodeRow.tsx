@@ -91,6 +91,7 @@ export default function EpisodeRow({
     userIsFinished,
     userProgressPercent,
     episodeIsPlaying,
+    episodeIsLoading,
     isQueued,
     showQueueButton,
     playButtonLabel,
@@ -228,6 +229,7 @@ export default function EpisodeRow({
               playButtonLabel={playButtonLabel}
               isPlaying={episodeIsPlaying}
               isFinished={userIsFinished}
+              isLoading={episodeIsLoading}
               isProcessingFinished={isProcessingFinished}
               showQueueButton={showQueueButton}
               isQueued={isQueued}

@@ -176,7 +176,7 @@ export default function GlobalSearchInput({ libraryId, onSubmit, onItemSelect, o
         <input
           ref={setInputRef}
           type="text"
-          className="h-full w-full bg-transparent text-sm outline-none placeholder:text-gray-400"
+          className="placeholder:text-foreground-muted h-full w-full bg-transparent text-sm outline-none"
           placeholder={t('PlaceholderSearch')}
           value={searchQuery}
           onInput={(e) => setSearchQuery(e.currentTarget.value)}
@@ -199,15 +199,15 @@ export default function GlobalSearchInput({ libraryId, onSubmit, onItemSelect, o
       {/* Search Icon, Spinner or Clear Button */}
       <div className="absolute end-0 top-0 flex h-full items-center pe-2">
         {isSearching || isTyping ? (
-          <LoadingSpinner size="la-sm" className="scale-50 text-gray-400" />
+          <LoadingSpinner size="la-sm" className="text-foreground-muted scale-50" />
         ) : searchQuery ? (
-          <button onClick={handleClear} className="cursor-pointer text-gray-400 hover:text-gray-600 dark:hover:text-gray-200" aria-label={t('ButtonClear')}>
+          <button onClick={handleClear} className="text-foreground-muted hover:text-foreground cursor-pointer" aria-label={t('ButtonClear')}>
             <span className="material-symbols text-lg" aria-hidden="true">
               close
             </span>
           </button>
         ) : (
-          <span className="material-symbols pointer-events-none text-lg text-gray-400" aria-hidden="true">
+          <span className="material-symbols text-foreground-muted pointer-events-none text-lg" aria-hidden="true">
             search
           </span>
         )}

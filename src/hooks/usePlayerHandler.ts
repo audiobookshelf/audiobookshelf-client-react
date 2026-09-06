@@ -482,6 +482,11 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const load = useCallback(
     async (libraryItem: LibraryItem, episodeId?: string | null, startTimeOverride?: number) => {
+      // Enter LOADING before closing the previous session so UI does not keep
+      // showing PLAYING for the newly selected item while closeSession awaits.
+      playerStateRef.current = PlayerState.LOADING
+      setPlayerState(PlayerState.LOADING)
+
       // Close existing session if any (use session ref, not React state, to avoid stale/double close)
       if (getSessionId()) {
         stopSyncInterval()
@@ -491,7 +496,6 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       // Store reference to library item
       libraryItemRef.current = libraryItem
       episodeIdRef.current = episodeId ?? null
-      setPlayerState(PlayerState.LOADING)
       isHlsTranscodeRef.current = false
       setIsHlsTranscode(false)
       setTranscodePercentReady(1)
@@ -520,6 +524,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
   }, [])
 
   const playPause = useCallback(() => {
+    if (playerStateRef.current === PlayerState.LOADING) return
     playerRef.current?.playPause()
   }, [])
 

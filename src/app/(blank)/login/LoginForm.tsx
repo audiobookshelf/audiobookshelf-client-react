@@ -118,7 +118,10 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
 
       {showOpenIdLogin ? (
         <div className="flex py-3">
-          <a href={openIdAuthUri} className="bg-primary w-full rounded-md border border-gray-600 px-8 py-2 text-center leading-none text-white shadow-md">
+          <a
+            href={openIdAuthUri}
+            className="bg-primary hover:bg-bg-hover border-border text-foreground w-full rounded-md border px-8 py-2 text-center leading-none shadow-md"
+          >
             {openIdButtonText}
           </a>
         </div>
