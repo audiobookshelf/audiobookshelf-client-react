@@ -6,7 +6,7 @@ import type { PlayerControlsState } from './usePlayerControlsState'
 
 interface PlayerTransportControlsProps {
   controls: PlayerControlsState
-  /** Mobile mini bar: jump back + play only, beside the title row. */
+  /** Mobile mini bar: jump back, play, and jump forward beside the title row. */
   variant?: 'mini' | 'full'
 }
 
@@ -54,21 +54,19 @@ export default function PlayerTransportControls({ controls, variant = 'full' }: 
       >
         {isPlaying ? 'pause' : 'play_arrow'}
       </IconBtn>
+      <Tooltip text={jumpForwardTooltipText} position="top">
+        <IconBtn borderless size="custom" className="player-jump-btn player-transport-jump-forward cursor-pointer" onClick={jumpForward}>
+          forward_media
+        </IconBtn>
+      </Tooltip>
       {!isMini && (
-        <>
-          <Tooltip text={jumpForwardTooltipText} position="top">
-            <IconBtn borderless size="custom" className="player-jump-btn cursor-pointer" onClick={jumpForward}>
-              forward_media
+        <div className="player-chapter-slot">
+          <Tooltip text={nextButtonTooltipText} position="top">
+            <IconBtn borderless size="custom" className="player-jump-btn cursor-pointer" disabled={!hasNext} onClick={handleNextChapter}>
+              last_page
             </IconBtn>
           </Tooltip>
-          <div className="player-chapter-slot">
-            <Tooltip text={nextButtonTooltipText} position="top">
-              <IconBtn borderless size="custom" className="player-jump-btn cursor-pointer" disabled={!hasNext} onClick={handleNextChapter}>
-                last_page
-              </IconBtn>
-            </Tooltip>
-          </div>
-        </>
+        </div>
       )}
     </div>
   )
