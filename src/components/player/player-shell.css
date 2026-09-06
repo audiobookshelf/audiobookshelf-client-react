@@ -4,7 +4,13 @@
   --player-morph-ease: cubic-bezier(0.39, 0.575, 0.565, 1);
   --player-cover-morph-dur: var(--player-morph-dur);
   --player-cover-morph-ease: var(--player-morph-ease);
-  --player-close-dur: 0.25s;
+  --player-mini-content-top: 0.5rem;
+  --cover-image-height-collapsed: 56px;
+  --player-mini-track-block: 3.75rem;
+  --player-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --media-player-mini-height: calc(
+    var(--player-mini-content-top) + var(--cover-image-height-collapsed) + var(--player-mini-track-block) + var(--player-safe-bottom)
+  );
 }
 
 .player-shell {
@@ -17,7 +23,7 @@
   --cover-image-height-collapsed: 56px;
   --player-mini-transport-width: 5.75rem;
   --player-mini-top-pad: 0.5rem;
-  --player-mini-content-top: var(--player-mini-top-pad);
+  --player-mini-content-top: 0.5rem;
   --player-mini-track-block: 3.75rem;
   --player-safe-top: env(safe-area-inset-top, 0px);
   --player-safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -25,21 +31,8 @@
   --player-safe-inline-end: env(safe-area-inset-right, 0px);
   z-index: 50;
   touch-action: none;
-  height: calc(var(--player-mini-content-top) + var(--cover-image-height-collapsed) + var(--player-mini-track-block) + var(--player-safe-bottom));
+  height: var(--media-player-mini-height);
   overflow: hidden;
-}
-
-.player-shell--exit-transition:not(.fullscreen) {
-  pointer-events: none;
-  transition: transform var(--player-close-dur) var(--player-morph-ease);
-}
-
-.player-shell--exit-active:not(.fullscreen) {
-  transform: translate3d(0, 100%, 0);
-}
-
-html.player-inset-animate .page-wrapper * {
-  overflow-anchor: none;
 }
 
 :dir(rtl) .player-shell {
@@ -564,9 +557,12 @@ html.player-inset-animate .page-wrapper * {
 }
 
 @media (min-width: 1024px) {
+  :root {
+    --media-player-mini-height: calc(10rem + var(--player-safe-bottom));
+  }
+
   .player-shell {
     --player-mini-content-top: 0.5rem;
-    height: calc(10rem + var(--player-safe-bottom));
   }
 
   .player-cover {
@@ -816,7 +812,6 @@ html.player-inset-animate .page-wrapper * {
 @media (prefers-reduced-motion: reduce) {
   :root {
     --player-morph-dur: 0.01ms;
-    --player-close-dur: 0.01ms;
   }
 
   .player-shell {

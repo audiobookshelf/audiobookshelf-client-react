@@ -12,7 +12,7 @@ describe('playerShellSwipe', () => {
     expect(resolvePlayerShellSwipeAction(-50, 0, false, PLAYER_SWIPE_THRESHOLD_MINI_PX, 100)).to.equal('expand')
     expect(resolvePlayerShellSwipeAction(50, 0, false, PLAYER_SWIPE_THRESHOLD_MINI_PX, 100)).to.equal('close')
     expect(resolvePlayerShellSwipeAction(100, 0, true, PLAYER_SWIPE_THRESHOLD_MINI_PX, 100)).to.equal('collapse')
-    expect(resolvePlayerShellSwipeAction(-30, 0, false, PLAYER_SWIPE_THRESHOLD_MINI_PX, 100)).to.equal(null)
+    expect(resolvePlayerShellSwipeAction(-20, 0, false, PLAYER_SWIPE_THRESHOLD_MINI_PX, 100)).to.equal(null)
     expect(resolvePlayerShellSwipeAction(0, 60, false, PLAYER_SWIPE_THRESHOLD_MINI_PX, 100)).to.equal(null)
   })
 
@@ -32,12 +32,20 @@ describe('playerShellSwipe', () => {
     expect(isPlayerShellSwipeBlockedTarget(slider)).to.equal(false)
   })
 
-  it('blocks author row targets for shell swipes', () => {
+  it('does not block title, author, or control button targets for shell swipes', () => {
+    const titleLink = document.createElement('a')
+    titleLink.href = '/library/1/item/2'
+    expect(isPlayerShellSwipeBlockedTarget(titleLink)).to.equal(false)
+
     const authorRow = document.createElement('div')
     authorRow.className = 'player-author'
-    const text = document.createElement('span')
-    text.textContent = 'Author Name'
-    authorRow.append(text)
-    expect(isPlayerShellSwipeBlockedTarget(text)).to.equal(true)
+    const authorLink = document.createElement('a')
+    authorLink.href = '/library/1/authors/3'
+    authorRow.append(authorLink)
+    expect(isPlayerShellSwipeBlockedTarget(authorLink)).to.equal(false)
+
+    const playButton = document.createElement('button')
+    playButton.type = 'button'
+    expect(isPlayerShellSwipeBlockedTarget(playButton)).to.equal(false)
   })
 })
