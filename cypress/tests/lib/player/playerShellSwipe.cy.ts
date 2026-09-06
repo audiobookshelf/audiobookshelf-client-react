@@ -1,4 +1,5 @@
 import {
+  isPlayerShellExpandIgnoredTarget,
   isPlayerShellSwipeBlockedTarget,
   PLAYER_SWIPE_LOCK_PX,
   PLAYER_SWIPE_THRESHOLD_MINI_PX,
@@ -47,5 +48,25 @@ describe('playerShellSwipe', () => {
     const playButton = document.createElement('button')
     playButton.type = 'button'
     expect(isPlayerShellSwipeBlockedTarget(playButton)).to.equal(false)
+  })
+
+  it('ignores links, buttons, and sliders for mini-player background expand', () => {
+    const link = document.createElement('a')
+    expect(isPlayerShellExpandIgnoredTarget(link)).to.equal(true)
+
+    const button = document.createElement('button')
+    expect(isPlayerShellExpandIgnoredTarget(button)).to.equal(true)
+
+    const slider = document.createElement('div')
+    slider.setAttribute('role', 'slider')
+    expect(isPlayerShellExpandIgnoredTarget(slider)).to.equal(true)
+
+    const duration = document.createElement('span')
+    duration.className = 'player-duration'
+    expect(isPlayerShellExpandIgnoredTarget(duration)).to.equal(false)
+
+    const authorLink = document.createElement('a')
+    authorLink.append(document.createTextNode('Jane Austen'))
+    expect(isPlayerShellExpandIgnoredTarget(authorLink.firstChild)).to.equal(true)
   })
 })

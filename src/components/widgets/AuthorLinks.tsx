@@ -9,9 +9,11 @@ interface AuthorLinksProps {
   libraryId: string
   authors: { id: string; name: string }[]
   onNavigate?: () => void
+  tabIndex?: number
+  prefetch?: boolean
 }
 
-export default function AuthorLinks({ libraryId, authors, onNavigate }: AuthorLinksProps) {
+export default function AuthorLinks({ libraryId, authors, onNavigate, tabIndex, prefetch }: AuthorLinksProps) {
   const locale = useLocale()
   const segments = useMemo(() => {
     const parts = listFormatParts(
@@ -47,7 +49,14 @@ export default function AuthorLinks({ libraryId, authors, onNavigate }: AuthorLi
     }
 
     return (
-      <Link key={segment.author.id} href={`/library/${libraryId}/authors/${segment.author.id}`} className="link-underline" onClick={onNavigate}>
+      <Link
+        key={segment.author.id}
+        href={`/library/${libraryId}/authors/${segment.author.id}`}
+        className="link-underline"
+        onClick={onNavigate}
+        tabIndex={tabIndex}
+        prefetch={prefetch}
+      >
         {segment.author.name}
       </Link>
     )

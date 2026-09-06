@@ -21,6 +21,7 @@ export function useDomMarquee(
   containerRef: RefObject<HTMLElement | null>,
   trackRef: RefObject<HTMLElement | null>,
   segmentRef: RefObject<HTMLElement | null>,
+  loopCopyRef: RefObject<HTMLElement | null>,
   deps: unknown[]
 ) {
   const marqueeRef = useRef<DomWrappingMarquee | null>(null)
@@ -29,7 +30,8 @@ export function useDomMarquee(
     const container = containerRef.current
     const track = trackRef.current
     const segment = segmentRef.current
-    if (!container || !track || !segment) return
+    const loopCopy = loopCopyRef.current
+    if (!container || !track || !segment || !loopCopy) return
 
     if (prefersReducedMotion()) {
       marqueeRef.current?.reset()
@@ -39,7 +41,7 @@ export function useDomMarquee(
     }
 
     if (!marqueeRef.current) {
-      marqueeRef.current = new DomWrappingMarquee(container, track, segment)
+      marqueeRef.current = new DomWrappingMarquee(container, track, segment, loopCopy)
     }
 
     scheduleDomMarqueeInit(marqueeRef.current)
