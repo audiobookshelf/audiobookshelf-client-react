@@ -318,6 +318,26 @@ describe('savedChapterListsMatch', () => {
 
     expect(savedChapterListsMatch(a, b)).to.equal(false)
   })
+
+  it('treats a 1-second start change as a mismatch so socket updates reload the editor', () => {
+    const a: Chapter[] = [
+      { id: 0, start: 0, end: 100, title: 'Intro' },
+      { id: 1, start: 100, end: 500, title: 'Chapter 1' }
+    ]
+    const b: Chapter[] = [
+      { id: 0, start: 0, end: 100, title: 'Intro' },
+      { id: 1, start: 101, end: 500, title: 'Chapter 1' }
+    ]
+
+    expect(savedChapterListsMatch(a, b)).to.equal(false)
+  })
+
+  it('still matches when the only start difference disappears after whole-second rounding', () => {
+    const a: Chapter[] = [{ id: 0, start: 90.4, end: 500, title: 'Intro' }]
+    const b: Chapter[] = [{ id: 0, start: 90, end: 500, title: 'Intro' }]
+
+    expect(savedChapterListsMatch(a, b)).to.equal(true)
+  })
 })
 
 describe('first chapter start invariant', () => {

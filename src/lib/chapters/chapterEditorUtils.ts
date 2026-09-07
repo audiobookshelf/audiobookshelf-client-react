@@ -70,7 +70,7 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
 export function savedChapterListsMatch(a: Chapter[], b: Chapter[]): boolean {
   if (a.length !== b.length) return false
   for (let i = 0; i < a.length; i++) {
-    if (!chapterTimesEqual(a[i].start, b[i].start)) return false
+    if (!normalizedChapterTimesEqual(a[i].start, b[i].start)) return false
     if ((a[i].title || '').trim() !== (b[i].title || '').trim()) return false
   }
   return true
@@ -95,12 +95,12 @@ export function audibleMsToChapterStartSec(ms: number): number {
 /** Starts within this many seconds compare equal (Audible ms rounding vs saved whole seconds). */
 const CHAPTER_START_TOLERANCE_SEC = 1
 
-/** Exact whole-second equality after DurationPicker-style rounding. Used for editor dirty state. */
+/** Exact whole-second equality after DurationPicker-style rounding. Used for editor dirty state and saved-list identity. */
 function normalizedChapterTimesEqual(a: number, b: number): boolean {
   return normalizeChapterStartSec(a) === normalizeChapterStartSec(b)
 }
 
-/** ±1s after rounding. Used for Audible/import matching, not user-edit dirty detection. */
+/** ±1s after rounding. Used for Audible/import matching, not user-edit dirty detection or socket identity. */
 function chapterTimesEqual(a: number, b: number): boolean {
   return Math.abs(normalizeChapterStartSec(a) - normalizeChapterStartSec(b)) <= CHAPTER_START_TOLERANCE_SEC
 }
