@@ -1,6 +1,6 @@
 'use client'
 
-import { useLibraryItemModal } from '@/components/modals/LibraryItemModal'
+import { useLibraryItemModal, type UnsavedChangesLeaveHandle } from '@/components/modals/LibraryItemModal'
 import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
@@ -18,21 +18,16 @@ import { mergeClasses } from '@/lib/merge-classes'
 import { isBookMediaWithTracks, type AudibleChapterSearchResult, type BookLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type Ref } from 'react'
 
-export type ChaptersEditCloseHandle = {
-  /** Confirm unsaved chapter edits, then run `onAllow` (e.g. switch section or close). */
-  requestLeave: (onAllow: () => void) => void
-}
-
 interface ChaptersEditModalBodyProps {
   /** Lets the parent intercept leave (section change, hub back, close) while chapters are dirty. */
-  closeRequestRef?: Ref<ChaptersEditCloseHandle | null>
+  closeRequestRef?: Ref<UnsavedChangesLeaveHandle | null>
   /** True while a chapter save is in flight, so the parent can show processing on the shell. */
   onPendingChange?: (pending: boolean) => void
 }
 
 interface ChaptersEditContentProps {
   libraryItem: BookLibraryItem
-  closeRequestRef?: Ref<ChaptersEditCloseHandle | null>
+  closeRequestRef?: Ref<UnsavedChangesLeaveHandle | null>
   onPendingChange?: (pending: boolean) => void
   onItemUpdated?: (item: BookLibraryItem) => void
 }
