@@ -73,7 +73,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
   const newChaptersRef = useRef(newChapters)
   newChaptersRef.current = newChapters
   const dirtyBaseline = useMemo(() => buildChapterDirtyBaseline(newChapters, savedChapters, mediaDuration), [mediaDuration, newChapters, savedChapters])
-  const [hasChanges, setHasChanges] = useState(false)
+  const [hasChanges, setHasChanges] = useState(() => computeHasChanges(initChapters(savedChapters, mediaDuration), savedChapters, mediaDuration))
   const hasChangesRef = useRef(hasChanges)
   hasChangesRef.current = hasChanges
   const [titleResetKey, setTitleResetKey] = useState(0)
@@ -117,7 +117,6 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
 
   const validationMessages = useMemo(
     () => ({
-      firstNotZero: t('MessageChapterErrorFirstNotZero'),
       startLtPrev: t('MessageChapterErrorStartLtPrev'),
       startGteDuration: t('MessageChapterErrorStartGteDuration')
     }),

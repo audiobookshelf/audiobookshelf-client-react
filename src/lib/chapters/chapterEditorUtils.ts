@@ -158,9 +158,18 @@ export function getChapterDirtyFields(chapter: EditableChapter, baseline: Map<st
 }
 
 export interface ChapterValidationMessages {
-  firstNotZero: string
   startLtPrev: string
   startGteDuration: string
+}
+
+export function ensureFirstChapterStartsAtZero(chapters: EditableChapter[]): EditableChapter[] {
+  const first = chapters[0]
+  if (!first || first.start === 0) {
+    return chapters
+  }
+  const next = chapters.slice()
+  next[0] = { ...first, start: 0 }
+  return next
 }
 
 export function initChapters(existing: Chapter[], mediaDuration: number): EditableChapter[] {
@@ -176,11 +185,13 @@ export function initChapters(existing: Chapter[], mediaDuration: number): Editab
       }
     ]
   }
-  return existing.map((chapter, index) => ({
-    ...chapter,
-    error: null as string | null,
-    clientKey: createStableChapterClientKey(index)
-  }))
+  return ensureFirstChapterStartsAtZero(
+    existing.map((chapter, index) => ({
+      ...chapter,
+      error: null as string | null,
+      clientKey: createStableChapterClientKey(index)
+    }))
+  )
 }
 
 /** True when the editor shows a single empty row at start time 0 (no title). */
@@ -214,13 +225,11 @@ export function validateChapters(
   messages: ChapterValidationMessages
 ): { chapters: EditableChapter[]; hasChanges: boolean } {
   let previousStart = 0
-  const updated = chapters.map((chapter, i) => {
-    const start = normalizeChapterStartSec(Number(chapter.start))
+  const updated = ensureFirstChapterStartsAtZero(chapters).map((chapter, i) => {
+    const start = i === 0 ? 0 : normalizeChapterStartSec(Number(chapter.start))
 
     let error: string | null
-    if (i === 0 && start !== 0) {
-      error = messages.firstNotZero
-    } else if (start <= previousStart && i > 0) {
+    if (start <= previousStart && i > 0) {
       error = messages.startLtPrev
     } else if (start >= mediaDuration) {
       error = messages.startGteDuration
@@ -510,6 +519,9 @@ export function buildIdenticalChapters(title: string, count: number, existingCha
 }
 
 export function updateChapterStart(chapters: EditableChapter[], id: number, start: number): EditableChapter[] {
+  if (chapters[0]?.id === id) {
+    return chapters
+  }
   return chapters.map((c) => (c.id === id ? { ...c, start } : c))
 }
 
