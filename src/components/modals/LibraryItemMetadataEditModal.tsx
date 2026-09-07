@@ -42,10 +42,7 @@ function isBookWithAudioTracks(item: BookLibraryItem | PodcastLibraryItem | null
  * Only one section (details/chapters) is mounted at a time, so at most one of these handles
  * is non-null. If that section has unsaved edits, confirm first; otherwise run `proceed` now.
  */
-function requestSectionLeaveOrProceed(
-  handles: Array<{ requestLeave: (onAllow: () => void) => void } | null>,
-  proceed: () => void
-) {
+function requestSectionLeaveOrProceed(handles: Array<{ requestLeave: (onAllow: () => void) => void } | null>, proceed: () => void) {
   const activeHandle = handles.find((handle) => handle != null)
   if (activeHandle) {
     activeHandle.requestLeave(proceed)
@@ -188,7 +185,8 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
     >
       <LibraryItemMetadataEditModalBody
         isOpen={isOpen}
-        onClose={handleClose}
+        // Unguarded: footer Save and Close must not re-enter requestLeave.
+        onClose={onClose}
         initialSection={mobileInitialSection}
         selectedSection={selectedSection}
         setSelectedSection={setSelectedSection}
