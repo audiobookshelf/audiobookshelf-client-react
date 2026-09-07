@@ -10,6 +10,7 @@ import {
   mergeAudibleChapterData,
   mergeAudibleChapterTitles,
   removeBrandingFromAudibleData,
+  removeChapterAt,
   savedChapterListsMatch,
   shiftChapterTimes,
   updateChapterStart,
@@ -338,5 +339,36 @@ describe('first chapter start invariant', () => {
     expect(result.chapters[0].title).to.eq('Audible Intro')
     expect(result.chapters[1].start).to.eq(64)
     expect(result.chapters[1].title).to.eq('Audible Two')
+  })
+
+  it('forces the remaining first start to 0 after removing the first chapter', () => {
+    const existing: Chapter[] = [
+      { id: 0, start: 0, end: 90, title: 'Intro' },
+      { id: 1, start: 90, end: 200, title: 'Chapter 2' },
+      { id: 2, start: 200, end: mediaDuration, title: 'Chapter 3' }
+    ]
+    const chapters = [
+      chapter({ id: 0, start: 0, title: 'Intro' }),
+      chapter({ id: 1, start: 90, title: 'Chapter 2' }),
+      chapter({ id: 2, start: 200, title: 'Chapter 3' })
+    ]
+
+    const remaining = removeChapterAt(chapters, 0)
+    expect(remaining).to.have.length(2)
+    expect(remaining[0].start).to.eq(90)
+
+    const result = validateChapters(remaining, existing, mediaDuration, messages)
+
+    expect(result.chapters[0].start).to.eq(0)
+    expect(result.chapters[0].title).to.eq('Chapter 2')
+    expect(result.chapters[0].error).to.eq(null)
+    expect(result.chapters[1].start).to.eq(200)
+    expect(result.chapters[1].title).to.eq('Chapter 3')
+    expect(result.hasChanges).to.eq(true)
+
+    expect(computeChapterEnds(result.chapters, mediaDuration)).to.deep.eq([
+      { id: 0, start: 0, end: 200, title: 'Chapter 2' },
+      { id: 1, start: 200, end: mediaDuration, title: 'Chapter 3' }
+    ])
   })
 })
