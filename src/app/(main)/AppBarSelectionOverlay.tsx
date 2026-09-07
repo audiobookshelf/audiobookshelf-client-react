@@ -181,7 +181,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           )}
 
           {showAddToCollection && (
-            <Tooltip text={t('LabelAddToCollection')} position="bottom">
+            <Tooltip text={t('LabelAddToCollection')} position="bottom" className="hidden md:inline-flex">
               <IconBtn size="small" ariaLabel={t('LabelAddToCollection')} disabled={controlsDisabled} onClick={() => handleBatchAction('add-to-collection')}>
                 collections_bookmark
               </IconBtn>
@@ -189,7 +189,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           )}
 
           {showAddToPlaylist && (
-            <Tooltip text={t('LabelAddToPlaylist')} position="bottom">
+            <Tooltip text={t('LabelAddToPlaylist')} position="bottom" className="hidden md:inline-flex">
               <IconBtn size="small" ariaLabel={t('LabelAddToPlaylist')} disabled={controlsDisabled} onClick={() => handleBatchAction('add-to-playlist')}>
                 playlist_add
               </IconBtn>

@@ -37,6 +37,11 @@ export function useLibraryItemModal(): LibraryItemModalContextValue {
   return ctx
 }
 
+/** Confirm unsaved edits, then run `onAllow` (e.g. switch section or close). */
+export type UnsavedChangesLeaveHandle = {
+  requestLeave: (onAllow: () => void) => void
+}
+
 /** Either `navCtx` (fetch + prev/next) or `libraryItem` (no fetch); object literals cannot include both. */
 export type LibraryItemModalItemSource = { navCtx: EntityNavigationContext } | { libraryItem: BookLibraryItem | PodcastLibraryItem }
 
