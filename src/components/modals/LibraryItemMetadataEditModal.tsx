@@ -1,9 +1,9 @@
 'use client'
 
-import { ChaptersEditModalBody, type ChaptersEditCloseHandle } from '@/components/modals/ChaptersEditModalBody'
+import { ChaptersEditModalBody } from '@/components/modals/ChaptersEditModalBody'
 import { CoverEditModalBody } from '@/components/modals/CoverEditModal'
-import { LibraryItemEditModalContent, type LibraryItemEditModalContentHandle } from '@/components/modals/LibraryItemEditModal'
-import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource } from '@/components/modals/LibraryItemModal'
+import { LibraryItemEditModalContent } from '@/components/modals/LibraryItemEditModal'
+import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource, type UnsavedChangesLeaveHandle } from '@/components/modals/LibraryItemModal'
 import { MatchModalBody } from '@/components/modals/MatchModal'
 import { SectionedModalBody, type Section } from '@/components/modals/SectionedModal'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -42,7 +42,7 @@ function isBookWithAudioTracks(item: BookLibraryItem | PodcastLibraryItem | null
  * Only one section (details/chapters) is mounted at a time, so at most one of these handles
  * is non-null. If that section has unsaved edits, confirm first; otherwise run `proceed` now.
  */
-function requestSectionLeaveOrProceed(handles: Array<{ requestLeave: (onAllow: () => void) => void } | null>, proceed: () => void) {
+function requestSectionLeaveOrProceed(handles: Array<UnsavedChangesLeaveHandle | null>, proceed: () => void) {
   const activeHandle = handles.find((handle) => handle != null)
   if (activeHandle) {
     activeHandle.requestLeave(proceed)
@@ -61,8 +61,8 @@ interface LibraryItemMetadataEditModalBodyProps {
   onRequestHubBack: (proceed: () => void) => void
   startSaveTransition: TransitionStartFunction
   isSavePending: boolean
-  chaptersCloseRef: Ref<ChaptersEditCloseHandle | null>
-  detailsCloseRef: Ref<LibraryItemEditModalContentHandle | null>
+  chaptersCloseRef: Ref<UnsavedChangesLeaveHandle | null>
+  detailsCloseRef: Ref<UnsavedChangesLeaveHandle | null>
   onChaptersPendingChange: (pending: boolean) => void
 }
 
@@ -147,8 +147,8 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
   const [isSavePending, startSaveTransition] = useTransition()
   const [selectedSection, setSelectedSection] = useState<MetadataEditSection>(initialSection ?? 'details')
   const [isChaptersPending, setIsChaptersPending] = useState(false)
-  const chaptersCloseRef = useRef<ChaptersEditCloseHandle | null>(null)
-  const detailsCloseRef = useRef<LibraryItemEditModalContentHandle | null>(null)
+  const chaptersCloseRef = useRef<UnsavedChangesLeaveHandle | null>(null)
+  const detailsCloseRef = useRef<UnsavedChangesLeaveHandle | null>(null)
 
   useEffect(() => {
     if (!isOpen) return

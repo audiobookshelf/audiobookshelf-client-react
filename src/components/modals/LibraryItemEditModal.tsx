@@ -1,7 +1,7 @@
 'use client'
 
 import { updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
-import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource } from '@/components/modals/LibraryItemModal'
+import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource, type UnsavedChangesLeaveHandle } from '@/components/modals/LibraryItemModal'
 import ModalFooter from '@/components/modals/ModalFooter'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
@@ -85,11 +85,6 @@ export type LibraryItemEditModalProps = {
   onClose: () => void
 } & LibraryItemModalItemSource
 
-export type LibraryItemEditModalContentHandle = {
-  /** Confirm unsaved detail edits, then run `onAllow` (e.g. switch section or close). */
-  requestLeave: (onAllow: () => void) => void
-}
-
 export type LibraryItemEditModalContentProps = {
   isOpen: boolean
   startSaveTransition: TransitionStartFunction
@@ -100,7 +95,7 @@ export type LibraryItemEditModalContentProps = {
   /** When true, fill a parent with a fixed height (e.g. SectionedModalBody). */
   fillParent?: boolean
   /** Lets the parent intercept leave (section change, hub back, close) while details are dirty. */
-  closeRequestRef?: Ref<LibraryItemEditModalContentHandle | null>
+  closeRequestRef?: Ref<UnsavedChangesLeaveHandle | null>
 }
 
 export function LibraryItemEditModalContent({
