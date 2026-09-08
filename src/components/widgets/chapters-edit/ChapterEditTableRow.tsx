@@ -103,6 +103,9 @@ const MATCH_DEBUG_CLASS = 'text-foreground-muted text-[9px] leading-none ps-3'
 const MATCH_DEBUG_PREFIX = 'was: '
 const MATCH_DEBUG_NONE = '—'
 
+const TIME_INCREMENT = 1
+const START_STEP_BTN_CLASS = 'size-6 min-h-0 min-w-0 shrink-0 p-0 text-sm text-foreground-muted hover:not-disabled:text-foreground'
+
 function ChapterEditTableRow({
   chapter,
   chapterCount,
@@ -135,8 +138,10 @@ function ChapterEditTableRow({
   const overflowTooltip = overflow === 'start' ? t('MessageChapterStartIsAfter') : overflow === 'end' ? t('MessageChapterEndIsAfter') : undefined
   const startTimeCellClass =
     mediaDuration >= 360000
-      ? 'w-[7.5rem] min-w-[7.5rem] px-1 py-2 align-top md:w-[8.75rem] md:min-w-[8.75rem] md:px-2'
-      : 'w-[6.5rem] min-w-[6.5rem] px-1 py-2 align-top md:w-[7.25rem] md:min-w-[7.25rem] md:px-2'
+      ? 'w-[11rem] min-w-[11rem] px-1 py-2 align-top md:w-[12.25rem] md:min-w-[12.25rem] md:px-2'
+      : 'w-[10rem] min-w-[10rem] px-1 py-2 align-top md:w-[10.75rem] md:min-w-[10.75rem] md:px-2'
+  const cannotDecrementStart = isFirstChapter || chapter.start - TIME_INCREMENT < 0
+  const cannotIncrementStart = isFirstChapter || chapter.start + TIME_INCREMENT >= mediaDuration
   const rowBgClass = overflow === 'start' ? 'bg-error/20' : overflow === 'end' ? 'bg-warning/20' : isEvenRow ? 'bg-table-row-bg-even' : undefined
   const rowClass = mergeClasses('border-border hover:bg-table-row-bg-hover', rowBgClass)
 
@@ -208,15 +213,45 @@ function ChapterEditTableRow({
 
         <td className={startTimeCellClass}>
           <div className="flex flex-col gap-0.5">
-            <DurationPicker
-              value={chapter.start}
-              showThreeDigitHour={mediaDuration >= 360000}
-              size="small"
-              className={startDirty ? 'text-info' : undefined}
-              ariaLabelledBy={startHeaderId}
-              disabled={isFirstChapter}
-              onChange={onStartChange}
-            />
+            <div className="flex items-center gap-1">
+              <Tooltip lazy text={t('TooltipSubtractOneSecond')} position="bottom">
+                <IconBtn
+                  ariaLabel={t('TooltipSubtractOneSecond')}
+                  borderless
+                  size="custom"
+                  className={START_STEP_BTN_CLASS}
+                  disabled={cannotDecrementStart}
+                  onClick={() => onStartChange(Math.max(0, chapter.start - TIME_INCREMENT))}
+                >
+                  remove
+                </IconBtn>
+              </Tooltip>
+
+              <div className="min-w-0 flex-1">
+                <DurationPicker
+                  value={chapter.start}
+                  showThreeDigitHour={mediaDuration >= 360000}
+                  size="small"
+                  className={startDirty ? 'text-info' : undefined}
+                  ariaLabelledBy={startHeaderId}
+                  disabled={isFirstChapter}
+                  onChange={onStartChange}
+                />
+              </div>
+
+              <Tooltip lazy text={t('TooltipAddOneSecond')} position="bottom">
+                <IconBtn
+                  ariaLabel={t('TooltipAddOneSecond')}
+                  borderless
+                  size="custom"
+                  className={START_STEP_BTN_CLASS}
+                  disabled={cannotIncrementStart}
+                  onClick={() => onStartChange(chapter.start + TIME_INCREMENT)}
+                >
+                  add
+                </IconBtn>
+              </Tooltip>
+            </div>
             {showMatchDebug ? (
               matchDebug ? (
                 <Tooltip
