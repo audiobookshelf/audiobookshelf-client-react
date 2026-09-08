@@ -115,60 +115,58 @@ export function useMediaCardActions({
     setMediaItemShare(initialShare)
   }, [initialShare])
 
-  const handlePlay = useCallback(() => {
+  const handlePlay = useCallback(async () => {
     if (isStreaming(libraryItem.id, episode?.id ?? null)) {
       playerControls.playPause()
       return
     }
 
-    startTransition(async () => {
-      try {
-        setProcessing(true)
+    try {
+      setProcessing(true)
 
-        // Fetch the full library item via server action
-        const fullLibraryItem = await getExpandedLibraryItemAction(libraryItem.id)
+      // Fetch the full library item via server action
+      const fullLibraryItem = await getExpandedLibraryItemAction(libraryItem.id)
 
-        const queueItems = []
+      const queueItems = []
 
-        if (episode) {
-          const caption =
-            episode.publishedAt != null ? t('LabelPublishedDate', { 0: new Date(episode.publishedAt).toLocaleDateString() }) : t('LabelUnknownPublishDate')
+      if (episode) {
+        const caption =
+          episode.publishedAt != null ? t('LabelPublishedDate', { 0: new Date(episode.publishedAt).toLocaleDateString() }) : t('LabelUnknownPublishDate')
 
-          queueItems.push({
-            libraryItemId: libraryItem.id,
-            libraryId: libraryItem.libraryId,
-            episodeId: episode.id,
-            title: episode.title,
-            subtitle: title,
-            caption,
-            duration: episode.audioFile?.duration ?? null,
-            coverPath: (media as { coverPath?: string }).coverPath ?? null
-          })
-        } else {
-          queueItems.push({
-            libraryItemId: libraryItem.id,
-            libraryId: libraryItem.libraryId,
-            episodeId: null,
-            title,
-            subtitle: author || '',
-            caption: '',
-            duration: (media as { duration?: number }).duration ?? null,
-            coverPath: (media as { coverPath?: string }).coverPath ?? null
-          })
-        }
-
-        playItem({
-          libraryItem: fullLibraryItem,
-          episodeId: episode?.id ?? null,
-          queueItems
+        queueItems.push({
+          libraryItemId: libraryItem.id,
+          libraryId: libraryItem.libraryId,
+          episodeId: episode.id,
+          title: episode.title,
+          subtitle: title,
+          caption,
+          duration: episode.audioFile?.duration ?? null,
+          coverPath: (media as { coverPath?: string }).coverPath ?? null
         })
-      } catch (error) {
-        console.error('Failed to load library item for playback', error)
-        showToast(t('ToastFailedToLoadData'), { type: 'error' })
-      } finally {
-        setProcessing(false)
+      } else {
+        queueItems.push({
+          libraryItemId: libraryItem.id,
+          libraryId: libraryItem.libraryId,
+          episodeId: null,
+          title,
+          subtitle: author || '',
+          caption: '',
+          duration: (media as { duration?: number }).duration ?? null,
+          coverPath: (media as { coverPath?: string }).coverPath ?? null
+        })
       }
-    })
+
+      playItem({
+        libraryItem: fullLibraryItem,
+        episodeId: episode?.id ?? null,
+        queueItems
+      })
+    } catch (error) {
+      console.error('Failed to load library item for playback', error)
+      showToast(t('ToastFailedToLoadData'), { type: 'error' })
+    } finally {
+      setProcessing(false)
+    }
   }, [author, episode, isStreaming, libraryItem, media, playItem, playerControls, showToast, t, title])
 
   const handleReadEBook = useCallback(() => {

@@ -294,7 +294,7 @@ function InputDropdown({
           dropdownId={dropdownId}
           onItemClick={(item) => handleOptionClick(item.value)}
           isItemSelected={isMenuItemSelected}
-          showSelectedIndicator={true}
+          highlightSelected
           menuMaxHeight="224px"
           className="z-50"
           showNoItemsMessage={true}

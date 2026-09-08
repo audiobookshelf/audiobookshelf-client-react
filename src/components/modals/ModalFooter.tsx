@@ -52,7 +52,7 @@ export default function ModalFooter({ primary, secondary, destructive, start, sh
   return (
     <div
       className={mergeClasses(
-        'bg-bg border-border shrink-0 border-t px-4 py-3 transition-shadow duration-200 sm:px-6',
+        'bg-bg border-border rounded-b-lg shrink-0 border-t px-4 py-3 transition-shadow duration-200 sm:px-6',
         shadow && 'box-shadow-md-up',
         className
       )}

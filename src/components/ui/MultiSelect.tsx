@@ -637,7 +637,7 @@ export function MultiSelect<T = string>({
           dropdownId={multiSelectId}
           onItemClick={handleDropdownItemClick}
           isItemSelected={isItemSelected}
-          showSelectedIndicator={true}
+          highlightSelected
           showNoItemsMessage={true}
           noItemsText={t('LabelNoItems')}
           menuMaxHeight="224px"

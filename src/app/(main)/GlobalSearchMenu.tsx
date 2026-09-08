@@ -145,7 +145,7 @@ export default function GlobalSearchMenu({
             {hasImage ? (
               <div
                 className={mergeClasses(
-                  'bg-bg-secondary relative flex flex-shrink-0 items-center justify-center overflow-hidden rounded-sm shadow-sm',
+                  'bg-bg-secondary relative flex shrink-0 items-center justify-center overflow-hidden rounded-sm shadow-sm',
                   containerClass
                 )}
               >
@@ -158,7 +158,7 @@ export default function GlobalSearchMenu({
               </div>
             ) : (
               // Placeholder or Icon for items without images (Tags/Genres)
-              <div className="bg-bg-secondary flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full">
+              <div className="bg-bg-secondary flex h-8 w-8 shrink-0 items-center justify-center rounded-full">
                 <span className="material-symbols text-lg text-gray-400">{getMaterialSymbolIcon(result.type)}</span>
               </div>
             )}
@@ -192,7 +192,7 @@ export default function GlobalSearchMenu({
           className: mergeClasses(
             'block px-3 py-2 cursor-pointer no-underline select-none',
             'hover:bg-dropdown-item-hover',
-            isSelected ? 'bg-dropdown-item-selected' : ''
+            isSelected ? 'bg-dropdown-item-focused' : ''
           ),
           role: 'option' as const,
           'aria-selected': isSelected

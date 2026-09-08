@@ -1,15 +1,10 @@
-import { getAuthor, getData } from '@/lib/api'
+import { getData } from '@/lib/api'
+import { getAuthorOrNotFound } from '@/lib/notFound'
 import AuthorClient from './AuthorClient'
 
 export default async function AuthorPage({ params }: { params: Promise<{ author: string; library: string }> }) {
   const { author: authorId } = await params
-  const [author] = await getData(getAuthor(authorId, 'include=items,series'))
-
-  // TODO: Handle loading data error?
-  if (!author) {
-    console.error('Error getting author data')
-    return null
-  }
+  const [author] = await getData(getAuthorOrNotFound(authorId, 'include=items,series'))
 
   return (
     <div className="w-full p-8">

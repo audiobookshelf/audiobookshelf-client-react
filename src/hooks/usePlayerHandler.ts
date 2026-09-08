@@ -82,7 +82,7 @@ export interface PlayerHandlerState {
   nextChapter: Chapter | null
   /** Previous chapter */
   previousChapter: Chapter | null
-  /** Player settings (persisted in local storage) */
+  /** Player settings (persisted in local storage). useChapterTrack is forced off when the current item has no chapters. */
   settings: PlayerSettings
 }
 
@@ -482,6 +482,11 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const load = useCallback(
     async (libraryItem: LibraryItem, episodeId?: string | null, startTimeOverride?: number) => {
+      // Enter LOADING before closing the previous session so UI does not keep
+      // showing PLAYING for the newly selected item while closeSession awaits.
+      playerStateRef.current = PlayerState.LOADING
+      setPlayerState(PlayerState.LOADING)
+
       // Close existing session if any (use session ref, not React state, to avoid stale/double close)
       if (getSessionId()) {
         stopSyncInterval()
@@ -491,7 +496,6 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       // Store reference to library item
       libraryItemRef.current = libraryItem
       episodeIdRef.current = episodeId ?? null
-      setPlayerState(PlayerState.LOADING)
       isHlsTranscodeRef.current = false
       setIsHlsTranscode(false)
       setTranscodePercentReady(1)
@@ -520,6 +524,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
   }, [])
 
   const playPause = useCallback(() => {
+    if (playerStateRef.current === PlayerState.LOADING) return
     playerRef.current?.playPause()
   }, [])
 
@@ -613,6 +618,14 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
     playerKindRef.current = 'local'
   }, [closeSession, stopSyncInterval])
 
+  // Keep the saved chapter-track preference, but treat it as off when this item has no chapters
+  const effectiveSettings = useMemo(() => {
+    if (chapters.length > 0 || !settings.useChapterTrack) {
+      return settings
+    }
+    return { ...settings, useChapterTrack: false }
+  }, [settings, chapters.length])
+
   const controls = useMemo(
     (): PlayerHandlerControls => ({
       load,
@@ -665,7 +678,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       currentChapter,
       nextChapter,
       previousChapter,
-      settings
+      settings: effectiveSettings
     },
     controls,
     setOnPlaybackFinished

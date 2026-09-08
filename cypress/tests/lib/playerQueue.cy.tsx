@@ -31,22 +31,22 @@ const libraryItem = {
 
 describe('buildRecentEpisodesQueueFromIndex', () => {
   it('caps the queue at MAX_PLAYER_QUEUE_ITEMS', () => {
-    const episodes = Array.from({ length: 80 }, (_, index) => makeRecentEpisode(index))
-    const queue = buildRecentEpisodesQueueFromIndex(episodes, [], 79)
+    const episodes = Array.from({ length: 150 }, (_, index) => makeRecentEpisode(index))
+    const queue = buildRecentEpisodesQueueFromIndex(episodes, [], 149)
 
     expect(queue).to.have.length(MAX_PLAYER_QUEUE_ITEMS)
-    expect(queue[0].episodeId).to.eq('episode-79')
-    expect(queue[queue.length - 1].episodeId).to.eq('episode-30')
+    expect(queue[0].episodeId).to.eq('episode-149')
+    expect(queue[queue.length - 1].episodeId).to.eq('episode-50')
   })
 })
 
 describe('buildPodcastEpisodesQueueFromIndex', () => {
   it('caps the queue at MAX_PLAYER_QUEUE_ITEMS', () => {
-    const episodes = Array.from({ length: 80 }, (_, index) => makePodcastEpisode(index))
+    const episodes = Array.from({ length: 150 }, (_, index) => makePodcastEpisode(index))
     const queue = buildPodcastEpisodesQueueFromIndex(episodes, libraryItem, [], 0)
 
     expect(queue).to.have.length(MAX_PLAYER_QUEUE_ITEMS)
     expect(queue[0].episodeId).to.eq('episode-0')
-    expect(queue[queue.length - 1].episodeId).to.eq('episode-49')
+    expect(queue[queue.length - 1].episodeId).to.eq('episode-99')
   })
 })

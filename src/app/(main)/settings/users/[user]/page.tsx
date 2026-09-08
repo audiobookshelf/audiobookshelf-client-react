@@ -1,7 +1,7 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { getData, getUser } from '../../../../../lib/api'
+import { getData } from '../../../../../lib/api'
+import { getUserOrNotFound } from '../../../../../lib/notFound'
 import UserClient from './UserClient'
 
 export const dynamic = 'force-dynamic'
@@ -10,11 +10,7 @@ export default async function UserPage({ params }: { params: Promise<{ user: str
   const t = await getTypeSafeTranslations()
   const { user: userId } = await params
 
-  const [user] = await getData(getUser(userId))
-
-  if (!user) {
-    redirect('/settings/users')
-  }
+  const [user] = await getData(getUserOrNotFound(userId))
 
   return (
     <div className="mx-auto w-full max-w-4xl p-2 md:p-6">

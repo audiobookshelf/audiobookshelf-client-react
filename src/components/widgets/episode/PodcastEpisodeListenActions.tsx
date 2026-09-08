@@ -1,15 +1,16 @@
 import IconBtn from '@/components/ui/IconBtn'
-import Tooltip from '@/components/ui/Tooltip'
 import ReadIconBtn from '@/components/ui/ReadIconBtn'
+import Tooltip from '@/components/ui/Tooltip'
 import EpisodePlayButton from '@/components/widgets/episode/EpisodePlayButton'
-import { EPISODE_ROW_ACTION_BTN_CLASS } from '@/lib/episode'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { EPISODE_ROW_ACTION_BTN_CLASS } from '@/lib/episode'
 import { mergeClasses } from '@/lib/merge-classes'
 
 interface PodcastEpisodeListenActionsProps {
   playButtonLabel: string
   isPlaying: boolean
   isFinished: boolean
+  isLoading?: boolean
   isProcessingFinished?: boolean
   showQueueButton?: boolean
   isQueued?: boolean
@@ -23,6 +24,7 @@ export default function PodcastEpisodeListenActions({
   playButtonLabel,
   isPlaying,
   isFinished,
+  isLoading = false,
   isProcessingFinished = false,
   showQueueButton = false,
   isQueued = false,
@@ -35,7 +37,7 @@ export default function PodcastEpisodeListenActions({
 
   return (
     <div className="flex items-center gap-1">
-      <EpisodePlayButton label={playButtonLabel} isPlaying={isPlaying} isFinished={isFinished} onClick={onPlay} />
+      <EpisodePlayButton label={playButtonLabel} isPlaying={isPlaying} isFinished={isFinished} loading={isLoading} onClick={onPlay} />
 
       {showQueueButton && onQueueToggle && (
         <Tooltip lazy position="top" text={isQueued ? t('MessageRemoveFromPlayerQueue') : t('MessageAddToPlayerQueue')}>

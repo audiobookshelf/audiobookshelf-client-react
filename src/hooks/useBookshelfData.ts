@@ -105,8 +105,7 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
     invalidate()
   }, [libraryId, entityType, query, invalidate])
 
-  // When itemsPerPage changes, page boundaries shift — clear loaded pages and wipe the sparse
-  // array so stale slots cannot overlap with newly fetched pages (duplicate item ids).
+  // When itemsPerPage changes, API page boundaries shift. Clear loaded-page tracking so the visible window is fetched with the new page size. Keep already-loaded entities
   useEffect(() => {
     if (itemsPerPage <= 0) return
 
@@ -114,14 +113,6 @@ export function useBookshelfData({ entityType, query, itemsPerPage }: UseBookshe
     if (prevItemsPerPage > 0 && prevItemsPerPage !== itemsPerPage) {
       pagesLoadedRef.current.clear()
       loadingPagesRef.current.clear()
-      setState((prev) => {
-        if (prev.items.length === 0) return prev
-        return {
-          ...prev,
-          items: prev.totalEntities > 0 ? new Array(prev.totalEntities).fill(null) : [],
-          isLoading: true
-        }
-      })
     }
     itemsPerPageRef.current = itemsPerPage
   }, [itemsPerPage])

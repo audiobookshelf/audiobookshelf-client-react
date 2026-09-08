@@ -219,7 +219,7 @@ export default function UserAppBarNav() {
       'hover:bg-dropdown-item-hover text-foreground flex w-full items-center justify-start px-4 py-3 transition-colors outline-none',
       item.className,
       item.mobileOnly && 'md:hidden',
-      focusedIndex === index && 'bg-dropdown-item-selected'
+      focusedIndex === index && 'bg-dropdown-item-focused'
     )
 
   const menuContent = (

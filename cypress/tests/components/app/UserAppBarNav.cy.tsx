@@ -1,8 +1,8 @@
 import UserAppBarNav from '@/app/(main)/UserAppBarNav'
 import { UserContext, type UserContextType } from '@/contexts/UserContext'
 import { User } from '@/types/api'
-import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
+import { AppRouterContext } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 import * as navigation from 'next/navigation'
 import { ReactNode } from 'react'
 
@@ -79,7 +79,7 @@ function mountUserAppBarNav(props: { username?: string } = {}, options?: { align
   const ui: ReactNode = (
     <UserContext.Provider value={createMockUserContextValue(user)}>
       <AppRouterContext.Provider value={router}>
-        {options?.alignEnd ? <div className="absolute end-0">{userAppBarNav}</div> : userAppBarNav}
+        {options?.alignEnd ? <div className="absolute inset-e-0">{userAppBarNav}</div> : userAppBarNav}
       </AppRouterContext.Provider>
     </UserContext.Provider>
   )
@@ -107,12 +107,12 @@ describe('<UserAppBarNav /> desktop keyboard navigation', () => {
     mountUserAppBarNav()
     desktopMenuTrigger().focus().type('{enter}')
     desktopMenuTrigger().should('have.focus')
-    cy.get('[role="menuitem"]').eq(0).should('have.class', 'bg-dropdown-item-selected')
+    cy.get('[role="menuitem"]').eq(0).should('have.class', 'bg-dropdown-item-focused')
     desktopMenuTrigger().type('{downarrow}')
-    cy.get('[role="menuitem"]').eq(1).should('have.class', 'bg-dropdown-item-selected')
+    cy.get('[role="menuitem"]').eq(1).should('have.class', 'bg-dropdown-item-focused')
     desktopMenuTrigger().should('have.focus')
     desktopMenuTrigger().type('{uparrow}')
-    cy.get('[role="menuitem"]').eq(0).should('have.class', 'bg-dropdown-item-selected')
+    cy.get('[role="menuitem"]').eq(0).should('have.class', 'bg-dropdown-item-focused')
   })
 
   it('closes the menu with Escape and returns focus to the trigger', () => {
@@ -128,9 +128,9 @@ describe('<UserAppBarNav /> desktop keyboard navigation', () => {
     mountUserAppBarNav()
     desktopMenuTrigger().focus().type('{enter}')
     desktopMenuTrigger().type('{end}')
-    cy.get('[role="menuitem"]').last().should('have.class', 'bg-dropdown-item-selected')
+    cy.get('[role="menuitem"]').last().should('have.class', 'bg-dropdown-item-focused')
     desktopMenuTrigger().type('{home}')
-    cy.get('[role="menuitem"]').first().should('have.class', 'bg-dropdown-item-selected')
+    cy.get('[role="menuitem"]').first().should('have.class', 'bg-dropdown-item-focused')
     desktopMenuTrigger().should('have.focus')
   })
 

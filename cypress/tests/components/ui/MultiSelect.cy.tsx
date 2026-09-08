@@ -133,11 +133,45 @@ describe('<MultiSelect />', () => {
       cy.get('input[role="combobox"]').should('not.have.attr', 'aria-activedescendant')
     })
 
+    it('highlights selected items without a check indicator', () => {
+      cy.mount(<MultiSelect items={basicItems} selectedItems={selectedItems} onItemAdded={cy.stub()} onItemRemoved={cy.stub()} />)
+
+      cy.get('input[role="combobox"]').focus()
+      cy.get('[role="option"]').eq(0).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="option"]').eq(1).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="option"]').eq(2).should('not.have.class', 'text-dropdown-item-selected')
+      cy.get('[role="option"] .material-symbols').should('not.exist')
+    })
+
+    it('focuses the first item with ArrowDown after the menu is already open', () => {
+      cy.mount(<MultiSelect items={basicItems} selectedItems={[]} onItemAdded={cy.stub()} onItemRemoved={cy.stub()} />)
+
+      cy.get('input[role="combobox"]').focus()
+      cy.get('[role="option"]').should('not.have.class', 'bg-dropdown-item-focused')
+      cy.get('input[role="combobox"]').type('{downarrow}')
+      cy.get('[role="option"]').first().should('have.class', 'bg-dropdown-item-focused')
+    })
+
+    it('does not move keyboard focus when an item is hovered', () => {
+      cy.mount(<MultiSelect items={basicItems} selectedItems={selectedItems} onItemAdded={cy.stub()} onItemRemoved={cy.stub()} />)
+
+      cy.get('input[role="combobox"]').focus()
+      cy.get('input[role="combobox"]').type('{downarrow}')
+      cy.get('[role="option"]').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="option"]').eq(2).trigger('mouseover')
+      cy.get('[role="option"]').first().should('have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="option"]').eq(2).should('not.have.class', 'bg-dropdown-item-focused')
+      cy.get('[role="option"]').eq(0).should('have.class', 'text-dropdown-item-selected')
+      cy.get('[role="option"]').eq(2).should('not.have.class', 'text-dropdown-item-selected')
+    })
+
     it('navigates dropdown with up/downarrow keys', () => {
       cy.mount(<MultiSelect items={basicItems} selectedItems={[]} onItemAdded={cy.stub()} onItemRemoved={cy.stub()} />)
 
       cy.get('input[role="combobox"]').focus()
       cy.get('input[role="combobox"]').type('{downarrow}')
+
+      cy.get('[role="option"]').first().should('have.class', 'bg-dropdown-item-focused')
 
       // Check that aria-activedescendant points to the first option
       cy.get('[role="option"]')
@@ -148,6 +182,8 @@ describe('<MultiSelect />', () => {
         })
 
       cy.get('input[role="combobox"]').type('{downarrow}')
+
+      cy.get('[role="option"]').eq(1).should('have.class', 'bg-dropdown-item-focused')
 
       // Check that aria-activedescendant points to the second option
       cy.get('[role="option"]')
