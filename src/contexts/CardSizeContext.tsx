@@ -1,14 +1,8 @@
 'use client'
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import {
-  AVAILABLE_COVER_SIZES,
-  COVER_SIZE_COOKIE,
-  COVER_SIZE_MOBILE_COOKIE,
-  MOBILE_VIEWPORT_COOKIE,
-  coverSizeToIndex,
-  coverSizeToMultiplier
-} from '@/lib/coverSizes'
+import { COOKIE_NAMES, writePreferenceCookie } from '@/lib/cookies'
+import { AVAILABLE_COVER_SIZES, coverSizeToIndex, coverSizeToMultiplier } from '@/lib/coverSizes'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 /** Maximum size multiplier allowed on mobile */
@@ -30,12 +24,6 @@ interface CardSizeContextValue {
 
 const CardSizeContext = createContext<CardSizeContextValue | undefined>(undefined)
 
-const COOKIE_MAX_AGE = 365 * 24 * 60 * 60 // 1 year
-
-function writeCookie(name: string, value: string) {
-  document.cookie = `${name}=${value}; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax`
-}
-
 export function CardSizeProvider({
   children,
   initialCoverSize,
@@ -55,7 +43,7 @@ export function CardSizeProvider({
   // Recorded so the next server render knows the real viewport, which the user agent
   // cannot tell it for a resized window
   useEffect(() => {
-    writeCookie(MOBILE_VIEWPORT_COOKIE, isMobile ? '1' : '0')
+    writePreferenceCookie(COOKIE_NAMES.mobileViewport, isMobile ? '1' : '0')
   }, [isMobile])
 
   const sizeMultiplier = isMobile
@@ -68,7 +56,7 @@ export function CardSizeProvider({
       else setCoverWidth(width)
       // Written directly rather than through a route: a Set-Cookie response would invalidate
       // the router cache and refetch the page on every click
-      writeCookie(isMobile ? COVER_SIZE_MOBILE_COOKIE : COVER_SIZE_COOKIE, String(width))
+      writePreferenceCookie(isMobile ? COOKIE_NAMES.mobileCoverSize : COOKIE_NAMES.coverSize, String(width))
     },
     [isMobile]
   )

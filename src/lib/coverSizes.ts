@@ -1,7 +1,3 @@
-export const COVER_SIZE_COOKIE = 'bookshelfCoverSize'
-export const COVER_SIZE_MOBILE_COOKIE = 'bookshelfCoverSizeMobile'
-export const MOBILE_VIEWPORT_COOKIE = 'isMobileViewport'
-
 /** Available cover sizes in pixels */
 export const AVAILABLE_COVER_SIZES = [60, 80, 100, 120, 140, 160, 180, 200, 220]
 export const NUM_AVAILABLE_COVER_SIZES = AVAILABLE_COVER_SIZES.length

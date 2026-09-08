@@ -1,4 +1,5 @@
 import { cookies, headers } from 'next/headers'
+import { COOKIE_NAMES, PreferenceCookieOptions, setPreferenceCookie } from '@/lib/cookies'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
 import { cache } from 'react'
@@ -183,16 +184,8 @@ function sessionCookieOptions(maxAgeSeconds: number) {
   }
 }
 
-const LANGUAGE_COOKIE_OPTIONS = {
-  httpOnly: false,
-  secure: false,
-  sameSite: 'lax' as const,
-  path: '/',
-  maxAge: 365 * 24 * 60 * 60 // 1 year
-}
-
 type SessionCookieSetter = {
-  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions> | typeof LANGUAGE_COOKIE_OPTIONS): void
+  set(name: string, value: string, options: ReturnType<typeof sessionCookieOptions> | PreferenceCookieOptions): void
 }
 
 function writeSessionCookies(store: SessionCookieSetter, accessToken: string, refreshToken: string | null) {
@@ -204,7 +197,7 @@ function writeSessionCookies(store: SessionCookieSetter, accessToken: string, re
 
 export function setLanguageCookie(store: SessionCookieSetter, language: string | null | undefined) {
   if (language) {
-    store.set('language', language, LANGUAGE_COOKIE_OPTIONS)
+    setPreferenceCookie(store, COOKIE_NAMES.language, language)
   }
 }
 

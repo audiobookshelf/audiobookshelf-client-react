@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { clearSessionCookies, getServerStatus } from './lib/api'
 import { withBasePath } from './lib/basePath'
+import { COOKIE_NAMES, setPreferenceCookie } from './lib/cookies'
 import { isSessionTokenValid } from './lib/jwt'
 import { matchAcceptLanguage } from './lib/languages'
 import Logger from './lib/Logger'
@@ -16,8 +17,8 @@ export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
   const accessTokenCookie = request.cookies.get('access_token')?.value
   const refreshTokenCookie = request.cookies.get('refresh_token')?.value
-  const languageCookie = request.cookies.get('language')?.value
-  const themeCookie = request.cookies.get('theme')?.value
+  const languageCookie = request.cookies.get(COOKIE_NAMES.language)?.value
+  const themeCookie = request.cookies.get(COOKIE_NAMES.theme)?.value
   const path = pathname + search
 
   const hasValidAccessToken = isSessionTokenValid(accessTokenCookie)
@@ -77,22 +78,10 @@ export async function proxy(request: NextRequest) {
   // Helper function to set language and theme cookies on any response
   const setLanguageCookie = (response: NextResponse) => {
     if (serverLanguage) {
-      response.cookies.set('language', serverLanguage, {
-        httpOnly: false,
-        secure: false,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 365 * 24 * 60 * 60 // 1 year
-      })
+      setPreferenceCookie(response.cookies, COOKIE_NAMES.language, serverLanguage)
     }
     if (shouldSetDefaultTheme) {
-      response.cookies.set('theme', 'dark', {
-        httpOnly: false,
-        secure: false,
-        sameSite: 'lax',
-        path: '/',
-        maxAge: 365 * 24 * 60 * 60 // 1 year
-      })
+      setPreferenceCookie(response.cookies, COOKIE_NAMES.theme, 'dark')
     }
     return response
   }

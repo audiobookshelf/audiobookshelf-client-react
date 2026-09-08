@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
 import { getServerBaseUrl, setLanguageCookie, setTokenCookies } from '../../../lib/api'
+import { COOKIE_NAMES } from '../../../lib/cookies'
 import { getTypeSafeTranslations } from '../../../lib/getTypeSafeTranslations'
 import { isSupportedLanguageCode } from '../../../lib/languages'
 import { isUserAdminOrUp } from '../../../lib/userPermissions'
@@ -15,7 +16,7 @@ async function syncServerLanguageFromCookie(
   accessToken: string,
   data: UserLoginWithTokensResponse
 ): Promise<string | undefined> {
-  const languageCookie = (await cookies()).get('language')?.value
+  const languageCookie = (await cookies()).get(COOKIE_NAMES.language)?.value
   const serverLanguage = data.serverSettings?.language
 
   if (!languageCookie || !isSupportedLanguageCode(languageCookie) || languageCookie === serverLanguage || !isUserAdminOrUp(data.user?.type ?? 'user')) {

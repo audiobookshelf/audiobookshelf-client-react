@@ -1,4 +1,5 @@
-import { COVER_SIZE_COOKIE, COVER_SIZE_MOBILE_COOKIE, MOBILE_VIEWPORT_COOKIE, parseCoverSize } from '@/lib/coverSizes'
+import { COOKIE_NAMES } from '@/lib/cookies'
+import { parseCoverSize } from '@/lib/coverSizes'
 import { cookies } from 'next/headers'
 
 /**
@@ -7,10 +8,10 @@ import { cookies } from 'next/headers'
  */
 export async function getCoverSizes(): Promise<{ width?: number; mobileWidth?: number; isMobile?: boolean }> {
   const cookieStore = await cookies()
-  const viewport = cookieStore.get(MOBILE_VIEWPORT_COOKIE)?.value
+  const viewport = cookieStore.get(COOKIE_NAMES.mobileViewport)?.value
   return {
-    width: parseCoverSize(cookieStore.get(COVER_SIZE_COOKIE)?.value),
-    mobileWidth: parseCoverSize(cookieStore.get(COVER_SIZE_MOBILE_COOKIE)?.value),
+    width: parseCoverSize(cookieStore.get(COOKIE_NAMES.coverSize)?.value),
+    mobileWidth: parseCoverSize(cookieStore.get(COOKIE_NAMES.mobileCoverSize)?.value),
     isMobile: viewport === '1' ? true : viewport === '0' ? false : undefined
   }
 }
