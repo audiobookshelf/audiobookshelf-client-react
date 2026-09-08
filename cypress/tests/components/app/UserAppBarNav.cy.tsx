@@ -53,9 +53,7 @@ function createMockUserContextValue(user: User): UserContextType {
     Source: 'test',
     getMediaItemProgress: () => undefined,
     getBookmarksForLibraryItem: () => [],
-    mergeServerSettings: () => {},
-    clientSettings: {},
-    updateClientSetting: () => {}
+    mergeServerSettings: () => {}
   }
 }
 

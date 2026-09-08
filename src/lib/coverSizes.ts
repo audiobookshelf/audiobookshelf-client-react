@@ -1,3 +1,7 @@
+export const COVER_SIZE_COOKIE = 'bookshelfCoverSize'
+export const COVER_SIZE_MOBILE_COOKIE = 'bookshelfCoverSizeMobile'
+export const MOBILE_VIEWPORT_COOKIE = 'isMobileViewport'
+
 /** Available cover sizes in pixels */
 export const AVAILABLE_COVER_SIZES = [60, 80, 100, 120, 140, 160, 180, 200, 220]
 export const NUM_AVAILABLE_COVER_SIZES = AVAILABLE_COVER_SIZES.length
@@ -18,4 +22,10 @@ export function coverSizeToIndex(width: number | null | undefined, isMobile: boo
 
 export function coverSizeToMultiplier(width: number | null | undefined, isMobile: boolean): number {
   return AVAILABLE_COVER_SIZES[coverSizeToIndex(width, isMobile)] / BASE_COVER_SIZE
+}
+
+/** A cookie value that is not an available size is ignored */
+export function parseCoverSize(value: string | undefined): number | undefined {
+  const width = Number(value)
+  return AVAILABLE_COVER_SIZES.includes(width) ? width : undefined
 }

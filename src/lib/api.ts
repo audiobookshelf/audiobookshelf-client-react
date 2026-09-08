@@ -1,4 +1,3 @@
-import { CLIENT_ID } from '@/lib/clientIdentity'
 import { cookies, headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { NextResponse } from 'next/server'
@@ -18,7 +17,6 @@ import {
   BatchUpdateLibraryItemsResponse,
   BookSearchResult,
   Chapter,
-  ClientSettings,
   Collection,
   CreateApiKeyPayload,
   CreateCustomMetadataProviderPayload,
@@ -458,13 +456,6 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
     console.error('[completeOidcLogin] Error:', error)
     return null
   }
-}
-
-export async function updateClientSettings(settings: ClientSettings): Promise<{ clientId: string; settings: ClientSettings }> {
-  return apiRequest<{ clientId: string; settings: ClientSettings }>(`/api/me/client-settings/${CLIENT_ID}`, {
-    method: 'PATCH',
-    body: JSON.stringify(settings)
-  })
 }
 
 export const getListeningStats = cache(async (): Promise<ListeningStats> => {

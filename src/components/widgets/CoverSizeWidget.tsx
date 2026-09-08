@@ -2,7 +2,6 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import { useCardSize } from '@/contexts/CardSizeContext'
-import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { AVAILABLE_COVER_SIZES, NUM_AVAILABLE_COVER_SIZES, NUM_AVAILABLE_MOBILE_COVER_SIZES, coverSizeToIndex } from '@/lib/coverSizes'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -19,29 +18,20 @@ interface CoverSizeWidgetProps {
 
 export default function CoverSizeWidget({ className }: CoverSizeWidgetProps) {
   const t = useTypeSafeTranslations()
-  const { isMobile } = useCardSize()
-  const { clientSettings, updateClientSetting } = useUser()
+  const { isMobile, coverWidth: savedCoverWidth, mobileCoverWidth, setCoverSize } = useCardSize()
   const numAvailableCoverSizes = isMobile ? NUM_AVAILABLE_MOBILE_COVER_SIZES : NUM_AVAILABLE_COVER_SIZES
 
-  const settingKey = isMobile ? 'bookshelfCoverSizeMobile' : 'bookshelfCoverSize'
-  const savedSize = isMobile ? clientSettings.bookshelfCoverSizeMobile : clientSettings.bookshelfCoverSize
+  const savedSize = isMobile ? mobileCoverWidth : savedCoverWidth
   const sizeIndex = coverSizeToIndex(savedSize, isMobile)
   const coverWidth = AVAILABLE_COVER_SIZES[sizeIndex]
 
-  const setBookshelfCoverSize = useCallback(
-    (size: number) => {
-      updateClientSetting(settingKey, size)
-    },
-    [updateClientSetting, settingKey]
-  )
-
   const increaseSize = useCallback(() => {
-    setBookshelfCoverSize(coverSizeAtOffset(sizeIndex, 1, numAvailableCoverSizes))
-  }, [numAvailableCoverSizes, sizeIndex, setBookshelfCoverSize])
+    setCoverSize(coverSizeAtOffset(sizeIndex, 1, numAvailableCoverSizes))
+  }, [numAvailableCoverSizes, setCoverSize, sizeIndex])
 
   const decreaseSize = useCallback(() => {
-    setBookshelfCoverSize(coverSizeAtOffset(sizeIndex, -1, numAvailableCoverSizes))
-  }, [numAvailableCoverSizes, sizeIndex, setBookshelfCoverSize])
+    setCoverSize(coverSizeAtOffset(sizeIndex, -1, numAvailableCoverSizes))
+  }, [numAvailableCoverSizes, setCoverSize, sizeIndex])
 
   const isAtMinSize = sizeIndex === 0
   const isAtMaxSize = sizeIndex === numAvailableCoverSizes - 1

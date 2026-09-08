@@ -2,7 +2,6 @@ import { closePlaybackSession, startPlaybackSession, syncPlaybackSession } from 
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
-import { CLIENT_NAME } from '@/lib/clientIdentity'
 import { generateUUID } from '@/lib/cryptoUtils'
 import { AudioTrack } from '@/lib/player/AudioTrack'
 import { FIRST_SYNC_DELAY, SUBSEQUENT_SYNC_INTERVAL } from '@/lib/player/constants'
@@ -101,7 +100,7 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
       try {
         const payload: StartSessionPayload = {
           deviceInfo: {
-            clientName: CLIENT_NAME,
+            clientName: 'Audiobookshelf Web (React)',
             deviceId: getDeviceId()
           },
           supportedMimeTypes,

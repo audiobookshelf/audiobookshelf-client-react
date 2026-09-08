@@ -1,15 +1,18 @@
 'use client'
 
-import { UserContext } from '@/contexts/UserContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { coverSizeToMultiplier } from '@/lib/coverSizes'
+import {
+  AVAILABLE_COVER_SIZES,
+  COVER_SIZE_COOKIE,
+  COVER_SIZE_MOBILE_COOKIE,
+  MOBILE_VIEWPORT_COOKIE,
+  coverSizeToIndex,
+  coverSizeToMultiplier
+} from '@/lib/coverSizes'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 /** Maximum size multiplier allowed on mobile */
 const MOBILE_MAX_SIZE_MULTIPLIER = 5 / 6
-/** Default size multiplier */
-const DEFAULT_SIZE_MULTIPLIER = 1
-
 interface CardSizeContextValue {
   /** Whether the current viewport is mobile (< sm breakpoint) */
   isMobile: boolean
@@ -18,46 +21,54 @@ interface CardSizeContextValue {
    * Use this as the default; can be overridden by a prop.
    */
   sizeMultiplier: number
-  /** Update the size multiplier for the current viewport */
-  setSizeMultiplier: (multiplier: number) => void
+  /** Both layouts' widths, so a consumer resolves the viewport itself after hydration */
+  coverWidth: number
+  mobileCoverWidth: number
+  /** Update and persist the cover width for the current viewport. */
+  setCoverSize: (width: number) => void
 }
 
 const CardSizeContext = createContext<CardSizeContextValue | undefined>(undefined)
 
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60 // 1 year
+
+function writeCookie(name: string, value: string) {
+  document.cookie = `${name}=${value}; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax`
+}
+
 export function CardSizeProvider({
   children,
-  initialSizeMultiplier = DEFAULT_SIZE_MULTIPLIER,
-  initialMobileSizeMultiplier = DEFAULT_SIZE_MULTIPLIER,
+  initialCoverSize,
+  initialMobileCoverSize,
   initialIsMobile = false
 }: {
   children: React.ReactNode
-  initialSizeMultiplier?: number
-  initialMobileSizeMultiplier?: number
-  /** Server-side guess of the viewport (from the user agent), used only for SSR and first paint */
+  initialCoverSize?: number
+  initialMobileCoverSize?: number
+  /** Viewport for SSR and first paint, from the cookie below or the user agent on a first visit */
   initialIsMobile?: boolean
 }) {
-  const [baseSizeMultiplier, setBaseSizeMultiplier] = useState(initialSizeMultiplier)
-  const [mobileSizeMultiplier, setMobileSizeMultiplier] = useState(initialMobileSizeMultiplier)
+  const [coverWidth, setCoverWidth] = useState(() => AVAILABLE_COVER_SIZES[coverSizeToIndex(initialCoverSize, false)])
+  const [mobileCoverWidth, setMobileCoverWidth] = useState(() => AVAILABLE_COVER_SIZES[coverSizeToIndex(initialMobileCoverSize, true)])
   const isMobile = useMediaQuery('max-sm', initialIsMobile)
 
-  // Track the saved cover sizes so a change on another tab or device applies on every page.
-  // Depends on the sizes rather than the settings object, which is replaced on every user update.
-  const clientSettings = useContext(UserContext)?.clientSettings
-  const hasClientSettings = clientSettings !== undefined
-  const savedCoverSize = clientSettings?.bookshelfCoverSize
-  const savedMobileCoverSize = clientSettings?.bookshelfCoverSizeMobile
+  // Recorded so the next server render knows the real viewport, which the user agent
+  // cannot tell it for a resized window
   useEffect(() => {
-    if (!hasClientSettings) return
-    setBaseSizeMultiplier(coverSizeToMultiplier(savedCoverSize, false))
-    setMobileSizeMultiplier(coverSizeToMultiplier(savedMobileCoverSize, true))
-  }, [hasClientSettings, savedCoverSize, savedMobileCoverSize])
+    writeCookie(MOBILE_VIEWPORT_COOKIE, isMobile ? '1' : '0')
+  }, [isMobile])
 
-  const sizeMultiplier = isMobile ? Math.min(mobileSizeMultiplier, MOBILE_MAX_SIZE_MULTIPLIER) : baseSizeMultiplier
+  const sizeMultiplier = isMobile
+    ? Math.min(coverSizeToMultiplier(mobileCoverWidth, true), MOBILE_MAX_SIZE_MULTIPLIER)
+    : coverSizeToMultiplier(coverWidth, false)
 
-  const setSizeMultiplier = useCallback(
-    (multiplier: number) => {
-      if (isMobile) setMobileSizeMultiplier(multiplier)
-      else setBaseSizeMultiplier(multiplier)
+  const setCoverSize = useCallback(
+    (width: number) => {
+      if (isMobile) setMobileCoverWidth(width)
+      else setCoverWidth(width)
+      // Written directly rather than through a route: a Set-Cookie response would invalidate
+      // the router cache and refetch the page on every click
+      writeCookie(isMobile ? COVER_SIZE_MOBILE_COOKIE : COVER_SIZE_COOKIE, String(width))
     },
     [isMobile]
   )
@@ -66,9 +77,11 @@ export function CardSizeProvider({
     () => ({
       isMobile,
       sizeMultiplier,
-      setSizeMultiplier
+      coverWidth,
+      mobileCoverWidth,
+      setCoverSize
     }),
-    [isMobile, sizeMultiplier, setSizeMultiplier]
+    [isMobile, sizeMultiplier, coverWidth, mobileCoverWidth, setCoverSize]
   )
 
   return <CardSizeContext.Provider value={value}>{children}</CardSizeContext.Provider>
