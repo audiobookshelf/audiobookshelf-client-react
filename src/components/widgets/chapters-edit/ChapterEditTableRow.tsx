@@ -73,6 +73,7 @@ export interface ChapterEditTableRowProps {
   chapter: EditableChapter
   chapterCount: number
   mediaDuration: number
+  isFirstChapter?: boolean
   startDirty?: boolean
   baselineTitle?: string
   isChecked: boolean
@@ -106,6 +107,7 @@ function ChapterEditTableRow({
   chapter,
   chapterCount,
   mediaDuration,
+  isFirstChapter = false,
   startDirty = false,
   baselineTitle,
   isChecked,
@@ -212,6 +214,7 @@ function ChapterEditTableRow({
               size="small"
               className={startDirty ? 'text-info' : undefined}
               ariaLabelledBy={startHeaderId}
+              disabled={isFirstChapter}
               onChange={onStartChange}
             />
             {showMatchDebug ? (

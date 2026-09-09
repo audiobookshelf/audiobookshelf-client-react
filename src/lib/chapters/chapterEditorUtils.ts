@@ -56,8 +56,8 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
     const chapterEnd = chapters[i + 1] ? chapters[i + 1].start : mediaDuration
     const existingEnd = existingChapters[i + 1] ? existingChapters[i + 1].start : mediaDuration
     if (
-      !chapterTimesEqual(chapter.start, existingChapter.start) ||
-      !chapterTimesEqual(chapterEnd, existingEnd) ||
+      !normalizedChapterTimesEqual(chapter.start, existingChapter.start) ||
+      !normalizedChapterTimesEqual(chapterEnd, existingEnd) ||
       (chapter.title || '').trim() !== (existingChapter.title || '').trim()
     ) {
       return true
@@ -70,7 +70,7 @@ export function computeHasChanges(chapters: EditableChapter[], existingChapters:
 export function savedChapterListsMatch(a: Chapter[], b: Chapter[]): boolean {
   if (a.length !== b.length) return false
   for (let i = 0; i < a.length; i++) {
-    if (!chapterTimesEqual(a[i].start, b[i].start)) return false
+    if (!normalizedChapterTimesEqual(a[i].start, b[i].start)) return false
     if ((a[i].title || '').trim() !== (b[i].title || '').trim()) return false
   }
   return true
@@ -95,7 +95,12 @@ export function audibleMsToChapterStartSec(ms: number): number {
 /** Starts within this many seconds compare equal (Audible ms rounding vs saved whole seconds). */
 const CHAPTER_START_TOLERANCE_SEC = 1
 
-/** DurationPicker and timestamps are whole seconds; ignore sub-second and ±1s Audible drift. */
+/** Exact whole-second equality after DurationPicker-style rounding. Used for editor dirty state and saved-list identity. */
+function normalizedChapterTimesEqual(a: number, b: number): boolean {
+  return normalizeChapterStartSec(a) === normalizeChapterStartSec(b)
+}
+
+/** ±1s after rounding. Used for Audible/import matching, not user-edit dirty detection or socket identity. */
 function chapterTimesEqual(a: number, b: number): boolean {
   return Math.abs(normalizeChapterStartSec(a) - normalizeChapterStartSec(b)) <= CHAPTER_START_TOLERANCE_SEC
 }
@@ -148,19 +153,28 @@ export function getChapterDirtyFields(chapter: EditableChapter, baseline: Map<st
   if (!snapshot) {
     return { start: true, title: true, duration: true }
   }
-  const startDirty = !chapterTimesEqual(chapter.start, snapshot.start)
+  const startDirty = !normalizedChapterTimesEqual(chapter.start, snapshot.start)
   const titleDirty = (chapter.title || '').trim() !== snapshot.title
   return {
     start: startDirty,
     title: titleDirty,
-    duration: startDirty || !chapterTimesEqual(chapter.end, snapshot.end)
+    duration: startDirty || !normalizedChapterTimesEqual(chapter.end, snapshot.end)
   }
 }
 
 export interface ChapterValidationMessages {
-  firstNotZero: string
   startLtPrev: string
   startGteDuration: string
+}
+
+export function ensureFirstChapterStartsAtZero(chapters: EditableChapter[]): EditableChapter[] {
+  const first = chapters[0]
+  if (!first || first.start === 0) {
+    return chapters
+  }
+  const next = chapters.slice()
+  next[0] = { ...first, start: 0 }
+  return next
 }
 
 export function initChapters(existing: Chapter[], mediaDuration: number): EditableChapter[] {
@@ -176,11 +190,13 @@ export function initChapters(existing: Chapter[], mediaDuration: number): Editab
       }
     ]
   }
-  return existing.map((chapter, index) => ({
-    ...chapter,
-    error: null as string | null,
-    clientKey: createStableChapterClientKey(index)
-  }))
+  return ensureFirstChapterStartsAtZero(
+    existing.map((chapter, index) => ({
+      ...chapter,
+      error: null as string | null,
+      clientKey: createStableChapterClientKey(index)
+    }))
+  )
 }
 
 /** True when the editor shows a single empty row at start time 0 (no title). */
@@ -214,13 +230,11 @@ export function validateChapters(
   messages: ChapterValidationMessages
 ): { chapters: EditableChapter[]; hasChanges: boolean } {
   let previousStart = 0
-  const updated = chapters.map((chapter, i) => {
-    const start = normalizeChapterStartSec(Number(chapter.start))
+  const updated = ensureFirstChapterStartsAtZero(chapters).map((chapter, i) => {
+    const start = i === 0 ? 0 : normalizeChapterStartSec(Number(chapter.start))
 
     let error: string | null
-    if (i === 0 && start !== 0) {
-      error = messages.firstNotZero
-    } else if (start <= previousStart && i > 0) {
+    if (start <= previousStart && i > 0) {
       error = messages.startLtPrev
     } else if (start >= mediaDuration) {
       error = messages.startGteDuration
@@ -510,6 +524,9 @@ export function buildIdenticalChapters(title: string, count: number, existingCha
 }
 
 export function updateChapterStart(chapters: EditableChapter[], id: number, start: number): EditableChapter[] {
+  if (chapters[0]?.id === id) {
+    return chapters
+  }
   return chapters.map((c) => (c.id === id ? { ...c, start } : c))
 }
 
