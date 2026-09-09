@@ -265,7 +265,7 @@ function SeriesCard(props: SeriesCardProps) {
               {displayTitle}
             </p>
             {displaySortLine && (
-              <p cy-id="detailBottomSortLine" className="truncate text-gray-400" style={{ fontSize: '0.8em' }}>
+              <p cy-id="detailBottomSortLine" className="text-foreground-muted truncate" style={{ fontSize: '0.8em' }}>
                 {displaySortLine}
               </p>
             )}

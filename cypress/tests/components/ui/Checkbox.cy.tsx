@@ -83,7 +83,7 @@ describe('<Checkbox />', () => {
 
     it('handles partial state with correct styling', () => {
       cy.mount(<Checkbox partial label="Partial Checkbox" />)
-      cy.get('.material-symbols').should('have.class', 'text-gray-400')
+      cy.get('.material-symbols').should('have.class', 'text-foreground-subdued')
       cy.get('.material-symbols').should('have.class', 'text-base')
       cy.get('.material-symbols').should('have.class', 'leading-none')
     })

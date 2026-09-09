@@ -85,7 +85,7 @@ export default function Checkbox({
             className={mergeClasses('flex h-full w-full items-center justify-center rounded-sm', disabled ? 'bg-checkbox-bg-disabled' : '')}
           >
             {partial ? (
-              <span className="material-symbols text-base leading-none text-gray-400">remove</span>
+              <span className="material-symbols text-foreground-subdued text-base leading-none">remove</span>
             ) : value ? (
               <svg className={svgClass} viewBox="0 0 20 20">
                 <path d="M0 11l2-2 5 5L18 3l2 2L7 18z" />

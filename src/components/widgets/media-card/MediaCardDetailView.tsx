@@ -73,12 +73,12 @@ export default function MediaCardDetailView({
           </div>
         ))}
       {isSkeleton ? (
-        <p className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
+        <p className="text-foreground-muted truncate" style={{ fontSize: `${0.8}em` }} aria-busy="true" aria-live="polite">
           <SkeletonBar inline className="inline-block h-[1em] w-2/3" animationDelay="0.2s" />
           &nbsp;
         </p>
       ) : (
-        <p cy-id="line2" className="truncate text-gray-400" style={{ fontSize: `${0.8}em` }}>
+        <p cy-id="line2" className="text-foreground-muted truncate" style={{ fontSize: `${0.8}em` }}>
           {displayLineTwo || '\u00A0'}
         </p>
       )}
