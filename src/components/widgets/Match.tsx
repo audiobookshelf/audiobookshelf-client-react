@@ -1,10 +1,12 @@
 'use client'
 
 import { searchBooksAction, searchPodcastsAction } from '@/app/actions/matchActions'
+import type { UnsavedChangesLeaveHandle } from '@/components/modals/LibraryItemModal'
 import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import { MultiSelectItem } from '@/components/ui/MultiSelect'
 import TextInput from '@/components/ui/TextInput'
+import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import BookMatchView from '@/components/widgets/match/BookMatchView'
 import MatchCard from '@/components/widgets/match/MatchCard'
 import PodcastMatchView from '@/components/widgets/match/PodcastMatchView'
@@ -13,7 +15,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { BookLibraryItem, BookSearchResult, isBookMedia, isPodcastMedia, PodcastLibraryItem, PodcastSearchResult } from '@/types/api'
-import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, useTransition, type Ref } from 'react'
 
 interface MatchProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -22,6 +24,8 @@ interface MatchProps {
   availableGenres?: MultiSelectItem<string>[]
   availableTags?: MultiSelectItem<string>[]
   availableSeries?: MultiSelectItem<string>[]
+  /** Lets the parent intercept leave (section change, hub back, close) while a match is selected but not yet applied. */
+  closeRequestRef?: Ref<UnsavedChangesLeaveHandle | null>
 }
 
 type MatchResult = BookSearchResult | PodcastSearchResult
@@ -41,7 +45,14 @@ function getDefaultBookProvider(providers: { value: string }[]): string {
   }
 }
 
-export default function Match({ libraryItem, availableNarrators = [], availableGenres = [], availableTags = [], availableSeries = [] }: MatchProps) {
+export default function Match({
+  libraryItem,
+  availableNarrators = [],
+  availableGenres = [],
+  availableTags = [],
+  availableSeries = [],
+  closeRequestRef
+}: MatchProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
 
@@ -70,6 +81,8 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const searchInitItemIdRef = useRef<string | null>(null)
   const [hasScrollbar, setHasScrollbar] = useState(false)
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false)
+  const pendingLeaveRef = useRef<(() => void) | null>(null)
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
   const mediaMetadata = useMemo(() => media.metadata || {}, [media.metadata])
@@ -264,6 +277,34 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
     setFocusedCardIndex(null)
   }, [])
 
+  // A selected match is only applied on Submit, so leaving with one selected discards it.
+  const requestLeave = useCallback(
+    (onAllow: () => void) => {
+      if (!selectedMatchOrig) {
+        onAllow()
+        return
+      }
+      pendingLeaveRef.current = onAllow
+      setShowCloseConfirm(true)
+    },
+    [selectedMatchOrig]
+  )
+
+  const handleCancelLeave = useCallback(() => {
+    pendingLeaveRef.current = null
+    setShowCloseConfirm(false)
+  }, [])
+
+  const handleDiscardAndLeave = useCallback(() => {
+    const onAllow = pendingLeaveRef.current
+    pendingLeaveRef.current = null
+    setShowCloseConfirm(false)
+    handleClearSelectedMatch()
+    onAllow?.()
+  }, [handleClearSelectedMatch])
+
+  useImperativeHandle(closeRequestRef, () => ({ requestLeave }), [requestLeave])
+
   const handleCardArrowKey = useCallback(
     (direction: 'up' | 'down', index: number) => {
       if (direction === 'down') {
@@ -431,6 +472,14 @@ export default function Match({ libraryItem, availableNarrators = [], availableG
           />
         )
       ) : null}
+
+      <ConfirmDialog
+        isOpen={showCloseConfirm}
+        message={t('MessageConfirmCloseMatchWithChanges')}
+        yesButtonText={t('ButtonDiscard')}
+        onClose={handleCancelLeave}
+        onConfirm={handleDiscardAndLeave}
+      />
     </>
   )
 }
