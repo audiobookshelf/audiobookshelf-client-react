@@ -11,8 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTypeSafeTranslations()
 
   return {
-    title: t('TitleSettings'),
-    description: 'Settings page for audiobookshelf client'
+    title: t('TitleSettings')
   }
 }
 

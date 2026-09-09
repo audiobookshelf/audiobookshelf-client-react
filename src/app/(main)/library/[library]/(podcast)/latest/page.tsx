@@ -1,9 +1,19 @@
 import { getData, getLibraries, getRecentEpisodes } from '@/lib/api'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { RECENT_EPISODES_PAGE_SIZE } from '@/lib/recentEpisodes'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import LatestClient from './LatestClient'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
+
+  return {
+    title: t('TitleAudiobookshelfPodcastLatest')
+  }
+}
 
 export default async function LatestPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params

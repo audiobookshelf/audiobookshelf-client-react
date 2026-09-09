@@ -1,7 +1,17 @@
 import { getData } from '@/lib/api'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { getPlaylistOrNotFound } from '@/lib/notFound'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import PlaylistClient from './PlaylistClient'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
+
+  return {
+    title: t('TitleAudiobookshelfPlaylists')
+  }
+}
 
 export default async function PlaylistPage({ params }: { params: Promise<{ playlist: string; library: string }> }) {
   const { playlist: playlistId, library: libraryIdFromRoute } = await params

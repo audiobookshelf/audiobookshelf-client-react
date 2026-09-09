@@ -1,8 +1,18 @@
 import { getCurrentUser, getData, getLibraries } from '@/lib/api'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import AddPodcastClient from './AddPodcastClient'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
+
+  return {
+    title: t('TitleAudiobookshelfAddPodcast')
+  }
+}
 
 export default async function AddPodcastPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params

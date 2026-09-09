@@ -9,8 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const t = await getTypeSafeTranslations()
 
   return {
-    title: t('TitleComponents'),
-    description: 'Components catalog for audiobookshelf client'
+    title: t('TitleComponents')
   }
 }
 

@@ -1,8 +1,18 @@
 import { getData, getEpisodeDownloadQueue, getLibraries } from '@/lib/api'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import DownloadQueueClient from './DownloadQueueClient'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
+
+  return {
+    title: t('TitleAudiobookshelfPodcastQueue')
+  }
+}
 
 export default async function DownloadQueuePage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params

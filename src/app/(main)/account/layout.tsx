@@ -1,11 +1,14 @@
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import type { Metadata } from 'next'
 import AppBarLoader from '../AppBarLoader'
 
-export const metadata: Metadata = {
-  title: 'audiobookshelf',
-  description: 'audiobookshelf'
-}
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTypeSafeTranslations()
 
+  return {
+    title: t('TitleAudiobookshelfAccount')
+  }
+}
 export default async function AccountLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <>
