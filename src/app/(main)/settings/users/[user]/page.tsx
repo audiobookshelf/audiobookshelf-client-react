@@ -1,10 +1,19 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { namedPageMetadata } from '@/lib/pageMetadata'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getData } from '../../../../../lib/api'
 import { getUserOrNotFound } from '../../../../../lib/notFound'
 import UserClient from './UserClient'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: Promise<{ user: string }> }): Promise<Metadata> {
+  const { user: userId } = await params
+  const [user] = await getData(getUserOrNotFound(userId))
+
+  return namedPageMetadata(user.username, 'TitleSettingsNamed')
+}
 
 export default async function UserPage({ params }: { params: Promise<{ user: string }> }) {
   const t = await getTypeSafeTranslations()

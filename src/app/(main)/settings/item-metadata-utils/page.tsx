@@ -1,8 +1,14 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import SettingsContent from '../SettingsContent'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleSettingsItemMetadataUtils')
+}
 
 export default async function ItemMetadataUtilsPage() {
   const t = await getTypeSafeTranslations()
