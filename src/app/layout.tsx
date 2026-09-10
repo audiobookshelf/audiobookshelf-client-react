@@ -5,7 +5,6 @@ import { getLocale } from 'next-intl/server'
 
 import ServiceWorkerRegister from '../components/ServiceWorkerRegister'
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
-import { CardSizeProvider } from '../contexts/CardSizeContext'
 import { ToastProvider } from '../contexts/ToastContext'
 import { BASE_PATH_ATTRIBUTE, getBasePath } from '../lib/basePath'
 import { getTheme } from '../lib/theme'
@@ -56,10 +55,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="overflow-hidden">
         <NextIntlClientProvider>
           <ToastProvider>
-            <CardSizeProvider>
-              {children}
-              <GlobalToastContainer />
-            </CardSizeProvider>
+            {children}
+            <GlobalToastContainer />
           </ToastProvider>
         </NextIntlClientProvider>
         <ServiceWorkerRegister basePath={basePath} />

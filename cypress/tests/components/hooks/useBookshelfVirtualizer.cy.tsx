@@ -3,11 +3,11 @@ import { useBookshelfVirtualizer, type UseBookshelfVirtualizerProps } from '@/ho
 import { useEffect, useState } from 'react'
 
 type TestInitialProps = Partial<Record<keyof UseBookshelfVirtualizerProps, string | number>> & {
-  sizeMultiplier?: string | number
+  coverSize?: string | number
 }
 
 function TestInner({ initialProps = {} }: { initialProps?: TestInitialProps }) {
-  const { setSizeMultiplier } = useCardSize()
+  const { setCoverSize } = useCardSize()
   const [inputState, setInputState] = useState(() => {
     const base = {
       totalEntities: '1000',
@@ -15,7 +15,7 @@ function TestInner({ initialProps = {} }: { initialProps?: TestInitialProps }) {
       itemHeight: '100',
       containerWidth: '500',
       containerHeight: '500',
-      sizeMultiplier: '1'
+      coverSize: '120'
     }
     return {
       ...base,
@@ -24,8 +24,8 @@ function TestInner({ initialProps = {} }: { initialProps?: TestInitialProps }) {
   })
 
   useEffect(() => {
-    const sm = Number(inputState.sizeMultiplier)
-    if (Number.isFinite(sm)) setSizeMultiplier(sm)
+    const size = Number(inputState.coverSize)
+    if (Number.isFinite(size)) setCoverSize(size)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- test harness: apply initial CardSize once from merged form state
   }, [])
 
@@ -39,9 +39,9 @@ function TestInner({ initialProps = {} }: { initialProps?: TestInitialProps }) {
 
   const handleChange = (key: string, value: string) => {
     setInputState((prev) => ({ ...prev, [key]: value }))
-    if (key === 'sizeMultiplier') {
+    if (key === 'coverSize') {
       const n = Number(value)
-      if (Number.isFinite(n)) setSizeMultiplier(n)
+      if (Number.isFinite(n)) setCoverSize(n)
     }
   }
 
@@ -91,13 +91,13 @@ function TestInner({ initialProps = {} }: { initialProps?: TestInitialProps }) {
           />
         </label>
         <label>
-          Size multiplier:
+          Cover size:
           <input
-            data-cy="input-sizeMultiplier"
+            data-cy="input-coverSize"
             type="number"
-            step="0.25"
-            value={inputState.sizeMultiplier}
-            onChange={(e) => handleChange('sizeMultiplier', e.target.value)}
+            step="20"
+            value={inputState.coverSize}
+            onChange={(e) => handleChange('coverSize', e.target.value)}
             className="w-full border p-1"
           />
         </label>
@@ -215,7 +215,7 @@ describe('useBookshelfVirtualizer', () => {
           containerWidth: 400,
           cardWidth: 160,
           totalEntities: 10,
-          sizeMultiplier: 1
+          coverSize: 120
         }}
       />
     )
