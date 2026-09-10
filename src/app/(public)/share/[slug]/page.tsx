@@ -1,8 +1,14 @@
+import { staticPageMetadata } from '@/lib/pageMetadata'
+import type { Metadata } from 'next'
 import SharePlayer from './SharePlayer'
 
 interface SharePageProps {
   params: Promise<{ slug: string }>
   searchParams: Promise<{ t?: string }>
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleAudiobookshelfShare')
 }
 
 export default async function SharePage({ params, searchParams }: SharePageProps) {

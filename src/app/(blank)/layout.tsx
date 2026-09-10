@@ -1,15 +1,11 @@
 import { withBasePath } from '@/lib/basePath'
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import '../../assets/globals.css'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
-
-  return {
-    title: t('TitleLogin')
-  }
+  return staticPageMetadata('TitleLogin')
 }
 
 export default function BlankLayout({

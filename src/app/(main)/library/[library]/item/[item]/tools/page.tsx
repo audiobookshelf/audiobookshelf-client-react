@@ -1,13 +1,22 @@
 import AudiobookTools from '@/components/widgets/audiobook-tools/AudiobookTools'
 import { getCurrentUser, getData } from '@/lib/api'
 import { getLibraryItemOrNotFound } from '@/lib/notFound'
+import { namedPageMetadata } from '@/lib/pageMetadata'
 import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { BookLibraryItem } from '@/types/api'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
 interface ToolsPageProps {
   params: Promise<{ item: string; library: string }>
   searchParams: Promise<{ tool?: string }>
+}
+
+export async function generateMetadata({ params }: ToolsPageProps): Promise<Metadata> {
+  const { item: itemId } = await params
+  const [libraryItem] = await getData(getLibraryItemOrNotFound(itemId, true))
+
+  return namedPageMetadata(libraryItem.media.metadata.title, 'TitleAudiobookshelfItemTools')
 }
 
 export default async function ToolsPage({ params, searchParams }: ToolsPageProps) {
