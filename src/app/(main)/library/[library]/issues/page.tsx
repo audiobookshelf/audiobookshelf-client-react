@@ -1,4 +1,10 @@
+import { staticPageMetadata } from '@/lib/pageMetadata'
+import type { Metadata } from 'next'
 import BookshelfClient from '../[entityType]/BookshelfClient'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleAudiobookshelfIssues')
+}
 
 export default function IssuesPage() {
   return (
