@@ -1,15 +1,14 @@
 import { getData } from '@/lib/api'
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { getSeriesOrNotFound } from '@/lib/notFound'
+import { namedPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import SeriesClient from './SeriesClient'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
+export async function generateMetadata({ params }: { params: Promise<{ series: string; library: string }> }): Promise<Metadata> {
+  const { series: seriesId, library: libraryId } = await params
+  const [series] = await getData(getSeriesOrNotFound(libraryId, seriesId))
 
-  return {
-    title: t('TitleAudiobookshelfSeries')
-  }
+  return namedPageMetadata(series.name)
 }
 
 export default async function SeriesPage({ params }: { params: Promise<{ series: string; library: string }> }) {

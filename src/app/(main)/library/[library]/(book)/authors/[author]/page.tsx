@@ -1,15 +1,14 @@
 import { getData } from '@/lib/api'
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { getAuthorOrNotFound } from '@/lib/notFound'
+import { namedPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import AuthorClient from './AuthorClient'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
+export async function generateMetadata({ params }: { params: Promise<{ author: string; library: string }> }): Promise<Metadata> {
+  const { author: authorId } = await params
+  const [author] = await getData(getAuthorOrNotFound(authorId, 'include=items,series'))
 
-  return {
-    title: t('TitleAudiobookshelfAuthors')
-  }
+  return namedPageMetadata(author.name)
 }
 
 export default async function AuthorPage({ params }: { params: Promise<{ author: string; library: string }> }) {

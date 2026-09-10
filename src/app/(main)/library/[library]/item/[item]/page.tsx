@@ -1,16 +1,15 @@
 import { getData } from '@/lib/api'
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 import { getLibraryItemOrNotFound } from '@/lib/notFound'
+import { namedPageMetadata } from '@/lib/pageMetadata'
 import { BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import type { Metadata } from 'next'
 import LibraryItemClient from './LibraryItemClient'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
+export async function generateMetadata({ params }: { params: Promise<{ item: string; library: string }> }): Promise<Metadata> {
+  const { item: itemId } = await params
+  const [libraryItem] = await getData(getLibraryItemOrNotFound(itemId, true, 'downloads,rssfeed,share'))
 
-  return {
-    title: t('TitleAudiobookshelfLibraryItems')
-  }
+  return namedPageMetadata(libraryItem.media.metadata.title)
 }
 
 export default async function ItemPage({ params }: { params: Promise<{ item: string; library: string }> }) {
