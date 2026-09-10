@@ -1248,7 +1248,7 @@
   "TitleAudiobookshelfAuthors": "audiobookshelf - Authors",
   "TitleAudiobookshelfChangePassword": "audiobookshelf - Change Password",
   "TitleAudiobookshelfCollections": "audiobookshelf - Collections",
-  "TitleAudiobookshelfHome": "audiobookshelf - Home",
+  "TitleAudiobookshelfHome": "audiobookshelf - {0} home",
   "TitleAudiobookshelfLibraryItems": "audiobookshelf - Library Items",
   "TitleAudiobookshelfNarrators": "audiobookshelf - Narrators",
   "TitleAudiobookshelfPlaylists": "audiobookshelf - Playlists",

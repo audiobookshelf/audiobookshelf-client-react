@@ -1,5 +1,18 @@
-import { getData, getLibraryPersonalized, getLibraryStats } from '@/lib/api'
+import { getData, getLibraries, getLibraryPersonalized, getLibraryStats } from '@/lib/api'
+import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import type { Metadata } from 'next'
 import LibraryClient from './LibraryClient'
+
+export async function generateMetadata({ params }: { params: Promise<{ library: string }> }): Promise<Metadata> {
+  const { library: libraryId } = await params
+  const t = await getTypeSafeTranslations()
+  const [librariesResponse] = await getData(getLibraries())
+  const libraryName = librariesResponse?.libraries?.find((library) => library.id === libraryId)?.name
+
+  return {
+    title: libraryName ? t('TitleAudiobookshelfHome', { 0: libraryName }) : t('TitleAudiobookshelf')
+  }
+}
 
 export default async function LibraryPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params
