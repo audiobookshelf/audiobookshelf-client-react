@@ -1,6 +1,7 @@
 import AccountStatsSummary from '@/components/stats/AccountStatsSummary'
 import { getCurrentUser, getData, getListeningStats } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { Metadata } from 'next'
 import AccountStatsClient from './AccountStatsClient'
@@ -8,11 +9,7 @@ import AccountStatsClient from './AccountStatsClient'
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
-
-  return {
-    title: t('TitleAudiobookshelfAccountStats')
-  }
+  return staticPageMetadata('TitleAudiobookshelfAccountStats')
 }
 
 export default async function AccountStatsPage() {

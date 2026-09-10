@@ -1,4 +1,4 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import '../../../assets/globals.css'
 import { ComponentsCatalogProvider } from '../../../contexts/ComponentsCatalogContext'
@@ -6,11 +6,7 @@ import { getData, getLibraries } from '../../../lib/api'
 import AppBarLoader from '../AppBarLoader'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
-
-  return {
-    title: t('TitleComponents')
-  }
+  return staticPageMetadata('TitleComponents')
 }
 
 export default async function ComponentsCatalogLayout({ children }: Readonly<{ children: React.ReactNode }>) {

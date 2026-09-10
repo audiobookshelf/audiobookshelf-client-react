@@ -1,4 +1,4 @@
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import { EntityType } from '@/types/api'
 import type { TranslationKey } from '@/types/translations'
 import type { Metadata } from 'next'
@@ -18,12 +18,9 @@ function isEntityType(value: string): value is EntityType {
 
 export async function generateMetadata({ params }: { params: Promise<{ library: string; entityType: string }> }): Promise<Metadata> {
   const { entityType } = await params
-  const t = await getTypeSafeTranslations()
   const titleKey = isEntityType(entityType) ? ENTITY_PAGE_TITLE_KEYS[entityType] : 'TitleAudiobookshelf'
 
-  return {
-    title: t(titleKey)
-  }
+  return staticPageMetadata(titleKey)
 }
 
 export default async function EntityPage({ params }: { params: Promise<{ library: string; entityType: string }> }) {

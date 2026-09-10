@@ -1,14 +1,10 @@
 import { getData, getLibraryStats } from '@/lib/api'
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import StatsClient from './StatsClient'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
-
-  return {
-    title: t('TitleAudiobookshelfStats')
-  }
+  return staticPageMetadata('TitleAudiobookshelfStats')
 }
 
 export default async function StatsPage({ params }: { params: Promise<{ library: string }> }) {

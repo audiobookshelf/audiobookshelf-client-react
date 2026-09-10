@@ -1,5 +1,5 @@
 import { LibraryProvider } from '@/contexts/LibraryContext'
-import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getData, getLibraries } from '../../../../lib/api'
@@ -8,11 +8,7 @@ import LibraryLayoutWrapper from './LibraryLayoutWrapper'
 import LibrarySelectionLayout from './LibrarySelectionLayout'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
-
-  return {
-    title: t('TitleAudiobookshelf')
-  }
+  return staticPageMetadata('TitleAudiobookshelf')
 }
 
 export default async function LibraryLayout({

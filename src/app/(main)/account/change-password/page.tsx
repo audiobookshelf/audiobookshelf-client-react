@@ -1,15 +1,12 @@
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import ChangePasswordClient from './ChangePasswordClient'
 import { changePassword } from './actions'
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = await getTypeSafeTranslations()
-
-  return {
-    title: t('TitleAudiobookshelfChangePassword')
-  }
+  return staticPageMetadata('TitleAudiobookshelfChangePassword')
 }
 
 export default async function ChangePasswordPage() {
