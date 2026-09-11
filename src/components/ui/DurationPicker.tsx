@@ -16,6 +16,8 @@ export interface DurationPickerProps {
   borderless?: boolean
   size?: 'small' | 'medium' | 'large'
   className?: string
+  /** Extra classes on the bordered InputWrapper (e.g. glued input groups). */
+  wrapperClassName?: string
   /** Accessible name for the time group. Defaults to LabelDuration. Ignored when ariaLabelledBy is set. */
   ariaLabel?: string
   /** When set, names the time group from that element (e.g. a column header) instead of the legend. */
@@ -41,6 +43,7 @@ export default function DurationPicker({
   borderless = false,
   size = 'medium',
   className,
+  wrapperClassName,
   ariaLabel,
   ariaLabelledBy,
   onChange
@@ -276,7 +279,13 @@ export default function DurationPicker({
 
   return (
     <div className={mergeClasses(size === 'small' && 'w-fit', sizeText, className)}>
-      <InputWrapper disabled={disabled} readOnly={readOnly} borderless={borderless} size={size} className="items-center px-2.5">
+      <InputWrapper
+        disabled={disabled}
+        readOnly={readOnly}
+        borderless={borderless}
+        size={size}
+        className={mergeClasses('items-center px-2.5', wrapperClassName)}
+      >
         <fieldset
           cy-id="duration-picker-wrapper"
           className={wrapperClass}

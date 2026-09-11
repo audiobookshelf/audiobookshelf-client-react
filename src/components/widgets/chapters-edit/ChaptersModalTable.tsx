@@ -6,6 +6,7 @@ import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { CHAPTERS_EDIT_TABLE_ATTR } from '@/lib/chapterEditorFocus'
 import {
   BULK_CHAPTER_COUNT_MAX,
   BULK_CHAPTER_COUNT_MIN,
@@ -19,7 +20,6 @@ import {
   type EditableChapter
 } from '@/lib/chapters/chapterEditorUtils'
 import { mergeClasses } from '@/lib/merge-classes'
-import { CHAPTERS_EDIT_TABLE_ATTR } from '@/lib/chapterEditorFocus'
 import { useCallback, useEffect, useId, useMemo, useState, type RefObject } from 'react'
 import ChapterEditTableRow from './ChapterEditTableRow'
 

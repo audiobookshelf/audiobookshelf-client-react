@@ -104,7 +104,10 @@ const MATCH_DEBUG_PREFIX = 'was: '
 const MATCH_DEBUG_NONE = '—'
 
 const TIME_INCREMENT = 1
-const START_STEP_BTN_CLASS = 'size-6 min-h-0 min-w-0 shrink-0 p-0 text-sm text-foreground-muted hover:not-disabled:text-foreground'
+const START_STEP_BTN_CLASS =
+  'h-9 w-7 shrink-0 p-0 shadow-none text-sm text-foreground-muted hover:not-disabled:text-foreground disabled:border disabled:border-solid disabled:border-border'
+const START_STEP_MINUS_CLASS = mergeClasses(START_STEP_BTN_CLASS, 'rounded-e-none')
+const START_STEP_PLUS_CLASS = mergeClasses(START_STEP_BTN_CLASS, 'rounded-s-none')
 
 function ChapterEditTableRow({
   chapter,
@@ -213,13 +216,12 @@ function ChapterEditTableRow({
 
         <td className={startTimeCellClass}>
           <div className="flex flex-col gap-0.5">
-            <div className="flex items-center gap-1">
-              <Tooltip lazy text={t('TooltipSubtractOneSecond')} position="bottom">
+            <div className="flex w-fit items-stretch">
+              <Tooltip lazy className="relative z-1 -me-px flex h-9 shrink-0" text={t('TooltipSubtractOneSecond')} position="bottom">
                 <IconBtn
                   ariaLabel={t('TooltipSubtractOneSecond')}
-                  borderless
                   size="custom"
-                  className={START_STEP_BTN_CLASS}
+                  className={START_STEP_MINUS_CLASS}
                   disabled={cannotDecrementStart}
                   onClick={() => onStartChange(Math.max(0, chapter.start - TIME_INCREMENT))}
                 >
@@ -227,24 +229,24 @@ function ChapterEditTableRow({
                 </IconBtn>
               </Tooltip>
 
-              <div className="min-w-0 flex-1">
+              <div className="relative focus-within:z-2">
                 <DurationPicker
                   value={chapter.start}
                   showThreeDigitHour={mediaDuration >= 360000}
                   size="small"
                   className={startDirty ? 'text-info' : undefined}
+                  wrapperClassName="rounded-none"
                   ariaLabelledBy={startHeaderId}
                   disabled={isFirstChapter}
                   onChange={onStartChange}
                 />
               </div>
 
-              <Tooltip lazy text={t('TooltipAddOneSecond')} position="bottom">
+              <Tooltip lazy className="relative z-1 -ms-px flex h-9 shrink-0" text={t('TooltipAddOneSecond')} position="bottom">
                 <IconBtn
                   ariaLabel={t('TooltipAddOneSecond')}
-                  borderless
                   size="custom"
-                  className={START_STEP_BTN_CLASS}
+                  className={START_STEP_PLUS_CLASS}
                   disabled={cannotIncrementStart}
                   onClick={() => onStartChange(chapter.start + TIME_INCREMENT)}
                 >
