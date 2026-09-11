@@ -83,6 +83,23 @@ export interface DetailsEditRef<TDetails> {
   mapBatchDetails: (batchDetails: Partial<TDetails & { tags: string[] }>, mapType?: 'overwrite' | 'append') => void
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyTrimFieldsToDetails<TDetails extends Record<string, any>>(details: TDetails, trimFields?: ReadonlyArray<keyof TDetails>): TDetails {
+  if (!trimFields?.length) return details
+
+  let next: TDetails | null = null
+  for (const key of trimFields) {
+    const value = details[key]
+    if (typeof value !== 'string') continue
+    const trimmed = value.trim()
+    if (trimmed === value) continue
+    if (!next) next = { ...details }
+    next[key] = trimmed as TDetails[typeof key]
+  }
+
+  return next ?? details
+}
+
 interface UseDetailsEditOptions<TDetails> {
   metadata: TDetails
   tags: string[]
@@ -113,12 +130,14 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 }: UseDetailsEditOptions<TDetails>) {
   const reducer = useMemo(() => createDetailsReducer<TDetails>(batchAppendLogic), [batchAppendLogic])
 
-  const [state, dispatch] = useReducer(reducer, {
-    details: metadata || ({} as TDetails),
-    tags: [...(tags || [])],
-    initialDetails: metadata || ({} as TDetails),
-    initialTags: [...(tags || [])]
-  })
+  const normalizedMetadata = useMemo(() => applyTrimFieldsToDetails(metadata || ({} as TDetails), trimFields), [metadata, trimFields])
+
+  const [state, dispatch] = useReducer(reducer, { normalizedMetadata, tags }, ({ normalizedMetadata: details, tags: initialTags }) => ({
+    details,
+    tags: [...(initialTags || [])],
+    initialDetails: details,
+    initialTags: [...(initialTags || [])]
+  }))
 
   const { details, tags: currentTags, initialDetails, initialTags } = state
 
@@ -127,11 +146,11 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
     dispatch({
       type: 'RESET_STATE',
       payload: {
-        details: metadata || ({} as TDetails),
+        details: normalizedMetadata,
         tags: [...(tags || [])]
       }
     })
-  }, [metadata, tags, libraryItemId])
+  }, [normalizedMetadata, tags, libraryItemId])
 
   const updateField = useCallback(
     <K extends keyof TDetails>(field: K) =>
@@ -151,8 +170,8 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 
   // Calculate changes
   const changes = useMemo(() => {
-    const effectiveValue = (key: keyof TDetails) => {
-      const value = details[key]
+    const effectiveValue = (source: TDetails, key: keyof TDetails) => {
+      const value = source[key]
       if (trimFields?.includes(key) && typeof value === 'string') {
         return value.trim() as TDetails[typeof key]
       }
@@ -161,8 +180,8 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 
     const changedEntries = (Object.keys(details) as Array<keyof TDetails>)
       .filter((key) => {
-        const initialValue = initialDetails[key]
-        const currentValue = effectiveValue(key)
+        const initialValue = effectiveValue(initialDetails, key)
+        const currentValue = effectiveValue(details, key)
 
         if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
           return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
@@ -171,7 +190,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         // Use loose or strict equality based on option
         return useLooseEquality ? currentValue != initialValue : currentValue !== initialValue
       })
-      .map((key) => [key, effectiveValue(key)])
+      .map((key) => [key, effectiveValue(details, key)])
 
     const metadataUpdate = Object.fromEntries(changedEntries) as Partial<TDetails>
 
