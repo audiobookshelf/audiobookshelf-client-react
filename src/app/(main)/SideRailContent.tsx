@@ -160,13 +160,13 @@ export default function SideRailContent({
 
   const isDrawer = variant === 'drawer'
   const itemLayoutClass = isDrawer
-    ? 'border-border flex items-center justify-start px-4 py-3'
-    : 'border-primary/30 flex h-18 shrink-0 flex-col items-center justify-center gap-0.5'
-  const itemLabelClass = isDrawer ? 'text-sm font-semibold' : 'w-full px-0.5 text-center text-sm leading-tight'
+    ? 'border-border flex min-w-0 items-center justify-start overflow-hidden px-4 py-3'
+    : 'border-primary/30 flex h-18 min-w-0 shrink-0 flex-col items-center justify-center gap-0.5 overflow-hidden'
+  const itemLabelClass = isDrawer ? 'min-w-0 truncate text-sm font-semibold' : 'w-full min-w-0 truncate px-0.5 text-center text-sm leading-tight'
 
   return (
-    <div className="flex h-full w-full flex-col">
-      <nav className={mergeClasses('min-h-0 w-full flex-1 overflow-y-auto', isDrawer ? 'flex flex-col py-1' : '')}>
+    <div className="flex h-full w-full min-w-0 flex-col overflow-x-hidden">
+      <nav className={mergeClasses('min-h-0 w-full min-w-0 flex-1 overflow-x-hidden overflow-y-auto', isDrawer ? 'flex flex-col py-1' : '')}>
         {filteredButtons.map((button) => {
           const isActive = isButtonActive(button.href)
 
@@ -189,7 +189,9 @@ export default function SideRailContent({
               >
                 {button.icon}
               </span>
-              <span className={itemLabelClass}>{button.label}</span>
+              <span className={itemLabelClass} title={button.label}>
+                {button.label}
+              </span>
 
               {!isDrawer && isActive && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
             </Link>
@@ -209,7 +211,9 @@ export default function SideRailContent({
             <span className={mergeClasses('shrink-0', isDrawer ? 'me-3 flex items-center [&_.material-symbols]:text-xl' : '')}>
               <span className="material-symbols text-2xl">warning</span>
             </span>
-            <span className={itemLabelClass}>{t('ButtonIssues')}</span>
+            <span className={itemLabelClass} title={t('ButtonIssues')}>
+              {t('ButtonIssues')}
+            </span>
 
             {!isDrawer && onIssuesPage && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
             <div
