@@ -1,6 +1,7 @@
 import TextInput from '@/components/ui/TextInput'
 
 import { getCurrentUser } from '@/lib/api'
+import { COOKIE_NAMES } from '@/lib/cookies'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
 
 import { getTheme } from '@/lib/theme'
@@ -18,7 +19,7 @@ export default async function AccountPage() {
 
   // Get current language from cookies (userLanguage takes precedence over language)
   const cookieStore = await cookies()
-  const currentLanguage = cookieStore.get('userLanguage')?.value || cookieStore.get('language')?.value || 'en-us'
+  const currentLanguage = cookieStore.get(COOKIE_NAMES.userLanguage)?.value || cookieStore.get(COOKIE_NAMES.language)?.value || 'en-us'
 
   // Get current theme
   const currentTheme = await getTheme()

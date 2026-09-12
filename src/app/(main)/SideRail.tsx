@@ -11,7 +11,7 @@ export default function SideRail({ serverVersion, installSource }: { serverVersi
   }
 
   return (
-    <div className="bg-bg box-shadow-side z-10 hidden h-full max-h-[calc(100vh-4rem)] w-20 min-w-20 md:block">
+    <div className="bg-bg box-shadow-side z-10 hidden h-full max-h-[calc(100vh-4rem)] w-20 min-w-20 overflow-x-hidden md:block">
       <SideRailContent libraryId={library.id} mediaType={library.mediaType} serverVersion={serverVersion} installSource={installSource} />
     </div>
   )

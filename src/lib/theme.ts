@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers'
+import { COOKIE_NAMES } from '@/lib/cookies'
 
 export type ThemeName = 'light' | 'dark' | 'black' | string
 
@@ -10,6 +11,6 @@ export const DEFAULT_THEME: ThemeName = 'dark'
  */
 export async function getTheme(): Promise<ThemeName> {
   const cookieStore = await cookies()
-  const theme = cookieStore.get('theme')?.value
+  const theme = cookieStore.get(COOKIE_NAMES.theme)?.value
   return theme || DEFAULT_THEME
 }

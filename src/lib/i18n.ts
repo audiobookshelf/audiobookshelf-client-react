@@ -1,4 +1,5 @@
 import { getRequestConfig } from 'next-intl/server'
+import { COOKIE_NAMES } from './cookies'
 import { cookies, headers } from 'next/headers'
 import { matchAcceptLanguage } from './languages'
 
@@ -9,8 +10,8 @@ export default getRequestConfig(async () => {
   // 3. Accept-Language best match (first visit / init before cookie is set)
   // 4. 'en-us' (hardcoded fallback)
   const cookieStore = await cookies()
-  const userLanguage = cookieStore.get('userLanguage')?.value
-  const serverLanguage = cookieStore.get('language')?.value
+  const userLanguage = cookieStore.get(COOKIE_NAMES.userLanguage)?.value
+  const serverLanguage = cookieStore.get(COOKIE_NAMES.language)?.value
   const acceptLanguage = matchAcceptLanguage((await headers()).get('accept-language'))
   const locale = userLanguage || serverLanguage || acceptLanguage || 'en-us'
 

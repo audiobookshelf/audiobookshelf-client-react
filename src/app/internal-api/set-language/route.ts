@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { COOKIE_NAMES, setPreferenceCookie } from '@/lib/cookies'
 
 export async function POST(request: Request) {
   try {
@@ -13,16 +14,10 @@ export async function POST(request: Request) {
     }
 
     // User-specific language cookie or default server language cookie
-    const cookieName = scope === 'user' ? 'userLanguage' : 'language'
+    const cookieName = scope === 'user' ? COOKIE_NAMES.userLanguage : COOKIE_NAMES.language
 
     const response = NextResponse.json({ success: true })
-    response.cookies.set(cookieName, language, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 365 * 24 * 60 * 60 // 1 year
-    })
+    setPreferenceCookie(response.cookies, cookieName, language)
 
     return response
   } catch (error) {
