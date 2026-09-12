@@ -7,6 +7,7 @@ import { AudioTrack } from '@/lib/player/AudioTrack'
 import { CastPlayer } from '@/lib/player/CastPlayer'
 import { getCastRemotePlayerHandles } from '@/lib/player/chromecastConstants'
 import { LocalAudioPlayer } from '@/lib/player/LocalAudioPlayer'
+import { findChapterNavigationAtTime } from '@/lib/chapters/chapterPlayback'
 import { PLAYER_PROGRESS_POLL_MS, resetPlayerProgress, setPlayerProgress } from '@/lib/player/playerProgressStore'
 import { computeTranscodePercentReady } from '@/lib/player/streamProgressUtils'
 import type { Chapter, LibraryItem, PlaybackSession, PlayMethod, StreamProgressPayload } from '@/types/api'
@@ -180,9 +181,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const syncChapterNav = useCallback((time: number) => {
     const chapterList = chaptersRef.current
-    const current = chapterList.find((chapter) => chapter.start <= time && chapter.end > time) ?? null
-    const next = chapterList.find((chapter) => chapter.start > time && chapter.end > time) ?? null
-    const previous = chapterList.findLast((chapter) => chapter.end <= time && chapter.start < time) ?? null
+    const { current, next, previous } = findChapterNavigationAtTime(chapterList, time)
 
     setCurrentChapter((prev) => (prev === current ? prev : current))
     setNextChapter((prev) => (prev === next ? prev : next))
