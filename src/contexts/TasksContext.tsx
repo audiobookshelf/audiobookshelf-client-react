@@ -13,7 +13,7 @@ interface TasksState {
   taskProgress: Record<string, string>
 }
 
-interface TasksContextType extends TasksState {
+export interface TasksContextType extends TasksState {
   addUpdateTask: (task: Task) => void
   removeTask: (taskId: string) => void
   getTasksByLibraryItemId: (libraryItemId: string) => Task[]
@@ -23,7 +23,7 @@ interface TasksContextType extends TasksState {
   getTasksByLibraryId: (libraryId: string) => Task[]
 }
 
-const TasksContext = createContext<TasksContextType | undefined>(undefined)
+export const TasksContext = createContext<TasksContextType | undefined>(undefined)
 
 interface TasksProviderProps {
   children: ReactNode

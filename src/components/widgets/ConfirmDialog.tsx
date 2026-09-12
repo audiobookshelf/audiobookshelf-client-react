@@ -13,6 +13,8 @@ interface ConfirmDialogProps {
   message: string | ReactNode
   title?: string
   checkboxLabel?: string
+  /** Initial checkbox value when the dialog opens. Defaults to false. */
+  checkboxDefaultValue?: boolean
   yesButtonText?: string
   yesButtonClassName?: string
   altButtonText?: string
@@ -32,6 +34,7 @@ export interface ConfirmState {
   isOpen: boolean
   message: string | ReactNode
   checkboxLabel?: string
+  checkboxDefaultValue?: boolean
   yesButtonText?: string
   yesButtonClassName?: string
   onConfirm: (checkboxValue?: boolean) => void
@@ -48,6 +51,7 @@ export default function ConfirmDialog({
   message,
   title,
   checkboxLabel,
+  checkboxDefaultValue = false,
   yesButtonText,
   yesButtonClassName = 'bg-success text-white',
   altButtonText,
@@ -59,7 +63,14 @@ export default function ConfirmDialog({
   className
 }: ConfirmDialogProps) {
   const t = useTypeSafeTranslations()
-  const [checkboxValue, setCheckboxValue] = useState(false)
+  const [checkboxValue, setCheckboxValue] = useState(checkboxDefaultValue)
+
+  useEffect(() => {
+    if (isOpen) {
+      setCheckboxValue(checkboxDefaultValue)
+    }
+  }, [isOpen, checkboxDefaultValue])
+
   const titleId = useId()
   const messageId = useId()
   const dialogContentRef = useRef<HTMLDivElement>(null)
