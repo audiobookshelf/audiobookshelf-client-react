@@ -1,4 +1,5 @@
 import { LibraryProvider } from '@/contexts/LibraryContext'
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getData, getLibraries } from '../../../../lib/api'
@@ -6,9 +7,8 @@ import AppBar from '../../AppBar'
 import LibraryLayoutWrapper from './LibraryLayoutWrapper'
 import LibrarySelectionLayout from './LibrarySelectionLayout'
 
-export const metadata: Metadata = {
-  title: 'audiobookshelf',
-  description: 'audiobookshelf'
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleAudiobookshelf')
 }
 
 export default async function LibraryLayout({

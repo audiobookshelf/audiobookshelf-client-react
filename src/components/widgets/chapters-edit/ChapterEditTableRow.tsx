@@ -103,6 +103,12 @@ const MATCH_DEBUG_CLASS = 'text-foreground-muted text-[9px] leading-none ps-3'
 const MATCH_DEBUG_PREFIX = 'was: '
 const MATCH_DEBUG_NONE = '—'
 
+const TIME_INCREMENT = 1
+const START_STEP_BTN_CLASS =
+  'h-9 w-7 shrink-0 p-0 shadow-none text-sm text-foreground-muted hover:not-disabled:text-foreground disabled:border disabled:border-solid disabled:border-border'
+const START_STEP_MINUS_CLASS = mergeClasses(START_STEP_BTN_CLASS, 'rounded-e-none')
+const START_STEP_PLUS_CLASS = mergeClasses(START_STEP_BTN_CLASS, 'rounded-s-none')
+
 function ChapterEditTableRow({
   chapter,
   chapterCount,
@@ -135,8 +141,10 @@ function ChapterEditTableRow({
   const overflowTooltip = overflow === 'start' ? t('MessageChapterStartIsAfter') : overflow === 'end' ? t('MessageChapterEndIsAfter') : undefined
   const startTimeCellClass =
     mediaDuration >= 360000
-      ? 'w-[7.5rem] min-w-[7.5rem] px-1 py-2 align-top md:w-[8.75rem] md:min-w-[8.75rem] md:px-2'
-      : 'w-[6.5rem] min-w-[6.5rem] px-1 py-2 align-top md:w-[7.25rem] md:min-w-[7.25rem] md:px-2'
+      ? 'w-[11rem] min-w-[11rem] px-1 py-2 align-top md:w-[12.25rem] md:min-w-[12.25rem] md:px-2'
+      : 'w-[10rem] min-w-[10rem] px-1 py-2 align-top md:w-[10.75rem] md:min-w-[10.75rem] md:px-2'
+  const cannotDecrementStart = isFirstChapter || chapter.start - TIME_INCREMENT < 0
+  const cannotIncrementStart = isFirstChapter || chapter.start + TIME_INCREMENT >= mediaDuration
   const rowBgClass = overflow === 'start' ? 'bg-error/20' : overflow === 'end' ? 'bg-warning/20' : isEvenRow ? 'bg-table-row-bg-even' : undefined
   const rowClass = mergeClasses('border-border hover:bg-table-row-bg-hover', rowBgClass)
 
@@ -198,90 +206,114 @@ function ChapterEditTableRow({
   )
 
   return (
-    <>
-      <tr title={overflowTooltip} className={mergeClasses(rowClass, 'border-b-0 md:border-b')}>
-        <td className="w-12 min-w-12 py-2 ps-3 pe-2 text-center align-top">
-          <div className="flex items-center justify-center">
-            <Checkbox value={isChecked} size="small" ariaLabel={chapter.title.trim() || t('LabelTitle')} onChange={onCheckedChange} />
-          </div>
-        </td>
+    <tr title={overflowTooltip} className={mergeClasses(rowClass, 'border-b max-md:grid max-md:grid-cols-[3rem_minmax(0,1fr)_auto] max-md:items-start')}>
+      <td className="w-12 min-w-12 py-2 ps-3 pe-2 text-center align-top max-md:col-start-1 max-md:row-start-1 max-md:flex max-md:items-center max-md:justify-center">
+        <div className="flex items-center justify-center">
+          <Checkbox value={isChecked} size="small" ariaLabel={chapter.title.trim() || t('LabelTitle')} onChange={onCheckedChange} />
+        </div>
+      </td>
 
-        <td className={startTimeCellClass}>
-          <div className="flex flex-col gap-0.5">
-            <DurationPicker
-              value={chapter.start}
-              showThreeDigitHour={mediaDuration >= 360000}
-              size="small"
-              className={startDirty ? 'text-info' : undefined}
-              ariaLabelledBy={startHeaderId}
-              disabled={isFirstChapter}
-              onChange={onStartChange}
-            />
-            {showMatchDebug ? (
-              matchDebug ? (
-                <Tooltip
-                  lazy
-                  text={`${MATCH_DEBUG_PREFIX}${secondsToHmsTimestamp(matchDebug.oldStart)} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
-                  position="bottom"
-                >
-                  <span className={mergeClasses(MATCH_DEBUG_CLASS, 'font-mono')}>
+      <td className={mergeClasses(startTimeCellClass, 'max-md:col-start-2 max-md:row-start-1 max-md:block max-md:w-auto max-md:min-w-0')}>
+        <div className="flex flex-col gap-0.5">
+          <div className="flex w-fit items-stretch">
+            <Tooltip lazy className="relative z-1 -me-px flex h-9 shrink-0" text={t('TooltipSubtractOneSecond')} position="bottom">
+              <IconBtn
+                ariaLabel={t('TooltipSubtractOneSecond')}
+                size="custom"
+                className={START_STEP_MINUS_CLASS}
+                disabled={cannotDecrementStart}
+                onClick={() => onStartChange(Math.max(0, chapter.start - TIME_INCREMENT))}
+              >
+                remove
+              </IconBtn>
+            </Tooltip>
+
+            <div className="relative focus-within:z-2">
+              <DurationPicker
+                value={chapter.start}
+                showThreeDigitHour={mediaDuration >= 360000}
+                size="small"
+                className={startDirty ? 'text-info' : undefined}
+                wrapperClassName="rounded-none"
+                ariaLabelledBy={startHeaderId}
+                disabled={isFirstChapter}
+                onChange={onStartChange}
+              />
+            </div>
+
+            <Tooltip lazy className="relative z-1 -ms-px flex h-9 shrink-0" text={t('TooltipAddOneSecond')} position="bottom">
+              <IconBtn
+                ariaLabel={t('TooltipAddOneSecond')}
+                size="custom"
+                className={START_STEP_PLUS_CLASS}
+                disabled={cannotIncrementStart}
+                onClick={() => onStartChange(chapter.start + TIME_INCREMENT)}
+              >
+                add
+              </IconBtn>
+            </Tooltip>
+          </div>
+          {showMatchDebug ? (
+            matchDebug ? (
+              <Tooltip
+                lazy
+                text={`${MATCH_DEBUG_PREFIX}${secondsToHmsTimestamp(matchDebug.oldStart)} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
+                position="bottom"
+              >
+                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'font-mono')}>
+                  {MATCH_DEBUG_PREFIX}
+                  {secondsToHmsTimestamp(matchDebug.oldStart)}
+                </span>
+              </Tooltip>
+            ) : (
+              <span className={MATCH_DEBUG_CLASS}>
+                {MATCH_DEBUG_PREFIX}
+                {MATCH_DEBUG_NONE}
+              </span>
+            )
+          ) : null}
+        </div>
+      </td>
+
+      <td className="min-w-0 px-1 py-2 align-top max-md:col-span-2 max-md:col-start-1 max-md:row-start-2 max-md:block max-md:min-w-0 max-md:pt-0 md:px-2">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <ChapterTitleInput
+            key={`${chapter.clientKey ?? chapter.id}-${titleResetKey}`}
+            title={chapter.title}
+            baselineTitle={baselineTitle}
+            ariaLabelledBy={titleHeaderId}
+            onDraft={onTitleDraft}
+            onCommit={onTitleCommit}
+          />
+          {showMatchDebug ? (
+            matchDebug ? (
+              <Tooltip
+                lazy
+                text={`${MATCH_DEBUG_PREFIX}${matchDebug.oldTitle || MATCH_DEBUG_NONE} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
+                position="bottom"
+              >
+                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'flex min-w-0 items-baseline gap-1')}>
+                  <span className="min-w-0 truncate">
                     {MATCH_DEBUG_PREFIX}
-                    {secondsToHmsTimestamp(matchDebug.oldStart)}
+                    {matchDebug.oldTitle || MATCH_DEBUG_NONE}
                   </span>
-                </Tooltip>
-              ) : (
-                <span className={MATCH_DEBUG_CLASS}>
-                  {MATCH_DEBUG_PREFIX}
-                  {MATCH_DEBUG_NONE}
+                  <span className="shrink-0 font-mono">({matchDebug.matchCost.toFixed(3)})</span>
                 </span>
-              )
-            ) : null}
-          </div>
-        </td>
+              </Tooltip>
+            ) : (
+              <span className={mergeClasses(MATCH_DEBUG_CLASS, 'block min-w-0 truncate')}>
+                {MATCH_DEBUG_PREFIX}
+                {MATCH_DEBUG_NONE}
+              </span>
+            )
+          ) : null}
+        </div>
+      </td>
 
-        <td className="min-w-0 px-1 py-2 align-top md:px-2">
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <ChapterTitleInput
-              key={`${chapter.clientKey ?? chapter.id}-${titleResetKey}`}
-              title={chapter.title}
-              baselineTitle={baselineTitle}
-              ariaLabelledBy={titleHeaderId}
-              onDraft={onTitleDraft}
-              onCommit={onTitleCommit}
-            />
-            {showMatchDebug ? (
-              matchDebug ? (
-                <Tooltip
-                  lazy
-                  text={`${MATCH_DEBUG_PREFIX}${matchDebug.oldTitle || MATCH_DEBUG_NONE} (match cost: ${matchDebug.matchCost.toFixed(3)})`}
-                  position="bottom"
-                >
-                  <span className={mergeClasses(MATCH_DEBUG_CLASS, 'flex min-w-0 items-baseline gap-1')}>
-                    <span className="min-w-0 truncate">
-                      {MATCH_DEBUG_PREFIX}
-                      {matchDebug.oldTitle || MATCH_DEBUG_NONE}
-                    </span>
-                    <span className="shrink-0 font-mono">({matchDebug.matchCost.toFixed(3)})</span>
-                  </span>
-                </Tooltip>
-              ) : (
-                <span className={mergeClasses(MATCH_DEBUG_CLASS, 'block min-w-0 truncate')}>
-                  {MATCH_DEBUG_PREFIX}
-                  {MATCH_DEBUG_NONE}
-                </span>
-              )
-            ) : null}
-          </div>
-        </td>
-
-        <td className="hidden w-40 min-w-40 px-2 py-2 align-top md:table-cell">{actions}</td>
-      </tr>
-      <tr title={overflowTooltip} className={mergeClasses(rowClass, 'border-b md:hidden')}>
-        <td colSpan={3} className="pt-0 pb-2 align-top">
-          <div className="flex justify-end">{actions}</div>
-        </td>
-      </tr>
-    </>
+      <td className="w-40 min-w-40 px-2 py-2 align-top max-md:col-start-3 max-md:row-start-2 max-md:flex max-md:w-auto max-md:min-w-0 max-md:items-center max-md:pt-0 md:table-cell">
+        {actions}
+      </td>
+    </tr>
   )
 }
 

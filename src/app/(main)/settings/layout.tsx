@@ -1,3 +1,4 @@
+import { staticPageMetadata } from '@/lib/pageMetadata'
 import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
@@ -6,9 +7,8 @@ import { getCurrentUser, getData } from '../../../lib/api'
 import AppBarLoader from '../AppBarLoader'
 import SettingsLayoutWrapper from './SettingsLayoutWrapper'
 
-export const metadata: Metadata = {
-  title: 'audiobookshelf',
-  description: 'audiobookshelf'
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleSettings')
 }
 
 export default async function SettingsLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -1,8 +1,14 @@
 import { getData, getEpisodeDownloadQueue, getLibraries } from '@/lib/api'
+import { staticPageMetadata } from '@/lib/pageMetadata'
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import DownloadQueueClient from './DownloadQueueClient'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleAudiobookshelfPodcastQueue')
+}
 
 export default async function DownloadQueuePage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params

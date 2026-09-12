@@ -101,7 +101,7 @@ export default function SeriesCardSkeleton({ bookshelfView, sizeMultiplier, orde
           </p>
           {/* Sort line skeleton (only when orderBy is present) */}
           {orderBy && (
-            <p className="mx-auto animate-pulse truncate rounded bg-gray-700 text-gray-400" style={{ fontSize: '0.8em', width: '50%' }}>
+            <p className="text-foreground-muted mx-auto animate-pulse truncate rounded bg-gray-700" style={{ fontSize: '0.8em', width: '50%' }}>
               &nbsp;
             </p>
           )}

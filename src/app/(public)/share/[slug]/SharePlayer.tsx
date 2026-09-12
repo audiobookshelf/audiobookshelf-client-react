@@ -305,6 +305,15 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
   }, [isPlaying, settings.playbackRate, settings.volume])
 
   // ============================================================================
+  // Document title
+  // ============================================================================
+
+  useEffect(() => {
+    if (!playbackSession?.displayTitle) return
+    document.title = t('TitleAudiobookshelfNamed', { 0: playbackSession.displayTitle })
+  }, [playbackSession?.displayTitle, t])
+
+  // ============================================================================
   // Media Session API
   // ============================================================================
 

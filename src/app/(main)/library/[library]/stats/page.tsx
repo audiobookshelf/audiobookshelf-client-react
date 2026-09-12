@@ -1,5 +1,11 @@
 import { getData, getLibraryStats } from '@/lib/api'
+import { staticPageMetadata } from '@/lib/pageMetadata'
+import type { Metadata } from 'next'
 import StatsClient from './StatsClient'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleAudiobookshelfStats')
+}
 
 export default async function StatsPage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params

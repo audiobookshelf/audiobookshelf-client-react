@@ -52,6 +52,7 @@ export function CardSizeProvider({
 
   const setCoverSize = useCallback(
     (width: number) => {
+      if (AVAILABLE_COVER_SIZES[coverSizeToIndex(width, isMobile)] !== width) return
       if (isMobile) setMobileCoverWidth(width)
       else setCoverWidth(width)
       // Written directly rather than through a route: a Set-Cookie response would invalidate

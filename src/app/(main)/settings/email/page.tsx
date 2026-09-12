@@ -1,9 +1,15 @@
 import { getData, getEmailSettings, getUsers } from '@/lib/api'
 import { getTypeSafeTranslations } from '@/lib/getTypeSafeTranslations'
+import { staticPageMetadata } from '@/lib/pageMetadata'
+import type { Metadata } from 'next'
 import EmailClient from './EmailClient'
 import EReaderDevicesClient from './EReaderDevicesClient'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata(): Promise<Metadata> {
+  return staticPageMetadata('TitleSettingsEmail')
+}
 
 export default async function EmailSettingsPage() {
   const t = await getTypeSafeTranslations()
