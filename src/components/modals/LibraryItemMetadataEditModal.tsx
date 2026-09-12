@@ -39,7 +39,7 @@ function isBookWithAudioTracks(item: BookLibraryItem | PodcastLibraryItem | null
 }
 
 /**
- * Only one section (details/chapters) is mounted at a time, so at most one of these handles
+ * Only one section (details/chapters/match) is mounted at a time, so at most one of these handles
  * is non-null. If that section has unsaved edits, confirm first; otherwise run `proceed` now.
  */
 function requestSectionLeaveOrProceed(handles: Array<UnsavedChangesLeaveHandle | null>, proceed: () => void) {
@@ -63,6 +63,7 @@ interface LibraryItemMetadataEditModalBodyProps {
   isSavePending: boolean
   chaptersCloseRef: Ref<UnsavedChangesLeaveHandle | null>
   detailsCloseRef: Ref<UnsavedChangesLeaveHandle | null>
+  matchCloseRef: Ref<UnsavedChangesLeaveHandle | null>
   onChaptersPendingChange: (pending: boolean) => void
 }
 
@@ -78,6 +79,7 @@ function LibraryItemMetadataEditModalBody({
   isSavePending,
   chaptersCloseRef,
   detailsCloseRef,
+  matchCloseRef,
   onChaptersPendingChange
 }: LibraryItemMetadataEditModalBodyProps) {
   const t = useTypeSafeTranslations()
@@ -131,7 +133,7 @@ function LibraryItemMetadataEditModalBody({
       ) : selectedSection === 'chapters' ? (
         <ChaptersEditModalBody closeRequestRef={chaptersCloseRef} onPendingChange={onChaptersPendingChange} />
       ) : (
-        <MatchModalBody fillParent />
+        <MatchModalBody fillParent closeRequestRef={matchCloseRef} />
       )}
     </SectionedModalBody>
   )
@@ -149,6 +151,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
   const [isChaptersPending, setIsChaptersPending] = useState(false)
   const chaptersCloseRef = useRef<UnsavedChangesLeaveHandle | null>(null)
   const detailsCloseRef = useRef<UnsavedChangesLeaveHandle | null>(null)
+  const matchCloseRef = useRef<UnsavedChangesLeaveHandle | null>(null)
 
   useEffect(() => {
     if (!isOpen) return
@@ -159,17 +162,17 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
     (sectionId: string) => {
       const next = sectionId as MetadataEditSection
       if (next === selectedSection) return
-      requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], () => setSelectedSection(next))
+      requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current, matchCloseRef.current], () => setSelectedSection(next))
     },
     [selectedSection]
   )
 
   const handleHubBack = useCallback((proceed: () => void) => {
-    requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], proceed)
+    requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current, matchCloseRef.current], proceed)
   }, [])
 
   const handleClose = useCallback(() => {
-    requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], onClose)
+    requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current, matchCloseRef.current], onClose)
   }, [onClose])
 
   const mobileInitialSection = initialSection === 'details' ? undefined : initialSection
@@ -181,7 +184,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
       {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}
       additionalProcessing={isSavePending || filterDataLoading || isChaptersPending}
       className="md:max-w-[min(95vw,60rem)]"
-      onBeforeNavigate={(proceed) => requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current], proceed)}
+      onBeforeNavigate={(proceed) => requestSectionLeaveOrProceed([detailsCloseRef.current, chaptersCloseRef.current, matchCloseRef.current], proceed)}
     >
       <LibraryItemMetadataEditModalBody
         isOpen={isOpen}
@@ -196,6 +199,7 @@ export default function LibraryItemMetadataEditModal(props: LibraryItemMetadataE
         isSavePending={isSavePending}
         chaptersCloseRef={chaptersCloseRef}
         detailsCloseRef={detailsCloseRef}
+        matchCloseRef={matchCloseRef}
         onChaptersPendingChange={setIsChaptersPending}
       />
     </LibraryItemModal>
