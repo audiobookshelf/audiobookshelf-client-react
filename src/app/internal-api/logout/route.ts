@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { getServerBaseUrl } from '../../../lib/api'
+import { COOKIE_NAMES } from '../../../lib/cookies'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(request: Request) {
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
     response.cookies.delete('auth_method')
     response.cookies.delete('openid_id_token')
     // Clear language cookie on logout so it gets re-initialized on next login
-    response.cookies.delete('language')
+    response.cookies.delete(COOKIE_NAMES.language)
     return response
   } catch (error) {
     console.error('Logout error:', error)

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { COOKIE_NAMES, setPreferenceCookie } from '@/lib/cookies'
 
 export async function POST(request: Request) {
   try {
@@ -10,13 +11,7 @@ export async function POST(request: Request) {
     }
 
     const response = NextResponse.json({ success: true })
-    response.cookies.set('theme', theme, {
-      httpOnly: false,
-      secure: false,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 365 * 24 * 60 * 60 // 1 year
-    })
+    setPreferenceCookie(response.cookies, COOKIE_NAMES.theme, theme)
 
     return response
   } catch (error) {
