@@ -8,7 +8,7 @@ import { SocketProvider } from '@/contexts/SocketContext'
 import { TasksProvider } from '@/contexts/TasksContext'
 import { UserProvider } from '@/contexts/UserContext'
 import { getAccessToken, getCurrentUser, getData } from '@/lib/api'
-import { getCoverSizes } from '@/lib/coverSizeSettings'
+import { getCoverSize } from '@/lib/coverSizeSettings'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { userAgent } from 'next/server'
@@ -22,15 +22,15 @@ export default async function MainLayout({ children }: { children: React.ReactNo
     redirect(`/login`)
   }
 
-  // Seeded here so the first server-rendered paint already uses the saved sizes
-  const { width, mobileWidth, isMobile } = await getCoverSizes()
-  // Only parsed on a first visit, before the client has reported its viewport
-  const initialIsMobile = isMobile ?? userAgent({ headers: await headers() }).device.type === 'mobile'
+  // Seeded here so the first server-rendered paint already uses the saved size
+  const width = await getCoverSize()
+  // Best guess for the first paint, since the server cannot measure the viewport
+  const initialIsMobile = userAgent({ headers: await headers() }).device.type === 'mobile'
 
   return (
     <SocketProvider accessToken={accesstoken}>
       <UserProvider initialUser={currentUser}>
-        <CardSizeProvider initialCoverSize={width} initialMobileCoverSize={mobileWidth} initialIsMobile={initialIsMobile}>
+        <CardSizeProvider initialCoverSize={width} initialIsMobile={initialIsMobile}>
           <ChromecastProvider>
             <TasksProvider>
               <MetadataProvider>
