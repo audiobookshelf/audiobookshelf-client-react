@@ -3,9 +3,7 @@ export const COOKIE_NAMES = {
   theme: 'theme',
   language: 'language',
   userLanguage: 'userLanguage',
-  coverSize: 'bookshelfCoverSize',
-  mobileCoverSize: 'bookshelfCoverSizeMobile',
-  mobileViewport: 'isMobileViewport'
+  coverSize: 'bookshelfCoverSize'
 } as const
 
 export type PreferenceCookieOptions = {

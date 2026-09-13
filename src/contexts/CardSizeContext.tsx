@@ -3,22 +3,21 @@
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { COOKIE_NAMES, writePreferenceCookie } from '@/lib/cookies'
 import { AVAILABLE_COVER_SIZES, coverSizeToIndex, coverSizeToMultiplier } from '@/lib/coverSizes'
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 
-/** Maximum size multiplier allowed on mobile */
-const MOBILE_MAX_SIZE_MULTIPLIER = 5 / 6
+/** Fixed size multiplier on mobile (100px cover), where the size is not adjustable */
+const MOBILE_SIZE_MULTIPLIER = 5 / 6
 interface CardSizeContextValue {
   /** Whether the current viewport is mobile (< sm breakpoint) */
   isMobile: boolean
   /**
-   * The effective size multiplier, capped on mobile.
+   * The effective size multiplier, fixed on mobile.
    * Use this as the default; can be overridden by a prop.
    */
   sizeMultiplier: number
-  /** Both layouts' widths, so a consumer resolves the viewport itself after hydration */
+  /** The saved width, used on non-mobile viewports */
   coverWidth: number
-  mobileCoverWidth: number
-  /** Update and persist the cover width for the current viewport. */
+  /** Update and persist the cover width. */
   setCoverSize: (width: number) => void
 }
 
@@ -27,50 +26,34 @@ const CardSizeContext = createContext<CardSizeContextValue | undefined>(undefine
 export function CardSizeProvider({
   children,
   initialCoverSize,
-  initialMobileCoverSize,
   initialIsMobile = false
 }: {
   children: React.ReactNode
   initialCoverSize?: number
-  initialMobileCoverSize?: number
-  /** Viewport for SSR and first paint, from the cookie below or the user agent on a first visit */
+  /** Viewport for SSR and first paint, from the user agent */
   initialIsMobile?: boolean
 }) {
-  const [coverWidth, setCoverWidth] = useState(() => AVAILABLE_COVER_SIZES[coverSizeToIndex(initialCoverSize, false)])
-  const [mobileCoverWidth, setMobileCoverWidth] = useState(() => AVAILABLE_COVER_SIZES[coverSizeToIndex(initialMobileCoverSize, true)])
+  const [coverWidth, setCoverWidth] = useState(() => AVAILABLE_COVER_SIZES[coverSizeToIndex(initialCoverSize)])
   const isMobile = useMediaQuery('max-sm', initialIsMobile)
 
-  // Recorded so the next server render knows the real viewport, which the user agent
-  // cannot tell it for a resized window
-  useEffect(() => {
-    writePreferenceCookie(COOKIE_NAMES.mobileViewport, isMobile ? '1' : '0')
-  }, [isMobile])
+  const sizeMultiplier = isMobile ? MOBILE_SIZE_MULTIPLIER : coverSizeToMultiplier(coverWidth)
 
-  const sizeMultiplier = isMobile
-    ? Math.min(coverSizeToMultiplier(mobileCoverWidth, true), MOBILE_MAX_SIZE_MULTIPLIER)
-    : coverSizeToMultiplier(coverWidth, false)
-
-  const setCoverSize = useCallback(
-    (width: number) => {
-      if (AVAILABLE_COVER_SIZES[coverSizeToIndex(width, isMobile)] !== width) return
-      if (isMobile) setMobileCoverWidth(width)
-      else setCoverWidth(width)
-      // Written directly rather than through a route: a Set-Cookie response would invalidate
-      // the router cache and refetch the page on every click
-      writePreferenceCookie(isMobile ? COOKIE_NAMES.mobileCoverSize : COOKIE_NAMES.coverSize, String(width))
-    },
-    [isMobile]
-  )
+  const setCoverSize = useCallback((width: number) => {
+    if (AVAILABLE_COVER_SIZES[coverSizeToIndex(width)] !== width) return
+    setCoverWidth(width)
+    // Written directly rather than through a route: a Set-Cookie response would invalidate
+    // the router cache and refetch the page on every click
+    writePreferenceCookie(COOKIE_NAMES.coverSize, String(width))
+  }, [])
 
   const value: CardSizeContextValue = useMemo(
     () => ({
       isMobile,
       sizeMultiplier,
       coverWidth,
-      mobileCoverWidth,
       setCoverSize
     }),
-    [isMobile, sizeMultiplier, coverWidth, mobileCoverWidth, setCoverSize]
+    [isMobile, sizeMultiplier, coverWidth, setCoverSize]
   )
 
   return <CardSizeContext.Provider value={value}>{children}</CardSizeContext.Provider>
