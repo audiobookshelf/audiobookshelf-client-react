@@ -12,6 +12,7 @@ import { memo, useCallback, useEffect, useRef } from 'react'
 interface ChaptersModalProps {
   isOpen: boolean
   playerHandler: PlayerHandler
+  zIndexClass?: string
   onClose: () => void
 }
 
@@ -86,7 +87,7 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
   )
 })
 
-export default function ChaptersModal({ isOpen, playerHandler, onClose }: ChaptersModalProps) {
+export default function ChaptersModal({ isOpen, playerHandler, zIndexClass, onClose }: ChaptersModalProps) {
   const t = useTypeSafeTranslations()
   const listRef = useRef<HTMLDivElement>(null)
 
@@ -122,7 +123,13 @@ export default function ChaptersModal({ isOpen, playerHandler, onClose }: Chapte
   const outerContent = <ModalOuterContent>{t('HeaderChapters')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="overflow-hidden sm:max-w-lg md:max-w-lg lg:max-w-lg">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      zIndexClass={zIndexClass}
+      outerContent={outerContent}
+      className="overflow-hidden sm:max-w-lg md:max-w-lg lg:max-w-lg"
+    >
       <div className="flex max-h-[80vh] flex-col">
         <div ref={listRef} className="h-full w-full overflow-x-hidden overflow-y-auto">
           {chapters.length === 0 ? (

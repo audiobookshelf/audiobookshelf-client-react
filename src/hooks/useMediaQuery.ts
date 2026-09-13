@@ -7,6 +7,7 @@ const MEDIA_QUERIES = {
   lg: '(min-width: 1024px)',
   'max-sm': '(max-width: 639px)',
   'max-md': '(max-width: 767px)',
+  'landscape-compact': '(orientation: landscape) and (max-height: 600px)',
   'coarse-pointer': '(hover: none), (pointer: coarse)',
   hover: '(hover: hover)'
 } as const
