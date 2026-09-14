@@ -5,7 +5,10 @@ import { CoverEditModalBody } from '@/components/modals/CoverEditModal'
 import { LibraryItemEditModalContent } from '@/components/modals/LibraryItemEditModal'
 import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource, type UnsavedChangesLeaveHandle } from '@/components/modals/LibraryItemModal'
 import { MatchModalBody } from '@/components/modals/MatchModal'
+import { MetadataEditFooterProvider } from '@/components/modals/MetadataEditFooterContext'
+import ModalFooter from '@/components/modals/ModalFooter'
 import { SectionedModalBody, type Section } from '@/components/modals/SectionedModal'
+import EmbedMetadataFooterControl from '@/components/widgets/EmbedMetadataFooterControl'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isBookMediaWithTracks, type BookLibraryItem, type PodcastLibraryItem } from '@/types/api'
@@ -83,6 +86,14 @@ function LibraryItemMetadataEditModalBody({
   const t = useTypeSafeTranslations()
   const { library } = useLibrary()
   const { resolvedItem } = useLibraryItemModal()
+  const [endContainer, setEndContainer] = useState<HTMLDivElement | null>(null)
+
+  const footerApi = useMemo(
+    () => ({
+      endContainer
+    }),
+    [endContainer]
+  )
 
   const includeChaptersNav = isBookWithAudioTracks(resolvedItem) || (!resolvedItem && (initialSection === 'chapters' || library.mediaType === 'book'))
 
@@ -108,32 +119,39 @@ function LibraryItemMetadataEditModalBody({
   const bodyInitialSection = includeChaptersNav ? initialSection : initialSection === 'chapters' ? 'details' : initialSection
 
   return (
-    <SectionedModalBody
-      sections={sections}
-      selectedSection={selectedSection}
-      onSectionChange={onSectionChange}
-      onRequestHubBack={onRequestHubBack}
-      isOpen={isOpen}
-      initialSection={bodyInitialSection}
-    >
-      {selectedSection === 'details' ? (
-        <LibraryItemEditModalContent
-          isOpen={isOpen}
-          startSaveTransition={startSaveTransition}
-          isSavePending={isSavePending}
-          onClose={onClose}
-          stableBodyHeight={false}
-          fillParent
-          closeRequestRef={detailsCloseRef}
-        />
-      ) : selectedSection === 'cover' ? (
-        <CoverEditModalBody stableBodyHeight={false} fillParent />
-      ) : selectedSection === 'chapters' ? (
-        <ChaptersEditModalBody closeRequestRef={chaptersCloseRef} onPendingChange={onChaptersPendingChange} />
-      ) : (
-        <MatchModalBody fillParent />
-      )}
-    </SectionedModalBody>
+    <MetadataEditFooterProvider value={footerApi}>
+      <SectionedModalBody
+        sections={sections}
+        selectedSection={selectedSection}
+        onSectionChange={onSectionChange}
+        onRequestHubBack={onRequestHubBack}
+        isOpen={isOpen}
+        initialSection={bodyInitialSection}
+      >
+        <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-hidden">
+            {selectedSection === 'details' ? (
+              <LibraryItemEditModalContent
+                isOpen={isOpen}
+                startSaveTransition={startSaveTransition}
+                isSavePending={isSavePending}
+                onClose={onClose}
+                stableBodyHeight={false}
+                fillParent
+                closeRequestRef={detailsCloseRef}
+              />
+            ) : selectedSection === 'cover' ? (
+              <CoverEditModalBody stableBodyHeight={false} fillParent />
+            ) : selectedSection === 'chapters' ? (
+              <ChaptersEditModalBody closeRequestRef={chaptersCloseRef} onPendingChange={onChaptersPendingChange} />
+            ) : (
+              <MatchModalBody fillParent />
+            )}
+          </div>
+          <ModalFooter start={<EmbedMetadataFooterControl libraryItem={resolvedItem} />} endSlotRef={setEndContainer} />
+        </div>
+      </SectionedModalBody>
+    </MetadataEditFooterProvider>
   )
 }
 

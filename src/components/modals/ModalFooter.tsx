@@ -2,7 +2,7 @@
 
 import Btn from '@/components/ui/Btn'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { ReactNode } from 'react'
+import type { ReactNode, Ref } from 'react'
 
 export type ModalFooterButton = {
   label: ReactNode
@@ -22,8 +22,12 @@ export type ModalFooterProps = {
   secondary?: ModalFooterButton
   /** Destructive action on the left e.g. "Remove", "Delete", "Disable" */
   destructive?: ModalFooterButton
-  /** Custom content on the left e.g. "Unlink OpenID", "toggles", "checkboxes" */
+  /** Custom content on the start side e.g. "Unlink OpenID", "toggles", "checkboxes" */
   start?: ReactNode
+  /** Custom content on the end side, before secondary/primary */
+  end?: ReactNode
+  /** Slot for portaled end actions (e.g. shared metadata-edit footer). Always mounted when set. */
+  endSlotRef?: Ref<HTMLDivElement | null>
   /** Show upward shadow when scrollable content sits above the footer */
   shadow?: boolean
   className?: string
@@ -46,26 +50,31 @@ function renderFooterButton(config: ModalFooterButton, { color, className }: { c
   )
 }
 
-export default function ModalFooter({ primary, secondary, destructive, start, shadow = false, className }: ModalFooterProps) {
-  const hasRightActions = !!(secondary || primary)
+export default function ModalFooter({ primary, secondary, destructive, start, end, endSlotRef, shadow = false, className }: ModalFooterProps) {
+  const hasEndActions = !!(end || secondary || primary || endSlotRef)
 
   return (
     <div
       className={mergeClasses(
-        'bg-bg border-border rounded-b-lg shrink-0 border-t px-4 py-3 transition-shadow duration-200 sm:px-6',
+        'bg-bg border-border shrink-0 rounded-b-lg border-t px-2 py-3 transition-shadow duration-200 md:px-4',
         shadow && 'box-shadow-md-up',
         className
       )}
     >
-      <div className="flex flex-wrap items-center justify-end gap-3 sm:gap-4">
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4">
         {start}
         {destructive &&
           renderFooterButton(destructive, {
             color: 'bg-error',
-            className: mergeClasses(hasRightActions && 'mr-auto', destructive.className)
+            className: mergeClasses(hasEndActions && 'me-auto', destructive.className)
           })}
-        {secondary && renderFooterButton(secondary, {})}
-        {primary && renderFooterButton(primary, {})}
+        {hasEndActions ? (
+          <div ref={endSlotRef} className="ms-auto flex flex-wrap items-center justify-end gap-3 sm:gap-4">
+            {end}
+            {secondary && renderFooterButton(secondary, {})}
+            {primary && renderFooterButton(primary, {})}
+          </div>
+        ) : null}
       </div>
     </div>
   )

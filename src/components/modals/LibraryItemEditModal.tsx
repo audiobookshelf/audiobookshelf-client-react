@@ -2,10 +2,13 @@
 
 import { updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
 import LibraryItemModal, { useLibraryItemModal, type LibraryItemModalItemSource, type UnsavedChangesLeaveHandle } from '@/components/modals/LibraryItemModal'
+import { MetadataEditFooterEnd, useMetadataEditFooter } from '@/components/modals/MetadataEditFooterContext'
 import ModalFooter from '@/components/modals/ModalFooter'
+import Btn from '@/components/ui/Btn'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
+import EmbedMetadataFooterControl from '@/components/widgets/EmbedMetadataFooterControl'
 import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -269,6 +272,7 @@ export function LibraryItemEditModalContent({
 
   const isPodcast = resolvedItem?.mediaType === 'podcast'
   const saveDisabled = !hasChanges || isSavePending || !resolvedItem || fetchPending
+  const sharedFooter = useMetadataEditFooter()
 
   const libraryId = library.id
   const showPlaceholderShell = fetchPending && !resolvedItem && pendingEntityId !== null
@@ -361,19 +365,31 @@ export function LibraryItemEditModalContent({
         {formInner}
       </div>
 
-      <ModalFooter
-        shadow={footerShadow}
-        secondary={{
-          label: t('ButtonSave'),
-          onClick: () => handleSave(false),
-          disabled: saveDisabled
-        }}
-        primary={{
-          label: t('ButtonSaveAndClose'),
-          onClick: () => handleSave(true),
-          disabled: saveDisabled
-        }}
-      />
+      {sharedFooter ? (
+        <MetadataEditFooterEnd>
+          <Btn disabled={saveDisabled} onClick={() => handleSave(false)}>
+            {t('ButtonSave')}
+          </Btn>
+          <Btn disabled={saveDisabled} onClick={() => handleSave(true)}>
+            {t('ButtonSaveAndClose')}
+          </Btn>
+        </MetadataEditFooterEnd>
+      ) : (
+        <ModalFooter
+          shadow={footerShadow}
+          start={<EmbedMetadataFooterControl libraryItem={resolvedItem} />}
+          secondary={{
+            label: t('ButtonSave'),
+            onClick: () => handleSave(false),
+            disabled: saveDisabled
+          }}
+          primary={{
+            label: t('ButtonSaveAndClose'),
+            onClick: () => handleSave(true),
+            disabled: saveDisabled
+          }}
+        />
+      )}
 
       <ConfirmDialog
         isOpen={showCloseConfirm}
