@@ -458,7 +458,10 @@ export class LocalAudioPlayer {
           this.startTime = currentTrack.startOffset + offsetTime
           this.trackStartTime = offsetTime
         }
-        this.player.currentTime = offsetTime
+        // HAVE_NOTHING: setting currentTime throws in some browsers. loadedmetadata applies trackStartTime.
+        if (this.player.readyState > HTMLMediaElement.HAVE_NOTHING) {
+          this.player.currentTime = offsetTime
+        }
       }
     }
   }

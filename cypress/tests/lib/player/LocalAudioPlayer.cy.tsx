@@ -10,11 +10,19 @@ function twoTracks(): AudioTrack[] {
 }
 
 function stubElement($audio: HTMLAudioElement, { paused = false } = {}) {
-  cy.stub($audio, 'load')
+  cy.stub($audio, 'load').callsFake(() => {
+    Object.defineProperty($audio, 'readyState', { configurable: true, writable: true, value: HTMLMediaElement.HAVE_NOTHING })
+  })
   const play = cy.stub($audio, 'play').resolves()
   Object.defineProperty($audio, 'currentTime', { configurable: true, writable: true, value: 0 })
   Object.defineProperty($audio, 'paused', { configurable: true, writable: true, value: paused })
+  Object.defineProperty($audio, 'readyState', { configurable: true, writable: true, value: HTMLMediaElement.HAVE_NOTHING })
   return play
+}
+
+function emitLoadedMetadata(audio: HTMLAudioElement) {
+  Object.defineProperty(audio, 'readyState', { configurable: true, writable: true, value: HTMLMediaElement.HAVE_METADATA })
+  audio.dispatchEvent(new Event('loadedmetadata'))
 }
 
 describe('LocalAudioPlayer', () => {
@@ -51,7 +59,7 @@ describe('LocalAudioPlayer', () => {
       stubElement($audio[0])
 
       player.set(null, tracks, false, 105)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
 
       player.seek(95, false)
 
@@ -66,7 +74,7 @@ describe('LocalAudioPlayer', () => {
       stubElement($audio[0])
 
       player.set(null, tracks, false, 50)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
 
       player.seek(100, false)
 
@@ -82,13 +90,13 @@ describe('LocalAudioPlayer', () => {
       const playStub = stubElement($audio[0], { paused: true })
 
       player.set(null, tracks, false, 150, true)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
       $audio[0].dispatchEvent(new Event('seeked'))
       playStub.resetHistory()
 
       // Now paused, seek back into track 1: playback must not resume
       player.seek(50, false)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
       $audio[0].dispatchEvent(new Event('seeked'))
 
       expect(playStub.called).to.equal(false)
@@ -102,7 +110,7 @@ describe('LocalAudioPlayer', () => {
       stubElement($audio[0])
 
       player.set(null, tracks, false, 50)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
 
       // The very end of the book is inside no track's half-open range
       player.seek(200, false)
@@ -129,7 +137,7 @@ describe('LocalAudioPlayer', () => {
       expect(playStub.called).to.equal(false)
 
       // Once the load completes and the seek lands, playback resumes
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
       $audio[0].dispatchEvent(new Event('seeked'))
       expect(playStub.called).to.equal(true)
     })
@@ -143,7 +151,7 @@ describe('LocalAudioPlayer', () => {
 
       // Paused cross-track load whose post-load seek has not landed yet
       player.set(null, tracks, false, 150)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
       playStub.resetHistory()
 
       // The user presses play while the load is still in flight
@@ -161,13 +169,13 @@ describe('LocalAudioPlayer', () => {
       const tracks = twoTracks()
 
       player.set(null, tracks, false, 0, true)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
       playStub.resetHistory()
 
       // The element reports paused before firing 'ended', so intent must come from playWhenReady
       Object.defineProperty($audio[0], 'paused', { configurable: true, writable: true, value: true })
       $audio[0].dispatchEvent(new Event('ended'))
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
 
       expect($audio[0].src).to.include('/track/2')
       expect(playStub.called).to.equal(true)
@@ -180,12 +188,12 @@ describe('LocalAudioPlayer', () => {
       const tracks = twoTracks()
 
       player.set(null, tracks, false, 0, true)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
       player.pause()
       playStub.resetHistory()
 
       $audio[0].dispatchEvent(new Event('ended'))
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
 
       expect($audio[0].src).to.include('/track/2')
       expect(playStub.called).to.equal(false)
@@ -202,7 +210,7 @@ describe('LocalAudioPlayer', () => {
       stubElement($audio[0])
 
       player.set(null, gappedTracks, false, 50)
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
 
       // 150 falls in the gap, so it must not jump to the last track
       player.seek(150, false)
@@ -222,9 +230,10 @@ describe('LocalAudioPlayer', () => {
       // Track 2 is still loading (no loadedmetadata yet); seek within it
       player.seek(110, false)
       expect(player.getCurrentTime()).to.equal(110)
+      expect($audio[0].currentTime).to.equal(0)
 
       // Metadata arrives: the load must land on the retargeted position, not the original 105
-      $audio[0].dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata($audio[0])
       expect($audio[0].currentTime).to.equal(10)
       expect(player.getCurrentTime()).to.equal(110)
     })
@@ -242,18 +251,18 @@ describe('LocalAudioPlayer', () => {
           ]
 
           player.set(null, tracks, false, 0, true)
-          audio.dispatchEvent(new Event('loadedmetadata'))
+          emitLoadedMetadata(audio)
           playStub.resetHistory()
 
           player.seek(110, true)
-          if (metadataArrived) audio.dispatchEvent(new Event('loadedmetadata'))
+          if (metadataArrived) emitLoadedMetadata(audio)
 
           // The hook observes PAUSED/LOADED during the load and supplies false.
           player.seek(nextTime, false)
           expect(player.getCurrentTime()).to.equal(nextTime)
           expect(playStub.called).to.equal(false)
 
-          if (!metadataArrived || nextTime === 220) audio.dispatchEvent(new Event('loadedmetadata'))
+          if (!metadataArrived || nextTime === 220) emitLoadedMetadata(audio)
           audio.dispatchEvent(new Event('seeked'))
           expect(player.getCurrentTime()).to.equal(nextTime)
           expect(playStub.calledOnce).to.equal(true)
@@ -269,7 +278,7 @@ describe('LocalAudioPlayer', () => {
       cy.stub(audio, 'pause')
 
       player.set(null, twoTracks(), false, 110, true)
-      audio.dispatchEvent(new Event('loadedmetadata'))
+      emitLoadedMetadata(audio)
       player.pause()
       player.seek(120, true)
       audio.dispatchEvent(new Event('seeked'))
