@@ -43,6 +43,14 @@ function normalizeChapters(chapters: Chapter[] | undefined): Chapter[] {
   }))
 }
 
+/** HTML5 currentTime can sit ~1ms shy of a chapter start after seek. */
+const CHAPTER_START_SNAP_SECONDS = 0.001
+
+function snapTimeToChapterStart(chapters: Chapter[], time: number): number {
+  const boundaryChapter = chapters.find((chapter) => chapter.start >= time && chapter.start - time <= CHAPTER_START_SNAP_SECONDS)
+  return boundaryChapter ? boundaryChapter.start : time
+}
+
 function chaptersEqual(a: Chapter[], b: Chapter[]): boolean {
   if (a.length !== b.length) return false
   return a.every((chapter, index) => {
@@ -191,6 +199,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
 
   const setPlaybackTime = useCallback(
     (time: number, bufferedTime = bufferedTimeRef.current) => {
+      time = snapTimeToChapterStart(chaptersRef.current, time)
       currentTimeRef.current = time
       bufferedTimeRef.current = bufferedTime
       setPlayerProgress(time, bufferedTime)
@@ -533,7 +542,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       if (!playerRef.current) return
       const isPlaying = playerStateRef.current === PlayerState.PLAYING
       void Promise.resolve(playerRef.current.seek(time, isPlaying))
-      setPlaybackTime(time)
+      setPlaybackTime(playerRef.current.getCurrentTime())
     },
     [setPlaybackTime]
   )

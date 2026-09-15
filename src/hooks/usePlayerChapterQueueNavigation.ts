@@ -7,24 +7,31 @@ import { useCallback } from 'react'
 export function usePlayerChapterQueueNavigation(playerHandler: PlayerHandler, streamLibraryItem: LibraryItem | null) {
   const { hasNextItemInQueue, hasPreviousItemInQueue, playNextInQueue, playPreviousInQueue } = useMediaContext()
   const { seek, getCurrentTime } = playerHandler.controls
-  const { nextChapter, previousChapter, currentChapter, chapters } = playerHandler.state
+  const { chapters } = playerHandler.state
   const isPodcast = streamLibraryItem ? isPodcastLibraryItem(streamLibraryItem) : false
 
   const handleNext = useCallback(() => {
+    const currentTime = getCurrentTime()
+    const nextChapter = chapters.find((chapter) => chapter.start > currentTime && chapter.end > currentTime) ?? null
+
     if (nextChapter) {
       seek(nextChapter.start)
     } else if (hasNextItemInQueue) {
       void playNextInQueue()
     }
-  }, [hasNextItemInQueue, nextChapter, playNextInQueue, seek])
+  }, [chapters, getCurrentTime, hasNextItemInQueue, playNextInQueue, seek])
 
   const handlePrevious = useCallback(() => {
     const currentTime = getCurrentTime()
+    const currentChapter = chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null
+    const previousChapter = chapters.findLast((chapter) => chapter.end <= currentTime && chapter.start < currentTime) ?? null
 
     if (chapters.length > 0) {
       if (previousChapter) {
         const currentChapterStart = currentChapter?.start ?? 0
         const timeInCurrentChapter = currentTime - currentChapterStart
+        // Within the first few seconds of a chapter Previous goes back a chapter rather than restarting it,
+        // so a quick second press keeps skipping backwards.
         if (timeInCurrentChapter <= 3) {
           seek(previousChapter.start)
         } else {
@@ -42,7 +49,7 @@ export function usePlayerChapterQueueNavigation(playerHandler: PlayerHandler, st
     }
 
     seek(0)
-  }, [chapters.length, currentChapter?.start, getCurrentTime, hasPreviousItemInQueue, playPreviousInQueue, previousChapter, seek])
+  }, [chapters, getCurrentTime, hasPreviousItemInQueue, playPreviousInQueue, seek])
 
   return { handleNext, handlePrevious, hasNextItemInQueue, hasPreviousItemInQueue, isPodcast, chapters }
 }
