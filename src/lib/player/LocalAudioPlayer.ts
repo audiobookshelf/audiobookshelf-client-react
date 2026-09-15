@@ -22,11 +22,24 @@ type EventListeners = {
 /**
  * Track ranges are half-open, so seeking to the very end of the book matches no track. Resolve
  * it to the final track; otherwise the caller would seek within whichever track is loaded.
+ *
+ * Chapter starts are often whole seconds while track ends have fractions, so a seek can land in
+ * the last sub-second of a file. Snap that onto the next track instead of playing into ended.
  */
+const TRACK_END_SNAP_SECONDS = 1
+
 function findTrackIndexAtTime(tracks: AudioTrack[], time: number): number {
   const index = tracks.findIndex((track) => track.containsTime(time))
-  if (index >= 0 || tracks.length === 0) return index
-  return time >= tracks[tracks.length - 1].startOffset ? tracks.length - 1 : -1
+  if (index < 0) {
+    if (tracks.length === 0) return index
+    return time >= tracks[tracks.length - 1].startOffset ? tracks.length - 1 : -1
+  }
+
+  const remaining = tracks[index].startOffset + tracks[index].duration - time
+  if (remaining <= TRACK_END_SNAP_SECONDS && index < tracks.length - 1) {
+    return index + 1
+  }
+  return index
 }
 
 /**
