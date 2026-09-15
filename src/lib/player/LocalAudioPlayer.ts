@@ -121,6 +121,8 @@ export class LocalAudioPlayer {
   }
 
   private handlePause = (): void => {
+    // Changing src pauses the element; keep PLAYING until the load's seek lands.
+    if (this.isTrackLoading && this.playWhenReady) return
     this.emit('stateChange', PlayerState.PAUSED)
   }
 
@@ -175,8 +177,10 @@ export class LocalAudioPlayer {
       this.player.currentTime = this.trackStartTime
     }
 
-    this.emit('stateChange', PlayerState.LOADED)
     this.emit('durationChange', this.getDuration())
+    if (!this.playWhenReady) {
+      this.emit('stateChange', PlayerState.LOADED)
+    }
 
     // Otherwise handleSeeked finishes the load once that seek lands.
     if (!needsSeek) {
