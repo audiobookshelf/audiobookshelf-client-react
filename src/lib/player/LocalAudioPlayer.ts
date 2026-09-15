@@ -461,7 +461,8 @@ export class LocalAudioPlayer {
       const trackIndex = findTrackIndexAtTime(this.audioTracks, boundedTime)
       if (trackIndex >= 0 && trackIndex !== this.currentTrackIndex) {
         // Need to change track
-        this.startTime = boundedTime
+        const nextTrack = this.audioTracks[trackIndex]
+        this.startTime = nextTrack.startOffset + Math.max(0, boundedTime - nextTrack.startOffset)
         this.currentTrackIndex = trackIndex
         if (!this.isTrackLoading && !this.player.paused) {
           this.playWhenReady = true

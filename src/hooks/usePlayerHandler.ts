@@ -533,7 +533,7 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
       if (!playerRef.current) return
       const isPlaying = playerStateRef.current === PlayerState.PLAYING
       void Promise.resolve(playerRef.current.seek(time, isPlaying))
-      setPlaybackTime(time)
+      setPlaybackTime(playerRef.current.getCurrentTime())
     },
     [setPlaybackTime]
   )
