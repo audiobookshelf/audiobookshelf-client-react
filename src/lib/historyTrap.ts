@@ -230,6 +230,9 @@ function afterLayerChange() {
  * Pushes an overlay Back handler. Last registered overlay runs first.
  * Nested dialogs share one registration from `useModalHistory`; eReader / player
  * fullscreen each register their own.
+ *
+ * `onBack` should apply the dismiss synchronously (`flushSync`) so remaining
+ * layers are visible before the dummy is restored or popped.
  */
 export function registerOverlay(onBack: () => void): () => void {
   ensureHistoryTrapListener()
