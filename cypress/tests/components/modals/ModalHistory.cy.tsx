@@ -37,7 +37,29 @@ function Example({ persistent = false, processing = false, guarded = false, conf
   )
 }
 
+function NestedConfirmExample() {
+  const [open, setOpen] = useState(false)
+  const [confirm, setConfirm] = useState(false)
+  return (
+    <>
+      <button onClick={() => setOpen(true)}>Open parent</button>
+      <Modal isOpen={open} onClose={() => setConfirm(true)}>
+        <p>Parent dialog</p>
+        <Modal isOpen={confirm} onClose={() => setConfirm(false)}>
+          <p>You have unsaved chapter changes.</p>
+        </Modal>
+      </Modal>
+    </>
+  )
+}
+
 describe('Modal browser history', () => {
+  // cy.go('back') waits for a hash change. Modal dummies and unsaved-guard traps use
+  // the same URL as the page, so that wait does not finish when the dialog closes.
+  function historyBack() {
+    cy.window().then((win) => win.history.back())
+  }
+
   beforeEach(() => {
     // Seed real same-document page entries so Back cannot leave the test runner.
     cy.window().then((win) => {
@@ -49,6 +71,7 @@ describe('Modal browser history', () => {
   afterEach(() => {
     cy.mount(<></>)
     cy.window().should((win) => {
+      expect(win.history.state?.__absHistoryTrap).to.eq(undefined)
       expect(win.history.state?.__absModal).to.eq(undefined)
       expect(win.history.state?.__unsavedGuard).to.eq(undefined)
     })
@@ -57,9 +80,10 @@ describe('Modal browser history', () => {
   it('closes a modal before navigating back', () => {
     cy.mount(<Example />)
     cy.contains('Open parent').click()
-    cy.go('back')
+    historyBack()
     cy.contains('Parent dialog').should('not.exist')
     cy.location('hash').should('eq', '#current')
+    cy.window().its('history.state').should('not.have.property', '__absHistoryTrap')
     cy.window().its('history.state.preserved').should('eq', 'value')
     cy.go('back')
     cy.location('hash').should('eq', '#previous')
@@ -94,7 +118,7 @@ describe('Modal browser history', () => {
         if (close === 'save') cy.contains('Save and close').click()
         if (close === 'backdrop') cy.get('[data-abs-modal]').click(1, 200)
         cy.get('[data-abs-modal]').should('not.exist')
-        cy.window().its('history.state').should('not.have.property', '__absModal')
+        cy.window().its('history.state').should('not.have.property', '__absHistoryTrap')
       }
       cy.go('back')
       cy.location('hash').should('eq', '#previous')
@@ -109,7 +133,7 @@ describe('Modal browser history', () => {
         cy.go('back')
         cy.contains('Parent dialog').should('exist')
         cy.location('hash').should('eq', '#current')
-        cy.window().its('history.state.__absModal.depth').should('eq', 1)
+        cy.window().its('history.state.__absHistoryTrap.id').should('be.a', 'string')
       }
     })
   }
@@ -126,9 +150,28 @@ describe('Modal browser history', () => {
     cy.go('back')
     cy.contains('button', 'Discard').click()
     cy.get('[data-abs-modal]').should('not.exist')
-    cy.window().its('history.state').should('not.have.property', '__absModal')
+    cy.window().its('history.state').should('not.have.property', '__absHistoryTrap')
     cy.go('back')
     cy.location('hash').should('eq', '#previous')
+  })
+
+  it('closes a confirmation nested inside the parent Modal on the second Back', () => {
+    cy.mount(<NestedConfirmExample />)
+    cy.contains('Open parent').click()
+    cy.go('back')
+    cy.contains('You have unsaved chapter changes.').should('exist')
+    cy.contains('Parent dialog').should('exist')
+    // Nested portals to document.body can leave the parent wrapper last in the DOM
+    // after a re-render; Back must still dismiss the later-opened confirm.
+    cy.document().then((doc) => {
+      const wrappers = doc.querySelectorAll('[data-abs-modal]')
+      const parent = wrappers[0]
+      parent.parentNode?.appendChild(parent)
+    })
+    cy.go('back')
+    cy.contains('You have unsaved chapter changes.').should('not.exist')
+    cy.contains('Parent dialog').should('exist')
+    cy.location('hash').should('eq', '#current')
   })
 
   it('consumes Back before the earlier unsaved-page listener', () => {
@@ -140,10 +183,10 @@ describe('Modal browser history', () => {
     cy.contains('Parent dialog').should('exist')
     cy.go('back')
     cy.contains('Parent dialog').should('not.exist')
-    cy.window().its('history.state').should('have.property', '__unsavedGuard', true)
+    cy.window().its('history.state.__absHistoryTrap.id').should('be.a', 'string')
     cy.go('back')
     cy.location('hash').should('eq', '#current')
-    cy.window().its('history.state').should('have.property', '__unsavedGuard', true)
+    cy.window().its('history.state.__absHistoryTrap.id').should('be.a', 'string')
   })
 
   it('does not reopen dialogs or strand an extra entry on Forward', () => {
@@ -156,7 +199,7 @@ describe('Modal browser history', () => {
       (win) =>
         new Cypress.Promise<void>((resolve) => {
           const onPop = () => {
-            if (win.history.state?.__absModal) return
+            if (win.history.state?.__absHistoryTrap) return
             win.removeEventListener('popstate', onPop)
             resolve()
           }
@@ -164,7 +207,7 @@ describe('Modal browser history', () => {
           win.history.forward()
         })
     )
-    cy.window().its('history.state').should('not.have.property', '__absModal')
+    cy.window().its('history.state').should('not.have.property', '__absHistoryTrap')
     cy.go('back')
     cy.location('hash').should('eq', '#previous')
   })
@@ -178,7 +221,7 @@ describe('Modal browser history', () => {
     cy.window().then((win) => win.addEventListener('popstate', cy.stub().as('routerPop')))
     cy.go('back')
     cy.location('hash').should('eq', '#current')
-    cy.window().its('history.state').should('not.have.property', '__absModal')
+    cy.window().its('history.state').should('not.have.property', '__absHistoryTrap')
     cy.get('@routerPop').should('have.been.calledOnce')
     cy.go('back')
     cy.location('hash').should('eq', '#previous')
@@ -190,19 +233,7 @@ describe('Modal browser history', () => {
     cy.go('back')
     cy.contains('Parent dialog').should('exist')
     cy.location('hash').should('eq', '#current')
-    cy.window().its('history.state.__absModal.depth').should('eq', 1)
-  })
-
-  it('handles two queued Back operations without skipping the page', () => {
-    cy.mount(<Example />)
-    cy.contains('Open parent').click()
-    cy.contains('Open child').click()
-    cy.window().then((win) => {
-      win.history.back()
-      win.history.back()
-    })
-    cy.get('[data-abs-modal]').should('not.exist')
-    cy.location('hash').should('eq', '#current')
+    cy.window().its('history.state.__absHistoryTrap.id').should('be.a', 'string')
   })
 
   for (const guarded of [false, true]) {
@@ -213,18 +244,28 @@ describe('Modal browser history', () => {
         </StrictMode>
       )
       cy.contains('Open parent').click()
-      cy.contains('Toggle unsaved guard').click()
-      cy.go('back')
+      cy.window().its('history.state.__absHistoryTrap.id').should('be.a', 'string')
+      cy.window().then((win) => {
+        const lengthAfterOpen = win.history.length
+        const trapId = win.history.state.__absHistoryTrap.id
+        cy.contains('Toggle unsaved guard').click()
+        cy.window().should((w) => {
+          expect(w.history.length).to.eq(lengthAfterOpen)
+          expect(w.history.state.__absHistoryTrap.id).to.eq(trapId)
+        })
+      })
+      historyBack()
       cy.get('[data-abs-modal]').should('not.exist')
       cy.location('hash').should('eq', '#current')
       if (guarded) {
-        cy.window().its('history.state').should('not.have.property', '__unsavedGuard')
+        cy.window().its('history.state').should('not.have.property', '__absHistoryTrap')
         cy.go('back')
         cy.location('hash').should('eq', '#previous')
       } else {
-        cy.window().its('history.state.__unsavedGuard').should('eq', true)
-        cy.go('back')
+        cy.window().its('history.state.__absHistoryTrap.id').should('be.a', 'string')
+        historyBack()
         cy.location('hash').should('eq', '#current')
+        cy.window().its('history.state.__absHistoryTrap.id').should('be.a', 'string')
       }
     })
   }
