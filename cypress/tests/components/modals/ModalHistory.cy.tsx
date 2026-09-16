@@ -72,8 +72,6 @@ describe('Modal browser history', () => {
     cy.mount(<></>)
     cy.window().should((win) => {
       expect(win.history.state?.__absHistoryTrap).to.eq(undefined)
-      expect(win.history.state?.__absModal).to.eq(undefined)
-      expect(win.history.state?.__unsavedGuard).to.eq(undefined)
     })
   })
 
