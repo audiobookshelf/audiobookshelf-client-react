@@ -172,7 +172,7 @@ describe('Modal browser history', () => {
     cy.location('hash').should('eq', '#current')
   })
 
-  it('consumes Back before the earlier unsaved-page listener', () => {
+  it('closes nested dialogs before the unsaved-page handler', () => {
     cy.mount(<Example guarded />)
     cy.contains('Open parent').click()
     cy.contains('Open child').click()
