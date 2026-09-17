@@ -1,18 +1,18 @@
 'use client'
 
+import { registerPage, skipNextReleasePop } from '@/lib/historyTrap'
 import { useEffect, useRef } from 'react'
 
 const BACK_COOLDOWN_MS = 400
 
 let guardEnabled = false
-let skipHistoryTrapRemoval = false
 
 /**
  * Call before disabling the guard for an intentional in-app navigation (e.g. post-save redirect).
- * Skips the history-trap pop that would otherwise race with `router.replace`.
+ * Skips stripping the shared history dummy that would otherwise race with `router.replace`.
  */
 export function allowProgrammaticNavigationWithoutTrapCleanup() {
-  skipHistoryTrapRemoval = true
+  skipNextReleasePop()
 }
 
 export interface UseUnsavedNavigationGuardOptions {
@@ -65,6 +65,8 @@ export function attemptGuardedNavigation(url: string): boolean {
 /**
  * Blocks soft client-side navigation when there are unsaved changes.
  * Matches Vue batch edit beforeRouteLeave: force a full document load so beforeunload prompts.
+ *
+ * Browser Back is intercepted by the shared history trap in `historyTrap.ts`, not a second dummy entry.
  */
 export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsavedNavigationGuardOptions) {
   const enabledRef = useRef(enabled)
@@ -73,19 +75,7 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
   const guardLocationKeyRef = useRef('')
   const backLeavePathRef = useRef(backLeavePath)
   backLeavePathRef.current = backLeavePath
-  const trapActiveRef = useRef(false)
   const backHandlingRef = useRef(false)
-  const removingTrapRef = useRef(false)
-
-  const removeHistoryTrapSilently = () => {
-    if (!trapActiveRef.current) return
-    trapActiveRef.current = false
-    removingTrapRef.current = true
-    window.history.back()
-    queueMicrotask(() => {
-      removingTrapRef.current = false
-    })
-  }
 
   useEffect(() => {
     guardEnabled = enabled
@@ -98,7 +88,6 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
     if (!enabled) return
 
     guardLocationKeyRef.current = getCurrentLocationKey()
-    const guardHref = () => window.location.origin + guardLocationKeyRef.current
     const leaveViaFullReload = (url: string) => tryAssignLeave(url, guardLocationKeyRef.current)
 
     const onBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -126,24 +115,9 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
       }
     }
 
-    const originalPushState = history.pushState.bind(history)
-
-    if (!trapActiveRef.current) {
-      originalPushState({ __unsavedGuard: true }, '', window.location.href)
-      trapActiveRef.current = true
-    }
-
-    const onPopState = (event: PopStateEvent) => {
-      if (removingTrapRef.current) {
-        removingTrapRef.current = false
-        return
-      }
+    const onGuardBack = () => {
       if (!enabledRef.current || backHandlingRef.current) return
-
-      event.stopImmediatePropagation()
       backHandlingRef.current = true
-
-      originalPushState({ __unsavedGuard: true }, '', guardHref())
 
       const leavePath = backLeavePathRef.current
       if (!leavePath || !leaveViaFullReload(leavePath)) {
@@ -156,22 +130,15 @@ export function useUnsavedNavigationGuard({ enabled, backLeavePath }: UseUnsaved
       }, BACK_COOLDOWN_MS)
     }
 
+    const unregisterPage = registerPage(onGuardBack)
+
     window.addEventListener('beforeunload', onBeforeUnload)
     document.addEventListener('click', onClick, true)
-    window.addEventListener('popstate', onPopState, true)
 
     return () => {
       window.removeEventListener('beforeunload', onBeforeUnload)
       document.removeEventListener('click', onClick, true)
-      window.removeEventListener('popstate', onPopState, true)
-
-      if (skipHistoryTrapRemoval) {
-        trapActiveRef.current = false
-        skipHistoryTrapRemoval = false
-      } else {
-        removeHistoryTrapSilently()
-      }
-
+      unregisterPage()
       backHandlingRef.current = false
     }
   }, [enabled])

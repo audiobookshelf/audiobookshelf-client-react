@@ -3,6 +3,7 @@
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import { ModalProvider } from '@/contexts/ModalContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
+import { getTopmostModalElement, useModalHistory } from '@/hooks/useModalHistory'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
@@ -46,6 +47,8 @@ export default function Modal({
 
   const wrapperRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+
+  useModalHistory(isOpen, wrapperRef, onClose, processing || persistent)
 
   const clickClose = useCallback(() => {
     onClose?.()
@@ -98,9 +101,7 @@ export default function Modal({
       if (e.key !== 'Escape' || processing || persistent) return
       if (document.querySelector(OPEN_COMBOBOX_SELECTOR)) return
 
-      const modalWrappers = document.querySelectorAll(MODAL_ROOT_SELECTOR)
-      const topmostWrapper = modalWrappers[modalWrappers.length - 1]
-      if (topmostWrapper !== wrapperRef.current) return
+      if (getTopmostModalElement() !== wrapperRef.current) return
 
       e.preventDefault()
       e.stopImmediatePropagation()
