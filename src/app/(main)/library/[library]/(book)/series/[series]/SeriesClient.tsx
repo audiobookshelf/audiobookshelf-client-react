@@ -10,6 +10,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { filterEncode } from '@/lib/filterUtils'
+import { formatDuration } from '@/lib/formatDuration'
 import { computeIsSeriesFinished } from '@/lib/mediaProgress'
 import { RssFeed, Series } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -23,7 +24,7 @@ export default function SeriesClient({ series: seriesProp }: SeriesClientProps) 
   const router = useRouter()
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { library, collapseBookSeries, showSubtitles, updateSetting, setDetailToolbarTitle, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
+  const { library, collapseBookSeries, showSubtitles, updateSetting, setDetailToolbarTitle, setItemCountSupplement, itemCount, setContextMenuItems, setContextMenuActionHandler } = useLibrary()
   const { user, userIsAdminOrUp } = useUser()
 
   const seriesBooksQuery = useMemo(() => {
@@ -49,7 +50,7 @@ export default function SeriesClient({ series: seriesProp }: SeriesClientProps) 
 
   const seriesLibraryItemIds = useMemo(() => series.progress?.libraryItemIds ?? [], [series.progress?.libraryItemIds])
   const isSeriesFinished = useMemo(() => computeIsSeriesFinished(user.mediaProgress, seriesLibraryItemIds), [seriesLibraryItemIds, user.mediaProgress])
-
+  
   const [rssFeed, setRssFeed] = useState<RssFeed | null>(series.rssFeed ?? null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
 
@@ -82,6 +83,22 @@ export default function SeriesClient({ series: seriesProp }: SeriesClientProps) 
       setContextMenuItems([])
     }
   }, [series.name, setContextMenuItems, setDetailToolbarTitle])
+
+  const totalDurationLabel = series.totalDuration && series.totalDuration > 0 ? formatDuration(series.totalDuration, t, { showDays: true }) : null
+  const totalListenedLabel = series.progress?.totalListened && series.progress.totalListened > 0 ? formatDuration(series.progress.totalListened, t, { showDays: true }) : null
+
+  const itemCountSupplementLabel = useMemo(() => {
+    if (!totalDurationLabel) return null
+    if (totalListenedLabel) return ` (${totalListenedLabel} / ${totalDurationLabel} total)`
+    return ` (${totalDurationLabel})`
+  }, [totalDurationLabel, totalListenedLabel])
+   
+  useEffect(() => {
+    setItemCountSupplement(itemCountSupplementLabel)
+    return () => {
+      setItemCountSupplement(null)
+    }
+  }, [itemCountSupplementLabel, itemCount, setItemCountSupplement])
 
   const openRssModal = useCallback(() => {
     setRssFeedModalOpen(true)
