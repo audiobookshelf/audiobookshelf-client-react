@@ -1,8 +1,8 @@
 'use client'
 
-export const HISTORY_TRAP_KEY = '__absHistoryTrap'
+const HISTORY_TRAP_KEY = '__absHistoryTrap'
 
-export interface HistoryTrapMarker {
+interface HistoryTrapMarker {
   id: string
 }
 
@@ -12,18 +12,34 @@ interface TrapSession {
   hasDummyEntry: boolean
 }
 
+/** `popstate` events this coordinator already consumed (same event can reach multiple paths). */
 const handledEvents = new WeakSet<PopStateEvent>()
+/** `window` the capture listener is attached to. */
 let owner: Window | undefined
+/** In-memory dummy: id, href, and whether that entry is currently on the stack. */
 let session: TrapSession | undefined
+/** True while a `reconcile()` microtask is queued. */
 let scheduled = false
+/** Suffix for dummy ids so two sessions in the same millisecond stay distinct. */
 let nextId = 0
+/** True while a swallowed `history.go(-1)` is popping the dummy. */
 let removing = false
+/** True while `history.forward()` is restoring a consumed dummy. */
 let restoringDummy = false
+/** True when Forward/revisit of a leftover dummy should notify the router after cleanup. */
 let restoringNavigation = false
+/** Skip the next dummy pop, for intentional in-app navigation (e.g. post-save replace). */
 let skipNextReleasePopFlag = false
+/** Page Back handler. Runs only when the overlay stack is empty. */
 let pageHandler: (() => void) | undefined
+/** Overlay Back handlers. Last registered runs first. */
 const overlays: Array<() => void> = []
 
+/**
+ * Reads `__absHistoryTrap` from a history `state` value.
+ *
+ * @returns The marker when `state` has a string `id`, otherwise `undefined`
+ */
 function readTrapMarker(state: unknown): HistoryTrapMarker | undefined {
   const record = state as Record<string, unknown> | null
   const value = record?.[HISTORY_TRAP_KEY]
@@ -33,21 +49,34 @@ function readTrapMarker(state: unknown): HistoryTrapMarker | undefined {
   return { id }
 }
 
-function wantsDummy(): boolean {
+function needsDummy(): boolean {
   return overlays.length > 0 || pageHandler != null
 }
 
 function trapPayload(): HistoryTrapMarker | undefined {
-  if (!session || !wantsDummy()) return undefined
+  if (!session || !needsDummy()) return undefined
   return { id: session.id }
 }
 
+/**
+ * Shallow-copies a history `state` object and strips `__absHistoryTrap`.
+ *
+ * Used when pushing a dummy so Next/router keys on the current entry are kept
+ * and a previous trap marker is not copied forward.
+ */
 function historyStateWithoutTrapKeys(state: unknown): Record<string, unknown> {
   const next = state && typeof state === 'object' ? { ...(state as Record<string, unknown>) } : {}
   delete next[HISTORY_TRAP_KEY]
   return next
 }
 
+/**
+ * Pushes one same-URL dummy tagged `__absHistoryTrap`.
+ *
+ * Nested dialogs (e.g. confirm) share that single entry. Extra dummies leave Chrome
+ * unable to fire the next Back. Layers are dismissed via popstate, then the dummy
+ * is restored so history still matches "layers open".
+ */
 function pushDummy() {
   if (!session) return
   const payload = trapPayload()
@@ -56,11 +85,11 @@ function pushDummy() {
 }
 
 /**
- * Syncs the single dummy history entry with registered layers.
+ * Syncs the single dummy history entry with registered handlers.
  *
- * At most one same-URL dummy is on the stack. Closing the last layer while still
+ * At most one same-URL dummy is on the stack. Closing the last handler while still
  * sitting on that dummy pops it (`history.go(-1)`) so Close does not leave an extra
- * Back. Phantom Forward is skipped in the leftover-dummy path.
+ * Back.
  */
 function reconcile() {
   scheduled = false
@@ -73,14 +102,14 @@ function reconcile() {
     session = undefined
   }
 
-  if (wantsDummy() && !session) {
+  const dummyNeeded = needsDummy()
+  if (dummyNeeded && !session) {
     session = { id: `${Date.now()}-${++nextId}`, href: window.location.href, hasDummyEntry: false }
   }
 
   if (!session) return
 
-  const wantDummy = wantsDummy()
-  if (session.hasDummyEntry && !wantDummy) {
+  if (session.hasDummyEntry && !dummyNeeded) {
     if (!current) {
       session.hasDummyEntry = false
       session = undefined
@@ -91,7 +120,7 @@ function reconcile() {
     return
   }
 
-  if (wantDummy && !session.hasDummyEntry) {
+  if (dummyNeeded && !session.hasDummyEntry) {
     session.hasDummyEntry = true
     pushDummy()
   }
@@ -111,13 +140,13 @@ function scheduleReconcile() {
 }
 
 function restoreConsumedDummy() {
-  if (!wantsDummy() || readTrapMarker(window.history.state) || restoringDummy) return
+  if (!needsDummy() || readTrapMarker(window.history.state) || restoringDummy) return
   restoringDummy = true
   window.history.forward()
 }
 
 /**
- * Attaches capture `popstate` once for this `window`.
+ * Attaches capture `popstate` once for this `window` and resets coordinator flags.
  *
  * If a reload left a trap marker with no layers, schedules reconcile so that leftover dummy is popped.
  */
@@ -138,9 +167,25 @@ function ensureHistoryTrapListener() {
 }
 
 /**
- * Capture-phase `popstate` handler (the only history-trap listener).
+ * Capture-phase popstate handler. This is the only listener the trap installs.
  *
- * Back priority: last overlay, then page. One dummy covers all of them.
+ * Browser Back and Forward always land here. Most of those moves are not real
+ * navigations: they are the dummy being consumed, restored, or skipped. This
+ * handler decides which, swallows the ones that should stay invisible to the
+ * router, and runs overlay then page Back handlers when the dummy was consumed.
+ *
+ * Already-handled events are ignored. A restore-forward is swallowed so putting
+ * the dummy back does not look like a user navigation. Unrelated pops (no dummy
+ * involved) are left for other listeners. A silent pop of the dummy is also
+ * swallowed, except when skipping a leftover dummy after a real navigation - in
+ * that case the follow-up pop is the actual route change and the router must see
+ * it.
+ *
+ * When the user backs out of the dummy, the last overlay runs first, then the page
+ * handler if the overlay stack is empty. If anyone still needs the trap, the dummy
+ * is restored. Landing on a dummy nobody owns (Forward onto a leftover) skips it
+ * without reopening overlays. Landing on a dummy that is still needed only
+ * resyncs session state; closed overlays stay closed.
  */
 function handleHistoryTrapPopState(event: PopStateEvent) {
   if (handledEvents.has(event)) return
@@ -200,7 +245,7 @@ function handleHistoryTrapPopState(event: PopStateEvent) {
     return
   }
 
-  if (target && !wantsDummy()) {
+  if (target && !needsDummy()) {
     handledEvents.add(event)
     event.stopImmediatePropagation()
     restoringNavigation = true
@@ -219,7 +264,7 @@ function handleHistoryTrapPopState(event: PopStateEvent) {
 }
 
 function afterLayerChange() {
-  if (skipNextReleasePopFlag && !wantsDummy()) {
+  if (skipNextReleasePopFlag && !needsDummy()) {
     skipNextReleasePopFlag = false
     return
   }
