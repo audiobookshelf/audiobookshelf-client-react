@@ -1,4 +1,5 @@
 import {
+  isPlayerShellExpandClick,
   isPlayerShellExpandIgnoredTarget,
   isPlayerShellSwipeBlockedTarget,
   PLAYER_SWIPE_LOCK_PX,
@@ -68,5 +69,26 @@ describe('playerShellSwipe', () => {
     const authorLink = document.createElement('a')
     authorLink.append(document.createTextNode('Jane Austen'))
     expect(isPlayerShellExpandIgnoredTarget(authorLink.firstChild)).to.equal(true)
+
+    const modal = document.createElement('div')
+    modal.setAttribute('data-abs-modal', '')
+    const backdrop = document.createElement('div')
+    modal.append(backdrop)
+    expect(isPlayerShellExpandIgnoredTarget(backdrop)).to.equal(true)
+  })
+
+  it('does not expand the mini player from portaled overlay clicks', () => {
+    const shell = document.createElement('div')
+    const chrome = document.createElement('span')
+    chrome.className = 'player-duration'
+    shell.append(chrome)
+
+    const modal = document.createElement('div')
+    modal.setAttribute('data-abs-modal', '')
+    const backdrop = document.createElement('div')
+    modal.append(backdrop)
+
+    expect(isPlayerShellExpandClick(chrome, shell)).to.equal(true)
+    expect(isPlayerShellExpandClick(backdrop, shell)).to.equal(false)
   })
 })
