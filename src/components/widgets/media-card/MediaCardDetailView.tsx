@@ -3,9 +3,8 @@
 import SkeletonBar from '@/components/ui/SkeletonBar'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
+import PodcastRssStatusDetails from '@/components/widgets/media-card/PodcastRssStatusDetails'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { useUser } from '@/contexts/UserContext'
-import { getHumanReadableCronExpression } from '@/lib/cron'
 import type { LibraryItem } from '@/types/api'
 import { useId } from 'react'
 import { formatSortLine } from './formatSortLine'
@@ -48,7 +47,6 @@ export default function MediaCardDetailView({
   isSkeleton = false
 }: MediaCardDetailViewProps) {
   const t = useTypeSafeTranslations()
-  const { serverSettings } = useUser()
   const descriptionId = useId()
 
   return (
@@ -90,16 +88,8 @@ export default function MediaCardDetailView({
         </p>
       )}
       {podcastRssStatus && !isSkeleton && (
-        <div cy-id="podcast-rss-status" className="text-foreground-muted" style={{ fontSize: `${0.8}em` }}>
-          <p className="truncate">{podcastRssStatus.hasFeed ? t('LabelPodcastFeedConfigured') : t('LabelPodcastFeedMissing')}</p>
-          <p className="truncate">
-            {podcastRssStatus.autoDownloadEnabled ? t('LabelPodcastAutoDownloadEnabled') : t('LabelPodcastAutoDownloadDisabled')}
-          </p>
-          {podcastRssStatus.autoDownloadEnabled && podcastRssStatus.autoDownloadSchedule && (
-            <p className="truncate">
-              {t('LabelScheduleHeading')} {getHumanReadableCronExpression(podcastRssStatus.autoDownloadSchedule, serverSettings?.language || 'en')}
-            </p>
-          )}
+        <div style={{ fontSize: `${0.8}em` }}>
+          <PodcastRssStatusDetails status={podcastRssStatus} cyId="podcast-rss-status" />
         </div>
       )}
       {orderBy &&

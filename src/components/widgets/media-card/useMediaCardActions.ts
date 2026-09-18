@@ -33,6 +33,7 @@ import {
   type MediaItemShare,
   type MediaProgress,
   type PodcastEpisode,
+  type PodcastMedia,
   isBookMedia,
   isBookMediaWithTracks,
   isPersonalizedSeriesRef
@@ -627,7 +628,9 @@ export function useMediaCardActions({
       })
     }
 
-    if (userIsAdminOrUp && isPodcast && !episode) {
+    const podcastHasSourceFeed = isPodcast && !episode && Boolean((media as PodcastMedia).metadata.feedUrl)
+
+    if (userIsAdminOrUp && podcastHasSourceFeed) {
       // Keep the operation-specific handlers reusable for the grouped modal and future bulk UI.
       items.push({
         text: t('LabelPodcastRssActions'),
