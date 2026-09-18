@@ -8,6 +8,7 @@ import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemMetadataEditModal, { type MetadataEditSection } from '@/components/modals/LibraryItemMetadataEditModal'
 import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
 import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
+import PodcastRssActionsModal from '@/components/modals/PodcastRssActionsModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
@@ -384,6 +385,7 @@ function MediaCard(props: MediaCardProps) {
     isPending,
     confirmState,
     rssFeedModalOpen,
+    podcastRssActionsModalOpen,
     scheduleModalOpen,
     checkNewEpisodesModalOpen,
     shareModalOpen,
@@ -392,6 +394,7 @@ function MediaCard(props: MediaCardProps) {
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
+    closePodcastRssActionsModal,
     closeScheduleModal,
     closeCheckNewEpisodesModal,
     closeShareModal,
@@ -666,6 +669,15 @@ function MediaCard(props: MediaCardProps) {
         />
       )}
       {isPodcast && scheduleModalOpen && <PodcastDownloadScheduleModal isOpen={scheduleModalOpen} onClose={closeScheduleModal} libraryItem={libraryItem} />}
+      {isPodcast && (
+        <PodcastRssActionsModal
+          isOpen={podcastRssActionsModalOpen}
+          onClose={closePodcastRssActionsModal}
+          onOpenSchedule={() => handleMoreAction('openSchedule')}
+          onFindEpisodes={() => router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)}
+          onCheckNewEpisodes={() => handleMoreAction('openCheckNewEpisodes')}
+        />
+      )}
       {isPodcast && checkNewEpisodesModalOpen && (
         <PodcastCheckNewEpisodesModal isOpen={checkNewEpisodesModalOpen} onClose={closeCheckNewEpisodesModal} libraryItem={libraryItem} />
       )}

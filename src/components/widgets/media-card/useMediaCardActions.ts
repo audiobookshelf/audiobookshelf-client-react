@@ -102,6 +102,8 @@ export function useMediaCardActions({
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
+  // The grouped RSS entry point is separate from the operation-specific modal state below.
+  const [podcastRssActionsModalOpen, setPodcastRssActionsModalOpen] = useState(false)
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
   const [checkNewEpisodesModalOpen, setCheckNewEpisodesModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
@@ -243,6 +245,8 @@ export function useMediaCardActions({
         setShareModalOpen(true)
       } else if (action === 'openRssFeed') {
         setRssFeedModalOpen(true)
+      } else if (action === 'openPodcastRssActions') {
+        setPodcastRssActionsModalOpen(true)
       } else if (action === 'openSchedule') {
         setScheduleModalOpen(true)
       } else if (action === 'openCheckNewEpisodes') {
@@ -624,13 +628,10 @@ export function useMediaCardActions({
     }
 
     if (userIsAdminOrUp && isPodcast && !episode) {
+      // Keep the operation-specific handlers reusable for the grouped modal and future bulk UI.
       items.push({
-        text: t('ButtonCheckForNewEpisodes'),
-        func: 'openCheckNewEpisodes'
-      })
-      items.push({
-        text: t('HeaderSchedule'),
-        func: 'openSchedule'
+        text: t('LabelPodcastRssActions'),
+        func: 'openPodcastRssActions'
       })
     }
 
@@ -699,6 +700,10 @@ export function useMediaCardActions({
     setRssFeedModalOpen(false)
   }, [])
 
+  const closePodcastRssActionsModal = useCallback(() => {
+    setPodcastRssActionsModalOpen(false)
+  }, [])
+
   const closeScheduleModal = useCallback(() => {
     setScheduleModalOpen(false)
   }, [])
@@ -732,6 +737,7 @@ export function useMediaCardActions({
     isPending,
     confirmState,
     rssFeedModalOpen,
+    podcastRssActionsModalOpen,
     scheduleModalOpen,
     checkNewEpisodesModalOpen,
     shareModalOpen,
@@ -740,6 +746,7 @@ export function useMediaCardActions({
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
+    closePodcastRssActionsModal,
     closeScheduleModal,
     closeCheckNewEpisodesModal,
     closeShareModal,
