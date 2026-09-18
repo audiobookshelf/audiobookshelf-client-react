@@ -15,11 +15,18 @@ export function isPlayerShellSwipeBlockedTarget(target: EventTarget | null): boo
   return Boolean(el.closest('input, textarea, select'))
 }
 
-/** Mini-player background tap should not steal clicks from controls, links, or the seek bar. */
+/** Mini-player background tap should not steal clicks from controls, links, the seek bar, or modals. */
 export function isPlayerShellExpandIgnoredTarget(target: EventTarget | null): boolean {
   const el = eventTargetElement(target)
   if (!el) return false
-  return Boolean(el.closest('button, a, input, textarea, select, [role="button"], [role="slider"]'))
+  return Boolean(el.closest('button, a, input, textarea, select, [role="button"], [role="slider"], [data-abs-modal]'))
+}
+
+/** True when a mini-player click landed on empty chrome inside the shell, not a portal or control. */
+export function isPlayerShellExpandClick(target: EventTarget | null, shell: HTMLElement | null): boolean {
+  const el = eventTargetElement(target)
+  if (!el || !shell?.contains(el)) return false
+  return !isPlayerShellExpandIgnoredTarget(target)
 }
 
 export function shouldLockPlayerShellHorizontalSeek(dx: number, dy: number): boolean {
