@@ -94,7 +94,7 @@ export default function CollectionEditModal({ isOpen, collection, onClose, onSav
     <>
       <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
         <div className="flex max-h-[90vh] flex-col">
-          <div className="space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
+          <div className="space-y-4 overflow-y-auto p-4 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row">
               <div className="flex justify-center sm:justify-start">
                 <CollectionGroupCover books={collection.books ?? []} width={coverWidth} height={coverHeight} />

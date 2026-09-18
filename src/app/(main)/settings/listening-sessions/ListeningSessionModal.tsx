@@ -113,7 +113,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
       >
         {currentSession && (
           <div className="flex max-h-[80vh] flex-col">
-            <div className="overflow-y-auto p-6">
+            <div className="overflow-y-auto p-4 sm:p-6">
               <div className="flex items-baseline gap-4">
                 {currentSession.libraryId && currentSession.libraryItemId ? (
                   <Link

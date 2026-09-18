@@ -54,8 +54,8 @@ export default function PlayerSettingsModal({ isOpen, settings, hasChapters, onC
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-md md:max-w-md lg:max-w-md">
-      <div className="max-h-[80vh] w-full overflow-y-auto p-4">
-        <div className="flex flex-col gap-5">
+      <div className="max-h-[80vh] w-full overflow-y-auto p-4 sm:p-6">
+        <div className="flex flex-col gap-4">
           {/* Use chapter track toggle — hidden when the current item has no chapters */}
           {hasChapters && <ToggleSwitch value={settings.useChapterTrack} label={t('LabelUseChapterTrack')} onChange={handleUseChapterTrackChange} />}
 

@@ -129,7 +129,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} processing={processing}>
       <div className="flex max-h-[90vh] flex-col">
-        <div className="overflow-y-auto px-4 py-6 text-sm sm:px-6">
+        <div className="overflow-y-auto p-4 text-sm sm:p-6">
           {currentFeed ? (
             <div className="flex flex-col gap-4">
               <p className="text-lg font-semibold">{viewMode ? t('HeaderRSSDetails') : t('HeaderRSSFeedIsOpen')}</p>

@@ -1,3 +1,4 @@
+import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useAuthorActions } from '@/hooks/useAuthorActions'
@@ -7,7 +8,6 @@ import { useEffect, useMemo, useState, useTransition } from 'react'
 import AuthorImage from '../covers/AuthorImage'
 import Modal from '../modals/Modal'
 import ModalFooter from '../modals/ModalFooter'
-import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '../ui/Btn'
 import IconBtn from '../ui/IconBtn'
 import SlateEditor from '../ui/SlateEditor'
@@ -125,7 +125,7 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
         outerContent={<ModalOuterContent title={author.name}>{author.name}</ModalOuterContent>}
       >
         <div className="flex max-h-[90vh] flex-col">
-          <div className="overflow-y-auto px-4 py-6 sm:px-6">
+          <div className="overflow-y-auto p-4 sm:p-6">
             <div className="flex h-full w-full flex-col sm:flex-row">
               <div className="flex w-full shrink-0 justify-center p-2 sm:block sm:w-40">
                 <div className="relative h-40 w-32 sm:h-45 sm:w-full">

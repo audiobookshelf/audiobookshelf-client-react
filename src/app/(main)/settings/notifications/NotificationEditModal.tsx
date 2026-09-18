@@ -121,7 +121,7 @@ export default function NotificationEditModal({ isOpen, notification, notificati
   return (
     <Modal isOpen={isOpen} processing={isPending} onClose={onClose} outerContent={outerContentTitle} className="w-[800px]">
       <div className="flex max-h-[90vh] flex-col">
-        <div className="flex flex-col gap-2 overflow-y-auto px-4 py-6 sm:px-6">
+        <div className="flex flex-col gap-2 overflow-y-auto p-4 sm:p-6">
           <Dropdown label={t('LabelNotificationEvent')} items={eventOptions} value={formState.eventName} disabled={isPending} onChange={handleEventChange} />
 
           <MultiSelect
