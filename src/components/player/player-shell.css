@@ -182,6 +182,12 @@
   padding-inline-start: 0.25rem;
 }
 
+/* Loop copy exists for scrolling but must not take layout until a cycle runs. */
+.player-author-marquee .marquee-loop-gap,
+.player-author-marquee .marquee-loop-copy {
+  display: none;
+}
+
 .player-shell:not(.fullscreen) .player-title-link {
   align-self: start;
   width: max-content;
