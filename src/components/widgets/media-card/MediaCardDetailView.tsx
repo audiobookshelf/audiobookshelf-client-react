@@ -4,9 +4,12 @@ import SkeletonBar from '@/components/ui/SkeletonBar'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { useUser } from '@/contexts/UserContext'
+import { getHumanReadableCronExpression } from '@/lib/cron'
 import type { LibraryItem } from '@/types/api'
 import { useId } from 'react'
 import { formatSortLine } from './formatSortLine'
+import type { PodcastRssStatusSummary } from './podcastRssStatus'
 
 interface MediaCardDetailViewProps {
   displayTitle: string
@@ -22,6 +25,8 @@ interface MediaCardDetailViewProps {
   lastUpdated: number | null
   startedAt: number | null
   finishedAt: number | null
+  /** Read-only RSS/fetch state for a podcast library-item card. */
+  podcastRssStatus?: PodcastRssStatusSummary
   isSkeleton?: boolean
 }
 
@@ -39,9 +44,11 @@ export default function MediaCardDetailView({
   lastUpdated,
   startedAt,
   finishedAt,
+  podcastRssStatus,
   isSkeleton = false
 }: MediaCardDetailViewProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
   const descriptionId = useId()
 
   return (
@@ -80,6 +87,19 @@ export default function MediaCardDetailView({
       ) : (
         <p cy-id="line2" className="text-foreground-muted truncate" style={{ fontSize: `${0.8}em` }}>
           {displayLineTwo || '\u00A0'}
+        </p>
+      )}
+      {podcastRssStatus && !isSkeleton && (
+        <p cy-id="podcast-rss-status" className="text-foreground-muted truncate" style={{ fontSize: `${0.8}em` }}>
+          {podcastRssStatus.hasFeed ? t('LabelPodcastFeedConfigured') : t('LabelPodcastFeedMissing')}
+          {' · '}
+          {podcastRssStatus.autoDownloadEnabled ? t('LabelPodcastAutoDownloadEnabled') : t('LabelPodcastAutoDownloadDisabled')}
+          {podcastRssStatus.autoDownloadEnabled && podcastRssStatus.autoDownloadSchedule && (
+            <>
+              {' · '}
+              {getHumanReadableCronExpression(podcastRssStatus.autoDownloadSchedule, serverSettings?.language || 'en')}
+            </>
+          )}
         </p>
       )}
       {orderBy &&
