@@ -90,17 +90,17 @@ export default function MediaCardDetailView({
         </p>
       )}
       {podcastRssStatus && !isSkeleton && (
-        <p cy-id="podcast-rss-status" className="text-foreground-muted truncate" style={{ fontSize: `${0.8}em` }}>
-          {podcastRssStatus.hasFeed ? t('LabelPodcastFeedConfigured') : t('LabelPodcastFeedMissing')}
-          {' · '}
-          {podcastRssStatus.autoDownloadEnabled ? t('LabelPodcastAutoDownloadEnabled') : t('LabelPodcastAutoDownloadDisabled')}
+        <div cy-id="podcast-rss-status" className="text-foreground-muted" style={{ fontSize: `${0.8}em` }}>
+          <p className="truncate">{podcastRssStatus.hasFeed ? t('LabelPodcastFeedConfigured') : t('LabelPodcastFeedMissing')}</p>
+          <p className="truncate">
+            {podcastRssStatus.autoDownloadEnabled ? t('LabelPodcastAutoDownloadEnabled') : t('LabelPodcastAutoDownloadDisabled')}
+          </p>
           {podcastRssStatus.autoDownloadEnabled && podcastRssStatus.autoDownloadSchedule && (
-            <>
-              {' · '}
-              {getHumanReadableCronExpression(podcastRssStatus.autoDownloadSchedule, serverSettings?.language || 'en')}
-            </>
+            <p className="truncate">
+              {t('LabelScheduleHeading')} {getHumanReadableCronExpression(podcastRssStatus.autoDownloadSchedule, serverSettings?.language || 'en')}
+            </p>
           )}
-        </p>
+        </div>
       )}
       {orderBy &&
         (() => {
