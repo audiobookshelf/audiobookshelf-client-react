@@ -10,6 +10,7 @@ import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
+import { usePlayerCoverAspectRatio } from '@/hooks/usePlayerCoverAspectRatio'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
@@ -23,6 +24,13 @@ interface QueueItemsModalProps {
   isOpen: boolean
   zIndexClass?: string
   onClose: () => void
+}
+
+const QUEUE_COVER_HEIGHT = 48
+
+function QueueItemCover({ libraryId, src }: { libraryId: string; src: string }) {
+  const bookCoverAspectRatio = usePlayerCoverAspectRatio(libraryId)
+  return <PreviewCover src={src} width={QUEUE_COVER_HEIGHT / bookCoverAspectRatio} showResolution={false} bookCoverAspectRatio={bookCoverAspectRatio} />
 }
 
 export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueItemsModalProps) {
@@ -234,7 +242,7 @@ export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueI
                 className={mergeClasses('group col-span-full grid grid-cols-subgrid items-center px-4 py-2', getRowClassName(item, index))}
               >
                 <div className="pe-2">
-                  <PreviewCover src={coverSrc} width={48} showResolution={false} />
+                  <QueueItemCover libraryId={item.libraryId} src={coverSrc} />
                 </div>
                 <div className="min-w-0 px-2">{renderQueueItemText(item)}</div>
                 <div className="justify-self-end ps-1">{renderQueueItemActions(item, index)}</div>
