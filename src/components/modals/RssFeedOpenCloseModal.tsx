@@ -131,11 +131,11 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
       <div className="flex max-h-[90vh] flex-col">
         <div className="overflow-y-auto px-4 py-6 text-sm sm:px-6">
           {currentFeed ? (
-            <>
-              <p className="mb-4 text-lg font-semibold">{viewMode ? t('HeaderRSSDetails') : t('HeaderRSSFeedIsOpen')}</p>
-              <TextInput value={fullFeedUrl} readOnly showCopy className="text-sm" />
+            <div className="flex flex-col gap-4">
+              <p className="text-lg font-semibold">{viewMode ? t('HeaderRSSDetails') : t('HeaderRSSFeedIsOpen')}</p>
+              <TextInput value={fullFeedUrl} readOnly showCopy />
               {meta && (
-                <div className="mt-4 space-y-2">
+                <div className="flex flex-col gap-2">
                   <div className="flex items-center">
                     <span className="text-foreground-subdued w-48 shrink-0 text-xs uppercase">{t('LabelPreventIndexingShort')}</span>
                     <span className="text-foreground">{meta.preventIndexing ? 'Yes' : 'No'}</span>
@@ -157,7 +157,7 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
               {viewMode && (
                 <>
                   {currentFeed.episodes && currentFeed.episodes.length > 0 ? (
-                    <div className="border-border mt-6 max-h-[300px] overflow-y-auto rounded-md border">
+                    <div className="border-border max-h-[300px] overflow-y-auto rounded-md border">
                       <table className="w-full border-collapse text-sm">
                         <thead className="bg-table-header-bg sticky top-0">
                           <tr className="border-border border-b">
@@ -174,47 +174,38 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
                       </table>
                     </div>
                   ) : (
-                    <div className="text-foreground-muted mt-6 text-sm">{t('MessageNoEpisodes')}</div>
+                    <div className="text-foreground-muted text-sm">{t('MessageNoEpisodes')}</div>
                   )}
                 </>
               )}
-            </>
+            </div>
           ) : (
-            <>
-              <p className="mb-4 text-lg font-semibold">{t('HeaderOpenRSSFeed')}</p>
-              <div className="mb-2 space-y-2">
-                <label className="text-foreground-subdued block text-xs uppercase">{t('LabelRSSFeedSlug')}</label>
-                <TextInput value={newFeedSlug} onChange={(value) => setNewFeedSlug(value)} className="text-sm" trimWhitespace />
-                <p className="text-foreground-muted text-xs">{t('MessageFeedURLWillBe', { 0: demoFeedUrl })}</p>
+            <div className="flex flex-col gap-4">
+              <p className="text-lg font-semibold">{t('HeaderOpenRSSFeed')}</p>
+              <div>
+                <TextInput label={t('LabelRSSFeedSlug')} value={newFeedSlug} onChange={(value) => setNewFeedSlug(value)} trimWhitespace />
+                <p className="text-foreground-muted mt-1 px-1 text-xs">{t('MessageFeedURLWillBe', { 0: demoFeedUrl })}</p>
               </div>
-              <div className="space-y-3 py-2">
-                <Checkbox
-                  value={metadataDetails.preventIndexing}
-                  onChange={(checked) => setMetadataDetails((prev) => ({ ...prev, preventIndexing: checked }))}
-                  label={t('LabelPreventIndexing')}
-                />
-                <div>
-                  <label className="text-foreground-subdued mb-1 block text-xs uppercase">{t('LabelRSSFeedCustomOwnerName')}</label>
-                  <TextInput
-                    value={metadataDetails.ownerName}
-                    onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerName: value }))}
-                    className="text-sm"
-                    trimWhitespace
-                  />
-                </div>
-                <div>
-                  <label className="text-foreground-subdued mb-1 block text-xs uppercase">{t('LabelRSSFeedCustomOwnerEmail')}</label>
-                  <TextInput
-                    value={metadataDetails.ownerEmail}
-                    onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerEmail: value }))}
-                    className="text-sm"
-                    trimWhitespace
-                  />
-                </div>
-              </div>
-              {isHttp && <p className="text-warning pt-2 text-xs">{t('NoteRSSFeedPodcastAppsHttps')}</p>}
-              {hasEpisodesWithoutPubDate && <p className="text-warning pt-2 text-xs">{t('NoteRSSFeedPodcastAppsPubDate')}</p>}
-            </>
+              <Checkbox
+                value={metadataDetails.preventIndexing}
+                onChange={(checked) => setMetadataDetails((prev) => ({ ...prev, preventIndexing: checked }))}
+                label={t('LabelPreventIndexing')}
+              />
+              <TextInput
+                label={t('LabelRSSFeedCustomOwnerName')}
+                value={metadataDetails.ownerName}
+                onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerName: value }))}
+                trimWhitespace
+              />
+              <TextInput
+                label={t('LabelRSSFeedCustomOwnerEmail')}
+                value={metadataDetails.ownerEmail}
+                onChange={(value) => setMetadataDetails((prev) => ({ ...prev, ownerEmail: value }))}
+                trimWhitespace
+              />
+              {isHttp && <p className="text-warning text-xs">{t('NoteRSSFeedPodcastAppsHttps')}</p>}
+              {hasEpisodesWithoutPubDate && <p className="text-warning text-xs">{t('NoteRSSFeedPodcastAppsPubDate')}</p>}
+            </div>
           )}
         </div>
         {userIsAdminOrUp && !viewMode && currentFeed && (
