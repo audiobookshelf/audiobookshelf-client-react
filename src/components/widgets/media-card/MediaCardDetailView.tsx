@@ -3,10 +3,12 @@
 import SkeletonBar from '@/components/ui/SkeletonBar'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import ExplicitIndicator from '@/components/widgets/ExplicitIndicator'
+import PodcastRssStatusDetails from '@/components/widgets/media-card/PodcastRssStatusDetails'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { LibraryItem } from '@/types/api'
 import { useId } from 'react'
 import { formatSortLine } from './formatSortLine'
+import type { PodcastRssStatusSummary } from './podcastRssStatus'
 
 interface MediaCardDetailViewProps {
   displayTitle: string
@@ -22,6 +24,8 @@ interface MediaCardDetailViewProps {
   lastUpdated: number | null
   startedAt: number | null
   finishedAt: number | null
+  /** Read-only RSS/fetch state for a podcast library-item card. */
+  podcastRssStatus?: PodcastRssStatusSummary
   isSkeleton?: boolean
 }
 
@@ -39,6 +43,7 @@ export default function MediaCardDetailView({
   lastUpdated,
   startedAt,
   finishedAt,
+  podcastRssStatus,
   isSkeleton = false
 }: MediaCardDetailViewProps) {
   const t = useTypeSafeTranslations()
@@ -81,6 +86,11 @@ export default function MediaCardDetailView({
         <p cy-id="line2" className="text-foreground-muted truncate" style={{ fontSize: `${0.8}em` }}>
           {displayLineTwo || '\u00A0'}
         </p>
+      )}
+      {podcastRssStatus && !isSkeleton && (
+        <div style={{ fontSize: `${0.8}em` }}>
+          <PodcastRssStatusDetails status={podcastRssStatus} cyId="podcast-rss-status" />
+        </div>
       )}
       {orderBy &&
         (() => {

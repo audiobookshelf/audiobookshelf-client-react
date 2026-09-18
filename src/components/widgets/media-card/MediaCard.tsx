@@ -8,6 +8,7 @@ import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemMetadataEditModal, { type MetadataEditSection } from '@/components/modals/LibraryItemMetadataEditModal'
 import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
 import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
+import PodcastRssActionsModal from '@/components/modals/PodcastRssActionsModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
@@ -18,6 +19,7 @@ import MediaCardDetailView from '@/components/widgets/media-card/MediaCardDetail
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaCardOverlay from '@/components/widgets/media-card/MediaCardOverlay'
 import type { SortableBookshelfCardOptions } from '@/components/widgets/media-card/SortableBookshelfCard'
+import { getPodcastRssStatusSummary } from '@/components/widgets/media-card/podcastRssStatus'
 import { useBookshelfSelectionOptional } from '@/contexts/BookshelfSelectionContext'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
@@ -353,6 +355,9 @@ function MediaCard(props: MediaCardProps) {
     return author || ''
   })()
 
+  /** Only show the parent podcast's RSS state on podcast library-item cards, not episode cards. */
+  const podcastRssStatus = isPodcast && !episode ? getPodcastRssStatusSummary(media as PodcastMedia) : undefined
+
   const titleCleaned = !title ? '' : title.length > 60 ? `${title.slice(0, 57)}...` : title
   const authorCleaned = !author ? '' : author.length > 30 ? `${author.slice(0, 27)}...` : author
 
@@ -384,6 +389,7 @@ function MediaCard(props: MediaCardProps) {
     isPending,
     confirmState,
     rssFeedModalOpen,
+    podcastRssActionsModalOpen,
     scheduleModalOpen,
     checkNewEpisodesModalOpen,
     shareModalOpen,
@@ -392,6 +398,7 @@ function MediaCard(props: MediaCardProps) {
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
+    closePodcastRssActionsModal,
     closeScheduleModal,
     closeCheckNewEpisodesModal,
     closeShareModal,
@@ -587,6 +594,7 @@ function MediaCard(props: MediaCardProps) {
               lastUpdated={lastUpdated}
               startedAt={startedAt}
               finishedAt={finishedAt}
+              podcastRssStatus={podcastRssStatus}
             />
           )
         }
@@ -666,6 +674,15 @@ function MediaCard(props: MediaCardProps) {
         />
       )}
       {isPodcast && scheduleModalOpen && <PodcastDownloadScheduleModal isOpen={scheduleModalOpen} onClose={closeScheduleModal} libraryItem={libraryItem} />}
+      {isPodcast && (
+        <PodcastRssActionsModal
+          isOpen={podcastRssActionsModalOpen}
+          onClose={closePodcastRssActionsModal}
+          onOpenSchedule={() => handleMoreAction('openSchedule')}
+          onFindEpisodes={() => router.push(`/library/${libraryItem.libraryId}/item/${libraryItem.id}`)}
+          onCheckNewEpisodes={() => handleMoreAction('openCheckNewEpisodes')}
+        />
+      )}
       {isPodcast && checkNewEpisodesModalOpen && (
         <PodcastCheckNewEpisodesModal isOpen={checkNewEpisodesModalOpen} onClose={closeCheckNewEpisodesModal} libraryItem={libraryItem} />
       )}
