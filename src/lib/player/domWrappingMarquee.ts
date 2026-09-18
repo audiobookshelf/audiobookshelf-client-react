@@ -2,6 +2,8 @@ const SCROLL_DELAY_MS = 2000
 const SCROLL_SPEED_MS_PER_PX = 30
 
 export const MARQUEE_LOOP_GAP_SPACES = 15
+export const MARQUEE_LOOP_GAP_CLASS = 'marquee-loop-gap'
+export const MARQUEE_LOOP_COPY_CLASS = 'marquee-loop-copy'
 
 function setMask(el: HTMLElement, showLeft: boolean) {
   el.style.maskImage = showLeft ? 'linear-gradient(90deg, transparent 0%, #fff 10%, #000 90%, transparent)' : 'linear-gradient(90deg, #000 90%, transparent)'
@@ -14,7 +16,8 @@ export function wrappingMarqueeCycleDistance(segmentStart: number, cloneStart: n
 
 /**
  * Marquee for a DOM segment (e.g. React-rendered links) without replacing innerHTML.
- * The loop copy is a second React subtree so Next.js Link clicks stay in-app.
+ * The loop copy stays in the React tree so Next.js Link clicks stay in-app, but it is
+ * hidden until a scroll cycle actually runs — otherwise short names appear twice.
  */
 export class DomWrappingMarquee {
   private container: HTMLElement
@@ -30,12 +33,22 @@ export class DomWrappingMarquee {
     this.track = track
     this.segment = segment
     this.loopCopy = loopCopy
+    this.setLoopVisible(false)
+  }
+
+  private setLoopVisible(visible: boolean) {
+    this.loopCopy.style.display = visible ? 'inline-block' : 'none'
+    const gap = this.loopCopy.previousElementSibling
+    if (gap instanceof HTMLElement) {
+      gap.style.display = visible ? 'inline' : 'none'
+    }
   }
 
   startScroll() {
     if (this.isScrolling) return
 
     this.isScrolling = true
+    this.setLoopVisible(true)
     setMask(this.container, true)
 
     const textScrollAmount = this.segment.offsetWidth
@@ -46,6 +59,7 @@ export class DomWrappingMarquee {
 
     if (totalScrollAmount <= 0) {
       this.isScrolling = false
+      this.setLoopVisible(false)
       setMask(this.container, false)
       return
     }
@@ -72,6 +86,7 @@ export class DomWrappingMarquee {
       if (!this.isScrolling || done) {
         this.isScrolling = false
         this.track.style.transform = 'translateX(0px)'
+        this.setLoopVisible(false)
         setMask(this.container, false)
         if (done) {
           this.startTimer()
@@ -105,6 +120,7 @@ export class DomWrappingMarquee {
       this.animationId = null
     }
     this.track.style.transform = 'translateX(0px)'
+    this.setLoopVisible(false)
   }
 
   init() {

@@ -3,7 +3,7 @@
 import AuthorLinks from '@/components/widgets/AuthorLinks'
 import { useDomMarquee } from '@/hooks/useDomMarquee'
 import { formatList } from '@/lib/formatList'
-import { MARQUEE_LOOP_GAP_SPACES } from '@/lib/player/domWrappingMarquee'
+import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES } from '@/lib/player/domWrappingMarquee'
 import { useLocale } from 'next-intl'
 import { memo, useMemo, useRef } from 'react'
 
@@ -45,10 +45,10 @@ function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, onNavi
         <span ref={segmentRef} className="inline-block whitespace-nowrap">
           <PlayerAuthorNames libraryId={libraryId} bookAuthors={bookAuthors} podcastAuthor={podcastAuthor} onNavigate={onNavigate} />
         </span>
-        <span className="pointer-events-none whitespace-pre" aria-hidden>
+        <span className={`${MARQUEE_LOOP_GAP_CLASS} pointer-events-none hidden whitespace-pre`} aria-hidden>
           {'\u00A0'.repeat(MARQUEE_LOOP_GAP_SPACES)}
         </span>
-        <span ref={loopCopyRef} className="inline-block whitespace-nowrap" aria-hidden>
+        <span ref={loopCopyRef} className={`${MARQUEE_LOOP_COPY_CLASS} hidden whitespace-nowrap`} aria-hidden>
           <PlayerAuthorNames libraryId={libraryId} bookAuthors={bookAuthors} podcastAuthor={podcastAuthor} onNavigate={onNavigate} tabIndex={-1} />
         </span>
       </div>
