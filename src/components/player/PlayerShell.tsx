@@ -176,7 +176,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             compact={landscapeDensity.compactTitle}
           />
 
-          <div className="player-track-stack">
+          <div className={mergeClasses('player-track-stack', showBookTrack && 'player-track-stack--dual')}>
             <div className="player-track player-track-primary">
               <PlayerTrackBar playerHandler={playerHandler} chapterLabelPlacement={chapterLabelPlacement} deferTouchSeekToShellGestures />
             </div>
