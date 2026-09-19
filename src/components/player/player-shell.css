@@ -369,6 +369,8 @@
   position: static;
   inset: auto;
   bottom: auto;
+  /* Keep chapter timestamps grouped with the chapter slider, not the book track. */
+  gap: 1rem;
 }
 
 .player-track {
