@@ -16,6 +16,7 @@ import { closePlayerSecondaryPopovers } from '@/lib/player/secondaryPopovers'
 import { LibraryItem } from '@/types/api'
 import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import IconBtn from '../ui/IconBtn'
+import './player-shell.css'
 import PlayerCover from './PlayerCover'
 import PlayerModals from './PlayerModals'
 import PlayerSecondaryToolbar from './PlayerSecondaryToolbar'
@@ -23,7 +24,6 @@ import PlayerTitleAuthor, { type PlayerMetadataDisplay } from './PlayerTitleAuth
 import PlayerTrackBar from './PlayerTrackBar'
 import PlayerTransportControls from './PlayerTransportControls'
 import { usePlayerControlsState } from './usePlayerControlsState'
-import './player-shell.css'
 
 interface PlayerShellProps {
   playerHandler: PlayerHandler
