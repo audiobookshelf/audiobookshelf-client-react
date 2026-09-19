@@ -5,8 +5,8 @@ import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
-import { PLAYER_SWIPE_LOCK_PX, shouldLockPlayerShellHorizontalSeek, shouldLockPlayerShellSwipe } from '@/lib/player/playerShellSwipe'
 import { usePlayerProgress } from '@/lib/player/playerProgressStore'
+import { PLAYER_SWIPE_LOCK_PX, shouldLockPlayerShellHorizontalSeek, shouldLockPlayerShellSwipe } from '@/lib/player/playerShellSwipe'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -350,100 +350,102 @@ export default function PlayerTrackBar({
   ) : null
 
   return (
-    <div>
+    <div className="player-track-bar">
       {showChapterLabelAbove ? <div className="player-track-chapter-header mb-1">{chapterLabel}</div> : null}
-      <div className="relative">
-        <div
-          ref={trackRef}
-          role="slider"
-          tabIndex={0}
-          aria-label={sliderLabel}
-          aria-valuemin={0}
-          aria-valuemax={Math.max(0, Math.round(effectiveDuration))}
-          aria-valuenow={Math.max(0, Math.round(playedTime))}
-          aria-valuetext={`${currentTimeFormatted} / ${Math.round(playedPercent)}%`}
-          className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
-          style={{ touchAction: 'none' }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={cancelDrag}
-          onPointerLeave={handlePointerLeave}
-          onKeyDown={handleKeyDown}
-        >
-          {isHlsTranscode && (
-            <div
-              className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-              style={{ width: `${transcodeReadyPercent}%` }}
-            />
-          )}
+      <div className="player-track-core">
+        <div className="player-track-slider-block relative">
           <div
-            className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-            style={{ width: `${bufferedPercent}%` }}
-          />
-          <div
-            className={mergeClasses(
-              'bg-track-progress pointer-events-none absolute top-0 left-0 h-full',
-              dragPreviewTime == null && 'transition-[width] duration-75'
+            ref={trackRef}
+            role="slider"
+            tabIndex={0}
+            aria-label={sliderLabel}
+            aria-valuemin={0}
+            aria-valuemax={Math.max(0, Math.round(effectiveDuration))}
+            aria-valuenow={Math.max(0, Math.round(playedTime))}
+            aria-valuetext={`${currentTimeFormatted} / ${Math.round(playedPercent)}%`}
+            className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
+            style={{ touchAction: 'none' }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={endDrag}
+            onPointerCancel={cancelDrag}
+            onPointerLeave={handlePointerLeave}
+            onKeyDown={handleKeyDown}
+          >
+            {isHlsTranscode && (
+              <div
+                className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
+                style={{ width: `${transcodeReadyPercent}%` }}
+              />
             )}
-            style={{ width: `${playedPercent}%` }}
-          />
+            <div
+              className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
+              style={{ width: `${bufferedPercent}%` }}
+            />
+            <div
+              className={mergeClasses(
+                'bg-track-progress pointer-events-none absolute top-0 left-0 h-full',
+                dragPreviewTime == null && 'transition-[width] duration-75'
+              )}
+              style={{ width: `${playedPercent}%` }}
+            />
+            <div
+              ref={trackCursorRef}
+              className={mergeClasses(
+                'bg-track-progress pointer-events-none absolute top-0 left-0 h-full w-0.5 transition-opacity duration-100',
+                isHovering ? 'opacity-100' : 'opacity-0'
+              )}
+            />
+            {isLoading && (
+              <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
+            )}
+          </div>
+
+          {!inChapterScope ? (
+            <div className="relative h-1 w-full overflow-hidden">
+              {chapterTicks.map((tick, index) => (
+                <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
+              ))}
+            </div>
+          ) : null}
+
           <div
-            ref={trackCursorRef}
+            ref={hoverTimestampRef}
             className={mergeClasses(
-              'bg-track-progress pointer-events-none absolute top-0 left-0 h-full w-0.5 transition-opacity duration-100',
+              'bg-foreground text-background pointer-events-none absolute -top-8 left-0 z-10 rounded-full transition-opacity duration-100',
               isHovering ? 'opacity-100' : 'opacity-0'
             )}
-          />
-          {isLoading && (
-            <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
-          )}
-        </div>
-
-        {!inChapterScope ? (
-          <div className="relative h-2 w-full overflow-hidden">
-            {chapterTicks.map((tick, index) => (
-              <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
-            ))}
+          >
+            <p ref={hoverTimestampTextRef} className="truncate px-2 py-0.5 text-center font-mono text-xs whitespace-nowrap">
+              00:00
+            </p>
           </div>
-        ) : null}
 
-        <div
-          ref={hoverTimestampRef}
-          className={mergeClasses(
-            'bg-foreground text-background pointer-events-none absolute -top-8 left-0 z-10 rounded-full transition-opacity duration-100',
-            isHovering ? 'opacity-100' : 'opacity-0'
-          )}
-        >
-          <p ref={hoverTimestampTextRef} className="truncate px-2 py-0.5 text-center font-mono text-xs whitespace-nowrap">
-            00:00
+          <div
+            ref={hoverTimestampArrowRef}
+            className={mergeClasses(
+              'bg-foreground text-background pointer-events-none absolute -top-3.5 left-0 rounded-full transition-opacity duration-100',
+              isHovering ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            <div className="absolute right-0 -bottom-1.5 left-0 flex w-full justify-center">
+              <div className="border-t-foreground h-0 w-0 border-t-4 border-r-4 border-l-4 border-r-transparent border-l-transparent" />
+            </div>
+          </div>
+        </div>
+        <div className="player-track-timestamps flex items-center justify-between gap-3">
+          <p className="text-foreground-muted shrink-0 font-mono">
+            {currentTimeFormatted}
+            {' / '}
+            {Math.round(playedPercent)}%
           </p>
-        </div>
-
-        <div
-          ref={hoverTimestampArrowRef}
-          className={mergeClasses(
-            'bg-foreground text-background pointer-events-none absolute -top-3.5 left-0 rounded-full transition-opacity duration-100',
-            isHovering ? 'opacity-100' : 'opacity-0'
+          {showChapterLabelBelow ? (
+            <div className="flex min-w-0 flex-1 items-center justify-center sm:max-w-none">{chapterLabel}</div>
+          ) : (
+            <span className="flex-1" />
           )}
-        >
-          <div className="absolute right-0 -bottom-1.5 left-0 flex w-full justify-center">
-            <div className="border-t-foreground h-0 w-0 border-t-4 border-r-4 border-l-4 border-r-transparent border-l-transparent" />
-          </div>
+          <p className="text-foreground-muted shrink-0 font-mono">{timeRemainingFormatted}</p>
         </div>
-      </div>
-      <div className="mt-0.5 flex items-center justify-between gap-3">
-        <p className="text-foreground-muted shrink-0 font-mono">
-          {currentTimeFormatted}
-          {' / '}
-          {Math.round(playedPercent)}%
-        </p>
-        {showChapterLabelBelow ? (
-          <div className="flex min-w-0 flex-1 items-center justify-center sm:max-w-none">{chapterLabel}</div>
-        ) : (
-          <span className="flex-1" />
-        )}
-        <p className="text-foreground-muted shrink-0 font-mono">{timeRemainingFormatted}</p>
       </div>
     </div>
   )

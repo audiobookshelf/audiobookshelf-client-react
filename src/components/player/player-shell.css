@@ -365,6 +365,23 @@
   gap: 0.375rem;
 }
 
+/* Chapter + book tracks: same core height (slider + ticks + timestamp row) without a phantom tick row. */
+.player-track-stack--dual .player-track-core {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(0.75rem + 1.25rem);
+}
+
+.player-track-stack--dual .player-track-slider-block {
+  flex: 1 0 auto;
+  min-height: 0.75rem;
+}
+
+.player-track-stack--dual .player-track-timestamps {
+  flex: 0 0 auto;
+  min-height: 1.25rem;
+}
+
 .player-shell.fullscreen .player-track-stack {
   position: static;
   inset: auto;
