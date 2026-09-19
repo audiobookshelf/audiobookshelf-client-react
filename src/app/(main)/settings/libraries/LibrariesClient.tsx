@@ -1,8 +1,9 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { registerLibrariesCoverAspectRatio } from '@/lib/player/libraryCoverAspectRatioRegistry'
 import { Library } from '@/types/api'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import SettingsContent from '../SettingsContent'
 import { createLibrary, editLibrary, saveLibraryOrder } from './actions'
 import LibrariesList from './LibrariesList'
@@ -17,6 +18,10 @@ export default function LibrariesClient({ libraries }: LibraryClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingLibrary, setEditingLibrary] = useState<Library | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  useEffect(() => {
+    registerLibrariesCoverAspectRatio(libraries)
+  }, [libraries])
 
   const handleAddLibrary = useCallback(() => {
     setEditingLibrary(null)
