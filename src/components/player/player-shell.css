@@ -22,6 +22,8 @@
   --cover-image-width-collapsed: 56px;
   --cover-image-height-collapsed: 56px;
   --player-mini-transport-width: 8.75rem;
+  /** Gap between cover and title on mini (mobile: after cover; desktop lg: both sides of title vs cover/transport). */
+  --player-mini-title-inline-gap: 0.5rem;
   --player-mini-top-pad: 0.5rem;
   --player-mini-content-top: 0.5rem;
   --player-mini-track-block: 3.75rem;
@@ -143,8 +145,8 @@
 .player-title-author {
   position: absolute;
   z-index: 3;
-  inset-inline-start: calc(0.5rem + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + 0.5rem);
-  inset-inline-end: calc(var(--player-mini-transport-width) + 0.25rem + var(--player-safe-inline-end));
+  inset-inline-start: calc(0.5rem + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap));
+  inset-inline-end: calc(var(--player-mini-transport-width) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
   top: var(--player-mini-content-top);
   height: auto;
   min-height: var(--cover-image-height-collapsed);
@@ -627,6 +629,9 @@
     --cover-image-width-collapsed: 4rem;
     --cover-image-height-collapsed: 4rem;
     --player-mini-track-block: 4rem;
+    --player-mini-title-inline-gap: 0.75rem;
+    /* Half of centered desktop mini transport row (5×2.5rem + 4×1rem gap). */
+    --player-mini-transport-cluster-half: 8.5rem;
   }
 
   .player-shell:not(.fullscreen) .player-cover {
@@ -635,9 +640,10 @@
   }
 
   .player-shell:not(.fullscreen) .player-title-author {
-    inset-inline-start: calc(1rem + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + 0.75rem);
-    inset-inline-end: auto;
-    width: 28%;
+    inset-inline-start: calc(1rem + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap));
+    inset-inline-end: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
+    width: auto;
+    max-width: none;
     top: 0.5rem;
     height: auto;
     min-height: var(--cover-image-height-collapsed);
@@ -748,8 +754,8 @@
 /* Compact mini chrome between lg and xl so centered transport and the
    right-hand toolbar do not overlap around ~1100px. */
 @media (min-width: 1024px) and (max-width: 1279px) {
-  .player-shell:not(.fullscreen) .player-title-author {
-    width: 24%;
+  .player-shell:not(.fullscreen) {
+    --player-mini-transport-cluster-half: 7.25rem;
   }
 
   .player-shell:not(.fullscreen) .player-transport-slot {
