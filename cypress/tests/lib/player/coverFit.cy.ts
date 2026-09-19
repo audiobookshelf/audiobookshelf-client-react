@@ -14,7 +14,7 @@ import {
 } from '@/lib/player/coverFit'
 
 describe('coverFit', () => {
-  it('uses 56px mini covers on mobile and 77px on desktop', () => {
+  it('uses 56px mini covers on mobile and 64px on desktop', () => {
     expect(miniCoverSize(1, false)).to.deep.equal({ width: COVER_WIDTH_MINI_MOBILE, height: COVER_WIDTH_MINI_MOBILE })
     expect(miniCoverSize(1.6, false)).to.deep.equal({
       width: Math.round(COVER_WIDTH_MINI_MOBILE / 1.6),
