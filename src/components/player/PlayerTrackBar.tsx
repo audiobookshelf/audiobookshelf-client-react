@@ -400,11 +400,13 @@ export default function PlayerTrackBar({
           )}
         </div>
 
-        <div className={mergeClasses('relative h-2 w-full overflow-hidden', inChapterScope ? 'opacity-0' : '')}>
-          {chapterTicks.map((tick, index) => (
-            <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
-          ))}
-        </div>
+        {!inChapterScope ? (
+          <div className="relative h-2 w-full overflow-hidden">
+            {chapterTicks.map((tick, index) => (
+              <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
+            ))}
+          </div>
+        ) : null}
 
         <div
           ref={hoverTimestampRef}
