@@ -220,12 +220,14 @@ export default function GeneralSettingsClient() {
             label={t('LabelSettingsChromecastSupport')}
             value={serverSettings?.chromecastEnabled}
             onChange={(value) => handleSettingChanged('chromecastEnabled', value)}
+            tooltip={t('LabelSettingsChromecastSupportHelp')}
           />
 
           <SettingsToggleSwitch
             label={t('LabelSettingsAllowIframe')}
             value={serverSettings?.allowIframe}
             onChange={(value) => handleSettingChanged('allowIframe', value)}
+            tooltip={t('LabelSettingsAllowIframeHelp')}
           />
         </div>
       </div>
