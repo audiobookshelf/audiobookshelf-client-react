@@ -1,6 +1,7 @@
 export const PLAYER_DESKTOP_MIN_WIDTH = 1024
 export const COVER_WIDTH_MINI_MOBILE = 56
-export const COVER_WIDTH_MINI_DESKTOP = 77
+/** Desktop mini player cover height (width derived from library aspect ratio). */
+export const COVER_WIDTH_MINI_DESKTOP = 64
 /** Desktop portrait fullscreen: matches `player-shell.css` (75% / 48rem on controls). */
 export const DESKTOP_FULLSCREEN_CONTENT_WIDTH_RATIO = 0.75
 export const DESKTOP_FULLSCREEN_CONTENT_MAX_WIDTH_PX = 768

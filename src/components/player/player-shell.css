@@ -615,25 +615,33 @@
 
 @media (min-width: 1024px) {
   :root {
-    --media-player-mini-height: calc(10rem + var(--player-safe-bottom));
+    --cover-image-height-collapsed: 4rem;
+    --player-mini-track-block: 4rem;
+    --media-player-mini-height: calc(
+      var(--player-mini-content-top) + var(--cover-image-height-collapsed) + var(--player-mini-track-block) + var(--player-safe-bottom)
+    );
   }
 
   .player-shell {
     --player-mini-content-top: 0.5rem;
+    --cover-image-width-collapsed: 4rem;
+    --cover-image-height-collapsed: 4rem;
+    --player-mini-track-block: 4rem;
   }
 
-  .player-cover {
+  .player-shell:not(.fullscreen) .player-cover {
     inset-inline-start: calc(1rem + var(--player-safe-inline-start));
     top: 0.5rem;
   }
 
-  .player-title-author {
+  .player-shell:not(.fullscreen) .player-title-author {
     inset-inline-start: calc(1rem + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + 0.75rem);
     inset-inline-end: auto;
     width: 28%;
     top: 0.5rem;
     height: auto;
-    min-height: 0;
+    min-height: var(--cover-image-height-collapsed);
+    justify-content: flex-start;
   }
 
   .player-title-author .player-title {
@@ -659,14 +667,15 @@
     bottom: calc(0.75rem + var(--player-safe-bottom));
   }
 
-  .player-transport-slot {
+  .player-shell:not(.fullscreen) .player-transport-slot {
     inset-inline: 0;
     inset-inline-end: 0;
-    top: 2.5rem;
+    top: var(--player-mini-content-top);
     bottom: auto;
     width: 100%;
-    height: auto;
+    height: var(--cover-image-height-collapsed);
     padding-inline-end: 0;
+    align-items: center;
     justify-content: center;
   }
 
@@ -696,12 +705,14 @@
     pointer-events: auto;
   }
 
-  .player-toolbar-slot {
+  .player-shell:not(.fullscreen) .player-toolbar-slot {
     inset-inline: auto;
     inset-inline-end: calc(1rem + 2.25rem + 0.5rem + var(--player-safe-inline-end));
     bottom: auto;
-    top: 2.5rem;
+    top: var(--player-mini-content-top);
+    height: var(--cover-image-height-collapsed);
     width: auto;
+    align-items: center;
     justify-content: flex-end;
     opacity: 1;
     visibility: visible;
