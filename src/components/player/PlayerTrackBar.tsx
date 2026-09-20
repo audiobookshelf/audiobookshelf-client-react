@@ -401,13 +401,12 @@ export default function PlayerTrackBar({
             )}
           </div>
 
-          {!inChapterScope ? (
-            <div className="relative h-1 w-full overflow-hidden">
-              {chapterTicks.map((tick, index) => (
-                <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
-              ))}
-            </div>
-          ) : null}
+          {/* Keep the tick row in layout so chapter and book slider blocks stay the same height. */}
+          <div className="relative h-1 w-full overflow-hidden">
+            {chapterTicks.map((tick, index) => (
+              <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
+            ))}
+          </div>
 
           <div
             ref={hoverTimestampRef}
