@@ -6,7 +6,7 @@ export default function SettingsFooter() {
   const t = useTypeSafeTranslations()
 
   return (
-    <div className="mx-auto mb-8 flex w-full max-w-4xl items-center px-2 md:px-6">
+    <div className="mx-auto mb-8 flex w-full max-w-4xl flex-wrap items-center justify-center gap-y-2 px-2 md:px-6">
       <div className="grow" />
       <p className="pr-2 text-sm text-yellow-400">
         {t.rich('MessageReportBugsAndContributeGithub', {

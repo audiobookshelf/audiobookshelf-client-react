@@ -119,7 +119,7 @@ export default function LibraryScannerTab({ settings, onSettingsChange }: Librar
         </span>
       </div>
       <div className="w-8 min-w-8 py-1 text-center">{source.include ? getSourcePriority(source.id) : ''}</div>
-      <div className="inline-flex grow items-center justify-between px-2 py-3 text-sm sm:px-4 sm:text-base">
+      <div className="inline-flex min-w-0 grow items-center justify-between px-2 py-3 text-sm sm:px-4 sm:text-base">
         {source.name}
         {source.include && (index === firstActiveIndex || index === lastActiveIndex) && (
           <span className="text-foreground-subdued hidden px-2 text-xs font-semibold italic sm:inline-block">

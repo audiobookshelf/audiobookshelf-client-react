@@ -180,9 +180,9 @@ function LogsRow({ log, isEven }: { log: LoggerDataLog; isEven: boolean }) {
   const logLevelColor = getLogLevelColor(log.levelName)
   return (
     <div className={`flex items-start gap-2 p-2 ${isEven ? 'bg-table-row-bg-even' : ''}`}>
-      <div className="text-foreground-subdued w-36 text-xs leading-5">{log.timestamp}</div>
-      <div className={`w-12 text-xs leading-5 ${logLevelColor}`}>{log.levelName}</div>
-      <div className={`text-sm ${log.level < 2 ? 'text-foreground-subdued' : 'text-foreground'} w-[calc(100%-13rem)]`}>{log.message}</div>
+      <div className="text-foreground-subdued w-36 shrink-0 text-xs leading-5">{log.timestamp}</div>
+      <div className={`w-12 shrink-0 text-xs leading-5 ${logLevelColor}`}>{log.levelName}</div>
+      <div className={`min-w-0 flex-1 text-sm ${log.level < 2 ? 'text-foreground-subdued' : 'text-foreground'}`}>{log.message}</div>
     </div>
   )
 }

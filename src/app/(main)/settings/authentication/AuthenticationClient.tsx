@@ -166,7 +166,7 @@ export default function AuthenticationClient({ initialSettings, routerBasePath =
           {enableOpenIDAuth && <OpenIdAuthSettings settings={authSettings} onChange={setAuthSettings} disabled={isPending} routerBasePath={routerBasePath} />}
         </div>
 
-        <div className="flex w-full items-center justify-between p-4">
+        <div className="flex w-full flex-wrap items-center justify-between gap-3 p-4">
           {enableOpenIDAuth ? <p className="text-warning text-sm">{t('MessageAuthenticationOIDCChangesRestart')}</p> : <span />}
           <Btn type="submit" loading={isPending} disabled={!hasUpdates || isPending}>
             {t('ButtonSave')}

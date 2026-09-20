@@ -102,7 +102,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[calc(100vw-1rem)] md:max-w-[700px]">
       <div className="flex max-h-[90vh] flex-col">
         <div className="overflow-y-auto px-4 py-6 sm:px-6">
           {/* Name and Expires In Section */}
