@@ -1,10 +1,13 @@
 'use client'
 
+import ChapterSegment from '@/components/player/ChapterSegment'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
-import { usePlayerProgress } from '@/lib/player/playerProgressStore'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
+import { formatChapterSegmentLabel, getChapterSegments, isActiveChapterSegment } from '@/lib/player/getChapterMarkers'
+import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
@@ -13,12 +16,8 @@ interface PlayerTrackBarProps {
   variant?: 'full' | 'mobile-collapsed'
 }
 
-interface ChapterTick {
-  title: string
-  left: number
-}
-
 export default function PlayerTrackBar({ playerHandler, variant = 'full' }: PlayerTrackBarProps) {
+  const t = useTypeSafeTranslations()
   const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
   const { seek } = playerHandler.controls
   const { playbackRate, useChapterTrack } = settings
@@ -39,6 +38,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
   const [trackWidth, setTrackWidth] = useState(0)
   const [trackOffsetLeft, setTrackOffsetLeft] = useState(16)
   const [isHovering, setIsHovering] = useState(false)
+  const [hoveredSegmentStart, setHoveredSegmentStart] = useState<number | null>(null)
 
   // Chapter duration and start for chapter-mode display
   const currentChapterDuration = currentChapter ? currentChapter.end - currentChapter.start : 0
@@ -66,17 +66,9 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
   const bufferedPercent = effectiveDuration ? Math.min(100, (bufferedTimeAdjusted / effectiveDuration) * 100) : 0
   const transcodeReadyPercent = isHlsTranscode ? Math.min(100, transcodePercentReady * 100) : 0
 
-  // Chapter ticks for display (only visible when not in chapter mode)
-  const chapterTicks = useMemo<ChapterTick[]>(() => {
-    if (!duration || trackWidth === 0) return []
-    return chapters.map((chapter) => {
-      const perc = chapter.start / duration
-      return {
-        title: chapter.title,
-        left: perc * trackWidth
-      }
-    })
-  }, [chapters, duration, trackWidth])
+  // Segmented chapter track (full duration). Hidden in chapter-track mode so the bar stays a normal seek slider.
+  const chapterSegments = useMemo(() => (useChapterTrack ? [] : getChapterSegments(chapters, duration)), [useChapterTrack, chapters, duration])
+  const hasChapterSegments = chapterSegments.length > 0
 
   // Measure track width on mount and resize
   const measureTrack = useCallback(() => {
@@ -106,7 +98,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
       if (!rect) return
 
       const offsetX = e.clientX - rect.left
-      const perc = offsetX / trackWidth
+      const perc = Math.max(0, Math.min(1, offsetX / trackWidth))
       const baseTime = useChapterTrack ? currentChapterStart : 0
       const dur = useChapterTrack ? currentChapterDuration : duration
       const time = baseTime + perc * dur
@@ -133,6 +125,7 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
       const dur = useChapterTrack ? currentChapterDuration : duration
       const progressTime = (offsetX / trackWidth) * dur
       const totalTime = baseTime + progressTime
+      const hoveredSegment = chapterSegments.find((segment, index) => isActiveChapterSegment(segment, totalTime, index === chapterSegments.length - 1))
 
       // Position hover timestamp
       if (hoverTimestampRef.current) {
@@ -159,10 +152,13 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
       if (hoverTimestampTextRef.current) {
         let hoverText = secondsToTimestamp(progressTime / effectivePlaybackRate)
 
-        // Find chapter at hover position and add title
-        const chapter = chapters.find((ch) => ch.start <= totalTime && totalTime < ch.end)
-        if (chapter?.title) {
-          hoverText += ` - ${chapter.title}`
+        if (hoveredSegment) {
+          hoverText += ` - ${formatChapterSegmentLabel(hoveredSegment.number, hoveredSegment.title, t('LabelChapterNumber', { 0: hoveredSegment.number }))}`
+        } else {
+          const chapter = chapters.find((ch) => ch.start <= totalTime && totalTime < ch.end)
+          if (chapter?.title) {
+            hoverText += ` - ${chapter.title}`
+          }
         }
 
         hoverTimestampTextRef.current.innerText = hoverText
@@ -173,14 +169,16 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
         trackCursorRef.current.style.left = `${offsetX - 1}px`
       }
 
+      setHoveredSegmentStart(hoveredSegment?.start ?? null)
       setIsHovering(true)
     },
-    [trackWidth, trackOffsetLeft, useChapterTrack, currentChapterStart, currentChapterDuration, duration, effectivePlaybackRate, chapters]
+    [trackWidth, trackOffsetLeft, useChapterTrack, currentChapterStart, currentChapterDuration, duration, effectivePlaybackRate, chapters, chapterSegments, t]
   )
 
   // Handle mouse leave
   const handleMouseLeave = useCallback(() => {
     setIsHovering(false)
+    setHoveredSegmentStart(null)
   }, [])
 
   const isMobileCollapsed = variant === 'mobile-collapsed'
@@ -188,50 +186,63 @@ export default function PlayerTrackBar({ playerHandler, variant = 'full' }: Play
   return (
     <div>
       <div className="relative">
-        {/* Track */}
-        <div
-          ref={trackRef}
-          className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onClick={handleTrackClick}
-        >
-          {/* HLS transcode ready track (server-side segment progress) */}
-          {isHlsTranscode && (
-            <div
-              className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-              style={{ width: `${transcodeReadyPercent}%` }}
-            />
-          )}
-          {/* Buffer track */}
+        {/* Track; extra vertical padding enlarges the chapter hit target without thickening the bar. */}
+        <div className={mergeClasses('relative', hasChapterSegments ? 'py-1.5' : '')}>
           <div
-            className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-            style={{ width: `${bufferedPercent}%` }}
-          />
-          {/* Played track */}
-          <div
-            className="bg-track-progress pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-            style={{ width: `${playedPercent}%` }}
-          />
-          {/* Track cursor (vertical line on hover) */}
-          <div
-            ref={trackCursorRef}
+            ref={trackRef}
+            cy-id="player-track"
             className={mergeClasses(
-              'bg-track-progress pointer-events-none absolute top-0 left-0 h-full w-0.5 transition-opacity duration-100',
-              isHovering ? 'opacity-100' : 'opacity-0'
+              'bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden',
+              hasChapterSegments ? '' : 'transition-transform duration-100 hover:scale-y-125'
             )}
-          />
-          {/* Loading animation - sliding shimmer effect */}
-          {isLoading && (
-            <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onClick={handleTrackClick}
+          >
+            {/* HLS transcode ready track (server-side segment progress) */}
+            {isHlsTranscode && (
+              <div
+                className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 z-[1] h-full transition-[width] duration-75"
+                style={{ width: `${transcodeReadyPercent}%` }}
+              />
+            )}
+            {/* Buffer track */}
+            <div
+              className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 z-[1] h-full transition-[width] duration-75"
+              style={{ width: `${bufferedPercent}%` }}
+            />
+            {/* Played track */}
+            <div
+              className="bg-track-progress pointer-events-none absolute top-0 left-0 z-[1] h-full transition-[width] duration-75"
+              style={{ width: `${playedPercent}%` }}
+            />
+            {/* Track cursor (vertical line on hover) */}
+            <div
+              ref={trackCursorRef}
+              className={mergeClasses(
+                'bg-track-progress pointer-events-none absolute top-0 left-0 z-[3] h-full w-0.5 transition-opacity duration-100',
+                isHovering ? 'opacity-100' : 'opacity-0'
+              )}
+            />
+            {/* Loading animation - sliding shimmer effect */}
+            {isLoading && (
+              <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 z-[3] h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
+            )}
+          </div>
+          {hasChapterSegments && (
+            <div cy-id="chapter-segments" className="pointer-events-none absolute inset-x-0 top-0 z-10 h-full">
+              {chapterSegments.map((segment, index) => (
+                <ChapterSegment
+                  key={`${segment.id}-${segment.start}`}
+                  segment={segment}
+                  isActive={isActiveChapterSegment(segment, currentTime, index === chapterSegments.length - 1)}
+                  isHovered={hoveredSegmentStart === segment.start}
+                  disabled={isLoading}
+                  onSeek={seek}
+                />
+              ))}
+            </div>
           )}
-        </div>
-
-        {/* Chapter ticks */}
-        <div className={mergeClasses('relative h-2 w-full overflow-hidden', useChapterTrack ? 'opacity-0' : '')}>
-          {chapterTicks.map((tick, index) => (
-            <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
-          ))}
         </div>
 
         {/* Hover timestamp */}

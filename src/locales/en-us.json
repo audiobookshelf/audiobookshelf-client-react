@@ -346,6 +346,7 @@
   "LabelChangePassword": "Change Password",
   "LabelChannels": "Channels",
   "LabelChapterCount": "{0} Chapters",
+  "LabelChapterNumber": "Chapter {0}",
   "LabelChapterTitle": "Chapter Title",
   "LabelChapters": "Chapters",
   "LabelChaptersFound": "chapters found",
