@@ -596,8 +596,8 @@
 
   .player-shell.fullscreen .player-secondary-toolbar {
     width: 100%;
-    justify-content: space-between;
-    gap: 0;
+    justify-content: center;
+    gap: 4px;
     align-items: center;
   }
 
