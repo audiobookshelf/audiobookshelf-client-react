@@ -34,7 +34,7 @@ export default function PlayerSecondaryToolbar({ controls, className, onPlayback
   const { sleepTimerSet, remainingString } = sleepTimer
 
   return (
-    <div className={mergeClasses('player-secondary-toolbar flex flex-nowrap items-center justify-center gap-3 sm:gap-4', className)}>
+    <div className={mergeClasses('player-secondary-toolbar flex flex-nowrap items-center justify-center gap-2', className)}>
       <VolumeControl playerHandler={playerHandler} onOpenChange={onVolumeOpenChange} />
       <PlaybackRateWidget playerHandler={playerHandler} onOpenChange={onPlaybackRateOpenChange} />
       <Tooltip text={t('LabelSleepTimer')} position="top">
