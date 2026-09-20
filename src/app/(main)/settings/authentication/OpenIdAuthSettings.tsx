@@ -13,7 +13,7 @@ import { getOpenIdIssuerConfig } from './actions'
 import { getMobileAppCallbackUrl, getWebCallbackUrl, normalizeIssuerUrl } from './authenticationUtils'
 
 // classes put on <code> tags
-const authSettingsCodeClass = 'bg-foreground/10 text-foreground rounded-md px-1 py-0.5 text-xs whitespace-nowrap'
+const authSettingsCodeClass = 'bg-foreground/10 text-foreground rounded-md px-1 py-0.5 text-xs break-all'
 
 interface OpenIdAuthSettingsProps {
   settings: AuthenticationSettings
@@ -128,7 +128,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
 
   return (
     <div className="flex w-full flex-wrap pt-4">
-      <div className="mb-2 flex w-full items-center">
+      <div className="mb-2 flex w-full flex-col sm:flex-row sm:items-center">
         <div className="grow">
           <TextInput
             label={t('LabelIssuerURL')}
@@ -137,7 +137,7 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
             onChange={(value) => updateField('authOpenIDIssuerURL', value || null)}
           />
         </div>
-        <div className="mx-1 mt-[1.375rem] w-36 shrink-0">
+        <div className="mt-2 w-full sm:mx-1 sm:mt-[1.375rem] sm:w-36 sm:shrink-0">
           <Btn
             type="button"
             className="inline-flex h-[2.375rem] w-full items-center justify-center text-sm"
@@ -308,27 +308,27 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
         <p className="text-foreground-muted mt-2 text-sm sm:mt-5 sm:pl-4">{t('LabelMatchExistingUsersByDescription')}</p>
       </div>
 
-      <div className="flex w-full items-center px-1 py-4">
+      <div className="flex w-full flex-wrap items-center gap-y-2 px-1 py-4">
         <ToggleSwitch
           value={settings.authOpenIDAutoLaunch}
           disabled={disabled}
           ariaLabelledBy="auto-launch-toggle"
           onChange={(value) => updateField('authOpenIDAutoLaunch', value)}
         />
-        <p id="auto-launch-toggle" className="pl-4 whitespace-nowrap">
+        <p id="auto-launch-toggle" className="pl-4">
           {t('LabelAutoLaunch')}
         </p>
         <p className="text-foreground-muted pl-4 text-sm">{t.rich('LabelAutoLaunchDescription', richTags)}</p>
       </div>
 
-      <div className="flex w-full items-center px-1 py-4">
+      <div className="flex w-full flex-wrap items-center gap-y-2 px-1 py-4">
         <ToggleSwitch
           value={settings.authOpenIDAutoRegister}
           disabled={disabled}
           ariaLabelledBy="auto-register-toggle"
           onChange={(value) => updateField('authOpenIDAutoRegister', value)}
         />
-        <p id="auto-register-toggle" className="pl-4 whitespace-nowrap">
+        <p id="auto-register-toggle" className="pl-4">
           {t('LabelAutoRegister')}
         </p>
         <p className="text-foreground-muted pl-4 text-sm">{t('LabelAutoRegisterDescription')}</p>

@@ -192,9 +192,9 @@ export default function LibraryFolderChooser({ paths, onSelect, onBack }: Librar
 
       {/* Directory browser */}
       {rootDirs.length > 0 ? (
-        <div className="bg-primary/50 relative flex min-h-0 flex-1 rounded p-4">
+        <div className="bg-primary/50 relative flex min-h-0 flex-1 flex-col rounded p-2 sm:flex-row sm:p-4">
           {/* Left column: current directories */}
-          <div className="border-bg h-full w-1/2 overflow-y-auto border-r">
+          <div className="border-bg h-1/2 w-full overflow-y-auto border-b sm:h-full sm:w-1/2 sm:border-b-0 sm:border-r">
             {level > 0 && (
               <button type="button" className="hover:bg-bg-hover flex w-full cursor-pointer items-center p-1 text-start" onClick={goBack}>
                 <span className="material-symbols fill text-yellow-200" style={{ fontSize: '1.2rem' }}>
@@ -229,7 +229,7 @@ export default function LibraryFolderChooser({ paths, onSelect, onBack }: Librar
           </div>
 
           {/* Right column: subdirectories */}
-          <div className="h-full w-1/2 overflow-y-auto">
+          <div className="h-1/2 w-full overflow-y-auto sm:h-full sm:w-1/2">
             {displaySubdirs.map((dir) => (
               <button
                 type="button"

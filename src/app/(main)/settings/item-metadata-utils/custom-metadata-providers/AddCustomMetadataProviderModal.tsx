@@ -67,7 +67,7 @@ export default function AddCustomMetadataProviderModal({ isOpen, onClose, onSubm
   const outerContentTitle = <ModalOuterContent>{t('HeaderAddCustomMetadataProvider')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} processing={processing} onClose={handleClose} outerContent={outerContentTitle} className="w-[700px]">
+    <Modal isOpen={isOpen} processing={processing} onClose={handleClose} outerContent={outerContentTitle} className="w-[calc(100vw-1rem)] md:max-w-[700px]">
       <div className="flex max-h-[90vh] flex-col">
         <div className="overflow-y-auto p-4 sm:p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:gap-6">

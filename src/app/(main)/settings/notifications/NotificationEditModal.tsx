@@ -119,7 +119,7 @@ export default function NotificationEditModal({ isOpen, notification, notificati
   const urlItems = formState.urls.map((url) => ({ value: url, content: url }))
 
   return (
-    <Modal isOpen={isOpen} processing={isPending} onClose={onClose} outerContent={outerContentTitle} className="w-[800px]">
+    <Modal isOpen={isOpen} processing={isPending} onClose={onClose} outerContent={outerContentTitle} className="w-[calc(100vw-1rem)] md:max-w-[800px]">
       <div className="flex max-h-[90vh] flex-col">
         <div className="flex flex-col gap-2 overflow-y-auto p-4 sm:p-6">
           <Dropdown label={t('LabelNotificationEvent')} items={eventOptions} value={formState.eventName} disabled={isPending} onChange={handleEventChange} />

@@ -41,12 +41,11 @@ export default function SettingsCachePurge({ purgeCache, purgeItemsCache }: Sett
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-4xl items-center px-2 py-4 md:px-6">
-        <div className="grow" />
-        <Btn size="small" className="mr-2 text-xs md:text-sm" loading={isPending} disabled={isPending} onClick={() => setShowPurgeAllDialog(true)}>
+      <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-end gap-2 px-2 py-4 md:px-6">
+        <Btn size="small" className="text-xs md:text-sm" loading={isPending} disabled={isPending} onClick={() => setShowPurgeAllDialog(true)}>
           {t('ButtonPurgeAllCache')}
         </Btn>
-        <Btn size="small" className="mr-2 text-xs md:text-sm" loading={isPending} disabled={isPending} onClick={() => setShowPurgeItemsDialog(true)}>
+        <Btn size="small" className="text-xs md:text-sm" loading={isPending} disabled={isPending} onClick={() => setShowPurgeItemsDialog(true)}>
           {t('ButtonPurgeItemsCache')}
         </Btn>
       </div>

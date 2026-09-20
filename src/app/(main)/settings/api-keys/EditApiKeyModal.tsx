@@ -99,7 +99,7 @@ export default function EditApiKeyModal({ isOpen, apiKey, users, onClose, onSubm
   const outerContentTitle = <ModalOuterContent>{isEditing ? t('HeaderUpdateApiKey') : t('HeaderNewApiKey')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px]">
+    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[calc(100vw-1rem)] md:max-w-[700px]">
       <div className="flex max-h-[90vh] flex-col">
         <div className="overflow-y-auto p-4 sm:p-6">
           {/* Name and Expires In Section */}

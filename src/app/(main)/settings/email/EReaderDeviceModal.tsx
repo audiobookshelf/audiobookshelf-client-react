@@ -139,7 +139,7 @@ export default function EReaderDeviceModal({ isOpen, device, existingDevices, us
   const outerContentTitle = <ModalOuterContent>{isEditing ? t('ButtonEditDevice') : t('ButtonAddDevice')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} processing={isPending} onClose={onClose} outerContent={outerContentTitle} className="w-[800px]">
+    <Modal isOpen={isOpen} processing={isPending} onClose={onClose} outerContent={outerContentTitle} className="w-[calc(100vw-1rem)] md:max-w-[800px]">
       <div className="flex max-h-[90vh] flex-col">
         <div className="overflow-y-auto p-4 sm:p-6">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

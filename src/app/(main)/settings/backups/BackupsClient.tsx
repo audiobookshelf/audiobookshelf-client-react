@@ -249,7 +249,7 @@ export default function BackupsClient({ backupResponse, appliedBackupToast = fal
           />
           {!!backupSchedule && (
             <div className="pl-6">
-              <div className="flex gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <div>
                   <CronExpressionPreview cronExpression={backupSchedule as string} />
                 </div>

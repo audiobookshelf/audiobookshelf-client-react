@@ -137,7 +137,7 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
           items={markAsFinishedItems}
           value={markAsFinishedMode}
           onChange={handleMarkAsFinishedModeChange}
-          className="min-w-xs"
+          className="w-full sm:w-auto"
         />
         <div className="relative">
           <TextInput
