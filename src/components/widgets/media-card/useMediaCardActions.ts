@@ -33,6 +33,7 @@ import {
   type MediaItemShare,
   type MediaProgress,
   type PodcastEpisode,
+  type PodcastMedia,
   isBookMedia,
   isBookMediaWithTracks,
   isPersonalizedSeriesRef
@@ -102,8 +103,8 @@ export function useMediaCardActions({
   const [isPending, startTransition] = useTransition()
   const [confirmState, setConfirmState] = useState<ConfirmState | null>(null)
   const [rssFeedModalOpen, setRssFeedModalOpen] = useState(false)
-  const [scheduleModalOpen, setScheduleModalOpen] = useState(false)
-  const [checkNewEpisodesModalOpen, setCheckNewEpisodesModalOpen] = useState(false)
+  // Both podcast cards and item pages host the grouped RSS manager.
+  const [podcastRssActionsModalOpen, setPodcastRssActionsModalOpen] = useState(false)
   const [shareModalOpen, setShareModalOpen] = useState(false)
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
   const [playlistsModalOpen, setPlaylistsModalOpen] = useState(false)
@@ -243,15 +244,8 @@ export function useMediaCardActions({
         setShareModalOpen(true)
       } else if (action === 'openRssFeed') {
         setRssFeedModalOpen(true)
-      } else if (action === 'openSchedule') {
-        setScheduleModalOpen(true)
-      } else if (action === 'openCheckNewEpisodes') {
-        const feedUrl = 'feedUrl' in media.metadata ? media.metadata.feedUrl : undefined
-        if (!feedUrl) {
-          showToast(t('ToastPodcastNoRssFeed'), { type: 'error' })
-          return
-        }
-        setCheckNewEpisodesModalOpen(true)
+      } else if (action === 'openPodcastRssActions') {
+        setPodcastRssActionsModalOpen(true)
       } else if (action === 'showMatchModal') {
         onOpenMatch?.()
       } else if (action === 'downloadEpisode') {
@@ -623,14 +617,13 @@ export function useMediaCardActions({
       })
     }
 
-    if (userIsAdminOrUp && isPodcast && !episode) {
+    const podcastHasSourceFeed = isPodcast && !episode && Boolean((media as PodcastMedia).metadata.feedUrl)
+
+    if (userIsAdminOrUp && podcastHasSourceFeed) {
+      // Keep the operation-specific handlers reusable for the grouped modal and future bulk UI.
       items.push({
-        text: t('ButtonCheckForNewEpisodes'),
-        func: 'openCheckNewEpisodes'
-      })
-      items.push({
-        text: t('HeaderSchedule'),
-        func: 'openSchedule'
+        text: t('LabelPodcastRssActions'),
+        func: 'openPodcastRssActions'
       })
     }
 
@@ -699,12 +692,8 @@ export function useMediaCardActions({
     setRssFeedModalOpen(false)
   }, [])
 
-  const closeScheduleModal = useCallback(() => {
-    setScheduleModalOpen(false)
-  }, [])
-
-  const closeCheckNewEpisodesModal = useCallback(() => {
-    setCheckNewEpisodesModalOpen(false)
+  const closePodcastRssActionsModal = useCallback(() => {
+    setPodcastRssActionsModalOpen(false)
   }, [])
 
   const closeShareModal = useCallback(() => {
@@ -732,16 +721,14 @@ export function useMediaCardActions({
     isPending,
     confirmState,
     rssFeedModalOpen,
-    scheduleModalOpen,
-    checkNewEpisodesModalOpen,
+    podcastRssActionsModalOpen,
     shareModalOpen,
     collectionsModalOpen,
     playlistsModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
-    closeScheduleModal,
-    closeCheckNewEpisodesModal,
+    closePodcastRssActionsModal,
     closeShareModal,
     closeCollectionsModal,
     closePlaylistsModal,

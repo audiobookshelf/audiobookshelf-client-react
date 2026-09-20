@@ -2,8 +2,7 @@
 
 import AddToCollectionModal from '@/components/modals/AddToCollectionModal'
 import AddToPlaylistModal from '@/components/modals/AddToPlaylistModal'
-import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
-import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
+import PodcastRssActionsFeature from '@/components/modals/PodcastRssActionsFeature'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import Btn from '@/components/ui/Btn'
@@ -21,6 +20,7 @@ import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
 import { useCallback, useMemo } from 'react'
 
+/** Data and callbacks supplied by the book or podcast item page action bar. */
 interface LibraryItemActionButtonsProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
   onEdit: () => void
@@ -32,6 +32,11 @@ interface LibraryItemActionButtonsProps {
   onPlay: () => void
 }
 
+/**
+ * Renders item-page actions and the dialogs opened by their shared menu hook.
+ * Podcast RSS actions must be hosted here as well as on media cards because
+ * both surfaces expose the same `openPodcastRssActions` menu action.
+ */
 export default function LibraryItemActionButtons({
   libraryItem,
   onEdit,
@@ -74,16 +79,14 @@ export default function LibraryItemActionButtons({
     processing,
     confirmState,
     rssFeedModalOpen,
-    scheduleModalOpen,
-    checkNewEpisodesModalOpen,
+    podcastRssActionsModalOpen,
     shareModalOpen,
     collectionsModalOpen,
     playlistsModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
-    closeScheduleModal,
-    closeCheckNewEpisodesModal,
+    closePodcastRssActionsModal,
     closeShareModal,
     closeCollectionsModal,
     closePlaylistsModal,
@@ -257,9 +260,8 @@ export default function LibraryItemActionButtons({
           hasEpisodesWithoutPubDate: isPodcast && podcastEpisodes.some((ep) => !ep.pubDate)
         }}
       />
-      {isPodcast && <PodcastDownloadScheduleModal isOpen={scheduleModalOpen} onClose={closeScheduleModal} libraryItem={libraryItem as PodcastLibraryItem} />}
       {isPodcast && (
-        <PodcastCheckNewEpisodesModal isOpen={checkNewEpisodesModalOpen} onClose={closeCheckNewEpisodesModal} libraryItem={libraryItem as PodcastLibraryItem} />
+        <PodcastRssActionsFeature isOpen={podcastRssActionsModalOpen} onClose={closePodcastRssActionsModal} libraryItem={libraryItem as PodcastLibraryItem} />
       )}
       <ShareModal
         isOpen={shareModalOpen}

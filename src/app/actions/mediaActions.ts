@@ -65,6 +65,18 @@ export async function getExpandedLibraryItemAction(libraryItemId: string) {
   return api.getLibraryItem(libraryItemId, true)
 }
 
+/**
+ * Loads a complete library item with its current podcast download queue.
+ * The authenticated item API rejects inaccessible items; callers must verify
+ * the returned media type before using it in the RSS episode browser.
+ *
+ * @param libraryItemId - Podcast library item to inspect.
+ * @returns Expanded item with saved episodes and queued/active downloads.
+ */
+export async function getPodcastItemForFeedBrowserAction(libraryItemId: string) {
+  return api.getLibraryItem(libraryItemId, true, 'downloads')
+}
+
 export async function deleteLibraryItemMediaEpisodeAction(libraryItemId: string, episodeId: string, hardDelete = false) {
   return api.deleteLibraryItemMediaEpisode(libraryItemId, episodeId, hardDelete)
 }
