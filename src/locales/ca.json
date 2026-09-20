@@ -537,7 +537,7 @@
   "LabelServerYearReview": "Resum de l'any del servidor ({0})",
   "LabelSetEbookAsPrimary": "Establir com a principal",
   "LabelSetEbookAsSupplementary": "Establir com a suplementari",
-    "LabelSettingsAudiobooksOnly": "Només audiollibres",
+  "LabelSettingsAudiobooksOnly": "Només audiollibres",
   "LabelSettingsAudiobooksOnlyHelp": "En activar aquesta opció s'ignoraran els fitxers de llibre electrònic, excepte si estan dins d'una carpeta d'audiollibre; en aquest cas es marcaran com a llibres suplementaris",
   "LabelSettingsBookshelfViewHelp": "Disseny esqueomorf amb prestatgeries de fusta",
   "LabelSettingsChromecastSupport": "Compatibilitat amb Chromecast",
