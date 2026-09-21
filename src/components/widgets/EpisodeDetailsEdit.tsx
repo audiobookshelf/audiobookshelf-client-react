@@ -123,6 +123,8 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
       if (currentValue != initialValue) {
         if (currentValue !== null && currentValue !== undefined) {
           ;(payload as Record<string, unknown>)[key] = currentValue
+        } else if (key === 'pubDate') {
+          payload.pubDate = ''
         }
       }
     }
