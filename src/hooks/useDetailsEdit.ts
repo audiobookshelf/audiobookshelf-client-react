@@ -104,6 +104,17 @@ function stringArraysEqual(a: unknown[], b: unknown[]) {
   return a.length === b.length && a.every((item) => b.includes(item))
 }
 
+/** Display-only keys the details form does not edit. */
+const NON_EDITABLE_METADATA_KEYS = ['titleIgnorePrefix', 'descriptionPlain', 'publishedDate', 'authorName', 'authorNameLF', 'narratorName', 'seriesName']
+
+function omitNonEditableMetadata<T extends object>(metadata: T): T {
+  const next = { ...metadata }
+  for (const key of NON_EDITABLE_METADATA_KEYS) {
+    delete (next as Record<string, unknown>)[key]
+  }
+  return next
+}
+
 interface UseDetailsEditOptions<TDetails> {
   metadata: TDetails
   tags: string[]
@@ -134,7 +145,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 }: UseDetailsEditOptions<TDetails>) {
   const reducer = useMemo(() => createDetailsReducer<TDetails>(batchAppendLogic), [batchAppendLogic])
 
-  const normalizedMetadata = useMemo(() => applyTrimFieldsToDetails(metadata || ({} as TDetails), trimFields), [metadata, trimFields])
+  const normalizedMetadata = useMemo(() => applyTrimFieldsToDetails(omitNonEditableMetadata(metadata || ({} as TDetails)), trimFields), [metadata, trimFields])
 
   const [state, dispatch] = useReducer(reducer, { normalizedMetadata, tags }, ({ normalizedMetadata: details, tags: initialTags }) => ({
     details,
@@ -184,6 +195,8 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 
     const changedEntries = (Object.keys(details) as Array<keyof TDetails>)
       .filter((key) => {
+        if (NON_EDITABLE_METADATA_KEYS.includes(String(key))) return false
+
         const initialValue = effectiveValue(initialDetails, key)
         const currentValue = effectiveValue(details, key)
 
