@@ -53,7 +53,7 @@ const BookDetailsEdit = ({
     return {
       ...meta,
       publishedYear: /^\d+$/.test(year) ? year : undefined,
-      series: Array.isArray(meta?.series) ? meta.series : []
+      series: Array.isArray(meta?.series) ? meta.series.map((s) => ({ ...s, sequence: s.sequence || '' })) : []
     }
   }, [media.metadata])
 
