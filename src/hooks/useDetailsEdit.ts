@@ -105,7 +105,18 @@ function stringArraysEqual(a: unknown[], b: unknown[]) {
 }
 
 /** Display-only keys the details form does not edit. */
-const NON_EDITABLE_METADATA_KEYS = ['titleIgnorePrefix', 'descriptionPlain', 'publishedDate', 'authorName', 'authorNameLF', 'narratorName', 'seriesName']
+const NON_EDITABLE_METADATA_KEYS = [
+  'titleIgnorePrefix',
+  'descriptionPlain',
+  'publishedDate',
+  'authorName',
+  'authorNameLF',
+  'narratorName',
+  'seriesName',
+  'imageUrl',
+  'itunesPageUrl',
+  'itunesArtistId'
+]
 
 function omitNonEditableMetadata<T extends object>(metadata: T): T {
   const next = { ...metadata }
