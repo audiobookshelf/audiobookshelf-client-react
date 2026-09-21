@@ -9,6 +9,7 @@ import Modal, { type ModalProps } from './Modal'
 
 export interface Section {
   id: string
+  /** Keep this to a single word: the desktop rail is one icon wide, so anything longer wraps. */
   label: string
   icon: string
 }
@@ -127,7 +128,7 @@ export function SectionedModalBody({
               <span className="material-symbols text-2xl" aria-hidden>
                 {item.icon}
               </span>
-              <span className="text-sm">{item.label}</span>
+              <span className="w-full px-1 text-center text-sm leading-tight">{item.label}</span>
             </button>
           )
         })}

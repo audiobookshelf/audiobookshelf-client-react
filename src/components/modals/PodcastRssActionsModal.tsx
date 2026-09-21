@@ -33,9 +33,11 @@ export default function PodcastRssActionsModal({ isOpen, onClose, processing, re
 
   const sections = useMemo<Section[]>(
     () => [
+      // One word each: the desktop rail is one icon wide, and the same labels
+      // are used on the mobile hub and its drill-in header.
       { id: 'schedule', label: t('HeaderSchedule'), icon: 'schedule' },
-      { id: 'find-episodes', label: t('LabelFindEpisodes'), icon: 'podcasts' },
-      { id: 'check-new-episodes', label: t('ButtonCheckForNewEpisodes'), icon: 'refresh' }
+      { id: 'find-episodes', label: t('ButtonLookup'), icon: 'podcasts' },
+      { id: 'check-new-episodes', label: t('ButtonCheck'), icon: 'refresh' }
     ],
     [t]
   )

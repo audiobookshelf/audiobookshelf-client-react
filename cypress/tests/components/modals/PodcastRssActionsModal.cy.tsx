@@ -25,9 +25,10 @@ describe('PodcastRssActionsModal', () => {
 
     cy.get('[aria-label="Modal sections"]').should('be.visible')
     cy.get('[cy-id="rss-section-content"]').should('contain.text', 'Panel: schedule')
-    cy.get('[aria-label="Modal sections"]').contains('button', 'Find Episodes').click()
+    // Each section is one word, so the rail never wraps.
+    cy.get('[aria-label="Modal sections"]').contains('button', 'Lookup').click()
     cy.get('[cy-id="rss-section-content"]').should('contain.text', 'Panel: find-episodes')
-    cy.get('[aria-label="Modal sections"]').contains('button', 'Check for new episodes').click()
+    cy.get('[aria-label="Modal sections"]').contains('button', 'Check').click()
     cy.get('[cy-id="rss-section-content"]').should('contain.text', 'Panel: check-new-episodes')
   })
 
@@ -38,8 +39,8 @@ describe('PodcastRssActionsModal', () => {
     cy.get('[aria-label="Modal sections"]').should('not.exist')
     for (const [label, section] of [
       ['Schedule', 'schedule'],
-      ['Find Episodes', 'find-episodes'],
-      ['Check for new episodes', 'check-new-episodes']
+      ['Lookup', 'find-episodes'],
+      ['Check', 'check-new-episodes']
     ]) {
       cy.contains('button', label).click()
       cy.get('[cy-id="rss-section-content"]').should('contain.text', `Panel: ${section}`)
@@ -53,7 +54,7 @@ describe('PodcastRssActionsModal', () => {
     cy.mount(<ReopenableRssModal />)
 
     cy.contains('button', 'Open RSS manager').click()
-    cy.get('[aria-label="Modal sections"]').contains('button', 'Find Episodes').click()
+    cy.get('[aria-label="Modal sections"]').contains('button', 'Lookup').click()
     cy.get('[cy-id="rss-section-content"]').should('contain.text', 'Panel: find-episodes')
     cy.get('button[aria-label="Close modal"]').click()
     cy.get('[role="dialog"]').should('not.exist')
