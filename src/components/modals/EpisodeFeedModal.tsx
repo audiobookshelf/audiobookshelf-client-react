@@ -292,7 +292,7 @@ export function EpisodeFeedList({ onClose, libraryItem, episodes, downloadQueue,
     <div className={mergeClasses('flex flex-col px-4 sm:px-6', className)}>
       {episodesCleaned.length > 0 && (
         <div className="flex w-full shrink-0 gap-2 py-4">
-          <form onSubmit={handleSubmit} className="flex grow">
+          <form onSubmit={handleSubmit} className="flex min-w-0 grow">
             <TextInput
               value={search}
               onChange={setSearch}
@@ -301,7 +301,8 @@ export function EpisodeFeedList({ onClose, libraryItem, episodes, downloadQueue,
               className="mr-2 grow text-sm md:text-base"
             />
           </form>
-          <Btn className="px-4" onClick={() => setSortDescending(!sortDescending)}>
+          {/* Narrow enough to survive the mobile drill-in: the label never wraps, and the search field shrinks instead. */}
+          <Btn className="shrink-0 px-4 text-sm whitespace-nowrap md:text-base" onClick={() => setSortDescending(!sortDescending)}>
             <span className="pr-4">{t('LabelSortPubDate')}</span>
             <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-yellow-400">
               <span className="material-symbols text-xl" aria-label={sortDescending ? t('LabelSortDescending') : t('LabelSortAscending')}>
