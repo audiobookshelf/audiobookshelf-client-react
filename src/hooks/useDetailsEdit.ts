@@ -100,6 +100,10 @@ function applyTrimFieldsToDetails<TDetails extends Record<string, any>>(details:
   return next ?? details
 }
 
+function stringArraysEqual(a: unknown[], b: unknown[]) {
+  return a.length === b.length && a.every((item) => b.includes(item))
+}
+
 interface UseDetailsEditOptions<TDetails> {
   metadata: TDetails
   tags: string[]
@@ -184,6 +188,9 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         const currentValue = effectiveValue(details, key)
 
         if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
+          if (currentValue.every((item) => typeof item !== 'object')) {
+            return !stringArraysEqual(currentValue, initialValue)
+          }
           return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
         }
 
@@ -208,7 +215,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
       updatePayload.metadata = metadataUpdate
     }
 
-    if (JSON.stringify(currentTags) !== JSON.stringify(initialTags)) {
+    if (!stringArraysEqual(currentTags, initialTags)) {
       updatePayload.tags = currentTags
     }
 
