@@ -192,6 +192,11 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
           return false
         }
 
+        // Checkbox writes false; API/init may be undefined/null
+        if (typeof currentValue === 'boolean' || typeof initialValue === 'boolean') {
+          return !!currentValue !== !!initialValue
+        }
+
         return useLooseEquality ? currentValue != initialValue : currentValue !== initialValue
       })
       .map((key) => [key, effectiveValue(details, key)])
