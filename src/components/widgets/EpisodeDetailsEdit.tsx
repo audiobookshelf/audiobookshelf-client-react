@@ -121,6 +121,9 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
       const currentValue = TRIM_FIELDS.has(key) && typeof raw === 'string' ? raw.trim() : raw
       const initialRaw = initial[key]
       const initialValue = TRIM_FIELDS.has(key) && typeof initialRaw === 'string' ? initialRaw.trim() : initialRaw
+      if ((currentValue ?? '') === '' && (initialValue ?? '') === '') {
+        continue
+      }
       if (currentValue != initialValue) {
         if (currentValue !== null && currentValue !== undefined) {
           ;(payload as Record<string, unknown>)[key] = currentValue
