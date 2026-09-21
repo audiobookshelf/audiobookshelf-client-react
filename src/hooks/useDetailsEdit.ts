@@ -187,7 +187,11 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
           return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
         }
 
-        // Use loose or strict equality based on option
+        // '', null, and undefined are the same empty value (inputs write '')
+        if ((currentValue ?? '') === '' && (initialValue ?? '') === '') {
+          return false
+        }
+
         return useLooseEquality ? currentValue != initialValue : currentValue !== initialValue
       })
       .map((key) => [key, effectiveValue(details, key)])
