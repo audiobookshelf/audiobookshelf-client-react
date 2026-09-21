@@ -17,7 +17,14 @@ import { Toolbar } from './slate/Toolbar'
 
 // --- Helper Functions ---
 
+/** Empty HTML like `<p></p>` deserializes to [] or a bare text node; Slate needs a paragraph. */
+function asEditorValue(nodes: Descendant[] | null | undefined): Descendant[] {
+  const elements = nodes?.filter((n) => Element.isElement(n))
+  return elements?.length ? elements : initialValue
+}
+
 const replaceContentSilently = (editor: Editor, next: Descendant[]) => {
+  const content = asEditorValue(next)
   try {
     HistoryEditor.withoutSaving(editor, () => {
       Editor.withoutNormalizing(editor, () => {
@@ -31,7 +38,7 @@ const replaceContentSilently = (editor: Editor, next: Descendant[]) => {
         }
 
         // 3) Insert the new document
-        Transforms.insertNodes(editor, next, { at: [0] })
+        Transforms.insertNodes(editor, content, { at: [0] })
 
         // 4) Safely select the start of the doc (only if there is one)
         if (editor.children.length > 0) {
@@ -253,13 +260,7 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
       const hasHtmlTags = trimmedContent.startsWith('<') && trimmedContent.endsWith('>')
       const htmlContent = hasHtmlTags ? content : `<p>${content}</p>`
       const document = new DOMParser().parseFromString(htmlContent, 'text/html')
-      let parsed = (deserialize(document.body) as Descendant[]) || initialValue
-
-      // If deserialization resulted in empty array (e.g. all empty paragraphs filtered out),
-      // we should treat it as empty content which in Slate is a single empty paragraph
-      if (Array.isArray(parsed) && parsed.length === 0) {
-        parsed = initialValue
-      }
+      const parsed = asEditorValue(deserialize(document.body) as Descendant[])
 
       // Serialize back to HTML string
       return parsed.map(serialize).join('')
