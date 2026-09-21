@@ -7,8 +7,6 @@ import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import BookDetailsEdit, { BookDetailsEditRef, BookUpdatePayload } from '@/components/widgets/BookDetailsEdit'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import PodcastDetailsEdit, { PodcastDetailsEditRef, PodcastUpdatePayload } from '@/components/widgets/PodcastDetailsEdit'
-import PodcastRssStatusDetails from '@/components/widgets/media-card/PodcastRssStatusDetails'
-import { getPodcastRssStatusSummary } from '@/components/widgets/media-card/podcastRssStatus'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -270,8 +268,6 @@ export function LibraryItemEditModalContent({
   useImperativeHandle(closeRequestRef, () => ({ requestLeave }), [requestLeave])
 
   const isPodcast = resolvedItem?.mediaType === 'podcast'
-  /** The edit view shows the same persisted RSS state as the bookshelf card. */
-  const podcastRssStatus = isPodcast ? getPodcastRssStatusSummary((resolvedItem as PodcastLibraryItem).media) : undefined
   const saveDisabled = !hasChanges || isSavePending || !resolvedItem || fetchPending
 
   const libraryId = library.id
@@ -291,23 +287,15 @@ export function LibraryItemEditModalContent({
 
   const formInner =
     resolvedItem && isPodcast ? (
-      <>
-        {podcastRssStatus && (
-          <section cy-id="podcast-rss-status-edit" className="border-border border-b px-4 py-3">
-            <h3 className="mb-1 text-sm font-semibold">{t('HeaderPodcastRssStatus')}</h3>
-            <PodcastRssStatusDetails status={podcastRssStatus} />
-          </section>
-        )}
-        <PodcastDetailsEdit
-          key={resolvedItem.id}
-          ref={podcastDetailsRef}
-          libraryItem={resolvedItem as PodcastLibraryItem}
-          availableGenres={availableGenres}
-          availableTags={availableTags}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-        />
-      </>
+      <PodcastDetailsEdit
+        key={resolvedItem.id}
+        ref={podcastDetailsRef}
+        libraryItem={resolvedItem as PodcastLibraryItem}
+        availableGenres={availableGenres}
+        availableTags={availableTags}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
     ) : resolvedItem ? (
       <BookDetailsEdit
         key={resolvedItem.id}
