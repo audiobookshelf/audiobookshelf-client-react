@@ -209,7 +209,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         const currentValue = effectiveValue(details, key)
 
         if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-          if (currentValue.every((item) => typeof item !== 'object')) {
+          if (currentValue.every((item: unknown) => typeof item !== 'object')) {
             return !stringArraysEqual(currentValue, initialValue)
           }
           return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
