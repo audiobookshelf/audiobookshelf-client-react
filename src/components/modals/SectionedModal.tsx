@@ -128,7 +128,8 @@ export function SectionedModalBody({
               <span className="material-symbols text-2xl" aria-hidden>
                 {item.icon}
               </span>
-              <span className="w-full px-1 text-center text-sm leading-tight">{item.label}</span>
+              {/* A translated label can be one long word ("Programmation"), so break it rather than let it spill out of the rail. */}
+              <span className="w-full px-1 text-center text-sm leading-tight break-words hyphens-auto">{item.label}</span>
             </button>
           )
         })}
