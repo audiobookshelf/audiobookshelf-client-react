@@ -31,7 +31,10 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
 
-  const editMetadata = useMemo((): Details => (media.metadata as Details) || {}, [media.metadata])
+  const editMetadata = useMemo((): Details => {
+    const meta = (media.metadata as Details) || {}
+    return { ...meta, type: meta.type || 'episodic' }
+  }, [media.metadata])
   const editTags = useMemo(() => [...(media.tags || [])], [media.tags])
 
   const batchAppendLogic = useCallback(
