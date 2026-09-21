@@ -28,7 +28,7 @@ function episodeToDetails(episode: PodcastEpisode): EpisodeDetails {
   return {
     season: episode.season || '',
     episode: episode.episode || '',
-    episodeType: episode.episodeType || '',
+    episodeType: episode.episodeType || 'full',
     title: episode.title || '',
     subtitle: episode.subtitle || '',
     description: episode.description || '',
