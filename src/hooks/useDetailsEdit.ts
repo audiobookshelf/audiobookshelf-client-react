@@ -124,8 +124,6 @@ interface UseDetailsEditOptions<TDetails> {
   onChange?: (details: { libraryItemId: string; hasChanges: boolean }) => void
   onSubmit?: (details: { updatePayload: UpdatePayload<TDetails>; hasChanges: boolean }) => void
   batchAppendLogic?: (state: EditState<TDetails>, detailsToUpdate: Partial<TDetails>) => TDetails
-  /** Use loose equality (!=) instead of strict equality (!==) for change detection */
-  useLooseEquality?: boolean
   /** Trim string values for these keys when diffing and building the update payload */
   trimFields?: ReadonlyArray<keyof TDetails>
 }
@@ -140,7 +138,6 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
   onChange,
   onSubmit,
   batchAppendLogic,
-  useLooseEquality = false,
   trimFields
 }: UseDetailsEditOptions<TDetails>) {
   const reducer = useMemo(() => createDetailsReducer<TDetails>(batchAppendLogic), [batchAppendLogic])
@@ -217,7 +214,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
           return !!currentValue !== !!initialValue
         }
 
-        return useLooseEquality ? currentValue != initialValue : currentValue !== initialValue
+        return currentValue !== initialValue
       })
       .map((key) => [key, effectiveValue(details, key)])
 
@@ -236,7 +233,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
       updatePayload,
       hasChanges: Object.keys(updatePayload).length > 0
     }
-  }, [details, initialDetails, currentTags, initialTags, useLooseEquality, trimFields])
+  }, [details, initialDetails, currentTags, initialTags, trimFields])
 
   // Notify parent of changes
   const handleInputChange = useCallback(() => {

@@ -59,7 +59,6 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
     onChange,
     onSubmit,
     batchAppendLogic,
-    useLooseEquality: true,
     trimFields: PODCAST_TEXT_TRIM_FIELDS
   })
 
