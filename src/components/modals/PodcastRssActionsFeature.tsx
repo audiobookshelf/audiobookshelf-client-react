@@ -2,8 +2,8 @@
 
 import { fetchPodcastFeedAction, getPodcastItemForFeedBrowserAction } from '@/app/actions/mediaActions'
 import { EpisodeFeedList } from '@/components/modals/EpisodeFeedModal'
-import { PodcastCheckNewEpisodesForm } from '@/components/modals/PodcastCheckNewEpisodesModal'
-import { PodcastDownloadScheduleForm } from '@/components/modals/PodcastDownloadScheduleModal'
+import { PodcastCheckNewEpisodesForm } from '@/components/modals/PodcastCheckNewEpisodesForm'
+import { PodcastDownloadScheduleForm } from '@/components/modals/PodcastDownloadScheduleForm'
 import PodcastRssActionsModal, { type PodcastRssActionSection } from '@/components/modals/PodcastRssActionsModal'
 import Btn from '@/components/ui/Btn'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'

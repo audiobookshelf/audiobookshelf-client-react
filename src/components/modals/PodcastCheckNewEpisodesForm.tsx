@@ -1,9 +1,7 @@
 'use client'
 
 import { checkPodcastNewEpisodesAction, updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
-import Modal from '@/components/modals/Modal'
 import ModalFooter from '@/components/modals/ModalFooter'
-import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -12,12 +10,6 @@ import { ApiError } from '@/lib/apiErrors'
 import { timestampToDatetimeLocal } from '@/lib/datefns'
 import { isPodcastLibraryItem, type PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
-
-export interface PodcastCheckNewEpisodesModalProps {
-  isOpen: boolean
-  onClose: () => void
-  libraryItem: PodcastLibraryItem
-}
 
 const DEFAULT_MAX_EPISODES_TO_DOWNLOAD = 3
 const MAX_EPISODES_TO_DOWNLOAD_STORAGE_KEY = 'podcastCheckNewEpisodesLimit'
@@ -48,23 +40,21 @@ export interface PodcastCheckNewEpisodesFormProps {
   libraryItem: PodcastLibraryItem
   /** Called after the check completes. */
   onClose: () => void
-  /** Re-initializes the fields when the form becomes visible. */
-  isActive?: boolean
 }
 
 /**
  * Check-for-new-episodes form for one podcast.
  *
  * Owns the cut-off date, the per-check download limit and the request itself,
- * and renders no dialog chrome so it can appear either inside
- * `PodcastCheckNewEpisodesModal` or as a section of the grouped RSS manager.
+ * and renders no dialog chrome: the grouped RSS manager supplies the dialog
+ * around it.
  *
  * The limit is remembered in local storage between checks. A changed cut-off
  * date is persisted before the check runs. Server errors are surfaced with
  * their own message rather than a generic one, and the form stays open so the
  * request can be retried.
  */
-export function PodcastCheckNewEpisodesForm({ libraryItem, onClose, isActive = true }: PodcastCheckNewEpisodesFormProps) {
+export function PodcastCheckNewEpisodesForm({ libraryItem, onClose }: PodcastCheckNewEpisodesFormProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
 
@@ -83,11 +73,12 @@ export function PodcastCheckNewEpisodesForm({ libraryItem, onClose, isActive = t
     }
   }, [])
 
+  // The manager mounts this panel only while its section is selected, so
+  // mounting is what makes the fields current.
   useEffect(() => {
-    if (!isActive) return
     setLastEpisodeCheckInput(timestampToDatetimeLocal(savedLastEpisodeCheck))
     setMaxEpisodesToDownload(String(getStoredMaxEpisodesToDownload()))
-  }, [isActive, savedLastEpisodeCheck])
+  }, [savedLastEpisodeCheck])
 
   const handleSubmit = useCallback(async () => {
     if (!isPodcastLibraryItem(libraryItem) || !feedUrl || isChecking) return
@@ -170,21 +161,5 @@ export function PodcastCheckNewEpisodesForm({ libraryItem, onClose, isActive = t
         }}
       />
     </div>
-  )
-}
-
-/** Standalone dialog wrapper around {@link PodcastCheckNewEpisodesForm}. */
-export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryItem }: PodcastCheckNewEpisodesModalProps) {
-  const t = useTypeSafeTranslations()
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      outerContent={<ModalOuterContent>{t('ButtonCheckForNewEpisodes')}</ModalOuterContent>}
-      className="max-w-[400px] sm:max-w-[400px] md:max-w-[400px] lg:max-w-[400px]"
-    >
-      <PodcastCheckNewEpisodesForm libraryItem={libraryItem} onClose={onClose} isActive={isOpen} />
-    </Modal>
   )
 }

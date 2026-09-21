@@ -1,9 +1,7 @@
 'use client'
 
 import { updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
-import Modal from '@/components/modals/Modal'
 import ModalFooter from '@/components/modals/ModalFooter'
-import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
 import Alert from '@/components/widgets/Alert'
@@ -13,12 +11,6 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isPodcastLibraryItem, type PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-
-export interface PodcastDownloadScheduleModalProps {
-  isOpen: boolean
-  onClose: () => void
-  libraryItem: PodcastLibraryItem
-}
 
 function clampNonNegativeInt(value: string) {
   const parsed = Number.parseInt(value, 10)
@@ -76,9 +68,7 @@ export interface PodcastDownloadScheduleFormProps {
   libraryItem: PodcastLibraryItem
   /** Called after a successful save or disable. */
   onClose: () => void
-  /** Re-initializes the fields when the form becomes visible. */
-  isActive?: boolean
-  /** Reports save/disable progress so a wrapping modal can block dismissal. */
+  /** Reports save/disable progress so the manager can block dismissal. */
   onProcessingChange?: (isProcessing: boolean) => void
 }
 
@@ -86,15 +76,15 @@ export interface PodcastDownloadScheduleFormProps {
  * Schedule editor for one podcast's automatic episode downloads.
  *
  * Owns the cron expression, retention limits, validation and persistence. It
- * renders no dialog chrome of its own so it can appear either inside
- * `PodcastDownloadScheduleModal` or as a section of the grouped RSS manager.
+ * renders no dialog chrome of its own: the grouped RSS manager supplies the
+ * dialog around it.
  *
  * Saving enables automatic downloads and writes the schedule and both limits;
  * disabling clears only the enabled flag so the stored schedule survives for a
  * later re-enable. Both paths report through the shared toast and then call
  * `onClose`. A podcast without a source feed can only be disabled.
  */
-export function PodcastDownloadScheduleForm({ libraryItem, onClose, isActive = true, onProcessingChange }: PodcastDownloadScheduleFormProps) {
+export function PodcastDownloadScheduleForm({ libraryItem, onClose, onProcessingChange }: PodcastDownloadScheduleFormProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
 
@@ -121,10 +111,11 @@ export function PodcastDownloadScheduleForm({ libraryItem, onClose, isActive = t
     setMaxNewEpisodesToDownload(String(savedMaxNewEpisodesToDownload))
   }, [libraryItem, savedMaxEpisodesToKeep, savedMaxNewEpisodesToDownload])
 
+  // The manager mounts this panel only while its section is selected, so
+  // mounting is what makes the fields current.
   useEffect(() => {
-    if (!isActive) return
     initForm()
-  }, [initForm, isActive])
+  }, [initForm])
 
   const handleCronChange = useCallback((value: string, isValid: boolean) => {
     setCronExpression(value)
@@ -245,7 +236,7 @@ export function PodcastDownloadScheduleForm({ libraryItem, onClose, isActive = t
               disabled={isProcessing}
             />
 
-            <CronExpressionBuilder key={`${libraryItem.id}-${isActive}`} value={cronExpression} onChange={handleCronChange} />
+            <CronExpressionBuilder key={libraryItem.id} value={cronExpression} onChange={handleCronChange} />
             <CronExpressionPreview cronExpression={cronExpression} isValid={cronIsValid} />
           </div>
         )}
@@ -276,23 +267,5 @@ export function PodcastDownloadScheduleForm({ libraryItem, onClose, isActive = t
         />
       )}
     </div>
-  )
-}
-
-/** Standalone dialog wrapper around {@link PodcastDownloadScheduleForm}. */
-export default function PodcastDownloadScheduleModal({ isOpen, onClose, libraryItem }: PodcastDownloadScheduleModalProps) {
-  const t = useTypeSafeTranslations()
-  const [isProcessing, setIsProcessing] = useState(false)
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      processing={isProcessing}
-      outerContent={<ModalOuterContent>{t('HeaderScheduleEpisodeDownloads')}</ModalOuterContent>}
-      className="w-[700px] md:max-w-[700px] lg:max-w-[700px]"
-    >
-      <PodcastDownloadScheduleForm libraryItem={libraryItem} onClose={onClose} isActive={isOpen} onProcessingChange={setIsProcessing} />
-    </Modal>
   )
 }
