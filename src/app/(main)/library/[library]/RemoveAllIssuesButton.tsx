@@ -52,7 +52,7 @@ export default function RemoveAllIssuesButton() {
       <Btn
         color="bg-error"
         size="small"
-        className="flex h-9 shrink-0 items-center px-3 text-xs whitespace-nowrap"
+        className="flex h-9 shrink-0 items-center px-3 text-xs whitespace-nowrap text-white"
         loading={isPending}
         onClick={() => setShowConfirmDialog(true)}
       >

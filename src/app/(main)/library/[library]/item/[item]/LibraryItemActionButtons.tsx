@@ -166,8 +166,14 @@ export default function LibraryItemActionButtons({
     <>
       <div className="flex flex-wrap items-center justify-start gap-1 pt-4">
         {showPlayButton && (
-          <Btn onClick={onPlay} loading={playerLoadState === PlayerState.LOADING} color="bg-success" size="small" className="mr-2 flex h-9 items-center px-4">
-            <span className="material-symbols fill -ml-2 pr-1 text-2xl text-white">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
+          <Btn
+            onClick={onPlay}
+            loading={playerLoadState === PlayerState.LOADING}
+            color="bg-success"
+            size="small"
+            className="mr-2 flex h-9 items-center px-4 text-white"
+          >
+            <span className="material-symbols fill -ml-2 pr-1 text-2xl">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
             {isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
           </Btn>
         )}
@@ -180,8 +186,8 @@ export default function LibraryItemActionButtons({
         )}
 
         {showReadButton && (
-          <Btn onClick={handleReadEBook} color="bg-info" size="small" className="mr-2 flex h-9 items-center px-4">
-            <span className="material-symbols -ml-2 pr-2 text-2xl text-white" aria-hidden>
+          <Btn onClick={handleReadEBook} color="bg-info" size="small" className="mr-2 flex h-9 items-center px-4 text-white">
+            <span className="material-symbols -ml-2 pr-2 text-2xl" aria-hidden>
               auto_stories
             </span>
             {t('ButtonRead')}

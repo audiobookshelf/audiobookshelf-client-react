@@ -11,9 +11,9 @@ import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCov
 import { usePlaylistCardActions } from '@/components/widgets/media-card/usePlaylistCardActions'
 import { useBookCoverAspectRatio, useLibrary } from '@/contexts/LibraryContext'
 import { useMediaContext } from '@/contexts/MediaContext'
-import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
-import { useUser } from '@/contexts/UserContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
+import { useUser } from '@/contexts/UserContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { usePlaylistDisplayMode } from '@/hooks/usePlaylistDisplayMode'
 import { usePlaylistItems } from '@/hooks/usePlaylistItems'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -131,8 +131,8 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
             <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold break-words md:flex-1 md:truncate">{playlist.name}</h1>
             <div className="flex shrink-0 flex-wrap items-center gap-1 px-2 md:px-0">
               {showPlayButton && (
-                <Btn color="bg-success" size="small" className="mr-1 h-9" disabled={streaming} onClick={handlePlayAll}>
-                  {!streaming && <span className="material-symbols fill -ml-2 pr-1 text-2xl text-white">play_arrow</span>}
+                <Btn color="bg-success" size="small" className="mr-1 h-9 text-white" disabled={streaming} onClick={handlePlayAll}>
+                  {!streaming && <span className="material-symbols fill -ml-2 pr-1 text-2xl">play_arrow</span>}
                   {streaming ? t('ButtonPlaying') : t('ButtonPlayAll')}
                 </Btn>
               )}
