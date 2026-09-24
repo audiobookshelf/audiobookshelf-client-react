@@ -39,7 +39,8 @@ const PLAYER_FULLSCREEN_BODY_CLASS = mergeClasses(
 
 const PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS = mergeClasses(
   'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--player-fullscreen-section-gap) lg:items-center',
-  'pslc:col-start-2 pslc:row-start-1 pslc:max-h-full pslc:min-h-0 pslc:w-(--player-landscape-col-width,100%) pslc:min-w-0 pslc:max-w-full pslc:justify-start pslc:self-center pslc:justify-self-center pslc:overflow-hidden'
+  /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
+  'pslc:col-start-2 pslc:row-start-1 pslc:max-h-full pslc:min-h-0 pslc:w-(--player-landscape-col-width,100%) pslc:min-w-0 pslc:max-w-full pslc:justify-start pslc:self-center pslc:justify-self-center pslc:overflow-hidden pslc:*:min-w-0 pslc:*:shrink-0'
 )
 
 const PLAYER_CHROME_CLASS = 'absolute z-4 top-(--player-mini-top-pad)'
@@ -66,6 +67,15 @@ const PLAYER_TRANSPORT_SLOT_MINI_CLASS = mergeClasses(
 )
 const PLAYER_TRANSPORT_SLOT_FULLSCREEN_CLASS =
   'static inset-auto top-auto bottom-auto h-auto w-full justify-center pe-0 opacity-100 visible pointer-events-auto'
+
+const PLAYER_TOOLBAR_SLOT_CLASS = 'flex'
+/* Toolbar spans the shell width and sits above the cover — pass clicks through except on controls. */
+const PLAYER_TOOLBAR_SLOT_MINI_CLASS = mergeClasses(
+  'absolute z-2 start-0 end-0 bottom-2 justify-center opacity-0 invisible pointer-events-none',
+  'lg:start-auto lg:end-(--toolbar-lg-pe) lg:top-(--player-mini-content-top) lg:bottom-auto lg:h-(--cover-image-height-collapsed) lg:w-auto lg:items-center lg:justify-end lg:opacity-100 lg:visible lg:pointer-events-none lg:*:pointer-events-auto'
+)
+const PLAYER_TOOLBAR_SLOT_FULLSCREEN_CLASS =
+  'static z-6 inset-auto bottom-auto h-auto w-full items-center justify-center pe-0 opacity-100 visible pointer-events-auto'
 
 interface PlayerShellProps {
   playerHandler: PlayerHandler
@@ -281,9 +291,17 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             <PlayerTransportControls controls={controlsState} variant={transportVariant} isFullscreen={isPlayerFullscreen} />
           </div>
           {!landscapeDensity.overflowSecondaryToolbar ? (
-            <div className="player-toolbar-slot">
+            <div
+              className={mergeClasses(
+                'player-toolbar-slot',
+                PLAYER_TOOLBAR_SLOT_CLASS,
+                isPlayerFullscreen ? PLAYER_TOOLBAR_SLOT_FULLSCREEN_CLASS : PLAYER_TOOLBAR_SLOT_MINI_CLASS
+              )}
+              data-cy="player-toolbar-slot"
+            >
               <PlayerSecondaryToolbar
                 controls={controlsState}
+                isFullscreen={isPlayerFullscreen}
                 onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
                 onVolumeOpenChange={setVolumePopoverOpen}
               />
