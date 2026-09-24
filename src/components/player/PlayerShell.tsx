@@ -25,6 +25,23 @@ import PlayerTrackBar from './PlayerTrackBar'
 import PlayerTransportControls from './PlayerTransportControls'
 import { usePlayerControlsState } from './usePlayerControlsState'
 
+const PLAYER_SHELL_MINI_CLASS = 'inset-x-0 bottom-0 z-50 h-(--media-player-mini-height) cursor-pointer'
+
+const PLAYER_SHELL_FULLSCREEN_CLASS = mergeClasses(
+  'fullscreen inset-0 z-90 flex h-dvh max-h-dvh min-h-dvh flex-col overscroll-none pt-(--fs-pt) ps-(--fs-ps) pe-(--fs-pe) pb-(--fs-pb)',
+  'pslc:grid pslc:grid-cols-[auto_minmax(0,1fr)] pslc:grid-rows-[minmax(0,1fr)] pslc:items-center pslc:gap-x-(--player-landscape-inline-pad)'
+)
+
+const PLAYER_FULLSCREEN_BODY_CLASS = mergeClasses(
+  'grid min-h-0 w-full min-w-0 flex-auto grid-rows-[minmax(0,1fr)_auto] items-center gap-(--player-fullscreen-section-gap)',
+  'pslc:contents'
+)
+
+const PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS = mergeClasses(
+  'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--player-fullscreen-section-gap) lg:items-center',
+  'pslc:col-start-2 pslc:row-start-1 pslc:max-h-full pslc:min-h-0 pslc:w-(--player-landscape-col-width,100%) pslc:min-w-0 pslc:max-w-full pslc:justify-start pslc:self-center pslc:justify-self-center pslc:overflow-hidden'
+)
+
 interface PlayerShellProps {
   playerHandler: PlayerHandler
   streamLibraryItem: LibraryItem
@@ -132,7 +149,10 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   return (
     <div
       ref={shellRef}
-      className={mergeClasses('player-shell bg-primary shadow-media-player fixed inset-x-0 bottom-0 isolate w-full', isPlayerFullscreen && 'fullscreen')}
+      className={mergeClasses(
+        'player-shell bg-primary shadow-media-player fixed isolate w-full touch-none overflow-hidden',
+        isPlayerFullscreen ? PLAYER_SHELL_FULLSCREEN_CLASS : PLAYER_SHELL_MINI_CLASS
+      )}
       style={shellStyle}
       data-cy="player-shell"
       data-landscape-density={landscapeDensityLevel}
@@ -160,14 +180,18 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
         </IconBtn>
       </div>
 
-      <div className="player-fullscreen-body">
+      <div className={isPlayerFullscreen ? PLAYER_FULLSCREEN_BODY_CLASS : 'contents'} data-cy="player-fullscreen-body">
         <PlayerCover
           streamLibraryItem={streamLibraryItem}
           coverAspectRatio={coverAspectRatio}
           isFullscreen={isPlayerFullscreen}
           onActivate={handleCoverActivate}
         />
-        <div ref={rightColumnRef} className="player-right-column">
+        <div
+          ref={rightColumnRef}
+          className={mergeClasses('player-right-column', isPlayerFullscreen ? PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS : 'contents')}
+          data-cy="player-right-column"
+        >
           <PlayerTitleAuthor
             streamLibraryItem={streamLibraryItem}
             metadata={metadata}
