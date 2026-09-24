@@ -57,6 +57,7 @@ function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, isFull
         <span ref={segmentRef} className="inline-block whitespace-nowrap">
           <PlayerAuthorNames libraryId={libraryId} bookAuthors={bookAuthors} podcastAuthor={podcastAuthor} onNavigate={onNavigate} />
         </span>
+        {/* Loop copy exists for scrolling but must not take layout until a cycle runs. */}
         <span className={`${MARQUEE_LOOP_GAP_CLASS} pointer-events-none hidden whitespace-pre`} aria-hidden>
           {'\u00A0'.repeat(MARQUEE_LOOP_GAP_SPACES)}
         </span>
