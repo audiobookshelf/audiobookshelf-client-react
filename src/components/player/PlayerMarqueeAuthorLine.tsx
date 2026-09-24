@@ -2,6 +2,7 @@
 
 import AuthorLinks from '@/components/widgets/AuthorLinks'
 import { useDomMarquee } from '@/hooks/useDomMarquee'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { formatList } from '@/lib/formatList'
 import { mergeClasses } from '@/lib/merge-classes'
 import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES } from '@/lib/player/domWrappingMarquee'
@@ -15,7 +16,6 @@ interface PlayerMarqueeAuthorLineProps {
   libraryId: string
   bookAuthors: { id: string; name: string }[]
   podcastAuthor: string | null
-  isFullscreen?: boolean
   onNavigate?: () => void
 }
 
@@ -26,7 +26,8 @@ function PlayerAuthorNames({ libraryId, bookAuthors, podcastAuthor, onNavigate, 
   return <span>{podcastAuthor}</span>
 }
 
-function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, isFullscreen = false, onNavigate }: PlayerMarqueeAuthorLineProps) {
+function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, onNavigate }: PlayerMarqueeAuthorLineProps) {
+  const { isPlayerFullscreen } = usePlayerShellLayout()
   const locale = useLocale()
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -49,7 +50,7 @@ function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, isFull
       ref={containerRef}
       className={mergeClasses(
         'player-author-marquee relative min-w-0 overflow-hidden ps-1',
-        isFullscreen ? PLAYER_AUTHOR_MARQUEE_FULLSCREEN_CLASS : PLAYER_AUTHOR_MARQUEE_MINI_CLASS
+        isPlayerFullscreen ? PLAYER_AUTHOR_MARQUEE_FULLSCREEN_CLASS : PLAYER_AUTHOR_MARQUEE_MINI_CLASS
       )}
       title={text}
     >

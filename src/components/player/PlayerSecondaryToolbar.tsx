@@ -3,6 +3,7 @@
 import ButtonBase from '@/components/ui/ButtonBase'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { mergeClasses } from '@/lib/merge-classes'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import type { PlayerControlsState } from './usePlayerControlsState'
@@ -17,21 +18,13 @@ const PLAYER_TOOLBAR_TOOLTIP_CLASS = 'max-lg:items-center max-lg:justify-center 
 
 interface PlayerSecondaryToolbarProps {
   controls: PlayerControlsState
-  isFullscreen?: boolean
-  isLandscapeCompact?: boolean
   className?: string
   onPlaybackRateOpenChange?: (open: boolean) => void
   onVolumeOpenChange?: (open: boolean) => void
 }
 
-export default function PlayerSecondaryToolbar({
-  controls,
-  isFullscreen = false,
-  isLandscapeCompact = false,
-  className,
-  onPlaybackRateOpenChange,
-  onVolumeOpenChange
-}: PlayerSecondaryToolbarProps) {
+export default function PlayerSecondaryToolbar({ controls, className, onPlaybackRateOpenChange, onVolumeOpenChange }: PlayerSecondaryToolbarProps) {
+  const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const {
     playerHandler,
     isPodcast,
@@ -48,14 +41,14 @@ export default function PlayerSecondaryToolbar({
   } = controls
 
   const { sleepTimerSet, remainingString } = sleepTimer
-  const tooltipClass = isFullscreen ? PLAYER_TOOLBAR_TOOLTIP_CLASS : undefined
+  const tooltipClass = isPlayerFullscreen ? PLAYER_TOOLBAR_TOOLTIP_CLASS : undefined
 
   return (
     <div
       className={mergeClasses(
         'player-secondary-toolbar',
         PLAYER_SECONDARY_TOOLBAR_CLASS,
-        isFullscreen && PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS,
+        isPlayerFullscreen && PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS,
         isLandscapeCompact && 'w-full',
         className
       )}
@@ -83,7 +76,7 @@ export default function PlayerSecondaryToolbar({
               <span
                 className={mergeClasses(
                   'player-sleep-timer-remaining text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg',
-                  isFullscreen && 'max-lg:hidden'
+                  isPlayerFullscreen && 'max-lg:hidden'
                 )}
               >
                 {remainingString}

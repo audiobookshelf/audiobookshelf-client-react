@@ -1,5 +1,6 @@
 'use client'
 
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -17,36 +18,35 @@ const PLAYER_COVER_LANDSCAPE_CLASS = 'col-start-1 row-start-1 flex-none self-cen
 interface PlayerCoverProps {
   streamLibraryItem: LibraryItem
   coverAspectRatio: number
-  isFullscreen: boolean
-  isLandscapeCompact?: boolean
   onActivate: () => void
 }
 
-export default function PlayerCover({ streamLibraryItem, coverAspectRatio, isFullscreen, isLandscapeCompact = false, onActivate }: PlayerCoverProps) {
+export default function PlayerCover({ streamLibraryItem, coverAspectRatio, onActivate }: PlayerCoverProps) {
   const t = useTypeSafeTranslations()
+  const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (isFullscreen) return
+      if (isPlayerFullscreen) return
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         onActivate()
       }
     },
-    [isFullscreen, onActivate]
+    [isPlayerFullscreen, onActivate]
   )
 
   return (
     <div
       className={mergeClasses(
         'player-cover',
-        isFullscreen ? mergeClasses(PLAYER_COVER_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_COVER_LANDSCAPE_CLASS) : PLAYER_COVER_MINI_CLASS
+        isPlayerFullscreen ? mergeClasses(PLAYER_COVER_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_COVER_LANDSCAPE_CLASS) : PLAYER_COVER_MINI_CLASS
       )}
       data-cy="player-cover"
-      role={isFullscreen ? undefined : 'button'}
-      tabIndex={isFullscreen ? undefined : 0}
-      aria-label={isFullscreen ? undefined : t('LabelExpandPlayer')}
-      onClick={isFullscreen ? undefined : onActivate}
+      role={isPlayerFullscreen ? undefined : 'button'}
+      tabIndex={isPlayerFullscreen ? undefined : 0}
+      aria-label={isPlayerFullscreen ? undefined : t('LabelExpandPlayer')}
+      onClick={isPlayerFullscreen ? undefined : onActivate}
       onKeyDown={handleKeyDown}
     >
       <PreviewCover

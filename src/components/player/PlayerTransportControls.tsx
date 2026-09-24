@@ -2,6 +2,7 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { PlayerControlsState } from './usePlayerControlsState'
 
@@ -30,10 +31,10 @@ interface PlayerTransportControlsProps {
   controls: PlayerControlsState
   /** Mobile mini bar: jump back, play, and jump forward beside the title row. */
   variant?: 'mini' | 'full'
-  isFullscreen?: boolean
 }
 
-export default function PlayerTransportControls({ controls, variant = 'full', isFullscreen = false }: PlayerTransportControlsProps) {
+export default function PlayerTransportControls({ controls, variant = 'full' }: PlayerTransportControlsProps) {
+  const { isPlayerFullscreen } = usePlayerShellLayout()
   const {
     isLoading,
     isPlaying,
@@ -50,17 +51,17 @@ export default function PlayerTransportControls({ controls, variant = 'full', is
   } = controls
 
   const isMini = variant === 'mini'
-  const jumpSizeClass = isMini ? PLAYER_JUMP_MINI_CLASS : isFullscreen ? PLAYER_JUMP_FULLSCREEN_CLASS : PLAYER_JUMP_DESKTOP_MINI_CLASS
-  const playSizeClass = isMini ? PLAYER_PLAY_MINI_CLASS : isFullscreen ? PLAYER_PLAY_FULLSCREEN_CLASS : PLAYER_PLAY_DESKTOP_MINI_CLASS
+  const jumpSizeClass = isMini ? PLAYER_JUMP_MINI_CLASS : isPlayerFullscreen ? PLAYER_JUMP_FULLSCREEN_CLASS : PLAYER_JUMP_DESKTOP_MINI_CLASS
+  const playSizeClass = isMini ? PLAYER_PLAY_MINI_CLASS : isPlayerFullscreen ? PLAYER_PLAY_FULLSCREEN_CLASS : PLAYER_PLAY_DESKTOP_MINI_CLASS
   const jumpClass = mergeClasses(PLAYER_JUMP_CLASS, jumpSizeClass)
-  const tooltipClass = isMini || isFullscreen ? PLAYER_TRANSPORT_TOOLTIP_CLASS : undefined
+  const tooltipClass = isMini || isPlayerFullscreen ? PLAYER_TRANSPORT_TOOLTIP_CLASS : undefined
 
   return (
     <div
       className={mergeClasses(
         'player-transport',
         PLAYER_TRANSPORT_CLASS,
-        isMini ? PLAYER_TRANSPORT_MINI_CLASS : isFullscreen ? PLAYER_TRANSPORT_FULLSCREEN_CLASS : PLAYER_TRANSPORT_DESKTOP_MINI_CLASS
+        isMini ? PLAYER_TRANSPORT_MINI_CLASS : isPlayerFullscreen ? PLAYER_TRANSPORT_FULLSCREEN_CLASS : PLAYER_TRANSPORT_DESKTOP_MINI_CLASS
       )}
     >
       {!isMini && (
@@ -68,7 +69,7 @@ export default function PlayerTransportControls({ controls, variant = 'full', is
           className={mergeClasses(
             'player-chapter-slot',
             PLAYER_CHAPTER_SLOT_CLASS,
-            isFullscreen ? PLAYER_CHAPTER_SLOT_REVEALED_CLASS : PLAYER_CHAPTER_SLOT_LG_CLASS
+            isPlayerFullscreen ? PLAYER_CHAPTER_SLOT_REVEALED_CLASS : PLAYER_CHAPTER_SLOT_LG_CLASS
           )}
         >
           <Tooltip text={previousButtonTooltipText} position="top" className={tooltipClass}>
@@ -96,7 +97,7 @@ export default function PlayerTransportControls({ controls, variant = 'full', is
           className={mergeClasses(
             'player-chapter-slot',
             PLAYER_CHAPTER_SLOT_CLASS,
-            isFullscreen ? PLAYER_CHAPTER_SLOT_REVEALED_CLASS : PLAYER_CHAPTER_SLOT_LG_CLASS
+            isPlayerFullscreen ? PLAYER_CHAPTER_SLOT_REVEALED_CLASS : PLAYER_CHAPTER_SLOT_LG_CLASS
           )}
         >
           <Tooltip text={nextButtonTooltipText} position="top" className={tooltipClass}>
