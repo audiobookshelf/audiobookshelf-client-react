@@ -8,7 +8,7 @@ import type { PlayerControlsState } from './usePlayerControlsState'
 
 const PLAYER_TRANSPORT_CLASS = 'flex items-center justify-center'
 const PLAYER_TRANSPORT_MINI_CLASS = 'gap-1'
-const PLAYER_TRANSPORT_DESKTOP_MINI_CLASS = 'gap-2 xl:gap-3'
+const PLAYER_TRANSPORT_DESKTOP_MINI_CLASS = 'gap-2'
 const PLAYER_TRANSPORT_FULLSCREEN_CLASS = 'gap-4'
 
 const PLAYER_JUMP_CLASS = 'player-jump-btn cursor-pointer'
