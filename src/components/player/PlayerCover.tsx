@@ -10,19 +10,19 @@ import PreviewCover from '../covers/PreviewCover'
 const PLAYER_COVER_MINI_CLASS =
   'absolute z-2 cursor-pointer overflow-hidden rounded-[3px] start-(--cover-ps) top-(--player-mini-content-top) h-(--cover-image-height-collapsed) w-(--cover-image-width-collapsed) *:pointer-events-none *:h-full *:w-full'
 
-const PLAYER_COVER_FULLSCREEN_CLASS = mergeClasses(
-  'relative z-2 row-start-1 max-w-full flex-none cursor-default self-center justify-self-center overflow-hidden rounded-2xl h-(--cover-image-height) w-(--cover-image-width)',
-  'pslc:col-start-1 pslc:row-start-1 pslc:flex-none pslc:self-center pslc:justify-self-start'
-)
+const PLAYER_COVER_FULLSCREEN_CLASS =
+  'relative z-2 row-start-1 max-w-full flex-none cursor-default self-center justify-self-center overflow-hidden rounded-2xl h-(--cover-image-height) w-(--cover-image-width)'
+const PLAYER_COVER_LANDSCAPE_CLASS = 'col-start-1 row-start-1 flex-none self-center justify-self-start'
 
 interface PlayerCoverProps {
   streamLibraryItem: LibraryItem
   coverAspectRatio: number
   isFullscreen: boolean
+  isLandscapeCompact?: boolean
   onActivate: () => void
 }
 
-export default function PlayerCover({ streamLibraryItem, coverAspectRatio, isFullscreen, onActivate }: PlayerCoverProps) {
+export default function PlayerCover({ streamLibraryItem, coverAspectRatio, isFullscreen, isLandscapeCompact = false, onActivate }: PlayerCoverProps) {
   const t = useTypeSafeTranslations()
 
   const handleKeyDown = useCallback(
@@ -38,7 +38,10 @@ export default function PlayerCover({ streamLibraryItem, coverAspectRatio, isFul
 
   return (
     <div
-      className={mergeClasses('player-cover', isFullscreen ? PLAYER_COVER_FULLSCREEN_CLASS : PLAYER_COVER_MINI_CLASS)}
+      className={mergeClasses(
+        'player-cover',
+        isFullscreen ? mergeClasses(PLAYER_COVER_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_COVER_LANDSCAPE_CLASS) : PLAYER_COVER_MINI_CLASS
+      )}
       data-cy="player-cover"
       role={isFullscreen ? undefined : 'button'}
       tabIndex={isFullscreen ? undefined : 0}
