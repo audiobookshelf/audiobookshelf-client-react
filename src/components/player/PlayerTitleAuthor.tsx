@@ -5,7 +5,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { LibraryItem } from '@/types/api'
 import PlayerMarqueeAuthorLine from './PlayerMarqueeAuthorLine'
-import PlayerMarqueeTitle from './PlayerMarqueeTitle'
+import PlayerMarqueeText from './PlayerMarqueeText'
 
 const TITLE_MINI =
   'absolute z-3 flex min-h-(--cover-h-mini) min-w-0 flex-col justify-center gap-0.5 text-start start-(--title-ps) end-(--title-pe) top-(--mini-content-top) lg:w-auto lg:max-w-none lg:justify-start'
@@ -42,7 +42,7 @@ export default function PlayerTitleAuthor({ streamLibraryItem, metadata, onNavig
 
   return (
     <div className={mergeClasses('player-title-author', isPlayerFullscreen ? mergeClasses(TITLE_FS, isLandscapeCompact && TITLE_LANDSCAPE) : TITLE_MINI)}>
-      <PlayerMarqueeTitle href={`/library/${libraryId}/item/${streamLibraryItem.id}`} text={displayTitle} onNavigate={handleNavigate} />
+      <PlayerMarqueeText href={`/library/${libraryId}/item/${streamLibraryItem.id}`} text={displayTitle} onNavigate={handleNavigate} />
       <div
         className={mergeClasses(
           'player-author text-foreground-muted flex max-w-full min-w-0 items-center overflow-hidden',
