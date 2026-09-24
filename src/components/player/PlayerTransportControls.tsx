@@ -13,19 +13,19 @@ const PLAYER_TRANSPORT_FULLSCREEN_CLASS = 'gap-4'
 
 const PLAYER_JUMP_CLASS = 'player-jump-btn cursor-pointer'
 const PLAYER_JUMP_MINI_CLASS = 'h-11 min-h-11 w-11 min-w-11 text-2xl'
-const PLAYER_JUMP_DESKTOP_MINI_CLASS = 'h-9 min-h-9 w-9 min-w-9 text-[1.625rem] xl:h-10 xl:min-h-10 xl:w-10 xl:min-w-10 xl:text-3xl'
-const PLAYER_JUMP_FULLSCREEN_CLASS = 'h-12 min-h-12 w-12 min-w-12 text-[1.75rem]'
+const PLAYER_JUMP_DESKTOP_MINI_CLASS = 'h-10 min-h-10 w-10 min-w-10 text-3xl'
+const PLAYER_JUMP_FULLSCREEN_CLASS = 'h-12 min-h-12 w-12 min-w-12 text-3xl'
 
 const PLAYER_PLAY_CLASS = 'player-play-btn bg-accent text-primary hover:text-primary hover:not-disabled:text-primary cursor-pointer rounded-full'
-const PLAYER_PLAY_MINI_CLASS = 'h-11 min-h-11 w-11 min-w-11 text-[1.375rem]'
-const PLAYER_PLAY_DESKTOP_MINI_CLASS = 'h-[2.375rem] w-[2.375rem] text-[1.375rem] xl:h-10 xl:w-10 xl:text-2xl'
-const PLAYER_PLAY_FULLSCREEN_CLASS = 'h-16 min-h-16 w-16 min-w-16 text-[2.1rem]'
+const PLAYER_PLAY_MINI_CLASS = 'h-11 min-h-11 w-11 min-w-11 text-xl'
+const PLAYER_PLAY_DESKTOP_MINI_CLASS = 'h-10 w-10 text-2xl'
+const PLAYER_PLAY_FULLSCREEN_CLASS = 'h-16 min-h-16 w-16 min-w-16 text-4xl'
 
 const PLAYER_CHAPTER_SLOT_CLASS = 'flex min-w-0 w-0 overflow-hidden opacity-0 invisible pointer-events-none'
 const PLAYER_CHAPTER_SLOT_LG_CLASS = 'lg:w-auto lg:overflow-visible lg:opacity-100 lg:visible lg:pointer-events-auto'
 const PLAYER_CHAPTER_SLOT_REVEALED_CLASS = 'w-auto overflow-visible opacity-100 visible pointer-events-auto'
 
-const PLAYER_TRANSPORT_TOOLTIP_CLASS = 'items-center justify-center leading-[0]'
+const PLAYER_TRANSPORT_TOOLTIP_CLASS = 'items-center justify-center leading-none'
 
 interface PlayerTransportControlsProps {
   controls: PlayerControlsState
