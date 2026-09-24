@@ -21,17 +21,11 @@
   --player-dur: 0.15s;
   --cover-aspect: 1.6;
   --cover-w-over-h: calc(1 / var(--cover-aspect));
-  --cover-h-mini: 56px;
   --cover-w-mini: calc(var(--cover-h-mini) / var(--cover-aspect));
   --mini-transport-w: 8.75rem;
   /** Gap between cover and title on mini (mobile: after cover; desktop lg: both sides of title vs cover/transport). */
   --mini-title-gap: 0.5rem;
   --mini-top-pad: 0.5rem;
-  --mini-content-top: 0.5rem;
-  --mini-pad: 0.5rem;
-  --mini-track-stack: 30px;
-  --mini-track-bottom: 0.5rem;
-  --mini-track-block: calc(var(--mini-pad) + var(--mini-track-stack) + var(--mini-track-bottom));
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-start: env(safe-area-inset-left, 0px);
@@ -153,11 +147,6 @@
   }
 
   .player-shell {
-    --mini-content-top: 0.5rem;
-    --cover-h-mini: 4rem;
-    --mini-pad: 1rem;
-    --mini-track-bottom: 0.75rem;
-    --mini-track-stack: 33px;
     --mini-title-gap: 0.75rem;
     /* Half of centered desktop mini transport row (5×2.5rem + 4×0.5rem gap). */
     --mini-transport-half: 7.25rem;
