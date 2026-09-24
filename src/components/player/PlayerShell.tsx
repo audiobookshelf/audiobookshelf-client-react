@@ -26,22 +26,17 @@ import PlayerTransportControls from './PlayerTransportControls'
 import { usePlayerControlsState } from './usePlayerControlsState'
 
 const PLAYER_SHELL_MINI_CLASS = 'inset-x-0 bottom-0 z-50 h-(--media-player-mini-height) cursor-pointer'
+const PLAYER_SHELL_FULLSCREEN_CLASS =
+  'fullscreen inset-0 z-90 flex h-dvh max-h-dvh min-h-dvh flex-col overscroll-none pt-(--fs-pt) ps-(--fs-ps) pe-(--fs-pe) pb-(--fs-pb)'
+const PLAYER_SHELL_LANDSCAPE_CLASS = 'grid grid-cols-[auto_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] items-center gap-x-(--player-landscape-inline-pad)'
 
-const PLAYER_SHELL_FULLSCREEN_CLASS = mergeClasses(
-  'fullscreen inset-0 z-90 flex h-dvh max-h-dvh min-h-dvh flex-col overscroll-none pt-(--fs-pt) ps-(--fs-ps) pe-(--fs-pe) pb-(--fs-pb)',
-  'pslc:grid pslc:grid-cols-[auto_minmax(0,1fr)] pslc:grid-rows-[minmax(0,1fr)] pslc:items-center pslc:gap-x-(--player-landscape-inline-pad)'
-)
+const PLAYER_FULLSCREEN_BODY_CLASS = 'grid min-h-0 w-full min-w-0 flex-auto grid-rows-[minmax(0,1fr)_auto] items-center gap-(--player-fullscreen-section-gap)'
+const PLAYER_FULLSCREEN_BODY_LANDSCAPE_CLASS = 'contents'
 
-const PLAYER_FULLSCREEN_BODY_CLASS = mergeClasses(
-  'grid min-h-0 w-full min-w-0 flex-auto grid-rows-[minmax(0,1fr)_auto] items-center gap-(--player-fullscreen-section-gap)',
-  'pslc:contents'
-)
-
-const PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS = mergeClasses(
-  'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--player-fullscreen-section-gap) lg:items-center',
-  /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
-  'pslc:col-start-2 pslc:row-start-1 pslc:max-h-full pslc:min-h-0 pslc:w-(--player-landscape-col-width,100%) pslc:min-w-0 pslc:max-w-full pslc:justify-start pslc:self-center pslc:justify-self-center pslc:overflow-hidden pslc:*:min-w-0 pslc:*:shrink-0'
-)
+const PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS = 'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--player-fullscreen-section-gap) lg:items-center'
+/* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
+const PLAYER_RIGHT_COLUMN_LANDSCAPE_CLASS =
+  'col-start-2 row-start-1 max-h-full min-h-0 w-(--player-landscape-col-width,100%) min-w-0 max-w-full justify-start self-center justify-self-center overflow-hidden *:min-w-0 *:shrink-0'
 
 const PLAYER_CHROME_CLASS = 'absolute z-4 top-(--player-mini-top-pad)'
 const PLAYER_CHROME_START_MINI_CLASS = 'start-1 opacity-0 invisible pointer-events-none'
@@ -90,7 +85,9 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const t = useTypeSafeTranslations()
   const coverAspectRatio = usePlayerCoverAspectRatio(streamLibraryItem.libraryId)
   const isDesktop = useMediaQuery('lg')
+  const isLandscapeCompact = useMediaQuery('landscape-compact')
   const { isPlayerFullscreen, setPlayerFullscreen } = useMediaContext()
+  const isLandscapeLayout = isPlayerFullscreen && isLandscapeCompact
   const transportVariant = isPlayerFullscreen || isDesktop ? 'full' : 'mini'
   const controlsState = usePlayerControlsState(playerHandler, streamLibraryItem)
   const { closeAllModals } = controlsState
@@ -186,7 +183,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       ref={shellRef}
       className={mergeClasses(
         'player-shell bg-primary shadow-media-player fixed isolate w-full touch-none overflow-hidden',
-        isPlayerFullscreen ? PLAYER_SHELL_FULLSCREEN_CLASS : PLAYER_SHELL_MINI_CLASS
+        isPlayerFullscreen ? mergeClasses(PLAYER_SHELL_FULLSCREEN_CLASS, isLandscapeLayout && PLAYER_SHELL_LANDSCAPE_CLASS) : PLAYER_SHELL_MINI_CLASS
       )}
       style={shellStyle}
       data-cy="player-shell"
@@ -241,22 +238,30 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
         </IconBtn>
       </div>
 
-      <div className={isPlayerFullscreen ? PLAYER_FULLSCREEN_BODY_CLASS : 'contents'} data-cy="player-fullscreen-body">
+      <div
+        className={isPlayerFullscreen ? mergeClasses(PLAYER_FULLSCREEN_BODY_CLASS, isLandscapeLayout && PLAYER_FULLSCREEN_BODY_LANDSCAPE_CLASS) : 'contents'}
+        data-cy="player-fullscreen-body"
+      >
         <PlayerCover
           streamLibraryItem={streamLibraryItem}
           coverAspectRatio={coverAspectRatio}
           isFullscreen={isPlayerFullscreen}
+          isLandscapeCompact={isLandscapeLayout}
           onActivate={handleCoverActivate}
         />
         <div
           ref={rightColumnRef}
-          className={mergeClasses('player-right-column', isPlayerFullscreen ? PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS : 'contents')}
+          className={mergeClasses(
+            'player-right-column',
+            isPlayerFullscreen ? mergeClasses(PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS, isLandscapeLayout && PLAYER_RIGHT_COLUMN_LANDSCAPE_CLASS) : 'contents'
+          )}
           data-cy="player-right-column"
         >
           <PlayerTitleAuthor
             streamLibraryItem={streamLibraryItem}
             metadata={metadata}
             isFullscreen={isPlayerFullscreen}
+            isLandscapeCompact={isLandscapeLayout}
             onNavigateAway={collapseForNavigation}
             compact={landscapeDensity.compactTitle}
           />
@@ -271,7 +276,13 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             data-cy="player-track-stack"
           >
             <div className={mergeClasses('player-track player-track-primary', isPlayerFullscreen ? PLAYER_TRACK_FULLSCREEN_CLASS : PLAYER_TRACK_MINI_CLASS)}>
-              <PlayerTrackBar playerHandler={playerHandler} chapterLabelPlacement={chapterLabelPlacement} deferTouchSeekToShellGestures dual={showBookTrack} />
+              <PlayerTrackBar
+                playerHandler={playerHandler}
+                chapterLabelPlacement={chapterLabelPlacement}
+                deferTouchSeekToShellGestures
+                dual={showBookTrack}
+                isLandscapeCompact={isLandscapeLayout}
+              />
             </div>
             {showBookTrack ? (
               <div className={mergeClasses('player-track player-track-book', PLAYER_TRACK_FULLSCREEN_CLASS, PLAYER_TRACK_BOOK_CLASS)}>
@@ -302,6 +313,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
               <PlayerSecondaryToolbar
                 controls={controlsState}
                 isFullscreen={isPlayerFullscreen}
+                isLandscapeCompact={isLandscapeLayout}
                 onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
                 onVolumeOpenChange={setVolumePopoverOpen}
               />

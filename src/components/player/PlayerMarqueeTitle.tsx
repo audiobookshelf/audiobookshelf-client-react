@@ -10,10 +10,11 @@ interface PlayerMarqueeTitleProps {
   href: string
   text: string
   isFullscreen: boolean
+  isLandscapeCompact?: boolean
   onNavigate?: () => void
 }
 
-function PlayerMarqueeTitle({ href, text, isFullscreen, onNavigate }: PlayerMarqueeTitleProps) {
+function PlayerMarqueeTitle({ href, text, isFullscreen, isLandscapeCompact = false, onNavigate }: PlayerMarqueeTitleProps) {
   const marqueeRef = useWrappingMarquee(text)
 
   return (
@@ -21,7 +22,7 @@ function PlayerMarqueeTitle({ href, text, isFullscreen, onNavigate }: PlayerMarq
       href={href}
       className={mergeClasses(
         'player-title-link group block min-w-0 no-underline',
-        isFullscreen ? 'pslc:col-span-full w-full max-w-full self-stretch' : 'w-max max-w-full self-start'
+        isFullscreen ? mergeClasses('w-full max-w-full self-stretch', isLandscapeCompact && 'col-span-full') : 'w-max max-w-full self-start'
       )}
       onClick={onNavigate}
       aria-label={text}
