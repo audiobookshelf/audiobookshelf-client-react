@@ -14,13 +14,13 @@ import { CSSProperties, useCallback, useMemo } from 'react'
 import PlayerShell from './PlayerShell'
 
 export function getPlayerBottomInsetClass(): string {
-  return 'bottom-[var(--media-player-height,0px)]'
+  return 'bottom-(--media-player-height)'
 }
 
-/** 1rem gap above the player — uses `--media-player-height` when streaming. */
+/** 1rem gap above the player — uses `--media-player-offset` when streaming. */
 export function getCoverSizeWidgetBottomClass(isStreaming: boolean): string {
   if (!isStreaming) return 'bottom-4'
-  return 'bottom-[calc(var(--media-player-height,0px)+1rem)]'
+  return 'bottom-(--media-player-offset)'
 }
 
 export default function MediaPlayerContainer() {

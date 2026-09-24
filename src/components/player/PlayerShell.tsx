@@ -35,7 +35,7 @@ const BODY_LANDSCAPE = 'contents'
 const COLUMN_FS = 'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--fs-gap) lg:items-center'
 /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
 const COLUMN_LANDSCAPE =
-  'col-start-2 row-start-1 max-h-full min-h-0 w-full min-w-[min(100%,var(--landscape-col-min))] max-w-full justify-start self-center justify-self-stretch overflow-hidden *:min-w-0 *:shrink-0'
+  'col-start-2 row-start-1 max-h-full min-h-0 w-full min-w-(--landscape-col) max-w-full justify-start self-center justify-self-stretch overflow-hidden *:min-w-0 *:shrink-0'
 
 const CHROME = 'absolute z-4 top-(--mini-top-pad)'
 const CHROME_START_MINI = 'start-1 opacity-0 invisible pointer-events-none'

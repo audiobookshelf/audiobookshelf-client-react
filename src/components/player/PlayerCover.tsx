@@ -9,7 +9,7 @@ import { useCallback, useLayoutEffect, useRef } from 'react'
 import PreviewCover from '../covers/PreviewCover'
 
 const COVER_MINI =
-  'absolute z-2 cursor-pointer overflow-hidden rounded-[3px] start-(--cover-ps) top-(--mini-content-top) h-(--cover-h-mini) w-(--cover-w-mini) *:pointer-events-none *:h-full *:w-full'
+  'absolute z-2 cursor-pointer overflow-hidden rounded-sm start-(--cover-ps) top-(--mini-content-top) h-(--cover-h-mini) w-(--cover-w-mini) *:pointer-events-none *:h-full *:w-full'
 
 const COVER_FS = 'relative z-2 max-w-full flex-none cursor-default overflow-hidden rounded-2xl *:h-full *:w-full'
 const COVER_LANDSCAPE = 'col-start-1 row-start-1 self-center justify-self-start'
