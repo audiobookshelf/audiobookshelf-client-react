@@ -3,14 +3,19 @@
 import AuthorLinks from '@/components/widgets/AuthorLinks'
 import { useDomMarquee } from '@/hooks/useDomMarquee'
 import { formatList } from '@/lib/formatList'
+import { mergeClasses } from '@/lib/merge-classes'
 import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES } from '@/lib/player/domWrappingMarquee'
 import { useLocale } from 'next-intl'
 import { memo, useMemo, useRef } from 'react'
+
+const PLAYER_AUTHOR_MARQUEE_MINI_CLASS = 'w-auto max-w-full flex-initial'
+const PLAYER_AUTHOR_MARQUEE_FULLSCREEN_CLASS = 'w-full flex-1'
 
 interface PlayerMarqueeAuthorLineProps {
   libraryId: string
   bookAuthors: { id: string; name: string }[]
   podcastAuthor: string | null
+  isFullscreen?: boolean
   onNavigate?: () => void
 }
 
@@ -21,7 +26,7 @@ function PlayerAuthorNames({ libraryId, bookAuthors, podcastAuthor, onNavigate, 
   return <span>{podcastAuthor}</span>
 }
 
-function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, onNavigate }: PlayerMarqueeAuthorLineProps) {
+function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, isFullscreen = false, onNavigate }: PlayerMarqueeAuthorLineProps) {
   const locale = useLocale()
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
@@ -40,7 +45,14 @@ function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, onNavi
   useDomMarquee(containerRef, trackRef, segmentRef, loopCopyRef, [libraryId, authorsKey, podcastAuthor, text])
 
   return (
-    <div ref={containerRef} className="player-author-marquee relative min-w-0 flex-1 overflow-hidden" title={text}>
+    <div
+      ref={containerRef}
+      className={mergeClasses(
+        'player-author-marquee relative min-w-0 overflow-hidden ps-1',
+        isFullscreen ? PLAYER_AUTHOR_MARQUEE_FULLSCREEN_CLASS : PLAYER_AUTHOR_MARQUEE_MINI_CLASS
+      )}
+      title={text}
+    >
       <div ref={trackRef} className="w-max max-w-none whitespace-nowrap will-change-transform">
         <span ref={segmentRef} className="inline-block whitespace-nowrap">
           <PlayerAuthorNames libraryId={libraryId} bookAuthors={bookAuthors} podcastAuthor={podcastAuthor} onNavigate={onNavigate} />
