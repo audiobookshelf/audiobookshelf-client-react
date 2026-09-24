@@ -2,9 +2,18 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { mergeClasses } from '@/lib/merge-classes'
 import { LibraryItem } from '@/types/api'
 import { useCallback } from 'react'
 import PreviewCover from '../covers/PreviewCover'
+
+const PLAYER_COVER_MINI_CLASS =
+  'absolute z-2 cursor-pointer overflow-hidden rounded-[3px] start-(--cover-ps) top-(--player-mini-content-top) h-(--cover-image-height-collapsed) w-(--cover-image-width-collapsed) *:pointer-events-none *:h-full *:w-full'
+
+const PLAYER_COVER_FULLSCREEN_CLASS = mergeClasses(
+  'relative z-2 row-start-1 max-w-full flex-none cursor-default self-center justify-self-center overflow-hidden rounded-2xl h-(--cover-image-height) w-(--cover-image-width)',
+  'pslc:col-start-1 pslc:row-start-1 pslc:flex-none pslc:self-center pslc:justify-self-start'
+)
 
 interface PlayerCoverProps {
   streamLibraryItem: LibraryItem
@@ -29,7 +38,7 @@ export default function PlayerCover({ streamLibraryItem, coverAspectRatio, isFul
 
   return (
     <div
-      className="player-cover"
+      className={mergeClasses('player-cover', isFullscreen ? PLAYER_COVER_FULLSCREEN_CLASS : PLAYER_COVER_MINI_CLASS)}
       data-cy="player-cover"
       role={isFullscreen ? undefined : 'button'}
       tabIndex={isFullscreen ? undefined : 0}

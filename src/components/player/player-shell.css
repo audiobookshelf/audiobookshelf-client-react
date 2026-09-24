@@ -38,6 +38,7 @@
   --player-safe-bottom: env(safe-area-inset-bottom, 0px);
   --player-safe-inline-start: env(safe-area-inset-left, 0px);
   --player-safe-inline-end: env(safe-area-inset-right, 0px);
+  --cover-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start));
 }
 
 :dir(rtl) .player-shell {
@@ -64,36 +65,7 @@
 }
 
 .player-cover {
-  position: absolute;
-  z-index: 2;
-  inset-inline-start: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start));
-  top: var(--player-mini-content-top);
-  width: var(--cover-image-width-collapsed);
-  height: var(--cover-image-height-collapsed);
-  overflow: hidden;
-  border-radius: 3px;
-  cursor: pointer;
   view-transition-name: player-cover;
-}
-
-.player-shell:not(.fullscreen) .player-cover > * {
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.player-shell.fullscreen .player-cover {
-  position: relative;
-  inset: auto;
-  grid-row: 1;
-  flex: 0 0 auto;
-  width: var(--cover-image-width);
-  height: var(--cover-image-height);
-  max-width: 100%;
-  align-self: center;
-  justify-self: center;
-  border-radius: 1rem;
-  cursor: default;
 }
 
 .player-title-marquee {
@@ -594,10 +566,6 @@
     --player-mini-transport-cluster-half: 8.5rem;
   }
 
-  .player-shell:not(.fullscreen) .player-cover {
-    top: 0.5rem;
-  }
-
   .player-shell:not(.fullscreen) .player-title-author {
     inset-inline-start: calc(
       var(--player-mini-inline-pad) + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap)
@@ -695,10 +663,6 @@
     pointer-events: auto;
   }
 
-  .player-shell.fullscreen .player-cover {
-    align-self: center;
-  }
-
   .player-shell.fullscreen .player-right-column .player-track-stack,
   .player-shell.fullscreen .player-right-column .player-title-author {
     width: 75%;
@@ -747,17 +711,6 @@
     --fs-ps: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-start));
     --fs-pe: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-end));
     --fs-pb: calc(var(--player-landscape-inline-pad) + var(--player-safe-bottom));
-  }
-
-  .player-shell.fullscreen .player-cover {
-    position: relative;
-    grid-column: 1;
-    grid-row: 1;
-    align-self: center;
-    justify-self: start;
-    flex: none;
-    width: var(--cover-image-width);
-    height: var(--cover-image-height);
   }
 
   /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
