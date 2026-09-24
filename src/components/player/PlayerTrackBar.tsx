@@ -10,6 +10,10 @@ import { PLAYER_SWIPE_LOCK_PX, shouldLockPlayerShellHorizontalSeek, shouldLockPl
 import { PlayerState } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+const PLAYER_TRACK_CORE_DUAL_CLASS = 'flex min-h-8 flex-col'
+const PLAYER_TRACK_SLIDER_DUAL_CLASS = 'min-h-3 grow shrink-0 basis-auto'
+const PLAYER_TRACK_TIMESTAMPS_DUAL_CLASS = 'min-h-5 flex-none'
+
 interface PlayerTrackBarProps {
   playerHandler: PlayerHandler
   scope?: 'auto' | 'book' | 'chapter'
@@ -17,6 +21,8 @@ interface PlayerTrackBarProps {
   chapterLabelPlacement?: 'below' | 'above'
   /** Mini player: wait for horizontal movement before seeking so vertical shell swipes win. */
   deferTouchSeekToShellGestures?: boolean
+  /** Fullscreen chapter + book tracks: match timestamp row height. Tick space is always in the slider block. */
+  dual?: boolean
 }
 
 interface ChapterTick {
@@ -28,7 +34,8 @@ export default function PlayerTrackBar({
   playerHandler,
   scope = 'auto',
   chapterLabelPlacement = 'below',
-  deferTouchSeekToShellGestures = false
+  deferTouchSeekToShellGestures = false,
+  dual = false
 }: PlayerTrackBarProps) {
   const t = useTypeSafeTranslations()
   const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
@@ -351,9 +358,9 @@ export default function PlayerTrackBar({
 
   return (
     <div className="player-track-bar">
-      {showChapterLabelAbove ? <div className="player-track-chapter-header mb-1">{chapterLabel}</div> : null}
-      <div className="player-track-core">
-        <div className="player-track-slider-block relative">
+      {showChapterLabelAbove ? <div className="player-track-chapter-header pslc:text-start mb-1 text-center">{chapterLabel}</div> : null}
+      <div className={mergeClasses('player-track-core', dual && PLAYER_TRACK_CORE_DUAL_CLASS)}>
+        <div className={mergeClasses('player-track-slider-block relative', dual && PLAYER_TRACK_SLIDER_DUAL_CLASS)}>
           <div
             ref={trackRef}
             role="slider"
@@ -432,7 +439,7 @@ export default function PlayerTrackBar({
             </div>
           </div>
         </div>
-        <div className="player-track-timestamps flex items-center justify-between gap-3">
+        <div className={mergeClasses('player-track-timestamps flex items-center justify-between gap-3', dual && PLAYER_TRACK_TIMESTAMPS_DUAL_CLASS)}>
           <p className="text-foreground-muted shrink-0 font-mono">
             {currentTimeFormatted}
             {' / '}
