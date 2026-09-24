@@ -114,7 +114,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
 
   const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
   const layoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
-  const landscapeDensityLevel = useLandscapePlayerDensity(shellRef, rightColumnRef, isDesktop, layoutKey)
+  const landscapeDensityLevel = useLandscapePlayerDensity(shellRef, rightColumnRef, layoutKey)
   const landscapeDensity = landscapeDensityFlags(landscapeDensityLevel)
   const showBookTrack = isPlayerFullscreen && useChapterTrack && !landscapeDensity.singleTrackBar
   const chapterLabelPlacement = landscapeDensity.chapterLabelBelow || !isPlayerFullscreen ? 'below' : 'above'
