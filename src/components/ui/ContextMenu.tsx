@@ -89,7 +89,7 @@ export default function ContextMenu<T = string>({
   )
 
   // Floating-ui positioning hook
-  const { refs, floatingStyles, elements, update } = useFloating({
+  const { refs, floatingStyles, elements, update, x, y } = useFloating({
     open: usePortal && isOpen,
     placement,
     strategy: 'absolute',
@@ -187,21 +187,22 @@ export default function ContextMenu<T = string>({
     [onOpenSubmenu, onCloseSubmenu, openSubmenuIndex]
   )
 
-  const submenuLeftPos = useMemo(
-    () => (openSubmenuLeft ? -(submenuWidth || menuWidth) + 1 : menuActualWidth - 0.5),
-    [openSubmenuLeft, submenuWidth, menuWidth, menuActualWidth]
-  )
+  useLayoutEffect(() => {
+    if (!isOpen || !ref.current) return
+    const boundingRect = ref.current.getBoundingClientRect()
+    const actualWidth = autoWidth ? boundingRect.width : menuWidth
+    setMenuActualWidth(actualWidth)
 
-  useEffect(() => {
-    if (isOpen && ref.current) {
-      const boundingRect = ref.current.getBoundingClientRect()
-      if (boundingRect) {
-        const actualWidth = autoWidth ? boundingRect.width : menuWidth
-        setMenuActualWidth(actualWidth)
-        setOpenSubmenuLeft(window.innerWidth - boundingRect.x < actualWidth + (submenuWidth || menuWidth) + 5)
-      }
+    // Submenu width isn't known until it opens (autoWidth tools items can be wider than the parent menu)
+    const submenuEl = ref.current.querySelector<HTMLElement>('[role="menu"]')
+    if (submenuEl) {
+      if (submenuEl.getBoundingClientRect().right > window.innerWidth - 4) setOpenSubmenuLeft(true)
+      return
     }
-  }, [isOpen, menuWidth, autoWidth, submenuWidth, ref])
+
+    setOpenSubmenuLeft(window.innerWidth - boundingRect.right < (submenuWidth || actualWidth) + 5)
+    // x/y: floating-ui resolves position asynchronously; remeasure after the menu leaves 0,0
+  }, [isOpen, openSubmenuIndex, menuWidth, autoWidth, submenuWidth, ref, x, y])
 
   const menuItems = items.map((item, index) =>
     item.subitems ? (
@@ -243,7 +244,8 @@ export default function ContextMenu<T = string>({
               autoWidth ? 'inline-flex flex-col whitespace-nowrap' : ''
             )}
             style={{
-              left: `${submenuLeftPos}px`,
+              // Pin to the parent edge so a wide submenu can't extend past the side it opened on
+              ...(openSubmenuLeft ? { right: 'calc(100% - 1px)', left: 'auto' } : { left: `${menuActualWidth - 0.5}px` }),
               top: `${index * 28}px`, // index * (text-xs line-height + py-1.5)
               ...(autoWidth ? { minWidth: `${menuWidth}px` } : { width: `${submenuWidth}px` })
             }}
