@@ -8,14 +8,28 @@ import PlaybackRateWidget from './PlaybackRateWidget'
 import type { PlayerControlsState } from './usePlayerControlsState'
 import VolumeControl from './VolumeControl'
 
+const PLAYER_SECONDARY_TOOLBAR_CLASS = 'flex flex-nowrap items-center justify-center gap-2'
+const PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS = mergeClasses(
+  'max-lg:w-full max-lg:gap-[4px] pslc:w-full',
+  'max-lg:[&_button]:inline-flex max-lg:[&_button]:h-11 max-lg:[&_button]:min-h-11 max-lg:[&_button]:w-11 max-lg:[&_button]:min-w-11 max-lg:[&_button]:items-center max-lg:[&_button]:justify-center max-lg:[&_button]:p-0'
+)
+const PLAYER_TOOLBAR_TOOLTIP_CLASS = 'max-lg:items-center max-lg:justify-center max-lg:leading-[0]'
+
 interface PlayerSecondaryToolbarProps {
   controls: PlayerControlsState
+  isFullscreen?: boolean
   className?: string
   onPlaybackRateOpenChange?: (open: boolean) => void
   onVolumeOpenChange?: (open: boolean) => void
 }
 
-export default function PlayerSecondaryToolbar({ controls, className, onPlaybackRateOpenChange, onVolumeOpenChange }: PlayerSecondaryToolbarProps) {
+export default function PlayerSecondaryToolbar({
+  controls,
+  isFullscreen = false,
+  className,
+  onPlaybackRateOpenChange,
+  onVolumeOpenChange
+}: PlayerSecondaryToolbarProps) {
   const {
     playerHandler,
     isPodcast,
@@ -32,12 +46,15 @@ export default function PlayerSecondaryToolbar({ controls, className, onPlayback
   } = controls
 
   const { sleepTimerSet, remainingString } = sleepTimer
+  const tooltipClass = isFullscreen ? PLAYER_TOOLBAR_TOOLTIP_CLASS : undefined
 
   return (
-    <div className={mergeClasses('player-secondary-toolbar flex flex-nowrap items-center justify-center gap-2', className)}>
+    <div
+      className={mergeClasses('player-secondary-toolbar', PLAYER_SECONDARY_TOOLBAR_CLASS, isFullscreen && PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS, className)}
+    >
       <VolumeControl playerHandler={playerHandler} onOpenChange={onVolumeOpenChange} />
       <PlaybackRateWidget playerHandler={playerHandler} onOpenChange={onPlaybackRateOpenChange} />
-      <Tooltip text={t('LabelSleepTimer')} position="top">
+      <Tooltip text={t('LabelSleepTimer')} position="top" className={tooltipClass}>
         <ButtonBase
           size="custom"
           borderless
@@ -55,7 +72,12 @@ export default function PlayerSecondaryToolbar({ controls, className, onPlayback
               <span className="material-symbols text-warning text-lg" aria-hidden="true">
                 snooze
               </span>
-              <span className="player-sleep-timer-remaining text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg">
+              <span
+                className={mergeClasses(
+                  'player-sleep-timer-remaining text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg',
+                  isFullscreen && 'max-lg:hidden'
+                )}
+              >
                 {remainingString}
               </span>
             </div>
@@ -63,21 +85,21 @@ export default function PlayerSecondaryToolbar({ controls, className, onPlayback
         </ButtonBase>
       </Tooltip>
       {!isPodcast && (
-        <Tooltip text={t('LabelViewBookmarks')} position="top">
+        <Tooltip text={t('LabelViewBookmarks')} position="top" className={tooltipClass}>
           <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={openBookmarksModal} ariaLabel={t('LabelViewBookmarks')}>
             {bookmarks.length ? 'bookmarks' : 'bookmark_border'}
           </IconBtn>
         </Tooltip>
       )}
       {chapters.length > 0 && (
-        <Tooltip text={t('LabelViewChapters')} position="top">
+        <Tooltip text={t('LabelViewChapters')} position="top" className={tooltipClass}>
           <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={() => setIsChaptersModalOpen(true)} ariaLabel={t('LabelViewChapters')}>
             format_list_bulleted
           </IconBtn>
         </Tooltip>
       )}
       {playerQueueItems.length > 0 && (
-        <Tooltip text={t('LabelViewQueue')} position="top">
+        <Tooltip text={t('LabelViewQueue')} position="top" className={tooltipClass}>
           <IconBtn
             size="custom"
             borderless
@@ -89,7 +111,7 @@ export default function PlayerSecondaryToolbar({ controls, className, onPlayback
           </IconBtn>
         </Tooltip>
       )}
-      <Tooltip text={t('LabelViewPlayerSettings')} position="top">
+      <Tooltip text={t('LabelViewPlayerSettings')} position="top" className={tooltipClass}>
         <IconBtn
           size="custom"
           borderless
