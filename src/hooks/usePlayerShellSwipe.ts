@@ -1,9 +1,9 @@
 'use client'
 
-import { PLAYER_SWIPE_THRESHOLD_PX } from '@/lib/player/coverFit'
 import {
   isPlayerShellSwipeBlockedTarget,
   PLAYER_SWIPE_THRESHOLD_MINI_PX,
+  PLAYER_SWIPE_THRESHOLD_PX,
   resolvePlayerShellSwipeAction,
   shouldLockPlayerShellSwipe,
   type PlayerShellSwipeAction

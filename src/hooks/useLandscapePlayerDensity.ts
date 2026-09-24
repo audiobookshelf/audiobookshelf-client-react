@@ -1,13 +1,8 @@
 'use client'
 
-import { isLandscapeCompactViewport } from '@/lib/player/coverFit'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { LANDSCAPE_DENSITY_MAX_LEVEL, rightColumnContentOverflows, type LandscapeDensityLevel } from '@/lib/player/landscapeDensity'
 import { RefObject, useLayoutEffect, useState } from 'react'
-
-function isLandscapePlayerMode(shell: HTMLElement, isDesktop: boolean): boolean {
-  if (isDesktop) return false
-  return isLandscapeCompactViewport(shell.clientWidth, shell.clientHeight)
-}
 
 function observeRightColumnChildren(resizeObserver: ResizeObserver, rightColumn: HTMLElement) {
   for (const child of rightColumn.children) {
@@ -18,10 +13,10 @@ function observeRightColumnChildren(resizeObserver: ResizeObserver, rightColumn:
 export function useLandscapePlayerDensity(
   shellRef: RefObject<HTMLDivElement | null>,
   rightColumnRef: RefObject<HTMLDivElement | null>,
-  isPlayerFullscreen: boolean,
   isDesktop: boolean,
   layoutKey: string
 ): LandscapeDensityLevel {
+  const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const [densityLevel, setDensityLevel] = useState<LandscapeDensityLevel>(0)
 
   useLayoutEffect(() => {
@@ -33,12 +28,12 @@ export function useLandscapePlayerDensity(
   useLayoutEffect(() => {
     const shell = shellRef.current
     const rightColumn = rightColumnRef.current
-    if (!shell || !rightColumn || !isPlayerFullscreen || isDesktop) {
+    if (!shell || !rightColumn || !isPlayerFullscreen || isDesktop || !isLandscapeCompact) {
       return
     }
 
     const evaluate = () => {
-      if (!shell.classList.contains('fullscreen') || !isLandscapePlayerMode(shell, isDesktop)) {
+      if (!shell.classList.contains('fullscreen') || !isLandscapeCompact) {
         return
       }
       if (rightColumnContentOverflows(rightColumn) && densityLevel < LANDSCAPE_DENSITY_MAX_LEVEL) {
@@ -58,7 +53,7 @@ export function useLandscapePlayerDensity(
       resizeObserver.disconnect()
       window.removeEventListener('resize', evaluate)
     }
-  }, [densityLevel, isDesktop, isPlayerFullscreen, layoutKey, rightColumnRef, shellRef])
+  }, [densityLevel, isDesktop, isLandscapeCompact, isPlayerFullscreen, layoutKey, rightColumnRef, shellRef])
 
   return densityLevel
 }

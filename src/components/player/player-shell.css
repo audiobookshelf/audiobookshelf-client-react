@@ -19,10 +19,10 @@
   --player-ease: var(--cover-morph-ease);
   --player-dur-cover: var(--cover-morph-dur);
   --player-dur: 0.15s;
-  --cover-w: 200px;
-  --cover-h: 320px;
-  --cover-w-mini: 56px;
+  --cover-aspect: 1.6;
+  --cover-w-over-h: calc(1 / var(--cover-aspect));
   --cover-h-mini: 56px;
+  --cover-w-mini: calc(var(--cover-h-mini) / var(--cover-aspect));
   --mini-transport-w: 8.75rem;
   /** Gap between cover and title on mini (mobile: after cover; desktop lg: both sides of title vs cover/transport). */
   --mini-title-gap: 0.5rem;
@@ -60,6 +60,17 @@
   --chrome-fs-top: calc(0.5rem + var(--safe-top));
   --chrome-fs-ps: calc(0.5rem + var(--safe-start));
   --chrome-fs-pe: calc(0.5rem + var(--safe-end));
+  container-type: size;
+}
+
+.player-cover-slot {
+  container-type: size;
+}
+
+.player-shell.fullscreen .player-cover {
+  width: min(100cqw, calc((100cqh - 0.5rem) * var(--cover-w-over-h)), var(--cover-nat-w, 10000px), calc(var(--cover-nat-h, 10000px) * var(--cover-w-over-h)));
+  height: auto;
+  aspect-ratio: var(--cover-w-over-h);
 }
 
 .player-shell,
@@ -133,7 +144,6 @@
 
   .player-shell {
     --mini-content-top: 0.5rem;
-    --cover-w-mini: 4rem;
     --cover-h-mini: 4rem;
     --mini-pad: 1rem;
     --mini-track-bottom: 0.75rem;
@@ -152,6 +162,15 @@
     --fs-ps: calc(var(--landscape-pad) + var(--safe-start));
     --fs-pe: calc(var(--landscape-pad) + var(--safe-end));
     --fs-pb: calc(var(--landscape-pad) + var(--safe-bottom));
+  }
+
+  .player-shell.fullscreen .player-cover {
+    width: min(
+      calc(100cqw - var(--landscape-col-min) - var(--landscape-pad)),
+      calc(100cqh * var(--cover-w-over-h)),
+      var(--cover-nat-w, 10000px),
+      calc(var(--cover-nat-h, 10000px) * var(--cover-w-over-h))
+    );
   }
 }
 
