@@ -1,4 +1,4 @@
-import { DomWrappingMarquee, wrappingMarqueeCycleDistance } from '@/lib/player/domWrappingMarquee'
+import { DomWrappingMarquee, wrappingMarqueeCycleDistance, wrappingMarqueeDurationMs, wrappingMarqueeHoldPercent } from '@/lib/player/domWrappingMarquee'
 
 function appendMarqueeTrack(doc: Document, segmentText: string) {
   const container = doc.createElement('div')
@@ -6,6 +6,7 @@ function appendMarqueeTrack(doc: Document, segmentText: string) {
   container.style.overflow = 'hidden'
 
   const track = doc.createElement('div')
+  track.className = 'player-marquee-track'
   track.style.width = 'max-content'
   track.style.whiteSpace = 'nowrap'
 
@@ -33,7 +34,7 @@ function appendMarqueeTrack(doc: Document, segmentText: string) {
 }
 
 describe('DomWrappingMarquee', () => {
-  it('hides the loop copy until a scroll cycle runs', () => {
+  it('keeps the loop copy hidden when the text fits', () => {
     cy.document().then((doc) => {
       const { container, track, segment, gap, loopCopy } = appendMarqueeTrack(doc, 'Short')
       container.style.width = '400px'
@@ -45,37 +46,35 @@ describe('DomWrappingMarquee', () => {
       marquee.init()
       expect(loopCopy.style.display).to.equal('none')
       expect(gap.style.display).to.equal('none')
-
-      marquee.startScroll()
-      expect(loopCopy.style.display).to.equal('inline-block')
-      expect(gap.style.display).to.equal('inline')
+      expect(container.classList.contains('player-marquee--overflow')).to.equal(false)
 
       marquee.reset()
-      expect(loopCopy.style.display).to.equal('none')
-      expect(gap.style.display).to.equal('none')
       container.remove()
     })
   })
 
-  it('stops after one cycle, when the copy lines up with the original start', () => {
-    expect(wrappingMarqueeCycleDistance(10, 230)).to.equal(220)
-    expect(wrappingMarqueeCycleDistance(10, 230)).to.be.lessThan(180 + 40 + 180)
-
+  it('shows the loop copy and sets CSS scroll vars when the text overflows', () => {
     cy.document().then((doc) => {
-      const { container, track, segment, loopCopy } = appendMarqueeTrack(doc, 'Alice, Bob, Carol, Dave, Eve')
+      const { container, track, segment, gap, loopCopy } = appendMarqueeTrack(doc, 'Alice, Bob, Carol, Dave, Eve')
       const marquee = new DomWrappingMarquee(container, track, segment, loopCopy)
-      marquee.startScroll()
+      marquee.init()
 
       expect(track.children).to.have.length(3)
       expect(track.children[2]).to.equal(loopCopy)
       expect(loopCopy.style.display).to.equal('inline-block')
-      const cycle = wrappingMarqueeCycleDistance(segment.getBoundingClientRect().left, loopCopy.getBoundingClientRect().left)
-      expect(cycle).to.be.greaterThan(segment.offsetWidth)
-      expect(cycle).to.be.lessThan(segment.offsetWidth * 2)
+      expect(gap.style.display).to.equal('inline')
+      expect(container.classList.contains('player-marquee--overflow')).to.equal(true)
+
+      const distance = Number(container.style.getPropertyValue('--marquee-distance'))
+      expect(distance).to.equal(wrappingMarqueeCycleDistance(segment.getBoundingClientRect().left, loopCopy.getBoundingClientRect().left))
+      expect(distance).to.be.greaterThan(segment.offsetWidth)
+      expect(distance).to.be.lessThan(segment.offsetWidth * 2)
+      expect(container.style.getPropertyValue('--marquee-dur')).to.equal(`${wrappingMarqueeDurationMs(distance)}ms`)
+      expect(container.style.getPropertyValue('--marquee-hold')).to.equal(`${wrappingMarqueeHoldPercent(distance)}%`)
 
       marquee.reset()
-      expect(track.children[2]).to.equal(loopCopy)
       expect(loopCopy.style.display).to.equal('none')
+      expect(container.classList.contains('player-marquee--overflow')).to.equal(false)
       container.remove()
     })
   })
@@ -100,7 +99,7 @@ describe('DomWrappingMarquee', () => {
       loopCopy.append(loopFirst, doc.createTextNode(', '), loopSecond)
 
       const marquee = new DomWrappingMarquee(container, track, segment, loopCopy)
-      marquee.startScroll()
+      marquee.init()
 
       expect(track.querySelectorAll('a')).to.have.length(4)
       expect(loopCopy.contains(loopSecond)).to.equal(true)
@@ -112,5 +111,11 @@ describe('DomWrappingMarquee', () => {
       expect(loopCopy.style.display).to.equal('none')
       container.remove()
     })
+  })
+
+  it('uses a 2s hold plus 30ms per pixel for the CSS duration', () => {
+    expect(wrappingMarqueeCycleDistance(10, 230)).to.equal(220)
+    expect(wrappingMarqueeDurationMs(220)).to.equal(2000 + 220 * 30)
+    expect(wrappingMarqueeHoldPercent(220)).to.be.closeTo((2000 / (2000 + 220 * 30)) * 100, 0.001)
   })
 })
