@@ -56,7 +56,7 @@ function measureReservedBelowCover(shell: HTMLElement): number {
 
   const shellStyle = getComputedStyle(shell)
   const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-  const gap = parseLengthPx(shellStyle.getPropertyValue('--player-fullscreen-section-gap') || '0.5rem', rootFontSize)
+  const gap = parseLengthPx(shellStyle.getPropertyValue('--fs-gap') || '0.5rem', rootFontSize)
   const children = Array.from(rightColumn.children) as HTMLElement[]
 
   const heights = children.reduce((sum, child) => sum + child.offsetHeight, 0)
@@ -109,8 +109,8 @@ function miniCoverCssVars(aspectRatio: number): CSSProperties {
   const mini = miniCoverSize(aspectRatio, isDesktop)
 
   return {
-    '--cover-image-width-collapsed': `${mini.width}px`,
-    '--cover-image-height-collapsed': `${mini.height}px`,
+    '--cover-w-mini': `${mini.width}px`,
+    '--cover-h-mini': `${mini.height}px`,
     '--cover-w-over-h': String(coverWidthOverHeight(aspectRatio))
   } as CSSProperties
 }
@@ -156,10 +156,10 @@ export function useFullscreenCoverLayout(
         })
         syncCoverVars(shell, setCoverVars, {
           ...miniCoverCssVars(aspectRatio),
-          '--cover-image-width': `${layout.cover.width}px`,
-          '--cover-image-height': `${layout.cover.height}px`,
-          '--player-landscape-col-width': `${layout.columnWidth}px`,
-          '--player-landscape-col-min-width': `${LANDSCAPE_COMPACT_COL_MIN_WIDTH}px`
+          '--cover-w': `${layout.cover.width}px`,
+          '--cover-h': `${layout.cover.height}px`,
+          '--landscape-col-w': `${layout.columnWidth}px`,
+          '--landscape-col-min': `${LANDSCAPE_COMPACT_COL_MIN_WIDTH}px`
         } as CSSProperties)
         return
       }
@@ -178,10 +178,10 @@ export function useFullscreenCoverLayout(
 
       syncCoverVars(shell, setCoverVars, {
         ...miniCoverCssVars(aspectRatio),
-        '--cover-image-width': `${fitted.width}px`,
-        '--cover-image-height': `${fitted.height}px`,
-        '--player-landscape-col-width': '',
-        '--player-landscape-col-min-width': ''
+        '--cover-w': `${fitted.width}px`,
+        '--cover-h': `${fitted.height}px`,
+        '--landscape-col-w': '',
+        '--landscape-col-min': ''
       } as CSSProperties)
     }
 
