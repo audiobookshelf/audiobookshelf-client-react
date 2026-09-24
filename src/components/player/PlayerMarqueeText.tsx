@@ -72,7 +72,7 @@ function PlayerMarqueeText({ text, href, onNavigate }: PlayerMarqueeTextProps) {
         segmentClassName={mergeClasses(
           'player-title text-foreground font-medium',
           TITLE_UNDERLINE_CLASS,
-          isPlayerFullscreen ? 'text-xl' : 'text-sm leading-[1.35] lg:text-lg'
+          isPlayerFullscreen ? 'text-xl' : 'text-sm leading-snug lg:text-lg'
         )}
       />
     </Link>
