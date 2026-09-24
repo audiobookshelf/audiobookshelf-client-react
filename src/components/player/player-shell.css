@@ -99,26 +99,18 @@
   display: none;
 }
 
-.player-shell.fullscreen .player-right-column .player-transport-slot,
 .player-shell.fullscreen .player-right-column .player-toolbar-slot {
   position: static;
   inset: auto;
   width: 100%;
 }
 
-.player-shell.fullscreen .player-right-column .player-transport-slot,
 .player-shell.fullscreen .player-right-column .player-toolbar-slot {
   height: auto;
   display: flex;
   justify-content: center;
   padding-inline: 0;
   bottom: auto;
-}
-
-.player-shell.fullscreen .player-transport-slot {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
 }
 
 .player-shell.fullscreen .player-toolbar-slot {
@@ -134,77 +126,12 @@
   transition-duration: var(--player-dur);
 }
 
-/* Mobile mini: transport beside title row; jump forward flush to the screen edge */
-.player-transport-slot {
-  position: absolute;
-  z-index: 2;
-  inset-inline-end: var(--player-safe-inline-end);
-  inset-inline-start: auto;
-  top: var(--player-mini-content-top);
-  bottom: auto;
-  width: var(--player-mini-transport-width);
-  height: var(--cover-image-height-collapsed);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-inline-end: 0.5rem;
-}
-
-.player-shell.fullscreen .player-transport-slot {
-  position: static;
-  inset: auto;
-  top: auto;
-  bottom: auto;
-  width: 100%;
-  height: auto;
-  padding-inline-end: 0;
-  justify-content: center;
-}
-
 .player-transport {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
   transition-property: gap;
   transition-duration: var(--player-dur);
 }
 
-.player-transport--mini {
-  gap: 0.25rem;
-}
-
-@media (max-width: 1023px) {
-  .player-shell:not(.fullscreen) .player-transport--mini .player-jump-btn,
-  .player-shell:not(.fullscreen) .player-transport--mini .player-play-btn {
-    width: 2.75rem;
-    height: 2.75rem;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-transport--mini .player-play-btn {
-    font-size: 1.375rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-transport--mini [cy-id='tooltip-reference'] {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0;
-  }
-}
-
-.player-shell.fullscreen .player-transport {
-  gap: 1rem;
-}
-
 .player-jump-btn {
-  width: 2rem;
-  height: 2rem;
-  min-width: 2rem;
-  min-height: 2rem;
-  font-size: 1.5rem;
   transition-property: width, height, font-size, min-width, min-height;
   transition-duration: var(--player-dur);
 }
@@ -220,54 +147,13 @@
 }
 
 .player-play-btn {
-  width: 2.25rem;
-  height: 2.25rem;
-  font-size: 1.25rem;
   view-transition-name: player-play-btn;
   transition-property: none;
 }
 
 .player-chapter-slot {
-  display: flex;
-  min-width: 0;
-  width: 0;
-  overflow: hidden;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
   transition-property: width, opacity, visibility;
   transition-duration: var(--player-dur);
-}
-
-.player-shell.fullscreen .player-jump-btn {
-  width: 3rem;
-  height: 3rem;
-  min-width: 3rem;
-  min-height: 3rem;
-  font-size: 1.75rem;
-}
-
-.player-shell.fullscreen .player-transport [cy-id='tooltip-reference'] {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-}
-
-.player-shell.fullscreen .player-play-btn {
-  width: 4rem;
-  height: 4rem;
-  min-width: 4rem;
-  min-height: 4rem;
-  font-size: 2.1rem;
-}
-
-.player-shell.fullscreen .player-chapter-slot {
-  width: auto;
-  overflow: visible;
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
 }
 
 .player-toolbar-slot {
@@ -351,44 +237,6 @@
     --title-pe: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
   }
 
-  .player-shell:not(.fullscreen) .player-transport-slot {
-    inset-inline: 0;
-    inset-inline-end: 0;
-    top: var(--player-mini-content-top);
-    bottom: auto;
-    width: 100%;
-    height: var(--cover-image-height-collapsed);
-    padding-inline-end: 0;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .player-transport {
-    gap: 0.75rem;
-  }
-
-  .player-jump-btn {
-    width: 2.5rem;
-    height: 2.5rem;
-    min-width: 2.5rem;
-    min-height: 2.5rem;
-    font-size: 1.875rem;
-  }
-
-  .player-play-btn {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.5rem;
-  }
-
-  .player-chapter-slot {
-    width: auto;
-    overflow: visible;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-
   .player-shell:not(.fullscreen) .player-toolbar-slot {
     inset-inline: auto;
     inset-inline-end: calc(var(--player-mini-inline-pad) + 2.25rem + 0.5rem + var(--player-safe-inline-end));
@@ -403,13 +251,11 @@
     pointer-events: auto;
   }
 
-  /* Transport/toolbar span the shell width and sit above the cover — pass clicks through except on controls. */
-  .player-shell:not(.fullscreen) .player-transport-slot,
+  /* Toolbar spans the shell width and sits above the cover — pass clicks through except on controls. */
   .player-shell:not(.fullscreen) .player-toolbar-slot {
     pointer-events: none;
   }
 
-  .player-shell:not(.fullscreen) .player-transport-slot *,
   .player-shell:not(.fullscreen) .player-toolbar-slot * {
     pointer-events: auto;
   }
@@ -420,28 +266,6 @@
 @media (min-width: 1024px) and (max-width: 1279px) {
   .player-shell:not(.fullscreen) {
     --player-mini-transport-cluster-half: 7.25rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-transport-slot {
-    padding-inline-end: 2.5rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-transport {
-    gap: 0.5rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-jump-btn {
-    width: 2.25rem;
-    height: 2.25rem;
-    min-width: 2.25rem;
-    min-height: 2.25rem;
-    font-size: 1.625rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-play-btn {
-    width: 2.375rem;
-    height: 2.375rem;
-    font-size: 1.375rem;
   }
 
   .player-shell:not(.fullscreen) .player-secondary-toolbar {
