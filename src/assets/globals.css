@@ -2,27 +2,6 @@
 @source "../"; /* used for launching nextjs from another directory */
 @source "../../cypress/tests/**/*.cy.tsx";
 
-/* Player shell fullscreen */
-@custom-variant psfs {
-  .player-shell.fullscreen & {
-    @slot;
-  }
-}
-
-/* Player shell mini */
-@custom-variant psmi {
-  .player-shell:not(.fullscreen) & {
-    @slot;
-  }
-}
-
-/* Player shell landscape compact */
-@custom-variant pslc {
-  @media (orientation: landscape) and (max-height: 600px) {
-    @slot;
-  }
-}
-
 @import './app.css';
 @import './themes.css';
 

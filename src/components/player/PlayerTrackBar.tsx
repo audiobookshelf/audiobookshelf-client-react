@@ -23,6 +23,8 @@ interface PlayerTrackBarProps {
   deferTouchSeekToShellGestures?: boolean
   /** Fullscreen chapter + book tracks: match timestamp row height. Tick space is always in the slider block. */
   dual?: boolean
+  /** Fullscreen landscape compact: left-align the chapter title above the slider. */
+  isLandscapeCompact?: boolean
 }
 
 interface ChapterTick {
@@ -35,7 +37,8 @@ export default function PlayerTrackBar({
   scope = 'auto',
   chapterLabelPlacement = 'below',
   deferTouchSeekToShellGestures = false,
-  dual = false
+  dual = false,
+  isLandscapeCompact = false
 }: PlayerTrackBarProps) {
   const t = useTypeSafeTranslations()
   const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
@@ -358,7 +361,9 @@ export default function PlayerTrackBar({
 
   return (
     <div className="player-track-bar">
-      {showChapterLabelAbove ? <div className="player-track-chapter-header pslc:text-start mb-1 text-center">{chapterLabel}</div> : null}
+      {showChapterLabelAbove ? (
+        <div className={mergeClasses('player-track-chapter-header mb-1 text-center', isLandscapeCompact && 'text-start')}>{chapterLabel}</div>
+      ) : null}
       <div className={mergeClasses('player-track-core', dual && PLAYER_TRACK_CORE_DUAL_CLASS)}>
         <div className={mergeClasses('player-track-slider-block relative', dual && PLAYER_TRACK_SLIDER_DUAL_CLASS)}>
           <div

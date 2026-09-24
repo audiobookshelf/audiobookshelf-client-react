@@ -9,10 +9,13 @@ import PlayerMarqueeTitle from './PlayerMarqueeTitle'
 const PLAYER_TITLE_AUTHOR_MINI_CLASS =
   'absolute z-3 flex min-h-(--cover-image-height-collapsed) min-w-0 flex-col justify-center gap-0.5 text-start start-(--title-ps) end-(--title-pe) top-(--player-mini-content-top) lg:w-auto lg:max-w-none lg:justify-start'
 
-const PLAYER_TITLE_AUTHOR_FULLSCREEN_CLASS = mergeClasses(
-  'static flex w-full min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 text-center lg:w-3/4 lg:max-w-3xl',
-  'pslc:grid pslc:grid-cols-[minmax(0,1fr)_auto] pslc:grid-rows-[auto_auto] pslc:items-center pslc:gap-x-2 pslc:gap-y-0.5 pslc:overflow-hidden pslc:text-center'
-)
+const PLAYER_TITLE_AUTHOR_FULLSCREEN_CLASS = 'static flex w-full min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 text-center lg:w-3/4 lg:max-w-3xl'
+const PLAYER_TITLE_AUTHOR_LANDSCAPE_CLASS =
+  'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0.5 overflow-hidden text-center'
+const PLAYER_AUTHOR_FULLSCREEN_CLASS = 'text-base'
+const PLAYER_AUTHOR_LANDSCAPE_CLASS = 'col-start-1 row-start-2 min-w-0 max-w-full justify-self-stretch overflow-hidden text-start'
+const PLAYER_DURATION_FULLSCREEN_CLASS = 'text-base'
+const PLAYER_DURATION_LANDSCAPE_CLASS = 'col-start-2 row-start-2 justify-self-end whitespace-nowrap'
 
 export interface PlayerMetadataDisplay {
   displayTitle: string
@@ -25,11 +28,19 @@ interface PlayerTitleAuthorProps {
   streamLibraryItem: LibraryItem
   metadata: PlayerMetadataDisplay
   isFullscreen: boolean
+  isLandscapeCompact?: boolean
   onNavigateAway: () => void
   compact?: boolean
 }
 
-export default function PlayerTitleAuthor({ streamLibraryItem, metadata, isFullscreen, onNavigateAway, compact = false }: PlayerTitleAuthorProps) {
+export default function PlayerTitleAuthor({
+  streamLibraryItem,
+  metadata,
+  isFullscreen,
+  isLandscapeCompact = false,
+  onNavigateAway,
+  compact = false
+}: PlayerTitleAuthorProps) {
   const t = useTypeSafeTranslations()
   const { displayTitle, bookAuthors, podcastAuthor, durationLabel } = metadata
   const libraryId = streamLibraryItem.libraryId
@@ -38,11 +49,19 @@ export default function PlayerTitleAuthor({ streamLibraryItem, metadata, isFulls
   const hasAuthorLine = Boolean(podcastAuthor || bookAuthors.length > 0)
 
   return (
-    <div className={mergeClasses('player-title-author', isFullscreen ? PLAYER_TITLE_AUTHOR_FULLSCREEN_CLASS : PLAYER_TITLE_AUTHOR_MINI_CLASS)}>
+    <div
+      className={mergeClasses(
+        'player-title-author',
+        isFullscreen
+          ? mergeClasses(PLAYER_TITLE_AUTHOR_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_TITLE_AUTHOR_LANDSCAPE_CLASS)
+          : PLAYER_TITLE_AUTHOR_MINI_CLASS
+      )}
+    >
       <PlayerMarqueeTitle
         href={`/library/${libraryId}/item/${streamLibraryItem.id}`}
         text={displayTitle}
         isFullscreen={isFullscreen}
+        isLandscapeCompact={isLandscapeCompact}
         onNavigate={handleNavigate}
       />
       <div
@@ -50,7 +69,7 @@ export default function PlayerTitleAuthor({ streamLibraryItem, metadata, isFulls
           'player-author text-foreground-muted flex max-w-full min-w-0 items-center overflow-hidden',
           compact && 'hidden',
           isFullscreen
-            ? 'pslc:col-start-1 pslc:row-start-2 pslc:min-w-0 pslc:max-w-full pslc:justify-self-stretch pslc:overflow-hidden pslc:text-start text-base'
+            ? mergeClasses(PLAYER_AUTHOR_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_AUTHOR_LANDSCAPE_CLASS)
             : 'w-auto max-w-full self-start text-xs leading-tight lg:text-sm'
         )}
       >
@@ -73,7 +92,7 @@ export default function PlayerTitleAuthor({ streamLibraryItem, metadata, isFulls
             'player-duration text-foreground-muted flex shrink-0 items-center gap-1',
             compact && 'hidden',
             isFullscreen
-              ? 'pslc:col-start-2 pslc:row-start-2 pslc:justify-self-end pslc:whitespace-nowrap text-base'
+              ? mergeClasses(PLAYER_DURATION_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_DURATION_LANDSCAPE_CLASS)
               : 'self-start text-xs leading-tight lg:text-sm'
           )}
         >

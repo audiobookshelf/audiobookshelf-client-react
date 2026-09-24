@@ -10,7 +10,7 @@ import VolumeControl from './VolumeControl'
 
 const PLAYER_SECONDARY_TOOLBAR_CLASS = 'flex flex-nowrap items-center justify-center gap-2'
 const PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS = mergeClasses(
-  'max-lg:w-full max-lg:gap-[4px] pslc:w-full',
+  'max-lg:w-full max-lg:gap-[4px]',
   'max-lg:[&_button]:inline-flex max-lg:[&_button]:h-11 max-lg:[&_button]:min-h-11 max-lg:[&_button]:w-11 max-lg:[&_button]:min-w-11 max-lg:[&_button]:items-center max-lg:[&_button]:justify-center max-lg:[&_button]:p-0'
 )
 const PLAYER_TOOLBAR_TOOLTIP_CLASS = 'max-lg:items-center max-lg:justify-center max-lg:leading-[0]'
@@ -18,6 +18,7 @@ const PLAYER_TOOLBAR_TOOLTIP_CLASS = 'max-lg:items-center max-lg:justify-center 
 interface PlayerSecondaryToolbarProps {
   controls: PlayerControlsState
   isFullscreen?: boolean
+  isLandscapeCompact?: boolean
   className?: string
   onPlaybackRateOpenChange?: (open: boolean) => void
   onVolumeOpenChange?: (open: boolean) => void
@@ -26,6 +27,7 @@ interface PlayerSecondaryToolbarProps {
 export default function PlayerSecondaryToolbar({
   controls,
   isFullscreen = false,
+  isLandscapeCompact = false,
   className,
   onPlaybackRateOpenChange,
   onVolumeOpenChange
@@ -50,7 +52,13 @@ export default function PlayerSecondaryToolbar({
 
   return (
     <div
-      className={mergeClasses('player-secondary-toolbar', PLAYER_SECONDARY_TOOLBAR_CLASS, isFullscreen && PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS, className)}
+      className={mergeClasses(
+        'player-secondary-toolbar',
+        PLAYER_SECONDARY_TOOLBAR_CLASS,
+        isFullscreen && PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS,
+        isLandscapeCompact && 'w-full',
+        className
+      )}
     >
       <VolumeControl playerHandler={playerHandler} onOpenChange={onVolumeOpenChange} />
       <PlaybackRateWidget playerHandler={playerHandler} onOpenChange={onPlaybackRateOpenChange} />
