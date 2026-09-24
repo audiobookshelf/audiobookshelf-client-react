@@ -42,6 +42,15 @@ const PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS = mergeClasses(
   'pslc:col-start-2 pslc:row-start-1 pslc:max-h-full pslc:min-h-0 pslc:w-(--player-landscape-col-width,100%) pslc:min-w-0 pslc:max-w-full pslc:justify-start pslc:self-center pslc:justify-self-center pslc:overflow-hidden'
 )
 
+const PLAYER_CHROME_CLASS = 'absolute z-4 top-(--player-mini-top-pad)'
+const PLAYER_CHROME_START_MINI_CLASS = 'start-1 opacity-0 invisible pointer-events-none'
+const PLAYER_CHROME_START_FULLSCREEN_CLASS = 'top-(--chrome-fs-top) start-(--chrome-fs-ps) opacity-100 visible pointer-events-auto'
+const PLAYER_CHROME_END_MINI_CLASS = 'end-2 opacity-0 invisible pointer-events-none lg:end-(--chrome-lg-pe) lg:opacity-100 lg:visible lg:pointer-events-auto'
+const PLAYER_CHROME_END_FULLSCREEN_CLASS = 'top-(--chrome-fs-top) end-(--chrome-fs-pe) opacity-100 visible pointer-events-auto'
+const PLAYER_CHROME_BTN_FULLSCREEN_CLASS = 'inline-flex h-11 min-h-11 w-11 min-w-11 items-center justify-center p-0'
+const PLAYER_CHROME_START_ICON_FULLSCREEN_CLASS = 'text-3xl leading-none'
+const PLAYER_CHROME_END_ICON_FULLSCREEN_CLASS = 'text-2xl leading-none'
+
 interface PlayerShellProps {
   playerHandler: PlayerHandler
   streamLibraryItem: LibraryItem
@@ -162,11 +171,21 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     >
       {showAccentBackdrop ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
 
-      <div className="player-chrome-start" aria-hidden={!isPlayerFullscreen}>
+      <div
+        className={mergeClasses(
+          'player-chrome-start',
+          PLAYER_CHROME_CLASS,
+          isPlayerFullscreen ? PLAYER_CHROME_START_FULLSCREEN_CLASS : PLAYER_CHROME_START_MINI_CLASS
+        )}
+        data-cy="player-chrome-start"
+        aria-hidden={!isPlayerFullscreen}
+      >
         <IconBtn
           ref={collapseBtnRef}
           size="small"
           borderless
+          className={isPlayerFullscreen ? PLAYER_CHROME_BTN_FULLSCREEN_CLASS : undefined}
+          iconClass={isPlayerFullscreen ? PLAYER_CHROME_START_ICON_FULLSCREEN_CLASS : undefined}
           tabIndex={isPlayerFullscreen ? undefined : -1}
           onClick={collapse}
           ariaLabel={t('LabelCollapsePlayer')}
@@ -174,8 +193,24 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
           expand_more
         </IconBtn>
       </div>
-      <div className="player-chrome-end" aria-hidden={!isPlayerFullscreen && !isDesktop}>
-        <IconBtn size="small" borderless tabIndex={isPlayerFullscreen || isDesktop ? undefined : -1} onClick={onClose} ariaLabel={t('LabelClosePlayer')}>
+      <div
+        className={mergeClasses(
+          'player-chrome-end',
+          PLAYER_CHROME_CLASS,
+          isPlayerFullscreen ? PLAYER_CHROME_END_FULLSCREEN_CLASS : PLAYER_CHROME_END_MINI_CLASS
+        )}
+        data-cy="player-chrome-end"
+        aria-hidden={!isPlayerFullscreen && !isDesktop}
+      >
+        <IconBtn
+          size="small"
+          borderless
+          className={isPlayerFullscreen ? PLAYER_CHROME_BTN_FULLSCREEN_CLASS : undefined}
+          iconClass={isPlayerFullscreen ? PLAYER_CHROME_END_ICON_FULLSCREEN_CLASS : undefined}
+          tabIndex={isPlayerFullscreen || isDesktop ? undefined : -1}
+          onClick={onClose}
+          ariaLabel={t('LabelClosePlayer')}
+        >
           close
         </IconBtn>
       </div>
