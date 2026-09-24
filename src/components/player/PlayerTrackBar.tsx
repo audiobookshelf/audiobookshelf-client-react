@@ -2,6 +2,7 @@
 
 import PlayerMarqueeText from '@/components/player/PlayerMarqueeText'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -23,8 +24,6 @@ interface PlayerTrackBarProps {
   deferTouchSeekToShellGestures?: boolean
   /** Fullscreen chapter + book tracks: match timestamp row height. Tick space is always in the slider block. */
   dual?: boolean
-  /** Fullscreen landscape compact: left-align the chapter title above the slider. */
-  isLandscapeCompact?: boolean
 }
 
 interface ChapterTick {
@@ -37,10 +36,10 @@ export default function PlayerTrackBar({
   scope = 'auto',
   chapterLabelPlacement = 'below',
   deferTouchSeekToShellGestures = false,
-  dual = false,
-  isLandscapeCompact = false
+  dual = false
 }: PlayerTrackBarProps) {
   const t = useTypeSafeTranslations()
+  const { isLandscapeCompact } = usePlayerShellLayout()
   const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
   const { seek } = playerHandler.controls
   const { playbackRate, useChapterTrack } = settings

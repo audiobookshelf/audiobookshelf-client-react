@@ -1,5 +1,6 @@
 'use client'
 
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { LibraryItem } from '@/types/api'
@@ -27,61 +28,41 @@ export interface PlayerMetadataDisplay {
 interface PlayerTitleAuthorProps {
   streamLibraryItem: LibraryItem
   metadata: PlayerMetadataDisplay
-  isFullscreen: boolean
-  isLandscapeCompact?: boolean
   onNavigateAway: () => void
   compact?: boolean
 }
 
-export default function PlayerTitleAuthor({
-  streamLibraryItem,
-  metadata,
-  isFullscreen,
-  isLandscapeCompact = false,
-  onNavigateAway,
-  compact = false
-}: PlayerTitleAuthorProps) {
+export default function PlayerTitleAuthor({ streamLibraryItem, metadata, onNavigateAway, compact = false }: PlayerTitleAuthorProps) {
   const t = useTypeSafeTranslations()
+  const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const { displayTitle, bookAuthors, podcastAuthor, durationLabel } = metadata
   const libraryId = streamLibraryItem.libraryId
 
-  const handleNavigate = isFullscreen ? onNavigateAway : undefined
+  const handleNavigate = isPlayerFullscreen ? onNavigateAway : undefined
   const hasAuthorLine = Boolean(podcastAuthor || bookAuthors.length > 0)
 
   return (
     <div
       className={mergeClasses(
         'player-title-author',
-        isFullscreen
+        isPlayerFullscreen
           ? mergeClasses(PLAYER_TITLE_AUTHOR_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_TITLE_AUTHOR_LANDSCAPE_CLASS)
           : PLAYER_TITLE_AUTHOR_MINI_CLASS
       )}
     >
-      <PlayerMarqueeTitle
-        href={`/library/${libraryId}/item/${streamLibraryItem.id}`}
-        text={displayTitle}
-        isFullscreen={isFullscreen}
-        isLandscapeCompact={isLandscapeCompact}
-        onNavigate={handleNavigate}
-      />
+      <PlayerMarqueeTitle href={`/library/${libraryId}/item/${streamLibraryItem.id}`} text={displayTitle} onNavigate={handleNavigate} />
       <div
         className={mergeClasses(
           'player-author text-foreground-muted flex max-w-full min-w-0 items-center overflow-hidden',
           compact && 'hidden',
-          isFullscreen
+          isPlayerFullscreen
             ? mergeClasses(PLAYER_AUTHOR_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_AUTHOR_LANDSCAPE_CLASS)
             : 'w-auto max-w-full self-start text-xs leading-tight lg:text-sm'
         )}
       >
         <span className="material-symbols shrink-0 text-sm">person</span>
         {hasAuthorLine ? (
-          <PlayerMarqueeAuthorLine
-            libraryId={libraryId}
-            bookAuthors={bookAuthors}
-            podcastAuthor={podcastAuthor}
-            isFullscreen={isFullscreen}
-            onNavigate={handleNavigate}
-          />
+          <PlayerMarqueeAuthorLine libraryId={libraryId} bookAuthors={bookAuthors} podcastAuthor={podcastAuthor} onNavigate={handleNavigate} />
         ) : (
           <span className="shrink-0 ps-1">{t('LabelUnknown')}</span>
         )}
@@ -91,7 +72,7 @@ export default function PlayerTitleAuthor({
           className={mergeClasses(
             'player-duration text-foreground-muted flex shrink-0 items-center gap-1',
             compact && 'hidden',
-            isFullscreen
+            isPlayerFullscreen
               ? mergeClasses(PLAYER_DURATION_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_DURATION_LANDSCAPE_CLASS)
               : 'self-start text-xs leading-tight lg:text-sm'
           )}

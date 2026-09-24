@@ -7,6 +7,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usePlayerCoverAspectRatio } from '@/hooks/usePlayerCoverAspectRatio'
 import { usePlayerFullscreenHistory } from '@/hooks/usePlayerFullscreenHistory'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { usePlayerShellSwipe } from '@/hooks/usePlayerShellSwipe'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -85,9 +86,8 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const t = useTypeSafeTranslations()
   const coverAspectRatio = usePlayerCoverAspectRatio(streamLibraryItem.libraryId)
   const isDesktop = useMediaQuery('lg')
-  const isLandscapeCompact = useMediaQuery('landscape-compact')
-  const { isPlayerFullscreen, setPlayerFullscreen } = useMediaContext()
-  const isLandscapeLayout = isPlayerFullscreen && isLandscapeCompact
+  const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
+  const { setPlayerFullscreen } = useMediaContext()
   const transportVariant = isPlayerFullscreen || isDesktop ? 'full' : 'mini'
   const controlsState = usePlayerControlsState(playerHandler, streamLibraryItem)
   const { closeAllModals } = controlsState
@@ -183,7 +183,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       ref={shellRef}
       className={mergeClasses(
         'player-shell bg-primary shadow-media-player fixed isolate w-full touch-none overflow-hidden',
-        isPlayerFullscreen ? mergeClasses(PLAYER_SHELL_FULLSCREEN_CLASS, isLandscapeLayout && PLAYER_SHELL_LANDSCAPE_CLASS) : PLAYER_SHELL_MINI_CLASS
+        isPlayerFullscreen ? mergeClasses(PLAYER_SHELL_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_SHELL_LANDSCAPE_CLASS) : PLAYER_SHELL_MINI_CLASS
       )}
       style={shellStyle}
       data-cy="player-shell"
@@ -239,29 +239,21 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       </div>
 
       <div
-        className={isPlayerFullscreen ? mergeClasses(PLAYER_FULLSCREEN_BODY_CLASS, isLandscapeLayout && PLAYER_FULLSCREEN_BODY_LANDSCAPE_CLASS) : 'contents'}
+        className={isPlayerFullscreen ? mergeClasses(PLAYER_FULLSCREEN_BODY_CLASS, isLandscapeCompact && PLAYER_FULLSCREEN_BODY_LANDSCAPE_CLASS) : 'contents'}
         data-cy="player-fullscreen-body"
       >
-        <PlayerCover
-          streamLibraryItem={streamLibraryItem}
-          coverAspectRatio={coverAspectRatio}
-          isFullscreen={isPlayerFullscreen}
-          isLandscapeCompact={isLandscapeLayout}
-          onActivate={handleCoverActivate}
-        />
+        <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={handleCoverActivate} />
         <div
           ref={rightColumnRef}
           className={mergeClasses(
             'player-right-column',
-            isPlayerFullscreen ? mergeClasses(PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS, isLandscapeLayout && PLAYER_RIGHT_COLUMN_LANDSCAPE_CLASS) : 'contents'
+            isPlayerFullscreen ? mergeClasses(PLAYER_RIGHT_COLUMN_FULLSCREEN_CLASS, isLandscapeCompact && PLAYER_RIGHT_COLUMN_LANDSCAPE_CLASS) : 'contents'
           )}
           data-cy="player-right-column"
         >
           <PlayerTitleAuthor
             streamLibraryItem={streamLibraryItem}
             metadata={metadata}
-            isFullscreen={isPlayerFullscreen}
-            isLandscapeCompact={isLandscapeLayout}
             onNavigateAway={collapseForNavigation}
             compact={landscapeDensity.compactTitle}
           />
@@ -276,13 +268,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             data-cy="player-track-stack"
           >
             <div className={mergeClasses('player-track player-track-primary', isPlayerFullscreen ? PLAYER_TRACK_FULLSCREEN_CLASS : PLAYER_TRACK_MINI_CLASS)}>
-              <PlayerTrackBar
-                playerHandler={playerHandler}
-                chapterLabelPlacement={chapterLabelPlacement}
-                deferTouchSeekToShellGestures
-                dual={showBookTrack}
-                isLandscapeCompact={isLandscapeLayout}
-              />
+              <PlayerTrackBar playerHandler={playerHandler} chapterLabelPlacement={chapterLabelPlacement} deferTouchSeekToShellGestures dual={showBookTrack} />
             </div>
             {showBookTrack ? (
               <div className={mergeClasses('player-track player-track-book', PLAYER_TRACK_FULLSCREEN_CLASS, PLAYER_TRACK_BOOK_CLASS)}>
@@ -299,7 +285,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             )}
             data-cy="player-transport-slot"
           >
-            <PlayerTransportControls controls={controlsState} variant={transportVariant} isFullscreen={isPlayerFullscreen} />
+            <PlayerTransportControls controls={controlsState} variant={transportVariant} />
           </div>
           {!landscapeDensity.overflowSecondaryToolbar ? (
             <div
@@ -312,8 +298,6 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             >
               <PlayerSecondaryToolbar
                 controls={controlsState}
-                isFullscreen={isPlayerFullscreen}
-                isLandscapeCompact={isLandscapeLayout}
                 onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
                 onVolumeOpenChange={setVolumePopoverOpen}
               />
