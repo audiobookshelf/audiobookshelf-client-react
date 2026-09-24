@@ -1,5 +1,6 @@
 'use client'
 
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { LANDSCAPE_DENSITY_MAX_LEVEL, rightColumnContentOverflows, type LandscapeDensityLevel } from '@/lib/player/landscapeDensity'
 import { RefObject, useLayoutEffect, useState } from 'react'
@@ -13,23 +14,20 @@ function observeRightColumnChildren(resizeObserver: ResizeObserver, rightColumn:
 export function useLandscapePlayerDensity(
   shellRef: RefObject<HTMLDivElement | null>,
   rightColumnRef: RefObject<HTMLDivElement | null>,
-  isDesktop: boolean,
   layoutKey: string
 ): LandscapeDensityLevel {
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
+  const isDesktop = useMediaQuery('lg')
   const [densityLevel, setDensityLevel] = useState<LandscapeDensityLevel>(0)
 
   useLayoutEffect(() => {
     const handleResize = () => setDensityLevel(0)
     window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [layoutKey, isPlayerFullscreen, isDesktop])
 
-  useLayoutEffect(() => {
     const shell = shellRef.current
     const rightColumn = rightColumnRef.current
     if (!shell || !rightColumn || !isPlayerFullscreen || isDesktop || !isLandscapeCompact) {
-      return
+      return () => window.removeEventListener('resize', handleResize)
     }
 
     const evaluate = () => {
@@ -48,10 +46,9 @@ export function useLandscapePlayerDensity(
     resizeObserver.observe(rightColumn)
     observeRightColumnChildren(resizeObserver, rightColumn)
 
-    window.addEventListener('resize', evaluate)
     return () => {
       resizeObserver.disconnect()
-      window.removeEventListener('resize', evaluate)
+      window.removeEventListener('resize', handleResize)
     }
   }, [densityLevel, isDesktop, isLandscapeCompact, isPlayerFullscreen, layoutKey, rightColumnRef, shellRef])
 
