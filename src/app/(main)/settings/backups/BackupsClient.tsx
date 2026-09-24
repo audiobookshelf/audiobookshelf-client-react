@@ -406,7 +406,8 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
       {
         label: t('LabelSize'),
         accessor: (backup) => bytesPretty(backup.fileSize),
-        cellClassName: 'font-mono'
+        cellClassName: 'font-mono',
+        hiddenBelow: 'sm'
       },
       {
         label: '',

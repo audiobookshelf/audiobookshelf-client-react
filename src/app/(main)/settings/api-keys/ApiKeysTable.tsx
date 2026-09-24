@@ -85,7 +85,8 @@ export default function ApiKeysTable({ apiKeys, onEditClick }: ApiKeysTableProps
             <span className="text-xs">{formatJsDate(new Date(apiKey.createdAt), dateFormat)}</span>
           </Tooltip>
         )
-      }
+      },
+      hiddenBelow: 'sm'
     },
     {
       label: '',
