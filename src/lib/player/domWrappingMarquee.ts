@@ -1,9 +1,21 @@
-const SCROLL_DELAY_MS = 2000
-const SCROLL_SPEED_MS_PER_PX = 30
-
 export const MARQUEE_LOOP_GAP_SPACES = 15
 export const MARQUEE_LOOP_GAP_CLASS = 'marquee-loop-gap'
 export const MARQUEE_LOOP_COPY_CLASS = 'marquee-loop-copy'
+export const MARQUEE_TRACK_CLASS = 'player-marquee-track'
+export const MARQUEE_OVERFLOW_CLASS = 'player-marquee--overflow'
+
+const MARQUEE_PAUSE_MS = 2000
+const MARQUEE_SCROLL_MS_PER_PX = 30
+
+export function wrappingMarqueeDurationMs(distancePx: number): number {
+  return MARQUEE_PAUSE_MS + distancePx * MARQUEE_SCROLL_MS_PER_PX
+}
+
+export function wrappingMarqueeHoldPercent(distancePx: number): number {
+  const duration = wrappingMarqueeDurationMs(distancePx)
+  if (duration <= 0) return 0
+  return (MARQUEE_PAUSE_MS / duration) * 100
+}
 
 function setMask(el: HTMLElement, showLeft: boolean) {
   el.style.maskImage = showLeft ? 'linear-gradient(90deg, transparent 0%, #fff 10%, #000 90%, transparent)' : 'linear-gradient(90deg, #000 90%, transparent)'
@@ -16,17 +28,15 @@ export function wrappingMarqueeCycleDistance(segmentStart: number, cloneStart: n
 
 /**
  * Marquee for a DOM segment (e.g. React-rendered links) without replacing innerHTML.
+ * JS measures overflow and sets --marquee-distance / duration; CSS animates the track.
  * The loop copy stays in the React tree so Next.js Link clicks stay in-app, but it is
- * hidden until a scroll cycle actually runs — otherwise short names appear twice.
+ * hidden unless the text overflows — otherwise short names appear twice.
  */
 export class DomWrappingMarquee {
   private container: HTMLElement
   private track: HTMLElement
   private segment: HTMLElement
   private loopCopy: HTMLElement
-  private isScrolling = false
-  private timer: ReturnType<typeof setTimeout> | null = null
-  private animationId: number | null = null
 
   constructor(container: HTMLElement, track: HTMLElement, segment: HTMLElement, loopCopy: HTMLElement) {
     this.container = container
@@ -44,93 +54,37 @@ export class DomWrappingMarquee {
     }
   }
 
-  startScroll() {
-    if (this.isScrolling) return
-
-    this.isScrolling = true
-    this.setLoopVisible(true)
-    setMask(this.container, true)
-
-    const textScrollAmount = this.segment.offsetWidth
-
-    // Stop when the copy's first author sits where the original started — one
-    // cycle, same as WrappingMarquee (title / chapter).
-    const totalScrollAmount = wrappingMarqueeCycleDistance(this.segment.getBoundingClientRect().left, this.loopCopy.getBoundingClientRect().left)
-
-    if (totalScrollAmount <= 0) {
-      this.isScrolling = false
-      this.setLoopVisible(false)
-      setMask(this.container, false)
-      return
-    }
-
-    const scrollDuration = totalScrollAmount * SCROLL_SPEED_MS_PER_PX
-
-    let done = false
-    let start: number | undefined
-    let previousTimeStamp: number | undefined
-
-    const step = (timeStamp: number) => {
-      if (start === undefined) {
-        start = timeStamp
-      }
-      const elapsed = timeStamp - start
-
-      if (this.isScrolling && previousTimeStamp !== timeStamp) {
-        const amountToMove = Math.min((elapsed / scrollDuration) * totalScrollAmount, totalScrollAmount)
-        this.track.style.transform = `translateX(-${amountToMove}px)`
-        if (amountToMove === totalScrollAmount) done = true
-        if (amountToMove > textScrollAmount) setMask(this.container, false)
-      }
-
-      if (!this.isScrolling || done) {
-        this.isScrolling = false
-        this.track.style.transform = 'translateX(0px)'
-        this.setLoopVisible(false)
-        setMask(this.container, false)
-        if (done) {
-          this.startTimer()
-        }
-      } else if (elapsed < scrollDuration) {
-        previousTimeStamp = timeStamp
-        this.animationId = window.requestAnimationFrame(step)
-      }
-    }
-
-    this.animationId = window.requestAnimationFrame(step)
-  }
-
-  startTimer() {
-    if (this.timer !== null) {
-      clearTimeout(this.timer)
-    }
-    this.timer = setTimeout(() => {
-      this.startScroll()
-    }, SCROLL_DELAY_MS)
+  private clearOverflow() {
+    this.setLoopVisible(false)
+    this.container.classList.remove(MARQUEE_OVERFLOW_CLASS)
+    this.container.style.removeProperty('--marquee-distance')
+    this.container.style.removeProperty('--marquee-dur')
+    this.container.style.removeProperty('--marquee-hold')
+    this.container.style.maskImage = ''
   }
 
   reset() {
-    if (this.timer !== null) {
-      clearTimeout(this.timer)
-      this.timer = null
-    }
-    this.isScrolling = false
-    if (this.animationId !== null) {
-      window.cancelAnimationFrame(this.animationId)
-      this.animationId = null
-    }
-    this.track.style.transform = 'translateX(0px)'
-    this.setLoopVisible(false)
+    this.clearOverflow()
   }
 
   init() {
     this.reset()
 
-    if (this.segment.offsetWidth > this.container.clientWidth) {
-      setMask(this.container, false)
-      this.startTimer()
-    } else {
-      this.container.style.maskImage = ''
+    if (this.segment.offsetWidth <= this.container.clientWidth) {
+      return
     }
+
+    this.setLoopVisible(true)
+    const distance = wrappingMarqueeCycleDistance(this.segment.getBoundingClientRect().left, this.loopCopy.getBoundingClientRect().left)
+    if (distance <= 0) {
+      this.clearOverflow()
+      return
+    }
+
+    this.container.style.setProperty('--marquee-distance', String(distance))
+    this.container.style.setProperty('--marquee-dur', `${wrappingMarqueeDurationMs(distance)}ms`)
+    this.container.style.setProperty('--marquee-hold', `${wrappingMarqueeHoldPercent(distance)}%`)
+    this.container.classList.add(MARQUEE_OVERFLOW_CLASS)
+    setMask(this.container, false)
   }
 }

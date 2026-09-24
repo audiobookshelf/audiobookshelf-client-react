@@ -3,11 +3,6 @@
 import { DomWrappingMarquee } from '@/lib/player/domWrappingMarquee'
 import { RefObject, useEffect, useLayoutEffect, useRef } from 'react'
 
-function prefersReducedMotion(): boolean {
-  if (typeof window === 'undefined') return false
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
 function scheduleDomMarqueeInit(marquee: DomWrappingMarquee) {
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -33,13 +28,6 @@ export function useDomMarquee(
     const loopCopy = loopCopyRef.current
     if (!container || !track || !segment || !loopCopy) return
 
-    if (prefersReducedMotion()) {
-      marqueeRef.current?.reset()
-      container.style.maskImage = ''
-      track.style.transform = ''
-      return
-    }
-
     if (!marqueeRef.current) {
       marqueeRef.current = new DomWrappingMarquee(container, track, segment, loopCopy)
     }
@@ -54,7 +42,7 @@ export function useDomMarquee(
     if (!container) return
 
     const remeasure = () => {
-      if (!marqueeRef.current || prefersReducedMotion()) return
+      if (!marqueeRef.current) return
       scheduleDomMarqueeInit(marqueeRef.current)
     }
 

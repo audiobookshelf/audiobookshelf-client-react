@@ -98,6 +98,16 @@
   transition-duration: var(--player-dur);
 }
 
+@keyframes player-marquee {
+  to {
+    transform: translateX(calc(var(--marquee-distance) * -1px));
+  }
+}
+
+.player-marquee--overflow .player-marquee-track {
+  animation: player-marquee var(--marquee-dur) linear(0, 0 var(--marquee-hold), 1) infinite;
+}
+
 .player-chrome-start,
 .player-chrome-end {
   transition-property: top, opacity, visibility;
@@ -189,6 +199,19 @@
   .player-transport-jump-forward,
   .player-play-btn {
     view-transition-name: none;
+  }
+
+  .player-marquee-track {
+    animation: none;
+  }
+
+  .player-marquee--overflow {
+    mask-image: none;
+  }
+
+  .player-marquee--overflow .marquee-loop-gap,
+  .player-marquee--overflow .marquee-loop-copy {
+    display: none !important;
   }
 }
 

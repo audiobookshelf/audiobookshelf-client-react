@@ -3,7 +3,7 @@
 import { useDomMarquee } from '@/hooks/useDomMarquee'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { mergeClasses } from '@/lib/merge-classes'
-import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES } from '@/lib/player/domWrappingMarquee'
+import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES, MARQUEE_TRACK_CLASS } from '@/lib/player/domWrappingMarquee'
 import Link from 'next/link'
 import { memo, useRef } from 'react'
 
@@ -27,7 +27,7 @@ function PlayerMarqueePlainTrack({ text, title, containerClassName, segmentClass
 
   return (
     <div ref={containerRef} className={mergeClasses('relative min-w-0 overflow-hidden', containerClassName)} title={title}>
-      <div ref={trackRef} className={mergeClasses('w-max max-w-none whitespace-nowrap will-change-transform', centerTrack && 'mx-auto')}>
+      <div ref={trackRef} className={mergeClasses(MARQUEE_TRACK_CLASS, 'w-max max-w-none whitespace-nowrap will-change-transform', centerTrack && 'mx-auto')}>
         <span ref={segmentRef} className={mergeClasses('inline-block whitespace-nowrap', segmentClassName)}>
           {text}
         </span>
