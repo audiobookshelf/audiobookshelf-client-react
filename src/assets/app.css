@@ -15,7 +15,7 @@
 }
 /* Subtract height of app bar and mini player */
 html:has(.player-shell) {
-  --media-player-height: var(--media-player-mini-height);
+  --media-player-height: var(--player-mini-h);
 }
 .page-wrapper.streaming {
   height: calc(100dvh - 4rem - var(--media-player-height, 0px));
