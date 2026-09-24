@@ -2,66 +2,64 @@
   /* Morph timings (view-transition pseudo-elements are not under .player-shell) */
   --player-morph-dur: 0.2s;
   --player-morph-ease: cubic-bezier(0.39, 0.575, 0.565, 1);
-  --player-cover-morph-dur: var(--player-morph-dur);
-  --player-cover-morph-ease: var(--player-morph-ease);
-  --player-mini-content-top: 0.5rem;
-  --cover-image-height-collapsed: 56px;
-  --player-mini-inline-pad: 0.5rem;
+  --cover-morph-dur: var(--player-morph-dur);
+  --cover-morph-ease: var(--player-morph-ease);
+  --mini-content-top: 0.5rem;
+  --cover-h-mini: 56px;
+  --mini-pad: 0.5rem;
   /* Slider + reserved tick row + timestamps. */
-  --player-mini-track-stack: 30px;
-  --player-mini-track-bottom: 0.5rem;
-  --player-mini-track-block: calc(var(--player-mini-inline-pad) + var(--player-mini-track-stack) + var(--player-mini-track-bottom));
-  --player-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --media-player-mini-height: calc(
-    var(--player-mini-content-top) + var(--cover-image-height-collapsed) + var(--player-mini-track-block) + var(--player-safe-bottom)
-  );
+  --mini-track-stack: 30px;
+  --mini-track-bottom: 0.5rem;
+  --mini-track-block: calc(var(--mini-pad) + var(--mini-track-stack) + var(--mini-track-bottom));
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --player-mini-h: calc(var(--mini-content-top) + var(--cover-h-mini) + var(--mini-track-block) + var(--safe-bottom));
 }
 
 .player-shell {
-  --player-ease: var(--player-cover-morph-ease);
-  --player-dur-cover: var(--player-cover-morph-dur);
+  --player-ease: var(--cover-morph-ease);
+  --player-dur-cover: var(--cover-morph-dur);
   --player-dur: 0.15s;
-  --cover-image-width: 200px;
-  --cover-image-height: 320px;
-  --cover-image-width-collapsed: 56px;
-  --cover-image-height-collapsed: 56px;
-  --player-mini-transport-width: 8.75rem;
+  --cover-w: 200px;
+  --cover-h: 320px;
+  --cover-w-mini: 56px;
+  --cover-h-mini: 56px;
+  --mini-transport-w: 8.75rem;
   /** Gap between cover and title on mini (mobile: after cover; desktop lg: both sides of title vs cover/transport). */
-  --player-mini-title-inline-gap: 0.5rem;
-  --player-mini-top-pad: 0.5rem;
-  --player-mini-content-top: 0.5rem;
-  --player-mini-inline-pad: 0.5rem;
-  --player-mini-track-stack: 30px;
-  --player-mini-track-bottom: 0.5rem;
-  --player-mini-track-block: calc(var(--player-mini-inline-pad) + var(--player-mini-track-stack) + var(--player-mini-track-bottom));
-  --player-safe-top: env(safe-area-inset-top, 0px);
-  --player-safe-bottom: env(safe-area-inset-bottom, 0px);
-  --player-safe-inline-start: env(safe-area-inset-left, 0px);
-  --player-safe-inline-end: env(safe-area-inset-right, 0px);
-  --cover-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start));
-  --title-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap));
-  --title-pe: calc(var(--player-mini-transport-width) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
-  --chrome-lg-pe: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-end));
-  --track-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start));
-  --track-pe: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-end));
-  --track-pb: calc(var(--player-mini-track-bottom) + var(--player-safe-bottom));
-  --toolbar-lg-pe: calc(var(--player-mini-inline-pad) + 2.25rem + 0.5rem + var(--player-safe-inline-end));
+  --mini-title-gap: 0.5rem;
+  --mini-top-pad: 0.5rem;
+  --mini-content-top: 0.5rem;
+  --mini-pad: 0.5rem;
+  --mini-track-stack: 30px;
+  --mini-track-bottom: 0.5rem;
+  --mini-track-block: calc(var(--mini-pad) + var(--mini-track-stack) + var(--mini-track-bottom));
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-start: env(safe-area-inset-left, 0px);
+  --safe-end: env(safe-area-inset-right, 0px);
+  --cover-ps: calc(var(--mini-pad) + var(--safe-start));
+  --title-ps: calc(var(--mini-pad) + var(--safe-start) + var(--cover-w-mini) + var(--mini-title-gap));
+  --title-pe: calc(var(--mini-transport-w) + var(--mini-title-gap) + var(--safe-end));
+  --chrome-lg-pe: calc(var(--mini-pad) + var(--safe-end));
+  --track-ps: calc(var(--mini-pad) + var(--safe-start));
+  --track-pe: calc(var(--mini-pad) + var(--safe-end));
+  --track-pb: calc(var(--mini-track-bottom) + var(--safe-bottom));
+  --toolbar-lg-pe: calc(var(--mini-pad) + 2.25rem + 0.5rem + var(--safe-end));
 }
 
 :dir(rtl) .player-shell {
-  --player-safe-inline-start: env(safe-area-inset-right, 0px);
-  --player-safe-inline-end: env(safe-area-inset-left, 0px);
+  --safe-start: env(safe-area-inset-right, 0px);
+  --safe-end: env(safe-area-inset-left, 0px);
 }
 
 .player-shell.fullscreen {
-  --player-fullscreen-section-gap: 0.5rem;
-  --fs-pt: calc(3.25rem + var(--player-safe-top));
-  --fs-ps: calc(1rem + var(--player-safe-inline-start));
-  --fs-pe: calc(1rem + var(--player-safe-inline-end));
-  --fs-pb: calc(0.75rem + var(--player-safe-bottom));
-  --chrome-fs-top: calc(0.5rem + var(--player-safe-top));
-  --chrome-fs-ps: calc(0.5rem + var(--player-safe-inline-start));
-  --chrome-fs-pe: calc(0.5rem + var(--player-safe-inline-end));
+  --fs-gap: 0.5rem;
+  --fs-pt: calc(3.25rem + var(--safe-top));
+  --fs-ps: calc(1rem + var(--safe-start));
+  --fs-pe: calc(1rem + var(--safe-end));
+  --fs-pb: calc(0.75rem + var(--safe-bottom));
+  --chrome-fs-top: calc(0.5rem + var(--safe-top));
+  --chrome-fs-ps: calc(0.5rem + var(--safe-start));
+  --chrome-fs-pe: calc(0.5rem + var(--safe-end));
 }
 
 .player-shell,
@@ -127,33 +125,33 @@
 
 @media (min-width: 1024px) {
   :root {
-    --cover-image-height-collapsed: 4rem;
-    --player-mini-inline-pad: 1rem;
-    --player-mini-track-bottom: 0.75rem;
-    --player-mini-track-stack: 33px;
+    --cover-h-mini: 4rem;
+    --mini-pad: 1rem;
+    --mini-track-bottom: 0.75rem;
+    --mini-track-stack: 33px;
   }
 
   .player-shell {
-    --player-mini-content-top: 0.5rem;
-    --cover-image-width-collapsed: 4rem;
-    --cover-image-height-collapsed: 4rem;
-    --player-mini-inline-pad: 1rem;
-    --player-mini-track-bottom: 0.75rem;
-    --player-mini-track-stack: 33px;
-    --player-mini-title-inline-gap: 0.75rem;
+    --mini-content-top: 0.5rem;
+    --cover-w-mini: 4rem;
+    --cover-h-mini: 4rem;
+    --mini-pad: 1rem;
+    --mini-track-bottom: 0.75rem;
+    --mini-track-stack: 33px;
+    --mini-title-gap: 0.75rem;
     /* Half of centered desktop mini transport row (5×2.5rem + 4×0.5rem gap). */
-    --player-mini-transport-cluster-half: 7.25rem;
-    --title-pe: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
+    --mini-transport-half: 7.25rem;
+    --title-pe: calc(50% + var(--mini-transport-half) + var(--mini-title-gap) + var(--safe-end));
   }
 }
 
 @media (orientation: landscape) and (max-height: 600px) {
   .player-shell.fullscreen {
-    --player-landscape-inline-pad: 1rem;
-    --player-landscape-col-min-width: 380px;
-    --fs-ps: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-start));
-    --fs-pe: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-end));
-    --fs-pb: calc(var(--player-landscape-inline-pad) + var(--player-safe-bottom));
+    --landscape-pad: 1rem;
+    --landscape-col-min: 380px;
+    --fs-ps: calc(var(--landscape-pad) + var(--safe-start));
+    --fs-pe: calc(var(--landscape-pad) + var(--safe-end));
+    --fs-pb: calc(var(--landscape-pad) + var(--safe-bottom));
   }
 }
 
