@@ -39,6 +39,8 @@
   --player-safe-inline-start: env(safe-area-inset-left, 0px);
   --player-safe-inline-end: env(safe-area-inset-right, 0px);
   --cover-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start));
+  --title-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap));
+  --title-pe: calc(var(--player-mini-transport-width) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
 }
 
 :dir(rtl) .player-shell {
@@ -68,111 +70,26 @@
   view-transition-name: player-cover;
 }
 
-.player-title-marquee {
-  width: 100%;
-}
-
-.player-title-link {
-  display: block;
-  text-decoration: none;
-}
-
 .player-title-link:hover .marquee-segment,
 .player-title-link:focus-visible .marquee-segment {
   text-decoration: underline;
 }
 
-.player-title-author {
-  position: absolute;
-  z-index: 3;
-  inset-inline-start: calc(
-    var(--player-mini-inline-pad) + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap)
-  );
-  inset-inline-end: calc(var(--player-mini-transport-width) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
-  top: var(--player-mini-content-top);
-  height: auto;
-  min-height: var(--cover-image-height-collapsed);
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.125rem;
-  text-align: start;
-}
-
 .player-title-author .player-title {
-  font-size: 0.875rem;
-  line-height: 1.35;
   transition-property: font-size;
   transition-duration: var(--player-dur);
 }
 
 .player-title-author .player-author,
 .player-title-author .player-duration {
-  font-size: 0.75rem;
-  line-height: 1.25;
   transition-property: font-size, opacity, height, margin;
   transition-duration: var(--player-dur);
-}
-
-.player-author {
-  overflow: hidden;
-  max-width: 100%;
-}
-
-.player-author-marquee {
-  width: 100%;
-  min-width: 0;
-  padding-inline-start: 0.25rem;
 }
 
 /* Loop copy exists for scrolling but must not take layout until a cycle runs. */
 .player-author-marquee .marquee-loop-gap,
 .player-author-marquee .marquee-loop-copy {
   display: none;
-}
-
-.player-shell:not(.fullscreen) .player-title-link {
-  align-self: start;
-  width: max-content;
-  max-width: 100%;
-}
-
-.player-shell:not(.fullscreen) .player-author {
-  align-self: start;
-  width: auto;
-  max-width: 100%;
-}
-
-.player-shell:not(.fullscreen) .player-author-marquee {
-  flex: 0 1 auto;
-  width: auto;
-  max-width: 100%;
-}
-
-.player-shell:not(.fullscreen) .player-duration {
-  align-self: start;
-}
-
-.player-shell.fullscreen .player-title-author {
-  position: static;
-  inset: auto;
-  width: 100%;
-  height: auto;
-  min-height: 0;
-  text-align: center;
-  align-items: center;
-}
-
-/* Flex centering shrinks children to content width — constrain title so marquee can overflow-scroll. */
-.player-shell.fullscreen .player-title-link {
-  align-self: stretch;
-  width: 100%;
-  max-width: 100%;
-}
-
-.player-shell.fullscreen .player-title-marquee .player-title {
-  margin-inline: auto;
 }
 
 .player-shell.fullscreen .player-right-column .player-track-stack,
@@ -207,23 +124,6 @@
   visibility: visible;
   pointer-events: auto;
   bottom: auto;
-}
-
-.player-shell.fullscreen .player-title-author .player-title {
-  font-size: 1.25rem;
-}
-
-.player-shell.fullscreen .player-title-author .player-author {
-  font-size: 1rem;
-}
-
-.player-shell.fullscreen .player-title-author .player-duration {
-  font-size: 1rem;
-}
-
-.player-title-author--compact .player-author,
-.player-title-author--compact .player-duration {
-  display: none;
 }
 
 .player-chrome-start,
@@ -564,28 +464,7 @@
     --player-mini-title-inline-gap: 0.75rem;
     /* Half of centered desktop mini transport row (5×2.5rem + 4×1rem gap). */
     --player-mini-transport-cluster-half: 8.5rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-title-author {
-    inset-inline-start: calc(
-      var(--player-mini-inline-pad) + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap)
-    );
-    inset-inline-end: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
-    width: auto;
-    max-width: none;
-    top: 0.5rem;
-    height: auto;
-    min-height: var(--cover-image-height-collapsed);
-    justify-content: flex-start;
-  }
-
-  .player-title-author .player-title {
-    font-size: 1.125rem;
-  }
-
-  .player-title-author .player-author,
-  .player-title-author .player-duration {
-    font-size: 0.875rem;
+    --title-pe: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
   }
 
   .player-track {
@@ -663,8 +542,7 @@
     pointer-events: auto;
   }
 
-  .player-shell.fullscreen .player-right-column .player-track-stack,
-  .player-shell.fullscreen .player-right-column .player-title-author {
+  .player-shell.fullscreen .player-right-column .player-track-stack {
     width: 75%;
     max-width: 48rem;
   }
@@ -717,38 +595,6 @@
   .player-shell.fullscreen .player-right-column > * {
     flex-shrink: 0;
     min-width: 0;
-  }
-
-  .player-shell.fullscreen .player-right-column .player-title-author {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-rows: auto auto;
-    column-gap: 0.5rem;
-    row-gap: 0.125rem;
-    text-align: center;
-    align-items: center;
-    overflow: hidden;
-  }
-
-  .player-shell.fullscreen .player-right-column .player-title-link {
-    grid-column: 1 / -1;
-  }
-
-  .player-shell.fullscreen .player-right-column .player-author {
-    grid-column: 1;
-    grid-row: 2;
-    min-width: 0;
-    max-width: 100%;
-    overflow: hidden;
-    justify-self: stretch;
-    text-align: start;
-  }
-
-  .player-shell.fullscreen .player-right-column .player-duration {
-    grid-column: 2;
-    grid-row: 2;
-    justify-self: end;
-    white-space: nowrap;
   }
 
   .player-shell.fullscreen .player-right-column .player-track-chapter-header {
