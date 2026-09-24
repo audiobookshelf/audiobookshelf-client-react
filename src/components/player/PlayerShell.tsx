@@ -51,6 +51,14 @@ const PLAYER_CHROME_BTN_FULLSCREEN_CLASS = 'inline-flex h-11 min-h-11 w-11 min-w
 const PLAYER_CHROME_START_ICON_FULLSCREEN_CLASS = 'text-3xl leading-none'
 const PLAYER_CHROME_END_ICON_FULLSCREEN_CLASS = 'text-2xl leading-none'
 
+const PLAYER_TRACK_STACK_CLASS = 'flex flex-col'
+const PLAYER_TRACK_STACK_MINI_CLASS = 'absolute z-2 gap-1.5 start-(--track-ps) end-(--track-pe) bottom-(--track-pb)'
+/* Keep chapter timestamps grouped with the chapter slider, not the book track. */
+const PLAYER_TRACK_STACK_FULLSCREEN_CLASS = 'static inset-auto bottom-auto w-full gap-4 lg:w-3/4 lg:max-w-3xl'
+const PLAYER_TRACK_MINI_CLASS = 'text-xs lg:text-sm'
+const PLAYER_TRACK_FULLSCREEN_CLASS = 'text-sm'
+const PLAYER_TRACK_BOOK_CLASS = 'max-h-32 overflow-hidden opacity-100 visible pointer-events-auto'
+
 interface PlayerShellProps {
   playerHandler: PlayerHandler
   streamLibraryItem: LibraryItem
@@ -235,13 +243,21 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             compact={landscapeDensity.compactTitle}
           />
 
-          <div className={mergeClasses('player-track-stack', showBookTrack && 'player-track-stack--dual')}>
-            <div className="player-track player-track-primary">
-              <PlayerTrackBar playerHandler={playerHandler} chapterLabelPlacement={chapterLabelPlacement} deferTouchSeekToShellGestures />
+          <div
+            className={mergeClasses(
+              'player-track-stack',
+              PLAYER_TRACK_STACK_CLASS,
+              isPlayerFullscreen ? PLAYER_TRACK_STACK_FULLSCREEN_CLASS : PLAYER_TRACK_STACK_MINI_CLASS,
+              showBookTrack && 'player-track-stack--dual'
+            )}
+            data-cy="player-track-stack"
+          >
+            <div className={mergeClasses('player-track player-track-primary', isPlayerFullscreen ? PLAYER_TRACK_FULLSCREEN_CLASS : PLAYER_TRACK_MINI_CLASS)}>
+              <PlayerTrackBar playerHandler={playerHandler} chapterLabelPlacement={chapterLabelPlacement} deferTouchSeekToShellGestures dual={showBookTrack} />
             </div>
             {showBookTrack ? (
-              <div className="player-track player-track-book">
-                <PlayerTrackBar playerHandler={playerHandler} scope="book" deferTouchSeekToShellGestures />
+              <div className={mergeClasses('player-track player-track-book', PLAYER_TRACK_FULLSCREEN_CLASS, PLAYER_TRACK_BOOK_CLASS)}>
+                <PlayerTrackBar playerHandler={playerHandler} scope="book" deferTouchSeekToShellGestures dual />
               </div>
             ) : null}
           </div>
