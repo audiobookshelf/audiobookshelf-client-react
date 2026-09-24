@@ -141,17 +141,9 @@
     --player-mini-track-bottom: 0.75rem;
     --player-mini-track-stack: 33px;
     --player-mini-title-inline-gap: 0.75rem;
-    /* Half of centered desktop mini transport row (5×2.5rem + 4×1rem gap). */
-    --player-mini-transport-cluster-half: 8.5rem;
-    --title-pe: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
-  }
-}
-
-/* Compact mini chrome between lg and xl so centered transport and the
-   right-hand toolbar do not overlap around ~1100px. */
-@media (min-width: 1024px) and (max-width: 1279px) {
-  .player-shell:not(.fullscreen) {
+    /* Half of centered desktop mini transport row (5×2.5rem + 4×0.5rem gap). */
     --player-mini-transport-cluster-half: 7.25rem;
+    --title-pe: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
   }
 }
 
