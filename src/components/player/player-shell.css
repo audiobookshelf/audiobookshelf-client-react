@@ -38,14 +38,6 @@
   --player-safe-bottom: env(safe-area-inset-bottom, 0px);
   --player-safe-inline-start: env(safe-area-inset-left, 0px);
   --player-safe-inline-end: env(safe-area-inset-right, 0px);
-  z-index: 50;
-  touch-action: none;
-  height: var(--media-player-mini-height);
-  overflow: hidden;
-}
-
-.player-shell:not(.fullscreen) {
-  cursor: pointer;
 }
 
 :dir(rtl) .player-shell {
@@ -54,22 +46,11 @@
 }
 
 .player-shell.fullscreen {
-  z-index: 90;
-  inset: 0;
-  top: 0;
-  height: 100dvh;
-  min-height: 100dvh;
-  max-height: 100dvh;
-  overflow: hidden;
-  overscroll-behavior: none;
   --player-fullscreen-section-gap: 0.5rem;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  padding-top: calc(3.25rem + var(--player-safe-top));
-  padding-inline-start: calc(1rem + var(--player-safe-inline-start));
-  padding-inline-end: calc(1rem + var(--player-safe-inline-end));
-  padding-bottom: calc(0.75rem + var(--player-safe-bottom));
+  --fs-pt: calc(3.25rem + var(--player-safe-top));
+  --fs-ps: calc(1rem + var(--player-safe-inline-start));
+  --fs-pe: calc(1rem + var(--player-safe-inline-end));
+  --fs-pb: calc(0.75rem + var(--player-safe-bottom));
 }
 
 .player-shell,
@@ -80,26 +61,6 @@
 .player-chrome-end,
 .player-right-column {
   transition-timing-function: var(--player-ease);
-}
-
-.player-right-column {
-  display: contents;
-}
-
-/* Mini layout: wrapper is inert; cover + column keep absolute positioning on the shell. */
-.player-fullscreen-body {
-  display: contents;
-}
-
-.player-shell.fullscreen .player-fullscreen-body {
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  align-items: center;
-  flex: 1 1 auto;
-  min-height: 0;
-  width: 100%;
-  min-width: 0;
-  gap: var(--player-fullscreen-section-gap);
 }
 
 .player-cover {
@@ -240,17 +201,6 @@
 
 .player-shell.fullscreen .player-title-marquee .player-title {
   margin-inline: auto;
-}
-
-.player-shell.fullscreen .player-right-column {
-  display: flex;
-  flex-direction: column;
-  grid-row: 2;
-  flex: 0 0 auto;
-  align-self: end;
-  gap: var(--player-fullscreen-section-gap);
-  width: 100%;
-  min-width: 0;
 }
 
 .player-shell.fullscreen .player-right-column .player-track-stack,
@@ -749,10 +699,6 @@
     align-self: center;
   }
 
-  .player-shell.fullscreen .player-right-column {
-    align-items: center;
-  }
-
   .player-shell.fullscreen .player-right-column .player-track-stack,
   .player-shell.fullscreen .player-right-column .player-title-author {
     width: 75%;
@@ -798,19 +744,9 @@
   .player-shell.fullscreen {
     --player-landscape-inline-pad: 1rem;
     --player-landscape-col-min-width: 380px;
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr);
-    align-items: center;
-    column-gap: var(--player-landscape-inline-pad);
-    padding-top: calc(3.25rem + var(--player-safe-top));
-    padding-inline-start: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-start));
-    padding-inline-end: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-end));
-    padding-bottom: calc(var(--player-landscape-inline-pad) + var(--player-safe-bottom));
-  }
-
-  .player-shell.fullscreen .player-fullscreen-body {
-    display: contents;
+    --fs-ps: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-start));
+    --fs-pe: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-end));
+    --fs-pb: calc(var(--player-landscape-inline-pad) + var(--player-safe-bottom));
   }
 
   .player-shell.fullscreen .player-cover {
@@ -822,26 +758,6 @@
     flex: none;
     width: var(--cover-image-width);
     height: var(--cover-image-height);
-  }
-
-  .player-shell.fullscreen .player-right-column {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-self: center;
-    justify-self: center;
-    width: var(--player-landscape-col-width, 100%);
-    min-width: min(var(--player-landscape-col-min-width, 380px), 100%);
-    max-width: 100%;
-    min-width: 0;
-    height: auto;
-    max-height: 100%;
-    min-height: 0;
-    overflow: hidden;
-    gap: var(--player-fullscreen-section-gap);
-    margin-top: 0;
   }
 
   /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
