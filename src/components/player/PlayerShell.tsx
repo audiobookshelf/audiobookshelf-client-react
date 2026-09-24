@@ -59,6 +59,14 @@ const PLAYER_TRACK_MINI_CLASS = 'text-xs lg:text-sm'
 const PLAYER_TRACK_FULLSCREEN_CLASS = 'text-sm'
 const PLAYER_TRACK_BOOK_CLASS = 'max-h-32 overflow-hidden opacity-100 visible pointer-events-auto'
 
+const PLAYER_TRANSPORT_SLOT_CLASS = 'flex items-center'
+const PLAYER_TRANSPORT_SLOT_MINI_CLASS = mergeClasses(
+  'absolute z-2 start-auto end-(--player-safe-inline-end) top-(--player-mini-content-top) bottom-auto h-(--cover-image-height-collapsed) w-(--player-mini-transport-width) justify-end pe-2',
+  'lg:pointer-events-none lg:*:pointer-events-auto lg:start-0 lg:end-0 lg:w-full lg:justify-center lg:pe-10 xl:pe-0'
+)
+const PLAYER_TRANSPORT_SLOT_FULLSCREEN_CLASS =
+  'static inset-auto top-auto bottom-auto h-auto w-full justify-center pe-0 opacity-100 visible pointer-events-auto'
+
 interface PlayerShellProps {
   playerHandler: PlayerHandler
   streamLibraryItem: LibraryItem
@@ -262,8 +270,15 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             ) : null}
           </div>
 
-          <div className="player-transport-slot">
-            <PlayerTransportControls controls={controlsState} variant={transportVariant} />
+          <div
+            className={mergeClasses(
+              'player-transport-slot',
+              PLAYER_TRANSPORT_SLOT_CLASS,
+              isPlayerFullscreen ? PLAYER_TRANSPORT_SLOT_FULLSCREEN_CLASS : PLAYER_TRANSPORT_SLOT_MINI_CLASS
+            )}
+            data-cy="player-transport-slot"
+          >
+            <PlayerTransportControls controls={controlsState} variant={transportVariant} isFullscreen={isPlayerFullscreen} />
           </div>
           {!landscapeDensity.overflowSecondaryToolbar ? (
             <div className="player-toolbar-slot">
