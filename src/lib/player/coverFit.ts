@@ -2,12 +2,12 @@ export const PLAYER_DESKTOP_MIN_WIDTH = 1024
 export const COVER_WIDTH_MINI_MOBILE = 56
 /** Desktop mini player cover height (width derived from library aspect ratio). */
 export const COVER_WIDTH_MINI_DESKTOP = 64
-/** Desktop portrait fullscreen: matches `player-shell.css` (75% / 48rem on controls). */
+/** Desktop portrait fullscreen: matches `lg:w-3/4 lg:max-w-3xl` on the player track stack and title-author. */
 export const DESKTOP_FULLSCREEN_CONTENT_WIDTH_RATIO = 0.75
 export const DESKTOP_FULLSCREEN_CONTENT_MAX_WIDTH_PX = 768
 /** Horizontal inset for fullscreen cover on mobile portrait (each side). */
 export const FULLSCREEN_COVER_INLINE_PADDING_MOBILE = 16
-/** Landscape compact fullscreen: matches `player-shell.css` (--player-landscape-*). */
+/** Landscape compact fullscreen: matches `--player-landscape-*` tokens on `.player-shell.fullscreen`. */
 export const LANDSCAPE_COMPACT_INLINE_PADDING = 16
 export const LANDSCAPE_COMPACT_CONTENT_TOP = 52
 /** Fullscreen transport row: 4×3rem + 4rem play + 4×1rem gaps (16px rem). */

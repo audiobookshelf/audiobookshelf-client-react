@@ -45,6 +45,7 @@
   --track-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start));
   --track-pe: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-end));
   --track-pb: calc(var(--player-mini-track-bottom) + var(--player-safe-bottom));
+  --toolbar-lg-pe: calc(var(--player-mini-inline-pad) + 2.25rem + 0.5rem + var(--player-safe-inline-end));
 }
 
 :dir(rtl) .player-shell {
@@ -99,27 +100,6 @@
   display: none;
 }
 
-.player-shell.fullscreen .player-right-column .player-toolbar-slot {
-  position: static;
-  inset: auto;
-  width: 100%;
-}
-
-.player-shell.fullscreen .player-right-column .player-toolbar-slot {
-  height: auto;
-  display: flex;
-  justify-content: center;
-  padding-inline: 0;
-  bottom: auto;
-}
-
-.player-shell.fullscreen .player-toolbar-slot {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  bottom: auto;
-}
-
 .player-chrome-start,
 .player-chrome-end {
   transition-property: top, opacity, visibility;
@@ -156,66 +136,6 @@
   transition-duration: var(--player-dur);
 }
 
-.player-toolbar-slot {
-  position: absolute;
-  z-index: 2;
-  inset-inline: 0;
-  bottom: 0.5rem;
-  display: flex;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.player-shell.fullscreen .player-toolbar-slot {
-  position: static;
-  z-index: 6;
-  inset: auto;
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-  bottom: auto;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-}
-
-@media (max-width: 1023px) {
-  .player-shell.fullscreen .player-toolbar-slot {
-    width: 100%;
-  }
-
-  .player-shell.fullscreen .player-secondary-toolbar {
-    width: 100%;
-    justify-content: center;
-    gap: 4px;
-    align-items: center;
-  }
-
-  .player-shell.fullscreen .player-secondary-toolbar [cy-id='tooltip-reference'] {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0;
-  }
-
-  .player-shell.fullscreen .player-secondary-toolbar button {
-    width: 2.75rem;
-    height: 2.75rem;
-    min-width: 2.75rem;
-    min-height: 2.75rem;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .player-shell.fullscreen .player-secondary-toolbar .player-sleep-timer-remaining {
-    display: none;
-  }
-}
-
 @media (min-width: 1024px) {
   :root {
     --cover-image-height-collapsed: 4rem;
@@ -236,29 +156,6 @@
     --player-mini-transport-cluster-half: 8.5rem;
     --title-pe: calc(50% + var(--player-mini-transport-cluster-half) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
   }
-
-  .player-shell:not(.fullscreen) .player-toolbar-slot {
-    inset-inline: auto;
-    inset-inline-end: calc(var(--player-mini-inline-pad) + 2.25rem + 0.5rem + var(--player-safe-inline-end));
-    bottom: auto;
-    top: var(--player-mini-content-top);
-    height: var(--cover-image-height-collapsed);
-    width: auto;
-    align-items: center;
-    justify-content: flex-end;
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-  }
-
-  /* Toolbar spans the shell width and sits above the cover — pass clicks through except on controls. */
-  .player-shell:not(.fullscreen) .player-toolbar-slot {
-    pointer-events: none;
-  }
-
-  .player-shell:not(.fullscreen) .player-toolbar-slot * {
-    pointer-events: auto;
-  }
 }
 
 /* Compact mini chrome between lg and xl so centered transport and the
@@ -266,10 +163,6 @@
 @media (min-width: 1024px) and (max-width: 1279px) {
   .player-shell:not(.fullscreen) {
     --player-mini-transport-cluster-half: 7.25rem;
-  }
-
-  .player-shell:not(.fullscreen) .player-secondary-toolbar {
-    gap: 0.5rem;
   }
 }
 
@@ -280,17 +173,6 @@
     --fs-ps: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-start));
     --fs-pe: calc(var(--player-landscape-inline-pad) + var(--player-safe-inline-end));
     --fs-pb: calc(var(--player-landscape-inline-pad) + var(--player-safe-bottom));
-  }
-
-  /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
-  .player-shell.fullscreen .player-right-column > * {
-    flex-shrink: 0;
-    min-width: 0;
-  }
-
-  .player-shell.fullscreen .player-right-column .player-secondary-toolbar {
-    width: 100%;
-    justify-content: center;
   }
 }
 
