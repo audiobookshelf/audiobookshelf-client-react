@@ -78,11 +78,6 @@
   view-transition-name: player-cover;
 }
 
-.player-title-link:hover .marquee-segment,
-.player-title-link:focus-visible .marquee-segment {
-  text-decoration: underline;
-}
-
 .player-title-author .player-title {
   transition-property: font-size;
   transition-duration: var(--player-dur);
@@ -92,12 +87,6 @@
 .player-title-author .player-duration {
   transition-property: font-size, opacity, height, margin;
   transition-duration: var(--player-dur);
-}
-
-/* Loop copy exists for scrolling but must not take layout until a cycle runs. */
-.player-author-marquee .marquee-loop-gap,
-.player-author-marquee .marquee-loop-copy {
-  display: none;
 }
 
 .player-chrome-start,

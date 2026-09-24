@@ -4,6 +4,7 @@ const SCROLL_SPEED_MS_PER_PX = 30
 const LOOP_GAP_SPACES = 15
 
 export const MARQUEE_SEGMENT_CLASS = 'marquee-segment'
+export const MARQUEE_SEGMENT_UNDERLINE_CLASS = 'link-underline group-hover:underline group-focus-visible:underline'
 
 function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
@@ -11,7 +12,7 @@ function escapeHtml(text: string): string {
 
 /** Marquee text segment — gap between loop copies stays outside this span. */
 export function buildMarqueeSegmentHtml(text: string, underline = true): string {
-  const classes = underline ? `${MARQUEE_SEGMENT_CLASS} link-underline` : MARQUEE_SEGMENT_CLASS
+  const classes = underline ? `${MARQUEE_SEGMENT_CLASS} ${MARQUEE_SEGMENT_UNDERLINE_CLASS}` : MARQUEE_SEGMENT_CLASS
   return `<span class="${classes}">${escapeHtml(text)}</span>`
 }
 
