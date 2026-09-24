@@ -5,7 +5,7 @@ import { useDomMarquee } from '@/hooks/useDomMarquee'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { formatList } from '@/lib/formatList'
 import { mergeClasses } from '@/lib/merge-classes'
-import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES } from '@/lib/player/domWrappingMarquee'
+import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES, MARQUEE_TRACK_CLASS } from '@/lib/player/domWrappingMarquee'
 import { useLocale } from 'next-intl'
 import { memo, useMemo, useRef } from 'react'
 
@@ -54,7 +54,7 @@ function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, onNavi
       )}
       title={text}
     >
-      <div ref={trackRef} className="w-max max-w-none whitespace-nowrap will-change-transform">
+      <div ref={trackRef} className={`${MARQUEE_TRACK_CLASS} w-max max-w-none whitespace-nowrap will-change-transform`}>
         <span ref={segmentRef} className="inline-block whitespace-nowrap">
           <PlayerAuthorNames libraryId={libraryId} bookAuthors={bookAuthors} podcastAuthor={podcastAuthor} onNavigate={onNavigate} />
         </span>
