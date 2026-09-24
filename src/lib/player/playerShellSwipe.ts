@@ -1,4 +1,5 @@
 export const PLAYER_SWIPE_THRESHOLD_MINI_PX = 32
+export const PLAYER_SWIPE_THRESHOLD_PX = 100
 export const PLAYER_SWIPE_LOCK_PX = 12
 
 export type PlayerShellSwipeAction = 'expand' | 'collapse' | 'close'

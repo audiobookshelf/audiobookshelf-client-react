@@ -1,7 +1,6 @@
 'use client'
 
 import { useMediaContext } from '@/contexts/MediaContext'
-import { useFullscreenCoverLayout } from '@/hooks/useFullscreenCoverLayout'
 import { useLandscapePlayerDensity } from '@/hooks/useLandscapePlayerDensity'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usePlayerCoverAspectRatio } from '@/hooks/usePlayerCoverAspectRatio'
@@ -36,7 +35,7 @@ const BODY_LANDSCAPE = 'contents'
 const COLUMN_FS = 'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--fs-gap) lg:items-center'
 /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
 const COLUMN_LANDSCAPE =
-  'col-start-2 row-start-1 max-h-full min-h-0 w-(--landscape-col-w,100%) min-w-0 max-w-full justify-start self-center justify-self-center overflow-hidden *:min-w-0 *:shrink-0'
+  'col-start-2 row-start-1 max-h-full min-h-0 w-full min-w-[min(100%,var(--landscape-col-min))] max-w-full justify-start self-center justify-self-stretch overflow-hidden *:min-w-0 *:shrink-0'
 
 const CHROME = 'absolute z-4 top-(--mini-top-pad)'
 const CHROME_START_MINI = 'start-1 opacity-0 invisible pointer-events-none'
@@ -114,13 +113,11 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const swipeHandledRef = useRef(false)
 
   const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
-  const baseLayoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
-  const landscapeDensityLevel = useLandscapePlayerDensity(shellRef, rightColumnRef, isPlayerFullscreen, isDesktop, baseLayoutKey)
+  const layoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
+  const landscapeDensityLevel = useLandscapePlayerDensity(shellRef, rightColumnRef, isDesktop, layoutKey)
   const landscapeDensity = landscapeDensityFlags(landscapeDensityLevel)
   const showBookTrack = isPlayerFullscreen && useChapterTrack && !landscapeDensity.singleTrackBar
   const chapterLabelPlacement = landscapeDensity.chapterLabelBelow || !isPlayerFullscreen ? 'below' : 'above'
-  const layoutKey = `${baseLayoutKey}:${landscapeDensityLevel}:${chapterLabelPlacement}`
-  const coverVars = useFullscreenCoverLayout(shellRef, coverAspectRatio, isPlayerFullscreen, isDesktop, layoutKey)
 
   useLayoutEffect(() => {
     if (isPlayerFullscreen) {
@@ -168,11 +165,12 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   )
 
   const shellStyle = useMemo(
-    () => ({
-      ...accentStyle,
-      ...coverVars
-    }),
-    [accentStyle, coverVars]
+    () =>
+      ({
+        ...accentStyle,
+        '--cover-aspect': coverAspectRatio
+      }) as CSSProperties,
+    [accentStyle, coverAspectRatio]
   )
 
   return (
