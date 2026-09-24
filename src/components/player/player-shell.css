@@ -41,6 +41,7 @@
   --cover-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start));
   --title-ps: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-start) + var(--cover-image-width-collapsed) + var(--player-mini-title-inline-gap));
   --title-pe: calc(var(--player-mini-transport-width) + var(--player-mini-title-inline-gap) + var(--player-safe-inline-end));
+  --chrome-lg-pe: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-end));
 }
 
 :dir(rtl) .player-shell {
@@ -54,6 +55,9 @@
   --fs-ps: calc(1rem + var(--player-safe-inline-start));
   --fs-pe: calc(1rem + var(--player-safe-inline-end));
   --fs-pb: calc(0.75rem + var(--player-safe-bottom));
+  --chrome-fs-top: calc(0.5rem + var(--player-safe-top));
+  --chrome-fs-ps: calc(0.5rem + var(--player-safe-inline-start));
+  --chrome-fs-pe: calc(0.5rem + var(--player-safe-inline-end));
 }
 
 .player-shell,
@@ -128,63 +132,8 @@
 
 .player-chrome-start,
 .player-chrome-end {
-  position: absolute;
-  z-index: 4;
-  top: var(--player-mini-top-pad);
   transition-property: top, opacity, visibility;
   transition-duration: var(--player-dur);
-}
-
-.player-chrome-start {
-  inset-inline-start: 0.25rem;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.player-chrome-end {
-  inset-inline-end: 0.5rem;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-}
-
-.player-shell.fullscreen .player-chrome-start {
-  top: calc(0.5rem + var(--player-safe-top));
-  inset-inline-start: calc(0.5rem + var(--player-safe-inline-start));
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.player-shell.fullscreen .player-chrome-end {
-  top: calc(0.5rem + var(--player-safe-top));
-  inset-inline-end: calc(0.5rem + var(--player-safe-inline-end));
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-.player-shell.fullscreen .player-chrome-start button,
-.player-shell.fullscreen .player-chrome-end button {
-  width: 2.75rem;
-  height: 2.75rem;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.player-shell.fullscreen .player-chrome-start [cy-id='icon-btn-icon'] {
-  font-size: 1.875rem;
-  line-height: 1;
-}
-
-.player-shell.fullscreen .player-chrome-end [cy-id='icon-btn-icon'] {
-  font-size: 1.5rem;
-  line-height: 1;
 }
 
 .player-track-stack {
@@ -469,14 +418,6 @@
 
   .player-track {
     font-size: 0.875rem;
-  }
-
-  .player-chrome-end {
-    top: 0.5rem;
-    inset-inline-end: calc(var(--player-mini-inline-pad) + var(--player-safe-inline-end));
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
   }
 
   .player-shell:not(.fullscreen) .player-transport-slot {
