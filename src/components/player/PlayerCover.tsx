@@ -8,8 +8,7 @@ import { LibraryItem } from '@/types/api'
 import { useCallback, useLayoutEffect, useRef } from 'react'
 import PreviewCover from '../covers/PreviewCover'
 
-const COVER_MINI =
-  'absolute z-2 cursor-pointer overflow-hidden rounded-sm start-(--cover-ps) top-(--mini-content-top) h-(--cover-h-mini) w-(--cover-w-mini) *:pointer-events-none *:h-full *:w-full'
+const COVER_MINI = 'z-2 shrink-0 cursor-pointer overflow-hidden rounded-sm h-(--cover-h-mini) w-(--cover-w-mini) *:pointer-events-none *:h-full *:w-full'
 
 const COVER_FS = 'relative z-2 max-w-full flex-none cursor-default overflow-hidden rounded-2xl *:h-full *:w-full'
 const COVER_LANDSCAPE = 'col-start-1 row-start-1 self-center justify-self-start'

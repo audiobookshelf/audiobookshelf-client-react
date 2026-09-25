@@ -7,8 +7,7 @@ import { LibraryItem } from '@/types/api'
 import PlayerMarqueeAuthorLine from './PlayerMarqueeAuthorLine'
 import PlayerMarqueeText from './PlayerMarqueeText'
 
-const TITLE_MINI =
-  'absolute z-3 flex min-h-(--cover-h-mini) min-w-0 flex-col justify-center gap-0.5 text-start start-(--title-ps) end-(--title-pe) top-(--mini-content-top) lg:w-auto lg:max-w-none lg:justify-start'
+const TITLE_MINI = 'z-3 flex min-w-0 flex-1 flex-col justify-center gap-0.5 text-start'
 
 const TITLE_FS = 'static flex w-full min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 text-center lg:w-3/4 lg:max-w-3xl'
 const TITLE_LANDSCAPE = 'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0.5 overflow-hidden text-center'
