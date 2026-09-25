@@ -11,7 +11,7 @@ import PreviewCover from '../covers/PreviewCover'
 const COVER_MINI = 'z-2 shrink-0 cursor-pointer overflow-hidden rounded-sm h-(--cover-h-mini) w-(--cover-w-mini) *:pointer-events-none *:h-full *:w-full'
 
 const COVER_FS = 'relative z-2 max-w-full flex-none cursor-default overflow-hidden rounded-2xl *:h-full *:w-full'
-const COVER_LANDSCAPE = 'col-start-1 row-start-1 self-center justify-self-start'
+const COVER_LANDSCAPE = 'col-start-1 row-start-2 self-center justify-self-start'
 const COVER_SLOT_FS =
   'player-cover-slot relative z-2 row-start-1 flex h-full min-h-0 w-full min-w-0 items-center justify-center self-stretch justify-self-center lg:w-3/4 lg:max-w-3xl'
 
