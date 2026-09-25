@@ -25,7 +25,13 @@ import PlayerTrackBar from './PlayerTrackBar'
 import PlayerTransportControls from './PlayerTransportControls'
 import { usePlayerControlsState } from './usePlayerControlsState'
 
-const SHELL_MINI = 'inset-x-0 bottom-0 z-50 h-(--player-mini-h) cursor-pointer'
+const SHELL_MINI =
+  'inset-x-0 bottom-0 z-50 h-(--player-mini-h) cursor-pointer ' +
+  'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[var(--cover-h-mini)_var(--mini-track-stack)] ' +
+  'content-start items-center gap-y-(--mini-pad) pt-(--mini-pad) ps-(--mini-ps) pe-(--mini-pe) pb-(--mini-pb) ' +
+  'lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'
+const LEAD_MINI = 'col-start-1 row-start-1 flex min-w-0 items-center justify-start gap-(--mini-title-gap)'
+const END_MINI = 'col-start-3 row-start-1 hidden min-w-0 items-center justify-end lg:flex'
 const SHELL_FS = 'fullscreen inset-0 z-90 flex h-dvh max-h-dvh min-h-dvh flex-col overscroll-none pt-(--fs-pt) ps-(--fs-ps) pe-(--fs-pe) pb-(--fs-pb)'
 const SHELL_LANDSCAPE = 'grid grid-cols-[auto_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] items-center gap-x-(--landscape-pad)'
 
@@ -40,14 +46,14 @@ const COLUMN_LANDSCAPE =
 const CHROME = 'absolute z-4 top-(--mini-top-pad)'
 const CHROME_START_MINI = 'start-1 opacity-0 invisible pointer-events-none'
 const CHROME_START_FS = 'top-(--chrome-fs-top) start-(--chrome-fs-ps) opacity-100 visible pointer-events-auto'
-const CHROME_END_MINI = 'end-2 opacity-0 invisible pointer-events-none lg:end-(--chrome-lg-pe) lg:opacity-100 lg:visible lg:pointer-events-auto'
+const CHROME_END_MINI = 'end-2 opacity-0 invisible pointer-events-none lg:top-(--mini-pad) lg:end-(--mini-pe) lg:opacity-100 lg:visible lg:pointer-events-auto'
 const CHROME_END_FS = 'top-(--chrome-fs-top) end-(--chrome-fs-pe) opacity-100 visible pointer-events-auto'
 const CHROME_BTN_FS = 'inline-flex h-11 min-h-11 w-11 min-w-11 items-center justify-center p-0'
 const CHROME_START_ICON_FS = 'text-3xl leading-none'
 const CHROME_END_ICON_FS = 'text-2xl leading-none'
 
 const TRACK_STACK = 'flex flex-col'
-const TRACK_STACK_MINI = 'absolute z-2 gap-1.5 start-(--track-ps) end-(--track-pe) bottom-(--track-pb)'
+const TRACK_STACK_MINI = 'z-2 col-span-full row-start-2 min-w-0 self-start'
 /* Keep chapter timestamps grouped with the chapter slider, not the book track. */
 const TRACK_STACK_FS = 'static inset-auto bottom-auto w-full gap-4 lg:w-3/4 lg:max-w-3xl'
 const TRACK_MINI = 'text-xs lg:text-sm'
@@ -55,18 +61,12 @@ const TRACK_FS = 'text-sm'
 const TRACK_BOOK = 'max-h-32 overflow-hidden opacity-100 visible pointer-events-auto'
 
 const TRANSPORT = 'flex items-center'
-const TRANSPORT_MINI = mergeClasses(
-  'absolute z-2 start-auto end-(--safe-end) top-(--mini-content-top) bottom-auto h-(--cover-h-mini) w-(--mini-transport-w) justify-end pe-2',
-  'lg:pointer-events-none lg:*:pointer-events-auto lg:start-0 lg:end-0 lg:w-full lg:justify-center lg:pe-10 xl:pe-0'
-)
+const TRANSPORT_MINI = 'z-2 col-start-2 row-start-1 w-max justify-self-end lg:justify-self-center'
 const TRANSPORT_FS = 'static inset-auto top-auto bottom-auto h-auto w-full justify-center pe-0 opacity-100 visible pointer-events-auto'
 
 const TOOLBAR = 'flex'
 /* Toolbar spans the shell width and sits above the cover — pass clicks through except on controls. */
-const TOOLBAR_MINI = mergeClasses(
-  'absolute z-2 start-0 end-0 bottom-2 justify-center opacity-0 invisible pointer-events-none',
-  'lg:start-auto lg:end-(--toolbar-lg-pe) lg:top-(--mini-content-top) lg:bottom-auto lg:h-(--cover-h-mini) lg:w-auto lg:items-center lg:justify-end lg:opacity-100 lg:visible lg:pointer-events-none lg:*:pointer-events-auto'
-)
+const TOOLBAR_MINI = 'items-center justify-end lg:pe-(--mini-toolbar-pe)'
 const TOOLBAR_FS = 'static z-6 inset-auto bottom-auto h-auto w-full items-center justify-center pe-0 opacity-100 visible pointer-events-auto'
 
 interface PlayerShellProps {
@@ -164,6 +164,15 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     [controlsState.isAnyModalOpen, expand, isPlayerFullscreen, isSecondaryPopoverOpen]
   )
 
+  const titleAuthor = (
+    <PlayerTitleAuthor
+      streamLibraryItem={streamLibraryItem}
+      metadata={metadata}
+      onNavigateAway={collapseForNavigation}
+      compact={landscapeDensity.compactTitle}
+    />
+  )
+
   const shellStyle = useMemo(
     () =>
       ({
@@ -226,18 +235,16 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       </div>
 
       <div className={isPlayerFullscreen ? mergeClasses(BODY_FS, isLandscapeCompact && BODY_LANDSCAPE) : 'contents'} data-cy="player-fullscreen-body">
-        <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={handleCoverActivate} />
+        <div className={isPlayerFullscreen ? 'contents' : LEAD_MINI}>
+          <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={handleCoverActivate} />
+          {!isPlayerFullscreen ? titleAuthor : null}
+        </div>
         <div
           ref={rightColumnRef}
           className={mergeClasses('player-right-column', isPlayerFullscreen ? mergeClasses(COLUMN_FS, isLandscapeCompact && COLUMN_LANDSCAPE) : 'contents')}
           data-cy="player-right-column"
         >
-          <PlayerTitleAuthor
-            streamLibraryItem={streamLibraryItem}
-            metadata={metadata}
-            onNavigateAway={collapseForNavigation}
-            compact={landscapeDensity.compactTitle}
-          />
+          {isPlayerFullscreen ? titleAuthor : null}
 
           <div
             className={mergeClasses(
@@ -261,15 +268,17 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
           <div className={mergeClasses('player-transport-slot', TRANSPORT, isPlayerFullscreen ? TRANSPORT_FS : TRANSPORT_MINI)} data-cy="player-transport-slot">
             <PlayerTransportControls controls={controlsState} variant={transportVariant} />
           </div>
-          {!landscapeDensity.overflowSecondaryToolbar ? (
-            <div className={mergeClasses('player-toolbar-slot', TOOLBAR, isPlayerFullscreen ? TOOLBAR_FS : TOOLBAR_MINI)} data-cy="player-toolbar-slot">
-              <PlayerSecondaryToolbar
-                controls={controlsState}
-                onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
-                onVolumeOpenChange={setVolumePopoverOpen}
-              />
-            </div>
-          ) : null}
+          <div className={isPlayerFullscreen ? 'contents' : END_MINI}>
+            {!landscapeDensity.overflowSecondaryToolbar ? (
+              <div className={mergeClasses('player-toolbar-slot', TOOLBAR, isPlayerFullscreen ? TOOLBAR_FS : TOOLBAR_MINI)} data-cy="player-toolbar-slot">
+                <PlayerSecondaryToolbar
+                  controls={controlsState}
+                  onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
+                  onVolumeOpenChange={setVolumePopoverOpen}
+                />
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
 
