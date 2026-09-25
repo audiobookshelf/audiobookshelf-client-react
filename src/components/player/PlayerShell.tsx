@@ -31,9 +31,9 @@ const SHELL_MINI =
   'content-start items-center gap-y-(--mini-pad) pt-(--mini-pad) ps-(--mini-ps) pe-(--mini-pe) pb-(--mini-pb) ' +
   'lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'
 const LEAD_MINI = 'col-start-1 row-start-1 flex min-w-0 items-center justify-start gap-(--mini-title-gap)'
-const END_MINI = 'col-start-3 row-start-1 hidden min-w-0 items-center justify-end lg:flex'
+const END_MINI = 'col-start-3 row-start-1 hidden min-w-0 self-stretch lg:grid'
 const SHELL_FS = 'fullscreen inset-0 z-90 flex h-dvh max-h-dvh min-h-dvh flex-col overscroll-none pt-(--fs-pt) ps-(--fs-ps) pe-(--fs-pe) pb-(--fs-pb)'
-const SHELL_LANDSCAPE = 'grid grid-cols-[auto_minmax(0,1fr)] grid-rows-[minmax(0,1fr)] items-center gap-x-(--landscape-pad)'
+const SHELL_LANDSCAPE = 'grid grid-cols-[auto_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] items-center gap-x-(--landscape-pad)'
 
 const BODY_FS = 'grid min-h-0 w-full min-w-0 flex-auto grid-rows-[minmax(0,1fr)_auto] items-center gap-(--fs-gap)'
 const BODY_LANDSCAPE = 'contents'
@@ -41,16 +41,15 @@ const BODY_LANDSCAPE = 'contents'
 const COLUMN_FS = 'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--fs-gap) lg:items-center'
 /* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
 const COLUMN_LANDSCAPE =
-  'col-start-2 row-start-1 max-h-full min-h-0 w-full min-w-(--landscape-col) max-w-full justify-start self-center justify-self-stretch overflow-hidden *:min-w-0 *:shrink-0'
+  'col-start-2 row-start-2 max-h-full min-h-0 w-full min-w-(--landscape-col) max-w-full justify-start self-center justify-self-stretch overflow-hidden *:min-w-0 *:shrink-0'
 
-const CHROME = 'absolute z-4 top-(--mini-top-pad)'
-const CHROME_START_MINI = 'start-1 opacity-0 invisible pointer-events-none'
-const CHROME_START_FS = 'top-(--chrome-fs-top) start-(--chrome-fs-ps) opacity-100 visible pointer-events-auto'
-const CHROME_END_MINI = 'end-2 opacity-0 invisible pointer-events-none lg:top-(--mini-pad) lg:end-(--mini-pe) lg:opacity-100 lg:visible lg:pointer-events-auto'
-const CHROME_END_FS = 'top-(--chrome-fs-top) end-(--chrome-fs-pe) opacity-100 visible pointer-events-auto'
-const CHROME_BTN_FS = 'inline-flex h-11 min-h-11 w-11 min-w-11 items-center justify-center p-0'
-const CHROME_START_ICON_FS = 'text-3xl leading-none'
-const CHROME_END_ICON_FS = 'text-2xl leading-none'
+/* Sticks 0.5rem further out than the body so the buttons stay on the outer insets. */
+const HEADER_FS = 'z-4 flex h-(--fs-header-h) shrink-0 items-center justify-between -ms-(--fs-header-outset) -me-(--fs-header-outset)'
+const HEADER_LANDSCAPE = 'col-span-2 row-start-1'
+const CLOSE_MINI = 'z-4 col-start-1 row-start-1 self-start justify-self-end'
+const HEADER_BTN_FS = 'inline-flex h-11 min-h-11 w-11 min-w-11 items-center justify-center p-0'
+const HEADER_COLLAPSE_ICON_FS = 'text-3xl leading-none'
+const HEADER_CLOSE_ICON_FS = 'text-2xl leading-none'
 
 const TRACK_STACK = 'flex flex-col'
 const TRACK_STACK_MINI = 'z-2 col-span-full row-start-2 min-w-0 self-start'
@@ -66,7 +65,7 @@ const TRANSPORT_FS = 'static inset-auto top-auto bottom-auto h-auto w-full justi
 
 const TOOLBAR = 'flex'
 /* Toolbar spans the shell width and sits above the cover — pass clicks through except on controls. */
-const TOOLBAR_MINI = 'items-center justify-end lg:pe-(--mini-toolbar-pe)'
+const TOOLBAR_MINI = 'col-start-1 row-start-1 self-center justify-self-end items-center justify-end lg:pe-(--mini-toolbar-pe)'
 const TOOLBAR_FS = 'static z-6 inset-auto bottom-auto h-auto w-full items-center justify-center pe-0 opacity-100 visible pointer-events-auto'
 
 interface PlayerShellProps {
@@ -173,6 +172,33 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     />
   )
 
+  const collapseBtn = (
+    <IconBtn
+      ref={collapseBtnRef}
+      size="small"
+      borderless
+      className={HEADER_BTN_FS}
+      iconClass={HEADER_COLLAPSE_ICON_FS}
+      onClick={collapse}
+      ariaLabel={t('LabelCollapsePlayer')}
+    >
+      expand_more
+    </IconBtn>
+  )
+
+  const closeBtn = (
+    <IconBtn
+      size="small"
+      borderless
+      className={isPlayerFullscreen ? HEADER_BTN_FS : undefined}
+      iconClass={isPlayerFullscreen ? HEADER_CLOSE_ICON_FS : undefined}
+      onClick={onClose}
+      ariaLabel={t('LabelClosePlayer')}
+    >
+      close
+    </IconBtn>
+  )
+
   const shellStyle = useMemo(
     () =>
       ({
@@ -198,41 +224,16 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     >
       {showAccentBackdrop ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
 
-      <div
-        className={mergeClasses('player-chrome-start', CHROME, isPlayerFullscreen ? CHROME_START_FS : CHROME_START_MINI)}
-        data-cy="player-chrome-start"
-        aria-hidden={!isPlayerFullscreen}
-      >
-        <IconBtn
-          ref={collapseBtnRef}
-          size="small"
-          borderless
-          className={isPlayerFullscreen ? CHROME_BTN_FS : undefined}
-          iconClass={isPlayerFullscreen ? CHROME_START_ICON_FS : undefined}
-          tabIndex={isPlayerFullscreen ? undefined : -1}
-          onClick={collapse}
-          ariaLabel={t('LabelCollapsePlayer')}
-        >
-          expand_more
-        </IconBtn>
-      </div>
-      <div
-        className={mergeClasses('player-chrome-end', CHROME, isPlayerFullscreen ? CHROME_END_FS : CHROME_END_MINI)}
-        data-cy="player-chrome-end"
-        aria-hidden={!isPlayerFullscreen && !isDesktop}
-      >
-        <IconBtn
-          size="small"
-          borderless
-          className={isPlayerFullscreen ? CHROME_BTN_FS : undefined}
-          iconClass={isPlayerFullscreen ? CHROME_END_ICON_FS : undefined}
-          tabIndex={isPlayerFullscreen || isDesktop ? undefined : -1}
-          onClick={onClose}
-          ariaLabel={t('LabelClosePlayer')}
-        >
-          close
-        </IconBtn>
-      </div>
+      {isPlayerFullscreen ? (
+        <div className={mergeClasses(HEADER_FS, isLandscapeCompact && HEADER_LANDSCAPE)}>
+          <div className="player-header-collapse" data-cy="player-header-collapse">
+            {collapseBtn}
+          </div>
+          <div className="player-header-close" data-cy="player-header-close">
+            {closeBtn}
+          </div>
+        </div>
+      ) : null}
 
       <div className={isPlayerFullscreen ? mergeClasses(BODY_FS, isLandscapeCompact && BODY_LANDSCAPE) : 'contents'} data-cy="player-fullscreen-body">
         <div className={isPlayerFullscreen ? 'contents' : LEAD_MINI}>
@@ -276,6 +277,11 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
                   onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
                   onVolumeOpenChange={setVolumePopoverOpen}
                 />
+              </div>
+            ) : null}
+            {!isPlayerFullscreen && isDesktop ? (
+              <div className={mergeClasses('player-header-close', CLOSE_MINI)} data-cy="player-header-close">
+                {closeBtn}
               </div>
             ) : null}
           </div>
