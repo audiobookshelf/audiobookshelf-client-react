@@ -358,6 +358,7 @@ export interface SeriesProgress {
   libraryItemIds: string[]
   libraryItemIdsFinished: string[]
   isFinished: boolean
+  totalListened?: number
 }
 
 export interface Series {
@@ -383,6 +384,8 @@ export interface Series {
   progress?: SeriesProgress
   /** library items (author page endpoint only) */
   items?: LibraryItem[]
+  /** total duration in seconds of all books in the series */
+  totalDuration?: number
 }
 
 /**
