@@ -4,15 +4,12 @@
   --player-morph-ease: cubic-bezier(0.39, 0.575, 0.565, 1);
   --cover-morph-dur: var(--player-morph-dur);
   --cover-morph-ease: var(--player-morph-ease);
-  --mini-content-top: 0.5rem;
   --cover-h-mini: 3.5rem;
   --mini-pad: 0.5rem;
   /* Slider + reserved tick row + timestamps. */
   --mini-track-stack: 2rem;
-  --mini-track-bottom: 0.5rem;
-  --mini-track-block: calc(var(--mini-pad) + var(--mini-track-stack) + var(--mini-track-bottom));
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --player-mini-h: calc(var(--mini-content-top) + var(--cover-h-mini) + var(--mini-track-block) + var(--safe-bottom));
+  --player-mini-h: calc(var(--mini-pad) + var(--cover-h-mini) + var(--mini-pad) + var(--mini-track-stack) + var(--mini-pad) + var(--safe-bottom));
 }
 
 .player-shell {
@@ -22,22 +19,18 @@
   --cover-aspect: 1.6;
   --cover-w-over-h: calc(1 / var(--cover-aspect));
   --cover-w-mini: calc(var(--cover-h-mini) / var(--cover-aspect));
-  --mini-transport-w: calc(2.75rem * 3 + 0.25rem * 2);
-  /** Gap between cover and title on mini (mobile: after cover; desktop lg: both sides of title vs cover/transport). */
+  /** Gap between cover and title on mini. */
   --mini-title-gap: 0.5rem;
   --mini-top-pad: 0.5rem;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --safe-start: env(safe-area-inset-left, 0px);
   --safe-end: env(safe-area-inset-right, 0px);
-  --cover-ps: calc(var(--mini-pad) + var(--safe-start));
-  --title-ps: calc(var(--mini-pad) + var(--safe-start) + var(--cover-w-mini) + var(--mini-title-gap));
-  --title-pe: calc(var(--mini-transport-w) + var(--mini-title-gap) + var(--safe-end));
-  --chrome-lg-pe: calc(var(--mini-pad) + var(--safe-end));
-  --track-ps: calc(var(--mini-pad) + var(--safe-start));
-  --track-pe: calc(var(--mini-pad) + var(--safe-end));
-  --track-pb: calc(var(--mini-track-bottom) + var(--safe-bottom));
-  --toolbar-lg-pe: calc(var(--mini-pad) + 2.25rem + 0.5rem + var(--safe-end));
+  --mini-ps: calc(var(--mini-pad) + var(--safe-start));
+  --mini-pe: calc(var(--mini-pad) + var(--safe-end));
+  --mini-pb: calc(var(--mini-pad) + var(--safe-bottom));
+  /* Clear the top-end close button (w-9) plus a gap. */
+  --mini-toolbar-pe: calc(2.25rem + 0.5rem);
 }
 
 :dir(rtl) .player-shell {
@@ -141,15 +134,11 @@
 @media (min-width: 1024px) {
   :root {
     --cover-h-mini: 4rem;
-    --mini-pad: 1rem;
-    --mini-track-bottom: 0.75rem;
+    --mini-pad: 0.75rem;
   }
 
   .player-shell {
     --mini-title-gap: 0.75rem;
-    /* Half of centered desktop mini transport row (5×2.5rem + 4×0.5rem gap). */
-    --mini-transport-half: calc((2.5rem * 5 + 0.5rem * 4) / 2);
-    --title-pe: calc(50% + var(--mini-transport-half) + var(--mini-title-gap) + var(--safe-end));
   }
 }
 
