@@ -38,7 +38,7 @@ export default function LibraryEmptyState({ library, showScanButton, variant = '
 
     return (
       <PageMessage message={t('MessageNoHomeShelves')}>
-        <Btn size="small" color="bg-success" to={`/library/${library.id}/items`}>
+        <Btn size="small" color="bg-success text-success-foreground" to={`/library/${library.id}/items`}>
           {browseLabel}
         </Btn>
       </PageMessage>
@@ -48,7 +48,7 @@ export default function LibraryEmptyState({ library, showScanButton, variant = '
   return (
     <PageMessage message={t('MessageXLibraryIsEmpty', { 0: library.name })}>
       {showScanButton ? (
-        <Btn size="small" color="bg-success" onClick={handleScanLibrary} loading={isPending || isLibraryTaskRunning}>
+        <Btn size="small" color="bg-success text-success-foreground" onClick={handleScanLibrary} loading={isPending || isLibraryTaskRunning}>
           {t('ButtonScanLibrary')}
         </Btn>
       ) : null}

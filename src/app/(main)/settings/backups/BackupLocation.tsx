@@ -61,7 +61,7 @@ export default function BackupLocation({ backupLocation, backupPathEnvSet }: Bac
           <div className="flex items-center gap-2">
             <TextInput value={editedBackupLocation} disabled={backupPathEnvSet} className="text-sm" onChange={(value) => setEditedBackupLocation(value)} />
             {!backupPathEnvSet && (
-              <Btn size="small" color="bg-success" onClick={handleSave}>
+              <Btn size="small" color="bg-success text-success-foreground" onClick={handleSave}>
                 {t('ButtonSave')}
               </Btn>
             )}

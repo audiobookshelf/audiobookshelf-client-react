@@ -339,7 +339,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
             >
               {t('ButtonDiscardChanges')}
             </Btn>
-            <Btn color="bg-success" size="small" loading={isPending} disabled={footerDisabled} onClick={() => handleSave()}>
+            <Btn color="bg-success text-success-foreground" size="small" loading={isPending} disabled={footerDisabled} onClick={() => handleSave()}>
               {t('ButtonSave')}
             </Btn>
           </div>

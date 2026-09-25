@@ -84,7 +84,7 @@ export default function EpisodeTableHeaderActions({
         </Tooltip>
 
         {/* Desktop Actions */}
-        <Btn color="bg-error" size="small" disabled={isPending} className="hidden sm:inline-flex" onClick={handleRemoveClick}>
+        <Btn color="bg-error text-error-foreground" size="small" disabled={isPending} className="hidden sm:inline-flex" onClick={handleRemoveClick}>
           {t('MessageRemoveEpisodes', { 0: selectedEpisodes.size })}
         </Btn>
         <Btn size="small" className="hidden sm:inline-flex" onClick={onClearSelection} disabled={isPending}>
@@ -97,7 +97,7 @@ export default function EpisodeTableHeaderActions({
             size="small"
             disabled={isPending}
             ariaLabel={t('MessageRemoveEpisodes', { 0: selectedEpisodes.size })}
-            className="bg-error text-white"
+            className="bg-error text-error-foreground"
             onClick={handleRemoveClick}
           >
             delete

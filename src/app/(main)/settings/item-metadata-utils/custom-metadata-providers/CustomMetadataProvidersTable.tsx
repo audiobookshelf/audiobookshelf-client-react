@@ -119,7 +119,7 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
         isOpen={showConfirmDialog}
         message={t('MessageConfirmDeleteMetadataProvider', { 0: deletingProviderRef.current?.name || '' })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirmDelete}
       />

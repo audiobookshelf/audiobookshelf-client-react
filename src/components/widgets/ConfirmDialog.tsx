@@ -49,7 +49,7 @@ export default function ConfirmDialog({
   title,
   checkboxLabel,
   yesButtonText,
-  yesButtonClassName = 'bg-success text-white',
+  yesButtonClassName = 'bg-success text-success-foreground',
   altButtonText,
   altButtonClassName = 'bg-primary',
   processing = false,

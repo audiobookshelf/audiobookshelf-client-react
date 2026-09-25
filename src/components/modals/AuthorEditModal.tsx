@@ -148,8 +148,8 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
                 <div className="flex flex-col gap-2 sm:flex-row sm:gap-0">
                   <TextInput className="w-full" placeholder={t('LabelImageURLFromTheWeb')} value={imgUrl} onChange={setImgUrl} trimWhitespace />
                   <Btn
-                    color="bg-success"
-                    className="flex-shrink-0 text-white sm:ml-2"
+                    color="bg-success text-success-foreground"
+                    className="flex-shrink-0 sm:ml-2"
                     onClick={() => {
                       const trimmedUrl = imgUrl.trim()
                       if (!trimmedUrl.startsWith('http:') && !trimmedUrl.startsWith('https:')) {
@@ -229,7 +229,7 @@ export default function AuthorEditModal({ isOpen, user, author: authorProp, onCl
         isOpen={showConfirmDialog}
         message={t('MessageConfirmRemoveAuthor', { 0: editedAuthor.name || '' })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleDeleteWrapper}
       />

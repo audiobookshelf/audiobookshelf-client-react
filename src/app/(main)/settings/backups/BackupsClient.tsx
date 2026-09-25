@@ -365,7 +365,7 @@ export default function BackupsClient({ backupResponse, appliedBackupToast = fal
           0: backupPendingDeleteRef.current ? formatJsDatetime(new Date(backupPendingDeleteRef.current.createdAt), dateFormat, timeFormat) : ''
         })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => {
           backupPendingDeleteRef.current = null
           setShowDeleteConfirmDialog(false)

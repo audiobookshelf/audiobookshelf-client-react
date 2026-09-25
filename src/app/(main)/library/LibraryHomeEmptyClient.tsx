@@ -56,7 +56,7 @@ export default function LibraryHomeEmptyClient() {
         {userIsAdminOrUp ? (
           <>
             <p className="mb-2 max-w-lg text-center text-xl">{t('MessageNoLibrariesYet')}</p>
-            <Btn color="bg-success" onClick={handleOpenModal} disabled={isPending}>
+            <Btn color="bg-success text-success-foreground" onClick={handleOpenModal} disabled={isPending}>
               {t('ButtonAddYourFirstLibrary')}
             </Btn>
           </>

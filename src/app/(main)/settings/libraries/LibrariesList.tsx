@@ -101,7 +101,7 @@ export default function LibrariesList(props: LibrariesListProps) {
         isOpen={showConfirmDialog}
         message={t('MessageConfirmDeleteLibrary', { 0: delRef.current?.name || '' })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirmDeleteLibrary}
       />

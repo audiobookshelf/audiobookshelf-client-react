@@ -159,14 +159,14 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
           {showPlay && (
             <Tooltip text={t('ButtonPlay')} position="bottom">
               <Btn
-                color="bg-success"
+                color="bg-success text-success-foreground"
                 size="small"
                 className="h-9 w-9 items-center px-0 sm:w-auto sm:px-4"
                 ariaLabel={t('ButtonPlay')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('play')}
               >
-                <span className="material-symbols fill text-2xl text-white sm:-ms-2 sm:pe-1" aria-hidden>
+                <span className="material-symbols fill text-2xl sm:-ms-2 sm:pe-1" aria-hidden>
                   play_arrow
                 </span>
                 <span className="hidden sm:inline">{t('ButtonPlay')}</span>
@@ -217,7 +217,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
                 ariaLabel={selectionKind === 'episode' ? t('MessageRemoveEpisodes', { 0: selectedItems.length }) : t('ButtonRemove')}
                 disabled={controlsDisabled}
                 onClick={() => handleBatchAction('delete')}
-                className="bg-error text-white"
+                className="bg-error text-error-foreground"
               >
                 delete
               </IconBtn>

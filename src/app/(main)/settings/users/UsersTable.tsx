@@ -187,7 +187,7 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
         isOpen={showConfirmDialog}
         message={t('MessageRemoveUserWarning', { 0: deletingUserRef.current?.username || '' })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirmDeleteUser}
       />

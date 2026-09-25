@@ -438,7 +438,7 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
             <Btn disabled={isProcessing} onClick={() => setShowResetConfirm(true)}>
               {t('ButtonReset')}
             </Btn>
-            <Btn color="bg-success" className="text-lg" loading={isProcessing} disabled={isProcessing} onClick={() => void handleSave()}>
+            <Btn color="bg-success text-success-foreground" className="text-lg" loading={isProcessing} disabled={isProcessing} onClick={() => void handleSave()}>
               {t('ButtonSave')}
             </Btn>
           </div>

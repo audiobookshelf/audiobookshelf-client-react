@@ -44,7 +44,7 @@ export function openPodcastDeviceDownloadConfirm({ items, t, setConfirmState, on
   openSimpleConfirm({
     message,
     yesButtonText: t('LabelDownload'),
-    yesButtonClassName: 'bg-success text-white',
+    yesButtonClassName: 'bg-success text-success-foreground',
     setConfirmState,
     onConfirm
   })

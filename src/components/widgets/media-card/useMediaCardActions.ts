@@ -189,7 +189,7 @@ export function useMediaCardActions({
           isOpen: true,
           message: t('MessageConfirmMarkItemFinished', { 0: title }),
           yesButtonText: t('ButtonYes'),
-          yesButtonClassName: 'bg-success',
+          yesButtonClassName: 'bg-success text-success-foreground',
           onConfirm: () => {
             toggleFinished(true)
             setConfirmState(null)
@@ -312,7 +312,7 @@ export function useMediaCardActions({
             2: deviceName
           }),
           yesButtonText: t('ButtonYes'),
-          yesButtonClassName: 'bg-success',
+          yesButtonClassName: 'bg-success text-success-foreground',
           onConfirm: () => {
             setConfirmState(null)
             startTransition(async () => {

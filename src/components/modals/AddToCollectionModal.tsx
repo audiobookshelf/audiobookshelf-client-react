@@ -225,7 +225,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                             ariaLabel={t('ButtonRemove')}
                             size="auto"
                             outlined={false}
-                            className="bg-error h-9 min-w-10 px-3 text-white"
+                            className="bg-error text-error-foreground h-9 min-w-10 px-3"
                             disabled={controlsDisabled}
                             onClick={() => handleRemove(collection)}
                           >
@@ -236,7 +236,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                             ariaLabel={t('ButtonAdd')}
                             size="auto"
                             outlined={false}
-                            className="bg-success h-9 min-w-10 px-3 text-white"
+                            className="bg-success text-success-foreground h-9 min-w-10 px-3"
                             disabled={controlsDisabled}
                             onClick={() => handleAdd(collection)}
                           >
@@ -275,7 +275,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                     className="w-full"
                   />
                 </div>
-                <Btn type="submit" color="bg-success" size="small" className="h-10 shrink-0" disabled={controlsDisabled || !newCollectionName.trim()}>
+                <Btn type="submit" color="bg-success text-success-foreground" size="small" className="h-10 shrink-0" disabled={controlsDisabled || !newCollectionName.trim()}>
                   {t('ButtonCreate')}
                 </Btn>
               </div>

@@ -236,7 +236,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
               borderless
               disabled={item.name === trimmedName || trimmedName === ''}
               onClick={() => requestSave(item)}
-              className="text-foreground-muted group-hover:text-foreground bg-success"
+              className="text-foreground-muted group-hover:text-foreground bg-success text-success-foreground"
               ariaLabel={t('ButtonSaveEdit')}
             >
               save
@@ -290,7 +290,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
           )
         }
         yesButtonText={isDeleting ? t('ButtonDelete') : t('ButtonSave')}
-        yesButtonClassName={isDeleting ? 'bg-error' : 'bg-success'}
+        yesButtonClassName={isDeleting ? 'bg-error text-error-foreground' : 'bg-success text-success-foreground'}
         processing={isPending}
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={isDeleting ? confirmDelete : confirmSave}

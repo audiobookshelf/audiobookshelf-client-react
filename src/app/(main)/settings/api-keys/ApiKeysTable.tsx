@@ -122,7 +122,7 @@ export default function ApiKeysTable({ apiKeys, onEditClick }: ApiKeysTableProps
         isOpen={showConfirmDialog}
         message={t('MessageConfirmDeleteApiKey', { 0: deletingApiKeyRef.current?.name || '' })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirmDeleteApiKey}
       />

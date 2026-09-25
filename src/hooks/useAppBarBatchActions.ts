@@ -218,7 +218,7 @@ export function useAppBarBatchActions({
     openSimpleConfirm({
       message: t('MessageConfirmReScanLibraryItems', { 0: selectedItems.length }),
       yesButtonText: t('ButtonYes'),
-      yesButtonClassName: 'bg-success',
+      yesButtonClassName: 'bg-success text-success-foreground',
       setConfirmState,
       onConfirm: () => {
         runBatch(async () => rescanLibraryItemsSelection(uniqueLibraryItemIds), {
@@ -235,7 +235,7 @@ export function useAppBarBatchActions({
     openSimpleConfirm({
       message: t.rich('MessageConfirmQuickEmbed', { br: () => createElement('br') }),
       yesButtonText: t('ButtonYes'),
-      yesButtonClassName: 'bg-success',
+      yesButtonClassName: 'bg-success text-success-foreground',
       setConfirmState,
       onConfirm: () => {
         runBatch(async () => embedMetadataSelection(uniqueLibraryItemIds), {

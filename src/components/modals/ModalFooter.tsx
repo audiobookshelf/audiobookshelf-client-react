@@ -61,7 +61,7 @@ export default function ModalFooter({ primary, secondary, destructive, start, sh
         {start}
         {destructive &&
           renderFooterButton(destructive, {
-            color: 'bg-error',
+            color: 'bg-error text-error-foreground',
             className: mergeClasses(hasRightActions && 'mr-auto', destructive.className)
           })}
         {secondary && renderFooterButton(secondary, {})}

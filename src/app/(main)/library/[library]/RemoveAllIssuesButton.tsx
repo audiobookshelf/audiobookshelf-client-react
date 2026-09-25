@@ -50,9 +50,9 @@ export default function RemoveAllIssuesButton() {
   return (
     <>
       <Btn
-        color="bg-error"
+        color="bg-error text-error-foreground"
         size="small"
-        className="flex h-9 shrink-0 items-center px-3 text-xs whitespace-nowrap text-white"
+        className="flex h-9 shrink-0 items-center px-3 text-xs whitespace-nowrap"
         loading={isPending}
         onClick={() => setShowConfirmDialog(true)}
       >
@@ -70,7 +70,7 @@ export default function RemoveAllIssuesButton() {
           </>
         }
         yesButtonText={t('ButtonRemoveAll')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         processing={isPending}
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirm}

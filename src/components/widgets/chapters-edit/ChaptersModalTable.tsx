@@ -265,7 +265,7 @@ export default function ChaptersModalTable({
             </div>
             <div className="flex min-h-0 min-w-0 flex-1 items-center justify-between gap-2 px-2">
               <span className="text-foreground text-sm whitespace-nowrap">{t('MessageSelected', { 0: numSelected })}</span>
-              <Btn className="h-7 shrink-0" size="small" color="bg-error" onClick={onRemoveSelected}>
+              <Btn className="h-7 shrink-0" size="small" color="bg-error text-error-foreground" onClick={onRemoveSelected}>
                 {t('ButtonRemoveSelected')}
               </Btn>
             </div>

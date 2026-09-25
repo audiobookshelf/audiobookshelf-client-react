@@ -506,7 +506,7 @@ export default function UploadClient() {
           ))}
           {uploadItems.length > 0 && !uploadFinished && (
             <div className="flex w-full justify-end">
-              <Btn disabled={uploadProcessing} color="bg-success" onClick={handleStartUpload}>
+              <Btn disabled={uploadProcessing} color="bg-success text-success-foreground" onClick={handleStartUpload}>
                 {t('ButtonUpload')}
               </Btn>
             </div>

@@ -26,7 +26,7 @@ export function openHardDeleteConfirm({ message, t, setConfirmState, onDelete }:
     message,
     checkboxLabel: t('LabelDeleteFromFileSystemCheckbox'),
     yesButtonText: t('ButtonDelete'),
-    yesButtonClassName: 'bg-error',
+    yesButtonClassName: 'bg-error text-error-foreground',
     onConfirm: (hardDeleteChecked?: boolean) => {
       setConfirmState(null)
       const hardDelete = !!hardDeleteChecked

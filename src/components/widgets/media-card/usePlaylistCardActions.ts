@@ -38,7 +38,7 @@ export function usePlaylistCardActions({ playlist, onPlaylistDeleted }: UsePlayl
           isOpen: true,
           message: t('MessageConfirmRemovePlaylist', { 0: playlist.name }),
           yesButtonText: t('ButtonDelete'),
-          yesButtonClassName: 'bg-error',
+          yesButtonClassName: 'bg-error text-error-foreground',
           onConfirm: () => {
             setConfirmState(null)
             startTransition(async () => {

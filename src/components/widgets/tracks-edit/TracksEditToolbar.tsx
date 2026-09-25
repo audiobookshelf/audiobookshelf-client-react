@@ -46,7 +46,7 @@ export function TracksEditActions({ hasChanges, isPending, onReset, onSave, clas
       <Btn size="small" className="w-auto" disabled={isPending} onClick={onReset}>
         {t('ButtonReset')}
       </Btn>
-      <Btn color="bg-success" size="small" className="w-auto" loading={isPending} disabled={isPending} onClick={onSave}>
+      <Btn color="bg-success text-success-foreground" size="small" className="w-auto" loading={isPending} disabled={isPending} onClick={onSave}>
         {t('ButtonSaveTracklist')}
       </Btn>
     </div>

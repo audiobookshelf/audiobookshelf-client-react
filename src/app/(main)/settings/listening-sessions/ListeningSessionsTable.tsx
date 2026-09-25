@@ -431,7 +431,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
                 : {
                     selectedLabel: t('MessageSelected', { 0: numSelected }),
                     actions: (
-                      <Btn className="h-7" size="small" color="bg-error" loading={deletingSessions} onClick={() => setShowDeleteConfirmDialog(true)}>
+                      <Btn className="h-7" size="small" color="bg-error text-error-foreground" loading={deletingSessions} onClick={() => setShowDeleteConfirmDialog(true)}>
                         {t('ButtonDelete')}
                       </Btn>
                     )
@@ -504,7 +504,7 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
         isOpen={showDeleteConfirmDialog}
         message={t('MessageConfirmDeleteListeningSessions', { count: numSelected })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowDeleteConfirmDialog(false)}
         onConfirm={handleDeleteSelectedSessions}
       />

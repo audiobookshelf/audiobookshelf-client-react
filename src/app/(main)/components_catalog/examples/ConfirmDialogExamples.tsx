@@ -55,7 +55,7 @@ export function ConfirmDialogExamples() {
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>isOpen</Code> (required: boolean), <Code>message</Code> (required: string), <Code>checkboxLabel</Code>{' '}
           (optional: string), <Code>yesButtonText</Code> (optional: string), <Code>yesButtonClassName</Code> (optional: string, defaults to
-          &apos;bg-success&apos;), <Code>onClose</Code> (required: function), <Code>onConfirm</Code> (required: function that accepts optional boolean for
+          &apos;bg-success text-success-foreground&apos;), <Code>onClose</Code> (required: function), <Code>onConfirm</Code> (required: function that accepts optional boolean for
           checkbox value), <Code>className</Code> (optional: string)
         </p>
         <p className="mb-2 text-sm text-gray-400">
@@ -118,7 +118,7 @@ export function ConfirmDialogExamples() {
               isOpen={destructiveOpen}
               message="This action cannot be undone. Are you sure you want to delete this item?"
               yesButtonText="Delete"
-              yesButtonClassName="bg-error text-white"
+              yesButtonClassName="bg-error text-error-foreground"
               onClose={() => setDestructiveOpen(false)}
               onConfirm={handleDestructiveConfirm}
             />
@@ -134,7 +134,7 @@ export function ConfirmDialogExamples() {
               isOpen={longMessageOpen}
               message="This action will permanently delete all selected items from your library. This includes all associated metadata, cover art, and user progress. This action cannot be undone. Are you absolutely certain you want to proceed?"
               yesButtonText="Yes, Delete Everything"
-              yesButtonClassName="bg-error text-white"
+              yesButtonClassName="bg-error text-error-foreground"
               onClose={() => setLongMessageOpen(false)}
               onConfirm={handleLongMessageConfirm}
             />
