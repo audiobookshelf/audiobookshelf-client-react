@@ -6,8 +6,7 @@ import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeMatchModal from '@/components/modals/EpisodeMatchModal'
 import LibraryItemMetadataEditModal, { type MetadataEditSection } from '@/components/modals/LibraryItemMetadataEditModal'
-import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpisodesModal'
-import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
+import PodcastRssActionsFeature from '@/components/modals/PodcastRssActionsFeature'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
@@ -384,16 +383,14 @@ function MediaCard(props: MediaCardProps) {
     isPending,
     confirmState,
     rssFeedModalOpen,
-    scheduleModalOpen,
-    checkNewEpisodesModalOpen,
+    podcastRssActionsModalOpen,
     shareModalOpen,
     collectionsModalOpen,
     playlistsModalOpen,
     mediaItemShare,
     closeConfirm,
     closeRssFeedModal,
-    closeScheduleModal,
-    closeCheckNewEpisodesModal,
+    closePodcastRssActionsModal,
     closeShareModal,
     closeCollectionsModal,
     closePlaylistsModal,
@@ -665,10 +662,8 @@ function MediaCard(props: MediaCardProps) {
           }}
         />
       )}
-      {isPodcast && scheduleModalOpen && <PodcastDownloadScheduleModal isOpen={scheduleModalOpen} onClose={closeScheduleModal} libraryItem={libraryItem} />}
-      {isPodcast && checkNewEpisodesModalOpen && (
-        <PodcastCheckNewEpisodesModal isOpen={checkNewEpisodesModalOpen} onClose={closeCheckNewEpisodesModal} libraryItem={libraryItem} />
-      )}
+      {/* The grouped feature owns the same RSS operation panels on cards and item pages. */}
+      {isPodcast && <PodcastRssActionsFeature isOpen={podcastRssActionsModalOpen} onClose={closePodcastRssActionsModal} libraryItem={libraryItem} />}
       {shareModalOpen && (
         <ShareModal
           isOpen={shareModalOpen}

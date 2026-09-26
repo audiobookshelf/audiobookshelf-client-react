@@ -16,13 +16,26 @@ import { PodcastEpisodeDownload, PodcastLibraryItem, RssPodcastEpisode } from '@
 import { useFormatter } from 'next-intl'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 
-export interface EpisodeFeedModalProps {
-  isOpen: boolean
+export interface EpisodeFeedListProps {
+  /** Called after a download starts, and by the standalone dialog's chrome. */
   onClose: () => void
+  /** Podcast receiving the downloads; supplies the already-downloaded episodes. */
   libraryItem: PodcastLibraryItem
+  /** Episodes parsed from the source RSS feed. */
   episodes: RssPodcastEpisode[]
+  /** Episodes waiting to download, used to disable their rows. */
   downloadQueue: PodcastEpisodeDownload[]
+  /** Episodes currently downloading, used to disable their rows. */
   episodesDownloading: PodcastEpisodeDownload[]
+  /**
+   * Sizing for the scroll container. The standalone dialog sizes itself; an
+   * embedded section fills the fixed panel height its parent already sets.
+   */
+  className?: string
+}
+
+export interface EpisodeFeedModalProps extends Omit<EpisodeFeedListProps, 'className'> {
+  isOpen: boolean
 }
 
 const getCleanEpisodeUrl = (url: string) => {
@@ -46,7 +59,17 @@ const getCleanEpisodeUrl = (url: string) => {
   }
 }
 
-export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episodes, downloadQueue, episodesDownloading }: EpisodeFeedModalProps) {
+/**
+ * Searchable, sortable RSS episode list with multi-select download.
+ *
+ * Renders no dialog chrome, so it can appear either inside
+ * {@link EpisodeFeedModal} or as a section of the grouped podcast RSS manager.
+ *
+ * Search, sort and selection live in local state and are deliberately not
+ * reset by an effect: both hosts unmount this body when they hide it, so a
+ * remount already starts from a clean list.
+ */
+export function EpisodeFeedList({ onClose, libraryItem, episodes, downloadQueue, episodesDownloading, className }: EpisodeFeedListProps) {
   const t = useTypeSafeTranslations()
   const format = useFormatter()
   const { showToast } = useGlobalToast()
@@ -153,17 +176,6 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
     if (episodesCleaned.length === 0) return false
     return !episodesCleaned.some((episode) => !episode.isDownloaded)
   }, [episodesCleaned])
-
-  // Reset state when modal closes
-  useEffect(() => {
-    if (!isOpen) {
-      setSearch('')
-      setSortDescending(true)
-      setSelectedEpisodes(new Set())
-      setSelectAll(false)
-      lastSelectedEpisodeUrlRef.current = null
-    }
-  }, [isOpen])
 
   // Sync selectAll checkbox with current selection state
   useEffect(() => {
@@ -276,8 +288,127 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
     return t('LabelDownloadNEpisodes', { count: selectedEpisodes.size })
   }, [selectedEpisodes.size, t])
 
-  if (!isOpen) return null
+  return (
+    <div className={mergeClasses('flex flex-col px-4 sm:px-6', className)}>
+      {episodesCleaned.length > 0 && (
+        <div className="flex w-full shrink-0 gap-2 py-4">
+          <form onSubmit={handleSubmit} className="flex min-w-0 grow">
+            <TextInput
+              value={search}
+              onChange={setSearch}
+              type="search"
+              placeholder={t('PlaceholderSearchEpisode')}
+              className="mr-2 grow text-sm md:text-base"
+            />
+          </form>
+          {/* Narrow enough to survive the mobile drill-in: the label never wraps, and the search field shrinks instead. */}
+          <Btn className="shrink-0 px-4 text-sm whitespace-nowrap md:text-base" onClick={() => setSortDescending(!sortDescending)}>
+            <span className="pr-4">{t('LabelSortPubDate')}</span>
+            <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-yellow-400">
+              <span className="material-symbols text-xl" aria-label={sortDescending ? t('LabelSortDescending') : t('LabelSortAscending')}>
+                {sortDescending ? 'expand_more' : 'expand_less'}
+              </span>
+            </span>
+          </Btn>
+        </div>
+      )}
 
+      <div className="w-full grow overflow-x-hidden overflow-y-auto">
+        {episodesList.map((episode, index) => {
+          const isSelected = selectedEpisodes.has(episode.cleanUrl)
+          let bgClass = 'even:bg-table-row-bg-even hover:bg-table-row-bg-hover'
+          let textClass = 'text-foreground'
+          let subTextClass = 'text-foreground-muted'
+
+          if (episode.isDownloaded || episode.isDownloading) {
+            bgClass = 'bg-primary/40'
+            textClass = 'text-disabled'
+            subTextClass = 'text-disabled/70'
+          } else if (isSelected) {
+            bgClass = 'bg-success/10'
+          }
+
+          const publishedLabel = episode.publishedAt
+            ? t('LabelPublished', { 0: format.relativeTime(new Date(episode.publishedAt), { now: new Date() }) })
+            : t('LabelUnknownPublishDate')
+
+          return (
+            <div
+              key={episode.guid || episode.cleanUrl}
+              className={mergeClasses(
+                'border-border relative flex cursor-pointer items-center border-b last:border-0',
+                bgClass,
+                suppressTextSelection && 'select-none'
+              )}
+              onMouseDown={(e) => {
+                if (episode.isDownloaded || episode.isDownloading) return
+                episodeRowMouseDown?.(e)
+              }}
+              onClick={(e) => {
+                if (episode.isDownloaded || episode.isDownloading) return
+                selectEpisode(episode, !isSelected, e.shiftKey, index)
+              }}
+            >
+              <div className="flex w-12 flex-none items-center justify-center p-3 sm:w-16">
+                {episode.isDownloaded ? (
+                  <span className="material-symbols text-success text-xl">download_done</span>
+                ) : episode.isDownloading ? (
+                  <span className="material-symbols text-warning text-xl">download</span>
+                ) : (
+                  <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center">
+                    <Checkbox value={isSelected} size="small" onChange={(checked, shiftKey) => selectEpisode(episode, checked, shiftKey, index)} />
+                  </div>
+                )}
+              </div>
+              <div className="flex-grow py-2 pr-4 sm:pr-8">
+                <div className={`flex items-center gap-1 font-semibold ${textClass}`}>
+                  {(episode.season || episode.episode) && <div>#</div>}
+                  {episode.season && <div>{episode.season}x</div>}
+                  {episode.episode && <div>{episode.episode}</div>}
+                </div>
+                <div className={`mb-1 flex items-center gap-2 ${textClass}`}>
+                  <div className="break-words">{episode.title}</div>
+                  {episode.episodeType &&
+                    (episode.episodeType.toLowerCase() === 'trailer' || episode.episodeType.toLowerCase() === 'bonus' ? (
+                      <span className="bg-info rounded-full px-2 py-0.5 text-xs text-white capitalize">{episode.episodeType}</span>
+                    ) : null)}
+                </div>
+                {episode.subtitle && <p className={`mb-1 line-clamp-2 text-sm ${subTextClass}`}>{episode.subtitle}</p>}
+
+                <div className={`mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 ${subTextClass}`}>
+                  <p className="w-40 text-xs">{publishedLabel}</p>
+                  {episode.durationSeconds != null && episode.durationSeconds > 0 && (
+                    <p className="min-w-28 text-xs">{t('LabelDurationWithValue', { 0: formatDuration(episode.durationSeconds, t) })}</p>
+                  )}
+                  {episode.enclosure?.length && !isNaN(Number(episode.enclosure.length)) && Number(episode.enclosure.length) > 0 && (
+                    <p className="text-xs">{t('LabelSizeWithValue', { 0: bytesPretty(Number(episode.enclosure.length)) })}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {allDownloaded ? (
+        <ModalFooter start={<p className="text-success text-base">{t('LabelAllEpisodesDownloaded')}</p>} />
+      ) : (
+        <ModalFooter
+          start={<Checkbox value={selectAll} onChange={toggleSelectAll} label={selectAllLabel} labelClass="whitespace-nowrap" />}
+          primary={{
+            label: buttonText,
+            onClick: handleSubmit,
+            disabled: selectedEpisodes.size === 0 || isPending,
+            className: 'shrink-0 whitespace-nowrap'
+          }}
+        />
+      )}
+    </div>
+  )
+}
+
+/** Standalone dialog wrapper around {@link EpisodeFeedList}. */
+export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episodes, downloadQueue, episodesDownloading }: EpisodeFeedModalProps) {
   return (
     <Modal
       isOpen={isOpen}
@@ -285,120 +416,14 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
       outerContent={<ModalOuterContent title={libraryItem.media.metadata.title}>{libraryItem.media.metadata.title}</ModalOuterContent>}
       style={{ maxWidth: 1200 }}
     >
-      <div className="flex h-[80vh] min-h-[400px] flex-col px-4 sm:px-6">
-        {episodesCleaned.length > 0 && (
-          <div className="flex w-full shrink-0 gap-2 py-4">
-            <form onSubmit={handleSubmit} className="flex grow">
-              <TextInput
-                value={search}
-                onChange={setSearch}
-                type="search"
-                placeholder={t('PlaceholderSearchEpisode')}
-                className="mr-2 grow text-sm md:text-base"
-              />
-            </form>
-            <Btn className="px-4" onClick={() => setSortDescending(!sortDescending)}>
-              <span className="pr-4">{t('LabelSortPubDate')}</span>
-              <span className="absolute inset-y-0 right-0 flex items-center pr-2 text-yellow-400">
-                <span className="material-symbols text-xl" aria-label={sortDescending ? t('LabelSortDescending') : t('LabelSortAscending')}>
-                  {sortDescending ? 'expand_more' : 'expand_less'}
-                </span>
-              </span>
-            </Btn>
-          </div>
-        )}
-
-        <div className="w-full grow overflow-x-hidden overflow-y-auto">
-          {episodesList.map((episode, index) => {
-            const isSelected = selectedEpisodes.has(episode.cleanUrl)
-            let bgClass = 'even:bg-table-row-bg-even hover:bg-table-row-bg-hover'
-            let textClass = 'text-foreground'
-            let subTextClass = 'text-foreground-muted'
-
-            if (episode.isDownloaded || episode.isDownloading) {
-              bgClass = 'bg-primary/40'
-              textClass = 'text-disabled'
-              subTextClass = 'text-disabled/70'
-            } else if (isSelected) {
-              bgClass = 'bg-success/10'
-            }
-
-            const publishedLabel = episode.publishedAt
-              ? t('LabelPublished', { 0: format.relativeTime(new Date(episode.publishedAt), { now: new Date() }) })
-              : t('LabelUnknownPublishDate')
-
-            return (
-              <div
-                key={episode.guid || episode.cleanUrl}
-                className={mergeClasses(
-                  'border-border relative flex cursor-pointer items-center border-b last:border-0',
-                  bgClass,
-                  suppressTextSelection && 'select-none'
-                )}
-                onMouseDown={(e) => {
-                  if (episode.isDownloaded || episode.isDownloading) return
-                  episodeRowMouseDown?.(e)
-                }}
-                onClick={(e) => {
-                  if (episode.isDownloaded || episode.isDownloading) return
-                  selectEpisode(episode, !isSelected, e.shiftKey, index)
-                }}
-              >
-                <div className="flex w-12 flex-none items-center justify-center p-3 sm:w-16">
-                  {episode.isDownloaded ? (
-                    <span className="material-symbols text-success text-xl">download_done</span>
-                  ) : episode.isDownloading ? (
-                    <span className="material-symbols text-warning text-xl">download</span>
-                  ) : (
-                    <div onClick={(e) => e.stopPropagation()} className="flex items-center justify-center">
-                      <Checkbox value={isSelected} size="small" onChange={(checked, shiftKey) => selectEpisode(episode, checked, shiftKey, index)} />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-grow py-2 pr-4 sm:pr-8">
-                  <div className={`flex items-center gap-1 font-semibold ${textClass}`}>
-                    {(episode.season || episode.episode) && <div>#</div>}
-                    {episode.season && <div>{episode.season}x</div>}
-                    {episode.episode && <div>{episode.episode}</div>}
-                  </div>
-                  <div className={`mb-1 flex items-center gap-2 ${textClass}`}>
-                    <div className="break-words">{episode.title}</div>
-                    {episode.episodeType &&
-                      (episode.episodeType.toLowerCase() === 'trailer' || episode.episodeType.toLowerCase() === 'bonus' ? (
-                        <span className="bg-info rounded-full px-2 py-0.5 text-xs text-white capitalize">{episode.episodeType}</span>
-                      ) : null)}
-                  </div>
-                  {episode.subtitle && <p className={`mb-1 line-clamp-2 text-sm ${subTextClass}`}>{episode.subtitle}</p>}
-
-                  <div className={`mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 ${subTextClass}`}>
-                    <p className="w-40 text-xs">{publishedLabel}</p>
-                    {episode.durationSeconds != null && episode.durationSeconds > 0 && (
-                      <p className="min-w-28 text-xs">{t('LabelDurationWithValue', { 0: formatDuration(episode.durationSeconds, t) })}</p>
-                    )}
-                    {episode.enclosure?.length && !isNaN(Number(episode.enclosure.length)) && Number(episode.enclosure.length) > 0 && (
-                      <p className="text-xs">{t('LabelSizeWithValue', { 0: bytesPretty(Number(episode.enclosure.length)) })}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {allDownloaded ? (
-          <ModalFooter start={<p className="text-success text-base">{t('LabelAllEpisodesDownloaded')}</p>} />
-        ) : (
-          <ModalFooter
-            start={<Checkbox value={selectAll} onChange={toggleSelectAll} label={selectAllLabel} labelClass="whitespace-nowrap" />}
-            primary={{
-              label: buttonText,
-              onClick: handleSubmit,
-              disabled: selectedEpisodes.size === 0 || isPending,
-              className: 'shrink-0 whitespace-nowrap'
-            }}
-          />
-        )}
-      </div>
+      <EpisodeFeedList
+        onClose={onClose}
+        libraryItem={libraryItem}
+        episodes={episodes}
+        downloadQueue={downloadQueue}
+        episodesDownloading={episodesDownloading}
+        className="h-[80vh] min-h-[400px]"
+      />
     </Modal>
   )
 }

@@ -1,9 +1,7 @@
 'use client'
 
 import { checkPodcastNewEpisodesAction, updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
-import Modal from '@/components/modals/Modal'
 import ModalFooter from '@/components/modals/ModalFooter'
-import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
 import { useGlobalToast } from '@/contexts/ToastContext'
@@ -12,12 +10,6 @@ import { ApiError } from '@/lib/apiErrors'
 import { timestampToDatetimeLocal } from '@/lib/datefns'
 import { isPodcastLibraryItem, type PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
-
-interface PodcastCheckNewEpisodesModalProps {
-  isOpen: boolean
-  onClose: () => void
-  libraryItem: PodcastLibraryItem
-}
 
 const DEFAULT_MAX_EPISODES_TO_DOWNLOAD = 3
 const MAX_EPISODES_TO_DOWNLOAD_STORAGE_KEY = 'podcastCheckNewEpisodesLimit'
@@ -43,7 +35,26 @@ function saveMaxEpisodesToDownload(limit: number) {
   }
 }
 
-export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryItem }: PodcastCheckNewEpisodesModalProps) {
+export interface PodcastCheckNewEpisodesFormProps {
+  /** Podcast whose feed is checked for episodes newer than the chosen date. */
+  libraryItem: PodcastLibraryItem
+  /** Called after the check completes. */
+  onClose: () => void
+}
+
+/**
+ * Check-for-new-episodes form for one podcast.
+ *
+ * Owns the cut-off date, the per-check download limit and the request itself,
+ * and renders no dialog chrome: the grouped RSS manager supplies the dialog
+ * around it.
+ *
+ * The limit is remembered in local storage between checks. A changed cut-off
+ * date is persisted before the check runs. Server errors are surfaced with
+ * their own message rather than a generic one, and the form stays open so the
+ * request can be retried.
+ */
+export function PodcastCheckNewEpisodesForm({ libraryItem, onClose }: PodcastCheckNewEpisodesFormProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
 
@@ -62,11 +73,12 @@ export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryI
     }
   }, [])
 
+  // The manager mounts this panel only while its section is selected, so
+  // mounting is what makes the fields current.
   useEffect(() => {
-    if (!isOpen) return
     setLastEpisodeCheckInput(timestampToDatetimeLocal(savedLastEpisodeCheck))
     setMaxEpisodesToDownload(String(getStoredMaxEpisodesToDownload()))
-  }, [isOpen, savedLastEpisodeCheck])
+  }, [savedLastEpisodeCheck])
 
   const handleSubmit = useCallback(async () => {
     if (!isPodcastLibraryItem(libraryItem) || !feedUrl || isChecking) return
@@ -110,48 +122,44 @@ export default function PodcastCheckNewEpisodesModal({ isOpen, onClose, libraryI
     }
   }, [feedUrl, isChecking, lastEpisodeCheckInput, libraryItem, maxEpisodesToDownload, onClose, savedLastEpisodeCheck, showToast, t])
 
-  const outerContentTitle = <ModalOuterContent>{t('ButtonCheckForNewEpisodes')}</ModalOuterContent>
-
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="max-w-[400px] sm:max-w-[400px] md:max-w-[400px] lg:max-w-[400px]">
-      <div className="flex max-h-[90vh] w-full flex-col">
-        <div className="w-full space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
-          <TextInput
-            type="datetime-local"
-            label={t('LabelLookForNewEpisodesAfterDate')}
-            value={lastEpisodeCheckInput}
-            onChange={setLastEpisodeCheckInput}
-            disabled={isChecking}
-          />
-
-          <div className="flex items-center gap-x-4 py-1">
-            <TextInput
-              type="number"
-              min={0}
-              value={maxEpisodesToDownload}
-              onChange={handleMaxEpisodesChange}
-              disabled={isChecking}
-              size="small"
-              customInputClass="no-spinner text-center"
-              className="w-12 shrink-0"
-            />
-            <p className="min-w-0 flex-1 text-base leading-snug">
-              {t('LabelLimit')}
-              {'\u00A0'}
-              <HelpTooltipIcon text={t('LabelMaxEpisodesToDownload')} />
-            </p>
-          </div>
-        </div>
-
-        <ModalFooter
-          primary={{
-            label: t('LabelDownloadEpisodes'),
-            onClick: handleSubmit,
-            disabled: isChecking,
-            loading: isChecking
-          }}
+    <div className="flex max-h-[90vh] w-full flex-col">
+      <div className="w-full space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
+        <TextInput
+          type="datetime-local"
+          label={t('LabelLookForNewEpisodesAfterDate')}
+          value={lastEpisodeCheckInput}
+          onChange={setLastEpisodeCheckInput}
+          disabled={isChecking}
         />
+
+        <div className="flex items-center gap-x-4 py-1">
+          <TextInput
+            type="number"
+            min={0}
+            value={maxEpisodesToDownload}
+            onChange={handleMaxEpisodesChange}
+            disabled={isChecking}
+            size="small"
+            customInputClass="no-spinner text-center"
+            className="w-12 shrink-0"
+          />
+          <p className="min-w-0 flex-1 text-base leading-snug">
+            {t('LabelLimit')}
+            {' '}
+            <HelpTooltipIcon text={t('LabelMaxEpisodesToDownload')} />
+          </p>
+        </div>
       </div>
-    </Modal>
+
+      <ModalFooter
+        primary={{
+          label: t('LabelDownloadEpisodes'),
+          onClick: handleSubmit,
+          disabled: isChecking,
+          loading: isChecking
+        }}
+      />
+    </div>
   )
 }

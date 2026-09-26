@@ -1,9 +1,7 @@
 'use client'
 
 import { updateLibraryItemMediaAction } from '@/app/actions/mediaActions'
-import Modal from '@/components/modals/Modal'
 import ModalFooter from '@/components/modals/ModalFooter'
-import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import TextInput from '@/components/ui/TextInput'
 import Alert from '@/components/widgets/Alert'
@@ -14,12 +12,6 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isPodcastLibraryItem, type PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-interface PodcastDownloadScheduleModalProps {
-  isOpen: boolean
-  onClose: () => void
-  libraryItem: PodcastLibraryItem
-}
-
 function clampNonNegativeInt(value: string) {
   const parsed = Number.parseInt(value, 10)
   if (!Number.isFinite(parsed) || parsed < 0) return 0
@@ -28,11 +20,17 @@ function clampNonNegativeInt(value: string) {
 
 const DEFAULT_DAILY_CRON = '0 0 * * *'
 
+/**
+ * Returns the cron expression the form should start from.
+ *
+ * A podcast keeps its schedule when automatic downloads are switched off, and
+ * the status summary reports that stored schedule as inactive. The form has to
+ * load the same value: starting from the default instead would offer to
+ * overwrite the user's saved schedule the moment they re-enable fetching,
+ * because an disabled podcast counts as changed as soon as the form opens.
+ */
 function getScheduleCronExpression(libraryItem: PodcastLibraryItem) {
-  const savedSchedule = libraryItem.media.autoDownloadSchedule
-  const isEnabled = libraryItem.media.autoDownloadEpisodes ?? false
-  if (isEnabled && savedSchedule) return savedSchedule
-  return DEFAULT_DAILY_CRON
+  return libraryItem.media.autoDownloadSchedule || DEFAULT_DAILY_CRON
 }
 
 interface ScheduleLimitFieldProps {
@@ -58,14 +56,35 @@ function ScheduleLimitField({ value, onChange, label, helpText, disabled }: Sche
       />
       <p className="min-w-0 flex-1 text-base leading-snug">
         {label}
-        {'\u00A0'}
+        {' '}
         <HelpTooltipIcon text={helpText} />
       </p>
     </div>
   )
 }
 
-export default function PodcastDownloadScheduleModal({ isOpen, onClose, libraryItem }: PodcastDownloadScheduleModalProps) {
+export interface PodcastDownloadScheduleFormProps {
+  /** Podcast whose automatic episode download schedule is being edited. */
+  libraryItem: PodcastLibraryItem
+  /** Called after a successful save or disable. */
+  onClose: () => void
+  /** Reports save/disable progress so the manager can block dismissal. */
+  onProcessingChange?: (isProcessing: boolean) => void
+}
+
+/**
+ * Schedule editor for one podcast's automatic episode downloads.
+ *
+ * Owns the cron expression, retention limits, validation and persistence. It
+ * renders no dialog chrome of its own: the grouped RSS manager supplies the
+ * dialog around it.
+ *
+ * Saving enables automatic downloads and writes the schedule and both limits;
+ * disabling clears only the enabled flag so the stored schedule survives for a
+ * later re-enable. Both paths report through the shared toast and then call
+ * `onClose`. A podcast without a source feed can only be disabled.
+ */
+export function PodcastDownloadScheduleForm({ libraryItem, onClose, onProcessingChange }: PodcastDownloadScheduleFormProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
 
@@ -92,10 +111,11 @@ export default function PodcastDownloadScheduleModal({ isOpen, onClose, libraryI
     setMaxNewEpisodesToDownload(String(savedMaxNewEpisodesToDownload))
   }, [libraryItem, savedMaxEpisodesToKeep, savedMaxNewEpisodesToDownload])
 
+  // The manager mounts this panel only while its section is selected, so
+  // mounting is what makes the fields current.
   useEffect(() => {
-    if (!isOpen) return
     initForm()
-  }, [initForm, isOpen])
+  }, [initForm])
 
   const handleCronChange = useCallback((value: string, isValid: boolean) => {
     setCronExpression(value)
@@ -181,67 +201,71 @@ export default function PodcastDownloadScheduleModal({ isOpen, onClose, libraryI
 
   const isProcessing = isSaving || isDisabling
 
-  const outerContentTitle = <ModalOuterContent>{t('HeaderScheduleEpisodeDownloads')}</ModalOuterContent>
+  useEffect(() => {
+    onProcessingChange?.(isProcessing)
+    // A successful save calls onClose, which unmounts this form in the same
+    // commit, so the effect never runs again with false. Without clearing the
+    // flag on unmount the wrapper stays stuck showing its processing overlay.
+    return () => onProcessingChange?.(false)
+  }, [isProcessing, onProcessingChange])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} processing={isProcessing} outerContent={outerContentTitle} className="w-[700px] md:max-w-[700px] lg:max-w-[700px]">
-      <div className="flex max-h-[90vh] flex-col">
-        <div className="overflow-y-auto px-4 py-6 sm:px-6">
-          {!feedUrl && (
-            <Alert type="warning" className="mb-4">
-              {t('ToastPodcastNoRssFeed')}
-            </Alert>
-          )}
+    <div className="flex max-h-[90vh] flex-col">
+      <div className="overflow-y-auto px-4 py-6 sm:px-6">
+        {!feedUrl && (
+          <Alert type="warning" className="mb-4">
+            {t('ToastPodcastNoRssFeed')}
+          </Alert>
+        )}
 
-          {showScheduleForm && (
-            <div className="flex flex-col gap-3">
-              <ScheduleLimitField
-                value={maxEpisodesToKeep}
-                onChange={setMaxEpisodesToKeep}
-                label={t('LabelMaxEpisodesToKeep')}
-                helpText={t('LabelMaxEpisodesToKeepHelp')}
-                disabled={isProcessing}
-              />
+        {showScheduleForm && (
+          <div className="flex flex-col gap-3">
+            <ScheduleLimitField
+              value={maxEpisodesToKeep}
+              onChange={setMaxEpisodesToKeep}
+              label={t('LabelMaxEpisodesToKeep')}
+              helpText={t('LabelMaxEpisodesToKeepHelp')}
+              disabled={isProcessing}
+            />
 
-              <ScheduleLimitField
-                value={maxNewEpisodesToDownload}
-                onChange={setMaxNewEpisodesToDownload}
-                label={t('LabelMaxEpisodesToDownloadPerCheck')}
-                helpText={t('LabelUseZeroForUnlimited')}
-                disabled={isProcessing}
-              />
+            <ScheduleLimitField
+              value={maxNewEpisodesToDownload}
+              onChange={setMaxNewEpisodesToDownload}
+              label={t('LabelMaxEpisodesToDownloadPerCheck')}
+              helpText={t('LabelUseZeroForUnlimited')}
+              disabled={isProcessing}
+            />
 
-              <CronExpressionBuilder key={`${libraryItem.id}-${isOpen}`} value={cronExpression} onChange={handleCronChange} />
-              <CronExpressionPreview cronExpression={cronExpression} isValid={cronIsValid} />
-            </div>
-          )}
-        </div>
-
-        {(showScheduleForm || showDisableOnly) && (
-          <ModalFooter
-            destructive={
-              savedAutoDownloadEpisodes
-                ? {
-                    label: t('ButtonDisableAutoDownloadEpisodes'),
-                    onClick: handleDisable,
-                    disabled: isProcessing,
-                    loading: isDisabling
-                  }
-                : undefined
-            }
-            primary={
-              showScheduleForm
-                ? {
-                    label: savedAutoDownloadEpisodes ? t('ButtonSave') : t('ButtonEnable'),
-                    onClick: handleSave,
-                    disabled: !isUpdated || !cronIsValid || isProcessing,
-                    loading: isSaving
-                  }
-                : undefined
-            }
-          />
+            <CronExpressionBuilder key={libraryItem.id} value={cronExpression} onChange={handleCronChange} />
+            <CronExpressionPreview cronExpression={cronExpression} isValid={cronIsValid} />
+          </div>
         )}
       </div>
-    </Modal>
+
+      {(showScheduleForm || showDisableOnly) && (
+        <ModalFooter
+          destructive={
+            savedAutoDownloadEpisodes
+              ? {
+                  label: t('ButtonDisableAutoDownloadEpisodes'),
+                  onClick: handleDisable,
+                  disabled: isProcessing,
+                  loading: isDisabling
+                }
+              : undefined
+          }
+          primary={
+            showScheduleForm
+              ? {
+                  label: savedAutoDownloadEpisodes ? t('ButtonSave') : t('ButtonEnable'),
+                  onClick: handleSave,
+                  disabled: !isUpdated || !cronIsValid || isProcessing,
+                  loading: isSaving
+                }
+              : undefined
+          }
+        />
+      )}
+    </div>
   )
 }
