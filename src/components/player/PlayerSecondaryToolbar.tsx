@@ -3,17 +3,28 @@
 import ButtonBase from '@/components/ui/ButtonBase'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { mergeClasses } from '@/lib/merge-classes'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import type { PlayerControlsState } from './usePlayerControlsState'
 import VolumeControl from './VolumeControl'
 
+const PLAYER_SECONDARY_TOOLBAR_CLASS = 'flex flex-nowrap items-center justify-center gap-2'
+const PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS = mergeClasses(
+  'max-lg:w-full max-lg:gap-1',
+  'max-lg:[&_button]:inline-flex max-lg:[&_button]:h-11 max-lg:[&_button]:min-h-11 max-lg:[&_button]:w-11 max-lg:[&_button]:min-w-11 max-lg:[&_button]:items-center max-lg:[&_button]:justify-center max-lg:[&_button]:p-0'
+)
+const PLAYER_TOOLBAR_TOOLTIP_CLASS = 'max-lg:items-center max-lg:justify-center max-lg:leading-none'
+
 interface PlayerSecondaryToolbarProps {
   controls: PlayerControlsState
   className?: string
+  onPlaybackRateOpenChange?: (open: boolean) => void
+  onVolumeOpenChange?: (open: boolean) => void
 }
 
-export default function PlayerSecondaryToolbar({ controls, className }: PlayerSecondaryToolbarProps) {
+export default function PlayerSecondaryToolbar({ controls, className, onPlaybackRateOpenChange, onVolumeOpenChange }: PlayerSecondaryToolbarProps) {
+  const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const {
     playerHandler,
     isPodcast,
@@ -30,12 +41,21 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
   } = controls
 
   const { sleepTimerSet, remainingString } = sleepTimer
+  const tooltipClass = isPlayerFullscreen ? PLAYER_TOOLBAR_TOOLTIP_CLASS : undefined
 
   return (
-    <div className={mergeClasses('flex flex-nowrap items-center justify-center gap-3 sm:gap-4', className)}>
-      <VolumeControl playerHandler={playerHandler} />
-      <PlaybackRateWidget playerHandler={playerHandler} />
-      <Tooltip text={t('LabelSleepTimer')} position="top">
+    <div
+      className={mergeClasses(
+        'player-secondary-toolbar',
+        PLAYER_SECONDARY_TOOLBAR_CLASS,
+        isPlayerFullscreen && PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS,
+        isLandscapeCompact && 'w-full',
+        className
+      )}
+    >
+      <VolumeControl playerHandler={playerHandler} onOpenChange={onVolumeOpenChange} />
+      <PlaybackRateWidget playerHandler={playerHandler} onOpenChange={onPlaybackRateOpenChange} />
+      <Tooltip text={t('LabelSleepTimer')} position="top" className={tooltipClass}>
         <ButtonBase
           size="custom"
           borderless
@@ -53,27 +73,34 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
               <span className="material-symbols text-warning text-lg" aria-hidden="true">
                 snooze
               </span>
-              <span className="text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg">{remainingString}</span>
+              <span
+                className={mergeClasses(
+                  'player-sleep-timer-remaining text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg',
+                  isPlayerFullscreen && 'max-lg:hidden'
+                )}
+              >
+                {remainingString}
+              </span>
             </div>
           )}
         </ButtonBase>
       </Tooltip>
       {!isPodcast && (
-        <Tooltip text={t('LabelViewBookmarks')} position="top">
+        <Tooltip text={t('LabelViewBookmarks')} position="top" className={tooltipClass}>
           <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={openBookmarksModal} ariaLabel={t('LabelViewBookmarks')}>
             {bookmarks.length ? 'bookmarks' : 'bookmark_border'}
           </IconBtn>
         </Tooltip>
       )}
       {chapters.length > 0 && (
-        <Tooltip text={t('LabelViewChapters')} position="top">
+        <Tooltip text={t('LabelViewChapters')} position="top" className={tooltipClass}>
           <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={() => setIsChaptersModalOpen(true)} ariaLabel={t('LabelViewChapters')}>
             format_list_bulleted
           </IconBtn>
         </Tooltip>
       )}
       {playerQueueItems.length > 0 && (
-        <Tooltip text={t('LabelViewQueue')} position="top">
+        <Tooltip text={t('LabelViewQueue')} position="top" className={tooltipClass}>
           <IconBtn
             size="custom"
             borderless
@@ -85,7 +112,7 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
           </IconBtn>
         </Tooltip>
       )}
-      <Tooltip text={t('LabelViewPlayerSettings')} position="top">
+      <Tooltip text={t('LabelViewPlayerSettings')} position="top" className={tooltipClass}>
         <IconBtn
           size="custom"
           borderless

@@ -10,10 +10,8 @@ import EmbedMetadataPanel from '@/components/widgets/audiobook-tools/EmbedMetada
 import M4bEncodePanel from '@/components/widgets/audiobook-tools/M4bEncodePanel'
 import MetadataPreviewTable from '@/components/widgets/audiobook-tools/MetadataPreviewTable'
 import ToolsInfoNotes from '@/components/widgets/audiobook-tools/ToolsInfoNotes'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useAudiobookTools } from '@/hooks/useAudiobookTools'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { BookLibraryItem } from '@/types/api'
 
 interface AudiobookToolsProps {
@@ -22,13 +20,11 @@ interface AudiobookToolsProps {
 
 export default function AudiobookTools({ libraryItem: initialLibraryItem }: AudiobookToolsProps) {
   const t = useTypeSafeTranslations()
-  const { streamLibraryItem } = useMediaContext()
-  const isStreaming = streamLibraryItem?.id === initialLibraryItem.id
 
   const tools = useAudiobookTools({ initialLibraryItem })
 
   return (
-    <div className={mergeClasses('bg-bg relative min-h-full overflow-y-auto p-8', isStreaming && 'streaming')}>
+    <div className="bg-bg relative min-h-full overflow-y-auto p-8">
       <LibraryItemSubpageHeader
         libraryItem={tools.libraryItem}
         libraryId={tools.libraryItem.libraryId}

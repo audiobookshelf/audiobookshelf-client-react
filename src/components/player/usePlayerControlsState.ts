@@ -67,6 +67,16 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
     setIsBookmarksModalOpen(true)
   }, [getCurrentTime])
 
+  const closeAllModals = useCallback(() => {
+    setIsSettingsModalOpen(false)
+    setIsChaptersModalOpen(false)
+    setIsBookmarksModalOpen(false)
+    setIsSleepTimerModalOpen(false)
+    setIsQueueModalOpen(false)
+  }, [])
+
+  const isAnyModalOpen = isSettingsModalOpen || isChaptersModalOpen || isBookmarksModalOpen || isSleepTimerModalOpen || isQueueModalOpen
+
   return {
     playerHandler,
     streamLibraryItem,
@@ -98,6 +108,8 @@ export function usePlayerControlsState(playerHandler: PlayerHandler, streamLibra
     setIsQueueModalOpen,
     bookmarkCurrentTime,
     openBookmarksModal,
+    closeAllModals,
+    isAnyModalOpen,
     playerQueueItems,
     sleepTimer,
     t

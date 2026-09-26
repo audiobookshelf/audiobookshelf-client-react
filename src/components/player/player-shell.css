@@ -1,0 +1,244 @@
+:root {
+  /* Morph timings (view-transition pseudo-elements are not under .player-shell) */
+  --player-morph-dur: 0.2s;
+  --player-morph-ease: cubic-bezier(0.39, 0.575, 0.565, 1);
+  --cover-morph-dur: var(--player-morph-dur);
+  --cover-morph-ease: var(--player-morph-ease);
+  --cover-h-mini: 3.5rem;
+  --mini-pad: 0.5rem;
+  /* Slider + reserved tick row + timestamps. */
+  --mini-track-stack: 2rem;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --player-mini-h: calc(var(--mini-pad) + var(--cover-h-mini) + var(--mini-pad) + var(--mini-track-stack) + var(--mini-pad) + var(--safe-bottom));
+}
+
+.player-shell {
+  --player-ease: var(--cover-morph-ease);
+  --player-dur-cover: var(--cover-morph-dur);
+  --player-dur: 0.15s;
+  --cover-aspect: 1.6;
+  --cover-w-over-h: calc(1 / var(--cover-aspect));
+  --cover-w-mini: calc(var(--cover-h-mini) / var(--cover-aspect));
+  /** Gap between cover and title on mini. */
+  --mini-title-gap: 0.5rem;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-start: env(safe-area-inset-left, 0px);
+  --safe-end: env(safe-area-inset-right, 0px);
+  --mini-ps: calc(var(--mini-pad) + var(--safe-start));
+  --mini-pe: calc(var(--mini-pad) + var(--safe-end));
+  --mini-pb: calc(var(--mini-pad) + var(--safe-bottom));
+  /* Clear the top-end close button (w-9) plus a gap. */
+  --mini-toolbar-pe: calc(2.25rem + 0.5rem);
+}
+
+:dir(rtl) .player-shell {
+  --safe-start: env(safe-area-inset-right, 0px);
+  --safe-end: env(safe-area-inset-left, 0px);
+}
+
+.player-shell.fullscreen {
+  --fs-gap: 0.5rem;
+  /* Header is in flow (h-11), so top padding is only the inset above it. */
+  --fs-header-h: 2.75rem;
+  --fs-header-outset: 0.5rem;
+  --fs-pt: calc(0.5rem + var(--safe-top));
+  --fs-ps: calc(1rem + var(--safe-start));
+  --fs-pe: calc(1rem + var(--safe-end));
+  --fs-pb: calc(0.75rem + var(--safe-bottom));
+  container-type: size;
+}
+
+.player-cover-slot {
+  container-type: size;
+}
+
+.player-shell.fullscreen .player-cover {
+  width: min(100cqw, calc((100cqh - 0.5rem) * var(--cover-w-over-h)), var(--cover-nat-w, 10000px), calc(var(--cover-nat-h, 10000px) * var(--cover-w-over-h)));
+  height: auto;
+  aspect-ratio: var(--cover-w-over-h);
+}
+
+.player-shell,
+.player-cover,
+.player-title-author,
+.player-transport-slot,
+.player-header-collapse,
+.player-header-close,
+.player-right-column {
+  transition-timing-function: var(--player-ease);
+}
+
+.player-cover {
+  view-transition-name: player-cover;
+}
+
+.player-title-author .player-title {
+  transition-property: font-size;
+  transition-duration: var(--player-dur);
+}
+
+.player-title-author .player-author,
+.player-title-author .player-duration {
+  transition-property: font-size, opacity, height, margin;
+  transition-duration: var(--player-dur);
+}
+
+@keyframes player-marquee {
+  to {
+    transform: translateX(calc(var(--marquee-distance) * -1px));
+  }
+}
+
+.player-marquee--overflow .player-marquee-track {
+  animation: player-marquee var(--marquee-dur) linear(0, 0 var(--marquee-hold), 1) infinite;
+}
+
+.player-header-collapse,
+.player-header-close {
+  transition-property: top, opacity, visibility;
+  transition-duration: var(--player-dur);
+}
+
+.player-transport {
+  transition-property: gap;
+  transition-duration: var(--player-dur);
+}
+
+.player-jump-btn {
+  transition-property: width, height, font-size, min-width, min-height;
+  transition-duration: var(--player-dur);
+}
+
+.player-transport-jump-back {
+  view-transition-name: player-jump-back;
+  transition-property: none;
+}
+
+.player-transport-jump-forward {
+  view-transition-name: player-jump-forward;
+  transition-property: none;
+}
+
+.player-play-btn {
+  view-transition-name: player-play-btn;
+  transition-property: none;
+}
+
+.player-chapter-slot {
+  transition-property: width, opacity, visibility;
+  transition-duration: var(--player-dur);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --cover-h-mini: 4rem;
+    --mini-pad: 0.75rem;
+  }
+
+  .player-shell {
+    --mini-title-gap: 0.75rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .player-shell.fullscreen {
+    --landscape-pad: 1rem;
+    --landscape-col-min: 24rem;
+    --landscape-col: min(100%, var(--landscape-col-min));
+    --fs-ps: calc(var(--landscape-pad) + var(--safe-start));
+    --fs-pe: calc(var(--landscape-pad) + var(--safe-end));
+    --fs-pb: calc(var(--landscape-pad) + var(--safe-bottom));
+  }
+
+  /* Header row used to be padding, so it is not part of the cover's height. */
+  .player-shell.fullscreen .player-cover {
+    width: min(
+      calc(100cqw - var(--landscape-col-min) - var(--landscape-pad)),
+      calc((100cqh - var(--fs-header-h)) * var(--cover-w-over-h)),
+      var(--cover-nat-w, 10000px),
+      calc(var(--cover-nat-h, 10000px) * var(--cover-w-over-h))
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --player-morph-dur: 0.01ms;
+  }
+
+  .player-shell {
+    --player-dur-cover: 0.01ms;
+    --player-dur: 0.01ms;
+  }
+
+  .player-cover,
+  .player-transport-jump-back,
+  .player-transport-jump-forward,
+  .player-play-btn {
+    view-transition-name: none;
+  }
+
+  .player-marquee-track {
+    animation: none;
+  }
+
+  .player-marquee--overflow {
+    mask-image: none;
+  }
+
+  .player-marquee--overflow .marquee-loop-gap,
+  .player-marquee--overflow .marquee-loop-copy {
+    display: none !important;
+  }
+}
+
+/* Mini ↔ fullscreen: morph cover + transport buttons; snap everything else */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-group(player-cover) {
+    z-index: 100;
+    overflow: clip;
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-old(player-cover),
+  ::view-transition-new(player-cover) {
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-image-pair(player-cover) {
+    isolation: isolate;
+  }
+
+  ::view-transition-group(player-jump-back),
+  ::view-transition-group(player-jump-forward),
+  ::view-transition-group(player-play-btn) {
+    z-index: 98;
+    overflow: clip;
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-old(player-jump-back),
+  ::view-transition-new(player-jump-back),
+  ::view-transition-old(player-jump-forward),
+  ::view-transition-new(player-jump-forward),
+  ::view-transition-old(player-play-btn),
+  ::view-transition-new(player-play-btn) {
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-image-pair(player-jump-back),
+  ::view-transition-image-pair(player-jump-forward),
+  ::view-transition-image-pair(player-play-btn) {
+    isolation: isolate;
+  }
+}
