@@ -100,13 +100,7 @@ export default function BookmarksModal({
   const outerContent = <ModalOuterContent>{t('LabelYourBookmarks')}</ModalOuterContent>
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      zIndexClass={zIndexClass}
-      outerContent={outerContent}
-      className="overflow-hidden sm:max-w-[600px] md:max-w-[600px] lg:max-w-[600px]"
-    >
+    <Modal isOpen={isOpen} onClose={onClose} zIndexClass={zIndexClass} outerContent={outerContent} className="overflow-hidden md:max-w-150 lg:max-w-150">
       <div className="flex max-h-[80vh] flex-col">
         {sortedBookmarks.length > 0 ? (
           <div className="max-h-[calc(80vh-60px)] w-full overflow-x-hidden overflow-y-auto">
