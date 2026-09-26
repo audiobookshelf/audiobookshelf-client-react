@@ -89,7 +89,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
     <div className="bg-primary relative h-16 w-full">
       <header
         cy-id="appbar"
-        className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
+        className="box-shadow-appbar absolute inset-s-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
       >
         {showMobileSideRailToggle && (
           <IconBtn
