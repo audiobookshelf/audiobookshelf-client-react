@@ -8,16 +8,23 @@ You can test using this docker image built for every commit:
 ghcr.io/audiobookshelf/audiobookshelf-react:latest
 ```
 
+The server-only image runs the server without a web UI:
+
+```
+ghcr.io/audiobookshelf/audiobookshelf-react:server-only
+```
+
 For testing, it is recommended that you use a separate config & libraries from your production server.
 
 ## Contributing
 
 Please carefully read our [contribution guidelines](https://audiobookshelf.org/docs/contributing/general/) before starting starting to work on code.
 
-Note especially the AI tools section: __*We do not accept or review PRs or issues that are fully AI-generated*__. You can use AI tools, but:
+Note especially the AI tools section: **_We do not accept or review PRs or issues that are fully AI-generated_**. You can use AI tools, but:
+
 - You must run and review the changes you made on a dev server.
-- You must read and review your code carefully. Commits should be authored by __*you*__, not your tools.
-- PR/Issue description and comments should be __*yours*__. We want to communicate with you, not your tools.
+- You must read and review your code carefully. Commits should be authored by **_you_**, not your tools.
+- PR/Issue description and comments should be **_yours_**. We want to communicate with you, not your tools.
 
 ### How to run locally
 
@@ -46,4 +53,3 @@ module.exports.config = {
 
 1. `pnpm run build` this NextJS app
 2. Start the audiobookshelf server with `npm run start-dev` (uses the dev.js file w/ production)
-

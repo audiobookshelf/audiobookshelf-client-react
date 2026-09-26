@@ -57,7 +57,7 @@ RUN case "$TARGETPLATFORM" in \
 RUN npm ci --only=production
 
 ### STAGE 2: Create minimal runtime image ###
-FROM node:20-alpine
+FROM node:20-alpine AS runtime-base
 
 ARG NUSQLITE3_DIR
 ARG NUSQLITE3_PATH
@@ -69,17 +69,6 @@ RUN apk add --no-cache --update \
   tini
 
 WORKDIR /app
-
-# Copy compiled React frontend from build stage
-COPY --from=build-client /client-react/.next /app/client-react/.next
-COPY --from=build-client /client-react/public /app/client-react/public
-COPY --from=build-client /client-react/package.json /app/client-react/package.json
-COPY --from=build-client /client-react/node_modules /app/client-react/node_modules
-
-# next.config.ts runs at container start and rewrites the baked-in basePath
-# placeholder (see scripts/rewriteBuildBasePath.ts).
-COPY --from=build-client /client-react/next.config.ts /app/client-react/next.config.ts
-COPY --from=build-client /client-react/scripts/rewriteBuildBasePath.ts /app/client-react/scripts/rewriteBuildBasePath.ts
 
 # Copy server from build stage
 COPY --from=build-server /server /app
@@ -95,7 +84,27 @@ ENV SOURCE="docker"
 ENV ROUTER_BASE_PATH=""
 ENV NUSQLITE3_DIR=${NUSQLITE3_DIR}
 ENV NUSQLITE3_PATH=${NUSQLITE3_PATH}
-ENV REACT_CLIENT_PATH="/app/client-react"
 
 ENTRYPOINT ["tini", "--"]
 CMD ["node", "index.js"]
+
+### STAGE 3: Server only image ###
+FROM runtime-base AS server-only
+
+ENV DISABLE_WEB_UI=1
+
+### STAGE 4: Server + React client image ###
+FROM runtime-base AS full
+
+# Copy compiled React frontend from build stage
+COPY --from=build-client /client-react/.next /app/client-react/.next
+COPY --from=build-client /client-react/public /app/client-react/public
+COPY --from=build-client /client-react/package.json /app/client-react/package.json
+COPY --from=build-client /client-react/node_modules /app/client-react/node_modules
+
+# next.config.ts runs at container start and rewrites the baked-in basePath
+# placeholder (see scripts/rewriteBuildBasePath.ts).
+COPY --from=build-client /client-react/next.config.ts /app/client-react/next.config.ts
+COPY --from=build-client /client-react/scripts/rewriteBuildBasePath.ts /app/client-react/scripts/rewriteBuildBasePath.ts
+
+ENV REACT_CLIENT_PATH="/app/client-react"
