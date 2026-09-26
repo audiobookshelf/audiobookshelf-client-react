@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect } from 'react'
 
 export const PLAYER_CLOSE_SECONDARY_POPOVERS_EVENT = 'abs:close-player-secondary-popovers'
