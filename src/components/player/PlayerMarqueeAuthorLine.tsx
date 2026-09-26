@@ -3,7 +3,6 @@
 import AuthorLinks from '@/components/widgets/AuthorLinks'
 import { useDomMarquee } from '@/hooks/useDomMarquee'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
-import { formatList } from '@/lib/formatList'
 import { mergeClasses } from '@/lib/merge-classes'
 import { MARQUEE_LOOP_COPY_CLASS, MARQUEE_LOOP_GAP_CLASS, MARQUEE_LOOP_GAP_SPACES, MARQUEE_TRACK_CLASS } from '@/lib/player/domWrappingMarquee'
 import { useLocale } from 'next-intl'
@@ -36,10 +35,7 @@ function PlayerMarqueeAuthorLine({ libraryId, bookAuthors, podcastAuthor, onNavi
   const text = useMemo(() => {
     if (podcastAuthor) return podcastAuthor
     if (bookAuthors.length === 0) return ''
-    return formatList(
-      bookAuthors.map((author) => author.name),
-      locale
-    )
+    return new Intl.ListFormat(locale, { type: 'unit' }).format(bookAuthors.map((author) => author.name))
   }, [bookAuthors, locale, podcastAuthor])
   const authorsKey = useMemo(() => bookAuthors.map((author) => author.id).join(','), [bookAuthors])
 
