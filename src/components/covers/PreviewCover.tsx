@@ -151,7 +151,7 @@ export default function PreviewCover({
         style={fill ? undefined : { height: `${finalDimensions.imageHeight}px` }}
       >
         {showCoverBg && (
-          <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs">
+          <div className="bg-primary absolute inset-s-0 top-0 h-full w-full overflow-hidden rounded-xs">
             <div className="cover-bg absolute" ref={coverBgRef} />
           </div>
         )}
@@ -168,7 +168,7 @@ export default function PreviewCover({
       </div>
 
       {imageFailed && (
-        <div className="absolute start-0 end-0 top-0 bottom-0 h-full w-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
+        <div className="absolute inset-s-0 inset-e-0 top-0 bottom-0 h-full w-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
           <div className="border-error flex h-full w-full flex-col items-center justify-center border-2">
             {width > 100 && (
               <Image src={withBasePath('/images/Logo.png')} alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />
@@ -181,7 +181,7 @@ export default function PreviewCover({
       )}
 
       {!imageFailed && showResolution && resolution && (
-        <p className="text-foreground-muted absolute start-0 end-0 bottom-0 mx-auto text-center text-xs">{resolution}</p>
+        <p className="text-foreground-muted absolute inset-s-0 inset-e-0 bottom-0 mx-auto text-center text-xs">{resolution}</p>
       )}
     </div>
   )

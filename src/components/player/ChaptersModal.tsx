@@ -57,7 +57,7 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
     >
       <div
         className={mergeClasses(
-          'absolute start-0 top-0 h-full w-1',
+          'absolute inset-s-0 top-0 h-full w-1',
           isListened && !isCurrentChapter && 'bg-success/40',
           isCurrentChapter && 'bg-success rounded-bl-full'
         )}
