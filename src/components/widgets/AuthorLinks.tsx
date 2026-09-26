@@ -1,6 +1,5 @@
 'use client'
 
-import { listFormatParts } from '@/lib/formatList'
 import Link from 'next/link'
 import { useLocale } from 'next-intl'
 import { useMemo } from 'react'
@@ -16,10 +15,7 @@ interface AuthorLinksProps {
 export default function AuthorLinks({ libraryId, authors, onNavigate, tabIndex, prefetch }: AuthorLinksProps) {
   const locale = useLocale()
   const segments = useMemo(() => {
-    const parts = listFormatParts(
-      authors.map((author) => author.name),
-      locale
-    )
+    const parts = new Intl.ListFormat(locale, { type: 'unit' }).formatToParts(authors.map((author) => author.name))
     const next: Array<{ type: 'separator'; value: string } | { type: 'author'; author: { id: string; name: string } }> = []
     let elementIndex = 0
 
