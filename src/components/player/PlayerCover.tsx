@@ -4,8 +4,8 @@ import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
-import { LibraryItem } from '@/types/api'
-import { useCallback, useLayoutEffect, useRef } from 'react'
+import type { LibraryItem } from '@/types/api'
+import { CSSProperties, useCallback, useState } from 'react'
 import PreviewCover from '../covers/PreviewCover'
 
 const COVER_MINI = 'z-2 shrink-0 cursor-pointer overflow-hidden rounded-sm h-(--cover-h-mini) w-(--cover-w-mini) *:pointer-events-none *:h-full *:w-full'
@@ -21,63 +21,57 @@ interface PlayerCoverProps {
   onActivate: () => void
 }
 
-function applyCoverNaturalSize(cover: HTMLElement) {
-  const img = cover.querySelector('img')
-  if (!(img instanceof HTMLImageElement) || img.naturalWidth <= 0 || img.naturalHeight <= 0) {
-    cover.style.removeProperty('--cover-nat-w')
-    cover.style.removeProperty('--cover-nat-h')
-    return
-  }
-  cover.style.setProperty('--cover-nat-w', `${img.naturalWidth}px`)
-  cover.style.setProperty('--cover-nat-h', `${img.naturalHeight}px`)
+interface CoverNaturalSize {
+  width: number
+  height: number
 }
 
 export default function PlayerCover({ streamLibraryItem, coverAspectRatio, onActivate }: PlayerCoverProps) {
   const t = useTypeSafeTranslations()
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
-  const coverRef = useRef<HTMLDivElement>(null)
+  const [naturalSize, setNaturalSize] = useState<CoverNaturalSize | null>(null)
   const coverSrc = getLibraryItemCoverSrc(streamLibraryItem, getPlaceholderCoverUrl())
+  const isExpandable = !isPlayerFullscreen
 
-  useLayoutEffect(() => {
-    const cover = coverRef.current
-    if (!cover) return
-    const img = cover.querySelector('img')
-    applyCoverNaturalSize(cover)
-    if (!(img instanceof HTMLImageElement)) return
-    const apply = () => applyCoverNaturalSize(cover)
-    img.addEventListener('load', apply)
-    return () => img.removeEventListener('load', apply)
-  }, [coverSrc])
+  const handleNaturalSize = useCallback((width: number, height: number) => {
+    setNaturalSize((prev) => {
+      if (width <= 0 || height <= 0) return null
+      if (prev?.width === width && prev?.height === height) return prev
+      return { width, height }
+    })
+  }, [])
 
   const handleKeyDown = useCallback(
     (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (isPlayerFullscreen) return
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         onActivate()
       }
     },
-    [isPlayerFullscreen, onActivate]
+    [onActivate]
   )
 
-  const cover = (
-    <div
-      ref={coverRef}
-      className={mergeClasses('player-cover', isPlayerFullscreen ? mergeClasses(COVER_FS, isLandscapeCompact && COVER_LANDSCAPE) : COVER_MINI)}
-      data-cy="player-cover"
-      role={isPlayerFullscreen ? undefined : 'button'}
-      tabIndex={isPlayerFullscreen ? undefined : 0}
-      aria-label={isPlayerFullscreen ? undefined : t('LabelExpandPlayer')}
-      onClick={isPlayerFullscreen ? undefined : onActivate}
-      onKeyDown={handleKeyDown}
-    >
-      <PreviewCover src={coverSrc} bookCoverAspectRatio={coverAspectRatio} showResolution={false} fill />
+  const coverStyle = naturalSize
+    ? ({
+        '--cover-nat-w': `${naturalSize.width}px`,
+        '--cover-nat-h': `${naturalSize.height}px`
+      } as CSSProperties)
+    : undefined
+
+  return (
+    <div className={isPlayerFullscreen && !isLandscapeCompact ? COVER_SLOT_FS : 'contents'}>
+      <div
+        className={mergeClasses('player-cover', isPlayerFullscreen ? COVER_FS : COVER_MINI, isPlayerFullscreen && isLandscapeCompact && COVER_LANDSCAPE)}
+        data-cy="player-cover"
+        style={coverStyle}
+        role={isExpandable ? 'button' : undefined}
+        tabIndex={isExpandable ? 0 : undefined}
+        aria-label={isExpandable ? t('LabelExpandPlayer') : undefined}
+        onClick={isExpandable ? onActivate : undefined}
+        onKeyDown={isExpandable ? handleKeyDown : undefined}
+      >
+        <PreviewCover src={coverSrc} bookCoverAspectRatio={coverAspectRatio} showResolution={false} fill onNaturalSize={handleNaturalSize} />
+      </div>
     </div>
   )
-
-  if (isPlayerFullscreen && !isLandscapeCompact) {
-    return <div className={COVER_SLOT_FS}>{cover}</div>
-  }
-
-  return cover
 }

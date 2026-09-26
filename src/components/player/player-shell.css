@@ -54,7 +54,7 @@
 }
 
 .player-shell.fullscreen .player-cover {
-  width: min(100cqw, calc((100cqh - 0.5rem) * var(--cover-w-over-h)), var(--cover-nat-w, 10000px), calc(var(--cover-nat-h, 10000px) * var(--cover-w-over-h)));
+  width: min(100cqw, calc((100cqh - 0.5rem) * var(--cover-w-over-h)), var(--cover-nat-w), calc(var(--cover-nat-h) * var(--cover-w-over-h)));
   height: auto;
   aspect-ratio: var(--cover-w-over-h);
 }
@@ -70,6 +70,9 @@
 }
 
 .player-cover {
+  /* Fallback until the image reports its natural pixel size. */
+  --cover-nat-w: 400px;
+  --cover-nat-h: calc(400px * var(--cover-aspect));
   view-transition-name: player-cover;
 }
 
@@ -156,8 +159,8 @@
     width: min(
       calc(100cqw - var(--landscape-col-min) - var(--landscape-pad)),
       calc((100cqh - var(--fs-header-h)) * var(--cover-w-over-h)),
-      var(--cover-nat-w, 10000px),
-      calc(var(--cover-nat-h, 10000px) * var(--cover-w-over-h))
+      var(--cover-nat-w),
+      calc(var(--cover-nat-h) * var(--cover-w-over-h))
     );
   }
 }

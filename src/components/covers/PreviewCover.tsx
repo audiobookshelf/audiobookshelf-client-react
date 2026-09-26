@@ -16,6 +16,7 @@ interface PreviewCoverProps {
   forceErrorState?: boolean // For testing purposes
   onClick?: () => void
   fill?: boolean
+  onNaturalSize?: (width: number, height: number) => void
 }
 
 export default function PreviewCover({
@@ -25,7 +26,8 @@ export default function PreviewCover({
   showResolution = true,
   forceErrorState = false,
   onClick,
-  fill = false
+  fill = false,
+  onNaturalSize
 }: PreviewCoverProps) {
   const libraryBookCoverAspectRatio = useBookCoverAspectRatio()
   const bookCoverAspectRatio = bookCoverAspectRatioProp ?? libraryBookCoverAspectRatio
@@ -39,13 +41,17 @@ export default function PreviewCover({
   const coverRef = useRef<HTMLImageElement>(null)
   const coverBgRef = useRef<HTMLDivElement>(null)
 
-  const resetImageState = useCallback((nextDisplaySrc: string, failed = false) => {
-    setDisplaySrc(nextDisplaySrc)
-    setImageFailed(failed)
-    setShowCoverBg(false)
-    setNaturalHeight(0)
-    setNaturalWidth(0)
-  }, [])
+  const resetImageState = useCallback(
+    (nextDisplaySrc: string, failed = false) => {
+      setDisplaySrc(nextDisplaySrc)
+      setImageFailed(failed)
+      setShowCoverBg(false)
+      setNaturalHeight(0)
+      setNaturalWidth(0)
+      onNaturalSize?.(0, 0)
+    },
+    [onNaturalSize]
+  )
 
   // Calculate final dimensions
   const finalDimensions = useMemo(() => {
@@ -74,6 +80,7 @@ export default function PreviewCover({
       const { naturalWidth: imgNaturalWidth, naturalHeight: imgNaturalHeight } = coverRef.current
       setNaturalHeight(imgNaturalHeight)
       setNaturalWidth(imgNaturalWidth)
+      onNaturalSize?.(imgNaturalWidth, imgNaturalHeight)
 
       const aspectRatio = imgNaturalHeight / imgNaturalWidth
       const arDiff = Math.abs(aspectRatio - bookCoverAspectRatio)
@@ -86,7 +93,7 @@ export default function PreviewCover({
         setShowCoverBg(false)
       }
     }
-  }, [bookCoverAspectRatio])
+  }, [bookCoverAspectRatio, onNaturalSize])
 
   // Set background image when showCoverBg changes to true
   useEffect(() => {
