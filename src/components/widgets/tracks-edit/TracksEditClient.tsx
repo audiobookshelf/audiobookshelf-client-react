@@ -6,7 +6,6 @@ import LibraryItemSubpageHeader, { libraryItemSubpageMaxWidthClass } from '@/com
 import TracksEditToolbar, { TracksEditActions } from '@/components/widgets/tracks-edit/TracksEditToolbar'
 import TracksList from '@/components/widgets/tracks-edit/TracksList'
 import { getTracksListColumnVisibility } from '@/components/widgets/tracks-edit/tracksListColumns'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useTrackEditor } from '@/hooks/useTrackEditor'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -19,8 +18,6 @@ interface TracksEditClientProps {
 
 export default function TracksEditClient({ libraryItem: initialLibraryItem }: TracksEditClientProps) {
   const t = useTypeSafeTranslations()
-  const { streamLibraryItem } = useMediaContext()
-  const isStreaming = streamLibraryItem?.id === initialLibraryItem.id
   const [showResetConfirm, setShowResetConfirm] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
@@ -28,7 +25,7 @@ export default function TracksEditClient({ libraryItem: initialLibraryItem }: Tr
   const columnVisibility = useMemo(() => getTracksListColumnVisibility(editor.files), [editor.files])
 
   return (
-    <div className={mergeClasses('bg-bg page flex h-full min-h-0 flex-col overflow-hidden p-4 sm:p-8', isStreaming && 'streaming')}>
+    <div className="bg-bg page flex h-full min-h-0 flex-col overflow-hidden p-4 sm:p-8">
       <LibraryItemSubpageHeader
         libraryItem={editor.libraryItem}
         libraryId={editor.libraryItem.libraryId}
