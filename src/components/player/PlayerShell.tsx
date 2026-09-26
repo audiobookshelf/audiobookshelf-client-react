@@ -1,9 +1,9 @@
 'use client'
 
+import { useLibraries } from '@/contexts/LibrariesContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useLandscapePlayerDensity } from '@/hooks/useLandscapePlayerDensity'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
-import { usePlayerCoverAspectRatio } from '@/hooks/usePlayerCoverAspectRatio'
 import { usePlayerFullscreenHistory } from '@/hooks/usePlayerFullscreenHistory'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
@@ -79,7 +79,8 @@ interface PlayerShellProps {
 
 export default function PlayerShell({ playerHandler, streamLibraryItem, metadata, accentStyle, showAccentBackdrop, onClose }: PlayerShellProps) {
   const t = useTypeSafeTranslations()
-  const coverAspectRatio = usePlayerCoverAspectRatio(streamLibraryItem.libraryId)
+  const { getCoverAspectRatio } = useLibraries()
+  const coverAspectRatio = getCoverAspectRatio(streamLibraryItem.libraryId)
   const isDesktop = useMediaQuery('lg')
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const { setPlayerFullscreen } = useMediaContext()

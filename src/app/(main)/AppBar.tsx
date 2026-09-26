@@ -6,13 +6,13 @@ import Tooltip from '@/components/ui/Tooltip'
 import ChromecastLauncher from '@/components/widgets/ChromecastLauncher'
 import NotificationWidget from '@/components/widgets/NotificationWidget'
 import { useAppNavigation } from '@/contexts/AppNavigationContext'
+import { useLibraries } from '@/contexts/LibrariesContext'
 import { useUser } from '@/contexts/UserContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { withBasePath } from '@/lib/basePath'
 import { resolveEffectiveLibrary } from '@/lib/libraries'
 import { mergeClasses } from '@/lib/merge-classes'
-import { registerLibrariesCoverAspectRatio } from '@/lib/player/libraryCoverAspectRatioRegistry'
 import { Library } from '@/types/api'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
@@ -35,6 +35,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const isMobile = useMediaQuery('max-md')
   const [isSideRailOpen, setIsSideRailOpen] = useState(false)
   const { user, userDefaultLibraryId } = useUser()
+  const { setLibraries } = useLibraries()
   // When not on a library page, use the last current library id when navigating home
   const { lastCurrentLibraryId, setLastCurrentLibraryId } = useAppNavigation()
 
@@ -54,9 +55,9 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
 
   useEffect(() => {
     if (libraries?.length) {
-      registerLibrariesCoverAspectRatio(libraries)
+      setLibraries(libraries)
     }
-  }, [libraries])
+  }, [libraries, setLibraries])
 
   const isAdmin = ['admin', 'root'].includes(user.type)
 
