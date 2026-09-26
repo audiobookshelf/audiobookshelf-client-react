@@ -191,6 +191,8 @@ export interface LibrarySettings {
   skipMatchingMediaWithAsin?: boolean
   skipMatchingMediaWithIsbn?: boolean
   autoScanCronExpression?: string | null
+  matchAfterScan?: boolean
+  matchMinConfidence?: number
   audiobooksOnly?: boolean
   hideSingleBookSeries?: boolean
   onlyShowLaterBooksInContinueSeries?: boolean

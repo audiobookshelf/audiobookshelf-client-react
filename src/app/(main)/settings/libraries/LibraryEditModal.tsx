@@ -1,8 +1,8 @@
 'use client'
 
-import TabbedModal from '@/components/modals/TabbedModal'
 import ModalFooter from '@/components/modals/ModalFooter'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
+import TabbedModal from '@/components/modals/TabbedModal'
 import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -27,6 +27,8 @@ const defaultLibrarySettings: LibrarySettings = {
   disableWatcher: false,
   skipMatchingMediaWithAsin: false,
   skipMatchingMediaWithIsbn: false,
+  matchAfterScan: false,
+  matchMinConfidence: 0,
   audiobooksOnly: false,
   hideSingleBookSeries: false,
   onlyShowLaterBooksInContinueSeries: false,
