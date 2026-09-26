@@ -67,7 +67,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   }, [clearSelection, isSelectionMode])
 
   return (
-    <div className={mergeClasses('page-wrapper relative flex overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
+    <div className="page-wrapper relative flex overflow-hidden">
       <SideRail serverVersion={serverVersion} installSource={installSource} />
       <div className="page-bg-gradient min-w-0 flex-1 overflow-hidden">
         {showToolbar && <Toolbar />}

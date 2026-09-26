@@ -2,9 +2,9 @@
 
 import { batchGetLibraryItemsAction, batchUpdateLibraryItemsAction } from '@/app/actions/mediaActions'
 import Btn from '@/components/ui/Btn'
-import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import Tooltip from '@/components/ui/Tooltip'
+import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
 import BatchEpisodeMapDetailsPanel, { type BatchEpisodeMapDetailsPanelRef } from '@/components/widgets/batch-edit/BatchEpisodeMapDetailsPanel'
 import BatchLibraryItemMapDetailsPanel, {
   type BatchLibraryItemMapDetailsPanelRef,
@@ -20,15 +20,13 @@ import EpisodeDetailsEdit, {
 } from '@/components/widgets/EpisodeDetailsEdit'
 import PodcastDetailsEdit, { type PodcastDetailsEditRef } from '@/components/widgets/PodcastDetailsEdit'
 import { useLibrary } from '@/contexts/LibraryContext'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { useUnsavedNavigationGuard, allowProgrammaticNavigationWithoutTrapCleanup } from '@/hooks/useUnsavedNavigationGuard'
+import { allowProgrammaticNavigationWithoutTrapCleanup, useUnsavedNavigationGuard } from '@/hooks/useUnsavedNavigationGuard'
 import { clearBatchEditSession, cloneLibraryItemForBatchEdit, readBatchEditSession, saveEpisodeBatchSequential, type BatchEditSession } from '@/lib/batchEdit'
-import { getUniqueLibraryItemIds } from '@/lib/selectedMediaItem'
-import { mergeClasses } from '@/lib/merge-classes'
 import type { SelectionKind } from '@/lib/selectedMediaItem'
+import { getUniqueLibraryItemIds } from '@/lib/selectedMediaItem'
 import type { BookLibraryItem, LibraryItem, PodcastEpisode, PodcastLibraryItem, UpdateLibraryItemMediaPayload } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -55,7 +53,6 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
   const { showToast } = useGlobalToast()
   const { userCanUpdate } = useUser()
   const { filterData } = useLibrary()
-  const { streamLibraryItem } = useMediaContext()
 
   const [session, setSession] = useState<BatchEditSession | null>(null)
   const [loading, setLoading] = useState(true)
@@ -316,7 +313,7 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
   }
 
   return (
-    <div className={mergeClasses('page bg-bg flex h-full min-h-0 flex-col', streamLibraryItem && 'streaming')}>
+    <div className="page bg-bg flex h-full min-h-0 flex-col">
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-6 pb-4">
         {isEpisodeMode ? (
           <BatchEpisodeMapDetailsPanel
@@ -438,7 +435,13 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
             <Btn disabled={isProcessing} onClick={() => setShowResetConfirm(true)}>
               {t('ButtonReset')}
             </Btn>
-            <Btn color="bg-success text-success-foreground" className="text-lg" loading={isProcessing} disabled={isProcessing} onClick={() => void handleSave()}>
+            <Btn
+              color="bg-success text-success-foreground"
+              className="text-lg"
+              loading={isProcessing}
+              disabled={isProcessing}
+              onClick={() => void handleSave()}
+            >
               {t('ButtonSave')}
             </Btn>
           </div>

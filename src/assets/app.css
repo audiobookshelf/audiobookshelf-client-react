@@ -10,16 +10,12 @@
   --media-player-offset: calc(var(--media-player-height) + 1rem);
 }
 
-/* Subtract height of app bar */
+/* App bar, plus the mini player when one is open. --media-player-height is 0 otherwise. */
 .page-wrapper {
-  height: calc(100dvh - 4rem);
+  height: calc(100dvh - 4rem - var(--media-player-height, 0px));
 }
-/* Subtract height of app bar and mini player */
 html:has(.player-shell) {
   --media-player-height: var(--player-mini-h);
-}
-.page-wrapper.streaming {
-  height: calc(100dvh - 4rem - var(--media-player-height, 0px));
 }
 
 #bookshelf {
