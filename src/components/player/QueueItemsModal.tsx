@@ -7,10 +7,10 @@ import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import Checkbox from '@/components/ui/Checkbox'
 import IconBtn from '@/components/ui/IconBtn'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
+import { useLibraries } from '@/contexts/LibrariesContext'
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
-import { usePlayerCoverAspectRatio } from '@/hooks/usePlayerCoverAspectRatio'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
@@ -29,7 +29,8 @@ interface QueueItemsModalProps {
 const QUEUE_COVER_HEIGHT = 48
 
 function QueueItemCover({ libraryId, src }: { libraryId: string; src: string }) {
-  const bookCoverAspectRatio = usePlayerCoverAspectRatio(libraryId)
+  const { getCoverAspectRatio } = useLibraries()
+  const bookCoverAspectRatio = getCoverAspectRatio(libraryId)
   return <PreviewCover src={src} width={QUEUE_COVER_HEIGHT / bookCoverAspectRatio} showResolution={false} bookCoverAspectRatio={bookCoverAspectRatio} />
 }
 
