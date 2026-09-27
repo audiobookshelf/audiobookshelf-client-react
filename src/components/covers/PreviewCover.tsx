@@ -16,7 +16,6 @@ interface PreviewCoverProps {
   forceErrorState?: boolean // For testing purposes
   onClick?: () => void
   fill?: boolean
-  onNaturalSize?: (width: number, height: number) => void
 }
 
 export default function PreviewCover({
@@ -26,8 +25,7 @@ export default function PreviewCover({
   showResolution = true,
   forceErrorState = false,
   onClick,
-  fill = false,
-  onNaturalSize
+  fill = false
 }: PreviewCoverProps) {
   const libraryBookCoverAspectRatio = useBookCoverAspectRatio()
   const bookCoverAspectRatio = bookCoverAspectRatioProp ?? libraryBookCoverAspectRatio
@@ -41,17 +39,13 @@ export default function PreviewCover({
   const coverRef = useRef<HTMLImageElement>(null)
   const coverBgRef = useRef<HTMLDivElement>(null)
 
-  const resetImageState = useCallback(
-    (nextDisplaySrc: string, failed = false) => {
-      setDisplaySrc(nextDisplaySrc)
-      setImageFailed(failed)
-      setShowCoverBg(false)
-      setNaturalHeight(0)
-      setNaturalWidth(0)
-      onNaturalSize?.(0, 0)
-    },
-    [onNaturalSize]
-  )
+  const resetImageState = useCallback((nextDisplaySrc: string, failed = false) => {
+    setDisplaySrc(nextDisplaySrc)
+    setImageFailed(failed)
+    setShowCoverBg(false)
+    setNaturalHeight(0)
+    setNaturalWidth(0)
+  }, [])
 
   // Calculate final dimensions
   const finalDimensions = useMemo(() => {
@@ -80,7 +74,6 @@ export default function PreviewCover({
       const { naturalWidth: imgNaturalWidth, naturalHeight: imgNaturalHeight } = coverRef.current
       setNaturalHeight(imgNaturalHeight)
       setNaturalWidth(imgNaturalWidth)
-      onNaturalSize?.(imgNaturalWidth, imgNaturalHeight)
 
       const aspectRatio = imgNaturalHeight / imgNaturalWidth
       const arDiff = Math.abs(aspectRatio - bookCoverAspectRatio)
@@ -93,7 +86,7 @@ export default function PreviewCover({
         setShowCoverBg(false)
       }
     }
-  }, [bookCoverAspectRatio, onNaturalSize])
+  }, [bookCoverAspectRatio])
 
   // Set background image when showCoverBg changes to true
   useEffect(() => {
@@ -135,7 +128,7 @@ export default function PreviewCover({
   )
 
   const containerStyle = useMemo(() => {
-    if (fill) return { width: '100%', height: '100%' }
+    if (fill) return { width: '100%' }
     return {
       height: `${finalDimensions.height}px`,
       width: `${finalDimensions.width}px`,
@@ -146,7 +139,7 @@ export default function PreviewCover({
 
   return (
     <div
-      className="relative h-full rounded-xs"
+      className="relative rounded-xs"
       style={containerStyle}
       onClick={onClick}
       role={onClick ? 'button' : undefined}
@@ -154,11 +147,11 @@ export default function PreviewCover({
       onKeyDown={handleKeyDown}
     >
       <div
-        className={mergeClasses('relative w-full overflow-hidden', fill && 'h-full')}
-        style={fill ? undefined : { height: `${finalDimensions.imageHeight}px` }}
+        className="relative w-full overflow-hidden"
+        style={fill ? { aspectRatio: `${1 / bookCoverAspectRatio}` } : { height: `${finalDimensions.imageHeight}px` }}
       >
         {showCoverBg && (
-          <div className="bg-primary absolute inset-s-0 top-0 h-full w-full overflow-hidden rounded-xs">
+          <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs">
             <div className="cover-bg absolute" ref={coverBgRef} />
           </div>
         )}
@@ -170,12 +163,12 @@ export default function PreviewCover({
           alt={t('LabelCoverPreview')}
           fill
           unoptimized
-          className={mergeClasses(showCoverBg ? 'object-contain' : fill ? 'object-cover' : 'object-fill')}
+          className={mergeClasses(showCoverBg ? 'object-contain' : 'object-fill')}
         />
       </div>
 
       {imageFailed && (
-        <div className="absolute inset-s-0 inset-e-0 top-0 bottom-0 h-full w-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
+        <div className="absolute start-0 end-0 top-0 bottom-0 h-full w-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
           <div className="border-error flex h-full w-full flex-col items-center justify-center border-2">
             {width > 100 && (
               <Image src={withBasePath('/images/Logo.png')} alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />
@@ -188,7 +181,7 @@ export default function PreviewCover({
       )}
 
       {!imageFailed && showResolution && resolution && (
-        <p className="text-foreground-muted absolute inset-s-0 inset-e-0 bottom-0 mx-auto text-center text-xs">{resolution}</p>
+        <p className="text-foreground-muted absolute start-0 end-0 bottom-0 mx-auto text-center text-xs">{resolution}</p>
       )}
     </div>
   )

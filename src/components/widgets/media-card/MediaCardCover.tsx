@@ -11,18 +11,15 @@ interface MediaCardCoverProps {
   placeholderUrl: string
   hasCover: boolean
   title: string
-  titleCleaned: string
-  authorCleaned: string
+  author: string
   userProgressPercent: number
   itemIsFinished: boolean
   showProgressBar: boolean
   onImageLoad?: (showBg: boolean) => void
+  onNaturalSize?: (width: number, height: number) => void
+  /** Title/author overlays for missing covers. Defaults to true. */
+  showPlaceholderText?: boolean
 }
-
-const PLACEHOLDER_COVER_PADDING = 0.8
-const TITLE_FONT_SIZE = 0.75
-const AUTHOR_FONT_SIZE = 0.6
-const AUTHOR_BOTTOM = 0.75
 
 export default function MediaCardCover({
   libraryItem,
@@ -30,12 +27,13 @@ export default function MediaCardCover({
   placeholderUrl,
   hasCover,
   title,
-  titleCleaned,
-  authorCleaned,
+  author,
   userProgressPercent,
   itemIsFinished,
   showProgressBar,
-  onImageLoad
+  onImageLoad,
+  onNaturalSize,
+  showPlaceholderText = true
 }: MediaCardCoverProps) {
   const [imageReady, setImageReady] = useState(false)
   const [showCoverBg, setShowCoverBg] = useState(false)
@@ -53,8 +51,9 @@ export default function MediaCardCover({
       setPrevSrc(bookCoverSrc)
       setImageReady(false)
       hasHandledLoad.current = false
+      onNaturalSize?.(0, 0)
     }
-  }, [bookCoverSrc, prevSrc])
+  }, [bookCoverSrc, onNaturalSize, prevSrc])
 
   const handleImageLoaded = useCallback(
     (event: React.SyntheticEvent<HTMLImageElement>) => {
@@ -63,6 +62,7 @@ export default function MediaCardCover({
 
       const img = event.currentTarget
       setImageReady(true)
+      onNaturalSize?.(img.naturalWidth, img.naturalHeight)
 
       if (bookCoverSrc !== placeholderUrl) {
         const { naturalWidth, naturalHeight } = img
@@ -74,7 +74,7 @@ export default function MediaCardCover({
         onImageLoad?.(shouldShowBg)
       }
     },
-    [bookCoverSrc, coverAspect, placeholderUrl, onImageLoad]
+    [bookCoverSrc, coverAspect, onImageLoad, onNaturalSize, placeholderUrl]
   )
 
   // Check if image is already loaded (e.g., from cache)
@@ -105,7 +105,7 @@ export default function MediaCardCover({
       </div>
 
       {/* Placeholder title when image is not ready */}
-      {libraryItem && !imageReady && (
+      {showPlaceholderText && libraryItem && !imageReady && (
         <div
           cy-id="titleImageNotReady"
           aria-hidden="true"
@@ -134,29 +134,21 @@ export default function MediaCardCover({
       )}
 
       {/* Placeholder cover title & author */}
-      {!hasCover && (
-        <>
-          <div
-            cy-id="placeholderTitle"
-            className="absolute start-0 end-0 top-0 bottom-0 flex h-full w-full items-center justify-center"
-            style={{ padding: `${PLACEHOLDER_COVER_PADDING}em` }}
-          >
-            <div>
-              <p cy-id="placeholderTitleText" aria-hidden="true" className="text-center text-amber-100" style={{ fontSize: `${TITLE_FONT_SIZE}em` }}>
-                {titleCleaned}
-              </p>
-            </div>
-          </div>
-          <div
-            cy-id="placeholderAuthor"
-            className="absolute start-0 end-0 flex w-full items-center justify-center"
-            style={{ padding: `${PLACEHOLDER_COVER_PADDING}em`, bottom: `${AUTHOR_BOTTOM}em` }}
-          >
-            <p cy-id="placeholderAuthorText" aria-hidden="true" className="text-center text-amber-100 opacity-75" style={{ fontSize: `${AUTHOR_FONT_SIZE}em` }}>
-              {authorCleaned}
+      {showPlaceholderText && !hasCover && (
+        <div className="absolute inset-0 flex flex-col p-[15%]">
+          <div cy-id="placeholderTitle" className="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden">
+            <p cy-id="placeholderTitleText" aria-hidden="true" className="line-clamp-4 w-full min-w-0 text-center text-[0.75em] wrap-break-word text-amber-100">
+              {title}
             </p>
           </div>
-        </>
+          {author ? (
+            <div cy-id="placeholderAuthor" className="py-2e flex w-full shrink-0 items-center justify-center">
+              <p cy-id="placeholderAuthorText" aria-hidden="true" className="w-full min-w-0 truncate text-center text-[0.6em] text-amber-100 opacity-75">
+                {author}
+              </p>
+            </div>
+          ) : null}
+        </div>
       )}
 
       {/* Progress bar */}
