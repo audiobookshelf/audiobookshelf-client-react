@@ -15,9 +15,10 @@ import { createPortal } from 'react-dom'
 interface VolumeControlProps {
   playerHandler: PlayerHandler
   onOpenChange?: (open: boolean) => void
+  triggerClassName?: string
 }
 
-export default function VolumeControl({ playerHandler, onOpenChange }: VolumeControlProps) {
+export default function VolumeControl({ playerHandler, onOpenChange, triggerClassName }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
   const { isPlayerFullscreen } = useMediaContext()
   const primaryInputCanHover = usePrimaryInputCanHover()
@@ -381,7 +382,7 @@ export default function VolumeControl({ playerHandler, onOpenChange }: VolumeCon
         ref={triggerRef}
         size="custom"
         borderless
-        className="w-9 text-2xl sm:w-10"
+        className={mergeClasses('w-9 text-2xl sm:w-10', triggerClassName)}
         onClick={handleTriggerClick}
         onMouseDown={handleTriggerMouseDown}
         onMouseEnter={primaryInputCanHover ? openPopover : undefined}
