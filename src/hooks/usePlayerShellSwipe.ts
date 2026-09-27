@@ -15,7 +15,6 @@ interface UsePlayerShellSwipeOptions {
   onExpand: () => void
   onCollapse: () => void
   onClose: () => void
-  onSwipeHandled: () => void
 }
 
 export function usePlayerShellSwipe(shellRef: RefObject<HTMLDivElement | null>, options: UsePlayerShellSwipeOptions) {
@@ -49,9 +48,8 @@ export function usePlayerShellSwipe(shellRef: RefObject<HTMLDivElement | null>, 
     }
 
     const runAction = (action: PlayerShellSwipeAction) => {
-      const { onExpand, onCollapse, onClose, onSwipeHandled } = optionsRef.current
+      const { onExpand, onCollapse, onClose } = optionsRef.current
       armClickSuppress()
-      onSwipeHandled()
       if (action === 'expand') onExpand()
       else if (action === 'collapse') onCollapse()
       else onClose()

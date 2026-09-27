@@ -110,7 +110,6 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const shellRef = useRef<HTMLDivElement>(null)
   const rightColumnRef = useRef<HTMLDivElement>(null)
   const collapseBtnRef = useRef<HTMLButtonElement>(null)
-  const swipeHandledRef = useRef(false)
 
   const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
   const layoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
@@ -130,34 +129,17 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     if (!isPlayerFullscreen) setPlayerFullscreen(true)
   }, [isPlayerFullscreen, setPlayerFullscreen])
 
-  const markSwipeHandled = useCallback(() => {
-    swipeHandledRef.current = true
-  }, [])
-
   usePlayerShellSwipe(shellRef, {
     isPlayerFullscreen,
     onExpand: expand,
     onCollapse: collapse,
-    onClose,
-    onSwipeHandled: markSwipeHandled
+    onClose
   })
-
-  const handleCoverActivate = useCallback(() => {
-    if (swipeHandledRef.current) {
-      swipeHandledRef.current = false
-      return
-    }
-    expand()
-  }, [expand])
 
   const handleMiniBackgroundClick = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
       if (isPlayerFullscreen) return
       if (controlsState.isAnyModalOpen || isSecondaryPopoverOpen) return
-      if (swipeHandledRef.current) {
-        swipeHandledRef.current = false
-        return
-      }
       // Portaled overlays (queue, settings, …) still bubble through this React tree.
       if (!isPlayerShellExpandClick(event.target, shellRef.current)) return
       expand()
@@ -239,7 +221,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
 
       <div className={isPlayerFullscreen ? mergeClasses(BODY_FS, isLandscapeCompact && BODY_LANDSCAPE) : 'contents'} data-cy="player-fullscreen-body">
         <div className={isPlayerFullscreen ? 'contents' : LEAD_MINI}>
-          <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={handleCoverActivate} />
+          <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={expand} />
           {!isPlayerFullscreen ? titleAuthor : null}
         </div>
         <div
