@@ -2,11 +2,12 @@
 
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { LibraryItem } from '@/types/api'
+import type { BookMetadata, LibraryItem } from '@/types/api'
+import { isPodcastLibraryItem } from '@/types/api'
 import { CSSProperties, useCallback, useState } from 'react'
-import PreviewCover from '../covers/PreviewCover'
+import MediaCardCover from '../widgets/media-card/MediaCardCover'
 
 const COVER_MINI = 'z-2 shrink-0 cursor-pointer overflow-hidden rounded-sm h-(--cover-h-mini) w-(--cover-w-mini) *:pointer-events-none *:h-full *:w-full'
 
@@ -30,9 +31,13 @@ export default function PlayerCover({ streamLibraryItem, coverAspectRatio, onAct
   const t = useTypeSafeTranslations()
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const [naturalSize, setNaturalSize] = useState<CoverNaturalSize | null>(null)
-  const coverSrc = getLibraryItemCoverSrc(streamLibraryItem, getPlaceholderCoverUrl())
+  const placeholderUrl = getPlaceholderCoverUrl()
   const isExpandable = !isPlayerFullscreen
 
+  const hasCover = !!streamLibraryItem.media?.coverPath
+  const mediaMetadata = streamLibraryItem.media.metadata
+  const title = mediaMetadata.title || ''
+  const author = isPodcastLibraryItem(streamLibraryItem) ? mediaMetadata.author || '' : (mediaMetadata as BookMetadata).authorName || ''
   const handleNaturalSize = useCallback((width: number, height: number) => {
     setNaturalSize((prev) => {
       if (width <= 0 || height <= 0) return null
@@ -70,7 +75,21 @@ export default function PlayerCover({ streamLibraryItem, coverAspectRatio, onAct
         onClick={isExpandable ? onActivate : undefined}
         onKeyDown={isExpandable ? handleKeyDown : undefined}
       >
-        <PreviewCover src={coverSrc} bookCoverAspectRatio={coverAspectRatio} showResolution={false} fill onNaturalSize={handleNaturalSize} />
+        <div className="player-cover-inner relative h-full w-full">
+          <MediaCardCover
+            libraryItem={streamLibraryItem}
+            coverAspect={coverAspectRatio}
+            placeholderUrl={placeholderUrl}
+            hasCover={hasCover}
+            title={title}
+            author={author}
+            userProgressPercent={0}
+            itemIsFinished={false}
+            showProgressBar={false}
+            showPlaceholderText={isPlayerFullscreen}
+            onNaturalSize={handleNaturalSize}
+          />
+        </div>
       </div>
     </div>
   )

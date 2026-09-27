@@ -70,10 +70,16 @@
 }
 
 .player-cover {
+  container-type: size;
   /* Fallback until the image reports its natural pixel size. */
   --cover-nat-w: 400px;
   --cover-nat-h: calc(400px * var(--cover-aspect));
   view-transition-name: player-cover;
+}
+
+/* Media cards set font-size to sizeMultiplier rem (cover height / 192). Mini omits overlay text. */
+.player-shell.fullscreen .player-cover-inner {
+  font-size: calc(100cqh / 1px / 192 * 1rem);
 }
 
 .player-title-author .player-title {
