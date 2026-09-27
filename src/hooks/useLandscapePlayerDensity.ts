@@ -3,7 +3,7 @@
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { LANDSCAPE_DENSITY_MAX_LEVEL, rightColumnContentOverflows, type LandscapeDensityLevel } from '@/lib/player/landscapeDensity'
-import { RefObject, useLayoutEffect, useState } from 'react'
+import { RefObject, useLayoutEffect, useRef, useState } from 'react'
 
 function observeRightColumnChildren(resizeObserver: ResizeObserver, rightColumn: HTMLElement) {
   for (const child of rightColumn.children) {
@@ -19,6 +19,8 @@ export function useLandscapePlayerDensity(
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const isDesktop = useMediaQuery('lg')
   const [densityLevel, setDensityLevel] = useState<LandscapeDensityLevel>(0)
+  /** Item, chapter track, and layout mode. A change starts measurement over at full UI. */
+  const measureGenerationRef = useRef('')
 
   useLayoutEffect(() => {
     const handleResize = () => setDensityLevel(0)
@@ -26,8 +28,19 @@ export function useLandscapePlayerDensity(
 
     const shell = shellRef.current
     const rightColumn = rightColumnRef.current
+    const generation = `${layoutKey}:${isPlayerFullscreen}:${isLandscapeCompact}:${isDesktop}`
     if (!shell || !rightColumn || !isPlayerFullscreen || isDesktop || !isLandscapeCompact) {
+      measureGenerationRef.current = generation
+      setDensityLevel(0)
       return () => window.removeEventListener('resize', handleResize)
+    }
+
+    if (measureGenerationRef.current !== generation) {
+      measureGenerationRef.current = generation
+      if (densityLevel !== 0) {
+        setDensityLevel(0)
+        return () => window.removeEventListener('resize', handleResize)
+      }
     }
 
     const evaluate = () => {
