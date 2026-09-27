@@ -115,7 +115,8 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
   const layoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
   const landscapeDensityLevel = useLandscapePlayerDensity(shellRef, rightColumnRef, layoutKey)
-  const landscapeDensity = landscapeDensityFlags(landscapeDensityLevel)
+  const appliedLandscapeDensityLevel = isLandscapeCompact ? landscapeDensityLevel : 0
+  const landscapeDensity = landscapeDensityFlags(appliedLandscapeDensityLevel)
   const showBookTrack = isPlayerFullscreen && useChapterTrack && !landscapeDensity.singleTrackBar
   const chapterLabelPlacement = landscapeDensity.chapterLabelBelow || !isPlayerFullscreen ? 'below' : 'above'
 
@@ -218,7 +219,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       )}
       style={shellStyle}
       data-cy="player-shell"
-      data-landscape-density={landscapeDensityLevel}
+      data-landscape-density={appliedLandscapeDensityLevel}
       role={isPlayerFullscreen ? 'dialog' : undefined}
       aria-label={isPlayerFullscreen ? metadata.displayTitle : undefined}
       onClick={isPlayerFullscreen ? undefined : handleMiniBackgroundClick}
