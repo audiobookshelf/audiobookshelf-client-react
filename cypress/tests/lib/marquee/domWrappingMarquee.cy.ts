@@ -1,4 +1,4 @@
-import { DomWrappingMarquee, wrappingMarqueeCycleDistance, wrappingMarqueeDurationMs, wrappingMarqueeHoldPercent } from '@/lib/player/domWrappingMarquee'
+import { DomWrappingMarquee, wrappingMarqueeCycleDistance, wrappingMarqueeDurationMs, wrappingMarqueeHoldPercent } from '@/lib/marquee/domWrappingMarquee'
 
 function appendMarqueeTrack(doc: Document, segmentText: string) {
   const container = doc.createElement('div')
@@ -6,7 +6,7 @@ function appendMarqueeTrack(doc: Document, segmentText: string) {
   container.style.overflow = 'hidden'
 
   const track = doc.createElement('div')
-  track.className = 'player-marquee-track'
+  track.className = 'marquee-track'
   track.style.width = 'max-content'
   track.style.whiteSpace = 'nowrap'
 
@@ -46,7 +46,7 @@ describe('DomWrappingMarquee', () => {
       marquee.init()
       expect(loopCopy.style.display).to.equal('none')
       expect(gap.style.display).to.equal('none')
-      expect(container.classList.contains('player-marquee--overflow')).to.equal(false)
+      expect(container.classList.contains('marquee--overflow')).to.equal(false)
 
       marquee.reset()
       container.remove()
@@ -63,7 +63,7 @@ describe('DomWrappingMarquee', () => {
       expect(track.children[2]).to.equal(loopCopy)
       expect(loopCopy.style.display).to.equal('inline-block')
       expect(gap.style.display).to.equal('inline')
-      expect(container.classList.contains('player-marquee--overflow')).to.equal(true)
+      expect(container.classList.contains('marquee--overflow')).to.equal(true)
 
       const distance = Number(container.style.getPropertyValue('--marquee-distance'))
       expect(distance).to.equal(wrappingMarqueeCycleDistance(segment.getBoundingClientRect().left, loopCopy.getBoundingClientRect().left))
@@ -74,7 +74,7 @@ describe('DomWrappingMarquee', () => {
 
       marquee.reset()
       expect(loopCopy.style.display).to.equal('none')
-      expect(container.classList.contains('player-marquee--overflow')).to.equal(false)
+      expect(container.classList.contains('marquee--overflow')).to.equal(false)
       container.remove()
     })
   })
@@ -82,6 +82,7 @@ describe('DomWrappingMarquee', () => {
   it('leaves loop-copy author links in the React tree instead of cloning them', () => {
     cy.document().then((doc) => {
       const { container, track, segment, loopCopy } = appendMarqueeTrack(doc, '')
+      container.style.width = '20px'
       const first = doc.createElement('a')
       first.href = '/library/1/authors/a'
       first.textContent = 'Alice'

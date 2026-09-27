@@ -1,8 +1,8 @@
 export const MARQUEE_LOOP_GAP_SPACES = 15
 export const MARQUEE_LOOP_GAP_CLASS = 'marquee-loop-gap'
 export const MARQUEE_LOOP_COPY_CLASS = 'marquee-loop-copy'
-export const MARQUEE_TRACK_CLASS = 'player-marquee-track'
-export const MARQUEE_OVERFLOW_CLASS = 'player-marquee--overflow'
+export const MARQUEE_TRACK_CLASS = 'marquee-track'
+export const MARQUEE_OVERFLOW_CLASS = 'marquee--overflow'
 
 const MARQUEE_PAUSE_MS = 2000
 const MARQUEE_SCROLL_MS_PER_PX = 30
