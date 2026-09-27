@@ -14,6 +14,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
+import { listRowFocusWithinClass, listRowHighlightClass, listRowHoverClass } from '@/lib/listRowClasses'
 import { mergeClasses } from '@/lib/merge-classes'
 import { getPlayerQueueEpisodeNavigationContext } from '@/lib/playerQueue'
 import Link from 'next/link'
@@ -148,19 +149,13 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
             borderless
             outlined={false}
             size="large"
-            className={mergeClasses("w-auto shrink-0", isCurrentlyPlaying && isItemPlaying ? '' : 'text-success')}
+            className={mergeClasses('w-auto shrink-0', isCurrentlyPlaying && isItemPlaying ? '' : 'text-success')}
             ariaLabel={isCurrentlyPlaying && isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
             onClick={isCurrentlyPlaying ? handlePause : () => handlePlay(index)}
           >
             {isCurrentlyPlaying && isItemPlaying ? 'pause' : 'play_arrow'}
           </IconBtn>
-          <IconBtn
-            borderless
-            size="large"
-            className="text-error w-auto shrink-0"
-            ariaLabel={t('ButtonQueueRemoveItem')}
-            onClick={() => handleRemove(item)}
-          >
+          <IconBtn borderless size="large" className="text-error w-auto shrink-0" ariaLabel={t('ButtonQueueRemoveItem')} onClick={() => handleRemove(item)}>
             close
           </IconBtn>
         </>
@@ -197,15 +192,14 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   )
 
   const getRowClassName = useCallback(
-    (item: PlayerQueueItem, index: number) => {
+    (item: PlayerQueueItem) => {
       const isCurrentlyPlaying = isStreaming(item.libraryItemId, item.episodeId)
 
       if (isCurrentlyPlaying) {
-        return 'border-0 bg-warning/10'
+        return mergeClasses('border-0', listRowHighlightClass, listRowHoverClass, listRowFocusWithinClass)
       }
 
-      const stripeBg = index % 2 === 0 ? 'bg-white/5' : 'bg-bg'
-      return mergeClasses('border-0 hover:bg-white/10 focus-within:bg-white/10', stripeBg)
+      return mergeClasses('border-0 even:bg-table-row-bg-even', listRowHoverClass, listRowFocusWithinClass)
     },
     [isStreaming]
   )
@@ -218,15 +212,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
         <div className="flex items-center px-4 pb-4">
           <p className="text-foreground-muted shrink-0 text-base">{queueCountLabel}</p>
           <div className="grow" />
-          <Checkbox
-            value={playerQueueAutoPlay}
-            label={t('LabelAutoPlay')}
-            onChange={setPlayerQueueAutoPlay}
-            checkboxBgClass="bg-primary"
-            borderColorClass="border-gray-600"
-            labelClass="mb-px ps-2"
-            className="shrink-0"
-          />
+          <Checkbox value={playerQueueAutoPlay} label={t('LabelAutoPlay')} onChange={setPlayerQueueAutoPlay} labelClass="mb-px ps-2" className="shrink-0" />
         </div>
 
         <ul className="grid w-full min-w-0 list-none grid-cols-[auto_1fr_auto]" aria-label={t('HeaderPlayerQueue')}>
@@ -236,7 +222,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
             return (
               <li
                 key={`${item.libraryItemId}:${item.episodeId ?? ''}`}
-                className={mergeClasses('group col-span-full grid grid-cols-subgrid items-center px-4 py-2', getRowClassName(item, index))}
+                className={mergeClasses('group col-span-full grid grid-cols-subgrid items-center px-4 py-2', getRowClassName(item))}
               >
                 <div className="pe-2">
                   <PreviewCover src={coverSrc} width={48} showResolution={false} />

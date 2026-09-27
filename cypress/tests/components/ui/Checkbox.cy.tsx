@@ -155,14 +155,10 @@ describe('<Checkbox />', () => {
   })
 
   describe('Customization', () => {
-    it('applies custom checkbox background color', () => {
-      cy.mount(<Checkbox checkboxBgClass="bg-blue-500" />)
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-blue-500')
-    })
-
-    it('applies custom border color', () => {
-      cy.mount(<Checkbox borderColorClass="border-red-500" />)
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-red-500')
+    it('uses the shared checkbox fill and border', () => {
+      cy.mount(<Checkbox />)
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-primary')
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-border')
     })
 
     it('applies custom check color', () => {
@@ -204,24 +200,25 @@ describe('<Checkbox />', () => {
       cy.get('[cy-id="checkbox-label"]').should('have.class', 'added-class')
     })
 
-    it('handles disabled state with custom colors', () => {
-      cy.mount(<Checkbox disabled checkboxBgClass="bg-blue-500" borderColorClass="border-red-500" checkColorClass="text-yellow-500" />)
+    it('handles disabled state without a custom box color', () => {
+      cy.mount(<Checkbox disabled value={true} />)
       cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-checkbox-bg-disabled')
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-checkbox-bg-disabled')
       cy.get('[cy-id="checkbox-div"]').should('have.class', 'bg-checkbox-bg-disabled')
       cy.get('input[type="checkbox"]').should('be.disabled')
     })
 
-    it('handles partial state with custom colors', () => {
-      cy.mount(<Checkbox partial checkboxBgClass="bg-purple-500" borderColorClass="border-orange-500" />)
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-purple-500')
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-orange-500')
+    it('keeps the shared box colors in the partial state', () => {
+      cy.mount(<Checkbox partial />)
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-primary')
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-border')
       cy.get('.material-symbols').should('exist')
     })
 
-    it('handles checked state with custom colors', () => {
-      cy.mount(<Checkbox value={true} checkboxBgClass="bg-pink-500" borderColorClass="border-cyan-500" checkColorClass="text-lime-500" />)
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-pink-500')
-      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-cyan-500')
+    it('keeps the shared box colors when checked', () => {
+      cy.mount(<Checkbox value={true} checkColorClass="text-lime-500" />)
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'bg-primary')
+      cy.get('[cy-id="checkbox-wrapper"]').should('have.class', 'border-border')
       cy.get('svg').should('have.class', 'text-lime-500')
     })
   })
