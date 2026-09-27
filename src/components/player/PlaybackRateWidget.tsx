@@ -15,11 +15,12 @@ import IconBtn from '../ui/IconBtn'
 interface PlaybackRateWidgetProps {
   playerHandler: PlayerHandler
   onOpenChange?: (open: boolean) => void
+  triggerClassName?: string
 }
 
 const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
 
-export default function PlaybackRateWidget({ playerHandler, onOpenChange }: PlaybackRateWidgetProps) {
+export default function PlaybackRateWidget({ playerHandler, onOpenChange, triggerClassName }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
   const { isPlayerFullscreen } = useMediaContext()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
@@ -226,7 +227,7 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange }: Play
         ref={triggerRef}
         size="custom"
         borderless
-        className="min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base"
+        className={mergeClasses('min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base', triggerClassName)}
         onClick={toggleOpen}
         onKeyDown={handlePlaybackRateKeyDown}
         aria-expanded={isOpen}
