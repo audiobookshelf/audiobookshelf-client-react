@@ -1,0 +1,24 @@
+@keyframes marquee {
+  to {
+    transform: translateX(calc(var(--marquee-distance) * -1px));
+  }
+}
+
+:global(.marquee--overflow .marquee-track) {
+  animation: marquee var(--marquee-dur) linear(0, 0 var(--marquee-hold), 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(.marquee-track) {
+    animation: none;
+  }
+
+  :global(.marquee--overflow) {
+    mask-image: none;
+  }
+
+  :global(.marquee--overflow .marquee-loop-gap),
+  :global(.marquee--overflow .marquee-loop-copy) {
+    display: none !important;
+  }
+}
