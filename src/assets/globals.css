@@ -47,8 +47,10 @@
   --color-bg: var(--tc-background);
   --color-accent: #1ad691;
   --color-error: #ff5252;
+  --color-error-foreground: var(--tc-error-foreground);
   --color-info: #2196f3;
   --color-success: #4caf50;
+  --color-success-foreground: var(--tc-success-foreground);
   --color-warning: #fb8c00;
   --color-darkgreen: rgb(34, 127, 35);
   --color-black-50: #bbbbbb;

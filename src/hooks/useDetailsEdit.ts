@@ -100,6 +100,32 @@ function applyTrimFieldsToDetails<TDetails extends Record<string, any>>(details:
   return next ?? details
 }
 
+function stringArraysEqual(a: unknown[], b: unknown[]) {
+  return a.length === b.length && a.every((item) => b.includes(item))
+}
+
+/** Display-only keys the details form does not edit. */
+const NON_EDITABLE_METADATA_KEYS = [
+  'titleIgnorePrefix',
+  'descriptionPlain',
+  'publishedDate',
+  'authorName',
+  'authorNameLF',
+  'narratorName',
+  'seriesName',
+  'imageUrl',
+  'itunesPageUrl',
+  'itunesArtistId'
+]
+
+function omitNonEditableMetadata<T extends object>(metadata: T): T {
+  const next = { ...metadata }
+  for (const key of NON_EDITABLE_METADATA_KEYS) {
+    delete (next as Record<string, unknown>)[key]
+  }
+  return next
+}
+
 interface UseDetailsEditOptions<TDetails> {
   metadata: TDetails
   tags: string[]
@@ -109,8 +135,6 @@ interface UseDetailsEditOptions<TDetails> {
   onChange?: (details: { libraryItemId: string; hasChanges: boolean }) => void
   onSubmit?: (details: { updatePayload: UpdatePayload<TDetails>; hasChanges: boolean }) => void
   batchAppendLogic?: (state: EditState<TDetails>, detailsToUpdate: Partial<TDetails>) => TDetails
-  /** Use loose equality (!=) instead of strict equality (!==) for change detection */
-  useLooseEquality?: boolean
   /** Trim string values for these keys when diffing and building the update payload */
   trimFields?: ReadonlyArray<keyof TDetails>
 }
@@ -125,12 +149,11 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
   onChange,
   onSubmit,
   batchAppendLogic,
-  useLooseEquality = false,
   trimFields
 }: UseDetailsEditOptions<TDetails>) {
   const reducer = useMemo(() => createDetailsReducer<TDetails>(batchAppendLogic), [batchAppendLogic])
 
-  const normalizedMetadata = useMemo(() => applyTrimFieldsToDetails(metadata || ({} as TDetails), trimFields), [metadata, trimFields])
+  const normalizedMetadata = useMemo(() => applyTrimFieldsToDetails(omitNonEditableMetadata(metadata || ({} as TDetails)), trimFields), [metadata, trimFields])
 
   const [state, dispatch] = useReducer(reducer, { normalizedMetadata, tags }, ({ normalizedMetadata: details, tags: initialTags }) => ({
     details,
@@ -180,15 +203,29 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
 
     const changedEntries = (Object.keys(details) as Array<keyof TDetails>)
       .filter((key) => {
+        if (NON_EDITABLE_METADATA_KEYS.includes(String(key))) return false
+
         const initialValue = effectiveValue(initialDetails, key)
         const currentValue = effectiveValue(details, key)
 
         if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
+          if (currentValue.every((item: unknown) => typeof item !== 'object')) {
+            return !stringArraysEqual(currentValue, initialValue)
+          }
           return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
         }
 
-        // Use loose or strict equality based on option
-        return useLooseEquality ? currentValue != initialValue : currentValue !== initialValue
+        // '', null, and undefined are the same empty value (inputs write '')
+        if ((currentValue ?? '') === '' && (initialValue ?? '') === '') {
+          return false
+        }
+
+        // Checkbox writes false; API/init may be undefined/null
+        if (typeof currentValue === 'boolean' || typeof initialValue === 'boolean') {
+          return !!currentValue !== !!initialValue
+        }
+
+        return currentValue !== initialValue
       })
       .map((key) => [key, effectiveValue(details, key)])
 
@@ -199,7 +236,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
       updatePayload.metadata = metadataUpdate
     }
 
-    if (JSON.stringify(currentTags) !== JSON.stringify(initialTags)) {
+    if (!stringArraysEqual(currentTags, initialTags)) {
       updatePayload.tags = currentTags
     }
 
@@ -207,7 +244,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
       updatePayload,
       hasChanges: Object.keys(updatePayload).length > 0
     }
-  }, [details, initialDetails, currentTags, initialTags, useLooseEquality, trimFields])
+  }, [details, initialDetails, currentTags, initialTags, trimFields])
 
   // Notify parent of changes
   const handleInputChange = useCallback(() => {

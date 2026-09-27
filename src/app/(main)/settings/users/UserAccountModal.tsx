@@ -267,7 +267,7 @@ export default function UserAccountModal({ isOpen, user, processing = false, onC
   return (
     <Modal isOpen={isOpen} processing={processing} onClose={onClose} outerContent={outerContentTitle}>
       <div className="flex max-h-[90vh] flex-col">
-        <div className="overflow-y-auto px-4 py-6 sm:px-6">
+        <div className="overflow-y-auto p-4 sm:p-6">
           {/* Basic Info Section */}
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
             {/* Username */}

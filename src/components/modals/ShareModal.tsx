@@ -171,7 +171,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} processing={processing} className="sm:max-w-[520px] md:max-w-[560px] lg:max-w-[560px]">
       <div className="flex max-h-[80vh] flex-col text-sm">
-        <div className="overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6">
+        <div className="overflow-x-hidden overflow-y-auto p-4 sm:p-6">
           <div className="absolute end-0 top-0 p-4">
             <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/media-item-shares" size="xl" />
           </div>
@@ -179,8 +179,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
           {currentShare ? (
             <>
               <div className="w-full py-2">
-                <label className="block px-1 text-sm font-semibold">{t('LabelShareURL')}</label>
-                <TextInput value={currentShareUrl} showCopy readOnly />
+                <TextInput label={t('LabelShareURL')} value={currentShareUrl} showCopy readOnly />
               </div>
               <div className="w-full space-y-1 px-1 py-2">
                 {currentShare.isDownloadable && <p className="text-sm">{t('LabelDownloadable')}</p>}
@@ -189,7 +188,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
             </>
           ) : (
             <>
-              <div className="mb-2 grid grid-cols-1 gap-y-3 sm:grid-cols-[12rem_auto] sm:items-end sm:gap-x-4">
+              <div className="mb-2 grid grid-cols-1 gap-y-3 pt-2 sm:grid-cols-[12rem_auto] sm:items-end sm:gap-x-4">
                 <div className="w-full sm:w-48">
                   <label className="block px-1 text-sm font-semibold">{t('LabelSlug')}</label>
                   <TextInput value={newShareSlug} onChange={setNewShareSlug} className="h-10 text-base" />

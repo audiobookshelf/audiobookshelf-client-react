@@ -54,7 +54,6 @@ export default function EReaderDevicesClient({ initialDevices, users }: EReaderD
           label: t('ButtonAddDevice'),
           onClick: handleAddClick
         }}
-        className="-mt-4"
       >
         {devices.length > 0 ? (
           <EReaderDevicesTable devices={devices} users={users} onDevicesChange={handleDeleteDevicesChange} onEditClick={handleEditClick} />

@@ -26,11 +26,11 @@ const TRIM_FIELDS = new Set<keyof EpisodeDetails>(['season', 'episode', 'title',
 
 function episodeToDetails(episode: PodcastEpisode): EpisodeDetails {
   return {
-    season: episode.season || '',
-    episode: episode.episode || '',
-    episodeType: episode.episodeType || '',
-    title: episode.title || '',
-    subtitle: episode.subtitle || '',
+    season: (episode.season || '').trim(),
+    episode: (episode.episode || '').trim(),
+    episodeType: episode.episodeType || 'full',
+    title: (episode.title || '').trim(),
+    subtitle: (episode.subtitle || '').trim(),
     description: episode.description || '',
     pubDate: episode.pubDate || null,
     publishedAt: episode.publishedAt ?? null
@@ -119,10 +119,16 @@ export default function EpisodeDetailsEdit({ episode, onChange, onSubmit, ref }:
     for (const key of keys) {
       const raw = details[key]
       const currentValue = TRIM_FIELDS.has(key) && typeof raw === 'string' ? raw.trim() : raw
-      const initialValue = initial[key]
+      const initialRaw = initial[key]
+      const initialValue = TRIM_FIELDS.has(key) && typeof initialRaw === 'string' ? initialRaw.trim() : initialRaw
+      if ((currentValue ?? '') === '' && (initialValue ?? '') === '') {
+        continue
+      }
       if (currentValue != initialValue) {
         if (currentValue !== null && currentValue !== undefined) {
           ;(payload as Record<string, unknown>)[key] = currentValue
+        } else if (key === 'pubDate') {
+          payload.pubDate = ''
         }
       }
     }

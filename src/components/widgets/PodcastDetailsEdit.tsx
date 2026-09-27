@@ -31,6 +31,12 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
 
   const media = useMemo(() => libraryItem.media || {}, [libraryItem.media])
 
+  const editMetadata = useMemo((): Details => {
+    const meta = (media.metadata as Details) || {}
+    return { ...meta, type: meta.type || 'episodic' }
+  }, [media.metadata])
+  const editTags = useMemo(() => [...(media.tags || [])], [media.tags])
+
   const batchAppendLogic = useCallback(
     (state: { details: Details }, detailsToUpdate: Partial<Details>) => ({
       ...state.details,
@@ -51,15 +57,14 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
     submitForm,
     initialDetails
   } = useDetailsEdit<Details>({
-    metadata: (media.metadata as Details) || {},
-    tags: media.tags || [],
+    metadata: editMetadata,
+    tags: editTags,
     libraryItemId: libraryItem.id,
     ref,
     extractAuthor,
     onChange,
     onSubmit,
     batchAppendLogic,
-    useLooseEquality: true,
     trimFields: PODCAST_TEXT_TRIM_FIELDS
   })
 

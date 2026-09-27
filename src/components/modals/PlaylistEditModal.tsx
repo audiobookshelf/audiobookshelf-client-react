@@ -94,7 +94,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
     <>
       <Modal isOpen={isOpen} onClose={onClose} processing={isPending} outerContent={outerContent}>
         <div className="flex max-h-[90vh] flex-col">
-          <div className="space-y-4 overflow-y-auto px-4 py-6 sm:px-6">
+          <div className="space-y-4 overflow-y-auto p-4 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row">
               <div className="flex justify-center sm:justify-start">
                 <PlaylistGroupCover items={playlist.items ?? []} width={coverWidth} height={coverHeight} />
@@ -128,7 +128,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
         isOpen={confirmOpen}
         message={t('MessageConfirmRemovePlaylist', { 0: playlist.name })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error"
+        yesButtonClassName="bg-error text-error-foreground"
         processing={isPending}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleRemoveConfirm}

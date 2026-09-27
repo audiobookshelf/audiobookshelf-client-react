@@ -49,9 +49,12 @@ const BookDetailsEdit = ({
 
   const editMetadata = useMemo((): Details => {
     const meta = media.metadata as BookMetadata
+    const year = String(meta?.publishedYear ?? '').trim()
     return {
       ...meta,
-      series: Array.isArray(meta?.series) ? meta.series : []
+      publishedYear: /^\d+$/.test(year) ? year : undefined,
+      authors: Array.isArray(meta?.authors) ? meta.authors : [],
+      series: Array.isArray(meta?.series) ? meta.series.map((s) => ({ ...s, sequence: s.sequence || '' })) : []
     }
   }, [media.metadata])
 

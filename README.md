@@ -1,4 +1,4 @@
-## NextJs client for audiobookshelf
+# NextJs client for audiobookshelf
 
 This web client is in active development and will replace the current VueJS web client.
 
@@ -9,6 +9,15 @@ ghcr.io/audiobookshelf/audiobookshelf-react:latest
 ```
 
 For testing, it is recommended that you use a separate config & libraries from your production server.
+
+## Contributing
+
+Please carefully read our [contribution guidelines](https://audiobookshelf.org/docs/contributing/general/) before starting starting to work on code.
+
+Note especially the AI tools section: __*We do not accept or review PRs or issues that are fully AI-generated*__. You can use AI tools, but:
+- You must run and review the changes you made on a dev server.
+- You must read and review your code carefully. Commits should be authored by __*you*__, not your tools.
+- PR/Issue description and comments should be __*yours*__. We want to communicate with you, not your tools.
 
 ### How to run locally
 
@@ -33,7 +42,8 @@ module.exports.config = {
 }
 ```
 
-#### Running in prod
+### Running in prod
 
 1. `pnpm run build` this NextJS app
 2. Start the audiobookshelf server with `npm run start-dev` (uses the dev.js file w/ production)
+

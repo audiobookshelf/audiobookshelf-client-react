@@ -121,7 +121,7 @@ export default function EReaderDevicesTable({ devices, users, onDevicesChange, o
         isOpen={showConfirmDialog}
         message={t('MessageConfirmDeleteDevice', { 0: deletingDeviceRef.current?.name || '' })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowConfirmDialog(false)}
         onConfirm={handleConfirmDelete}
       />

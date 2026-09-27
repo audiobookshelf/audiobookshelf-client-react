@@ -130,7 +130,7 @@ export default function CoverPreviewModal({
           <Btn onClick={onClose} disabled={cancelDisabled} className="flex-1 sm:min-w-24 sm:flex-none">
             {cancelLabel ?? t('ButtonCancel')}
           </Btn>
-          <Btn color="bg-success" onClick={onApply} loading={applyLoading} className="flex-1 sm:min-w-24 sm:flex-none">
+          <Btn color="bg-success text-success-foreground" onClick={onApply} loading={applyLoading} className="flex-1 sm:min-w-24 sm:flex-none">
             {applyLabel ?? t('ButtonApply')}
           </Btn>
         </div>

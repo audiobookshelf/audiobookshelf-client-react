@@ -36,7 +36,7 @@ export default function BackupScheduleModal({ isOpen, onClose, isPending, cronEx
   return (
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContentTitle} className="w-[700px] md:max-w-[700px] lg:max-w-[700px]">
       <div className="flex max-h-[90vh] flex-col">
-        <div className="flex flex-col gap-2 overflow-y-auto px-4 py-6 sm:px-6">
+        <div className="flex flex-col gap-2 overflow-y-auto p-4 sm:p-6">
           <CronExpressionBuilder value={cronExpressionValue} onChange={setCronExpressionValue} />
           <CronExpressionPreview cronExpression={cronExpressionValue} />
         </div>

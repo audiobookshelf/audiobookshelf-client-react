@@ -95,8 +95,8 @@ export default function EmailClient({ initialSettings }: EmailClientProps) {
 
   return (
     <SettingsContent title={t('HeaderEmailSettings')} moreInfoUrl="https://www.audiobookshelf.org/guides/send_to_ereader" className="pb-0 md:pb-0">
-      <form onSubmit={handleSubmit} className="relative">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+      <form onSubmit={handleSubmit} className="relative flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="md:col-span-3">
             <TextInput
               label={t('LabelHost')}
@@ -116,7 +116,7 @@ export default function EmailClient({ initialSettings }: EmailClientProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 py-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <SettingsToggleSwitch
             label={t('LabelEmailSettingsSecure')}
             value={draftSettings.secure}
@@ -133,7 +133,7 @@ export default function EmailClient({ initialSettings }: EmailClientProps) {
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <TextInput
             label={t('LabelUsername')}
             value={draftSettings.user ?? ''}
@@ -150,7 +150,7 @@ export default function EmailClient({ initialSettings }: EmailClientProps) {
           />
         </div>
 
-        <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <TextInput
             label={t('LabelEmailSettingsFromAddress')}
             value={draftSettings.fromAddress ?? ''}
@@ -165,7 +165,7 @@ export default function EmailClient({ initialSettings }: EmailClientProps) {
           />
         </div>
 
-        <div className="flex items-center justify-between pt-4">
+        <div className="flex items-center justify-between">
           {hasUpdates ? (
             <Btn type="button" disabled={isBusy} onClick={handleReset}>
               {t('ButtonReset')}

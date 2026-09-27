@@ -113,7 +113,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
       >
         {currentSession && (
           <div className="flex max-h-[80vh] flex-col">
-            <div className="overflow-y-auto p-6">
+            <div className="overflow-y-auto p-4 sm:p-6">
               <div className="flex items-baseline gap-4">
                 {currentSession.libraryId && currentSession.libraryItemId ? (
                   <Link
@@ -200,7 +200,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         isOpen={showDeleteConfirmDialog}
         message={t('MessageConfirmDeleteSession')}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowDeleteConfirmDialog(false)}
         onConfirm={handleDeleteSession}
       />

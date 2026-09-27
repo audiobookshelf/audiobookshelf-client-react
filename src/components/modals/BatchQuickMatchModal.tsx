@@ -68,7 +68,7 @@ export default function BatchQuickMatchModal({ isOpen, onClose, libraryItemIds, 
       <div className="flex max-h-[80vh] flex-col">
         {isOpen && (
           <>
-            <div className="overflow-y-auto px-4 py-4">
+            <div className="overflow-y-auto p-4 sm:p-6">
               <div className="flex items-center py-2">
                 <p className="pe-4">{t('LabelProvider')}</p>
                 <Dropdown

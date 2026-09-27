@@ -101,7 +101,7 @@ export default function NotificationCard({ notification, onSettingsUpdated, onEd
               </Btn>
               <Btn
                 size="small"
-                color="bg-error"
+                color="bg-error text-error-foreground"
                 loading={testingAction === 'fireFail'}
                 disabled={isBusy}
                 onClick={() => runTest('fireFail', () => triggerOnTestEvent(true))}
@@ -161,7 +161,7 @@ export default function NotificationCard({ notification, onSettingsUpdated, onEd
         isOpen={showDeleteConfirm}
         message={t('MessageConfirmDeleteNotification')}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleConfirmDelete}
       />
