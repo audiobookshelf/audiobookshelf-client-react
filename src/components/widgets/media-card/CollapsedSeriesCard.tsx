@@ -94,11 +94,6 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
 
   const displaySubtitle = !booksInSeries ? '\u00A0' : t('LabelXBooks', { count: booksInSeries })
 
-  const titleCleaned = (() => {
-    const title = collapsedSeries?.name || ''
-    return title.length > 60 ? `${title.slice(0, 57)}...` : title
-  })()
-
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
 
   const renderBadges = () => {
@@ -184,8 +179,7 @@ export default function CollapsedSeriesCard(props: CollapsedSeriesCardProps) {
           placeholderUrl={placeholderUrl}
           hasCover={hasCover}
           title={collapsedSeries?.name || ''}
-          titleCleaned={titleCleaned}
-          authorCleaned=""
+          author=""
           userProgressPercent={userProgressPercent}
           itemIsFinished={itemIsFinished}
           showProgressBar={userProgressPercent > 0}
