@@ -281,7 +281,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
               />
               <Btn
                 size="small"
-                color="bg-success"
+                color="bg-success text-success-foreground"
                 type="submit"
                 disabled={!imageUrl.trim() || isPendingUpdate}
                 loading={isPendingUpdate}
@@ -358,7 +358,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
             <Btn
               size="small"
               type="button"
-              color="bg-error"
+              color="bg-error text-error-foreground"
               onClick={(e) => {
                 e.preventDefault()
                 cancelSearch()

@@ -43,7 +43,7 @@ export default function M4bEncodePanel({
         <div className="grow" />
 
         {!isTaskFinished && processing && (
-          <Btn color="bg-error" loading={isCancelingEncode} className="me-2" onClick={onCancelEncode}>
+          <Btn color="bg-error text-error-foreground" loading={isCancelingEncode} className="me-2" onClick={onCancelEncode}>
             {t('ButtonCancelEncode')}
           </Btn>
         )}

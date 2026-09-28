@@ -60,7 +60,7 @@ export function useCollectionCardActions({ collection, rssFeed, onOpenRssFeedMod
           isOpen: true,
           message: t('MessageConfirmRemoveCollection', { 0: collection.name }),
           yesButtonText: t('ButtonDelete'),
-          yesButtonClassName: 'bg-error',
+          yesButtonClassName: 'bg-error text-error-foreground',
           onConfirm: () => {
             setConfirmState(null)
             startTransition(async () => {

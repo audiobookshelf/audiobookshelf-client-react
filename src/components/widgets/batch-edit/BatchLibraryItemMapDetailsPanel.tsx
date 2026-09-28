@@ -501,7 +501,7 @@ export default function BatchLibraryItemMapDetailsPanel({
               </Tooltip>
             </div>
             <div className="hidden grow sm:block" />
-            <Btn color="bg-success" size="small" disabled={disabled || !hasSelectedUsage} className="w-full px-8 text-base sm:w-auto" onClick={handleApply}>
+            <Btn color="bg-success text-success-foreground" size="small" disabled={disabled || !hasSelectedUsage} className="w-full px-8 text-base sm:w-auto" onClick={handleApply}>
               {t('ButtonApply')}
             </Btn>
           </div>

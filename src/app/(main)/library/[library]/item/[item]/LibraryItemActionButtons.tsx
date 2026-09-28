@@ -166,22 +166,28 @@ export default function LibraryItemActionButtons({
     <>
       <div className="flex flex-wrap items-center justify-start gap-1 pt-4">
         {showPlayButton && (
-          <Btn onClick={onPlay} loading={playerLoadState === PlayerState.LOADING} color="bg-success" size="small" className="mr-2 flex h-9 items-center px-4">
-            <span className="material-symbols fill -ml-2 pr-1 text-2xl text-white">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
+          <Btn
+            onClick={onPlay}
+            loading={playerLoadState === PlayerState.LOADING}
+            color="bg-success text-success-foreground"
+            size="small"
+            className="mr-2 flex h-9 items-center px-4"
+          >
+            <span className="material-symbols fill -ml-2 pr-1 text-2xl">{isItemPlaying ? 'pause' : 'play_arrow'}</span>
             {isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
           </Btn>
         )}
 
         {!showPlayButton && (libraryItem.isMissing || libraryItem.isInvalid) && (
-          <Btn color="bg-error" size="small" className="mr-2 flex h-9 cursor-default items-center px-4" aria-disabled>
-            <span className="material-symbols -ml-2 pr-1 text-2xl text-white">error</span>
+          <Btn color="bg-error text-error-foreground" size="small" className="mr-2 flex h-9 cursor-default items-center px-4" aria-disabled>
+            <span className="material-symbols -ml-2 pr-1 text-2xl">error</span>
             {libraryItem.isMissing ? t('LabelMissing') : t('LabelIncomplete')}
           </Btn>
         )}
 
         {showReadButton && (
-          <Btn onClick={handleReadEBook} color="bg-info" size="small" className="mr-2 flex h-9 items-center px-4">
-            <span className="material-symbols -ml-2 pr-2 text-2xl text-white" aria-hidden>
+          <Btn onClick={handleReadEBook} color="bg-info" size="small" className="mr-2 flex h-9 items-center px-4 text-white">
+            <span className="material-symbols -ml-2 pr-2 text-2xl" aria-hidden>
               auto_stories
             </span>
             {t('ButtonRead')}

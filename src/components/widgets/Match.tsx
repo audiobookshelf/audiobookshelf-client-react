@@ -477,7 +477,7 @@ export default function Match({
         isOpen={showCloseConfirm}
         message={t('MessageConfirmCloseMatchWithChanges')}
         yesButtonText={t('ButtonDiscard')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={handleCancelLeave}
         onConfirm={handleDiscardAndLeave}
       />

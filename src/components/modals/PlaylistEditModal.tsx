@@ -128,7 +128,7 @@ export default function PlaylistEditModal({ isOpen, playlist, onClose, onSaved, 
         isOpen={confirmOpen}
         message={t('MessageConfirmRemovePlaylist', { 0: playlist.name })}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error"
+        yesButtonClassName="bg-error text-error-foreground"
         processing={isPending}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleRemoveConfirm}

@@ -200,7 +200,7 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
         isOpen={showDeleteConfirmDialog}
         message={t('MessageConfirmDeleteSession')}
         yesButtonText={t('ButtonDelete')}
-        yesButtonClassName="bg-error text-white"
+        yesButtonClassName="bg-error text-error-foreground"
         onClose={() => setShowDeleteConfirmDialog(false)}
         onConfirm={handleDeleteSession}
       />

@@ -151,7 +151,7 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
           isOpen
           message={t('MessageConfirmMarkItemFinished', { 0: itemTitle })}
           yesButtonText={t('ButtonYes')}
-          yesButtonClassName="bg-success"
+          yesButtonClassName="bg-success text-success-foreground"
           onClose={clearBoundModal}
           onConfirm={() => {
             clearBoundModal()
