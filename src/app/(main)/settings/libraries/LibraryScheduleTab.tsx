@@ -56,14 +56,15 @@ export default function LibraryScheduleTab({ settings, onSettingsChange }: Libra
   }
 
   const handleMatchConfidenceChange = (percentage: number) => {
+    const rounded = Math.round(percentage)
     onSettingsChange((prev) => ({
       ...prev,
-      matchMinConfidence: percentage / 100
+      matchMinConfidence: rounded / 100
     }))
   }
 
   return (
-    <div className="mb-4 h-full w-full px-1 py-1 md:px-4">
+    <div className="w-full px-1 py-1 md:px-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-foreground text-base md:text-lg">{t('HeaderScheduleLibraryScans')}</h2>
         <Checkbox value={enableAutoScan} onChange={handleToggleEnable} label={t('LabelEnable')} size="medium" checkboxBgClass="bg-primary" />
@@ -73,24 +74,32 @@ export default function LibraryScheduleTab({ settings, onSettingsChange }: Libra
         <div className="flex flex-col gap-2">
           <CronExpressionBuilder value={cronExpression} onChange={handleCronChange} />
           <CronExpressionPreview cronExpression={cronExpression} isValid={isValid} />
-          <Checkbox
-            value={!!settings.matchAfterScan}
-            onChange={handleMatchAfterScanChange}
-            label={t('LabelMatchAfterScan')}
-            size="medium"
-            checkboxBgClass="bg-bg"
-            className="mt-2"
-          />
-          {settings.matchAfterScan && (
-            <RangeInput
-              value={(settings.matchMinConfidence || 0) * 100}
-              min={0}
-              max={100}
-              step={1}
-              label={t('LabelMatchMinConfidence')}
-              onChange={handleMatchConfidenceChange}
+          <div className="mt-2 flex flex-wrap items-center gap-3">
+            <Checkbox
+              value={!!settings.matchAfterScan}
+              onChange={handleMatchAfterScanChange}
+              label={t('LabelMatchAfterScan')}
+              size="medium"
+              checkboxBgClass="bg-bg"
+              className="shrink-0"
             />
-          )}
+            {settings.matchAfterScan && (
+              <div className="flex items-center gap-2">
+                <span className="text-foreground text-sm font-medium whitespace-nowrap">
+                  {t('LabelMatchMinConfidence')}:
+                </span>
+                <div className="w-44 sm:w-56">
+                  <RangeInput
+                    value={Math.round((settings.matchMinConfidence ?? 0) * 100)}
+                    min={0}
+                    max={100}
+                    step={1}
+                    onChange={handleMatchConfidenceChange}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <p className="text-base text-yellow-400">{t('MessageScheduleLibraryScanNote')}</p>
