@@ -11,7 +11,6 @@ import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { usePlayerShellSwipe } from '@/hooks/usePlayerShellSwipe'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { trapTabKey } from '@/lib/focusTrap'
-import { mergeClasses } from '@/lib/merge-classes'
 import { landscapeDensityFlags } from '@/lib/player/landscapeDensity'
 import { isPlayerShellExpandClick } from '@/lib/player/playerShellSwipe'
 import { LibraryItem } from '@/types/api'
@@ -20,54 +19,29 @@ import IconBtn from '../ui/IconBtn'
 import './player-shell.css'
 import PlayerCover from './PlayerCover'
 import PlayerModals from './PlayerModals'
+import {
+  playerBodyClass,
+  playerBookTrackClass,
+  playerCloseIconClass,
+  playerCollapseIconClass,
+  playerEndSlotClass,
+  playerHeaderButtonClass,
+  playerHeaderClass,
+  playerLeadClass,
+  playerMiniCloseClass,
+  playerPrimaryTrackClass,
+  playerRightColumnClass,
+  playerShellClass,
+  playerShellVariant,
+  playerToolbarSlotClass,
+  playerTrackStackClass,
+  playerTransportSlotClass
+} from './playerShellClasses'
 import PlayerSecondaryToolbar from './PlayerSecondaryToolbar'
 import PlayerTitleAuthor, { type PlayerMetadataDisplay } from './PlayerTitleAuthor'
 import PlayerTrackBar from './PlayerTrackBar'
 import PlayerTransportControls from './PlayerTransportControls'
 import { usePlayerControlsState } from './usePlayerControlsState'
-
-const SHELL_MINI =
-  'inset-x-0 bottom-0 z-50 h-(--player-mini-h) cursor-pointer ' +
-  'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[var(--cover-h-mini)_var(--mini-track-stack)] ' +
-  'content-start items-center gap-y-(--mini-pad) pt-(--mini-pad) ps-(--mini-ps) pe-(--mini-pe) pb-(--mini-pb) ' +
-  'lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]'
-const LEAD_MINI = 'col-start-1 row-start-1 flex min-w-0 items-center justify-start gap-(--mini-title-gap)'
-const END_MINI = 'col-start-3 row-start-1 hidden min-w-0 self-stretch lg:grid'
-const SHELL_FS = 'fullscreen inset-0 z-90 flex h-dvh max-h-dvh min-h-dvh flex-col overscroll-none pt-(--fs-pt) ps-(--fs-ps) pe-(--fs-pe) pb-(--fs-pb)'
-const SHELL_LANDSCAPE = 'grid grid-cols-[auto_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] items-center gap-x-(--landscape-pad)'
-
-const BODY_FS = 'grid min-h-0 w-full min-w-0 flex-auto grid-rows-[minmax(0,1fr)_auto] items-center gap-(--fs-gap)'
-const BODY_LANDSCAPE = 'contents'
-
-const COLUMN_FS = 'row-start-2 flex w-full min-w-0 flex-none flex-col self-end gap-(--fs-gap) lg:items-center'
-/* Do not flex-shrink sections — escalate density instead of squashing title/metadata. */
-const COLUMN_LANDSCAPE =
-  'col-start-2 row-start-2 max-h-full min-h-0 w-full min-w-(--landscape-col) max-w-full justify-start self-center justify-self-stretch overflow-hidden *:min-w-0 *:shrink-0'
-
-/* Sticks 0.5rem further out than the body so the buttons stay on the outer insets. */
-const HEADER_FS = 'z-4 flex h-(--fs-header-h) shrink-0 items-center justify-between -ms-(--fs-header-outset) -me-(--fs-header-outset)'
-const HEADER_LANDSCAPE = 'col-span-2 row-start-1'
-const CLOSE_MINI = 'z-4 col-start-1 row-start-1 self-start justify-self-end'
-const HEADER_BTN_FS = 'inline-flex h-11 min-h-11 w-11 min-w-11 items-center justify-center p-0'
-const HEADER_COLLAPSE_ICON_FS = 'text-3xl leading-none'
-const HEADER_CLOSE_ICON_FS = 'text-2xl leading-none'
-
-const TRACK_STACK = 'flex flex-col'
-const TRACK_STACK_MINI = 'z-2 col-span-full row-start-2 min-w-0 self-start'
-/* Keep chapter timestamps grouped with the chapter slider, not the book track. */
-const TRACK_STACK_FS = 'static inset-auto bottom-auto w-full gap-4 lg:w-3/4 lg:max-w-3xl'
-const TRACK_MINI = 'text-xs lg:text-sm'
-const TRACK_FS = 'text-sm'
-const TRACK_BOOK = 'max-h-32 overflow-hidden opacity-100 visible pointer-events-auto'
-
-const TRANSPORT = 'flex items-center'
-const TRANSPORT_MINI = 'z-2 col-start-2 row-start-1 w-max justify-self-end lg:justify-self-center'
-const TRANSPORT_FS = 'static inset-auto top-auto bottom-auto h-auto w-full justify-center pe-0 opacity-100 visible pointer-events-auto'
-
-const TOOLBAR = 'flex'
-/* Toolbar spans the shell width and sits above the cover — pass clicks through except on controls. */
-const TOOLBAR_MINI = 'col-start-1 row-start-1 self-center justify-self-end items-center justify-end lg:pe-(--mini-toolbar-pe)'
-const TOOLBAR_FS = 'static z-6 inset-auto bottom-auto h-auto w-full items-center justify-center pe-0 opacity-100 visible pointer-events-auto'
 
 interface PlayerShellProps {
   playerHandler: PlayerHandler
@@ -84,6 +58,8 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const coverAspectRatio = getCoverAspectRatio(streamLibraryItem.libraryId)
   const isDesktop = useMediaQuery('lg')
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
+  const layout = playerShellVariant(isPlayerFullscreen, isLandscapeCompact)
+  const isMini = layout === 'mini'
   const { setPlayerFullscreen } = useMediaContext()
   const transportVariant = isPlayerFullscreen || isDesktop ? 'full' : 'mini'
   const controlsState = usePlayerControlsState(playerHandler, streamLibraryItem)
@@ -116,7 +92,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
   const layoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
   const landscapeDensityLevel = useLandscapePlayerDensity(shellRef, rightColumnRef, layoutKey)
-  const appliedLandscapeDensityLevel = isLandscapeCompact ? landscapeDensityLevel : 0
+  const appliedLandscapeDensityLevel = layout === 'landscape' ? landscapeDensityLevel : 0
   const landscapeDensity = landscapeDensityFlags(appliedLandscapeDensityLevel)
   const showBookTrack = isPlayerFullscreen && useChapterTrack && !landscapeDensity.singleTrackBar
   const chapterLabelPlacement = landscapeDensity.chapterLabelBelow || !isPlayerFullscreen ? 'below' : 'above'
@@ -184,8 +160,8 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       ref={collapseBtnRef}
       size="small"
       borderless
-      className={HEADER_BTN_FS}
-      iconClass={HEADER_COLLAPSE_ICON_FS}
+      className={playerHeaderButtonClass(layout)}
+      iconClass={playerCollapseIconClass(layout)}
       onClick={collapse}
       ariaLabel={t('LabelCollapsePlayer')}
     >
@@ -197,8 +173,8 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     <IconBtn
       size="small"
       borderless
-      className={isPlayerFullscreen ? HEADER_BTN_FS : undefined}
-      iconClass={isPlayerFullscreen ? HEADER_CLOSE_ICON_FS : undefined}
+      className={playerHeaderButtonClass(layout)}
+      iconClass={playerCloseIconClass(layout)}
       onClick={onClose}
       ariaLabel={t('LabelClosePlayer')}
     >
@@ -218,22 +194,19 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   return (
     <div
       ref={shellRef}
-      className={mergeClasses(
-        'player-shell bg-primary shadow-media-player fixed isolate w-full touch-none overflow-hidden',
-        isPlayerFullscreen ? mergeClasses(SHELL_FS, isLandscapeCompact && SHELL_LANDSCAPE) : SHELL_MINI
-      )}
+      className={playerShellClass(layout)}
       style={shellStyle}
       data-cy="player-shell"
       data-landscape-density={appliedLandscapeDensityLevel}
-      role={isPlayerFullscreen ? 'dialog' : undefined}
-      aria-modal={isPlayerFullscreen ? true : undefined}
-      aria-label={isPlayerFullscreen ? metadata.displayTitle : undefined}
-      onClick={isPlayerFullscreen ? undefined : handleMiniBackgroundClick}
+      role={!isMini ? 'dialog' : undefined}
+      aria-modal={!isMini ? true : undefined}
+      aria-label={!isMini ? metadata.displayTitle : undefined}
+      onClick={isMini ? handleMiniBackgroundClick : undefined}
     >
-      {showAccentBackdrop ? <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" /> : null}
+      {showAccentBackdrop && <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" />}
 
-      {isPlayerFullscreen ? (
-        <div className={mergeClasses(HEADER_FS, isLandscapeCompact && HEADER_LANDSCAPE)}>
+      {!isMini && (
+        <div className={playerHeaderClass(layout)}>
           <div className="player-header-collapse" data-cy="player-header-collapse">
             {collapseBtn}
           </div>
@@ -241,57 +214,45 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
             {closeBtn}
           </div>
         </div>
-      ) : null}
+      )}
 
-      <div className={isPlayerFullscreen ? mergeClasses(BODY_FS, isLandscapeCompact && BODY_LANDSCAPE) : 'contents'} data-cy="player-fullscreen-body">
-        <div className={isPlayerFullscreen ? 'contents' : LEAD_MINI}>
+      <div className={playerBodyClass(layout)} data-cy="player-fullscreen-body">
+        <div className={playerLeadClass(layout)}>
           <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={expand} />
-          {!isPlayerFullscreen ? titleAuthor : null}
+          {isMini && titleAuthor}
         </div>
-        <div
-          ref={rightColumnRef}
-          className={mergeClasses('player-right-column', isPlayerFullscreen ? mergeClasses(COLUMN_FS, isLandscapeCompact && COLUMN_LANDSCAPE) : 'contents')}
-          data-cy="player-right-column"
-        >
-          {isPlayerFullscreen ? titleAuthor : null}
+        <div ref={rightColumnRef} className={playerRightColumnClass(layout)} data-cy="player-right-column">
+          {!isMini && titleAuthor}
 
-          <div
-            className={mergeClasses(
-              'player-track-stack',
-              TRACK_STACK,
-              isPlayerFullscreen ? TRACK_STACK_FS : TRACK_STACK_MINI,
-              showBookTrack && 'player-track-stack--dual'
-            )}
-            data-cy="player-track-stack"
-          >
-            <div className={mergeClasses('player-track player-track-primary', isPlayerFullscreen ? TRACK_FS : TRACK_MINI)}>
+          <div className={playerTrackStackClass(layout, showBookTrack)} data-cy="player-track-stack">
+            <div className={playerPrimaryTrackClass(layout)}>
               <PlayerTrackBar playerHandler={playerHandler} chapterLabelPlacement={chapterLabelPlacement} deferTouchSeekToShellGestures dual={showBookTrack} />
             </div>
-            {showBookTrack ? (
-              <div className={mergeClasses('player-track player-track-book', TRACK_FS, TRACK_BOOK)}>
+            {showBookTrack && (
+              <div className={playerBookTrackClass()}>
                 <PlayerTrackBar playerHandler={playerHandler} scope="book" deferTouchSeekToShellGestures dual />
               </div>
-            ) : null}
+            )}
           </div>
 
-          <div className={mergeClasses('player-transport-slot', TRANSPORT, isPlayerFullscreen ? TRANSPORT_FS : TRANSPORT_MINI)} data-cy="player-transport-slot">
+          <div className={playerTransportSlotClass(layout)} data-cy="player-transport-slot">
             <PlayerTransportControls controls={controlsState} variant={transportVariant} />
           </div>
-          <div className={isPlayerFullscreen ? 'contents' : END_MINI}>
-            {!landscapeDensity.overflowSecondaryToolbar ? (
-              <div className={mergeClasses('player-toolbar-slot', TOOLBAR, isPlayerFullscreen ? TOOLBAR_FS : TOOLBAR_MINI)} data-cy="player-toolbar-slot">
+          <div className={playerEndSlotClass(layout)}>
+            {!landscapeDensity.overflowSecondaryToolbar && (
+              <div className={playerToolbarSlotClass(layout)} data-cy="player-toolbar-slot">
                 <PlayerSecondaryToolbar
                   controls={controlsState}
                   onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
                   onVolumeOpenChange={setVolumePopoverOpen}
                 />
               </div>
-            ) : null}
-            {!isPlayerFullscreen && isDesktop ? (
-              <div className={mergeClasses('player-header-close', CLOSE_MINI)} data-cy="player-header-close">
+            )}
+            {isMini && isDesktop && (
+              <div className={playerMiniCloseClass()} data-cy="player-header-close">
                 {closeBtn}
               </div>
-            ) : null}
+            )}
           </div>
         </div>
       </div>
