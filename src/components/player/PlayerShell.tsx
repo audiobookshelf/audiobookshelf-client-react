@@ -10,6 +10,7 @@ import { closePlayerSecondaryPopovers } from '@/hooks/usePlayerSecondaryPopoverD
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { usePlayerShellSwipe } from '@/hooks/usePlayerShellSwipe'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { trapTabKey } from '@/lib/focusTrap'
 import { mergeClasses } from '@/lib/merge-classes'
 import { landscapeDensityFlags } from '@/lib/player/landscapeDensity'
 import { isPlayerShellExpandClick } from '@/lib/player/playerShellSwipe'
@@ -110,6 +111,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const shellRef = useRef<HTMLDivElement>(null)
   const rightColumnRef = useRef<HTMLDivElement>(null)
   const collapseBtnRef = useRef<HTMLButtonElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
 
   const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
   const layoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
@@ -120,10 +122,31 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const chapterLabelPlacement = landscapeDensity.chapterLabelBelow || !isPlayerFullscreen ? 'below' : 'above'
 
   useLayoutEffect(() => {
-    if (isPlayerFullscreen) {
-      collapseBtnRef.current?.focus()
+    if (!isPlayerFullscreen) return
+
+    const previous = document.activeElement
+    if (previous instanceof HTMLElement && previous !== document.body) {
+      previousFocusRef.current = previous
+    }
+    collapseBtnRef.current?.focus()
+
+    return () => {
+      const restore = previousFocusRef.current
+      previousFocusRef.current = null
+      if (restore?.isConnected) restore.focus()
     }
   }, [isPlayerFullscreen])
+
+  useEffect(() => {
+    if (!isPlayerFullscreen || controlsState.isAnyModalOpen || isSecondaryPopoverOpen) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      trapTabKey(event, shellRef.current, collapseBtnRef.current)
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [controlsState.isAnyModalOpen, isPlayerFullscreen, isSecondaryPopoverOpen])
 
   const expand = useCallback(() => {
     if (!isPlayerFullscreen) setPlayerFullscreen(true)
@@ -203,6 +226,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       data-cy="player-shell"
       data-landscape-density={appliedLandscapeDensityLevel}
       role={isPlayerFullscreen ? 'dialog' : undefined}
+      aria-modal={isPlayerFullscreen ? true : undefined}
       aria-label={isPlayerFullscreen ? metadata.displayTitle : undefined}
       onClick={isPlayerFullscreen ? undefined : handleMiniBackgroundClick}
     >
