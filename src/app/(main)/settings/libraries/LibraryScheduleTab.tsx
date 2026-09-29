@@ -64,7 +64,7 @@ export default function LibraryScheduleTab({ settings, onSettingsChange }: Libra
   }
 
   return (
-    <div className="w-full px-1 py-1 md:px-4">
+    <div className="mb-4 h-full w-full px-1 py-1 md:px-4">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-foreground text-base md:text-lg">{t('HeaderScheduleLibraryScans')}</h2>
         <Checkbox value={enableAutoScan} onChange={handleToggleEnable} label={t('LabelEnable')} size="medium" checkboxBgClass="bg-primary" />
@@ -85,17 +85,9 @@ export default function LibraryScheduleTab({ settings, onSettingsChange }: Libra
             />
             {settings.matchAfterScan && (
               <div className="flex items-center gap-2">
-                <span className="text-foreground text-sm font-medium whitespace-nowrap">
-                  {t('LabelMatchMinConfidence')}:
-                </span>
+                <span className="text-foreground text-sm font-medium whitespace-nowrap">{t('LabelMatchMinConfidence')}:</span>
                 <div className="w-44 sm:w-56">
-                  <RangeInput
-                    value={Math.round((settings.matchMinConfidence ?? 0) * 100)}
-                    min={0}
-                    max={100}
-                    step={1}
-                    onChange={handleMatchConfidenceChange}
-                  />
+                  <RangeInput value={Math.round((settings.matchMinConfidence ?? 0) * 100)} min={0} max={100} step={1} onChange={handleMatchConfidenceChange} />
                 </div>
               </div>
             )}
