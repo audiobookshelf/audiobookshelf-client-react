@@ -3,6 +3,9 @@ import { PLAYER_SWIPE_LOCK_PX, shouldLockPlayerShellHorizontalSeek, shouldLockPl
 import type { Chapter } from '@/types/api'
 import type { PointerEvent } from 'react'
 
+/** Writable ref box from `useRef` (avoids deprecated `MutableRefObject` in newer `@types/react`). */
+type RefBox<T> = { current: T }
+
 export interface TrackTouchGesture {
   pending: boolean
   aborted: boolean
@@ -10,26 +13,30 @@ export interface TrackTouchGesture {
   startY: number
 }
 
-interface TrackTimeInput {
-  isLoading: boolean
+interface TrackScopeTiming {
   inChapterScope: boolean
   currentChapterStart: number
   currentChapterDuration: number
   duration: number
 }
 
-export function timeFromTrackClientX(clientX: number, rect: DOMRect | undefined, input: TrackTimeInput): number | null {
+function trackOffsetFromClientX(clientX: number, rect: DOMRect, timing: TrackScopeTiming) {
+  const offsetX = Math.min(rect.width, Math.max(0, clientX - rect.left))
+  const perc = offsetX / rect.width
+  const baseTime = timing.inChapterScope ? timing.currentChapterStart : 0
+  const dur = timing.inChapterScope ? timing.currentChapterDuration : timing.duration
+  const progressTime = perc * dur
+  return { offsetX, baseTime, dur, progressTime, totalTime: baseTime + progressTime }
+}
+
+export function timeFromTrackClientX(clientX: number, rect: DOMRect | undefined, input: TrackScopeTiming & { isLoading: boolean }): number | null {
   if (input.isLoading) return null
   if (!rect || rect.width <= 0) return null
 
-  const perc = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width))
-  const baseTime = input.inChapterScope ? input.currentChapterStart : 0
-  const dur = input.inChapterScope ? input.currentChapterDuration : input.duration
+  const { dur, totalTime } = trackOffsetFromClientX(clientX, rect, input)
   if (dur <= 0) return null
-
-  const time = baseTime + perc * dur
-  if (isNaN(time)) return null
-  return time
+  if (isNaN(totalTime)) return null
+  return totalTime
 }
 
 export function nextKeyboardSeekTime(key: string, currentTime: number, baseTime: number, effectiveDuration: number): number | null {
@@ -51,34 +58,22 @@ export function nextKeyboardSeekTime(key: string, currentTime: number, baseTime:
   }
 }
 
-interface TrackHoverElements {
-  track: HTMLDivElement | null
-  timestamp: HTMLDivElement | null
-  timestampText: HTMLParagraphElement | null
-  arrow: HTMLDivElement | null
-  cursor: HTMLDivElement | null
-}
-
-interface TrackHoverInput {
-  inChapterScope: boolean
-  currentChapterStart: number
-  currentChapterDuration: number
-  duration: number
-  effectivePlaybackRate: number
-  chapters: Chapter[]
-}
-
 // Position the tooltip with DOM writes. This runs on every pointer move.
-export function updateTrackHoverUi(clientX: number, elements: TrackHoverElements, input: TrackHoverInput): boolean {
+export function updateTrackHoverUi(
+  clientX: number,
+  elements: {
+    track: HTMLDivElement | null
+    timestamp: HTMLDivElement | null
+    timestampText: HTMLParagraphElement | null
+    arrow: HTMLDivElement | null
+    cursor: HTMLDivElement | null
+  },
+  input: TrackScopeTiming & { effectivePlaybackRate: number; chapters: Chapter[] }
+): boolean {
   const rect = elements.track?.getBoundingClientRect()
   if (!rect || rect.width <= 0) return false
 
-  const offsetX = Math.min(rect.width, Math.max(0, clientX - rect.left))
-  const perc = offsetX / rect.width
-  const baseTime = input.inChapterScope ? input.currentChapterStart : 0
-  const dur = input.inChapterScope ? input.currentChapterDuration : input.duration
-  const progressTime = perc * dur
-  const totalTime = baseTime + progressTime
+  const { offsetX, progressTime, totalTime } = trackOffsetFromClientX(clientX, rect, input)
 
   if (elements.timestamp) {
     const width = elements.timestamp.clientWidth
@@ -117,22 +112,7 @@ function isTrackTouchTap(gesture: TrackTouchGesture | null, clientX: number, cli
   return Boolean(gesture?.pending && !gesture.aborted && Math.hypot(clientX - gesture.startX, clientY - gesture.startY) <= PLAYER_SWIPE_LOCK_PX)
 }
 
-interface MutableRef<T> {
-  current: T
-}
-
-interface TrackPointerBindings {
-  deferTouchSeekToShellGestures: boolean
-  draggingRef: MutableRef<boolean>
-  touchGestureRef: MutableRef<TrackTouchGesture | null>
-  previewFromClientX: (clientX: number) => void
-  seekFromClientX: (clientX: number) => void
-  updateHoverUi: (clientX: number) => void
-  setDragPreviewTime: (time: number | null) => void
-  setIsHovering: (hovering: boolean) => void
-}
-
-function startDrag(event: PointerEvent<HTMLDivElement>, draggingRef: MutableRef<boolean>, previewFromClientX: (clientX: number) => void) {
+function startDrag(event: PointerEvent<HTMLDivElement>, draggingRef: RefBox<boolean>, previewFromClientX: (clientX: number) => void) {
   event.preventDefault()
   draggingRef.current = true
   event.currentTarget.setPointerCapture(event.pointerId)
@@ -148,7 +128,16 @@ export function bindTrackPointer({
   updateHoverUi,
   setDragPreviewTime,
   setIsHovering
-}: TrackPointerBindings) {
+}: {
+  deferTouchSeekToShellGestures: boolean
+  draggingRef: RefBox<boolean>
+  touchGestureRef: RefBox<TrackTouchGesture | null>
+  previewFromClientX: (clientX: number) => void
+  seekFromClientX: (clientX: number) => void
+  updateHoverUi: (clientX: number) => void
+  setDragPreviewTime: (time: number | null) => void
+  setIsHovering: (hovering: boolean) => void
+}) {
   const handlePointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === 'mouse' && event.button !== 0) return
 
