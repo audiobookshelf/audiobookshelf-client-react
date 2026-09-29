@@ -93,8 +93,8 @@ export function updateTrackHoverUi(clientX: number, elements: TrackHoverElements
   }
 
   if (elements.arrow) {
-    const arrowWidth = elements.arrow.clientWidth
-    elements.arrow.style.left = `${offsetX - arrowWidth / 2}px`
+    elements.arrow.style.left = `${offsetX}px`
+    elements.arrow.style.transform = 'translateX(-50%)'
   }
 
   if (elements.timestampText) {
