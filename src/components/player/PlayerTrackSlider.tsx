@@ -97,15 +97,12 @@ export default function PlayerTrackSlider({ dual, sliderLabel, isLoading, isHlsT
 
       <div
         ref={seek.hoverTimestampArrowRef}
+        aria-hidden
         className={mergeClasses(
-          'bg-foreground text-background pointer-events-none absolute -top-3.5 left-0 rounded-full transition-opacity duration-100',
+          'border-t-foreground pointer-events-none absolute -top-3 left-0 h-0 w-0 border-t-4 border-r-4 border-l-4 border-r-transparent border-l-transparent transition-opacity duration-100',
           seek.isHovering ? 'opacity-100' : 'opacity-0'
         )}
-      >
-        <div className="absolute right-0 -bottom-1.5 left-0 flex w-full justify-center">
-          <div className="border-t-foreground h-0 w-0 border-t-4 border-r-4 border-l-4 border-r-transparent border-l-transparent" />
-        </div>
-      </div>
+      />
     </div>
   )
 }
