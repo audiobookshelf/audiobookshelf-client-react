@@ -20,7 +20,7 @@ interface PlayerTrackSliderProps {
 
 export default function PlayerTrackSlider({ dual, sliderLabel, isLoading, isHlsTranscode, duration, chapters, display, seek }: PlayerTrackSliderProps) {
   const { inChapterScope, effectiveDuration, playedTime, playedPercent, bufferedPercent, transcodeReadyPercent, currentTimeFormatted } = display
-  const chapterTicks = !duration || seek.trackWidth === 0 || inChapterScope ? [] : chapters.map((chapter) => (chapter.start / duration) * seek.trackWidth)
+  const showChapterTicks = duration > 0 && !inChapterScope
 
   return (
     <div className={mergeClasses('player-track-slider-block relative', dual && PLAYER_TRACK_SLIDER_DUAL_CLASS)}>
@@ -73,9 +73,14 @@ export default function PlayerTrackSlider({ dual, sliderLabel, isLoading, isHlsT
 
       {/* Keep the tick row in layout so chapter and book slider blocks stay the same height. */}
       <div className="relative h-1 w-full overflow-hidden">
-        {chapterTicks.map((left, index) => (
-          <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${left}px` }} />
-        ))}
+        {showChapterTicks &&
+          chapters.map((chapter) => (
+            <div
+              key={chapter.id}
+              className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px"
+              style={{ left: `${(chapter.start / duration) * 100}%` }}
+            />
+          ))}
       </div>
 
       <div

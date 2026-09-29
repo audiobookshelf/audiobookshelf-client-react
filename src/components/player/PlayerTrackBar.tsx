@@ -48,7 +48,6 @@ export default function PlayerTrackBar({
     duration,
     playbackRate,
     isLoading,
-    playerState,
     seek,
     deferTouchSeekToShellGestures
   })

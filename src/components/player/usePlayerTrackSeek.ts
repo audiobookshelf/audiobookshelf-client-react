@@ -8,8 +8,8 @@ import {
   updateTrackHoverUi,
   type TrackTouchGesture
 } from '@/components/player/playerTrackPointer'
-import { PlayerState, type Chapter } from '@/types/api'
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
+import type { Chapter } from '@/types/api'
+import { useCallback, useRef, useState, type KeyboardEvent, type PointerEvent, type RefObject } from 'react'
 
 export interface PlayerTrackSeekController {
   trackRef: RefObject<HTMLDivElement | null>
@@ -17,7 +17,6 @@ export interface PlayerTrackSeekController {
   hoverTimestampTextRef: RefObject<HTMLParagraphElement | null>
   hoverTimestampArrowRef: RefObject<HTMLDivElement | null>
   trackCursorRef: RefObject<HTMLDivElement | null>
-  trackWidth: number
   isHovering: boolean
   dragPreviewTime: number | null
   handlePointerDown: (event: PointerEvent<HTMLDivElement>) => void
@@ -36,7 +35,6 @@ interface UsePlayerTrackSeekParams {
   duration: number
   playbackRate: number
   isLoading: boolean
-  playerState: PlayerState
   seek: (time: number) => void
   deferTouchSeekToShellGestures: boolean
 }
@@ -49,7 +47,6 @@ export function usePlayerTrackSeek({
   duration,
   playbackRate,
   isLoading,
-  playerState,
   seek,
   deferTouchSeekToShellGestures
 }: UsePlayerTrackSeekParams): PlayerTrackSeekController {
@@ -70,32 +67,8 @@ export function usePlayerTrackSeek({
   const draggingRef = useRef(false)
   const touchGestureRef = useRef<TrackTouchGesture | null>(null)
 
-  const [trackWidth, setTrackWidth] = useState(0)
   const [isHovering, setIsHovering] = useState(false)
   const [dragPreviewTime, setDragPreviewTime] = useState<number | null>(null)
-
-  const measureTrack = useCallback(() => {
-    if (trackRef.current) {
-      setTrackWidth(trackRef.current.clientWidth)
-    }
-  }, [])
-
-  useEffect(() => {
-    measureTrack()
-    const el = trackRef.current
-    if (!el) return
-    const resizeObserver = new ResizeObserver(() => measureTrack())
-    resizeObserver.observe(el)
-    window.addEventListener('resize', measureTrack)
-    return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', measureTrack)
-    }
-  }, [measureTrack])
-
-  useEffect(() => {
-    measureTrack()
-  }, [playerState, measureTrack])
 
   const updateHoverUi = useCallback(
     (clientX: number) => {
@@ -185,7 +158,6 @@ export function usePlayerTrackSeek({
     hoverTimestampTextRef,
     hoverTimestampArrowRef,
     trackCursorRef,
-    trackWidth,
     isHovering,
     dragPreviewTime,
     handleKeyDown,
