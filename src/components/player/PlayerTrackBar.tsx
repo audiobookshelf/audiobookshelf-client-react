@@ -51,18 +51,18 @@ export default function PlayerTrackBar({
     seek,
     deferTouchSeekToShellGestures
   })
-  const display = getPlayerTrackDisplay({
+  const display = getPlayerTrackDisplay(
     scope,
     useChapterTrack,
     chapters,
     currentTime,
-    bufferedTime,
     duration,
     playbackRate,
-    dragPreviewTime: seekControls.dragPreviewTime,
+    bufferedTime,
+    seekControls.dragPreviewTime,
     transcodePercentReady,
     isHlsTranscode
-  })
+  )
 
   const sliderLabel = display.inChapterScope ? t('AriaLabelChapterProgress') : t('AriaLabelBookProgress')
   const showChapterLabel = display.currentChapter != null && scope !== 'book'

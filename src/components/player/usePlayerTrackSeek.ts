@@ -50,14 +50,14 @@ export function usePlayerTrackSeek({
   seek,
   deferTouchSeekToShellGestures
 }: UsePlayerTrackSeekParams): PlayerTrackSeekController {
-  const { currentChapterStart, currentChapterDuration, inChapterScope, effectiveDuration, effectivePlaybackRate } = getPlayerTrackScope({
+  const { currentChapterStart, currentChapterDuration, inChapterScope, effectiveDuration, effectivePlaybackRate } = getPlayerTrackScope(
     scope,
     useChapterTrack,
     chapters,
     currentTime,
     duration,
     playbackRate
-  })
+  )
 
   const trackRef = useRef<HTMLDivElement>(null)
   const hoverTimestampRef = useRef<HTMLDivElement>(null)
