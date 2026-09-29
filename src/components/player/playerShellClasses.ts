@@ -93,7 +93,7 @@ export const PRIMARY_TRACK: LayoutClasses = {
   fullscreen: 'text-sm'
 }
 
-export const BOOK_TRACK = 'player-track player-track-book text-sm max-h-32 overflow-hidden opacity-100 visible pointer-events-auto'
+export const BOOK_TRACK = 'player-track player-track-book text-sm max-h-32 opacity-100 visible pointer-events-auto'
 
 export const TRANSPORT: LayoutClasses = {
   root: 'flex items-center',
