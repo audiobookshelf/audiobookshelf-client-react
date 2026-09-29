@@ -11,6 +11,7 @@ import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { usePlayerShellSwipe } from '@/hooks/usePlayerShellSwipe'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { trapTabKey } from '@/lib/focusTrap'
+import { mergeClasses } from '@/lib/merge-classes'
 import { landscapeDensityFlags } from '@/lib/player/landscapeDensity'
 import { isPlayerShellExpandClick } from '@/lib/player/playerShellSwipe'
 import { LibraryItem } from '@/types/api'
@@ -20,22 +21,23 @@ import './player-shell.css'
 import PlayerCover from './PlayerCover'
 import PlayerModals from './PlayerModals'
 import {
-  playerBodyClass,
-  playerBookTrackClass,
-  playerCloseIconClass,
-  playerCollapseIconClass,
-  playerEndSlotClass,
-  playerHeaderButtonClass,
-  playerHeaderClass,
-  playerLeadClass,
-  playerMiniCloseClass,
-  playerPrimaryTrackClass,
-  playerRightColumnClass,
-  playerShellClass,
-  playerShellVariant,
-  playerToolbarSlotClass,
-  playerTrackStackClass,
-  playerTransportSlotClass
+  BODY,
+  BOOK_TRACK,
+  CLOSE,
+  CLOSE_ICON,
+  COLLAPSE_ICON,
+  COLUMN,
+  END,
+  HEADER,
+  HEADER_BUTTON,
+  LEAD,
+  PRIMARY_TRACK,
+  SHELL,
+  TOOLBAR,
+  TRACK_STACK,
+  TRANSPORT,
+  layoutClass,
+  playerShellVariant
 } from './playerShellClasses'
 import PlayerSecondaryToolbar from './PlayerSecondaryToolbar'
 import PlayerTitleAuthor, { type PlayerMetadataDisplay } from './PlayerTitleAuthor'
@@ -160,8 +162,8 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       ref={collapseBtnRef}
       size="small"
       borderless
-      className={playerHeaderButtonClass(layout)}
-      iconClass={playerCollapseIconClass(layout)}
+      className={layoutClass(HEADER_BUTTON, layout)}
+      iconClass={layoutClass(COLLAPSE_ICON, layout)}
       onClick={collapse}
       ariaLabel={t('LabelCollapsePlayer')}
     >
@@ -173,8 +175,8 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     <IconBtn
       size="small"
       borderless
-      className={playerHeaderButtonClass(layout)}
-      iconClass={playerCloseIconClass(layout)}
+      className={layoutClass(HEADER_BUTTON, layout)}
+      iconClass={layoutClass(CLOSE_ICON, layout)}
       onClick={onClose}
       ariaLabel={t('LabelClosePlayer')}
     >
@@ -194,7 +196,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   return (
     <div
       ref={shellRef}
-      className={playerShellClass(layout)}
+      className={layoutClass(SHELL, layout)}
       style={shellStyle}
       data-cy="player-shell"
       data-landscape-density={appliedLandscapeDensityLevel}
@@ -206,7 +208,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       {showAccentBackdrop && <div aria-hidden className="player-cover-accent-backdrop pointer-events-none absolute inset-0 z-0" />}
 
       {!isMini && (
-        <div className={playerHeaderClass(layout)}>
+        <div className={layoutClass(HEADER, layout)}>
           <div className="player-header-collapse" data-cy="player-header-collapse">
             {collapseBtn}
           </div>
@@ -216,31 +218,34 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
         </div>
       )}
 
-      <div className={playerBodyClass(layout)} data-cy="player-fullscreen-body">
-        <div className={playerLeadClass(layout)}>
+      <div className={layoutClass(BODY, layout)} data-cy="player-fullscreen-body">
+        <div className={layoutClass(LEAD, layout)}>
           <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={expand} />
           {isMini && titleAuthor}
         </div>
-        <div ref={rightColumnRef} className={playerRightColumnClass(layout)} data-cy="player-right-column">
+        <div ref={rightColumnRef} className={layoutClass(COLUMN, layout)} data-cy="player-right-column">
           {!isMini && titleAuthor}
 
-          <div className={playerTrackStackClass(layout, showBookTrack)} data-cy="player-track-stack">
-            <div className={playerPrimaryTrackClass(layout)}>
+          <div
+            className={mergeClasses('player-track-stack', layoutClass(TRACK_STACK, layout), showBookTrack && 'player-track-stack--dual')}
+            data-cy="player-track-stack"
+          >
+            <div className={layoutClass(PRIMARY_TRACK, layout)}>
               <PlayerTrackBar playerHandler={playerHandler} chapterLabelPlacement={chapterLabelPlacement} deferTouchSeekToShellGestures dual={showBookTrack} />
             </div>
             {showBookTrack && (
-              <div className={playerBookTrackClass()}>
+              <div className={BOOK_TRACK}>
                 <PlayerTrackBar playerHandler={playerHandler} scope="book" deferTouchSeekToShellGestures dual />
               </div>
             )}
           </div>
 
-          <div className={playerTransportSlotClass(layout)} data-cy="player-transport-slot">
+          <div className={mergeClasses('player-transport-slot', layoutClass(TRANSPORT, layout))} data-cy="player-transport-slot">
             <PlayerTransportControls controls={controlsState} variant={transportVariant} />
           </div>
-          <div className={playerEndSlotClass(layout)}>
+          <div className={layoutClass(END, layout)}>
             {!landscapeDensity.overflowSecondaryToolbar && (
-              <div className={playerToolbarSlotClass(layout)} data-cy="player-toolbar-slot">
+              <div className={mergeClasses('player-toolbar-slot', layoutClass(TOOLBAR, layout))} data-cy="player-toolbar-slot">
                 <PlayerSecondaryToolbar
                   controls={controlsState}
                   onPlaybackRateOpenChange={setPlaybackRatePopoverOpen}
@@ -249,7 +254,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
               </div>
             )}
             {isMini && isDesktop && (
-              <div className={playerMiniCloseClass()} data-cy="player-header-close">
+              <div className={layoutClass(CLOSE, layout)} data-cy="player-header-close">
                 {closeBtn}
               </div>
             )}
