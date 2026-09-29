@@ -51,7 +51,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^20",
+    "@types/node": "^24",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
     "@types/react-transition-group": "^4.4.12",
@@ -81,7 +81,7 @@
     }
   },
   "engines": {
-    "node": ">=22.15.0",
+    "node": ">=24.0.0",
     "pnpm": ">=10.33.0"
   },
   "pnpm": {
