@@ -1,6 +1,6 @@
 # Requires named build contexts (not the default context):
 #   abs-client — React client repo root (package.json, src, scripts)
-#   abs-server — audiobookshelf server repo root (index.js, server/)
+#   abs-server — audiobookshelf server repo root (index.js, tsconfig.server.json, server/)
 # Local: docker-compose.yml (abs-client=., abs-server=../audiobookshelf)
 # CI: .github/workflows/docker-build.yml (abs-client=client-react, abs-server=.)
 
@@ -8,7 +8,7 @@ ARG NUSQLITE3_DIR="/usr/local/lib/nusqlite3"
 ARG NUSQLITE3_PATH="${NUSQLITE3_DIR}/libnusqlite3.so"
 
 ### STAGE 0: Build React client ###
-FROM node:22-alpine AS build-client
+FROM node:24-alpine AS build-client
 
 RUN corepack enable pnpm
 
@@ -25,8 +25,16 @@ RUN pnpm run build
 
 RUN rm -rf node_modules && pnpm install --frozen-lockfile --prod
 
-### STAGE 1: Build server ###
-FROM node:20-alpine AS build-server
+### STAGE 1: Compile server on the builder CPU (avoid QEMU SIGILL from tsc on arm64) ###
+FROM --platform=$BUILDPLATFORM node:24-alpine AS compile-server
+
+WORKDIR /server
+COPY --from=abs-server index.js package* tsconfig.server.json /server
+COPY --from=abs-server server /server/server
+RUN npm ci --include=dev --ignore-scripts && npm run build:server
+
+### STAGE 2: Install native server deps for the target arch ###
+FROM node:24-alpine AS build-server
 
 ARG NUSQLITE3_DIR
 ARG TARGETPLATFORM
@@ -41,8 +49,9 @@ RUN apk add --no-cache --update \
   unzip
 
 WORKDIR /server
-COPY --from=abs-server index.js package* ./
-COPY --from=abs-server server ./server
+COPY --from=abs-server index.js package* /server
+COPY --from=abs-server server /server/server
+COPY --from=compile-server /server/dist-server /server/dist-server
 
 RUN case "$TARGETPLATFORM" in \
   "linux/amd64") \
@@ -54,10 +63,10 @@ RUN case "$TARGETPLATFORM" in \
   unzip /tmp/library.zip -d $NUSQLITE3_DIR && \
   rm /tmp/library.zip
 
-RUN npm ci --only=production
+RUN npm ci --omit=dev
 
-### STAGE 2: Create minimal runtime image ###
-FROM node:20-alpine
+### STAGE 3: Create minimal runtime image ###
+FROM node:24-alpine
 
 ARG NUSQLITE3_DIR
 ARG NUSQLITE3_PATH
@@ -98,4 +107,4 @@ ENV NUSQLITE3_PATH=${NUSQLITE3_PATH}
 ENV REACT_CLIENT_PATH="/app/client-react"
 
 ENTRYPOINT ["tini", "--"]
-CMD ["node", "index.js"]
+CMD ["node", "dist-server/index.js"]
