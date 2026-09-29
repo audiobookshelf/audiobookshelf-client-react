@@ -1,6 +1,6 @@
 'use client'
 
-import type { PlayerTrackDisplay } from '@/components/player/playerTrackDisplay'
+import { getPlayerTrackDisplay } from '@/components/player/playerTrackDisplay'
 import type { PlayerTrackSeekController } from '@/components/player/usePlayerTrackSeek'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Chapter } from '@/types/api'
@@ -14,7 +14,7 @@ interface PlayerTrackSliderProps {
   isHlsTranscode: boolean
   duration: number
   chapters: Chapter[]
-  display: PlayerTrackDisplay
+  display: ReturnType<typeof getPlayerTrackDisplay>
   seek: PlayerTrackSeekController
 }
 

@@ -3,26 +3,14 @@ import type { Chapter } from '@/types/api'
 
 export type PlayerTrackScope = 'auto' | 'book' | 'chapter'
 
-export interface PlayerTrackScopeInput {
-  scope: PlayerTrackScope
-  useChapterTrack: boolean
-  chapters: Chapter[]
-  currentTime: number
-  duration: number
+export function getPlayerTrackScope(
+  scope: PlayerTrackScope,
+  useChapterTrack: boolean,
+  chapters: Chapter[],
+  currentTime: number,
+  duration: number,
   playbackRate: number
-}
-
-export interface PlayerTrackScopeState {
-  currentChapter: Chapter | null
-  currentChapterNumber: number | null
-  currentChapterStart: number
-  currentChapterDuration: number
-  inChapterScope: boolean
-  effectiveDuration: number
-  effectivePlaybackRate: number
-}
-
-export function getPlayerTrackScope({ scope, useChapterTrack, chapters, currentTime, duration, playbackRate }: PlayerTrackScopeInput): PlayerTrackScopeState {
+) {
   const currentChapter = chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null
   const currentChapterDuration = currentChapter ? currentChapter.end - currentChapter.start : 0
   const currentChapterStart = currentChapter ? currentChapter.start : 0
@@ -43,37 +31,31 @@ export function getPlayerTrackScope({ scope, useChapterTrack, chapters, currentT
   }
 }
 
-export interface PlayerTrackDisplayInput extends PlayerTrackScopeInput {
-  bufferedTime: number
-  dragPreviewTime: number | null
-  transcodePercentReady: number
+export function getPlayerTrackDisplay(
+  scope: PlayerTrackScope,
+  useChapterTrack: boolean,
+  chapters: Chapter[],
+  currentTime: number,
+  duration: number,
+  playbackRate: number,
+  bufferedTime: number,
+  dragPreviewTime: number | null,
+  transcodePercentReady: number,
   isHlsTranscode: boolean
-}
-
-export interface PlayerTrackDisplay extends PlayerTrackScopeState {
-  playedTime: number
-  playedPercent: number
-  bufferedPercent: number
-  transcodeReadyPercent: number
-  currentTimeFormatted: string
-  timeRemainingFormatted: string
-}
-
-export function getPlayerTrackDisplay(input: PlayerTrackDisplayInput): PlayerTrackDisplay {
-  const scopeState = getPlayerTrackScope(input)
+) {
+  const scopeState = getPlayerTrackScope(scope, useChapterTrack, chapters, currentTime, duration, playbackRate)
   const { inChapterScope, currentChapterStart, currentChapterDuration, effectiveDuration, effectivePlaybackRate } = scopeState
-  const displayTime = input.dragPreviewTime ?? input.currentTime
+  const displayTime = dragPreviewTime ?? currentTime
 
-  const timeRemainingToShow =
-    (inChapterScope ? currentChapterDuration - (displayTime - currentChapterStart) : input.duration - displayTime) / effectivePlaybackRate
+  const timeRemainingToShow = (inChapterScope ? currentChapterDuration - (displayTime - currentChapterStart) : duration - displayTime) / effectivePlaybackRate
   const timeRemainingFormatted = timeRemainingToShow < 0 ? secondsToTimestamp(timeRemainingToShow * -1) : `-${secondsToTimestamp(timeRemainingToShow)}`
 
   const playedTime = inChapterScope ? Math.max(0, displayTime - currentChapterStart) : displayTime
   const playedPercent = effectiveDuration ? Math.min(100, (playedTime / effectiveDuration) * 100) : 0
 
-  const bufferedTimeAdjusted = inChapterScope ? Math.max(0, input.bufferedTime - currentChapterStart) : input.bufferedTime
+  const bufferedTimeAdjusted = inChapterScope ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
   const bufferedPercent = effectiveDuration ? Math.min(100, (bufferedTimeAdjusted / effectiveDuration) * 100) : 0
-  const transcodeReadyPercent = input.isHlsTranscode ? Math.min(100, input.transcodePercentReady * 100) : 0
+  const transcodeReadyPercent = isHlsTranscode ? Math.min(100, transcodePercentReady * 100) : 0
 
   return {
     ...scopeState,
