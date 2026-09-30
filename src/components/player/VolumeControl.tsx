@@ -2,9 +2,10 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
+import { useOverlayHistory } from '@/hooks/useOverlayHistory'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
-import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { PLAYER_OVERLAY_Z_CLASS, VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -53,6 +54,7 @@ export default function VolumeControl({ playerHandler, onOpenChange, triggerClas
   }, [isOpen, onOpenChange])
 
   usePlayerSecondaryPopoverDismiss(setIsOpen)
+  useOverlayHistory(isOpen, () => setIsOpen(false))
 
   // Floating UI positioning
   const middleware = useMemo(() => [offset(12), flip({ fallbackAxisSideDirection: 'none' })], [])

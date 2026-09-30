@@ -75,12 +75,10 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
     closePlayerSecondaryPopovers()
   }, [closeAllModals])
 
-  const { collapse, collapseForNavigation } = usePlayerFullscreenHistory(isPlayerFullscreen, setPlayerFullscreen, {
-    isOpen: controlsState.isAnyModalOpen || isSecondaryPopoverOpen,
-    onClose: closePlayerOverlays
-  })
+  const { collapse, collapseForNavigation } = usePlayerFullscreenHistory(isPlayerFullscreen, setPlayerFullscreen)
 
-  useEffect(() => {
+  // Close with the fullscreen update so modals and popovers are not left open over the mini player.
+  useLayoutEffect(() => {
     if (!isPlayerFullscreen) {
       closePlayerOverlays()
     }
