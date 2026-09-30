@@ -2,7 +2,7 @@
 
 import PlayerMarqueeText from '@/components/player/PlayerMarqueeText'
 import PlayerTrackSlider from '@/components/player/PlayerTrackSlider'
-import { getPlayerTrackDisplay, type PlayerTrackScope } from '@/components/player/playerTrackDisplay'
+import { getPlayerTrackDisplay, getPlayerTrackScope, type PlayerTrackScope } from '@/components/player/playerTrackDisplay'
 import { usePlayerTrackSeek } from '@/components/player/usePlayerTrackSeek'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
@@ -40,29 +40,17 @@ export default function PlayerTrackBar({
   const { currentTime, bufferedTime } = usePlayerProgress()
 
   const isLoading = playerState === PlayerState.LOADING
+  const trackScope = getPlayerTrackScope(scope, useChapterTrack, chapters, currentTime, duration, playbackRate)
   const seekControls = usePlayerTrackSeek({
-    scope,
-    useChapterTrack,
+    trackScope,
     chapters,
     currentTime,
     duration,
-    playbackRate,
     isLoading,
     seek,
     deferTouchSeekToShellGestures
   })
-  const display = getPlayerTrackDisplay(
-    scope,
-    useChapterTrack,
-    chapters,
-    currentTime,
-    duration,
-    playbackRate,
-    bufferedTime,
-    seekControls.dragPreviewTime,
-    transcodePercentReady,
-    isHlsTranscode
-  )
+  const display = getPlayerTrackDisplay(trackScope, duration, currentTime, bufferedTime, seekControls.dragPreviewTime, transcodePercentReady, isHlsTranscode)
 
   const sliderLabel = display.inChapterScope ? t('AriaLabelChapterProgress') : t('AriaLabelBookProgress')
   const showChapterLabel = display.currentChapter != null && scope !== 'book'
