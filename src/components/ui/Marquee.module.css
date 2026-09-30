@@ -4,6 +4,13 @@
   }
 }
 
+/* Clip the scrolling track on x. The fade mask clips to the border box, so keep room inside it for focus outlines. */
+:global(.marquee--overflow) {
+  overflow-x: clip;
+  padding-block: 0.25rem;
+  margin-block: -0.25rem;
+}
+
 :global(.marquee--overflow .marquee-track) {
   animation: marquee var(--marquee-dur) linear(0, 0 var(--marquee-hold), 1) infinite;
 }
