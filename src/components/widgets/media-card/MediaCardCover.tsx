@@ -6,7 +6,9 @@ import type { LibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface MediaCardCoverProps {
-  libraryItem: LibraryItem
+  libraryItem?: LibraryItem
+  /** When set, used instead of resolving cover from libraryItem (e.g. player queue rows). */
+  coverSrc?: string
   coverAspect: number
   placeholderUrl: string
   hasCover: boolean
@@ -23,6 +25,7 @@ interface MediaCardCoverProps {
 
 export default function MediaCardCover({
   libraryItem,
+  coverSrc,
   coverAspect,
   placeholderUrl,
   hasCover,
@@ -40,7 +43,15 @@ export default function MediaCardCover({
   const imgRef = useRef<HTMLImageElement>(null)
   const hasHandledLoad = useRef(false)
 
-  const bookCoverSrc = useMemo(() => getLibraryItemCoverSrc(libraryItem, placeholderUrl), [libraryItem, placeholderUrl])
+  const bookCoverSrc = useMemo(() => {
+    if (coverSrc !== undefined) {
+      return coverSrc
+    }
+    if (libraryItem) {
+      return getLibraryItemCoverSrc(libraryItem, placeholderUrl)
+    }
+    return placeholderUrl
+  }, [coverSrc, libraryItem, placeholderUrl])
 
   const [prevSrc, setPrevSrc] = useState(bookCoverSrc)
 
@@ -119,19 +130,17 @@ export default function MediaCardCover({
       )}
 
       {/* Cover image */}
-      {libraryItem && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          ref={imgRef}
-          cy-id="coverImage"
-          alt={`${title}, Cover`}
-          aria-hidden="true"
-          src={bookCoverSrc}
-          onLoad={handleImageLoaded}
-          className={mergeClasses('absolute inset-0 h-full w-full transition-opacity duration-300', showCoverBg ? 'object-contain' : 'object-fill')}
-          style={{ opacity: imageReady ? 1 : 0 }}
-        />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        ref={imgRef}
+        cy-id="coverImage"
+        alt={`${title}, Cover`}
+        aria-hidden="true"
+        src={bookCoverSrc}
+        onLoad={handleImageLoaded}
+        className={mergeClasses('absolute inset-0 h-full w-full transition-opacity duration-300', showCoverBg ? 'object-contain' : 'object-fill')}
+        style={{ opacity: imageReady ? 1 : 0 }}
+      />
 
       {/* Placeholder cover title & author */}
       {showPlaceholderText && !hasCover && (
