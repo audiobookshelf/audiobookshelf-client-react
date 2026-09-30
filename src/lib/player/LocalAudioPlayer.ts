@@ -2,7 +2,9 @@ import type { LibraryItem } from '@/types/api'
 import { PlayerState } from '@/types/api'
 import Hls from 'hls.js'
 import type { AudioTrack } from './AudioTrack'
-import { AUDIO_MIME_TYPES } from './constants'
+
+// Playable MIME types that we check browser support for
+const AUDIO_MIME_TYPES: string[] = ['audio/flac', 'audio/mpeg', 'audio/mp4', 'audio/ogg', 'audio/aac', 'audio/x-ms-wma', 'audio/x-aiff', 'audio/webm']
 
 type PlayerEventMap = {
   stateChange: PlayerState

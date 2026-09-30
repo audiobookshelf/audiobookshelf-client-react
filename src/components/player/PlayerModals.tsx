@@ -1,7 +1,7 @@
 'use client'
 
 import { useMediaContext } from '@/contexts/MediaContext'
-import { PLAYER_OVERLAY_Z_CLASS } from '@/lib/player/constants'
+import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
 import BookmarksModal from './BookmarksModal'
 import ChaptersModal from './ChaptersModal'
 import PlayerSettingsModal from './PlayerSettingsModal'
