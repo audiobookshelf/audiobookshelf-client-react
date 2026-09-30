@@ -83,7 +83,7 @@ export default function Marquee({ children, title, className, segmentClassName }
   }, [])
 
   return (
-    <div ref={containerRef} className={mergeClasses('relative min-w-0 overflow-hidden', className)} title={title}>
+    <div ref={containerRef} className={mergeClasses('relative min-w-0', className)} title={title}>
       <div ref={trackRef} className={mergeClasses(MARQUEE_TRACK_CLASS, 'w-max max-w-none whitespace-nowrap will-change-transform')}>
         <span ref={segmentRef} className={mergeClasses('inline-block whitespace-nowrap', segmentClassName)}>
           {children}

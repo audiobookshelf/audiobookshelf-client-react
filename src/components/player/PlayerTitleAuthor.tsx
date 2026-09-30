@@ -11,7 +11,7 @@ import { layoutClass, playerShellVariant, type LayoutClasses } from './playerShe
 const TITLE_AUTHOR: LayoutClasses = {
   mini: 'z-3 flex min-w-0 flex-1 flex-col justify-center gap-0.5 text-start',
   fullscreen: 'static flex w-full min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 text-center lg:w-3/4 lg:max-w-3xl',
-  landscape: 'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0.5 overflow-hidden text-center'
+  landscape: 'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0.5 text-center'
 }
 const TITLE: LayoutClasses = {
   mini: 'w-max max-w-full min-w-0 self-start text-sm leading-snug lg:text-lg',
@@ -19,10 +19,10 @@ const TITLE: LayoutClasses = {
   landscape: 'col-span-full'
 }
 const AUTHOR: LayoutClasses = {
-  root: 'text-foreground-muted flex max-w-full min-w-0 items-center overflow-hidden',
+  root: 'text-foreground-muted flex max-w-full min-w-0 items-center',
   mini: 'w-auto max-w-full self-start text-xs leading-tight lg:text-sm',
   fullscreen: 'text-base',
-  landscape: 'col-start-1 row-start-2 min-w-0 max-w-full justify-self-stretch overflow-hidden text-start'
+  landscape: 'col-start-1 row-start-2 min-w-0 max-w-full justify-self-stretch text-start'
 }
 const DURATION: LayoutClasses = {
   root: 'text-foreground-muted flex shrink-0 items-center gap-1',
