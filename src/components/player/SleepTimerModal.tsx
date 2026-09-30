@@ -5,7 +5,7 @@ import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import Btn from '@/components/ui/Btn'
 import IconBtn from '@/components/ui/IconBtn'
 import TextInput from '@/components/ui/TextInput'
-import { SleepTimerTypes, type SleepTimerTime, type SleepTimerType } from '@/hooks/useSleepTimer'
+import type { SleepTimerTime, SleepTimerType } from '@/hooks/useSleepTimer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { secondsToTimestamp } from '@/lib/datefns'
 import type { TypeSafeTranslations } from '@/types/translations'
@@ -40,7 +40,7 @@ interface SleepTimerModalProps {
 }
 
 function getPresetShortLabel(seconds: number, timerType: SleepTimerType, t: TypeSafeTranslations): string {
-  if (timerType === SleepTimerTypes.CHAPTER) {
+  if (timerType === 'chapter') {
     return 'EoC'
   }
 
@@ -75,50 +75,50 @@ export default function SleepTimerModal({
       {
         seconds: 60 * 5,
         text: t('LabelTimeDurationXMinutes', { 0: 5 }),
-        shortLabel: getPresetShortLabel(60 * 5, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 5, 'countdown', t),
+        timerType: 'countdown'
       },
       {
         seconds: 60 * 15,
         text: t('LabelTimeDurationXMinutes', { 0: 15 }),
-        shortLabel: getPresetShortLabel(60 * 15, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 15, 'countdown', t),
+        timerType: 'countdown'
       },
       {
         seconds: 60 * 20,
         text: t('LabelTimeDurationXMinutes', { 0: 20 }),
-        shortLabel: getPresetShortLabel(60 * 20, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 20, 'countdown', t),
+        timerType: 'countdown'
       },
       {
         seconds: 60 * 30,
         text: t('LabelTimeDurationXMinutes', { 0: 30 }),
-        shortLabel: getPresetShortLabel(60 * 30, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 30, 'countdown', t),
+        timerType: 'countdown'
       },
       {
         seconds: 60 * 45,
         text: t('LabelTimeDurationXMinutes', { 0: 45 }),
-        shortLabel: getPresetShortLabel(60 * 45, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 45, 'countdown', t),
+        timerType: 'countdown'
       },
       {
         seconds: 60 * 60,
         text: t('LabelTimeDurationXMinutes', { 0: 60 }),
-        shortLabel: getPresetShortLabel(60 * 60, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 60, 'countdown', t),
+        timerType: 'countdown'
       },
       {
         seconds: 60 * 90,
         text: t('LabelTimeDurationXMinutes', { 0: 90 }),
-        shortLabel: getPresetShortLabel(60 * 90, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 90, 'countdown', t),
+        timerType: 'countdown'
       },
       {
         seconds: 60 * 120,
         text: t('LabelTimeDurationXHours', { 0: 2 }),
-        shortLabel: getPresetShortLabel(60 * 120, SleepTimerTypes.COUNTDOWN, t),
-        timerType: SleepTimerTypes.COUNTDOWN
+        shortLabel: getPresetShortLabel(60 * 120, 'countdown', t),
+        timerType: 'countdown'
       }
     ]
 
@@ -126,8 +126,8 @@ export default function SleepTimerModal({
       times.push({
         seconds: -1,
         text: t('LabelEndOfChapter'),
-        shortLabel: getPresetShortLabel(-1, SleepTimerTypes.CHAPTER, t),
-        timerType: SleepTimerTypes.CHAPTER
+        shortLabel: getPresetShortLabel(-1, 'chapter', t),
+        timerType: 'chapter'
       })
     }
 
@@ -151,7 +151,7 @@ export default function SleepTimerModal({
     }
 
     const timeInSeconds = Math.round(parsed * 60)
-    onSet({ seconds: timeInSeconds, timerType: SleepTimerTypes.COUNTDOWN })
+    onSet({ seconds: timeInSeconds, timerType: 'countdown' })
     setCustomTime('')
     onClose()
   }
@@ -179,7 +179,7 @@ export default function SleepTimerModal({
         {timerSet ? (
           <>
             <section className="flex flex-col items-center p-4 pb-0">
-              {timerType === SleepTimerTypes.COUNTDOWN ? (
+              {timerType === 'countdown' ? (
                 <>
                   <div className="mt-4 flex w-full items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -241,7 +241,7 @@ export default function SleepTimerModal({
 
             <div className="flex flex-wrap justify-center gap-2 p-4">
               {sleepTimes
-                .filter((time) => time.timerType === SleepTimerTypes.COUNTDOWN)
+                .filter((time) => time.timerType === 'countdown')
                 .map((time) => (
                   <Btn key={time.seconds} size="small" className="min-w-12 shrink-0 px-3" onClick={() => handleSetTime(time)}>
                     {time.shortLabel}
