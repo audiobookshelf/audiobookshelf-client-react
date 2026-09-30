@@ -1,9 +1,15 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatSleepTimerRemaining } from '@/lib/formatDuration'
-import { SleepTimerTypes, type SleepTimerType } from '@/lib/player/constants'
 import { subscribePlayerProgress, getPlayerProgress } from '@/lib/player/playerProgressStore'
 import type { Chapter } from '@/types/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
+
+export const SleepTimerTypes = {
+  COUNTDOWN: 'countdown',
+  CHAPTER: 'chapter'
+}
+
+export type SleepTimerType = (typeof SleepTimerTypes)[keyof typeof SleepTimerTypes]
 
 export interface SleepTimerTime {
   seconds: number

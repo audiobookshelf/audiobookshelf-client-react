@@ -7,7 +7,7 @@ import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopo
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { PLAYER_OVERLAY_Z_CLASS } from '@/lib/player/constants'
+import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
