@@ -2,6 +2,7 @@
 
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import ButtonBase from '@/components/ui/ButtonBase'
+import { useOverlayHistory } from '@/hooks/useOverlayHistory'
 import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -55,6 +56,7 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
   }, [isOpen, onOpenChange])
 
   usePlayerSecondaryPopoverDismiss(setIsOpen)
+  useOverlayHistory(isOpen, () => setIsOpen(false))
 
   // Floating UI positioning
   const middleware = useMemo(() => [offset(8), shift({ padding: 8 }), flip({ fallbackAxisSideDirection: 'start' }), arrowMw({ element: arrowRef })], [])
