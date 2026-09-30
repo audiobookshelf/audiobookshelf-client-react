@@ -14,6 +14,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
+import { skipNextReleasePop } from '@/lib/historyTrap'
 import { mergeClasses } from '@/lib/merge-classes'
 import { getPlayerQueueEpisodeNavigationContext } from '@/lib/playerQueue'
 import Link from 'next/link'
@@ -123,6 +124,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
               className={titleWrapperClassName}
               onClick={(e) => {
                 e.stopPropagation()
+                skipNextReleasePop()
                 onClose()
               }}
             >
@@ -148,19 +150,13 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
             borderless
             outlined={false}
             size="large"
-            className={mergeClasses("w-auto shrink-0", isCurrentlyPlaying && isItemPlaying ? '' : 'text-success')}
+            className={mergeClasses('w-auto shrink-0', isCurrentlyPlaying && isItemPlaying ? '' : 'text-success')}
             ariaLabel={isCurrentlyPlaying && isItemPlaying ? t('ButtonPause') : t('ButtonPlay')}
             onClick={isCurrentlyPlaying ? handlePause : () => handlePlay(index)}
           >
             {isCurrentlyPlaying && isItemPlaying ? 'pause' : 'play_arrow'}
           </IconBtn>
-          <IconBtn
-            borderless
-            size="large"
-            className="text-error w-auto shrink-0"
-            ariaLabel={t('ButtonQueueRemoveItem')}
-            onClick={() => handleRemove(item)}
-          >
+          <IconBtn borderless size="large" className="text-error w-auto shrink-0" ariaLabel={t('ButtonQueueRemoveItem')} onClick={() => handleRemove(item)}>
             close
           </IconBtn>
         </>
@@ -187,7 +183,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
           <p className="text-foreground-subdued text-sm whitespace-nowrap transition-opacity group-focus-within:opacity-0 group-hover:opacity-0">
             {durationLabel}
           </p>
-          <div className="absolute inset-y-0 inset-e-0 flex items-center justify-end gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+          <div className="inset-e-0 absolute inset-y-0 flex items-center justify-end gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             {actionButtons}
           </div>
         </div>

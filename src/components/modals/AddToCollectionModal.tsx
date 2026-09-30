@@ -14,6 +14,7 @@ import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
+import { skipNextReleasePop } from '@/lib/historyTrap'
 import type { Collection } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -206,7 +207,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                   const books = collection.books ?? []
                   return (
                     <div key={collection.id} className="hover:bg-dropdown-item-hover relative flex items-center justify-start px-4 py-2">
-                      {included && <div className="bg-success absolute inset-s-0 top-0 z-10 h-full w-1" aria-hidden />}
+                      {included && <div className="bg-success inset-s-0 absolute top-0 z-10 h-full w-1" aria-hidden />}
                       <div className="w-20 max-w-20 shrink-0 text-center">
                         <CollectionGroupCover books={books} width={coverWidth} height={coverHeight} />
                       </div>
@@ -214,7 +215,10 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                         <Link
                           href={`/library/${libraryId}/collection/${collection.id}`}
                           className="link-underline cursor-pointer truncate ps-2 pe-2"
-                          onClick={() => onClose()}
+                          onClick={() => {
+                            skipNextReleasePop()
+                            onClose()
+                          }}
                         >
                           {collection.name}
                         </Link>
@@ -275,7 +279,13 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                     className="w-full"
                   />
                 </div>
-                <Btn type="submit" color="bg-success text-success-foreground" size="small" className="h-10 shrink-0" disabled={controlsDisabled || !newCollectionName.trim()}>
+                <Btn
+                  type="submit"
+                  color="bg-success text-success-foreground"
+                  size="small"
+                  className="h-10 shrink-0"
+                  disabled={controlsDisabled || !newCollectionName.trim()}
+                >
                   {t('ButtonCreate')}
                 </Btn>
               </div>
