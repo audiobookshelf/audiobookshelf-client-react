@@ -1,6 +1,6 @@
 'use client'
 
-import { getPlayerTrackScope, type PlayerTrackScope } from '@/components/player/playerTrackDisplay'
+import type { PlayerTrackScopeState } from '@/components/player/playerTrackDisplay'
 import {
   bindTrackPointer,
   nextKeyboardSeekTime,
@@ -28,36 +28,25 @@ export interface PlayerTrackSeekController {
 }
 
 interface UsePlayerTrackSeekParams {
-  scope: PlayerTrackScope
-  useChapterTrack: boolean
+  trackScope: PlayerTrackScopeState
   chapters: Chapter[]
   currentTime: number
   duration: number
-  playbackRate: number
   isLoading: boolean
   seek: (time: number) => void
   deferTouchSeekToShellGestures: boolean
 }
 
 export function usePlayerTrackSeek({
-  scope,
-  useChapterTrack,
+  trackScope,
   chapters,
   currentTime,
   duration,
-  playbackRate,
   isLoading,
   seek,
   deferTouchSeekToShellGestures
 }: UsePlayerTrackSeekParams): PlayerTrackSeekController {
-  const { currentChapterStart, currentChapterDuration, inChapterScope, effectiveDuration, effectivePlaybackRate } = getPlayerTrackScope(
-    scope,
-    useChapterTrack,
-    chapters,
-    currentTime,
-    duration,
-    playbackRate
-  )
+  const { currentChapterStart, currentChapterDuration, inChapterScope, effectiveDuration, effectivePlaybackRate } = trackScope
 
   const trackRef = useRef<HTMLDivElement>(null)
   const hoverTimestampRef = useRef<HTMLDivElement>(null)
