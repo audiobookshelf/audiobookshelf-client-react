@@ -11,12 +11,16 @@ import { layoutClass, playerShellVariant, type LayoutClasses } from './playerShe
 const TITLE_AUTHOR: LayoutClasses = {
   mini: 'z-3 flex min-w-0 flex-1 flex-col justify-center gap-0.5 text-start',
   fullscreen: 'static flex w-full min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 text-center lg:w-3/4 lg:max-w-3xl',
-  landscape: 'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0.5 text-center'
+  /* The landscape column clips overflow, and this block is flush with its top edge. */
+  landscape: 'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0.5 pt-1 text-center'
 }
 const TITLE: LayoutClasses = {
+  /* Flex so the scrolling marquee's outline padding does not grow this row. */
+  root: 'flex min-w-0',
   mini: 'w-max max-w-full min-w-0 self-start text-sm leading-snug lg:text-lg',
   fullscreen: 'w-full max-w-full min-w-0 self-stretch text-xl',
-  landscape: 'col-span-full'
+  /* Start padding keeps the scrolling outline inside the landscape column, which clips overflow. */
+  landscape: 'col-span-full ps-1'
 }
 const AUTHOR: LayoutClasses = {
   root: 'text-foreground-muted flex max-w-full min-w-0 items-center',

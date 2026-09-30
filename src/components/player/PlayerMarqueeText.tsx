@@ -1,11 +1,8 @@
 'use client'
 
 import Marquee from '@/components/ui/Marquee'
-import { mergeClasses } from '@/lib/merge-classes'
 import Link from 'next/link'
 import { memo } from 'react'
-
-const TITLE_UNDERLINE_CLASS = 'link-underline group-hover:underline group-focus-visible:underline'
 
 interface PlayerMarqueeTextProps {
   text: string
@@ -19,11 +16,11 @@ function PlayerMarqueeText({ text, href, onNavigate }: PlayerMarqueeTextProps) {
   }
 
   return (
-    <Link href={href} className="player-title-link group block w-full min-w-0 no-underline" onClick={onNavigate} aria-label={text}>
-      <Marquee className="player-title-marquee w-full" segmentClassName={mergeClasses('player-title text-foreground font-medium', TITLE_UNDERLINE_CLASS)}>
+    <Marquee className="player-title-marquee w-full" segmentClassName="player-title text-foreground font-medium" title={text}>
+      <Link href={href} className="player-title-link link-underline" onClick={onNavigate}>
         {text}
-      </Marquee>
-    </Link>
+      </Link>
+    </Marquee>
   )
 }
 
