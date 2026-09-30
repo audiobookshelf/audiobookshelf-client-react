@@ -1,9 +1,9 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { PLAYER_OVERLAY_Z_CLASS, VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
@@ -20,7 +20,7 @@ interface VolumeControlProps {
 
 export default function VolumeControl({ playerHandler, onOpenChange, triggerClassName }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
-  const { isPlayerFullscreen } = useMediaContext()
+  const { isPlayerFullscreen } = usePlayerShellLayout()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const { volume } = playerHandler.state
   const { setVolume, toggleMute } = playerHandler.controls

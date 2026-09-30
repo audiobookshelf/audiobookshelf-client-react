@@ -2,8 +2,8 @@
 
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import ButtonBase from '@/components/ui/ButtonBase'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { PLAYER_OVERLAY_Z_CLASS } from '@/lib/player/constants'
@@ -22,7 +22,7 @@ const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
 
 export default function PlaybackRateWidget({ playerHandler, onOpenChange, triggerClassName }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
-  const { isPlayerFullscreen } = useMediaContext()
+  const { isPlayerFullscreen } = usePlayerShellLayout()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
   const { setPlaybackRate, incrementPlaybackRate, decrementPlaybackRate } = playerHandler.controls
 
