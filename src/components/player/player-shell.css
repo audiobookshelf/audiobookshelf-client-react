@@ -151,6 +151,8 @@
     --landscape-pad: 1rem;
     --landscape-col-min: 24rem;
     --landscape-col: min(100%, var(--landscape-col-min));
+    /* Landscape notch sits on the inline axis, already included in the side padding. */
+    --fs-pt: 0.5rem;
     --fs-ps: calc(var(--landscape-pad) + var(--safe-start));
     --fs-pe: calc(var(--landscape-pad) + var(--safe-end));
     --fs-pb: calc(var(--landscape-pad) + var(--safe-bottom));
