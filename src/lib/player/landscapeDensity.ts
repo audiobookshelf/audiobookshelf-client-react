@@ -1,37 +1,4 @@
-/** Landscape fullscreen density: 0 = full UI, higher = more compaction (A → B → C → D). */
-export type LandscapeDensityLevel = 0 | 1 | 2 | 3 | 4
-
-export const LANDSCAPE_DENSITY_MAX_LEVEL = 4
-
-function parseCssLengthPx(value: string, rootFontSize: number): number {
-  const trimmed = value.trim()
-  if (!trimmed || trimmed === 'normal') return 0
-  if (trimmed.endsWith('rem')) return parseFloat(trimmed) * rootFontSize
-  if (trimmed.endsWith('px')) return parseFloat(trimmed)
-  return parseFloat(trimmed) || 0
-}
-
-/** Sum of child scroll heights + flex gaps — not container scrollHeight (flex-shrink hides overflow). */
-export function measureRightColumnContentHeight(rightColumn: HTMLElement): number {
-  const style = getComputedStyle(rightColumn)
-  const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-  const gap = parseCssLengthPx(style.rowGap || style.gap || '0', rootFontSize)
-  const children = Array.from(rightColumn.children) as HTMLElement[]
-  if (children.length === 0) return 0
-
-  const heights = children.reduce((sum, child) => sum + child.scrollHeight, 0)
-  return heights + gap * (children.length - 1)
-}
-
-export function rightColumnContentOverflows(rightColumn: HTMLElement, tolerancePx = 1): boolean {
-  const children = Array.from(rightColumn.children) as HTMLElement[]
-  if (children.some((child) => child.scrollHeight > child.clientHeight + tolerancePx)) {
-    return true
-  }
-
-  return measureRightColumnContentHeight(rightColumn) > rightColumn.clientHeight + tolerancePx
-}
-
+/** Landscape fullscreen compaction. Each step keeps the ones before it (A → B → C → D). */
 export interface LandscapeDensityFlags {
   /** D: hide secondary toolbar row (last resort) */
   overflowSecondaryToolbar: boolean
@@ -43,11 +10,41 @@ export interface LandscapeDensityFlags {
   compactTitle: boolean
 }
 
-export function landscapeDensityFlags(level: LandscapeDensityLevel): LandscapeDensityFlags {
+type LandscapeDensityLevel = 0 | 1 | 2 | 3 | 4
+
+const LANDSCAPE_DENSITY_MAX_LEVEL = 4
+const LANDSCAPE_DENSITY_LEVELS: LandscapeDensityLevel[] = [0, 1, 2, 3, 4]
+
+/** Chapter-track column totals. Levels 0–2 differ by the second bar and the chapter label. */
+const CHAPTER_COLUMN_TOKENS = ['--fs-col-0', '--fs-col-1', '--fs-col-2', '--fs-col-3', '--fs-col-4']
+/** Without a chapter track, levels 0–2 are the same single bar. */
+const BOOK_COLUMN_TOKENS = ['--fs-col-book', '--fs-col-book', '--fs-col-book', '--fs-col-book-3', '--fs-col-book-4']
+
+function landscapeDensityFlags(level: LandscapeDensityLevel): LandscapeDensityFlags {
   return {
     overflowSecondaryToolbar: level >= 4,
     singleTrackBar: level >= 1,
     chapterLabelBelow: level >= 2,
     compactTitle: level >= 3
   }
+}
+
+/** Lowest density whose token height fits the column budget. Heights are `--fs-col-*` in pixels. */
+function fittingLandscapeDensityLevel(columnHeightsPx: number[], budgetPx: number): LandscapeDensityLevel {
+  for (const level of LANDSCAPE_DENSITY_LEVELS) {
+    const height = columnHeightsPx[level]
+    if (height != null && height <= budgetPx + 1) return level
+  }
+  return LANDSCAPE_DENSITY_MAX_LEVEL
+}
+
+function cssLengthPx(style: CSSStyleDeclaration, name: string): number {
+  return parseFloat(style.getPropertyValue(name)) || 0
+}
+
+export function landscapeDensityFromShell(shell: HTMLElement, chapterTrack: boolean): LandscapeDensityFlags {
+  const style = getComputedStyle(shell)
+  const tokens = chapterTrack ? CHAPTER_COLUMN_TOKENS : BOOK_COLUMN_TOKENS
+  const columnHeightsPx = tokens.map((token) => cssLengthPx(style, token))
+  return landscapeDensityFlags(fittingLandscapeDensityLevel(columnHeightsPx, cssLengthPx(style, '--fs-col-budget')))
 }

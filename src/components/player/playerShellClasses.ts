@@ -87,7 +87,7 @@ export const TRACK_STACK: LayoutClasses = {
   root: 'flex flex-col',
   mini: 'z-2 col-span-full row-start-2 min-w-0 self-start',
   /* Keep chapter timestamps grouped with the chapter slider, not the book track. */
-  fullscreen: 'static inset-auto bottom-auto w-full gap-4 lg:w-3/4 lg:max-w-3xl'
+  fullscreen: 'static inset-auto bottom-auto w-full gap-(--fs-track-gap) lg:w-3/4 lg:max-w-3xl'
 }
 
 export const PRIMARY_TRACK: LayoutClasses = {

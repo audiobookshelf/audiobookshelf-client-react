@@ -12,7 +12,7 @@ import VolumeControl from './VolumeControl'
 const PLAYER_SECONDARY_TOOLBAR_CLASS = 'flex flex-nowrap items-center justify-center gap-2'
 const PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS = 'max-lg:w-full max-lg:gap-1'
 const PLAYER_SECONDARY_TOOLBAR_BUTTON_CLASS =
-  'max-lg:inline-flex max-lg:h-11 max-lg:min-h-11 max-lg:w-11 max-lg:min-w-11 max-lg:items-center max-lg:justify-center max-lg:p-0'
+  'max-lg:inline-flex max-lg:h-(--fs-toolbar) max-lg:min-h-(--fs-toolbar) max-lg:w-(--fs-toolbar) max-lg:min-w-(--fs-toolbar) max-lg:items-center max-lg:justify-center max-lg:p-0'
 const PLAYER_TOOLBAR_TOOLTIP_CLASS = 'max-lg:items-center max-lg:justify-center max-lg:leading-none'
 
 interface PlayerSecondaryToolbarProps {

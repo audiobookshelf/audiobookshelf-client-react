@@ -12,7 +12,7 @@ const TITLE_AUTHOR: LayoutClasses = {
   mini: 'z-3 flex min-w-0 flex-1 flex-col justify-center gap-0.5 text-start',
   fullscreen: 'static flex w-full min-h-0 min-w-0 flex-col items-center justify-center gap-0.5 text-center lg:w-3/4 lg:max-w-3xl',
   /* The landscape column clips overflow, and this block is flush with its top edge. */
-  landscape: 'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-0.5 pt-1 text-center'
+  landscape: 'grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-2 gap-y-(--fs-title-row-gap) pt-(--fs-title-pad) text-center'
 }
 const TITLE: LayoutClasses = {
   /* Flex so the scrolling marquee's outline padding does not grow this row. */

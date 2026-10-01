@@ -71,7 +71,7 @@ export default function PlayerTrackBar({
   return (
     <div className="player-track-bar">
       {showChapterLabel && chapterLabelPlacement === 'above' && (
-        <div className={mergeClasses('player-track-chapter-header mb-1 text-center', isLandscapeCompact && 'text-start')}>{chapterLabel}</div>
+        <div className={mergeClasses('player-track-chapter-header mb-(--fs-chapter-gap) text-center', isLandscapeCompact && 'text-start')}>{chapterLabel}</div>
       )}
       <div className={mergeClasses('player-track-core', dual && PLAYER_TRACK_CORE_DUAL_CLASS)}>
         <PlayerTrackSlider
