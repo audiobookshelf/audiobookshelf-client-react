@@ -12,7 +12,6 @@ import { usePlayerShellSwipe } from '@/hooks/usePlayerShellSwipe'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { trapTabKey } from '@/lib/focusTrap'
 import { mergeClasses } from '@/lib/merge-classes'
-import { landscapeDensityFlags } from '@/lib/player/landscapeDensity'
 import { isPlayerShellExpandClick } from '@/lib/player/playerShellSwipe'
 import { LibraryItem } from '@/types/api'
 import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
@@ -85,15 +84,11 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   }, [closePlayerOverlays, isPlayerFullscreen])
 
   const shellRef = useRef<HTMLDivElement>(null)
-  const rightColumnRef = useRef<HTMLDivElement>(null)
   const collapseBtnRef = useRef<HTMLButtonElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
   const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
-  const layoutKey = `${streamLibraryItem.id}:${useChapterTrack}`
-  const landscapeDensityLevel = useLandscapePlayerDensity(shellRef, rightColumnRef, layoutKey)
-  const appliedLandscapeDensityLevel = layout === 'landscape' ? landscapeDensityLevel : 0
-  const landscapeDensity = landscapeDensityFlags(appliedLandscapeDensityLevel)
+  const landscapeDensity = useLandscapePlayerDensity(shellRef, useChapterTrack)
   const showBookTrack = isPlayerFullscreen && useChapterTrack && !landscapeDensity.singleTrackBar
   const chapterLabelPlacement = landscapeDensity.chapterLabelBelow || !isPlayerFullscreen ? 'below' : 'above'
 
@@ -197,7 +192,6 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
       className={layoutClass(SHELL, layout)}
       style={shellStyle}
       data-cy="player-shell"
-      data-landscape-density={appliedLandscapeDensityLevel}
       role={!isMini ? 'dialog' : undefined}
       aria-modal={!isMini ? true : undefined}
       aria-label={!isMini ? metadata.displayTitle : undefined}
@@ -221,7 +215,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
           <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={expand} />
           {isMini && titleAuthor}
         </div>
-        <div ref={rightColumnRef} className={layoutClass(COLUMN, layout)} data-cy="player-right-column">
+        <div className={layoutClass(COLUMN, layout)} data-cy="player-right-column">
           {!isMini && titleAuthor}
 
           <div

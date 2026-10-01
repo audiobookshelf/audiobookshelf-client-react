@@ -30,6 +30,15 @@
   --mini-pb: calc(var(--mini-pad) + var(--safe-bottom));
   /* Clear the top-end close button (w-9) plus a gap. */
   --mini-toolbar-pe: calc(2.25rem + 0.5rem);
+  /* Shared with mini so the track slider keeps a height outside fullscreen. */
+  --fs-line-sm: 1.25rem;
+  --fs-slider: 0.5rem;
+  --fs-ticks: 0.25rem;
+  --fs-chapter-gap: 0.25rem;
+  --fs-track: calc(var(--fs-slider) + var(--fs-ticks) + var(--fs-line-sm));
+  --fs-track-gap: 1rem;
+  --fs-transport: 4rem;
+  --fs-toolbar: 2.75rem;
 }
 
 :dir(rtl) .player-shell {
@@ -37,15 +46,81 @@
   --safe-end: env(safe-area-inset-left, 0px);
 }
 
+/* Registered lengths so getComputedStyle returns used pixels, not the calc() text. */
+@property --fs-col-0 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-1 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-2 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-3 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-4 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-book {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-book-3 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-book-4 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-budget {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
 .player-shell.fullscreen {
   --fs-gap: 0.5rem;
-  /* Header is in flow (h-11), so top padding is only the inset above it. */
-  --fs-header-h: 2.75rem;
+  /* Header is in flow, so top padding is only the inset above it. */
+  --fs-header-h: var(--fs-toolbar);
   --fs-header-outset: 0.5rem;
   --fs-pt: calc(0.5rem + var(--safe-top));
   --fs-ps: calc(1rem + var(--safe-start));
   --fs-pe: calc(1rem + var(--safe-end));
   --fs-pb: calc(0.75rem + var(--safe-bottom));
+  /* One line each: text-xl and text-base. Marquees scroll instead of wrapping. */
+  --fs-line-xl: 1.75rem;
+  --fs-line-base: 1.5rem;
+  --fs-title-pad: 0.25rem;
+  --fs-title-row-gap: 0.125rem;
+  --fs-title: calc(var(--fs-title-pad) + var(--fs-line-xl) + var(--fs-title-row-gap) + var(--fs-line-base));
+  --fs-title-compact: calc(var(--fs-title-pad) + var(--fs-line-xl));
+  --fs-chapter-header: calc(var(--fs-line-sm) + var(--fs-chapter-gap));
+  /* Tightest right column. Each looser level adds the row that density step shows. */
+  --fs-col-4: calc(var(--fs-title-compact) + var(--fs-track) + var(--fs-transport) + var(--fs-gap) * 2);
+  --fs-col-3: calc(var(--fs-col-4) + var(--fs-toolbar) + var(--fs-gap));
+  --fs-col-2: calc(var(--fs-col-3) + var(--fs-title) - var(--fs-title-compact));
+  --fs-col-1: calc(var(--fs-col-2) + var(--fs-chapter-header));
+  --fs-col-0: calc(var(--fs-col-1) + var(--fs-track) + var(--fs-track-gap));
+  /* Without a chapter track the column starts at level 2: one bar, no chapter label. */
+  --fs-col-book: var(--fs-col-2);
+  --fs-col-book-3: var(--fs-col-3);
+  --fs-col-book-4: var(--fs-col-4);
+  --fs-col-budget: calc(100dvh - var(--fs-pt) - var(--fs-pb) - var(--fs-header-h));
   container-type: size;
 }
 
@@ -80,6 +155,19 @@
 /* Media cards set font-size to sizeMultiplier rem (cover height / 192). Mini omits overlay text. */
 .player-shell.fullscreen .player-cover-inner {
   font-size: calc(100cqh / 1px / 192 * 1rem);
+}
+
+.player-shell.fullscreen .player-title {
+  line-height: var(--fs-line-xl);
+}
+
+.player-shell.fullscreen .player-author,
+.player-shell.fullscreen .player-duration {
+  line-height: var(--fs-line-base);
+}
+
+.player-shell.fullscreen .player-track {
+  line-height: var(--fs-line-sm);
 }
 
 .player-title-author .player-title {

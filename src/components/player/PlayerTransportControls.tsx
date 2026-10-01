@@ -26,8 +26,8 @@ const JUMP_MINI_DESKTOP = 'h-10 min-h-10 w-10 min-w-10 text-3xl'
 const PLAY: LayoutClasses = {
   root: 'player-play-btn bg-accent text-primary hover:text-primary hover:not-disabled:text-primary cursor-pointer rounded-full',
   mini: 'h-11 min-h-11 w-11 min-w-11 text-xl',
-  fullscreen: 'h-16 min-h-16 w-16 min-w-16 text-4xl',
-  landscape: 'h-16 min-h-16 w-16 min-w-16 text-4xl'
+  fullscreen: 'h-(--fs-transport) min-h-(--fs-transport) w-(--fs-transport) min-w-(--fs-transport) text-4xl',
+  landscape: 'h-(--fs-transport) min-h-(--fs-transport) w-(--fs-transport) min-w-(--fs-transport) text-4xl'
 }
 const PLAY_MINI_DESKTOP = 'h-10 w-10 text-2xl'
 

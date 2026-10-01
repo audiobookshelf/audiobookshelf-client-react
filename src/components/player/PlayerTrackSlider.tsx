@@ -33,7 +33,7 @@ export default function PlayerTrackSlider({ dual, sliderLabel, isLoading, isHlsT
         aria-valuemax={Math.max(0, Math.round(effectiveDuration))}
         aria-valuenow={Math.max(0, Math.round(playedTime))}
         aria-valuetext={`${currentTimeFormatted} / ${Math.round(playedPercent)}%`}
-        className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
+        className="bg-track-bg relative h-(--fs-slider) w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
         style={{ touchAction: 'none' }}
         onPointerDown={seek.handlePointerDown}
         onPointerMove={seek.handlePointerMove}
@@ -72,7 +72,7 @@ export default function PlayerTrackSlider({ dual, sliderLabel, isLoading, isHlsT
       </div>
 
       {/* Keep the tick row in layout so chapter and book slider blocks stay the same height. */}
-      <div className="relative h-1 w-full overflow-hidden">
+      <div className="relative h-(--fs-ticks) w-full overflow-hidden">
         {showChapterTicks &&
           chapters.map((chapter) => (
             <div

@@ -2,68 +2,45 @@
 
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
-import { LANDSCAPE_DENSITY_MAX_LEVEL, rightColumnContentOverflows, type LandscapeDensityLevel } from '@/lib/player/landscapeDensity'
-import { RefObject, useLayoutEffect, useRef, useState } from 'react'
+import { landscapeDensityFromShell, type LandscapeDensityFlags } from '@/lib/player/landscapeDensity'
+import { RefObject, useEffect, useState } from 'react'
 
-function observeRightColumnChildren(resizeObserver: ResizeObserver, rightColumn: HTMLElement) {
-  for (const child of rightColumn.children) {
-    resizeObserver.observe(child)
-  }
+const FULL_LANDSCAPE_UI: LandscapeDensityFlags = {
+  overflowSecondaryToolbar: false,
+  singleTrackBar: false,
+  chapterLabelBelow: false,
+  compactTitle: false
 }
 
-export function useLandscapePlayerDensity(
-  shellRef: RefObject<HTMLDivElement | null>,
-  rightColumnRef: RefObject<HTMLDivElement | null>,
-  layoutKey: string
-): LandscapeDensityLevel {
+function sameDensity(left: LandscapeDensityFlags, right: LandscapeDensityFlags) {
+  const keys = Object.keys(left) as (keyof LandscapeDensityFlags)[]
+  return keys.every((key) => left[key] === right[key])
+}
+
+export function useLandscapePlayerDensity(shellRef: RefObject<HTMLElement | null>, chapterTrack: boolean): LandscapeDensityFlags {
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const isDesktop = useMediaQuery('lg')
-  const [densityLevel, setDensityLevel] = useState<LandscapeDensityLevel>(0)
-  /** Item, chapter track, and layout mode. A change starts measurement over at full UI. */
-  const measureGenerationRef = useRef('')
+  const landscapeActive = isPlayerFullscreen && isLandscapeCompact && !isDesktop
+  const [density, setDensity] = useState(FULL_LANDSCAPE_UI)
 
-  useLayoutEffect(() => {
-    const handleResize = () => setDensityLevel(0)
-    window.addEventListener('resize', handleResize)
+  useEffect(() => {
+    if (!landscapeActive) return
 
-    const shell = shellRef.current
-    const rightColumn = rightColumnRef.current
-    const generation = `${layoutKey}:${isPlayerFullscreen}:${isLandscapeCompact}:${isDesktop}`
-    if (!shell || !rightColumn || !isPlayerFullscreen || isDesktop || !isLandscapeCompact) {
-      measureGenerationRef.current = generation
-      setDensityLevel(0)
-      return () => window.removeEventListener('resize', handleResize)
+    const measure = () => {
+      const shell = shellRef.current
+      setDensity(shell ? landscapeDensityFromShell(shell, chapterTrack) : FULL_LANDSCAPE_UI)
     }
-
-    if (measureGenerationRef.current !== generation) {
-      measureGenerationRef.current = generation
-      if (densityLevel !== 0) {
-        setDensityLevel(0)
-        return () => window.removeEventListener('resize', handleResize)
-      }
-    }
-
-    const evaluate = () => {
-      if (!shell.classList.contains('fullscreen') || !isLandscapeCompact) {
-        return
-      }
-      if (rightColumnContentOverflows(rightColumn) && densityLevel < LANDSCAPE_DENSITY_MAX_LEVEL) {
-        setDensityLevel((current) => Math.min(LANDSCAPE_DENSITY_MAX_LEVEL, current + 1) as LandscapeDensityLevel)
-      }
-    }
-
-    evaluate()
-
-    const resizeObserver = new ResizeObserver(evaluate)
-    resizeObserver.observe(shell)
-    resizeObserver.observe(rightColumn)
-    observeRightColumnChildren(resizeObserver, rightColumn)
-
+    window.addEventListener('resize', measure)
+    window.visualViewport?.addEventListener('resize', measure)
     return () => {
-      resizeObserver.disconnect()
-      window.removeEventListener('resize', handleResize)
+      window.removeEventListener('resize', measure)
+      window.visualViewport?.removeEventListener('resize', measure)
     }
-  }, [densityLevel, isDesktop, isLandscapeCompact, isPlayerFullscreen, layoutKey, rightColumnRef, shellRef])
+  }, [chapterTrack, landscapeActive, shellRef])
 
-  return densityLevel
+  const shell = shellRef.current
+  const measured = landscapeActive && shell ? landscapeDensityFromShell(shell, chapterTrack) : FULL_LANDSCAPE_UI
+  if (!sameDensity(measured, density)) setDensity(measured)
+
+  return density
 }

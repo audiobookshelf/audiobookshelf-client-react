@@ -1,65 +1,49 @@
-import { landscapeDensityFlags, LANDSCAPE_DENSITY_MAX_LEVEL, rightColumnContentOverflows } from '@/lib/player/landscapeDensity'
+import { landscapeDensityFromShell, type LandscapeDensityFlags } from '@/lib/player/landscapeDensity'
 
 describe('landscapeDensity', () => {
-  it('applies compaction steps in A → B → C → D order', () => {
-    expect(landscapeDensityFlags(0)).to.deep.equal({
+  it('compacts in order as the column budget shrinks', () => {
+    const shell = document.createElement('div')
+    const heights = [294, 246, 222, 196, 144]
+    const tokens = ['--fs-col-0', '--fs-col-1', '--fs-col-2', '--fs-col-3', '--fs-col-4']
+    heights.forEach((height, index) => shell.style.setProperty(tokens[index], `${height}px`))
+    document.body.append(shell)
+
+    const expectBudget = (budget: string, flags: LandscapeDensityFlags) => {
+      shell.style.setProperty('--fs-col-budget', budget)
+      expect(landscapeDensityFromShell(shell, true)).to.deep.equal(flags)
+    }
+
+    expectBudget('301px', {
       overflowSecondaryToolbar: false,
       singleTrackBar: false,
       chapterLabelBelow: false,
       compactTitle: false
     })
-    expect(landscapeDensityFlags(1)).to.deep.equal({
+    expectBudget('251px', {
       overflowSecondaryToolbar: false,
       singleTrackBar: true,
       chapterLabelBelow: false,
       compactTitle: false
     })
-    expect(landscapeDensityFlags(2)).to.deep.equal({
+    expectBudget('230px', {
       overflowSecondaryToolbar: false,
       singleTrackBar: true,
       chapterLabelBelow: true,
       compactTitle: false
     })
-    expect(landscapeDensityFlags(3)).to.deep.equal({
+    expectBudget('200px', {
       overflowSecondaryToolbar: false,
       singleTrackBar: true,
       chapterLabelBelow: true,
       compactTitle: true
     })
-    expect(landscapeDensityFlags(LANDSCAPE_DENSITY_MAX_LEVEL)).to.deep.equal({
+    expectBudget('161px', {
       overflowSecondaryToolbar: true,
       singleTrackBar: true,
       chapterLabelBelow: true,
       compactTitle: true
     })
-  })
 
-  it('detects overflow when flex-shrink squashes a section or its content', () => {
-    const column = document.createElement('div')
-    column.style.display = 'flex'
-    column.style.flexDirection = 'column'
-    column.style.gap = '8px'
-    column.style.height = '120px'
-    column.style.overflow = 'hidden'
-
-    const title = document.createElement('div')
-    title.style.flexShrink = '1'
-    title.style.minHeight = '0'
-    title.style.overflow = 'hidden'
-    const titleInner = document.createElement('div')
-    titleInner.style.height = '60px'
-    title.append(titleInner)
-
-    const tracks = document.createElement('div')
-    tracks.style.height = '80px'
-    tracks.style.flexShrink = '0'
-
-    column.append(title, tracks)
-    document.body.append(column)
-
-    expect(title.clientHeight).to.be.lessThan(titleInner.offsetHeight)
-    expect(rightColumnContentOverflows(column)).to.equal(true)
-
-    column.remove()
+    shell.remove()
   })
 })

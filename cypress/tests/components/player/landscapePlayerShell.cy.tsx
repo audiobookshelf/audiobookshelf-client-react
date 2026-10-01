@@ -1,5 +1,6 @@
 import '@/components/player/player-shell.css'
 import { SHELL, layoutClass } from '@/components/player/playerShellClasses'
+import { landscapeDensityFromShell } from '@/lib/player/landscapeDensity'
 import { CSSProperties } from 'react'
 
 function LandscapeShell() {
@@ -19,6 +20,27 @@ describe('landscape player shell insets', () => {
       expect(parseFloat(style.paddingBottom)).to.be.closeTo(rootFontSize + 21, 0.5)
       expect(shell.style.height).to.equal('')
       expect(shell.style.top).to.equal('')
+    })
+  })
+
+  it('resolves the chapter-track column tokens against the visible height', () => {
+    cy.viewport(700, 340)
+    cy.mount(<LandscapeShell />)
+
+    cy.get('[data-cy="player-shell"]').should(($shell) => {
+      const shell = $shell[0] as HTMLElement
+      expect(landscapeDensityFromShell(shell, true)).to.deep.equal({
+        overflowSecondaryToolbar: false,
+        singleTrackBar: true,
+        chapterLabelBelow: false,
+        compactTitle: false
+      })
+      expect(landscapeDensityFromShell(shell, false)).to.deep.equal({
+        overflowSecondaryToolbar: false,
+        singleTrackBar: false,
+        chapterLabelBelow: false,
+        compactTitle: false
+      })
     })
   })
 
