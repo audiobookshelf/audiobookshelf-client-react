@@ -1,7 +1,5 @@
 import type { TypeSafeTranslations } from '@/types/translations'
 
-// TODO: Move non-user-specific items (components catalog) out of this menu builder.
-
 export type AppBarNavMenuItemType = 'link' | 'logout'
 
 export interface AppBarNavMenuItemConfig {
@@ -38,14 +36,6 @@ export function buildAppBarNavMenuItems({ username, t }: BuildAppBarNavMenuItems
       label: t('ButtonStats'),
       ariaLabel: t('ButtonStats'),
       icon: 'equalizer'
-    },
-    {
-      id: 'components-catalog',
-      type: 'link',
-      href: '/components_catalog',
-      label: t('ButtonComponentsCatalog'),
-      ariaLabel: t('ButtonComponentsCatalog'),
-      icon: 'widgets'
     },
     {
       id: 'logout',

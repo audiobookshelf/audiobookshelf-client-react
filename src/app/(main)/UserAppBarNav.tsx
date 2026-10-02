@@ -1,7 +1,5 @@
 'use client'
 
-// TODO: Move non-user-specific menu items (e.g. components catalog) out of this component and its menu builder.
-
 import ButtonBase from '@/components/ui/ButtonBase'
 import { useUser } from '@/contexts/UserContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
