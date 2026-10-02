@@ -2,8 +2,12 @@
 
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import ButtonBase from '@/components/ui/ButtonBase'
+import { useOverlayHistory } from '@/hooks/useOverlayHistory'
+import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -11,12 +15,15 @@ import IconBtn from '../ui/IconBtn'
 
 interface PlaybackRateWidgetProps {
   playerHandler: PlayerHandler
+  onOpenChange?: (open: boolean) => void
+  triggerClassName?: string
 }
 
 const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
 
-export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidgetProps) {
+export default function PlaybackRateWidget({ playerHandler, onOpenChange, triggerClassName }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
+  const { isPlayerFullscreen } = usePlayerShellLayout()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
   const { setPlaybackRate, incrementPlaybackRate, decrementPlaybackRate } = playerHandler.controls
 
@@ -43,6 +50,13 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    onOpenChange?.(isOpen)
+  }, [isOpen, onOpenChange])
+
+  usePlayerSecondaryPopoverDismiss(setIsOpen)
+  useOverlayHistory(isOpen, () => setIsOpen(false))
 
   // Floating UI positioning
   const middleware = useMemo(() => [offset(8), shift({ padding: 8 }), flip({ fallbackAxisSideDirection: 'start' }), arrowMw({ element: arrowRef })], [])
@@ -99,7 +113,10 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
   useEffect(() => {
     if (!isOpen) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false)
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      e.stopPropagation()
+      setIsOpen(false)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -157,7 +174,13 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
   }, [middlewareData.arrow, resolvedPlacement])
 
   const popoverContent = isOpen ? (
-    <div ref={popoverRef} id={`${widgetId}-popover`} role="dialog" style={floatingStyles} className="bg-background z-70 rounded-lg p-2 shadow-lg">
+    <div
+      ref={popoverRef}
+      id={`${widgetId}-popover`}
+      role="dialog"
+      style={floatingStyles}
+      className={mergeClasses('bg-background rounded-lg p-2 shadow-lg', isPlayerFullscreen ? PLAYER_OVERLAY_Z_CLASS : 'z-70')}
+    >
       {/* Preset buttons row */}
       <div className="mb-2 flex gap-0">
         {PRESET_RATES.map((rate, index) => (
@@ -206,7 +229,7 @@ export default function PlaybackRateWidget({ playerHandler }: PlaybackRateWidget
         ref={triggerRef}
         size="custom"
         borderless
-        className="min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base"
+        className={mergeClasses('min-w-9 px-0.5 text-sm font-medium tabular-nums sm:min-w-10 sm:px-1 sm:text-base', triggerClassName)}
         onClick={toggleOpen}
         onKeyDown={handlePlaybackRateKeyDown}
         aria-expanded={isOpen}

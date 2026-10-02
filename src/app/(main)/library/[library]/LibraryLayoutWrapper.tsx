@@ -1,11 +1,9 @@
 'use client'
 
-import { getCoverSizeWidgetBottomClass } from '@/components/player/MediaPlayerContainer'
 import CoverSizeWidget from '@/components/widgets/CoverSizeWidget'
 import { useBookshelfSelection } from '@/contexts/BookshelfSelectionContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useAppNavigation } from '@/contexts/AppNavigationContext'
-import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useLibraryRouteGuard } from '@/hooks/useLibraryRouteGuard'
 import { mergeClasses } from '@/lib/merge-classes'
@@ -19,7 +17,6 @@ interface LibraryLayoutWrapperProps {
 }
 
 export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperProps) {
-  const { libraryItemIdStreaming } = useMediaContext()
   const { setLastCurrentLibraryId } = useAppNavigation()
   const { Source, serverSettings } = useUser()
   const { library, boundModal, setBoundModal } = useLibrary()
@@ -67,7 +64,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   }, [clearSelection, isSelectionMode])
 
   return (
-    <div className={mergeClasses('page-wrapper relative flex overflow-hidden', libraryItemIdStreaming ? 'streaming' : '')}>
+    <div className="page-wrapper relative flex overflow-hidden">
       <SideRail serverVersion={serverVersion} installSource={installSource} />
       <div className="page-bg-gradient min-w-0 flex-1 overflow-hidden">
         {showToolbar && <Toolbar />}
@@ -84,7 +81,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
         </div>
       </div>
 
-      {showCoverSizeWidget && <CoverSizeWidget className={mergeClasses('fixed right-4 z-[60]', getCoverSizeWidgetBottomClass(!!libraryItemIdStreaming))} />}
+      {showCoverSizeWidget && <CoverSizeWidget className="fixed right-4 bottom-(--media-player-offset) z-60" />}
       {boundModal}
     </div>
   )

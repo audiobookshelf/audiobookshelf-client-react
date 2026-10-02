@@ -1,0 +1,39 @@
+@keyframes marquee {
+  to {
+    transform: translateX(calc(var(--marquee-distance) * -1px));
+  }
+}
+
+/* Clip the scrolling track on x. The fade mask clips to the border box, so keep room inside it for focus outlines. */
+:global(.marquee--overflow) {
+  overflow-x: clip;
+  padding-block: 0.25rem;
+  margin-block: -0.25rem;
+}
+
+/* The start of the line is against the clip. Inset it so the focus outline is inside the clip, and pull the box back so the text stays put. */
+:global(.player-title-marquee.marquee--overflow) {
+  flex-shrink: 0;
+  width: calc(100% + 0.25rem);
+  padding-inline-start: 0.25rem;
+  margin-inline-start: -0.25rem;
+}
+
+:global(.marquee--overflow .marquee-track) {
+  animation: marquee var(--marquee-dur) linear(0, 0 var(--marquee-hold), 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :global(.marquee-track) {
+    animation: none;
+  }
+
+  :global(.marquee--overflow) {
+    mask-image: none;
+  }
+
+  :global(.marquee--overflow .marquee-loop-gap),
+  :global(.marquee--overflow .marquee-loop-copy) {
+    display: none !important;
+  }
+}

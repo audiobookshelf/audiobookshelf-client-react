@@ -2,19 +2,27 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
+import { useOverlayHistory } from '@/hooks/useOverlayHistory'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
+import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
+import { VOLUME_HOTKEY_STEP } from '@/hooks/useAudioPlayerHotkeys'
+import { mergeClasses } from '@/lib/merge-classes'
 import { autoUpdate, flip, offset, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 interface VolumeControlProps {
   playerHandler: PlayerHandler
+  onOpenChange?: (open: boolean) => void
+  triggerClassName?: string
 }
 
-export default function VolumeControl({ playerHandler }: VolumeControlProps) {
+export default function VolumeControl({ playerHandler, onOpenChange, triggerClassName }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
+  const { isPlayerFullscreen } = usePlayerShellLayout()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const { volume } = playerHandler.state
   const { setVolume, toggleMute } = playerHandler.controls
@@ -41,6 +49,13 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    onOpenChange?.(isOpen)
+  }, [isOpen, onOpenChange])
+
+  usePlayerSecondaryPopoverDismiss(setIsOpen)
+  useOverlayHistory(isOpen, () => setIsOpen(false))
 
   // Floating UI positioning
   const middleware = useMemo(() => [offset(12), flip({ fallbackAxisSideDirection: 'none' })], [])
@@ -125,6 +140,18 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
     return () => document.removeEventListener('pointerdown', onPointerDown)
   }, [closePopover, isOpen, primaryInputCanHover])
 
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      event.stopPropagation()
+      closePopover()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [closePopover, isOpen])
+
   const trackRef = useRef<HTMLDivElement>(null)
   const isDraggingRef = useRef(false)
 
@@ -159,6 +186,11 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
           setVolume(1)
           handled = true
           break
+        case 'Escape':
+          closePopover()
+          e.preventDefault()
+          e.stopPropagation()
+          return
         default:
           return
       }
@@ -169,7 +201,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
         openPopover()
       }
     },
-    [adjustVolume, openPopover, setVolume]
+    [adjustVolume, closePopover, openPopover, setVolume]
   )
 
   // Calculate volume from pointer position
@@ -277,7 +309,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
         ...floatingStyles,
         visibility: isPositioned ? 'visible' : 'hidden'
       }}
-      className="z-70 flex flex-col items-center"
+      className={mergeClasses('flex flex-col items-center', isPlayerFullscreen ? PLAYER_OVERLAY_Z_CLASS : 'z-70')}
       onMouseEnter={primaryInputCanHover ? openPopover : undefined}
       onMouseLeave={primaryInputCanHover ? closePopoverSoon : undefined}
     >
@@ -353,7 +385,7 @@ export default function VolumeControl({ playerHandler }: VolumeControlProps) {
         ref={triggerRef}
         size="custom"
         borderless
-        className="w-9 text-2xl sm:w-10"
+        className={mergeClasses('w-9 text-2xl sm:w-10', triggerClassName)}
         onClick={handleTriggerClick}
         onMouseDown={handleTriggerMouseDown}
         onMouseEnter={primaryInputCanHover ? openPopover : undefined}

@@ -1,0 +1,326 @@
+:root {
+  /* Morph timings (view-transition pseudo-elements are not under .player-shell) */
+  --player-morph-dur: 0.2s;
+  --player-morph-ease: cubic-bezier(0.39, 0.575, 0.565, 1);
+  --cover-morph-dur: var(--player-morph-dur);
+  --cover-morph-ease: var(--player-morph-ease);
+  --cover-h-mini: 3.5rem;
+  --mini-pad: 0.5rem;
+  /* Slider + reserved tick row + timestamps. */
+  --mini-track-stack: 2rem;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --player-mini-h: calc(var(--mini-pad) + var(--cover-h-mini) + var(--mini-pad) + var(--mini-track-stack) + var(--mini-pad) + var(--safe-bottom));
+}
+
+.player-shell {
+  --player-ease: var(--cover-morph-ease);
+  --player-dur-cover: var(--cover-morph-dur);
+  --player-dur: 0.15s;
+  --cover-aspect: 1.6;
+  --cover-w-over-h: calc(1 / var(--cover-aspect));
+  --cover-w-mini: calc(var(--cover-h-mini) / var(--cover-aspect));
+  /** Gap between cover and title on mini. */
+  --mini-title-gap: 0.5rem;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-start: env(safe-area-inset-left, 0px);
+  --safe-end: env(safe-area-inset-right, 0px);
+  --mini-ps: calc(var(--mini-pad) + var(--safe-start));
+  --mini-pe: calc(var(--mini-pad) + var(--safe-end));
+  --mini-pb: calc(var(--mini-pad) + var(--safe-bottom));
+  /* Clear the top-end close button (w-9) plus a gap. */
+  --mini-toolbar-pe: calc(2.25rem + 0.5rem);
+  /* Shared with mini so the track slider keeps a height outside fullscreen. */
+  --fs-line-sm: 1.25rem;
+  --fs-slider: 0.5rem;
+  --fs-ticks: 0.25rem;
+  --fs-chapter-gap: 0.25rem;
+  --fs-track: calc(var(--fs-slider) + var(--fs-ticks) + var(--fs-line-sm));
+  --fs-track-gap: 1rem;
+  --fs-transport: 4rem;
+  --fs-toolbar: 2.75rem;
+}
+
+:dir(rtl) .player-shell {
+  --safe-start: env(safe-area-inset-right, 0px);
+  --safe-end: env(safe-area-inset-left, 0px);
+}
+
+/* Registered lengths so getComputedStyle returns used pixels, not the calc() text. */
+@property --fs-col-0 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-1 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-2 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-3 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-4 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-book {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-book-3 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-book-4 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fs-col-budget {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+.player-shell.fullscreen {
+  --fs-gap: 0.5rem;
+  /* Header is in flow, so top padding is only the inset above it. */
+  --fs-header-h: var(--fs-toolbar);
+  --fs-header-outset: 0.5rem;
+  --fs-pt: calc(0.5rem + var(--safe-top));
+  --fs-ps: calc(1rem + var(--safe-start));
+  --fs-pe: calc(1rem + var(--safe-end));
+  --fs-pb: calc(0.75rem + var(--safe-bottom));
+  /* One line each: text-xl and text-base. Marquees scroll instead of wrapping. */
+  --fs-line-xl: 1.75rem;
+  --fs-line-base: 1.5rem;
+  --fs-title-pad: 0.25rem;
+  --fs-title-row-gap: 0.125rem;
+  --fs-title: calc(var(--fs-title-pad) + var(--fs-line-xl) + var(--fs-title-row-gap) + var(--fs-line-base));
+  --fs-title-compact: calc(var(--fs-title-pad) + var(--fs-line-xl));
+  --fs-chapter-header: calc(var(--fs-line-sm) + var(--fs-chapter-gap));
+  /* Tightest right column. Each looser level adds the row that density step shows. */
+  --fs-col-4: calc(var(--fs-title-compact) + var(--fs-track) + var(--fs-transport) + var(--fs-gap) * 2);
+  --fs-col-3: calc(var(--fs-col-4) + var(--fs-toolbar) + var(--fs-gap));
+  --fs-col-2: calc(var(--fs-col-3) + var(--fs-title) - var(--fs-title-compact));
+  --fs-col-1: calc(var(--fs-col-2) + var(--fs-chapter-header));
+  --fs-col-0: calc(var(--fs-col-1) + var(--fs-track) + var(--fs-track-gap));
+  /* Without a chapter track the column starts at level 2: one bar, no chapter label. */
+  --fs-col-book: var(--fs-col-2);
+  --fs-col-book-3: var(--fs-col-3);
+  --fs-col-book-4: var(--fs-col-4);
+  --fs-col-budget: calc(100dvh - var(--fs-pt) - var(--fs-pb) - var(--fs-header-h));
+  container-type: size;
+}
+
+.player-cover-slot {
+  container-type: size;
+}
+
+.player-shell.fullscreen .player-cover {
+  width: min(100cqw, calc((100cqh - 0.5rem) * var(--cover-w-over-h)), var(--cover-nat-w), calc(var(--cover-nat-h) * var(--cover-w-over-h)));
+  height: auto;
+  aspect-ratio: var(--cover-w-over-h);
+}
+
+.player-shell,
+.player-cover,
+.player-title-author,
+.player-transport-slot,
+.player-header-collapse,
+.player-header-close,
+.player-right-column {
+  transition-timing-function: var(--player-ease);
+}
+
+.player-cover {
+  container-type: size;
+  /* Fallback until the image reports its natural pixel size. */
+  --cover-nat-w: 400px;
+  --cover-nat-h: calc(400px * var(--cover-aspect));
+  view-transition-name: player-cover;
+}
+
+/* Media cards set font-size to sizeMultiplier rem (cover height / 192). Mini omits overlay text. */
+.player-shell.fullscreen .player-cover-inner {
+  font-size: calc(100cqh / 1px / 192 * 1rem);
+}
+
+.player-shell.fullscreen .player-title {
+  line-height: var(--fs-line-xl);
+}
+
+.player-shell.fullscreen .player-author,
+.player-shell.fullscreen .player-duration {
+  line-height: var(--fs-line-base);
+}
+
+.player-shell.fullscreen .player-track {
+  line-height: var(--fs-line-sm);
+}
+
+.player-title-author .player-title {
+  transition-property: font-size;
+  transition-duration: var(--player-dur);
+}
+
+/* Short fullscreen titles sit in the middle. Mini is already only as wide as the text. */
+.player-shell.fullscreen .player-title-marquee .marquee-track {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.player-title-author .player-author,
+.player-title-author .player-duration {
+  transition-property: font-size, opacity, height, margin;
+  transition-duration: var(--player-dur);
+}
+
+.player-header-collapse,
+.player-header-close {
+  transition-property: top, opacity, visibility;
+  transition-duration: var(--player-dur);
+}
+
+.player-transport {
+  transition-property: gap;
+  transition-duration: var(--player-dur);
+}
+
+.player-jump-btn {
+  transition-property: width, height, font-size, min-width, min-height;
+  transition-duration: var(--player-dur);
+}
+
+.player-transport-jump-back {
+  view-transition-name: player-jump-back;
+  transition-property: none;
+}
+
+.player-transport-jump-forward {
+  view-transition-name: player-jump-forward;
+  transition-property: none;
+}
+
+.player-play-btn {
+  view-transition-name: player-play-btn;
+  transition-property: none;
+}
+
+.player-chapter-slot {
+  transition-property: width, opacity, visibility;
+  transition-duration: var(--player-dur);
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --cover-h-mini: 4rem;
+    --mini-pad: 0.75rem;
+  }
+
+  .player-shell {
+    --mini-title-gap: 0.75rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .player-shell.fullscreen {
+    --landscape-pad: 1rem;
+    --landscape-col-min: 24rem;
+    --landscape-col: min(100%, var(--landscape-col-min));
+    /* Landscape notch sits on the inline axis, already included in the side padding. */
+    --fs-pt: 0.5rem;
+    --fs-ps: calc(var(--landscape-pad) + var(--safe-start));
+    --fs-pe: calc(var(--landscape-pad) + var(--safe-end));
+    --fs-pb: calc(var(--landscape-pad) + var(--safe-bottom));
+  }
+
+  /* Header row used to be padding, so it is not part of the cover's height. */
+  .player-shell.fullscreen .player-cover {
+    width: min(
+      calc(100cqw - var(--landscape-col-min) - var(--landscape-pad)),
+      calc((100cqh - var(--fs-header-h)) * var(--cover-w-over-h)),
+      var(--cover-nat-w),
+      calc(var(--cover-nat-h) * var(--cover-w-over-h))
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --player-morph-dur: 0.01ms;
+  }
+
+  .player-shell {
+    --player-dur-cover: 0.01ms;
+    --player-dur: 0.01ms;
+  }
+
+  .player-cover,
+  .player-transport-jump-back,
+  .player-transport-jump-forward,
+  .player-play-btn {
+    view-transition-name: none;
+  }
+}
+
+/* Mini ↔ fullscreen: morph cover + transport buttons; snap everything else */
+@supports (view-transition-name: none) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
+  ::view-transition-group(player-cover) {
+    z-index: 100;
+    overflow: clip;
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-old(player-cover),
+  ::view-transition-new(player-cover) {
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-image-pair(player-cover) {
+    isolation: isolate;
+  }
+
+  ::view-transition-group(player-jump-back),
+  ::view-transition-group(player-jump-forward),
+  ::view-transition-group(player-play-btn) {
+    z-index: 98;
+    overflow: clip;
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-old(player-jump-back),
+  ::view-transition-new(player-jump-back),
+  ::view-transition-old(player-jump-forward),
+  ::view-transition-new(player-jump-forward),
+  ::view-transition-old(player-play-btn),
+  ::view-transition-new(player-play-btn) {
+    animation-duration: var(--player-morph-dur);
+    animation-timing-function: var(--player-morph-ease);
+  }
+
+  ::view-transition-image-pair(player-jump-back),
+  ::view-transition-image-pair(player-jump-forward),
+  ::view-transition-image-pair(player-play-btn) {
+    isolation: isolate;
+  }
+}

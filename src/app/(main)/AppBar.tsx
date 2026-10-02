@@ -6,6 +6,7 @@ import Tooltip from '@/components/ui/Tooltip'
 import ChromecastLauncher from '@/components/widgets/ChromecastLauncher'
 import NotificationWidget from '@/components/widgets/NotificationWidget'
 import { useAppNavigation } from '@/contexts/AppNavigationContext'
+import { useLibraries } from '@/contexts/LibrariesContext'
 import { useUser } from '@/contexts/UserContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -34,6 +35,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const isMobile = useMediaQuery('max-md')
   const [isSideRailOpen, setIsSideRailOpen] = useState(false)
   const { user, userDefaultLibraryId } = useUser()
+  const { setLibraries } = useLibraries()
   // When not on a library page, use the last current library id when navigating home
   const { lastCurrentLibraryId, setLastCurrentLibraryId } = useAppNavigation()
 
@@ -50,6 +52,12 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
       setIsSideRailOpen(false)
     }
   }, [isMobile, isSideRailOpen])
+
+  useEffect(() => {
+    if (libraries?.length) {
+      setLibraries(libraries)
+    }
+  }, [libraries, setLibraries])
 
   const isAdmin = ['admin', 'root'].includes(user.type)
 
@@ -81,7 +89,7 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
     <div className="bg-primary relative h-16 w-full">
       <header
         cy-id="appbar"
-        className="box-shadow-appbar absolute start-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
+        className="box-shadow-appbar absolute inset-s-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
       >
         {showMobileSideRailToggle && (
           <IconBtn

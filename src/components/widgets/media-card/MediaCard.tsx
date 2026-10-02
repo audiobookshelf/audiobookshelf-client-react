@@ -323,7 +323,7 @@ function MediaCard(props: MediaCardProps) {
   const showProgressBar = userProgressPercent > 0 && (!isPodcast || !!episode || !!libraryItem.recentEpisode)
 
   const playIconFontSize = Math.max(2, 3 * effectiveSizeMultiplier)
-  const author = metadata.authorName
+  const author = metadata.authorName || ''
 
   const displayTitle = (() => {
     if (episode) return episode.title
@@ -352,9 +352,6 @@ function MediaCard(props: MediaCardProps) {
     }
     return author || ''
   })()
-
-  const titleCleaned = !title ? '' : title.length > 60 ? `${title.slice(0, 57)}...` : title
-  const authorCleaned = !author ? '' : author.length > 30 ? `${author.slice(0, 27)}...` : author
 
   const showError = !isPodcast && (isMissing || isInvalid)
   const errorText = isMissing
@@ -597,8 +594,7 @@ function MediaCard(props: MediaCardProps) {
             placeholderUrl={placeholderUrl}
             hasCover={hasCover}
             title={title}
-            titleCleaned={titleCleaned}
-            authorCleaned={authorCleaned}
+            author={author}
             userProgressPercent={userProgressPercent}
             itemIsFinished={itemIsFinished}
             showProgressBar={showProgressBar}

@@ -4,10 +4,12 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
 import { generateUUID } from '@/lib/cryptoUtils'
 import { AudioTrack } from '@/lib/player/AudioTrack'
-import { FIRST_SYNC_DELAY, SUBSEQUENT_SYNC_INTERVAL } from '@/lib/player/constants'
 import type { LibraryItem, PlaybackSession, StartSessionPayload } from '@/types/api'
 import { PlayMethod } from '@/types/api'
 import { useCallback, useRef } from 'react'
+
+const FIRST_SYNC_DELAY = 20 // seconds - first sync after this much listening time
+const SUBSEQUENT_SYNC_INTERVAL = 10 // seconds - subsequent syncs every this many seconds
 
 // Generate or retrieve a persistent device ID
 function getDeviceId(): string {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { trapTabKey } from '@/lib/focusTrap'
 import { mergeClasses } from '@/lib/merge-classes'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -207,17 +208,7 @@ export const Pill = <T,>({
 
   // Tab trap for edit mode
   const handlePillKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Tab') {
-      e.preventDefault()
-
-      // Get all focusable elements in the edit mode
-      const focusableElements = [editInputRef.current, cancelButtonRef.current, saveButtonRef.current].filter(Boolean) as HTMLElement[]
-
-      const currentIndex = focusableElements.indexOf(document.activeElement as HTMLElement)
-      const nextIndex = e.shiftKey ? (currentIndex - 1 + focusableElements.length) % focusableElements.length : (currentIndex + 1) % focusableElements.length
-
-      focusableElements[nextIndex]?.focus()
-    }
+    trapTabKey(e, pillContainerRef.current)
   }
 
   // If editing, show the input field
