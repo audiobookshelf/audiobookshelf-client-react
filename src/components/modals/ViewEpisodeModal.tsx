@@ -7,6 +7,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { formatDuration } from '@/lib/formatDuration'
+import { skipNextReleasePop } from '@/lib/historyTrap'
 import { bytesPretty } from '@/lib/string'
 import Link from 'next/link'
 import React, { useCallback, useMemo } from 'react'
@@ -112,7 +113,10 @@ function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
           <Link
             href={podcastHref}
             className="focus-visible:outline-foreground-muted link-underline mb-1 inline-block max-w-full rounded-sm text-base focus-visible:outline-1 focus-visible:outline-offset-2"
-            onClick={onClose}
+            onClick={() => {
+              skipNextReleasePop()
+              onClose()
+            }}
           >
             <span className="block truncate">{podcastTitle}</span>
           </Link>

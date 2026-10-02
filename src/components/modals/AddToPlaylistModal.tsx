@@ -12,6 +12,7 @@ import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCov
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
+import { skipNextReleasePop } from '@/lib/historyTrap'
 import { getAddToPlaylistBatchLabelKey, getSelectionCountMessageKey, type SelectionKind } from '@/lib/selectedMediaItem'
 import type { Playlist, PlaylistItemPayload } from '@/types/api'
 import Link from 'next/link'
@@ -210,7 +211,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
                   const playlistItems = playlist.items ?? []
                   return (
                     <div key={playlist.id} className="hover:bg-dropdown-item-hover relative flex items-center justify-start px-4 py-2">
-                      {included && <div className="bg-success absolute inset-s-0 top-0 z-10 h-full w-1" aria-hidden />}
+                      {included && <div className="bg-success inset-s-0 absolute top-0 z-10 h-full w-1" aria-hidden />}
                       <div className="w-20 max-w-20 shrink-0 text-center">
                         <PlaylistGroupCover items={playlistItems} width={coverWidth} height={coverHeight} />
                       </div>
@@ -218,7 +219,10 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
                         <Link
                           href={`/library/${libraryId}/playlist/${playlist.id}`}
                           className="link-underline cursor-pointer truncate ps-2 pe-2"
-                          onClick={() => onClose()}
+                          onClick={() => {
+                            skipNextReleasePop()
+                            onClose()
+                          }}
                         >
                           {playlist.name}
                         </Link>
@@ -279,7 +283,13 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
                     className="w-full"
                   />
                 </div>
-                <Btn type="submit" color="bg-success text-success-foreground" size="small" className="h-10 shrink-0" disabled={controlsDisabled || !newPlaylistName.trim()}>
+                <Btn
+                  type="submit"
+                  color="bg-success text-success-foreground"
+                  size="small"
+                  className="h-10 shrink-0"
+                  disabled={controlsDisabled || !newPlaylistName.trim()}
+                >
                   {t('ButtonCreate')}
                 </Btn>
               </div>

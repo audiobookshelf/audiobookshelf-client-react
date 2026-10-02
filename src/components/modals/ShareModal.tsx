@@ -13,6 +13,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
 import { withBasePath } from '@/lib/basePath'
+import { getRandomInts } from '@/lib/cryptoUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import type { MediaItemShare } from '@/types/api'
 import { useLocale } from 'next-intl'
@@ -28,13 +29,13 @@ interface ShareModalProps {
   onShareChange?: (share: MediaItemShare | null) => void
 }
 
+const SLUG_ALPHABET = 'abcdefghijklmnopqrstuvwxyz0123456789'
+
+/** Share slugs are unauthenticated capability URLs, so they must be unpredictable. */
 function getRandomSlug(length = 10) {
-  const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789'
-  let result = ''
-  for (let i = 0; i < length; i++) {
-    result += alphabet[Math.floor(Math.random() * alphabet.length)]
-  }
-  return result
+  return getRandomInts(length, SLUG_ALPHABET.length)
+    .map((index) => SLUG_ALPHABET[index])
+    .join('')
 }
 
 function toUnixMs(value: number | string | null | undefined): number | null {

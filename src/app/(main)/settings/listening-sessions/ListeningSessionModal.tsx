@@ -9,6 +9,7 @@ import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDatetime, secondsToTimestamp } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
+import { skipNextReleasePop } from '@/lib/historyTrap'
 import { PlaybackSession, PlayMethod } from '@/types/api'
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
@@ -119,7 +120,12 @@ export default function ListeningSessionModal({ isOpen, session, onClose, onSess
                   <Link
                     href={`/library/${currentSession.libraryId}/item/${currentSession.libraryItemId}`}
                     className="text-foreground link-underline text-base"
-                    onClick={onClose}
+                    onClick={() => {
+                      // Closing the modal pops a same-URL history entry. That pop lands after
+                      // the client navigation and sends the browser back here.
+                      skipNextReleasePop()
+                      onClose()
+                    }}
                   >
                     {currentSession.displayTitle}
                   </Link>
