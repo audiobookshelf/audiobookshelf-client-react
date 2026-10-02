@@ -1,6 +1,6 @@
 'use client'
 
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createEditor, Descendant, Editor, Element, Node, Path, Point, Range, Text, Transforms } from 'slate'
 import { HistoryEditor, withHistory } from 'slate-history'
 import { ReactEditor, Slate, withReact } from 'slate-react'
@@ -149,6 +149,26 @@ interface SlateEditorProps {
 const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
   const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
   const [isClient, setIsClient] = useState(false)
+  /** True while source HTML is being applied. Slate flushes onChange in a microtask after the batch. */
+  const applyingSourceRef = useRef(false)
+  /** Editor HTML produced by loading srcContent. Later flushes of that same HTML are not user edits. */
+  const loadedCanonicalHtmlRef = useRef<string | null>(null)
+
+  const replaceFromSource = useCallback(
+    (next: Descendant[]) => {
+      applyingSourceRef.current = true
+      loadedCanonicalHtmlRef.current = null
+      try {
+        replaceContentSilently(editor, next)
+      } finally {
+        // Slate 0.118 defers onChange to a microtask queued during apply, so this runs after that flush.
+        queueMicrotask(() => {
+          applyingSourceRef.current = false
+        })
+      }
+    },
+    [editor]
+  )
 
   // Helper to check if editor is in a valid state
   const isEditorValid = useCallback(() => {
@@ -175,12 +195,12 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
     // Hot reload recovery: ensure editor has valid content
     if (editor && (!editor.children || editor.children.length === 0)) {
       try {
-        replaceContentSilently(editor, initialValue)
+        replaceFromSource(initialValue)
       } catch (error) {
         console.warn('SlateEditor: Error during hot reload recovery:', error)
       }
     }
-  }, [editor])
+  }, [editor, replaceFromSource])
 
   // Update editor content after hydration if we have content to parse
   useEffect(() => {
@@ -193,14 +213,14 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
         const htmlContent = hasHtmlTags ? srcContent : `<p>${srcContent}</p>`
         const document = new DOMParser().parseFromString(htmlContent, 'text/html')
         const parsedValue = (deserialize(document.body) as Descendant[]) || initialValue
-        replaceContentSilently(editor, parsedValue)
+        replaceFromSource(parsedValue)
       } catch (error) {
         console.warn('Error parsing content:', error)
         // Fallback to initial value if parsing fails
-        replaceContentSilently(editor, initialValue)
+        replaceFromSource(initialValue)
       }
     }
-  }, [isClient, srcContent, editor])
+  }, [isClient, srcContent, replaceFromSource])
 
   // Refocus editor whenever the modal closes (this will be handled by the context now)
   useEffect(() => {
@@ -300,7 +320,18 @@ const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disab
           // If the current HTML is semantically equivalent to the original source,
           // pass back the ORIGINAL source string.
           // This allows parent components to use simple strict equality checks.
-          if (currentHtml === normalizedSrcHtml) {
+          const matchesNormalized = currentHtml === normalizedSrcHtml
+          // Source load is normalized by Slate (adjacent identical marks are merged) before this
+          // callback runs, so currentHtml can differ from both srcContent and normalizeToHtml().
+          // That rewrite is not a user edit. Remember the loaded HTML so a later flush of the
+          // same document still reports the original source.
+          if (applyingSourceRef.current) {
+            applyingSourceRef.current = false
+            loadedCanonicalHtmlRef.current = currentHtml
+            return
+          }
+          const matchesLoadedCanonical = loadedCanonicalHtmlRef.current !== null && currentHtml === loadedCanonicalHtmlRef.current
+          if (matchesNormalized || matchesLoadedCanonical) {
             onUpdate(srcContent || '')
           } else {
             onUpdate(currentHtml)
