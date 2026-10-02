@@ -9,7 +9,7 @@ export function applyAuthSettingsDefaults(settings: AuthenticationSettings, rout
 }
 
 function isValidRedirectURI(uri: string): boolean {
-  const pattern = /^\w+:\/\/[\w.-]+(\/[\w./-]*)*$/i
+  const pattern = /^\w+:\/\/[\w.-]+(\/[\w.-]*)*$/i
   return pattern.test(uri)
 }
 
