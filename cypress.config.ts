@@ -2,6 +2,8 @@ import { defineConfig } from 'cypress'
 import path from 'path'
 
 export default defineConfig({
+  // Cypress.env() hydrates every env value into the browser. This suite does not use it.
+  allowCypressEnv: false,
   component: {
     specPattern: 'cypress/tests/**/*.cy.{js,jsx,ts,tsx}',
     supportFile: 'cypress/support/component.tsx',
