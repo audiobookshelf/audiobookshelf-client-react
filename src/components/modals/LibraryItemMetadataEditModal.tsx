@@ -133,7 +133,7 @@ function LibraryItemMetadataEditModalBody({
       ) : selectedSection === 'chapters' ? (
         <ChaptersEditModalBody closeRequestRef={chaptersCloseRef} onPendingChange={onChaptersPendingChange} />
       ) : (
-        <MatchModalBody fillParent closeRequestRef={matchCloseRef} />
+        <MatchModalBody closeRequestRef={matchCloseRef} />
       )}
     </SectionedModalBody>
   )

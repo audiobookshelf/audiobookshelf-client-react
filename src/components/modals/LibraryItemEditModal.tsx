@@ -393,7 +393,7 @@ export function LibraryItemEditModalContent({
  * Modal for editing library item metadata.
  * Renders BookDetailsEdit for books and PodcastDetailsEdit for podcasts.
  * Uses filter data from LibraryContext for autocomplete options.
- * Pass `navCtx` to load expanded items and enable prev/next like MatchModal.
+ * Pass `navCtx` to load expanded items and enable prev/next.
  */
 export default function LibraryItemEditModal(props: LibraryItemEditModalProps) {
   const { isOpen, onClose } = props
