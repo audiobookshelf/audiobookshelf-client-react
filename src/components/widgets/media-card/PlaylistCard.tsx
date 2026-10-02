@@ -11,6 +11,7 @@ import PlaylistGroupCover from '@/components/widgets/media-card/PlaylistGroupCov
 import { usePlaylistCardActions } from '@/components/widgets/media-card/usePlaylistCardActions'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useUser } from '@/contexts/UserContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Playlist } from '@/types/api'
@@ -44,6 +45,7 @@ function PlaylistCard(props: PlaylistCardProps) {
   const cardId = useId()
   const t = useTypeSafeTranslations()
 
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -66,7 +68,8 @@ function PlaylistCard(props: PlaylistCardProps) {
 
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
 
-  const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !false // not processing locally
+  const showHover = primaryInputCanHover && isHovering
+  const showOverlay = (showHover || isSelectionMode || isMoreMenuOpen) && !false // not processing locally
 
   const handleCardClick = useCallback(() => {
     router.push(`/library/${playlist.libraryId}/playlist/${playlist.id}`)
@@ -131,7 +134,7 @@ function PlaylistCard(props: PlaylistCardProps) {
             {showOverlay && (
               <MediaCardOverlayContainer isSelectionMode={isSelectionMode} selected={selected}>
                 {/* Selection button */}
-                {showSelectedButton && (isSelectionMode || isHovering) && (
+                {showSelectedButton && (isSelectionMode || showHover) && (
                   <MediaOverlayIconBtn
                     cyId="selectButton"
                     position="top-start"

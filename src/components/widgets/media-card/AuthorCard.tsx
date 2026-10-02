@@ -10,6 +10,7 @@ import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useAuthorActions } from '@/hooks/useAuthorActions'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { Author } from '@/types/api'
 import { useRouter } from 'next/navigation'
@@ -39,6 +40,7 @@ function AuthorCard(props: AuthorCardProps) {
 
   const { setBoundModal } = useLibrary()
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const [isHovering, setIsHovering] = useState(false)
 
   const { quickMatchingAuthorIds, handleQuickMatch } = useAuthorActions()
@@ -56,7 +58,7 @@ function AuthorCard(props: AuthorCardProps) {
   const displayName = author.name || '\u00A0'
   const numBooks = author.numBooks || 0
 
-  const showOverlay = (isHovering || isSelectionMode) && !isSearching
+  const showOverlay = ((primaryInputCanHover && isHovering) || isSelectionMode) && !isSearching
 
   const handleCardClick = useCallback(() => {
     if (!isSearching) {

@@ -7,6 +7,7 @@ import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIco
 import SeriesGroupCover from '@/components/widgets/media-card/SeriesGroupCover'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
@@ -67,7 +68,9 @@ function SeriesCard(props: SeriesCardProps) {
   const cardId = useId()
   const t = useTypeSafeTranslations()
 
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const [isHovering, setIsHovering] = useState(false)
+  const showHover = primaryInputCanHover && isHovering
 
   // Use prop to override context value if provided
   const effectiveSizeMultiplier = sizeMultiplier ?? contextSizeMultiplier
@@ -224,13 +227,13 @@ function SeriesCard(props: SeriesCardProps) {
             cyId="hoveringDisplayTitle"
             className={mergeClasses(
               'z-20 flex items-center justify-center bg-black/60 text-center transition-opacity',
-              isHovering || isSelectionMode ? 'opacity-100' : 'opacity-0'
+              showHover || isSelectionMode ? 'opacity-100' : 'opacity-0'
             )}
           >
-            <div style={{ padding: '1em' }}>{hasValidCovers && isHovering && <p style={{ fontSize: '1.2em' }}>{displayTitle}</p>}</div>
+            <div style={{ padding: '1em' }}>{hasValidCovers && showHover && <p style={{ fontSize: '1.2em' }}>{displayTitle}</p>}</div>
 
             {/* Selection button */}
-            {showSelectedButton && (isSelectionMode || isHovering) && (
+            {showSelectedButton && (isSelectionMode || showHover) && (
               <MediaOverlayIconBtn
                 cyId="selectButton"
                 position="top-start"
@@ -244,7 +247,7 @@ function SeriesCard(props: SeriesCardProps) {
           </MediaCardOverlayContainer>
 
           {/* RSS feed indicator */}
-          {series.rssFeed && !isSelectionMode && !isHovering && (
+          {series.rssFeed && !isSelectionMode && !showHover && (
             <div
               cy-id="rssFeed"
               className={mergeClasses('absolute start-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}

@@ -12,6 +12,7 @@ import { useCollectionCardActions } from '@/components/widgets/media-card/useCol
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { Collection } from '@/types/api'
@@ -57,6 +58,7 @@ function CollectionCard(props: CollectionCardProps) {
   const cardId = useId()
   const t = useTypeSafeTranslations()
 
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const [isHovering, setIsHovering] = useState(false)
   const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false)
   const [editModalOpen, setEditModalOpen] = useState(false)
@@ -80,7 +82,8 @@ function CollectionCard(props: CollectionCardProps) {
 
   const isAlternativeBookshelfView = bookshelfView === BookshelfView.DETAIL
 
-  const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen) && !false // not processing locally
+  const showHover = primaryInputCanHover && isHovering
+  const showOverlay = (showHover || isSelectionMode || isMoreMenuOpen) && !false // not processing locally
 
   const handleCardClick = useCallback(() => {
     router.push(`/library/${collection.libraryId}/collection/${collection.id}`)
@@ -153,7 +156,7 @@ function CollectionCard(props: CollectionCardProps) {
             {showOverlay && (
               <MediaCardOverlayContainer isSelectionMode={isSelectionMode} selected={selected}>
                 {/* Selection button */}
-                {showSelectedButton && (isSelectionMode || isHovering) && (
+                {showSelectedButton && (isSelectionMode || showHover) && (
                   <MediaOverlayIconBtn
                     cyId="selectButton"
                     position="top-start"
@@ -199,7 +202,7 @@ function CollectionCard(props: CollectionCardProps) {
             )}
 
             {/* RSS feed indicator */}
-            {rssFeed && !isSelectionMode && !isHovering && (
+            {rssFeed && !isSelectionMode && !showHover && (
               <div
                 cy-id="rssFeed"
                 className={mergeClasses('absolute start-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}

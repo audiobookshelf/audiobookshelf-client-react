@@ -7,6 +7,7 @@ import MediaCardMoreMenu, { MediaCardMoreMenuItem } from '@/components/widgets/m
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { isDragOnlyOverlay, useSortableBookshelfOverlay, type SortableBookshelfOverlayMode } from '@/contexts/SortableBookshelfOverlayContext'
 import { useUser } from '@/contexts/UserContext'
+import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import type { MediaItemShare, RssFeed } from '@/types/api'
@@ -104,12 +105,14 @@ export default function MediaCardOverlay({
   overlayModeOverride
 }: MediaCardOverlayProps) {
   const { userCanUpdate } = useUser()
+  const primaryInputCanHover = usePrimaryInputCanHover()
   const sortableBookshelfOverlay = useSortableBookshelfOverlay()
   const dragOnly = isDragOnlyOverlay(overlayModeOverride ?? sortableBookshelfOverlay?.overlayMode)
 
-  const showOverlay = (isHovering || isSelectionMode || isMoreMenuOpen || dragOnly) && !processing
+  const hoverOverlay = primaryInputCanHover && isHovering
+  const showOverlay = (hoverOverlay || isSelectionMode || isMoreMenuOpen || dragOnly) && !processing
 
-  const effectiveHovering = isHovering || dragOnly
+  const effectiveHovering = hoverOverlay || dragOnly
 
   const t = useTypeSafeTranslations()
 
