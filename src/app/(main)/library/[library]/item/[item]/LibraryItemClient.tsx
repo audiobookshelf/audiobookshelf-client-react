@@ -15,6 +15,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
+import { useThrottledLatestSnapshot } from '@/hooks/useThrottledLatestSnapshot'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
@@ -80,9 +81,14 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     setMetadataEditSection(null)
   }
 
-  const handleItemUpdated = (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
-    setLibraryItem((prev) => mergeLibraryItemUpdate(prev, updatedItem) as BookLibraryItem | PodcastLibraryItem)
-  }
+  const applyLibraryItemUpdate = useCallback((updatedItem: BookLibraryItem | PodcastLibraryItem) => {
+    setLibraryItem((prev) => {
+      if (prev.id !== updatedItem.id) return prev
+      return mergeLibraryItemUpdate(prev, updatedItem) as BookLibraryItem | PodcastLibraryItem
+    })
+  }, [])
+
+  const handleItemUpdated = useThrottledLatestSnapshot(initialLibraryItem.id, applyLibraryItemUpdate)
 
   const { rssFeed, episodesDownloading, episodeDownloadsQueued } = useItemPageSocket({
     libraryItemId: libraryItem.id,
