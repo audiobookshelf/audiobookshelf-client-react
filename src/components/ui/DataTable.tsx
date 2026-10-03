@@ -302,7 +302,7 @@ export default function DataTable<T>({
             <Checkbox
               value={isRowSelected(row, index)}
               size="small"
-              checkboxBgClass="bg-bg"
+
               ariaLabel={'Select row'}
               onChange={(nextSelected) => selection.onToggleRow(row, index, nextSelected)}
             />
@@ -380,7 +380,7 @@ export default function DataTable<T>({
             value={isAllRowsSelected}
             partial={isPartiallySelected}
             size="small"
-            checkboxBgClass="bg-bg"
+
             ariaLabel={'Select all rows'}
             onChange={(selected) => selection.onToggleAllRows(selected, data)}
           />
@@ -418,7 +418,7 @@ export default function DataTable<T>({
                       value={isAllRowsSelected}
                       partial={isPartiallySelected}
                       size="small"
-                      checkboxBgClass="bg-bg"
+
                       ariaLabel={'Select all rows'}
                       onChange={(selected) => selection.onToggleAllRows(selected, data)}
                     />

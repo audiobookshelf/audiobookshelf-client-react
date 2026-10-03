@@ -9,8 +9,6 @@ interface CheckboxProps {
   value?: boolean
   label?: string
   size?: 'small' | 'medium' | 'large'
-  checkboxBgClass?: string
-  borderColorClass?: string
   checkColorClass?: string
   labelClass?: string
   disabled?: boolean
@@ -24,8 +22,6 @@ export default function Checkbox({
   value = false,
   label,
   size = 'medium',
-  checkboxBgClass = 'bg-bg',
-  borderColorClass = 'border-foreground-subdued',
   checkColorClass = 'text-green-500',
   labelClass = '',
   disabled = false,
@@ -42,9 +38,8 @@ export default function Checkbox({
 
   const sizeClass = size === 'small' ? 'w-4 h-4' : size === 'medium' ? 'w-5 h-5' : 'w-6 h-6'
   const checkboxWrapperClassName = mergeClasses(
-    'rounded-sm flex shrink-0 justify-center items-center border',
-    checkboxBgClass,
-    disabled ? 'border-checkbox-bg-disabled' : borderColorClass,
+    'flex shrink-0 items-center justify-center rounded-sm border',
+    disabled ? 'border-checkbox-bg-disabled bg-checkbox-bg-disabled' : 'border-border bg-primary',
     sizeClass
   )
 

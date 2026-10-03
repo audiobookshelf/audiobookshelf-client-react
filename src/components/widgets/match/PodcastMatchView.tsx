@@ -282,8 +282,6 @@ export default function PodcastMatchView({
               onChange={createFieldValueHandler('explicit')}
               label={t('LabelExplicit')}
               currentValue={mediaMetadata.explicit}
-              checkboxBgClass="bg-primary"
-              borderColorClass="border-border"
               labelClass="ps-2 text-base font-semibold"
             />
           )}
