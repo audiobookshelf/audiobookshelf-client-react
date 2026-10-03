@@ -20,7 +20,6 @@ export default function CustomMetadataProviderDetailsModal({ provider, onClose }
     <Modal isOpen onClose={onClose} outerContent={<ModalOuterContent>{t('HeaderDetails')}</ModalOuterContent>}>
       <div className="flex max-h-[90vh] flex-col gap-4 overflow-y-auto p-4 sm:p-6">
         <TextInput label={t('LabelName')} value={provider.name} readOnly />
-        <TextInput label={t('LabelMediaType')} value={provider.mediaType === 'podcast' ? t('LabelPodcast') : t('LabelBook')} readOnly />
         <TextInput
           label="URL" // i18n-ignore
           value={provider.url}

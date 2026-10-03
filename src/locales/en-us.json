@@ -339,7 +339,6 @@
   "LabelBackupsNumberToKeepHelp": "Only 1 backup will be removed at a time so if you already have more backups than this you should manually remove them.",
   "LabelBitrate": "Bitrate",
   "LabelBonus": "Bonus",
-  "LabelBook": "Book",
   "LabelBooks": "Books",
   "LabelButtonText": "Button Text",
   "LabelByAuthor": "by {0}",
