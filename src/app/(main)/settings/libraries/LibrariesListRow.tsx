@@ -79,19 +79,6 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
 
   return (
     <div className="hover:bg-primary/20 text-foreground/50 hover:text-foreground flex items-center gap-4 px-4 py-1">
-      {isLibraryTaskRunning ? <LoadingSpinner /> : <LibraryIcon icon={item.icon} />}
-      <Link className="text-foreground link-underline py-2" href={`/library/${item.id}`}>
-        {item.name}
-      </Link>
-      <div className="grow" />
-      {!isLibraryTaskRunning && (
-        <>
-          <Btn color="bg-bg" className="h-auto px-3 text-xs" size="small" onClick={handleScanLibrary} disabled={isLibraryTaskRunning}>
-            {t('ButtonScan')}
-          </Btn>
-          <ContextMenuDropdown usePortal borderless size="small" items={contextMenuItems} onAction={handleContextMenuActions} />
-        </>
-      )}
       <div
         ref={sortableDragHandleProps?.setActivatorNodeRef}
         className={mergeClasses('drag-handle flex shrink-0 items-center justify-center', DRAG_HANDLE_GRAB_CURSOR, DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH)}
@@ -100,6 +87,21 @@ export default function LibrariesListRow({ item, handleDeleteLibrary, handleEdit
       >
         <span className="material-symbols text-foreground/50 hover:text-foreground text-xl leading-none">drag_handle</span>
       </div>
+      {isLibraryTaskRunning ? <LoadingSpinner /> : <LibraryIcon icon={item.icon} />}
+      <Link className="text-foreground link-underline py-2" href={`/library/${item.id}`}>
+        {item.name}
+      </Link>
+      <div className="grow" />
+      {!isLibraryTaskRunning && (
+        <>
+          <div className="hidden md:block">
+            <Btn color="bg-bg" className="h-auto px-3 text-xs" size="small" onClick={handleScanLibrary} disabled={isLibraryTaskRunning}>
+              {t('ButtonScan')}
+            </Btn>
+          </div>
+          <ContextMenuDropdown usePortal borderless size="small" items={contextMenuItems} onAction={handleContextMenuActions} />
+        </>
+      )}
     </div>
   )
 }

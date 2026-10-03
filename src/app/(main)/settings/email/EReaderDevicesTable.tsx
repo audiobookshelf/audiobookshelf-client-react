@@ -74,18 +74,31 @@ export default function EReaderDevicesTable({ devices, users, onDevicesChange, o
   const columns: DataTableColumn<EReaderDevice>[] = [
     {
       label: t('LabelName'),
-      accessor: (device) => <span className="text-sm md:text-base">{device.name}</span>
+      accessor: (device) => (
+        <span className="block max-w-32 truncate text-sm sm:max-w-48 md:text-base" title={device.name}>
+          {device.name}
+        </span>
+      )
     },
     {
       label: t('LabelEmail'),
-      accessor: (device) => <span className="text-sm md:text-base">{device.email}</span>
+      headerClassName: 'w-full sm:w-1/2',
+      cellClassName: 'max-w-0',
+      accessor: (device) => (
+        <span className="block truncate text-sm md:text-base" title={device.email}>
+          {device.email}
+        </span>
+      )
     },
     {
       label: t('LabelAccessibleBy'),
+      hiddenBelow: 'sm',
       accessor: (device) => <span className="text-sm md:text-base">{getAccessibleBy(device)}</span>
     },
     {
       label: '',
+      headerClassName: 'w-0',
+      cellClassName: 'w-0 whitespace-nowrap',
       accessor: (device) => (
         <div className="flex h-10 items-center justify-end gap-1">
           <IconBtn

@@ -99,19 +99,19 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
     {
       label: '',
       accessor: (rssFeed) => (
-        <>
+        <div className="h-12 w-12 shrink-0">
           {rssFeed.coverPath ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={withBasePath(`/feed/${rssFeed.slug}/cover`)} alt={t('LabelCover')} className="h-auto w-full" />
+              <img src={withBasePath(`/feed/${rssFeed.slug}/cover`)} alt={t('LabelCover')} className="block h-full w-full object-cover" />
             </>
           ) : (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={withBasePath('/images/Logo.png')} alt={t('LabelLogo')} className="h-auto w-full" />
+              <img src={withBasePath('/images/Logo.png')} alt={t('LabelLogo')} className="block h-full w-full object-contain" />
             </>
           )}
-        </>
+        </div>
       ),
       headerClassName: 'min-w-16 w-16',
       cellClassName: 'py-1 min-w-16 w-16'
@@ -119,12 +119,12 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
     {
       label: t('LabelTitle'),
       accessor: (rssFeed) => (
-        <div className="max-w-40 sm:max-w-64">
-          <p className="truncate text-xs" title={rssFeed.meta.title}>
-            {rssFeed.meta.title}
-          </p>
-        </div>
-      )
+        <p className="line-clamp-2 text-xs break-words" title={rssFeed.meta.title}>
+          {rssFeed.meta.title}
+        </p>
+      ),
+      headerClassName: 'w-full',
+      cellClassName: 'max-w-0'
     },
     {
       label: t('LabelSlug'),
@@ -140,7 +140,8 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
     {
       label: t('LabelType'),
       accessor: (rssFeed) => getEntityTypeLabel(rssFeed.entityType),
-      cellClassName: 'text-xs'
+      cellClassName: 'text-xs',
+      hiddenBelow: 'sm'
     },
     {
       label: t('HeaderEpisodes'),
@@ -187,7 +188,9 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
             close
           </IconBtn>
         </div>
-      )
+      ),
+      headerClassName: 'w-0',
+      cellClassName: 'w-0 whitespace-nowrap'
     }
   ]
 

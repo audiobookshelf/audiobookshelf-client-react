@@ -4,6 +4,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiKey, User } from '@/types/api'
 import { useCallback, useState } from 'react'
 import SettingsContent from '../SettingsContent'
+import { SETTINGS_MORE_INFO_URLS } from '../settingsNavItems'
 import { createApiKey, updateApiKey } from './actions'
 import ApiKeysTable from './ApiKeysTable'
 import EditApiKeyModal, { ApiKeyFormData } from './EditApiKeyModal'
@@ -65,7 +66,7 @@ export default function ApiKeysClient({ apiKeys, users }: ApiKeysClientProps) {
   return (
     <SettingsContent
       title={t('HeaderApiKeys')}
-      moreInfoUrl="https://www.audiobookshelf.org/guides/api-keys"
+      moreInfoUrl={SETTINGS_MORE_INFO_URLS.apiKeys}
       addButton={{
         label: t('ButtonAddApiKey'),
         onClick: handleAddClick

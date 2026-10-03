@@ -136,20 +136,20 @@ export default function RssFeedOpenCloseModal({ isOpen, onClose, entity, viewMod
               <TextInput value={fullFeedUrl} readOnly showCopy />
               {meta && (
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center">
                     <span className="text-foreground-subdued w-48 shrink-0 text-xs uppercase">{t('LabelPreventIndexingShort')}</span>
                     <span className="text-foreground">{meta.preventIndexing ? 'Yes' : 'No'}</span>
                   </div>
                   {hasOwnerName && (
-                    <div className="flex items-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center">
                       <span className="text-foreground-subdued w-48 shrink-0 text-xs uppercase">{t('LabelRSSFeedCustomOwnerName')}</span>
-                      <span className="text-foreground">{meta.ownerName}</span>
+                      <span className="text-foreground min-w-0 wrap-anywhere">{meta.ownerName}</span>
                     </div>
                   )}
                   {hasOwnerEmail && (
-                    <div className="flex items-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center">
                       <span className="text-foreground-subdued w-48 shrink-0 text-xs uppercase">{t('LabelRSSFeedCustomOwnerEmail')}</span>
-                      <span className="text-foreground">{meta.ownerEmail}</span>
+                      <span className="text-foreground min-w-0 wrap-anywhere">{meta.ownerEmail}</span>
                     </div>
                   )}
                 </div>

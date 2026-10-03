@@ -131,21 +131,23 @@ function DataTablePagination({
   const pageIndicator = pageLabel || `Page ${currentPage} of ${totalPages}`
 
   return (
-    <div className="flex items-center justify-end gap-4 px-4 py-3">
+    <div className="flex flex-col items-end justify-end gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex items-center gap-2">
         <span className="text-foreground text-sm">{rowsPerPageLabel}</span>
         <div className="w-20">
           <Dropdown value={rowsPerPage} items={dropdownItems} onChange={(value) => onRowsPerPageChange(value as number)} size="small" />
         </div>
       </div>
-      <span className="text-foreground text-sm">{pageIndicator}</span>
-      <div className="flex items-center gap-1">
-        <IconBtn ariaLabel="Previous page" size="small" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
-          chevron_left
-        </IconBtn>
-        <IconBtn ariaLabel="Next page" size="small" disabled={currentPage >= totalPages} onClick={() => onPageChange(currentPage + 1)}>
-          chevron_right
-        </IconBtn>
+      <div className="flex items-center gap-4">
+        <span className="text-foreground text-sm">{pageIndicator}</span>
+        <div className="flex items-center gap-1">
+          <IconBtn ariaLabel="Previous page" size="small" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
+            chevron_left
+          </IconBtn>
+          <IconBtn ariaLabel="Next page" size="small" disabled={currentPage >= totalPages} onClick={() => onPageChange(currentPage + 1)}>
+            chevron_right
+          </IconBtn>
+        </div>
       </div>
     </div>
   )
