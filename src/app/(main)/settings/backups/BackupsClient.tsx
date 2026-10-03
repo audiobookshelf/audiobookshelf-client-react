@@ -5,6 +5,7 @@ import FileInput from '@/components/ui/FileInput'
 import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import TextInput from '@/components/ui/TextInput'
+import HelpTooltipIcon from '@/components/ui/HelpTooltipIcon'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import CronExpressionPreview from '@/components/widgets/CronExpressionPreview'
@@ -282,11 +283,7 @@ export default function BackupsClient({ backupResponse, appliedBackupToast = fal
               disabled={isPending}
             />
             <label htmlFor="backups-to-keep-input">{t('LabelBackupsNumberToKeep')}</label>
-            <Tooltip text={t('LabelBackupsNumberToKeepHelp')} maxWidth={300}>
-              <span className="material-symbols text-lg" aria-hidden="true">
-                info
-              </span>
-            </Tooltip>
+            <HelpTooltipIcon text={t('LabelBackupsNumberToKeepHelp')} />
           </div>
           <div className="flex items-center gap-2">
             <TextInput
@@ -300,11 +297,7 @@ export default function BackupsClient({ backupResponse, appliedBackupToast = fal
               disabled={isPending}
             />
             <label htmlFor="max-backup-size-input">{t('LabelBackupsMaxBackupSize')}</label>
-            <Tooltip text={t('LabelBackupsMaxBackupSizeHelp')} maxWidth={300}>
-              <span className="material-symbols text-lg" aria-hidden="true">
-                info
-              </span>
-            </Tooltip>
+            <HelpTooltipIcon text={t('LabelBackupsMaxBackupSizeHelp')} />
           </div>
         </div>
 
@@ -397,16 +390,23 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
     () => [
       {
         label: t('LabelFile'),
-        accessor: (backup) => `/backups/${backup.filename}`
+        accessor: (backup) => (
+          <span className="block truncate" title={`/backups/${backup.filename}`}>
+            /backups/{backup.filename}
+          </span>
+        ),
+        cellClassName: 'w-full max-w-0'
       },
       {
         label: t('LabelDatetime'),
-        accessor: (backup) => formatJsDatetime(new Date(backup.createdAt), dateFormat, timeFormat)
+        accessor: (backup) => formatJsDatetime(new Date(backup.createdAt), dateFormat, timeFormat),
+        cellClassName: 'whitespace-nowrap',
+        hiddenBelow: 'sm'
       },
       {
         label: t('LabelSize'),
         accessor: (backup) => bytesPretty(backup.fileSize),
-        cellClassName: 'font-mono',
+        cellClassName: 'font-mono whitespace-nowrap',
         hiddenBelow: 'sm'
       },
       {
@@ -414,9 +414,14 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
         accessor: (backup) => (
           <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
             {backupIsRestorable(backup) ? (
-              <Btn size="small" onClick={() => onRestore?.(backup)}>
-                {t('ButtonRestore')}
-              </Btn>
+              <>
+                <Btn size="small" className="hidden sm:inline-flex" onClick={() => onRestore?.(backup)}>
+                  {t('ButtonRestore')}
+                </Btn>
+                <IconBtn ariaLabel={t('ButtonRestore')} borderless size="small" className="sm:hidden" onClick={() => onRestore?.(backup)}>
+                  settings_backup_restore
+                </IconBtn>
+              </>
             ) : (
               <Tooltip text={LEGACY_BACKUP_UNSUPPORTED_HINT} position="bottom" maxWidth={320}>
                 <span className="material-symbols text-error text-2xl" role="img" aria-label={LEGACY_BACKUP_UNSUPPORTED_HINT}>
@@ -439,7 +444,7 @@ function BackupsTable({ backups, dateFormat, timeFormat, onRestore, onDownload, 
             </IconBtn>
           </div>
         ),
-        headerClassName: 'w-48',
+        headerClassName: 'sm:w-48',
         cellClassName: 'text-right'
       }
     ],

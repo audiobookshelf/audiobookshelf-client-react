@@ -9,6 +9,7 @@ import { User, UserAccountPayload } from '@/types/api'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState, useTransition } from 'react'
 import SettingsContent from '../SettingsContent'
+import { SETTINGS_MORE_INFO_URLS } from '../settingsNavItems'
 import UserAccountModal, { UserFormData } from './UserAccountModal'
 import UsersTable from './UsersTable'
 import { createUser, unlinkUserOpenId, updateUser } from './actions'
@@ -153,7 +154,7 @@ export default function UsersClient({ users }: UsersClientProps) {
     <>
       <SettingsContent
         title={t('HeaderUsers')}
-        moreInfoUrl="https://www.audiobookshelf.org/guides/users"
+        moreInfoUrl={SETTINGS_MORE_INFO_URLS.users}
         addButton={{
           label: t('ButtonAddUser'),
           onClick: handleAddUser

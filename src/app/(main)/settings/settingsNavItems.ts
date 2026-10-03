@@ -15,20 +15,31 @@ export interface SettingsNavItemDef {
     | 'HeaderRSSFeeds'
     | 'HeaderAuthentication'
   href: string
+  moreInfoUrl?: string
+}
+
+export const SETTINGS_MORE_INFO_URLS = {
+  libraries: 'https://www.audiobookshelf.org/guides/library_creation',
+  users: 'https://www.audiobookshelf.org/guides/users',
+  apiKeys: 'https://www.audiobookshelf.org/guides/api-keys',
+  logs: 'https://www.audiobookshelf.org/guides/server_logs',
+  email: 'https://www.audiobookshelf.org/guides/send_to_ereader',
+  rssFeeds: 'https://www.audiobookshelf.org/guides/rss_feeds',
+  customMetadataProviders: 'https://www.audiobookshelf.org/guides/custom-metadata-providers'
 }
 
 export const SETTINGS_NAV_ITEMS: SettingsNavItemDef[] = [
   { messageKey: 'HeaderSettingsGeneral', href: '/settings/general' },
-  { messageKey: 'HeaderLibraries', href: '/settings/libraries' },
-  { messageKey: 'HeaderUsers', href: '/settings/users' },
-  { messageKey: 'HeaderApiKeys', href: '/settings/api-keys' },
+  { messageKey: 'HeaderLibraries', href: '/settings/libraries', moreInfoUrl: SETTINGS_MORE_INFO_URLS.libraries },
+  { messageKey: 'HeaderUsers', href: '/settings/users', moreInfoUrl: SETTINGS_MORE_INFO_URLS.users },
+  { messageKey: 'HeaderApiKeys', href: '/settings/api-keys', moreInfoUrl: SETTINGS_MORE_INFO_URLS.apiKeys },
   { messageKey: 'HeaderListeningSessions', href: '/settings/listening-sessions' },
   { messageKey: 'HeaderBackups', href: '/settings/backups' },
-  { messageKey: 'HeaderLogs', href: '/settings/logs' },
+  { messageKey: 'HeaderLogs', href: '/settings/logs', moreInfoUrl: SETTINGS_MORE_INFO_URLS.logs },
   { messageKey: 'HeaderNotifications', href: '/settings/notifications' },
-  { messageKey: 'HeaderEmail', href: '/settings/email' },
+  { messageKey: 'HeaderEmail', href: '/settings/email', moreInfoUrl: SETTINGS_MORE_INFO_URLS.email },
   { messageKey: 'HeaderItemMetadataUtils', href: '/settings/item-metadata-utils' },
-  { messageKey: 'HeaderRSSFeeds', href: '/settings/rss-feeds' },
+  { messageKey: 'HeaderRSSFeeds', href: '/settings/rss-feeds', moreInfoUrl: SETTINGS_MORE_INFO_URLS.rssFeeds },
   { messageKey: 'HeaderAuthentication', href: '/settings/authentication' }
 ]
 
@@ -40,6 +51,7 @@ interface SettingsDrillDownDef {
   pathPrefix: string
   backHref: string
   titleMessageKey: 'HeaderUser' | 'HeaderListeningSessions' | 'HeaderManageTags' | 'HeaderManageGenres' | 'HeaderCustomMetadataProviders'
+  moreInfoUrl?: string
 }
 
 const SETTINGS_DRILL_DOWN_ROUTES: SettingsDrillDownDef[] = [
@@ -50,7 +62,8 @@ const SETTINGS_DRILL_DOWN_ROUTES: SettingsDrillDownDef[] = [
   {
     pathPrefix: '/settings/item-metadata-utils/custom-metadata-providers',
     backHref: '/settings/item-metadata-utils',
-    titleMessageKey: 'HeaderCustomMetadataProviders'
+    titleMessageKey: 'HeaderCustomMetadataProviders',
+    moreInfoUrl: SETTINGS_MORE_INFO_URLS.customMetadataProviders
   }
 ]
 
@@ -81,6 +94,7 @@ function getDrillDownBackHref(pathname: string, drillDown: SettingsDrillDownDef)
 export interface SettingsAppBarMeta {
   backHref: string
   title: string
+  moreInfoUrl?: string
 }
 
 export function getSettingsBackHref(lastNonSettingsPath: string | null, lastCurrentLibraryId: string | null, userDefaultLibraryId: string | undefined): string {
@@ -119,7 +133,8 @@ export function getSettingsAppBarMeta(
     if (isDrillDownRoute) {
       return {
         backHref: getDrillDownBackHref(pathname, drillDown),
-        title: t(drillDown.titleMessageKey)
+        title: t(drillDown.titleMessageKey),
+        moreInfoUrl: drillDown.moreInfoUrl
       }
     }
   }
@@ -128,7 +143,8 @@ export function getSettingsAppBarMeta(
   if (navItem) {
     return {
       backHref: SETTINGS_HUB_PATH,
-      title: t(navItem.messageKey)
+      title: t(navItem.messageKey),
+      moreInfoUrl: navItem.moreInfoUrl
     }
   }
 

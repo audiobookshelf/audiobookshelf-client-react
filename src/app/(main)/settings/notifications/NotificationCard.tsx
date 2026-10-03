@@ -85,61 +85,63 @@ export default function NotificationCard({ notification, onSettingsUpdated, onEd
   return (
     <>
       <div className={mergeClasses('border-border my-2 w-full rounded-xl border p-4', notification.enabled ? 'bg-primary/25' : 'bg-error/5')}>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           <p className="pe-4 text-base font-semibold">{notification.eventName}</p>
-          <div className="grow" />
+          <div className="hidden grow sm:block" />
 
-          {isOnTestEvent && notification.enabled ? (
-            <>
-              <Btn
-                size="small"
-                loading={testingAction === 'fireSuccess'}
-                disabled={isBusy}
-                onClick={() => runTest('fireSuccess', () => triggerOnTestEvent(false))}
-              >
-                {t('ButtonFireOnTest')}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {isOnTestEvent && notification.enabled ? (
+              <>
+                <Btn
+                  size="small"
+                  loading={testingAction === 'fireSuccess'}
+                  disabled={isBusy}
+                  onClick={() => runTest('fireSuccess', () => triggerOnTestEvent(false))}
+                >
+                  {t('ButtonTest')}
+                </Btn>
+                <Btn
+                  size="small"
+                  color="bg-error text-error-foreground"
+                  loading={testingAction === 'fireFail'}
+                  disabled={isBusy}
+                  onClick={() => runTest('fireFail', () => triggerOnTestEvent(true))}
+                >
+                  {t('ButtonFireAndFail')}
+                </Btn>
+              </>
+            ) : notification.enabled ? (
+              <Btn size="small" loading={testingAction === 'test'} disabled={isBusy} onClick={() => setShowTestConfirm(true)}>
+                {t('ButtonTest')}
               </Btn>
-              <Btn
-                size="small"
-                color="bg-error text-error-foreground"
-                loading={testingAction === 'fireFail'}
-                disabled={isBusy}
-                onClick={() => runTest('fireFail', () => triggerOnTestEvent(true))}
-              >
-                {t('ButtonFireAndFail')}
+            ) : (
+              <Btn size="small" loading={testingAction === 'enable'} disabled={isBusy} onClick={handleEnable}>
+                {t('ButtonEnable')}
               </Btn>
-            </>
-          ) : notification.enabled ? (
-            <Btn size="small" loading={testingAction === 'test'} disabled={isBusy} onClick={() => setShowTestConfirm(true)}>
-              {t('ButtonTest')}
-            </Btn>
-          ) : (
-            <Btn size="small" loading={testingAction === 'enable'} disabled={isBusy} onClick={handleEnable}>
-              {t('ButtonEnable')}
-            </Btn>
-          )}
+            )}
 
-          <div className="flex items-center gap-1">
-            <IconBtn
-              ariaLabel={t('ButtonEdit')}
-              borderless
-              size="small"
-              className="text-foreground-muted"
-              disabled={isBusy}
-              onClick={() => onEdit(notification)}
-            >
-              edit
-            </IconBtn>
-            <IconBtn
-              ariaLabel={t('ButtonDelete')}
-              borderless
-              size="small"
-              className="text-foreground-muted hover:not-disabled:text-error"
-              disabled={isBusy}
-              onClick={() => setShowDeleteConfirm(true)}
-            >
-              delete
-            </IconBtn>
+            <div className="flex items-center gap-1">
+              <IconBtn
+                ariaLabel={t('ButtonEdit')}
+                borderless
+                size="small"
+                className="text-foreground-muted"
+                disabled={isBusy}
+                onClick={() => onEdit(notification)}
+              >
+                edit
+              </IconBtn>
+              <IconBtn
+                ariaLabel={t('ButtonDelete')}
+                borderless
+                size="small"
+                className="text-foreground-muted hover:not-disabled:text-error"
+                disabled={isBusy}
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                delete
+              </IconBtn>
+            </div>
           </div>
         </div>
 

@@ -253,7 +253,7 @@ export default function GeneralSettingsClient() {
             tooltip={t('LabelSettingsSortingIgnorePrefixesHelp')}
           />
           {serverSettings?.sortingIgnorePrefix && (
-            <div className="mb-2 ml-14 w-full max-w-72">
+            <div className="mb-2 w-full max-w-82 ps-10">
               <MultiSelect
                 label={t('LabelPrefixesToIgnore')}
                 items={sortingPrefixItems}
