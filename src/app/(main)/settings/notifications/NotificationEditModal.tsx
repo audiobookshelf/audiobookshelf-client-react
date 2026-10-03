@@ -150,14 +150,14 @@ export default function NotificationEditModal({ isOpen, notification, notificati
             allowNew
             showEdit
             onItemAdded={(item) => {
-              if (formState.urls.includes(item.value)) return
-              setFormState((prev) => ({ ...prev, urls: [...prev.urls, item.value] }))
+              if (formState.urls.includes(item.content)) return
+              setFormState((prev) => ({ ...prev, urls: [...prev.urls, item.content] }))
             }}
             onItemRemoved={(item) => setFormState((prev) => ({ ...prev, urls: prev.urls.filter((url) => url !== item.value) }))}
             onItemEdited={(item, index) =>
               setFormState((prev) => {
                 const urls = [...prev.urls]
-                urls[index] = item.value
+                urls[index] = item.content
                 return { ...prev, urls }
               })
             }
