@@ -4,10 +4,12 @@ import IconBtn from '@/components/ui/IconBtn'
 import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useIsMobile } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { CustomMetadataProvider } from '@/types/api'
 import { useMemo, useRef, useState } from 'react'
+import CustomMetadataProviderDetailsModal from './CustomMetadataProviderDetailsModal'
 
 interface CustomMetadataProvidersTableProps {
   providers: CustomMetadataProvider[]
@@ -21,7 +23,7 @@ function MaskedAuthValue({ authHeaderValue }: { authHeaderValue: string | null }
   return (
     <span
       className={mergeClasses(
-        'inline-block rounded px-1 py-[1px] transition-all duration-300',
+        'inline-block max-w-full truncate rounded px-1 py-[1px] align-middle transition-all duration-300',
         'bg-table-header-bg hover:text-foreground text-transparent hover:bg-transparent'
       )}
     >
@@ -33,11 +35,13 @@ function MaskedAuthValue({ authHeaderValue }: { authHeaderValue: string | null }
 export default function CustomMetadataProvidersTable({ providers, processing = false, onDeleteProvider }: CustomMetadataProvidersTableProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
+  const isMobile = useIsMobile()
 
   const deletingProviderRef = useRef<CustomMetadataProvider | null>(null)
 
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [deletingProviderId, setDeletingProviderId] = useState<string | null>(null)
+  const [detailsProvider, setDetailsProvider] = useState<CustomMetadataProvider | null>(null)
 
   const handleDeleteClick = (provider: CustomMetadataProvider) => {
     deletingProviderRef.current = provider
@@ -67,18 +71,33 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
     () => [
       {
         label: t('LabelName'),
-        accessor: 'name'
+        accessor: (provider) => (
+          <span className="block max-w-32 truncate sm:max-w-48" title={provider.name}>
+            {provider.name}
+          </span>
+        )
       },
       {
         label: 'URL', // i18n-ignore
-        accessor: 'url'
+        headerClassName: 'w-full sm:w-1/2',
+        cellClassName: 'max-w-0',
+        accessor: (provider) => (
+          <span className="block truncate" title={provider.url}>
+            {provider.url}
+          </span>
+        )
       },
       {
         label: t('LabelProviderAuthorizationValue'),
+        hiddenBelow: 'sm',
+        headerClassName: 'sm:w-1/3',
+        cellClassName: 'max-w-0',
         accessor: (provider) => <MaskedAuthValue authHeaderValue={provider.authHeaderValue} />
       },
       {
         label: '',
+        headerClassName: 'w-0',
+        cellClassName: 'w-0 whitespace-nowrap',
         accessor: (provider) => (
           <div className="flex items-center justify-end">
             <IconBtn
@@ -87,7 +106,10 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
               size="small"
               className="text-foreground-muted hover:not-disabled:text-error"
               loading={deletingProviderId === provider.id && processing}
-              onClick={() => handleDeleteClick(provider)}
+              onClick={(e) => {
+                e.stopPropagation()
+                handleDeleteClick(provider)
+              }}
             >
               delete
             </IconBtn>
@@ -113,8 +135,10 @@ export default function CustomMetadataProvidersTable({ providers, processing = f
         columns={columns}
         getRowKey={(provider) => provider.id}
         rowClassName="bg-table-row-bg-odd even:bg-table-row-bg-even hover:bg-table-row-bg-hover"
+        onRowClick={isMobile ? setDetailsProvider : undefined}
       />
 
+      <CustomMetadataProviderDetailsModal provider={isMobile ? detailsProvider : null} onClose={() => setDetailsProvider(null)} />
       <ConfirmDialog
         isOpen={showConfirmDialog}
         message={t('MessageConfirmDeleteMetadataProvider', { 0: deletingProviderRef.current?.name || '' })}
