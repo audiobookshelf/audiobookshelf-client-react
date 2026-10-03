@@ -106,7 +106,7 @@ export default function UserClient({ user }: { user: User }) {
   const columns: DataTableColumn<MediaProgress>[] = [
     {
       label: '',
-      headerClassName: 'w-16',
+      headerClassName: 'w-18',
       cellClassName: 'py-1',
       accessor: (mediaProgress) => {
         const coverHeight = COVER_WIDTH * bookCoverAspectRatio
@@ -134,9 +134,11 @@ export default function UserClient({ user }: { user: User }) {
     {
       label: t('LabelItem'),
       accessor: (mediaProgress) => (
-        <div>
-          <p>{mediaProgress.displayTitle || 'Unknown'}</p>
-          {mediaProgress.displaySubtitle ? <p className="text-foreground-muted font-sans text-xs">{mediaProgress.displaySubtitle}</p> : null}
+        <div className="min-w-0">
+          <p className="line-clamp-2 break-words" title={mediaProgress.displayTitle || undefined}>
+            {mediaProgress.displayTitle || 'Unknown'}
+          </p>
+          {mediaProgress.displaySubtitle ? <p className="text-foreground-muted truncate font-sans text-xs">{mediaProgress.displaySubtitle}</p> : null}
         </div>
       )
     },
@@ -144,13 +146,13 @@ export default function UserClient({ user }: { user: User }) {
       label: t('LabelProgress'),
       accessor: (mediaProgress) => `${Math.floor(mediaProgress.progress * 100)}%`,
       cellClassName: 'text-center',
-      headerClassName: 'text-center'
+      headerClassName: 'w-20 text-center'
     },
     {
       label: t('LabelStartedAt'),
       hiddenBelow: 'sm',
       cellClassName: 'text-center',
-      headerClassName: 'text-center',
+      headerClassName: 'w-32 text-center',
       accessor: (mediaProgress) => {
         if (!mediaProgress.startedAt) return ''
         return (
@@ -164,7 +166,7 @@ export default function UserClient({ user }: { user: User }) {
       label: t('LabelLastUpdate'),
       hiddenBelow: 'sm',
       cellClassName: 'text-center',
-      headerClassName: 'text-center',
+      headerClassName: 'w-32 text-center',
       accessor: (mediaProgress) => {
         if (!mediaProgress.lastUpdate) return ''
         return (
@@ -243,6 +245,7 @@ export default function UserClient({ user }: { user: User }) {
             data={sortedMediaProgress}
             columns={columns}
             getRowKey={(mediaProgress) => mediaProgress.id}
+            tableClassName="table-fixed"
             rowClassName={(mediaProgress) => (mediaProgress.isFinished ? 'bg-success/10 even:bg-success/10 hover:bg-success/5' : '')}
           />
         ) : (
