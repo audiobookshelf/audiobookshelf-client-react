@@ -7,6 +7,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { EmailSettings, EmailSettingsFormFields } from '@/types/api'
 import { FormEvent, useMemo, useState, useTransition } from 'react'
 import SettingsContent from '../SettingsContent'
+import { SETTINGS_MORE_INFO_URLS } from '../settingsNavItems'
 import SettingsToggleSwitch from '../SettingsToggleSwitch'
 import { sendTestEmail, updateEmailSettings } from './actions'
 
@@ -94,7 +95,7 @@ export default function EmailClient({ initialSettings }: EmailClientProps) {
   }
 
   return (
-    <SettingsContent title={t('HeaderEmailSettings')} moreInfoUrl="https://www.audiobookshelf.org/guides/send_to_ereader" className="pb-0 md:pb-0">
+    <SettingsContent title={t('HeaderEmailSettings')} moreInfoUrl={SETTINGS_MORE_INFO_URLS.email} className="pb-0 md:pb-0">
       <form onSubmit={handleSubmit} className="relative flex flex-col gap-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
           <div className="md:col-span-3">

@@ -1,6 +1,7 @@
 'use client'
 
 import IconBtn from '@/components/ui/IconBtn'
+import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
 import { useAppNavigation } from '@/contexts/AppNavigationContext'
 import { useUser } from '@/contexts/UserContext'
 import { useMediaQuery } from '@/hooks/useMediaQuery'
@@ -16,7 +17,7 @@ export default function SettingsAppBarNav() {
   const { lastCurrentLibraryId, lastNonSettingsPath } = useAppNavigation()
   const { userDefaultLibraryId } = useUser()
 
-  const { backHref, title } = getSettingsAppBarMeta(pathname, isMobile, t, lastNonSettingsPath, lastCurrentLibraryId, userDefaultLibraryId)
+  const { backHref, title, moreInfoUrl } = getSettingsAppBarMeta(pathname, isMobile, t, lastNonSettingsPath, lastCurrentLibraryId, userDefaultLibraryId)
 
   return (
     <>
@@ -25,6 +26,11 @@ export default function SettingsAppBarNav() {
           arrow_back
         </IconBtn>
         <span className={mergeClasses('truncate text-xl', isMobile ? 'min-w-0' : '')}>{title}</span>
+        {moreInfoUrl && (
+          <div className="ms-1 inline-flex shrink-0">
+            <MoreInfoIcon moreInfoUrl={moreInfoUrl} size="xl" position="bottom" />
+          </div>
+        )}
       </div>
       <div className="min-w-0 flex-1 max-md:hidden" aria-hidden="true" />
     </>

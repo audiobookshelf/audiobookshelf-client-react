@@ -4,6 +4,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { CustomMetadataProvider } from '@/types/api'
 import { useState } from 'react'
 import SettingsContent from '../../SettingsContent'
+import { SETTINGS_MORE_INFO_URLS } from '../../settingsNavItems'
 import { createCustomMetadataProvider, deleteCustomMetadataProvider } from './actions'
 import AddCustomMetadataProviderModal from './AddCustomMetadataProviderModal'
 import CustomMetadataProvidersTable from './CustomMetadataProvidersTable'
@@ -39,7 +40,7 @@ export default function CustomMetadataProvidersClient({ providers: initialProvid
     <SettingsContent
       title={t('HeaderCustomMetadataProviders')}
       backLink="/settings/item-metadata-utils"
-      moreInfoUrl="https://www.audiobookshelf.org/guides/custom-metadata-providers"
+      moreInfoUrl={SETTINGS_MORE_INFO_URLS.customMetadataProviders}
       addButton={{
         label: t('ButtonAdd'),
         onClick: () => setIsAddModalOpen(true)

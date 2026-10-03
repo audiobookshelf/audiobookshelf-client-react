@@ -4,6 +4,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library } from '@/types/api'
 import { useCallback, useState } from 'react'
 import SettingsContent from '../SettingsContent'
+import { SETTINGS_MORE_INFO_URLS } from '../settingsNavItems'
 import { createLibrary, editLibrary, saveLibraryOrder } from './actions'
 import LibrariesList from './LibrariesList'
 import LibraryEditModal, { LibraryFormData } from './LibraryEditModal'
@@ -73,7 +74,7 @@ export default function LibrariesClient({ libraries }: LibraryClientProps) {
           label: t('ButtonAddLibrary'),
           onClick: handleAddLibrary
         }}
-        moreInfoUrl="https://www.audiobookshelf.org/guides/library_creation"
+        moreInfoUrl={SETTINGS_MORE_INFO_URLS.libraries}
       >
         <LibrariesList libraries={libraries} saveLibraryOrderAction={saveLibraryOrder} onEditLibrary={handleEditLibrary} onAddLibrary={handleAddLibrary} />
       </SettingsContent>
