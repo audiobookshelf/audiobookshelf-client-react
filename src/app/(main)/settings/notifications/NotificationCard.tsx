@@ -98,7 +98,7 @@ export default function NotificationCard({ notification, onSettingsUpdated, onEd
                   disabled={isBusy}
                   onClick={() => runTest('fireSuccess', () => triggerOnTestEvent(false))}
                 >
-                  {t('ButtonFire')}
+                  {t('ButtonTest')}
                 </Btn>
                 <Btn
                   size="small"
