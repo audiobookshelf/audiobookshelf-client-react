@@ -1,12 +1,12 @@
 {
   "AriaLabelAccountMenu": "Account Menu",
-  "AriaLabelBookProgress": "Book progress",
   "AriaLabelChapterProgress": "Chapter progress",
   "AriaLabelFileDropZone": "File drop zone",
   "AriaLabelJumpBackwardWithDuration": "Jump Backward, {0}",
   "AriaLabelJumpForwardWithDuration": "Jump Forward, {0}",
   "AriaLabelModalSections": "Modal sections",
   "AriaLabelNumberOfEpisodes": "Number of episodes",
+  "AriaLabelPlaybackProgress": "Playback progress",
   "AriaLabelPlaybackRateWithValue": "Playback Rate: {0}x",
   "AriaLabelSearchResults": "Search results",
   "AriaLabelTextFormattingToolbar": "Text formatting toolbar",

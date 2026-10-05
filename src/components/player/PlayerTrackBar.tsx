@@ -52,7 +52,7 @@ export default function PlayerTrackBar({
   })
   const display = getPlayerTrackDisplay(trackScope, duration, currentTime, bufferedTime, seekControls.dragPreviewTime, transcodePercentReady, isHlsTranscode)
 
-  const sliderLabel = display.inChapterScope ? t('AriaLabelChapterProgress') : t('AriaLabelBookProgress')
+  const sliderLabel = display.inChapterScope ? t('AriaLabelChapterProgress') : t('AriaLabelPlaybackProgress')
   const showChapterLabel = display.currentChapter != null && scope !== 'book'
   const chapterLabel =
     showChapterLabel && display.currentChapter ? (
