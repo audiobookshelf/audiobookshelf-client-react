@@ -3,17 +3,27 @@
 import ButtonBase from '@/components/ui/ButtonBase'
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { mergeClasses } from '@/lib/merge-classes'
 import PlaybackRateWidget from './PlaybackRateWidget'
 import type { PlayerControlsState } from './usePlayerControlsState'
 import VolumeControl from './VolumeControl'
 
+const PLAYER_SECONDARY_TOOLBAR_CLASS = 'flex flex-nowrap items-center justify-center gap-2'
+const PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS = 'max-lg:w-full max-lg:gap-1'
+const PLAYER_SECONDARY_TOOLBAR_BUTTON_CLASS =
+  'max-lg:inline-flex max-lg:h-(--fs-toolbar) max-lg:min-h-(--fs-toolbar) max-lg:w-(--fs-toolbar) max-lg:min-w-(--fs-toolbar) max-lg:items-center max-lg:justify-center max-lg:p-0'
+const PLAYER_TOOLBAR_TOOLTIP_CLASS = 'max-lg:items-center max-lg:justify-center max-lg:leading-none'
+
 interface PlayerSecondaryToolbarProps {
   controls: PlayerControlsState
   className?: string
+  onPlaybackRateOpenChange?: (open: boolean) => void
+  onVolumeOpenChange?: (open: boolean) => void
 }
 
-export default function PlayerSecondaryToolbar({ controls, className }: PlayerSecondaryToolbarProps) {
+export default function PlayerSecondaryToolbar({ controls, className, onPlaybackRateOpenChange, onVolumeOpenChange }: PlayerSecondaryToolbarProps) {
+  const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const {
     playerHandler,
     isPodcast,
@@ -30,16 +40,26 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
   } = controls
 
   const { sleepTimerSet, remainingString } = sleepTimer
+  const tooltipClass = isPlayerFullscreen ? PLAYER_TOOLBAR_TOOLTIP_CLASS : undefined
+  const toolbarButtonClass = isPlayerFullscreen ? PLAYER_SECONDARY_TOOLBAR_BUTTON_CLASS : undefined
 
   return (
-    <div className={mergeClasses('flex flex-nowrap items-center justify-center gap-3 sm:gap-4', className)}>
-      <VolumeControl playerHandler={playerHandler} />
-      <PlaybackRateWidget playerHandler={playerHandler} />
-      <Tooltip text={t('LabelSleepTimer')} position="top">
+    <div
+      className={mergeClasses(
+        'player-secondary-toolbar',
+        PLAYER_SECONDARY_TOOLBAR_CLASS,
+        isPlayerFullscreen && PLAYER_SECONDARY_TOOLBAR_FULLSCREEN_CLASS,
+        isLandscapeCompact && 'w-full',
+        className
+      )}
+    >
+      <VolumeControl playerHandler={playerHandler} onOpenChange={onVolumeOpenChange} triggerClassName={toolbarButtonClass} />
+      <PlaybackRateWidget playerHandler={playerHandler} onOpenChange={onPlaybackRateOpenChange} triggerClassName={toolbarButtonClass} />
+      <Tooltip text={t('LabelSleepTimer')} position="top" className={tooltipClass}>
         <ButtonBase
           size="custom"
           borderless
-          className="min-w-9 text-2xl sm:min-w-10"
+          className={mergeClasses('min-w-9 text-2xl sm:min-w-10', toolbarButtonClass)}
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setIsSleepTimerModalOpen(true)}
           ariaLabel={t('LabelSleepTimer')}
@@ -53,31 +73,50 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
               <span className="material-symbols text-warning text-lg" aria-hidden="true">
                 snooze
               </span>
-              <span className="text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg">{remainingString}</span>
+              <span
+                className={mergeClasses(
+                  'player-sleep-timer-remaining text-warning min-w-6 px-0.5 text-center text-sm font-semibold tabular-nums sm:min-w-8 sm:text-lg',
+                  isPlayerFullscreen && 'max-lg:hidden'
+                )}
+              >
+                {remainingString}
+              </span>
             </div>
           )}
         </ButtonBase>
       </Tooltip>
       {!isPodcast && (
-        <Tooltip text={t('LabelViewBookmarks')} position="top">
-          <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={openBookmarksModal} ariaLabel={t('LabelViewBookmarks')}>
+        <Tooltip text={t('LabelViewBookmarks')} position="top" className={tooltipClass}>
+          <IconBtn
+            size="custom"
+            borderless
+            className={mergeClasses('w-9 text-2xl sm:w-10', toolbarButtonClass)}
+            onClick={openBookmarksModal}
+            ariaLabel={t('LabelViewBookmarks')}
+          >
             {bookmarks.length ? 'bookmarks' : 'bookmark_border'}
           </IconBtn>
         </Tooltip>
       )}
       {chapters.length > 0 && (
-        <Tooltip text={t('LabelViewChapters')} position="top">
-          <IconBtn size="custom" borderless className="w-9 text-2xl sm:w-10" onClick={() => setIsChaptersModalOpen(true)} ariaLabel={t('LabelViewChapters')}>
+        <Tooltip text={t('LabelViewChapters')} position="top" className={tooltipClass}>
+          <IconBtn
+            size="custom"
+            borderless
+            className={mergeClasses('w-9 text-2xl sm:w-10', toolbarButtonClass)}
+            onClick={() => setIsChaptersModalOpen(true)}
+            ariaLabel={t('LabelViewChapters')}
+          >
             format_list_bulleted
           </IconBtn>
         </Tooltip>
       )}
       {playerQueueItems.length > 0 && (
-        <Tooltip text={t('LabelViewQueue')} position="top">
+        <Tooltip text={t('LabelViewQueue')} position="top" className={tooltipClass}>
           <IconBtn
             size="custom"
             borderless
-            className="w-9 text-2xl sm:w-10 sm:text-3xl"
+            className={mergeClasses('w-9 text-2xl sm:w-10 sm:text-3xl', toolbarButtonClass)}
             onClick={() => setIsQueueModalOpen(true)}
             ariaLabel={t('LabelViewQueue')}
           >
@@ -85,11 +124,11 @@ export default function PlayerSecondaryToolbar({ controls, className }: PlayerSe
           </IconBtn>
         </Tooltip>
       )}
-      <Tooltip text={t('LabelViewPlayerSettings')} position="top">
+      <Tooltip text={t('LabelViewPlayerSettings')} position="top" className={tooltipClass}>
         <IconBtn
           size="custom"
           borderless
-          className="w-9 text-2xl sm:w-10"
+          className={mergeClasses('w-9 text-2xl sm:w-10', toolbarButtonClass)}
           onClick={() => setIsSettingsModalOpen(true)}
           ariaLabel={t('LabelViewPlayerSettings')}
         >

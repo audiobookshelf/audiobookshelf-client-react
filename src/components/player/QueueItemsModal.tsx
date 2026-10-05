@@ -1,12 +1,13 @@
 'use client'
 
-import PreviewCover from '@/components/covers/PreviewCover'
 import Modal from '@/components/modals/Modal'
 import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import ViewEpisodeModal from '@/components/modals/ViewEpisodeModal'
 import Checkbox from '@/components/ui/Checkbox'
 import IconBtn from '@/components/ui/IconBtn'
 import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
+import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
+import { useLibraries } from '@/contexts/LibrariesContext'
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
@@ -22,10 +23,51 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface QueueItemsModalProps {
   isOpen: boolean
+  zIndexClass?: string
   onClose: () => void
 }
 
-export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProps) {
+const QUEUE_COVER_HEIGHT = 48
+
+function QueueItemCover({
+  libraryId,
+  coverSrc,
+  placeholderUrl,
+  hasCover,
+  title
+}: {
+  libraryId: string
+  coverSrc: string
+  placeholderUrl: string
+  hasCover: boolean
+  title: string
+}) {
+  const { getCoverAspectRatio } = useLibraries()
+  const coverAspect = getCoverAspectRatio(libraryId)
+  const coverWidth = QUEUE_COVER_HEIGHT / coverAspect
+
+  return (
+    <div
+      className="bg-primary relative overflow-hidden rounded-xs"
+      style={{ width: coverWidth, height: QUEUE_COVER_HEIGHT, minWidth: coverWidth, maxWidth: coverWidth }}
+    >
+      <MediaCardCover
+        coverSrc={coverSrc}
+        coverAspect={coverAspect}
+        placeholderUrl={placeholderUrl}
+        hasCover={hasCover}
+        title={title}
+        author=""
+        userProgressPercent={0}
+        itemIsFinished={false}
+        showProgressBar={false}
+        showPlaceholderText={false}
+      />
+    </div>
+  )
+}
+
+export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueItemsModalProps) {
   const t = useTypeSafeTranslations()
   const { playerQueueItems, playerQueueAutoPlay, setPlayerQueueAutoPlay, isStreaming, isPlaying, playQueueItemAtIndex, removeItemFromQueue, playerControls } =
     useMediaContext()
@@ -209,7 +251,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
   const outerContent = <ModalOuterContent>{t('HeaderPlayerQueue')}</ModalOuterContent>
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} className="sm:max-w-200 md:max-w-200 lg:max-w-200">
+    <Modal isOpen={isOpen} onClose={onClose} zIndexClass={zIndexClass} outerContent={outerContent} className="sm:max-w-200 md:max-w-200 lg:max-w-200">
       <div className="max-h-[80vh] w-full min-w-0 overflow-x-hidden overflow-y-auto py-4">
         <div className="flex items-center px-4 pb-4">
           <p className="text-foreground-muted shrink-0 text-base">{queueCountLabel}</p>
@@ -228,6 +270,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
         <ul className="grid w-full min-w-0 list-none grid-cols-[auto_1fr_auto]" aria-label={t('HeaderPlayerQueue')}>
           {playerQueueItems.map((item, index) => {
             const coverSrc = item.coverPath ? getLibraryItemCoverUrl(item.libraryItemId) : placeholderUrl
+            const hasCover = !!item.coverPath
 
             return (
               <li
@@ -235,7 +278,7 @@ export default function QueueItemsModal({ isOpen, onClose }: QueueItemsModalProp
                 className={mergeClasses('group col-span-full grid grid-cols-subgrid items-center px-4 py-2', getRowClassName(item, index))}
               >
                 <div className="pe-2">
-                  <PreviewCover src={coverSrc} width={48} showResolution={false} />
+                  <QueueItemCover libraryId={item.libraryId} coverSrc={coverSrc} placeholderUrl={placeholderUrl} hasCover={hasCover} title={item.title || ''} />
                 </div>
                 <div className="min-w-0 px-2">{renderQueueItemText(item)}</div>
                 <div className="justify-self-end ps-1">{renderQueueItemActions(item, index)}</div>

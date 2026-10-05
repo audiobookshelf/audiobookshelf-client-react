@@ -1,9 +1,12 @@
 import { isAbsModalOpen } from '@/components/modals/Modal'
 import type { PlayerHandlerControls, PlayerHandlerState } from '@/hooks/usePlayerHandler'
-import { VOLUME_HOTKEY_STEP } from '@/lib/player/constants'
 import { useEffect, useRef } from 'react'
 
+/** Volume step for keyboard hotkeys (0-1 range, so 0.05 = 5%). */
+export const VOLUME_HOTKEY_STEP = 0.05
+
 const OPEN_COMBOBOX_SELECTOR = '[role="combobox"][aria-expanded="true"]'
+const PLAYER_POPOVER_SELECTOR = '[role="dialog"][id$="-popover"]'
 
 /**
  * Registers keyboard hotkeys for the audio player.
@@ -29,7 +32,12 @@ export function useAudioPlayerHotkeys(state: PlayerHandlerState, controls: Playe
     }
 
     function shouldIgnoreHotkeys(): boolean {
-      return isInputFocused() || isAbsModalOpen() || document.querySelector(OPEN_COMBOBOX_SELECTOR) !== null
+      return (
+        isInputFocused() ||
+        isAbsModalOpen() ||
+        document.querySelector(OPEN_COMBOBOX_SELECTOR) !== null ||
+        document.querySelector(PLAYER_POPOVER_SELECTOR) !== null
+      )
     }
 
     function handleKeyDown(e: KeyboardEvent) {

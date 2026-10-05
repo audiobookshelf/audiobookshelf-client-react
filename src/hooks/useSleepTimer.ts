@@ -1,9 +1,10 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatSleepTimerRemaining } from '@/lib/formatDuration'
-import { SleepTimerTypes, type SleepTimerType } from '@/lib/player/constants'
 import { subscribePlayerProgress, getPlayerProgress } from '@/lib/player/playerProgressStore'
 import type { Chapter } from '@/types/api'
 import { useCallback, useEffect, useRef, useState } from 'react'
+
+export type SleepTimerType = 'countdown' | 'chapter'
 
 export interface SleepTimerTime {
   seconds: number
@@ -81,7 +82,7 @@ export function useSleepTimer({ pause, currentChapter, playbackRate, onTimerEnd 
       setSleepTimerSet(true)
       setSleepTimerType(time.timerType)
 
-      if (time.timerType === SleepTimerTypes.COUNTDOWN) {
+      if (time.timerType === 'countdown') {
         lastChapterIdRef.current = null
         runSleepTimer(time)
       } else {
@@ -126,7 +127,7 @@ export function useSleepTimer({ pause, currentChapter, playbackRate, onTimerEnd 
   }, [currentChapter, sleepTimerEnd])
 
   useEffect(() => {
-    if (sleepTimerType === SleepTimerTypes.CHAPTER && sleepTimerSet) {
+    if (sleepTimerType === 'chapter' && sleepTimerSet) {
       checkChapterEnd()
     }
   }, [checkChapterEnd, sleepTimerSet, sleepTimerType, currentChapter])
@@ -140,7 +141,7 @@ export function useSleepTimer({ pause, currentChapter, playbackRate, onTimerEnd 
   }, [])
 
   useEffect(() => {
-    if (sleepTimerType !== SleepTimerTypes.CHAPTER || !sleepTimerSet || !currentChapter) {
+    if (sleepTimerType !== 'chapter' || !sleepTimerSet || !currentChapter) {
       setChapterRemaining(0)
       return
     }
@@ -154,7 +155,7 @@ export function useSleepTimer({ pause, currentChapter, playbackRate, onTimerEnd 
     return subscribePlayerProgress(updateRemaining)
   }, [currentChapter, playbackRate, sleepTimerSet, sleepTimerType])
 
-  const displayRemaining = sleepTimerType === SleepTimerTypes.CHAPTER && sleepTimerSet && currentChapter ? chapterRemaining : sleepTimerRemaining
+  const displayRemaining = sleepTimerType === 'chapter' && sleepTimerSet && currentChapter ? chapterRemaining : sleepTimerRemaining
 
   const remainingString = formatSleepTimerRemaining(displayRemaining, sleepTimerType, t)
 

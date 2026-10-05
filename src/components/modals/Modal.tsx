@@ -5,6 +5,7 @@ import { ModalProvider } from '@/contexts/ModalContext'
 import { useClickOutside } from '@/hooks/useClickOutside'
 import { getTopmostModalElement, useModalHistory } from '@/hooks/useModalHistory'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { trapTabKey } from '@/lib/focusTrap'
 import { mergeClasses } from '@/lib/merge-classes'
 import React, { ReactNode, useCallback, useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
@@ -113,47 +114,7 @@ export default function Modal({
   }, [isOpen, processing, persistent, onClose])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    // Focus trap
-    if (e.key === 'Tab') {
-      if (!contentRef.current) return
-
-      const focusableElements = contentRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-      )
-
-      // If no focusable elements, keep focus on content container
-      if (focusableElements.length === 0) {
-        e.preventDefault()
-        contentRef.current.focus()
-        return
-      }
-
-      const firstElement = focusableElements[0]
-      const lastElement = focusableElements[focusableElements.length - 1]
-
-      // Check if focus is within the modal
-      const isFocusInModal = contentRef.current.contains(document.activeElement)
-
-      if (!isFocusInModal) {
-        // If focus somehow got outside, bring it back
-        e.preventDefault()
-        if (e.shiftKey) lastElement.focus()
-        else firstElement.focus()
-      } else {
-        // Normal trap logic
-        if (e.shiftKey) {
-          if (document.activeElement === firstElement || document.activeElement === contentRef.current) {
-            e.preventDefault()
-            lastElement.focus()
-          }
-        } else {
-          if (document.activeElement === lastElement) {
-            e.preventDefault()
-            firstElement.focus()
-          }
-        }
-      }
-    }
+    trapTabKey(e, contentRef.current)
   }, [])
 
   if (!isOpen) {

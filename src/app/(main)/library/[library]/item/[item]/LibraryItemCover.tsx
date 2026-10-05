@@ -47,9 +47,7 @@ export default function LibraryItemCover({
   const mediaMetadata = libraryItem.media.metadata
 
   const title = mediaMetadata.title || ''
-  const author = isPodcast ? mediaMetadata.author : (mediaMetadata as BookMetadata).authorName || ''
-  const titleCleaned = !title ? '' : title.length > 60 ? `${title.slice(0, 57)}...` : title
-  const authorCleaned = !author ? '' : author.length > 30 ? `${author.slice(0, 27)}...` : author
+  const author = (isPodcast ? mediaMetadata.author : (mediaMetadata as BookMetadata).authorName) || ''
 
   const coverPath = libraryItem.media?.coverPath
 
@@ -112,8 +110,7 @@ export default function LibraryItemCover({
             placeholderUrl={getPlaceholderCoverUrl()}
             hasCover={!!coverPath}
             title={title}
-            titleCleaned={titleCleaned}
-            authorCleaned={authorCleaned}
+            author={author}
             userProgressPercent={userProgressPercent}
             itemIsFinished={itemIsFinished}
             showProgressBar={showProgressBar}

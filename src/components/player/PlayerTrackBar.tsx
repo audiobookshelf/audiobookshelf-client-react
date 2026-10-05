@@ -1,295 +1,102 @@
 'use client'
 
-import TruncatingTooltipText from '@/components/ui/TruncatingTooltipText'
+import PlayerMarqueeText from '@/components/player/PlayerMarqueeText'
+import PlayerTrackSlider from '@/components/player/PlayerTrackSlider'
+import { getPlayerTrackDisplay, getPlayerTrackScope, type PlayerTrackScope } from '@/components/player/playerTrackDisplay'
+import { usePlayerTrackSeek } from '@/components/player/usePlayerTrackSeek'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
-import { usePlayerProgress } from '@/lib/player/playerProgressStore'
-import { secondsToTimestamp } from '@/lib/datefns'
+import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { usePlayerProgress } from '@/lib/player/playerProgressStore'
 import { PlayerState } from '@/types/api'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+const PLAYER_TRACK_CORE_DUAL_CLASS = 'flex min-h-8 flex-col'
+const PLAYER_TRACK_TIMESTAMPS_DUAL_CLASS = 'min-h-5 flex-none'
 
 interface PlayerTrackBarProps {
   playerHandler: PlayerHandler
-  variant?: 'full' | 'mobile-collapsed'
+  scope?: PlayerTrackScope
+  /** Fullscreen mobile: chapter title above the slider for a wider marquee. */
+  chapterLabelPlacement?: 'below' | 'above'
+  /** Mini player: wait for horizontal movement before seeking so vertical shell swipes win. */
+  deferTouchSeekToShellGestures?: boolean
+  /** Fullscreen chapter + book tracks: match timestamp row height. Tick space is always in the slider block. */
+  dual?: boolean
 }
 
-interface ChapterTick {
-  title: string
-  left: number
-}
-
-export default function PlayerTrackBar({ playerHandler, variant = 'full' }: PlayerTrackBarProps) {
+export default function PlayerTrackBar({
+  playerHandler,
+  scope = 'auto',
+  chapterLabelPlacement = 'below',
+  deferTouchSeekToShellGestures = false,
+  dual = false
+}: PlayerTrackBarProps) {
+  const t = useTypeSafeTranslations()
+  const { isLandscapeCompact } = usePlayerShellLayout()
   const { duration, settings, chapters, playerState, transcodePercentReady, isHlsTranscode } = playerHandler.state
   const { seek } = playerHandler.controls
   const { playbackRate, useChapterTrack } = settings
   const { currentTime, bufferedTime } = usePlayerProgress()
 
-  const currentChapter = useMemo(() => chapters.find((chapter) => chapter.start <= currentTime && chapter.end > currentTime) ?? null, [chapters, currentTime])
-
   const isLoading = playerState === PlayerState.LOADING
+  const trackScope = getPlayerTrackScope(scope, useChapterTrack, chapters, currentTime, duration, playbackRate)
+  const seekControls = usePlayerTrackSeek({
+    trackScope,
+    chapters,
+    currentTime,
+    duration,
+    isLoading,
+    seek,
+    deferTouchSeekToShellGestures
+  })
+  const display = getPlayerTrackDisplay(trackScope, duration, currentTime, bufferedTime, seekControls.dragPreviewTime, transcodePercentReady, isHlsTranscode)
 
-  // Refs for DOM elements
-  const trackRef = useRef<HTMLDivElement>(null)
-  const hoverTimestampRef = useRef<HTMLDivElement>(null)
-  const hoverTimestampTextRef = useRef<HTMLParagraphElement>(null)
-  const hoverTimestampArrowRef = useRef<HTMLDivElement>(null)
-  const trackCursorRef = useRef<HTMLDivElement>(null)
-
-  // State
-  const [trackWidth, setTrackWidth] = useState(0)
-  const [trackOffsetLeft, setTrackOffsetLeft] = useState(16)
-  const [isHovering, setIsHovering] = useState(false)
-
-  // Chapter duration and start for chapter-mode display
-  const currentChapterDuration = currentChapter ? currentChapter.end - currentChapter.start : 0
-  const currentChapterStart = currentChapter ? currentChapter.start : 0
-
-  // Effective playback rate
-  const effectivePlaybackRate = playbackRate && !isNaN(playbackRate) ? playbackRate : 1
-
-  // Time remaining timestamp
-  const timeRemainingToShow = (useChapterTrack ? currentChapterDuration - (currentTime - currentChapterStart) : duration - currentTime) / effectivePlaybackRate
-  // time remaining could be negative when the audio track is actually longer than the probed duration
-  const timeRemainingFormatted = timeRemainingToShow < 0 ? secondsToTimestamp(timeRemainingToShow * -1) : `-${secondsToTimestamp(timeRemainingToShow)}`
-
-  // Current time timestamp
-  const currentTimeToShow = useChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
-  const currentTimeFormatted = secondsToTimestamp(currentTimeToShow / effectivePlaybackRate)
-  const currentChapterNumber = currentChapter ? chapters.findIndex((ch) => ch.id === currentChapter.id) + 1 : null
-
-  // Calculate track widths as percentages
-  const effectiveDuration = useChapterTrack ? currentChapterDuration : duration
-  const playedTime = useChapterTrack ? Math.max(0, currentTime - currentChapterStart) : currentTime
-  const playedPercent = effectiveDuration ? Math.min(100, (playedTime / effectiveDuration) * 100) : 0
-
-  const bufferedTimeAdjusted = useChapterTrack ? Math.max(0, bufferedTime - currentChapterStart) : bufferedTime
-  const bufferedPercent = effectiveDuration ? Math.min(100, (bufferedTimeAdjusted / effectiveDuration) * 100) : 0
-  const transcodeReadyPercent = isHlsTranscode ? Math.min(100, transcodePercentReady * 100) : 0
-
-  // Chapter ticks for display (only visible when not in chapter mode)
-  const chapterTicks = useMemo<ChapterTick[]>(() => {
-    if (!duration || trackWidth === 0) return []
-    return chapters.map((chapter) => {
-      const perc = chapter.start / duration
-      return {
-        title: chapter.title,
-        left: perc * trackWidth
-      }
-    })
-  }, [chapters, duration, trackWidth])
-
-  // Measure track width on mount and resize
-  const measureTrack = useCallback(() => {
-    if (trackRef.current) {
-      setTrackWidth(trackRef.current.clientWidth)
-      setTrackOffsetLeft(trackRef.current.getBoundingClientRect().left)
-    }
-  }, [])
-
-  useEffect(() => {
-    measureTrack()
-    window.addEventListener('resize', measureTrack)
-    return () => window.removeEventListener('resize', measureTrack)
-  }, [measureTrack])
-
-  // Re-measure when player state changes (track might become visible)
-  useEffect(() => {
-    measureTrack()
-  }, [playerState, measureTrack])
-
-  // Handle track click to seek
-  const handleTrackClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (isLoading || !trackWidth) return
-
-      const rect = trackRef.current?.getBoundingClientRect()
-      if (!rect) return
-
-      const offsetX = e.clientX - rect.left
-      const perc = offsetX / trackWidth
-      const baseTime = useChapterTrack ? currentChapterStart : 0
-      const dur = useChapterTrack ? currentChapterDuration : duration
-      const time = baseTime + perc * dur
-
-      if (isNaN(time) || time === null) {
-        console.error('Invalid seek time', perc, time)
-        return
-      }
-
-      seek(time)
-    },
-    [isLoading, trackWidth, useChapterTrack, currentChapterStart, currentChapterDuration, duration, seek]
-  )
-
-  // Handle mouse move over track
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      const rect = trackRef.current?.getBoundingClientRect()
-      if (!rect || !trackWidth) return
-
-      const offsetX = e.clientX - rect.left
-
-      const baseTime = useChapterTrack ? currentChapterStart : 0
-      const dur = useChapterTrack ? currentChapterDuration : duration
-      const progressTime = (offsetX / trackWidth) * dur
-      const totalTime = baseTime + progressTime
-
-      // Position hover timestamp
-      if (hoverTimestampRef.current) {
-        const width = hoverTimestampRef.current.clientWidth
-        let posLeft = offsetX - width / 2
-
-        // Keep within bounds
-        if (posLeft + width + trackOffsetLeft > window.innerWidth) {
-          posLeft = window.innerWidth - width - trackOffsetLeft
-        } else if (posLeft < -trackOffsetLeft) {
-          posLeft = -trackOffsetLeft
-        }
-
-        hoverTimestampRef.current.style.left = `${posLeft}px`
-      }
-
-      // Position arrow
-      if (hoverTimestampArrowRef.current) {
-        const arrowWidth = hoverTimestampArrowRef.current.clientWidth
-        hoverTimestampArrowRef.current.style.left = `${offsetX - arrowWidth / 2}px`
-      }
-
-      // Update hover text
-      if (hoverTimestampTextRef.current) {
-        let hoverText = secondsToTimestamp(progressTime / effectivePlaybackRate)
-
-        // Find chapter at hover position and add title
-        const chapter = chapters.find((ch) => ch.start <= totalTime && totalTime < ch.end)
-        if (chapter?.title) {
-          hoverText += ` - ${chapter.title}`
-        }
-
-        hoverTimestampTextRef.current.innerText = hoverText
-      }
-
-      // Position track cursor
-      if (trackCursorRef.current) {
-        trackCursorRef.current.style.left = `${offsetX - 1}px`
-      }
-
-      setIsHovering(true)
-    },
-    [trackWidth, trackOffsetLeft, useChapterTrack, currentChapterStart, currentChapterDuration, duration, effectivePlaybackRate, chapters]
-  )
-
-  // Handle mouse leave
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false)
-  }, [])
-
-  const isMobileCollapsed = variant === 'mobile-collapsed'
+  const sliderLabel = display.inChapterScope ? t('AriaLabelChapterProgress') : t('AriaLabelPlaybackProgress')
+  const showChapterLabel = display.currentChapter != null && scope !== 'book'
+  const chapterLabel =
+    showChapterLabel && display.currentChapter ? (
+      <div className="player-track-chapter-label text-foreground-muted flex min-w-0 items-center gap-1">
+        <div className="min-w-0 flex-1">
+          <PlayerMarqueeText text={display.currentChapter.title} />
+        </div>
+        {chapters.length > 0 && display.currentChapterNumber !== null && (
+          <span className="text-foreground-subdued shrink-0 tabular-nums">
+            {t('LabelPlayerChapterNumberMarker', { 0: display.currentChapterNumber, 1: chapters.length })}
+          </span>
+        )}
+      </div>
+    ) : null
 
   return (
-    <div>
-      <div className="relative">
-        {/* Track */}
-        <div
-          ref={trackRef}
-          className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden transition-transform duration-100 hover:scale-y-125"
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          onClick={handleTrackClick}
-        >
-          {/* HLS transcode ready track (server-side segment progress) */}
-          {isHlsTranscode && (
-            <div
-              className="bg-track-progress/30 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-              style={{ width: `${transcodeReadyPercent}%` }}
-            />
-          )}
-          {/* Buffer track */}
-          <div
-            className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-            style={{ width: `${bufferedPercent}%` }}
-          />
-          {/* Played track */}
-          <div
-            className="bg-track-progress pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
-            style={{ width: `${playedPercent}%` }}
-          />
-          {/* Track cursor (vertical line on hover) */}
-          <div
-            ref={trackCursorRef}
-            className={mergeClasses(
-              'bg-track-progress pointer-events-none absolute top-0 left-0 h-full w-0.5 transition-opacity duration-100',
-              isHovering ? 'opacity-100' : 'opacity-0'
-            )}
-          />
-          {/* Loading animation - sliding shimmer effect */}
-          {isLoading && (
-            <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent to-transparent" />
-          )}
-        </div>
-
-        {/* Chapter ticks */}
-        <div className={mergeClasses('relative h-2 w-full overflow-hidden', useChapterTrack ? 'opacity-0' : '')}>
-          {chapterTicks.map((tick, index) => (
-            <div key={index} className="bg-track-progress/30 pointer-events-none absolute top-0 h-1 w-px" style={{ left: `${tick.left}px` }} />
-          ))}
-        </div>
-
-        {/* Hover timestamp */}
-        <div
-          ref={hoverTimestampRef}
-          className={mergeClasses(
-            'bg-foreground text-background pointer-events-none absolute -top-8 left-0 z-10 rounded-full transition-opacity duration-100',
-            isHovering ? 'opacity-100' : 'opacity-0'
-          )}
-        >
-          <p ref={hoverTimestampTextRef} className="truncate px-2 py-0.5 text-center font-mono text-xs whitespace-nowrap">
-            00:00
+    <div className="player-track-bar">
+      {showChapterLabel && chapterLabelPlacement === 'above' && (
+        <div className={mergeClasses('player-track-chapter-header mb-(--fs-chapter-gap) text-center', isLandscapeCompact && 'text-start')}>{chapterLabel}</div>
+      )}
+      <div className={mergeClasses('player-track-core', dual && PLAYER_TRACK_CORE_DUAL_CLASS)}>
+        <PlayerTrackSlider
+          dual={dual}
+          sliderLabel={sliderLabel}
+          isLoading={isLoading}
+          isHlsTranscode={isHlsTranscode}
+          duration={duration}
+          chapters={chapters}
+          display={display}
+          seek={seekControls}
+        />
+        <div className={mergeClasses('player-track-timestamps flex items-center justify-between gap-3', dual && PLAYER_TRACK_TIMESTAMPS_DUAL_CLASS)}>
+          <p className="text-foreground-muted shrink-0 font-mono">
+            {display.currentTimeFormatted}
+            {' / '}
+            {Math.round(display.playedPercent)}%
           </p>
-        </div>
-
-        {/* Hover timestamp arrow */}
-        <div
-          ref={hoverTimestampArrowRef}
-          className={mergeClasses(
-            'bg-foreground text-background pointer-events-none absolute -top-3.5 left-0 rounded-full transition-opacity duration-100',
-            isHovering ? 'opacity-100' : 'opacity-0'
-          )}
-        >
-          <div className="absolute right-0 -bottom-1.5 left-0 flex w-full justify-center">
-            <div className="border-t-foreground h-0 w-0 border-t-4 border-r-4 border-l-4 border-r-transparent border-l-transparent" />
-          </div>
-        </div>
-      </div>
-      <div className={mergeClasses('flex items-center justify-between gap-3', isMobileCollapsed ? 'mt-0.5' : '')}>
-        <p className={mergeClasses('text-foreground-muted shrink-0 font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>
-          {currentTimeFormatted}
-          {' / '}
-          {Math.round(playedPercent)}%
-        </p>
-        {currentChapter ? (
-          isMobileCollapsed ? (
-            <div className="text-foreground-muted flex min-w-0 flex-1 items-center justify-center sm:max-w-none">
-              <TruncatingTooltipText lazy text={currentChapter.title} className="min-w-0 text-xs" position="top" />
-              {useChapterTrack && currentChapterNumber !== null && (
-                <span className="text-foreground-subdued shrink-0 pl-1 text-xs">
-                  ({currentChapterNumber} of {chapters.length})
-                </span>
-              )}
-            </div>
+          {chapterLabelPlacement === 'below' && chapterLabel ? (
+            <div className="flex min-w-0 flex-1 items-center justify-center sm:max-w-none">{chapterLabel}</div>
           ) : (
-            <p className="text-foreground-muted max-w-[40%] truncate text-sm sm:max-w-none">
-              {currentChapter.title}{' '}
-              {useChapterTrack && (
-                <span className="text-foreground-subdued pl-1 text-xs">
-                  ({currentChapterNumber} of {chapters.length})
-                </span>
-              )}
-            </p>
-          )
-        ) : (
-          <span className="flex-1" />
-        )}
-        <p className={mergeClasses('text-foreground-muted shrink-0 font-mono', isMobileCollapsed ? 'text-xs' : 'text-sm')}>{timeRemainingFormatted}</p>
+            <span className="flex-1" />
+          )}
+          <p className="text-foreground-muted shrink-0 font-mono">{display.timeRemainingFormatted}</p>
+        </div>
       </div>
     </div>
   )

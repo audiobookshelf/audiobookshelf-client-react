@@ -1,8 +1,9 @@
 'use client'
 
+import { useLibraries } from '@/contexts/LibrariesContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library } from '@/types/api'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import SettingsContent from '../SettingsContent'
 import { SETTINGS_MORE_INFO_URLS } from '../settingsNavItems'
 import { createLibrary, editLibrary, saveLibraryOrder } from './actions'
@@ -15,9 +16,14 @@ interface LibraryClientProps {
 
 export default function LibrariesClient({ libraries }: LibraryClientProps) {
   const t = useTypeSafeTranslations()
+  const { setLibraries } = useLibraries()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingLibrary, setEditingLibrary] = useState<Library | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+
+  useEffect(() => {
+    setLibraries(libraries)
+  }, [libraries, setLibraries])
 
   const handleAddLibrary = useCallback(() => {
     setEditingLibrary(null)

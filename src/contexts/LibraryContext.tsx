@@ -262,5 +262,5 @@ export function useLibraryOptional(): Partial<LibraryContextType> {
 /** Numeric height/width ratio for covers from library setting. Square (1) or standard (1.6) */
 export function useBookCoverAspectRatio(): number {
   const context = useContext(LibraryContext)
-  return getCoverAspectRatio((context?.library.settings?.coverAspectRatio ?? 1) as 0 | 1)
+  return getCoverAspectRatio((context?.library.settings?.coverAspectRatio ?? 0) as 0 | 1)
 }
