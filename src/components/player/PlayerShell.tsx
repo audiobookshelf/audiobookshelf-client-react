@@ -87,8 +87,9 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
   const collapseBtnRef = useRef<HTMLButtonElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
-  const useChapterTrack = playerHandler.state.settings.useChapterTrack && playerHandler.state.chapters.length > 0
-  const landscapeDensity = useLandscapePlayerDensity(shellRef, useChapterTrack)
+  const hasChapters = playerHandler.state.chapters.length > 0
+  const useChapterTrack = playerHandler.state.settings.useChapterTrack && hasChapters
+  const landscapeDensity = useLandscapePlayerDensity(shellRef, useChapterTrack, hasChapters)
   const showBookTrack = isPlayerFullscreen && useChapterTrack && !landscapeDensity.singleTrackBar
   const chapterLabelPlacement = landscapeDensity.chapterLabelBelow || !isPlayerFullscreen ? 'below' : 'above'
 

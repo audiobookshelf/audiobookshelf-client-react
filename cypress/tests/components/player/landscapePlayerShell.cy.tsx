@@ -29,13 +29,34 @@ describe('landscape player shell insets', () => {
 
     cy.get('[data-cy="player-shell"]').should(($shell) => {
       const shell = $shell[0] as HTMLElement
-      expect(landscapeDensityFromShell(shell, true)).to.deep.equal({
+      expect(landscapeDensityFromShell(shell, true, true)).to.deep.equal({
         overflowSecondaryToolbar: false,
         singleTrackBar: true,
         chapterLabelBelow: false,
         compactTitle: false
       })
-      expect(landscapeDensityFromShell(shell, false)).to.deep.equal({
+      expect(landscapeDensityFromShell(shell, false, false)).to.deep.equal({
+        overflowSecondaryToolbar: false,
+        singleTrackBar: false,
+        chapterLabelBelow: false,
+        compactTitle: false
+      })
+    })
+  })
+
+  it('makes room for the chapter label above the book track at Brave iOS landscape height', () => {
+    cy.viewport(844, 310)
+    cy.mount(<LandscapeShell />)
+
+    cy.get('[data-cy="player-shell"]').should(($shell) => {
+      const shell = $shell[0] as HTMLElement
+      expect(landscapeDensityFromShell(shell, false, true)).to.deep.equal({
+        overflowSecondaryToolbar: false,
+        singleTrackBar: true,
+        chapterLabelBelow: true,
+        compactTitle: false
+      })
+      expect(landscapeDensityFromShell(shell, false, false)).to.deep.equal({
         overflowSecondaryToolbar: false,
         singleTrackBar: false,
         chapterLabelBelow: false,

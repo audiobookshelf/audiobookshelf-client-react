@@ -17,7 +17,7 @@ function sameDensity(left: LandscapeDensityFlags, right: LandscapeDensityFlags) 
   return keys.every((key) => left[key] === right[key])
 }
 
-export function useLandscapePlayerDensity(shellRef: RefObject<HTMLElement | null>, chapterTrack: boolean): LandscapeDensityFlags {
+export function useLandscapePlayerDensity(shellRef: RefObject<HTMLElement | null>, chapterTrack: boolean, hasChapters: boolean): LandscapeDensityFlags {
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const isDesktop = useMediaQuery('lg')
   const landscapeActive = isPlayerFullscreen && isLandscapeCompact && !isDesktop
@@ -28,7 +28,7 @@ export function useLandscapePlayerDensity(shellRef: RefObject<HTMLElement | null
 
     const measure = () => {
       const shell = shellRef.current
-      setDensity(shell ? landscapeDensityFromShell(shell, chapterTrack) : FULL_LANDSCAPE_UI)
+      setDensity(shell ? landscapeDensityFromShell(shell, chapterTrack, hasChapters) : FULL_LANDSCAPE_UI)
     }
     window.addEventListener('resize', measure)
     window.visualViewport?.addEventListener('resize', measure)
@@ -36,10 +36,10 @@ export function useLandscapePlayerDensity(shellRef: RefObject<HTMLElement | null
       window.removeEventListener('resize', measure)
       window.visualViewport?.removeEventListener('resize', measure)
     }
-  }, [chapterTrack, landscapeActive, shellRef])
+  }, [chapterTrack, hasChapters, landscapeActive, shellRef])
 
   const shell = shellRef.current
-  const measured = landscapeActive && shell ? landscapeDensityFromShell(shell, chapterTrack) : FULL_LANDSCAPE_UI
+  const measured = landscapeActive && shell ? landscapeDensityFromShell(shell, chapterTrack, hasChapters) : FULL_LANDSCAPE_UI
   if (!sameDensity(measured, density)) setDensity(measured)
 
   return density
