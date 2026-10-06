@@ -5,7 +5,7 @@ import { useMediaQuery } from '@/hooks/useMediaQuery'
 
 export interface PlayerShellLayout {
   isPlayerFullscreen: boolean
-  /** Fullscreen and a short landscape viewport (`orientation: landscape` and `max-height: 600px`). */
+  /** Fullscreen and a short landscape viewport (`landscape-compact` in `useMediaQuery`). */
   isLandscapeCompact: boolean
 }
 
