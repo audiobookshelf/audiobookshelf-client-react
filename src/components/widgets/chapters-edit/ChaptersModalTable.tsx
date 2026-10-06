@@ -137,19 +137,23 @@ export default function ChaptersModalTable({
             <Checkbox value={allSelected} partial={someSelected && !allSelected} size="small" ariaLabel={t('LabelSelectAll')} onChange={onToggleAllSelected} />
           </div>
         ),
-        headerClassName: 'text-center ps-3 pe-2 w-12 min-w-12',
+        headerClassName: 'text-center ps-3 pe-2 w-12 min-w-12 max-md:col-start-1 max-md:row-start-1 max-md:flex max-md:items-center max-md:justify-center',
         cellClassName: 'ps-3 pe-2 w-12 min-w-12'
       },
       {
         id: startHeaderId,
         label: t('LabelStart'),
-        headerClassName: startTimeColumnClass(mediaDuration, 'header'),
+        headerClassName: mergeClasses(
+          startTimeColumnClass(mediaDuration, 'header'),
+          'max-md:col-start-2 max-md:row-start-1 max-md:block max-md:w-auto max-md:min-w-0'
+        ),
         cellClassName: startTimeColumnClass(mediaDuration, 'cell')
       },
       {
         id: titleHeaderId,
         label: t('LabelTitle'),
-        headerClassName: 'text-start px-2',
+        // Mobile rows put the title on a second line under the checkbox and start time (see ChapterEditTableRow).
+        headerClassName: 'text-start px-1 md:px-2 max-md:col-span-2 max-md:col-start-1 max-md:row-start-2 max-md:block max-md:ps-4 max-md:pt-0',
         cellClassName: 'px-2'
       },
       {
@@ -242,7 +246,7 @@ export default function ChaptersModalTable({
         <table className={TABLE_CLASS}>
           <caption className="sr-only">{t('LabelChapters')}</caption>
           <thead className="bg-table-header-bg">
-            <tr className="border-border border-b">
+            <tr className="border-border border-b max-md:grid max-md:grid-cols-[3rem_minmax(0,1fr)_auto] max-md:items-center">
               {columns.map((column, index) => (
                 <th key={index} id={column.id} className={mergeClasses(HEADER_CELL_CLASS, column.headerClassName)} scope="col">
                   {column.label}
