@@ -238,7 +238,8 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
   return (
     <>
       <div className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-lg" aria-busy={isPending || undefined}>
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden" inert={isPending || undefined}>
+        {/* Below md (incl. phone landscape) the tools and table scroll together here; from md up only the table scrolls. */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto" inert={isPending || undefined}>
           <div className="bg-bg border-border shrink-0 border-b px-4 py-3">
             <div className="flex w-full flex-wrap items-end justify-between gap-x-2 gap-y-3">
               <div className="w-full min-w-0 md:w-auto">
@@ -261,7 +262,7 @@ function ChaptersEditContent({ libraryItem, closeRequestRef, onPendingChange, on
             </div>
           </div>
 
-          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4">
+          <div className="relative flex flex-1 flex-col px-4 py-4 md:min-h-0 md:overflow-hidden">
             <ChaptersModalTable
               scrollContainerRef={scrollContainerRef}
               chapters={newChapters}
