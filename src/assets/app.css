@@ -31,7 +31,7 @@ html:has(.player-shell) {
   width: calc(100vw - (100vw - 100%));
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px), (orientation: landscape) and (max-height: theme(--compact-landscape-max-height)) {
   #bookshelf {
     height: calc(100% - 80px);
   }

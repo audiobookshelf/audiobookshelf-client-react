@@ -20,7 +20,7 @@ export default function UserAppBarNav() {
   const t = useTypeSafeTranslations()
   const router = useRouter()
   const logout = useLogout()
-  const isDesktop = useMediaQuery('md', true)
+  const isDesktop = !useMediaQuery('max-md')
   const menuId = useId()
   const [menuOpen, setMenuOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)

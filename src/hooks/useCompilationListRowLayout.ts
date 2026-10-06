@@ -8,7 +8,7 @@ import { useMediaQuery } from './useMediaQuery'
 export function useCompilationListRowLayout() {
   const { sizeMultiplier } = useCardSize()
   const bookCoverAspectRatio = useBookCoverAspectRatio()
-  const isMdUp = useMediaQuery('md')
+  const isMdUp = !useMediaQuery('max-md', true)
 
   const coverWidth = useMemo(() => {
     const baseCoverSize = isMdUp ? 50 : 30

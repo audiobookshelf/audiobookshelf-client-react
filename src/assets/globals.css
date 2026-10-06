@@ -5,6 +5,22 @@
 @import './app.css';
 @import './themes.css';
 
+/*
+ * Phones in landscape are wide enough for sm/md but too short for desktop chrome.
+ * Keep the built-in variant order; only the media query changes. lg and up stay width-only.
+ * Must stay in sync with MEDIA_QUERIES in src/hooks/useMediaQuery.ts.
+ * Media queries cannot read var(), so use theme() to inline the token at build time.
+ */
+/* static: always emitted on :root, because src/hooks/useMediaQuery.ts reads it at runtime. */
+@theme static {
+  --compact-landscape-max-height: 600px;
+}
+
+@custom-variant sm (@media (min-width: 40rem) and (orientation: portrait), @media (min-width: 40rem) and (min-height: calc(theme(--compact-landscape-max-height) + 1px)));
+@custom-variant md (@media (min-width: 48rem) and (orientation: portrait), @media (min-width: 48rem) and (min-height: calc(theme(--compact-landscape-max-height) + 1px)));
+@custom-variant max-sm (@media (max-width: 39.99rem), @media (orientation: landscape) and (max-height: theme(--compact-landscape-max-height)));
+@custom-variant max-md (@media (max-width: 47.99rem), @media (orientation: landscape) and (max-height: theme(--compact-landscape-max-height)));
+
 :root {
   --header-height: 64px;
 }

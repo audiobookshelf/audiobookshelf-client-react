@@ -1,3 +1,5 @@
+@reference '../../assets/globals.css';
+
 :root {
   /* Morph timings (view-transition pseudo-elements are not under .player-shell) */
   --player-morph-dur: 0.2s;
@@ -234,7 +236,7 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 600px) {
+@media (orientation: landscape) and (max-height: theme(--compact-landscape-max-height)) {
   .player-shell.fullscreen {
     --landscape-pad: 1rem;
     --landscape-col-min: 24rem;
