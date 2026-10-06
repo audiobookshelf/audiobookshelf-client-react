@@ -1,13 +1,13 @@
 'use client'
 
-import type { PlayerHandler } from '@/hooks/usePlayerHandler'
+import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
 import ButtonBase from '@/components/ui/ButtonBase'
 import { useOverlayHistory } from '@/hooks/useOverlayHistory'
+import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
-import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -30,6 +30,7 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
   const widgetId = useId()
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isPositioned, setIsPositioned] = useState(false)
 
   const triggerRef = useRef<HTMLButtonElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -65,7 +66,8 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
     refs,
     floatingStyles,
     placement: resolvedPlacement,
-    middlewareData
+    middlewareData,
+    update
   } = useFloating({
     open: isOpen,
     placement: 'top',
@@ -79,10 +81,20 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
 
   // Sync popover ref with Floating UI
   useEffect(() => {
-    if (popoverRef.current) {
+    if (popoverRef.current && isOpen) {
       refs.setFloating(popoverRef.current)
+      update()
+      requestAnimationFrame(() => {
+        setIsPositioned(true)
+      })
     }
-  }, [refs, isOpen])
+  }, [refs, isOpen, update])
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsPositioned(false)
+    }
+  }, [isOpen])
 
   // Update reference element when trigger ref is available
   useEffect(() => {
@@ -178,7 +190,10 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
       ref={popoverRef}
       id={`${widgetId}-popover`}
       role="dialog"
-      style={floatingStyles}
+      style={{
+        ...floatingStyles,
+        visibility: isPositioned ? 'visible' : 'hidden'
+      }}
       className={mergeClasses('bg-background rounded-lg p-2 shadow-lg', isPlayerFullscreen ? PLAYER_OVERLAY_Z_CLASS : 'z-70')}
     >
       {/* Preset buttons row */}
