@@ -128,7 +128,7 @@ export default function Modal({
       aria-modal="true"
       data-abs-modal
       className={mergeClasses(
-        'modal modal-bg fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden',
+        'modal modal-bg fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden pt-[50px] pb-2',
         zIndexClass,
         bgOpacityClass
       )}
@@ -155,7 +155,7 @@ export default function Modal({
       <div
         ref={contentRef}
         tabIndex={0}
-        className="relative mt-[50px] outline-none focus:outline-none"
+        className="relative flex max-h-full flex-col outline-none focus:outline-none"
         cy-id="modal-content"
         onClick={(e) => e.stopPropagation()}
       >
@@ -164,6 +164,9 @@ export default function Modal({
           style={style}
           className={mergeClasses(
             'text-foreground shadow-modal-content bg-bg relative rounded-lg',
+            // Never taller than the viewport (e.g. phones in landscape): children shrink so their own scroll areas take the overflow;
+            // content that cannot shrink scrolls inside the panel instead.
+            'flex min-h-0 flex-col overflow-y-auto [&>*]:min-h-0',
             // Responsive width: full width with margin on mobile, fixed width on larger screens
             'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
             className

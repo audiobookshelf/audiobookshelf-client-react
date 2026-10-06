@@ -57,7 +57,7 @@ export default function TabbedModal({
       style={style}
     >
       {/* Tabs bar */}
-      <div className="flex gap-1 pr-2" role="tablist">
+      <div className="flex shrink-0 gap-1 pr-2" role="tablist">
         {tabs.map((tab) => {
           const isActive = tab.id === selectedTab
           return (
@@ -82,7 +82,12 @@ export default function TabbedModal({
       {/* Modal content */}
       <div className="bg-bg shadow-modal-content border-border flex flex-col rounded-tr-lg rounded-b-lg border-t">
         {/* Tab content */}
-        <div id={`tabpanel-${selectedTab}`} role="tabpanel" className={contentClassName} onClick={(e) => e.stopPropagation()}>
+        <div
+          id={`tabpanel-${selectedTab}`}
+          role="tabpanel"
+          className={mergeClasses('min-h-0 overflow-y-auto', contentClassName)}
+          onClick={(e) => e.stopPropagation()}
+        >
           {children}
         </div>
 
