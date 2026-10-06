@@ -237,8 +237,8 @@ export default function ChaptersModalTable({
   )
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col" {...{ [CHAPTERS_EDIT_TABLE_ATTR]: true }}>
-      <div className="border-border relative shrink-0 overflow-x-auto rounded-t-md border border-b-0">
+    <div className="flex flex-1 flex-col md:min-h-0" {...{ [CHAPTERS_EDIT_TABLE_ATTR]: true }}>
+      <div className="border-border relative shrink-0 overflow-x-auto rounded-t-md border border-b-0 max-md:sticky max-md:top-0 max-md:z-30">
         <table className={TABLE_CLASS}>
           <caption className="sr-only">{t('LabelChapters')}</caption>
           <thead className="bg-table-header-bg">
@@ -273,7 +273,7 @@ export default function ChaptersModalTable({
         )}
       </div>
 
-      <div ref={scrollContainerRef} className="border-border min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-b-md border">
+      <div ref={scrollContainerRef} className="border-border min-h-fit flex-1 overflow-x-auto overflow-y-auto rounded-b-md border md:min-h-0">
         <table className={TABLE_CLASS}>
           <tbody>{chapters.map((chapter, index) => renderEditRow(chapter, index))}</tbody>
         </table>
