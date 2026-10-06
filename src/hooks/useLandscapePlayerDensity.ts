@@ -3,7 +3,7 @@
 import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { landscapeDensityFromShell, type LandscapeDensityFlags } from '@/lib/player/landscapeDensity'
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useLayoutEffect, useState } from 'react'
 
 const FULL_LANDSCAPE_UI: LandscapeDensityFlags = {
   overflowSecondaryToolbar: false,
@@ -23,13 +23,15 @@ export function useLandscapePlayerDensity(shellRef: RefObject<HTMLElement | null
   const landscapeActive = isPlayerFullscreen && isLandscapeCompact && !isDesktop
   const [density, setDensity] = useState(FULL_LANDSCAPE_UI)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!landscapeActive) return
 
     const measure = () => {
       const shell = shellRef.current
       setDensity(shell ? landscapeDensityFromShell(shell, chapterTrack, hasChapters) : FULL_LANDSCAPE_UI)
     }
+    // The render-time read can run before the fullscreen class (and its column tokens) is committed.
+    measure()
     window.addEventListener('resize', measure)
     window.visualViewport?.addEventListener('resize', measure)
     return () => {
