@@ -449,10 +449,10 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
   if (isLoading) {
     return (
-      <div className="text-foreground flex h-dvh w-full items-center justify-center bg-neutral-900" role="status" aria-live="polite">
+      <div className="text-foreground page-bg-gradient flex h-dvh w-full items-center justify-center" role="status" aria-live="polite">
         <div className="flex flex-col items-center gap-4">
-          <LoadingSpinner size="la-2x" color="rgb(148 163 184)" />
-          <p className="text-lg text-slate-400">Loading...</p>
+          <LoadingSpinner size="la-2x" />
+          <p className="text-foreground-muted text-lg">Loading...</p>
         </div>
       </div>
     )
@@ -460,20 +460,17 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
   if (fetchError || !shareData || !playbackSession) {
     return (
-      <div className="text-foreground flex h-dvh w-full items-center justify-center bg-neutral-900">
+      <div className="text-foreground page-bg-gradient flex h-dvh w-full items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <span className="material-symbols text-5xl text-slate-500">error</span>
-          <p className="text-xl text-slate-400">{fetchError || 'Failed to load shared item'}</p>
+          <span className="material-symbols text-foreground-subdued text-5xl">error</span>
+          <p className="text-foreground-muted text-xl">{fetchError || 'Failed to load shared item'}</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="h-dvh max-h-dvh w-full max-w-full overflow-hidden bg-neutral-900">
-      {/* Background gradient overlay */}
-      <div className="pointer-events-none absolute inset-0 h-screen w-screen bg-gradient-to-b from-transparent via-transparent to-neutral-800" />
-
+    <div className="text-foreground page-bg-gradient relative h-dvh max-h-dvh w-full max-w-full overflow-hidden">
       {/* Main content */}
       <div className="absolute inset-0 z-10 flex h-dvh w-screen items-center justify-center">
         <div className="w-full p-2 sm:p-4 md:p-8">
@@ -490,7 +487,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
           {/* Author */}
           {playbackSession.displayAuthor && (
-            <p className="mb-1 truncate text-center text-lg font-semibold text-slate-400 lg:text-xl">{playbackSession.displayAuthor}</p>
+            <p className="text-foreground-muted mb-1 truncate text-center text-lg font-semibold lg:text-xl">{playbackSession.displayAuthor}</p>
           )}
 
           {/* Player UI */}
@@ -499,30 +496,30 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
             <div className="mb-2">
               <div
                 ref={trackRef}
-                className="relative h-2 w-full cursor-pointer overflow-hidden rounded-full bg-white/10 transition-transform duration-100 hover:scale-y-125"
+                className="bg-track-bg relative h-2 w-full cursor-pointer overflow-hidden rounded-full transition-transform duration-100 hover:scale-y-125"
                 onClick={handleTrackClick}
               >
                 {/* Buffered */}
                 <div
-                  className="pointer-events-none absolute top-0 left-0 h-full bg-white/20 transition-[width] duration-75"
+                  className="bg-track-progress/50 pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
                   style={{ width: `${bufferedPercent}%` }}
                 />
                 {/* Played */}
                 <div
-                  className="pointer-events-none absolute top-0 left-0 h-full bg-white transition-[width] duration-75"
+                  className="bg-track-progress pointer-events-none absolute top-0 left-0 h-full transition-[width] duration-75"
                   style={{ width: `${playedPercent}%` }}
                 />
                 {/* Loading shimmer */}
                 {playerState === PlayerState.LOADING && (
-                  <div className="loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="via-track-progress/30 loading-track-slide pointer-events-none absolute top-0 h-full w-1/4 bg-linear-to-r from-transparent to-transparent" />
                 )}
               </div>
 
               {/* Time display */}
               <div className="mt-1 flex items-center justify-between">
-                <p className="font-mono text-xs text-slate-400">{currentTimeFormatted}</p>
-                {currentChapter && <p className="truncate px-2 text-xs text-slate-400">{currentChapter.title}</p>}
-                <p className="font-mono text-xs text-slate-400">{timeRemainingFormatted}</p>
+                <p className="text-foreground-muted font-mono text-xs">{currentTimeFormatted}</p>
+                {currentChapter && <p className="text-foreground-muted truncate px-2 text-xs">{currentChapter.title}</p>}
+                <p className="text-foreground-muted font-mono text-xs">{timeRemainingFormatted}</p>
               </div>
             </div>
 
@@ -548,7 +545,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
                 size="custom"
                 loading={playerState === PlayerState.LOADING}
                 outlined={false}
-                className="h-12 w-12 rounded-full bg-white text-3xl text-neutral-900 hover:text-neutral-900 hover:not-disabled:text-neutral-900"
+                className="player-play-btn bg-accent text-primary hover:text-primary hover:not-disabled:text-primary h-12 w-12 rounded-full text-3xl"
                 onClick={playPause}
               >
                 {isPlaying ? 'pause' : 'play_arrow'}
@@ -571,7 +568,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
                     const nextRate = rates[(currentIdx + 1) % rates.length]
                     setPlaybackRate(nextRate)
                   }}
-                  className="min-w-[3rem] cursor-pointer text-center text-sm font-medium text-slate-300 tabular-nums transition-colors hover:text-white"
+                  className="text-foreground-muted hover:text-foreground min-w-12 cursor-pointer text-center text-sm font-medium tabular-nums transition-colors"
                 >
                   {settings.playbackRate}x
                 </button>
@@ -583,7 +580,11 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
           {shareData.isDownloadable && (
             <div className="absolute top-0 left-0 m-4">
               <Tooltip text={t('LabelDownload')} position="bottom">
-                <button aria-label={t('LabelDownload')} className="cursor-pointer text-gray-300 hover:text-white" onClick={downloadShareItem}>
+                <button
+                  aria-label={t('LabelDownload')}
+                  className="text-foreground-muted hover:text-foreground cursor-pointer transition-colors"
+                  onClick={downloadShareItem}
+                >
                   <span className="material-symbols text-2xl sm:text-3xl">download</span>
                 </button>
               </Tooltip>
