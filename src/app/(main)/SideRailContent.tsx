@@ -160,7 +160,7 @@ export default function SideRailContent({
 
   const isDrawer = variant === 'drawer'
   const itemLayoutClass = isDrawer
-    ? 'border-border flex min-w-0 items-center justify-start overflow-hidden px-4 py-3'
+    ? 'border-border flex min-w-0 shrink-0 items-center justify-start overflow-hidden px-4 py-3'
     : 'border-primary/30 flex h-18 min-w-0 shrink-0 flex-col items-center justify-center gap-0.5 overflow-hidden'
   const itemLabelClass = isDrawer ? 'min-w-0 truncate text-sm font-semibold' : 'w-full min-w-0 truncate px-0.5 text-center text-sm leading-tight'
 
