@@ -184,15 +184,6 @@ body {
   padding-inline-start: max(0px, var(--safe-start) - --value(--spacing-*));
 }
 
-/*
- * Inverse, for content inside an already inset region (e.g. the library scroll container's safe-px):
- * only the part of the spacing step the inset does not already cover. Accepts em keys, e.g. `ps-minus-safe-6e`.
- */
-@utility ps-minus-safe-* {
-  padding-inline-start: max(0px, --spacing(--value(integer)) - var(--safe-start));
-  padding-inline-start: max(0px, --value(--spacing-*) - var(--safe-start));
-}
-
 /* Listening stats heatmap */
 .listening-heatmap-cell,
 .listening-heatmap-swatch {

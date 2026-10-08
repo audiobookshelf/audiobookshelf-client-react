@@ -9,6 +9,8 @@ interface ItemSliderProps {
   title: React.ReactNode
   children: React.ReactNode
   className?: string
+  /** Scroll edge to edge under the safe-area insets, with content inset at rest. Off when nested in padded page content. */
+  bleed?: boolean
 }
 
 interface SliderNavBtnProps {
@@ -36,7 +38,7 @@ const SliderNavBtn = ({ direction, disabled, onClick }: SliderNavBtnProps) => {
   )
 }
 
-export default function ItemSlider({ title, children, className = '' }: ItemSliderProps) {
+export default function ItemSlider({ title, children, className = '', bleed = true }: ItemSliderProps) {
   const sliderRef = useRef<HTMLDivElement>(null)
   const [isScrollable, setIsScrollable] = useState(false)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -79,8 +81,8 @@ export default function ItemSlider({ title, children, className = '' }: ItemSlid
   }
 
   return (
-    <div className={mergeClasses('ps-minus-safe-6e mt-6e w-full', className)}>
-      <div className="py-1e px-4e flex items-center">
+    <div className={mergeClasses('mt-6e', bleed && 'bleed-mx', className)}>
+      <div className={mergeClasses('py-1e flex items-center', bleed ? 'safe-ps-10e safe-pe-4e' : 'px-4e')}>
         <div className="text-foreground flex-grow font-bold">{title}</div>
 
         {isScrollable && (
@@ -91,7 +93,11 @@ export default function ItemSlider({ title, children, className = '' }: ItemSlid
         )}
       </div>
 
-      <div ref={sliderRef} className="no-scroll px-2e py-3e flex w-full overflow-x-auto overflow-y-hidden scroll-smooth" onScroll={checkScroll}>
+      <div
+        ref={sliderRef}
+        className={mergeClasses('no-scroll py-3e flex w-full overflow-x-auto overflow-y-hidden scroll-smooth', bleed ? 'safe-ps-8e safe-pe-2e' : 'px-2e')}
+        onScroll={checkScroll}
+      >
         {children}
       </div>
     </div>
