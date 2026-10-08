@@ -83,6 +83,7 @@ import {
   SearchPodcastEpisodeResult,
   Series,
   ServerStatus,
+  ServerYearStats,
   TasksResponse,
   UpdateAuthorPayload,
   UpdateAuthSettingsResponse,
@@ -96,7 +97,8 @@ import {
   UploadCoverResponse,
   User,
   UserAccountPayload,
-  UserLoginResponse
+  UserLoginResponse,
+  UserYearStats
 } from '../types/api'
 
 import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
@@ -454,6 +456,14 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
 export const getListeningStats = cache(async (): Promise<ListeningStats> => {
   return apiRequest<ListeningStats>('/api/me/listening-stats')
 })
+
+export async function getUserYearStats(year: number): Promise<UserYearStats> {
+  return apiRequest<UserYearStats>(`/api/me/stats/year/${year}`)
+}
+
+export async function getServerYearStats(year: number): Promise<ServerYearStats> {
+  return apiRequest<ServerYearStats>(`/api/stats/year/${year}`)
+}
 
 export const getServerStatus = cache(async (): Promise<ServerStatus> => {
   return apiRequest<ServerStatus>('/status')

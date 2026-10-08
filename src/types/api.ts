@@ -1707,6 +1707,54 @@ export interface ListeningStats {
   recentSessions: PlaybackSession[]
 }
 
+export interface YearStatsNameTime {
+  name: string
+  time: number
+}
+
+export interface YearStatsGenreTime {
+  genre: string
+  time: number
+}
+
+/**
+ * Personal year in review stats from GET /api/me/stats/year/:year
+ */
+export interface UserYearStats {
+  totalListeningSessions: number
+  totalListeningTime: number
+  totalBookListeningTime: number
+  totalPodcastListeningTime: number
+  topAuthors: YearStatsNameTime[]
+  topGenres: YearStatsGenreTime[]
+  mostListenedNarrator: YearStatsNameTime | null
+  /** month is 0-indexed */
+  mostListenedMonth: { month: number; time: number } | null
+  numBooksFinished: number
+  numBooksListened: number
+  booksWithCovers: string[]
+  finishedBooksWithCovers: string[]
+}
+
+/**
+ * Server year in review stats from GET /api/stats/year/:year (admin only)
+ */
+export interface ServerYearStats {
+  numListeningSessions: number
+  numBooksAdded: number
+  numAuthorsAdded: number
+  totalBooksAddedSize: number
+  totalBooksAddedDuration: number
+  booksAddedWithCovers: string[]
+  totalBooksSize: number
+  totalBooksDuration: number
+  totalListeningTime: number
+  numBooks: number
+  topAuthors: YearStatsNameTime[]
+  topNarrators: YearStatsNameTime[]
+  topGenres: YearStatsGenreTime[]
+}
+
 export interface GetListeningSessionsResponse {
   total: number
   numPages: number
