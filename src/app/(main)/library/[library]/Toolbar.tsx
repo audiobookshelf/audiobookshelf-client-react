@@ -69,7 +69,7 @@ export default function Toolbar() {
 
   return (
     <div className="bg-bg box-shadow-toolbar relative z-40 h-10 w-full" cy-id="library-toolbar">
-      <div className="flex h-full w-full items-center justify-between px-4">
+      <div className="safe-px-4 flex h-full w-full items-center justify-between">
         {showSearchSummary && (
           <>
             <div className="flex-grow" />

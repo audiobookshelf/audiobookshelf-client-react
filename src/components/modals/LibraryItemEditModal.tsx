@@ -407,7 +407,7 @@ export default function LibraryItemEditModal(props: LibraryItemEditModalProps) {
       onClose={onClose}
       {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem })}
       additionalProcessing={isSavePending || filterDataLoading}
-      className="sm:max-w-screen md:max-w-[800px]"
+      className="sm:max-w-(--content-vw) md:max-w-[800px]"
     >
       <LibraryItemEditModalContent
         isOpen={isOpen}

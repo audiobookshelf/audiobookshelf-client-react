@@ -79,7 +79,7 @@ export default function ItemSlider({ title, children, className = '' }: ItemSlid
   }
 
   return (
-    <div className={mergeClasses('ps-6e mt-6e w-full', className)}>
+    <div className={mergeClasses('ps-minus-safe-6e mt-6e w-full', className)}>
       <div className="py-1e px-4e flex items-center">
         <div className="text-foreground flex-grow font-bold">{title}</div>
 

@@ -8,6 +8,29 @@
   --bookshelf-divider-bg: linear-gradient(180deg, rgba(149, 119, 90, 1) 0%, rgba(103, 70, 37, 1) 17%, rgba(103, 70, 37, 1) 88%, rgba(71, 48, 25, 1) 100%);
   --media-player-height: 0px;
   --media-player-offset: calc(var(--media-player-height) + 1rem);
+  /* Physical safe-area insets (notch / home indicator). 0 where the browser insets the page itself. */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  /* Logical insets used by the safe-* utilities in globals.css; swapped for RTL below. */
+  --safe-start: var(--safe-left);
+  --safe-end: var(--safe-right);
+  --content-vw: calc(100vw - var(--safe-left) - var(--safe-right));
+}
+
+/*
+ * Attribute selectors rather than :dir(): the CSS build lowers :dir(rtl) to a :lang(he, ar, ...) list,
+ * which would swap the tokens without the layout direction changing. Custom properties inherit, so the
+ * element carrying dir covers its subtree; dir="auto" is not resolved here.
+ */
+[dir='rtl'] {
+  --safe-start: var(--safe-right);
+  --safe-end: var(--safe-left);
+}
+[dir='ltr'] {
+  --safe-start: var(--safe-left);
+  --safe-end: var(--safe-right);
 }
 
 /* App bar, plus the mini player when one is open. --media-player-height is 0 otherwise. */
@@ -37,7 +60,7 @@ html:has(.player-shell) {
   }
 
   .bookshelf-row {
-    width: 100vw;
+    width: 100%;
   }
 }
 

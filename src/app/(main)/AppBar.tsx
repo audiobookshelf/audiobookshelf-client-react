@@ -86,10 +86,10 @@ export default function AppBar({ libraries, currentLibraryId }: AppBarProps) {
   const LOGO_BUTTON_CLASSES = 'text-foreground hover:text-foreground/80 flex shrink-0 items-center justify-start gap-2 p-1 text-sm md:gap-4'
 
   return (
-    <div className="bg-primary relative h-16 w-full">
+    <div className="bg-primary bleed-mx relative h-16">
       <header
         cy-id="appbar"
-        className="box-shadow-appbar absolute inset-s-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 px-2 py-1 max-md:overflow-x-hidden md:gap-4 md:px-6"
+        className="box-shadow-appbar safe-px-2 md:safe-px-6 absolute inset-s-0 top-0 bottom-0 z-60 flex h-full w-full min-w-0 items-center justify-start gap-1 py-1 max-md:overflow-x-hidden md:gap-4"
       >
         {showMobileSideRailToggle && (
           <IconBtn

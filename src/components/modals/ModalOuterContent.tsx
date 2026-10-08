@@ -17,8 +17,8 @@ export default function ModalOuterContent({ children, title, className }: ModalO
   const tooltipTitle = title ?? (typeof children === 'string' ? children : undefined)
 
   return (
-    <div className="absolute start-0 top-0 p-4">
-      <h2 className={mergeClasses('max-w-[calc(100vw-4rem)] truncate text-xl text-white', className)} title={tooltipTitle}>
+    <div className="safe-px-4 absolute start-0 top-0 py-4">
+      <h2 className={mergeClasses('max-w-[calc(var(--content-vw)-4rem)] truncate text-xl text-white', className)} title={tooltipTitle}>
         {children}
       </h2>
     </div>

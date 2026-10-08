@@ -449,7 +449,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
   if (isLoading) {
     return (
-      <div className="text-foreground page-bg-gradient flex h-dvh w-full items-center justify-center" role="status" aria-live="polite">
+      <div className="text-foreground page-bg-gradient bleed-mx flex h-dvh items-center justify-center" role="status" aria-live="polite">
         <div className="flex flex-col items-center gap-4">
           <LoadingSpinner size="la-2x" />
           <p className="text-foreground-muted text-lg">Loading...</p>
@@ -460,7 +460,7 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
 
   if (fetchError || !shareData || !playbackSession) {
     return (
-      <div className="text-foreground page-bg-gradient flex h-dvh w-full items-center justify-center">
+      <div className="text-foreground page-bg-gradient bleed-mx flex h-dvh items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <span className="material-symbols text-foreground-subdued text-5xl">error</span>
           <p className="text-foreground-muted text-xl">{fetchError || 'Failed to load shared item'}</p>
@@ -470,9 +470,9 @@ export default function SharePlayer({ slug, startTime: startTimeParam }: SharePl
   }
 
   return (
-    <div className="text-foreground page-bg-gradient relative h-dvh max-h-dvh w-full max-w-full overflow-hidden">
+    <div className="text-foreground page-bg-gradient bleed-mx relative h-dvh max-h-dvh overflow-hidden">
       {/* Main content */}
-      <div className="absolute inset-0 z-10 flex h-dvh w-screen items-center justify-center">
+      <div className="safe-px absolute inset-0 z-10 flex h-dvh w-screen items-center justify-center">
         <div className="w-full p-2 sm:p-4 md:p-8">
           {/* Cover image */}
           {!isMobileLandscape && (
