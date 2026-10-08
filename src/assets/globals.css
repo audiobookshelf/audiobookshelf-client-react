@@ -184,6 +184,27 @@ body {
   padding-inline-start: max(0px, var(--safe-start) - --value(--spacing-*));
 }
 
+/*
+ * Flex column that never grows past its max height (e.g. a modal on a phone in landscape): children shrink so
+ * their own scroll areas take the overflow; content that cannot shrink scrolls here instead.
+ * Children keep a declared height as their size (a flex-1 basis of 0 would collapse it to the content),
+ * and default to min-height 0 at zero specificity so a child's own min-h-* still wins.
+ */
+@utility fit-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+
+  & > * {
+    flex-basis: auto !important;
+  }
+
+  :where(& > *) {
+    min-height: 0;
+  }
+}
+
 /* Listening stats heatmap */
 .listening-heatmap-cell,
 .listening-heatmap-swatch {
