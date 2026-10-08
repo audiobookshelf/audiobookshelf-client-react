@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
 import { headers } from 'next/headers'
 
+import BraveViewportGuard from '../components/BraveViewportGuard'
 import ServiceWorkerRegister from '../components/ServiceWorkerRegister'
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
 import { ToastProvider } from '../contexts/ToastContext'
@@ -66,6 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </ToastProvider>
         </NextIntlClientProvider>
         <ServiceWorkerRegister basePath={basePath} />
+        <BraveViewportGuard />
       </body>
     </html>
   )
