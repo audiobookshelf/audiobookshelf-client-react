@@ -109,8 +109,10 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
     if (!containerRef.current) return
     const measure = () => {
       if (containerRef.current) {
+        // Content width, matching the ResizeObserver's contentRect (excludes the safe-area padding)
+        const style = getComputedStyle(containerRef.current)
         setDimensions({
-          width: containerRef.current.clientWidth,
+          width: containerRef.current.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight),
           height: window.innerHeight - containerRef.current.getBoundingClientRect().top
         })
       }
@@ -290,7 +292,7 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
   return (
     <div
       ref={containerRef}
-      className={isAlternativeBookshelfView ? 'relative h-full overflow-y-auto py-8' : 'relative h-full overflow-y-auto'}
+      className={isAlternativeBookshelfView ? 'bleed-mx safe-px relative h-full overflow-y-auto py-8' : 'bleed-mx safe-px relative h-full overflow-y-auto'}
       style={{ fontSize: sizeMultiplier + 'rem' }}
       onScroll={(e) => {
         const scrollTop = e.currentTarget.scrollTop
@@ -332,11 +334,11 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
             return (
               <div
                 key={shelfIndex}
-                className={`absolute left-0 flex w-full ${!isAlternativeBookshelfView ? 'bookshelfRow' : ''}`}
+                className={`bleed-inset-x absolute flex ${!isAlternativeBookshelfView ? 'bookshelfRow' : ''}`}
                 style={{
                   top: `${shelfIndex * shelfHeight}px`,
                   height: `${shelfHeight}px`,
-                  paddingLeft: `${bookshelfMarginLeft}px`,
+                  paddingInlineStart: `calc(var(--safe-start) + ${bookshelfMarginLeft}px)`,
                   // To push the cards to the bottom of the flex container (and touch the divider), we align items to center and add some pt-6e equivalent to the cards or use items-end with padding-bottom for the divider.
                   // BookShelfRow uses pt-6e (24px) to push the content down. Then the divider is positioned exactly under it.
                   paddingTop: !isAlternativeBookshelfView ? `${16 * sizeMultiplier}px` : undefined,

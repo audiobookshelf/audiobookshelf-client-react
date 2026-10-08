@@ -146,7 +146,7 @@ export default function AppBarSelectionOverlay({ libraryId }: { libraryId?: stri
 
   return (
     <>
-      <div className="bg-primary absolute inset-0 z-70 flex items-center px-4 md:px-6" role="toolbar" aria-label={selectionLabel}>
+      <div className="bg-primary safe-px-4 md:safe-px-6 absolute inset-0 z-70 flex items-center" role="toolbar" aria-label={selectionLabel}>
         <div className={countBadgeClasses} aria-label={selectionLabel} role="status">
           <span className="font-mono text-sm" aria-hidden="true">
             {selectedItems.length}

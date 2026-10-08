@@ -128,7 +128,7 @@ export default function Modal({
       aria-modal="true"
       data-abs-modal
       className={mergeClasses(
-        'modal modal-bg fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden pt-[50px] pb-2',
+        'modal modal-bg safe-px fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden pt-[50px] pb-2',
         zIndexClass,
         bgOpacityClass
       )}
@@ -140,7 +140,7 @@ export default function Modal({
 
       {/* Close button */}
       <button
-        className="absolute end-2 top-2 z-10 inline-flex text-gray-200 transition-colors hover:text-white sm:end-4 sm:top-4"
+        className="safe-end-2 sm:safe-end-4 absolute top-2 z-10 inline-flex text-gray-200 transition-colors hover:text-white sm:top-4"
         aria-label={t('ButtonCloseModal')}
         onClick={clickClose}
         cy-id="modal-close-button"
@@ -168,7 +168,7 @@ export default function Modal({
             // content that cannot shrink scrolls inside the panel instead.
             'flex min-h-0 flex-col overflow-y-auto [&>*]:min-h-0',
             // Responsive width: full width with margin on mobile, fixed width on larger screens
-            'w-[calc(100vw-1rem)] max-w-[90vw] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
+            'w-[calc(var(--content-vw)-1rem)] max-w-[calc(var(--content-vw)*0.9)] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
             className
           )}
           cy-id="modal-panel"
