@@ -164,9 +164,8 @@ export default function Modal({
           style={style}
           className={mergeClasses(
             'text-foreground shadow-modal-content bg-bg relative rounded-lg',
-            // Never taller than the viewport (e.g. phones in landscape): children shrink so their own scroll areas take the overflow;
-            // content that cannot shrink scrolls inside the panel instead.
-            'flex min-h-0 flex-col overflow-y-auto [&>*]:min-h-0',
+            // Never taller than the viewport (e.g. phones in landscape)
+            'fit-column',
             // Responsive width: full width with margin on mobile, fixed width on larger screens
             'w-[calc(var(--content-vw)-1rem)] max-w-[calc(var(--content-vw)*0.9)] sm:max-w-[600px] md:max-w-[700px] lg:max-w-[800px]',
             className
