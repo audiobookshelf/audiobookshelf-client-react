@@ -367,7 +367,8 @@ export default function Match({
   return (
     <>
       {!selectedMatchOrig ? (
-        <div className="flex flex-1 flex-col overflow-hidden px-2 py-4 md:px-4">
+        // Below md (incl. phone landscape) the search form and results scroll together; from md up only the results scroll.
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-4 md:overflow-hidden md:px-4">
           <form onSubmit={handleSubmitSearch} className="flex-shrink-0">
             <div className="-mx-1 flex flex-wrap items-center justify-start md:flex-nowrap">
               {providersLoaded && providers.length > 0 && (
@@ -427,7 +428,7 @@ export default function Match({
           {!isPendingSearch && (
             <div
               ref={scrollContainerRef}
-              className="mt-4 flex min-h-0 flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto px-1 md:mx-0 md:px-0"
+              className="mt-4 flex flex-1 flex-col gap-2 overflow-x-clip px-1 md:mx-0 md:min-h-0 md:overflow-y-auto md:px-0"
               style={{ paddingRight: hasScrollbar ? '1rem' : '0' }}
               onKeyDown={handleContainerKeyDown}
               role="listbox"
