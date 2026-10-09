@@ -49,6 +49,11 @@ export function SectionedModalBody({
     }
   }, [isOpen, initialSection])
 
+  // Follow section changes driven by the parent (e.g. Match → Details after submit) while drilled in.
+  useEffect(() => {
+    setMobileScreen((prev) => (prev === 'hub' ? prev : selectedSection))
+  }, [selectedSection])
+
   const handleMobileSelect = (sectionId: string) => {
     onSectionChange(sectionId)
     setMobileScreen(sectionId)
