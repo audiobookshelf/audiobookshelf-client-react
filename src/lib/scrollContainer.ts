@@ -13,3 +13,14 @@ export function findScrollContainer(element: Element): Element | null {
   }
   return null
 }
+
+/**
+ * Smooth-scroll `element` horizontally by `delta`, clamped to its scroll range.
+ * iOS WebKit does not clamp smooth programmatic scrolls, so an unclamped
+ * `scrollBy` past either edge leaves the content overscrolled into empty space.
+ */
+export function scrollHorizontallyClamped(element: HTMLElement, delta: number) {
+  const maxScrollLeft = Math.max(0, element.scrollWidth - element.clientWidth)
+  const left = Math.min(maxScrollLeft, Math.max(0, element.scrollLeft + delta))
+  element.scrollTo({ left, behavior: 'smooth' })
+}

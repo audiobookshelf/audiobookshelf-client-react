@@ -2,6 +2,7 @@
 
 import IconBtn from '@/components/ui/IconBtn'
 import { mergeClasses } from '@/lib/merge-classes'
+import { scrollHorizontallyClamped } from '@/lib/scrollContainer'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 interface ItemSliderProps {
@@ -68,15 +69,13 @@ export default function ItemSlider({ title, children, className = '' }: ItemSlid
   const scrollLeft = () => {
     const slider = sliderRef.current
     if (!slider) return
-    const scrollAmount = slider.clientWidth
-    slider.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
+    scrollHorizontallyClamped(slider, -slider.clientWidth)
   }
 
   const scrollRight = () => {
     const slider = sliderRef.current
     if (!slider) return
-    const scrollAmount = slider.clientWidth
-    slider.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    scrollHorizontallyClamped(slider, slider.clientWidth)
   }
 
   return (

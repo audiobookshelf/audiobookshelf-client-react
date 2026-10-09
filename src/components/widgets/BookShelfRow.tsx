@@ -2,6 +2,7 @@
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
+import { scrollHorizontallyClamped } from '@/lib/scrollContainer'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface BookShelfRowProps {
@@ -47,13 +48,13 @@ export default function BookShelfRow({ title, children, className }: BookShelfRo
   const scrollLeft = () => {
     if (!shelfRef.current) return
     setIsScrolling(true)
-    shelfRef.current.scrollBy({ left: -window.innerWidth, behavior: 'smooth' })
+    scrollHorizontallyClamped(shelfRef.current, -window.innerWidth)
   }
 
   const scrollRight = () => {
     if (!shelfRef.current) return
     setIsScrolling(true)
-    shelfRef.current.scrollBy({ left: window.innerWidth, behavior: 'smooth' })
+    scrollHorizontallyClamped(shelfRef.current, window.innerWidth)
   }
 
   return (
