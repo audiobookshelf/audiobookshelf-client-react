@@ -19,7 +19,16 @@ const COLORS = {
 }
 
 const PADDING = 48
-const MAX_COVERS_IN_ROW = 5
+
+/**
+ * Personal and server reviews are 4:5 portrait images drawn on an 800x1000 grid and exported at 1080x1350.
+ * Their y-coordinates and font sizes are written on an 800x800 grid and multiplied by PORTRAIT_SCALE.
+ */
+const WIDTH = 800
+const PORTRAIT_HEIGHT = 1000
+const PORTRAIT_SCALE = 1.25
+const PORTRAIT_PIXEL_RATIO = 1.35
+const COVER_COLUMNS = 3
 
 export type CoverImages = Map<string, HTMLImageElement>
 
@@ -38,6 +47,8 @@ interface TextStyle {
   align?: CanvasTextAlign
   letterSpacing?: number
   maxWidth?: number
+  /** Shrink the font (down to 70%) to fit maxWidth before truncating */
+  fit?: boolean
 }
 
 /** Canvas text silently falls back to a system font if the web font has not been loaded yet. */
@@ -67,11 +78,13 @@ function pickCovers(covers: CoverImages, ids: string[]): HTMLImageElement[] {
   return [...new Set(ids)].map((id) => covers.get(id)).filter((img) => img !== undefined)
 }
 
-function createCanvas(width: number, height: number): [HTMLCanvasElement, Ctx] {
+function createCanvas(width: number, height: number, pixelRatio = 1): [HTMLCanvasElement, Ctx] {
   const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
-  return [canvas, canvas.getContext('2d')!]
+  canvas.width = Math.round(width * pixelRatio)
+  canvas.height = Math.round(height * pixelRatio)
+  const ctx = canvas.getContext('2d')!
+  ctx.scale(pixelRatio, pixelRatio)
+  return [canvas, ctx]
 }
 
 function truncate(ctx: Ctx, text: string, maxWidth: number): string {
@@ -84,11 +97,17 @@ function truncate(ctx: Ctx, text: string, maxWidth: number): string {
 }
 
 function drawText(ctx: Ctx, text: string | number, x: number, y: number, style: TextStyle) {
-  ctx.font = `${style.weight ?? 400} ${style.size}px ${FONT}`
+  const str = String(text)
+  const setFont = (size: number) => (ctx.font = `${style.weight ?? 400} ${size}px ${FONT}`)
+  setFont(style.size)
   ctx.fillStyle = style.color ?? COLORS.text
   ctx.textAlign = style.align ?? 'left'
   ctx.letterSpacing = `${style.letterSpacing ?? 0}px`
-  const str = String(text)
+  if (style.fit && style.maxWidth) {
+    const width = ctx.measureText(str).width
+    // Glyph widths do not scale exactly linearly with font size, so leave a small margin
+    if (width > style.maxWidth) setFont(Math.max(style.size * 0.7, (style.size * style.maxWidth * 0.97) / width))
+  }
   ctx.fillText(style.maxWidth ? truncate(ctx, str, style.maxWidth) : str, x, y)
   ctx.letterSpacing = '0px'
 }
@@ -171,14 +190,21 @@ function drawBrand(ctx: Ctx, x: number, y: number, size: number) {
 }
 
 /** Brand row followed by a large year with the "year in review" tag on its baseline */
-function drawHeader(ctx: Ctx, { year, t }: YearInReviewRenderOptions) {
+function drawHeader(ctx: Ctx, { year, t }: YearInReviewRenderOptions, s: number) {
   ctx.textBaseline = 'middle'
-  drawBrand(ctx, PADDING, 64, 32)
+  drawBrand(ctx, PADDING, 64 * s, 32 * s)
 
   ctx.textBaseline = 'alphabetic'
-  drawText(ctx, year, PADDING, 168, { size: 84, weight: 600 })
-  const yearWidth = ctx.measureText(String(year)).width
-  drawText(ctx, t('StatsYearInReview'), PADDING + yearWidth + 20, 152, { size: 22, weight: 600, color: COLORS.accent, letterSpacing: 4 })
+  drawText(ctx, year, PADDING, 168 * s, { size: 84 * s, weight: 600 })
+  const tagX = PADDING + ctx.measureText(String(year)).width + 20 * s
+  drawText(ctx, t('StatsYearInReview'), tagX, 152 * s, {
+    size: 22 * s,
+    weight: 600,
+    color: COLORS.accent,
+    letterSpacing: 4,
+    maxWidth: WIDTH - PADDING - tagX,
+    fit: true
+  })
   ctx.textBaseline = 'middle'
 }
 
@@ -198,11 +224,26 @@ interface StatTile {
   label: string
 }
 
-function drawStatTile(ctx: Ctx, x: number, y: number, w: number, h: number, { icon, value, label }: StatTile, valueSize = 44) {
+interface StatTileOptions {
+  valueSize?: number
+  /** Unscaled icon circle radius; padding around the icon follows it so narrow tiles keep room for text */
+  iconRadius?: number
+  s?: number
+}
+
+function drawStatTile(
+  ctx: Ctx,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  { icon, value, label }: StatTile,
+  { valueSize = 44, iconRadius = 26, s = 1 }: StatTileOptions = {}
+) {
   drawTile(ctx, x, y, w, h)
 
-  const radius = 26
-  const iconCenterX = x + 22 + radius
+  const radius = iconRadius * s
+  const iconCenterX = x + radius * 0.85 + radius
   const iconCenterY = y + h / 2
   ctx.beginPath()
   ctx.arc(iconCenterX, iconCenterY, radius, 0, Math.PI * 2)
@@ -212,50 +253,51 @@ function drawStatTile(ctx: Ctx, x: number, y: number, w: number, h: number, { ic
   ctx.beginPath()
   ctx.arc(iconCenterX, iconCenterY, radius - 1, 0, Math.PI * 2)
   ctx.clip()
-  drawIcon(ctx, icon, iconCenterX, iconCenterY, 30, COLORS.accent)
+  drawIcon(ctx, icon, iconCenterX, iconCenterY, radius * 1.15, COLORS.accent)
   ctx.restore()
 
-  const textX = iconCenterX + radius + 18
-  const maxWidth = x + w - textX - 16
-  drawText(ctx, value, textX, iconCenterY - valueSize * 0.28, { size: valueSize, weight: 600, maxWidth })
-  drawText(ctx, label, textX, iconCenterY + valueSize * 0.52, { size: 17, color: COLORS.muted, maxWidth })
+  const textX = iconCenterX + radius + radius * 0.7
+  const maxWidth = x + w - textX - 14
+  drawText(ctx, value, textX, iconCenterY - valueSize * 0.3, { size: valueSize, weight: 600, maxWidth, fit: true })
+  drawText(ctx, label, textX, iconCenterY + valueSize * 0.55, { size: 20 * s, color: COLORS.muted, maxWidth, fit: true })
 }
 
-function drawSectionLabel(ctx: Ctx, text: string, x: number, y: number, maxWidth?: number) {
-  drawText(ctx, text, x, y, { size: 14, weight: 600, color: COLORS.accent, letterSpacing: 2, maxWidth })
+function drawSectionLabel(ctx: Ctx, text: string, x: number, y: number, s: number, maxWidth?: number) {
+  drawText(ctx, text, x, y, { size: 16 * s, weight: 600, color: COLORS.accent, letterSpacing: 2, maxWidth, fit: true })
 }
 
 /** Label / value / detail block with an accent bar on the left */
-function drawHighlight(ctx: Ctx, x: number, y: number, w: number, label: string, value: string, detail: string) {
+function drawHighlight(ctx: Ctx, x: number, y: number, w: number, label: string, value: string, detail: string, s: number) {
   ctx.beginPath()
-  ctx.roundRect(x, y + 4, 4, 98, 2)
+  ctx.roundRect(x, y + 4 * s, 4, 98 * s, 2)
   ctx.fillStyle = COLORS.accent
   ctx.fill()
-  drawSectionLabel(ctx, label, x + 20, y + 18, w - 28)
-  drawText(ctx, value, x + 20, y + 54, { size: 30, weight: 600, maxWidth: w - 28 })
-  drawText(ctx, detail, x + 20, y + 88, { size: 17, color: COLORS.muted })
+  drawSectionLabel(ctx, label, x + 20, y + 18 * s, s, w - 28)
+  drawText(ctx, value, x + 20, y + 54 * s, { size: 30 * s, weight: 600, maxWidth: w - 28, fit: true })
+  drawText(ctx, detail, x + 20, y + 90 * s, { size: 21 * s, color: COLORS.muted, maxWidth: w - 28, fit: true })
 }
 
-function drawRankedList(ctx: Ctx, x: number, y: number, w: number, title: string, entries: YearStatsNameTime[], opts: YearInReviewRenderOptions) {
+function drawRankedList(ctx: Ctx, x: number, y: number, w: number, title: string, entries: YearStatsNameTime[], opts: YearInReviewRenderOptions, s: number) {
   if (!entries.length) return
-  drawSectionLabel(ctx, title, x, y, w)
+  drawSectionLabel(ctx, title, x, y, s, w)
   entries.slice(0, 3).forEach((entry, i) => {
-    const rowY = y + 48 + i * 66
-    drawText(ctx, i + 1, x, rowY, { size: 26, weight: 600, color: COLORS.accent })
-    drawText(ctx, entry.name, x + 34, rowY, { size: 26, weight: 600, maxWidth: w - 42 })
-    drawText(ctx, formatDuration(entry.time, opts.t, { showDays: true }), x + 34, rowY + 26, { size: 16, color: COLORS.muted })
+    const rowY = y + (48 + i * 66) * s
+    const nameX = x + 34 * s
+    drawText(ctx, i + 1, x, rowY, { size: 26 * s, weight: 600, color: COLORS.accent })
+    drawText(ctx, entry.name, nameX, rowY, { size: 26 * s, weight: 600, maxWidth: x + w - nameX - 8, fit: true })
+    drawText(ctx, formatDuration(entry.time, opts.t, { showDays: true }), nameX, rowY + 30 * s, { size: 20 * s, color: COLORS.muted })
   })
 }
 
-function drawCoverRow(ctx: Ctx, y: number, title: string, covers: HTMLImageElement[], canvasWidth: number) {
+function drawCoverRow(ctx: Ctx, y: number, title: string, covers: HTMLImageElement[], s: number) {
   if (!covers.length) return
-  drawText(ctx, title, PADDING, y, { size: 20, color: COLORS.muted })
+  drawText(ctx, title, PADDING, y, { size: 22 * s, color: COLORS.muted, maxWidth: WIDTH - PADDING * 2 })
 
   const gap = 16
-  const size = (canvasWidth - PADDING * 2 - gap * (MAX_COVERS_IN_ROW - 1)) / MAX_COVERS_IN_ROW
-  covers.slice(0, MAX_COVERS_IN_ROW).forEach((img, i) => {
+  const size = (WIDTH - PADDING * 2 - gap * (COVER_COLUMNS - 1)) / COVER_COLUMNS
+  covers.slice(0, COVER_COLUMNS).forEach((img, i) => {
     const x = PADDING + i * (size + gap)
-    const top = y + 36
+    const top = y + 36 * s
 
     ctx.save()
     ctx.shadowColor = 'rgba(0, 0, 0, 0.5)'
@@ -278,41 +320,85 @@ function drawCoverRow(ctx: Ctx, y: number, title: string, covers: HTMLImageEleme
 
 const toNameTime = (genres: UserYearStats['topGenres']): YearStatsNameTime[] => genres.map(({ genre, time }) => ({ name: genre, time }))
 
-/** 800x800 personal year in review. Variants: 0 highlights, 1 finished covers, 2 top authors & genres */
+/** Personal year in review. Variants: 0 highlights, 1 finished covers, 2 top authors & genres */
 export function renderUserYearReview(stats: UserYearStats, covers: CoverImages, variant: number, opts: YearInReviewRenderOptions): HTMLCanvasElement {
   const { t, locale, year } = opts
-  const size = 800
-  const [canvas, ctx] = createCanvas(size, size)
+  const s = PORTRAIT_SCALE
+  const height = PORTRAIT_HEIGHT
+  const [canvas, ctx] = createCanvas(WIDTH, height, PORTRAIT_PIXEL_RATIO)
   const formatNumber = (n: number) => new Intl.NumberFormat(locale).format(n)
   const duration = (seconds: number) => formatDuration(seconds, t, { showDays: true })
 
-  drawBackground(ctx, size, size, pickCovers(covers, [...stats.finishedBooksWithCovers, ...stats.booksWithCovers]), 200)
-  drawHeader(ctx, opts)
+  drawBackground(ctx, WIDTH, height, pickCovers(covers, [...stats.finishedBooksWithCovers, ...stats.booksWithCovers]), 200)
+  drawHeader(ctx, opts, s)
 
-  const colWidth = (size - PADDING * 2 - 16) / 2
+  const colWidth = (WIDTH - PADDING * 2 - 16) / 2
   const col2 = PADDING + colWidth + 16
-  drawStatTile(ctx, PADDING, 212, colWidth, 120, { icon: 'check_circle', value: formatNumber(stats.numBooksFinished), label: t('StatsBooksFinished') })
-  drawStatTile(ctx, col2, 212, colWidth, 120, { icon: 'schedule', value: duration(stats.totalListeningTime), label: t('StatsSpentListening') }, 34)
-  drawStatTile(ctx, PADDING, 348, colWidth, 120, { icon: 'headphones', value: formatNumber(stats.totalListeningSessions), label: t('StatsSessions') })
-  drawStatTile(ctx, col2, 348, colWidth, 120, { icon: 'local_library', value: formatNumber(stats.numBooksListened), label: t('StatsBooksListenedTo') })
+  const tileHeight = 120 * s
+  const tileOptions = { valueSize: 44 * s, s }
+  drawStatTile(
+    ctx,
+    PADDING,
+    212 * s,
+    colWidth,
+    tileHeight,
+    { icon: 'check_circle', value: formatNumber(stats.numBooksFinished), label: t('StatsBooksFinished') },
+    tileOptions
+  )
+  drawStatTile(
+    ctx,
+    col2,
+    212 * s,
+    colWidth,
+    tileHeight,
+    { icon: 'schedule', value: duration(stats.totalListeningTime), label: t('StatsSpentListening') },
+    { valueSize: 34 * s, s }
+  )
+  drawStatTile(
+    ctx,
+    PADDING,
+    348 * s,
+    colWidth,
+    tileHeight,
+    { icon: 'headphones', value: formatNumber(stats.totalListeningSessions), label: t('StatsSessions') },
+    tileOptions
+  )
+  drawStatTile(
+    ctx,
+    col2,
+    348 * s,
+    colWidth,
+    tileHeight,
+    { icon: 'local_library', value: formatNumber(stats.numBooksListened), label: t('StatsBooksListenedTo') },
+    tileOptions
+  )
 
   if (variant === 0) {
     const narrator = stats.mostListenedNarrator
     const genre = stats.topGenres[0]
     const author = stats.topAuthors[0]
     const month = stats.mostListenedMonth
-    if (narrator) drawHighlight(ctx, PADDING, 510, colWidth, t('StatsTopNarrator'), narrator.name, duration(narrator.time))
-    if (genre) drawHighlight(ctx, col2, 510, colWidth, t('StatsTopGenre'), genre.genre, duration(genre.time))
-    if (author) drawHighlight(ctx, PADDING, 642, colWidth, t('StatsTopAuthor'), author.name, duration(author.time))
+    if (narrator) drawHighlight(ctx, PADDING, 510 * s, colWidth, t('StatsTopNarrator'), narrator.name, duration(narrator.time), s)
+    if (genre) drawHighlight(ctx, col2, 510 * s, colWidth, t('StatsTopGenre'), genre.genre, duration(genre.time), s)
+    if (author) drawHighlight(ctx, PADDING, 642 * s, colWidth, t('StatsTopAuthor'), author.name, duration(author.time), s)
     if (month?.time) {
       const monthName = new Intl.DateTimeFormat(locale, { month: 'long' }).format(new Date(year, month.month, 1))
-      drawHighlight(ctx, col2, 642, colWidth, t('StatsTopMonth'), monthName.charAt(0).toLocaleUpperCase(locale) + monthName.slice(1), duration(month.time))
+      drawHighlight(
+        ctx,
+        col2,
+        642 * s,
+        colWidth,
+        t('StatsTopMonth'),
+        monthName.charAt(0).toLocaleUpperCase(locale) + monthName.slice(1),
+        duration(month.time),
+        s
+      )
     }
   } else if (variant === 1) {
-    drawCoverRow(ctx, 530, t('StatsBooksFinishedThisYear'), pickCovers(covers, stats.finishedBooksWithCovers), size)
+    drawCoverRow(ctx, 530 * s, t('StatsBooksFinishedThisYear'), pickCovers(covers, stats.finishedBooksWithCovers), s)
   } else {
-    drawRankedList(ctx, PADDING, 524, colWidth, t('StatsTopAuthors'), stats.topAuthors, opts)
-    drawRankedList(ctx, col2, 524, colWidth, t('StatsTopGenres'), toNameTime(stats.topGenres), opts)
+    drawRankedList(ctx, PADDING, 524 * s, colWidth, t('StatsTopAuthors'), stats.topAuthors, opts, s)
+    drawRankedList(ctx, col2, 524 * s, colWidth, t('StatsTopGenres'), toNameTime(stats.topGenres), opts, s)
   }
 
   return canvas
@@ -332,7 +418,15 @@ export function renderUserYearReviewShort(stats: UserYearStats, covers: CoverIma
   drawText(ctx, `${year} ${t('StatsYearInReview')}`, width - padding, 38, { size: 14, weight: 600, color: COLORS.accent, align: 'right', letterSpacing: 2 })
 
   const tileWidth = (width - padding * 2 - 16) / 2
-  drawStatTile(ctx, padding, 68, tileWidth, 108, { icon: 'check_circle', value: formatNumber(stats.numBooksFinished), label: t('StatsBooksFinished') }, 40)
+  drawStatTile(
+    ctx,
+    padding,
+    68,
+    tileWidth,
+    108,
+    { icon: 'check_circle', value: formatNumber(stats.numBooksFinished), label: t('StatsBooksFinished') },
+    { valueSize: 40 }
+  )
   drawStatTile(
     ctx,
     padding + tileWidth + 16,
@@ -340,33 +434,34 @@ export function renderUserYearReviewShort(stats: UserYearStats, covers: CoverIma
     tileWidth,
     108,
     { icon: 'local_library', value: formatNumber(stats.numBooksListened), label: t('StatsBooksListenedTo') },
-    40
+    { valueSize: 40 }
   )
 
   return canvas
 }
 
-/** 800x800 server year in review. Variants: 0 added covers, 1 top authors & narrators, 2 top authors & genres */
+/** Server year in review. Variants: 0 added covers, 1 top authors & narrators, 2 top authors & genres */
 export function renderServerYearReview(stats: ServerYearStats, covers: CoverImages, variant: number, opts: YearInReviewRenderOptions): HTMLCanvasElement {
   const { t, locale } = opts
-  const size = 800
-  const [canvas, ctx] = createCanvas(size, size)
+  const s = PORTRAIT_SCALE
+  const height = PORTRAIT_HEIGHT
+  const [canvas, ctx] = createCanvas(WIDTH, height, PORTRAIT_PIXEL_RATIO)
   const formatNumber = (n: number) => new Intl.NumberFormat(locale).format(n)
   const duration = (seconds: number) => formatDuration(seconds, t, { showDays: true })
   const addedCovers = pickCovers(covers, stats.booksAddedWithCovers)
 
-  drawBackground(ctx, size, size, addedCovers, 200)
-  drawHeader(ctx, opts)
+  drawBackground(ctx, WIDTH, height, addedCovers, 200)
+  drawHeader(ctx, opts, s)
 
-  const thirdWidth = (size - PADDING * 2 - 32) / 3
+  const thirdWidth = (WIDTH - PADDING * 2 - 32) / 3
   const tiles: StatTile[] = [
     { icon: 'library_add', value: formatNumber(stats.numBooksAdded), label: t('StatsBooksAdded') },
     { icon: 'person_add', value: formatNumber(stats.numAuthorsAdded), label: t('StatsAuthorsAdded') },
     { icon: 'headphones', value: formatNumber(stats.numListeningSessions), label: t('StatsSessions') }
   ]
-  tiles.forEach((tile, i) => drawStatTile(ctx, PADDING + i * (thirdWidth + 16), 212, thirdWidth, 120, tile, 40))
+  tiles.forEach((tile, i) => drawStatTile(ctx, PADDING + i * (thirdWidth + 16), 212 * s, thirdWidth, 120 * s, tile, { valueSize: 40 * s, iconRadius: 17, s }))
 
-  const colWidth = (size - PADDING * 2 - 16) / 2
+  const colWidth = (WIDTH - PADDING * 2 - 16) / 2
   const col2 = PADDING + colWidth + 16
   const growthTiles = [
     stats.totalBooksAddedSize
@@ -378,18 +473,19 @@ export function renderServerYearReview(stats: ServerYearStats, covers: CoverImag
   ]
   growthTiles.forEach((tile) => {
     if (!tile) return
-    drawTile(ctx, tile.x, 348, colWidth, 120)
-    drawText(ctx, tile.label, tile.x + 24, 378, { size: 16, color: COLORS.muted, maxWidth: colWidth - 48 })
-    drawText(ctx, tile.value, tile.x + 24, 414, { size: 32, weight: 600, maxWidth: colWidth - 48 })
-    drawText(ctx, `+${tile.delta}`, tile.x + 24, 446, { size: 17, weight: 600, color: COLORS.accent, maxWidth: colWidth - 48 })
+    const maxWidth = colWidth - 48
+    drawTile(ctx, tile.x, 348 * s, colWidth, 120 * s)
+    drawText(ctx, tile.label, tile.x + 24, 378 * s, { size: 20 * s, color: COLORS.muted, maxWidth, fit: true })
+    drawText(ctx, tile.value, tile.x + 24, 414 * s, { size: 32 * s, weight: 600, maxWidth, fit: true })
+    drawText(ctx, `+${tile.delta}`, tile.x + 24, 446 * s, { size: 20 * s, weight: 600, color: COLORS.accent, maxWidth, fit: true })
   })
 
   if (variant === 0) {
-    drawCoverRow(ctx, 530, t('StatsBooksAdditional'), addedCovers, size)
+    drawCoverRow(ctx, 530 * s, t('StatsBooksAdditional'), addedCovers, s)
   } else {
-    drawRankedList(ctx, PADDING, 524, colWidth, t('StatsTopAuthors'), stats.topAuthors, opts)
-    if (variant === 1) drawRankedList(ctx, col2, 524, colWidth, t('StatsTopNarrators'), stats.topNarrators, opts)
-    else drawRankedList(ctx, col2, 524, colWidth, t('StatsTopGenres'), toNameTime(stats.topGenres), opts)
+    drawRankedList(ctx, PADDING, 524 * s, colWidth, t('StatsTopAuthors'), stats.topAuthors, opts, s)
+    if (variant === 1) drawRankedList(ctx, col2, 524 * s, colWidth, t('StatsTopNarrators'), stats.topNarrators, opts, s)
+    else drawRankedList(ctx, col2, 524 * s, colWidth, t('StatsTopGenres'), toNameTime(stats.topGenres), opts, s)
   }
 
   return canvas

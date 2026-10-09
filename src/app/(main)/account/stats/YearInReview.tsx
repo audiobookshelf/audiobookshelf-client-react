@@ -266,7 +266,7 @@ export default function YearInReview({ userCreatedAt, isAdmin }: YearInReviewPro
             canvas={userCanvas}
             loading={user.loading}
             fileName="yearinreview.png"
-            aspectRatio="1 / 1"
+            aspectRatio="4 / 5"
             variant={userVariant}
             onVariantChange={setUserVariant}
             onRefresh={() => user.load(year)}
@@ -279,7 +279,7 @@ export default function YearInReview({ userCreatedAt, isAdmin }: YearInReviewPro
               canvas={serverCanvas}
               loading={server.loading}
               fileName="yearinreviewserver.png"
-              aspectRatio="1 / 1"
+              aspectRatio="4 / 5"
               variant={serverVariant}
               onVariantChange={setServerVariant}
               onRefresh={() => server.load(year)}
