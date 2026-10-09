@@ -47,7 +47,7 @@ export default function EmbedMetadataPanel({
           value={shouldBackupAudioFiles}
           disabled={processing}
           label={t('LabelBackupAudioFiles')}
-          checkboxBgClass="bg-bg"
+
           labelClass="ps-2 text-base md:text-lg"
           onChange={onBackupChange}
         />

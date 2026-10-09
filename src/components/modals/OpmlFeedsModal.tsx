@@ -82,7 +82,7 @@ export default function OpmlFeedsModal({ isOpen, feeds, onClose }: OpmlFeedsModa
               />
             </div>
             <div className="flex items-end">
-              <Checkbox value={autoDownloadEpisodes} onChange={setAutoDownloadEpisodes} label={t('LabelAutoDownloadEpisodes')} checkboxBgClass="bg-primary" />
+              <Checkbox value={autoDownloadEpisodes} onChange={setAutoDownloadEpisodes} label={t('LabelAutoDownloadEpisodes')} />
             </div>
           </div>
 
