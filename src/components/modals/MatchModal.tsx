@@ -1,5 +1,3 @@
-'use client'
-
 import { type UnsavedChangesLeaveHandle, useLibraryItemModal } from '@/components/modals/LibraryItemModal'
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import Match from '@/components/widgets/Match'
@@ -9,9 +7,11 @@ import { useMemo, type Ref } from 'react'
 export type MatchModalBodyProps = {
   /** Lets the parent intercept leave (section change, hub back, close) while a match is selected but not yet applied. */
   closeRequestRef?: Ref<UnsavedChangesLeaveHandle | null>
+  /** Called after the selected match is successfully submitted. */
+  onMatchApplied?: () => void
 }
 
-export function MatchModalBody({ closeRequestRef }: MatchModalBodyProps) {
+export function MatchModalBody({ closeRequestRef, onMatchApplied }: MatchModalBodyProps) {
   const { resolvedItem, fetchPending } = useLibraryItemModal()
   const { filterData } = useLibrary()
 
@@ -35,6 +35,7 @@ export function MatchModalBody({ closeRequestRef }: MatchModalBodyProps) {
           availableTags={availableTags}
           availableSeries={availableSeries}
           closeRequestRef={closeRequestRef}
+          onMatchApplied={onMatchApplied}
         />
       ) : null}
     </div>

@@ -133,7 +133,8 @@ function LibraryItemMetadataEditModalBody({
       ) : selectedSection === 'chapters' ? (
         <ChaptersEditModalBody closeRequestRef={chaptersCloseRef} onPendingChange={onChaptersPendingChange} />
       ) : (
-        <MatchModalBody closeRequestRef={matchCloseRef} />
+        // Unguarded: the match was just applied, so there is nothing to discard.
+        <MatchModalBody closeRequestRef={matchCloseRef} onMatchApplied={() => setSelectedSection('details')} />
       )}
     </SectionedModalBody>
   )

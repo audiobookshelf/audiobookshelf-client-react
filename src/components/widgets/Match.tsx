@@ -26,6 +26,8 @@ interface MatchProps {
   availableSeries?: MultiSelectItem<string>[]
   /** Lets the parent intercept leave (section change, hub back, close) while a match is selected but not yet applied. */
   closeRequestRef?: Ref<UnsavedChangesLeaveHandle | null>
+  /** Called after the selected match is successfully submitted. */
+  onMatchApplied?: () => void
 }
 
 type MatchResult = BookSearchResult | PodcastSearchResult
@@ -51,7 +53,8 @@ export default function Match({
   availableGenres = [],
   availableTags = [],
   availableSeries = [],
-  closeRequestRef
+  closeRequestRef,
+  onMatchApplied
 }: MatchProps) {
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
@@ -456,6 +459,7 @@ export default function Match({
             availableGenres={availableGenres}
             availableTags={availableTags}
             onDone={handleClearSelectedMatch}
+            onApplied={onMatchApplied}
           />
         ) : (
           <BookMatchView
@@ -469,6 +473,7 @@ export default function Match({
             availableNarrators={availableNarrators}
             availableSeries={availableSeries}
             onDone={handleClearSelectedMatch}
+            onApplied={onMatchApplied}
           />
         )
       ) : null}

@@ -16,6 +16,8 @@ interface BaseMatchViewProps<TUsage extends { [key: string]: boolean }, TMatch> 
   buildMatchUpdatePayload: (selectedMatchUsage: TUsage, selectedMatch: TMatch) => UpdateLibraryItemMediaPayload | null
   selectedMatch: TMatch
   onDone: () => void
+  /** Called after a successful Submit (e.g. to switch to the Details section). */
+  onApplied?: () => void
   children: (props: {
     selectedMatchUsage: TUsage
     setSelectedMatchUsage: React.Dispatch<React.SetStateAction<TUsage>>
@@ -31,6 +33,7 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
   buildMatchUpdatePayload,
   selectedMatch,
   onDone,
+  onApplied,
   children
 }: BaseMatchViewProps<TUsage, TMatch>) {
   const t = useTypeSafeTranslations()
@@ -97,13 +100,14 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
             showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
           }
           onDone()
+          onApplied?.()
         } catch (error) {
           console.error('Failed to update', error)
           showToast(error instanceof Error ? error.message : t('ToastFailedToUpdate'), { type: 'error' })
         }
       })
     },
-    [buildMatchUpdatePayload, libraryItemId, selectedMatchUsage, selectedMatch, localStorageKey, t, showToast, onDone]
+    [buildMatchUpdatePayload, libraryItemId, selectedMatchUsage, selectedMatch, localStorageKey, t, showToast, onDone, onApplied]
   )
 
   const checkScroll = useCallback(() => {
