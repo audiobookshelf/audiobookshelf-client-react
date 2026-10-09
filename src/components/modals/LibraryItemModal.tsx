@@ -12,7 +12,7 @@ import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EntityNavigationContext } from '@/lib/bookshelfNavigationContext'
 import type { BookLibraryItem, LibraryItem, PodcastLibraryItem } from '@/types/api'
-import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
 
 export type LibraryItemModalContextValue = {
   resolvedItem: BookLibraryItem | PodcastLibraryItem | null
@@ -77,6 +77,12 @@ export default function LibraryItemModal(props: LibraryItemModalProps) {
 
   const { currentEntityId, canGoPrev, canGoNext, goPrev, goNext } = useEntityNavigationContext(navCtx, isOpen)
 
+  // Effect event so a new `t` / `showToast` / `onClose` identity (e.g. after a server action revalidates) does not refetch the item.
+  const handleFetchError = useEffectEvent(() => {
+    showToast(t('ToastFailedToLoadData'), { type: 'error' })
+    onClose?.()
+  })
+
   useLayoutEffect(() => {
     if (!isOpen || !navCtxMode) return
     if (!currentEntityId) {
@@ -96,8 +102,7 @@ export default function LibraryItemModal(props: LibraryItemModalProps) {
       } catch (error) {
         console.error('Failed to load expanded library item', error)
         if (fetchGenRef.current === gen) {
-          showToast(t('ToastFailedToLoadData'), { type: 'error' })
-          onClose?.()
+          handleFetchError()
         }
       } finally {
         if (fetchGenRef.current === gen) {
@@ -105,7 +110,7 @@ export default function LibraryItemModal(props: LibraryItemModalProps) {
         }
       }
     })
-  }, [isOpen, navCtxMode, navCtx, currentEntityId, onClose, showToast, startNavTransition, t])
+  }, [isOpen, navCtxMode, navCtx, currentEntityId, startNavTransition])
 
   const resolvedItem = navCtxMode ? fetchedItem : (libraryItem ?? null)
 

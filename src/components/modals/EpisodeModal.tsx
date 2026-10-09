@@ -11,7 +11,7 @@ import { useLibraryItemUpdated } from '@/hooks/useLibraryItemUpdated'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import type { PodcastEpisode, PodcastLibraryItem } from '@/types/api'
-import { createContext, useCallback, useContext, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffectEvent, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
 
 export type EpisodeModalContextValue = {
   resolvedEpisode: PodcastEpisode | null
@@ -62,6 +62,12 @@ export default function EpisodeModal(props: EpisodeModalProps) {
   const currentLibraryItemId = currentSlot?.libraryItemId ?? null
   const currentEpisodeId = currentSlot?.episodeId ?? null
 
+  // Effect event so a new `t` / `showToast` / `onClose` identity (e.g. after a server action revalidates) does not refetch the episode.
+  const handleFetchError = useEffectEvent(() => {
+    showToast(t('ToastFailedToLoadData'), { type: 'error' })
+    onClose?.()
+  })
+
   useLayoutEffect(() => {
     if (!isOpen || !navCtxMode) return
     if (!currentLibraryItemId || !currentEpisodeId) {
@@ -85,8 +91,7 @@ export default function EpisodeModal(props: EpisodeModalProps) {
       } catch (error) {
         console.error('Failed to load podcast episode', error)
         if (fetchGenRef.current === gen) {
-          showToast(t('ToastFailedToLoadData'), { type: 'error' })
-          onClose?.()
+          handleFetchError()
         }
       } finally {
         if (fetchGenRef.current === gen) {
@@ -94,7 +99,7 @@ export default function EpisodeModal(props: EpisodeModalProps) {
         }
       }
     })
-  }, [isOpen, navCtxMode, currentLibraryItemId, currentEpisodeId, onClose, showToast, startNavTransition, t])
+  }, [isOpen, navCtxMode, currentLibraryItemId, currentEpisodeId, startNavTransition])
 
   const resolvedEpisode = navCtxMode ? fetchedEpisode : (directEpisode ?? null)
   const resolvedLibraryItem = navCtxMode ? fetchedLibraryItem : (directLibraryItem ?? null)
