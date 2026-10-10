@@ -6,7 +6,7 @@ import MediaCardCover from '@/components/widgets/media-card/MediaCardCover'
 import MediaCardFrame from '@/components/widgets/media-card/MediaCardFrame'
 import MediaOverlayIconBtn from '@/components/widgets/media-card/MediaOverlayIconBtn'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
-import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
+import { getMediaQuery, usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { computeProgress } from '@/lib/mediaProgress'
@@ -72,7 +72,7 @@ export default function LibraryItemCover({
   }, [])
 
   const handleCoverClick = useCallback(() => {
-    if (window.matchMedia('(max-width: 768px)').matches) return
+    if (window.matchMedia(getMediaQuery('max-md')).matches) return
     if (!coverPath) return
     setShowPreviewModal(true)
   }, [coverPath])
@@ -82,7 +82,7 @@ export default function LibraryItemCover({
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()
         e.stopPropagation()
-        if (window.matchMedia('(max-width: 768px)').matches) return
+        if (window.matchMedia(getMediaQuery('max-md')).matches) return
         if (!coverPath) return
         setShowPreviewModal(true)
       }

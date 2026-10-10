@@ -2,7 +2,9 @@ import '@/assets/globals.css'
 import type { Metadata, Viewport } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getLocale } from 'next-intl/server'
+import { headers } from 'next/headers'
 
+import BraveViewportGuard from '../components/BraveViewportGuard'
 import ServiceWorkerRegister from '../components/ServiceWorkerRegister'
 import GlobalToastContainer from '../components/widgets/GlobalToastContainer'
 import { ToastProvider } from '../contexts/ToastContext'
@@ -33,11 +35,16 @@ export const metadata: Metadata = {
   }
 }
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  viewportFit: 'cover',
-  themeColor: '#232323'
+export async function generateViewport(): Promise<Viewport> {
+  const userAgent = (await headers()).get('user-agent') ?? ''
+  return {
+    width: 'device-width',
+    initialScale: 1,
+    viewportFit: 'cover',
+    themeColor: '#232323',
+    // Stops iOS zooming in on focused inputs under 16px; iOS still allows pinch-zoom. Android would lose pinch-zoom, so it is excluded.
+    ...(/android/i.test(userAgent) ? {} : { maximumScale: 1 })
+  }
 }
 
 // Stylesheets cannot know the base path, so the one asset URL in CSS is overridden here.
@@ -60,6 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </ToastProvider>
         </NextIntlClientProvider>
         <ServiceWorkerRegister basePath={basePath} />
+        <BraveViewportGuard />
       </body>
     </html>
   )

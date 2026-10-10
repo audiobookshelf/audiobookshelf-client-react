@@ -29,7 +29,7 @@ export default async function LibraryHomePage() {
   return (
     <>
       <AppBarLoader />
-      <div className="page-bg-gradient h-[calc(100vh-4rem)]">
+      <div className="page-bg-gradient bleed-mx safe-px h-[calc(100dvh-4rem)]">
         <div className="h-full w-full overflow-x-hidden overflow-y-auto">
           <LibraryHomeEmptyClient />
         </div>

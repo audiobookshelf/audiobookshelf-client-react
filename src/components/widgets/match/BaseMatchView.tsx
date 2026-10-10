@@ -5,6 +5,7 @@ import Btn from '@/components/ui/Btn'
 import Checkbox from '@/components/ui/Checkbox'
 import IconBtn from '@/components/ui/IconBtn'
 import { useGlobalToast } from '@/contexts/ToastContext'
+import { useMediaQuery } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { UpdateLibraryItemMediaPayload } from '@/types/api'
 import React, { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
@@ -39,6 +40,8 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
   const [isPendingApply, startApplyTransition] = useTransition()
+  const isBelowMd = useMediaQuery('max-md')
+  // Attached to whichever container scrolls at the current breakpoint (see the layout comment below)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showShadow, setShowShadow] = useState(false)
 
@@ -137,37 +140,40 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
       container.removeEventListener('scroll', checkScroll)
       resizeObserver.disconnect()
     }
-  }, [checkScroll])
+  }, [checkScroll, isBelowMd])
 
   return (
     <div className="flex h-full max-h-full w-full flex-col">
-      <div className="mb-2 flex flex-shrink-0 items-center px-4 pt-4 pb-2">
-        <IconBtn borderless size="large" iconClass="text-3xl" onClick={onDone} ariaLabel={t('ButtonBack')}>
-          arrow_back
-        </IconBtn>
-        <p className="pl-3 text-xl">{t('HeaderUpdateDetails')}</p>
-      </div>
+      {/* Below md (incl. phone landscape) the header and fields scroll together; from md up only the fields scroll. */}
+      <div ref={isBelowMd ? scrollContainerRef : undefined} className="flex min-h-0 flex-1 flex-col overflow-y-auto md:overflow-hidden">
+        <div className="mb-2 flex flex-shrink-0 items-center px-4 pt-4 pb-2">
+          <IconBtn borderless size="large" iconClass="text-3xl" onClick={onDone} ariaLabel={t('ButtonBack')}>
+            arrow_back
+          </IconBtn>
+          <p className="ps-3 text-xl">{t('HeaderUpdateDetails')}</p>
+        </div>
 
-      <div ref={scrollContainerRef} className="flex-1 overflow-x-hidden overflow-y-auto px-4 py-2">
-        <Checkbox
-          value={selectAll}
-          onChange={handleSelectAllToggle}
-          label={t('LabelSelectAll')}
-          size="large"
-          borderColorClass="border-foreground-subdued"
-          checkboxBgClass="bg-bg"
-          labelClass="text-sm md:text-base"
-          className="w-fit"
-        />
+        <div ref={isBelowMd ? undefined : scrollContainerRef} className="flex-1 overflow-x-clip px-4 py-2 md:min-h-0 md:overflow-y-auto">
+          <Checkbox
+            value={selectAll}
+            onChange={handleSelectAllToggle}
+            label={t('LabelSelectAll')}
+            size="large"
+            borderColorClass="border-foreground-subdued"
+            checkboxBgClass="bg-bg"
+            labelClass="text-sm md:text-base"
+            className="w-fit"
+          />
 
-        <form onSubmit={handleSubmitMatchUpdate}>
-          {children({
-            selectedMatchUsage,
-            setSelectedMatchUsage,
-            createFieldUsageHandler,
-            handleSubmitMatchUpdate
-          })}
-        </form>
+          <form onSubmit={handleSubmitMatchUpdate}>
+            {children({
+              selectedMatchUsage,
+              setSelectedMatchUsage,
+              createFieldUsageHandler,
+              handleSubmitMatchUpdate
+            })}
+          </form>
+        </div>
       </div>
       <div
         className={`border-border flex flex-shrink-0 items-center justify-end border-t px-4 py-3 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}

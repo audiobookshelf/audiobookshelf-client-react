@@ -64,14 +64,15 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
   }, [clearSelection, isSelectionMode])
 
   return (
-    <div className="page-wrapper relative flex overflow-hidden">
+    <div className="page-wrapper bleed-mx relative flex overflow-hidden">
       <SideRail serverVersion={serverVersion} installSource={installSource} />
       <div className="page-bg-gradient min-w-0 flex-1 overflow-hidden">
         {showToolbar && <Toolbar />}
         {/* subtract height of toolbar when it is shown */}
+        {/* Inset lives on the scroller, not the gradient, so bleed-mx children paint into its unclipped padding */}
         <div
           className={mergeClasses(
-            'w-full overflow-x-hidden',
+            'safe-px w-full overflow-x-hidden',
             showToolbar && 'h-[calc(100%-2.5rem)] overflow-y-auto',
             !showToolbar && isBatchEditPage && 'h-full overflow-hidden',
             !showToolbar && !isBatchEditPage && 'h-full overflow-y-auto'
@@ -81,7 +82,7 @@ export default function LibraryLayoutWrapper({ children }: LibraryLayoutWrapperP
         </div>
       </div>
 
-      {showCoverSizeWidget && <CoverSizeWidget className="fixed right-4 bottom-(--media-player-offset) z-60" />}
+      {showCoverSizeWidget && <CoverSizeWidget className="safe-end-4 fixed bottom-(--media-player-offset) z-60" />}
       {boundModal}
     </div>
   )

@@ -174,7 +174,7 @@ export default function ViewEpisodeModal(props: ViewEpisodeModalProps) {
       isOpen={isOpen}
       onClose={onClose}
       {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem, episode: props.episode })}
-      className="bg-bg relative max-h-[80vh] w-[calc(100vw-1rem)] overflow-y-auto rounded-lg p-4 text-sm shadow-lg sm:w-150 md:w-175 lg:w-200"
+      className="bg-bg relative max-h-[80vh] w-[calc(var(--content-vw)-1rem)] overflow-y-auto rounded-lg p-4 text-sm shadow-lg sm:w-150 md:w-175 lg:w-200"
     >
       <ViewEpisodeModalBody onClose={onClose} />
     </EpisodeModal>

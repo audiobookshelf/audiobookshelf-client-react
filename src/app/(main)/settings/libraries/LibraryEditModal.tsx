@@ -223,7 +223,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       tabs={tabs}
       selectedTab={selectedTab}
       onTabChange={setSelectedTab}
-      contentClassName="relative px-4 sm:px-6 py-6 max-h-[70vh] min-h-[440px] overflow-y-auto"
+      contentClassName="relative px-4 sm:px-6 py-6 max-h-[70vh] md:min-h-[440px] overflow-y-auto"
       footer={
         <ModalFooter
           primary={{
