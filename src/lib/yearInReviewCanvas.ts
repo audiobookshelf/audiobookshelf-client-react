@@ -259,7 +259,7 @@ function drawStatTile(
   const textX = iconCenterX + radius + radius * 0.7
   const maxWidth = x + w - textX - 14
   drawText(ctx, value, textX, iconCenterY - valueSize * 0.3, { size: valueSize, weight: 600, maxWidth, fit: true })
-  drawText(ctx, label, textX, iconCenterY + valueSize * 0.55, { size: 20 * s, color: COLORS.muted, maxWidth, fit: true })
+  drawText(ctx, label, textX, iconCenterY + valueSize * 0.55, { size: 20 * s, weight: 600, color: COLORS.muted, maxWidth, fit: true })
 }
 
 function drawSectionLabel(ctx: Ctx, text: string, x: number, y: number, s: number, maxWidth?: number) {
@@ -475,7 +475,7 @@ export function renderServerYearReview(stats: ServerYearStats, covers: CoverImag
     if (!tile) return
     const maxWidth = colWidth - 48
     drawTile(ctx, tile.x, 348 * s, colWidth, 120 * s)
-    drawText(ctx, tile.label, tile.x + 24, 378 * s, { size: 20 * s, color: COLORS.muted, maxWidth, fit: true })
+    drawText(ctx, tile.label, tile.x + 24, 378 * s, { size: 20 * s, weight: 600, color: COLORS.muted, maxWidth, fit: true })
     drawText(ctx, tile.value, tile.x + 24, 414 * s, { size: 32 * s, weight: 600, maxWidth, fit: true })
     drawText(ctx, `+${tile.delta}`, tile.x + 24, 446 * s, { size: 20 * s, weight: 600, color: COLORS.accent, maxWidth, fit: true })
   })
