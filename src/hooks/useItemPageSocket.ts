@@ -48,7 +48,6 @@ export function useItemPageSocket({
   const handleItemUpdated = useCallback(
     (libraryItem: BookLibraryItem | PodcastLibraryItem) => {
       if (libraryItem.id === libraryItemId) {
-        console.log('Item was updated', libraryItem)
         onItemUpdated?.(libraryItem)
       }
     },
