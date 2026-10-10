@@ -461,9 +461,6 @@ export default function BatchLibraryItemMapDetailsPanel({
                       onChange={(v) => setDetails((d) => ({ ...d, explicit: v }))}
                       label={t('LabelExplicit')}
                       disabled={fieldDisabled('explicit')}
-                      checkboxBgClass={fieldDisabled('explicit') ? 'bg-bg' : 'bg-primary'}
-                      checkColorClass={fieldDisabled('explicit') ? 'text-foreground-subdued' : 'text-green-500'}
-                      borderColorClass="border-foreground-subdued"
                       labelClass={fieldDisabled('explicit') ? 'ps-2 text-base font-semibold text-foreground/40' : 'ps-2 text-base font-semibold'}
                     />
                   </div>
@@ -477,9 +474,6 @@ export default function BatchLibraryItemMapDetailsPanel({
                         onChange={(v) => setDetails((d) => ({ ...d, abridged: v }))}
                         label={t('LabelAbridged')}
                         disabled={fieldDisabled('abridged')}
-                        checkboxBgClass={fieldDisabled('abridged') ? 'bg-bg' : 'bg-primary'}
-                        checkColorClass={fieldDisabled('abridged') ? 'text-foreground-subdued' : 'text-green-500'}
-                        borderColorClass="border-foreground-subdued"
                         labelClass={fieldDisabled('abridged') ? 'ps-2 text-base font-semibold text-foreground/40' : 'ps-2 text-base font-semibold'}
                       />
                     </div>
@@ -501,7 +495,13 @@ export default function BatchLibraryItemMapDetailsPanel({
               </Tooltip>
             </div>
             <div className="hidden grow sm:block" />
-            <Btn color="bg-success text-success-foreground" size="small" disabled={disabled || !hasSelectedUsage} className="w-full px-8 text-base sm:w-auto" onClick={handleApply}>
+            <Btn
+              color="bg-success text-success-foreground"
+              size="small"
+              disabled={disabled || !hasSelectedUsage}
+              className="w-full px-8 text-base sm:w-auto"
+              onClick={handleApply}
+            >
               {t('ButtonApply')}
             </Btn>
           </div>

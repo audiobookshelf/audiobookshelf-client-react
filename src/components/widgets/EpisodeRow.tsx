@@ -219,7 +219,7 @@ export default function EpisodeRow({
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <Checkbox value={isSelected} checkboxBgClass="bg-primary" onChange={(checked, shiftKey) => onSelect(episode, checked, shiftKey, rowIndex)} />
+            <Checkbox value={isSelected} onChange={(checked, shiftKey) => onSelect(episode, checked, shiftKey, rowIndex)} />
           </div>
         </div>
 

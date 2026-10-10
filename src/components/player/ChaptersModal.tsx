@@ -49,9 +49,8 @@ const ChapterRow = memo(function ChapterRow({ chapter, isCurrentChapter, isListe
       onKeyDown={handleKeyDown}
       className={mergeClasses(
         'relative flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-left',
-        'hover:bg-primary/10 focus:outline-none',
-        isListened && !isCurrentChapter && 'bg-foreground-muted/5',
-        isCurrentChapter && 'bg-foreground-muted/10'
+        'hover:bg-bg-hover focus-visible:bg-bg-hover focus:outline-none',
+        isCurrentChapter && 'bg-button-selected-bg'
       )}
       data-current={isCurrentChapter}
     >

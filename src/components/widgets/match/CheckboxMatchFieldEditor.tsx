@@ -14,8 +14,6 @@ interface CheckboxMatchFieldEditorProps {
   disabled?: boolean
   label: string
   currentValue?: boolean | null
-  checkboxBgClass?: string
-  borderColorClass?: string
   labelClass?: string
   checkedLabelKey?: TranslationKey
   uncheckedLabelKey?: TranslationKey
@@ -29,8 +27,6 @@ function CheckboxMatchFieldEditor({
   disabled,
   label,
   currentValue,
-  checkboxBgClass,
-  borderColorClass,
   labelClass,
   checkedLabelKey = 'LabelExplicitChecked' as TranslationKey,
   uncheckedLabelKey = 'LabelExplicitUnchecked' as TranslationKey
@@ -64,8 +60,6 @@ function CheckboxMatchFieldEditor({
         onChange={onChange}
         disabled={disabled || !usageChecked}
         label={label}
-        checkboxBgClass={!usageChecked ? 'bg-bg' : checkboxBgClass || 'bg-primary'}
-        borderColorClass={borderColorClass || 'border-border'}
         labelClass={labelClass || 'ps-2 text-base font-semibold'}
       />
     </BaseMatchFieldEditor>

@@ -258,7 +258,7 @@ export default function ChaptersModalTable({
                 value={allSelected}
                 partial={someSelected && !allSelected}
                 size="small"
-                checkboxBgClass="bg-bg"
+
                 ariaLabel={t('LabelSelectAll')}
                 onChange={onToggleAllSelected}
               />

@@ -85,7 +85,7 @@ export default function BookmarkItem({ bookmark, highlight, playbackRate, onSele
   return (
     <>
       {isEditing ? (
-        <form onSubmit={submitUpdate} className={mergeClasses('flex w-full min-w-0 items-center gap-2 px-4 py-3', highlight && 'bg-foreground-muted/10')}>
+        <form onSubmit={submitUpdate} className={mergeClasses('flex w-full min-w-0 items-center gap-2 px-4 py-3', highlight && 'bg-button-selected-bg')}>
           <div className="w-16 max-w-16 shrink-0 text-center">
             <p className="text-foreground-muted font-mono text-sm">{displayTimestamp}</p>
           </div>
@@ -113,7 +113,11 @@ export default function BookmarkItem({ bookmark, highlight, playbackRate, onSele
           tabIndex={0}
           onClick={handleSelect}
           onKeyDown={handleRowKeyDown}
-          className={mergeClasses('flex cursor-pointer items-center gap-1 px-4 py-3', highlight && 'bg-foreground-muted/10', 'hover:bg-primary/10')}
+          className={mergeClasses(
+            'flex cursor-pointer items-center gap-1 px-4 py-3',
+            'hover:bg-bg-hover focus-visible:bg-bg-hover',
+            highlight && 'bg-button-selected-bg'
+          )}
         >
           <div className="w-16 max-w-16 shrink-0 text-center">
             <p className="text-foreground-muted font-mono text-sm">{displayTimestamp}</p>

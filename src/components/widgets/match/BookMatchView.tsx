@@ -426,8 +426,6 @@ export default function BookMatchView({
               onChange={createFieldValueHandler('explicit')}
               label={t('LabelExplicit')}
               currentValue={mediaMetadata.explicit}
-              checkboxBgClass="bg-primary"
-              borderColorClass="border-border"
               labelClass="ps-2 text-base font-semibold"
             />
           )}
@@ -440,8 +438,6 @@ export default function BookMatchView({
               onChange={createFieldValueHandler('abridged')}
               label={t('LabelAbridged')}
               currentValue={abridgedCurrentValue}
-              checkboxBgClass="bg-primary"
-              borderColorClass="border-border"
               labelClass="ps-2 text-base font-semibold"
               checkedLabelKey="LabelAbridgedChecked"
               uncheckedLabelKey="LabelAbridgedUnchecked"

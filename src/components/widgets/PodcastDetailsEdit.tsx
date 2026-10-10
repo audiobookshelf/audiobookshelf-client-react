@@ -193,8 +193,6 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
                 value={details.explicit}
                 onChange={handleFieldUpdate('explicit')}
                 label={t('LabelExplicit')}
-                checkboxBgClass="bg-primary"
-                borderColorClass="border-gray-600"
                 labelClass="ps-2 text-base font-semibold"
               />
             </div>

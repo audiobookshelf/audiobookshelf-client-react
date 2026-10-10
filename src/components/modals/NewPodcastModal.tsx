@@ -285,7 +285,6 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
                 value={podcast.explicit}
                 onChange={(explicit) => setPodcast((prev) => ({ ...prev, explicit }))}
                 label={t('LabelExplicit')}
-                checkboxBgClass="bg-primary"
                 labelClass="ps-2 text-base font-semibold"
               />
             </div>
@@ -311,7 +310,6 @@ export default function NewPodcastModal({ isOpen, podcastData, podcastFeedData, 
               value={podcast.autoDownloadEpisodes}
               onChange={(autoDownloadEpisodes) => setPodcast((prev) => ({ ...prev, autoDownloadEpisodes }))}
               label={t('LabelAutoDownloadEpisodes')}
-              checkboxBgClass="bg-primary"
             />
           }
           primary={{

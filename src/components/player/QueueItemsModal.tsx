@@ -225,7 +225,7 @@ export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueI
           <p className="text-foreground-subdued text-sm whitespace-nowrap transition-opacity group-focus-within:opacity-0 group-hover:opacity-0">
             {durationLabel}
           </p>
-          <div className="inset-e-0 absolute inset-y-0 flex items-center justify-end gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
+          <div className="absolute inset-y-0 inset-e-0 flex items-center justify-end gap-1 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100">
             {actionButtons}
           </div>
         </div>
@@ -256,15 +256,7 @@ export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueI
         <div className="flex items-center px-4 pb-4">
           <p className="text-foreground-muted shrink-0 text-base">{queueCountLabel}</p>
           <div className="grow" />
-          <Checkbox
-            value={playerQueueAutoPlay}
-            label={t('LabelAutoPlay')}
-            onChange={setPlayerQueueAutoPlay}
-            checkboxBgClass="bg-primary"
-            borderColorClass="border-gray-600"
-            labelClass="mb-px ps-2"
-            className="shrink-0"
-          />
+          <Checkbox value={playerQueueAutoPlay} label={t('LabelAutoPlay')} onChange={setPlayerQueueAutoPlay} labelClass="mb-px ps-2" className="shrink-0" />
         </div>
 
         <ul className="grid w-full min-w-0 list-none grid-cols-[auto_1fr_auto]" aria-label={t('HeaderPlayerQueue')}>
