@@ -233,7 +233,7 @@ export default function EpisodeEditModal(props: EpisodeEditModalProps) {
       onClose={onClose}
       {...(navCtxMode ? { navCtx: props.navCtx } : { libraryItem: props.libraryItem, episode: props.episode })}
       additionalProcessing={isSavePending}
-      className="sm:max-w-screen md:max-w-[800px]"
+      className="sm:max-w-(--content-vw) md:max-w-[800px]"
     >
       <EpisodeEditModalContent
         isOpen={isOpen}

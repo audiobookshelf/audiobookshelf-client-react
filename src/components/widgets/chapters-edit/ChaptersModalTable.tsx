@@ -137,19 +137,23 @@ export default function ChaptersModalTable({
             <Checkbox value={allSelected} partial={someSelected && !allSelected} size="small" ariaLabel={t('LabelSelectAll')} onChange={onToggleAllSelected} />
           </div>
         ),
-        headerClassName: 'text-center ps-3 pe-2 w-12 min-w-12',
+        headerClassName: 'text-center ps-3 pe-2 w-12 min-w-12 max-md:col-start-1 max-md:row-start-1 max-md:flex max-md:items-center max-md:justify-center',
         cellClassName: 'ps-3 pe-2 w-12 min-w-12'
       },
       {
         id: startHeaderId,
         label: t('LabelStart'),
-        headerClassName: startTimeColumnClass(mediaDuration, 'header'),
+        headerClassName: mergeClasses(
+          startTimeColumnClass(mediaDuration, 'header'),
+          'max-md:col-start-2 max-md:row-start-1 max-md:block max-md:w-auto max-md:min-w-0'
+        ),
         cellClassName: startTimeColumnClass(mediaDuration, 'cell')
       },
       {
         id: titleHeaderId,
         label: t('LabelTitle'),
-        headerClassName: 'text-start px-2',
+        // Mobile rows put the title on a second line under the checkbox and start time (see ChapterEditTableRow).
+        headerClassName: 'text-start px-1 md:px-2 max-md:col-span-2 max-md:col-start-1 max-md:row-start-2 max-md:block max-md:ps-4 max-md:pt-0',
         cellClassName: 'px-2'
       },
       {
@@ -237,12 +241,12 @@ export default function ChaptersModalTable({
   )
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col" {...{ [CHAPTERS_EDIT_TABLE_ATTR]: true }}>
-      <div className="border-border relative shrink-0 overflow-x-auto rounded-t-md border border-b-0">
+    <div className="flex flex-1 flex-col md:min-h-0" {...{ [CHAPTERS_EDIT_TABLE_ATTR]: true }}>
+      <div className="border-border relative shrink-0 overflow-x-auto rounded-t-md border border-b-0 max-md:sticky max-md:top-0 max-md:z-30">
         <table className={TABLE_CLASS}>
           <caption className="sr-only">{t('LabelChapters')}</caption>
           <thead className="bg-table-header-bg">
-            <tr className="border-border border-b">
+            <tr className="border-border border-b max-md:grid max-md:grid-cols-[3rem_minmax(0,1fr)_auto] max-md:items-center">
               {columns.map((column, index) => (
                 <th key={index} id={column.id} className={mergeClasses(HEADER_CELL_CLASS, column.headerClassName)} scope="col">
                   {column.label}
@@ -273,7 +277,7 @@ export default function ChaptersModalTable({
         )}
       </div>
 
-      <div ref={scrollContainerRef} className="border-border min-h-0 flex-1 overflow-x-auto overflow-y-auto rounded-b-md border">
+      <div ref={scrollContainerRef} className="border-border min-h-fit flex-1 overflow-x-auto overflow-y-auto rounded-b-md border md:min-h-0">
         <table className={TABLE_CLASS}>
           <tbody>{chapters.map((chapter, index) => renderEditRow(chapter, index))}</tbody>
         </table>

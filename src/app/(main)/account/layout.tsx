@@ -10,7 +10,7 @@ export default async function AccountLayout({ children }: Readonly<{ children: R
   return (
     <>
       <AppBarLoader />
-      <div className="page-bg-gradient page-wrapper">
+      <div className="page-bg-gradient page-wrapper bleed-mx safe-px">
         <div className="h-full w-full overflow-x-hidden overflow-y-auto">{children}</div>
       </div>
     </>

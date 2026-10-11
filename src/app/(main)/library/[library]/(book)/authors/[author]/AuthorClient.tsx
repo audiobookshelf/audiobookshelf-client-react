@@ -111,7 +111,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
                 {t('LabelXBooks', { count: libraryItems.length })}
               </Link>
             }
-            className="ps-0!"
+            bleed={false}
           >
             {libraryItems.map((libraryItem, entityIndex) => {
               const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
@@ -149,7 +149,7 @@ export default function AuthorClient({ author: authorProp }: AuthorClientProps) 
         )
         return (
           <div key={bookSeries.id} className="-ms-2e shrink-0">
-            <ItemSlider title={seriesTitle} className="ps-0!">
+            <ItemSlider title={seriesTitle} bleed={false}>
               {bookSeries.items?.map((libraryItem, entityIndex) => {
                 const mediaProgress = libraryItem.media?.id ? getMediaItemProgress(libraryItem.media.id) : undefined
                 const seriesItems = bookSeries.items ?? []

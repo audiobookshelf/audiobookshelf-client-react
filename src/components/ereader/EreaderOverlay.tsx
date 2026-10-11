@@ -172,7 +172,7 @@ export default function EreaderOverlay({
   const canZoomIn = zoomScale === null || zoomScale < FIXED_LAYOUT_ZOOM_MAX
 
   return createPortal(
-    <div inert={isPlayerFullscreen} className={mergeClasses('fixed inset-x-0 top-0 bottom-(--media-player-height) z-80 flex flex-col', shellClass)}>
+    <div inert={isPlayerFullscreen} className={mergeClasses('safe-px fixed inset-x-0 top-0 bottom-(--media-player-height) z-80 flex flex-col', shellClass)}>
       <header className="flex h-12 shrink-0 items-center gap-3 px-3">
         <button
           type="button"
@@ -232,7 +232,7 @@ export default function EreaderOverlay({
           close
         </button>
       </header>
-      <main className="relative flex min-h-0 flex-1">
+      <main className="relative flex min-h-0 flex-1 overflow-hidden">
         <button
           type="button"
           className="hidden w-16 shrink-0 items-center justify-center opacity-50 transition-opacity hover:opacity-100 disabled:pointer-events-none disabled:opacity-20 sm:flex"

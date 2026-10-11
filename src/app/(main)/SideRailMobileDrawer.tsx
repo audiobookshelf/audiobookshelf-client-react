@@ -64,8 +64,8 @@ export default function SideRailMobileDrawer({ isOpen, onClose, libraries, curre
 
       {/* Drawer */}
       <div
-        className={`bg-bg box-shadow-side border-border fixed top-0 left-0 z-70 flex h-full w-64 min-w-64 transform flex-col border-e shadow-2xl transition-transform duration-100 ease-in-out ${
-          isOpen ? 'translate-x-0' : '-translate-x-full'
+        className={`bg-bg box-shadow-side border-border safe-ps-minus-4 fixed start-0 top-0 z-70 box-content flex h-full w-64 min-w-64 transform flex-col border-e shadow-2xl transition-transform duration-100 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
         }`}
       >
         <div className="border-primary/30 shrink-0 border-b px-4 py-3">

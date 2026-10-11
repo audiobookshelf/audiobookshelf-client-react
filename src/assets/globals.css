@@ -5,6 +5,22 @@
 @import './app.css';
 @import './themes.css';
 
+/*
+ * Phones in landscape are wide enough for sm/md but too short for desktop chrome.
+ * Keep the built-in variant order; only the media query changes. lg and up stay width-only.
+ * Must stay in sync with MEDIA_QUERIES in src/hooks/useMediaQuery.ts.
+ * Media queries cannot read var(), so use theme() to inline the token at build time.
+ */
+/* static: always emitted on :root, because src/hooks/useMediaQuery.ts reads it at runtime. */
+@theme static {
+  --compact-landscape-max-height: 600px;
+}
+
+@custom-variant sm (@media (min-width: 40rem) and (orientation: portrait), @media (min-width: 40rem) and (min-height: calc(theme(--compact-landscape-max-height) + 1px)));
+@custom-variant md (@media (min-width: 48rem) and (orientation: portrait), @media (min-width: 48rem) and (min-height: calc(theme(--compact-landscape-max-height) + 1px)));
+@custom-variant max-sm (@media (max-width: 39.99rem), @media (orientation: landscape) and (max-height: theme(--compact-landscape-max-height)));
+@custom-variant max-md (@media (max-width: 47.99rem), @media (orientation: landscape) and (max-height: theme(--compact-landscape-max-height)));
+
 :root {
   --header-height: 64px;
 }
@@ -106,9 +122,87 @@
   --color-heatmap-bg: var(--heatmap-bg-color);
 }
 
+/*
+ * Safe-area insets (notch / rounded corners). All utilities are logical: --safe-start / --safe-end
+ * swap under [dir='rtl'] (see app.css), so they pair with ps/pe/start/end rather than left/right.
+ */
 body {
   background: var(--tc-background);
   color: var(--tc-foreground);
+  padding-inline: var(--safe-start) var(--safe-end);
+}
+
+/* Extends a background region back out under the parent's safe-area padding. Do not combine with w-full. */
+@utility bleed-mx {
+  margin-inline: calc(-1 * var(--safe-start)) calc(-1 * var(--safe-end));
+}
+
+/* bleed-mx for absolutely positioned regions: stretches under the containing block's safe-area padding. */
+@utility bleed-inset-x {
+  inset-inline: calc(-1 * var(--safe-start)) calc(-1 * var(--safe-end));
+}
+
+/* Re-insets content inside a bleeding region. */
+@utility safe-px {
+  padding-inline: var(--safe-start) var(--safe-end);
+}
+
+/*
+ * For elements that start at the screen edge (no inset parent): the spacing step or the inset,
+ * whichever is larger (never both added). Accepts number steps and em keys, e.g. `safe-px-2 md:safe-px-6`, `safe-ps-4e`.
+ */
+@utility safe-px-* {
+  padding-inline-start: max(--spacing(--value(integer)), var(--safe-start));
+  padding-inline-start: max(--value(--spacing-*), var(--safe-start));
+  padding-inline-end: max(--spacing(--value(integer)), var(--safe-end));
+  padding-inline-end: max(--value(--spacing-*), var(--safe-end));
+}
+
+@utility safe-ps-* {
+  padding-inline-start: max(--spacing(--value(integer)), var(--safe-start));
+  padding-inline-start: max(--value(--spacing-*), var(--safe-start));
+}
+
+@utility safe-pe-* {
+  padding-inline-end: max(--spacing(--value(integer)), var(--safe-end));
+  padding-inline-end: max(--value(--spacing-*), var(--safe-end));
+}
+
+@utility safe-start-* {
+  inset-inline-start: max(--spacing(--value(integer)), var(--safe-start));
+  inset-inline-start: max(--value(--spacing-*), var(--safe-start));
+}
+
+@utility safe-end-* {
+  inset-inline-end: max(--spacing(--value(integer)), var(--safe-end));
+  inset-inline-end: max(--value(--spacing-*), var(--safe-end));
+}
+
+/* Only the part of the start inset that the content's own spacing step does not already cover. */
+@utility safe-ps-minus-* {
+  padding-inline-start: max(0px, var(--safe-start) - --spacing(--value(integer)));
+  padding-inline-start: max(0px, var(--safe-start) - --value(--spacing-*));
+}
+
+/*
+ * Flex column that never grows past its max height (e.g. a modal on a phone in landscape): children shrink so
+ * their own scroll areas take the overflow; content that cannot shrink scrolls here instead.
+ * Children keep a declared height as their size (a flex-1 basis of 0 would collapse it to the content),
+ * and default to min-height 0 at zero specificity so a child's own min-h-* still wins.
+ */
+@utility fit-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+
+  & > * {
+    flex-basis: auto !important;
+  }
+
+  :where(& > *) {
+    min-height: 0;
+  }
 }
 
 /* Listening stats heatmap */

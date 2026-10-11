@@ -128,7 +128,10 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
   return (
     <div className="relative isolate h-full min-h-[calc(100vh-var(--header-height))]">
       {accentRgb !== null ? (
-        <div aria-hidden className="library-item-cover-accent-backdrop pointer-events-none absolute inset-0 z-0 h-[calc(100vh-var(--header-height))]" />
+        <div
+          aria-hidden
+          className="library-item-cover-accent-backdrop bleed-inset-x pointer-events-none absolute inset-y-0 z-0 h-[calc(100vh-var(--header-height))]"
+        />
       ) : null}
       <div className="relative z-1 p-6 sm:p-8">
         <div className="mx-auto w-full max-w-6xl">

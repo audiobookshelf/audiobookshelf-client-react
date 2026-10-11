@@ -313,8 +313,8 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
   }
 
   return (
-    <div className="page bg-bg flex h-full min-h-0 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 pt-6 pb-4">
+    <div className="page bg-bg bleed-mx flex h-full min-h-0 flex-col">
+      <div className="safe-px-6 min-h-0 flex-1 overflow-y-auto pt-6 pb-4">
         {isEpisodeMode ? (
           <BatchEpisodeMapDetailsPanel
             ref={episodeMapPanelRef}
@@ -423,13 +423,13 @@ export default function BatchEditClient({ libraryId }: BatchEditClientProps) {
       </div>
 
       {isProcessing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+        <div className="safe-px fixed inset-0 z-50 flex items-center justify-center bg-black/60">
           <LoadingIndicator variant="inline" />
         </div>
       )}
 
       {(hasChanges || isProcessing) && (
-        <div className="border-foreground/15 bg-primary box-shadow-lg-up z-40 flex h-20 w-full shrink-0 items-center border-t px-4">
+        <div className="border-foreground/15 bg-primary box-shadow-lg-up safe-px-4 z-40 flex h-20 w-full shrink-0 items-center border-t">
           <div className="grow" />
           <div className="flex items-center gap-2">
             <Btn disabled={isProcessing} onClick={() => setShowResetConfirm(true)}>

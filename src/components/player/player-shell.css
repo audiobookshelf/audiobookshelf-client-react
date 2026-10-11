@@ -1,3 +1,5 @@
+@reference '../../assets/globals.css';
+
 :root {
   /* Morph timings (view-transition pseudo-elements are not under .player-shell) */
   --player-morph-dur: 0.2s;
@@ -8,7 +10,6 @@
   --mini-pad: 0.5rem;
   /* Slider + reserved tick row + timestamps. */
   --mini-track-stack: 2rem;
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
   --player-mini-h: calc(var(--mini-pad) + var(--cover-h-mini) + var(--mini-pad) + var(--mini-track-stack) + var(--mini-pad) + var(--safe-bottom));
 }
 
@@ -21,10 +22,6 @@
   --cover-w-mini: calc(var(--cover-h-mini) / var(--cover-aspect));
   /** Gap between cover and title on mini. */
   --mini-title-gap: 0.5rem;
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --safe-start: env(safe-area-inset-left, 0px);
-  --safe-end: env(safe-area-inset-right, 0px);
   --mini-ps: calc(var(--mini-pad) + var(--safe-start));
   --mini-pe: calc(var(--mini-pad) + var(--safe-end));
   --mini-pb: calc(var(--mini-pad) + var(--safe-bottom));
@@ -39,11 +36,6 @@
   --fs-track-gap: 1rem;
   --fs-transport: 4rem;
   --fs-toolbar: 2.75rem;
-}
-
-:dir(rtl) .player-shell {
-  --safe-start: env(safe-area-inset-right, 0px);
-  --safe-end: env(safe-area-inset-left, 0px);
 }
 
 /* Registered lengths so getComputedStyle returns used pixels, not the calc() text. */
@@ -234,7 +226,7 @@
   }
 }
 
-@media (orientation: landscape) and (max-height: 600px) {
+@media (orientation: landscape) and (max-height: theme(--compact-landscape-max-height)) {
   .player-shell.fullscreen {
     --landscape-pad: 1rem;
     --landscape-col-min: 24rem;
