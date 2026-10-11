@@ -159,8 +159,6 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
             onChange={handleSelectAllToggle}
             label={t('LabelSelectAll')}
             size="large"
-            borderColorClass="border-foreground-subdued"
-            checkboxBgClass="bg-bg"
             labelClass="text-sm md:text-base"
             className="w-fit"
           />
