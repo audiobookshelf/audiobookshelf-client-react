@@ -137,7 +137,7 @@ describe('<UserAppBarNav /> desktop keyboard navigation', () => {
   it('excludes mobile-only items from the desktop menu', () => {
     mountUserAppBarNav()
     desktopMenuTrigger().click()
-    cy.get('[role="menuitem"]').should('have.length', 4)
+    cy.get('[role="menuitem"]').should('have.length', 3)
     cy.get('[role="menu"]').should('not.contain.text', 'Settings')
     cy.get('[role="menu"]').should('not.contain.text', 'Upload')
   })
