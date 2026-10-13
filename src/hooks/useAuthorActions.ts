@@ -9,33 +9,44 @@ import { useLibrary } from '@/contexts/LibraryContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getProviderRegion } from '@/lib/providerUtils'
-import { Author, AuthorQuickMatchPayload } from '@/types/api'
-import { useCallback, useState } from 'react'
+import { Author, AuthorQuickMatchPayload, Library } from '@/types/api'
+import { useCallback } from 'react'
+
+export function buildAuthorQuickMatchPayload(
+  author: Pick<Author, 'name' | 'asin'>,
+  libraryProvider: Library['provider'],
+  overrides?: Partial<Pick<Author, 'name' | 'asin'>>
+): AuthorQuickMatchPayload {
+  const payload: AuthorQuickMatchPayload = {
+    region: getProviderRegion(libraryProvider || 'audible')
+  }
+
+  if (overrides?.asin) {
+    payload.asin = overrides.asin
+  } else if (overrides?.name) {
+    payload.q = overrides.name
+  } else if (author.asin) {
+    payload.asin = author.asin
+  } else {
+    payload.q = author.name
+  }
+
+  return payload
+}
 
 export function useAuthorActions() {
-  const { library } = useLibrary()
-  const libraryProvider = library.provider || 'audible'
+  const { library, quickMatchingAuthorIds, setAuthorQuickMatching, isMatchingAllAuthors } = useLibrary()
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
-
-  const [quickMatchingAuthorIds, setQuickMatchingAuthorIds] = useState<Set<string>>(new Set())
 
   // Quick match author
   const handleQuickMatch = useCallback(
     async (author: Author, editedAuthor?: Partial<Author>): Promise<Author | null> => {
-      setQuickMatchingAuthorIds((prev) => new Set([...prev, author.id]))
+      if (isMatchingAllAuthors) return null
+
+      setAuthorQuickMatching(author.id, true)
       try {
-        // Build quick match payload
-        const payload: AuthorQuickMatchPayload = {
-          region: getProviderRegion(libraryProvider || 'audible')
-        }
-        if (editedAuthor?.asin) {
-          payload.asin = editedAuthor.asin
-        } else if (editedAuthor?.name) {
-          payload.q = editedAuthor.name
-        } else {
-          payload.q = author.name
-        }
+        const payload = buildAuthorQuickMatchPayload(author, library.provider, editedAuthor)
 
         const resp = await quickMatchAuthorAction(author.id, payload)
         if (resp) {
@@ -54,14 +65,10 @@ export function useAuthorActions() {
           return null
         }
       } finally {
-        setQuickMatchingAuthorIds((prev) => {
-          const next = new Set(prev)
-          next.delete(author.id)
-          return next
-        })
+        setAuthorQuickMatching(author.id, false)
       }
     },
-    [libraryProvider, showToast, t]
+    [isMatchingAllAuthors, library.provider, setAuthorQuickMatching, showToast, t]
   )
 
   // Save/update author

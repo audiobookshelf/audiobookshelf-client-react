@@ -95,6 +95,10 @@ interface LibraryContextType extends LibrarySettings {
   setNumIssues: (count: number) => void
   refetchFilterDataSilently: () => void
   isSettingsLoaded: boolean
+  quickMatchingAuthorIds: ReadonlySet<string>
+  setAuthorQuickMatching: (authorId: string, isMatching: boolean) => void
+  isMatchingAllAuthors: boolean
+  setIsMatchingAllAuthors: (isMatching: boolean) => void
 }
 
 const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
@@ -118,6 +122,20 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
   const [toolbarExtras, setToolbarExtras] = useState<React.ReactNode>(null)
   const [boundModal, setBoundModal] = useState<React.ReactNode | null>(null)
   const [isSettingsLoaded, setIsSettingsLoaded] = useState(false)
+  const [quickMatchingAuthorIds, setQuickMatchingAuthorIds] = useState<Set<string>>(() => new Set())
+  const [isMatchingAllAuthors, setIsMatchingAllAuthors] = useState(false)
+
+  const setAuthorQuickMatching = useCallback((authorId: string, isMatching: boolean) => {
+    setQuickMatchingAuthorIds((prev) => {
+      const next = new Set(prev)
+      if (isMatching) {
+        next.add(authorId)
+      } else {
+        next.delete(authorId)
+      }
+      return next
+    })
+  }, [])
 
   const { serverSettings } = useUser()
   const homeBookshelfView = serverSettings?.homeBookshelfView || 0
@@ -218,7 +236,11 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
       filterDataLoading,
       setNumIssues,
       refetchFilterDataSilently,
-      isSettingsLoaded
+      isSettingsLoaded,
+      quickMatchingAuthorIds,
+      setAuthorQuickMatching,
+      isMatchingAllAuthors,
+      setIsMatchingAllAuthors
     }),
     [
       library,
@@ -240,7 +262,10 @@ export function LibraryProvider({ children, library }: { children: React.ReactNo
       refetchFilterDataSilently,
       isSettingsLoaded,
       setItemCount,
-      setItemCountSupplement
+      setItemCountSupplement,
+      quickMatchingAuthorIds,
+      setAuthorQuickMatching,
+      isMatchingAllAuthors
     ]
   )
 

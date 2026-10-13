@@ -13,8 +13,18 @@ const BOOKSHELF_PAGE_PATTERNS = ['/items', '/issues', '/series', '/collections',
 export default function Toolbar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { library, itemCount, itemCountSupplement, detailToolbarTitle, contextMenuItems, onContextMenuAction, toolbarExtras, filterBy, seriesFilterBy } =
-    useLibrary()
+  const {
+    library,
+    itemCount,
+    itemCountSupplement,
+    detailToolbarTitle,
+    contextMenuItems,
+    onContextMenuAction,
+    toolbarExtras,
+    filterBy,
+    seriesFilterBy,
+    isMatchingAllAuthors
+  } = useLibrary()
   const { isSelectionMode } = useBookshelfSelection()
   const t = useTypeSafeTranslations()
 
@@ -28,6 +38,7 @@ export default function Toolbar() {
   const isPlaylistDetailPage = pathname.includes('/playlist/')
   const isNarratorsPage = pathname.endsWith('/narrators')
 
+  const isAuthorsPage = pathname.endsWith('/authors')
   const isSeriesPage = pathname.endsWith('/series')
   const activeFilter = isSeriesPage ? seriesFilterBy : filterBy
   const isBookshelfEmpty = itemCount === 0 && activeFilter === 'all'
@@ -123,7 +134,15 @@ export default function Toolbar() {
         )}
 
         {showContextMenu && (
-          <ContextMenuDropdown items={contextMenuItems} borderless usePortal size="small" autoWidth onAction={(args) => handleAction(args.action)} />
+          <ContextMenuDropdown
+            items={contextMenuItems}
+            borderless
+            usePortal
+            size="small"
+            autoWidth
+            processing={isAuthorsPage && isMatchingAllAuthors}
+            onAction={(args) => handleAction(args.action)}
+          />
         )}
       </div>
     </div>

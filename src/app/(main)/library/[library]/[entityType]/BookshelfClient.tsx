@@ -9,6 +9,7 @@ import { useBookshelfData } from '@/hooks/useBookshelfData'
 import { useBookshelfQuery } from '@/hooks/useBookshelfQuery'
 import { useBookshelfUpdater } from '@/hooks/useBookshelfUpdater'
 import { useBookshelfVirtualizer } from '@/hooks/useBookshelfVirtualizer'
+import { useMatchAllAuthors } from '@/hooks/useMatchAllAuthors'
 import { usePersistentScroll } from '@/hooks/usePersistentScroll'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { isLibraryIssuesPage } from '@/hooks/useLibraryRouteGuard'
@@ -233,6 +234,7 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
 
   // Get Entity Config
   const config = validEntities.includes(entityType as string) ? ENTITY_CONFIGS[entityType] : null
+  const { matchAllAuthors } = useMatchAllAuthors()
 
   useEffect(() => {
     if (!config || !registerToolbar) return
@@ -248,9 +250,12 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
 
     setContextMenuItems(menuItems)
 
-    // Set up action handler (delegated to entity config)
     setContextMenuActionHandler((action: string) => {
-      config.handleContextMenuAction(action, { updateSetting, library })
+      config.handleContextMenuAction(action, {
+        updateSetting,
+        library,
+        matchAllAuthors: entityType === 'authors' ? matchAllAuthors : undefined
+      })
     })
 
     return () => {
@@ -269,7 +274,8 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
     showSubtitles,
     collapseSeries,
     user,
-    t
+    t,
+    matchAllAuthors
   ])
 
   // Get empty state message based on entity config

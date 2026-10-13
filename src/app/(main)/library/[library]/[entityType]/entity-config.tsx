@@ -67,6 +67,12 @@ export interface CardComponentProps {
   selectionScopeId?: string
 }
 
+export interface ContextMenuActionHelpers {
+  updateSetting: UpdateSettingFn
+  library: Library
+  matchAllAuthors?: () => Promise<void>
+}
+
 export interface EntityConfig {
   getToolbarExtras: (user: User, library: Library) => ReactNode
 
@@ -76,7 +82,7 @@ export interface EntityConfig {
     settings: { showSubtitles: boolean; collapseSeries: boolean }
   ) => { textKey: TranslationKey; action: string }[]
 
-  handleContextMenuAction: (action: string, helpers: { updateSetting: UpdateSettingFn; library: Library }) => void
+  handleContextMenuAction: (action: string, helpers: ContextMenuActionHelpers) => void
 
   getEmptyMessageKey: (filterBy: string, isPodcastLibrary: boolean) => TranslationKey | ''
 
@@ -251,10 +257,9 @@ export const ENTITY_CONFIGS: Record<EntityType, EntityConfig> = {
       }
       return []
     },
-    handleContextMenuAction: (action) => {
+    handleContextMenuAction: (action, { matchAllAuthors }) => {
       if (action === 'match-all-authors') {
-        // TODO: Implement match all authors
-        console.log('Match all authors - to be implemented')
+        void matchAllAuthors?.()
       }
     },
     getEmptyMessageKey: () => 'MessageNoAuthorsFound',
