@@ -289,7 +289,7 @@ export default function UserAppBarNav() {
         createPortal(
           <div
             ref={menuRef}
-            className="bg-primary border-border z-[9999] min-w-[200px] rounded-md border shadow-lg"
+            className="bg-primary border-border z-9999 min-w-[200px] rounded-md border shadow-lg"
             style={floatingStyles}
             onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.preventDefault()}

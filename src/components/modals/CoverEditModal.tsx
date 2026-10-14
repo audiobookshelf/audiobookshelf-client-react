@@ -45,7 +45,7 @@ export function CoverEditModalBody({ stableBodyHeight, fillParent = false }: Cov
   return (
     <div className="max-h-[85vh] overflow-y-auto">
       {showLoading ? (
-        <div className="flex min-h-[24rem] items-center justify-center">
+        <div className="flex min-h-96 items-center justify-center">
           <LoadingIndicator variant="inline" />
         </div>
       ) : resolvedItem ? (

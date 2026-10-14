@@ -141,8 +141,8 @@ function ChapterEditTableRow({
   const overflowTooltip = overflow === 'start' ? t('MessageChapterStartIsAfter') : overflow === 'end' ? t('MessageChapterEndIsAfter') : undefined
   const startTimeCellClass =
     mediaDuration >= 360000
-      ? 'w-[11rem] min-w-[11rem] px-1 py-2 align-top md:w-[12.25rem] md:min-w-[12.25rem] md:px-2'
-      : 'w-[10rem] min-w-[10rem] px-1 py-2 align-top md:w-[10.75rem] md:min-w-[10.75rem] md:px-2'
+      ? 'w-44 min-w-44 px-1 py-2 align-top md:w-49 md:min-w-49 md:px-2'
+      : 'w-40 min-w-40 px-1 py-2 align-top md:w-43 md:min-w-43 md:px-2'
   const cannotDecrementStart = isFirstChapter || chapter.start - TIME_INCREMENT < 0
   const cannotIncrementStart = isFirstChapter || chapter.start + TIME_INCREMENT >= mediaDuration
   const rowBgClass = overflow === 'start' ? 'bg-error/20' : overflow === 'end' ? 'bg-warning/20' : isEvenRow ? 'bg-table-row-bg-even' : undefined

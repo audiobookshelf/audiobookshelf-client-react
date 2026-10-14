@@ -170,8 +170,8 @@ export default function CompilationBookshelf({
         ref={containerRef}
         className={
           isDetailBookshelfView
-            ? 'relative min-h-[28rem] overflow-x-hidden overflow-y-auto py-4'
-            : 'bookshelf-container relative min-h-[28rem] overflow-x-hidden overflow-y-auto'
+            ? 'relative min-h-112 overflow-x-hidden overflow-y-auto py-4'
+            : 'bookshelf-container relative min-h-112 overflow-x-hidden overflow-y-auto'
         }
         style={{ fontSize: sizeMultiplier + 'rem' }}
       >

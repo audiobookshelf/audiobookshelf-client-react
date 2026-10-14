@@ -41,7 +41,7 @@ export default function EreaderSettingsModal({ isOpen, ebookFormat, settings, on
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      zIndexClass="z-[90]"
+      zIndexClass="z-90"
       outerContent={<ModalOuterContent>{t('HeaderEreaderSettings')}</ModalOuterContent>}
       className="w-[500px]"
     >

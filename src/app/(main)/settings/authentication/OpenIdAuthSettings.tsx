@@ -137,10 +137,10 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
             onChange={(value) => updateField('authOpenIDIssuerURL', value || null)}
           />
         </div>
-        <div className="mx-1 mt-[1.375rem] w-36 shrink-0">
+        <div className="mx-1 mt-5.5 w-36 shrink-0">
           <Btn
             type="button"
-            className="inline-flex h-[2.375rem] w-full items-center justify-center text-sm"
+            className="inline-flex h-9.5 w-full items-center justify-center text-sm"
             disabled={disabled || isAutoPopulating}
             loading={isAutoPopulating}
             onClick={handleAutoPopulate}

@@ -23,7 +23,7 @@ function MaskedAuthValue({ authHeaderValue }: { authHeaderValue: string | null }
   return (
     <span
       className={mergeClasses(
-        'inline-block max-w-full truncate rounded px-1 py-[1px] align-middle transition-all duration-300',
+        'inline-block max-w-full truncate rounded px-1 py-px align-middle transition-all duration-300',
         'bg-table-header-bg hover:text-foreground text-transparent hover:bg-transparent'
       )}
     >

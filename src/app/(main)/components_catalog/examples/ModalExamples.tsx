@@ -121,7 +121,7 @@ export function ModalExamples() {
             <Modal
               isOpen={isCustomModalOpen}
               onClose={() => setIsCustomModalOpen(false)}
-              zIndexClass="z-[100]"
+              zIndexClass="z-100"
               bgOpacityClass="bg-primary/50"
               className="mt-[20px]"
             >
@@ -131,7 +131,7 @@ export function ModalExamples() {
                   <p className="text-blue-100">This modal demonstrates custom styling options:</p>
                   <ul className="list-inside list-disc space-y-2 text-blue-100">
                     <li>Custom width, height, and margin via className</li>
-                    <li>Higher z-index (z-[100]) using Tailwind classes</li>
+                    <li>Higher z-index (z-100) using Tailwind classes</li>
                     <li>Lower background opacity (bg-primary/50) using Tailwind classes</li>
                     <li>Custom margin top (20px) via className</li>
                     <li>Gradient background styling</li>

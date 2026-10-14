@@ -12,7 +12,7 @@ import type { ReactNode } from 'react'
 const COVER_HEIGHT = 36
 
 /** Width of the centered header row (two max-w-2xl columns). Use for subpage content alignment. */
-export const libraryItemSubpageMaxWidthClass = 'max-w-[84rem]'
+export const libraryItemSubpageMaxWidthClass = 'max-w-336'
 
 interface LibraryItemSubpageHeaderProps {
   libraryItem: BookLibraryItem

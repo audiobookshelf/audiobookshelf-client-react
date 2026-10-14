@@ -94,7 +94,7 @@ export default function DailyListeningChart({ daysListening }: DailyListeningCha
             role="img"
             aria-label={summaryLabel}
             viewBox={`0 0 ${DAILY_CHART_WIDTH} ${DAILY_CHART_VIEWBOX_HEIGHT}`}
-            className="h-[18rem] w-full max-w-[22.5rem]"
+            className="h-72 w-full max-w-90"
             preserveAspectRatio="xMidYMid meet"
           >
             {Array.from({ length: 7 }, (_, n) => {
@@ -187,7 +187,7 @@ export default function DailyListeningChart({ daysListening }: DailyListeningCha
           <div
             ref={tooltipRef}
             role="tooltip"
-            className="bg-bg-read-only text-foreground pointer-events-none fixed z-[1000] max-w-xs rounded-sm px-2 py-1 text-xs leading-snug whitespace-nowrap shadow-lg"
+            className="bg-bg-read-only text-foreground pointer-events-none fixed z-1000 max-w-xs rounded-sm px-2 py-1 text-xs leading-snug whitespace-nowrap shadow-lg"
             style={{
               left: tooltipPos?.left ?? -9999,
               top: tooltipPos?.top ?? 0,

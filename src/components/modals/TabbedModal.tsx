@@ -68,8 +68,8 @@ export default function TabbedModal({
               aria-controls={`tabpanel-${tab.id}`}
               className={mergeClasses(
                 'max-w-28 flex-1 cursor-pointer px-2 py-2 text-sm font-medium transition-colors select-none sm:px-4 sm:text-base',
-                'border-border mb-[-1px] rounded-t-lg border',
-                isActive ? 'bg-bg text-foreground border-b-bg relative z-[1]' : 'bg-primary text-foreground-muted hover:text-foreground'
+                'border-border -mb-px rounded-t-lg border',
+                isActive ? 'bg-bg text-foreground border-b-bg relative z-1' : 'bg-primary text-foreground-muted hover:text-foreground'
               )}
               onClick={() => onTabChange(tab.id)}
             >

@@ -18,7 +18,7 @@ export default function ProgressIndicator({ progress: rawProgress, label = 'Labe
       {/* Progress percentage and label */}
       <div className="mb-2 flex items-center justify-between">
         <div className="flex-1">{typeof label === 'string' ? <p className="text-sm font-medium">{t(label)}</p> : label}</div>
-        <p className="min-w-[3rem] text-right text-sm font-semibold">{progress.toFixed(0)}%</p>
+        <p className="min-w-12 text-right text-sm font-semibold">{progress.toFixed(0)}%</p>
       </div>
 
       {/* Progress bar container */}

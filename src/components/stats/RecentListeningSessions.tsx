@@ -43,12 +43,12 @@ export default function RecentListeningSessions({ sessions, userId, showViewAll 
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 flex-1 items-center gap-1">
                   <span className="text-foreground-muted w-8 shrink-0 text-sm tabular-nums">{index + 1}.</span>
-                  <div className="max-w-[14rem] min-w-0">
+                  <div className="max-w-56 min-w-0">
                     <p className="text-foreground truncate text-sm">{sessionTitle(item)}</p>
                     <p className="text-foreground-subdued text-xs">{formatDistanceToNow(new Date(item.updatedAt), { addSuffix: true })}</p>
                   </div>
                 </div>
-                <p className="text-foreground w-[4.5rem] shrink-0 text-right text-sm font-semibold tabular-nums">
+                <p className="text-foreground w-18 shrink-0 text-right text-sm font-semibold tabular-nums">
                   {formatDuration(item.timeListening, t, { showSeconds: true })}
                 </p>
               </div>

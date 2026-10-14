@@ -341,7 +341,7 @@ export function LibraryItemEditModalContent({
         </div>
       )
     ) : fetchPending && !resolvedItem ? (
-      <div className="flex min-h-[24rem] items-center justify-center">
+      <div className="flex min-h-96 items-center justify-center">
         <LoadingIndicator variant="inline" />
       </div>
     ) : null

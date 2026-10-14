@@ -195,7 +195,7 @@ export default function ListeningHeatmap({ daysListening }: ListeningHeatmapProp
                 ref={tooltipRef}
                 id="heatmap-tooltip"
                 role="tooltip"
-                className="bg-bg-read-only text-foreground pointer-events-none fixed z-[1000] max-w-xs rounded-sm p-2 text-[10px] leading-[10px]"
+                className="bg-bg-read-only text-foreground pointer-events-none fixed z-1000 max-w-xs rounded-sm p-2 text-[10px] leading-[10px]"
                 style={{
                   left: tooltipPos?.left ?? -9999,
                   top: tooltipPos?.top ?? 0,
