@@ -83,14 +83,14 @@ export default function AuthorImage({ author, className }: AuthorImageProps) {
 
   return (
     <div className={mergeClasses('bg-primary relative h-full w-full overflow-hidden rounded-md', className)}>
-      {showCoverBg && <div className="cover-bg absolute start-0 top-0 h-full w-full" style={{ backgroundImage: `url(${imageSrc})` }} aria-hidden="true" />}
+      {showCoverBg && <div className="cover-bg absolute inset-s-0 top-0 h-full w-full" style={{ backgroundImage: `url(${imageSrc})` }} aria-hidden="true" />}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={imageSrc}
         alt=""
         onLoad={handleImageLoad}
         onError={handleImageError}
-        className={mergeClasses('absolute start-0 top-0 h-full w-full', showCoverBg ? 'object-contain' : 'object-cover')}
+        className={mergeClasses('absolute inset-s-0 top-0 h-full w-full', showCoverBg ? 'object-contain' : 'object-cover')}
       />
     </div>
   )

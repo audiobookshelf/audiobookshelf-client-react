@@ -47,7 +47,7 @@ export default function AuthorCardSkeleton({ sizeMultiplier }: AuthorCardSkeleto
         </div>
 
         {/* Text overlay skeleton */}
-        <div className="absolute start-0 bottom-0 z-10 w-full bg-black/60 px-2 py-1">
+        <div className="absolute inset-s-0 bottom-0 z-10 w-full bg-black/60 px-2 py-1">
           {/* Name skeleton */}
           <p className="mx-auto animate-pulse rounded bg-gray-600 text-[0.75em]" style={{ width: '70%' }}>
             &nbsp;

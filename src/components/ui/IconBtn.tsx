@@ -29,7 +29,7 @@ interface IconBtnProps {
 const LoadingSpinner = memo(() => (
   <div
     cy-id="icon-btn-loading-spinner"
-    className="text-foreground/100 absolute start-0 top-0 flex h-full w-full items-center justify-center"
+    className="text-foreground/100 absolute inset-s-0 top-0 flex h-full w-full items-center justify-center"
     aria-hidden="true"
   >
     <svg className="animate-spin" style={{ width: '24px', height: '24px' }} viewBox="0 0 24 24">

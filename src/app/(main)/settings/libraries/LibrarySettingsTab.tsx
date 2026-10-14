@@ -149,7 +149,7 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
             customInputClass="no-spinner"
           />
           {markAsFinishedMode === 'percent-complete' && (
-            <span className="text-foreground-muted absolute end-0 top-0 flex h-full items-center justify-center px-2 text-sm" aria-hidden="true">
+            <span className="text-foreground-muted absolute inset-e-0 top-0 flex h-full items-center justify-center px-2 text-sm" aria-hidden="true">
               %
             </span>
           )}

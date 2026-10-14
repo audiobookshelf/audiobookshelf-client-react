@@ -321,7 +321,7 @@ export default function ContextMenu<T = string>({
       className={mergeClasses(
         'bg-bg border-black-200 absolute z-10 rounded-md border py-1 shadow-lg focus:outline-hidden sm:text-sm',
         !usePortal && 'mt-1',
-        !usePortal && (menuAlign === 'right' ? 'end-0' : 'start-0'),
+        !usePortal && (menuAlign === 'right' ? 'inset-e-0' : 'inset-s-0'),
         autoWidth ? 'inline-flex flex-col whitespace-nowrap' : '',
         className
       )}

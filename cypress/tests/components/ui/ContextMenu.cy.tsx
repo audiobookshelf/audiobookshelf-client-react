@@ -130,13 +130,13 @@ describe('<ContextMenu />', () => {
   it('applies right alignment by default', () => {
     cy.mount(<TestWrapper items={mockItems} />)
     cy.get('[cy-id="trigger-button"]').click()
-    cy.get('[cy-id="menu"]').should('have.class', 'end-0')
+    cy.get('[cy-id="menu"]').should('have.class', 'inset-e-0')
   })
 
   it('applies left alignment when specified', () => {
     cy.mount(<TestWrapper items={mockItems} menuAlign="left" />)
     cy.get('[cy-id="trigger-button"]').click()
-    cy.get('[cy-id="menu"]').should('have.class', 'start-0')
+    cy.get('[cy-id="menu"]').should('have.class', 'inset-s-0')
   })
 
   it('applies custom className', () => {

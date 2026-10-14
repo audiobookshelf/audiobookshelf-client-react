@@ -213,7 +213,7 @@ function SeriesCard(props: SeriesCardProps) {
             <div
               cy-id="seriesProgressBar"
               className={mergeClasses(
-                'box-shadow-progressbar absolute start-0 bottom-0 z-10 h-1 max-w-full rounded-b',
+                'box-shadow-progressbar absolute inset-s-0 bottom-0 z-10 h-1 max-w-full rounded-b',
                 isSeriesFinished ? 'bg-success' : 'bg-yellow-400'
               )}
               style={{ width: `${seriesProgressPercent * 100}%` }}
@@ -250,7 +250,7 @@ function SeriesCard(props: SeriesCardProps) {
           {series.rssFeed && !isSelectionMode && !showHover && (
             <div
               cy-id="rssFeed"
-              className={mergeClasses('absolute start-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
+              className={mergeClasses('absolute inset-s-[0.375em] top-[0.375em] z-10', 'flex items-center justify-center rounded-full bg-black/40 shadow-sm')}
               style={{ width: '1.5em', height: '1.5em' }}
             >
               <span className="material-symbols text-orange-500" aria-hidden="true" style={{ fontSize: '1em' }}>
@@ -263,7 +263,7 @@ function SeriesCard(props: SeriesCardProps) {
       footer={
         isAlternativeBookshelfView ? (
           // Detail view footer
-          <div cy-id="detailBottomText" className="relative start-0 end-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
+          <div cy-id="detailBottomText" className="relative inset-s-0 inset-e-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
             <p cy-id="detailBottomDisplayTitle" className="truncate" style={{ fontSize: `${labelFontSize}em` }}>
               {displayTitle}
             </p>

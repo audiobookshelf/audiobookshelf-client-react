@@ -128,7 +128,7 @@ export default function Modal({
       aria-modal="true"
       data-abs-modal
       className={mergeClasses(
-        'modal modal-bg safe-px fixed start-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden pt-[50px] pb-2',
+        'modal modal-bg safe-px fixed inset-s-0 top-0 flex h-full w-full items-center justify-center overflow-x-hidden pt-[50px] pb-2',
         zIndexClass,
         bgOpacityClass
       )}

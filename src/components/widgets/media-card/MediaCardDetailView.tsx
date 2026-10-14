@@ -45,7 +45,7 @@ export default function MediaCardDetailView({
   const descriptionId = useId()
 
   return (
-    <div cy-id="detailBottom" id={descriptionId} dir="auto" className="relative start-0 z-50 mt-2 mb-2 w-full">
+    <div cy-id="detailBottom" id={descriptionId} dir="auto" className="relative inset-s-0 z-50 mt-2 mb-2 w-full">
       <div style={{ fontSize: `${0.9}em` }}>
         {isSkeleton ? (
           <div className="flex items-center" aria-busy="true" aria-live="polite">

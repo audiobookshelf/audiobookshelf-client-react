@@ -43,7 +43,7 @@ export function GroupCoverCell({ cover, width, height, fallbackImageStyle, cover
   return (
     <div className={mergeClasses('relative z-10 flex items-center justify-center', className)} style={{ width: `${width}px`, height: `${height}px` }}>
       {showCoverBg && (
-        <div className={mergeClasses('bg-primary absolute start-0 top-0 h-full w-full overflow-hidden', coverBgClassName)}>
+        <div className={mergeClasses('bg-primary absolute inset-s-0 top-0 h-full w-full overflow-hidden', coverBgClassName)}>
           <div className="cover-bg absolute" style={{ backgroundImage: `url("${cover.coverUrl}")` }} />
         </div>
       )}

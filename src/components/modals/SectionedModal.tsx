@@ -128,7 +128,7 @@ export function SectionedModalBody({
                 isActive && 'bg-nav-item-selected'
               )}
             >
-              {isActive ? <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400" aria-hidden /> : null}
+              {isActive ? <div className="absolute inset-s-0 top-0 h-full w-0.5 bg-yellow-400" aria-hidden /> : null}
               <span className="material-symbols text-2xl" aria-hidden>
                 {item.icon}
               </span>

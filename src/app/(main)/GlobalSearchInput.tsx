@@ -197,7 +197,7 @@ export default function GlobalSearchInput({ libraryId, onSubmit, onItemSelect, o
       </InputWrapper>
 
       {/* Search Icon, Spinner or Clear Button */}
-      <div className="absolute end-0 top-0 flex h-full items-center pe-2">
+      <div className="absolute inset-e-0 top-0 flex h-full items-center pe-2">
         {isSearching || isTyping ? (
           <LoadingSpinner size="la-sm" className="text-foreground-muted scale-50" />
         ) : searchQuery ? (

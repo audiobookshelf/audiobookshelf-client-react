@@ -193,7 +193,7 @@ export default function SideRailContent({
                 {button.label}
               </span>
 
-              {!isDrawer && isActive && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
+              {!isDrawer && isActive && <div className="absolute inset-s-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
             </Link>
           )
         })}
@@ -215,11 +215,11 @@ export default function SideRailContent({
               {t('ButtonIssues')}
             </span>
 
-            {!isDrawer && onIssuesPage && <div className="absolute start-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
+            {!isDrawer && onIssuesPage && <div className="absolute inset-s-0 top-0 h-full w-0.5 bg-yellow-400"></div>}
             <div
               className={mergeClasses(
                 'bg-foreground/30 absolute flex items-center justify-center rounded-full',
-                isDrawer ? 'end-4 top-1/2 h-5 min-w-5 -translate-y-1/2 px-1' : 'end-1 top-1 h-4 w-4'
+                isDrawer ? 'inset-e-4 top-1/2 h-5 min-w-5 -translate-y-1/2 px-1' : 'inset-e-1 top-1 h-4 w-4'
               )}
             >
               <span className="font-mono text-xs leading-none">{numIssues}</span>

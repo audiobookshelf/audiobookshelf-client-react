@@ -157,7 +157,7 @@ export function ModalExamples() {
             <Modal
               isOpen={isOuterContentModalOpen}
               onClose={() => setIsOuterContentModalOpen(false)}
-              outerContent={<div className="absolute start-10 top-10 rounded bg-yellow-500 px-3 py-1 text-sm font-semibold text-black">Outer Content!</div>}
+              outerContent={<div className="absolute inset-s-10 top-10 rounded bg-yellow-500 px-3 py-1 text-sm font-semibold text-black">Outer Content!</div>}
               className="w-[500px]"
             >
               <div className="flex flex-col">

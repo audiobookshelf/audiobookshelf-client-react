@@ -156,7 +156,7 @@ function PlaylistCard(props: PlaylistCardProps) {
                   <div
                     cy-id="moreButton"
                     className={mergeClasses(
-                      'absolute end-[0.375em] bottom-[0.375em] cursor-pointer md:block',
+                      'absolute inset-e-[0.375em] bottom-[0.375em] cursor-pointer md:block',
                       'hover:scale-125 hover:[&_.material-symbols]:!text-yellow-300'
                     )}
                   >
@@ -174,7 +174,7 @@ function PlaylistCard(props: PlaylistCardProps) {
 
             {/* Processing overlay */}
             {processing && (
-              <div cy-id="loadingSpinner" className="absolute start-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-sm bg-black/40">
+              <div cy-id="loadingSpinner" className="absolute inset-s-0 top-0 z-10 flex h-full w-full items-center justify-center rounded-sm bg-black/40">
                 <LoadingSpinner size="la-lg" />
               </div>
             )}
@@ -183,7 +183,7 @@ function PlaylistCard(props: PlaylistCardProps) {
         footer={
           isAlternativeBookshelfView ? (
             // Detail view footer
-            <div cy-id="detailBottomText" className="relative start-0 end-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
+            <div cy-id="detailBottomText" className="relative inset-s-0 inset-e-0 z-30 mx-auto rounded-md py-[0.25em] text-center">
               <p cy-id="detailBottomDisplayTitle" className="truncate" style={{ fontSize: `${labelFontSize}em` }}>
                 {displayTitle}
               </p>

@@ -66,7 +66,7 @@ export default function EreaderTocDrawer({
       {isOpen && <button type="button" className="absolute inset-0 z-20 bg-black/20" onClick={onClose} aria-label={t('ButtonClose')} />}
       <aside
         className={mergeClasses(
-          'absolute start-0 top-0 z-30 flex h-full w-96 max-w-full flex-col shadow-xl transition-transform duration-200',
+          'absolute inset-s-0 top-0 z-30 flex h-full w-96 max-w-full flex-col shadow-xl transition-transform duration-200',
           shellClass,
           isOpen ? 'translate-x-0' : '-translate-x-full rtl:translate-x-full'
         )}

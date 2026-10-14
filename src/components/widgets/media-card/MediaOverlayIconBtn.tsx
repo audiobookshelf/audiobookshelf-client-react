@@ -16,11 +16,11 @@ const ICON_SIZE_CLASSES = {
 
 /** Shared with [`DraggableMediaOverlayIconBtn`](./DraggableMediaOverlayIconBtn.tsx) so drag wrapping uses identical placement. */
 export const MEDIA_OVERLAY_ICON_POSITION_CLASSES = {
-  'top-start': 'top-[0.375em] start-[0.375em]',
-  'top-end': 'top-[0.375em] end-[0.375em]',
-  'bottom-start': 'bottom-[0.375em] start-[0.375em]',
-  'bottom-end': 'bottom-[0.375em] end-[0.375em]',
-  'top-center': 'top-[0.375em] start-1/2 -translate-x-1/2'
+  'top-start': 'top-[0.375em] inset-s-[0.375em]',
+  'top-end': 'top-[0.375em] inset-e-[0.375em]',
+  'bottom-start': 'bottom-[0.375em] inset-s-[0.375em]',
+  'bottom-end': 'bottom-[0.375em] inset-e-[0.375em]',
+  'top-center': 'top-[0.375em] inset-s-1/2 -translate-x-1/2'
 } as const
 
 export type MediaOverlayIconPosition = keyof typeof MEDIA_OVERLAY_ICON_POSITION_CLASSES

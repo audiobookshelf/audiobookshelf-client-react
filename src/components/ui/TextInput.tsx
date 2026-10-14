@@ -217,7 +217,7 @@ export default function TextInput({
         />
 
         {clearable && value && (
-          <div className="absolute end-0 top-0 flex h-full items-center justify-center px-2">
+          <div className="absolute inset-e-0 top-0 flex h-full items-center justify-center px-2">
             <button
               type="button"
               className={mergeClasses(
@@ -236,7 +236,7 @@ export default function TextInput({
 
         {shouldShowPasswordToggle && (
           // password visibility toggle button only show on hover and focus
-          <div className="pointer-events-none absolute end-0 top-0 flex h-full items-center justify-center px-4 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100">
+          <div className="pointer-events-none absolute inset-e-0 top-0 flex h-full items-center justify-center px-4 opacity-0 group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100">
             <button
               type="button"
               className="text-foreground-muted hover:text-foreground focus:ring-foreground-muted flex cursor-pointer rounded text-lg focus:ring-2 focus:ring-offset-1 focus:outline-none"
@@ -259,7 +259,7 @@ export default function TextInput({
         )}
 
         {shouldShowDatePickerButton && (
-          <div className="absolute end-0 top-0 flex h-full items-center justify-center px-2">
+          <div className="absolute inset-e-0 top-0 flex h-full items-center justify-center px-2">
             <button
               type="button"
               className="text-foreground-muted hover:text-foreground focus:ring-foreground-muted flex cursor-pointer rounded text-lg focus:ring-2 focus:ring-offset-1 focus:outline-none"
@@ -275,7 +275,7 @@ export default function TextInput({
         )}
 
         {showCopy && type !== 'password' && (
-          <div className="absolute end-0 top-0 flex h-full items-center justify-center px-2">
+          <div className="absolute inset-e-0 top-0 flex h-full items-center justify-center px-2">
             <button
               type="button"
               className={mergeClasses(

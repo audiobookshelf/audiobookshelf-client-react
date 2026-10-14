@@ -102,13 +102,13 @@ export default function MediaCardFrame({
       }}
     >
       <div
-        className="bg-primary box-shadow-book relative start-0 top-0 z-10 w-full overflow-hidden rounded-sm"
+        className="bg-primary box-shadow-book relative inset-s-0 top-0 z-10 w-full overflow-hidden rounded-sm"
         style={{
           height: typeof height === 'number' ? `${height}px` : height,
           aspectRatio: aspectRatio ? `${aspectRatio}` : undefined
         }}
       >
-        <div className="absolute start-0 top-0 z-10 h-full w-full overflow-hidden rounded-sm">
+        <div className="absolute inset-s-0 top-0 z-10 h-full w-full overflow-hidden rounded-sm">
           {cover}
           {overlay}
         </div>

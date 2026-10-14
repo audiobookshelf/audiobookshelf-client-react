@@ -102,7 +102,7 @@ export default function MediaCardCover({
       {/* Cover background when image does not fill */}
       <div
         cy-id="coverBg"
-        className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs"
+        className="bg-primary absolute inset-s-0 top-0 h-full w-full overflow-hidden rounded-xs"
         style={{ display: showCoverBg ? 'block' : 'none' }}
       >
         {showCoverBg && (
@@ -120,7 +120,7 @@ export default function MediaCardCover({
         <div
           cy-id="titleImageNotReady"
           aria-hidden="true"
-          className="absolute start-0 top-0 flex h-full w-full items-center justify-center"
+          className="absolute inset-s-0 top-0 flex h-full w-full items-center justify-center"
           style={{ padding: `${0.5}em` }}
         >
           <p style={{ fontSize: `${0.8}em` }} className="text-center text-gray-300">
@@ -165,7 +165,7 @@ export default function MediaCardCover({
         <div
           cy-id="progressBar"
           className={mergeClasses(
-            'box-shadow-progressbar absolute start-0 bottom-0 z-20 h-1 max-w-full rounded-b',
+            'box-shadow-progressbar absolute inset-s-0 bottom-0 z-20 h-1 max-w-full rounded-b',
             itemIsFinished ? 'bg-success' : 'bg-yellow-400'
           )}
           style={{ width: `${userProgressPercent * 100}%` }}

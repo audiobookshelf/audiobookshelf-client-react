@@ -19,7 +19,7 @@ function MediaCardOverlayContainer({ children, isSelectionMode = false, selected
     <div
       cy-id={cyId}
       className={mergeClasses(
-        'absolute start-0 top-0 h-full w-full rounded-sm bg-black',
+        'absolute inset-s-0 top-0 h-full w-full rounded-sm bg-black',
         selected ? 'z-30' : 'z-10',
         isSelectionMode ? 'bg-black/60' : 'bg-black/40',
         selected && 'border-2 border-yellow-400',

@@ -118,7 +118,7 @@ function AuthorCard(props: AuthorCardProps) {
           <>
             {/* Permanent author name & num books overlay */}
             {!isSearching && (
-              <div cy-id="textInline" className="absolute start-0 bottom-0 z-10 w-full bg-black/75 px-2 py-1">
+              <div cy-id="textInline" className="absolute inset-s-0 bottom-0 z-10 w-full bg-black/75 px-2 py-1">
                 <p className="truncate text-center text-[0.75em] font-semibold text-white">{displayName}</p>
                 <p className="text-center text-[0.65em] text-gray-200">
                   {numBooks} {t('LabelBooks')}
@@ -158,7 +158,7 @@ function AuthorCard(props: AuthorCardProps) {
             {isSearching && (
               <div
                 cy-id="spinner"
-                className="absolute start-0 top-0 z-30 flex h-full w-full items-center justify-center bg-black/50"
+                className="absolute inset-s-0 top-0 z-30 flex h-full w-full items-center justify-center bg-black/50"
                 role="status"
                 aria-label={t('MessageLoading')}
               >

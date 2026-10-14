@@ -173,7 +173,7 @@ export default function ShareModal({ isOpen, onClose, mediaItemId, mediaItemShar
     <Modal isOpen={isOpen} onClose={onClose} outerContent={outerContent} processing={processing} className="sm:max-w-[520px] md:max-w-[560px] lg:max-w-[560px]">
       <div className="flex max-h-[80vh] flex-col text-sm">
         <div className="overflow-x-hidden overflow-y-auto p-4 sm:p-6">
-          <div className="absolute end-0 top-0 p-4">
+          <div className="absolute inset-e-0 top-0 p-4">
             <MoreInfoIcon moreInfoUrl="https://www.audiobookshelf.org/guides/media-item-shares" size="xl" />
           </div>
 

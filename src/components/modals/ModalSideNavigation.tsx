@@ -18,7 +18,7 @@ export default function ModalSideNavigation({ canGoPrev, canGoNext, onPrevAction
   return (
     <>
       {canGoPrev ? (
-        <div className="pointer-events-none absolute -start-24 top-0 bottom-0 z-1 flex h-full items-center px-6">
+        <div className="pointer-events-none absolute -inset-s-24 top-0 bottom-0 z-1 flex h-full items-center px-6">
           <button
             type="button"
             className="material-symbols text-foreground-muted hover:text-foreground pointer-events-auto cursor-pointer text-5xl transition-colors"
@@ -35,7 +35,7 @@ export default function ModalSideNavigation({ canGoPrev, canGoNext, onPrevAction
         </div>
       ) : null}
       {canGoNext ? (
-        <div className="pointer-events-none absolute -end-24 top-0 bottom-0 z-1 flex h-full items-center px-6">
+        <div className="pointer-events-none absolute -inset-e-24 top-0 bottom-0 z-1 flex h-full items-center px-6">
           <button
             type="button"
             className="material-symbols text-foreground-muted hover:text-foreground pointer-events-auto cursor-pointer text-5xl transition-colors"

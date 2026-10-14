@@ -113,7 +113,7 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
   if (noValidCovers) {
     return (
       <div
-        className="box-shadow-book absolute start-0 top-0 flex h-full w-full items-center justify-center bg-gray-400/5"
+        className="box-shadow-book absolute inset-s-0 top-0 flex h-full w-full items-center justify-center bg-gray-400/5"
         style={{ padding: `${sizeMultiplier}em` }}
       >
         <p style={{ fontSize: `${sizeMultiplier}em` }} className="text-center text-white/60">
@@ -145,7 +145,7 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
           >
             {/* Cover background for aspect ratio mismatches */}
             {cover.showCoverBg && (
-              <div className="bg-primary absolute start-0 top-0 h-full w-full overflow-hidden rounded-xs">
+              <div className="bg-primary absolute inset-s-0 top-0 h-full w-full overflow-hidden rounded-xs">
                 <div
                   className="cover-bg absolute"
                   style={{
@@ -161,7 +161,7 @@ export default function SeriesGroupCover({ name, books, width, height, bookCover
               src={cover.coverUrl}
               alt=""
               aria-hidden="true"
-              className={mergeClasses('absolute start-0 top-0 h-full w-full', cover.showCoverBg ? 'object-contain' : 'object-cover')}
+              className={mergeClasses('absolute inset-s-0 top-0 h-full w-full', cover.showCoverBg ? 'object-contain' : 'object-cover')}
             />
           </div>
         )

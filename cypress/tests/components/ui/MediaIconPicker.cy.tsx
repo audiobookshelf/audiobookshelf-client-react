@@ -34,19 +34,19 @@ describe('<MediaIconPicker />', () => {
   it('applies left alignment by default', () => {
     cy.mount(<MediaIconPicker />)
     cy.get('button').click()
-    cy.get('[role="listbox"]').should('have.class', 'start-0')
+    cy.get('[role="listbox"]').should('have.class', 'inset-s-0')
   })
 
   it('applies right alignment when specified', () => {
     cy.mount(<MediaIconPicker align="right" />)
     cy.get('button').click()
-    cy.get('[role="listbox"]').should('have.class', 'end-0')
+    cy.get('[role="listbox"]').should('have.class', 'inset-e-0')
   })
 
   it('applies center alignment when specified', () => {
     cy.mount(<MediaIconPicker align="center" />)
     cy.get('button').click()
-    cy.get('[role="listbox"]').should('have.class', 'start-1/2')
+    cy.get('[role="listbox"]').should('have.class', 'inset-s-1/2')
     cy.get('[role="listbox"]').should('have.class', '-translate-x-1/2')
   })
 

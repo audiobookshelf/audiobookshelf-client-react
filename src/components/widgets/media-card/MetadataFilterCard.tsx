@@ -47,7 +47,7 @@ function MetadataFilterCard({ name, count, filterKey, icon }: MetadataFilterCard
           <span className="material-symbols text-[8em] text-white opacity-40">{icon}</span>
         </div>
 
-        <div className="absolute start-0 bottom-0 z-10 w-full bg-black/75 px-2 py-1">
+        <div className="absolute inset-s-0 bottom-0 z-10 w-full bg-black/75 px-2 py-1">
           <div className="text-[0.75em]">
             <TruncatingTooltipText text={name} position="bottom" className="text-center font-semibold text-white" />
           </div>
