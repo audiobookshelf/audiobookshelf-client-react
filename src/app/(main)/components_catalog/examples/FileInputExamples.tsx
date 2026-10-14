@@ -67,7 +67,7 @@ export function FileInputExamples() {
 
         <Example title="Default Icon">
           <FileInput
-            className="[&>button:nth-of-type(1)]:!hidden [&>button:nth-of-type(2)]:md:!flex"
+            className="[&>button:nth-of-type(1)]:hidden! [&>button:nth-of-type(2)]:md:flex!"
             onChange={(file) => showToast(`Selected file: ${file.name}`, { type: 'success', title: 'File Selected' })}
             ariaLabel="Upload file"
           >
@@ -77,7 +77,7 @@ export function FileInputExamples() {
 
         <Example title="Custom Icon">
           <FileInput
-            className="[&>button:nth-of-type(1)]:!hidden [&>button:nth-of-type(2)]:md:!flex"
+            className="[&>button:nth-of-type(1)]:hidden! [&>button:nth-of-type(2)]:md:flex!"
             icon="attach_file"
             onChange={(file) => showToast(`Selected file: ${file.name}`, { type: 'success', title: 'File Selected' })}
             ariaLabel="Attach file"

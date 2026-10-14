@@ -74,7 +74,7 @@ export default function PlaylistCardSkeleton({ bookshelfView, sizeMultiplier }: 
       ) : (
         // Standard view footer skeleton (shiny black placard)
         <div
-          className="categoryPlacard absolute inset-s-0 inset-e-0 -bottom-[1.5em] z-30 mx-auto h-[1.5em] rounded-md text-center"
+          className="categoryPlacard absolute inset-s-0 inset-e-0 bottom-[-1.5em] z-30 mx-auto h-[1.5em] rounded-md text-center"
           style={{ width: `${Math.min(200, coverWidth)}px` }}
         >
           <div className="flex h-full w-full animate-pulse items-center justify-center rounded-xs bg-gray-700" style={{ padding: '0em 0.5em' }}>

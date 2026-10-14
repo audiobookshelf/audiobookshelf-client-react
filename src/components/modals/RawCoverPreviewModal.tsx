@@ -17,7 +17,7 @@ export default function RawCoverPreviewModal({ isOpen, coverUrl, onClose }: RawC
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      className="!mt-0 !h-[90dvh] !w-[90dvw] !max-w-none !border-none !bg-transparent !p-0 !shadow-none"
+      className="mt-0! h-[90dvh]! w-[90dvw]! max-w-none! border-none! bg-transparent! p-0! shadow-none!"
       bgOpacityClass="bg-black/90"
     >
       <div className="relative flex h-full w-full items-center justify-center" onClick={onClose}>

@@ -249,7 +249,7 @@ export default function MediaCardOverlay({
               cy-id="moreButton"
               className={mergeClasses(
                 'absolute inset-e-[0.375em] bottom-[0.375em] cursor-pointer md:block',
-                'hover:scale-125 hover:[&_.material-symbols]:!text-yellow-300'
+                'hover:scale-125 hover:[&_.material-symbols]:text-yellow-300!'
               )}
             >
               <MediaCardMoreMenu
