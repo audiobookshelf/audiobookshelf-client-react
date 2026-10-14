@@ -16,7 +16,7 @@ import { getSelectionCountMessageKey, type SelectedMediaItem, type SelectionKind
 import type { MediaProgress } from '@/types/api'
 import { useMemo } from 'react'
 
-const countBadgeClasses = 'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
+const countBadgeClasses = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/10 md:hidden'
 const EMPTY_SELECTED_ITEMS: readonly SelectedMediaItem[] = []
 
 function findProgressForSelectedItem(item: SelectedMediaItem, progressList: readonly MediaProgress[]): MediaProgress | undefined {

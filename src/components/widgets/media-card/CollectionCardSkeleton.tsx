@@ -47,9 +47,9 @@ export default function CollectionCardSkeleton({ bookshelfView, sizeMultiplier }
         {/* Simulated two book covers side by side */}
         <div className="absolute inset-0 flex">
           {/* First book cover placeholder */}
-          <div className="h-full bg-gradient-to-br from-gray-700 to-gray-800" style={{ width: `${coverWidth / 2}px` }} />
+          <div className="h-full bg-linear-to-br from-gray-700 to-gray-800" style={{ width: `${coverWidth / 2}px` }} />
           {/* Second book cover placeholder */}
-          <div className="h-full bg-gradient-to-br from-gray-600 to-gray-700" style={{ width: `${coverWidth / 2}px` }} />
+          <div className="h-full bg-linear-to-br from-gray-600 to-gray-700" style={{ width: `${coverWidth / 2}px` }} />
         </div>
       </div>
 

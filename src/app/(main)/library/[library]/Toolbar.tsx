@@ -83,11 +83,11 @@ export default function Toolbar() {
       <div className="safe-px-4 flex h-full w-full items-center justify-between">
         {showSearchSummary && (
           <>
-            <div className="flex-grow" />
+            <div className="grow" />
             <p className="text-foreground text-base">
               {t('MessageSearchResultsFor')} &quot;{searchQuery}&quot;
             </p>
-            <div className="flex-grow" />
+            <div className="grow" />
           </>
         )}
 
@@ -127,7 +127,7 @@ export default function Toolbar() {
           </>
         )}
 
-        {!showSearchSummary && <div className={showToolbarExtras ? 'hidden flex-grow md:block' : 'flex-grow'} />}
+        {!showSearchSummary && <div className={showToolbarExtras ? 'hidden grow md:block' : 'grow'} />}
 
         {showToolbarExtras && (
           <div className="ms-1.5 flex min-w-0 flex-1 items-center justify-end gap-1.5 md:ms-0 md:me-2 md:flex-none md:gap-4">{toolbarExtras}</div>

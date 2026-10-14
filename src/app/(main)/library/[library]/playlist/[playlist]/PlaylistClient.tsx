@@ -128,7 +128,7 @@ export default function PlaylistClient({ playlist }: PlaylistClientProps) {
         <PlaylistGroupCover items={orderedItems} width={coverWidth * 2} height={coverHeight * 2} />
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <div className="flex w-full min-w-0 flex-col gap-2 md:flex-row md:items-center md:gap-4">
-            <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold break-words md:flex-1 md:truncate">{playlist.name}</h1>
+            <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold wrap-break-word md:flex-1 md:truncate">{playlist.name}</h1>
             <div className="flex shrink-0 flex-wrap items-center gap-1 px-2 md:px-0">
               {showPlayButton && (
                 <Btn color="bg-success text-success-foreground" size="small" className="mr-1 h-9" disabled={streaming} onClick={handlePlayAll}>

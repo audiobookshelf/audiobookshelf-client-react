@@ -83,7 +83,7 @@ export default function ItemSlider({ title, children, className = '', bleed = tr
   return (
     <div className={mergeClasses('mt-6e', bleed && 'bleed-mx', className)}>
       <div className={mergeClasses('py-1e flex items-center', bleed ? 'safe-ps-10e safe-pe-4e' : 'px-4e')}>
-        <div className="text-foreground flex-grow font-bold">{title}</div>
+        <div className="text-foreground grow font-bold">{title}</div>
 
         {isScrollable && (
           <div className="gap-1e flex items-center">

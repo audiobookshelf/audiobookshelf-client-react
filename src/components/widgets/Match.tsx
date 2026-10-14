@@ -369,7 +369,7 @@ export default function Match({
       {!selectedMatchOrig ? (
         // Below md (incl. phone landscape) the search form and results scroll together; from md up only the results scroll.
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-2 py-4 md:overflow-hidden md:px-4">
-          <form onSubmit={handleSubmitSearch} className="flex-shrink-0">
+          <form onSubmit={handleSubmitSearch} className="shrink-0">
             <div className="-mx-1 flex flex-wrap items-center justify-start md:flex-nowrap">
               {providersLoaded && providers.length > 0 && (
                 <div className="w-40 px-1">

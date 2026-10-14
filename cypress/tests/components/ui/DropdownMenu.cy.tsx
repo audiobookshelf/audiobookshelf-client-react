@@ -381,7 +381,7 @@ describe('<DropdownMenu />', () => {
         .find('span')
         .first()
         .should('have.class', 'line-clamp-2')
-        .and('have.class', 'break-words')
+        .and('have.class', 'wrap-break-word')
         .and('not.have.class', 'truncate')
     })
   })

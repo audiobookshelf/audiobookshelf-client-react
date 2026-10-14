@@ -243,7 +243,7 @@ export default function CoverEdit({ libraryItem }: CoverEditProps) {
           {/* book cover overlay */}
           {media.coverPath && (
             <div className="absolute top-0 left-0 z-10 h-full w-full opacity-0 transition-opacity duration-100 hover:opacity-100">
-              <div className="absolute top-0 left-0 h-16 w-full bg-gradient-to-b from-black/60 to-transparent" />
+              <div className="absolute top-0 left-0 h-16 w-full bg-linear-to-b from-black/60 to-transparent" />
               {userCanDelete && (
                 <div
                   className={mergeClasses(

@@ -126,7 +126,7 @@ export default function CoverPreviewModal({
         </div>
 
         {/* Buttons */}
-        <div className="flex flex-shrink-0 justify-center gap-3 px-6 py-3 sm:gap-4">
+        <div className="flex shrink-0 justify-center gap-3 px-6 py-3 sm:gap-4">
           <Btn onClick={onClose} disabled={cancelDisabled} className="flex-1 sm:min-w-24 sm:flex-none">
             {cancelLabel ?? t('ButtonCancel')}
           </Btn>

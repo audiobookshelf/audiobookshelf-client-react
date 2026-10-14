@@ -141,7 +141,7 @@ export default function EpisodeMatch({ libraryItem, episode, onEpisodeUpdated }:
               onClick={() => handleSelectEpisode(result)}
             >
               {result.episode && <p className="text-foreground font-semibold">#{result.episode}</p>}
-              <p className="mb-1 break-words">{result.title}</p>
+              <p className="mb-1 wrap-break-word">{result.title}</p>
               {result.subtitle && <p className="text-foreground-muted mb-1 line-clamp-2 text-sm">{result.subtitle}</p>}
               <p className="text-foreground-subdued text-xs">
                 {result.publishedAt

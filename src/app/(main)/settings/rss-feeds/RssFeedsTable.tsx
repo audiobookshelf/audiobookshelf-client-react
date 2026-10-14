@@ -119,7 +119,7 @@ export default function RssFeedsTable({ rssFeeds: initialFeeds }: RssFeedsTableP
     {
       label: t('LabelTitle'),
       accessor: (rssFeed) => (
-        <p className="line-clamp-2 text-xs break-words" title={rssFeed.meta.title}>
+        <p className="line-clamp-2 text-xs wrap-break-word" title={rssFeed.meta.title}>
           {rssFeed.meta.title}
         </p>
       ),

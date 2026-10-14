@@ -125,7 +125,7 @@ export function ModalExamples() {
               bgOpacityClass="bg-primary/50"
               className="mt-[20px]"
             >
-              <div className="flex flex-col rounded-lg bg-gradient-to-br from-blue-900 to-purple-900">
+              <div className="flex flex-col rounded-lg bg-linear-to-br from-blue-900 to-purple-900">
                 <div className="space-y-4 p-8">
                   <h3 className="text-2xl font-bold text-white">Custom Styled Modal</h3>
                   <p className="text-blue-100">This modal demonstrates custom styling options:</p>

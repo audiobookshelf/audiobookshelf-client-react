@@ -146,7 +146,7 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
     <div className="flex h-full max-h-full w-full flex-col">
       {/* Below md (incl. phone landscape) the header and fields scroll together; from md up only the fields scroll. */}
       <div ref={isBelowMd ? scrollContainerRef : undefined} className="flex min-h-0 flex-1 flex-col overflow-y-auto md:overflow-hidden">
-        <div className="mb-2 flex flex-shrink-0 items-center px-4 pt-4 pb-2">
+        <div className="mb-2 flex shrink-0 items-center px-4 pt-4 pb-2">
           <IconBtn borderless size="large" iconClass="text-3xl" onClick={onDone} ariaLabel={t('ButtonBack')}>
             arrow_back
           </IconBtn>
@@ -174,7 +174,7 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
         </div>
       </div>
       <div
-        className={`border-border flex flex-shrink-0 items-center justify-end border-t px-4 py-3 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}
+        className={`border-border flex shrink-0 items-center justify-end border-t px-4 py-3 transition-shadow duration-200 ${showShadow ? 'box-shadow-md-up' : ''}`}
       >
         <Btn type="submit" disabled={isPendingApply} loading={isPendingApply} onClick={handleSubmitMatchUpdate}>
           {t('ButtonSubmit')}

@@ -110,7 +110,7 @@ export default function CollapsibleSection({
     () =>
       mergeClasses(
         'h-8 w-8 md:h-10 md:w-10 rounded-full flex justify-center items-center',
-        'transition-transform duration-100 flex-shrink-0',
+        'transition-transform duration-100 shrink-0',
         isExpanded ? 'rotate-180' : ''
       ),
     [isExpanded]
@@ -126,7 +126,7 @@ export default function CollapsibleSection({
     [isExpanded]
   )
 
-  const countBadgeClasses = 'h-5 md:h-7 w-5 md:w-7 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0'
+  const countBadgeClasses = 'h-5 md:h-7 w-5 md:w-7 rounded-full bg-white/10 flex items-center justify-center shrink-0'
   const countAriaLabel = count !== undefined ? t('LabelItemsPlural', { count }) : ''
 
   return (
@@ -134,7 +134,7 @@ export default function CollapsibleSection({
       {/* Header - clickable to toggle */}
       <div id={headerId} className={headerClasses} onClick={handleHeaderClick}>
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 border-none bg-transparent p-0 text-left text-inherit md:gap-2">
-          <div className="flex min-w-0 flex-shrink-0 items-center gap-2">
+          <div className="flex min-w-0 shrink-0 items-center gap-2">
             <p className="overflow-hidden font-medium text-ellipsis whitespace-nowrap">{title}</p>
             {count !== undefined && (
               <div className={countBadgeClasses} aria-label={countAriaLabel} role="status">
@@ -151,7 +151,7 @@ export default function CollapsibleSection({
           </div>
         </div>
 
-        {headerActions && <div className="ml-2 flex flex-shrink-0 items-center gap-1 md:gap-2">{headerActions}</div>}
+        {headerActions && <div className="ml-2 flex shrink-0 items-center gap-1 md:gap-2">{headerActions}</div>}
 
         {!keepOpen && (
           <IconBtn

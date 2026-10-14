@@ -21,7 +21,7 @@ export default function MetadataPreviewTable({ metadataObject }: MetadataPreview
         {entries.map(([key, value], index) => (
           <div key={key} className={`flex px-4 py-1 text-sm ${index % 2 === 0 ? 'bg-primary/25' : ''}`}>
             <div className="w-28 min-w-28 font-semibold">{key}</div>
-            <div className="grow break-words">{value}</div>
+            <div className="grow wrap-break-word">{value}</div>
           </div>
         ))}
       </div>

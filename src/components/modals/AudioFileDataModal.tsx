@@ -133,50 +133,50 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
               <div className="w-full sm:w-1/2">
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelSize')}</dt>
-                  <dd className="break-words">{bytesPretty(metadata?.size || 0)}</dd>
+                  <dd className="wrap-break-word">{bytesPretty(metadata?.size || 0)}</dd>
                 </div>
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelDuration')}</dt>
-                  <dd className="break-words">{secondsToTimestamp(audioFile.duration)}</dd>
+                  <dd className="wrap-break-word">{secondsToTimestamp(audioFile.duration)}</dd>
                 </div>
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelFormat')}</dt>
-                  <dd className="break-words">{audioFile.codec}</dd>
+                  <dd className="wrap-break-word">{audioFile.codec}</dd>
                 </div>
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('HeaderChapters')}</dt>
-                  <dd className="break-words">{audioFile.chapters?.length || 0}</dd>
+                  <dd className="wrap-break-word">{audioFile.chapters?.length || 0}</dd>
                 </div>
                 {audioFile.embeddedCoverArt && (
                   <div className="mb-1 flex flex-row gap-0">
                     <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelEmbeddedCover')}</dt>
-                    <dd className="break-words">{audioFile.embeddedCoverArt}</dd>
+                    <dd className="wrap-break-word">{audioFile.embeddedCoverArt}</dd>
                   </div>
                 )}
               </div>
               <div className="w-full sm:w-1/2">
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelCodec')}</dt>
-                  <dd className="break-words">{audioFile.codec}</dd>
+                  <dd className="wrap-break-word">{audioFile.codec}</dd>
                 </div>
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelChannels')}</dt>
-                  <dd className="break-words">
+                  <dd className="wrap-break-word">
                     {audioFile.channels} ({audioFile.channelLayout})
                   </dd>
                 </div>
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelBitrate')}</dt>
-                  <dd className="break-words">{bytesPretty(audioFile.bitRate || 0, 0)}</dd>
+                  <dd className="wrap-break-word">{bytesPretty(audioFile.bitRate || 0, 0)}</dd>
                 </div>
                 <div className="mb-1 flex flex-row gap-0">
                   <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelTimeBase')}</dt>
-                  <dd className="break-words">{audioFile.timeBase}</dd>
+                  <dd className="wrap-break-word">{audioFile.timeBase}</dd>
                 </div>
                 {audioFile.language && (
                   <div className="mb-1 flex flex-row gap-0">
                     <dt className="text-foreground-subdued w-32 min-w-24 shrink-0">{t('LabelLanguage')}</dt>
-                    <dd className="break-words">{audioFile.language}</dd>
+                    <dd className="wrap-break-word">{audioFile.language}</dd>
                   </div>
                 )}
               </div>
@@ -190,8 +190,8 @@ export default function AudioFileDataModal({ isOpen, audioFile, libraryItemId, o
               <dl className="text-sm">
                 {Object.entries(metaTags).map(([key, value]) => (
                   <div key={key} className="mb-1 flex flex-col gap-1 sm:flex-row sm:gap-2">
-                    <dt className="text-foreground-subdued w-32 min-w-24 shrink-0 sm:min-w-32 sm:break-words">{key.replace('tag', '')}</dt>
-                    <dd className="min-w-0 flex-1 break-words">{value}</dd>
+                    <dt className="text-foreground-subdued w-32 min-w-24 shrink-0 sm:min-w-32 sm:wrap-break-word">{key.replace('tag', '')}</dt>
+                    <dd className="min-w-0 flex-1 wrap-break-word">{value}</dd>
                   </div>
                 ))}
               </dl>

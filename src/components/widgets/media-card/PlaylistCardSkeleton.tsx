@@ -52,13 +52,13 @@ export default function PlaylistCardSkeleton({ bookshelfView, sizeMultiplier }: 
         {/* Simulated 2x2 grid of covers */}
         <div className="absolute inset-0 flex flex-wrap">
           {/* Top-left cover placeholder */}
-          <div className="bg-gradient-to-br from-gray-700 to-gray-800" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
+          <div className="bg-linear-to-br from-gray-700 to-gray-800" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
           {/* Top-right cover placeholder */}
-          <div className="bg-gradient-to-br from-gray-600 to-gray-700" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
+          <div className="bg-linear-to-br from-gray-600 to-gray-700" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
           {/* Bottom-left cover placeholder */}
-          <div className="bg-gradient-to-br from-gray-600 to-gray-700" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
+          <div className="bg-linear-to-br from-gray-600 to-gray-700" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
           {/* Bottom-right cover placeholder */}
-          <div className="bg-gradient-to-br from-gray-700 to-gray-800" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
+          <div className="bg-linear-to-br from-gray-700 to-gray-800" style={{ width: `${itemWidth}px`, height: `${itemHeight}px` }} />
         </div>
       </div>
 

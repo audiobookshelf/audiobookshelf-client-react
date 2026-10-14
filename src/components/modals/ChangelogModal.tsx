@@ -39,7 +39,7 @@ export default function ChangelogModal({ isOpen, versionData, onClose }: Changel
         {releaseSections.length > 0 ? (
           releaseSections.map(({ release, html, showDivider }) => (
             <div key={release.name} className="min-w-0">
-              <p className="pb-4 text-xl font-bold break-words">
+              <p className="pb-4 text-xl font-bold wrap-break-word">
                 {t('HeaderChangelog')}{' '}
                 <a href={`https://github.com/advplyr/audiobookshelf/releases/tag/${release.name}`} target="_blank" rel="noopener noreferrer">
                   {release.name}

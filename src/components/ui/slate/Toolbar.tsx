@@ -215,7 +215,7 @@ export const Toolbar = () => {
         <BlockButton {...getButtonProps('bulleted-list')}>format_list_bulleted</BlockButton>
         <BlockButton {...getButtonProps('numbered-list')}>format_list_numbered</BlockButton>
       </div>
-      <div className="flex-grow" />
+      <div className="grow" />
       <div role="group" className="border-border flex overflow-hidden rounded-sm border">
         <UndoButton {...getButtonProps('undo')} isUndoAvailable={isUndoAvailable} />
         <RedoButton {...getButtonProps('redo')} isRedoAvailable={isRedoAvailable} />

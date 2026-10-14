@@ -43,7 +43,7 @@ const CONTENT_SIZED_MENU_MAX_WIDTH = '50vw'
  */
 export function DropdownItemLabel({ text, subtext, className, wrapText = false }: { text: string; subtext?: string; className?: string; wrapText?: boolean }) {
   const t = useTypeSafeTranslations()
-  const textOverflowClass = wrapText ? 'line-clamp-2 break-words whitespace-normal' : 'truncate'
+  const textOverflowClass = wrapText ? 'line-clamp-2 wrap-break-word whitespace-normal' : 'truncate'
 
   if (!subtext) {
     return (

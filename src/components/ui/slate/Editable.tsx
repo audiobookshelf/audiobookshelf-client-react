@@ -203,7 +203,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
   const editableClass = useMemo(
     () =>
       mergeClasses(
-        'relative whitespace-pre-wrap break-words',
+        'relative whitespace-pre-wrap wrap-break-word',
         'p-1 w-full h-26 min-h-26 resize-y overflow-y-auto overflow-x-hidden text-base focus:outline-none',
         // Apply disabled/readonly styling based on state
         disabled ? 'text-disabled cursor-not-allowed pointer-events-none' : readOnly ? 'text-read-only' : 'text-foreground',

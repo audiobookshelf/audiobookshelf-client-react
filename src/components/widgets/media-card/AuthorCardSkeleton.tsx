@@ -39,7 +39,7 @@ export default function AuthorCardSkeleton({ sizeMultiplier }: AuthorCardSkeleto
         aria-hidden="true"
       >
         {/* Simulated author silhouette placeholder */}
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
+        <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-gray-700 to-gray-800">
           {/* Circle for head */}
           <div className="absolute rounded-full bg-gray-600" style={{ width: '35%', height: '28%', top: '15%' }} />
           {/* Body shape */}

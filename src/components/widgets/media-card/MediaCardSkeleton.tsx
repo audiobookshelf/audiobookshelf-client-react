@@ -74,7 +74,7 @@ export default function MediaCardSkeleton({
         style={{ height: `${coverHeight}px` }}
         aria-hidden="true"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-gray-800" />
+        <div className="absolute inset-0 bg-linear-to-br from-gray-700 to-gray-800" />
       </div>
 
       {/* Detail view skeleton using actual MediaCardDetailView with isSkeleton */}

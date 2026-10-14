@@ -355,14 +355,14 @@ export default function EpisodeFeedModal({ isOpen, onClose, libraryItem, episode
                     </div>
                   )}
                 </div>
-                <div className="flex-grow py-2 pr-4 sm:pr-8">
+                <div className="grow py-2 pr-4 sm:pr-8">
                   <div className={`flex items-center gap-1 font-semibold ${textClass}`}>
                     {(episode.season || episode.episode) && <div>#</div>}
                     {episode.season && <div>{episode.season}x</div>}
                     {episode.episode && <div>{episode.episode}</div>}
                   </div>
                   <div className={`mb-1 flex items-center gap-2 ${textClass}`}>
-                    <div className="break-words">{episode.title}</div>
+                    <div className="wrap-break-word">{episode.title}</div>
                     {episode.episodeType &&
                       (episode.episodeType.toLowerCase() === 'trailer' || episode.episodeType.toLowerCase() === 'bonus' ? (
                         <span className="bg-info rounded-full px-2 py-0.5 text-xs text-white capitalize">{episode.episodeType}</span>

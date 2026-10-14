@@ -135,7 +135,7 @@ export default function UserClient({ user }: { user: User }) {
       label: t('LabelItem'),
       accessor: (mediaProgress) => (
         <div className="min-w-0">
-          <p className="line-clamp-2 break-words" title={mediaProgress.displayTitle || undefined}>
+          <p className="line-clamp-2 wrap-break-word" title={mediaProgress.displayTitle || undefined}>
             {mediaProgress.displayTitle || 'Unknown'}
           </p>
           {mediaProgress.displaySubtitle ? <p className="text-foreground-muted truncate font-sans text-xs">{mediaProgress.displaySubtitle}</p> : null}

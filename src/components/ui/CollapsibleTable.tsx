@@ -68,7 +68,7 @@ export default function CollapsibleTable({
   const iconClasses = useMemo(
     () =>
       mergeClasses(
-        'cursor-pointer h-8 w-8 md:h-10 md:w-10 rounded-full hover:bg-bg-hover flex justify-center items-center duration-500 flex-shrink-0',
+        'cursor-pointer h-8 w-8 md:h-10 md:w-10 rounded-full hover:bg-bg-hover flex justify-center items-center duration-500 shrink-0',
         isExpanded ? 'transform rotate-180' : ''
       ),
     [isExpanded]
@@ -98,16 +98,16 @@ export default function CollapsibleTable({
         aria-controls={ariaControls}
       >
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1 md:gap-2">
-          <div className="flex min-w-0 flex-shrink-0 items-center">
+          <div className="flex min-w-0 shrink-0 items-center">
             <p className="min-w-0 overflow-hidden pe-2 text-ellipsis whitespace-nowrap md:pe-4">{title}</p>
-            <div className={`${countBadgeClasses} flex-shrink-0`} aria-label={countAriaLabel} role="status">
+            <div className={`${countBadgeClasses} shrink-0`} aria-label={countAriaLabel} role="status">
               <span className="font-mono text-sm" aria-hidden="true">
                 {count}
               </span>
             </div>
           </div>
           <div className={hasHeaderActions ? 'min-w-0 grow' : 'grow'} />
-          {hasHeaderActions && <div className="flex flex-shrink-0 items-center gap-2">{headerActions}</div>}
+          {hasHeaderActions && <div className="flex shrink-0 items-center gap-2">{headerActions}</div>}
         </div>
         {!keepOpen && (
           <div className={iconClasses} aria-hidden="true">

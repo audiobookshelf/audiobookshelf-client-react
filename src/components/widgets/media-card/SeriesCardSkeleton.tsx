@@ -49,7 +49,7 @@ export default function SeriesCardSkeleton({ bookshelfView, sizeMultiplier, orde
         <div className="absolute inset-0 flex">
           {/* First book cover placeholder */}
           <div
-            className="absolute top-0 h-full rounded-xs bg-gradient-to-br from-gray-700 to-gray-800"
+            className="absolute top-0 h-full rounded-xs bg-linear-to-br from-gray-700 to-gray-800"
             style={{
               width: `${coverHeight / coverAspect}px`,
               left: 0,
@@ -59,7 +59,7 @@ export default function SeriesCardSkeleton({ bookshelfView, sizeMultiplier, orde
           />
           {/* Second book cover placeholder */}
           <div
-            className="absolute top-0 h-full rounded-xs bg-gradient-to-br from-gray-600 to-gray-700"
+            className="absolute top-0 h-full rounded-xs bg-linear-to-br from-gray-600 to-gray-700"
             style={{
               width: `${coverHeight / coverAspect}px`,
               left: `${(coverWidth - coverHeight / coverAspect) / 2}px`,
@@ -69,7 +69,7 @@ export default function SeriesCardSkeleton({ bookshelfView, sizeMultiplier, orde
           />
           {/* Third book cover placeholder */}
           <div
-            className="absolute top-0 h-full rounded-xs bg-gradient-to-br from-gray-500 to-gray-600"
+            className="absolute top-0 h-full rounded-xs bg-linear-to-br from-gray-500 to-gray-600"
             style={{
               width: `${coverHeight / coverAspect}px`,
               right: 0,

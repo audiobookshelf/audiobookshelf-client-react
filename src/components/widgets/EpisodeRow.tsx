@@ -163,7 +163,7 @@ export default function EpisodeRow({
       <div className="flex h-full flex-col rounded-sm" onClick={handleRowClick}>
         <div className="flex min-h-0 w-full flex-1">
           <div className="flex min-w-0 grow flex-col justify-start">
-            <div dir="auto" className="relative flex h-10 w-full flex-shrink-0 items-center pe-2 break-words whitespace-normal">
+            <div dir="auto" className="relative flex h-10 w-full shrink-0 items-center pe-2 wrap-break-word whitespace-normal">
               <button
                 id={`btn-episode-${episode.id}`}
                 type="button"
@@ -180,7 +180,7 @@ export default function EpisodeRow({
             <div className="relative mt-1.5 mb-0.5 flex h-10 min-h-0 items-start overflow-hidden pe-12">
               <div
                 dir="auto"
-                className="text-foreground-muted line-clamp-2 w-full text-sm leading-snug break-words whitespace-normal"
+                className="text-foreground-muted line-clamp-2 w-full text-sm leading-snug wrap-break-word whitespace-normal"
                 dangerouslySetInnerHTML={{ __html: descriptionHtml }}
                 onClick={(e) => {
                   if ((e.target as HTMLElement).tagName.toLowerCase() === 'a') {
@@ -190,7 +190,7 @@ export default function EpisodeRow({
               />
             </div>
 
-            <div className="flex h-7 w-full flex-shrink-0 items-center">
+            <div className="flex h-7 w-full shrink-0 items-center">
               {sortKey === 'audioFile.metadata.filename' ? (
                 <p className="text-foreground-muted truncate text-sm font-light">
                   <strong className="font-bold">{t('LabelFilename')}</strong>: {episode.audioFile?.metadata?.filename}
@@ -211,7 +211,7 @@ export default function EpisodeRow({
           </div>
 
           <div
-            className={`absolute top-1/2 right-2 z-10 flex flex-shrink-0 -translate-y-1/2 items-center justify-center transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 has-[:focus-visible]:opacity-100 md:opacity-0 md:has-[:focus-visible]:opacity-100'}`}
+            className={`absolute top-1/2 right-2 z-10 flex shrink-0 -translate-y-1/2 items-center justify-center transition-opacity ${isHovering || isSelected || isSelectionMode ? 'opacity-100' : 'opacity-100 has-[:focus-visible]:opacity-100 md:opacity-0 md:has-[:focus-visible]:opacity-100'}`}
             onKeyDown={(e) => {
               if (e.key === ' ') {
                 e.stopPropagation()
@@ -242,7 +242,7 @@ export default function EpisodeRow({
             {userCanUpdate && (
               <IconBtn
                 borderless
-                className="flex-shrink-0"
+                className="shrink-0"
                 onClick={(e) => {
                   e.stopPropagation()
                   onEdit?.(episode)
@@ -253,13 +253,13 @@ export default function EpisodeRow({
             )}
 
             {userCanDelete && (
-              <IconBtn borderless className="flex-shrink-0" onClick={handleDeleteClick}>
+              <IconBtn borderless className="shrink-0" onClick={handleDeleteClick}>
                 delete
               </IconBtn>
             )}
 
             {contextMenuItems.length > 0 && (
-              <div onClick={(e) => e.stopPropagation()} className="flex-shrink-0">
+              <div onClick={(e) => e.stopPropagation()} className="shrink-0">
                 <ContextMenuDropdown
                   items={contextMenuItems}
                   autoWidth

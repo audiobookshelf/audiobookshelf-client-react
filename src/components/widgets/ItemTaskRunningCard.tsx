@@ -158,10 +158,10 @@ export default function ItemTaskRunningCard({ task }: ItemTaskRunningCardProps) 
       </div>
 
       <div className="min-w-0 grow">
-        <p className="text-sm leading-5 break-words">{title}</p>
-        {!!description && <p className="text-foreground-muted text-xs leading-4 break-words whitespace-normal">{description}</p>}
-        {!!specialMessage && <p className="text-foreground-muted text-xs leading-4 break-words whitespace-normal">{specialMessage}</p>}
-        {isFailed && !!failedMessage && <p className="text-error text-xs leading-4 break-words whitespace-normal">{failedMessage}</p>}
+        <p className="text-sm leading-5 wrap-break-word">{title}</p>
+        {!!description && <p className="text-foreground-muted text-xs leading-4 wrap-break-word whitespace-normal">{description}</p>}
+        {!!specialMessage && <p className="text-foreground-muted text-xs leading-4 wrap-break-word whitespace-normal">{specialMessage}</p>}
+        {isFailed && !!failedMessage && <p className="text-error text-xs leading-4 wrap-break-word whitespace-normal">{failedMessage}</p>}
       </div>
 
       {userIsAdminOrUp && !isFinished && isLibraryScan && !cancelingScan && (
