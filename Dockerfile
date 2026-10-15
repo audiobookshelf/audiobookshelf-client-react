@@ -14,6 +14,9 @@ RUN corepack enable pnpm
 
 WORKDIR /client-react
 
+# Cypress not needed for next build.
+ENV CYPRESS_INSTALL_BINARY=0
+
 COPY --from=abs-client package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY --from=abs-client scripts ./scripts
 
