@@ -87,6 +87,12 @@ export default function UploadClient() {
     return extensions.join(', ')
   }, [])
 
+  const [uploadFileAccept, setUploadFileAccept] = useState(supFileTypes)
+  useEffect(() => {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !('MSStream' in window)
+    setUploadFileAccept(isIOS ? '' : supFileTypes)
+  }, [supFileTypes])
+
   function handleFilesDropped(files: File[]): void {
     console.log('Files dropped:', files)
     const itemResults = getItemsFromFilelist(files as unknown as FileList, currentLibraryMediaType || 'book')
@@ -300,7 +306,7 @@ export default function UploadClient() {
             <p className="px-6 pt-6 text-2xl">{t('LabelUploaderDragAndDrop')}</p>
             <p className="p-6">{t('MessageOr')}</p>
             <div className="flex justify-center gap-4">
-              <FilePicker accept={supFileTypes} multiple={true} onFilesSelected={handleDialogFileSelected}>
+              <FilePicker accept={uploadFileAccept} multiple={true} onFilesSelected={handleDialogFileSelected}>
                 {t('ButtonChooseFiles')}
               </FilePicker>
               <FilePicker multiple={true} directory={true} onFilesSelected={handleDialogFileSelected}>
