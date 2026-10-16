@@ -53,7 +53,19 @@ export const toggleMark = (editor: Editor, format: keyof Omit<CustomText, 'text'
 // --- MarkButton Component ---
 
 export const MarkButton = memo(
-  ({ children, buttonId, tabIndex, onFocus }: { children: React.ReactNode; buttonId: string; tabIndex: number; onFocus: () => void }) => {
+  ({
+    children,
+    buttonId,
+    tabIndex,
+    onFocus,
+    ariaLabel
+  }: {
+    children: React.ReactNode
+    buttonId: string
+    tabIndex: number
+    onFocus: () => void
+    ariaLabel: string
+  }) => {
     const editor = useSlate()
 
     // Derive format from buttonId
@@ -86,6 +98,8 @@ export const MarkButton = memo(
         className={buttonClass}
         tabIndex={tabIndex}
         data-button-id={buttonId}
+        ariaLabel={ariaLabel}
+        aria-pressed={isActive}
         onMouseDown={handleMouseDown}
         onKeyDown={handleKeyDown}
         {...{ onFocus }}

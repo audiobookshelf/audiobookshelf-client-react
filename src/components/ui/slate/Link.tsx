@@ -156,11 +156,13 @@ export const LinkButton = memo(
     onOpenModal,
     buttonId,
     tabIndex,
-    onFocus
+    onFocus,
+    ariaLabel
   }: LinkButtonProps & {
     buttonId: string
     tabIndex: number
     onFocus: () => void
+    ariaLabel: string
   }) => {
     const editor = useSlate()
     const isActive = isLinkActive(editor)
@@ -191,6 +193,8 @@ export const LinkButton = memo(
         className={buttonClass}
         tabIndex={tabIndex}
         data-button-id={buttonId}
+        ariaLabel={ariaLabel}
+        aria-pressed={isActive}
         onMouseDown={handleOpenModal}
         onKeyDown={handleKeyDown}
         {...{ onFocus }}

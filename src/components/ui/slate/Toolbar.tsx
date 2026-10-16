@@ -205,20 +205,30 @@ export const Toolbar = () => {
       aria-orientation="horizontal"
       onKeyDown={handleToolbarKeyDown}
     >
-      <div role="group" aria-label={t('LabelTextEditorText')} className="border-border flex overflow-hidden rounded-sm border">
-        <MarkButton {...getButtonProps('bold')}>format_bold</MarkButton>
-        <MarkButton {...getButtonProps('italic')}>format_italic</MarkButton>
-        <MarkButton {...getButtonProps('strike')}>format_strikethrough</MarkButton>
-        <LinkButton onOpenModal={openModal} {...getButtonProps('link')} />
+      <div role="group" className="border-border flex overflow-hidden rounded-sm border">
+        <MarkButton {...getButtonProps('bold')} ariaLabel={t('LabelFontBold')}>
+          format_bold
+        </MarkButton>
+        <MarkButton {...getButtonProps('italic')} ariaLabel={t('LabelFontItalic')}>
+          format_italic
+        </MarkButton>
+        <MarkButton {...getButtonProps('strike')} ariaLabel={t('LabelFontStrikethrough')}>
+          format_strikethrough
+        </MarkButton>
+        <LinkButton onOpenModal={openModal} {...getButtonProps('link')} ariaLabel={t('LabelTextEditorLink')} />
       </div>
       <div role="group" className="border-border flex overflow-hidden rounded-sm border">
-        <BlockButton {...getButtonProps('bulleted-list')}>format_list_bulleted</BlockButton>
-        <BlockButton {...getButtonProps('numbered-list')}>format_list_numbered</BlockButton>
+        <BlockButton {...getButtonProps('bulleted-list')} ariaLabel={t('LabelTextEditorBulletedList')}>
+          format_list_bulleted
+        </BlockButton>
+        <BlockButton {...getButtonProps('numbered-list')} ariaLabel={t('LabelTextEditorNumberedList')}>
+          format_list_numbered
+        </BlockButton>
       </div>
       <div className="grow" />
       <div role="group" className="border-border flex overflow-hidden rounded-sm border">
-        <UndoButton {...getButtonProps('undo')} isUndoAvailable={isUndoAvailable} />
-        <RedoButton {...getButtonProps('redo')} isRedoAvailable={isRedoAvailable} />
+        <UndoButton {...getButtonProps('undo')} isUndoAvailable={isUndoAvailable} ariaLabel={t('LabelUndo')} />
+        <RedoButton {...getButtonProps('redo')} isRedoAvailable={isRedoAvailable} ariaLabel={t('LabelRedo')} />
       </div>
     </div>
   )

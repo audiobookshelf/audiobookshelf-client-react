@@ -11,7 +11,19 @@ import { buttonClassBase } from './constants'
 // --- UndoButton Component ---
 
 export const UndoButton = memo(
-  ({ buttonId, tabIndex, onFocus, isUndoAvailable }: { buttonId: string; tabIndex: number; onFocus: () => void; isUndoAvailable: boolean }) => {
+  ({
+    buttonId,
+    tabIndex,
+    onFocus,
+    isUndoAvailable,
+    ariaLabel
+  }: {
+    buttonId: string
+    tabIndex: number
+    onFocus: () => void
+    isUndoAvailable: boolean
+    ariaLabel: string
+  }) => {
     const editor = useSlate() as Editor & HistoryEditor
 
     const handleKeyDown = useCallback(
@@ -41,6 +53,7 @@ export const UndoButton = memo(
         disabled={!isUndoAvailable}
         tabIndex={tabIndex}
         data-button-id={buttonId}
+        ariaLabel={ariaLabel}
         onMouseDown={handleMouseDown}
         onKeyDown={handleKeyDown}
         {...{ onFocus }}
@@ -56,7 +69,19 @@ UndoButton.displayName = 'UndoButton'
 // --- RedoButton Component ---
 
 export const RedoButton = memo(
-  ({ buttonId, tabIndex, onFocus, isRedoAvailable }: { buttonId: string; tabIndex: number; onFocus: () => void; isRedoAvailable: boolean }) => {
+  ({
+    buttonId,
+    tabIndex,
+    onFocus,
+    isRedoAvailable,
+    ariaLabel
+  }: {
+    buttonId: string
+    tabIndex: number
+    onFocus: () => void
+    isRedoAvailable: boolean
+    ariaLabel: string
+  }) => {
     const editor = useSlate() as Editor & HistoryEditor
 
     const handleKeyDown = useCallback(
@@ -86,6 +111,7 @@ export const RedoButton = memo(
         disabled={!isRedoAvailable}
         tabIndex={tabIndex}
         data-button-id={buttonId}
+        ariaLabel={ariaLabel}
         onMouseDown={handleMouseDown}
         onKeyDown={handleKeyDown}
         {...{ onFocus }}
