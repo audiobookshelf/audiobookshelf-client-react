@@ -13,7 +13,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { ApiError } from '@/lib/apiErrors'
 import { skipNextReleasePop } from '@/lib/historyTrap'
-import { getAddToPlaylistBatchLabelKey, getSelectionCountMessageKey, type SelectionKind } from '@/lib/selectedMediaItem'
+import { getSelectionCountMessageKey, type SelectionKind } from '@/lib/selectedMediaItem'
 import type { Playlist, PlaylistItemPayload } from '@/types/api'
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -200,7 +200,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
           <>
             <div className="px-4 pt-4 pb-2">
               <h1 className="text-lg font-semibold">
-                {isBatch ? t(getAddToPlaylistBatchLabelKey(selectionKind ?? 'book'), { 0: itemCount }) : t('LabelAddToPlaylist')}
+                {isBatch ? t('LabelAddToPlaylistBatch', { 0: itemCount }) : t('LabelAddToPlaylist')}
               </h1>
             </div>
 

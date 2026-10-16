@@ -292,8 +292,6 @@
   "LabelAddToCollectionBatch": "Add {0} Books to Collection",
   "LabelAddToPlaylist": "Add to Playlist",
   "LabelAddToPlaylistBatch": "Add {0} Items to Playlist",
-  "LabelAddToPlaylistBatchBooks": "Add {0} Books to Playlist",
-  "LabelAddToPlaylistBatchEpisodes": "Add {0} Episodes to Playlist",
   "LabelAddedAt": "Added At",
   "LabelAddedDate": "Added {0}",
   "LabelAdminUsersOnly": "Admin users only",

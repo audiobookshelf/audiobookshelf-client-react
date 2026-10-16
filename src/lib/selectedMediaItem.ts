@@ -30,10 +30,6 @@ export function getSelectionCountMessageKey(kind: SelectionKind): 'MessageBooksS
   }
 }
 
-export function getAddToPlaylistBatchLabelKey(kind: SelectionKind): 'LabelAddToPlaylistBatchBooks' | 'LabelAddToPlaylistBatchEpisodes' {
-  return kind === 'episode' ? 'LabelAddToPlaylistBatchEpisodes' : 'LabelAddToPlaylistBatchBooks'
-}
-
 export function libraryItemSelectionKey(libraryItemId: string): string {
   return `li:${libraryItemId}`
 }
