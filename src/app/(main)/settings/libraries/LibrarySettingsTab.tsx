@@ -3,6 +3,7 @@
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { podcastSearchRegionOptions } from '@/lib/podcastSearchRegions'
 import { LibrarySettings } from '@/types/api'
 import SettingsToggleSwitch from '../SettingsToggleSwitch'
 
@@ -62,84 +63,92 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
   const isBookLibrary = mediaType === 'book'
 
   return (
-    <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
-      {/* Left column */}
-      <div className="flex flex-col gap-2">
-        <SettingsToggleSwitch
-          label={t('LabelSettingsSquareBookCovers')}
-          value={settings.coverAspectRatio === 1}
-          onChange={(value) => handleSettingChanged('coverAspectRatio', value ? 1 : 0)}
-          tooltip={t('LabelSettingsSquareBookCoversHelp')}
-        />
-        {isBookLibrary && (
+    <div className="flex min-w-0 flex-col gap-3">
+      <div className="grid grid-cols-1 gap-x-6 gap-y-3 md:grid-cols-2">
+        {/* Left column */}
+        <div className="flex min-w-0 flex-col gap-2">
           <SettingsToggleSwitch
-            label={t('LabelSettingsAudiobooksOnly')}
-            value={!!settings.audiobooksOnly}
-            onChange={(value) => handleSettingChanged('audiobooksOnly', value)}
-            tooltip={t('LabelSettingsAudiobooksOnlyHelp')}
+            label={t('LabelSettingsSquareBookCovers')}
+            value={settings.coverAspectRatio === 1}
+            onChange={(value) => handleSettingChanged('coverAspectRatio', value ? 1 : 0)}
+            tooltip={t('LabelSettingsSquareBookCoversHelp')}
           />
-        )}
-        {isBookLibrary && (
+          {isBookLibrary && (
+            <SettingsToggleSwitch
+              label={t('LabelSettingsAudiobooksOnly')}
+              value={!!settings.audiobooksOnly}
+              onChange={(value) => handleSettingChanged('audiobooksOnly', value)}
+              tooltip={t('LabelSettingsAudiobooksOnlyHelp')}
+            />
+          )}
+          {isBookLibrary && (
+            <SettingsToggleSwitch
+              label={t('LabelSettingsSkipMatchingBooksWithISBN')}
+              value={!!settings.skipMatchingMediaWithIsbn}
+              onChange={(value) => handleSettingChanged('skipMatchingMediaWithIsbn', value)}
+            />
+          )}
+          {isBookLibrary && (
+            <SettingsToggleSwitch
+              label={t('LabelSettingsOnlyShowLaterBooksInContinueSeries')}
+              value={!!settings.onlyShowLaterBooksInContinueSeries}
+              onChange={(value) => handleSettingChanged('onlyShowLaterBooksInContinueSeries', value)}
+              tooltip={t('LabelSettingsOnlyShowLaterBooksInContinueSeriesHelp')}
+            />
+          )}
+          {!isBookLibrary && (
+            <Dropdown
+              label={t('LabelPodcastSearchRegion')}
+              items={podcastSearchRegionOptions}
+              value={settings.podcastSearchRegion || 'us'}
+              onChange={(value) => handleSettingChanged('podcastSearchRegion', String(value))}
+              className="max-w-72 min-w-0"
+            />
+          )}
+        </div>
+
+        {/* Right column */}
+        <div className="flex min-w-0 flex-col gap-2">
           <SettingsToggleSwitch
-            label={t('LabelSettingsSkipMatchingBooksWithISBN')}
-            value={!!settings.skipMatchingMediaWithIsbn}
-            onChange={(value) => handleSettingChanged('skipMatchingMediaWithIsbn', value)}
+            label={t('LabelSettingsEnableWatcherForLibrary')}
+            value={!settings.disableWatcher}
+            onChange={(value) => handleSettingChanged('disableWatcher', !value)}
           />
-        )}
-        {isBookLibrary && (
-          <SettingsToggleSwitch
-            label={t('LabelSettingsOnlyShowLaterBooksInContinueSeries')}
-            value={!!settings.onlyShowLaterBooksInContinueSeries}
-            onChange={(value) => handleSettingChanged('onlyShowLaterBooksInContinueSeries', value)}
-            tooltip={t('LabelSettingsOnlyShowLaterBooksInContinueSeriesHelp')}
-          />
-        )}
+          {isBookLibrary && (
+            <SettingsToggleSwitch
+              label={t('LabelSettingsSkipMatchingBooksWithASIN')}
+              value={!!settings.skipMatchingMediaWithAsin}
+              onChange={(value) => handleSettingChanged('skipMatchingMediaWithAsin', value)}
+            />
+          )}
+          {isBookLibrary && (
+            <SettingsToggleSwitch
+              label={t('LabelSettingsHideSingleBookSeries')}
+              value={!!settings.hideSingleBookSeries}
+              onChange={(value) => handleSettingChanged('hideSingleBookSeries', value)}
+              tooltip={t('LabelSettingsHideSingleBookSeriesHelp')}
+            />
+          )}
+          {isBookLibrary && (
+            <SettingsToggleSwitch
+              label={t('LabelSettingsEpubsAllowScriptedContent')}
+              value={!!settings.epubsAllowScriptedContent}
+              onChange={(value) => handleSettingChanged('epubsAllowScriptedContent', value)}
+              tooltip={t('LabelSettingsEpubsAllowScriptedContentHelp')}
+            />
+          )}
+        </div>
       </div>
 
-      {/* Right column */}
-      <div className="flex flex-col gap-2">
-        <SettingsToggleSwitch
-          label={t('LabelSettingsEnableWatcherForLibrary')}
-          value={!settings.disableWatcher}
-          onChange={(value) => handleSettingChanged('disableWatcher', !value)}
-        />
-        {isBookLibrary && (
-          <SettingsToggleSwitch
-            label={t('LabelSettingsSkipMatchingBooksWithASIN')}
-            value={!!settings.skipMatchingMediaWithAsin}
-            onChange={(value) => handleSettingChanged('skipMatchingMediaWithAsin', value)}
-          />
-        )}
-        {isBookLibrary && (
-          <SettingsToggleSwitch
-            label={t('LabelSettingsHideSingleBookSeries')}
-            value={!!settings.hideSingleBookSeries}
-            onChange={(value) => handleSettingChanged('hideSingleBookSeries', value)}
-            tooltip={t('LabelSettingsHideSingleBookSeriesHelp')}
-          />
-        )}
-        {isBookLibrary && (
-          <SettingsToggleSwitch
-            label={t('LabelSettingsEpubsAllowScriptedContent')}
-            value={!!settings.epubsAllowScriptedContent}
-            onChange={(value) => handleSettingChanged('epubsAllowScriptedContent', value)}
-            tooltip={t('LabelSettingsEpubsAllowScriptedContentHelp')}
-          />
-        )}
-      </div>
-
-      {/* TODO: Podcast search region */}
-
-      {/* Mark media item as finished when */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
+      <div className="flex min-w-0 flex-wrap items-end gap-2">
         <Dropdown
           label={t('LabelSettingsLibraryMarkAsFinishedWhen')}
           items={markAsFinishedItems}
           value={markAsFinishedMode}
           onChange={handleMarkAsFinishedModeChange}
-          className="min-w-xs"
+          className="w-72 max-w-full min-w-0"
         />
-        <div className="relative">
+        <div className="relative shrink-0">
           <TextInput
             type="number"
             value={markAsFinishedValue}
