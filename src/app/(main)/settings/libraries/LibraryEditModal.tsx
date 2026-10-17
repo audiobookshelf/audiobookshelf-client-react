@@ -7,7 +7,7 @@ import { DropdownItem } from '@/components/ui/Dropdown'
 import { useMetadata } from '@/contexts/MetadataContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library, LibrarySettings } from '@/types/api'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import LibraryDetailsTab from './LibraryDetailsTab'
 import LibraryScannerTab from './LibraryScannerTab'
 import LibraryScheduleTab from './LibraryScheduleTab'
@@ -79,6 +79,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   const [newFolderPath, setNewFolderPath] = useState('')
   const [showFolderChooser, setShowFolderChooser] = useState(false)
   const [selectedTab, setSelectedTab] = useState('details')
+  const [scheduleValid, setScheduleValid] = useState(true)
   const initialFormDataRef = useRef<string>('')
 
   const isEditing = !!library
@@ -108,6 +109,7 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       setNewFolderPath('')
       setShowFolderChooser(false)
       setSelectedTab('details')
+      setScheduleValid(true)
     }
   }, [isOpen, library])
 
@@ -134,6 +136,14 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
       }
     }
   }, [providers, formData.provider, isEditing])
+
+  const handleSettingsChange = useCallback((updater: (prev: LibrarySettings) => LibrarySettings) => {
+    setFormData((prev) => {
+      const nextSettings = updater(prev.settings)
+      if (nextSettings === prev.settings) return prev
+      return { ...prev, settings: nextSettings }
+    })
+  }, [])
 
   const handleMediaTypeChange = (value: string | number) => {
     const mediaType = value as 'book' | 'podcast'
@@ -188,8 +198,8 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
   const isValid = useMemo(() => {
     const hasName = formData.name.trim() !== ''
     const hasFolders = formData.folders.some((f) => f.fullPath.trim() !== '') || newFolderPath.trim() !== ''
-    return hasName && hasFolders
-  }, [formData.name, formData.folders, newFolderPath])
+    return hasName && hasFolders && scheduleValid
+  }, [formData.name, formData.folders, newFolderPath, scheduleValid])
 
   const hasChanges = useMemo(() => {
     if (!isEditing) return true
@@ -257,19 +267,20 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
         <LibrarySettingsTab
           settings={formData.settings}
           mediaType={formData.mediaType}
-          onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
+          onSettingsChange={handleSettingsChange}
         />
       )}
       {selectedTab === 'scanner' && (
         <LibraryScannerTab
           settings={formData.settings}
-          onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
+          onSettingsChange={handleSettingsChange}
         />
       )}
       {selectedTab === 'schedule' && (
         <LibraryScheduleTab
           settings={formData.settings}
-          onSettingsChange={(updater) => setFormData((prev) => ({ ...prev, settings: updater(prev.settings) }))}
+          onSettingsChange={handleSettingsChange}
+          onScheduleValidityChange={setScheduleValid}
         />
       )}
     </TabbedModal>
