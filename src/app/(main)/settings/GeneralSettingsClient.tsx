@@ -11,10 +11,26 @@ import { withBasePath } from '@/lib/basePath'
 import { formatJsDate } from '@/lib/datefns'
 import { BookshelfView, ServerSettings } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { updateServerSettings, updateSortingPrefixes } from './actions'
 import { dateFormatOptions, timeFormatOptions } from './settingsConstants'
 import SettingsToggleSwitch from './SettingsToggleSwitch'
+
+function normalizeCorsOrigin(text: string): string {
+  return text.trim().toLowerCase()
+}
+
+function isValidCorsOrigin(origin: string): boolean {
+  if (!origin) {
+    return false
+  }
+  try {
+    new URL(origin)
+    return true
+  } catch {
+    return false
+  }
+}
 
 export default function GeneralSettingsClient() {
   const t = useTypeSafeTranslations()
@@ -138,6 +154,25 @@ export default function GeneralSettingsClient() {
     const prefixes = [...new Set(items.map((item) => item.content.trim().toLowerCase()).filter((p) => p))]
     setSortingPrefixes(prefixes)
   }
+
+  const handleCorsOriginValidationError = useCallback(
+    (error: string) => {
+      showToast(error, { type: 'error' })
+    },
+    [showToast]
+  )
+
+  const validateCorsOrigin = useCallback(
+    (content: string): string | null => {
+      const normalized = normalizeCorsOrigin(content)
+      return isValidCorsOrigin(normalized) ? null : t('ToastInvalidUrls')
+    },
+    [t]
+  )
+
+  const mutateCorsOrigin = useCallback((_prev: string | null, text: string): string => {
+    return normalizeCorsOrigin(text)
+  }, [])
 
   const handleSaveSortingPrefixes = () => {
     const prefixes = [...new Set(sortingPrefixes.map((prefix) => prefix.trim().toLowerCase()).filter((p) => p))]
@@ -311,6 +346,9 @@ export default function GeneralSettingsClient() {
               label={t('LabelCorsAllowed')}
               items={corsAllowedItems}
               showEdit
+              onMutate={mutateCorsOrigin}
+              onValidate={validateCorsOrigin}
+              onValidationError={handleCorsOriginValidationError}
               onItemEdited={(value: MultiSelectItem<string>) => {
                 handleSettingChanged('allowedOrigins', serverSettings?.allowedOrigins?.map((item) => (item === value.value ? value.content : item)) as string[])
               }}
