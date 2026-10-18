@@ -1,9 +1,11 @@
 'use client'
 
+import { useGlobalToast } from '@/contexts/ToastContext'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { withBasePath } from '@/lib/basePath'
 import { OnlineUser } from '@/types/api'
 import { useRouter } from 'next/navigation'
-import { ReactNode, createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { ReactNode, createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { Socket, io } from 'socket.io-client'
 
 interface SocketContextType {
@@ -42,10 +44,42 @@ const upsertOnlineUser = (usersOnline: OnlineUser[], onlineUser: OnlineUser) => 
 
 export function SocketProvider({ children, accessToken }: SocketProviderProps) {
   const router = useRouter()
+  const t = useTypeSafeTranslations()
+  const { showToast, removeToast } = useGlobalToast()
   const [socket, setSocket] = useState<Socket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState<string | null>(null)
   const [usersOnline, setUsersOnline] = useState<OnlineUser[]>([])
+  const socketToastIdRef = useRef<string | null>(null)
+  const wasConnectedRef = useRef(false)
+  const reconnectToastPendingRef = useRef(false)
+
+  useEffect(() => {
+    if (isConnected) {
+      if (reconnectToastPendingRef.current) {
+        reconnectToastPendingRef.current = false
+        showToast(t('ToastSocketConnected'), { type: 'success' })
+      }
+      wasConnectedRef.current = true
+      if (socketToastIdRef.current) {
+        removeToast(socketToastIdRef.current)
+        socketToastIdRef.current = null
+      }
+      return
+    }
+
+    if (!wasConnectedRef.current && !connectionError) return
+    if (socketToastIdRef.current) return
+
+    const message = connectionError ? t('ToastSocketFailedToConnect') : t('ToastSocketDisconnected')
+    socketToastIdRef.current = showToast(message, {
+      type: 'warning',
+      duration: 0,
+      onDismiss: () => {
+        socketToastIdRef.current = null
+      }
+    })
+  }, [connectionError, isConnected, removeToast, showToast, t])
 
   useEffect(() => {
     // Socket.IO attaches to the raw HTTP server, so the base path is not applied for us.
@@ -60,6 +94,9 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
     }
 
     const handleDisconnect = () => {
+      if (wasConnectedRef.current) {
+        reconnectToastPendingRef.current = true
+      }
       setIsConnected(false)
       setUsersOnline([])
       console.log('Socket disconnected')
