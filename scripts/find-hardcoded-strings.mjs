@@ -11,8 +11,8 @@
  * - IconBtn children are treated as Material icon names and skipped
  * - Some findings will be false positives — use // i18n-ignore on the line
  */
-import { createRequire } from 'module'
 import fs from 'fs'
+import { createRequire } from 'module'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -49,7 +49,8 @@ const EXCLUDED_PATH_FRAGMENTS = [
   `${path.sep}locales${path.sep}`,
   `${path.sep}types${path.sep}translations.ts`,
   `${path.sep}cypress${path.sep}`,
-  `${path.sep}lib${path.sep}languages.ts`
+  `${path.sep}lib${path.sep}languages.ts`,
+  `${path.sep}lib${path.sep}podcastSearchRegions.ts`
 ]
 
 const CATALOG_PATH_FRAGMENT = `${path.sep}components_catalog${path.sep}`
