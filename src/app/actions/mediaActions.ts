@@ -85,6 +85,10 @@ export async function checkPodcastNewEpisodesAction(libraryItemId: string, limit
   return api.checkPodcastNewEpisodes(libraryItemId, limit)
 }
 
+export async function quickMatchPodcastEpisodesAction(libraryItemId: string) {
+  return api.quickMatchPodcastEpisodes(libraryItemId)
+}
+
 export async function getPodcastEpisodeAction(libraryItemId: string, episodeId: string) {
   return api.getPodcastEpisode(libraryItemId, episodeId)
 }

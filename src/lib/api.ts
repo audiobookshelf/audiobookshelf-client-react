@@ -1295,6 +1295,15 @@ export async function checkPodcastNewEpisodes(libraryItemId: string, limit: numb
 }
 
 /**
+ * Quick match all podcast episodes against the RSS feed.
+ */
+export async function quickMatchPodcastEpisodes(libraryItemId: string): Promise<{ numEpisodesUpdated: number }> {
+  return apiRequest<{ numEpisodesUpdated: number }>(`/api/podcasts/${libraryItemId}/match-episodes?override=1`, {
+    method: 'POST'
+  })
+}
+
+/**
  * Quick embed metadata into audio files for a library item
  * @param libraryItemId - Library item ID
  * Returns: void (success) or throws error

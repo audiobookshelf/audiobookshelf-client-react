@@ -1,6 +1,11 @@
 'use client'
 
-import { batchUpdateMediaFinishedAction, deleteLibraryItemMediaEpisodeAction, fetchPodcastFeedAction } from '@/app/actions/mediaActions'
+import {
+  batchUpdateMediaFinishedAction,
+  deleteLibraryItemMediaEpisodeAction,
+  fetchPodcastFeedAction,
+  quickMatchPodcastEpisodesAction
+} from '@/app/actions/mediaActions'
 import AudioFileDataModal from '@/components/modals/AudioFileDataModal'
 import EpisodeEditModal from '@/components/modals/EpisodeEditModal'
 import EpisodeFeedModal from '@/components/modals/EpisodeFeedModal'
@@ -14,8 +19,8 @@ import LoadingSpinner from '@/components/widgets/LoadingSpinner'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeFilterAndSort } from '@/hooks/useEpisodeFilterAndSort'
-import { useListVirtualizer } from '@/hooks/useListVirtualizer'
 import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
+import { useListVirtualizer } from '@/hooks/useListVirtualizer'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getPodcastEpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { buildPodcastEpisodeProgressMap } from '@/lib/mediaProgress'
@@ -248,7 +253,31 @@ export default function EpisodeTable({
   const handleContextMenuAction = useCallback(
     (action: string) => {
       if (action === 'quick-match-episodes') {
-        // TODO: Implement quick match
+        if (!libraryItem.media.metadata.feedUrl) {
+          showToast(t('MessagePodcastHasNoRSSFeedForMatching'), { type: 'error' })
+          return
+        }
+
+        setBatchMarkConfirmState({
+          isOpen: true,
+          message: t('MessageConfirmQuickMatchEpisodes'),
+          onConfirm: () => {
+            setBatchMarkConfirmState(null)
+            startTransition(async () => {
+              try {
+                const { numEpisodesUpdated } = await quickMatchPodcastEpisodesAction(libraryItem.id)
+                if (numEpisodesUpdated) {
+                  showToast(t('ToastEpisodeUpdateSuccess', { 0: numEpisodesUpdated }), { type: 'success' })
+                } else {
+                  showToast(t('ToastNoUpdatesNecessary'), { type: 'info' })
+                }
+              } catch (error) {
+                console.error('Failed to request match episodes', error)
+                showToast(t('ToastFailedToMatch'), { type: 'error' })
+              }
+            })
+          }
+        })
       } else if (action === 'batch-mark-as-finished') {
         const markState = !allEpisodesFinished
 
@@ -276,7 +305,7 @@ export default function EpisodeTable({
         })
       }
     },
-    [allEpisodesFinished, episodes, libraryItem.id, showToast, t]
+    [allEpisodesFinished, episodes, libraryItem.id, libraryItem.media.metadata.feedUrl, showToast, t]
   )
 
   const allSelectedEpisodesFinished = useMemo(() => {
