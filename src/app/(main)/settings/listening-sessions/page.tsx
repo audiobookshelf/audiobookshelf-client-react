@@ -4,8 +4,6 @@ import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleSettingsListeningSessions')
 }

@@ -2,6 +2,8 @@ import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import AppBarLoader from '../AppBarLoader'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleAudiobookshelfAccount')
 }

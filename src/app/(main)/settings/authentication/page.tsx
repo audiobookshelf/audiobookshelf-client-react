@@ -5,8 +5,6 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import AuthenticationClient from './AuthenticationClient'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleSettingsAuthentication')
 }

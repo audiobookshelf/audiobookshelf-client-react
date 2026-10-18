@@ -8,8 +8,6 @@ import GeneralSettingsClient from '../GeneralSettingsClient'
 import SettingsContent from '../SettingsContent'
 import SettingsFooter from '../SettingsFooter'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleSettingsGeneral')
 }

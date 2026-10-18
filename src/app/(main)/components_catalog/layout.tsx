@@ -5,6 +5,8 @@ import { ComponentsCatalogProvider } from '../../../contexts/ComponentsCatalogCo
 import { getData, getLibraries } from '../../../lib/api'
 import AppBarLoader from '../AppBarLoader'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleComponents')
 }

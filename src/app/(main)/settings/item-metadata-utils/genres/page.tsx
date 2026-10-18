@@ -5,8 +5,6 @@ import type { Metadata } from 'next'
 import SettingsContent from '../../SettingsContent'
 import GenresClient from './GenresClient'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleSettingsManageGenres')
 }

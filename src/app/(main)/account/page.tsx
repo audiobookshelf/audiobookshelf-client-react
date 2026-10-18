@@ -10,8 +10,6 @@ import AccountActionsRow from './AccountActionsRow'
 import ThemeSelector from './ThemeSelector'
 import UserLanguageSelector from './UserLanguageSelector'
 
-export const dynamic = 'force-dynamic'
-
 export default async function AccountPage() {
   const currentUser = await getCurrentUser()
   const t = await getTypeSafeTranslations()

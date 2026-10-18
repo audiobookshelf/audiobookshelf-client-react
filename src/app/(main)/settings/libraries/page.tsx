@@ -3,8 +3,6 @@ import { staticPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 import LibrariesClient from './LibrariesClient'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleSettingsLibraries')
 }

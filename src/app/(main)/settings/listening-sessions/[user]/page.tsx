@@ -4,8 +4,6 @@ import { getUserOrNotFound } from '@/lib/notFound'
 import { namedPageMetadata } from '@/lib/pageMetadata'
 import type { Metadata } from 'next'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata({ params }: { params: Promise<{ user: string }> }): Promise<Metadata> {
   const { user: userId } = await params
   const [user] = await getData(getUserOrNotFound(userId))

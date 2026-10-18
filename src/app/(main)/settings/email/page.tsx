@@ -5,8 +5,6 @@ import type { Metadata } from 'next'
 import EmailClient from './EmailClient'
 import EReaderDevicesClient from './EReaderDevicesClient'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleSettingsEmail')
 }

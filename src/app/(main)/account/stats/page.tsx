@@ -7,8 +7,6 @@ import type { Metadata } from 'next'
 import AccountStatsClient from './AccountStatsClient'
 import YearInReview from './YearInReview'
 
-export const dynamic = 'force-dynamic'
-
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleAudiobookshelfAccountStats')
 }

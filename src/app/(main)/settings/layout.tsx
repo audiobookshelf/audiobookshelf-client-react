@@ -7,6 +7,8 @@ import { getCurrentUser, getData } from '../../../lib/api'
 import AppBarLoader from '../AppBarLoader'
 import SettingsLayoutWrapper from './SettingsLayoutWrapper'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata(): Promise<Metadata> {
   return staticPageMetadata('TitleSettings')
 }
