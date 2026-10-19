@@ -1,7 +1,8 @@
 'use client'
 
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import React, { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import { sanitizeHtml } from '@/lib/html-utils'
+import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 interface ExpandableHtmlProps {
   html: string
@@ -14,6 +15,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
   const contentRef = useRef<HTMLDivElement>(null)
   const [isExpanded, setIsExpanded] = useState(false)
   const [isClamped, setIsClamped] = useState(false)
+  const sanitizedHtml = useMemo(() => sanitizeHtml(html), [html])
 
   const checkClamping = useCallback(() => {
     const element = contentRef.current
@@ -45,7 +47,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
   // Handle content changes
   useLayoutEffect(() => {
     checkClamping()
-  }, [html, checkClamping])
+  }, [sanitizedHtml, checkClamping])
 
   // Handle resize changes (e.g., window width narrowing)
   useLayoutEffect(() => {
@@ -81,7 +83,7 @@ function ExpandableHtml({ html, lineClamp = 4, className = '' }: ExpandableHtmlP
           cursor: isClamped ? 'pointer' : 'auto'
         }}
         onClick={handleContentClick}
-        dangerouslySetInnerHTML={{ __html: html }}
+        dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
       />
 
       {isClamped && (
