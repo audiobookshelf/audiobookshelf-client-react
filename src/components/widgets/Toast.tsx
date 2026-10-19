@@ -78,8 +78,8 @@ const Toast: React.FC<ToastProps> = ({ id, type = 'info', title, message, durati
             {getIcon()}
           </span>
           <div className="min-w-0 flex-1">
-            {title && <div className="mb-1 text-sm font-semibold text-white">{title}</div>}
-            <div className="text-sm text-white/90">{message}</div>
+            {title && <div className="mb-1 text-sm font-semibold break-all text-white">{title}</div>}
+            <div className="text-sm break-all text-white/90">{message}</div>
           </div>
           <button
             cy-id="close-button"
