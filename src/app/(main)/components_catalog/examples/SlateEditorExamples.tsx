@@ -4,8 +4,9 @@ import Label from '@/components/ui/Label'
 import { slateElementStyles } from '@/components/ui/slate/constants'
 import SlateEditor from '@/components/ui/SlateEditor'
 import TextareaInput from '@/components/ui/TextareaInput'
+import { sanitizeHtml } from '@/lib/html-utils'
 import { mergeClasses } from '@/lib/merge-classes'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Code, ComponentExamples, ComponentInfo, Example, ExamplesBlock } from '../ComponentExamples'
 
 export function SlateEditorExamples() {
@@ -27,6 +28,7 @@ export function SlateEditorExamples() {
   const textAreaValue = 'This is a\n4 line\ntext\nparagraph'
   const editorValue = '<p>This is a\n4 line\ntext\nparagraph</p>'
   const [editorOutput, setEditorOutput] = useState(initialContent)
+  const sanitizedEditorOutput = useMemo(() => sanitizeHtml(editorOutput), [editorOutput])
 
   const handleUpdate = (html: string) => {
     console.log('Editor content updated:', html)
@@ -94,7 +96,7 @@ export function SlateEditorExamples() {
             </div>
             <div className="min-w-[250px] flex-1">
               <Label className="mt-9.5">Output:</Label>
-              <div className={mergeClasses(slateElementStyles, 'rounded-md border border-gray-500 p-2')} dangerouslySetInnerHTML={{ __html: editorOutput }} />
+              <div className={mergeClasses(slateElementStyles, 'rounded-md border border-gray-500 p-2')} dangerouslySetInnerHTML={{ __html: sanitizedEditorOutput }} />
             </div>
           </div>
         </Example>
