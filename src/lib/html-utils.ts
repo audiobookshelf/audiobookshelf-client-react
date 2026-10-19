@@ -1,4 +1,4 @@
-import DOMPurify from 'dompurify'
+import DOMPurify from 'isomorphic-dompurify'
 
 /**
  * Escapes HTML characters in a string to prevent XSS attacks
@@ -47,8 +47,6 @@ const allowedHtmlTags = [
 const allowedHtmlAttributes = ['href', 'title', 'src', 'alt', 'width', 'height']
 
 export const sanitizeHtml = (html: string): string => {
-  if (!DOMPurify.isSupported || typeof DOMPurify.sanitize !== 'function') return ''
-
   return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: allowedHtmlTags,
     ALLOWED_ATTR: allowedHtmlAttributes
