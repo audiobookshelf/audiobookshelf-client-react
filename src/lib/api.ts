@@ -1649,6 +1649,16 @@ export async function getFilesystemPaths(path: string, level: number): Promise<G
   return apiRequest(`/api/filesystem?path=${encodeURIComponent(path)}&level=${level}`)
 }
 
+export async function checkFilesystemPathExists(
+  directory: string,
+  folderPath: string
+): Promise<{ exists: boolean; libraryItemTitle?: string }> {
+  return apiRequest(`/api/filesystem/pathexists`, {
+    method: 'POST',
+    body: JSON.stringify({ directory, folderPath })
+  })
+}
+
 /**
  * Upload a cover image file for an author
  * Returns: @AuthorResponse

@@ -2,6 +2,7 @@
 
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useBookProviders, useMetadata } from '@/contexts/MetadataContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { startTransition, useEffect, useMemo, useState } from 'react'
 
@@ -25,7 +26,7 @@ import { bytesPretty } from '@/lib/string'
 import type { UploadProgressInfo } from '@/types/upload'
 import path from 'path'
 import { CleanedItem, FileWithMetadata, getItemsFromFilelist } from './UploadHelper'
-import { fetchBookMetadata, fetchPodcastMetadata } from './actions'
+import { checkUploadPathExists, fetchBookMetadata, fetchPodcastMetadata } from './actions'
 
 export interface ItemToUpload extends CleanedItem {
   metadataError?: string
@@ -41,6 +42,7 @@ export interface ItemToUpload extends CleanedItem {
 
 export default function UploadClient() {
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
   const { library } = useLibrary()
   const { ensureProvidersLoaded } = useMetadata()
   const bookProviders = useBookProviders()
@@ -227,11 +229,36 @@ export default function UploadClient() {
     setUploadItems(updatedItems)
   }
 
-  // TODO chack for existing file on server before starting upload
   const handleStartUpload = async () => {
+    const folderPath = library.folders?.find((folder) => folder.id === selectedFolder)?.fullPath
+    if (!folderPath) return
+
     setUploadProcessing(true)
     setUploadFinished(false)
+
+    const itemsToUpload: ItemToUpload[] = []
     for (const item of uploadItems) {
+      const directory = getDirectory(item)
+      let exists = false
+      try {
+        const data = await checkUploadPathExists(directory, folderPath)
+        exists = data.exists
+        if (data.exists) {
+          if (data.libraryItemTitle) {
+            showToast(t('ToastUploaderItemExistsInSubdirectoryError', { 0: data.libraryItemTitle }), { type: 'error' })
+          } else {
+            showToast(t('ToastUploaderFilepathExistsError', { 0: path.join(folderPath, directory) }), { type: 'error' })
+          }
+        }
+      } catch (error) {
+        console.error('Failed to check if filepath exists', error)
+      }
+      if (!exists) {
+        itemsToUpload.push(item)
+      }
+    }
+
+    for (const item of itemsToUpload) {
       item.isUploading = true
       item.uploadProgress = 0
       item.uploadBytesLoaded = 0

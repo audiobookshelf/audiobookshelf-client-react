@@ -11,3 +11,7 @@ export async function fetchBookMetadata(title: string, author: string, provider:
 export async function fetchPodcastMetadata(title: string): Promise<PodcastSearchResult[]> {
   return api.searchPodcasts(title)
 }
+
+export async function checkUploadPathExists(directory: string, folderPath: string) {
+  return api.checkFilesystemPathExists(directory, folderPath)
+}
