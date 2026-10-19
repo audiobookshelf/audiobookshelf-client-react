@@ -1,3 +1,4 @@
+import { sanitizeHtml } from '@/lib/html-utils'
 import type { LibraryItem, PodcastEpisode } from '@/types/api'
 
 /** Shared icon-button sizing for episode row listen actions (latest, table, compilation rows). */
@@ -5,7 +6,7 @@ export const EPISODE_ROW_ACTION_BTN_CLASS = 'size-[1.75em] min-h-0 min-w-0 shrin
 
 /** Strip interactive behavior from anchor tags in episode HTML descriptions for row display. */
 export function sanitizeEpisodeDescriptionHtml(description: string): string {
-  return description.replace(/<a\b/gi, '<a tabindex="-1" style="pointer-events:none"')
+  return sanitizeHtml(description).replace(/<a\b/gi, '<a tabindex="-1" style="pointer-events:none"')
 }
 
 export function getEpisodeDuration(episode: PodcastEpisode): number {
