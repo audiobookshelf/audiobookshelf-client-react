@@ -16,6 +16,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   return proxyBackendBufferedResponse(request, cookieStore, backendUrl, {
     logLabel: 'FileProxy',
     errorMessage: 'Failed to fetch file',
-    cacheControl: 'public, max-age=31536000, immutable'
+    cacheControl: 'private, no-store'
   })
 }
