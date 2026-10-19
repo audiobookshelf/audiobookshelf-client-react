@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 /**
  * Escapes HTML characters in a string to prevent XSS attacks
  * @param text - The text to escape
@@ -12,4 +14,43 @@ export const escapeHtml = (text: string): string => {
   const div = document.createElement('div')
   div.textContent = text
   return div.innerHTML
+}
+
+const allowedHtmlTags = [
+  'p',
+  'br',
+  'hr',
+  'blockquote',
+  'pre',
+  'code',
+  'h1',
+  'h2',
+  'h3',
+  'h4',
+  'h5',
+  'h6',
+  'strong',
+  'em',
+  'del',
+  'a',
+  'ul',
+  'ol',
+  'li',
+  'table',
+  'thead',
+  'tbody',
+  'tr',
+  'th',
+  'td',
+  'img'
+]
+const allowedHtmlAttributes = ['href', 'title', 'src', 'alt', 'width', 'height']
+
+export const sanitizeHtml = (html: string): string => {
+  if (!DOMPurify.isSupported || typeof DOMPurify.sanitize !== 'function') return ''
+
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: allowedHtmlTags,
+    ALLOWED_ATTR: allowedHtmlAttributes
+  })
 }

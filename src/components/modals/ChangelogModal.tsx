@@ -5,6 +5,7 @@ import ModalOuterContent from '@/components/modals/ModalOuterContent'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
+import { sanitizeHtml } from '@/lib/html-utils'
 import type { VersionData } from '@/lib/version'
 import { marked } from 'marked'
 import { useMemo } from 'react'
@@ -28,7 +29,7 @@ export default function ChangelogModal({ isOpen, versionData, onClose }: Changel
 
     return releasesToShow.map((release, index) => ({
       release,
-      html: marked.parse(release.changelog || noChangelogFallback, { gfm: true, breaks: true }) as string,
+      html: sanitizeHtml(marked.parse(release.changelog || noChangelogFallback, { gfm: true, breaks: true }) as string),
       showDivider: index < releasesToShow.length - 1
     }))
   }, [t, versionData?.releasesToShow])
