@@ -1,6 +1,7 @@
 'use client'
 
 import Btn from '@/components/ui/Btn'
+import MoreInfoIcon from '@/components/ui/MoreInfoIcon'
 import PageMessage from '@/components/ui/PageMessage'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useLibrary } from '@/contexts/LibraryContext'
@@ -286,6 +287,13 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
     return messageKey ? t(messageKey) : ''
   }
 
+  const playlistsCollectionsEmptyHelpKey =
+    entityType === 'playlists' || (entityType === 'collections' && filterBy === 'all')
+      ? entityType === 'collections'
+        ? 'MessageBookshelfNoCollectionsHelp'
+        : 'MessageNoUserPlaylistsHelp'
+      : null
+
   if (!validEntities.includes(entityType as string) || !config) {
     return (
       <div className="text-foreground-muted flex h-full flex-col items-center justify-center">
@@ -393,6 +401,15 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
                 <LibraryEmptyState library={library} showScanButton={['admin', 'root'].includes(user.type)} />
               ) : (
                 <PageMessage message={getEmptyMessage()}>
+                  {playlistsCollectionsEmptyHelpKey ? (
+                    <>
+                      <p className="text-foreground-muted max-w-lg text-center text-sm">{t(playlistsCollectionsEmptyHelpKey)}</p>
+                      <MoreInfoIcon
+                        moreInfoUrl="https://audiobookshelf.org/docs/documentation/libraries/common-content/playlists"
+                        size="xl"
+                      />
+                    </>
+                  ) : null}
                   {entityType === 'items' && !onIssuesPage && filterBy !== 'all' ? (
                     <Btn size="small" color="bg-primary" onClick={() => updateSetting('filterBy', 'all')}>
                       {t('ButtonClearFilter')}
