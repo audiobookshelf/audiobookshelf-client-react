@@ -4,6 +4,7 @@ import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { withBasePath } from '@/lib/basePath'
+import { sanitizeHtml } from '@/lib/html-utils'
 import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { AuthFormData } from '@/types/api'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -28,7 +29,9 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
   const showOpenIdLogin = authMethods.includes('openid')
 
   const openIdButtonText = authFormData.authOpenIDButtonText || 'Login with OpenId'
-  const loginCustomMessage = authFormData.authLoginCustomMessage || null
+  const loginCustomMessage = useMemo(() => {
+    return authFormData.authLoginCustomMessage ? sanitizeHtml(authFormData.authLoginCustomMessage) : null
+  }, [authFormData.authLoginCustomMessage])
 
   const redirectParam = searchParams.get('redirect')
   const safeRedirect = redirectParam?.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : null

@@ -8,6 +8,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import { skipNextReleasePop } from '@/lib/historyTrap'
+import { sanitizeHtml } from '@/lib/html-utils'
 import { bytesPretty } from '@/lib/string'
 import Link from 'next/link'
 import React, { useCallback, useMemo } from 'react'
@@ -43,7 +44,7 @@ function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
 
   const parsedDescription = useMemo(() => {
     if (!episode?.description && !episode?.subtitle) return ''
-    const description = episode.description || episode.subtitle || ''
+    const description = sanitizeHtml(episode.description || episode.subtitle || '')
 
     const timeMarkerLinkRegex = /<a href="#([^"]*?\b\d{1,2}:\d{1,2}(?::\d{1,2})?)">(.*?)<\/a>/g
     const timeMarkerRegex = /\b\d{1,2}:\d{1,2}(?::\d{1,2})?\b/g
