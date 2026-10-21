@@ -48,10 +48,7 @@ function SectionedModalExample() {
             </p>
           </div>
           {selectedSection === 'alpha' ? (
-            <ModalFooter
-              secondary={{ label: 'Save', onClick: () => {} }}
-              primary={{ label: 'Save & Close', onClick: () => setIsOpen(false) }}
-            />
+            <ModalFooter secondary={{ label: 'Save', onClick: () => {} }} primary={{ label: 'Save & Close', onClick: () => setIsOpen(false) }} />
           ) : null}
         </div>
       </SectionedModal>

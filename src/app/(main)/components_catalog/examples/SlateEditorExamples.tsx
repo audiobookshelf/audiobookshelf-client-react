@@ -96,7 +96,10 @@ export function SlateEditorExamples() {
             </div>
             <div className="min-w-[250px] flex-1">
               <Label className="mt-9.5">Output:</Label>
-              <div className={mergeClasses(slateElementStyles, 'rounded-md border border-gray-500 p-2')} dangerouslySetInnerHTML={{ __html: sanitizedEditorOutput }} />
+              <div
+                className={mergeClasses(slateElementStyles, 'rounded-md border border-gray-500 p-2')}
+                dangerouslySetInnerHTML={{ __html: sanitizedEditorOutput }}
+              />
             </div>
           </div>
         </Example>

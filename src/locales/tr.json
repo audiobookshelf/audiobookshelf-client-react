@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Yer imi kaldırıldı",
   "ToastCachePurgeFailed": "Önbellek temizlenemedi",
   "ToastCachePurgeSuccess": "Önbellek başarıyla temizlendi",
+  "ToastChapterStartTimeAdjusted": "Bölüm başlangıç zamanı {0} saniye ayarlandı",
   "ToastChaptersHaveErrors": "Bölümlerde hatalar var",
   "ToastChaptersMustHaveTitles": "Bölümlerin başlıkları olmalıdır",
   "ToastChaptersRemoved": "Bölümler kaldırıldı",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Yeni şifre eski şifreyle aynı olamaz",
   "TooltipAddChapters": "Bölüm(ler) ekle",
   "TooltipAddOneSecond": "1 saniye ekle",
-  "TooltipSubtractOneSecond": "1 saniye çıkar",
-  "ToastChapterStartTimeAdjusted": "Bölüm başlangıç zamanı {0} saniye ayarlandı",
-  "TooltipAdjustChapterStart": "Başlangıç zamanını ayarlamak için tıkla"
+  "TooltipAdjustChapterStart": "Başlangıç zamanını ayarlamak için tıkla",
+  "TooltipSubtractOneSecond": "1 saniye çıkar"
 }

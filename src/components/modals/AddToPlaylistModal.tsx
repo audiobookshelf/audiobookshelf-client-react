@@ -199,9 +199,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
         {isOpen && (
           <>
             <div className="px-4 pt-4 pb-2">
-              <h1 className="text-lg font-semibold">
-                {isBatch ? t('LabelAddToPlaylistBatch', { 0: itemCount }) : t('LabelAddToPlaylist')}
-              </h1>
+              <h1 className="text-lg font-semibold">{isBatch ? t('LabelAddToPlaylistBatch', { 0: itemCount }) : t('LabelAddToPlaylist')}</h1>
             </div>
 
             <div className="max-h-96 w-full overflow-x-hidden overflow-y-auto pt-4 pb-2">
@@ -211,7 +209,7 @@ export default function AddToPlaylistModal({ isOpen, onClose, libraryId, items, 
                   const playlistItems = playlist.items ?? []
                   return (
                     <div key={playlist.id} className="hover:bg-dropdown-item-hover relative flex items-center justify-start px-4 py-2">
-                      {included && <div className="bg-success inset-s-0 absolute top-0 z-10 h-full w-1" aria-hidden />}
+                      {included && <div className="bg-success absolute inset-s-0 top-0 z-10 h-full w-1" aria-hidden />}
                       <div className="w-20 max-w-20 shrink-0 text-center">
                         <PlaylistGroupCover items={playlistItems} width={coverWidth} height={coverHeight} />
                       </div>

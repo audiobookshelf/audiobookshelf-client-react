@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Boekwijzer verwijderd",
   "ToastCachePurgeFailed": "Cache wissen is mislukt",
   "ToastCachePurgeSuccess": "Cache succesvol verwijderd",
+  "ToastChapterStartTimeAdjusted": "Hoofdstukstarttijd aangepast met {0} seconden",
   "ToastChaptersHaveErrors": "Hoofdstukken bevatten fouten",
   "ToastChaptersMustHaveTitles": "Hoofdstukken moeten titels hebben",
   "ToastChaptersRemoved": "Hoofdstukken verwijderd",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Het nieuwe wachtwoord kan niet overeenkomen met het oude wachtwoord",
   "TooltipAddChapters": "Hoofdstuk(ken) toevoegen",
   "TooltipAddOneSecond": "1 seconde toevoegen",
-  "TooltipSubtractOneSecond": "Trek 1 seconde af",
-  "ToastChapterStartTimeAdjusted": "Hoofdstukstarttijd aangepast met {0} seconden",
-  "TooltipAdjustChapterStart": "Klik om de starttijd aan te passen"
+  "TooltipAdjustChapterStart": "Klik om de starttijd aan te passen",
+  "TooltipSubtractOneSecond": "Trek 1 seconde af"
 }

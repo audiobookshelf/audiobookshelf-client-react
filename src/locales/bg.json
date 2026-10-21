@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Отметката е премахната",
   "ToastCachePurgeFailed": "Неуспешно изчистване на кеша",
   "ToastCachePurgeSuccess": "Успешно изчистване на кеша",
+  "ToastChapterStartTimeAdjusted": "Начално време на главате е настоено с {0} секунди",
   "ToastChaptersHaveErrors": "Главите имат грешки",
   "ToastChaptersMustHaveTitles": "Главите трябва да имат заглавия",
   "ToastChaptersRemoved": "Главите са премахнати",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Новата парола не може да бъде същата като старата",
   "TooltipAddChapters": "Добавяне на глава(и)",
   "TooltipAddOneSecond": "Добавяне на 1 секунда",
-  "TooltipSubtractOneSecond": "Изваждане на 1 секунда",
-  "ToastChapterStartTimeAdjusted": "Начално време на главате е настоено с {0} секунди",
-  "TooltipAdjustChapterStart": "Кликнете за коригиране на началния час"
+  "TooltipAdjustChapterStart": "Кликнете за коригиране на началния час",
+  "TooltipSubtractOneSecond": "Изваждане на 1 секунда"
 }

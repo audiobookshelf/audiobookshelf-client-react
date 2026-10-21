@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "ブックマークを削除しました",
   "ToastCachePurgeFailed": "キャッシュのクリアに失敗しました",
   "ToastCachePurgeSuccess": "キャッシュをクリアしました",
+  "ToastChapterStartTimeAdjusted": "チャプター開始時間を{0}秒調整しました",
   "ToastChaptersHaveErrors": "チャプターにエラーがあります",
   "ToastChaptersMustHaveTitles": "チャプターにはタイトルが必要です",
   "ToastChaptersRemoved": "チャプターを削除しました",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "新しいパスワードは古いパスワードと同じにすることはできません",
   "TooltipAddChapters": "チャプターを追加",
   "TooltipAddOneSecond": "1秒追加",
-  "TooltipSubtractOneSecond": "1秒減算",
-  "ToastChapterStartTimeAdjusted": "チャプター開始時間を{0}秒調整しました",
-  "TooltipAdjustChapterStart": "クリックして開始時刻を調整"
+  "TooltipAdjustChapterStart": "クリックして開始時刻を調整",
+  "TooltipSubtractOneSecond": "1秒減算"
 }

@@ -404,10 +404,7 @@ export default function BookshelfClient({ entityType, queryOverride, registerToo
                   {playlistsCollectionsEmptyHelpKey ? (
                     <>
                       <p className="text-foreground-muted max-w-lg text-center text-sm">{t(playlistsCollectionsEmptyHelpKey)}</p>
-                      <MoreInfoIcon
-                        moreInfoUrl="https://audiobookshelf.org/docs/documentation/libraries/common-content/playlists"
-                        size="xl"
-                      />
+                      <MoreInfoIcon moreInfoUrl="https://audiobookshelf.org/docs/documentation/libraries/common-content/playlists" size="xl" />
                     </>
                   ) : null}
                   {entityType === 'items' && !onIssuesPage && filterBy !== 'all' ? (

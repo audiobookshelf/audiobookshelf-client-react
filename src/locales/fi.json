@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Kirjanmerkki poistettu",
   "ToastCachePurgeFailed": "Välimuistin tyhjentäminen epäonnistui",
   "ToastCachePurgeSuccess": "Välimuisti tyhjennetty onnistuneesti",
+  "ToastChapterStartTimeAdjusted": "Luvun aloitusaikaa on säädetty {0} sekunnilla",
   "ToastChaptersHaveErrors": "Luvuissa on virheitä",
   "ToastChaptersMustHaveTitles": "Lukuilla on oltava otsikot",
   "ToastChaptersRemoved": "Luvut poistettu",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Uusi salasana ei voi olla sama kuin vanha salasana",
   "TooltipAddChapters": "Lisää luku tai lukuja",
   "TooltipAddOneSecond": "Lisää 1 sekunti",
-  "TooltipSubtractOneSecond": "Vähennä 1 sekunti",
-  "ToastChapterStartTimeAdjusted": "Luvun aloitusaikaa on säädetty {0} sekunnilla",
-  "TooltipAdjustChapterStart": "Napauta säätääksesi aloitusaikaa"
+  "TooltipAdjustChapterStart": "Napauta säätääksesi aloitusaikaa",
+  "TooltipSubtractOneSecond": "Vähennä 1 sekunti"
 }

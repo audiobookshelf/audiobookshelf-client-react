@@ -263,25 +263,10 @@ export default function LibraryEditModal({ isOpen, library, processing = false, 
           onHideFolderChooser={() => setShowFolderChooser(false)}
         />
       )}
-      {selectedTab === 'settings' && (
-        <LibrarySettingsTab
-          settings={formData.settings}
-          mediaType={formData.mediaType}
-          onSettingsChange={handleSettingsChange}
-        />
-      )}
-      {selectedTab === 'scanner' && (
-        <LibraryScannerTab
-          settings={formData.settings}
-          onSettingsChange={handleSettingsChange}
-        />
-      )}
+      {selectedTab === 'settings' && <LibrarySettingsTab settings={formData.settings} mediaType={formData.mediaType} onSettingsChange={handleSettingsChange} />}
+      {selectedTab === 'scanner' && <LibraryScannerTab settings={formData.settings} onSettingsChange={handleSettingsChange} />}
       {selectedTab === 'schedule' && (
-        <LibraryScheduleTab
-          settings={formData.settings}
-          onSettingsChange={handleSettingsChange}
-          onScheduleValidityChange={setScheduleValid}
-        />
+        <LibraryScheduleTab settings={formData.settings} onSettingsChange={handleSettingsChange} onScheduleValidityChange={setScheduleValid} />
       )}
     </TabbedModal>
   )

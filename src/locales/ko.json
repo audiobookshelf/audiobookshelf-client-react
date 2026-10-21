@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "북마크가 삭제되었습니다",
   "ToastCachePurgeFailed": "캐시를 정리하지 못했습니다.",
   "ToastCachePurgeSuccess": "캐시가 성공적으로 삭제되었습니다.",
+  "ToastChapterStartTimeAdjusted": "챕터 시작 시간이 {0}초로 조정되었습니다.",
   "ToastChaptersHaveErrors": "챕터에 오류가 있습니다",
   "ToastChaptersMustHaveTitles": "챕터에는 제목이 있어야 합니다.",
   "ToastChaptersRemoved": "챕터가 삭제되었습니다",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "새 비밀번호는 이전 비밀번호와 일치할 수 없습니다.",
   "TooltipAddChapters": "챕터 추가",
   "TooltipAddOneSecond": "1초 추가",
-  "TooltipSubtractOneSecond": "1초 빼기",
-  "ToastChapterStartTimeAdjusted": "챕터 시작 시간이 {0}초로 조정되었습니다.",
-  "TooltipAdjustChapterStart": "시작 시간을 조정하려면 클릭하세요"
+  "TooltipAdjustChapterStart": "시작 시간을 조정하려면 클릭하세요",
+  "TooltipSubtractOneSecond": "1초 빼기"
 }

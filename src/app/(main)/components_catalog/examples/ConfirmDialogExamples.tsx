@@ -54,9 +54,9 @@ export function ConfirmDialogExamples() {
         </p>
         <p className="mb-2">
           <span className="font-bold">Props:</span> <Code>isOpen</Code> (required: boolean), <Code>message</Code> (required: string), <Code>checkboxLabel</Code>{' '}
-          (optional: string), <Code>yesButtonText</Code> (optional: string), <Code>yesButtonClassName</Code> (optional: string, defaults to
-          &apos;bg-success text-success-foreground&apos;), <Code>onClose</Code> (required: function), <Code>onConfirm</Code> (required: function that accepts optional boolean for
-          checkbox value), <Code>className</Code> (optional: string)
+          (optional: string), <Code>yesButtonText</Code> (optional: string), <Code>yesButtonClassName</Code> (optional: string, defaults to &apos;bg-success
+          text-success-foreground&apos;), <Code>onClose</Code> (required: function), <Code>onConfirm</Code> (required: function that accepts optional boolean
+          for checkbox value), <Code>className</Code> (optional: string)
         </p>
         <p className="mb-2 text-sm text-gray-400">
           Features: Built on top of Modal component, includes Cancel and Confirm buttons, optional checkbox for persistent choices, customizable button text and

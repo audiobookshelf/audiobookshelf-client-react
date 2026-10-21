@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Zakładka została usunięta",
   "ToastCachePurgeFailed": "Nie udało się wyczyścić pamięci cache",
   "ToastCachePurgeSuccess": "Wyczyszczono pamięć cache",
+  "ToastChapterStartTimeAdjusted": "Czas rozpoczęcia rozdziału przesunięty o \"{0}\" sekund",
   "ToastChaptersHaveErrors": "Rozdziały posiadają błędy",
   "ToastChaptersMustHaveTitles": "Rozdziały muszą posiadać tytuł",
   "ToastChaptersRemoved": "Rozdziały usunięte",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Nowe hasło nie może być takie samo jak stare hasło",
   "TooltipAddChapters": "Dodaj rozdział(y)",
   "TooltipAddOneSecond": "Dodaj sekundę",
-  "TooltipSubtractOneSecond": "Odejmij sekundę",
-  "ToastChapterStartTimeAdjusted": "Czas rozpoczęcia rozdziału przesunięty o \"{0}\" sekund",
-  "TooltipAdjustChapterStart": "Kliknij, aby skorygować czas początkowy"
+  "TooltipAdjustChapterStart": "Kliknij, aby skorygować czas początkowy",
+  "TooltipSubtractOneSecond": "Odejmij sekundę"
 }

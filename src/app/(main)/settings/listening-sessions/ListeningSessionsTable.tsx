@@ -431,7 +431,13 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
                 : {
                     selectedLabel: t('MessageSelected', { 0: numSelected }),
                     actions: (
-                      <Btn className="h-7" size="small" color="bg-error text-error-foreground" loading={deletingSessions} onClick={() => setShowDeleteConfirmDialog(true)}>
+                      <Btn
+                        className="h-7"
+                        size="small"
+                        color="bg-error text-error-foreground"
+                        loading={deletingSessions}
+                        onClick={() => setShowDeleteConfirmDialog(true)}
+                      >
                         {t('ButtonDelete')}
                       </Btn>
                     )

@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Zaznamek odstranjen",
   "ToastCachePurgeFailed": "Čiščenje predpomnilnika ni uspelo",
   "ToastCachePurgeSuccess": "Predpomnilnik je bil uspešno očiščen",
+  "ToastChapterStartTimeAdjusted": "Začetni čas poglavja je bil prilagojen za {0} sekund",
   "ToastChaptersHaveErrors": "Poglavja imajo napake",
   "ToastChaptersMustHaveTitles": "Poglavja morajo imeti naslove",
   "ToastChaptersRemoved": "Poglavja so odstranjena",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Novo geslo se ne sme ujemati s starim geslom",
   "TooltipAddChapters": "Dodaj poglavje(-a)",
   "TooltipAddOneSecond": "Dodaj 1 sekundo",
-  "TooltipSubtractOneSecond": "Odštej 1 sekundo",
-  "ToastChapterStartTimeAdjusted": "Začetni čas poglavja je bil prilagojen za {0} sekund",
-  "TooltipAdjustChapterStart": "Kliknite za prilagoditev začetnega časa"
+  "TooltipAdjustChapterStart": "Kliknite za prilagoditev začetnega časa",
+  "TooltipSubtractOneSecond": "Odštej 1 sekundo"
 }

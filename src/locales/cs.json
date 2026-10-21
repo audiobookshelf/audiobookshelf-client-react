@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Záložka odstraněna",
   "ToastCachePurgeFailed": "Nepodařilo se vyčistit mezipaměť",
   "ToastCachePurgeSuccess": "Vyrovnávací paměť úspěšně vyčištěna",
+  "ToastChapterStartTimeAdjusted": "Začátek kapitoly posunut o {0} sekund",
   "ToastChaptersHaveErrors": "Kapitoly obsahují chyby",
   "ToastChaptersMustHaveTitles": "Kapitoly musí mít názvy",
   "ToastChaptersRemoved": "Kapitoly odstraněny",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Nové heslo se musí lišit od předchozího",
   "TooltipAddChapters": "Přidat kapitolu/y",
   "TooltipAddOneSecond": "Přidat 1 sekundu",
-  "TooltipSubtractOneSecond": "Odečíst 1 sekundu",
-  "ToastChapterStartTimeAdjusted": "Začátek kapitoly posunut o {0} sekund",
-  "TooltipAdjustChapterStart": "Kliknutím upravte začátek"
+  "TooltipAdjustChapterStart": "Kliknutím upravte začátek",
+  "TooltipSubtractOneSecond": "Odečíst 1 sekundu"
 }

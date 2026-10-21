@@ -207,7 +207,7 @@ export default function AddToCollectionModal({ isOpen, onClose, libraryId, libra
                   const books = collection.books ?? []
                   return (
                     <div key={collection.id} className="hover:bg-dropdown-item-hover relative flex items-center justify-start px-4 py-2">
-                      {included && <div className="bg-success inset-s-0 absolute top-0 z-10 h-full w-1" aria-hidden />}
+                      {included && <div className="bg-success absolute inset-s-0 top-0 z-10 h-full w-1" aria-hidden />}
                       <div className="w-20 max-w-20 shrink-0 text-center">
                         <CollectionGroupCover books={books} width={coverWidth} height={coverHeight} />
                       </div>

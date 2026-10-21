@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Knjižna oznaka uklonjena",
   "ToastCachePurgeFailed": "Čišćenje predmemorije nije uspjelo",
   "ToastCachePurgeSuccess": "Predmemorija uspješno očišćena",
+  "ToastChapterStartTimeAdjusted": "Vrijeme početka poglavlja prilagođeno za {0} sekundi",
   "ToastChaptersHaveErrors": "Poglavlja imaju pogreške",
   "ToastChaptersMustHaveTitles": "Poglavlja moraju imati naslove",
   "ToastChaptersRemoved": "Poglavlja uklonjena",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Nova zaporka ne smije biti jednaka staroj",
   "TooltipAddChapters": "Dodavanje poglavlja",
   "TooltipAddOneSecond": "Dodaj 1 sekundu",
-  "TooltipSubtractOneSecond": "Oduzmi 1 sekundu",
-  "ToastChapterStartTimeAdjusted": "Vrijeme početka poglavlja prilagođeno za {0} sekundi",
-  "TooltipAdjustChapterStart": "Kliknite za uređivanje početnog vremena"
+  "TooltipAdjustChapterStart": "Kliknite za uređivanje početnog vremena",
+  "TooltipSubtractOneSecond": "Oduzmi 1 sekundu"
 }

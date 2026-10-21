@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "புத்தகக்குறி அகற்றப்பட்டது",
   "ToastCachePurgeFailed": "தற்காலிக சேமிப்பை அகற்றுவதில் தோல்வி",
   "ToastCachePurgeSuccess": "தற்காலிக சேமிப்பு வெற்றிகரமாக நீக்கப்பட்டது",
+  "ToastChapterStartTimeAdjusted": "அத்தியாயத்தின் தொடக்க நேரம் {0} வினாடிகளால் சரிசெய்யப்பட்டது",
   "ToastChaptersHaveErrors": "அத்தியாயங்களில் பிழைகள் உள்ளன",
   "ToastChaptersMustHaveTitles": "அத்தியாயங்களில் தலைப்புகள் இருக்க வேண்டும்",
   "ToastChaptersRemoved": "அத்தியாயங்கள் அகற்றப்பட்டன",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "புதிய password cannot match old password",
   "TooltipAddChapters": "கூட்டு chapter(s)",
   "TooltipAddOneSecond": "கூட்டு 1 second",
-  "TooltipSubtractOneSecond": "1 நொடி கழிக்கவும்",
-  "ToastChapterStartTimeAdjusted": "அத்தியாயத்தின் தொடக்க நேரம் {0} வினாடிகளால் சரிசெய்யப்பட்டது",
-  "TooltipAdjustChapterStart": "Click பெறுநர் adjust தொடங்கு time"
+  "TooltipAdjustChapterStart": "Click பெறுநர் adjust தொடங்கு time",
+  "TooltipSubtractOneSecond": "1 நொடி கழிக்கவும்"
 }

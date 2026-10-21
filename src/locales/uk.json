@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Закладку видалено",
   "ToastCachePurgeFailed": "Не вдалося очистити кеш",
   "ToastCachePurgeSuccess": "Кеш очищено",
+  "ToastChapterStartTimeAdjusted": "Час початку розділу змінено на {0} секунд",
   "ToastChaptersHaveErrors": "Глави містять помилки",
   "ToastChaptersMustHaveTitles": "Глави повинні мати назви",
   "ToastChaptersRemoved": "Розділи видалені",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Новий пароль не може співпадати з попереднім",
   "TooltipAddChapters": "Додати розділ(и)",
   "TooltipAddOneSecond": "Додати 1 секунду",
-  "TooltipSubtractOneSecond": "Відніміть 1 секунду",
-  "ToastChapterStartTimeAdjusted": "Час початку розділу змінено на {0} секунд",
-  "TooltipAdjustChapterStart": "Натисніть, щоб налаштувати час початку"
+  "TooltipAdjustChapterStart": "Натисніть, щоб налаштувати час початку",
+  "TooltipSubtractOneSecond": "Відніміть 1 секунду"
 }

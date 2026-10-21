@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Bogmærke fjernet",
   "ToastCachePurgeFailed": "Fejlede at opryde cache",
   "ToastCachePurgeSuccess": "Cache ryddet op i succesfuldt",
+  "ToastChapterStartTimeAdjusted": "Kapitelstarttid justeret med {0} sekunder",
   "ToastChaptersHaveErrors": "Kapitler har fejl",
   "ToastChaptersMustHaveTitles": "Kapitler skal have titler",
   "ToastChaptersRemoved": "Kapitler fjernet",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Nyt password må ikke være det gamle",
   "TooltipAddChapters": "Tilføj kapitler",
   "TooltipAddOneSecond": "Tilføj 1 sekund",
-  "TooltipSubtractOneSecond": "Fratag 1 sekund",
-  "ToastChapterStartTimeAdjusted": "Kapitelstarttid justeret med {0} sekunder",
-  "TooltipAdjustChapterStart": "Klik for at ændre starttiden"
+  "TooltipAdjustChapterStart": "Klik for at ændre starttiden",
+  "TooltipSubtractOneSecond": "Fratag 1 sekund"
 }

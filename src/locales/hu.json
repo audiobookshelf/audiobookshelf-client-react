@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Könyvjelző eltávolítva",
   "ToastCachePurgeFailed": "A gyorsítótár törlése sikertelen",
   "ToastCachePurgeSuccess": "A gyorsítótár sikeresen törölve",
+  "ToastChapterStartTimeAdjusted": "A fejezet kezdési ideje {0} másodperccel módosítva",
   "ToastChaptersHaveErrors": "A fejezetek hibákat tartalmaznak",
   "ToastChaptersMustHaveTitles": "A fejezeteknek címekkel kell rendelkezniük",
   "ToastChaptersRemoved": "Fejezetek eltávolítva",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Az új jelszó nem egyezik a régi jelszóval",
   "TooltipAddChapters": "Fejezet(ek) hozzáadása",
   "TooltipAddOneSecond": "1 másodperc hozzáadása",
-  "TooltipSubtractOneSecond": "1 másodperc levonása",
-  "ToastChapterStartTimeAdjusted": "A fejezet kezdési ideje {0} másodperccel módosítva",
-  "TooltipAdjustChapterStart": "Kattintson a kezdési idő beállításához"
+  "TooltipAdjustChapterStart": "Kattintson a kezdési idő beállításához",
+  "TooltipSubtractOneSecond": "1 másodperc levonása"
 }

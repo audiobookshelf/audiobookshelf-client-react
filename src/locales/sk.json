@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Záložka odstránená",
   "ToastCachePurgeFailed": "Vyčistenie vyrovnávacej pamäte zlyhalo",
   "ToastCachePurgeSuccess": "Vyrovnávacia pamäť vyčistená",
+  "ToastChapterStartTimeAdjusted": "Čas začiatku kapitoly upravený o {0} sekúnd",
   "ToastChaptersHaveErrors": "Kapitoly obsahujú chyby",
   "ToastChaptersMustHaveTitles": "Kapitoly musia mať názvy",
   "ToastChaptersRemoved": "Kapitoly boli odstránené",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Nové heslo sa nesmie zhodovať so starým",
   "TooltipAddChapters": "Pridať kapitolu(-y)",
   "TooltipAddOneSecond": "Pridať 1 sekundu",
-  "TooltipSubtractOneSecond": "Odobrať 1 sekundu",
-  "ToastChapterStartTimeAdjusted": "Čas začiatku kapitoly upravený o {0} sekúnd",
-  "TooltipAdjustChapterStart": "Kliknite, ak chcete zmeniť začiatočný čas"
+  "TooltipAdjustChapterStart": "Kliknite, ak chcete zmeniť začiatočný čas",
+  "TooltipSubtractOneSecond": "Odobrať 1 sekundu"
 }

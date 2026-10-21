@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Закладка удалена",
   "ToastCachePurgeFailed": "Не удалось очистить кэш",
   "ToastCachePurgeSuccess": "Кэш успешно очищен",
+  "ToastChapterStartTimeAdjusted": "Время начала главы скорректировано на {0} секунд",
   "ToastChaptersHaveErrors": "Главы имеют ошибки",
   "ToastChaptersMustHaveTitles": "Главы должны содержать названия",
   "ToastChaptersRemoved": "Удалены главы",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Новый пароль не может совпадать со старым паролем",
   "TooltipAddChapters": "Добавить главу(ы)",
   "TooltipAddOneSecond": "Добавить 1 секунду",
-  "TooltipSubtractOneSecond": "Вычтите 1 секунду",
-  "ToastChapterStartTimeAdjusted": "Время начала главы скорректировано на {0} секунд",
-  "TooltipAdjustChapterStart": "Нажмите, чтобы настроить время начала"
+  "TooltipAdjustChapterStart": "Нажмите, чтобы настроить время начала",
+  "TooltipSubtractOneSecond": "Вычтите 1 секунду"
 }

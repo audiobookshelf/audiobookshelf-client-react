@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Bokmärket har tagits bort",
   "ToastCachePurgeFailed": "Det gick inte att rensa cacheminnet",
   "ToastCachePurgeSuccess": "Cacheminnet har rensats",
+  "ToastChapterStartTimeAdjusted": "Kapitlets starttid justerades med {0} sekunder",
   "ToastChaptersHaveErrors": "Kapitlen har fel",
   "ToastChaptersMustHaveTitles": "Kapitel måste ha titlar",
   "ToastChaptersRemoved": "Kapitlen har tagits bort",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Det nya lösenordet kan inte vara samma som det gamla",
   "TooltipAddChapters": "Lägg till kapitel",
   "TooltipAddOneSecond": "Öka med 1 sekund",
-  "TooltipSubtractOneSecond": "Minska med 1 sekund",
-  "ToastChapterStartTimeAdjusted": "Kapitlets starttid justerades med {0} sekunder",
-  "TooltipAdjustChapterStart": "Klicka för att ändra starttiden"
+  "TooltipAdjustChapterStart": "Klicka för att ändra starttiden",
+  "TooltipSubtractOneSecond": "Minska med 1 sekund"
 }

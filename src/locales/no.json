@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Bokmerke fjernet",
   "ToastCachePurgeFailed": "Kunne ikke å slette mellomlager",
   "ToastCachePurgeSuccess": "Mellomlager slettet",
+  "ToastChapterStartTimeAdjusted": "Kapittelstart ble justert med {0} sekunder",
   "ToastChaptersHaveErrors": "Kapittel har feil",
   "ToastChaptersMustHaveTitles": "Kapittel må ha titler",
   "ToastChaptersRemoved": "Kapitler fjernet",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Nytt passord kan ikke være identisk med gammelt passord",
   "TooltipAddChapters": "Legg til kapittel(er)",
   "TooltipAddOneSecond": "Legg til 1 sekund",
-  "TooltipSubtractOneSecond": "Trekk fra 1 sekund",
-  "ToastChapterStartTimeAdjusted": "Kapittelstart ble justert med {0} sekunder",
-  "TooltipAdjustChapterStart": "Klikk for å justere starttid"
+  "TooltipAdjustChapterStart": "Klikk for å justere starttid",
+  "TooltipSubtractOneSecond": "Trekk fra 1 sekund"
 }

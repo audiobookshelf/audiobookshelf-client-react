@@ -848,6 +848,7 @@
   "ToastBookmarkRemoveSuccess": "Signet supprimé",
   "ToastCachePurgeFailed": "Échec de la purge du cache",
   "ToastCachePurgeSuccess": "Cache purgé avec succès",
+  "ToastChapterStartTimeAdjusted": "Début du chapitre ajusté de {0} secondes",
   "ToastChaptersHaveErrors": "Les chapitres contiennent des erreurs",
   "ToastChaptersMustHaveTitles": "Les chapitre doivent avoir un titre",
   "ToastChaptersRemoved": "Chapitres supprimés",
@@ -960,7 +961,6 @@
   "ToastUserPasswordMustChange": "Le nouveau mot de passe ne peut pas être identique à l’ancien",
   "TooltipAddChapters": "Ajouter chapitre(s)",
   "TooltipAddOneSecond": "Ajouter 1 seconde",
-  "TooltipSubtractOneSecond": "Soustraire 1 seconde",
-  "ToastChapterStartTimeAdjusted": "Début du chapitre ajusté de {0} secondes",
-  "TooltipAdjustChapterStart": "Cliquez pour régler l'heure de début"
+  "TooltipAdjustChapterStart": "Cliquez pour régler l'heure de début",
+  "TooltipSubtractOneSecond": "Soustraire 1 seconde"
 }
