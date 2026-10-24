@@ -363,6 +363,16 @@ export default function DropdownMenu({
     getElement: useCallback((container, index) => container.querySelector(`#${dropdownId}-item-${index}`) as HTMLElement, [dropdownId])
   })
 
+  useLayoutEffect(() => {
+    const menu = menuRef.current
+    if (!showMenu || usePortal || !menu) return
+    const { bottom, top, height } = menu.getBoundingClientRect()
+    if (bottom > window.innerHeight && top > height) {
+      menu.style.top = 'auto'
+      menu.style.bottom = '100%'
+    }
+  }, [showMenu, usePortal, menuRef])
+
   // Reset submenu hover/close state when menu closes
   useEffect(() => {
     if (!showMenu) {
