@@ -4,7 +4,6 @@ import { fetchUserListeningSessions, fetchUserListeningStats } from '@/app/(main
 import PreviewCover from '@/components/covers/PreviewCover'
 import Btn from '@/components/ui/Btn'
 import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
-import TextInput from '@/components/ui/TextInput'
 import Tooltip from '@/components/ui/Tooltip'
 import OnlineIndicator from '@/components/widgets/OnlineIndicator'
 import { useBookCoverAspectRatio } from '@/contexts/LibraryContext'
@@ -16,17 +15,8 @@ import { formatJsDatetime } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
 import { GetListeningSessionsResponse, ListeningStats, MediaProgress, PlaybackSession, User } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
-import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
 import UserListeningStatsSkeleton from './UserListeningStatsSkeleton'
-
-const legacyTokenTags = {
-  apiKeysLink: (chunks: React.ReactNode) => (
-    <Link href="/settings/api-keys" className="link-underline text-blue-400 hover:text-blue-300">
-      {chunks}
-    </Link>
-  )
-}
 
 const strongTag = (chunks: React.ReactNode) => <strong>{chunks}</strong>
 
@@ -184,15 +174,6 @@ export default function UserClient({ user }: { user: User }) {
         <OnlineIndicator value={user.id === currentUser.id || getIsUserOnline(user.id)} />
         <h1 className="text-xl">{user.username}</h1>
       </div>
-
-      {user.token ? (
-        <div className="mt-4 space-y-2 text-xs">
-          <TextInput label={t('LabelLegacyApiToken')} value={user.token} readOnly showCopy />
-          <p className="text-warning">{t.rich('MessageAuthenticationLegacyTokenWarning', legacyTokenTags)}</p>
-        </div>
-      ) : null}
-
-      <div className="bg-border my-2 h-px w-full" />
 
       {!isListeningDataLoaded ? (
         <UserListeningStatsSkeleton />
