@@ -3,7 +3,7 @@
 import Btn from '@/components/ui/Btn'
 import TextInput from '@/components/ui/TextInput'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { withBasePath } from '@/lib/basePath'
+import { getSafeRedirectPath, withBasePath } from '@/lib/basePath'
 import { sanitizeHtml } from '@/lib/html-utils'
 import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { AuthFormData } from '@/types/api'
@@ -33,8 +33,7 @@ export default function LoginForm({ authMethods, authFormData, serverUrl }: Logi
     return authFormData.authLoginCustomMessage ? sanitizeHtml(authFormData.authLoginCustomMessage) : null
   }, [authFormData.authLoginCustomMessage])
 
-  const redirectParam = searchParams.get('redirect')
-  const safeRedirect = redirectParam?.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : null
+  const safeRedirect = getSafeRedirectPath(searchParams.get('redirect'))
   const openIdAuthUri = useMemo(() => {
     const callbackUrl = new URL(withBasePath('/login'), new URL(serverUrl).origin)
     if (safeRedirect) {

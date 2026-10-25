@@ -102,7 +102,7 @@ import {
 } from '../types/api'
 
 import { ApiError, NetworkError, UnauthorizedError } from './apiErrors'
-import { getBasePath, withBasePath } from './basePath'
+import { getBasePath, getSafeRedirectPath, withBasePath } from './basePath'
 import { isNextRedirectError } from './nextErrors'
 import { getUserDefaultUrlPath } from './userPermissions'
 
@@ -445,7 +445,7 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
     const data = await getCurrentUser()
     setLanguageCookie(await cookies(), data.serverSettings?.language)
 
-    const safeRedirect = redirectParam?.startsWith('/') && !redirectParam.startsWith('//') ? redirectParam : null
+    const safeRedirect = getSafeRedirectPath(redirectParam)
     return safeRedirect || getUserDefaultUrlPath(data.userDefaultLibraryId ?? null)
   } catch (error) {
     console.error('[completeOidcLogin] Error:', error)

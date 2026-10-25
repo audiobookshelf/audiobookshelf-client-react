@@ -65,6 +65,22 @@ export function withBasePath(url: string): string {
 }
 
 /**
+ * Make sure the redirect path is valid and relative
+ * Returns null when the value is empty or unsafe.
+ */
+export function getSafeRedirectPath(redirect: string | null | undefined): string | null {
+  if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) return null
+
+  try {
+    const url = new URL(redirect, 'https://localhost')
+    if (url.origin !== 'https://localhost') return null
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return null
+  }
+}
+
+/**
  * Matches the placeholder together with any backslashes escaping its leading slash.
  *
  * Route matchers embed the base path as a regex (`\/__ABS_BASE_PATH__`), and the JSON manifests

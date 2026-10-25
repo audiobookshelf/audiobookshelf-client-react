@@ -1,5 +1,5 @@
 import { getClientBaseUrlFromRequest, redirectToLogin, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
-import { withBasePath } from '@/lib/basePath'
+import { getSafeRedirectPath, withBasePath } from '@/lib/basePath'
 import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
@@ -56,8 +56,8 @@ async function handleRefresh(request: Request) {
       return response
     }
 
-    // Get redirect URL from query parameters or default to user default path
-    const redirectUrlPath = url.searchParams.get('redirect') || getUserDefaultUrlPath(session.userDefaultLibraryId)
+    // Only follow an in-app path. Anything else falls back to the user's library.
+    const redirectUrlPath = getSafeRedirectPath(url.searchParams.get('redirect')) || getUserDefaultUrlPath(session.userDefaultLibraryId)
     // A root-relative path would drop the base path from clientBaseUrl, so add it explicitly.
     const redirectUrl = new URL(withBasePath(redirectUrlPath), clientBaseUrl)
 
