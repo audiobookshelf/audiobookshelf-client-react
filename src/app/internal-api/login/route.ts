@@ -78,6 +78,10 @@ export async function POST(request: Request) {
 
     const effectiveLanguage = await syncServerLanguageFromCookie(audiobookshelfServerUrl, newAccessToken, data)
 
+    // Cookies are the only copy the browser should have
+    delete data.user.accessToken
+    delete data.user.refreshToken
+
     const response = NextResponse.json(data)
     setTokenCookies(response, newAccessToken, newRefreshToken ?? null)
     setLanguageCookie(response.cookies, effectiveLanguage)
