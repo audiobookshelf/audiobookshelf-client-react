@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 import { getServerBaseUrl, setLanguageCookie, setTokenCookies } from '../../../lib/api'
 import { COOKIE_NAMES } from '../../../lib/cookies'
 import { getTypeSafeTranslations } from '../../../lib/getTypeSafeTranslations'
@@ -52,6 +52,8 @@ export async function POST(request: Request) {
     const { username, password } = await request.json()
 
     const audiobookshelfServerUrl = getServerBaseUrl()
+    // Pass through the browser's user agent so the Abs server can store it on the auth session at login.
+    const userAgent = request.headers.get('user-agent')
 
     // Make login request to the Audiobookshelf server
     const loginResponse = await fetch(`${audiobookshelfServerUrl}/login`, {
@@ -59,7 +61,8 @@ export async function POST(request: Request) {
       headers: {
         'Content-Type': 'application/json',
         // Tells the Abs server to return the refresh token
-        'x-return-tokens': 'true'
+        'x-return-tokens': 'true',
+        ...(userAgent ? { 'User-Agent': userAgent } : {})
       },
       body: JSON.stringify({ username, password })
     })

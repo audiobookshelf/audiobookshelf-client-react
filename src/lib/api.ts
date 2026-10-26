@@ -31,6 +31,7 @@ import {
   FetchPodcastFeedResponse,
   FFProbeData,
   GetApiKeysResponse,
+  GetAuthSessionsResponse,
   GetAuthorsResponse,
   GetBackupsResponse,
   GetCollectionsResponse,
@@ -320,6 +321,11 @@ async function parseApiResponseBody<T>(response: Response): Promise<T> {
   }
 }
 
+type ApiRequestInit = RequestInit & {
+  /** Send the current refresh token as `x-refresh-token` so the server can identify this session. */
+  forwardRefreshToken?: boolean
+}
+
 /**
  * Make an authenticated API request to the server
  * Throws UnauthorizedError, ApiError, or NetworkError on failure
@@ -327,16 +333,18 @@ async function parseApiResponseBody<T>(response: Response): Promise<T> {
  * On 401 (or missing access token with a refresh cookie), exchanges the refresh token for new
  * session tokens, updates Next.js cookies when possible, and retries once. Server actions return updated cookies to the browser.
  */
-export async function apiRequest<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<T> {
+export async function apiRequest<T = unknown>(endpoint: string, options: ApiRequestInit = {}): Promise<T> {
+  const { forwardRefreshToken = false, ...requestInit } = options
+
   try {
     const isPublic = PUBLIC_ENDPOINTS.includes(endpoint)
     const cookieStore = await cookies()
     const baseUrl = getServerBaseUrl()
     const url = `${baseUrl}${endpoint}`
 
-    const isFormData = options.body instanceof FormData
+    const isFormData = requestInit.body instanceof FormData
 
-    const fetchHeaders = new Headers(options.headers as Record<string, string>)
+    const fetchHeaders = new Headers(requestInit.headers as Record<string, string>)
 
     if (!isFormData && !fetchHeaders.has('Content-Type')) {
       fetchHeaders.set('Content-Type', 'application/json')
@@ -361,19 +369,26 @@ export async function apiRequest<T = unknown>(endpoint: string, options: Request
         throw new UnauthorizedError('No authentication token found')
       }
 
+      if (forwardRefreshToken && refreshToken) {
+        fetchHeaders.set('x-refresh-token', refreshToken)
+      }
+
       fetchHeaders.set('Authorization', `Bearer ${accessToken}`)
     }
 
     let response = await fetch(url, {
-      ...options,
+      ...requestInit,
       headers: fetchHeaders
     })
 
     if (!isPublic && response.status === 401 && refreshToken && !didProactiveRefresh) {
       const session = await applyRefreshedSessionOrRedirect(cookieStore, refreshToken)
       fetchHeaders.set('Authorization', `Bearer ${session.accessToken}`)
+      if (forwardRefreshToken && session.refreshToken) {
+        fetchHeaders.set('x-refresh-token', session.refreshToken)
+      }
       response = await fetch(url, {
-        ...options,
+        ...requestInit,
         headers: fetchHeaders
       })
     }
@@ -456,6 +471,23 @@ export async function completeOidcLogin(accessToken: string, redirectParam?: str
 export const getListeningStats = cache(async (): Promise<ListeningStats> => {
   return apiRequest<ListeningStats>('/api/me/listening-stats')
 })
+
+/** Active auth sessions for the current user. The refresh token marks which row is this browser. */
+export async function getAuthSessions(page = 0, itemsPerPage = 10): Promise<GetAuthSessionsResponse> {
+  const params = new URLSearchParams({
+    page: String(page),
+    itemsPerPage: String(itemsPerPage)
+  })
+  return apiRequest<GetAuthSessionsResponse>(`/api/me/sessions?${params.toString()}`, {
+    forwardRefreshToken: true
+  })
+}
+
+export async function deleteAuthSession(sessionId: string): Promise<void> {
+  return apiRequest<void>(`/api/me/sessions/${encodeURIComponent(sessionId)}`, {
+    method: 'DELETE'
+  })
+}
 
 export async function getUserYearStats(year: number): Promise<UserYearStats> {
   return apiRequest<UserYearStats>(`/api/me/stats/year/${year}`)

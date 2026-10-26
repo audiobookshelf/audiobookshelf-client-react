@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server'
 import { getServerBaseUrl } from '../../../lib/api'
 import { COOKIE_NAMES } from '../../../lib/cookies'
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(request: Request) {
   try {
     const cookieStore = await cookies()
@@ -12,6 +11,8 @@ export async function POST(request: Request) {
     const openidIdToken = cookieStore.get('openid_id_token')?.value
 
     const audiobookshelfServerUrl = getServerBaseUrl()
+    const allDevices = new URL(request.url).searchParams.get('allDevices') === '1'
+    const logoutPath = allDevices ? '/logout?allDevices=1' : '/logout'
 
     // Only forward OIDC cookies when this session actually used OpenID (avoids stale auth_method=openid).
     const isOpenIdAuth = authMethod === 'openid' || authMethod === 'openid-mobile'
@@ -21,7 +22,7 @@ export async function POST(request: Request) {
     ].filter(Boolean)
 
     // Make logout request to the Audiobookshelf server
-    const logoutResponse = await fetch(`${audiobookshelfServerUrl}/logout`, {
+    const logoutResponse = await fetch(`${audiobookshelfServerUrl}${logoutPath}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

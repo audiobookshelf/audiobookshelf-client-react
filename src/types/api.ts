@@ -1182,6 +1182,38 @@ export interface ServerLogoutResponse {
   redirect_url?: string | null
 }
 
+/** Parsed user agent from GET /api/me/sessions */
+export interface AuthSessionDeviceInfo {
+  browserName?: string
+  browserVersion?: string
+  osName?: string
+  osVersion?: string
+  deviceType?: string
+  model?: string
+  vendor?: string
+}
+
+/** Active session from GET /api/me/sessions */
+export interface AuthSession {
+  id: string
+  ipAddress: string | null
+  userAgent: string | null
+  deviceInfo: AuthSessionDeviceInfo | null
+  createdAt: number | null
+  updatedAt: number | null
+  /** True when this row is the session that made the request */
+  current: boolean
+}
+
+/** Response from GET /api/me/sessions */
+export interface GetAuthSessionsResponse {
+  total: number
+  numPages: number
+  page: number
+  itemsPerPage: number
+  sessions: AuthSession[]
+}
+
 export interface ApiKey {
   createdAt: string
   createdByUser: {

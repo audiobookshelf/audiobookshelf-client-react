@@ -2,38 +2,51 @@
 
 import Btn from '@/components/ui/Btn'
 import { useLogout } from '@/hooks/useLogout'
-import { useTranslations } from 'next-intl'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeClasses } from '@/lib/merge-classes'
 import { useState } from 'react'
 
 interface LogoutBtnProps {
   size?: 'small' | 'medium'
+  allDevices?: boolean
+  loading?: boolean
+  disabled?: boolean
+  className?: string
+  onClick?: () => void | Promise<void>
 }
 
-export default function LogoutBtn({ size = 'medium' }: LogoutBtnProps) {
-  const t = useTranslations()
+export default function LogoutBtn({ size = 'medium', allDevices = false, loading: loadingProp, disabled = false, className, onClick }: LogoutBtnProps) {
+  const t = useTypeSafeTranslations()
   const logout = useLogout()
-  const [loading, setLoading] = useState(false)
+  const [internalLoading, setInternalLoading] = useState(false)
+  const loading = loadingProp ?? internalLoading
 
   const handleLogout = async () => {
-    setLoading(true)
+    if (onClick) {
+      await onClick()
+      return
+    }
+
+    setInternalLoading(true)
     try {
-      await logout()
+      await logout(allDevices)
     } catch (err) {
       console.error('Logout error:', err)
     } finally {
-      setLoading(false)
+      setInternalLoading(false)
     }
   }
 
   return (
     <Btn
-      onClick={handleLogout}
+      onClick={() => void handleLogout()}
       loading={loading}
+      disabled={disabled}
       size={size}
-      className={`ms-auto shrink-0 items-center justify-between gap-2 whitespace-nowrap ${size === 'small' ? 'ps-4' : 'ps-6'}`}
+      className={mergeClasses('shrink-0 items-center justify-between gap-2 whitespace-nowrap', size === 'small' ? 'ps-4' : 'ps-6', className)}
     >
-      <span className="material-symbols text-lg">logout</span>
-      {t('LabelLogout')}
+      <span className="material-symbols text-lg">{allDevices ? 'devices' : 'logout'}</span>
+      {allDevices ? t('ButtonLogoutAllDevices') : t('LabelLogout')}
     </Btn>
   )
 }
