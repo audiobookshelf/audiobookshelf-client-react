@@ -130,7 +130,8 @@ export default function SideRailContent({
       icon: <span className="material-symbols text-2xl">&#xf190;</span>,
       label: t('ButtonStats'),
       href: `/library/${libraryId}/stats`,
-      mediaType: 'book' as const
+      mediaType: 'book' as const,
+      adminOnly: true
     },
     {
       icon: <span className="abs-icons icon-podcast text-xl"></span>,
