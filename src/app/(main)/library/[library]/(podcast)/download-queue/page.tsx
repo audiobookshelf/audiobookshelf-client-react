@@ -1,5 +1,6 @@
-import { getData, getEpisodeDownloadQueue, getLibraries } from '@/lib/api'
+import { getCurrentUser, getData, getEpisodeDownloadQueue, getLibraries } from '@/lib/api'
 import { staticPageMetadata } from '@/lib/pageMetadata'
+import { isUserAdminOrUp } from '@/lib/userPermissions'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import DownloadQueueClient from './DownloadQueueClient'
@@ -12,12 +13,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function DownloadQueuePage({ params }: { params: Promise<{ library: string }> }) {
   const { library: libraryId } = await params
-  const [librariesResponse, queueResponse] = await getData(getLibraries(), getEpisodeDownloadQueue(libraryId))
+  const [currentUser, librariesResponse] = await getData(getCurrentUser(), getLibraries())
+
+  if (!currentUser?.user || !isUserAdminOrUp(currentUser.user.type)) {
+    redirect(`/library/${libraryId}`)
+  }
 
   const library = librariesResponse?.libraries?.find((l) => l.id === libraryId)
   if (library?.mediaType === 'book') {
     redirect(`/library/${libraryId}`)
   }
+
+  const [queueResponse] = await getData(getEpisodeDownloadQueue(libraryId))
 
   const initialQueue = queueResponse?.queue ?? []
   const initialCurrentDownload = queueResponse?.currentDownload
