@@ -4,7 +4,9 @@ import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import MediaPlayerContainer from '@/components/player/MediaPlayerContainer'
 import { useChromecast } from '@/contexts/ChromecastContext'
 import { useSocketEvent } from '@/contexts/SocketContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { usePlayerHandler, type PlayerHandlerControls, type PlayerHandlerState } from '@/hooks/usePlayerHandler'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { startViewTransition } from '@/lib/startViewTransition'
 import { isPodcastLibraryItem, LibraryItem, LibraryItemRemovedPayload, PlayerState } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -63,12 +65,21 @@ const PlayerStateContext = createContext<PlayerHandlerState | undefined>(undefin
 
 const LOCAL_STORAGE_AUTO_PLAY_KEY = 'playerQueueAutoPlay'
 
+interface OtherSessionProgressPayload {
+  data?: { libraryItemId: string; episodeId?: string | null; currentTime: number } | null
+  deviceDescription?: string
+  sessionId?: string
+}
+
 function readPlayerQueueAutoPlay(): boolean {
   if (typeof window === 'undefined') return true
   return localStorage.getItem(LOCAL_STORAGE_AUTO_PLAY_KEY) !== '0'
 }
 
 export function MediaProvider({ children }: { children: React.ReactNode }) {
+  const { showToast } = useGlobalToast()
+  const t = useTypeSafeTranslations()
+
   // Stream state
   const [streamLibraryItem, setStreamLibraryItem] = useState<LibraryItem | null>(null)
   const [streamEpisodeId, setStreamEpisodeId] = useState<string | null>(null)
@@ -104,6 +115,11 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
 
   const { isCasting } = useChromecast()
   const { state: playerHandlerState, controls: playerControls, setOnPlaybackFinished } = usePlayerHandler({ isCasting })
+  const playbackSessionIdRef = useRef<string | null>(playerHandlerState.sessionId)
+  playbackSessionIdRef.current = playerHandlerState.sessionId
+  const playerStateRef = useRef(playerHandlerState.playerState)
+  playerStateRef.current = playerHandlerState.playerState
+  const otherSessionToastIdRef = useRef<string | null>(null)
 
   const libraryItemIdStreaming = useMemo(() => streamLibraryItem?.id ?? null, [streamLibraryItem])
 
@@ -243,6 +259,35 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   useSocketEvent<LibraryItemRemovedPayload>('item_removed', handleLibraryItemRemoved, [handleLibraryItemRemoved])
   useSocketEvent<LibraryItem>('item_updated', handleLibraryItemUpdated, [handleLibraryItemUpdated])
   useSocketEvent<LibraryItem[]>('items_updated', handleLibraryItemsUpdated, [handleLibraryItemsUpdated])
+
+  // Another device updated progress for the item loaded in this player.
+  const handleOtherSessionProgress = useCallback(
+    (payload: OtherSessionProgressPayload) => {
+      const progress = payload.data
+      if (!progress || !payload.sessionId || payload.sessionId === playbackSessionIdRef.current) return
+
+      const streamingItem = streamLibraryItemRef.current
+      if (!streamingItem || streamingItem.id !== progress.libraryItemId) return
+      if (progress.episodeId && streamEpisodeIdRef.current !== progress.episodeId) return
+
+      if (playerStateRef.current === PlayerState.PLAYING) {
+        if (otherSessionToastIdRef.current) return
+        otherSessionToastIdRef.current = showToast(t('MessageAnotherSessionOpen', { 0: payload.deviceDescription || '' }), {
+          type: 'warning',
+          duration: 20000,
+          onDismiss: () => {
+            otherSessionToastIdRef.current = null
+          }
+        })
+        return
+      }
+
+      playerControls.seek(progress.currentTime)
+    },
+    [playerControls, showToast, t]
+  )
+
+  useSocketEvent<OtherSessionProgressPayload>('user_item_progress_updated', handleOtherSessionProgress, [handleOtherSessionProgress])
 
   // ============================================================================
   // Main Play Function

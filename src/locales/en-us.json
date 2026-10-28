@@ -857,6 +857,7 @@
   "LabelYourProgress": "Your Progress",
   "LabelYourProgressWithPercent": "Your Progress: {0}%",
   "MessageAddToPlayerQueue": "Add to player queue",
+  "MessageAnotherSessionOpen": "Another session is open for this item on device {0}",
   "MessageAppriseDescription": "To use this feature you will need to have an instance of <appriseLink>Apprise API</appriseLink> running or an api that will handle those same requests. <br></br>The Apprise API Url should be the full URL path to send the notification, e.g., if your API instance is served at <code>http://192.168.1.1:8337</code> then you would put <code>http://192.168.1.1:8337/notify</code>.",
   "MessageAsinCheck": "Ensure you are using the ASIN from the correct Audible region, not Amazon.",
   "MessageAuthenticationOIDCChangesRestart": "Restart your server after saving to apply OIDC changes.",

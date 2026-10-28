@@ -49,8 +49,6 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
   useSocketEvent<UserItemProgressUpdatedPayload>('user_item_progress_updated', (payload) => {
     if (!payload?.id) return
 
-    // TODO: handle check if media item is currently playing to show alert if another device is playing the same item
-
     setCurrentUserData((prev) => {
       const currentProgress = prev.user.mediaProgress || []
 
