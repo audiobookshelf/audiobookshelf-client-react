@@ -41,6 +41,7 @@ const mockUserContextValue: UserContextType = {
   serverSettings: {} as UserContextType['serverSettings'],
   userDefaultLibraryId: 'test-library-id',
   ereaderDevices: [],
+  setEreaderDevices: () => {},
   Source: 'test',
   getMediaItemProgress: () => undefined,
   getBookmarksForLibraryItem: () => [],

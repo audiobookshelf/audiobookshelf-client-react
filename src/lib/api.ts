@@ -1146,6 +1146,13 @@ export async function updateEReaderDevices(ereaderDevices: EReaderDevice[]): Pro
   })
 }
 
+export async function updateMyEReaderDevices(ereaderDevices: EReaderDevice[]): Promise<UpdateEReaderDevicesResponse> {
+  return apiRequest<UpdateEReaderDevicesResponse>('/api/me/ereader-devices', {
+    method: 'POST',
+    body: JSON.stringify({ ereaderDevices })
+  })
+}
+
 export const getAuthSettings = cache(async (): Promise<AuthenticationSettings> => {
   return apiRequest<AuthenticationSettings>('/api/auth-settings')
 })
