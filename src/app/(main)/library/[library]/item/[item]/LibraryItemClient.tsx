@@ -3,11 +3,11 @@
 import { clearPodcastDownloadQueueAction } from '@/app/actions/mediaActions'
 import LibraryItemMetadataEditModal, { type MetadataEditSection } from '@/components/modals/LibraryItemMetadataEditModal'
 import AudioTracksTable from '@/components/widgets/AudioTracksTable'
+import AuthorLinks from '@/components/widgets/AuthorLinks'
 import ChaptersTable from '@/components/widgets/ChaptersTable'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import EbookFilesTable from '@/components/widgets/EbookFilesTable'
 import EpisodeTable from '@/components/widgets/EpisodeTable'
-import AuthorLinks from '@/components/widgets/AuthorLinks'
 import ExpandableHtml from '@/components/widgets/ExpandableHtml'
 import LibraryFilesTable from '@/components/widgets/LibraryFilesTable'
 import LoadingSpinner from '@/components/widgets/LoadingSpinner'
@@ -48,11 +48,19 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
     setPodcastEpisodesInOrder(episodes)
   }, [])
 
-  const { handlePlay, showPlayButton, isItemPlaying, handleGoToTimestamp, pendingStartTime, handleCloseStartTime, handleConfirmStartTime } =
-    useLibraryItemPagePlay({
-      libraryItem,
-      podcastEpisodesInOrder
-    })
+  const {
+    handlePlay,
+    showPlayButton,
+    isItemPlaying,
+    handleGoToTimestamp,
+    handleSelectBookmark,
+    pendingStartTime,
+    handleCloseStartTime,
+    handleConfirmStartTime
+  } = useLibraryItemPagePlay({
+    libraryItem,
+    podcastEpisodesInOrder
+  })
 
   useEffect(() => {
     setLibraryItem(initialLibraryItem)
@@ -227,6 +235,7 @@ export default function LibraryItemClient({ libraryItem: initialLibraryItem }: L
                 showPlayButton={showPlayButton}
                 isItemPlaying={isItemPlaying}
                 onPlay={handlePlay}
+                onSelectBookmark={handleSelectBookmark}
               />
 
               {description && <ExpandableHtml html={description} lineClamp={4} className="mt-6" />}

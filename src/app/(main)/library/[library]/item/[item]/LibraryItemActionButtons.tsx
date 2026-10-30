@@ -6,6 +6,7 @@ import PodcastCheckNewEpisodesModal from '@/components/modals/PodcastCheckNewEpi
 import PodcastDownloadScheduleModal from '@/components/modals/PodcastDownloadScheduleModal'
 import RssFeedOpenCloseModal from '@/components/modals/RssFeedOpenCloseModal'
 import ShareModal from '@/components/modals/ShareModal'
+import BookmarksModal from '@/components/player/BookmarksModal'
 import Btn from '@/components/ui/Btn'
 import ContextMenuDropdown, { type ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
@@ -19,7 +20,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { withBasePath } from '@/lib/basePath'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 interface LibraryItemActionButtonsProps {
   libraryItem: BookLibraryItem | PodcastLibraryItem
@@ -30,6 +31,7 @@ interface LibraryItemActionButtonsProps {
   showPlayButton: boolean
   isItemPlaying: boolean
   onPlay: () => void
+  onSelectBookmark: (time: number) => void
 }
 
 export default function LibraryItemActionButtons({
@@ -39,9 +41,11 @@ export default function LibraryItemActionButtons({
   rssFeed = null,
   showPlayButton,
   isItemPlaying,
-  onPlay
+  onPlay,
+  onSelectBookmark
 }: LibraryItemActionButtonsProps) {
-  const { userCanUpdate, getMediaItemProgress, ereaderDevices } = useUser()
+  const { userCanUpdate, getMediaItemProgress, getBookmarksForLibraryItem, ereaderDevices } = useUser()
+  const [bookmarksOpen, setBookmarksOpen] = useState(false)
   const {
     libraryItemIdStreaming,
     streamLibraryItem,
@@ -139,8 +143,10 @@ export default function LibraryItemActionButtons({
     handleMoreAction('toggleFinished')
   }, [handleMoreAction])
 
+  const bookmarks = isBook ? getBookmarksForLibraryItem(libraryItem.id) : []
+
   const contextMenuItems = useMemo<ContextMenuDropdownItem<string>[]>(() => {
-    return moreMenuItems
+    const items = moreMenuItems
       .filter((item) => item.func !== 'toggleFinished' && item.func !== 'addToQueue' && item.func !== 'removeFromQueue')
       .map((item) => ({
         text: item.text,
@@ -151,10 +157,23 @@ export default function LibraryItemActionButtons({
           data: subitem.data
         }))
       }))
-  }, [moreMenuItems])
+
+    if (bookmarks.length) {
+      const bookmarkItem = { text: t('LabelYourBookmarks'), action: 'bookmarks', subitems: undefined }
+      let insertAt = items.findIndex((item) => item.action === 'openPlaylists')
+      if (insertAt === -1) insertAt = items.findIndex((item) => item.action === 'openCollections')
+      items.splice(insertAt + 1, 0, bookmarkItem)
+    }
+
+    return items
+  }, [bookmarks.length, moreMenuItems, t])
 
   const handleContextMenuAction = useCallback(
     ({ action, data }: { action: string; data?: Record<string, string> }) => {
+      if (action === 'bookmarks') {
+        setBookmarksOpen(true)
+        return
+      }
       handleMoreAction(action, data)
     },
     [handleMoreAction]
@@ -290,6 +309,18 @@ export default function LibraryItemActionButtons({
           libraryId={libraryItem.libraryId}
           items={[{ libraryItemId: libraryItem.id, episodeId: null }]}
           headerTitle={libraryItem.media.metadata.title ?? ''}
+        />
+      )}
+      {bookmarks.length > 0 && (
+        <BookmarksModal
+          isOpen={bookmarksOpen}
+          bookmarks={bookmarks}
+          currentTime={0}
+          libraryItemId={libraryItem.id}
+          playbackRate={1}
+          hideCreate
+          onClose={() => setBookmarksOpen(false)}
+          onSelect={(bookmark) => onSelectBookmark(bookmark.time)}
         />
       )}
     </>
