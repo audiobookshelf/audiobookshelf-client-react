@@ -1,14 +1,13 @@
 'use client'
 
+import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
 import IconBtn from '@/components/ui/IconBtn'
+import { VOLUME_HOTKEY_STEP } from '@/hooks/useAudioPlayerHotkeys'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useOverlayHistory } from '@/hooks/useOverlayHistory'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
-import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { PLAYER_OVERLAY_Z_CLASS } from '@/components/player/playerShellClasses'
-import { VOLUME_HOTKEY_STEP } from '@/hooks/useAudioPlayerHotkeys'
 import { mergeClasses } from '@/lib/merge-classes'
 import { autoUpdate, flip, offset, useFloating } from '@floating-ui/react-dom'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
@@ -22,7 +21,6 @@ interface VolumeControlProps {
 
 export default function VolumeControl({ playerHandler, onOpenChange, triggerClassName }: VolumeControlProps) {
   const t = useTypeSafeTranslations()
-  const { isPlayerFullscreen } = usePlayerShellLayout()
   const primaryInputCanHover = usePrimaryInputCanHover()
   const { volume } = playerHandler.state
   const { setVolume, toggleMute } = playerHandler.controls
@@ -309,7 +307,7 @@ export default function VolumeControl({ playerHandler, onOpenChange, triggerClas
         ...floatingStyles,
         visibility: isPositioned ? 'visible' : 'hidden'
       }}
-      className={mergeClasses('flex flex-col items-center', isPlayerFullscreen ? PLAYER_OVERLAY_Z_CLASS : 'z-70')}
+      className={mergeClasses('flex flex-col items-center', PLAYER_OVERLAY_Z_CLASS)}
       onMouseEnter={primaryInputCanHover ? openPopover : undefined}
       onMouseLeave={primaryInputCanHover ? closePopoverSoon : undefined}
     >

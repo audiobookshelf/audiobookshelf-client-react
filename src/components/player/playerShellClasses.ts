@@ -21,7 +21,7 @@ export function playerShellVariant(isPlayerFullscreen: boolean, isLandscapeCompa
   return 'fullscreen'
 }
 
-/** Above the fullscreen player shell (`z-90` in `SHELL.fullscreen`) so player modals/popovers stay interactive. */
+/** Above fullscreen player (`z-90`) and e-reader (`z-80`) */
 export const PLAYER_OVERLAY_Z_CLASS = 'z-100'
 
 export const SHELL: LayoutClasses = {
