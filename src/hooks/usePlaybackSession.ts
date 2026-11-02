@@ -49,8 +49,8 @@ interface UsePlaybackSessionReturn {
   ) => Promise<PlaybackSession | null>
   /** Sync progress to server */
   syncProgress: (currentTime: number, options?: { force?: boolean }) => Promise<void>
-  /** Close the current session */
-  closeSession: (getCurrentTime?: () => number) => Promise<void>
+  /** Close the current session. `localOnly` drops it without telling the server */
+  closeSession: (getCurrentTime?: () => number, localOnly?: boolean) => Promise<void>
   /** Start the sync interval (call when playback starts) */
   startSyncInterval: (getCurrentTime: () => number) => void
   /** Stop the sync interval (call when playback stops) */
@@ -242,13 +242,15 @@ export function usePlaybackSession(options: UsePlaybackSessionOptions = {}): Use
    * Close the current session
    */
   const closeSession = useCallback(
-    async (getCurrentTime?: () => number) => {
+    async (getCurrentTime?: () => number, localOnly = false) => {
       stopSyncInterval()
 
       const session = sessionRef.current
       if (!session) return
 
       try {
+        if (localOnly) return
+
         // Prepare sync data if enough time has passed
         const timeListened = Math.max(0, Math.floor(listeningTimeSinceSync.current))
         let syncData = null
