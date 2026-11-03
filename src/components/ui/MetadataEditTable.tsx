@@ -199,7 +199,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
             className="text-foreground-muted group-hover:text-foreground"
             ariaLabel={t('ButtonEdit')}
           >
-            {t('ButtonEdit')}
+            edit
           </IconBtn>
           <IconBtn
             size="small"
@@ -208,7 +208,7 @@ export default function MetadataEditTable({ items, onItemEditSaveClick, onItemDe
             className="text-foreground-muted group-hover:text-foreground"
             ariaLabel={t('ButtonDelete')}
           >
-            {t('ButtonDelete')}
+            delete
           </IconBtn>
         </div>
       </td>
