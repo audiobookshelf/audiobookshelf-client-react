@@ -5,7 +5,7 @@ This web client is in active development and will replace the current VueJS web 
 You can test using this docker image built for every commit:
 
 ```
-ghcr.io/audiobookshelf/audiobookshelf-react:latest
+ghcr.io/advplyr/audiobookshelf:v3
 ```
 
 For testing, it is recommended that you use a separate config & libraries from your production server.
