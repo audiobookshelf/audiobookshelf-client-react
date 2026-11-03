@@ -989,9 +989,6 @@ export interface User {
   username: string
   email?: string
   type: 'root' | 'admin' | 'user' | 'guest'
-  /** Legacy non-expiring token (empty string for root users when hidden) */
-  token: string
-  isOldToken?: boolean
   mediaProgress: MediaProgress[]
   /** Series IDs to hide from continue listening */
   seriesHideFromContinueListening: string[]
