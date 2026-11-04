@@ -1,7 +1,7 @@
 'use client'
 
-import { useGlobalToast } from '@/contexts/ToastContext'
 import { useMediaContext } from '@/contexts/MediaContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { formatJsDate } from '@/lib/datefns'
@@ -17,7 +17,7 @@ interface UseLibraryItemPagePlayOptions {
 
 export function useLibraryItemPagePlay({ libraryItem, podcastEpisodesInOrder = [] }: UseLibraryItemPagePlayOptions) {
   const { user, serverSettings } = useUser()
-  const { playItem, isStreaming: isStreamingFn, isPlaying: isPlayingFn, playerControls } = useMediaContext()
+  const { playItem, isStreaming: isStreamingFn, isPlaying: isPlayingFn, playerControls, streamLibraryItem } = useMediaContext()
   const [pendingStartTime, setPendingStartTime] = useState<number | null>(null)
   const { showToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
@@ -102,11 +102,34 @@ export function useLibraryItemPagePlay({ libraryItem, podcastEpisodesInOrder = [
     setPendingStartTime(null)
   }, [])
 
+  const handleSelectBookmark = useCallback(
+    (time: number) => {
+      if (!isBook) return
+      if (isStreaming) {
+        playerControls.seek(time)
+        return
+      }
+      if (streamLibraryItem) {
+        setPendingStartTime(time)
+        return
+      }
+      const queueItem = buildBookQueueItem(libraryItem)
+      void playItem({
+        libraryItem,
+        episodeId: null,
+        startTime: time,
+        queueItems: queueItem ? [queueItem] : []
+      })
+    },
+    [isBook, isStreaming, libraryItem, playItem, playerControls, streamLibraryItem]
+  )
+
   return {
     handlePlay,
     showPlayButton,
     isItemPlaying,
     handleGoToTimestamp,
+    handleSelectBookmark,
     pendingStartTime,
     handleCloseStartTime,
     handleConfirmStartTime

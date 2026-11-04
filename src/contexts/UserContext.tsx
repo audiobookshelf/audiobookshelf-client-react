@@ -19,7 +19,6 @@ export interface UserContextType {
   userCanDownload: boolean
   userCanUpload: boolean
   userIsAdminOrUp: boolean
-  token: string
   serverSettings: ServerSettings
   userDefaultLibraryId?: string
   ereaderDevices: EReaderDevice[]
@@ -105,7 +104,6 @@ export function UserProvider({ children, initialUser }: { children: ReactNode; i
   const contextValue: UserContextType = {
     user,
     ...permissionFlags,
-    token: user.token,
     serverSettings: currentUserData.serverSettings,
     userDefaultLibraryId: currentUserData.userDefaultLibraryId,
     ereaderDevices: currentUserData.ereaderDevices,

@@ -5,7 +5,6 @@ import ButtonBase from '@/components/ui/ButtonBase'
 import { useOverlayHistory } from '@/hooks/useOverlayHistory'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { usePlayerSecondaryPopoverDismiss } from '@/hooks/usePlayerSecondaryPopoverDismiss'
-import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { arrow as arrowMw, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/react-dom'
@@ -23,7 +22,6 @@ const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
 
 export default function PlaybackRateWidget({ playerHandler, onOpenChange, triggerClassName }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
-  const { isPlayerFullscreen } = usePlayerShellLayout()
   const { playbackRate, playbackRateIncrementDecrement } = playerHandler.state.settings
   const { setPlaybackRate, incrementPlaybackRate, decrementPlaybackRate } = playerHandler.controls
 
@@ -194,7 +192,7 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
         ...floatingStyles,
         visibility: isPositioned ? 'visible' : 'hidden'
       }}
-      className={mergeClasses('bg-background rounded-lg p-2 shadow-lg', isPlayerFullscreen ? PLAYER_OVERLAY_Z_CLASS : 'z-70')}
+      className={mergeClasses('bg-background rounded-lg p-2 shadow-lg', PLAYER_OVERLAY_Z_CLASS)}
     >
       {/* Preset buttons row */}
       <div className="mb-2 flex gap-0">

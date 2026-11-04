@@ -80,7 +80,7 @@ function readPlayerQueueAutoPlay(): boolean {
 }
 
 export function MediaProvider({ children }: { children: React.ReactNode }) {
-  const { showToast } = useGlobalToast()
+  const { showToast, removeToast } = useGlobalToast()
   const t = useTypeSafeTranslations()
 
   // Stream state
@@ -123,6 +123,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   const playerStateRef = useRef(playerHandlerState.playerState)
   playerStateRef.current = playerHandlerState.playerState
   const otherSessionToastIdRef = useRef<string | null>(null)
+  const otherSessionIdRef = useRef<string | null>(null)
 
   const libraryItemIdStreaming = useMemo(() => streamLibraryItem?.id ?? null, [streamLibraryItem])
 
@@ -264,6 +265,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       if (!streamingItem || streamingItem.id !== progress.libraryItemId) return
       if (progress.episodeId && streamEpisodeIdRef.current !== progress.episodeId) return
 
+      otherSessionIdRef.current = payload.sessionId
       if (playerStateRef.current === PlayerState.PLAYING) {
         if (otherSessionToastIdRef.current) return
         otherSessionToastIdRef.current = showToast(t('MessageAnotherSessionOpen', { 0: payload.deviceDescription || '' }), {
@@ -282,6 +284,30 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
   )
 
   useSocketEvent<OtherSessionProgressPayload>('user_item_progress_updated', handleOtherSessionProgress, [handleOtherSessionProgress])
+
+  const handleSessionClosed = useCallback(
+    (sessionId: string) => {
+      if (!sessionId) return
+      if (sessionId === otherSessionIdRef.current || sessionId === playbackSessionIdRef.current) {
+        otherSessionIdRef.current = null
+        if (otherSessionToastIdRef.current) {
+          removeToast(otherSessionToastIdRef.current)
+          otherSessionToastIdRef.current = null
+        }
+      }
+      if (sessionId !== playbackSessionIdRef.current) return
+
+      void playerControls.closePlayer(true).finally(() => {
+        setStreamLibraryItem(null)
+        setStreamEpisodeId(null)
+        setPlayerQueueItems([])
+        flushSync(() => setIsPlayerFullscreen(false))
+      })
+    },
+    [playerControls, removeToast]
+  )
+
+  useSocketEvent<string>('user_session_closed', handleSessionClosed, [handleSessionClosed])
 
   // ============================================================================
   // Main Play Function

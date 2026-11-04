@@ -3,19 +3,19 @@
 import { updateChaptersAction } from '@/app/actions/chapterActions'
 import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
 import { useGlobalToast } from '@/contexts/ToastContext'
-import { useUser } from '@/contexts/UserContext'
 import { useChapterPreviewAudio } from '@/hooks/useChapterPreviewAudio'
 import { useItemPageSocket } from '@/hooks/useItemPageSocket'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
 import {
   applyChapterTitleDrafts,
   buildBulkChapters,
   buildChapterDirtyBaseline,
   buildIdenticalChapters,
+  canMapAudibleChapterTitles,
   clampBulkChapterCount,
   computeChapterEnds,
   computeHasChanges,
-  canMapAudibleChapterTitles,
   detectBulkChapterPattern,
   hasNonPlaceholderChapters,
   initChapters,
@@ -31,11 +31,10 @@ import {
   updateChapterStart,
   updateChapterTitle,
   validateChapters,
-  type EditableChapter,
-  type ChapterMatchDebug
+  type ChapterMatchDebug,
+  type EditableChapter
 } from '@/lib/chapters/chapterEditorUtils'
 import { SHOW_CHAPTER_MATCH_DEBUG } from '@/lib/chapters/chapterMatching'
-import { blurActiveChapterEditorField } from '@/lib/chapterEditorFocus'
 import type { AudibleChapterSearchResult, BookLibraryItem, Chapter, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react'
 
@@ -60,7 +59,6 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
 
   const t = useTypeSafeTranslations()
   const { showToast } = useGlobalToast()
-  const { token } = useUser()
   const [isPending, startTransition] = useTransition()
 
   const media = libraryItem.media
@@ -100,7 +98,7 @@ export function useChapterEditor({ initialLibraryItem, onItemUpdated }: UseChapt
     titleDraftsRef.current.clear()
   }, [])
 
-  const preview = useChapterPreviewAudio({ tracks, token })
+  const preview = useChapterPreviewAudio({ tracks })
 
   const clearChapterMatchDebug = useCallback(() => {
     setChapterMatchDebug(new Map())

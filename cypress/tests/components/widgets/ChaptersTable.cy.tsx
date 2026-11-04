@@ -7,7 +7,6 @@ const mockUser: User = {
   id: 'root',
   username: 'admin',
   type: 'root',
-  token: 'test-token',
   permissions: {
     download: true,
     update: true,
@@ -37,7 +36,6 @@ const mockUserContextValue: UserContextType = {
   userCanDownload: true,
   userCanUpload: true,
   userIsAdminOrUp: true,
-  token: mockUser.token,
   serverSettings: {} as UserContextType['serverSettings'],
   userDefaultLibraryId: 'test-library-id',
   ereaderDevices: [],

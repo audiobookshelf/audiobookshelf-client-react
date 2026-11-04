@@ -93,6 +93,10 @@ COPY --from=build-client /client-react/node_modules /app/client-react/node_modul
 COPY --from=build-client /client-react/next.config.ts /app/client-react/next.config.ts
 COPY --from=build-client /client-react/scripts/rewriteBuildBasePath.ts /app/client-react/scripts/rewriteBuildBasePath.ts
 
+# Compose documents `user: uid:gid`. That process must create the base-path
+# snapshot and Next's image cache under .next (root-owned after COPY).
+RUN chmod -R a+rwX /app/client-react/.next
+
 # Copy server from build stage
 COPY --from=build-server /server /app
 COPY --from=build-server /usr/local/lib/nusqlite3 /usr/local/lib/nusqlite3

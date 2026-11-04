@@ -1,16 +1,23 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import type { AudioTrack } from '@/types/api'
 import { withBasePath } from '@/lib/basePath'
 import { getAudioTrackForTime } from '@/lib/chapters/chapterEditorUtils'
+import type { AudioTrack } from '@/types/api'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
+/** Library file URLs are `/api/items/:id/file/:ino`. Preview them through the cookie-authenticated media proxy. */
+function chapterPreviewPath(contentUrl: string) {
+  if (contentUrl.startsWith('/api/items/') && contentUrl.includes('/file/')) {
+    return `${contentUrl.replace(/^\/api\//, '/internal-api/')}/media`
+  }
+  return contentUrl
+}
 
 interface UseChapterPreviewAudioOptions {
   tracks: AudioTrack[]
-  token: string
 }
 
-export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudioOptions) {
+export function useChapterPreviewAudio({ tracks }: UseChapterPreviewAudioOptions) {
   const audioElRef = useRef<HTMLAudioElement | null>(null)
   const elapsedIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const playStartTimeRef = useRef<number | null>(null)
@@ -66,7 +73,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
       }
 
       const audioEl = document.createElement('audio')
-      audioEl.src = `${withBasePath(audioTrack.contentUrl)}?token=${token}`
+      audioEl.src = withBasePath(chapterPreviewPath(audioTrack.contentUrl))
       audioEl.id = 'chapter-audio'
       document.body.appendChild(audioEl)
       audioElRef.current = audioEl
@@ -99,7 +106,7 @@ export function useChapterPreviewAudio({ tracks, token }: UseChapterPreviewAudio
       audioEl.addEventListener('play', handlePlay, { once: true })
       audioEl.addEventListener('ended', handleEnded, { once: true })
     },
-    [destroyAudioEl, startElapsedTimeTracking, token]
+    [destroyAudioEl, startElapsedTimeTracking]
   )
 
   const playChapter = useCallback(

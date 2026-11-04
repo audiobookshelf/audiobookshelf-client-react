@@ -1,0 +1,21 @@
+# Dispatches a build-v3 event to abs server repo to rebuild the :v3 image
+
+name: Dispatch v3 Docker build
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    if: ${{ github.repository == 'audiobookshelf/audiobookshelf-client-react' && (github.event_name != 'push' || !contains(github.event.head_commit.message, 'skip ci')) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send repository dispatch to audiobookshelf
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.ABS_SERVER_PAT }}
+          repository: advplyr/audiobookshelf
+          event-type: build-v3
+          client-payload: '{"sha":"${{ github.sha }}"}'
