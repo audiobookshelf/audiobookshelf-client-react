@@ -9,9 +9,7 @@ function resolveRecentEpisodeAfterUpdate(existing: LibraryItem, updated: Library
   if (!isPodcastMedia(updated.media)) return recentEpisode
 
   const episodes = updated.media.episodes
-  if (!episodes?.some((episode) => episode.id === recentEpisode.id)) return undefined
-
-  return recentEpisode
+  return episodes?.find((episode) => episode.id === recentEpisode.id)
 }
 
 function preserveShelfSeriesRef(existing: LibraryItem, updated: LibraryItem): LibraryItem {
@@ -52,15 +50,19 @@ export function applyLibraryItemUpdateToList(items: LibraryItem[], updatedItem: 
   return changed ? nextItems : items
 }
 
+function resolvePlaylistEpisodeAfterUpdate(item: PlaylistItem, updated: LibraryItem) {
+  if (!item.episodeId || !isPodcastMedia(updated.media)) return item.episode
+  return updated.media.episodes?.find((episode) => episode.id === item.episodeId)
+}
+
 export function applyLibraryItemUpdateToPlaylistItems(items: PlaylistItem[], updatedItem: LibraryItem): PlaylistItem[] {
   let changed = false
-  const nextItems = items.map((item) => {
-    if (item.libraryItemId !== updatedItem.id) return item
+  const nextItems = items.flatMap((item) => {
+    if (item.libraryItemId !== updatedItem.id) return [item]
     changed = true
-    return {
-      ...item,
-      libraryItem: mergeLibraryItemUpdate(item.libraryItem, updatedItem)
-    }
+    const episode = resolvePlaylistEpisodeAfterUpdate(item, updatedItem)
+    if (item.episodeId && !episode) return []
+    return [{ ...item, libraryItem: mergeLibraryItemUpdate(item.libraryItem, updatedItem), episode }]
   })
   return changed ? nextItems : items
 }
