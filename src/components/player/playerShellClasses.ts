@@ -85,7 +85,8 @@ export const CLOSE_ICON: LayoutClasses = {
 
 export const TRACK_STACK: LayoutClasses = {
   root: 'flex flex-col',
-  mini: 'z-2 col-span-full row-start-2 min-w-0 self-start',
+  // Above mini transport (z-1) so the seek hover tooltip can extend into the title row without sitting under the play button.
+  mini: 'z-2 col-span-full row-start-2 min-w-0 self-start overflow-visible',
   /* Keep chapter timestamps grouped with the chapter slider, not the book track. */
   fullscreen: 'static inset-auto bottom-auto w-full gap-(--fs-track-gap) lg:w-3/4 lg:max-w-3xl'
 }
@@ -100,7 +101,7 @@ export const BOOK_TRACK = 'player-track player-track-book text-sm max-h-32 opaci
 
 export const TRANSPORT: LayoutClasses = {
   root: 'flex items-center',
-  mini: 'z-2 col-start-2 row-start-1 w-max justify-self-end lg:justify-self-center',
+  mini: 'z-1 col-start-2 row-start-1 w-max justify-self-end lg:justify-self-center',
   fullscreen: 'static inset-auto top-auto bottom-auto h-auto w-full justify-center pe-0 opacity-100 visible pointer-events-auto'
 }
 

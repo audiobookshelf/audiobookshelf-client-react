@@ -86,7 +86,7 @@ export default function PlayerTrackSlider({ dual, sliderLabel, isLoading, isHlsT
       <div
         ref={seek.hoverTimestampRef}
         className={mergeClasses(
-          'bg-foreground text-background pointer-events-none absolute -top-8 left-0 z-10 rounded-full transition-opacity duration-100',
+          'bg-foreground text-background pointer-events-none absolute -top-8 left-0 z-20 rounded-full transition-opacity duration-100',
           seek.isHovering ? 'opacity-100' : 'opacity-0'
         )}
       >
