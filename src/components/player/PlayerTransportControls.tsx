@@ -3,6 +3,7 @@
 import IconBtn from '@/components/ui/IconBtn'
 import Tooltip from '@/components/ui/Tooltip'
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { layoutClass, playerShellVariant, type LayoutClasses } from './playerShellClasses'
 import type { PlayerControlsState } from './usePlayerControlsState'
@@ -51,6 +52,7 @@ interface PlayerTransportControlsProps {
 }
 
 export default function PlayerTransportControls({ controls, variant = 'full' }: PlayerTransportControlsProps) {
+  const t = useTypeSafeTranslations()
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const layout = playerShellVariant(isPlayerFullscreen, isLandscapeCompact)
   const {
@@ -79,7 +81,7 @@ export default function PlayerTransportControls({ controls, variant = 'full' }: 
   const renderChapterSlot = (tooltipText: string, icon: string, onClick: () => void, disabled?: boolean) => (
     <div className={chapterSlotClassName}>
       <Tooltip text={tooltipText} position="top" className={tooltipClass}>
-        <IconBtn borderless size="custom" className={jumpClass} disabled={disabled} onClick={onClick}>
+        <IconBtn borderless size="custom" className={jumpClass} disabled={disabled} ariaLabel={tooltipText} onClick={onClick}>
           {icon}
         </IconBtn>
       </Tooltip>
@@ -88,7 +90,7 @@ export default function PlayerTransportControls({ controls, variant = 'full' }: 
 
   const renderJumpButton = (tooltipText: string, icon: string, onClick: () => void, transitionClass: string) => (
     <Tooltip text={tooltipText} position="top" className={tooltipClass}>
-      <IconBtn borderless size="custom" className={mergeClasses(jumpClass, transitionClass)} onClick={onClick}>
+      <IconBtn borderless size="custom" className={mergeClasses(jumpClass, transitionClass)} ariaLabel={tooltipText} onClick={onClick}>
         {icon}
       </IconBtn>
     </Tooltip>
@@ -98,7 +100,7 @@ export default function PlayerTransportControls({ controls, variant = 'full' }: 
     <div className={mergeClasses('player-transport', layoutClass(TRANSPORT_ROW, layout), miniDesktopOnShell && TRANSPORT_ROW_MINI_DESKTOP)}>
       {!isCompactTransport && renderChapterSlot(previousButtonTooltipText, 'first_page', handlePreviousChapter)}
       {renderJumpButton(jumpBackwardTooltipText, 'replay', jumpBackward, 'player-transport-jump-back')}
-      <IconBtn borderless size="custom" loading={isLoading} outlined={false} className={playClass} onClick={playPause}>
+      <IconBtn borderless size="custom" loading={isLoading} outlined={false} className={playClass} ariaLabel={isPlaying ? t('ButtonPause') : t('ButtonPlay')} onClick={playPause}>
         {isPlaying ? 'pause' : 'play_arrow'}
       </IconBtn>
       {renderJumpButton(jumpForwardTooltipText, 'forward_media', jumpForward, 'player-transport-jump-forward')}
