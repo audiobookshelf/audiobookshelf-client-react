@@ -19,8 +19,10 @@ services:
         abs-server: ../audiobookshelf
     ports:
       - '13378:80'
-    environment:
-      ROUTER_BASE_PATH: ''
+    # Leave ROUTER_BASE_PATH unset to serve from /audiobookshelf (the v2 default).
+    # Uncomment and set a path to change it, or set '' to serve from the root:
+    # environment:
+    #   ROUTER_BASE_PATH: ''
     volumes:
       - abs-config:/config
       - abs-metadata:/metadata
