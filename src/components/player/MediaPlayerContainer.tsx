@@ -6,7 +6,7 @@ import { useCoverAccentColor } from '@/hooks/useCoverAccentColor'
 import { useMediaSession } from '@/hooks/useMediaSession'
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { secondsToTimestamp } from '@/lib/datefns'
 import { getEpisodeDuration } from '@/lib/episode'
 import { isBookMedia, isBookMetadata, isPodcastLibraryItem, isPodcastMetadata } from '@/types/api'
@@ -33,17 +33,20 @@ export default function MediaPlayerContainer() {
 
   useAudioPlayerHotkeys(playerHandler.state, playerHandler.controls, !!streamLibraryItem, handleHotkeyClose)
 
+  const streamEpisode =
+    streamLibraryItem && isPodcastLibraryItem(streamLibraryItem)
+      ? streamLibraryItem.media.episodes?.find((episode) => episode.id === streamEpisodeId)
+      : undefined
+
   useMediaSession({
     libraryItem: streamLibraryItem,
     playerHandler,
-    enabled: !!streamLibraryItem
+    enabled: !!streamLibraryItem,
+    episode: streamEpisode
   })
 
-  const coverPath = streamLibraryItem?.media?.coverPath
-  const accentSourceUrl = useMemo(
-    () => (streamLibraryItem && coverPath ? getLibraryItemCoverUrl(streamLibraryItem.id, streamLibraryItem.updatedAt, true) : null),
-    [coverPath, streamLibraryItem]
-  )
+  const hasCover = !!streamEpisode?.coverPath || !!streamLibraryItem?.media.coverPath
+  const accentSourceUrl = streamLibraryItem && hasCover ? getEpisodeCoverSrc(streamLibraryItem, streamEpisode, getPlaceholderCoverUrl()) : null
   const accentRgb = useCoverAccentColor(accentSourceUrl)
 
   const playerAccentStyle = useMemo((): CSSProperties | undefined => {
@@ -56,7 +59,6 @@ export default function MediaPlayerContainer() {
 
     const metadata = streamLibraryItem.media.metadata
     const isPodcast = isPodcastLibraryItem(streamLibraryItem)
-    const streamEpisode = isPodcast && streamEpisodeId ? streamLibraryItem.media.episodes?.find((episode) => episode.id === streamEpisodeId) : undefined
     const bookAuthors = isBookMetadata(metadata) ? metadata.authors || [] : []
     const podcastAuthor = isPodcast && isPodcastMetadata(metadata) ? metadata.author || t('LabelUnknown') : null
     const displayTitle = playerHandler.state.displayTitle || metadata.title || ''
@@ -79,7 +81,7 @@ export default function MediaPlayerContainer() {
       podcastAuthor,
       durationLabel
     }
-  }, [playerHandler.state.displayTitle, playerHandler.state.duration, playerHandler.state.settings.playbackRate, streamEpisodeId, streamLibraryItem, t])
+  }, [playerHandler.state.displayTitle, playerHandler.state.duration, playerHandler.state.settings.playbackRate, streamEpisode, streamLibraryItem, t])
 
   if (!streamLibraryItem || !playerMetadata) {
     return null
@@ -93,6 +95,7 @@ export default function MediaPlayerContainer() {
       accentStyle={playerAccentStyle}
       showAccentBackdrop={accentRgb !== null}
       onClose={handleClosePlayer}
+      episode={streamEpisode}
     />
   )
 }

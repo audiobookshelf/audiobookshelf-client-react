@@ -3,7 +3,6 @@
 import SquareGridGroupCover from '@/components/widgets/media-card/SquareGridGroupCover'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import type { PlaylistItem } from '@/types/api'
-import { useMemo } from 'react'
 
 interface PlaylistGroupCoverProps {
   /** Items in the playlist */
@@ -18,8 +17,7 @@ interface PlaylistGroupCoverProps {
  * Cover component for playlists that displays up to 4 covers in a 2x2 grid.
  */
 export default function PlaylistGroupCover({ items, width, height }: PlaylistGroupCoverProps) {
-  const libraryItems = useMemo(() => items.map((item) => item.libraryItem), [items])
   const t = useTypeSafeTranslations()
 
-  return <SquareGridGroupCover libraryItems={libraryItems} width={width} height={height} emptyLabel={t('LabelEmptyPlaylist')} />
+  return <SquareGridGroupCover items={items} width={width} height={height} emptyLabel={t('LabelEmptyPlaylist')} />
 }
