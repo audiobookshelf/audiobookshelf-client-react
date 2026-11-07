@@ -16,16 +16,17 @@ overrides:
   js-yaml@<4.3.2: ^4.3.2
   lodash@<=4.17.23: ^4.18.0
   '@eslint/config-array': 0.23.5
+  minimatch@>=7.0.0 <11.0.1: ^11.0.5
   minimatch@3>brace-expansion: 5.0.12
-  minimatch@9.0.9>brace-expansion: 5.0.12
-  minimatch@10>brace-expansion: 5.0.12
   nanoid@>=3.0.0 <3.3.18: ^3.3.18
   postcss@<8.5.23: ^8.5.23
-  qs@>=6.11.1 <=6.15.1: '>=6.15.2'
-  sharp@<0.35.4: ^0.35.4
+  qs@>=6.7.0 <=6.16.0: '>=6.16.1'
+  sharp@<0.35.5: ^0.35.5
   socket.io-parser@>=4.0.0 <4.2.7: ~4.2.7
-  systeminformation@<=5.31.6: '>=5.31.7'
+  source-map-js@<1.2.2: ^1.2.2
+  systeminformation@<5.33.16: '>=5.33.16'
   tar@<=7.5.18: '>=7.5.19'
   tmp@<0.2.6: '>=0.2.6'
   uuid@<11.1.1: '>=11.1.1'
   ws@>=8.0.0 <8.21.0: ^8.21.0
+  zod@>=4.0.0 <4.6.6: ^4.6.7
