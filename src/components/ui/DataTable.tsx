@@ -1,5 +1,6 @@
 'use client'
 
+import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { mergeClasses } from '@/lib/merge-classes'
 import { ReactNode, useEffect, useId, useMemo, useRef, useState } from 'react'
 import Checkbox from './Checkbox'
@@ -116,9 +117,10 @@ function DataTablePagination({
   rowsPerPageOptions = [10, 25, 50, 100],
   onPageChange,
   onRowsPerPageChange,
-  rowsPerPageLabel = 'Rows per page',
+  rowsPerPageLabel,
   pageLabel
 }: DataTablePaginationProps) {
+  const t = useTypeSafeTranslations()
   const dropdownItems = useMemo(
     () =>
       rowsPerPageOptions.map((opt) => ({
@@ -128,12 +130,12 @@ function DataTablePagination({
     [rowsPerPageOptions]
   )
 
-  const pageIndicator = pageLabel || `Page ${currentPage} of ${totalPages}`
+  const pageIndicator = pageLabel || t('LabelPaginationPageXOfY', { 0: currentPage, 1: totalPages })
 
   return (
     <div className="flex flex-col items-end justify-end gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
       <div className="flex items-center gap-2">
-        <span className="text-foreground text-sm">{rowsPerPageLabel}</span>
+        <span className="text-foreground text-sm">{rowsPerPageLabel ?? t('LabelRowsPerPage')}</span>
         <div className="w-20">
           <Dropdown value={rowsPerPage} items={dropdownItems} onChange={(value) => onRowsPerPageChange(value as number)} size="small" />
         </div>
@@ -141,10 +143,10 @@ function DataTablePagination({
       <div className="flex items-center gap-4">
         <span className="text-foreground text-sm">{pageIndicator}</span>
         <div className="flex items-center gap-1">
-          <IconBtn ariaLabel="Previous page" size="small" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
+          <IconBtn ariaLabel={t('ButtonPrevious')} size="small" disabled={currentPage <= 1} onClick={() => onPageChange(currentPage - 1)}>
             chevron_left
           </IconBtn>
-          <IconBtn ariaLabel="Next page" size="small" disabled={currentPage >= totalPages} onClick={() => onPageChange(currentPage + 1)}>
+          <IconBtn ariaLabel={t('ButtonNext')} size="small" disabled={currentPage >= totalPages} onClick={() => onPageChange(currentPage + 1)}>
             chevron_right
           </IconBtn>
         </div>
@@ -168,6 +170,7 @@ export default function DataTable<T>({
   bulkActions,
   sorting
 }: DataTableProps<T>) {
+  const t = useTypeSafeTranslations()
   const id = useId()
   const containerRef = useRef<HTMLDivElement>(null)
   const headerRowRef = useRef<HTMLTableRowElement>(null)
@@ -305,7 +308,7 @@ export default function DataTable<T>({
               value={isRowSelected(row, index)}
               size="small"
 
-              ariaLabel={'Select row'}
+              ariaLabel={t('ButtonSelect')}
               onChange={(nextSelected) => selection.onToggleRow(row, index, nextSelected)}
             />
           </div>
@@ -383,7 +386,7 @@ export default function DataTable<T>({
             partial={isPartiallySelected}
             size="small"
 
-            ariaLabel={'Select all rows'}
+            ariaLabel={t('LabelSelectAll')}
             onChange={(selected) => selection.onToggleAllRows(selected, data)}
           />
         </div>
@@ -421,7 +424,7 @@ export default function DataTable<T>({
                       partial={isPartiallySelected}
                       size="small"
 
-                      ariaLabel={'Select all rows'}
+                      ariaLabel={t('LabelSelectAll')}
                       onChange={(selected) => selection.onToggleAllRows(selected, data)}
                     />
                   </div>

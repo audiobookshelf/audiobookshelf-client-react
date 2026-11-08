@@ -18,9 +18,8 @@ export default async function GeneralSettingsPage() {
 
   const serverSettings = currentUser?.serverSettings
 
-  // TODO: Handle loading data error?
   if (!serverSettings) {
-    return <div>Placeholder error</div> // i18n-ignore
+    return <div>{t('MessageFailedToLoadData')}</div>
   }
 
   return (

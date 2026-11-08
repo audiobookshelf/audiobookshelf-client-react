@@ -79,7 +79,7 @@ export default function SideRailMobileDrawer({ isOpen, onClose, libraries, curre
           <div className="mt-1 flex items-center gap-2">
             <LibraryIcon icon={library.icon} size={6} decorative className="text-foreground-muted" />
             <h2 className="text-foreground-muted min-w-0 flex-1 truncate text-base font-medium">{library.name}</h2>
-            <IconBtn className="shrink-0" ariaLabel="Menu" size="large" borderless onClick={onClose}>
+            <IconBtn className="shrink-0" ariaLabel={t('ButtonMenu')} size="large" borderless onClick={onClose}>
               arrow_back
             </IconBtn>
           </div>
