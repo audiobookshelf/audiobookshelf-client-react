@@ -1096,6 +1096,7 @@
   "MessageUploading": "Uploading...",
   "MessageUserMayHaveBeenRemoved": "This user may have been removed.",
   "MessageUserNotFound": "User not found",
+  "MessageWatcherIsDisabledGlobally": "Automatic scanning is disabled globally in General settings",
   "MessageXLibraryIsEmpty": "{0} Library is empty!",
   "NoteChapterEditorTimes": "Note: First chapter start time must remain at 0:00 and the last chapter start time cannot exceed this audiobooks duration.",
   "NoteFolderPicker": "Note: folders already mapped will not be shown",

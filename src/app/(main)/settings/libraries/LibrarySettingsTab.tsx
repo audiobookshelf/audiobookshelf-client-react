@@ -2,6 +2,7 @@
 
 import Dropdown, { DropdownItem } from '@/components/ui/Dropdown'
 import TextInput from '@/components/ui/TextInput'
+import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { podcastSearchRegionOptions } from '@/lib/podcastSearchRegions'
 import { LibrarySettings } from '@/types/api'
@@ -17,6 +18,8 @@ interface LibrarySettingsTabProps {
 
 export default function LibrarySettingsTab({ settings, mediaType, onSettingsChange }: LibrarySettingsTabProps) {
   const t = useTypeSafeTranslations()
+  const { serverSettings } = useUser()
+  const globalWatcherDisabled = !!serverSettings?.scannerDisableWatcher
 
   const handleSettingChanged = <K extends keyof LibrarySettings>(key: K, value: LibrarySettings[K]) => {
     onSettingsChange((prev) => ({ ...prev, [key]: value }))
@@ -109,11 +112,15 @@ export default function LibrarySettingsTab({ settings, mediaType, onSettingsChan
 
         {/* Right column */}
         <div className="flex min-w-0 flex-col gap-2">
-          <SettingsToggleSwitch
-            label={t('LabelSettingsEnableWatcherForLibrary')}
-            value={!settings.disableWatcher}
-            onChange={(value) => handleSettingChanged('disableWatcher', !value)}
-          />
+          <div>
+            <SettingsToggleSwitch
+              label={t('LabelSettingsEnableWatcherForLibrary')}
+              value={globalWatcherDisabled ? false : !settings.disableWatcher}
+              onChange={(value) => handleSettingChanged('disableWatcher', !value)}
+              disabled={globalWatcherDisabled}
+            />
+            {globalWatcherDisabled && <p className="text-warning text-xs">*{t('MessageWatcherIsDisabledGlobally')}</p>}
+          </div>
           {isBookLibrary && (
             <SettingsToggleSwitch
               label={t('LabelSettingsSkipMatchingBooksWithASIN')}
