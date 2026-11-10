@@ -40,8 +40,14 @@ export default function OpenIdAuthSettings({ settings, onChange, disabled = fals
     if (routerBasePath) {
       options.push({ text: routerBasePath, value: routerBasePath })
     }
+    // Keep a previously saved subfolder selectable when the server no longer mounts there
+    // (e.g. Vue default /audiobookshelf after moving to a root v3 deploy).
+    const storedSubfolder = settings.authOpenIDSubfolderForRedirectURLs
+    if (storedSubfolder && storedSubfolder !== routerBasePath) {
+      options.push({ text: storedSubfolder, value: storedSubfolder })
+    }
     return options
-  }, [routerBasePath, t])
+  }, [routerBasePath, settings.authOpenIDSubfolderForRedirectURLs, t])
 
   const matchExistingOptions: DropdownItem[] = useMemo(
     () => [
