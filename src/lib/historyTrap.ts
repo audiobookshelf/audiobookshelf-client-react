@@ -53,6 +53,33 @@ function needsDummy(): boolean {
   return overlays.length > 0 || pageHandler != null
 }
 
+const trapChangeListeners = new Set<() => void>()
+
+/** True while the current history entry is the same-URL dialog dummy. */
+export function isHistoryTrapActive(): boolean {
+  return readTrapMarker(window.history.state) != null
+}
+
+/**
+ * Fires after the trap reconciles history. Listeners should re-check
+ * `isHistoryTrapActive()`; a dialog may still own the current entry.
+ */
+export function subscribeHistoryTrapChange(listener: () => void): () => void {
+  trapChangeListeners.add(listener)
+  return () => {
+    trapChangeListeners.delete(listener)
+  }
+}
+
+function notifyHistoryTrapChange() {
+  for (const listener of trapChangeListeners) listener()
+}
+
+function runReconcile() {
+  reconcile()
+  notifyHistoryTrapChange()
+}
+
 function trapPayload(): HistoryTrapMarker | undefined {
   if (!session || !needsDummy()) return undefined
   return { id: session.id }
@@ -136,7 +163,7 @@ function reconcile() {
 function scheduleReconcile() {
   if (scheduled) return
   scheduled = true
-  queueMicrotask(reconcile)
+  queueMicrotask(runReconcile)
 }
 
 function restoreConsumedDummy() {
@@ -212,7 +239,7 @@ function handleHistoryTrapPopState(event: PopStateEvent) {
       handledEvents.add(event)
       event.stopImmediatePropagation()
     }
-    reconcile()
+    runReconcile()
     return
   }
 
@@ -227,14 +254,14 @@ function handleHistoryTrapPopState(event: PopStateEvent) {
       event.stopImmediatePropagation()
       overlay()
       restoreConsumedDummy()
-      reconcile()
+      runReconcile()
       return
     }
     if (pageHandler) {
       handledEvents.add(event)
       event.stopImmediatePropagation()
       restoreConsumedDummy()
-      reconcile()
+      runReconcile()
       pageHandler()
       return
     }
@@ -259,7 +286,7 @@ function handleHistoryTrapPopState(event: PopStateEvent) {
     handledEvents.add(event)
     event.stopImmediatePropagation()
     session = { id: target.id, href: window.location.href, hasDummyEntry: true }
-    reconcile()
+    runReconcile()
   }
 }
 
