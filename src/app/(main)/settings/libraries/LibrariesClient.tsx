@@ -66,7 +66,7 @@ export default function LibrariesClient({ libraries }: LibraryClientProps) {
         handleCloseModal()
       } catch (error) {
         console.error('Failed to save library:', error)
-        showToast(t('ToastFailedToUpdate'), { type: 'error' })
+        showToast(t('ToastLibrarySaveFailed'), { type: 'error' })
       } finally {
         setIsProcessing(false)
       }
