@@ -1,6 +1,7 @@
 'use client'
 
 import { useLibraries } from '@/contexts/LibrariesContext'
+import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { Library } from '@/types/api'
 import { useCallback, useEffect, useState } from 'react'
@@ -16,6 +17,7 @@ interface LibraryClientProps {
 
 export default function LibrariesClient({ libraries }: LibraryClientProps) {
   const t = useTypeSafeTranslations()
+  const { showToast } = useGlobalToast()
   const { setLibraries } = useLibraries()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingLibrary, setEditingLibrary] = useState<Library | null>(null)
@@ -64,11 +66,12 @@ export default function LibrariesClient({ libraries }: LibraryClientProps) {
         handleCloseModal()
       } catch (error) {
         console.error('Failed to save library:', error)
+        showToast(t('ToastFailedToUpdate'), { type: 'error' })
       } finally {
         setIsProcessing(false)
       }
     },
-    [editingLibrary, handleCloseModal]
+    [editingLibrary, handleCloseModal, showToast, t]
   )
 
   return (
