@@ -116,7 +116,7 @@ function CompilationItemListRowBody({
 }: CompilationItemListRowBodyProps) {
   const t = useTypeSafeTranslations()
   const { isMdUp, coverWidth } = useCompilationListRowLayout()
-  const { user, userCanUpdate, userCanDelete } = useUser()
+  const { user, userCanUpdate } = useUser()
   const { setBoundModal } = useLibrary()
   const sortableCompilation = useSortableCompilation()
   const primaryInputCanHover = usePrimaryInputCanHover()
@@ -185,8 +185,6 @@ function CompilationItemListRowBody({
     setBoundModal(<ViewEpisodeModal key={`view-episode-modal-${episode.id}`} isOpen navCtx={navCtx} onClose={clearBoundModal} />)
   }, [clearBoundModal, entityIndex, episode, libraryItem, setBoundModal, shelfEntities])
 
-  const canShowRemove = context.kind === 'collection' ? userCanDelete : userCanUpdate
-
   const handlePlayClick = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
@@ -247,7 +245,7 @@ function CompilationItemListRowBody({
 
   const contextMenuItems = useMemo(() => {
     const items: { text: string; action: string }[] = []
-    if (canShowRemove) {
+    if (userCanUpdate) {
       items.push({
         text: context.kind === 'playlist' ? t('LabelRemoveFromPlaylist') : t('LabelRemoveFromCollection'),
         action: 'remove'
@@ -257,7 +255,7 @@ function CompilationItemListRowBody({
       items.push({ text: t('HeaderMatch'), action: 'match' })
     }
     return items
-  }, [canShowRemove, context.kind, episode, t, userCanUpdate])
+  }, [context.kind, episode, t, userCanUpdate])
 
   const handleContextMenuAction = useCallback(
     ({ action }: { action: string }) => {
