@@ -68,6 +68,14 @@ export async function POST(request: Request) {
     })
 
     if (!loginResponse.ok) {
+      if (loginResponse.status === 429) {
+        const retryAfter = loginResponse.headers.get('retry-after')
+        const response = NextResponse.json({ error: t('ErrorTooManyLoginAttempts') }, { status: 429 })
+        if (retryAfter) {
+          response.headers.set('Retry-After', retryAfter)
+        }
+        return response
+      }
       return NextResponse.json({ error: t('ErrorLoginFailed') }, { status: 401 })
     }
 

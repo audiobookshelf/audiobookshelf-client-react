@@ -17,6 +17,7 @@ type ResolvedProxyAuth =
       status: number
       error: string
       refreshedTokens: SessionRefreshTokens | null
+      retryAfter: string | null
     }
 
 function isReadableStreamBody(body: BodyInit | null | undefined): body is ReadableStream<Uint8Array> {
@@ -42,6 +43,7 @@ export type BackendProxyFetchResult =
       status: number
       error: string
       refreshedTokens: SessionRefreshTokens | null
+      retryAfter: string | null
     }
 
 async function readUpstreamError(upstream: Response): Promise<string> {
@@ -79,7 +81,7 @@ async function resolveProxyAuth(cookieStore: CookieStore, options?: { proactiveR
   const dirtyTokens = () => refreshedTokensIfDirty(tokens, initial)
 
   if (!tokens.access && !tokens.refresh) {
-    return { ok: false, status: 401, error: 'Unauthorized', refreshedTokens: null }
+    return { ok: false, status: 401, error: 'Unauthorized', refreshedTokens: null, retryAfter: null }
   }
 
   const applySession = (session: SessionRefreshResult) => {
@@ -89,28 +91,48 @@ async function resolveProxyAuth(cookieStore: CookieStore, options?: { proactiveR
     }
   }
 
-  const tryRefresh = async (): Promise<boolean> => {
-    if (!tokens.refresh) return false
-    const session = await refreshSessionWithToken(tokens.refresh)
-    if (!session) return false
-    applySession(session)
-    return true
+  // null means the refresh succeeded. A transient status must not be reported as 401, or the proxy will clear cookies.
+  const tryRefresh = async (): Promise<{ status: number; error: string; retryAfter: string | null } | null> => {
+    if (!tokens.refresh) {
+      return { status: 401, error: 'Unauthorized', retryAfter: null }
+    }
+    const outcome = await refreshSessionWithToken(tokens.refresh)
+    if (outcome.kind === 'ok') {
+      applySession(outcome.session)
+      return null
+    }
+    if (outcome.kind === 'unauthorized') {
+      return { status: 401, error: 'Unauthorized', retryAfter: null }
+    }
+    return { status: outcome.httpStatus, error: 'Token refresh failed', retryAfter: outcome.retryAfter }
   }
 
-  if (!tokens.access && !(await tryRefresh())) {
-    return { ok: false, status: 401, error: 'Unauthorized', refreshedTokens: null }
+  if (!tokens.access) {
+    const failure = await tryRefresh()
+    if (failure) {
+      return {
+        ok: false,
+        status: failure.status,
+        error: failure.error,
+        refreshedTokens: null,
+        retryAfter: failure.retryAfter
+      }
+    }
   }
 
+  // Early refresh while the access token still works. A failure only matters if that token is already expired.
+  let proactiveFailure: { status: number; error: string; retryAfter: string | null } | null = null
   if (options?.proactiveRefresh && tokens.access && tokens.refresh && shouldRefreshAccessToken(tokens.access)) {
-    await tryRefresh()
+    proactiveFailure = await tryRefresh()
   }
 
   if (!tokens.access || isTokenExpired(tokens.access)) {
     return {
       ok: false,
-      status: 401,
-      error: 'Unauthorized - token may be expired',
-      refreshedTokens: dirtyTokens()
+      status: proactiveFailure?.status ?? 401,
+      error: proactiveFailure?.error ?? 'Unauthorized - token may be expired',
+      refreshedTokens: dirtyTokens(),
+      retryAfter: proactiveFailure?.retryAfter ?? null
     }
   }
 
@@ -137,7 +159,8 @@ async function toBackendProxyFetchResult(upstream: Response, refreshedTokens: Se
       ok: false,
       status: 401,
       error: 'Unauthorized - token may be expired',
-      refreshedTokens
+      refreshedTokens,
+      retryAfter: null
     }
   }
 
@@ -146,7 +169,8 @@ async function toBackendProxyFetchResult(upstream: Response, refreshedTokens: Se
       ok: false,
       status: upstream.status,
       error: await readUpstreamError(upstream),
-      refreshedTokens
+      refreshedTokens,
+      retryAfter: upstream.headers.get('retry-after')
     }
   }
 
@@ -176,13 +200,22 @@ export async function fetchBackendWithCookieRefresh(backendUrl: string, cookieSt
   if (!streaming && upstream.status === 401) {
     const refreshToken = cookieStore.get('refresh_token')?.value ?? null
     if (refreshToken) {
-      const session = await refreshSessionWithToken(refreshToken)
-      if (session) {
-        const retried = await upstreamFetchWithAuth(session.accessToken, backendUrl, init)
+      const outcome = await refreshSessionWithToken(refreshToken)
+      if (outcome.kind === 'ok') {
+        const retried = await upstreamFetchWithAuth(outcome.session.accessToken, backendUrl, init)
         return toBackendProxyFetchResult(retried, {
-          accessToken: session.accessToken,
-          refreshToken: session.refreshToken
+          accessToken: outcome.session.accessToken,
+          refreshToken: outcome.session.refreshToken
         })
+      }
+      if (outcome.kind === 'transient') {
+        return {
+          ok: false,
+          status: outcome.httpStatus,
+          error: 'Token refresh failed',
+          refreshedTokens: auth.refreshedTokens,
+          retryAfter: outcome.retryAfter
+        }
       }
     }
   }
@@ -198,7 +231,11 @@ export function respondProxyFailure(request: NextRequest, result: Extract<Backen
   if (result.status === 401 && request.headers.get('accept') !== 'application/json') {
     return redirectToLogin(request, 'Session expired')
   }
-  return attachRefreshedSessionCookies(NextResponse.json({ error: result.error }, { status: result.status }), result.refreshedTokens)
+  const response = NextResponse.json({ error: result.error }, { status: result.status })
+  if (result.retryAfter) {
+    response.headers.set('Retry-After', result.retryAfter)
+  }
+  return attachRefreshedSessionCookies(response, result.refreshedTokens)
 }
 
 type ProxyBackendResponseOptions = {

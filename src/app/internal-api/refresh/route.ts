@@ -1,10 +1,30 @@
-import { getClientBaseUrlFromRequest, redirectToLogin, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
+import { clearSessionCookies, getClientBaseUrlFromRequest, redirectToLogin, refreshSessionWithToken, setTokenCookies } from '@/lib/api'
 import { getSafeRedirectPath, withBasePath } from '@/lib/basePath'
 import { getUserDefaultUrlPath } from '@/lib/userPermissions'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 const rscMap = new Map<string, boolean>()
+
+function wantsJson(request: Request) {
+  return request.headers.get('accept') === 'application/json'
+}
+
+/** 401 JSON for the socket refresh path. Cookies are cleared so a reload cannot retry a rejected token. */
+function unauthorizedJson() {
+  const response = NextResponse.json({ error: 'Token refresh failed' }, { status: 401 })
+  clearSessionCookies(response)
+  return response
+}
+
+/** Rate limit, server error, or unreachable server. Cookies stay so the session can recover. */
+function transientJson(httpStatus: number, retryAfter: string | null) {
+  const response = NextResponse.json({ error: 'Token refresh failed' }, { status: httpStatus })
+  if (retryAfter) {
+    response.headers.set('Retry-After', retryAfter)
+  }
+  return response
+}
 
 export async function GET(request: Request) {
   return handleRefresh(request)
@@ -41,16 +61,24 @@ async function handleRefresh(request: Request) {
       }
     }
 
-    const session = await refreshSessionWithToken(refreshToken)
+    const outcome = await refreshSessionWithToken(refreshToken)
 
-    if (!session) {
+    if (outcome.kind === 'unauthorized') {
+      if (wantsJson(request)) {
+        return unauthorizedJson()
+      }
       return redirectToLogin(request, 'Token refresh failed')
     }
 
+    if (outcome.kind === 'transient') {
+      return transientJson(outcome.httpStatus, outcome.retryAfter)
+    }
+
+    const session = outcome.session
     const { accessToken: newAccessToken, refreshToken: newRefreshToken } = session
 
     // If the request is an API request, dont redirect (used in socket auth_failed handler)
-    if (request.headers.get('accept') === 'application/json') {
+    if (wantsJson(request)) {
       const response = NextResponse.json({ success: true })
       setTokenCookies(response, newAccessToken, newRefreshToken)
       return response
@@ -67,6 +95,6 @@ async function handleRefresh(request: Request) {
     return response
   } catch (error) {
     console.error('Token refresh error:', error)
-    return redirectToLogin(request, 'Internal server error')
+    return transientJson(500, null)
   }
 }

@@ -132,13 +132,14 @@ export function SocketProvider({ children, accessToken }: SocketProviderProps) {
         if (res.ok) {
           console.log('Silent token refresh successful. Refreshing router to get new token.')
           router.refresh()
-        } else {
+        } else if (res.status === 401) {
           console.error('Silent token refresh failed.')
           window.location.reload() // Reload to let proxy trigger redirect to login
+        } else {
+          console.error('Silent token refresh failed.', res.status)
         }
       } catch (err) {
         console.error('Error during token refresh:', err)
-        window.location.reload()
       }
     }
 

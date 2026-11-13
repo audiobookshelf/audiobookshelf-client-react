@@ -225,38 +225,69 @@ export type SessionRefreshResult = SessionRefreshTokens & {
 }
 
 /**
+ * Outcome of POST /auth/refresh.
+ * Only `unauthorized` (HTTP 401) means the refresh token was rejected.
+ * Rate limits, server errors, network failures, and a 200 without an access token are `transient` and must not clear cookies.
+ */
+export type SessionRefreshOutcome =
+  { kind: 'ok'; session: SessionRefreshResult } | { kind: 'unauthorized' } | { kind: 'transient'; httpStatus: number; retryAfter: string | null }
+
+/**
  * Exchange a refresh token for new session tokens (server-side).
  * Used by internal-api/refresh and download proxies that cannot rely on a redirect.
  */
-export async function refreshSessionWithToken(refreshToken: string): Promise<SessionRefreshResult | null> {
+export async function refreshSessionWithToken(refreshToken: string): Promise<SessionRefreshOutcome> {
   const baseUrl = getServerBaseUrl()
-  const refreshResponse = await fetch(`${baseUrl}/auth/refresh`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-refresh-token': refreshToken
-    }
-  })
-
-  if (!refreshResponse.ok) {
-    return null
+  let refreshResponse: Response
+  try {
+    refreshResponse = await fetch(`${baseUrl}/auth/refresh`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-refresh-token': refreshToken
+      }
+    })
+  } catch (error) {
+    console.error('Token refresh request failed:', error)
+    return { kind: 'transient', httpStatus: 503, retryAfter: null }
   }
 
-  const data = (await refreshResponse.json()) as {
+  if (refreshResponse.status === 401) {
+    return { kind: 'unauthorized' }
+  }
+
+  if (!refreshResponse.ok) {
+    return {
+      kind: 'transient',
+      httpStatus: refreshResponse.status,
+      retryAfter: refreshResponse.headers.get('retry-after')
+    }
+  }
+
+  let data: {
     userDefaultLibraryId?: string | null
     user?: { accessToken?: string; refreshToken?: string; type?: string }
+  }
+  try {
+    data = (await refreshResponse.json()) as typeof data
+  } catch (error) {
+    console.error('Token refresh response was not JSON:', error)
+    return { kind: 'transient', httpStatus: 502, retryAfter: null }
   }
 
   const accessToken = data.user?.accessToken
   if (!accessToken) {
-    return null
+    return { kind: 'transient', httpStatus: 502, retryAfter: null }
   }
 
   return {
-    accessToken,
-    refreshToken: data.user?.refreshToken ?? null,
-    userDefaultLibraryId: data.userDefaultLibraryId ?? null,
-    userType: data.user?.type ?? 'user'
+    kind: 'ok',
+    session: {
+      accessToken,
+      refreshToken: data.user?.refreshToken ?? null,
+      userDefaultLibraryId: data.userDefaultLibraryId ?? null,
+      userType: data.user?.type ?? 'user'
+    }
   }
 }
 
@@ -280,10 +311,14 @@ async function redirectToSessionRefreshRoute() {
  * If cookies cannot be mutated (e.g. Server Component render), redirect to `/internal-api/refresh` like {@link getData}.
  */
 async function applyRefreshedSessionOrRedirect(cookieStore: Awaited<ReturnType<typeof cookies>>, refreshToken: string): Promise<SessionRefreshTokens> {
-  const session = await refreshSessionWithToken(refreshToken)
-  if (!session) {
+  const outcome = await refreshSessionWithToken(refreshToken)
+  if (outcome.kind === 'unauthorized') {
     throw new UnauthorizedError('Unauthorized')
   }
+  if (outcome.kind === 'transient') {
+    throw new ApiError('Token refresh failed', outcome.httpStatus, 'Token refresh failed')
+  }
+  const session = outcome.session
   try {
     writeSessionCookies(cookieStore, session.accessToken, session.refreshToken)
   } catch {
