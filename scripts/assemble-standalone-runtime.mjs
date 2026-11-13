@@ -36,8 +36,26 @@ const BASE_PATH_PLACEHOLDER = '/__ABS_BASE_PATH__'
 
 const TEXT_EXTENSIONS = new Set(['.js', '.cjs', '.mjs', '.json', '.html', '.rsc', '.txt', '.css'])
 
+/**
+ * Copy `source` onto `destination`, following symlinks and junctions.
+ * `fs.cpSync({ dereference: true })` still leaves directory symlinks in place
+ * on Linux, and those point into the pnpm store that this archive does not ship.
+ */
 function copyInto(source, destination) {
-  fs.cpSync(source, destination, { recursive: true, dereference: true })
+  const stat = fs.lstatSync(source)
+  if (stat.isSymbolicLink()) {
+    copyInto(fs.realpathSync(source), destination)
+    return
+  }
+  if (stat.isDirectory()) {
+    fs.mkdirSync(destination, { recursive: true })
+    for (const entry of fs.readdirSync(source)) {
+      copyInto(path.join(source, entry), path.join(destination, entry))
+    }
+    return
+  }
+  fs.mkdirSync(path.dirname(destination), { recursive: true })
+  fs.copyFileSync(source, destination)
 }
 
 function transpileTsToMjs(sourcePath, destinationPath, transformSource) {
