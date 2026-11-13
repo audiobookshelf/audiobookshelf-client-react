@@ -14,6 +14,7 @@
     "check": "pnpm lint && pnpm typecheck && pnpm find-hardcoded-strings",
     "dev": "next dev",
     "build": "node scripts/sync-pdfjs-vendor.mjs && node scripts/sync-unrar-wasm.mjs && next build",
+    "assemble-runtime": "node scripts/assemble-standalone-runtime.mjs",
     "start": "next start",
     "lint": "eslint .",
     "cy:open": "cypress open",
