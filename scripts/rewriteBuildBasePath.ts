@@ -26,8 +26,12 @@ const STATE_FILE_NAME = 'abs-base-path.json'
 /** Bumped when the replacement logic changes, so an existing build is rewritten from scratch. */
 const REWRITE_VERSION = 2
 
-/** Build output that is regenerated or irrelevant at runtime. */
-const IGNORED_DIRECTORIES = ['cache', SNAPSHOT_DIR_NAME]
+/**
+ * Build output that is regenerated or irrelevant at runtime.
+ * `standalone` is the release archive's source tree, nested under `.next` after `next build`.
+ * The server serves the top-level `.next`, and the archive is assembled from `standalone` separately.
+ */
+const IGNORED_DIRECTORIES = ['cache', SNAPSHOT_DIR_NAME, 'standalone']
 
 /** Text formats the placeholder can appear in. Anything else risks corrupting binary output. */
 const REWRITABLE_EXTENSIONS = ['.js', '.cjs', '.mjs', '.json', '.html', '.rsc', '.txt', '.css']

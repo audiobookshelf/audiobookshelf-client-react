@@ -24,7 +24,8 @@ RUN pnpm install --frozen-lockfile
 
 COPY --from=abs-client . .
 
-RUN pnpm run build
+# Remove `.next/standalone` (used only for non-Docker release archives) so Stage 3 does not copy it.
+RUN pnpm run build && rm -rf .next/standalone
 
 RUN rm -rf node_modules && pnpm install --frozen-lockfile --prod
 

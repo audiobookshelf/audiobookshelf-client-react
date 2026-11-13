@@ -1,5 +1,5 @@
 import type { NextConfig } from 'next'
-import createNextIntlPlugin from 'next-intl/plugin'
+import type createNextIntlPluginFn from 'next-intl/plugin'
 import { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD, PHASE_PRODUCTION_SERVER } from 'next/constants.js'
 import { createRequire } from 'node:module'
 import path from 'path'
@@ -107,8 +107,14 @@ const configForPhase = (phase: string) => {
   // Next also passes phases we do not care about (export, test, …); treat them like development.
   const basePath = isBasePathPhase(phase) ? basePathForPhase(phase) : getConfiguredBasePath()
   const config = { ...nextConfig, basePath, images: { localPatterns: localImagePatterns(basePath) } }
+  // Standalone output is only for the release archive. Leaving it on at server start makes Next
+  // warn that `next start` cannot serve that output. The custom server serves the normal `.next`.
+  if (phase === PHASE_PRODUCTION_BUILD) config.output = 'standalone'
   // next-intl is a build/dev plugin (aliases, config path check). Production already has that baked into `.next`.
+  // Load it lazily so production server startup does not pull in next-intl (or its @swc/core/@parcel/watcher imports).
   if (phase === PHASE_PRODUCTION_SERVER) return config
+  const pluginModule = requireFromProject('next-intl/plugin') as typeof createNextIntlPluginFn | { default: typeof createNextIntlPluginFn }
+  const createNextIntlPlugin = typeof pluginModule === 'function' ? pluginModule : pluginModule.default
   return runWithProjectCwd(() => createNextIntlPlugin('./src/lib/i18n.ts')(config))
 }
 
