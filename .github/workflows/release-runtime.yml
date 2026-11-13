@@ -1,0 +1,56 @@
+# On a client git tag, build one runtime archive and attach it to that GitHub Release.
+# Server releases download this asset. The :v3 image does not; it still builds client master.
+
+name: Publish runtime archive
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.11.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        env:
+          CYPRESS_INSTALL_BINARY: 0
+
+      - name: Build
+        run: pnpm build
+
+      - name: Assemble runtime directory
+        run: pnpm assemble-runtime
+
+      - name: Pack archive
+        run: tar -czf audiobookshelf-client-runtime.tar.gz -C dist client-react
+
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          asset="audiobookshelf-client-runtime.tar.gz"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" "$asset" --clobber
+          else
+            gh release create "$tag" "$asset" --title "$tag" --notes "Client runtime directory for server releases."
+          fi
