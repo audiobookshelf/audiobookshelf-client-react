@@ -10,7 +10,8 @@ const PODCAST_INVALID_FILTER_PREFIXES = [
   'progress',
   'issues',
   'ebooks',
-  'abridged'
+  'abridged',
+  'duplicates'
 ]
 export interface LibrarySortFilterSettings {
   orderBy: string
