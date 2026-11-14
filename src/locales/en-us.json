@@ -1258,6 +1258,7 @@
   "ToastItemUpdateSuccess": "Item updated",
   "ToastLibraryDeleteFailed": "Failed to delete library",
   "ToastLibraryDeleteSuccess": "Library deleted",
+  "ToastLibrarySaveFailed": "Failed to save library",
   "ToastMatchAllAuthorsFailed": "Failed to match all authors",
   "ToastMustHaveAtLeastOneAuthMethod": "Must have at least one authentication method enabled",
   "ToastNameEmailRequired": "Name and email are required",
