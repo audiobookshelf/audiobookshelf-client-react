@@ -12,7 +12,7 @@ import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverUrl, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { formatDuration } from '@/lib/formatDuration'
 import { skipNextReleasePop } from '@/lib/historyTrap'
@@ -261,7 +261,7 @@ export default function QueueItemsModal({ isOpen, zIndexClass, onClose }: QueueI
 
         <ul className="grid w-full min-w-0 list-none grid-cols-[auto_1fr_auto]" aria-label={t('HeaderPlayerQueue')}>
           {playerQueueItems.map((item, index) => {
-            const coverSrc = item.coverPath ? getLibraryItemCoverUrl(item.libraryItemId) : placeholderUrl
+            const coverSrc = item.coverUrl
             const hasCover = !!item.coverPath
 
             return (

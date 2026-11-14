@@ -18,6 +18,7 @@ import { useMediaContext } from '@/contexts/MediaContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { withBasePath } from '@/lib/basePath'
+import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { PlayerState, type BookLibraryItem, type PodcastLibraryItem, type RssFeed } from '@/types/api'
 import { useCallback, useMemo, useState } from 'react'
@@ -135,7 +136,8 @@ export default function LibraryItemActionButtons({
       subtitle,
       caption: '',
       duration: isBook ? (libraryItem.media.duration ?? null) : null,
-      coverPath: libraryItem.media.coverPath ?? null
+      coverPath: libraryItem.media.coverPath ?? null,
+      coverUrl: getLibraryItemCoverSrc(libraryItem, getPlaceholderCoverUrl())
     })
   }, [addItemToQueue, isBook, isQueued, libraryItem, removeItemFromQueue])
 

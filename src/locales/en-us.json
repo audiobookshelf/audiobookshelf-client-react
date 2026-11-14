@@ -682,6 +682,7 @@
   "LabelSecondsPlural": "{count, plural, one {# second} other {# seconds}}",
   "LabelSelectAll": "Select all",
   "LabelSelectAllEpisodes": "Select all episodes",
+  "LabelSelectEpisode": "Select episode: {0}",
   "LabelSelectEpisodesShowing": "Select {0} episodes showing",
   "LabelSelectUser": "Select user",
   "LabelSelectUsers": "Select users",

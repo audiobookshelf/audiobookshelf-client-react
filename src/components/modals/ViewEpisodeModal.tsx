@@ -5,7 +5,7 @@ import EpisodeModal, { useEpisodeModal, type EpisodeModalItemSource } from '@/co
 import LoadingIndicator from '@/components/ui/LoadingIndicator'
 import { useMediaContext } from '@/contexts/MediaContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { formatDuration } from '@/lib/formatDuration'
 import { skipNextReleasePop } from '@/lib/historyTrap'
 import { sanitizeHtml } from '@/lib/html-utils'
@@ -30,7 +30,7 @@ function ViewEpisodeModalBody({ onClose }: ViewEpisodeModalBodyProps) {
   const episode = resolvedEpisode
   const libraryItem = resolvedLibraryItem
 
-  const coverUrl = libraryItem ? getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt) : ''
+  const coverUrl = libraryItem ? getEpisodeCoverSrc(libraryItem, episode, getPlaceholderCoverUrl()) : getPlaceholderCoverUrl()
 
   const podcastTitle = libraryItem?.media.metadata.title || ''
   const podcastAuthor = libraryItem?.media.metadata.author || ''

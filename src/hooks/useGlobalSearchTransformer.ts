@@ -1,6 +1,6 @@
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { withBasePath } from '@/lib/basePath'
-import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { filterEncode } from '@/lib/filterUtils'
 import { SearchLibraryResponse } from '@/types/api'
 import { useMemo } from 'react'
@@ -124,7 +124,7 @@ export function useGlobalSearchTransformer({
         title: episode.title, // Episode Title
         subtitle: libItem.media.metadata.title, // Podcast Title as subtitle
         link: `/library/${libItem.libraryId}/item/${libItem.id}`,
-        imageSrc: getLibraryItemCoverSrc(libItem, getPlaceholderCoverUrl()),
+        imageSrc: getEpisodeCoverSrc(libItem, episode, getPlaceholderCoverUrl()),
         originalItem: episode
       }
     })

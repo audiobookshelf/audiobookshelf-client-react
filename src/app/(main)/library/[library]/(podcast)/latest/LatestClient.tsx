@@ -9,7 +9,7 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useListVirtualizer, type VirtualListItem } from '@/hooks/useListVirtualizer'
 import { useRecentEpisodesPagination } from '@/hooks/useRecentEpisodesPagination'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getUniqueCoverLibraryItems } from '@/lib/recentEpisodes'
+import { getUniqueEpisodeCovers } from '@/lib/recentEpisodes'
 import type { RecentPodcastEpisode } from '@/types/api'
 import { useCallback, useMemo } from 'react'
 
@@ -63,7 +63,7 @@ export default function LatestClient({ libraryId, initialEpisodes }: LatestClien
   const coverWidth = 120
   const coverHeight = coverWidth / coverAspectRatio
 
-  const coverItems = useMemo(() => getUniqueCoverLibraryItems(episodes), [episodes])
+  const coverItems = useMemo(() => getUniqueEpisodeCovers(episodes), [episodes])
 
   const episodeList = (
     <div className="min-w-0 px-2 py-2 md:px-0">
@@ -82,7 +82,7 @@ export default function LatestClient({ libraryId, initialEpisodes }: LatestClien
   return (
     <div>
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 md:flex-row md:items-start md:gap-10">
-        {coverItems.length > 0 && <SquareGridGroupCover libraryItems={coverItems} width={coverWidth * 2} height={coverHeight * 2} emptyLabel="" />}
+        {coverItems.length > 0 && <SquareGridGroupCover items={coverItems} width={coverWidth * 2} height={coverHeight * 2} emptyLabel="" />}
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
           <h1 className="text-foreground min-w-0 px-2 text-2xl font-bold wrap-break-word md:px-0">{t('HeaderLatestEpisodes')}</h1>
           {episodeList}

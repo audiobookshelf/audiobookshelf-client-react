@@ -1,4 +1,5 @@
-import type { LibraryItem, RecentPodcastEpisode } from '@/types/api'
+import type { GroupCoverItem } from '@/lib/coverUtils'
+import type { RecentPodcastEpisode } from '@/types/api'
 
 export const RECENT_EPISODES_PAGE_SIZE = 50
 
@@ -16,31 +17,22 @@ export function appendUniqueRecentEpisodes(current: RecentPodcastEpisode[], inco
   return uniqueIncoming.length ? [...current, ...uniqueIncoming] : current
 }
 
-/** Build minimal library item stubs for group cover rendering from recent episodes. */
-export function getUniqueCoverLibraryItems(episodes: RecentPodcastEpisode[]): LibraryItem[] {
+/** Build distinct covers for recent episodes in feed order. */
+export function getUniqueEpisodeCovers(episodes: RecentPodcastEpisode[]): GroupCoverItem[] {
   const seen = new Set<string>()
-  const items: LibraryItem[] = []
+  const items: GroupCoverItem[] = []
 
   for (const episode of episodes) {
-    if (seen.has(episode.libraryItemId)) continue
-    seen.add(episode.libraryItemId)
+    const coverKey = episode.coverPath || episode.libraryItemId
+    if (seen.has(coverKey)) continue
+    seen.add(coverKey)
 
     items.push({
-      id: episode.libraryItemId,
-      libraryId: episode.libraryId,
-      updatedAt: episode.updatedAt,
-      media: episode.podcast,
-      mediaType: 'podcast',
-      ino: '',
-      path: '',
-      relPath: '',
-      isFile: false,
-      mtimeMs: 0,
-      ctimeMs: 0,
-      birthtimeMs: 0,
-      addedAt: 0,
-      isMissing: false,
-      isInvalid: false
+      libraryItem: {
+        id: episode.libraryItemId,
+        media: episode.podcast
+      },
+      episode
     })
 
     if (items.length >= 4) break
