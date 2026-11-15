@@ -68,8 +68,10 @@ function refreshedTokensIfDirty(
 }
 
 /**
- * Resolve cookie auth for an upstream request. When proactiveRefresh is true, refreshes
- * before the upstream call so a single-use body stream is not sent with an expired token.
+ * Resolve cookie auth for an upstream request.
+ * A missing or already-expired access token is refreshed before the upstream call.
+ * When proactiveRefresh is true, also refresh inside the expiry buffer so a single-use
+ * body stream is not sent with a token that is about to expire.
  */
 async function resolveProxyAuth(cookieStore: CookieStore, options?: { proactiveRefresh?: boolean }): Promise<ResolvedProxyAuth> {
   const tokens = {
@@ -107,7 +109,11 @@ async function resolveProxyAuth(cookieStore: CookieStore, options?: { proactiveR
     return { status: outcome.httpStatus, error: 'Token refresh failed', retryAfter: outcome.retryAfter }
   }
 
-  if (!tokens.access) {
+  // Buffered requests only retry after an upstream 401, so an expired access cookie has to be refreshed first.
+  if (!tokens.access || isTokenExpired(tokens.access)) {
+    if (tokens.access) {
+      Logger.debug('[resolveProxyAuth] access token is expired')
+    }
     const failure = await tryRefresh()
     if (failure) {
       return {
@@ -180,8 +186,9 @@ async function toBackendProxyFetchResult(upstream: Response, refreshedTokens: Se
 /**
  * Call the backend with cookie auth.
  *
- * Buffered bodies and GET requests may retry once on 401. ReadableStream bodies are
- * refreshed proactively and piped with duplex: 'half' (single-use, no retry).
+ * A locally expired access token is refreshed before the upstream call. Buffered bodies
+ * and GET requests may also retry once on 401. ReadableStream bodies are refreshed
+ * proactively and piped with duplex: 'half' (single-use, no retry).
  */
 export async function fetchBackendWithCookieRefresh(backendUrl: string, cookieStore: CookieStore, init?: RequestInit): Promise<BackendProxyFetchResult> {
   const streaming = isReadableStreamBody(init?.body)
@@ -197,7 +204,8 @@ export async function fetchBackendWithCookieRefresh(backendUrl: string, cookieSt
   const upstream = await upstreamFetchWithAuth(auth.accessToken, backendUrl, init)
   Logger.debug(`[fetchBackendWithCookieRefresh] fetch: upstream: ${upstream.status}`)
 
-  if (!streaming && upstream.status === 401) {
+  // This request already exchanged the refresh token. The upstream 401 was for the new access token.
+  if (!streaming && upstream.status === 401 && !auth.refreshedTokens) {
     const refreshToken = cookieStore.get('refresh_token')?.value ?? null
     if (refreshToken) {
       const outcome = await refreshSessionWithToken(refreshToken)
