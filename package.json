@@ -34,7 +34,7 @@
     "clsx": "^2.1.1",
     "cronstrue": "^3.3.0",
     "date-fns": "^4.1.0",
-    "foliate-js": "github:audiobookshelf/foliate-js#abs-1.0.0",
+    "foliate-js": "github:audiobookshelf/foliate-js#abs-1.0.1",
     "hls.js": "^1.6.15",
     "marked": "^18.0.5",
     "next": "^16.4.5",

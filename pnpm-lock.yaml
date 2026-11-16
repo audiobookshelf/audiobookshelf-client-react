@@ -215,8 +215,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       foliate-js:
-        specifier: github:audiobookshelf/foliate-js#abs-1.0.0
-        version: https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7
+        specifier: github:audiobookshelf/foliate-js#abs-1.0.1
+        version: https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/9701196c8c2ac85c56a9241821edccaff0195aa5
       hls.js:
         specifier: ^1.6.15
         version: 1.6.15
@@ -1993,8 +1993,8 @@ packages:
   flatted@3.4.2:
     resolution: {integrity: sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA==}
 
-  foliate-js@https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7:
-    resolution: {gitHosted: true, integrity: sha512-2ROkpRYACSMVUd0sDZ1xUTK1guclhSGoOoFMv7KY9Diyh7+vckF4mcIze7HHoV0hNGuSJqMquxmPgW0WZ7eoEA==, tarball: https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7}
+  foliate-js@https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/9701196c8c2ac85c56a9241821edccaff0195aa5:
+    resolution: {gitHosted: true, integrity: sha512-PRvo1wk/8hlq4wcB5CcW85YYppX3hesp01MRlINfgLOBzACQTOZmq+t6GKf0kebUJNlAfwoyD1zW/daU+Bcudg==, tarball: https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/9701196c8c2ac85c56a9241821edccaff0195aa5}
     version: 0.0.0
 
   for-each@0.3.5:
@@ -5146,7 +5146,7 @@ snapshots:
 
   flatted@3.4.2: {}
 
-  foliate-js@https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/e3e5be15072962dcb74a8d2843d57e87fc25d8b7: {}
+  foliate-js@https://codeload.github.com/audiobookshelf/foliate-js/tar.gz/9701196c8c2ac85c56a9241821edccaff0195aa5: {}
 
   for-each@0.3.5:
     dependencies:
