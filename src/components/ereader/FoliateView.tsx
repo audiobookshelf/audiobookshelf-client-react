@@ -408,6 +408,7 @@ const FoliateView = forwardRef<FoliateViewHandle, FoliateViewProps>(function Fol
         view.addEventListener('relocate', onRelocate)
         removeRelocateListener = () => view.removeEventListener('relocate', onRelocate)
 
+        // Attach after open() (transformTarget exists) and before init()/goTo() so the first chapter hits the data hook
         if (!allowScriptedContent) {
           removeEpubSecurity = attachEpubSecurity(view)
         }
