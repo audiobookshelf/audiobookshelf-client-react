@@ -1,4 +1,5 @@
 import { getServerBaseUrl } from '@/lib/api'
+import { getProxiedFileSecurityHeaders } from '@/lib/proxyFileSecurity'
 import { attachRefreshedSessionCookies, fetchBackendWithCookieRefresh } from '@/lib/serverBackendProxy'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
@@ -6,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 /**
  * Stream a library file for playback (chapter preview).
  * Forwards Range so the audio element can seek without loading the whole file.
+ * Audio and video stay inline. Every other type downloads so a direct navigation cannot run script.
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string; fileId: string }> }) {
   const { id, fileId } = await params
@@ -22,10 +24,14 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   const upstream = result.upstream
+  const secured = getProxiedFileSecurityHeaders(upstream.headers.get('content-type'))
   const headers = new Headers()
-  for (const name of ['content-type', 'content-length', 'content-range', 'accept-ranges']) {
+  for (const name of ['content-length', 'content-range', 'accept-ranges']) {
     const value = upstream.headers.get(name)
     if (value) headers.set(name, value)
+  }
+  for (const [name, value] of Object.entries(secured.headers)) {
+    headers.set(name, value)
   }
   headers.set('Cache-Control', 'private, no-store')
 

@@ -1,5 +1,6 @@
 import { redirectToLogin, refreshSessionWithToken, SessionRefreshResult, SessionRefreshTokens, setTokenCookies } from '@/lib/api'
 import { isTokenExpired, shouldRefreshAccessToken } from '@/lib/jwt'
+import { getProxiedFileSecurityHeaders } from '@/lib/proxyFileSecurity'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import Logger from './Logger'
@@ -262,7 +263,6 @@ type ProxyBackendStreamingOptions = ProxyBackendResponseOptions & {
 type ProxyBackendBufferedOptions = ProxyBackendResponseOptions & {
   defaultContentType?: string
   cacheControl: string
-  contentDisposition?: string
 }
 
 /**
@@ -301,7 +301,8 @@ export async function proxyBackendStreamingResponse(
           'Content-Type': contentType,
           ...(contentDisposition ? { 'Content-Disposition': contentDisposition } : {}),
           ...(contentLength ? { 'Content-Length': contentLength } : {}),
-          'Cache-Control': options.cacheControl ?? 'no-cache'
+          'Cache-Control': options.cacheControl ?? 'no-cache',
+          'X-Content-Type-Options': 'nosniff'
         }
       }),
       refreshedTokens
@@ -346,14 +347,13 @@ export async function proxyBackendBufferedResponse(
 
     const { upstream: response, refreshedTokens } = result
     const body = await response.arrayBuffer()
-    const contentType = response.headers.get('content-type') || options.defaultContentType || 'application/octet-stream'
+    const secured = getProxiedFileSecurityHeaders(response.headers.get('content-type') || options.defaultContentType)
 
     return attachRefreshedSessionCookies(
       new NextResponse(body, {
         status: 200,
         headers: {
-          'Content-Type': contentType,
-          ...(options.contentDisposition ? { 'Content-Disposition': options.contentDisposition } : {}),
+          ...secured.headers,
           'Cache-Control': options.cacheControl
         }
       }),
