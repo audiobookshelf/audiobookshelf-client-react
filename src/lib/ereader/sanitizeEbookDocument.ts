@@ -439,10 +439,7 @@ function serializeDocument(doc: Document, type: EbookDocumentType): string {
   if (type === MIME_HTML) {
     // Prefer outerHTML so the doctype and html shell stay HTML-shaped
     const html = doc.documentElement?.outerHTML
-    if (html) {
-      const doctype = doc.doctype ? `<!DOCTYPE ${doc.doctype.name}>` : '<!DOCTYPE html>'
-      return `${doctype}${html}`
-    }
+    if (html) return `<!DOCTYPE html>${html}`
   }
   return new XMLSerializer().serializeToString(doc)
 }
