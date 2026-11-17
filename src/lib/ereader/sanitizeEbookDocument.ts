@@ -1,3 +1,5 @@
+import { mediaTypeEssence } from '@/lib/mediaType'
+
 const MIME_HTML = 'text/html'
 const MIME_XHTML = 'application/xhtml+xml'
 const MIME_SVG = 'image/svg+xml'
@@ -57,12 +59,6 @@ const SCRIPTABLE_ELEMENTS = new Set(['script', 'noscript', 'handler', 'listener'
 export interface SanitizeEbookDocumentResult {
   data: string
   type: string
-}
-
-/** Media-type essence: type/subtype with parameters and whitespace removed. */
-export function mediaTypeEssence(type: string | undefined | null): string {
-  const [essencePart] = (type ?? '').split(';')
-  return essencePart.trim().toLowerCase()
 }
 
 function isGenericXmlEssence(essence: string): boolean {

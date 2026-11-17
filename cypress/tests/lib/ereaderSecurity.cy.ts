@@ -1,6 +1,7 @@
 import type { FoliateViewElement } from '@/components/ereader/foliate'
 import { attachEpubSecurity } from '@/lib/ereader/ereaderSecurity'
-import { DOCUMENT_CSP, isBlockedExternalUrl, mediaTypeEssence, sanitizeEbookDocument } from '@/lib/ereader/sanitizeEbookDocument'
+import { DOCUMENT_CSP, isBlockedExternalUrl, sanitizeEbookDocument } from '@/lib/ereader/sanitizeEbookDocument'
+import { mediaTypeEssence } from '@/lib/mediaType'
 
 const MARKER = 'window.__ereaderSecurityProbe = true'
 const TRACKER_URL_PATTERN = /^https:\/\/tracker\.example\//
@@ -89,6 +90,9 @@ describe('mediaTypeEssence', () => {
     expect(mediaTypeEssence('text/html;charset=utf-8')).to.equal('text/html')
     expect(mediaTypeEssence(' TEXT/HTML ')).to.equal('text/html')
     expect(mediaTypeEssence('image/svg+xml')).to.equal('image/svg+xml')
+    expect(mediaTypeEssence('video/mp4; codecs="avc1.42E01E, mp4a.40.2"')).to.equal('video/mp4')
+    expect(mediaTypeEssence('not a type')).to.equal('')
+    expect(mediaTypeEssence(null)).to.equal('')
   })
 })
 
