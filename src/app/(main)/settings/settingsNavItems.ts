@@ -19,13 +19,13 @@ export interface SettingsNavItemDef {
 }
 
 export const SETTINGS_MORE_INFO_URLS = {
-  libraries: 'https://www.audiobookshelf.org/guides/library_creation',
-  users: 'https://www.audiobookshelf.org/guides/users',
-  apiKeys: 'https://www.audiobookshelf.org/guides/api-keys',
-  logs: 'https://www.audiobookshelf.org/guides/server_logs',
-  email: 'https://www.audiobookshelf.org/guides/send_to_ereader',
-  rssFeeds: 'https://www.audiobookshelf.org/guides/rss_feeds',
-  customMetadataProviders: 'https://www.audiobookshelf.org/guides/custom-metadata-providers'
+  libraries: 'https://www.audiobookshelf.org/docs/category/libraries',
+  users: 'https://www.audiobookshelf.org/docs/documentation/server-management/user-management',
+  apiKeys: 'https://www.audiobookshelf.org/docs/documentation/server-management/api-keys',
+  logs: 'https://www.audiobookshelf.org/docs/documentation/server-management/server-logs',
+  email: 'https://www.audiobookshelf.org/docs/documentation/libraries/book-library/ebooks#send-to-e-reader',
+  rssFeeds: 'https://www.audiobookshelf.org/docs/documentation/libraries/common-content/public-shares#rss-feed',
+  customMetadataProviders: 'https://www.audiobookshelf.org/docs/documentation/community/community-providers'
 }
 
 export const SETTINGS_NAV_ITEMS: SettingsNavItemDef[] = [
