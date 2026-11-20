@@ -284,7 +284,7 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      playerControls.seek(progress.currentTime)
+      playerControls.seek(progress.currentTime, false)
     },
     [playerControls, showToast, t]
   )

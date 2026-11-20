@@ -103,8 +103,8 @@ export interface PlayerHandlerControls {
   pause: () => void
   /** Toggle play/pause */
   playPause: () => void
-  /** Seek to a specific time */
-  seek: (time: number) => void
+  /** Seek to a specific time. Syncs progress when paused unless `shouldSync` is false. */
+  seek: (time: number, shouldSync?: boolean) => void
   /** Jump forward by configured amount */
   jumpForward: () => void
   /** Jump backward by configured amount */
@@ -540,11 +540,13 @@ export function usePlayerHandler(options: UsePlayerHandlerOptions = {}): UsePlay
   }, [])
 
   const seek = useCallback(
-    (time: number) => {
+    (time: number, shouldSync = true) => {
       if (!playerRef.current) return
       const isPlaying = playerStateRef.current === PlayerState.PLAYING
       void Promise.resolve(playerRef.current.seek(time, isPlaying))
       setPlaybackTime(playerRef.current.getCurrentTime())
+      // Update progress if paused
+      if (!isPlaying && shouldSync) void syncProgressRef.current(time)
     },
     [setPlaybackTime]
   )
