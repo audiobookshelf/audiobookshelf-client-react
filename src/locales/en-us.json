@@ -1259,6 +1259,7 @@
   "ToastLibraryDeleteFailed": "Failed to delete library",
   "ToastLibraryDeleteSuccess": "Library deleted",
   "ToastMatchAllAuthorsFailed": "Failed to match all authors",
+  "ToastMatchCoverDownloadFailed": "Could not download the cover, so the match was not saved. Try again, or save without the cover.",
   "ToastMustHaveAtLeastOneAuthMethod": "Must have at least one authentication method enabled",
   "ToastNameEmailRequired": "Name and email are required",
   "ToastNameRequired": "Name is required",

@@ -97,6 +97,14 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
       startApplyTransition(async () => {
         try {
           const result = await applyMatchAction(libraryItemId, updatePayload)
+          if (result.errorCode === 'cover-download-failed') {
+            showToast(t('ToastMatchCoverDownloadFailed'), { type: 'error' })
+            return
+          }
+          if (result.errorCode) {
+            showToast(t('ToastFailedToUpdate'), { type: 'error' })
+            return
+          }
           if (result?.updated) {
             showToast(t('ToastItemDetailsUpdateSuccess'), { type: 'success' })
           } else {
@@ -106,7 +114,7 @@ export default function BaseMatchView<TUsage extends { [key: string]: boolean },
           onApplied?.()
         } catch (error) {
           console.error('Failed to update', error)
-          showToast(error instanceof Error ? error.message : t('ToastFailedToUpdate'), { type: 'error' })
+          showToast(t('ToastFailedToUpdate'), { type: 'error' })
         }
       })
     },
