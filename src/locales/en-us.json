@@ -374,6 +374,8 @@
   "LabelDownloadEpisodes": "Fetch Episodes",
   "LabelDownloadNEpisodes": "{count, plural, one {Fetch episode} other {Fetch # episodes}}",
   "LabelDownloadable": "Downloadable",
+  "LabelDuplicates": "Duplicates",
+  "LabelDuplicatesWithValue": "Duplicates: {0}",
   "LabelDuration": "Duration",
   "LabelDurationCompactDays": "{count}d",
   "LabelDurationCompactHours": "{count}h",
