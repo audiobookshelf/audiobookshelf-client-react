@@ -24,7 +24,7 @@ import { usePrimaryInputCanHover } from '@/hooks/useMediaQuery'
 import { useEpisodeListenActions, type PodcastEpisodeListenActions } from '@/hooks/usetEpisodeListenActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
-import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { DRAG_HANDLE_COARSE_POINTER_MIN_TOUCH, DRAG_HANDLE_GRAB_CURSOR } from '@/lib/dragHandleClasses'
 import { EPISODE_ROW_ACTION_BTN_CLASS } from '@/lib/episode'
 import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
@@ -159,7 +159,7 @@ function CompilationItemListRowBody({
   const showPlayBtn = !isMissing && !isInvalid && !streamIsPlaying && (tracks.length > 0 || !!episode)
 
   const placeholderUrl = getPlaceholderCoverUrl()
-  const coverSrc = getLibraryItemCoverSrc(libraryItem, placeholderUrl)
+  const coverSrc = getEpisodeCoverSrc(libraryItem, episode, placeholderUrl)
 
   const clearBoundModal = useCallback(() => setBoundModal(null), [setBoundModal])
 

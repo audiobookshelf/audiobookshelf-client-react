@@ -1,10 +1,11 @@
 import type { PlayerQueueItem } from '@/contexts/MediaContext'
 import { formatBookAuthorNames, getBookDuration, isPlayableBook } from '@/lib/book'
+import { getEpisodeCoverSrc, getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { getEpisodeDuration, isPlayableEpisode } from '@/lib/episode'
 import type { EpisodeNavigationContext } from '@/lib/episodeEditNavigation'
 import { getMediaItemProgress } from '@/lib/mediaProgress'
 import type { LibraryItem, MediaProgress, PodcastEpisode, PodcastLibraryItem, RecentPodcastEpisode } from '@/types/api'
-import { isBookMedia, isBookMetadata } from '@/types/api'
+import { isBookMedia, isBookMetadata, isPodcastLibraryItem } from '@/types/api'
 
 /** Max items put in the player queue when playing from a list. */
 export const MAX_PLAYER_QUEUE_ITEMS = 100
@@ -29,12 +30,13 @@ export function buildBookQueueItem(libraryItem: LibraryItem): PlayerQueueItem | 
     subtitle: formatBookAuthorNames(media),
     caption: '',
     duration: getBookDuration(media) || null,
-    coverPath: media.coverPath ?? null
+    coverPath: media.coverPath ?? null,
+    coverUrl: getLibraryItemCoverSrc(libraryItem, getPlaceholderCoverUrl())
   }
 }
 
 export function buildEpisodeQueueItem(params: {
-  libraryItem: Pick<LibraryItem, 'id' | 'libraryId' | 'isMissing' | 'isInvalid'>
+  libraryItem: Pick<LibraryItem, 'id' | 'libraryId' | 'isMissing' | 'isInvalid'> & { updatedAt?: number }
   episode: PodcastEpisode
   podcastTitle: string
   coverPath?: string | null
@@ -52,8 +54,33 @@ export function buildEpisodeQueueItem(params: {
     subtitle: podcastTitle,
     caption,
     duration: getEpisodeDuration(episode) || null,
-    coverPath: coverPath ?? null
+    coverPath: episode.coverPath ?? coverPath ?? null,
+    coverUrl: getEpisodeCoverSrc({ id: libraryItem.id, updatedAt: libraryItem.updatedAt, media: { coverPath } }, episode, getPlaceholderCoverUrl())
   }
+}
+
+/** Remove deleted episodes and refresh artwork for an updated podcast. */
+export function updatePlayerQueueForLibraryItem(queueItems: PlayerQueueItem[], libraryItem: LibraryItem): PlayerQueueItem[] {
+  if (!isPodcastLibraryItem(libraryItem)) return queueItems
+
+  const episodes = new Map((libraryItem.media.episodes ?? []).map((episode) => [episode.id, episode]))
+  let changed = false
+  const updatedQueueItems = queueItems.flatMap((item) => {
+    if (item.libraryItemId !== libraryItem.id || !item.episodeId) return [item]
+
+    const episode = episodes.get(item.episodeId)
+    if (!episode) {
+      changed = true
+      return []
+    }
+
+    const coverPath = episode.coverPath ?? libraryItem.media.coverPath ?? null
+    const coverUrl = getEpisodeCoverSrc(libraryItem, episode, getPlaceholderCoverUrl())
+    if (coverPath === item.coverPath && coverUrl === item.coverUrl) return [item]
+    changed = true
+    return [{ ...item, coverPath, coverUrl }]
+  })
+  return changed ? updatedQueueItems : queueItems
 }
 
 /** Episode prev/next scope for the player queue modal, in queue order. */

@@ -13,6 +13,7 @@ import { PlayerQueueItem, useMediaContext } from '@/contexts/MediaContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { getEpisodeCoverSrc, getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { formatJsDatetime, secondsToTimestamp } from '@/lib/datefns'
 import { formatDuration } from '@/lib/formatDuration'
 import {
@@ -271,7 +272,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
           subtitle: podcastTitle,
           caption,
           duration: episode.audioFile?.duration ?? null,
-          coverPath: podcastLibraryItem.media.coverPath ?? null
+          coverPath: episode.coverPath ?? podcastLibraryItem.media.coverPath ?? null,
+          coverUrl: getEpisodeCoverSrc(podcastLibraryItem, episode, getPlaceholderCoverUrl())
         }
 
         await playItem({
@@ -293,7 +295,8 @@ export default function ListeningSessionsTable({ users, sessionsResponse, openSe
           subtitle,
           caption: '',
           duration: bookLibraryItem.media.duration ?? null,
-          coverPath: libraryItem.media.coverPath ?? null
+          coverPath: libraryItem.media.coverPath ?? null,
+          coverUrl: getLibraryItemCoverSrc(libraryItem, getPlaceholderCoverUrl())
         }
 
         await playItem({

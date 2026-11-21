@@ -67,7 +67,7 @@ const PER_LIBRARY_KEYS: (keyof PerLibrarySettings)[] = [
   'authorSortDesc'
 ]
 
-interface LibraryContextType extends LibrarySettings {
+export interface LibraryContextType extends LibrarySettings {
   library: Library
   itemCount: number | null
   /** Sets toolbar item count and clears `itemCountSupplement` (set supplement again in the same effect if needed). */
@@ -101,7 +101,7 @@ interface LibraryContextType extends LibrarySettings {
   setIsMatchingAllAuthors: (isMatching: boolean) => void
 }
 
-const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
+export const LibraryContext = createContext<LibraryContextType | undefined>(undefined)
 
 export function LibraryProvider({ children, library }: { children: React.ReactNode; library: Library }) {
   const [itemCount, setItemCountState] = useState<number | null>(null)

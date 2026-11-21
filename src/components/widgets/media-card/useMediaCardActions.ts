@@ -23,6 +23,7 @@ import { useLibraryFileActions } from '@/hooks/useLibraryFileActions'
 import type { PlayerHandlerControls } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { openHardDeleteConfirm } from '@/lib/confirmDialogs'
+import { getEpisodeCoverSrc, getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { downloadLibraryItem } from '@/lib/download'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { getLibraryItemDownloadSize, openPodcastDeviceDownloadConfirm } from '@/lib/podcastDownload'
@@ -141,7 +142,8 @@ export function useMediaCardActions({
           subtitle: title,
           caption,
           duration: episode.audioFile?.duration ?? null,
-          coverPath: (media as { coverPath?: string }).coverPath ?? null
+          coverPath: episode.coverPath ?? media.coverPath ?? null,
+          coverUrl: getEpisodeCoverSrc(libraryItem, episode, getPlaceholderCoverUrl())
         })
       } else {
         queueItems.push({
@@ -152,7 +154,8 @@ export function useMediaCardActions({
           subtitle: author || '',
           caption: '',
           duration: (media as { duration?: number }).duration ?? null,
-          coverPath: (media as { coverPath?: string }).coverPath ?? null
+          coverPath: media.coverPath ?? null,
+          coverUrl: getLibraryItemCoverSrc(libraryItem, getPlaceholderCoverUrl())
         })
       }
 
@@ -229,7 +232,8 @@ export function useMediaCardActions({
           subtitle: episode ? title : author || '',
           caption: '',
           duration: episode?.audioFile?.duration ?? (media as { duration?: number }).duration ?? null,
-          coverPath: (media as { coverPath?: string }).coverPath ?? null
+          coverPath: episode?.coverPath ?? media.coverPath ?? null,
+          coverUrl: getEpisodeCoverSrc(libraryItem, episode, getPlaceholderCoverUrl())
         }
         addItemToQueue(queueItem)
       } else if (action === 'removeFromQueue') {

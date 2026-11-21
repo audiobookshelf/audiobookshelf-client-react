@@ -1,5 +1,5 @@
 import { withBasePath } from '@/lib/basePath'
-import type { LibraryItem } from '@/types/api'
+import type { PodcastEpisode } from '@/types/api'
 
 /**
  * Build cover URL for a library item
@@ -44,22 +44,29 @@ export function getPlaceholderCoverUrl(): string {
   return withBasePath('/images/book_placeholder.jpg')
 }
 
+export interface CoverLibraryItem {
+  id: string
+  updatedAt?: number
+  media: { coverPath?: string | null }
+}
+
+export interface GroupCoverItem {
+  libraryItem: CoverLibraryItem
+  episode?: PodcastEpisode | null
+}
+
 /**
  * Get cover src for a library item, falling back to the provided placeholder
  * when no coverPath is available.
  */
-export function getLibraryItemCoverSrc(libraryItem: LibraryItem, placeholder: string): string {
-  const hasCover =
-    // Full library item media
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    !!(libraryItem as any).media?.coverPath
+export function getLibraryItemCoverSrc(libraryItem: CoverLibraryItem, placeholder: string, raw = false): string {
+  const hasCover = !!libraryItem.media.coverPath
 
   if (!hasCover) {
     return placeholder
   }
 
-  const timestamp = 'updatedAt' in libraryItem ? libraryItem.updatedAt : undefined
-  return getLibraryItemCoverUrl(libraryItem.id, timestamp ?? null)
+  return getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, raw)
 }
 
 /**
@@ -74,4 +81,30 @@ export function getCoverAspectRatio(coverAspectRatioSetting: 0 | 1 | undefined):
   } else {
     return 1.6
   }
+}
+
+/** Build an episode cover URL with its own cache timestamp. */
+export function getEpisodeCoverUrl(
+  libraryItemId: string,
+  episode: { id: string; updatedAt?: number },
+  { raw = false, width, fallback = true }: { raw?: boolean; width?: number; fallback?: boolean } = {}
+): string {
+  const params = new URLSearchParams()
+  if (episode.updatedAt) params.set('ts', String(episode.updatedAt))
+  if (raw) params.set('raw', '1')
+  if (width) params.set('width', String(width))
+  if (!fallback) params.set('fallback', '0')
+  const query = params.toString()
+  return withBasePath(`/api/podcasts/${libraryItemId}/episode/${episode.id}/cover${query ? `?${query}` : ''}`)
+}
+
+/** Prefer episode artwork, then the show cover or placeholder. */
+export function getEpisodeCoverSrc(
+  libraryItem: CoverLibraryItem,
+  episode: Pick<PodcastEpisode, 'id' | 'updatedAt' | 'coverPath'> | null | undefined,
+  placeholder: string,
+  { raw = false }: { raw?: boolean } = {}
+): string {
+  if (episode?.coverPath) return getEpisodeCoverUrl(libraryItem.id, episode, { raw })
+  return getLibraryItemCoverSrc(libraryItem, placeholder, raw)
 }

@@ -13,7 +13,7 @@ import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { trapTabKey } from '@/lib/focusTrap'
 import { mergeClasses } from '@/lib/merge-classes'
 import { isPlayerShellExpandClick } from '@/lib/player/playerShellSwipe'
-import { LibraryItem } from '@/types/api'
+import { LibraryItem, PodcastEpisode } from '@/types/api'
 import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import IconBtn from '../ui/IconBtn'
 import './player-shell.css'
@@ -51,9 +51,10 @@ interface PlayerShellProps {
   accentStyle?: CSSProperties
   showAccentBackdrop: boolean
   onClose: () => void
+  episode?: PodcastEpisode
 }
 
-export default function PlayerShell({ playerHandler, streamLibraryItem, metadata, accentStyle, showAccentBackdrop, onClose }: PlayerShellProps) {
+export default function PlayerShell({ playerHandler, streamLibraryItem, metadata, accentStyle, showAccentBackdrop, onClose, episode }: PlayerShellProps) {
   const t = useTypeSafeTranslations()
   const { getCoverAspectRatio } = useLibraries()
   const coverAspectRatio = getCoverAspectRatio(streamLibraryItem.libraryId)
@@ -213,7 +214,7 @@ export default function PlayerShell({ playerHandler, streamLibraryItem, metadata
 
       <div className={layoutClass(BODY, layout)} data-cy="player-fullscreen-body">
         <div className={layoutClass(LEAD, layout)}>
-          <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={expand} />
+          <PlayerCover streamLibraryItem={streamLibraryItem} coverAspectRatio={coverAspectRatio} onActivate={expand} episode={episode} />
           {isMini && titleAuthor}
         </div>
         <div className={layoutClass(COLUMN, layout)} data-cy="player-right-column">

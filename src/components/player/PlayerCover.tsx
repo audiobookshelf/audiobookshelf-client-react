@@ -2,9 +2,9 @@
 
 import { usePlayerShellLayout } from '@/hooks/usePlayerShellLayout'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { mergeClasses } from '@/lib/merge-classes'
-import type { BookMetadata, LibraryItem } from '@/types/api'
+import type { BookMetadata, LibraryItem, PodcastEpisode } from '@/types/api'
 import { isPodcastLibraryItem } from '@/types/api'
 import { CSSProperties, useCallback, useState } from 'react'
 import MediaCardCover from '../widgets/media-card/MediaCardCover'
@@ -20,6 +20,7 @@ interface PlayerCoverProps {
   streamLibraryItem: LibraryItem
   coverAspectRatio: number
   onActivate: () => void
+  episode?: PodcastEpisode
 }
 
 interface CoverNaturalSize {
@@ -27,16 +28,17 @@ interface CoverNaturalSize {
   height: number
 }
 
-export default function PlayerCover({ streamLibraryItem, coverAspectRatio, onActivate }: PlayerCoverProps) {
+export default function PlayerCover({ streamLibraryItem, coverAspectRatio, onActivate, episode }: PlayerCoverProps) {
   const t = useTypeSafeTranslations()
   const { isPlayerFullscreen, isLandscapeCompact } = usePlayerShellLayout()
   const [naturalSize, setNaturalSize] = useState<CoverNaturalSize | null>(null)
   const placeholderUrl = getPlaceholderCoverUrl()
+  const coverSrc = getEpisodeCoverSrc(streamLibraryItem, episode, placeholderUrl)
   const isExpandable = !isPlayerFullscreen
 
-  const hasCover = !!streamLibraryItem.media?.coverPath
+  const hasCover = !!episode?.coverPath || !!streamLibraryItem.media?.coverPath
   const mediaMetadata = streamLibraryItem.media.metadata
-  const title = mediaMetadata.title || ''
+  const title = episode?.title || mediaMetadata.title || ''
   const author = isPodcastLibraryItem(streamLibraryItem) ? mediaMetadata.author || '' : (mediaMetadata as BookMetadata).authorName || ''
   const handleNaturalSize = useCallback((width: number, height: number) => {
     setNaturalSize((prev) => {
@@ -78,6 +80,7 @@ export default function PlayerCover({ streamLibraryItem, coverAspectRatio, onAct
         <div className="player-cover-inner relative h-full w-full">
           <MediaCardCover
             libraryItem={streamLibraryItem}
+            coverSrc={coverSrc}
             coverAspect={coverAspectRatio}
             placeholderUrl={placeholderUrl}
             hasCover={hasCover}

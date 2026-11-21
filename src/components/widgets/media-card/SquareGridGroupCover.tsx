@@ -3,11 +3,11 @@
 import { GroupCoverCell, GroupCoverEmptyState } from '@/components/widgets/media-card/GroupCoverParts'
 import { useCardSize } from '@/contexts/CardSizeContext'
 import { useGroupCoverData } from '@/hooks/useGroupCoverData'
-import type { LibraryItem } from '@/types/api'
+import type { GroupCoverItem } from '@/lib/coverUtils'
 import { useMemo } from 'react'
 
 interface SquareGridGroupCoverProps {
-  libraryItems: LibraryItem[]
+  items: GroupCoverItem[]
   width: number
   height: number
   emptyLabel: string
@@ -19,10 +19,10 @@ interface SquareGridGroupCoverProps {
  * - 2 items: checker pattern
  * - 3+ items: first 4 in 2x2 grid (cycles if fewer than 4 unique items passed)
  */
-export default function SquareGridGroupCover({ libraryItems, width, height, emptyLabel }: SquareGridGroupCoverProps) {
+export default function SquareGridGroupCover({ items, width, height, emptyLabel }: SquareGridGroupCoverProps) {
   const { sizeMultiplier } = useCardSize()
 
-  const itemCount = libraryItems.length
+  const itemCount = items.length
 
   const cellWidth = useMemo(() => {
     if (itemCount === 1) return width
@@ -34,21 +34,21 @@ export default function SquareGridGroupCover({ libraryItems, width, height, empt
     return height / 2
   }, [itemCount, height])
 
-  const gridLibraryItems = useMemo(() => {
-    if (!libraryItems.length) return []
-    if (libraryItems.length === 1) return [libraryItems[0]]
+  const gridItems = useMemo(() => {
+    if (!items.length) return []
+    if (items.length === 1) return [items[0]]
 
-    const covers: LibraryItem[] = []
+    const covers: GroupCoverItem[] = []
     for (let i = 0; i < 4; i++) {
-      let index = i % libraryItems.length
-      if (libraryItems.length === 2 && i >= 2) {
+      let index = i % items.length
+      if (items.length === 2 && i >= 2) {
         index = (i + 1) % 2
       }
-      covers.push(libraryItems[index])
+      covers.push(items[index])
     }
     return covers
-  }, [libraryItems])
-  const coverData = useGroupCoverData(gridLibraryItems)
+  }, [items])
+  const coverData = useGroupCoverData(gridItems)
 
   if (!itemCount) {
     return <GroupCoverEmptyState width={width} height={height} sizeMultiplier={sizeMultiplier} label={emptyLabel} />
@@ -70,8 +70,8 @@ export default function SquareGridGroupCover({ libraryItems, width, height, empt
       <div className="bg-primary/95 relative flex h-full flex-wrap rounded-xs">
         <div className="absolute top-0 left-0 h-full w-full bg-gray-400/5" />
 
-        {gridLibraryItems.map((libraryItem, index) => (
-          <GroupCoverCell key={`${libraryItem.id}-${index}`} cover={coverData[index]!} width={cellWidth} height={cellHeight} />
+        {gridItems.map((item, index) => (
+          <GroupCoverCell key={`${item.libraryItem.id}-${index}`} cover={coverData[index]!} width={cellWidth} height={cellHeight} />
         ))}
       </div>
     </div>
