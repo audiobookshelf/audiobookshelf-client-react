@@ -15,6 +15,19 @@ export default defineConfig({
           alias: {
             '@': path.resolve(__dirname, 'src')
           }
+        },
+        module: {
+          rules: [
+            {
+              test: path.resolve(__dirname, 'src/app/(main)/settings/users/UsersTable.tsx'),
+              // Keep this component's server action out of the browser test bundle.
+              resolve: {
+                alias: {
+                  './actions$': path.resolve(__dirname, 'cypress/support/stubs/userActions.ts')
+                }
+              }
+            }
+          ]
         }
       }
     },

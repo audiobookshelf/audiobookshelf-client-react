@@ -1,7 +1,7 @@
 'use client'
 
+import DataTable, { DataTableColumn } from '@/components/ui/DataTable'
 import IconBtn from '@/components/ui/IconBtn'
-import SimpleDataTable, { DataTableColumn } from '@/components/ui/SimpleDataTable'
 import Tooltip from '@/components/ui/Tooltip'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import OnlineIndicator from '@/components/widgets/OnlineIndicator'
@@ -13,7 +13,7 @@ import { formatJsDate, formatJsDatetime } from '@/lib/datefns'
 import { DeviceInfo, User } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { deleteUser } from './actions'
 
 interface UsersTableProps {
@@ -22,6 +22,8 @@ interface UsersTableProps {
   timeFormat: string
   onEditUser: (user: User) => void
 }
+
+type SortColumn = 'username' | 'type' | 'activity' | 'lastSeen' | 'createdAt'
 
 export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }: UsersTableProps) {
   const t = useTypeSafeTranslations()
@@ -32,7 +34,33 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
   const isRootUser = currentUser.type === 'root'
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  const [sortBy, setSortBy] = useState<SortColumn>('createdAt')
+  const [sortDesc, setSortDesc] = useState(false)
   const deletingUserRef = useRef<User | null>(null)
+
+  const sortedUsers = useMemo(() => {
+    const getSortValue = (user: User) => {
+      if (sortBy === 'activity') {
+        return getOnlineUser(user.id)?.session?.displayTitle || user.latestSession?.displayTitle || null
+      }
+      return user[sortBy] ?? null
+    }
+
+    return [...users].sort((a, b) => {
+      const aValue = getSortValue(a)
+      const bValue = getSortValue(b)
+
+      // Keep missing values at the bottom in both directions.
+      if (aValue === null || aValue === '') return bValue === null || bValue === '' ? 0 : 1
+      if (bValue === null || bValue === '') return -1
+
+      const comparison =
+        typeof aValue === 'number' && typeof bValue === 'number'
+          ? aValue - bValue
+          : String(aValue).localeCompare(String(bValue), undefined, { numeric: true, sensitivity: 'base' })
+      return sortDesc ? -comparison : comparison
+    })
+  }, [users, sortBy, sortDesc, getOnlineUser])
 
   const handleDeleteClick = useCallback((user: User) => {
     deletingUserRef.current = user
@@ -69,6 +97,8 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
   const columns: DataTableColumn<User>[] = [
     {
       label: t('LabelUsername'),
+      sortKey: 'username',
+      sortable: true,
       accessor: (user) => (
         <div className="flex items-center gap-2">
           <OnlineIndicator value={user.id === currentUser.id || getIsUserOnline(user.id)} />
@@ -78,11 +108,14 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
     },
     {
       label: t('LabelAccountType'),
+      sortable: true,
       accessor: 'type',
       cellClassName: 'text-sm'
     },
     {
       label: t('LabelActivity'),
+      sortKey: 'activity',
+      sortable: true,
       hiddenBelow: 'lg',
       accessor: (user) => {
         const isOnline = getIsUserOnline(user.id)
@@ -109,6 +142,8 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
     },
     {
       label: t('LabelLastSeen'),
+      sortKey: 'lastSeen',
+      sortable: true,
       hiddenBelow: 'sm',
       headerClassName: 'w-32',
       accessor: (user) => {
@@ -122,6 +157,8 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
     },
     {
       label: t('LabelCreatedAt'),
+      sortKey: 'createdAt',
+      sortable: true,
       hiddenBelow: 'sm',
       headerClassName: 'w-32',
       accessor: (user) => {
@@ -176,12 +213,20 @@ export default function UsersTable({ users, dateFormat, timeFormat, onEditUser }
 
   return (
     <>
-      <SimpleDataTable
-        data={users}
+      <DataTable
+        data={sortedUsers}
         columns={columns}
         getRowKey={(user) => user.id}
         rowClassName={(user) => (!user.isActive ? 'bg-error/10 even:bg-error/10 hover:bg-error/5' : '')}
         onRowClick={(user) => router.push(`/settings/users/${user.id}`)}
+        sorting={{
+          sortBy,
+          sortDesc,
+          onSortChange: (nextSortBy, nextSortDesc) => {
+            setSortBy(nextSortBy as SortColumn)
+            setSortDesc(nextSortDesc)
+          }
+        }}
       />
       <ConfirmDialog
         isOpen={showConfirmDialog}
