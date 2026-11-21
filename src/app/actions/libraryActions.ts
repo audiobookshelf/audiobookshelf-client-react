@@ -12,6 +12,7 @@ import {
   removeLibraryItemsWithIssues
 } from '@/lib/api'
 import { RECENT_EPISODES_PAGE_SIZE } from '@/lib/recentEpisodes'
+import { revalidatePath } from 'next/cache'
 
 export async function fetchLibraryItemsAction(libraryId: string, query: string) {
   return getLibraryItems(libraryId, query)
@@ -48,4 +49,9 @@ export async function fetchRecentEpisodesAction(libraryId: string, page: number)
 
 export async function removeLibraryItemsWithIssuesAction(libraryId: string) {
   return removeLibraryItemsWithIssues(libraryId)
+}
+
+/** Drop this tab's cached RSC for the open library so the next visit, including Back, renders current server data. */
+export async function revalidateLibraryLayoutAction(libraryId: string) {
+  revalidatePath(`/library/${libraryId}`, 'layout')
 }
