@@ -32,7 +32,7 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
             >
               v{serverVersion}
             </button>
-            <p className="text-xxs text-foreground-subdued text-center italic">{installSource}</p>
+            <p className="text-xxs text-foreground-subdued text-center italic">{installSource} react</p> {/* i18n-ignore */}
           </div>
           {hasUpdate && githubTagUrl ? (
             <a href={githubTagUrl} target="_blank" rel="noopener noreferrer" className="text-warning link-underline text-xs">
@@ -60,7 +60,7 @@ export default function VersionFooter({ serverVersion, installSource, variant = 
           {t('ButtonUpdate')}
         </a>
       ) : (
-        <p className="text-xxs text-foreground-subdued text-center leading-3 italic">{installSource}</p>
+        <p className="text-xxs text-foreground-subdued text-center leading-3 italic">{installSource} react</p> /* i18n-ignore */
       )}
 
       <ChangelogModal isOpen={showChangelogModal} versionData={versionData} onClose={() => setShowChangelogModal(false)} />

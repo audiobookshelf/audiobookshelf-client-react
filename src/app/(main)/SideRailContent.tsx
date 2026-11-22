@@ -229,7 +229,7 @@ export default function SideRailContent({
         )}
       </nav>
       {showFooter && (
-        <div className={mergeClasses('w-full shrink-0 border-t', isDrawer ? 'border-primary/30 px-4 py-2' : 'border-primary/30 h-12 px-1 py-2')}>
+        <div className={mergeClasses('w-full shrink-0 border-t', isDrawer ? 'border-primary/30 px-4 py-2' : 'border-primary/30 h-16 px-1 py-2')}>
           <VersionFooter serverVersion={serverVersion} installSource={installSource} variant={isDrawer ? 'row' : undefined} />
         </div>
       )}
