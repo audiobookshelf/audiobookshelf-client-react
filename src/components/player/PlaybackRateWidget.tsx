@@ -19,6 +19,8 @@ interface PlaybackRateWidgetProps {
 }
 
 const PRESET_RATES = [0.5, 1, 1.2, 1.5, 2] as const
+const MIN_PLAYBACK_RATE = 0.5
+const MAX_PLAYBACK_RATE = 10
 
 export default function PlaybackRateWidget({ playerHandler, onOpenChange, triggerClassName }: PlaybackRateWidgetProps) {
   const t = useTypeSafeTranslations()
@@ -37,13 +39,16 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
   // Format the playback rate based on increment setting
   const formatRate = useCallback(
     (rate: number): string => {
-      if (playbackRateIncrementDecrement === 0.05) {
-        return rate.toFixed(2)
-      }
-      return rate.toFixed(1)
+      if (playbackRateIncrementDecrement === 0.05) return rate.toFixed(2)
+      // For a 0.1 step, keep two decimals only when the rate has them (1.25 stays 1.25)
+      const numDecimals = String(rate).split('.')[1]?.length || 0
+      return rate.toFixed(numDecimals <= 1 ? 1 : 2)
     },
     [playbackRateIncrementDecrement]
   )
+
+  const canDecrement = playbackRate - playbackRateIncrementDecrement >= MIN_PLAYBACK_RATE
+  const canIncrement = playbackRate + playbackRateIncrementDecrement <= MAX_PLAYBACK_RATE
 
   // Ensure component is mounted before rendering popover
   useEffect(() => {
@@ -138,6 +143,7 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
 
   const handlePresetClick = (rate: number) => {
     setPlaybackRate(rate)
+    setIsOpen(false)
   }
 
   const handleIncrement = () => {
@@ -219,7 +225,9 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
       {/* Increment/decrement row */}
       <div className="flex items-center gap-2">
         {/* Minus button */}
-        <IconBtn onClick={handleDecrement}>remove</IconBtn>
+        <IconBtn disabled={!canDecrement} onClick={handleDecrement}>
+          remove
+        </IconBtn>
 
         {/* Current rate display */}
         <div className="text-foreground flex min-w-[100px] flex-1 items-center justify-center text-3xl font-semibold tabular-nums">
@@ -227,7 +235,9 @@ export default function PlaybackRateWidget({ playerHandler, onOpenChange, trigge
         </div>
 
         {/* Plus button */}
-        <IconBtn onClick={handleIncrement}>add</IconBtn>
+        <IconBtn disabled={!canIncrement} onClick={handleIncrement}>
+          add
+        </IconBtn>
       </div>
 
       {/* Arrow */}
