@@ -611,7 +611,10 @@ export function useMediaCardActions({
 
     if (continueListeningShelf) {
       items.push({
-        text: (media as { ebookFormat?: string }).ebookFormat ? t('ButtonRemoveFromContinueReading') : t('ButtonRemoveFromContinueListening'),
+        text:
+          isBookMedia(media) && media.ebookFormat && !isBookMediaWithTracks(media)
+            ? t('ButtonRemoveFromContinueReading')
+            : t('ButtonRemoveFromContinueListening'),
         func: 'removeFromContinueListening'
       })
     }
