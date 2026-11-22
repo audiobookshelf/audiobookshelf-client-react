@@ -112,6 +112,8 @@ ENV SOURCE="docker"
 ENV NUSQLITE3_DIR=${NUSQLITE3_DIR}
 ENV NUSQLITE3_PATH=${NUSQLITE3_PATH}
 ENV REACT_CLIENT_PATH="/app/client-react"
+# This image contains only the React client.
+ENV CLIENT="react"
 
 ENTRYPOINT ["tini", "--"]
 CMD ["node", "dist-server/index.js"]
