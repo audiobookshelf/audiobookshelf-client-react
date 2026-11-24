@@ -1454,6 +1454,7 @@ export interface PodcastSearchResult {
   // Raw API response fields
   pageUrl?: string
   id?: string | number
+  artistId?: string | number
 }
 
 export type MatchResult = BookSearchResult | PodcastSearchResult
