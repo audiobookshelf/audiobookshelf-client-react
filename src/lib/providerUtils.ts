@@ -14,14 +14,12 @@ export enum AudibleRegion {
 }
 
 export const getProviderRegion = (provider: Library['provider']): AudibleRegion => {
-  let region = AudibleRegion.US // Default region
-  if (provider?.toLowerCase().includes('audible')) {
-    const possibleRegion = provider.split('.')?.pop()
-    if (possibleRegion && Object.values(AudibleRegion).includes(possibleRegion as AudibleRegion)) {
-      region = possibleRegion as AudibleRegion
-    }
-  }
+  const normalized = provider?.toLowerCase()
+  if (!normalized?.includes('audible')) return AudibleRegion.US
 
-  const upperRegion = region.toUpperCase() as AudibleRegion
-  return Object.values(AudibleRegion).includes(upperRegion) ? upperRegion : AudibleRegion.US
+  const possibleRegion = normalized.split('.').pop()
+  if (possibleRegion && Object.values(AudibleRegion).includes(possibleRegion as AudibleRegion)) {
+    return possibleRegion as AudibleRegion
+  }
+  return AudibleRegion.US
 }
