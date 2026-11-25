@@ -350,6 +350,7 @@
   "LabelCorsAllowed": "Allowed CORS Origins",
   "LabelCover": "Cover",
   "LabelCoverPreview": "Cover preview",
+  "LabelCoverProvider": "Cover Provider",
   "LabelCoverSize": "Cover Size",
   "LabelCreatedAt": "Created At",
   "LabelCronExpression": "Cron Expression",

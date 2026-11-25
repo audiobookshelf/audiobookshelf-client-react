@@ -4,6 +4,7 @@ import Btn from '@/components/ui/Btn'
 import Dropdown from '@/components/ui/Dropdown'
 import { MultiSelect, MultiSelectItem } from '@/components/ui/MultiSelect'
 import LanguageDropdown from '@/components/widgets/LanguageDropdown'
+import { useBookCoverProviders, useMetadata } from '@/contexts/MetadataContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
@@ -38,6 +39,8 @@ export default function GeneralSettingsClient() {
   const [isPending, startTransition] = useTransition()
   const { showToast } = useGlobalToast()
   const { serverSettings, mergeServerSettings } = useUser()
+  const { ensureProvidersLoaded } = useMetadata()
+  const bookCoverProviders = useBookCoverProviders()
 
   const [sortingPrefixes, setSortingPrefixes] = useState<string[]>(serverSettings.sortingPrefixes || [])
 
@@ -75,6 +78,10 @@ export default function GeneralSettingsClient() {
     if (hasPrefixesChanged) return
     setSortingPrefixes(serverSettings.sortingPrefixes || [])
   }, [serverSettings.sortingPrefixes, hasPrefixesChanged])
+
+  useEffect(() => {
+    if (serverSettings?.scannerFindCovers) void ensureProvidersLoaded()
+  }, [serverSettings?.scannerFindCovers, ensureProvidersLoaded])
 
   const exampleDateFormat = useMemo(() => {
     if (!serverSettings?.dateFormat) {
@@ -235,6 +242,18 @@ export default function GeneralSettingsClient() {
               br: () => <br />
             })}
           />
+          {serverSettings?.scannerFindCovers && (
+            <div className="w-52 ps-10">
+              <Dropdown
+                size="small"
+                items={bookCoverProviders}
+                label={t('LabelCoverProvider')}
+                value={serverSettings.scannerCoverProvider || 'google'}
+                disabled={isPending}
+                onChange={(value) => handleSettingChanged('scannerCoverProvider', String(value))}
+              />
+            </div>
+          )}
           <SettingsToggleSwitch
             label={t('LabelSettingsPreferMatchedMetadata')}
             value={serverSettings?.scannerPreferMatchedMetadata}
