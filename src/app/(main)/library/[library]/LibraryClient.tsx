@@ -39,6 +39,7 @@ import {
   Series,
   isPersonalizedSeriesRef
 } from '@/types/api'
+import type { TranslationKey } from '@/types/translations'
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { requestScanLibrary } from '../../settings/libraries/actions'
 import LibraryEmptyState from './LibraryEmptyState'
@@ -404,7 +405,7 @@ export default function LibraryClient({ personalized, libraryItemCount: libraryI
         const continueSeriesShelf = shelf.id === 'continue-series'
 
         return (
-          <Wrapper key={shelf.id} title={shelf.label}>
+          <Wrapper key={shelf.id} title={shelf.labelStringKey ? t(shelf.labelStringKey as TranslationKey) : shelf.label}>
             {shelf.entities.map((entity, entityIndex) => {
               if (shelf.type === 'book' || shelf.type === 'podcast' || shelf.type === 'episode') {
                 const libraryItem = entity as LibraryItem
