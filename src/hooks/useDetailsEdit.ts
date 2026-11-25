@@ -81,6 +81,7 @@ export interface DetailsEditRef<TDetails> {
   submit: () => void
   getTitleAndAuthorName: () => { title: string | null; author: string }
   mapBatchDetails: (batchDetails: Partial<TDetails & { tags: string[] }>, mapType?: 'overwrite' | 'append') => void
+  markSaved: () => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -193,6 +194,11 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
     dispatch({ type: 'BATCH_UPDATE', payload: { batchDetails, mapType } })
   }, [])
 
+  const markSaved = useCallback(() => {
+    const committed = applyTrimFieldsToDetails(details, trimFields)
+    dispatch({ type: 'RESET_STATE', payload: { details: committed, tags: [...currentTags] } })
+  }, [details, currentTags, trimFields])
+
   // Calculate changes
   const changes = useMemo(() => {
     const effectiveValue = (source: TDetails, key: keyof TDetails) => {
@@ -285,9 +291,10 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         title,
         author
       }),
-      mapBatchDetails
+      mapBatchDetails,
+      markSaved
     }),
-    [submitForm, title, author, mapBatchDetails]
+    [submitForm, title, author, mapBatchDetails, markSaved]
   )
 
   return {

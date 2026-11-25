@@ -1,10 +1,11 @@
 'use client'
 
-import { updateTracksAction } from '@/app/actions/trackActions'
 import { getExpandedLibraryItemAction } from '@/app/actions/mediaActions'
+import { updateTracksAction } from '@/app/actions/trackActions'
+import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import type { AudioFile, BookLibraryItem } from '@/types/api'
+import type { AudioFile, BookLibraryItem, PodcastLibraryItem } from '@/types/api'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 
 export type TrackSortKey = 'custom' | 'current' | 'track-filename' | 'metadata' | 'disc-filename' | 'disc-metadata' | 'filename'
@@ -154,10 +155,21 @@ export function useTrackEditor({ initialLibraryItem }: UseTrackEditorOptions) {
   const { showToast } = useGlobalToast()
   const [isPending, startTransition] = useTransition()
 
-  const [libraryItem] = useState(initialLibraryItem)
+  const [libraryItem, setLibraryItem] = useState(initialLibraryItem)
   const [savedFiles, setSavedFiles] = useState<EditableTrackFile[]>(() => buildInitialEditableFiles(initialLibraryItem.media.audioFiles ?? []))
   const [files, setFiles] = useState<EditableTrackFile[]>(() => buildInitialEditableFiles(initialLibraryItem.media.audioFiles ?? []))
   const [currentSort, setCurrentSort] = useState<TrackSortKey>('current')
+
+  const handleItemUpdated = useCallback(
+    (updatedItem: BookLibraryItem | PodcastLibraryItem) => {
+      if (updatedItem.id === libraryItem.id && updatedItem.mediaType === 'book') {
+        setLibraryItem(updatedItem)
+      }
+    },
+    [libraryItem.id]
+  )
+
+  useSocketEvent<BookLibraryItem | PodcastLibraryItem>('item_updated', handleItemUpdated, [handleItemUpdated])
 
   const title = libraryItem.media.metadata.title || 'No Title'
   const hasChanges = useMemo(() => serializeTrackState(files) !== serializeTrackState(savedFiles), [files, savedFiles])

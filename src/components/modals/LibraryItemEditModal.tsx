@@ -116,8 +116,10 @@ export function LibraryItemEditModalContent({
   const [showCloseConfirm, setShowCloseConfirm] = useState(false)
   const pendingLeaveRef = useRef<(() => void) | null>(null)
 
-  const bookDetailsRef = useRef<BookDetailsEditRef>(null)
-  const podcastDetailsRef = useRef<PodcastDetailsEditRef>(null)
+  const detailsRef = useRef<BookDetailsEditRef | PodcastDetailsEditRef>(null)
+  const setDetailsRef = useCallback((el: BookDetailsEditRef | PodcastDetailsEditRef | null) => {
+    detailsRef.current = el
+  }, [])
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [footerShadow, setFooterShadow] = useState(false)
 
@@ -206,6 +208,7 @@ export function LibraryItemEditModalContent({
             tags: details.updatePayload.tags
           })
           showToast(t('ToastItemUpdateSuccess'), { type: 'success' })
+          detailsRef.current?.markSaved()
           setHasChanges(false)
           if (pendingLeaveRef.current) {
             const onAllow = pendingLeaveRef.current
@@ -228,11 +231,7 @@ export function LibraryItemEditModalContent({
     (close: boolean = false) => {
       saveAndCloseRef.current = close
       if (!resolvedItem) return
-      if (resolvedItem.mediaType === 'podcast') {
-        podcastDetailsRef.current?.submit()
-      } else {
-        bookDetailsRef.current?.submit()
-      }
+      detailsRef.current?.submit()
     },
     [resolvedItem]
   )
@@ -289,7 +288,7 @@ export function LibraryItemEditModalContent({
     resolvedItem && isPodcast ? (
       <PodcastDetailsEdit
         key={resolvedItem.id}
-        ref={podcastDetailsRef}
+        ref={setDetailsRef}
         libraryItem={resolvedItem as PodcastLibraryItem}
         availableGenres={availableGenres}
         availableTags={availableTags}
@@ -299,7 +298,7 @@ export function LibraryItemEditModalContent({
     ) : resolvedItem ? (
       <BookDetailsEdit
         key={resolvedItem.id}
-        ref={bookDetailsRef}
+        ref={setDetailsRef}
         libraryItem={resolvedItem as BookLibraryItem}
         availableAuthors={availableAuthors}
         availableNarrators={availableNarrators}
@@ -314,7 +313,7 @@ export function LibraryItemEditModalContent({
         <div className="relative">
           <PodcastDetailsEdit
             key={`placeholder-podcast-${pendingEntityId}`}
-            ref={podcastDetailsRef}
+            ref={setDetailsRef}
             libraryItem={placeholderItem as PodcastLibraryItem}
             availableGenres={availableGenres}
             availableTags={availableTags}
@@ -327,7 +326,7 @@ export function LibraryItemEditModalContent({
         <div className="relative">
           <BookDetailsEdit
             key={`placeholder-book-${pendingEntityId}`}
-            ref={bookDetailsRef}
+            ref={setDetailsRef}
             libraryItem={placeholderItem as BookLibraryItem}
             availableAuthors={availableAuthors}
             availableNarrators={availableNarrators}
