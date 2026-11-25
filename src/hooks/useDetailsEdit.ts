@@ -208,11 +208,14 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         const initialValue = effectiveValue(initialDetails, key)
         const currentValue = effectiveValue(details, key)
 
-        if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-          if (currentValue.every((item: unknown) => typeof item !== 'object')) {
-            return !stringArraysEqual(currentValue, initialValue)
+        // [], null, and undefined are the same empty array (multi-select writes [])
+        if (Array.isArray(currentValue) || Array.isArray(initialValue)) {
+          const currentArr: unknown[] = Array.isArray(currentValue) ? currentValue : []
+          const initialArr: unknown[] = Array.isArray(initialValue) ? initialValue : []
+          if (currentArr.every((item) => typeof item !== 'object') && initialArr.every((item) => typeof item !== 'object')) {
+            return !stringArraysEqual(currentArr, initialArr)
           }
-          return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
+          return JSON.stringify(currentArr) !== JSON.stringify(initialArr)
         }
 
         // '', null, and undefined are the same empty value (inputs write '')
