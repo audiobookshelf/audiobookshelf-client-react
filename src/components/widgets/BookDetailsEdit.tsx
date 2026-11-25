@@ -15,7 +15,7 @@ type Details = Omit<BookMetadata, 'titleIgnorePrefix' | 'descriptionPlain' | 'pu
   series: Series[]
 }
 
-const BOOK_TEXT_TRIM_FIELDS = ['title', 'subtitle', 'isbn', 'asin', 'publisher', 'language'] as const satisfies readonly (keyof Details)[]
+const BOOK_TEXT_TRIM_FIELDS: (keyof Details)[] = ['title', 'subtitle', 'isbn', 'asin', 'publisher', 'language']
 
 export type BookDetailsEditRef = DetailsEditRef<Details>
 export type BookUpdatePayload = UpdatePayload<Details>
@@ -53,8 +53,8 @@ const BookDetailsEdit = ({
     return {
       ...meta,
       publishedYear: /^\d+$/.test(year) ? year : undefined,
-      authors: Array.isArray(meta?.authors) ? meta.authors : [],
-      series: Array.isArray(meta?.series) ? meta.series.map((s) => ({ ...s, sequence: s.sequence || '' })) : []
+      authors: Array.isArray(meta?.authors) ? meta.authors.map((a) => ({ id: a.id, name: a.name })) : [],
+      series: Array.isArray(meta?.series) ? meta.series.map((s) => ({ id: s.id, name: s.name, sequence: s.sequence || '' })) : []
     }
   }, [media.metadata])
 

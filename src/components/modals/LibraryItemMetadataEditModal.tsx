@@ -124,8 +124,6 @@ function LibraryItemMetadataEditModalBody({
           startSaveTransition={startSaveTransition}
           isSavePending={isSavePending}
           onClose={onClose}
-          stableBodyHeight={false}
-          fillParent
           closeRequestRef={detailsCloseRef}
         />
       ) : selectedSection === 'cover' ? (

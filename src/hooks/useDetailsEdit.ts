@@ -81,6 +81,7 @@ export interface DetailsEditRef<TDetails> {
   submit: () => void
   getTitleAndAuthorName: () => { title: string | null; author: string }
   mapBatchDetails: (batchDetails: Partial<TDetails & { tags: string[] }>, mapType?: 'overwrite' | 'append') => void
+  markSaved: () => void
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -100,8 +101,10 @@ function applyTrimFieldsToDetails<TDetails extends Record<string, any>>(details:
   return next ?? details
 }
 
-function stringArraysEqual(a: unknown[], b: unknown[]) {
-  return a.length === b.length && a.every((item) => b.includes(item))
+function arraysEqual(a: unknown[], b: unknown[]) {
+  if (a.length !== b.length) return false
+  const normalize = (arr: unknown[]) => JSON.stringify(arr.map((item) => JSON.stringify(item)).sort())
+  return normalize(a) === normalize(b)
 }
 
 /** Display-only keys the details form does not edit. */
@@ -191,6 +194,11 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
     dispatch({ type: 'BATCH_UPDATE', payload: { batchDetails, mapType } })
   }, [])
 
+  const markSaved = useCallback(() => {
+    const committed = applyTrimFieldsToDetails(details, trimFields)
+    dispatch({ type: 'RESET_STATE', payload: { details: committed, tags: [...currentTags] } })
+  }, [details, currentTags, trimFields])
+
   // Calculate changes
   const changes = useMemo(() => {
     const effectiveValue = (source: TDetails, key: keyof TDetails) => {
@@ -208,11 +216,11 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         const initialValue = effectiveValue(initialDetails, key)
         const currentValue = effectiveValue(details, key)
 
-        if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-          if (currentValue.every((item: unknown) => typeof item !== 'object')) {
-            return !stringArraysEqual(currentValue, initialValue)
-          }
-          return JSON.stringify(currentValue) !== JSON.stringify(initialValue)
+        // [], null, and undefined are the same empty array (multi-select writes [])
+        if (Array.isArray(currentValue) || Array.isArray(initialValue)) {
+          const currentArr: unknown[] = Array.isArray(currentValue) ? currentValue : []
+          const initialArr: unknown[] = Array.isArray(initialValue) ? initialValue : []
+          return !arraysEqual(currentArr, initialArr)
         }
 
         // '', null, and undefined are the same empty value (inputs write '')
@@ -236,7 +244,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
       updatePayload.metadata = metadataUpdate
     }
 
-    if (!stringArraysEqual(currentTags, initialTags)) {
+    if (!arraysEqual(currentTags, initialTags)) {
       updatePayload.tags = currentTags
     }
 
@@ -283,9 +291,10 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         title,
         author
       }),
-      mapBatchDetails
+      mapBatchDetails,
+      markSaved
     }),
-    [submitForm, title, author, mapBatchDetails]
+    [submitForm, title, author, mapBatchDetails, markSaved]
   )
 
   return {
