@@ -100,8 +100,10 @@ function applyTrimFieldsToDetails<TDetails extends Record<string, any>>(details:
   return next ?? details
 }
 
-function stringArraysEqual(a: unknown[], b: unknown[]) {
-  return a.length === b.length && a.every((item) => b.includes(item))
+function arraysEqual(a: unknown[], b: unknown[]) {
+  if (a.length !== b.length) return false
+  const normalize = (arr: unknown[]) => JSON.stringify(arr.map((item) => JSON.stringify(item)).sort())
+  return normalize(a) === normalize(b)
 }
 
 /** Display-only keys the details form does not edit. */
@@ -212,10 +214,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
         if (Array.isArray(currentValue) || Array.isArray(initialValue)) {
           const currentArr: unknown[] = Array.isArray(currentValue) ? currentValue : []
           const initialArr: unknown[] = Array.isArray(initialValue) ? initialValue : []
-          if (currentArr.every((item) => typeof item !== 'object') && initialArr.every((item) => typeof item !== 'object')) {
-            return !stringArraysEqual(currentArr, initialArr)
-          }
-          return JSON.stringify(currentArr) !== JSON.stringify(initialArr)
+          return !arraysEqual(currentArr, initialArr)
         }
 
         // '', null, and undefined are the same empty value (inputs write '')
@@ -239,7 +238,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
       updatePayload.metadata = metadataUpdate
     }
 
-    if (!stringArraysEqual(currentTags, initialTags)) {
+    if (!arraysEqual(currentTags, initialTags)) {
       updatePayload.tags = currentTags
     }
 
