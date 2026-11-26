@@ -85,7 +85,8 @@ const BookDetailsEdit = ({
     updateField: handleFieldUpdate,
     updateTags,
     submitForm,
-    initialDetails
+    initialDetails,
+    dirtyFields
   } = useDetailsEdit<Details>({
     metadata: editMetadata,
     tags: editTags,
@@ -213,10 +214,22 @@ const BookDetailsEdit = ({
       >
         <div className="-mx-1 flex flex-wrap">
           <div className="w-full px-1 md:w-1/2">
-            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title')} label={t('LabelTitle')} trimWhitespace />
+            <TextInput
+              value={details.title || ''}
+              onChange={handleFieldUpdate('title')}
+              label={t('LabelTitle')}
+              dirty={dirtyFields.has('title')}
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 grow px-1 md:mt-0">
-            <TextInput value={details.subtitle || ''} onChange={handleFieldUpdate('subtitle')} label={t('LabelSubtitle')} trimWhitespace />
+            <TextInput
+              value={details.subtitle || ''}
+              onChange={handleFieldUpdate('subtitle')}
+              label={t('LabelSubtitle')}
+              dirty={dirtyFields.has('subtitle')}
+              trimWhitespace
+            />
           </div>
         </div>
 
@@ -228,11 +241,18 @@ const BookDetailsEdit = ({
               onItemRemoved={handleRemoveAuthor}
               label={t('LabelAuthors')}
               items={availableAuthors}
+              dirty={dirtyFields.has('authors')}
               allowNew
             />
           </div>
           <div className="mt-2 grow px-1 md:mt-0 md:w-28">
-            <TextInput value={details.publishedYear || ''} onChange={handleFieldUpdate('publishedYear')} type="number" label={t('LabelPublishYear')} />
+            <TextInput
+              value={details.publishedYear || ''}
+              onChange={handleFieldUpdate('publishedYear')}
+              type="number"
+              label={t('LabelPublishYear')}
+              dirty={dirtyFields.has('publishedYear')}
+            />
           </div>
         </div>
 
@@ -245,11 +265,18 @@ const BookDetailsEdit = ({
               onItemAdded={handleAddSeries}
               onItemRemoved={handleRemoveSeries}
               onItemEdited={handleEditSeries}
+              dirty={dirtyFields.has('series')}
             />
           </div>
         </div>
 
-        <SlateEditor srcContent={initialDetails.description || ''} onUpdate={handleFieldUpdate('description')} label={t('LabelDescription')} className="mt-2" />
+        <SlateEditor
+          srcContent={initialDetails.description || ''}
+          onUpdate={handleFieldUpdate('description')}
+          label={t('LabelDescription')}
+          dirty={dirtyFields.has('description')}
+          className="mt-2"
+        />
 
         <div className="-mx-1 mt-2 flex flex-wrap">
           <div className="w-full px-1 md:w-1/2">
@@ -259,6 +286,7 @@ const BookDetailsEdit = ({
               onItemRemoved={handleRemoveGenre}
               label={t('LabelGenres')}
               items={availableGenres}
+              dirty={dirtyFields.has('genres')}
               allowNew
             />
           </div>
@@ -269,6 +297,7 @@ const BookDetailsEdit = ({
               onItemRemoved={handleRemoveTag}
               label={t('LabelTags')}
               items={availableTags}
+              dirty={dirtyFields.has('tags')}
               allowNew
             />
           </div>
@@ -282,6 +311,7 @@ const BookDetailsEdit = ({
               onItemRemoved={handleRemoveNarrator}
               label={t('LabelNarrators')}
               items={availableNarrators}
+              dirty={dirtyFields.has('narrators')}
               allowNew
             />
           </div>
@@ -290,6 +320,7 @@ const BookDetailsEdit = ({
               value={details.isbn || ''}
               onChange={handleFieldUpdate('isbn')}
               label="ISBN" // i18n-ignore
+              dirty={dirtyFields.has('isbn')}
               trimWhitespace
             />
           </div>
@@ -298,6 +329,7 @@ const BookDetailsEdit = ({
               value={details.asin || ''}
               onChange={handleFieldUpdate('asin')}
               label="ASIN" // i18n-ignore
+              dirty={dirtyFields.has('asin')}
               trimWhitespace
             />
           </div>
@@ -305,10 +337,22 @@ const BookDetailsEdit = ({
 
         <div className="-mx-1 mt-2 flex flex-wrap">
           <div className="w-full px-1 md:w-1/4">
-            <TextInput value={details.publisher || ''} onChange={handleFieldUpdate('publisher')} label={t('LabelPublisher')} trimWhitespace />
+            <TextInput
+              value={details.publisher || ''}
+              onChange={handleFieldUpdate('publisher')}
+              label={t('LabelPublisher')}
+              dirty={dirtyFields.has('publisher')}
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 w-1/2 px-1 md:mt-0 md:w-1/4">
-            <TextInput value={details.language || ''} onChange={handleFieldUpdate('language')} label={t('LabelLanguage')} trimWhitespace />
+            <TextInput
+              value={details.language || ''}
+              onChange={handleFieldUpdate('language')}
+              label={t('LabelLanguage')}
+              dirty={dirtyFields.has('language')}
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 flex w-full items-center gap-6 px-1 md:contents">
             <div className="flex h-10 flex-1 items-center md:mt-6 md:w-1/4 md:flex-none md:px-1">
@@ -316,6 +360,7 @@ const BookDetailsEdit = ({
                 value={details.explicit}
                 onChange={handleFieldUpdate('explicit')}
                 label={t('LabelExplicit')}
+                dirty={dirtyFields.has('explicit')}
                 labelClass="ps-2 text-base font-semibold"
               />
             </div>
@@ -324,6 +369,7 @@ const BookDetailsEdit = ({
                 value={details.abridged}
                 onChange={handleFieldUpdate('abridged')}
                 label={t('LabelAbridged')}
+                dirty={dirtyFields.has('abridged')}
                 labelClass="ps-2 text-base font-semibold"
               />
             </div>

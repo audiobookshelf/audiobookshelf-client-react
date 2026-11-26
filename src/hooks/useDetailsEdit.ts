@@ -254,6 +254,12 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
     }
   }, [details, initialDetails, currentTags, initialTags, trimFields])
 
+  const dirtyFields = useMemo(() => {
+    const fields = new Set<keyof TDetails | 'tags'>(Object.keys(changes.updatePayload.metadata || {}) as Array<keyof TDetails>)
+    if (changes.updatePayload.tags) fields.add('tags')
+    return fields
+  }, [changes.updatePayload])
+
   // Notify parent of changes
   const handleInputChange = useCallback(() => {
     onChange?.({
@@ -304,6 +310,7 @@ export function useDetailsEdit<TDetails extends Record<string, any>>({
     updateField,
     updateTags,
     mapBatchDetails,
+    dirtyFields,
     changes,
     submitForm,
     dispatch

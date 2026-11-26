@@ -55,7 +55,8 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
     updateField: handleFieldUpdate,
     updateTags,
     submitForm,
-    initialDetails
+    initialDetails,
+    dirtyFields
   } = useDetailsEdit<Details>({
     metadata: editMetadata,
     tags: editTags,
@@ -122,10 +123,22 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
       >
         <div className="-mx-1 flex flex-wrap">
           <div className="w-full px-1 md:w-1/2">
-            <TextInput value={details.title || ''} onChange={handleFieldUpdate('title') as (value: string) => void} label={t('LabelTitle')} trimWhitespace />
+            <TextInput
+              value={details.title || ''}
+              onChange={handleFieldUpdate('title') as (value: string) => void}
+              label={t('LabelTitle')}
+              dirty={dirtyFields.has('title')}
+              trimWhitespace
+            />
           </div>
           <div className="mt-2 grow px-1 md:mt-0">
-            <TextInput value={details.author || ''} onChange={handleFieldUpdate('author') as (value: string) => void} label={t('LabelAuthor')} trimWhitespace />
+            <TextInput
+              value={details.author || ''}
+              onChange={handleFieldUpdate('author') as (value: string) => void}
+              label={t('LabelAuthor')}
+              dirty={dirtyFields.has('author')}
+              trimWhitespace
+            />
           </div>
         </div>
 
@@ -133,11 +146,18 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
           value={details.feedUrl || ''}
           onChange={handleFieldUpdate('feedUrl') as (value: string) => void}
           label={t('LabelRSSFeedURL')}
+          dirty={dirtyFields.has('feedUrl')}
           className="mt-2"
           trimWhitespace
         />
 
-        <SlateEditor srcContent={initialDetails.description || ''} onUpdate={handleFieldUpdate('description')} label={t('LabelDescription')} className="mt-2" />
+        <SlateEditor
+          srcContent={initialDetails.description || ''}
+          onUpdate={handleFieldUpdate('description')}
+          label={t('LabelDescription')}
+          dirty={dirtyFields.has('description')}
+          className="mt-2"
+        />
 
         <div className="-mx-1 mt-2 flex flex-wrap">
           <div className="w-full px-1 md:w-1/2">
@@ -147,6 +167,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               onItemRemoved={handleRemoveGenre}
               label={t('LabelGenres')}
               items={availableGenres}
+              dirty={dirtyFields.has('genres')}
               allowNew
             />
           </div>
@@ -157,6 +178,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               onItemRemoved={handleRemoveTag}
               label={t('LabelTags')}
               items={availableTags}
+              dirty={dirtyFields.has('tags')}
               allowNew
             />
           </div>
@@ -168,6 +190,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               value={details.releaseDate || ''}
               onChange={handleFieldUpdate('releaseDate') as (value: string) => void}
               label={t('LabelReleaseDate')}
+              dirty={dirtyFields.has('releaseDate')}
               trimWhitespace
             />
           </div>
@@ -176,6 +199,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               value={details.itunesId || ''}
               onChange={handleFieldUpdate('itunesId') as (value: string | number) => void}
               label={t('LabelItunesID')}
+              dirty={dirtyFields.has('itunesId')}
               trimWhitespace
             />
           </div>
@@ -184,6 +208,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               value={details.language || ''}
               onChange={handleFieldUpdate('language') as (value: string) => void}
               label={t('LabelLanguage')}
+              dirty={dirtyFields.has('language')}
               trimWhitespace
             />
           </div>
@@ -193,6 +218,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
                 value={details.explicit}
                 onChange={handleFieldUpdate('explicit')}
                 label={t('LabelExplicit')}
+                dirty={dirtyFields.has('explicit')}
                 labelClass="ps-2 text-base font-semibold"
               />
             </div>
@@ -204,6 +230,7 @@ const PodcastDetailsEdit = ({ libraryItem, availableGenres = [], availableTags =
               label={t('LabelPodcastType')}
               value={details.type || 'episodic'}
               items={podcastTypeItems}
+              dirty={dirtyFields.has('type')}
               onChange={handlePodcastTypeChange}
               className="md:max-w-52"
             />
