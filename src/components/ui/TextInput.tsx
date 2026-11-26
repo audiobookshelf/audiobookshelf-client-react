@@ -35,6 +35,7 @@ export interface TextInputProps {
   className?: string
   ref?: React.Ref<HTMLInputElement>
   error?: boolean | string
+  dirty?: boolean
   ariaLabel?: string
   ariaLabelledBy?: string
   autocomplete?: 'off' | 'username' | 'current-password' | 'new-password' | 'email' | 'tel' | string
@@ -69,6 +70,7 @@ export default function TextInput({
   className,
   ref,
   error,
+  dirty = false,
   ariaLabel: ariaLabelProp,
   ariaLabelledBy,
   autocomplete = 'off',
@@ -182,6 +184,7 @@ export default function TextInput({
         disabled={disabled}
         readOnly={readOnly}
         error={error || isInvalidDate}
+        dirty={dirty}
         inputRef={readInputRef}
         size={size}
         className={mergeClasses('group', wrapperClassName)}

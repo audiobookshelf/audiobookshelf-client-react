@@ -27,6 +27,7 @@ interface TwoStageMultiSelectProps {
 
   // Optional props
   disabled?: boolean
+  dirty?: boolean
 }
 
 export default function TwoStageMultiSelect({
@@ -40,7 +41,8 @@ export default function TwoStageMultiSelect({
   onValidate,
   onValidationError,
   onDuplicateError,
-  disabled
+  disabled,
+  dirty
 }: TwoStageMultiSelectProps) {
   const [editingPillIndex, setEditingPillIndex] = useState<number | null>(null)
   const [isEditingNewItem, setIsEditingNewItem] = useState(false)
@@ -133,6 +135,7 @@ export default function TwoStageMultiSelect({
       allowNew={true}
       showInput={true}
       disabled={disabled}
+      dirty={dirty}
       onMutate={onMutate}
       onValidate={onValidate}
       onValidationError={onValidationError}

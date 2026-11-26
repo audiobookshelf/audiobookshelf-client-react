@@ -20,6 +20,7 @@ export interface MultiSelectProps<T = string> {
   items: MultiSelectItem<string>[]
   label?: string
   disabled?: boolean
+  dirty?: boolean
   showEdit?: boolean
   showInput?: boolean
   allowNew?: boolean
@@ -57,6 +58,7 @@ export function MultiSelect<T = string>({
   items,
   label,
   disabled = false,
+  dirty = false,
   showEdit = false,
   showInput = true,
   allowNew = true,
@@ -573,7 +575,7 @@ export function MultiSelect<T = string>({
         </Label>
       )}
       <div ref={wrapperRef} className="relative">
-        <InputWrapper disabled={disabled} inputRef={inputRef} size="auto" className="min-h-10">
+        <InputWrapper disabled={disabled} dirty={dirty} inputRef={inputRef} size="auto" className="min-h-10">
           <div
             ref={inputWrapperRef}
             role="list"

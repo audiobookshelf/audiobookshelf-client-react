@@ -143,240 +143,243 @@ interface SlateEditorProps {
   placeholder?: string
   disabled?: boolean
   readOnly?: boolean
+  dirty?: boolean
   className?: string
 }
 
-const SlateEditor = memo(({ label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, className }: SlateEditorProps) => {
-  const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
-  const [isClient, setIsClient] = useState(false)
-  /** True while source HTML is being applied. Slate flushes onChange in a microtask after the batch. */
-  const applyingSourceRef = useRef(false)
-  /** Editor HTML produced by loading srcContent. Later flushes of that same HTML are not user edits. */
-  const loadedCanonicalHtmlRef = useRef<string | null>(null)
+const SlateEditor = memo(
+  ({ label, srcContent = '', onUpdate, placeholder, disabled = false, readOnly = false, dirty = false, className }: SlateEditorProps) => {
+    const editor = useMemo(() => withLinks(withHistory(withReact(createEditor()))), [])
+    const [isClient, setIsClient] = useState(false)
+    /** True while source HTML is being applied. Slate flushes onChange in a microtask after the batch. */
+    const applyingSourceRef = useRef(false)
+    /** Editor HTML produced by loading srcContent. Later flushes of that same HTML are not user edits. */
+    const loadedCanonicalHtmlRef = useRef<string | null>(null)
 
-  const replaceFromSource = useCallback(
-    (next: Descendant[]) => {
-      applyingSourceRef.current = true
-      loadedCanonicalHtmlRef.current = null
-      try {
-        replaceContentSilently(editor, next)
-      } finally {
-        // Slate 0.118 defers onChange to a microtask queued during apply, so this runs after that flush.
-        queueMicrotask(() => {
-          applyingSourceRef.current = false
-        })
-      }
-    },
-    [editor]
-  )
-
-  // Helper to check if editor is in a valid state
-  const isEditorValid = useCallback(() => {
-    try {
-      return (
-        editor &&
-        editor.children &&
-        Array.isArray(editor.children) &&
-        editor.children.length > 0 &&
-        editor.children.every((child) => child && typeof child === 'object')
-      )
-    } catch {
-      return false
-    }
-  }, [editor])
-
-  // Always start with initialValue to avoid hydration mismatches
-  const parsedContent = useMemo(() => initialValue, [])
-
-  // Mark as client-side after first render
-  useEffect(() => {
-    setIsClient(true)
-
-    // Hot reload recovery: ensure editor has valid content
-    if (editor && (!editor.children || editor.children.length === 0)) {
-      try {
-        replaceFromSource(initialValue)
-      } catch (error) {
-        console.warn('SlateEditor: Error during hot reload recovery:', error)
-      }
-    }
-  }, [editor, replaceFromSource])
-
-  // Update editor content after hydration if we have content to parse
-  useEffect(() => {
-    if (isClient && srcContent && srcContent.trim() !== '') {
-      try {
-        // Wrap plain text in a paragraph to ensure proper DOM structure for parsing
-        // Check if content is wrapped in HTML tags (starts with < and ends with >)
-        const trimmedContent = srcContent.trim()
-        const hasHtmlTags = trimmedContent.startsWith('<') && trimmedContent.endsWith('>')
-        const htmlContent = hasHtmlTags ? srcContent : `<p>${srcContent}</p>`
-        const document = new DOMParser().parseFromString(htmlContent, 'text/html')
-        const parsedValue = (deserialize(document.body) as Descendant[]) || initialValue
-        replaceFromSource(parsedValue)
-      } catch (error) {
-        console.warn('Error parsing content:', error)
-        // Fallback to initial value if parsing fails
-        replaceFromSource(initialValue)
-      }
-    }
-  }, [isClient, srcContent, replaceFromSource])
-
-  // Refocus editor whenever the modal closes (this will be handled by the context now)
-  useEffect(() => {
-    // Only run after client-side hydration is complete
-    if (!isClient || readOnly || disabled) {
-      return
-    }
-
-    // Focus on the next frame so it's after the DOM updates/unmount
-    requestAnimationFrame(() => {
-      try {
-        // Safety check: ensure editor has valid content before focusing
-        if (editor.children.length > 0) {
-          // Check if the editor is actually attached to the DOM
-          try {
-            const editorElement = ReactEditor.toDOMNode(editor, editor)
-            if (!editorElement || !document.body.contains(editorElement)) {
-              return
-            }
-          } catch {
-            // Editor not yet attached to DOM
-            return
-          }
-
-          // Check if there's at least one text node and it can be resolved to DOM
-          const textNodeEntry = Editor.nodes(editor, {
-            at: [],
-            match: (n) => Text.isText(n)
-          }).next().value
-
-          if (textNodeEntry) {
-            // Verify that the text node can actually be resolved to a DOM node
-            try {
-              const [textNode] = textNodeEntry
-              ReactEditor.toDOMNode(editor, textNode)
-              // If we got here, the text node is in the DOM, so we can focus
-              ReactEditor.focus(editor)
-            } catch {
-              // Text node not yet in DOM, skip focus
-              return
-            }
-          }
-        }
-      } catch (error) {
-        // Silently handle focus errors during hot reload or invalid states
-        console.warn('SlateEditor: Could not focus editor:', error)
-      }
-    })
-  }, [isClient, readOnly, disabled, editor])
-
-  // Helper to normalize any string (html or plain) to the editor's canonical HTML output
-  const normalizeToHtml = useCallback((content: string) => {
-    if (!content) return '<p></p>'
-    try {
-      // Check if content is wrapped in HTML tags
-      const trimmedContent = content.trim()
-      const hasHtmlTags = trimmedContent.startsWith('<') && trimmedContent.endsWith('>')
-      const htmlContent = hasHtmlTags ? content : `<p>${content}</p>`
-      const document = new DOMParser().parseFromString(htmlContent, 'text/html')
-      const parsed = asEditorValue(deserialize(document.body) as Descendant[])
-
-      // Serialize back to HTML string
-      return parsed.map(serialize).join('')
-    } catch {
-      return '<p></p>'
-    }
-  }, [])
-
-  // Memoize the normalized HTML of the initial (source) content
-  const normalizedSrcHtml = useMemo(() => normalizeToHtml(srcContent), [srcContent, normalizeToHtml])
-
-  const handleChange = useCallback(
-    (newValue: Descendant[]) => {
-      // Skip processing during hot reload, invalid states, or when disabled
-      if (!isClient || !isEditorValid() || disabled) {
-        return
-      }
-
-      // Check if the change resulted in an actual content change (ignore selection changes)
-      const hasContentChanged = editor.operations.some((op) => op.type !== 'set_selection')
-      if (!hasContentChanged) {
-        return
-      }
-
-      if (onUpdate) {
+    const replaceFromSource = useCallback(
+      (next: Descendant[]) => {
+        applyingSourceRef.current = true
+        loadedCanonicalHtmlRef.current = null
         try {
-          // Safety check: ensure newValue is a valid array with valid nodes
-          const validValue = Array.isArray(newValue)
-            ? newValue.filter((node) => node && typeof node === 'object' && (Text.isText(node) || (node.children && Array.isArray(node.children))))
-            : []
-
-          let currentHtml = '<p></p>'
-          if (validValue.length > 0) {
-            currentHtml = validValue.map(serialize).join('')
-          }
-
-          // If the current HTML is semantically equivalent to the original source,
-          // pass back the ORIGINAL source string.
-          // This allows parent components to use simple strict equality checks.
-          const matchesNormalized = currentHtml === normalizedSrcHtml
-          // Source load is normalized by Slate (adjacent identical marks are merged) before this
-          // callback runs, so currentHtml can differ from both srcContent and normalizeToHtml().
-          // That rewrite is not a user edit. Remember the loaded HTML so a later flush of the
-          // same document still reports the original source.
-          if (applyingSourceRef.current) {
+          replaceContentSilently(editor, next)
+        } finally {
+          // Slate 0.118 defers onChange to a microtask queued during apply, so this runs after that flush.
+          queueMicrotask(() => {
             applyingSourceRef.current = false
-            loadedCanonicalHtmlRef.current = currentHtml
-            return
-          }
-          const matchesLoadedCanonical = loadedCanonicalHtmlRef.current !== null && currentHtml === loadedCanonicalHtmlRef.current
-          if (matchesNormalized || matchesLoadedCanonical) {
-            onUpdate(srcContent || '')
-          } else {
-            onUpdate(currentHtml)
+          })
+        }
+      },
+      [editor]
+    )
+
+    // Helper to check if editor is in a valid state
+    const isEditorValid = useCallback(() => {
+      try {
+        return (
+          editor &&
+          editor.children &&
+          Array.isArray(editor.children) &&
+          editor.children.length > 0 &&
+          editor.children.every((child) => child && typeof child === 'object')
+        )
+      } catch {
+        return false
+      }
+    }, [editor])
+
+    // Always start with initialValue to avoid hydration mismatches
+    const parsedContent = useMemo(() => initialValue, [])
+
+    // Mark as client-side after first render
+    useEffect(() => {
+      setIsClient(true)
+
+      // Hot reload recovery: ensure editor has valid content
+      if (editor && (!editor.children || editor.children.length === 0)) {
+        try {
+          replaceFromSource(initialValue)
+        } catch (error) {
+          console.warn('SlateEditor: Error during hot reload recovery:', error)
+        }
+      }
+    }, [editor, replaceFromSource])
+
+    // Update editor content after hydration if we have content to parse
+    useEffect(() => {
+      if (isClient && srcContent && srcContent.trim() !== '') {
+        try {
+          // Wrap plain text in a paragraph to ensure proper DOM structure for parsing
+          // Check if content is wrapped in HTML tags (starts with < and ends with >)
+          const trimmedContent = srcContent.trim()
+          const hasHtmlTags = trimmedContent.startsWith('<') && trimmedContent.endsWith('>')
+          const htmlContent = hasHtmlTags ? srcContent : `<p>${srcContent}</p>`
+          const document = new DOMParser().parseFromString(htmlContent, 'text/html')
+          const parsedValue = (deserialize(document.body) as Descendant[]) || initialValue
+          replaceFromSource(parsedValue)
+        } catch (error) {
+          console.warn('Error parsing content:', error)
+          // Fallback to initial value if parsing fails
+          replaceFromSource(initialValue)
+        }
+      }
+    }, [isClient, srcContent, replaceFromSource])
+
+    // Refocus editor whenever the modal closes (this will be handled by the context now)
+    useEffect(() => {
+      // Only run after client-side hydration is complete
+      if (!isClient || readOnly || disabled) {
+        return
+      }
+
+      // Focus on the next frame so it's after the DOM updates/unmount
+      requestAnimationFrame(() => {
+        try {
+          // Safety check: ensure editor has valid content before focusing
+          if (editor.children.length > 0) {
+            // Check if the editor is actually attached to the DOM
+            try {
+              const editorElement = ReactEditor.toDOMNode(editor, editor)
+              if (!editorElement || !document.body.contains(editorElement)) {
+                return
+              }
+            } catch {
+              // Editor not yet attached to DOM
+              return
+            }
+
+            // Check if there's at least one text node and it can be resolved to DOM
+            const textNodeEntry = Editor.nodes(editor, {
+              at: [],
+              match: (n) => Text.isText(n)
+            }).next().value
+
+            if (textNodeEntry) {
+              // Verify that the text node can actually be resolved to a DOM node
+              try {
+                const [textNode] = textNodeEntry
+                ReactEditor.toDOMNode(editor, textNode)
+                // If we got here, the text node is in the DOM, so we can focus
+                ReactEditor.focus(editor)
+              } catch {
+                // Text node not yet in DOM, skip focus
+                return
+              }
+            }
           }
         } catch (error) {
-          console.warn('SlateEditor: Error serializing content during change:', error)
-          // Don't update on error to prevent cascading issues
+          // Silently handle focus errors during hot reload or invalid states
+          console.warn('SlateEditor: Could not focus editor:', error)
+        }
+      })
+    }, [isClient, readOnly, disabled, editor])
+
+    // Helper to normalize any string (html or plain) to the editor's canonical HTML output
+    const normalizeToHtml = useCallback((content: string) => {
+      if (!content) return '<p></p>'
+      try {
+        // Check if content is wrapped in HTML tags
+        const trimmedContent = content.trim()
+        const hasHtmlTags = trimmedContent.startsWith('<') && trimmedContent.endsWith('>')
+        const htmlContent = hasHtmlTags ? content : `<p>${content}</p>`
+        const document = new DOMParser().parseFromString(htmlContent, 'text/html')
+        const parsed = asEditorValue(deserialize(document.body) as Descendant[])
+
+        // Serialize back to HTML string
+        return parsed.map(serialize).join('')
+      } catch {
+        return '<p></p>'
+      }
+    }, [])
+
+    // Memoize the normalized HTML of the initial (source) content
+    const normalizedSrcHtml = useMemo(() => normalizeToHtml(srcContent), [srcContent, normalizeToHtml])
+
+    const handleChange = useCallback(
+      (newValue: Descendant[]) => {
+        // Skip processing during hot reload, invalid states, or when disabled
+        if (!isClient || !isEditorValid() || disabled) {
           return
         }
+
+        // Check if the change resulted in an actual content change (ignore selection changes)
+        const hasContentChanged = editor.operations.some((op) => op.type !== 'set_selection')
+        if (!hasContentChanged) {
+          return
+        }
+
+        if (onUpdate) {
+          try {
+            // Safety check: ensure newValue is a valid array with valid nodes
+            const validValue = Array.isArray(newValue)
+              ? newValue.filter((node) => node && typeof node === 'object' && (Text.isText(node) || (node.children && Array.isArray(node.children))))
+              : []
+
+            let currentHtml = '<p></p>'
+            if (validValue.length > 0) {
+              currentHtml = validValue.map(serialize).join('')
+            }
+
+            // If the current HTML is semantically equivalent to the original source,
+            // pass back the ORIGINAL source string.
+            // This allows parent components to use simple strict equality checks.
+            const matchesNormalized = currentHtml === normalizedSrcHtml
+            // Source load is normalized by Slate (adjacent identical marks are merged) before this
+            // callback runs, so currentHtml can differ from both srcContent and normalizeToHtml().
+            // That rewrite is not a user edit. Remember the loaded HTML so a later flush of the
+            // same document still reports the original source.
+            if (applyingSourceRef.current) {
+              applyingSourceRef.current = false
+              loadedCanonicalHtmlRef.current = currentHtml
+              return
+            }
+            const matchesLoadedCanonical = loadedCanonicalHtmlRef.current !== null && currentHtml === loadedCanonicalHtmlRef.current
+            if (matchesNormalized || matchesLoadedCanonical) {
+              onUpdate(srcContent || '')
+            } else {
+              onUpdate(currentHtml)
+            }
+          } catch (error) {
+            console.warn('SlateEditor: Error serializing content during change:', error)
+            // Don't update on error to prevent cascading issues
+            return
+          }
+        }
+      },
+      [onUpdate, isClient, isEditorValid, disabled, editor, normalizedSrcHtml, srcContent]
+    )
+
+    const containerClass = useMemo(() => mergeClasses('w-full', className), [className])
+
+    const handleLabelClick = useCallback(() => {
+      if (!disabled) {
+        try {
+          // Focus the Slate editor when label is clicked
+          ReactEditor.focus(editor)
+        } catch (error) {
+          console.warn('SlateEditor: Could not focus editor from label click:', error)
+        }
       }
-    },
-    [onUpdate, isClient, isEditorValid, disabled, editor, normalizedSrcHtml, srcContent]
-  )
+    }, [editor, disabled])
 
-  const containerClass = useMemo(() => mergeClasses('w-full', className), [className])
+    return (
+      <div className={containerClass} cy-id="slate-editor">
+        {label && (
+          <Label disabled={disabled} onClick={handleLabelClick}>
+            {label}
+          </Label>
+        )}
+        <LinkModalProvider editor={editor}>
+          <Slate editor={editor} initialValue={parsedContent} onChange={handleChange}>
+            {!readOnly && !disabled && <Toolbar />}
+            <Editable editor={editor} readOnly={readOnly} placeholder={placeholder} disabled={disabled} dirty={dirty} />
+          </Slate>
 
-  const handleLabelClick = useCallback(() => {
-    if (!disabled) {
-      try {
-        // Focus the Slate editor when label is clicked
-        ReactEditor.focus(editor)
-      } catch (error) {
-        console.warn('SlateEditor: Could not focus editor from label click:', error)
-      }
-    }
-  }, [editor, disabled])
-
-  return (
-    <div className={containerClass} cy-id="slate-editor">
-      {label && (
-        <Label disabled={disabled} onClick={handleLabelClick}>
-          {label}
-        </Label>
-      )}
-      <LinkModalProvider editor={editor}>
-        <Slate editor={editor} initialValue={parsedContent} onChange={handleChange}>
-          {!readOnly && !disabled && <Toolbar />}
-          <Editable editor={editor} readOnly={readOnly} placeholder={placeholder} disabled={disabled} />
-        </Slate>
-
-        <LinkModalContainer />
-      </LinkModalProvider>
-    </div>
-  )
-})
+          <LinkModalContainer />
+        </LinkModalProvider>
+      </div>
+    )
+  }
+)
 
 SlateEditor.displayName = 'SlateEditor'
 

@@ -13,6 +13,7 @@ export interface DurationPickerProps {
   showThreeDigitHour?: boolean
   disabled?: boolean
   readOnly?: boolean
+  dirty?: boolean
   borderless?: boolean
   size?: 'small' | 'medium' | 'large'
   className?: string
@@ -40,6 +41,7 @@ export default function DurationPicker({
   showThreeDigitHour = false,
   disabled = false,
   readOnly = false,
+  dirty = false,
   borderless = false,
   size = 'medium',
   className,
@@ -282,6 +284,7 @@ export default function DurationPicker({
       <InputWrapper
         disabled={disabled}
         readOnly={readOnly}
+        dirty={dirty}
         borderless={borderless}
         size={size}
         className={mergeClasses('items-center px-2.5', wrapperClassName)}

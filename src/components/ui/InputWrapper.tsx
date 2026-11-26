@@ -7,6 +7,7 @@ export interface InputWrapperProps {
   disabled?: boolean
   readOnly?: boolean
   error?: boolean | string
+  dirty?: boolean
   borderless?: boolean
   size?: 'small' | 'medium' | 'large' | 'auto'
   className?: string
@@ -19,6 +20,7 @@ const InputWrapper = ({
   disabled = false,
   readOnly = false,
   error = false,
+  dirty = false,
   borderless = false,
   size = 'medium',
   className,
@@ -33,7 +35,7 @@ const InputWrapper = ({
     size === 'small' ? 'h-9' : size === 'large' ? 'h-11' : size === 'auto' ? 'h-full' : 'h-10',
 
     // Border and focus styles
-    error ? 'border-error focus-within:outline-error' : 'border-border',
+    error ? 'border-error focus-within:outline-error' : dirty ? 'border-info focus-within:outline-info' : 'border-border',
 
     // Background styles based on state
     disabled ? 'bg-bg-disabled cursor-not-allowed border-bg-disabled' : readOnly ? 'bg-bg-read-only' : borderless ? 'bg-transparent' : 'bg-primary',

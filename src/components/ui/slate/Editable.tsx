@@ -48,10 +48,11 @@ interface EditableProps {
   editor: Editor
   disabled: boolean
   readOnly: boolean
+  dirty?: boolean
   placeholder?: string
 }
 
-export const Editable = memo(({ editor, disabled, readOnly, placeholder }: EditableProps) => {
+export const Editable = memo(({ editor, disabled, readOnly, dirty = false, placeholder }: EditableProps) => {
   const { openModal } = useLinkModalContext()
   const editableRef = useRef<HTMLDivElement>(null)
   const [isMounted, setIsMounted] = useState(false)
@@ -216,7 +217,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
   // Render a placeholder during SSR to prevent hydration mismatches
   if (!isMounted) {
     return (
-      <InputWrapper size="auto" className="px-1 py-1" readOnly={readOnly} disabled={disabled}>
+      <InputWrapper size="auto" className="px-1 py-1" readOnly={readOnly} disabled={disabled} dirty={dirty}>
         <div
           className={editableClass}
           style={{ minHeight: '104px' }} // Match the min-h-26 (26 * 4px = 104px)
@@ -226,7 +227,7 @@ export const Editable = memo(({ editor, disabled, readOnly, placeholder }: Edita
   }
 
   return (
-    <InputWrapper size="auto" className="px-1 py-1" readOnly={readOnly} disabled={disabled} inputRef={editableRef}>
+    <InputWrapper size="auto" className="px-1 py-1" readOnly={readOnly} disabled={disabled} dirty={dirty} inputRef={editableRef}>
       <SlateEditable
         ref={editableRef}
         className={editableClass}

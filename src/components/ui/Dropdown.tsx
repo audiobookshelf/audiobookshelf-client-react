@@ -38,6 +38,7 @@ interface DropdownProps {
   ariaLabel?: string
   items?: DropdownItem[]
   disabled?: boolean
+  dirty?: boolean
   size?: 'small' | 'medium' | 'large' | 'auto'
   menuMaxHeight?: string
   onChange?: (value: string | number) => void
@@ -68,6 +69,7 @@ export default function Dropdown({
   ariaLabel,
   items = [],
   disabled = false,
+  dirty = false,
   size = 'medium',
   menuMaxHeight = '224px',
   onChange,
@@ -460,7 +462,7 @@ export default function Dropdown({
           </IconBtn>
         </div>
       ) : (
-        <InputWrapper disabled={disabled} size={size} inputRef={buttonRef} wrapperRef={controlWrapperRef}>
+        <InputWrapper disabled={disabled} dirty={dirty} size={size} inputRef={buttonRef} wrapperRef={controlWrapperRef}>
           <button
             ref={buttonRef}
             type="button"

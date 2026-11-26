@@ -12,6 +12,7 @@ interface CheckboxProps {
   checkColorClass?: string
   labelClass?: string
   disabled?: boolean
+  dirty?: boolean
   partial?: boolean
   ariaLabel?: string
   onChange?: (value: boolean, shiftKey: boolean) => void
@@ -25,6 +26,7 @@ export default function Checkbox({
   checkColorClass = 'text-green-500',
   labelClass = '',
   disabled = false,
+  dirty = false,
   partial = false,
   ariaLabel = '',
   onChange,
@@ -39,7 +41,7 @@ export default function Checkbox({
   const sizeClass = size === 'small' ? 'w-4 h-4' : size === 'medium' ? 'w-5 h-5' : 'w-6 h-6'
   const checkboxWrapperClassName = mergeClasses(
     'flex shrink-0 items-center justify-center rounded-sm border',
-    disabled ? 'border-checkbox-bg-disabled bg-checkbox-bg-disabled' : 'border-border bg-primary',
+    disabled ? 'border-checkbox-bg-disabled bg-checkbox-bg-disabled' : mergeClasses('bg-primary', dirty ? 'border-info' : 'border-border'),
     sizeClass
   )
 
