@@ -1,8 +1,10 @@
 import Checkbox from '@/components/ui/Checkbox'
 import ContextMenuDropdown, { ContextMenuDropdownItem } from '@/components/ui/ContextMenuDropdown'
 import IconBtn from '@/components/ui/IconBtn'
+import BonusIndicator from '@/components/widgets/BonusIndicator'
 import ConfirmDialog from '@/components/widgets/ConfirmDialog'
 import PodcastEpisodeListenActions from '@/components/widgets/episode/PodcastEpisodeListenActions'
+import TrailerIndicator from '@/components/widgets/TrailerIndicator'
 import { useLibrary } from '@/contexts/LibraryContext'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeListenActions } from '@/hooks/usetEpisodeListenActions'
@@ -167,7 +169,7 @@ export default function EpisodeRow({
               <button
                 id={`btn-episode-${episode.id}`}
                 type="button"
-                className={`focus-visible:outline-foreground-muted line-clamp-2 cursor-pointer rounded-sm text-start text-sm leading-tight font-semibold focus-visible:outline-1 focus-visible:outline-offset-4 ${userIsFinished ? 'text-foreground-muted' : ''}`}
+                className={`focus-visible:outline-foreground-muted line-clamp-2 min-w-0 cursor-pointer rounded-sm text-start text-sm leading-tight font-semibold focus-visible:outline-1 focus-visible:outline-offset-4 ${userIsFinished ? 'text-foreground-muted' : ''}`}
                 onClick={(e) => {
                   e.stopPropagation()
                   handleRowClick()
@@ -175,6 +177,8 @@ export default function EpisodeRow({
               >
                 {episode.title}
               </button>
+              {episode.episodeType === 'bonus' && <BonusIndicator className="ms-1 shrink-0" />}
+              {episode.episodeType === 'trailer' && <TrailerIndicator className="ms-1 shrink-0" />}
             </div>
 
             <div className="relative mt-1.5 mb-0.5 flex h-10 min-h-0 items-start overflow-hidden pe-12">
@@ -199,6 +203,9 @@ export default function EpisodeRow({
                 <div className="flex w-full max-w-xl min-w-0 items-center gap-x-3 overflow-hidden pr-12">
                   {episode.season && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelSeasonNumber', { 0: episode.season })}</p>}
                   {episode.episode && <p className="text-foreground-muted shrink-0 text-sm">{t('LabelEpisodeNumber', { 0: episode.episode })}</p>}
+                  {!!episode.chapters?.length && (
+                    <p className="text-foreground-muted shrink-0 text-sm">{t('LabelChapterCount', { 0: episode.chapters.length })}</p>
+                  )}
                   {publishedDate && (
                     <p className="text-foreground-muted shrink-0 text-sm">
                       <span className="sm:hidden">{publishedDate}</span>
