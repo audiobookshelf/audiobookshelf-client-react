@@ -60,7 +60,7 @@ const ChapterTitleInput = memo(function ChapterTitleInput({ title, baselineTitle
       value={localTitle}
       size="small"
       className="w-full min-w-0 text-sm"
-      customInputClass={isDirty ? 'text-info' : undefined}
+      dirty={isDirty}
       ariaLabelledBy={ariaLabelledBy}
       onChange={handleChange}
       onFocus={handleFocus}
@@ -226,12 +226,12 @@ function ChapterEditTableRow({
               </IconBtn>
             </Tooltip>
 
-            <div className="relative focus-within:z-2">
+            <div className={mergeClasses('relative focus-within:z-2', startDirty && 'z-2')}>
               <DurationPicker
                 value={chapter.start}
                 showThreeDigitHour={mediaDuration >= 360000}
                 size="small"
-                className={startDirty ? 'text-info' : undefined}
+                dirty={startDirty}
                 wrapperClassName="rounded-none"
                 ariaLabelledBy={startHeaderId}
                 disabled={isFirstChapter}
