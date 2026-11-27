@@ -85,6 +85,22 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
         }
       }
 
+      // Duplicates filters
+      if (type === 'duplicates') {
+        try {
+          const decodedValue = filterDecode(encodedValue)
+          const duplicateLabels: Record<string, string> = {
+            title: t('LabelTitle'),
+            asin: 'ASIN',
+            isbn: 'ISBN'
+          }
+          const label = duplicateLabels[decodedValue] || decodedValue
+          return t('LabelDuplicatesWithValue', { 0: label })
+        } catch {
+          return currentFilter
+        }
+      }
+
       // Tracks filters
       if (type === 'tracks') {
         try {
@@ -411,6 +427,23 @@ export default function LibraryFilterSelect({ entityType = 'items', user }: Libr
           { text: t('LabelSeries'), value: `missing.${filterEncode('series')}` },
           { text: t('LabelSubtitle'), value: `missing.${filterEncode('subtitle')}` },
           { text: t('LabelTags'), value: `missing.${filterEncode('tags')}` }
+        ]
+      })
+
+      // Duplicates submenu
+      items.push({
+        text: t('LabelDuplicates'),
+        value: 'duplicates',
+        subitems: [
+          { text: t('LabelTitle'), value: `duplicates.${filterEncode('title')}` },
+          {
+            text: 'ASIN', // i18n-ignore
+            value: `duplicates.${filterEncode('asin')}`
+          },
+          {
+            text: 'ISBN', // i18n-ignore
+            value: `duplicates.${filterEncode('isbn')}`
+          }
         ]
       })
 
