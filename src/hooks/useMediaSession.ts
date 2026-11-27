@@ -1,8 +1,8 @@
 import type { PlayerHandler } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { getPlayerProgress, subscribePlayerProgress } from '@/lib/player/playerProgressStore'
-import { isBookMetadata, PlayerState, type Chapter, type LibraryItem } from '@/types/api'
+import { isBookMetadata, PlayerState, type Chapter, type LibraryItem, type PodcastEpisode } from '@/types/api'
 import { useEffect, useRef } from 'react'
 
 const MEDIA_SESSION_ACTIONS = ['play', 'pause', 'stop', 'seekbackward', 'seekforward', 'seekto', 'previoustrack', 'nexttrack'] as const
@@ -11,6 +11,7 @@ interface UseMediaSessionOptions {
   libraryItem: LibraryItem | null
   playerHandler: PlayerHandler
   enabled?: boolean
+  episode?: PodcastEpisode
 }
 
 interface MediaSessionPositionInput {
@@ -30,10 +31,10 @@ function buildChapterInfo(chapters: Chapter[]) {
   }))
 }
 
-function buildMediaMetadata(libraryItem: LibraryItem, title: string, artist: string, chapters: Chapter[]): MediaMetadata {
+function buildMediaMetadata(libraryItem: LibraryItem, title: string, artist: string, chapters: Chapter[], episode?: PodcastEpisode): MediaMetadata {
   const metadata = libraryItem.media.metadata
   const album = isBookMetadata(metadata) ? (metadata.seriesName ?? '') : ''
-  const coverUrl = getLibraryItemCoverUrl(libraryItem.id, libraryItem.updatedAt, true)
+  const coverUrl = getEpisodeCoverSrc(libraryItem, episode, getPlaceholderCoverUrl(), { raw: true })
   const chapterInfo = buildChapterInfo(chapters)
 
   const init: MediaMetadataInit & { chapterInfo?: { title: string; startTime: number }[] } = {
@@ -94,7 +95,7 @@ function setMediaSessionPositionState(positionState: MediaPositionState | null) 
 }
 
 /** Wire lock-screen / OS media controls via the Media Session API (parity with Vue MediaPlayerContainer). */
-export function useMediaSession({ libraryItem, playerHandler, enabled = true }: UseMediaSessionOptions) {
+export function useMediaSession({ libraryItem, playerHandler, enabled = true, episode }: UseMediaSessionOptions) {
   const t = useTypeSafeTranslations()
   const unknownLabel = t('LabelUnknown')
 
@@ -131,12 +132,12 @@ export function useMediaSession({ libraryItem, playerHandler, enabled = true }: 
     const title = chapterTitle ? t('LabelMediaSessionTitleWithChapter', { title: bookTitle, chapter: chapterTitle }) : bookTitle
     const artist = displayAuthor || (isBookMetadata(libraryItem.media.metadata) ? libraryItem.media.metadata.authorName : undefined) || unknownLabel
 
-    navigator.mediaSession.metadata = buildMediaMetadata(libraryItem, title, artist, chapters)
+    navigator.mediaSession.metadata = buildMediaMetadata(libraryItem, title, artist, chapters, episode)
 
     return () => {
       navigator.mediaSession.metadata = null
     }
-  }, [enabled, libraryItem, displayAuthor, displayTitle, chapters, currentChapter, unknownLabel, t])
+  }, [enabled, libraryItem, episode, displayAuthor, displayTitle, chapters, currentChapter, unknownLabel, t])
 
   // Action handlers use refs so seek/jump callbacks changing with currentTime do not reset metadata.
   useEffect(() => {

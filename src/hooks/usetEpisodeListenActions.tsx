@@ -105,22 +105,25 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     [episode.id, getQueueItems, isStreaming, libraryItemId, playItem, playerControls, progress, showToast, t]
   )
 
+  const toggleQueue = useCallback(() => {
+    if (isQueued) {
+      removeItemFromQueue({ libraryItemId, episodeId: episode.id })
+      return
+    }
+
+    const queueItem = buildQueueItem?.() ?? getQueueItems().find((item) => item.libraryItemId === libraryItemId && item.episodeId === episode.id)
+    if (queueItem) {
+      addItemToQueue(queueItem)
+    }
+  }, [addItemToQueue, buildQueueItem, episode.id, getQueueItems, isQueued, libraryItemId, removeItemFromQueue])
+
   const handleQueueToggle = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
       e.preventDefault()
-
-      if (isQueued) {
-        removeItemFromQueue({ libraryItemId, episodeId: episode.id })
-        return
-      }
-
-      const queueItem = buildQueueItem?.() ?? getQueueItems().find((item) => item.libraryItemId === libraryItemId && item.episodeId === episode.id)
-      if (queueItem) {
-        addItemToQueue(queueItem)
-      }
+      toggleQueue()
     },
-    [addItemToQueue, buildQueueItem, episode.id, getQueueItems, isQueued, libraryItemId, removeItemFromQueue]
+    [toggleQueue]
   )
 
   const runToggleFinished = useCallback(() => {
@@ -168,22 +171,26 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     runToggleFinished()
   }, [clearBoundModal, episode.id, itemTitle, libraryItemId, runToggleFinished, setBoundModal, showToast, t, userIsFinished, userProgressPercent])
 
+  const openPlaylist = useCallback(() => {
+    setBoundModal(
+      <AddToPlaylistModal
+        key={`add-to-playlist-${libraryItemId}-${episode.id}`}
+        isOpen
+        onClose={clearBoundModal}
+        libraryId={libraryId}
+        items={[{ libraryItemId, episodeId: episode.id }]}
+        headerTitle={itemTitle}
+      />
+    )
+  }, [clearBoundModal, episode.id, itemTitle, libraryId, libraryItemId, setBoundModal])
+
   const handleOpenPlaylist = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
       e.preventDefault()
-      setBoundModal(
-        <AddToPlaylistModal
-          key={`add-to-playlist-${libraryItemId}-${episode.id}`}
-          isOpen
-          onClose={clearBoundModal}
-          libraryId={libraryId}
-          items={[{ libraryItemId, episodeId: episode.id }]}
-          headerTitle={itemTitle}
-        />
-      )
+      openPlaylist()
     },
-    [clearBoundModal, episode.id, itemTitle, libraryId, libraryItemId, setBoundModal]
+    [openPlaylist]
   )
 
   return {
@@ -200,7 +207,9 @@ export function useEpisodeListenActions({ libraryItemId, episode, itemTitle, get
     handlePlay,
     handleQueueToggle,
     handleToggleFinished,
-    handleOpenPlaylist
+    handleOpenPlaylist,
+    toggleQueue,
+    openPlaylist
   }
 }
 

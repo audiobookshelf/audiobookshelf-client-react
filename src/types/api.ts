@@ -692,6 +692,9 @@ export interface PodcastEpisode {
     /** in bytes (as string) */
     length?: string
   }
+  coverPath?: string | null
+  imageUrl?: string | null
+  coverSource?: string | null
   guid?: string
   pubDate?: string
   chapters: Chapter[]

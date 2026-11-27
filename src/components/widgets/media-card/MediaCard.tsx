@@ -28,7 +28,7 @@ import { useMergedRef } from '@/hooks/useMergedRef'
 import { useShiftClickTextSelectionGuard } from '@/hooks/useShiftClickTextSelectionGuard'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
 import { getMediaCardModalNavigationContext } from '@/lib/bookshelfNavigationContext'
-import { getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { getMediaCardEpisodeEditNavigationContext } from '@/lib/episodeEditNavigation'
 import { getEbookFormat } from '@/lib/ereader/ereaderEbook'
 import { computeProgress } from '@/lib/mediaProgress'
@@ -290,7 +290,8 @@ function MediaCard(props: MediaCardProps) {
   }, [originalMetadata])
 
   const placeholderUrl = getPlaceholderCoverUrl()
-  const hasCover = !!media.coverPath
+  const hasCover = !!episode?.coverPath || !!media.coverPath
+  const coverSrc = getEpisodeCoverSrc(libraryItem, episode, placeholderUrl)
 
   const coverHeight = 192 * effectiveSizeMultiplier
   const coverWidth = coverHeight / coverAspect
@@ -590,10 +591,11 @@ function MediaCard(props: MediaCardProps) {
         cover={
           <MediaCardCover
             libraryItem={libraryItem}
+            coverSrc={coverSrc}
             coverAspect={coverAspect}
             placeholderUrl={placeholderUrl}
             hasCover={hasCover}
-            title={title}
+            title={episode?.title || title}
             author={author}
             userProgressPercent={userProgressPercent}
             itemIsFinished={itemIsFinished}

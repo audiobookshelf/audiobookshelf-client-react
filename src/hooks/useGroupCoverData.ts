@@ -1,7 +1,6 @@
 'use client'
 
-import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
-import type { LibraryItem } from '@/types/api'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl, type GroupCoverItem } from '@/lib/coverUtils'
 import { useEffect, useMemo, useState } from 'react'
 
 const ASPECT_RATIO_TOLERANCE = 0.15
@@ -25,11 +24,11 @@ export function shouldShowCoverBackground(imageAspectRatio: number | null, conta
 /**
  * Resolves group cover URLs and determines which ones need an aspect-ratio background.
  */
-export function useGroupCoverData(libraryItems: LibraryItem[]): GroupCoverData[] {
+export function useGroupCoverData(items: GroupCoverItem[]): GroupCoverData[] {
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
   const [loadedCoverData, setLoadedCoverData] = useState<GroupCoverData[]>([])
 
-  const coverUrls = useMemo(() => libraryItems.map((item) => getLibraryItemCoverSrc(item, placeholderUrl)), [libraryItems, placeholderUrl])
+  const coverUrls = useMemo(() => items.map(({ libraryItem, episode }) => getEpisodeCoverSrc(libraryItem, episode, placeholderUrl)), [items, placeholderUrl])
 
   const coverData = useMemo(
     () =>

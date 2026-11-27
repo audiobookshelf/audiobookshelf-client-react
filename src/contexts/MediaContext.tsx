@@ -7,6 +7,8 @@ import { useSocketEvent } from '@/contexts/SocketContext'
 import { useGlobalToast } from '@/contexts/ToastContext'
 import { usePlayerHandler, type PlayerHandlerControls, type PlayerHandlerState } from '@/hooks/usePlayerHandler'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
+import { mergeLibraryItemUpdate } from '@/lib/libraryItemUpdatedUtils'
+import { updatePlayerQueueForLibraryItem } from '@/lib/playerQueue'
 import { startViewTransition } from '@/lib/startViewTransition'
 import { isPodcastLibraryItem, LibraryItem, LibraryItemRemovedPayload, PlayerState } from '@/types/api'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -21,9 +23,10 @@ export interface PlayerQueueItem {
   caption: string
   duration: number | null
   coverPath: string | null
+  coverUrl: string
 }
 
-interface MediaContextValue {
+export interface MediaContextValue {
   // Stream state
   streamLibraryItem: LibraryItem | null
   streamEpisodeId: string | null
@@ -60,7 +63,7 @@ interface MediaContextValue {
   playerLoadState: PlayerState
 }
 
-const MediaContext = createContext<MediaContextValue | undefined>(undefined)
+export const MediaContext = createContext<MediaContextValue | undefined>(undefined)
 const PlayerStateContext = createContext<PlayerHandlerState | undefined>(undefined)
 
 const LOCAL_STORAGE_AUTO_PLAY_KEY = 'playerQueueAutoPlay'
@@ -222,18 +225,6 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     setPlayerQueueItems((prev) => prev.filter((item) => item.libraryItemId !== libraryItemId))
   }, [])
 
-  const pruneQueueForPodcastUpdate = useCallback((updatedItem: LibraryItem) => {
-    if (!isPodcastLibraryItem(updatedItem)) return
-
-    const episodeIds = new Set((updatedItem.media.episodes ?? []).map((episode) => episode.id))
-    setPlayerQueueItems((prev) =>
-      prev.filter((item) => {
-        if (item.libraryItemId !== updatedItem.id || !item.episodeId) return true
-        return episodeIds.has(item.episodeId)
-      })
-    )
-  }, [])
-
   const handleLibraryItemRemoved = useCallback(
     (payload: LibraryItemRemovedPayload) => {
       pruneQueueForRemovedLibraryItem(payload.id)
@@ -241,20 +232,23 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
     [pruneQueueForRemovedLibraryItem]
   )
 
-  const handleLibraryItemUpdated = useCallback(
-    (updatedItem: LibraryItem) => {
-      pruneQueueForPodcastUpdate(updatedItem)
-    },
-    [pruneQueueForPodcastUpdate]
-  )
+  const handleLibraryItemUpdated = useCallback((updatedItem: LibraryItem) => {
+    setStreamLibraryItem((current) => {
+      if (current?.id !== updatedItem.id) return current
+
+      return mergeLibraryItemUpdate(current, updatedItem)
+    })
+
+    setPlayerQueueItems((items) => updatePlayerQueueForLibraryItem(items, updatedItem))
+  }, [])
 
   const handleLibraryItemsUpdated = useCallback(
     (updatedItems: LibraryItem[]) => {
       for (const updatedItem of updatedItems) {
-        pruneQueueForPodcastUpdate(updatedItem)
+        handleLibraryItemUpdated(updatedItem)
       }
     },
-    [pruneQueueForPodcastUpdate]
+    [handleLibraryItemUpdated]
   )
 
   useSocketEvent<LibraryItemRemovedPayload>('item_removed', handleLibraryItemRemoved, [handleLibraryItemRemoved])
@@ -331,6 +325,10 @@ export function MediaProvider({ children }: { children: React.ReactNode }) {
       startTime?: number
       queueItems?: PlayerQueueItem[]
     }) => {
+      if (episodeId && isPodcastLibraryItem(libraryItem) && !libraryItem.media.episodes?.some((episode) => episode.id === episodeId)) {
+        libraryItem = await getExpandedLibraryItemAction(libraryItem.id).catch(() => libraryItem)
+      }
+
       // Set stream state
       setStreamLibraryItem(libraryItem)
       setStreamEpisodeId(episodeId)

@@ -12,10 +12,10 @@ import { useGlobalToast } from '@/contexts/ToastContext'
 import { useUser } from '@/contexts/UserContext'
 import { useEpisodeListenActions } from '@/hooks/usetEpisodeListenActions'
 import { useTypeSafeTranslations } from '@/hooks/useTypeSafeTranslations'
-import { getLibraryItemCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
+import { getEpisodeCoverSrc, getPlaceholderCoverUrl } from '@/lib/coverUtils'
 import { sanitizeEpisodeDescriptionHtml } from '@/lib/episode'
 import { buildRecentEpisodesQueueFromIndex } from '@/lib/playerQueue'
-import type { LibraryItem, PodcastLibraryItem, RecentPodcastEpisode } from '@/types/api'
+import type { PodcastLibraryItem, RecentPodcastEpisode } from '@/types/api'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { useCallback, useMemo, useTransition } from 'react'
@@ -38,28 +38,7 @@ export default function RecentEpisodeRow({ episode, episodeIndex, episodes }: Re
   const isExplicit = !!episode.podcast.metadata?.explicit
   const placeholderUrl = useMemo(() => getPlaceholderCoverUrl(), [])
 
-  const coverLibraryItem = useMemo(
-    (): LibraryItem => ({
-      id: episode.libraryItemId,
-      libraryId: episode.libraryId,
-      updatedAt: episode.updatedAt,
-      media: episode.podcast,
-      mediaType: 'podcast',
-      ino: '',
-      path: '',
-      relPath: '',
-      isFile: false,
-      mtimeMs: 0,
-      ctimeMs: 0,
-      birthtimeMs: 0,
-      addedAt: 0,
-      isMissing: false,
-      isInvalid: false
-    }),
-    [episode]
-  )
-
-  const coverSrc = getLibraryItemCoverSrc(coverLibraryItem, placeholderUrl)
+  const coverSrc = getEpisodeCoverSrc({ id: episode.libraryItemId, media: episode.podcast }, episode, placeholderUrl)
   const descriptionHtml = sanitizeEpisodeDescriptionHtml(episode.subtitle || episode.description || '')
 
   const publishedDateLabel = episode.publishedAt ? formatDistanceToNow(new Date(episode.publishedAt), { addSuffix: true }) : t('LabelUnknownPublishDate')

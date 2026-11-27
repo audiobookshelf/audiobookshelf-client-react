@@ -24,7 +24,8 @@ export default function CollectionGroupCover({ books, width, height }: Collectio
   const t = useTypeSafeTranslations()
   const { sizeMultiplier } = useCardSize()
   const displayedBooks = useMemo(() => books.slice(0, 2), [books])
-  const coverData = useGroupCoverData(displayedBooks)
+  const coverItems = useMemo(() => displayedBooks.map((libraryItem) => ({ libraryItem })), [displayedBooks])
+  const coverData = useGroupCoverData(coverItems)
   const cellWidth = width / 2
 
   // No books - show empty collection message
