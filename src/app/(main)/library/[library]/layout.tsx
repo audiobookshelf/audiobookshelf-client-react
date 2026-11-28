@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import { getData, getLibraries } from '../../../../lib/api'
 import AppBar from '../../AppBar'
 import LibraryLayoutWrapper from './LibraryLayoutWrapper'
+import LibraryRouterRevalidator from './LibraryRouterRevalidator'
 import LibrarySelectionLayout from './LibrarySelectionLayout'
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,6 +32,7 @@ export default async function LibraryLayout({
 
   return (
     <LibraryProvider library={currentLibrary}>
+      <LibraryRouterRevalidator key={currentLibraryId} />
       <LibrarySelectionLayout>
         <AppBar libraries={libraries} currentLibraryId={currentLibraryId} />
         <LibraryLayoutWrapper>{children}</LibraryLayoutWrapper>
