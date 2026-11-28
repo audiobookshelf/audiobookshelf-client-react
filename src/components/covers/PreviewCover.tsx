@@ -171,7 +171,14 @@ export default function PreviewCover({
         <div className="absolute inset-s-0 inset-e-0 top-0 bottom-0 h-full w-full bg-red-100" style={{ padding: `${placeholderCoverPadding}rem` }}>
           <div className="border-error flex h-full w-full flex-col items-center justify-center border-2">
             {width > 100 && (
-              <Image src={withBasePath('/images/Logo.png')} alt={t('LabelLogo')} width={40 * sizeMultiplier} height={40 * sizeMultiplier} className="mb-2" />
+              <Image
+                src={withBasePath('/images/Logo.png')}
+                alt={t('LabelLogo')}
+                width={40 * sizeMultiplier}
+                height={40 * sizeMultiplier}
+                unoptimized
+                className="mb-2"
+              />
             )}
             <p className="text-error text-center" style={{ fontSize: `${invalidCoverFontSize}rem` }}>
               {t('MessageInvalidCover')}
