@@ -112,12 +112,20 @@ const refreshTokenExpiry = parseInt(process.env.REFRESH_TOKEN_EXPIRY || '') || 7
 const accessTokenExpiry = parseInt(process.env.ACCESS_TOKEN_EXPIRY || '') || 12 * 60 * 60 // 12 hours
 
 export function getServerBaseUrl() {
-  let host = process.env.HOST || 'localhost'
-  if (host === '0.0.0.0') {
-    // Convert "all interfaces" address to localhost for internal API calls
-    host = 'localhost'
+  const port = process.env.PORT?.trim()
+  if (!port) {
+    throw new Error('PORT environment variable is required')
   }
-  return `http://${host}:${process.env.PORT || '3333'}`
+  let host = (process.env.HOST || 'localhost').trim() || 'localhost'
+  if (host === '0.0.0.0') {
+    // Bind-all IPv4 only listens on IPv4; use 127.0.0.1 instead of localhost to avoid IPv6 mismatch
+    host = '127.0.0.1'
+  } else if (host === '::' || host === '[::]') {
+    host = '[::1]'
+  } else if (host.includes(':') && !host.startsWith('[')) {
+    host = `[${host}]`
+  }
+  return `http://${host}:${port}`
 }
 
 /**
