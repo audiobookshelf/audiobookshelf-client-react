@@ -2,6 +2,20 @@ import { useUpdateEffect } from '@/hooks/useUpdateEffect'
 import { MediaProgress, PodcastEpisode } from '@/types/api'
 import { useEffect, useMemo, useState } from 'react'
 
+function compareSortValues(aVal: string | number, bVal: string | number): number {
+  if (typeof aVal === 'number' && typeof bVal === 'number') return aVal - bVal
+  return String(aVal).localeCompare(String(bVal), undefined, { numeric: true, sensitivity: 'base' })
+}
+
+function episodeSortValue(episode: PodcastEpisode, key: string): string | number {
+  if (key === 'publishedAt') return episode.publishedAt || Number.MAX_VALUE
+  if (key === 'title') return episode.title || ''
+  if (key === 'season') return episode.season || ''
+  if (key === 'episode') return episode.episode || ''
+  if (key === 'audioFile.metadata.filename') return episode.audioFile?.metadata?.filename || ''
+  return episode.publishedAt || 0
+}
+
 interface UseEpisodeFilterAndSortReturn {
   libraryItemId: string
   episodes: PodcastEpisode[]
@@ -74,40 +88,20 @@ export function useEpisodeFilterAndSort({ libraryItemId, episodes, getMediaItemP
       result = result.filter((ep) => ep.title?.toLowerCase().includes(searchText) || ep.subtitle?.toLowerCase().includes(searchText))
     }
 
-    // Apply sort
+    // Apply sort. Descending reverses every step, matching Vue.
     result.sort((a, b) => {
-      let aVal: string | number | undefined
-      let bVal: string | number | undefined
+      const left = sortDesc ? b : a
+      const right = sortDesc ? a : b
 
-      switch (sortKey) {
-        case 'publishedAt':
-          aVal = a.publishedAt || Number.MAX_VALUE
-          bVal = b.publishedAt || Number.MAX_VALUE
-          break
-        case 'title':
-          aVal = a.title || ''
-          bVal = b.title || ''
-          break
-        case 'season':
-          aVal = a.season || ''
-          bVal = b.season || ''
-          break
-        case 'episode':
-          aVal = a.episode || ''
-          bVal = b.episode || ''
-          break
-        default:
-          aVal = a.publishedAt || 0
-          bVal = b.publishedAt || 0
+      const primaryCompare = compareSortValues(episodeSortValue(left, sortKey), episodeSortValue(right, sortKey))
+      if (primaryCompare !== 0 || sortKey === 'publishedAt') return primaryCompare
+
+      if (sortKey === 'season') {
+        const episodeCompare = compareSortValues(left.episode || '', right.episode || '')
+        if (episodeCompare !== 0) return episodeCompare
       }
 
-      let compare: number
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        compare = aVal - bVal
-      } else {
-        compare = String(aVal).localeCompare(String(bVal), undefined, { numeric: true, sensitivity: 'base' })
-      }
-      return sortDesc ? -compare : compare
+      return compareSortValues(left.publishedAt || Number.MAX_VALUE, right.publishedAt || Number.MAX_VALUE)
     })
 
     return result
